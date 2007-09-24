@@ -2467,11 +2467,7 @@ def target_all(argv):
     """get the source, patch it, and build mozilla"""
     log.info("target: all")
     target_src()
-    if 1: #XXX
-        target_patch()
-    else:
-        target_patches()
-        target_patchedsrc()
+    target_patch()
     target_configure_mozilla()
     target_mozilla()
     target_jsstandalone()
