@@ -256,7 +256,7 @@
 
   <p>For shortcuts with options:</p>
   <pre class="code">
-%(&lt;code&gt;:&lt;backref&gt;:&lt;options&gt;...)
+%(&lt;code&gt;&lt;backref&gt;:&lt;options&gt;...)
 </pre>
 
   <p>For example:</p>
@@ -280,7 +280,7 @@
 
   <p>The syntax for a bracketed interpolation code is:</p>
   <pre class="code">
-[[%(&lt;code&gt;:&lt;backref&gt;:&lt;options&gt;...)]]
+[[%(&lt;code&gt;&lt;backref&gt;:&lt;options&gt;...)]]
 </pre>
 
   <p>&lt;code&gt; is one of the codes shown in the table above,
@@ -384,7 +384,7 @@
 
   <p>The syntax of the %(date) shorcut is as follows:</p>
   <pre class="code">
-%(date:&lt;backref&gt;:&lt;optional-format&gt;)
+%(date&lt;backref&gt;:&lt;optional-format&gt;)
 [[%(date:&lt;optional-format&gt;)]]
 </pre>
 
@@ -618,8 +618,8 @@
   shortcut. The second, &lt;default&gt;, is the string used to
   preload the text field. For example:</p>
   <pre class="code">
-%(ask:&lt;backref&gt;:&lt;optional-question&gt;:&lt;optional-default&gt;)
-[[%(ask:&lt;backref&gt;:&lt;optional-question&gt;:&lt;optional-default&gt;)]]
+%(ask&lt;backref&gt;:&lt;optional-question&gt;:&lt;optional-default&gt;)
+[[%(ask&lt;backref&gt;:&lt;optional-question&gt;:&lt;optional-default&gt;)]]
 </pre>
 
   <p>The &lt;backref&gt; optional parameter is discussed in the
@@ -640,8 +640,8 @@
 
   <p>The syntax of the path shortcut is as follows:</p>
   <pre class="code">
-%(path:&lt;backref&gt;:&lt;pathName&gt;)
-[[%(path:&lt;backref&gt;:&lt;pathName&gt;)]]
+%(path:&lt;pathName&gt;)
+[[%(path:&lt;pathName&gt;)]]
 </pre>
 
   <h3><a name="shortcuts_pathcode_options" id=
@@ -700,8 +700,8 @@
 
   <p>The syntax of the debugger shortcut is as follows:</p>
   <pre class="code">
-%(debugger:&lt;backref&gt;:&lt;value&gt;)
-[[%(debugger:&lt;backref&gt;:&lt;value&gt;)]]
+%(debugger:&lt;value&gt;)
+[[%(debugger:&lt;value&gt;)]]
 </pre>
 
   <h3><a name="shortcuts_debugcode_options" id=
@@ -753,8 +753,6 @@
     </tr>
   </table>
 
-  <p>The &lt;backref&gt; parameter is optional.</p>
-
   <h2><a name="shortcuts_prefscode" id=
   "shortcuts_prefscode">%(pref)</a></h2>
 
@@ -770,8 +768,8 @@
 
   <p>The syntax of the <code>%(pref)</code> shortcut is:</p>
   <pre class="code">
-%(pref:&lt;backref&gt;:&lt;prefName&gt;)
-[[%(pref:&lt;backref&gt;:&lt;prefName&gt;)]]
+%(pref:&lt;prefName&gt;)
+[[%(pref:&lt;prefName&gt;)]]
 </pre>
 
   <p>Preference names may change between Komodo versions.</p>
@@ -794,8 +792,8 @@
   interpolation code with a number. The syntax for back-reference
   is as follows:</p>
   <pre class="code">
-%(&lt;code&gt;&lt;number&gt;:&lt;backref&gt;:&lt;options&gt;...)
-[[%(&lt;code&gt;&lt;number&gt;:&lt;backref&gt;:&lt;options&gt;...)]]
+%(&lt;code&gt;&lt;backref&gt;:&lt;options&gt;...)
+[[%(&lt;code&gt;&lt;backref&gt;:&lt;options&gt;...)]]
 </pre>
 
   <p>For example:</p>
