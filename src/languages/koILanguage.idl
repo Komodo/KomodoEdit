@@ -1,0 +1,301 @@
+/* Copyright (c) 2004-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIEnumerator.idl"
+#include "ISciMoz.idl"
+#include "koIEncoding.idl"
+#include "koIEncodingServices.idl"
+#include "koIHierarchyItem.idl"
+
+interface ISciMoz;
+interface koIScintillaView;
+interface koICodeIntelCompletionUIHandler;
+
+
+[scriptable, uuid(96A8CC18-168B-4137-8435-E633D13F7925)]
+interface koILanguageService : nsISupports {
+    // template interface for language services
+    
+    // Any koILanguageService implementation can use this as a launching
+    // point for a test suite that requires a working SciMoz. You also need
+    // to add the glue code for this in test/test_scimoz.{xul|js} in chrome.
+    void test_scimoz(in ISciMoz scimoz);
+};
+
+[scriptable, uuid(29098AA5-7F16-4671-823D-FC0817250A7C)]
+interface koILanguage : nsISupports {
+    readonly attribute string name;
+    readonly attribute string namedBlockRE;
+    readonly attribute string namedBlockDescription;
+    readonly attribute string defaultExtension;
+    readonly attribute string sample;
+    readonly attribute long styleBits;
+    readonly attribute long stylingBitsMask;
+    readonly attribute long indicatorBits;
+    readonly attribute wstring downloadURL;
+    readonly attribute wstring searchURL; // used by the language help system
+    readonly attribute string variableIndicators;
+    readonly attribute boolean foldable;
+    readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML'
+    
+    // these are lexer dependent style numbers. these are used from the terminal
+    readonly attribute long styleStdin;
+    readonly attribute long styleStdout;
+    readonly attribute long styleStderr;
+
+    void getSubLanguages(out unsigned long count,
+                          [retval, array, size_is(count)] out wstring languages);
+    wstring getLanguageForFamily(in wstring family);
+
+    void getCommentStyles(out unsigned long count,
+                          [retval, array, size_is(count)] out long styles);
+    void getStringStyles(out unsigned long count,
+                         [retval, array, size_is(count)] out long styles);
+    void getNumberStyles(out unsigned long count,
+                         [retval, array, size_is(count)] out long styles);
+    void getVariableStyles(out unsigned long count,
+                         [retval, array, size_is(count)] out long styles);
+    void getNamedStyles(in wstring name,
+                        out unsigned long count,
+                        [retval, array, size_is(count)] out long styles);
+
+    // these are used by the language registry service to determine a sub
+    // language type for xml documents.  For example, if it is a XBL document
+    // vs. any "other" xml document.  For the most part, these will always
+    // return empty lists
+    void getPublidIdList(out unsigned long count,
+                          [retval, array, size_is(count)] out wstring publicIdList);
+    void getSystemIdList(out unsigned long count,
+                          [retval, array, size_is(count)] out wstring systemIdList);
+    void getNamespaces(out unsigned long count,
+                          [retval, array, size_is(count)] out wstring namespaces);
+
+    // If true, then enable the cmd_braceMatch command -- requires
+    // that the lexer assign the same style to matching braces
+    readonly attribute boolean supportsBraceHighlighting;
+    
+    void getLanguageService(in nsIIDRef iid, 
+                            [retval,iid_is(iid)] out nsISupports result);
+    wstring getEncodingWarning(in koIEncoding encoding);
+  
+    const long NOT_A_BRACE = 0;
+    const long INDENT_BRACE = 1;
+    const long LINEUP_BRACE = 2;
+    // returns NOT_A_BRACE if the character at the given index is not a valid brace, or
+    // INDENT_BRACE if it's an 'indentation' brace, and 
+    // LINEUP_BRACE if it's a 'line-up' brace
+    long getBraceIndentStyle(in wchar character, in long style);
+
+    string getMatchingChar(in wchar character);
+  
+    // calls that do language indentation and brace line-up.
+    string computeIndent(in ISciMoz scimoz, in string indentStyle,
+                         in boolean continueComments);
+    void keyPressed(in wchar chr, in ISciMoz scimoz);
+    void guessIndentation(in ISciMoz scimoz,
+                          in long tabWidth,
+                          out long indentWidth,
+                          out boolean usesTabs);
+
+    // Any koILanguage implementation can use this as a launching
+    // point for a test suite that requires a working SciMoz. You also
+    // need to add the glue code for this in test/test_scimoz.{xul|js}
+    // in chrome. See notes in sciutils.py::SciMozTestCase.
+    void test_scimoz(in ISciMoz scimoz);
+};
+
+
+[scriptable, uuid(37453EBA-7094-49bf-8399-076717A450C0)]
+interface koILanguageRegistryService : nsISupports {
+    // All languages must register themselves with this service.
+    // This service should never be used except by implementations
+    // of the other interfaces defined in this file.
+
+    void registerLanguage(in koILanguage language);
+  
+    // Get a language by its name.  koILanguage instances should
+    // always be fetched via this method. 
+    koILanguage getLanguage(in string languageName);
+  
+    // A list of all registered language names (in no particular order).
+    void getLanguageNames([array, size_is(count)] out string languages,
+                          out unsigned long count);
+    void patternsFromLanguageName(in string languageName,
+                                  [array, size_is(count)] out string patterns,
+                                  out unsigned long count);
+    koIHierarchyItem getLanguageHierarchy();
+
+    // Get the (sorted) list of current file associations.
+    void getFileAssociations(
+            out unsigned long pattern_count,
+            [array, size_is(pattern_count)] out wstring patterns,
+            out unsigned long languageName_count,
+            [array, size_is(languageName_count)] out wstring languageNames);
+
+    // Save the given set of file associations.
+    //
+    // This raises an exception sets an error message on koILastErrorService
+    // on failure.
+    void saveFileAssociations(
+            in unsigned long pattern_count,
+            [array, size_is(pattern_count)] in wstring patterns,
+            in unsigned long languageName_count,
+            [array, size_is(languageName_count)] in wstring languageNames);
+
+    // Determine the language name for this file from its basename.
+    // Returns an empty string if it has no suggestion.
+    //
+    // REFACTOR: s/suggestLanguageForFile/guessLanguageNameFromBasename/g
+    string suggestLanguageForFile(in wstring basename);
+
+    // Returns a list of possible matches.  The first match is the
+    // prefered language, and may be empty, in which case the following
+    // matches should be chosen from
+    // REFACTOR: s/guessLanguageFromContents/guessLanguageNamesFromContents/g
+    void guessLanguageFromContents(in wstring documentHead,
+                                   in wstring documentTail,
+                                   [array, size_is(count)] out string languages,
+                                   out unsigned long count);
+};
+
+
+// used only for testing the other language services components
+[scriptable, uuid(C8C2B9BF-87F1-4604-8AD0-318E20A8C04D)]
+interface koITestLanguageService : koILanguageService {
+    string getTestString();
+};
+
+[scriptable, uuid(F80B62F8-29B3-4360-A800-0DCFB8B2F0A6)]
+interface koILexerLanguageService : koILanguageService {
+    // All initialization is done behind the sceens
+  
+    // Configure the editor for lexing
+    //XXX we do not want this to depend on Scinitlla in the long run
+    //XXX we will remove this dependancy once we understand the 
+    //XXX cross-platform issues
+    void setCurrent(in ISciMoz scimoz);
+  
+    attribute boolean supportsFolding;
+};
+
+[scriptable, uuid(05EF3D38-FB71-4a98-ABB8-7348582F277A)]
+interface koILinterLanguageService : koILanguageService {
+    // The contract ID of an XPCOM component implementing koILinter for this
+    // language.
+    readonly attribute string linterCID;
+};
+
+[scriptable, uuid(8741C2BB-3FA2-4fc1-B737-60447CE8AD6D)]
+interface koICompletionLanguageService : koILanguageService {
+    readonly attribute wstring triggers; // actually a set of characters
+    readonly attribute wstring triggersCallTip; // actually a set of characters
+    readonly attribute long completionSeparator; // represents one char
+    void AutoComplete(in wstring character, in ISciMoz scimoz);
+    void StartCallTip(in wstring character, in ISciMoz scimoz);
+    
+    //XXX scanBufferCompletion() is only ever implemented by
+    //    koPHPCompletion.py.
+    void scanBufferCompletion(in ISciMoz scimoz, in wstring filename);
+};
+
+
+[scriptable, uuid(6A9109E5-AF1E-43E0-8F88-6E11FD9A15A7)]
+interface koICodeIntelCompletionLanguageService : koILanguageService {
+    readonly attribute wstring completionSeparator;
+    readonly attribute long completionSeparatorOrd;
+    // Characters that invoke completion. I.e. ones that cause the current
+    // item in an autocomplete session to be inserted and the autocomplete
+    // list to be closed. This is NOT a list of characters that _start_ an
+    // autocomplete session.
+    readonly attribute wstring completionFillups;
+
+    void initialize(in koILanguage language);
+    void finalize();
+
+    // Determine if the recent edit _likely_ results in a completion
+    // trigger and, if so, what kind.
+    //
+    //  "scimoz" is the ISciMoz interface to the buffer.
+    //
+    // Returns the trigger/completion type (a string). If the current
+    // point is not a trigger point, then the retval is null.
+    //
+    // Dev Notes:
+    // This method is called for most edits (i.e. very frequently), therefore
+    // implementations of this should be FAST and should optimize the
+    // common case of NOT being at a trigger point
+    string getTriggerType(in ISciMoz scimoz);
+
+    // _Asynchronously_ request the appropriate completion UI at the given
+    // position.
+    //
+    //  "path" is the full path to the file.
+    //  "completionType" is the type of completion appropriate for the
+    //      the given position. This is the same set of string values
+    //      that getTriggerType() returns.
+    //  "scimoz" is the ISciMoz interface to the buffer.
+    //  "position" is the buffer position of the completion trigger point.
+    //  "ciCompletionUIHandler" is a JS-side component that controls the
+    //      completion UI in the buffer. This method is meant to pass
+    //      completion info to it.
+    //
+    // This is an asynchronous call because determining the appropriate data
+    // for the completion can take a long time. It is possible that this is
+    // not an appropriate trigger point. If so, then this should silently do
+    // nothing.
+    void requestCompletionUI(
+        in wstring path, in string completionType, in ISciMoz scimoz,
+        in long position,
+        in koICodeIntelCompletionUIHandler ciCompletionUIHandler);
+
+    // _Synchronously_ find and display a completion UI (autocomplete or
+    // calltip) for the first trigger point at or before the given pos.
+    //
+    //  "path" is the full path to the file.
+    //  "scimoz" is the ISciMoz interface to the buffer.
+    //  "startPos" is the position at which to being looking backwards for a
+    //      trigger point.
+    //  "ciCompletionUIHandler" is a JS-side component that controls the
+    //      completion UI in the buffer. This method is meant to pass
+    //      completion info to it.
+    //
+    // This method should not walk past the beginning of the current
+    // statement, where "statement" is language-dependent. Languages may
+    // simply limit to the current line or the current token if that is deemed
+    // sufficient.  Note that this called as a result of an explicit action
+    // by the user, therefore trigger points in comments and strings should
+    // not be ignored.
+    //
+    // Can return an error string if no trigger point could be found (this
+    // will be displayed to the user -- probably in the status bar) or null.
+    wstring triggerPrecedingCompletionUI(
+        in wstring path, in ISciMoz scimoz, in long startPos,
+        in koICodeIntelCompletionUIHandler ciCompletionUIHandler);
+
+    // Return a span in the calltip that should be highlighted.
+    //
+    //  "enteredRegion" is the text from the calltip trigger point to the
+    //      current cursor position.
+    //  "calltip" is the calltip, as determined by a previous
+    //      requestCompletionUI().
+    //  "hltStart:hltEnd" is a range to highlight in the calltip. Typically
+    //      an implementation will determine which arg "enteredRegion"
+    //      indicates is the current and highlight that arg in the calltip.
+    //      Certain languages might want to do something more fancy, for
+    //      example, dealing with out of order keyword args in Python.
+    //
+    // If the entered region indicates that the cursor is outside of the
+    // call region then this should return (-1, -1).
+    void getCallTipHighlightSpan(in wstring enteredRegion, in wstring calltip,
+                                 out long hltStart, out long hltEnd);
+};
+
+
+[scriptable, uuid(65D65B96-B7C6-499a-8675-CD3F34B65225)]
+interface koICommenterLanguageService : koILanguageService {
+    void comment(in ISciMoz scimoz);
+    void uncomment(in ISciMoz scimoz);
+};
+
+

@@ -1,0 +1,180 @@
+version 2
+
+# Movement and selection
+binding cmd_left  Left
+binding cmd_selectCharPrevious  Shift+Left
+binding cmd_wordPartLeft  Alt+Left
+binding cmd_wordLeft  Ctrl+Left
+binding cmd_selectWordLeft  Ctrl+Shift+Left
+binding cmd_backSmart  Backspace
+binding cmd_back  Shift+Backspace
+binding cmd_right  Right
+binding cmd_selectCharNext  Shift+Right
+binding cmd_wordPartRight  Alt+Right
+binding cmd_wordRight  Ctrl+Right
+binding cmd_selectWordRight  Ctrl+Shift+Right
+binding cmd_beginningOfWordExtend Ctrl+Shift+W
+binding cmd_endOfWord Ctrl+E
+binding cmd_newlineExtra  Shift+Return 
+binding cmd_newline  Return
+binding cmd_newlineBare  Ctrl+Return
+binding cmd_newlineSame  Ctrl+Shift+Return
+binding cmd_linePrevious  Up
+binding cmd_lineNext  Down
+binding cmd_selectLineNext  Shift+Down
+binding cmd_lineScrollDown  Ctrl+Down
+binding cmd_lineScrollUp  Ctrl+Up
+binding cmd_selectLinePrevious  Shift+Up
+binding cmd_pageDown  Page_Down 
+binding cmd_selectPageDown  Shift+Page_Down
+binding cmd_pageUp  Page_Up 
+binding cmd_selectPageUp  Shift+Page_Up
+binding cmd_home  Home 
+binding cmd_selectHome  Shift+Home
+binding cmd_documentHome  Ctrl+Home
+binding cmd_selectDocumentHome  Ctrl+Shift+Home
+binding cmd_end  End 
+binding cmd_documentEnd  Ctrl+End
+binding cmd_selectEnd  Shift+End
+binding cmd_selectDocumentEnd  Ctrl+Shift+End
+binding cmd_selectAll Ctrl+A
+binding cmd_blockSelect Ctrl+B
+
+# Cut, copy, paste, delete
+binding cmd_copy Ctrl+Insert
+binding cmd_copy Ctrl+C
+binding cmd_cut Ctrl+Shift+X
+binding cmd_cut Shift+Delete
+binding cmd_cut Ctrl+X
+binding cmd_paste Shift+Insert
+binding cmd_paste Ctrl+V
+binding cmd_pasteAndSelect Ctrl+Shift+V
+binding cmd_delete Delete
+binding cmd_deleteWordLeft  Ctrl+Backspace
+binding cmd_deleteWordRight  Ctrl+Delete
+
+# Special commands
+binding cmd_redo Ctrl+Y
+binding cmd_undo Ctrl+Z
+binding cmd_cancel Escape
+binding cmd_editReflow Ctrl+Q
+binding cmd_transpose Ctrl+T
+binding cmd_toggleOvertype  Insert 
+binding cmd_convertUpperCase Ctrl+U
+binding cmd_convertLowerCase Ctrl+Shift+U
+binding cmd_join Ctrl+K Ctrl+J
+binding cmd_rawKey Ctrl+M
+binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
+binding cmd_editProperties Alt+Return
+binding cmd_toolsRunCommand Ctrl+R
+
+# Comment handling
+# #if PLATFORM == "linux"
+binding cmd_uncomment  Ctrl+2
+# #endif
+binding cmd_uncomment  Ctrl+Shift+3
+binding cmd_comment  Ctrl+3
+
+# Scintilla settings
+# #if PLATFORM == "linux"
+binding cmd_viewIndentationGuides Ctrl+5
+binding cmd_viewLineNumbers Ctrl+6
+binding cmd_viewEOL Ctrl+7
+binding cmd_viewWhitespace Ctrl+8
+binding cmd_wordWrap Ctrl+9
+# #endif
+binding cmd_viewIndentationGuides Ctrl+Shift+5
+binding cmd_viewLineNumbers Ctrl+Shift+4
+binding cmd_viewEOL Ctrl+Shift+7
+binding cmd_viewWhitespace Ctrl+Shift+8
+binding cmd_wordWrap Ctrl+Shift+9
+
+# Search
+binding cmd_jumpToMatchingBrace  Ctrl+]
+binding cmd_selectToMatchingBrace  Ctrl+Shift+]
+binding cmd_gotoLine Ctrl+G
+binding cmd_find Ctrl+F
+binding cmd_findNext  F3 
+binding cmd_findNextSelected  Ctrl+F3
+binding cmd_findPrevious  Shift+F3
+binding cmd_findNextFunction  F8 
+binding cmd_findPreviousFunction  Shift+F8
+binding cmd_findInFiles Ctrl+Shift+F
+binding cmd_findAllFunctions  Ctrl+F8
+binding cmd_findNextResult Ctrl+Shift+F3
+binding cmd_replace Ctrl+H
+binding cmd_startIncrementalSearch Ctrl+I
+binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
+
+# Buffer management
+binding cmd_save Ctrl+S
+binding cmd_saveAll Ctrl+Shift+S
+binding cmd_newTemplate Ctrl+N
+binding cmd_new Ctrl+Shift+N
+binding cmd_open Ctrl+O
+binding cmd_openProject Ctrl+Shift+J
+binding cmd_bufferClose Ctrl+F4
+binding cmd_bufferClose Ctrl+W
+binding cmd_bufferNextMostRecent  Ctrl+F6
+binding cmd_bufferNextLeastRecent              Ctrl+Shift+F6
+binding cmd_bufferNext  Ctrl+Page_Down
+binding cmd_bufferPrevious Ctrl+Page_Up
+
+binding cmd_bufferNextMostRecent  Ctrl+Tab
+binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
+
+#
+# Common commands (these are generally common between all bindings)
+# XXX - These should be moved into a single file and be used as the base.
+#
+
+# Help
+binding cmd_helpHelp  F1      
+binding cmd_helpLanguageAlternate  Ctrl+F1
+binding cmd_helpLanguage  Shift+F1
+
+# Bookmarks
+binding cmd_bookmarkToggle  Ctrl+F2
+binding cmd_bookmarkRemoveAll  Ctrl+Shift+F2
+binding cmd_bookmarkGotoNext  F2 
+binding cmd_bookmarkGotoPrevious  Shift+F2
+
+# Code completion
+binding cmd_completeWord Ctrl+Space
+binding cmd_completeWordBack Ctrl+Shift+Space
+binding cmd_triggerPrecedingCompletion Ctrl+J
+
+# Focus
+binding cmd_focusEditor Ctrl+Shift+E
+binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_focusSource Ctrl+K Ctrl+S
+binding cmd_viewBottomPane Ctrl+Shift+O
+binding cmd_viewProjects Ctrl+Shift+P
+binding cmd_viewToolbox Ctrl+Shift+T
+
+binding cmd_toggleButtonText Ctrl+Shift+B
+
+# Zoom
+binding cmd_fontZoomIn Ctrl+Shift++
+binding cmd_fontZoomIn Ctrl+Shift+=
+binding cmd_fontZoomOut Ctrl+Shift+_
+binding cmd_fontZoomOut Ctrl+Shift+-
+
+# Projects
+binding cmd_refreshStatus Ctrl+K R
+
+# Macros
+binding cmd_startMacroMode Ctrl+K (
+binding cmd_stopMacroMode Ctrl+K )
+binding cmd_executeLastMacro Ctrl+K _
+
+binding cmd_goToDefinition Ctrl+K Ctrl+G
+
+binding cmd_selectRectCharPrevious Alt+Shift+Left
+binding cmd_selectRectCharNext Alt+Shift+Right
+binding cmd_selectRectLinePrevious Alt+Shift+Up
+binding cmd_selectRectLineNext Alt+Shift+Down
+binding cmd_selectRectHome Alt+Shift+Home
+binding cmd_selectRectEnd Alt+Shift+End
+binding cmd_selectRectPageUp Alt+Shift+Page_Up
+binding cmd_selectRectPageDown Alt+Shift+Page_Down

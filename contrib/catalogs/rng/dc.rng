@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Dublin Core -->
+<!--
+   This DTD can be used to represent the elements of the
+  Dublin Core Metadata Set
+-->
+<!-- Version taken from page 85 of CIMI Report http://www.cimi.org/documents/meta_bestprac_final_0899.pdf -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="http://purl.org/dc/elements/1.1/">
+  <define name="dc">
+    <element name="dc">
+      <ref name="attlist.dc"/>
+      <zeroOrMore>
+        <ref name="title"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="creator"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="subject"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="description"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="publisher"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="contributor"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="date"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="type"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="format"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="identifier"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="source"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="language"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="relation"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="coverage"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="rights"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.dc" combine="interleave">
+    <empty/>
+  </define>
+  <define name="title">
+    <element name="title">
+      <ref name="attlist.title"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.title" combine="interleave">
+    <empty/>
+  </define>
+  <define name="creator">
+    <element name="creator">
+      <ref name="attlist.creator"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.creator" combine="interleave">
+    <empty/>
+  </define>
+  <define name="subject">
+    <element name="subject">
+      <ref name="attlist.subject"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.subject" combine="interleave">
+    <empty/>
+  </define>
+  <define name="description">
+    <element name="description">
+      <ref name="attlist.description"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.description" combine="interleave">
+    <empty/>
+  </define>
+  <define name="publisher">
+    <element name="publisher">
+      <ref name="attlist.publisher"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.publisher" combine="interleave">
+    <empty/>
+  </define>
+  <define name="contributor">
+    <element name="contributor">
+      <ref name="attlist.contributor"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.contributor" combine="interleave">
+    <empty/>
+  </define>
+  <define name="date">
+    <element name="date">
+      <ref name="attlist.date"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.date" combine="interleave">
+    <empty/>
+  </define>
+  <define name="type">
+    <element name="type">
+      <ref name="attlist.type"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.type" combine="interleave">
+    <empty/>
+  </define>
+  <define name="format">
+    <element name="format">
+      <ref name="attlist.format"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.format" combine="interleave">
+    <empty/>
+  </define>
+  <define name="identifier">
+    <element name="identifier">
+      <ref name="attlist.identifier"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.identifier" combine="interleave">
+    <empty/>
+  </define>
+  <define name="source">
+    <element name="source">
+      <ref name="attlist.source"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.source" combine="interleave">
+    <empty/>
+  </define>
+  <define name="language">
+    <element name="language">
+      <ref name="attlist.language"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.language" combine="interleave">
+    <empty/>
+  </define>
+  <define name="relation">
+    <element name="relation">
+      <ref name="attlist.relation"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.relation" combine="interleave">
+    <empty/>
+  </define>
+  <define name="coverage">
+    <element name="coverage">
+      <ref name="attlist.coverage"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.coverage" combine="interleave">
+    <empty/>
+  </define>
+  <define name="rights">
+    <element name="rights">
+      <ref name="attlist.rights"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.rights" combine="interleave">
+    <empty/>
+  </define>
+  <start>
+    <choice>
+      <ref name="dc"/>
+    </choice>
+  </start>
+</grammar>

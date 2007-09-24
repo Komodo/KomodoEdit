@@ -1,0 +1,768 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Projects</title>
+</head>
+
+<body>
+  <h1><a name="project_top" id="project_top">Working with
+  Projects</a></h1>
+
+  <div class="right-float-box">
+    <p><strong>Feature Showcases</strong></p>
+
+    <ul>
+      <li>create a <a href=
+      "tutorial/tourlet_custtoolbar.html#custtoolbar_top">custom
+      toolbar</a></li>
+
+      <li>create a <a href=
+      "tutorial/tourlet_dirshortcut.html#dirshortcut_top">directory
+      shortcut</a></li>
+
+      <li>export and import a <a href=
+      "tutorial/tourlet_expimppkg.html#expimppkg_top">package</a></li>
+
+      <li>assign a <a href=
+      "tutorial/tourlet_keybinding.html#keybinding_top">custom
+      keybinding</a> to a component</li>
+
+      <li>store a <a href=
+      "tutorial/tourlet_tempproj.html#tempproj_top">template in a
+      project</a></li>
+    </ul>
+  </div>
+
+  <p>Komodo projects are containers for files, <a href=
+  "komodo-doc-folders.html">folders</a>, <a href=
+  "komodo-doc-templates.html">templates</a>, <a href=
+  "komodo-doc-macros.html">macros</a>, <a href=
+  "komodo-doc-run.html">run commands</a>, <a href=
+  "komodo-doc-snippets.html">snippets</a> and links specific to a
+  particular software project or website. There are two types of
+  Komodo projects:</p>
+
+  <ul>
+    <li><strong><a name="live_projects" id="live_projects">Live
+    Projects</a></strong>: A live project does a <a href=
+    "#Live_Import">Live Import</a> of the directory where the
+    project is created, thereby including all the files and
+    sub-directories of that directory. This becomes the live
+    project's base directory. Changes in the filesystem are
+    reflected in the project, and deleting files from the project
+    gives you the option to delete them from the filesystem (the
+    "Move to Trash" option). This kind of project is essentially a
+    top-level <a href="komodo-doc-folders.html">live
+    folder</a>.</li>
+
+    <li><strong><a name="static_projects" id=
+    "static_projects">Static Projects</a></strong>: Static projects
+    are virtual containers for project components, similar to
+    <a href="komodo-doc-folders.html">virtual folders</a>. They
+    can, however, contain live folders.</li>
+  </ul>
+
+  <p>By default, new Komodo projects are "live". This can be
+  changed with the <a href="#Live_Import">Live Import</a>
+  preference.</p>
+
+  <p>Komodo projects are XML files stored on disk with a ".kpf"
+  extension. If you manually edit the project file, make a backup
+  copy first; invalid project files will not load.</p>
+
+  <p>Components can be dragged and dropped between projects and the
+  Toolbox. Context menus are available for the various components
+  and a Project drop-down menu. New items can be added via the
+  <strong>Add item</strong> drop-down menu in the project tab's
+  toolbar.</p>
+
+  <h2><a name="project_display" id="project_display">Displaying the
+  Project Tab</a></h2>
+
+  <p>The Project tab is displayed in the <a href=
+  "komodo-doc-workspace.html#Left_Pane">left pane</a> of the Komodo
+  workspace. It is displayed or hidden via:</p>
+
+  <ul>
+    <li><strong>View|Tabs|Projects</strong>: Opens the left pane
+    with the Project tab in the foreground.</li>
+
+    <li><strong>Key Binding</strong>: The default key binding for
+    opening and closing the left pane is 'Ctrl'+'Shift'+'P'. See
+    <a href="komodo-doc-prefs.html#Config_Key_Bindings">Configuring
+    Key Bindings</a> to alter or view the current assignment.</li>
+
+    <li><strong>Workspace Toolbar</strong>: If the Workspace
+    Toolbar is displayed, click the <strong>Show/Hide Left
+    Pane</strong> button. (Select
+    <strong>View|Toolbars|Workspace</strong> to display the
+    toolbar.) Alternatively, click the <strong>Show Specific
+    Tab</strong> button and select <strong>Projects</strong>.</li>
+  </ul>
+
+  <h2><a name="Creating_a_Project" id="Creating_a_Project">Creating
+  Projects</a></h2>
+
+  <p>To create a Project, use one of the following methods:</p>
+
+  <ul>
+    <li><strong>File Menu</strong>: On the <strong>File</strong>
+    menu, select <strong>New|New Project</strong>.</li>
+
+    <li><strong>File Menu</strong>: On the <strong>File</strong>
+    menu, select <strong>New|New Project From Template...</strong>,
+    select the desired project template and click
+    <strong>Open</strong>.</li>
+
+    <li><strong>Project Menu</strong>: On the
+    <strong>Project</strong> menu, click <strong>New
+    Project</strong>.</li>
+
+    <li><strong>Project Menu</strong>: On the
+    <strong>Project</strong> menu, click <strong>New Project From
+    Template...</strong>, select the desired project template and
+    click <strong>Open</strong>.</li>
+
+    <li><strong>Project Tab: New Project Button</strong>: On the
+    <strong>Projects</strong> tab, click the <img class="icon" src=
+    "img/project_new_project.png" /> <strong>New Project</strong>
+    button.</li>
+  </ul>
+
+  <p>When creating a new project, you are prompted to select a
+  directory where the project file is stored. The project filename
+  becomes the project name displayed in the Project Tab (without
+  the ".kpf" extension). "Live" projects will automatically import
+  the files and sub-directories in this directory.</p>
+
+  <h3><a name="Live_Import" id="Live_Import">Live Import</a></h3>
+
+  <p>The <strong>Live Import</strong> option in <a href=
+  "#project_props">Project Properties and Settings</a> (set
+  globally in Komodo under <a href=
+  "komodo-doc-prefs.html#Directory_Import">Edit|Preferences|Directory
+  Import</a>) makes the project behave as a <a href=
+  "komodo-doc-folders.html">Live Folder</a>. A project created with
+  Live Import enabled is a <a href="#live_projects">live
+  project</a>.</p>
+
+  <h2><a name="Opening_a_Project" id="Opening_a_Project">Opening
+  Projects</a></h2>
+
+  <p>Existing projects are opened by any of the following
+  methods:</p>
+
+  <ul>
+    <li><strong>File|Open Menu</strong>: Select
+    <strong>File|Open|Project</strong>.</li>
+
+    <li><strong>Project Menu</strong>: Select <strong>Project|Open
+    Project</strong></li>
+
+    <li><strong>Project Tab</strong>: On the
+    <strong>Projects</strong> tab, click the <strong>Open
+    Project</strong> button.</li>
+  </ul>
+
+  <p>Recently opened projects can be accessed from the <a href=
+  "komodo-doc-top.html#Get_Started_Page">Komodo Start Page</a>, or
+  from the <strong>File|Recent Projects</strong> menu. (The number
+  of recently opened projects is determined by the <a href=
+  "komodo-doc-prefs.html#UI_Configuration">Most Recently Used</a>
+  preference.)</p>
+
+  <p>The project name and associated files are displayed on the
+  <a class="doc" href=
+  "komodo-doc-top.html#Projects_Tab">Projects</a> tab. By default,
+  opening a project only opens the project file, not the components
+  associated with the project. The <a href=
+  "komodo-doc-prefs.html#projects">Opening and Closing Projects</a>
+  preferences can change this behavior to automatically open recent
+  project files (and close them when the project is closed).</p>
+
+  <h2><a name="Switching_Between_Projects" id=
+  "Switching_Between_Projects">Setting the Active Project</a></h2>
+
+  <p>Multiple projects can be open at the same time. Components in
+  any open project can be used. However, only one project at a time
+  is "active". The active project is displayed in bold text. When
+  the <strong>Add Component</strong> button in the Project Tab is
+  invoked, the component is added to the active project, regardless
+  of the project that is currently highlighted.</p>
+
+  <p>Knowing which project is currently active is important because
+  file preferences can be stored in projects. Komodo chooses a
+  location for saved preferences based on the following
+  criteria:</p>
+
+  <ul>
+    <li>When debugging a file in the active project, preferences
+    are stored in the active project.</li>
+
+    <li>When debugging a file in a project which is open but not
+    active, preferences are stored in the first project found
+    containing that file.</li>
+
+    <li>When debugging a file that is not in an open project,
+    preferences are saved as a 'global' preference for that
+    file.</li>
+  </ul>
+
+  <p>To set the active project, right-click the desired project
+  name and select <strong>Make Active Project</strong>, or select
+  <strong>Project|Make Active Project</strong> from the drop-down
+  menu.</p>
+
+  <h2><a name="project_add_comp" id="project_add_comp">Adding
+  Components to Projects</a></h2>
+
+  <p>Projects are organization containers for "components".
+  Components are items like files, folders, snippets, macros, etc.
+  For information about individual components, refer to the
+  relevant section of the documentation for the specific
+  component.</p>
+
+  <p>Filesystem-based components consists of items that exist as
+  entities on the disk: <a href=
+  "komodo-doc-files.html#files_top">files</a> and <a href=
+  "komodo-doc-templates.html#templates_top">templates</a>.
+  Komodo-specific components exist only in Komodo, and are not
+  stored as external disk entities. Komodo-specific components
+  include <a href="komodo-doc-openshort.html#openshort_top">open
+  shortcuts</a>, <a href=
+  "komodo-doc-folders.html#folders_top">folders</a>, <a href=
+  "komodo-doc-snippets.html#snippets_top">snippets</a>, <a href=
+  "komodo-doc-run.html#run_top">run commands</a>, <a href=
+  "komodo-doc-urls.html#urls_top">URL shortcuts</a>, <a href=
+  "komodo-doc-macros.html#macros_top">macros</a> and <a href=
+  "komodo-doc-custtbi.html#custtbi_top">custom menus and
+  toolbars</a>.</p>
+
+  <p>Within projects, filesytem-based components are merely
+  references; they cannot be moved or deleted from within Komodo;
+  moving them between projects and the Toolbox, or deleting them
+  from projects or the Toolbox, has no effect on their actual
+  disk-based location or their contents. On the other hand,
+  Komodo-specific components (such as macros and snippets) do not
+  exist outside of Komodo; therefore, they can be moved and copied
+  (for example, from the Toolbox to the Project Tab) and deleted
+  independently of the filesystem.</p>
+
+  <p>For example, when a snippet (a Komodo-specific component) is
+  copied from the Project Tab to the Toolbox, a new copy of the
+  snippet is created; the original version still exists in the
+  original location. Subsequent modifications of the snippet in the
+  Toolbox do not change the version of the snippet stored in a
+  project. On the other hand, when the contents of a file (a
+  filesystem-based component) are changed, the changes apply
+  regardless of the location from which the file is invoked.</p>
+
+  <p>To add a component to a project:</p>
+
+  <ul>
+    <li><strong>Project|Add</strong>: Use the
+    <strong>Project</strong> drop-down menu. If multiple projects
+    are open, the component is added to the project that is
+    currently <a href=
+    "#Switching_Between_Projects">active</a>.</li>
+
+    <li><strong>Project|Add|<em>project_name</em></strong>: When a
+    project name is selected in the Project Tab, the selected
+    project's name is also displayed in the
+    <strong>Project</strong> drop-down menu. Components can be
+    added directly to that project.</li>
+
+    <li><strong>Add Button</strong>: Use the <strong>Add</strong>
+    <img class="icon" src="img/projtb_add_butt.png" /> button on
+    the <strong>Project</strong> tab. If multiple projects are
+    open, the component will be added to the project that is
+    currently selected.</li>
+
+    <li><strong>Context Menu</strong>: Right-click a project name
+    and select <strong>Add|<em>component</em></strong>.</li>
+
+    <li>
+      <strong>Drag and Drop</strong>: Drag and drop components
+      from:
+
+      <ul>
+        <li><strong>Drag-and-Drop-Aware Applications</strong>:
+        Filenames can be dragged from drag-and-drop applications
+        (such as Windows Explorer).</li>
+
+        <li><strong>Project Tab or Toolbox</strong>: Components can
+        be dragged between projects, the Toolbox and container
+        components (such as folders).</li>
+
+        <li><strong>Editor File Name Tabs</strong>: When a file is
+        open in the editor pane, drag and drop from the tab that
+        displays the filename to a project.</li>
+      </ul>
+    </li>
+
+    <li><strong>Import from Filesystem</strong>: Right-click a
+    project and select <strong>Import from File
+    System</strong>.</li>
+
+    <li><strong>Cut/Copy/Paste</strong>: All components have a
+    right-click menu that includes the options
+    <strong>Cut</strong>, <strong>Copy</strong> and
+    <strong>Paste</strong>. Use these options to move components
+    between projects, the Toolbox and container components.</li>
+  </ul>
+
+  <p>Some components have special component-specific mechanisms for
+  being added to projects. For example, snippets can be created and
+  added to a project in one step by selecting a block of text in
+  the Editor Pane and dragging it onto a project. URL shortcuts are
+  created by dragging and dropping a URL from a browser address bar
+  or from the Editor Pane onto a project. Refer to the specific
+  component sections for more information about these options.</p>
+
+  <p>To remove a component from a project, click the desired
+  component and press 'Delete', or right-click the component and
+  select <strong>Delete</strong> from the context menu.</p>
+
+  <p>Komodo-specific components (such as run commands, macros, etc)
+  are permanently deleted. Filesystem-based components (such as
+  files and dialog projects) are not; only the reference to the
+  component within the project is removed.</p>
+
+  <h2><a name="org_project" id="org_project">Project Display
+  Settings</a></h2>
+
+  <p>Use the button on the top right of the Project Tab to select
+  the fields that are displayed in the Project Tab. Click the
+  column headings to organize the items according to the contents
+  of any column.</p>
+
+  <p>Column contents depend on the type of component. For example,
+  the <strong>Status</strong> and <strong>Depot Rev</strong>
+  display options only have contents if the component is part of a
+  <a href="komodo-doc-scc.html#scc_top">source code control</a>
+  repository.</p>
+
+  <p>The following columns can be displayed:</p>
+
+  <ul>
+    <li><strong>Date</strong>: The date from the filesystem when
+    the component was last saved.</li>
+
+    <li><strong>Size</strong>: The filesystem size of the
+    component.</li>
+
+    <li><strong>Status</strong>: The <a href=
+    "komodo-doc-scc.html#scc_top">source code control</a> status of
+    the component.</li>
+
+    <li><strong>Rev</strong>: When a component is part of a
+    <a href="komodo-doc-scc.html#scc_top">source code control</a>
+    repository, this column displays the revision number of the
+    local version of the file.</li>
+
+    <li><strong>Depot Rev</strong>: When a component is part of a
+    <a href="komodo-doc-scc.html#scc_top">source code control</a>
+    repository, this column displays the revision number of the
+    repository version of the file.</li>
+
+    <li><strong>Action</strong>: When a component is part of a
+    <a href="komodo-doc-scc.html#scc_top">source code control</a>
+    repository, this column displays the current action (if any)
+    being performed on the file. For example, if a file is
+    currently opened for editing, the action is "edit".</li>
+
+    <li><strong>Name</strong>: The name of the component. For
+    filesystem-based components (such as files and dialog
+    projects), the name is equivalent to the filename. For
+    Komodo-specific components (such as macros and run commands),
+    the name is the user-defined name assigned to the
+    component.</li>
+  </ul>
+
+  <h2><a name="Saving_a_Project" id="Saving_a_Project">Saving
+  Projects</a></h2>
+
+  <p>If an asterisk is displayed beside the project name, the project has
+  changed since it was opened or last saved. This happens not only when
+  components are added, edited or removed in the Project Pane, but also when
+  preferences are changed for files in the project. To save a project:</p>
+
+  <ul>
+    <li><strong>File Menu</strong>: On the <strong>File</strong>
+    menu, click <strong>Save Project</strong>.</li>
+
+    <li><strong>Project Menu</strong>: On the
+    <strong>Project</strong> menu, click <strong>Save
+    Project</strong>. This saves the <a href=
+    "#Switching_Between_Projects">active project</a>. If a project
+    name is currently highlighted in the Project Tab, the
+    <strong>Project</strong> menu contains an option for saving the
+    selected project (<strong>Project|<em>project_name</em>|Save
+    Project</strong>).</li>
+
+    <li><strong>Project Tab: Save Project Button</strong>: On the
+    <strong>Projects</strong> tab, click the <strong>Save
+    Project</strong> button.</li>
+
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Save Project</strong>.</li>
+  </ul>
+
+  <p>The mechanisms described above can also be used to save a
+  project to a new project file by selecting <strong>Save Project
+  As...</strong> rather than <strong>Save</strong>.
+  Filesystem-based components (such as files and dialog boxes) are
+  relative references rather than actual entities; in the new
+  project, the reference to the location of the component is
+  preserved. Komodo-specific components (such as macros and run
+  commands) are copied to the new project; there are independent
+  versions of the component in the original project and in the new
+  project.</p>
+
+  <h2><a name="Refreshing_a_Project" id=
+  "Refreshing_a_Project">Refreshing Project Status</a></h2>
+
+  <p>The <strong>Refresh Status</strong> option checks read/write
+  disk status for the project file and for filesystem-based
+  components (such as files and dialog projects) within the
+  project. If the project contains files of a language for which
+  "code intelligence" is supported and enabled (as configured in
+  the <a href="komodo-doc-prefs.html#code_intel">Code Intelligence
+  Preferences</a>), <strong>Refresh Status</strong> also updates
+  the code intelligence database with the contents of those
+  files.</p>
+
+  <p>If the project or its components are stored in a <a href=
+  "komodo-doc-scc.html#scc_top">source code control</a> system,
+  <strong>Refresh Status</strong> also checks the repository status
+  of the file. Komodo determines whether a file is contained in an
+  SCC repository by the following methods:</p>
+
+  <ul>
+    <li><strong>Perforce</strong>: query of the P4 repository (with
+    the current user's client spec)</li>
+
+    <li><strong>CVS</strong>: analysis of the CVS control
+    directories</li>
+
+    <li><strong>Subversion</strong>: analysis of the subversion
+    control files</li>
+  </ul>
+
+  <h2><a name="project_impexp" id="project_impexp">Importing and
+  Exporting Projects via Packages</a></h2>
+
+  <p>Entire projects (including all the components contained in a
+  project) can be exported to a "package" file for distribution to
+  other Komodo users or for the sake of archiving. Packages are
+  compressed archive files that contain the project from which the
+  <strong>Export Package</strong> option was invoked. The
+  <strong>Export Package</strong> option differs from the
+  <strong>Export as Project File</strong> option (provided for
+  project components) in that <strong>Export Package</strong>
+  creates a self-contained archive file that contains copies of all
+  the filesystem-based components (such as files and dialogs).
+  <strong>Export as Project File</strong>, on the other hand, only
+  contains Komodo-specific components (such as snippets and run
+  commands).</p>
+
+  <p>To export a project and its contents to an archive, select
+  <strong>Project|<em>project_name</em>|Export Package</strong>
+  from the drop-down menu, or right-click the project and select
+  <strong>Export Package</strong>.</p>
+
+  <p>The Package Export Wizard prompts for a <strong>Package
+  Name</strong> and a <strong>Export Location</strong>. The
+  <strong>Package Name</strong> is the file in which the package is
+  stored; it will have the extension ".kpz", and can be opened by
+  any archiving utility that supports <code>libz</code> (for
+  example WinZip).</p>
+
+  <p>Exported packages can only be imported into "container"
+  objects in Komodo, such as <a href=
+  "#Creating_a_Project">projects</a>, the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, and <a href=
+  "komodo-doc-folders.html#folders_top">folders</a> within projects
+  and the Toolbox.</p>
+
+  <p>To import the contents of a package into a project,
+  right-click the project to which you want to import the package,
+  and click <strong>Import Package</strong>. The Package Import
+  Wizard prompts for the name of the package and the location on
+  disk where the files will be extracted. Click
+  <strong>Next</strong> and then click <strong>Finish</strong> to
+  complete the import.</p>
+
+  <p>For information about importing packages to the Toolbox or a
+  folder, see <a href=
+  "komodo-doc-toolbox.html#export_import">Toolbox - Import
+  Package</a> and <a href=
+  "komodo-doc-folders.html#folders_importpack">Folders - Import
+  Package</a> for more information.</p>
+
+  <h2><a name="project_impcomp" id="project_impcomp">Importing
+  Files from the File System</a></h2>
+
+  <p>This option creates files within a project based on the
+  directory structure and file contents of a local or network
+  filesystem. File references within the project are created for
+  imported files; folders are created for directories (depending on
+  the configuration of the import options). To import a filesystem
+  into a project:</p>
+
+  <ul>
+    <li><strong>Project Menu</strong>: On the
+    <strong>Project</strong> menu, click <strong>Import from File
+    System</strong>. This imports the specified filesystem
+    (according to the criteria described below) into the current
+    <a href="#Switching_Between_Projects">active project</a>. If a
+    project name is currently highlighted in the Project Tab, the
+    <strong>Project</strong> menu contains an option for importing
+    into the selected project
+    (<strong>Project|<em>project_name</em>|Import from File
+    System</strong>).</li>
+
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Import from File
+    System</strong>.</li>
+  </ul>
+
+  <p>Configure the following import options:</p>
+
+  <ul>
+    <li><strong>Directory to import from</strong>: Specify the
+    directory from which you want to import files. Use the
+    <strong>Browse</strong> button to navigate the file
+    system.</li>
+
+    <li><strong>Browse for directory location</strong>: Choose
+    <strong>Locally...</strong> to browse the local filesystem or
+    <strong>Remotely...</strong> to browse a <a href=
+    "komodo-doc-files.html#Opening_Remote_Files">remote
+    filesystem</a>.</li>
+
+    <li><strong>Files to include</strong>: Specify the filenames to
+    include. Use wildcards ("*" and "?") to specify groups of
+    files. Separate multiple file specifications with semicolons.
+    If the field is left blank, all files in the specified
+    directory are imported.</li>
+
+    <li><strong>Files and directories to exclude</strong>: Specify
+    the file and directory names to exclude. Use wildcards ("*" and
+    "?") to specify groups of files. Separate multiple file
+    specifications with semicolons. If the field is left blank, no
+    files in the specified directory are excluded.</li>
+
+    <li><strong>Import Subdirectories Recursively</strong>: Select
+    this check box to import directories (and files contained in
+    those directories) located beneath the directory specified in
+    the <strong>Directory to import from</strong> field. This check
+    box must be checked in order to specify the "Import Directory
+    Structure" option as the <strong>Type of folder structure to
+    create</strong>.</li>
+
+    <li>
+      <strong>Type of folder structure to create</strong>:
+
+      <ul>
+        <li><strong>Import directory structure</strong>: If the
+        <strong>Import Subdirectories Recursively</strong> box is
+        selected and this option is selected, Komodo creates
+        folders within the project that represent imported
+        directories. Thus, the directory structure is preserved
+        within the project.</li>
+
+        <li><strong>Make a folder per language</strong>: If this
+        option is selected, imported files are organized into
+        folders according to the language indicated by file pattern
+        in the filename. File associations are configured in the
+        Komodo <a class="doc" href=
+        "komodo-doc-prefs.html#File_Associations">Preferences</a>.
+        Each folder is named after the associated language, for
+        example, "Perl files", "XML files", etc. Files that don't
+        correspond to a known file pattern are stored in a folder
+        called "Other files".</li>
+
+        <li><strong>Make one flat list</strong>: If this option is
+        selected, all the imported files are placed directly under
+        the project from which the <strong>Import from File
+        System</strong> command was invoked.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2><a name="project_scc" id="project_scc">Source Code
+  Control</a> <span class="version_alert">Komodo IDE
+  only</span></h2>
+
+  <p><a href="komodo-doc-scc.html#scc_top">Source code control</a>
+  refers to projects and/or components stored in a source code
+  control depot (such as a CVS or Perforce repository). There are
+  two aspects to source code control within projects: source code
+  control on the project file itself, and source code control on
+  components contained in projects.</p>
+
+  <p>When Komodo integration with a source code control system is
+  <a href="komodo-doc-prefs.html#scc">configured</a>, icons in the
+  Project Manager display the SCC status of the project file and
+  components contained in the project. See <a class="doc" href=
+  "komodo-doc-scc.html#file_status">file status icons</a> in the
+  source code control documentation for more information about
+  these icons.</p>
+
+  <p>Source code control functions (such as adding files to an SCC
+  repository, or opening files contained in a repository for
+  editing) can be performed both on the project file, and on the
+  components contained in the project. To access SCC commands for a
+  project file:</p>
+
+  <ul>
+    <li><strong>Project Menu</strong>: Click the project name in
+    the Project Manager, then select
+    <strong>Project|<em>project_name</em>|Source
+    Control</strong>).</li>
+
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Source
+    Control</strong>.</li>
+  </ul>
+
+  <p>To access SCC commands for the components contained in a
+  project:</p>
+
+  <ul>
+    <li><strong>Project Menu</strong>: Click the project name in
+    the Project Manager, then select
+    <strong>Project|<em>project_name</em>|Source Control on
+    Contents</strong>).</li>
+
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Source Control on
+    Contents</strong>.</li>
+  </ul>
+
+  <p>See <a href="komodo-doc-scc.html#scc_commands">Source Code
+  Control Commands</a> for a description of each of the
+  commands.</p>
+
+  <h2><a name="Reverting_a_Project" id=
+  "Reverting_a_Project">Reverting Projects</a></h2>
+
+  <p>If a project has been altered but has not been saved, use the
+  <strong>Revert Project</strong> option to undo the changes. To
+  access the <strong>Revert Project</strong> option:</p>
+
+  <ul>
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Revert
+    Project</strong>.</li>
+
+    <li><strong>Project Menu</strong>: Select
+    <strong>Project|Revert Project</strong> or
+    <strong>Project|<em>project_name</em>|Revert Project</strong>.
+    <strong>Project|Revert Project</strong> reverts the <a href=
+    "#Switching_Between_Projects">active project</a>. If a project
+    name is currently highlighted in the Project Tab, the Project
+    menu contains an option for reverting the selected project
+    (<strong>Project|<em>project_name</em>|Revert
+    Project</strong>).</li>
+  </ul>
+
+  <h2><a name="Closing_Projects" id="Closing_Projects">Closing
+  Projects</a></h2>
+
+  <p>Closing a project removes it from the Project Tab. To close a
+  project:</p>
+
+  <ul>
+    <li><strong>File Menu</strong>: On the <strong>File</strong>
+    menu, click <strong>Close Project</strong>.</li>
+
+    <li><strong>Project Menu</strong>: On the
+    <strong>Project</strong> menu, click <strong>Close
+    Project</strong>. This closes the <a href=
+    "#Switching_Between_Projects">active project</a>. If a project
+    name is currently highlighted in the Project Tab, the
+    <strong>Project</strong> menu contains an option for closing
+    the selected project
+    (<strong>Project|<em>project_name</em>|Close
+    Project</strong>).</li>
+
+    <li><strong>Project Context Menu</strong>: Right-click the
+    desired project and select <strong>Close Project</strong>.</li>
+  </ul>
+
+  <p>If the project has changed since it was last saved, you are
+  prompted to save it. If files contained in the project are open
+  in the editor, you are asked if you wish to close them.</p>
+
+  <h2><a name="project_delete" id="project_delete">Deleting
+  Projects</a></h2>
+
+  <p>When a project is deleted, the project file is deleted from
+  disk; Komodo-specific components (such as run commands and
+  macros) stored in the project are also deleted. Filesystem-based
+  components (such as files and dialog projects) are not deleted.
+  To delete a project, delete the project file from the
+  filesystem.</p>
+
+  <h2><a name="project_props" id="project_props">Project Properties
+  and Settings</a></h2>
+
+  <p>The Project Properties and Settings dialog box contains
+  information about the project file, such as its size, its
+  location on disk, its directory import settings, its source code
+  control status, and project-specific language settings.</p>
+
+  <p>To access the Project Properties dialog box, right-click the
+  desired project name and select <strong>Properties</strong>, or
+  click the desired project and select
+  <strong>Project|<em>project_name</em>|Properties</strong> from
+  the drop-down menu.</p>
+
+  <p>The following categories are available:</p>
+
+  <ul>
+    <li><strong>Properties</strong>: Displays the name, size, and
+    location of the project; the date and time it was created, last
+    modified and last accessed; and indicates if the project is
+    read-only.</li>
+
+    <li><strong>Directory Import</strong>: Defines how Komodo
+    dynamically imports files and directories into the project.
+    These settings override those configured in Komodo's global
+    <a href="komodo-doc-prefs.html#Directory_Import">Directory
+    Import</a> preferences. Select the <strong>Live Import</strong>
+    check box to keep the imported directories and files current
+    with the file system via <a href=
+    "komodo-doc-folders.html#folders_top">Live Folders</a>.</li>
+
+    <li><strong>Languages</strong>: Allows you to add additional
+    directories to a language's path for Komodo to use when
+    debugging, syntax checking, or in the interactive shell. Komodo
+    will also scan these directories for autocomplete and calltip
+    information.</li>
+  </ul>
+
+  <h2><a name="project_templates" id="project_templates">Project
+  Templates</a></h2>
+
+  <p>Project templates are useful if you find yourself repeatedly
+  creating the same types of projects. See the <a href=
+  "komodo-doc-templates.html#project_templates">Project
+  Templates</a> documentation for information on using Komodo's
+  sample project templates, and saving your own.</p>
+  <hr />
+</body>
+</html>

@@ -1,0 +1,68 @@
+# ats_run.pdx -*- tcl -*-
+#
+#	Define nub handling of 'ats_run' command.
+#
+# Copyright (c) 2003-2006 ActiveState Software Inc.
+#
+# All rights reserved.
+# 
+# RCS: @(#) $Id: uplevel.pdx,v 1.2 2000/05/30 22:54:54 hershey Exp $
+
+# Register the extension
+
+instrument::addExtension 2.0 {ats_run}
+
+# ats_run --
+#
+#	A replacement for the non-standard 'ats_run' command.
+#	The code here performs all the operations of the
+#	original code, and additionally asks the frontend
+#	to open a new debugger window for the new process.
+#	If that request is granted the command will launch
+#	the new process so that it will be under debugger
+#	control too.
+#
+# Arguments:
+#	cmd	Name of the file to spawn
+#	args	Additional arguments for the internal 'exec'
+#
+# Results:
+#	Returns the result of the spawn statement.
+
+instrument::spawnCommand  ats_run
+instrument::nubCmdWrapper ats_run {cmd args} {
+    global DbgNub
+
+    if {[DbgNub_SpawnInfo AtSpawnpoint]} {
+	# Spawn point set here by the user. Ask the frontend for
+	# a sub-debugger. This operation can fail. A failure is
+	# indicated by '$port == {}'.
+
+	DbgNub_SpawnRequest [list spawn $cmd]
+
+	set port    [DbgNub_SpawnInfo Port]
+	set apla    [DbgNub_SpawnInfo LaunchFile]
+	set cdata   [DbgNub_SpawnInfo CData]
+	set host    [DbgNub_SpawnInfo Host]
+	set interp  [DbgNub_infoCmd nameofexecutable]
+    } else {
+	# For test purposes we ignore the command entirely if there
+	# is no spawn point here.
+
+	set port {}
+    }
+
+    if {$port == {}} {
+	# The request for sub-debugger failed. We perform the
+	# regular spawn which is not under debugger control.
+
+	set           cmd [linsert $args 0 DbgNub_ats_runCmd $cmd]
+	return [eval $cmd]
+    }
+
+    # The request is good. We launch the sub-process in a way
+    # which keeps it under debugger control and connects it
+    # to the sub-debugger (-> port).
+
+    return [eval exec [list $interp $apla $host $port $cmd $cdata] $args &]
+}

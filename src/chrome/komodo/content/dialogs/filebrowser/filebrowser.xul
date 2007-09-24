@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % filebrowserDTD SYSTEM "chrome://komodo/locale/filebrowser.dtd">
+  %filebrowserDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+
+<?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
+
+<window id="openremote-window"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:nc="http://home.netscape.com/NC-rdf#"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  type="komodo_openremote"
+  orient="vertical"
+  onload="filebrowserLoad();"
+  onclose="filebrowserClose();"
+  height="400" width="560"
+  persist="screenX screenY width height">
+
+<script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/library/dialogs.js"   type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/library/windowManager.js"   type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/dialogs/filebrowser/filebrowseview.js" type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/dialogs/filebrowser/filebrowser.js" type="application/x-javascript;version=1.7"/>
+
+<keyset id="filebrowserKeys">
+    <!-- Fix bug #42250, close window when escape key is pressed -->
+    <key keycode="VK_ESCAPE" modifiers="" oncommand="onCancel(); window.close();"/>
+</keyset>
+
+<popupset>
+    <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+</popupset>
+
+<menupopup id="dialogTooltip" />
+<menupopup id="edit_menu">
+    <menuitem id="menu_delete_entry" label="&delete.label;" oncommand="doDelete();"/>
+    <menuitem id="menu_delete_entry" label="&rename.label;" oncommand="doRename();"/>
+</menupopup>
+
+<grid style="margin-top: 5px">
+    <columns>
+        <column/>
+        <column flex="1"/>
+        <column/>
+    </columns>
+
+    <rows>
+        <row id="serversList" align="center" collapsed="true" style="margin-bottom: 2px">
+            <label value="Server:" control="serverMenuList" />
+            <menulist id="serverMenuList" flex="1" crop="left" editable="true"
+                onkeypress="if (event.keyCode == 13) { onServerChanged(this.label);} "
+                oncommand="onServerChanged(this.label);">
+                <menupopup id="serverMenu" onpopupshowing="refreshServerMenu();"/>
+            </menulist>
+            <!--<button label="New" oncommand="goServerPrefs();"/> -->
+            <button class="server-pref-icon button-toolbar-a" tooltip="dialogTooltip" tooltiptext="&accounts.tooltiptext;"
+                oncommand="goServerPrefs();"/>
+        </row>
+        <!--<separator class="thin" />-->
+        <row id="directoryList" align="center" style="margin-bottom: 2px">
+            <label value="Look in:" control="lookInMenuList" />
+            <menulist id="lookInMenuList" flex="1" oncommand="onDirectoryChanged(event.target);" crop="left">
+                <menupopup id="lookInMenu"/>
+            </menulist>
+            <button class="goback-icon button-toolbar-a" oncommand="goLast();" tooltip="dialogTooltip" tooltiptext="&goToTheLastVisitedDirectory.tooltiptext;"/>
+            <button class="upfolder-icon button-toolbar-a" oncommand="goUp();" tooltip="dialogTooltip" tooltiptext="&goUpOneDirectory.tooltiptext;"/>
+            <button class="newfolder-icon button-toolbar-a" oncommand="doMKDIR();" tooltip="dialogTooltip" tooltiptext="&createDirectory.tooltiptext;"/>
+            <button class="refreshFile-icon button-toolbar-a" oncommand="doRefresh();" tooltip="dialogTooltip" tooltiptext="&refreshList.tooltiptext;"/>
+        </row>
+        <!--<separator class="thin" />-->
+    </rows>
+</grid>
+
+<hbox flex="1" style="margin-top: 2px; margin-bottom: 5px">
+    <tree id="directoryTree" flex="1"
+            onclick="onClick(event);"
+            ondblclick="onDblClick(event);"
+            onkeypress="onKeypress(event);"
+            onselect="this.treeBoxObject.view.selectionChanged()">
+        <treecols>
+        <treecol id="FilenameColumn" label="&name.label;" flex="1"
+                 class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="FileSizeColumn" label="&size.label;" flex="1"
+                 class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="LastModifiedColumn" label="&lastModified.label;" flex="1"
+                 class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        </treecols>
+        <treechildren flex="1"
+                 context="edit_menu"/>
+    </tree>
+</hbox>
+
+<grid style="margin-top: 2px; margin-bottom: 5px">
+    <columns>
+        <column/>
+        <column flex="1"/>
+    </columns>
+
+    <rows>
+        <row align="center">
+            <label value="File name:" label="&textInput.label;" />
+            <textbox id="textInput"
+                     flex="1"
+                     type="autocomplete"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     completeselectedindex="true"
+                     enablehistory="true"
+                     tabscrolling="true"
+                     maxrows="10"
+                     oninput="doEnabling()"
+                     onkeypress="if (event.keyCode == event.DOM_VK_RETURN) { textInputOnOK(); }"
+                     onfocus="onTextFieldFocus();"/>
+        </row>
+        <separator class="thin" />
+        <row id="filterBox" hidden="true" align="center">
+            <label value="Files of type:" control="filterMenuList" />
+            <menulist id="filterMenuList" flex="1" oncommand="onFilterChanged(event.target);">
+                <menupopup id="filterMenu"/>
+            </menulist>
+        </row>
+    </rows>
+</grid>
+
+<hbox style="margin-top: 2px; margin-bottom: 5px">
+    <label id="labelStatus" value="" flex="1" style="color: red"/>
+    <button id="ok" default="true" oncommand="doOKButton();"/>
+    <button class="exit-dialog" id="cancel" label="&cancel.label;" oncommand="doCancelButton();"/>
+    <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="goHelp();"/>
+</hbox>
+
+
+</window>

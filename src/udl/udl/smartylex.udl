@@ -1,0 +1,190 @@
+# Lexer for Smarty -- a php-based template language
+
+# How to transition from HTML to Smarty
+
+# {* multi-line comments ... *}
+
+# { Smarty code ... }
+
+# {# ... #} inside html attribute values
+
+# Smarty code is php-like, but it will have its own
+# syntax.
+
+# For example, {* and *} bracket comments, and we don't
+# transition to php
+
+# To handle { ... } transitions, we need to count braces,
+# or more correctly, occurrences of ("{", TPL_OPERATOR) and 
+# ("}", TPL_OPERATOR) in the text, and transition back to 
+# M_DEFAULT when we hit the closing brace.
+
+#XXX Not to mention...
+# You can transition into smarty from JS and CSS code as well.
+
+family tpl
+sublanguage Smarty
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+keyword_style TPL_IDENTIFIER => TPL_WORD
+
+keywords [capture
+config_load
+foreach,
+foreachelse
+if,
+elseif,
+else
+'include'
+include_php
+insert
+ldelim,
+rdelim
+literal
+php
+section
+sectionelse
+strip
+# Variable modifiers
+capitalize
+cat
+count_characters
+count_paragraphs
+count_sentences
+count_words
+date_format
+default
+escape
+indent
+lower
+nl2br
+regex_replace
+replace
+spacify
+string_format
+strip
+strip_tags
+truncate
+upper
+wordwrap
+]
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern NMCHAR = '$NMSTART\d'   # inside cset
+pattern CS = '\w\d_\x80-\xff'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|`'
+
+initial IN_TPL_DEFAULT
+
+state IN_TPL_DEFAULT:
+
+'#' : paint(upto, TPL_DEFAULT), => IN_TPL_CONFIG_VAR_1
+
+/\$[$NMSTART][$CS]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_VARIABLE)
+
+/[$WS]+/  : #stay
+
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+
+# Go process a number, try to do it in regexes
+# octal and hex first
+/0[Xx][0-9a-fA-F]+/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[-+]?0[0-7]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[1-9]/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_1
+/\.\d+/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2
+/\.(?=[$NMSTART])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+=> IN_TPL_DEFAULT_OR_IDENTIFIER_1
+'.' : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2b
+
+/[$NMSTART][$CS]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+# Now a bunch of operators
+
+# First track braces
+
+'{' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+	spush_check(IN_TPL_DEFAULT), => IN_TPL_DEFAULT
+
+'}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_TPL_DEFAULT
+
+# Multi-char operators go next
+
+/[$OP]/ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_OP1
+
+################# Post-dot identifiers
+
+# This always matches because we arrive here via lookahead.
+state IN_TPL_DEFAULT_OR_IDENTIFIER_1:
+/./ : no_keyword, paint(include, TPL_IDENTIFIER), => IN_TPL_DEFAULT_OR_IDENTIFIER_2
+
+state IN_TPL_DEFAULT_OR_IDENTIFIER_2:
+/[$CS]/ : #stay
+/[^$CS]/ : paint(upto, TPL_IDENTIFIER), redo, no_keyword, => IN_TPL_DEFAULT
+
+################ Comments ################
+
+state IN_TPL_BLOCK_COMMENT_1: 
+'*}' : paint(include, TPL_COMMENTBLOCK),  => IN_M_DEFAULT
+
+################ Strings ################
+
+# We need counting to handle ${...} expressions, like in Ruby
+
+state IN_TPL_DSTRING:
+/\$[$NMSTART]/: paint(include, TPL_STRING), => IN_TPL_INTERPOLATED_VAR
+'"' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/[\r\n]/ : #stay, php strings are multi-line
+# Verify we create a \z
+
+state IN_TPL_INTERPOLATED_VAR:
+/[^$NMCHAR]/ : paint(upto, TPL_VARIABLE), redo => IN_TPL_DSTRING
+
+state IN_TPL_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #
+/[\r\n]/ : #stay, php strings are multi-line
+# Verify we create a \z
+
+################ Numbers ################
+
+include "tpl_number.udl"
+
+################ Operators ################
+
+# If we're here, we've painted the previous part, and 
+# just need to figure out which operator we have, doing
+# greedy left-to-right matching ('+++' parses as /++/, /+/)
+
+state IN_TPL_OP1:
+# Single-char operator -- all ops work as standalone chars
+
+# Single-char operator -- all ops work as standalone chars
+/[$OP](?:(?![$OP])|$)/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/==?=?/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/!=?=?/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/<<=?/	 : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/>>=?/	 : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/[-<>+\*\/\.%&|\^]=?/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/([-\+\&|])\1?/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+# The fallback
+/[$OP]/ : paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+
+################ Variables ################
+
+state IN_TPL_CONFIG_VAR_1:
+
+'#' : paint(include, TPL_VARIABLE), => IN_TPL_DEFAULT
+/[^$CS]/ : paint(upto, TPL_VARIABLE), redo, => IN_TPL_DEFAULT
+
+################ End States ################
+
+fold "{" TPL_OPERATOR +
+fold "}" TPL_OPERATOR -
+
+fold "{" M_OPERATOR +
+fold "}" M_OPERATOR -

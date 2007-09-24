@@ -1,0 +1,20 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/module01.rb">
+    <scope ilk="blob" lang="Ruby" name="module01">
+      <scope ilk="namespace" line="1" lineend="15" name="TopLevel">
+        <scope classrefs="Object" ilk="class" line="3" lineend="6" name="TL_Class1">
+          <scope ilk="function" line="4" lineend="5" name="f_tl_cl1" signature="f_tl_cl1">
+            <variable attributes="__local__" citdl="TL_Class1" line="4" name="self" />
+          </scope>
+        </scope>
+        <scope ilk="namespace" line="8" lineend="14" name="MidLevel">
+          <scope classrefs="Object" ilk="class" line="10" lineend="13" name="ML_Class2">
+            <scope ilk="function" line="11" lineend="12" name="f_ml_cl2" signature="f_ml_cl2">
+              <variable attributes="__local__" citdl="ML_Class2" line="11" name="self" />
+            </scope>
+          </scope>
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

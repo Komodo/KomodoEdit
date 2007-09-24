@@ -1,0 +1,36 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/policy.py">
+    <scope doc="Security Policy related classes" ilk="blob" lang="Python" name="policy">
+      <import line="19" module="types" />
+      <import line="21" module="porcupine.db" symbol="db" />
+      <import line="22" module="porcupine" symbol="serverExceptions" />
+      <scope ilk="function" line="24" lineend="60" name="policymethod" returns="policymethod.PolicyMethod" signature="policymethod(policyid)">
+        <variable ilk="argument" name="policyid" />
+        <scope classrefs="object" ilk="class" line="25" lineend="58" name="PolicyMethod">
+          <scope attributes="__ctor__" ilk="function" line="26" lineend="29" name="__init__" signature="PolicyMethod(function)">
+            <variable citdl="PolicyMethod" ilk="argument" name="self" />
+            <variable ilk="argument" name="function" />
+          </scope>
+          <variable attributes="__instancevar__" line="27" name="func" />
+          <variable attributes="__instancevar__" citdl="function.func_name" line="28" name="name" />
+          <variable attributes="__instancevar__" citdl="function.func_doc" line="29" name="__doc__" />
+          <scope ilk="function" line="31" lineend="40" name="__get__" returns="types.MethodType()" signature="__get__(servlet, servlet_class)">
+            <variable citdl="PolicyMethod" ilk="argument" name="self" />
+            <variable ilk="argument" name="servlet" />
+            <variable ilk="argument" name="servlet_class" />
+            <variable citdl="db.getItem()" line="32" name="policy" />
+            <variable citdl="servlet.session.user" line="33" name="user" />
+          </scope>
+          <scope ilk="function" line="42" lineend="58" name="userHasPolicy" returns="bool" signature="userHasPolicy(user, policy)">
+            <variable citdl="PolicyMethod" ilk="argument" name="self" />
+            <variable ilk="argument" name="user" />
+            <variable ilk="argument" name="policy" />
+            <variable citdl="policy.policyGranted.value" line="43" name="policyGranted" />
+            <variable citdl="user._id" line="45" name="userID" />
+            <variable citdl="list" line="49" name="memberOf" />
+          </scope>
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

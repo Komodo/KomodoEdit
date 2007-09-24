@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Package&nbsp;paramiko
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko-module.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF PACKAGE DESCRIPTION =========== -->
+<h2 class="package">Package paramiko</h2>
+
+<p><i>Paramiko</i> (a combination of the esperanto words for 
+&quot;paranoid&quot; and &quot;friend&quot;) is a module for python 2.3 
+or greater that implements the SSH2 protocol for secure (encrypted and 
+authenticated) connections to remote machines. Unlike SSL (aka TLS), the 
+SSH2 protocol does not require heirarchical certificates signed by a 
+powerful central authority. You may know SSH2 as the protocol that 
+replaced <code>telnet</code> and <code>rsh</code> for secure access to 
+remote shells, but the protocol also includes the ability to open 
+arbitrary channels to remote services across an encrypted tunnel. (This 
+is how <code>sftp</code> works, for example.)</p>
+<p>The high-level client API starts with creation of an <a 
+href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a> object. For more direct control, 
+pass a socket (or socket-like object) to a <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>, and use <a 
+href="paramiko.Transport-class.html#start_server" 
+class="link"><code>start_server</code></a> or <a 
+href="paramiko.Transport-class.html#start_client" 
+class="link"><code>start_client</code></a> to negoatite with the remote 
+host as either a server or client. As a client, you are responsible for 
+authenticating using a password or private key, and checking the server's 
+host key. <i>(Key signature and verification is done by paramiko, but you 
+will need to provide private keys and check that the content of a public 
+key matches what you expected to see.)</i> As a server, you are 
+responsible for deciding which users, passwords, and keys to allow, and 
+what kind of channels to allow.</p>
+<p>Once you have finished, either side may request flow-controlled <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a>s 
+to the other side, which are python objects that act like sockets, but 
+send and receive data over the encrypted session.</p>
+<p>Paramiko is written entirely in python (no C or platform-dependent 
+code) and is released under the GNU Lesser General Public License 
+(LGPL).</p>
+Website: <a 
+href="http://www.lag.net/paramiko/">http://www.lag.net/paramiko/</a>
+<hr/>
+<p><b>Version:</b> 1.6 (umbreon)
+</p>
+
+<p><b>Author:</b> Robey Pointer
+</p>
+
+<p><b>Contact:</b> robey&#64;lag.net
+</p>
+
+<p><b>License:</b> GNU Lesser General Public License (LGPL)
+</p>
+
+
+<!-- =========== START OF SUBMODULES =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Submodules</th></tr>
+  <tr><td><ul>
+<li> <b><a href="paramiko.util-module.html"><code>util</code></a></b>: <i>Useful functions used by the rest of paramiko.</i>
+<li> <b><a href="../private/paramiko.agent-module.html"><code>agent</code></a></b>: <i>SSH Agent interface for Unix clients.</i>
+<li> <b><a href="../private/paramiko.auth_handler-module.html"><code>auth_handler</code></a></b>: <i><a href="../private/paramiko.AuthHandler-class.html" 
+class="link"><code>AuthHandler</code></a></i>
+<li> <b><a href="../private/paramiko.ber-module.html"><code>ber</code></a></b>
+<li> <b><a href="../private/paramiko.buffered_pipe-module.html"><code>buffered_pipe</code></a></b>: <i>Attempt to generalize the &quot;feeder&quot; part of a Channel: an 
+object which can be read from and closed, but is reading from a buffer 
+fed by another thread.</i>
+<li> <b><a href="../private/paramiko.channel-module.html"><code>channel</code></a></b>: <i>Abstraction for an SSH2 channel.</i>
+<li> <b><a href="../private/paramiko.client-module.html"><code>client</code></a></b>: <i><a href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a>.</i>
+<li> <b><a href="../private/paramiko.common-module.html"><code>common</code></a></b>: <i>Common constants and global variables.</i>
+<li> <b><a href="../private/paramiko.compress-module.html"><code>compress</code></a></b>: <i>Compression implementations for a Transport.</i>
+<li> <b><a href="../private/paramiko.config-module.html"><code>config</code></a></b>: <i><a href="paramiko.SSHConfig-class.html" 
+class="link"><code>SSHConfig</code></a>.</i>
+<li> <b><a href="../private/paramiko.dsskey-module.html"><code>dsskey</code></a></b>: <i><a href="paramiko.DSSKey-class.html" 
+class="link"><code>DSSKey</code></a></i>
+<li> <b><a href="../private/paramiko.file-module.html"><code>file</code></a></b>: <i>BufferedFile.</i>
+<li> <b><a href="../private/paramiko.hostkeys-module.html"><code>hostkeys</code></a></b>: <i><a href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a></i>
+<li> <b><a href="../private/paramiko.kex_gex-module.html"><code>kex_gex</code></a></b>: <i>Variant on <a 
+href="../private/paramiko.kex_group1.KexGroup1-class.html" 
+class="link"><code>KexGroup1</code></a> where the prime &quot;p&quot; and 
+generator &quot;g&quot; are provided by the server.</i>
+<li> <b><a href="../private/paramiko.kex_group1-module.html"><code>kex_group1</code></a></b>: <i>Standard SSH key exchange (&quot;kex&quot; if you wanna sound 
+cool).</i>
+<li> <b><a href="../private/paramiko.logging22-module.html"><code>logging22</code></a></b>: <i>Stub out logging on python &lt; 2.3.</i>
+<li> <b><a href="../private/paramiko.message-module.html"><code>message</code></a></b>: <i>Implementation of an SSH2 &quot;message&quot;.</i>
+<li> <b><a href="../private/paramiko.packet-module.html"><code>packet</code></a></b>: <i>Packetizer.</i>
+<li> <b><a href="../private/paramiko.pipe-module.html"><code>pipe</code></a></b>: <i>Abstraction of a one-way pipe where the read end can be used in 
+select().</i>
+<li> <b><a href="../private/paramiko.pkey-module.html"><code>pkey</code></a></b>: <i>Common API for all public keys.</i>
+<li> <b><a href="../private/paramiko.primes-module.html"><code>primes</code></a></b>: <i>Utility functions for dealing with primes.</i>
+<li> <b><a href="../private/paramiko.rsakey-module.html"><code>rsakey</code></a></b>: <i><a href="paramiko.RSAKey-class.html" 
+class="link"><code>RSAKey</code></a></i>
+<li> <b><a href="../private/paramiko.server-module.html"><code>server</code></a></b>: <i><a href="../private/paramiko.ServerInterface-class.html" 
+class="link"><code>ServerInterface</code></a> is an interface to override 
+for server support.</i>
+<li> <b><a href="../private/paramiko.sftp-module.html"><code>sftp</code></a></b>
+<li> <b><a href="../private/paramiko.sftp_attr-module.html"><code>sftp_attr</code></a></b>
+<li> <b><a href="../private/paramiko.sftp_client-module.html"><code>sftp_client</code></a></b>: <i>Client-mode SFTP support.</i>
+<li> <b><a href="../private/paramiko.sftp_file-module.html"><code>sftp_file</code></a></b>: <i><a href="paramiko.SFTPFile-class.html" 
+class="link"><code>SFTPFile</code></a></i>
+<li> <b><a href="../private/paramiko.sftp_handle-module.html"><code>sftp_handle</code></a></b>: <i>Abstraction of an SFTP file handle (for server mode).</i>
+<li> <b><a href="../private/paramiko.sftp_server-module.html"><code>sftp_server</code></a></b>: <i>Server-mode SFTP support.</i>
+<li> <b><a href="../private/paramiko.sftp_si-module.html"><code>sftp_si</code></a></b>: <i><a href="../private/paramiko.SFTPServerInterface-class.html" 
+class="link"><code>SFTPServerInterface</code></a> is an interface to 
+override for SFTP server support.</i>
+<li> <b><a href="../private/paramiko.ssh_exception-module.html"><code>ssh_exception</code></a></b>: <i>Exceptions defined by paramiko.</i>
+<li> <b><a href="../private/paramiko.transport-module.html"><code>transport</code></a></b>: <i><a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> handles the core SSH2 
+protocol.</i>
+<li> <b><a href="../private/paramiko.win_pageant-module.html"><code>win_pageant</code></a></b>: <i>Functions for communicating with Pageant, the basic windows ssh agent 
+program.</i>
+  </ul></td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASSES =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Classes</th></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Agent-class.html"><code>Agent</code></a></b></td>
+  <td>Client interface for using private keys from an SSH agent running on 
+the local machine.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AgentKey-class.html"><code>AgentKey</code></a></b></td>
+  <td>Private key held in a local SSH agent.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AutoAddPolicy-class.html"><code>AutoAddPolicy</code></a></b></td>
+  <td>Policy for automatically adding the hostname and new host key to the 
+local <a href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a> object, and saving it.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BufferedFile-class.html"><code>BufferedFile</code></a></b></td>
+  <td>Reusable base class to implement python-style file buffering around a 
+simpler stream.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Channel-class.html"><code>Channel</code></a></b></td>
+  <td>A secure tunnel across an SSH <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.DSSKey-class.html"><code>DSSKey</code></a></b></td>
+  <td>Representation of a DSS key which can be used to sign an verify SSH2 
+data.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.HostKeys-class.html"><code>HostKeys</code></a></b></td>
+  <td>Representation of an openssh-style &quot;known hosts&quot; file.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Message-class.html"><code>Message</code></a></b></td>
+  <td>An SSH2 <i>Message</i> is a stream of bytes that encodes some 
+combination of strings, integers, bools, and infinite-precision integers 
+(known in python as <i>long</i>s).</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.MissingHostKeyPolicy-class.html"><code>MissingHostKeyPolicy</code></a></b></td>
+  <td>Interface for defining the policy that <a 
+href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a> should use when the SSH server's 
+hostname is not in either the system host keys or the application's 
+keys.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.RSAKey-class.html"><code>RSAKey</code></a></b></td>
+  <td>Representation of an RSA key which can be used to sign and verify SSH2 
+data.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTP-class.html"><code>SFTP</code></a></b></td>
+  <td>an alias for <a href="paramiko.SFTPClient-class.html" 
+class="link"><code>SFTPClient</code></a> for backwards compatability</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPAttributes-class.html"><code>SFTPAttributes</code></a></b></td>
+  <td>Representation of the attributes of a file (or proxied file) for SFTP 
+in client or server mode.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPClient-class.html"><code>SFTPClient</code></a></b></td>
+  <td>SFTP client object.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPFile-class.html"><code>SFTPFile</code></a></b></td>
+  <td>Proxy object for a file on the remote server, in client mode SFTP.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPHandle-class.html"><code>SFTPHandle</code></a></b></td>
+  <td>Abstract object representing a handle to an open file (or folder) in 
+an SFTP server implementation.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPServer-class.html"><code>SFTPServer</code></a></b></td>
+  <td>Server-side SFTP subsystem support.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHClient-class.html"><code>SSHClient</code></a></b></td>
+  <td>A high-level representation of a session with an SSH server.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHConfig-class.html"><code>SSHConfig</code></a></b></td>
+  <td>Representation of config information as stored in the format used by 
+OpenSSH.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SubsystemHandler-class.html"><code>SubsystemHandler</code></a></b></td>
+  <td>Handler for a subsytem in server mode.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Transport-class.html"><code>Transport</code></a></b></td>
+  <td>An SSH Transport attaches to a stream (usually a socket), negotiates 
+an encrypted session, authenticates, and then creates stream tunnels, 
+called <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>s, across the session.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.AuthHandler-class.html"><code>AuthHandler</code></a></b></td>
+  <td>Internal class to handle the mechanics of authentication.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.BaseSFTP-class.html"><code>BaseSFTP</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.ChannelFile-class.html"><code>ChannelFile</code></a></b></td>
+  <td>A file-like wrapper around <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.Packetizer-class.html"><code>Packetizer</code></a></b></td>
+  <td>Implementation of the base SSH packet protocol.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.PKey-class.html"><code>PKey</code></a></b></td>
+  <td>Base class for public keys.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.RejectPolicy-class.html"><code>RejectPolicy</code></a></b></td>
+  <td>Policy for automatically rejecting the unknown hostname &amp; key.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.SecurityOptions-class.html"><code>SecurityOptions</code></a></b></td>
+  <td>Simple object containing the security preferences of an ssh 
+transport.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.ServerInterface-class.html"><code>ServerInterface</code></a></b></td>
+  <td>This class defines an interface for controlling the behavior of 
+paramiko in server mode.</td></tr>
+<tr><td width="15%">
+  <b><a href="../private/paramiko.SFTPServerInterface-class.html"><code>SFTPServerInterface</code></a></b></td>
+  <td>This class defines an interface for controlling the behavior of 
+paramiko when using the <a href="paramiko.SFTPServer-class.html" 
+class="link"><code>SFTPServer</code></a> subsystem to provide an SFTP 
+server.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF EXCEPTIONS =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Exceptions</th></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AuthenticationException-class.html"><code>AuthenticationException</code></a></b></td>
+  <td>Exception raised when authentication failed for some reason.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BadAuthenticationType-class.html"><code>BadAuthenticationType</code></a></b></td>
+  <td>Exception raised when an authentication type (like password) is used, 
+but the server isn't allowing that type.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BadHostKeyException-class.html"><code>BadHostKeyException</code></a></b></td>
+  <td>The host key given by the SSH server did not match what we were 
+expecting.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.ChannelException-class.html"><code>ChannelException</code></a></b></td>
+  <td>Exception raised when an attempt to open a new <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a> 
+fails.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.PasswordRequiredException-class.html"><code>PasswordRequiredException</code></a></b></td>
+  <td>Exception raised when a password is needed to unlock a private key 
+file.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPError-class.html"><code>SFTPError</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHException-class.html"><code>SSHException</code></a></b></td>
+  <td>Exception raised by failures in SSH2 protocol negotiation or logic 
+errors.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AuthenticationException-class.html"><code>x</code></a></b></td>
+  <td>Exception raised when authentication failed for some reason.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="../private/paramiko-module.html#__author__"><code>__author__</code></a></b> = <span title="'Robey Pointer &lt;robey@lag.net&gt;'"><code><span class="variable-quote">'</span>Robey&nbsp;Pointer&nbsp;&lt;robey&#64;lag.net&gt;<span class="variable-quote">'</span>             </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="../private/paramiko-module.html#__date__"><code>__date__</code></a></b> = <span title="'10 May 2006'"><code><span class="variable-quote">'</span>10&nbsp;May&nbsp;2006<span class="variable-quote">'</span>                                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="../private/paramiko-module.html#__license__"><code>__license__</code></a></b> = <span title="'GNU Lesser General Public License (LGPL)'"><code><span class="variable-quote">'</span>GNU&nbsp;Lesser&nbsp;General&nbsp;Public&nbsp;License&nbsp;(LGPL)<span class="variable-quote">'<span class="variable-ellipsis">...</span></code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>str</code></font></td>
+<td><b><a href="../private/paramiko-module.html#__version__"><code>__version__</code></a></b> = <span title="'1.6 (umbreon)'"><code><span class="variable-quote">'</span>1.6&nbsp;(umbreon)<span class="variable-quote">'</span>                            </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>tuple</code></font></td>
+<td><b><a href="../private/paramiko-module.html#__version_info__"><code>__version_info__</code></a></b> = <span title="(1, 6, 0)"><code>(1,&nbsp;6,&nbsp;0)                             </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__author__"></a>
+<h3>__author__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'Robey Pointer &lt;robey@lag.net&gt;'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>Robey Pointer &lt;robey&#64;lag.net&gt;<span class="variable-quote">'</span>                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__date__"></a>
+<h3>__date__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'10 May 2006'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>10 May 2006<span class="variable-quote">'</span>                                                          </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__license__"></a>
+<h3>__license__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'GNU Lesser General Public License (LGPL)'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>GNU Lesser General Public License (LGPL)<span class="variable-quote">'</span>                             </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__version__"></a>
+<h3>__version__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>str</code>
+
+      </dd>
+<span title="'1.6 (umbreon)'">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+<span class="variable-quote">'</span>1.6 (umbreon)<span class="variable-quote">'</span>                                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__version_info__"></a>
+<h3>__version_info__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>tuple</code>
+
+      </dd>
+<span title="(1, 6, 0)">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+(1, 6, 0)                                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:00 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

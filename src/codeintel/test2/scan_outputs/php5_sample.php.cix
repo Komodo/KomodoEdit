@@ -1,0 +1,72 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php5_sample.php">
+    <scope ilk="blob" lang="PHP" name="php5_sample.php" src="scan_inputs/php5_sample.php">
+      <import line="2" module="soap.php" />
+      <scope doc="simpleFunc&#xA;&#xA;an example doc string in php" ilk="function" line="9" lineend="10" name="simpleFunc" signature="simpleFunc(ttt)">
+        <variable ilk="argument" name="ttt" />
+      </scope>
+      <scope ilk="class" line="12" lineend="16" name="SimpleClass">
+        <variable line="13" name="x" />
+        <scope ilk="function" line="14" lineend="15" name="foo" signature="foo()" />
+      </scope>
+      <scope classrefs="SimpleClass" ilk="class" line="18" lineend="37" name="SimpleClass2">
+        <variable line="19" name="x" />
+        <scope doc="foo&#xA;&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&#xA;@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="foo(x, y, z)">
+          <variable citdl="string" ilk="argument" name="x" />
+          <variable citdl="integer" ilk="argument" name="y" />
+          <variable citdl="MyClass" ilk="argument" name="z" />
+          <variable citdl="func_get_args()" line="34" name="args" />
+        </scope>
+      </scope>
+      <scope ilk="interface" line="39" lineend="42" name="TestInterface" signature="TestInterface">
+        <scope attributes="public" ilk="function" line="41" lineend="41" name="printHello" signature="printHello()" />
+      </scope>
+      <scope ilk="interface" line="44" lineend="46" name="TestMethodsInterface" signature="TestMethodsInterface">
+        <scope attributes="public" ilk="function" line="45" lineend="45" name="printHello" signature="printHello()" />
+      </scope>
+      <scope attributes="abstract" doc="AbstractClass&#xA;&#xA;an example doc string in php" ilk="class" line="53" lineend="66" name="AbstractClass">
+        <scope attributes="abstract public" ilk="function" line="55" lineend="55" name="test" signature="test(x, y, z=NULL)">
+          <variable ilk="argument" name="x" />
+          <variable ilk="argument" name="y" />
+          <variable default="NULL" ilk="argument" name="z" />
+        </scope>
+        <scope attributes="abstract public" doc="@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="test2(x, y, z=NULL)">
+          <variable citdl="string" ilk="argument" name="x" />
+          <variable citdl="integer" ilk="argument" name="y" />
+          <variable citdl="MyClass" default="NULL" ilk="argument" name="z" />
+        </scope>
+      </scope>
+      <scope classrefs="AbstractClass" ilk="class" interfacerefs="TestInterface TestMethodsInterface" line="68" lineend="114" name="MyClass">
+        <variable line="71" name="oldStyleVar" />
+        <variable attributes="public" line="72" name="newStyleVar" />
+        <variable attributes="private" citdl="string" line="73" name="Hello" />
+        <variable attributes="protected" citdl="string" line="74" name="Bar" />
+        <variable attributes="protected" citdl="string" line="75" name="Foo" />
+        <variable attributes="static" citdl="int" line="76" name="my_static" />
+        <scope attributes="__ctor__" ilk="function" line="78" lineend="80" name="__construct" signature="__construct()" />
+        <scope ilk="function" line="82" lineend="84" name="__destruct" signature="__destruct()" />
+        <scope attributes="public" ilk="function" line="86" lineend="90" name="printHello" signature="printHello()" />
+        <scope attributes="public" ilk="function" line="92" lineend="95" name="test" signature="test(x, y, z=NULL)">
+          <variable ilk="argument" name="x" />
+          <variable ilk="argument" name="y" />
+          <variable default="NULL" ilk="argument" name="z" />
+        </scope>
+        <scope attributes="public" ilk="function" line="97" lineend="98" name="test2" signature="test2(x, y, z=NULL)">
+          <variable ilk="argument" name="x" />
+          <variable ilk="argument" name="y" />
+          <variable default="NULL" ilk="argument" name="z" />
+        </scope>
+        <scope attributes="private" ilk="function" line="101" lineend="103" name="aPrivateMethod" signature="aPrivateMethod()" />
+        <scope attributes="protected" ilk="function" line="106" lineend="109" name="aProtectedMethod" signature="aProtectedMethod()" />
+        <scope attributes="final" ilk="function" line="111" lineend="113" name="bar" signature="bar()" />
+      </scope>
+      <scope attributes="final" classrefs="MyClass" ilk="class" line="116" lineend="135" name="MyClass2">
+        <variable attributes="protected" line="117" name="Foo" />
+        <scope attributes="__ctor__" ilk="function" line="119" lineend="122" name="__construct" signature="__construct()" />
+        <scope attributes="public" ilk="function" line="124" lineend="129" name="printHello" signature="printHello()" />
+        <scope attributes="public" ilk="function" line="131" lineend="134" name="aPublicMethod" signature="aPublicMethod()" />
+      </scope>
+      <variable citdl="MyClass" line="137" name="obj" />
+    </scope>
+  </file>
+</codeintel>

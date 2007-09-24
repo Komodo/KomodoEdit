@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<grammar
+ xmlns="http://relaxng.org/ns/structure/1.0"
+ datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+ xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" 
+ ns="http://purl.org/atom/ns#"
+ xmlns:r="http://purl.org/atom/ns#"
+ xmlns:s="http://www.ascc.net/xml/schematron"
+ xmlns:html="http://www.w3.org/1999/xhtml"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+> 
+<a:documentation>
+  <html:h1>Atom 0.3 Schema, relax ng format.</html:h1>
+  <html:p><html:a
+  href="http://www.mnot.net/drafts/draft-nottingham-atom-format-02.html#">Base
+  references</html:a>. Prefix all rfc links with this. </html:p>
+  <html:p>Version. 0.4. Corrected bug in foreign elements. </html:p>
+  <html:p>Version. 0.5. Removed Schematron validation of author inheritance. </html:p>
+  <html:p>Version. 0.6. Amended the modified attribute definition. Bug
+  cleared, Modified added to entry. Common attributes added</html:p>
+  <html:p>Version 0.7. Amended entry and content elements. I think
+  this is compliant</html:p>
+  <html:p>Version 0.8. Attempted improvement to documentation</html:p>
+<html:p>Version 0.9. Revised xhtml namespace for documentation</html:p>
+
+  <html:p>Reference source <html:a
+  href="http://www.mnot.net/drafts/draft-nottingham-atom-format-02.html">draft
+  02 of atom spec</html:a> </html:p>
+</a:documentation>
+
+  <start>
+    <ref name="Feed"/> 
+  </start> 
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4"/>
+  </a:documentation>
+  <define name="Feed">
+    <element name="feed"  >
+      <ref name="CommonAtts"/>
+      <ref name="VerAtt"/>
+    <interleave>
+      <ref name="Title"/>
+      <ref name="Modified"/>
+      <ref name="Id"/>
+      <ref name="Tagline"/>
+      <ref name="Generator"/>
+      <ref name="Copyright"/>
+      <ref name="Info"/>
+      <oneOrMore>
+
+	<html:p>See FeedLinkCheck in Schematron Schema.  section 4.4
+	requires further validation than with Relax</html:p>
+	<ref name="Link"/> 
+      </oneOrMore>
+      <zeroOrMore>
+	<ref name="Contributor"/>
+      </zeroOrMore>
+ 
+     <choice>
+       <html:p>Author and n entries, each with optional Author </html:p>
+	<group>
+	  <interleave>
+	  <ref name="Author"/>
+	  <oneOrMore>
+	    <ref name="EntryOptionalAuthor"/>
+	  </oneOrMore>
+	  </interleave>
+	</group>
+
+	<group> <!-- Or no author and entries each with author -->
+	  <oneOrMore>
+	    <ref name="EntryRequiredAuthor"/>
+	  </oneOrMore>
+	</group>
+
+      </choice>
+    </interleave>
+  </element>
+</define>
+</div>
+
+
+<div>
+  <a:documentation>
+    <html:p><html:a href="rfc.section.4.13"/>. An entry with a required
+    author element.
+    </html:p>
+  </a:documentation>
+<define name="EntryRequiredAuthor">
+  <element name="entry" >
+    <ref name="CommonAtts"/>
+    <interleave>
+      <ref name="Author"/>
+      <ref name="EntryRequiredAuthor"/>
+      <ref name="Foreign"/>
+    </interleave>
+  </element>
+</define>
+</div>
+
+<div>
+ <a:documentation>
+ <html:p><html:a href="rfc.section.4.13"/>. An entry with Optional
+ author element.
+ </html:p>
+  </a:documentation>
+<define name="EntryOptionalAuthor">
+   <element name="entry" >
+    <ref name="CommonAtts"/>
+    <ref name="EntryContent"/>
+    <optional>
+      <interleave>
+      <ref name="Author"/>
+      <ref name="Foreign"/>
+      </interleave>
+    </optional>
+
+  </element>
+</define>
+</div>
+
+
+<div>
+ <a:documentation>
+    <html:p><html:a href="rfc.section.4.13"/>Common content for all
+    entries, with or without author. This definition omits the author
+    element. See the users of this definition. </html:p>
+  </a:documentation>
+<define name="EntryContent">
+  <interleave>
+    <ref name="Title"/>
+    <ref name="Id"/>
+    <ref name="Issued"/>
+    <ref name="Modified"/>
+    <zeroOrMore>
+      <html:p>This link element needs Schematron validation, as per
+      <html:a href="rfc.section.4.13.2">rfc</html:a >  </html:p>
+      <ref name="Link"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="Created"/>
+    </optional>
+    <optional>
+      <ref name="Summary"/>
+    </optional>
+    <ref name="Foreign"/>
+    <optional>
+      <ref name="Content"/>
+    </optional>
+  </interleave>
+</define>
+</div>
+
+<div>
+<a:documentation>
+    <html:a href="rfc.section.4.1"/>
+  </a:documentation>
+<define name="VerAtt">
+  <attribute name="version">
+    <value>0.3</value>
+  </attribute>
+</define>
+</div>
+
+<div>
+ <a:documentation>
+    <html:a href="rfc.section.4.2"/>
+  </a:documentation>
+<define name="Lang">
+  <attribute name="xml:lang">
+    <data type="language"/>
+  </attribute>
+</define>
+</div>
+
+
+<div>
+ <a:documentation>
+    <a href="rfc.section.4.13.10"/>
+<p>If @type="multipart/alternative", @mode MUST NOT be specified, and
+content element MUST contain 1 or more content elements. These content
+elements MUST NOT specify @type="multipart/alternative" (i.e. only one
+level of nesting is allowed). Consumers SHOULD look at all alternative
+content elements and determine which one is most suitable, based on
+which @type and @mode the consumer supports, and preferences specified
+by the end user (if any). Consumers SHOULD NOT render more than one
+content alternative.</p>
+  </a:documentation>
+
+<define name="Content">
+  <choice>
+    <group>
+      <element name="content">
+	<ref name="CommonAtts"/>
+	<attribute name="type">
+	  <value>multipart/alternative</value>
+	</attribute>
+	<oneOrMore>
+	  <ref name="ContainedContent"/>
+	</oneOrMore>
+	<empty/>
+      </element>
+    </group>
+    <group>
+      <ref name="ContainedContent"/>
+    </group>
+  </choice>
+</define>
+</div>
+
+
+<div>
+ <a:documentation>
+    <html:a href="rfc.section.4.13.10"/>
+  </a:documentation>
+<define name="ContainedContent">
+  <element name="content">
+    <ref name="CommonAtts"/>
+    <attribute name="type">
+      <data type="token">
+	<except>
+	<value>multipart/alternative</value>
+	</except>
+      </data>
+    </attribute>
+    <ref name="Mode"/>
+    <mixed>
+      <ref name="Foreign"/>
+    </mixed>
+  </element>
+</define>
+</div>
+
+
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.13.7"/> 
+  </a:documentation>
+<define name="Issued">
+
+  <element name="issued">
+    <ref name="CommonAtts"/>
+    <data type="dateTime">
+      <param name="minInclusive">2000-01-01T00:00:00</param>
+      <param name="maxInclusive">2099-12-31T23:59:59</param>
+    </data>
+  </element>
+</define>
+</div>
+
+<div>
+<a:documentation>
+ <html:a href="rfc.section.4.13.8"/> 
+</a:documentation>
+<define name="Created">
+
+  <element name="created">
+    <ref name="CommonAtts"/>
+     <data type="dateTime">
+          <param name="minInclusive">2000-01-01T00:00:00</param>
+          <param name="maxInclusive">2099-12-31T23:59:59</param>
+  </data>
+  </element>
+</define>
+</div>
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.13.9"/>
+  </a:documentation>
+<define name="Summary">
+
+  <element name="summary">
+    <ref name="CommonAtts"/>
+    <text/>
+  </element>
+</define>
+</div>
+
+
+
+<div>
+<a:documentation>
+ <html:a href="rfc.section.4.3.1"/> <!-- feed/title -->
+  <html:a href="rfc.section.4.13.1"/><!-- entry/title -->
+</a:documentation>
+<define name="Mode">
+  <attribute name="mode">
+      <choice>
+	<value>xml</value>
+	<value>escaped</value>
+	<value>base64</value>
+      </choice>
+    </attribute>
+</define>
+</div>
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.4.5"/>
+  <html:a href="rfc.section.4.13.3"/>
+<html:p>Requirement is that unless feed has an author, all entries must
+have one</html:p>
+</a:documentation>
+<define name="Title" >
+
+  <element name="title"  >
+    <ref name="CommonAtts"/>
+    <text/>
+  </element>
+</define>
+</div>
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.4.5"/>
+  <html:a href="rfc.section.4.13.3"/>
+<html:p>Requirement is that unless feed has an author, all entries must
+have one</html:p>
+</a:documentation>
+
+<define name="Author">
+
+  <element name="author">
+    <ref name="CommonAtts"/>
+    <ref name="Person"/>
+  </element>
+</define>
+</div>
+
+<div>
+   <a:documentation>
+     <html:a href="rfc.section.4.13"/>
+   </a:documentation>
+ <define name="Anything">
+
+   <zeroOrMore>
+     <choice>
+     <element>
+       <anyName/>
+       <ref name="Anything"/>
+       </element>
+       <attribute>
+	 <anyName/>
+       </attribute>
+       <text/>
+     </choice>
+   </zeroOrMore>
+</define>
+</div>
+
+<div>
+  <a:documentation>
+    <html:p><html:a href="rfc.section.4.13"/>Any content from any
+    namespace except atoms. </html:p>
+  </a:documentation>
+
+<define name="Foreign">
+  <zeroOrMore>
+    <element>
+      <anyName>
+	<except>
+	  <nsName ns="http://purl.org/atom/ns#"/>
+	</except>
+      </anyName>
+      <ref name="Anything"/>
+    </element>
+  </zeroOrMore>
+</define>
+</div>
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.4.6"/>
+  <html:a href="rfc.section.4.13.4"/>
+</a:documentation>
+<define name="Contributor">
+
+<element name="contributor">
+  <ref name="CommonAtts"/>
+  <ref name="Person"/>
+</element>
+</define>
+</div>
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.3.2"/>
+  <html:a href="rfc.section.4.13.3"/>
+</a:documentation>
+<define name="Person">
+  <ref name="Name"/>
+  <optional> 
+    <ref name="Url"/>
+  </optional>
+  <optional>
+  <ref name="Email"/>
+  </optional>
+</define>
+</div>
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.3.2.1"/>
+</a:documentation>
+<define name="Name">
+
+  <element name="name">
+    <ref name="CommonAtts"/>
+    <text/>
+  </element>
+</define>
+</div>
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.4.12"/>
+  <html:a href="rfc.section.4.13.6"/>
+
+</a:documentation>
+<define name="Modified">
+
+
+<!-- 2001-10-26T21:32:52Z -->
+<element name="modified">
+    <ref name="CommonAtts"/>
+  <data type="dateTime">
+          <param name="minInclusive">2000-01-01T00:00:00</param>
+          <param name="maxInclusive">2099-12-31T23:59:59</param>
+          <param  name="pattern">.*T[^+\-]*</param>
+  </data>
+ </element>
+</define>
+</div>
+
+
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.3.2.2"/>
+</a:documentation>
+<define name="Url">
+
+<element name="url">
+    <ref name="CommonAtts"/>
+  <data type="anyURI"/>
+</element>
+</define>
+</div>
+
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.3.4"/>
+    <html:a href="rfc.section.4.4"/>
+    <html:a href="rfc.section.4.13.2"/>
+  </a:documentation>
+<define name="Link">
+
+  <element name="link">
+    <ref name="CommonAtts"/>
+    <ref name="Href"/>
+    <attribute name="type">
+      <data type="token"/>
+    </attribute>
+    <ref name="Rel"/>
+    <optional>
+      <attribute name="title">
+	<text/>
+      </attribute>
+    </optional>
+    <empty/>
+  </element>
+</define>
+</div>
+
+
+
+
+<div>
+<a:documentation>
+  <a:a href="rfc.section.4.13.2"/>
+  <a:a href="rfc.section.3.4"/>
+  <html:p>Restricted first occurrence within entry element</html:p>
+</a:documentation>
+<define name="Href">
+  <attribute name="href">
+    <data type="anyURI"/>
+  </attribute>
+</define>
+</div>
+
+<div>
+<a:documentation>
+  <a:a href="rfc.section.3.1.1"/>
+</a:documentation>
+<define name="Type">
+  <attribute name="type"> <!-- http://www.ietf.org/rfc/rfc2045.txt -->
+  <data type="token"/>
+  </attribute>
+</define>
+</div>
+
+
+<div>
+<a:documentation>
+  <a:a href="rfc.section.3.4.1"/>
+</a:documentation>
+<define name="Rel">
+   <attribute name="rel">
+	<data type="token">
+	  <param name="pattern">alternate|start|next|prev|service.post|service.edit|service.feed</param>
+	</data>
+      </attribute>
+</define>
+</div>
+
+<div>
+<a:documentation>
+ <html:p>An entry, with an <html:code>rel</html:code> attribute  of alternate</html:p>
+</a:documentation>
+<define name="EntryLinkType1">
+  <element name="link">
+    <ref name="CommonAtts"/>
+    <interleave>
+    <attribute name="rel"> <!-- http://www.ietf.org/rfc/rfc2045.txt -->
+	<value>alternate</value>
+    </attribute>
+    <ref name="Href"/>
+    <optional>
+      <attribute  name="title">
+	<text/>
+      </attribute>
+    </optional>
+    <ref name="Type"/>
+
+    </interleave>
+    <empty/>
+  </element>
+</define>
+</div>
+
+
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.4.8"/>
+ </a:documentation>
+<define name="Id">
+
+  <optional>
+  <element name="id">
+    <ref name="CommonAtts"/>
+    <data type="anyURI"/>
+  </element>
+  </optional>
+</define>
+</div>
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.3.2.3"/>
+</a:documentation>
+<define name="Email"><!-- http://www.ietf.org/rfc/rfc2822.txt -->
+
+
+  <element name="email">
+    <ref name="CommonAtts"/>
+    <data type="token">
+        <param name="pattern">([a-zA-Z0-9!#$%&amp;'*+\-/=?\^_`{|}~]+(\.[a-zA-Z0-9!#$%&amp;'*+\-/=?\^_`{|}~]+)*|"([^"\\]|\\.)*")@([a-zA-Z0-9!#$%&amp;'*+\-/=?\^_`{|}~]+(\.[a-zA-Z0-9!#$%&amp;'*+\-/=?\^_`{|}~]+)*|\[([^\[\]\\]|\\.)*\])</param>
+      </data>
+  </element>
+</define>
+</div>
+
+
+
+<div>
+<a:documentation>
+  <html:a href="rfc.section.3.1"/>
+</a:documentation>
+<define name="Cc">
+
+<optional>
+  <attribute name="type">
+    <choice>
+      <value>text/plain</value>
+      <data type="token"/>
+    </choice>
+  </attribute>
+</optional>
+<optional>
+  <attribute name="mode">
+    <data type="token">
+      <param name="pattern">xml|escaped|base64</param>
+    </data>
+  </attribute>
+</optional>
+</define>
+</div>
+
+
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.7"/>
+  </a:documentation>
+<define name="Tagline">
+
+  <optional>
+  <element name="tagline">
+    <ref name="CommonAtts"/>
+    <text/>
+  </element>
+  </optional>
+</define>
+</div>
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.9"/>
+  </a:documentation>
+<define name="Generator">
+
+  <optional>
+  <element name="generator">
+    <ref name="CommonAtts"/>
+ <optional>
+    <attribute name="url">
+          <data type="anyURI"/>
+    </attribute>
+  </optional>
+  <optional>
+    <attribute name="version">
+      <text/>
+    </attribute>
+  </optional>
+  <text/>
+    </element>
+  </optional>
+</define>
+</div>
+
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.10"/>
+  </a:documentation>
+<define name="Copyright">
+
+  <optional>
+    <element name="copyright">
+    <ref name="CommonAtts"/>
+      <text/>
+    </element>
+  </optional>
+</define>
+</div>
+
+
+
+<div>
+  <a:documentation>
+    <html:a href="rfc.section.4.11"/>
+  </a:documentation>
+<define name="Info">
+
+  <optional>
+    <element name="info">
+    <ref name="CommonAtts"/>
+      <text/>
+    </element>
+  </optional>
+</define>
+</div>
+
+
+<div>
+ <a:documentation>
+    <html:a href="rfc.section.2."/>
+  </a:documentation>
+<define name="CommonAtts">
+
+  <optional>
+  <ref name="Lang"/>
+  </optional>
+  <optional>
+    <attribute name="xml:base">
+      <data type="anyURI"/>
+    </attribute>
+  </optional>
+</define>
+</div>
+</grammar>

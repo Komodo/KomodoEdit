@@ -1,0 +1,37 @@
+--- 
+- !ruby/object:Tag 
+  attributes: 
+    name: Adventure
+    id: "1"
+- !ruby/object:Tag 
+  attributes: 
+    name: Comedy
+    id: "2"
+- !ruby/object:Tag 
+  attributes: 
+    name: Science Fiction
+    id: "3"
+- !ruby/object:Tag 
+  attributes: 
+    name: Romance
+    id: "4"
+- !ruby/object:Tag 
+  attributes: 
+    name: Thriller
+    id: "5"
+- !ruby/object:Tag 
+  attributes: 
+    name: Reference
+    id: "6"
+- !ruby/object:Tag 
+  attributes: 
+    name: Literature
+    id: "7"
+- !ruby/object:Tag 
+  attributes: 
+    name: General Interest
+    id: "8"
+- !ruby/object:Tag 
+  attributes: 
+    name: Fantasy
+    id: "9"

@@ -1,0 +1,53 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// Support for Find in Files' "Browse for dirs" dialog.
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+
+[scriptable, uuid(B26C69D5-167A-4912-A71E-C170BF46D7F9)]
+interface koIFindAvailableDirsView : nsITreeView {
+    // An tree view for the "Available directories" tree in "Find in Files'"
+    // "Browse for dirs" dialog.
+    
+    // Change the view to the given dir.
+    //
+    //  "currentDir" is an absolute or relative (to the currentDir setting)
+    //      path to which to change. It is an error to pass in a relative
+    //      path if the current dir has never been set (in which case
+    //      an exception is raised).
+    //
+    // If a non-existant dir is set no error is raised.
+    void changeDir(in wstring newDir);
+    readonly attribute wstring currentDir;
+    
+    // Return the full path to the currently selected dir.
+    //
+    // This is the dir at the nsITreeSelection's currentIndex. There may
+    // be multiple items selected -- in which case you will need to use
+    // getDirAt(). Raises an exception if there is nothing selected.
+    wstring getSelectedDir();
+    wstring getDirAt(in PRUint32 index);
+
+    // Return the index of the item with the given basename. If no such
+    // basename exists return -1.
+    long getIndexOfDir(in wstring baseName);
+};
+
+[scriptable, uuid(0AA90BAC-D577-4D40-AEE1-FDA46A6AFC2E)]
+interface koIFindSelectedDirsView : nsITreeView {
+    // An tree view for the "Selected directories" tree in "Find in Files'"
+    // "Browse for dirs" dialog.
+    void setEncodedFolders(in wstring encodedFolders);
+    wstring getEncodedFolders();
+    
+    // Raises an error iff the dir is already one of the existing folders.
+    void addDir(in wstring dir);
+    
+    void removeSelectedDirs();
+    void moveSelectedDirUp();
+    void moveSelectedDirDown();
+};
+

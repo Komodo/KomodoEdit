@@ -1,0 +1,154 @@
+<?xml version='1.0'?>
+<!DOCTYPE module SYSTEM "/share/doctypes/RELAX/relaxCore.dtd">
+
+<module moduleVersion="0.1"
+    relaxCoreVersion="1.0"
+    targetNamespace="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+    xmlns="http://www.xml.gr.jp/xmlns/relaxCore">
+
+  <!-- $Id: catalog.rlx,v 1.7 2001/06/12 14:26:00 ndw Exp $ -->
+
+  <interface>
+    <export label="catalog"/>
+  </interface>
+
+  <attPool role='optional.attributes'>
+    <attribute name='id' type='ID'/>
+    <attribute name='xml:base' type='string'/>
+  </attPool>
+
+  <attPool role='prefer.attribute'>
+    <attribute name='prefer' type='NMTOKEN'>
+      <enumeration value='system'/>
+      <enumeration value='public'/>
+    </attribute>
+  </attPool>
+
+  <elementRule role="catalog">
+    <choice occurs="+">
+      <ref label="public"/>
+      <ref label="system"/>
+      <ref label="uri"/>
+      <ref label="rewriteSystem"/>
+      <ref label="rewriteURI"/>
+      <ref label="delegatePublic"/>
+      <ref label="delegateSystem"/>
+      <ref label="delegateURI"/>
+      <ref label="nextCatalog"/>
+      <ref label="group"/>
+    </choice>
+  </elementRule>
+
+  <elementRule role="public">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="system">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="uri">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="rewriteSystem">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="rewriteURI">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="delegatePublic">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="delegateSystem">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="delegateURI">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="nextCatalog">
+    <empty/>
+  </elementRule>
+
+  <elementRule role="group">
+    <choice occurs="+">
+      <ref label="public"/>
+      <ref label="system"/>
+      <ref label="uri"/>
+      <ref label="rewriteSystem"/>
+      <ref label="rewriteURI"/>
+      <ref label="delegatePublic"/>
+      <ref label="delegateSystem"/>
+      <ref label="delegateURI"/>
+      <ref label="nextCatalog"/>
+    </choice>
+  </elementRule>
+
+  <tag name="catalog">
+    <ref role="optional.attributes"/>
+    <ref role="prefer.attribute"/>
+  </tag>
+
+  <tag name="group">
+    <ref role="optional.attributes"/>
+    <ref role="prefer.attribute"/>
+  </tag>
+
+  <tag name="public">
+    <ref role="optional.attributes"/>
+    <attribute name="publicId" type='string' required='true'/>
+    <attribute name="uri" type='string' required='true'/>
+  </tag>
+
+  <tag name="system">
+    <ref role="optional.attributes"/>
+    <attribute name="systemId" type='string' required='true'/>
+    <attribute name="uri" type='string' required='true'/>
+  </tag>
+
+  <tag name="uri">
+    <ref role="optional.attributes"/>
+    <attribute name="name" type='string' required='true'/>
+    <attribute name="uri" type='string' required='true'/>
+  </tag>
+
+  <tag name="rewriteSystem">
+    <ref role="optional.attributes"/>
+    <attribute name="systemIdStartString" type='string' required='true'/>
+    <attribute name="rewritePrefix" type='string' required='true'/>
+  </tag>
+
+  <tag name="rewriteURI">
+    <ref role="optional.attributes"/>
+    <attribute name="systemIdStartString" type='string' required='true'/>
+    <attribute name="rewritePrefix" type='string' required='true'/>
+  </tag>
+
+  <tag name="delegatePublic">
+    <ref role="optional.attributes"/>
+    <attribute name="publicIdStartString" type='string' required='true'/>
+    <attribute name="catalog" type='string' required='true'/>
+  </tag>
+
+  <tag name="delegateSystem">
+    <ref role="optional.attributes"/>
+    <attribute name="systemIdStartString" type='string' required='true'/>
+    <attribute name="catalog" type='string' required='true'/>
+  </tag>
+
+  <tag name="delegateURI">
+    <ref role="optional.attributes"/>
+    <attribute name="uriStartString" type='string' required='true'/>
+    <attribute name="catalog" type='string' required='true'/>
+  </tag>
+
+  <tag name="nextCatalog">
+    <ref role="optional.attributes"/>
+    <attribute name="catalog" type='string' required='true'/>
+  </tag>
+</module>

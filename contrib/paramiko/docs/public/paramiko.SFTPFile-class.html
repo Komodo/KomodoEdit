@@ -1,0 +1,719 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SFTPFile</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SFTPFile
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko.SFTPFile-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SFTPFile-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SFTPFile</h2>
+
+<pre class="base-tree">
+  <a href="__builtin__.object-class.html"><code>object</code></a> --+    
+           |    
+<a href="paramiko.BufferedFile-class.html"><code>BufferedFile</code></a> --+
+               |
+              <b>SFTPFile</b>
+</pre><br />
+
+<hr/>
+
+Proxy object for a file on the remote server, in client mode SFTP.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__init__"></a><span class="summary-sig"><span class="summary-sig-name">__init__</span>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sftp</span>,
+          <span class=summary-sig-arg>handle</span>,
+          <span class=summary-sig-arg>mode</span>,
+          <span class=summary-sig-arg>bufsize</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__del__"></a><span class="summary-sig"><span class="summary-sig-name">__del__</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#check" class="summary-sig-name"><code>check</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>hash_algorithm</span>,
+          <span class=summary-sig-arg>offset</span>,
+          <span class=summary-sig-arg>length</span>,
+          <span class=summary-sig-arg>block_size</span>)</span></code>
+<br />
+Ask the server for a hash of a section of this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#chmod" class="summary-sig-name"><code>chmod</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+<br />
+Change the mode (permissions) of this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#chown" class="summary-sig-name"><code>chown</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>uid</span>,
+          <span class=summary-sig-arg>gid</span>)</span></code>
+<br />
+Change the owner (<code>uid</code>) and group (<code>gid</code>) of 
+this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close the file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        float
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#gettimeout" class="summary-sig-name"><code>gettimeout</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns the timeout in seconds (as a float) associated with the socket 
+or ssh <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a> used for this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#prefetch" class="summary-sig-name"><code>prefetch</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Pre-fetch the remaining contents of this file in anticipation of 
+future <a href="paramiko.BufferedFile-class.html#read" 
+class="link"><code>read</code></a> calls.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list(str)
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#readv" class="summary-sig-name"><code>readv</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>chunks</span>)</span></code>
+<br />
+Read a set of blocks from the file by (offset, length).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#seek" class="summary-sig-name"><code>seek</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>offset</span>,
+          <span class=summary-sig-arg>whence</span>)</span></code>
+<br />
+Set the file's current position, like stdio's <code>fseek</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#set_pipelined" class="summary-sig-name"><code>set_pipelined</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>pipelined</span>)</span></code>
+<br />
+Turn on/off the pipelining of write operations to this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#setblocking" class="summary-sig-name"><code>setblocking</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>blocking</span>)</span></code>
+<br />
+Set blocking or non-blocking mode on the underiying socket or ssh <a 
+href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#settimeout" class="summary-sig-name"><code>settimeout</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+<br />
+Set a timeout on read/write operations on the underlying socket or ssh 
+<a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPAttributes
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#stat" class="summary-sig-name"><code>stat</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Retrieve information about this file from the remote system.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#truncate" class="summary-sig-name"><code>truncate</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Change the size of this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPFile-class.html#utime" class="summary-sig-name"><code>utime</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>times</span>)</span></code>
+<br />
+Set the access and modified times of this file.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from BufferedFile</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        iterator
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#__iter__" class="summary-sig-name"><code>__iter__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns an iterator that can be used to iterate over the lines in this 
+file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#flush" class="summary-sig-name"><code>flush</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Write out any data in the write buffer.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#next" class="summary-sig-name"><code>next</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns the next line from the input, or raises 
+<code>StopIteration</code> when EOF is hit.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#read" class="summary-sig-name"><code>read</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Read at most <code>size</code> bytes from the file (less if we hit the 
+end of the file first).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#readline" class="summary-sig-name"><code>readline</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Read one entire line from the file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#readlines" class="summary-sig-name"><code>readlines</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sizehint</span>)</span></code>
+<br />
+Read all remaining lines using <a 
+href="paramiko.BufferedFile-class.html#readline" 
+class="link"><code>readline</code></a> and return them as a list.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#tell" class="summary-sig-name"><code>tell</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the file's current position.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#write" class="summary-sig-name"><code>write</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>data</span>)</span></code>
+<br />
+Write data to the file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#writelines" class="summary-sig-name"><code>writelines</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sequence</span>)</span></code>
+<br />
+Write a sequence of strings to the file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        iterator
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.BufferedFile-class.html#xreadlines" class="summary-sig-name"><code>xreadlines</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Identical to <code>iter(f)</code>.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="paramiko.SFTPFile-class.html#MAX_REQUEST_SIZE"><code>MAX_REQUEST_SIZE</code></a></b> = <span title="32768">32768&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from BufferedFile</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="paramiko.BufferedFile-class.html#SEEK_CUR"><code>SEEK_CUR</code></a></b> = <span title="1">1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="paramiko.BufferedFile-class.html#SEEK_END"><code>SEEK_END</code></a></b> = <span title="2">2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="paramiko.BufferedFile-class.html#SEEK_SET"><code>SEEK_SET</code></a></b> = <span title="0">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="check"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>hash_algorithm</span>,
+          <span class=sig-arg>offset</span>=<span class=sig-default>0</span>,
+          <span class=sig-arg>length</span>=<span class=sig-default>0</span>,
+          <span class=sig-arg>block_size</span>=<span class=sig-default>0</span>)</span>
+  </h3>
+  <p>Ask the server for a hash of a section of this file. This can be 
+  used to verify a successful upload or download, or for various 
+  rsync-like operations.</p>
+  <p>The file is hashed from <code>offset</code>, for <code>length</code> 
+  bytes. If <code>length</code> is 0, the remainder of the file is 
+  hashed. Thus, if both <code>offset</code> and <code>length</code> are 
+  zero, the entire file is hashed.</p>
+  <p>Normally, <code>block_size</code> will be 0 (the default), and this 
+  method will return a byte string representing the requested hash (for 
+  example, a string of length 16 for MD5, or 20 for SHA-1). If a non-zero 
+  <code>block_size</code> is given, each chunk of the file (from 
+  <code>offset</code> to <code>offset + length</code>) of 
+  <code>block_size</code> bytes is computed as a separate hash. The hash 
+  results are all concatenated and returned as a single string.</p>
+  For example, <code>check('sha1', 0, 1024, 512)</code> will return a 
+  string of length 40. The first 20 bytes will be the SHA-1 of the first 
+  512 bytes of the file, and the last 20 bytes will be the SHA-1 of the 
+  next 512 bytes.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>hash_algorithm</b></code> -
+         the name of the hash algorithm to use (normally 
+        <code>&quot;sha1&quot;</code> or 
+        <code>&quot;md5&quot;</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>offset</b></code> -
+         offset into the file to begin hashing (0 means to start from 
+        the beginning)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      <dd><code><b>length</b></code> -
+         number of bytes to hash (0 means continue to the end of the 
+        file)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      <dd><code><b>block_size</b></code> -
+         number of bytes to hash per result (must not be less than 256; 
+        0 means to compute only one hash of the entire segment)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        string of bytes representing the hash of each block, 
+        concatenated together
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the server doesn't support the &quot;check-file&quot; 
+        extension, or possibly doesn't support the hash algorithm 
+        requested
+    </dl>
+<p><b>Note:</b> Many (most?) servers don't support this extension yet.
+</p>
+
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="chmod"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chmod</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>mode</span>)</span>
+  </h3>
+  Change the mode (permissions) of this file. The permissions are 
+  unix-style and identical to those used by python's 
+  <code>os.chmod</code> function.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>mode</b></code> -
+         new permissions
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="chown"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chown</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>uid</span>,
+          <span class=sig-arg>gid</span>)</span>
+  </h3>
+  Change the owner (<code>uid</code>) and group (<code>gid</code>) of 
+  this file. As with python's <code>os.chown</code> function, you must 
+  pass both arguments, so if you only want to change one, use <a 
+  href="paramiko.SFTPFile-class.html#stat" 
+  class="link"><code>stat</code></a> first to retrieve the current owner 
+  and group.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>uid</b></code> -
+         new owner's uid
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>gid</b></code> -
+         new group id
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Close the file. Future read and write operations will fail.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="paramiko.BufferedFile-class.html#close"><code>paramiko.BufferedFile.close</code></a> <i>(inherited documentation)</i>
+</dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="gettimeout"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">gettimeout</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Returns the timeout in seconds (as a float) associated with the 
+  socket or ssh <a href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> used for this file.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        float
+      </dd>
+    </dl>
+<p><b>See Also:</b> <a href="paramiko.Channel-class.html#gettimeout" 
+class="link"><code>Channel.gettimeout</code></a>
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="prefetch"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">prefetch</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  <p>Pre-fetch the remaining contents of this file in anticipation of 
+  future <a href="paramiko.BufferedFile-class.html#read" 
+  class="link"><code>read</code></a> calls. If reading the entire file, 
+  pre-fetching can dramatically improve the download speed by avoiding 
+  roundtrip latency. The file's contents are incrementally buffered in a 
+  background thread.</p>
+  The prefetched data is stored in a buffer until read via the <a 
+  href="paramiko.BufferedFile-class.html#read" 
+  class="link"><code>read</code></a> method. Once data has been read, 
+  it's removed from the buffer. The data may be read in a random order 
+  (using <a href="paramiko.SFTPFile-class.html#seek" 
+  class="link"><code>seek</code></a>); chunks of the buffer that haven't 
+  been read will continue to be buffered.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.5.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="readv"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">readv</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>chunks</span>)</span>
+  </h3>
+  Read a set of blocks from the file by (offset, length). This is more 
+  efficient than doing a series of <a 
+  href="paramiko.SFTPFile-class.html#seek" 
+  class="link"><code>seek</code></a> and <a 
+  href="paramiko.BufferedFile-class.html#read" 
+  class="link"><code>read</code></a> calls, since the prefetch machinery 
+  is used to retrieve all the requested blocks at once.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>chunks</b></code> -
+         a list of (offset, length) tuples indicating which sections of 
+        the file to read
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list(tuple(long, int)))</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a list of blocks read, in the same order as in 
+        <code>chunks</code>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list(str))</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.5.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="seek"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">seek</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>offset</span>,
+          <span class=sig-arg>whence</span>=<span class=sig-default>0</span>)</span>
+  </h3>
+  Set the file's current position, like stdio's <code>fseek</code>. 
+  Not all file objects support seeking.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>offset</b></code> -
+         position to move to within the file, relative to 
+        <code>whence</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>whence</b></code> -
+         type of movement: 0 = absolute; 1 = relative to the current 
+        position; 2 = relative to the end of the file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the file doesn't support random access.
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="paramiko.BufferedFile-class.html#seek"><code>paramiko.BufferedFile.seek</code></a> <i>(inherited documentation)</i>
+</dd>
+    </dl>
+<p><b>Note:</b> If a file is opened in append mode (<code>'a'</code> or 
+<code>'a+'</code>), any seek operations will be undone at the next write 
+(as the file position will move back to the end of the file).
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_pipelined"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_pipelined</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>pipelined</span>=<span class=sig-default>True</span>)</span>
+  </h3>
+  <p>Turn on/off the pipelining of write operations to this file. When 
+  pipelining is on, paramiko won't wait for the server response after 
+  each write operation. Instead, they're collected as they come in. At 
+  the first non-write operation (including <a 
+  href="paramiko.SFTPFile-class.html#close" 
+  class="link"><code>close</code></a>), all remaining server responses 
+  are collected. This means that if there was an error with one of your 
+  later writes, an exception might be thrown from within <a 
+  href="paramiko.SFTPFile-class.html#close" 
+  class="link"><code>close</code></a> instead of <a 
+  href="paramiko.BufferedFile-class.html#write" 
+  class="link"><code>write</code></a>.</p>
+  By default, files are <i>not</i> pipelined.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>pipelined</b></code> -
+         <code>True</code> if pipelining should be turned on for this 
+        file; <code>False</code> otherwise
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.5
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="setblocking"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setblocking</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>blocking</span>)</span>
+  </h3>
+  Set blocking or non-blocking mode on the underiying socket or ssh <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>blocking</b></code> -
+         0 to set non-blocking mode; non-0 to set blocking mode.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+<p><b>See Also:</b> <a href="paramiko.Channel-class.html#setblocking" 
+class="link"><code>Channel.setblocking</code></a>
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="settimeout"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">settimeout</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>timeout</span>)</span>
+  </h3>
+  Set a timeout on read/write operations on the underlying socket or 
+  ssh <a href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>timeout</b></code> -
+         seconds to wait for a pending read/write operation before 
+        raising <code>socket.timeout</code>, or <code>None</code> for no 
+        timeout
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=float)</i>
+      </dd>
+    </dl>
+<p><b>See Also:</b> <a href="paramiko.Channel-class.html#settimeout" 
+class="link"><code>Channel.settimeout</code></a>
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="stat"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">stat</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Retrieve information about this file from the remote system. This is 
+  exactly like <a href="paramiko.SFTP-class.html#stat" 
+  class="link"><code>SFTP.stat</code></a>, except that it operates on an 
+  already-open file.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an object containing attributes about this file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=SFTPAttributes)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="truncate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">truncate</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>size</span>)</span>
+  </h3>
+  Change the size of this file. This usually extends or shrinks the 
+  size of the file, just like the <code>truncate()</code> method on 
+  python file objects.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>size</b></code> -
+         the new size of the file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="utime"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">utime</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>times</span>)</span>
+  </h3>
+  Set the access and modified times of this file. If 
+  <code>times</code> is <code>None</code>, then the file's access and 
+  modified times are set to the current time. Otherwise, 
+  <code>times</code> must be a 2-tuple of numbers, of the form 
+  <code>(atime, mtime)</code>, which is used to set the access and 
+  modified times, respectively. This bizarre API is mimicked from python 
+  for the sake of consistency -- I apologize.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>times</b></code> -
+         <code>None</code> or a tuple of (access time, modified time) 
+        in standard internet epoch time (seconds since 01 January 1970 
+        GMT)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple(int))</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="MAX_REQUEST_SIZE"></a>
+<h3>MAX_REQUEST_SIZE</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>int</code>
+
+      </dd>
+<span title="32768">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+32768&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:00 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

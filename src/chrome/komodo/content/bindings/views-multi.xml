@@ -1,0 +1,533 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-multiview"
+    extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <content>
+        <xul:box orient="vertical" flex="1"
+            xbl:inherits="orient">
+            <xul:view id="view-1"
+                      lastfocused="true"
+                      collapsed="true"
+                      type="tabbed"
+                      class="thin-inset-border"
+                      handlesctrltab="false"
+                      onclick="this.parentNode.parentNode.lastFocused=this;"
+                      width="0"
+                      height="0"
+                      flex="1"/>
+            <xul:splitter id="multiview-splitter"
+                      collapsed="true"
+                      collapse="after"
+                      class="grippy_splitter"
+                      orient="vertical"
+                      xbl:inherits="orient"
+                      style="border: none;"
+                      tooltiptext="&doubleClickToChangeOrientation.tooltiptext;"
+                      ondblclick="this.parentNode.parentNode.changeOrient();"/>
+            <xul:view id="view-2"
+                      lastfocused="false"
+                      collapsed="true"
+                      type="tabbed"
+                      class="thin-inset-border"
+                      handlesctrltab="false"
+                      onclick="this.parentNode.parentNode.lastFocused=this;"
+                      width="0"
+                      height="0"
+                      flex="1"/>
+        </xul:box>
+    </content>
+    <implementation name="viewmultiview" implements="nsIObserver, koIViewList">
+        <field name="_timeout">null</field>
+        <field name="_lastFocused">null</field>
+        <property name="lastFocused">
+            <getter>
+            <![CDATA[
+            if (!this._lastFocused) {
+                var nodes = document.getAnonymousNodes(this);
+                this._lastFocused = nodes[0].firstChild;
+            }
+            return this._lastFocused;
+            ]]>
+            </getter>
+            <setter>
+            <![CDATA[
+            if (this._lastFocused != val) {
+                this._lastFocused = val;
+                val.setAttribute('lastfocused','true');
+                this.otherView.setAttribute('lastfocused','false');
+                try {
+                    this.__observersvc.notifyObservers(val.currentView, 'current_view_changed', '');
+                } catch (e) {
+                    // nobody home or there is no val.currentView
+                }
+            }
+            ]]>
+            </setter>
+        </property>
+
+        <property name="currentView"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="return this.lastFocused;"/>
+
+        <property name="otherView"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;">
+            <getter>
+            <![CDATA[
+                var nodes = document.getAnonymousNodes(this);
+                if (this.currentView == nodes[0].firstChild) {
+                    return nodes[0].lastChild;
+                }
+                return nodes[0].firstChild;
+            ]]>
+            </getter>
+        </property>
+
+        <method name="init">
+        <body>
+        <![CDATA[
+            var views = this.getViews();
+            for (var i=0; i < views.length; ++i) {
+                views[i].init();
+            }
+            this.viewhistory = new ko.views.ViewHistory();
+            this.__observersvc.addObserver(this,'current_view_changed','');
+            this.__observersvc.addObserver(this,'view_list_closed','');
+        ]]>
+        </body>
+        </method>
+
+        <method name="close">
+        <body>
+        <![CDATA[
+            // XXX this is here to prevent any closure of this view sending
+            // a notification of 'view_closed'.  views.js decrements the number
+            // of views based on that, and close_all calls the close method on
+            // all views, regardless of type.
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="observe">
+        <parameter name="subject"/>
+        <parameter name="topic"/>
+        <parameter name="data"/>
+        <body>
+        <![CDATA[
+            this.log.debug('Got notification of '+topic+' '+data+' '+subject);
+            try {
+            var nodes = document.getAnonymousNodes(this);
+            switch (topic) {
+            case 'view_list_closed':
+                if (subject != this.currentView &&
+                    subject != this.otherView) return;
+
+                nodes[0].childNodes[1].setAttribute('collapsed','true');
+
+                // hack to make parent look right
+                if (nodes[0].firstChild.getAttribute('collapsed')=='true' &&
+                    nodes[0].lastChild.getAttribute('collapsed')=='true') {
+
+                    this.parentNode.setAttribute('class','blank-workspace');
+                } else {
+                    // XXX this is lame, but it gets the job done.  Seems we cannot do this
+                    // directly within an observer that is called from an event, so we
+                    // have to do a timeout for it to work.  The timeout must also be > 0.
+                    if (subject == this.currentView && this.otherView.currentView) {
+                        window.setTimeout('ko.views.manager.topView.otherView.currentView.makeCurrent();',1);
+                    } else if (subject == this.otherView && this.currentView.currentView) {
+                        // XXX this isn't working, and doing a timeout similar to the above
+                        // always fails.  This at least gets partial focus back to the
+                        // correct place, but commands do not get reset correctly until
+                        // ctrl-tab or a mouse click is done.
+                        this.currentView.currentView.setFocus();
+                        this.viewhistory.setMostRecentView(this.currentView.currentView);
+                    }
+                }
+                break;
+            case 'current_view_changed':
+                if (subject && this.parentNode.getAttribute('class')=='blank-workspace') {
+                    this.parentNode.removeAttribute('class');
+                }
+
+                var ok = nodes[0].childNodes[1].getAttribute('collapsed')=='true' &&
+                         nodes[0].firstChild.getAttribute('collapsed')!='true' &&
+                         nodes[0].lastChild.getAttribute('collapsed')!='true';
+                // handle the splitters visibility
+                if (ok) {
+                    nodes[0].childNodes[1].removeAttribute('collapsed');
+                }
+
+                try {
+                    this.viewhistory.setMostRecentView(subject);
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                break;
+            }
+            } catch(e) {
+                 this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="changeOrient">
+        <body>
+        <![CDATA[
+            if (this.getAttribute('orient')!='vertical') {
+                this.setAttribute('orient','vertical');
+            } else {
+                this.setAttribute('orient','horizontal');
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="getViewListForView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            var nodes = document.getAnonymousNodes(this);
+            var first = nodes[0].firstChild;
+            var second = nodes[0].lastChild;
+            try {
+                if (first.getViewIndex(view)) return first;
+            } catch(e) {}
+            try {
+                if (second.getViewIndex(view)) return second;
+            } catch(e) {}
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getAltViewListForView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            var nodes = document.getAnonymousNodes(this);
+            var first = nodes[0].firstChild;
+            var second = nodes[0].lastChild;
+            try {
+                if (first.getViewIndex(view)>=0) return second;
+            } catch(e) {
+                this.log.info('view not in first view manager');
+            }
+            try {
+                if (second.getViewIndex(view)>=0) return first;
+            } catch(e) {
+                this.log.info('view not in second view manager');
+            }
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="createNewViewContainer">
+        <body>
+        <![CDATA[
+            return this.currentView.createNewViewContainer();
+        ]]>
+        </body>
+        </method>
+
+        <!--koIView findViewForDocument(in koIDocument document);-->
+        <method name="findViewForDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+            var viewlists = this.getViews();
+            var viewbox,view;
+            for (var i = 0; i < viewlists.length; i++) {
+                viewbox = viewlists[i];
+                view = viewbox.findViewForDocument(doc);
+                if (view) return view;
+            }
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="findViewsForDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+            var viewlists = this.getViews();
+            var list = [];
+            var viewbox,view;
+            for (var i = 0; i < viewlists.length; i++) {
+                viewbox = viewlists[i];
+                list = list.concat(viewbox.findViewsForDocument(doc));
+            }
+            return list;
+        ]]>
+        </body>
+        </method>
+
+        <!-- XXX Usages of this should be replaced by .getViewsByTypeAndURI()
+             but I don't have the energy for that right now. If the "TypeAnd"
+             part of that is really not wanted a .getViewsByURI() would
+             be easy to add. -->
+        <method name="findViewsForURI">
+        <parameter name="uri"/>
+        <body>
+        <![CDATA[
+            var viewlist = this.getViews();
+            var list = [];
+            for (var i = 0; i < viewlist.length; i++) {
+                list = list.concat(viewlist[i].findViewsForURI(uri));
+            }
+            return list;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getViewIndex">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews(true);
+            for (var i = 0; i < views.length; i++) {
+                if (views[i] == view) return i;
+            }
+            throw Components.results.NS_ERROR_FAILURE;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getCurrentViewIndex">
+        <body>
+        <![CDATA[
+            return this.currentView.getCurrentViewIndex();
+        ]]>
+        </body>
+        </method>
+
+        <!--void makeNextViewCurrent();-->
+        <method name="makeNextViewCurrent">
+        <body>
+        <![CDATA[
+            this.currentView.makeNextViewCurrent();
+        ]]>
+        </body>
+        </method>
+
+        <!--void makePreviousViewCurrent();-->
+        <method name="makePreviousViewCurrent">
+        <body>
+        <![CDATA[
+            this.currentView.makePreviousViewCurrent();
+        ]]>
+        </body>
+        </method>
+
+        <method name="closeCurrentView">
+        <body>
+        <![CDATA[
+            this.currentView.closeCurrentView();
+        ]]>
+        </body>
+        </method>
+
+        <method name="newView">
+            <parameter name="type"/>
+        <body>
+        <![CDATA[
+            return this.currentView.newView(type);
+        ]]>
+        </body>
+        </method>
+
+        <method name="canSplitView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            // We can split a view if there is not already two views for it.
+            // Non-editor views can't be split
+            if (view.getAttribute('type') != 'editor') {
+                return false;
+            }
+            return view.document.numScintillas == 1;
+        ]]>
+        </body>
+        </method>
+
+        <method name="splitView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            this.lastFocused = this.otherView;
+            var item = view.item;
+            // We save the state of the view
+            // so that the new view gets all of the settings of
+            // the view being split.
+            view.saveState();
+            var newview = this.currentView.createViewFromDocument(view.document,view.getAttribute('type'));
+
+        ]]>
+        </body>
+        </method>
+
+        <method name="canMoveView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            // We can move a view if there is not already two views for it.
+            // Non-editor views can't be split so they can always be moved
+            if (view.getAttribute('type') != 'editor') {
+                return true;
+            }
+            return view.document.numScintillas == 1;
+        ]]>
+        </body>
+        </method>
+
+        <!--Only used in moveView below-->
+        <field name="_focusTimeout">null</field>
+
+        <method name="moveView">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            this.lastFocused = this.otherView;
+            var doc = view.document;
+            var type = view.getAttribute('type');
+            view.saveState();
+            ko.views.manager.batchMode = true; // There are no view changes, so nothing really need to change here.
+            try {
+                var newview = this.currentView.createViewFromDocument(doc,type);
+                // rejigger the connections as view.close() will
+                // close the preview  [It does not do so anymore. --TM]
+                if (view.preview) {
+                    newview.preview = view.preview;
+                    view.preview = null;
+                    newview.preview.sourceView = newview;
+                }
+                view.close();
+                // XXX doing this in a timeout fixes our focus problems when
+                // we move a tab from pane to pane.  This appears to be *slow*.
+                // bugs 25577, 25578
+                if (this._focusTimeout) {
+                    this._focusTimeout.stop();
+                    this._focusTimeout.free();
+                }
+                this._focusTimeout = new objectTimer(newview.parentView,newview.parentView.doSelectView,[newview]);
+                this._focusTimeout.startTimeout(0);
+            } catch (e) {
+                this.log.exception(e);
+            }
+            ko.views.manager.batchMode = false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getState">
+        <body>
+        <![CDATA[
+            // The multiview widget needs to persist:
+            // -- The views opened in each of its two child tabbedviews
+            // -- The history of current views
+            // -- Which of the two child tabbedviews is the focused one.
+        try {
+            var nodes = document.getAnonymousNodes(this);
+            var first = nodes[0].firstChild;
+            var second = nodes[0].lastChild;
+            var firstPref = first.getState();
+            var secondPref = second.getState();
+
+            // Shortcut:  If no views are open, persist nothing.
+            if (!firstPref && !secondPref) {
+                return null; // persist nothing
+            }
+
+            var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            var viewPref, i;
+            var ordered = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
+            ordered.id = 'childState';
+            if (firstPref) {
+                ordered.appendPref(firstPref);
+            }
+            if (secondPref) {
+                ordered.appendPref(secondPref);
+            }
+            myState.setPref('childState', ordered);
+            // Now persist the "recent views" ordering
+            var recentViewsPref = this.viewhistory.getState();
+            recentViewsPref.id = 'viewHistoryState';
+            myState.setPref('viewHistoryState', recentViewsPref);
+            myState.setStringPref('orientation', this.getAttribute('orient'));
+            return myState;
+        } catch (e) {
+            this.log.exception(e);
+        }
+        return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="setState">
+        <parameter name="state"/>
+        <body>
+        <![CDATA[
+        try {
+            // We need to restore the views in each of the two child
+            // tabbedviews, as well as the viewhistory
+            var ordered = state.getPref('childState');
+            // because makecurrent now will set lastfocused,
+            // we must make sure we only setstate on the currentView
+            // otherwise, all files get reopened in the bottom view
+            if (state.hasPref('orientation')) {
+                this.setAttribute('orient', state.getStringPref('orientation'));
+            }
+            var nodes = document.getAnonymousNodes(this);
+            if (ordered.length > 1) {
+                // we're filling in the second view first, but if there
+                // are no buffers for the first view, then just use the
+                // first view anyway
+                var other_prefs = ordered.getPref(0).getPref('view_prefs');
+                if (other_prefs.length > 0) {
+                    this.lastFocused = nodes[0].lastChild;
+                } else {
+                    this.lastFocused = nodes[0].firstChild;
+                }
+                try {
+                    this.currentView.setState(ordered.getPref(1));
+                } catch (e) {
+                    this.log.exception(e);
+                }
+            }
+            if (ordered.length > 0) {
+                this.lastFocused = nodes[0].firstChild;
+                try {
+                    this.currentView.setState(ordered.getPref(0));
+                } catch (e) {
+                    this.log.exception(e);
+                }
+            }
+            this.viewhistory.setState(state.getPref('viewHistoryState'), this);
+        } catch (e) {
+            this.log.exception(e);
+        }
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+</binding>
+
+</bindings>
+

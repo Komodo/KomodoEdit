@@ -1,0 +1,78 @@
+Index: extensions/python/xpcom/src/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/Makefile.in,v
+retrieving revision 1.6
+diff -d -u -r1.6 Makefile.in
+--- extensions/python/xpcom/src/Makefile.in	25 Aug 2005 21:52:18 -0000	1.6
++++ extensions/python/xpcom/src/Makefile.in	26 Aug 2005 22:19:53 -0000
+@@ -54,6 +54,7 @@
+ MOZILLA_INTERNAL_API = 1
+ FORCE_SHARED_LIB = 1 
+ FORCE_USE_PIC = 1 
++# IS_COMPONENT = 1 will break the module on OS X, see EXTRA_DSO_LDOPTS below
+ 
+ DLL_SUFFIX=$(PYTHON_DLL_SUFFIX)
+ LOCAL_INCLUDES = $(PYTHON_INCLUDES)
+@@ -87,7 +88,12 @@
+ include $(topsrcdir)/config/config.mk
+ include $(topsrcdir)/config/rules.mk
+ 
++ifeq ($(OS_ARCH),Darwin)
++# Don't use the EXTRA_DSO_LDOPTS from rules.mk, it breaks the python module
++EXTRA_DSO_LDOPTS = -bundle $(MOZ_COMPONENT_LIBS)
++else
+ EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS)
++endif
+ IMPORT_LIBRARY		:= $(SHARED_LIBRARY:.pyd=.lib)
+ 
+ # Install into our Python directory
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/mozilla/configure.in,v
+retrieving revision 1.1503.2.6
+diff -d -u -r1.1503.2.6 configure.in
+--- configure.in	25 Aug 2005 19:05:34 -0000	1.1503.2.6
++++ configure.in	26 Aug 2005 22:19:53 -0000
+@@ -6342,13 +6352,36 @@
+     else
+         dnl Non-Windows include and libs
+         MOZ_PYTHON_DLL_SUFFIX=$DLL_SUFFIX
+-        PYTHON_INCLUDE_SRC=$MOZ_PYTHON_PREFIX/include/python$MOZ_PYTHON_VER_DOTTED
+-        PYTHON_LIB_SRC=`$PYTHON  -c 'from distutils import sysconfig; print sysconfig.get_config_var("LIBPL")'`
+-        if test ! -f $PYTHON_INCLUDE_SRC/Python.h; then
+-            AC_MSG_ERROR([Include directory $PYTHON_INCLUDE_SRC not found or does not contain development headers])
++        MOZ_PYTHON_INCLUDES="-I$MOZ_PYTHON_PREFIX/include/python$MOZ_PYTHON_VER_DOTTED"
++        dnl Check for dynamic Python lib
++        dnl - A static Python is no good now, though I don't know
++        dnl   exactly why.
++        dnl - Python 2.3's std --enable-shared configure option will
++        dnl   create a libpython2.3.so.1.0. We should first try this
++        dnl   dotted versioned .so file because this is the one that
++        dnl   the PyXPCOM build mechanics tries to link to.
++        dnl   XXX Should find a better way than hardcoding "1.0".
++        dnl - Python developement tree dir layouts are NOT allowed here
++        dnl   because the PyXPCOM build just dies on it later anyway.
++        if test -f "$MOZ_PYTHON_PREFIX/lib/libpython$MOZ_PYTHON_VER_DOTTED.so.1.0"; then
++            MOZ_PYTHON_LIBS="-L$MOZ_PYTHON_PREFIX/lib -lpython$MOZ_PYTHON_VER_DOTTED"
++        elif test -f "$MOZ_PYTHON_PREFIX/lib/libpython$MOZ_PYTHON_VER_DOTTED.so"; then
++            MOZ_PYTHON_LIBS="-L$MOZ_PYTHON_PREFIX/lib -lpython$MOZ_PYTHON_VER_DOTTED"
++        elif test -f "$MOZ_PYTHON_PREFIX/libpython$MOZ_PYTHON_VER_DOTTED.so"; then
++            dnl Don't Python development tree directory layout.
++            MOZ_PYTHON_LIBS="-L$MOZ_PYTHON_PREFIX -lpython$MOZ_PYTHON_VER_DOTTED"
++            AC_MSG_ERROR([The Python at $MOZ_PYTHON_PREFIX looks like a dev tree. The PyXPCOM build cannot handle this yet. You must 'make install' Python and use the installed tree.])
++        elif test "$OS_ARCH" = "Darwin"; then
++            dnl We do Darwin last, so if a custom non-framework build of
++            dnl python is used on OSX, then it will be picked up first by
++            dnl the logic above.
++            MOZ_PYTHON_LIBS="-framework Python"
++        else
++            AC_MSG_ERROR([Could not find build shared libraries for Python at $MOZ_PYTHON_PREFIX.  This is required for PyXPCOM.])
++        fi
++        if test "$OS_ARCH" = "Linux"; then
++            MOZ_PYTHON_LIBS="$MOZ_PYTHON_LIBS -lutil"
+         fi
+-        MOZ_PYTHON_INCLUDES="-I$PYTHON_INCLUDE_SRC"
+-        MOZ_PYTHON_LIBS="-L$PYTHON_LIB_SRC -lpython$MOZ_PYTHON_VER_DOTTED"
+     fi
+     dnl Handle "_d" on Windows
+     if test "$OS_ARCH" = "WINNT" && test -n "$MOZ_DEBUG"; then

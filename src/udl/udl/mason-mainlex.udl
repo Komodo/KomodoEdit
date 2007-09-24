@@ -1,0 +1,22 @@
+# See php-smarty-lex.udl for an explanation of how to build a
+# multi-language Luddite file
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2mason.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+
+include "mason2html.udl"
+
+language Mason
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "perllex.udl"
+include "masonlex.udl"

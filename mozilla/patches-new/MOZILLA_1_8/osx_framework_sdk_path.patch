@@ -1,0 +1,22 @@
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/mozilla/configure.in,v
+retrieving revision 1.1503.2.25
+diff -u -r1.1503.2.25 configure.in
+--- configure.in	1 Feb 2006 15:25:24 -0000	1.1503.2.25
++++ configure.in	2 Feb 2006 03:23:32 -0000
+@@ -617,10 +617,13 @@
+ 
+   GCC_VERSION_MAJOR=`echo $GCC_VERSION_FULL | $PERL -pe 's/(^\d*).*/$1/;'`
+   if test "$GCC_VERSION_MAJOR" -lt "4" ; then
+-    SDK_C_INCLUDE="-isystem ${MACOS_SDK_DIR}/usr/include/gcc/darwin/${GCC_VERSION} -isystem ${MACOS_SDK_DIR}/usr/include -F${MACOS_SDK_DIR}/System/Library/Frameworks"
++    SDK_C_INCLUDE="-isystem ${MACOS_SDK_DIR}/usr/include/gcc/darwin/${GCC_VERSION} -isystem ${MACOS_SDK_DIR}/usr/include"
+     if test -d "${MACOS_SDK_DIR}/Library/Frameworks" ; then
+       SDK_C_INCLUDE="$SDK_C_INCLUDE -F${MACOS_SDK_DIR}/Library/Frameworks"
++    else
++      SDK_C_INCLUDE="$SDK_C_INCLUDE -F/Library/Frameworks"
+     fi
++    SDK_C_INCLUDE="$SDK_C_INCLUDE -F${MACOS_SDK_DIR}/System/Library/Frameworks";
+     SDK_CXX_INCLUDE="-I${MACOS_SDK_DIR}/usr/include/gcc/darwin/${GCC_VERSION}/c++ -I${MACOS_SDK_DIR}/usr/include/gcc/darwin/${GCC_VERSION}/c++/ppc-darwin -I${MACOS_SDK_DIR}/usr/include/gcc/darwin/${GCC_VERSION}/c++/backward"
+ 
+     CFLAGS="$CFLAGS -nostdinc ${SDK_C_INCLUDE}"

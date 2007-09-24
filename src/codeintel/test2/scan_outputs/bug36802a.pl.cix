@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\bug36802a.pl">
+    <scope ilk="blob" lang="Perl" name="bug36802a">
+      <variable attributes="__local__" line="1" name="$GLOBAL" />
+      <scope ilk="function" line="3" lineend="9" name="myfunc" signature="myfunc()">
+        <variable attributes="__local__" line="5" name="$var1" />
+        <variable attributes="__local__" line="6" name="$var2" />
+        <variable attributes="__local__" line="7" name="$var3" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

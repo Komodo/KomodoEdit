@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Setup factory file association settings.
+
+     See "setupFileAssociations.js" for details.
+  -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window id="setupFileAssociations-window"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_setup_file_associations"
+        class="kodialog"
+        title="&setupCommonKomodoFileAssociations.title;"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical"
+        style="min-width: 300px; max-width: 400px; padding: 10px;"
+        flex="1">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/setupFileAssociations.js" type="application/x-javascript;version=1.7"/>
+
+    <keyset id="setupFileAssociationsKeys">
+        <key keycode="VK_ENTER" oncommand="OK()"/>
+        <key keycode="VK_RETURN" oncommand="OK()"/>
+        <key keycode="VK_ESCAPE" oncommand="Cancel();"/>
+    </keyset>
+
+    <description>
+        Your system can be configured to register Komodo as an editor for
+        specific file types. Select the file extensions for which you would
+        like to register Komodo as an editor.
+    </description>
+
+    <vbox flex="1">
+        <groupbox orient="vertical" flex="1">
+            <caption label="&editAssociations.label;"/>
+            <description>
+                Make Komodo the default editor for the following file types:
+            </description>
+            <checkbox id="edit-group-select" label="&all.label;"
+                      style="padding-left: 20px;"
+                      oncommand="ToggleEditGroupSelectCheckbox()"/>
+            <hbox id="edit-checkboxes" style="padding-left: 20px;">
+                <vbox>
+                    <checkbox ext=".pl"   id="edit-.pl"   label="&plPerl.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".pm"   id="edit-.pm"   label="&pmPerlModule.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".t"    id="edit-.t"    label="&tPerlTestScript.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".py"   id="edit-.py"   label="&pyPython.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".pyw"  id="edit-.pyw"  label="&pywPython.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                </vbox>
+                <vbox>
+                    <checkbox ext=".php"  id="edit-.php"  label="&phpPHP.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".js"   id="edit-.js"   label="&jsJavaScript.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".xsl"  id="edit-.xsl"  label="&xslXSLT.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".xslt" id="edit-.xslt" label="&xsltXSLT.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                </vbox>
+                <vbox>
+                    <checkbox ext=".rb"   id="edit-.rb"   label="&rbRuby.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".xml"  id="edit-.xml"  label="&xmlXML.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".html" id="edit-.html" label="&htmlHTML.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                    <checkbox ext=".htm"  id="edit-.htm"  label="&htmHTML.label;"
+                              oncommand="ToggleEditCheckbox()"/>
+                </vbox>
+            </hbox>
+        </groupbox>
+
+        <groupbox orient="vertical" flex="1">
+            <caption label="&editWithKomodoAssociations.label;"/>
+            <description>
+                Add an "Edit with Komodo" context menu option in Explorer for
+                the following file types:
+            </description>
+            <checkbox id="edit-with-group-select" label="&all.label;"
+                      style="padding-left: 20px;"
+                      oncommand="ToggleEditWithGroupSelectCheckbox()"/>
+            <hbox id="edit-with-checkboxes" style="padding-left: 20px;">
+                <vbox>
+                    <checkbox ext=".pl"   id="edit-with-.pl"   label="&plPerl.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".pm"   id="edit-with-.pm"   label="&pmPerlModule.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".t"    id="edit-with-.t"    label="&tPerlTestScript.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".py"   id="edit-with-.py"   label="&pyPython.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".pyw"  id="edit-with-.pyw"  label="&pywPython.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                </vbox>
+                <vbox>
+                    <checkbox ext=".php"  id="edit-with-.php"  label="&phpPHP.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".js"   id="edit-with-.js"   label="&jsJavaScript.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".xsl"  id="edit-with-.xsl"  label="&xslXSLT.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".xslt" id="edit-with-.xslt" label="&xsltXSLT.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                </vbox>
+                <vbox>
+                    <checkbox ext=".rb"   id="edit-with-.rb"   label="&rbRuby.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".xml"  id="edit-with-.xml"  label="&xmlXML.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".html" id="edit-with-.html" label="&htmlHTML.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                    <checkbox ext=".htm"  id="edit-with-.htm"  label="&htmHTML.label;"
+                              oncommand="ToggleEditWithCheckbox()"/>
+                </vbox>
+            </hbox>
+        </groupbox>
+
+    </vbox>
+
+    <separator flex="1" style="min-height:10px;"/>
+
+    <hbox>
+        <spacer flex="1"/>
+        <button class="exit-dialog" id="ok-button" label="&OK.label;"
+                oncommand="OK();"/>
+        <button class="exit-dialog" id="cancel-button" label="&cancel.label;"
+                oncommand="Cancel();"/>
+    </hbox>
+
+</window>
+
+

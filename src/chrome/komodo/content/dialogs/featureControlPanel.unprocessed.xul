@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
+
+<dialog id="dialog-featurecontrolpanel"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&featureControlPanel.title;"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        screenX="20"
+        screenY="20"
+        persist="screenX screenY"
+        orient="vertical"
+        style="background-image: url(chrome://komodo/skin/startpage/images/bg.gif);
+               background-repeat: no-repeat;
+               background-color: white;
+               overflow: auto;
+               padding: 10px;"
+        flex="1"
+        buttonpack="center"
+        buttons="cancel"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/featureControlPanel.js" type="application/x-javascript;version=1.7"/>
+
+<!--    <vbox>-->
+        <vbox style="background-color: #E7E3DE; padding: 1px;" flex="1">
+        <vbox style="background-color: white; padding: 0px;" flex="1">
+            <grid>
+                <columns>
+                    <column style="min-width: 200px;"/> <!-- feature name -->
+                    <column flex="1"/> <!-- feature status -->
+                </columns>
+                <rows>
+                    <row style="margin: 1px;">
+                        <hbox style="background-color: #E7E3DE; min-height: 21px;"
+                              flex="1" align="center" pack="start">
+                            <label value="Language Features" style="font-weight: bold;"/>
+                        </hbox>
+                        <hbox style="background-color: #E7E3DE;"/>
+                    </row>
+                    <row id="perl-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="Perl"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                            <label id="perl-syntax-checking-status"
+                                   value="Syntax Checking: Status Unknown"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configurePerl.tooltiptext;"
+                                    oncommand="LaunchPrefs('perlItem')"/>
+                        </hbox>
+                    </row>
+                    <row id="php-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="PHP"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                            <label id="php-syntax-checking-status"
+                                   value="Syntax Checking: Status Unknown"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configurePHP.tooltiptext;"
+                                    oncommand="LaunchPrefs('phpItem')"/>
+                        </hbox>
+                    </row>
+                    <row id="python-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="Python"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label id="python-syntax-checking-status"
+                                   value="Syntax Checking: Status Unknown"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configurePython.tooltiptext;"
+                                    oncommand="LaunchPrefs('pythonItem')"/>
+                        </hbox>
+                    </row>
+                    <row id="ruby-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="Ruby"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label id="ruby-syntax-checking-status"
+                                   value="Syntax Checking: Status Unknown"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configureRuby.tooltiptext;"
+                                    oncommand="LaunchPrefs('rubyItem')"/>
+                        </hbox>
+                    </row>
+                    <row id="xslt-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="XSLT"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                            <label value="Syntax Checking: Ready"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                        </hbox>
+                    </row>
+                    <row id="other-languages-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="Other Languages"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                            <label value="Syntax Checking for JavaScript, HTML, XML: Ready"/>
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                        </hbox>
+                    </row>
+                </rows>
+            </grid>
+        </vbox>
+        </vbox>
+
+        <separator class="thin"/>
+
+<!--    </vbox>-->
+
+</dialog>
+

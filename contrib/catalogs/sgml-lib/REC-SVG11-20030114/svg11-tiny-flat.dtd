@@ -1,0 +1,2808 @@
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Tiny DTD ...................................................... -->
+<!-- file: svg11-tiny.dtd
+-->
+
+<!-- SVG 1.1 Tiny DTD
+
+     This is SVG Tiny, a proper subset of SVG.
+
+     The Scalable Vector Graphics (SVG)
+     Copyright 2001, 2002 World Wide Web Consortium
+        (Massachusetts Institute of Technology, Institut National de
+         Recherche en Informatique et en Automatique, Keio University).
+         All Rights Reserved.
+
+     Permission to use, copy, modify and distribute the SVG DTD and its
+     accompanying documentation for any purpose and without fee is hereby
+     granted in perpetuity, provided that the above copyright notice and
+     this paragraph appear in all copies.  The copyright holders make no
+     representation about the suitability of the DTD for any purpose.
+
+     It is provided "as is" without expressed or implied warranty.
+
+        Author:   Jun Fujisawa <fujisawa.jun@canon.co.jp>
+        Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+-->
+<!-- This is the driver file for version 1.1 of the SVG Tiny DTD.
+
+     This DTD is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//DTD SVG 1.1 Tiny//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd"
+-->
+<!ENTITY % SVG.version "-//W3C//DTD SVG 1.1 Tiny//EN" >
+
+<!-- Use this URI to identify the default namespace:
+
+        "http://www.w3.org/2000/svg"
+
+     See the Qualified Names module for information
+     on the use of namespace prefixes in the DTD.
+-->
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % SVG.prefix "" >
+
+<!-- reserved for future use with document profiles -->
+<!ENTITY % SVG.profile "" >
+
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+<!-- Pre-Framework Redeclaration Placeholder ..................... -->
+<!ENTITY % svg-prefw-redecl.module "IGNORE" >
+<![%svg-prefw-redecl.module;[
+%svg-prefw-redecl.mod;]]>
+
+<!-- Document Model Module ....................................... -->
+<!ENTITY % svg-model.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Tiny Document Model//EN"
+           "svg11-tiny-model.mod" >
+
+<!-- Attribute Collection Module ................................. -->
+<!ENTITY % svg-attribs.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Tiny Attribute Collection//EN"
+           "svg11-tiny-attribs.mod" >
+
+<!-- Modular Framework Module .................................... -->
+<!ENTITY % svg-framework.module "INCLUDE" >
+<![%svg-framework.module;[
+<!ENTITY % svg-framework.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Modular Framework//EN"
+           "svg-framework.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Modular Framework Module ...................................... -->
+<!-- file: svg-framework.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Modular Framework//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-framework.mod"
+
+     ....................................................................... -->
+
+<!-- Modular Framework
+
+     This module instantiates the modules needed o support the SVG
+     modularization model, including:
+
+        + Datatypes
+        + Qualified Name
+        + Document Model
+        + Attribute Collection
+-->
+
+<!ENTITY % svg-datatypes.module "INCLUDE" >
+<![%svg-datatypes.module;[
+<!ENTITY % svg-datatypes.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Datatypes//EN"
+           "svg-datatypes.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Datatypes Module .............................................. -->
+<!-- file: svg-datatypes.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Datatypes//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-datatypes.mod"
+
+     ....................................................................... -->
+
+<!-- Datatypes
+
+     This module declares common data types for properties and attributes.
+-->
+
+<!-- feature specification -->
+<!ENTITY % Boolean.datatype "( false | true )" >
+
+<!-- 'clip-rule' or 'fill-rule' property/attribute value -->
+<!ENTITY % ClipFillRule.datatype "( nonzero | evenodd | inherit )" >
+
+<!-- media type, as per [RFC2045] -->
+<!ENTITY % ContentType.datatype "CDATA" >
+
+<!-- a <coordinate> -->
+<!ENTITY % Coordinate.datatype "CDATA" >
+
+<!-- a list of <coordinate>s -->
+<!ENTITY % Coordinates.datatype "CDATA" >
+
+<!-- a <color> value -->
+<!ENTITY % Color.datatype "CDATA" >
+
+<!-- a <integer> -->
+<!ENTITY % Integer.datatype "CDATA" >
+
+<!-- a language code, as per [RFC3066] -->
+<!ENTITY % LanguageCode.datatype "NMTOKEN" >
+
+<!-- comma-separated list of language codes, as per [RFC3066] -->
+<!ENTITY % LanguageCodes.datatype "CDATA" >
+
+<!-- a <length> -->
+<!ENTITY % Length.datatype "CDATA" >
+
+<!-- a list of <length>s -->
+<!ENTITY % Lengths.datatype "CDATA" >
+
+<!-- a <number> -->
+<!ENTITY % Number.datatype "CDATA" >
+
+<!-- a list of <number>s -->
+<!ENTITY % Numbers.datatype "CDATA" >
+
+<!-- opacity value (e.g., <number>) -->
+<!ENTITY % OpacityValue.datatype "CDATA" >
+
+<!-- a path data specification -->
+<!ENTITY % PathData.datatype "CDATA" >
+
+<!-- 'preserveAspectRatio' attribute specification -->
+<!ENTITY % PreserveAspectRatioSpec.datatype "CDATA" >
+
+<!-- script expression -->
+<!ENTITY % Script.datatype "CDATA" >
+
+<!-- An SVG color value (RGB plus optional ICC) -->
+<!ENTITY % SVGColor.datatype "CDATA" >
+
+<!-- arbitrary text string -->
+<!ENTITY % Text.datatype "CDATA" >
+
+<!-- list of transforms -->
+<!ENTITY % TransformList.datatype "CDATA" >
+
+<!-- a Uniform Resource Identifier, see [URI] -->
+<!ENTITY % URI.datatype "CDATA" >
+
+<!-- 'viewBox' attribute specification -->
+<!ENTITY % ViewBoxSpec.datatype "CDATA" >
+
+<!-- end of svg-datatypes.mod -->
+]]>
+
+<!ENTITY % svg-qname.module "INCLUDE" >
+<![%svg-qname.module;[
+<!ENTITY % svg-qname.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Qualified Name//EN"
+           "svg-qname.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Qualified Name Module ......................................... -->
+<!-- file: svg-qname.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Qualified Name//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-qname.mod"
+
+     ....................................................................... -->
+
+<!-- Qualified Name
+
+     This module is contained in two parts, labeled Section 'A' and 'B':
+
+        Section A declares parameter entities to support namespace-
+        qualified names, namespace declarations, and name prefixing
+        for SVG and extensions.
+
+        Section B declares parameter entities used to provide
+        namespace-qualified names for all SVG element types:
+-->
+
+<!-- Section A: SVG XML Namespace Framework :::::::::::::::::::::: -->
+
+<!-- 1. Declare a %SVG.prefixed; conditional section keyword, used
+        to activate namespace prefixing. The default value should
+        inherit '%NS.prefixed;' from the DTD driver, so that unless
+        overridden, the default behaviour follows the overall DTD
+        prefixing scheme.
+-->
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % SVG.prefixed "%NS.prefixed;" >
+
+<!-- 2. Declare a parameter entity (eg., %SVG.xmlns;) containing
+        the URI reference used to identify the SVG namespace:
+-->
+<!ENTITY % SVG.xmlns "http://www.w3.org/2000/svg" >
+<!ENTITY % XLINK.xmlns "http://www.w3.org/1999/xlink" >
+
+<!-- 3. Declare parameter entities (eg., %SVG.prefix;) containing
+        the default namespace prefix string(s) to use when prefixing
+        is enabled. This may be overridden in the DTD driver or the
+        internal subset of an document instance. If no default prefix
+        is desired, this may be declared as an empty string.
+-->
+<!ENTITY % SVG.prefix "" >
+<!ENTITY % XLINK.prefix "xlink" >
+
+<!-- 4. Declare parameter entities (eg., %SVG.pfx;) containing the
+        colonized prefix(es) (eg., '%SVG.prefix;:') used when
+        prefixing is active, an empty string when it is not.
+-->
+<![%SVG.prefixed;[
+<!ENTITY % SVG.pfx "%SVG.prefix;:" >
+]]>
+<!ENTITY % SVG.pfx "" >
+<!ENTITY % XLINK.pfx "%XLINK.prefix;:" >
+
+<!-- 5. The parameter entity %SVG.xmlns.extra.attrib; may be
+        redeclared to contain any non-SVG namespace declaration
+        attributes for namespaces embedded in SVG. The default
+        is an empty string.
+-->
+<!ENTITY % SVG.xmlns.extra.attrib "" >
+
+<!-- Declare a parameter entity XLINK.xmlns.attrib containing
+     the XML Namespace declarations for XLink.
+-->
+<!ENTITY % XLINK.xmlns.attrib
+     "xmlns:%XLINK.prefix; %URI.datatype; #FIXED '%XLINK.xmlns;'"
+>
+
+<!-- Declare a parameter entity %NS.decl.attrib; containing
+     all XML Namespace declarations used in the DTD, plus the
+     xmlns declaration for SVG, its form dependent on whether
+     prefixing is active.
+-->
+<![%SVG.prefixed;[
+<!ENTITY % NS.decl.attrib
+    "xmlns:%SVG.prefix; %URI.datatype; #FIXED '%SVG.xmlns;'
+     %XLINK.xmlns.attrib;
+     %SVG.xmlns.extra.attrib;"
+>
+]]>
+<!ENTITY % NS.decl.attrib
+    "%XLINK.xmlns.attrib;
+     %SVG.xmlns.extra.attrib;"
+>
+
+<!-- Declare a parameter entity %SVG.xmlns.attrib; containing
+     all XML namespace declaration attributes used by SVG,
+     including a default xmlns attribute when prefixing is
+     inactive.
+-->
+<![%SVG.prefixed;[
+<!ENTITY % SVG.xmlns.attrib
+     "%NS.decl.attrib;"
+>
+]]>
+<!ENTITY % SVG.xmlns.attrib
+     "xmlns %URI.datatype; #FIXED '%SVG.xmlns;'
+      %XLINK.xmlns.attrib;"
+>
+
+<!-- Section B: SVG Qualified Names :::::::::::::::::::::::::::::: -->
+
+<!-- 6. This section declares parameter entities used to provide
+        namespace-qualified names for all SVG element types.
+-->
+
+<!-- module: svg-structure.mod ......................... -->
+
+<!ENTITY % SVG.svg.qname "%SVG.pfx;svg" >
+<!ENTITY % SVG.g.qname "%SVG.pfx;g" >
+<!ENTITY % SVG.defs.qname "%SVG.pfx;defs" >
+<!ENTITY % SVG.desc.qname "%SVG.pfx;desc" >
+<!ENTITY % SVG.title.qname "%SVG.pfx;title" >
+<!ENTITY % SVG.metadata.qname "%SVG.pfx;metadata" >
+<!ENTITY % SVG.symbol.qname "%SVG.pfx;symbol" >
+<!ENTITY % SVG.use.qname "%SVG.pfx;use" >
+
+<!-- module: svg-conditional.mod ....................... -->
+
+<!ENTITY % SVG.switch.qname "%SVG.pfx;switch" >
+
+<!-- module: svg-image.mod ............................. -->
+
+<!ENTITY % SVG.image.qname "%SVG.pfx;image" >
+
+<!-- module: svg-style.mod ............................. -->
+
+<!ENTITY % SVG.style.qname "%SVG.pfx;style" >
+
+<!-- module: svg-shape.mod ............................. -->
+
+<!ENTITY % SVG.path.qname "%SVG.pfx;path" >
+<!ENTITY % SVG.rect.qname "%SVG.pfx;rect" >
+<!ENTITY % SVG.circle.qname "%SVG.pfx;circle" >
+<!ENTITY % SVG.line.qname "%SVG.pfx;line" >
+<!ENTITY % SVG.ellipse.qname "%SVG.pfx;ellipse" >
+<!ENTITY % SVG.polyline.qname "%SVG.pfx;polyline" >
+<!ENTITY % SVG.polygon.qname "%SVG.pfx;polygon" >
+
+<!-- module: svg-text.mod .............................. -->
+
+<!ENTITY % SVG.text.qname "%SVG.pfx;text" >
+<!ENTITY % SVG.tspan.qname "%SVG.pfx;tspan" >
+<!ENTITY % SVG.tref.qname "%SVG.pfx;tref" >
+<!ENTITY % SVG.textPath.qname "%SVG.pfx;textPath" >
+<!ENTITY % SVG.altGlyph.qname "%SVG.pfx;altGlyph" >
+<!ENTITY % SVG.altGlyphDef.qname "%SVG.pfx;altGlyphDef" >
+<!ENTITY % SVG.altGlyphItem.qname "%SVG.pfx;altGlyphItem" >
+<!ENTITY % SVG.glyphRef.qname "%SVG.pfx;glyphRef" >
+
+<!-- module: svg-marker.mod ............................ -->
+
+<!ENTITY % SVG.marker.qname "%SVG.pfx;marker" >
+
+<!-- module: svg-profile.mod ........................... -->
+
+<!ENTITY % SVG.color-profile.qname "%SVG.pfx;color-profile" >
+
+<!-- module: svg-gradient.mod .......................... -->
+
+<!ENTITY % SVG.linearGradient.qname "%SVG.pfx;linearGradient" >
+<!ENTITY % SVG.radialGradient.qname "%SVG.pfx;radialGradient" >
+<!ENTITY % SVG.stop.qname "%SVG.pfx;stop" >
+
+<!-- module: svg-pattern.mod ........................... -->
+
+<!ENTITY % SVG.pattern.qname "%SVG.pfx;pattern" >
+
+<!-- module: svg-clip.mod .............................. -->
+
+<!ENTITY % SVG.clipPath.qname "%SVG.pfx;clipPath" >
+
+<!-- module: svg-mask.mod .............................. -->
+
+<!ENTITY % SVG.mask.qname "%SVG.pfx;mask" >
+
+<!-- module: svg-filter.mod ............................ -->
+
+<!ENTITY % SVG.filter.qname "%SVG.pfx;filter" >
+<!ENTITY % SVG.feBlend.qname "%SVG.pfx;feBlend" >
+<!ENTITY % SVG.feColorMatrix.qname "%SVG.pfx;feColorMatrix" >
+<!ENTITY % SVG.feComponentTransfer.qname "%SVG.pfx;feComponentTransfer" >
+<!ENTITY % SVG.feComposite.qname "%SVG.pfx;feComposite" >
+<!ENTITY % SVG.feConvolveMatrix.qname "%SVG.pfx;feConvolveMatrix" >
+<!ENTITY % SVG.feDiffuseLighting.qname "%SVG.pfx;feDiffuseLighting" >
+<!ENTITY % SVG.feDisplacementMap.qname "%SVG.pfx;feDisplacementMap" >
+<!ENTITY % SVG.feFlood.qname "%SVG.pfx;feFlood" >
+<!ENTITY % SVG.feGaussianBlur.qname "%SVG.pfx;feGaussianBlur" >
+<!ENTITY % SVG.feImage.qname "%SVG.pfx;feImage" >
+<!ENTITY % SVG.feMerge.qname "%SVG.pfx;feMerge" >
+<!ENTITY % SVG.feMergeNode.qname "%SVG.pfx;feMergeNode" >
+<!ENTITY % SVG.feMorphology.qname "%SVG.pfx;feMorphology" >
+<!ENTITY % SVG.feOffset.qname "%SVG.pfx;feOffset" >
+<!ENTITY % SVG.feSpecularLighting.qname "%SVG.pfx;feSpecularLighting" >
+<!ENTITY % SVG.feTile.qname "%SVG.pfx;feTile" >
+<!ENTITY % SVG.feTurbulence.qname "%SVG.pfx;feTurbulence" >
+<!ENTITY % SVG.feDistantLight.qname "%SVG.pfx;feDistantLight" >
+<!ENTITY % SVG.fePointLight.qname "%SVG.pfx;fePointLight" >
+<!ENTITY % SVG.feSpotLight.qname "%SVG.pfx;feSpotLight" >
+<!ENTITY % SVG.feFuncR.qname "%SVG.pfx;feFuncR" >
+<!ENTITY % SVG.feFuncG.qname "%SVG.pfx;feFuncG" >
+<!ENTITY % SVG.feFuncB.qname "%SVG.pfx;feFuncB" >
+<!ENTITY % SVG.feFuncA.qname "%SVG.pfx;feFuncA" >
+
+<!-- module: svg-cursor.mod ............................ -->
+
+<!ENTITY % SVG.cursor.qname "%SVG.pfx;cursor" >
+
+<!-- module: svg-hyperlink.mod ......................... -->
+
+<!ENTITY % SVG.a.qname "%SVG.pfx;a" >
+
+<!-- module: svg-view.mod .............................. -->
+
+<!ENTITY % SVG.view.qname "%SVG.pfx;view" >
+
+<!-- module: svg-script.mod ............................ -->
+
+<!ENTITY % SVG.script.qname "%SVG.pfx;script" >
+
+<!-- module: svg-animation.mod ......................... -->
+
+<!ENTITY % SVG.animate.qname "%SVG.pfx;animate" >
+<!ENTITY % SVG.set.qname "%SVG.pfx;set" >
+<!ENTITY % SVG.animateMotion.qname "%SVG.pfx;animateMotion" >
+<!ENTITY % SVG.animateColor.qname "%SVG.pfx;animateColor" >
+<!ENTITY % SVG.animateTransform.qname "%SVG.pfx;animateTransform" >
+<!ENTITY % SVG.mpath.qname "%SVG.pfx;mpath" >
+
+<!-- module: svg-font.mod .............................. -->
+
+<!ENTITY % SVG.font.qname "%SVG.pfx;font" >
+<!ENTITY % SVG.font-face.qname "%SVG.pfx;font-face" >
+<!ENTITY % SVG.glyph.qname "%SVG.pfx;glyph" >
+<!ENTITY % SVG.missing-glyph.qname "%SVG.pfx;missing-glyph" >
+<!ENTITY % SVG.hkern.qname "%SVG.pfx;hkern" >
+<!ENTITY % SVG.vkern.qname "%SVG.pfx;vkern" >
+<!ENTITY % SVG.font-face-src.qname "%SVG.pfx;font-face-src" >
+<!ENTITY % SVG.font-face-uri.qname "%SVG.pfx;font-face-uri" >
+<!ENTITY % SVG.font-face-format.qname "%SVG.pfx;font-face-format" >
+<!ENTITY % SVG.font-face-name.qname "%SVG.pfx;font-face-name" >
+<!ENTITY % SVG.definition-src.qname "%SVG.pfx;definition-src" >
+
+<!-- module: svg-extensibility.mod ..................... -->
+
+<!ENTITY % SVG.foreignObject.qname "%SVG.pfx;foreignObject" >
+
+<!-- end of svg-qname.mod -->
+]]>
+
+<!ENTITY % svg-model.module "INCLUDE" >
+<![%svg-model.module;[
+<!-- instantiate the Document Model declared in the DTD driver -->
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Tiny Document Model Module .................................... -->
+<!-- file: svg11-tiny-model.mod
+
+     This is SVG Tiny, a proper subset of SVG.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Tiny Document Model//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny-model.mod"
+
+     ....................................................................... -->
+
+<!-- SVG 1.1 Tiny Document Model
+
+     This module describes the groupings of elements that make up
+     common content models for SVG elements.
+-->
+
+<!-- Content Models (Default) .......................... -->
+
+<!ENTITY % SVG.Style.class "" >
+<!ENTITY % SVG.TextContent.class "" >
+<!ENTITY % SVG.Marker.class "" >
+<!ENTITY % SVG.ColorProfile.class "" >
+<!ENTITY % SVG.Gradient.class "" >
+<!ENTITY % SVG.Pattern.class "" >
+<!ENTITY % SVG.Clip.class "" >
+<!ENTITY % SVG.Mask.class "" >
+<!ENTITY % SVG.Filter.class "" >
+<!ENTITY % SVG.FilterPrimitive.class "" >
+<!ENTITY % SVG.Cursor.class "" >
+<!ENTITY % SVG.View.class "" >
+<!ENTITY % SVG.Script.class "" >
+
+<!-- module: svg-basic-structure.mod ................... -->
+
+<!ENTITY % SVG.Description.extra.class "" >
+<!ENTITY % SVG.Description.class
+    "%SVG.desc.qname; | %SVG.title.qname; | %SVG.metadata.qname;
+     %SVG.Description.extra.class;"
+>
+
+<!ENTITY % SVG.Use.extra.class "" >
+<!ENTITY % SVG.Use.class
+    "| %SVG.use.qname; %SVG.Use.extra.class;"
+>
+
+<!ENTITY % SVG.Structure.extra.class "" >
+<!ENTITY % SVG.Structure.class
+    "| %SVG.g.qname; | %SVG.defs.qname; %SVG.Use.class;
+       %SVG.Structure.extra.class;"
+>
+
+<!-- module: svg-conditional.mod ....................... -->
+
+<!ENTITY % SVG.Conditional.extra.class "" >
+<!ENTITY % SVG.Conditional.class
+    "| %SVG.switch.qname; %SVG.Conditional.extra.class;"
+>
+
+<!-- module: svg-image.mod ............................. -->
+
+<!ENTITY % SVG.Image.extra.class "" >
+<!ENTITY % SVG.Image.class
+    "| %SVG.image.qname; %SVG.Image.extra.class;"
+>
+
+<!-- module: svg-shape.mod ............................. -->
+
+<!ENTITY % SVG.Shape.extra.class "" >
+<!ENTITY % SVG.Shape.class
+    "| %SVG.path.qname; | %SVG.rect.qname; | %SVG.circle.qname;
+     | %SVG.line.qname; | %SVG.ellipse.qname; | %SVG.polyline.qname;
+     | %SVG.polygon.qname; %SVG.Shape.extra.class;"
+>
+
+<!-- module: svg-basic-text.mod ........................ -->
+
+<!ENTITY % SVG.Text.extra.class "" >
+<!ENTITY % SVG.Text.class
+    "| %SVG.text.qname; %SVG.Text.extra.class;"
+>
+
+<!-- module: svg-hyperlink.mod ......................... -->
+
+<!ENTITY % SVG.Hyperlink.extra.class "" >
+<!ENTITY % SVG.Hyperlink.class
+    "| %SVG.a.qname; %SVG.Hyperlink.extra.class;"
+>
+
+<!-- module: svg-animation.mod ......................... -->
+
+<!ENTITY % SVG.Animation.extra.class "" >
+<!ENTITY % SVG.Animation.class
+    "%SVG.animate.qname; | %SVG.set.qname; | %SVG.animateMotion.qname; |
+     %SVG.animateColor.qname; | %SVG.animateTransform.qname;
+     %SVG.Animation.extra.class;"
+>
+
+<!-- module: svg-basic-font.mod ........................ -->
+
+<!ENTITY % SVG.Font.extra.class "" >
+<!ENTITY % SVG.Font.class
+    "| %SVG.font.qname; | %SVG.font-face.qname; %SVG.Font.extra.class;"
+>
+
+<!-- module: svg-extensibility.mod ..................... -->
+
+<!ENTITY % SVG.Extensibility.extra.class "" >
+<!ENTITY % SVG.Extensibility.class
+    "| %SVG.foreignObject.qname; %SVG.Extensibility.extra.class;"
+>
+
+<!-- end of svg11-tiny-model.mod -->
+]]>
+
+<!ENTITY % svg-attribs.module "INCLUDE" >
+<![%svg-attribs.module;[
+<!-- instantiate the Attribute Collection declared in the DTD driver -->
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Tiny Attribute Collection Module .............................. -->
+<!-- file: svg11-tiny-attribs.mod
+
+     This is SVG Tiny, a proper subset of SVG.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Tiny Attribute Collection//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny-attribs.mod"
+
+     ....................................................................... -->
+
+<!-- SVG 1.1 Tiny Attribute Collection
+
+     This module defines the set of common attributes that can be present
+     on many SVG elements.
+-->
+
+<!-- module: svg-conditional.mod ....................... -->
+
+<!ENTITY % ExtensionList.datatype "CDATA" >
+<!ENTITY % FeatureList.datatype "CDATA" >
+
+<!ENTITY % SVG.Conditional.extra.attrib "" >
+<!ENTITY % SVG.Conditional.attrib
+    "requiredFeatures %FeatureList.datatype; #IMPLIED
+     requiredExtensions %ExtensionList.datatype; #IMPLIED
+     systemLanguage %LanguageCodes.datatype; #IMPLIED
+     %SVG.Conditional.extra.attrib;"
+>
+
+<!-- module: svg-basic-text.mod ........................ -->
+
+<!ENTITY % FontFamilyValue.datatype "CDATA" >
+<!ENTITY % FontSizeValue.datatype "CDATA" >
+
+<!ENTITY % SVG.TextContent.extra.attrib "" >
+<!ENTITY % SVG.TextContent.attrib
+    "text-anchor ( start | middle | end | inherit ) #IMPLIED
+     %SVG.TextContent.extra.attrib;"
+>
+
+<!ENTITY % SVG.Font.extra.attrib "" >
+<!ENTITY % SVG.Font.attrib
+    "font-family %FontFamilyValue.datatype; #IMPLIED
+     font-size %FontSizeValue.datatype; #IMPLIED
+     font-style ( normal | italic | oblique | inherit ) #IMPLIED
+     font-weight ( normal | bold | bolder | lighter | 100 | 200 | 300 | 400 |
+                   500 | 600 | 700 | 800 | 900 | inherit ) #IMPLIED
+     %SVG.Font.extra.attrib;"
+>
+
+<!-- end of svg11-tiny-attribs.mod -->
+]]>
+
+<!-- end of svg-framework.mod -->
+]]>
+
+<!-- Post-Framework Redeclaration Placeholder .................... -->
+<!ENTITY % svg-postfw-redecl.module "IGNORE" >
+<![%svg-postfw-redecl.module;[
+%svg-postfw-redecl.mod;]]>
+
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+<!-- Core Attribute Module ....................................... -->
+<!ENTITY % svg-core-attrib.module "INCLUDE" >
+<![%svg-core-attrib.module;[
+<!ENTITY % svg-core-attrib.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Core Attribute//EN"
+           "svg-core-attrib.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Core Attribute Module ......................................... -->
+<!-- file: svg-core-attrib.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Core Attribute//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-core-attrib.mod"
+
+     ....................................................................... -->
+
+<!-- Core Attribute
+
+        id, xml:base, xml:lang, xml:space
+
+     This module defines the core set of attributes that can be present on
+     any element.
+-->
+
+<!ENTITY % SVG.id.attrib
+    "id ID #IMPLIED"
+>
+
+<!ENTITY % SVG.base.attrib
+    "xml:base %URI.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.lang.attrib
+    "xml:lang %LanguageCode.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.space.attrib
+    "xml:space ( default | preserve ) #IMPLIED"
+>
+
+<!ENTITY % SVG.Core.extra.attrib "" >
+
+<!ENTITY % SVG.Core.attrib
+    "%SVG.id.attrib;
+     %SVG.base.attrib;
+     %SVG.lang.attrib;
+     %SVG.space.attrib;
+     %SVG.Core.extra.attrib;"
+>
+
+<!-- end of svg-core-attrib.mod -->
+]]>
+
+<!-- Basic Paint Attribute Module ................................ -->
+<!ENTITY % svg-paint-attrib.module "INCLUDE" >
+<![%svg-paint-attrib.module;[
+<!ENTITY % svg-paint-attrib.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Basic Paint Attribute//EN"
+           "svg-basic-paint-attrib.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Basic Paint Attribute Module .................................. -->
+<!-- file: svg-basic-paint-attrib.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Basic Paint Attribute//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-basic-paint-attrib.mod"
+
+     ....................................................................... -->
+
+<!-- Basic Paint Attribute
+
+        fill, fill-rule, stroke, stroke-dasharray, stroke-dashoffset,
+        stroke-linecap, stroke-linejoin, stroke-miterlimit, stroke-width, color,
+        color-rendering
+
+     This module defines the Paint and Color attribute sets.
+-->
+
+<!-- a 'fill' or 'stroke' property/attribute value: <paint> -->
+<!ENTITY % Paint.datatype "CDATA" >
+
+<!-- 'stroke-dasharray' property/attribute value (e.g., 'none', list of <number>s) -->
+<!ENTITY % StrokeDashArrayValue.datatype "CDATA" >
+
+<!-- 'stroke-dashoffset' property/attribute value (e.g., 'none', <legnth>) -->
+<!ENTITY % StrokeDashOffsetValue.datatype "CDATA" >
+
+<!-- 'stroke-miterlimit' property/attribute value (e.g., <number>) -->
+<!ENTITY % StrokeMiterLimitValue.datatype "CDATA" >
+
+<!-- 'stroke-width' property/attribute value (e.g., <length>) -->
+<!ENTITY % StrokeWidthValue.datatype "CDATA" >
+
+<!ENTITY % SVG.fill.attrib
+    "fill %Paint.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.fill-rule.attrib
+    "fill-rule %ClipFillRule.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke.attrib
+    "stroke %Paint.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-dasharray.attrib
+    "stroke-dasharray %StrokeDashArrayValue.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-dashoffset.attrib
+    "stroke-dashoffset %StrokeDashOffsetValue.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-linecap.attrib
+    "stroke-linecap ( butt | round | square | inherit ) #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-linejoin.attrib
+    "stroke-linejoin ( miter | round | bevel | inherit ) #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-miterlimit.attrib
+    "stroke-miterlimit %StrokeMiterLimitValue.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.stroke-width.attrib
+    "stroke-width %StrokeWidthValue.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.Paint.extra.attrib "" >
+
+<!ENTITY % SVG.Paint.attrib
+    "%SVG.fill.attrib;
+     %SVG.fill-rule.attrib;
+     %SVG.stroke.attrib;
+     %SVG.stroke-dasharray.attrib;
+     %SVG.stroke-dashoffset.attrib;
+     %SVG.stroke-linecap.attrib;
+     %SVG.stroke-linejoin.attrib;
+     %SVG.stroke-miterlimit.attrib;
+     %SVG.stroke-width.attrib;
+     %SVG.Paint.extra.attrib;"
+>
+
+<!ENTITY % SVG.color.attrib
+    "color %Color.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.color-rendering.attrib
+    "color-rendering ( auto | optimizeSpeed | optimizeQuality | inherit )
+                       #IMPLIED"
+>
+
+<!ENTITY % SVG.Color.extra.attrib "" >
+
+<!ENTITY % SVG.Color.attrib
+    "%SVG.color.attrib;
+     %SVG.color-rendering.attrib;
+     %SVG.Color.extra.attrib;"
+>
+
+<!-- end of svg-basic-paint-attrib.mod -->
+]]>
+
+<!-- Basic Graphics Attribute Module ............................. -->
+<!ENTITY % svg-graphics-attrib.module "INCLUDE" >
+<![%svg-graphics-attrib.module;[
+<!ENTITY % svg-graphics-attrib.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 Basic Graphics Attribute//EN"
+           "svg-basic-graphics-attrib.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Basic Graphics Attribute Module ............................... -->
+<!-- file: svg-basic-graphics-attrib.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 Basic Graphics Attribute//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-basic-graphics-attrib.mod"
+
+     ....................................................................... -->
+
+<!-- Basic Graphics Attribute
+
+        display, visibility
+
+     This module defines the Graphics attribute set.
+-->
+
+<!ENTITY % SVG.display.attrib
+    "display ( inline | block | list-item | run-in | compact | marker |
+               table | inline-table | table-row-group | table-header-group |
+               table-footer-group | table-row | table-column-group |
+               table-column | table-cell | table-caption | none | inherit )
+               #IMPLIED"
+>
+
+<!ENTITY % SVG.visibility.attrib
+    "visibility ( visible | hidden | inherit ) #IMPLIED"
+>
+
+<!ENTITY % SVG.Graphics.extra.attrib "" >
+
+<!ENTITY % SVG.Graphics.attrib
+    "%SVG.display.attrib;
+     %SVG.visibility.attrib;
+     %SVG.Graphics.extra.attrib;"
+>
+
+<!-- end of svg-basic-graphics-attrib.mod -->
+]]>
+
+<!-- XLink Attribute Module ...................................... -->
+<!ENTITY % svg-xlink-attrib.module "INCLUDE" >
+<![%svg-xlink-attrib.module;[
+<!ENTITY % svg-xlink-attrib.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 XLink Attribute//EN"
+           "svg-xlink-attrib.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 XLink Attribute Module ........................................ -->
+<!-- file: svg-xlink-attrib.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 XLink Attribute//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-xlink-attrib.mod"
+
+     ....................................................................... -->
+
+<!-- XLink Attribute
+
+       type, href, role, arcrole, title, show, actuate
+
+     This module defines the XLink, XLinkRequired, XLinkEmbed, and
+     XLinkReplace attribute set.
+-->
+
+<!ENTITY % SVG.XLink.extra.attrib "" >
+
+<!ENTITY % SVG.XLink.attrib
+    "%XLINK.xmlns.attrib;
+     %XLINK.pfx;type ( simple ) #FIXED 'simple'
+     %XLINK.pfx;href %URI.datatype; #IMPLIED
+     %XLINK.pfx;role %URI.datatype; #IMPLIED
+     %XLINK.pfx;arcrole %URI.datatype; #IMPLIED
+     %XLINK.pfx;title CDATA #IMPLIED
+     %XLINK.pfx;show ( other ) 'other'
+     %XLINK.pfx;actuate ( onLoad ) #FIXED 'onLoad'
+     %SVG.XLink.extra.attrib;"
+>
+
+<!ENTITY % SVG.XLinkRequired.extra.attrib "" >
+
+<!ENTITY % SVG.XLinkRequired.attrib
+    "%XLINK.xmlns.attrib;
+     %XLINK.pfx;type ( simple ) #FIXED 'simple'
+     %XLINK.pfx;href %URI.datatype; #REQUIRED
+     %XLINK.pfx;role %URI.datatype; #IMPLIED
+     %XLINK.pfx;arcrole %URI.datatype; #IMPLIED
+     %XLINK.pfx;title CDATA #IMPLIED
+     %XLINK.pfx;show ( other ) 'other'
+     %XLINK.pfx;actuate ( onLoad ) #FIXED 'onLoad'
+     %SVG.XLinkRequired.extra.attrib;"
+>
+
+<!ENTITY % SVG.XLinkEmbed.extra.attrib "" >
+
+<!ENTITY % SVG.XLinkEmbed.attrib
+    "%XLINK.xmlns.attrib;
+     %XLINK.pfx;type ( simple ) #FIXED 'simple'
+     %XLINK.pfx;href %URI.datatype; #REQUIRED
+     %XLINK.pfx;role %URI.datatype; #IMPLIED
+     %XLINK.pfx;arcrole %URI.datatype; #IMPLIED
+     %XLINK.pfx;title CDATA #IMPLIED
+     %XLINK.pfx;show ( embed ) 'embed'
+     %XLINK.pfx;actuate ( onLoad ) #FIXED 'onLoad'
+     %SVG.XLinkEmbed.extra.attrib;"
+>
+
+<!ENTITY % SVG.XLinkReplace.extra.attrib "" >
+
+<!ENTITY % SVG.XLinkReplace.attrib
+    "%XLINK.xmlns.attrib;
+     %XLINK.pfx;type ( simple ) #FIXED 'simple'
+     %XLINK.pfx;href %URI.datatype; #REQUIRED
+     %XLINK.pfx;role %URI.datatype; #IMPLIED
+     %XLINK.pfx;arcrole %URI.datatype; #IMPLIED
+     %XLINK.pfx;title CDATA #IMPLIED
+     %XLINK.pfx;show ( new | replace ) 'replace'
+     %XLINK.pfx;actuate ( onRequest ) #FIXED 'onRequest'
+     %SVG.XLinkReplace.extra.attrib;"
+>
+
+<!-- end of svg-xlink-attrib.mod -->
+]]>
+
+<!-- External Resources Attribute Module ......................... -->
+<!ENTITY % svg-extresources-attrib.module "INCLUDE" >
+<![%svg-extresources-attrib.module;[
+<!ENTITY % svg-extresources-attrib.mod
+    PUBLIC "-//W3C//ENTITIES SVG 1.1 External Resources Attribute//EN"
+           "svg-extresources-attrib.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 External Resources Attribute Module ........................... -->
+<!-- file: svg-extresources-attrib.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ENTITIES SVG 1.1 External Resources Attribute//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-extresources-attrib.mod"
+
+     ....................................................................... -->
+
+<!-- External Resources Attribute
+
+        externalResourcesRequired
+
+     This module defines the External attribute set.
+-->
+
+<!ENTITY % SVG.externalResourcesRequired.attrib
+    "externalResourcesRequired %Boolean.datatype; #IMPLIED"
+>
+
+<!ENTITY % SVG.External.extra.attrib "" >
+
+<!ENTITY % SVG.External.attrib
+    "%SVG.externalResourcesRequired.attrib;
+     %SVG.External.extra.attrib;"
+>
+
+<!-- end of svg-extresources-attrib.mod -->
+]]>
+
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+<!-- Basic Structure Module ...................................... -->
+<!ENTITY % svg-structure.module "INCLUDE" >
+<![%svg-structure.module;[
+<!ENTITY % svg-structure.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Structure//EN"
+           "svg-basic-structure.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Basic Structure Module ........................................ -->
+<!-- file: svg-basic-structure.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Structure//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-basic-structure.mod"
+
+     ....................................................................... -->
+
+<!-- Basic Structure
+
+        svg, g, defs, desc, title, metadata, use
+
+     This module declares the major structural elements and their attributes.
+-->
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.svg.qname "svg" >
+<!ENTITY % SVG.g.qname "g" >
+<!ENTITY % SVG.defs.qname "defs" >
+<!ENTITY % SVG.desc.qname "desc" >
+<!ENTITY % SVG.title.qname "title" >
+<!ENTITY % SVG.metadata.qname "metadata" >
+<!ENTITY % SVG.use.qname "use" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Container.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Text.attrib "" >
+<!ENTITY % SVG.TextContent.attrib "" >
+<!ENTITY % SVG.Font.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.ColorProfile.attrib "" >
+<!ENTITY % SVG.Gradient.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.FilterColor.attrib "" >
+<!ENTITY % SVG.DocumentEvents.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.XLinkEmbed.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Description.class ............................. -->
+
+<!ENTITY % SVG.Description.extra.class "" >
+
+<!ENTITY % SVG.Description.class
+    "%SVG.desc.qname; | %SVG.title.qname; | %SVG.metadata.qname;
+     %SVG.Description.extra.class;"
+>
+
+<!-- SVG.Use.class ..................................... -->
+
+<!ENTITY % SVG.Use.extra.class "" >
+
+<!ENTITY % SVG.Use.class
+    "| %SVG.use.qname; %SVG.Use.extra.class;"
+>
+
+<!-- SVG.Structure.class ............................... -->
+
+<!ENTITY % SVG.Structure.extra.class "" >
+
+<!ENTITY % SVG.Structure.class
+    "| %SVG.g.qname; | %SVG.defs.qname; %SVG.Use.class;
+       %SVG.Structure.extra.class;"
+>
+
+<!-- SVG.Presentation.attrib ........................... -->
+
+<!ENTITY % SVG.Presentation.extra.attrib "" >
+
+<!ENTITY % SVG.Presentation.attrib
+    "%SVG.Container.attrib;
+     %SVG.Viewport.attrib;
+     %SVG.Text.attrib;
+     %SVG.TextContent.attrib;
+     %SVG.Font.attrib;
+     %SVG.Paint.attrib;
+     %SVG.Color.attrib;
+     %SVG.Opacity.attrib;
+     %SVG.Graphics.attrib;
+     %SVG.Marker.attrib;
+     %SVG.ColorProfile.attrib;
+     %SVG.Gradient.attrib;
+     %SVG.Clip.attrib;
+     %SVG.Mask.attrib;
+     %SVG.Filter.attrib;
+     %SVG.FilterColor.attrib;
+     %SVG.Cursor.attrib;
+     flood-color %SVGColor.datatype; #IMPLIED
+     flood-opacity %OpacityValue.datatype; #IMPLIED
+     lighting-color %SVGColor.datatype; #IMPLIED
+     %SVG.Presentation.extra.attrib;"
+>
+
+<!-- svg: SVG Document Element ......................... -->
+
+<!ENTITY % SVG.svg.extra.content "" >
+
+<!ENTITY % SVG.svg.element "INCLUDE" >
+<![%SVG.svg.element;[
+<!ENTITY % SVG.svg.content
+    "( %SVG.Description.class; | %SVG.Animation.class; %SVG.Structure.class;
+       %SVG.Conditional.class; %SVG.Image.class; %SVG.Style.class;
+       %SVG.Shape.class; %SVG.Text.class; %SVG.Marker.class;
+       %SVG.ColorProfile.class; %SVG.Gradient.class; %SVG.Pattern.class;
+       %SVG.Clip.class; %SVG.Mask.class; %SVG.Filter.class; %SVG.Cursor.class;
+       %SVG.Hyperlink.class; %SVG.View.class; %SVG.Script.class;
+       %SVG.Font.class; %SVG.svg.extra.content; )*"
+>
+<!ELEMENT %SVG.svg.qname; %SVG.svg.content; >
+<!-- end of SVG.svg.element -->]]>
+
+<!ENTITY % SVG.svg.attlist "INCLUDE" >
+<![%SVG.svg.attlist;[
+<!ATTLIST %SVG.svg.qname;
+    %SVG.xmlns.attrib;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.DocumentEvents.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.External.attrib;
+    x %Coordinate.datatype; #IMPLIED
+    y %Coordinate.datatype; #IMPLIED
+    width %Length.datatype; #IMPLIED
+    height %Length.datatype; #IMPLIED
+    viewBox %ViewBoxSpec.datatype; #IMPLIED
+    preserveAspectRatio %PreserveAspectRatioSpec.datatype; 'xMidYMid meet'
+    zoomAndPan ( disable | magnify ) 'magnify'
+    version %Number.datatype; #FIXED '1.1'
+    baseProfile %Text.datatype; #IMPLIED
+>
+<!-- end of SVG.svg.attlist -->]]>
+
+<!-- g: Group Element .................................. -->
+
+<!ENTITY % SVG.g.extra.content "" >
+
+<!ENTITY % SVG.g.element "INCLUDE" >
+<![%SVG.g.element;[
+<!ENTITY % SVG.g.content
+    "( %SVG.Description.class; | %SVG.Animation.class; %SVG.Structure.class;
+       %SVG.Conditional.class; %SVG.Image.class; %SVG.Style.class;
+       %SVG.Shape.class; %SVG.Text.class; %SVG.Marker.class;
+       %SVG.ColorProfile.class; %SVG.Gradient.class; %SVG.Pattern.class;
+       %SVG.Clip.class; %SVG.Mask.class; %SVG.Filter.class; %SVG.Cursor.class;
+       %SVG.Hyperlink.class; %SVG.View.class; %SVG.Script.class;
+       %SVG.Font.class; %SVG.g.extra.content; )*"
+>
+<!ELEMENT %SVG.g.qname; %SVG.g.content; >
+<!-- end of SVG.g.element -->]]>
+
+<!ENTITY % SVG.g.attlist "INCLUDE" >
+<![%SVG.g.attlist;[
+<!ATTLIST %SVG.g.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.External.attrib;
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.g.attlist -->]]>
+
+<!-- defs: Definisions Element ......................... -->
+
+<!ENTITY % SVG.defs.extra.content "" >
+
+<!ENTITY % SVG.defs.element "INCLUDE" >
+<![%SVG.defs.element;[
+<!ENTITY % SVG.defs.content
+    "( %SVG.Description.class; | %SVG.Animation.class; %SVG.Structure.class;
+       %SVG.Conditional.class; %SVG.Image.class; %SVG.Style.class;
+       %SVG.Shape.class; %SVG.Text.class; %SVG.Marker.class;
+       %SVG.ColorProfile.class; %SVG.Gradient.class; %SVG.Pattern.class;
+       %SVG.Clip.class; %SVG.Mask.class; %SVG.Filter.class; %SVG.Cursor.class;
+       %SVG.Hyperlink.class; %SVG.View.class; %SVG.Script.class;
+       %SVG.Font.class; %SVG.defs.extra.content; )*"
+>
+<!ELEMENT %SVG.defs.qname; %SVG.defs.content; >
+<!-- end of SVG.defs.element -->]]>
+
+<!ENTITY % SVG.defs.attlist "INCLUDE" >
+<![%SVG.defs.attlist;[
+<!ATTLIST %SVG.defs.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.External.attrib;
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.defs.attlist -->]]>
+
+<!-- desc: Description Element ......................... -->
+
+<!ENTITY % SVG.desc.extra.content "" >
+
+<!ENTITY % SVG.desc.element "INCLUDE" >
+<![%SVG.desc.element;[
+<!ENTITY % SVG.desc.content
+    "( #PCDATA %SVG.desc.extra.content; )*"
+>
+<!ELEMENT %SVG.desc.qname; %SVG.desc.content; >
+<!-- end of SVG.desc.element -->]]>
+
+<!ENTITY % SVG.desc.attlist "INCLUDE" >
+<![%SVG.desc.attlist;[
+<!ATTLIST %SVG.desc.qname;
+    %SVG.Core.attrib;
+    %SVG.Style.attrib;
+>
+<!-- end of SVG.desc.attlist -->]]>
+
+<!-- title: Title Element .............................. -->
+
+<!ENTITY % SVG.title.extra.content "" >
+
+<!ENTITY % SVG.title.element "INCLUDE" >
+<![%SVG.title.element;[
+<!ENTITY % SVG.title.content
+    "( #PCDATA %SVG.title.extra.content; )*"
+>
+<!ELEMENT %SVG.title.qname; %SVG.title.content; >
+<!-- end of SVG.title.element -->]]>
+
+<!ENTITY % SVG.title.attlist "INCLUDE" >
+<![%SVG.title.attlist;[
+<!ATTLIST %SVG.title.qname;
+    %SVG.Core.attrib;
+    %SVG.Style.attrib;
+>
+<!-- end of SVG.title.attlist -->]]>
+
+<!-- metadata: Metadata Element ........................ -->
+
+<!ENTITY % SVG.metadata.extra.content "" >
+
+<!ENTITY % SVG.metadata.element "INCLUDE" >
+<![%SVG.metadata.element;[
+<!ENTITY % SVG.metadata.content
+    "( #PCDATA %SVG.metadata.extra.content; )*"
+>
+<!ELEMENT %SVG.metadata.qname; %SVG.metadata.content; >
+<!-- end of SVG.metadata.element -->]]>
+
+<!ENTITY % SVG.metadata.attlist "INCLUDE" >
+<![%SVG.metadata.attlist;[
+<!ATTLIST %SVG.metadata.qname;
+    %SVG.Core.attrib;
+>
+<!-- end of SVG.metadata.attlist -->]]>
+
+<!-- use: Use Element .................................. -->
+
+<!ENTITY % SVG.use.extra.content "" >
+
+<!ENTITY % SVG.use.element "INCLUDE" >
+<![%SVG.use.element;[
+<!ENTITY % SVG.use.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.use.extra.content; )*)"
+>
+<!ELEMENT %SVG.use.qname; %SVG.use.content; >
+<!-- end of SVG.use.element -->]]>
+
+<!ENTITY % SVG.use.attlist "INCLUDE" >
+<![%SVG.use.attlist;[
+<!ATTLIST %SVG.use.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.XLinkEmbed.attrib;
+    %SVG.External.attrib;
+    x %Coordinate.datatype; #IMPLIED
+    y %Coordinate.datatype; #IMPLIED
+    width %Length.datatype; #IMPLIED
+    height %Length.datatype; #IMPLIED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.use.attlist -->]]>
+
+<!-- end of svg-basic-structure.mod -->
+]]>
+
+<!-- Conditional Processing Module ............................... -->
+<!ENTITY % svg-conditional.module "INCLUDE" >
+<![%svg-conditional.module;[
+<!ENTITY % svg-conditional.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Conditional Processing//EN"
+           "svg-conditional.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Conditional Processing Module ................................. -->
+<!-- file: svg-conditional.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Conditional Processing//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-conditional.mod"
+
+     ....................................................................... -->
+
+<!-- Conditional Processing
+
+        switch
+
+     This module declares markup to provide support for conditional processing.
+-->
+
+<!-- extension list specification -->
+<!ENTITY % ExtensionList.datatype "CDATA" >
+
+<!-- feature list specification -->
+<!ENTITY % FeatureList.datatype "CDATA" >
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.switch.qname "switch" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Container.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Text.attrib "" >
+<!ENTITY % SVG.TextContent.attrib "" >
+<!ENTITY % SVG.Font.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.ColorProfile.attrib "" >
+<!ENTITY % SVG.Gradient.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.FilterColor.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Conditional.class ............................. -->
+
+<!ENTITY % SVG.Conditional.extra.class "" >
+
+<!ENTITY % SVG.Conditional.class
+    "| %SVG.switch.qname; %SVG.Conditional.extra.class;"
+>
+
+<!-- SVG.Conditional.attrib ............................ -->
+
+<!ENTITY % SVG.Conditional.extra.attrib "" >
+
+<!ENTITY % SVG.Conditional.attrib
+    "requiredFeatures %FeatureList.datatype; #IMPLIED
+     requiredExtensions %ExtensionList.datatype; #IMPLIED
+     systemLanguage %LanguageCodes.datatype; #IMPLIED
+     %SVG.Conditional.extra.attrib;"
+>
+
+<!-- SVG.Presentation.attrib ........................... -->
+
+<!ENTITY % SVG.Presentation.extra.attrib "" >
+
+<!ENTITY % SVG.Presentation.attrib
+    "%SVG.Container.attrib;
+     %SVG.Viewport.attrib;
+     %SVG.Text.attrib;
+     %SVG.TextContent.attrib;
+     %SVG.Font.attrib;
+     %SVG.Paint.attrib;
+     %SVG.Color.attrib;
+     %SVG.Opacity.attrib;
+     %SVG.Graphics.attrib;
+     %SVG.Marker.attrib;
+     %SVG.ColorProfile.attrib;
+     %SVG.Gradient.attrib;
+     %SVG.Clip.attrib;
+     %SVG.Mask.attrib;
+     %SVG.Filter.attrib;
+     %SVG.FilterColor.attrib;
+     %SVG.Cursor.attrib;
+     flood-color %SVGColor.datatype; #IMPLIED
+     flood-opacity %OpacityValue.datatype; #IMPLIED
+     lighting-color %SVGColor.datatype; #IMPLIED
+     %SVG.Presentation.extra.attrib;"
+>
+
+<!-- switch: Switch Element ............................ -->
+
+<!ENTITY % SVG.switch.extra.content "" >
+
+<!ENTITY % SVG.switch.element "INCLUDE" >
+<![%SVG.switch.element;[
+<!ENTITY % SVG.switch.content
+    "(( %SVG.Description.class; )*, ( %SVG.svg.qname; | %SVG.g.qname;
+      | %SVG.use.qname; | %SVG.text.qname; | %SVG.Animation.class;
+        %SVG.Conditional.class; %SVG.Image.class; %SVG.Shape.class;
+        %SVG.Hyperlink.class; %SVG.Extensibility.class;
+        %SVG.switch.extra.content; )*)"
+>
+<!ELEMENT %SVG.switch.qname; %SVG.switch.content; >
+<!-- end of SVG.switch.element -->]]>
+
+<!ENTITY % SVG.switch.attlist "INCLUDE" >
+<![%SVG.switch.attlist;[
+<!ATTLIST %SVG.switch.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.External.attrib;
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.switch.attlist -->]]>
+
+<!-- end of svg-conditional.mod -->
+]]>
+
+<!-- Image Module ................................................ -->
+<!ENTITY % svg-image.module "INCLUDE" >
+<![%svg-image.module;[
+<!ENTITY % svg-image.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Image//EN"
+           "svg-image.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Image Module .................................................. -->
+<!-- file: svg-image.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Image//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-image.mod"
+
+     ....................................................................... -->
+
+<!-- Image
+
+        image
+
+     This module declares markup to provide support for image.
+-->
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.image.qname "image" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.ColorProfile.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.XLinkEmbed.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Image.class ................................... -->
+
+<!ENTITY % SVG.Image.extra.class "" >
+
+<!ENTITY % SVG.Image.class
+    "| %SVG.image.qname; %SVG.Image.extra.class;"
+>
+
+<!-- image: Image Element .............................. -->
+
+<!ENTITY % SVG.image.extra.content "" >
+
+<!ENTITY % SVG.image.element "INCLUDE" >
+<![%SVG.image.element;[
+<!ENTITY % SVG.image.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.image.extra.content; )*)"
+>
+<!ELEMENT %SVG.image.qname; %SVG.image.content; >
+<!-- end of SVG.image.element -->]]>
+
+<!ENTITY % SVG.image.attlist "INCLUDE" >
+<![%SVG.image.attlist;[
+<!ATTLIST %SVG.image.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Viewport.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.ColorProfile.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.XLinkEmbed.attrib;
+    %SVG.External.attrib;
+    x %Coordinate.datatype; #IMPLIED
+    y %Coordinate.datatype; #IMPLIED
+    width %Length.datatype; #REQUIRED
+    height %Length.datatype; #REQUIRED
+    preserveAspectRatio %PreserveAspectRatioSpec.datatype; 'xMidYMid meet'
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.image.attlist -->]]>
+
+<!-- end of svg-image.mod -->
+]]>
+
+<!-- Shape Module ................................................ -->
+<!ENTITY % svg-shape.module "INCLUDE" >
+<![%svg-shape.module;[
+<!ENTITY % svg-shape.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Shape//EN"
+           "svg-shape.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Shape Module .................................................. -->
+<!-- file: svg-shape.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Shape//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-shape.mod"
+
+     ....................................................................... -->
+
+<!-- Shape
+
+        path, rect, circle, line, ellipse, polyline, polygon
+
+     This module declares markup to provide support for graphical shapes.
+-->
+
+<!-- a list of points -->
+<!ENTITY % Points.datatype "CDATA" >
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.path.qname "path" >
+<!ENTITY % SVG.rect.qname "rect" >
+<!ENTITY % SVG.circle.qname "circle" >
+<!ENTITY % SVG.line.qname "line" >
+<!ENTITY % SVG.ellipse.qname "ellipse" >
+<!ENTITY % SVG.polyline.qname "polyline" >
+<!ENTITY % SVG.polygon.qname "polygon" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Shape.class ................................... -->
+
+<!ENTITY % SVG.Shape.extra.class "" >
+
+<!ENTITY % SVG.Shape.class
+    "| %SVG.path.qname; | %SVG.rect.qname; | %SVG.circle.qname;
+     | %SVG.line.qname; | %SVG.ellipse.qname; | %SVG.polyline.qname;
+     | %SVG.polygon.qname; %SVG.Shape.extra.class;"
+>
+
+<!-- path: Path Element ................................ -->
+
+<!ENTITY % SVG.path.extra.content "" >
+
+<!ENTITY % SVG.path.element "INCLUDE" >
+<![%SVG.path.element;[
+<!ENTITY % SVG.path.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.path.extra.content; )*)"
+>
+<!ELEMENT %SVG.path.qname; %SVG.path.content; >
+<!-- end of SVG.path.element -->]]>
+
+<!ENTITY % SVG.path.attlist "INCLUDE" >
+<![%SVG.path.attlist;[
+<!ATTLIST %SVG.path.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Marker.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    d %PathData.datatype; #REQUIRED
+    pathLength %Number.datatype; #IMPLIED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.path.attlist -->]]>
+
+<!-- rect: Rectangle Element ........................... -->
+
+<!ENTITY % SVG.rect.extra.content "" >
+
+<!ENTITY % SVG.rect.element "INCLUDE" >
+<![%SVG.rect.element;[
+<!ENTITY % SVG.rect.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.rect.extra.content; )*)"
+>
+<!ELEMENT %SVG.rect.qname; %SVG.rect.content; >
+<!-- end of SVG.rect.element -->]]>
+
+<!ENTITY % SVG.rect.attlist "INCLUDE" >
+<![%SVG.rect.attlist;[
+<!ATTLIST %SVG.rect.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    x %Coordinate.datatype; #IMPLIED
+    y %Coordinate.datatype; #IMPLIED
+    width %Length.datatype; #REQUIRED
+    height %Length.datatype; #REQUIRED
+    rx %Length.datatype; #IMPLIED
+    ry %Length.datatype; #IMPLIED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.rect.attlist -->]]>
+
+<!-- circle: Circle Element ............................ -->
+
+<!ENTITY % SVG.circle.extra.content "" >
+
+<!ENTITY % SVG.circle.element "INCLUDE" >
+<![%SVG.circle.element;[
+<!ENTITY % SVG.circle.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.circle.extra.content; )*)"
+>
+<!ELEMENT %SVG.circle.qname; %SVG.circle.content; >
+<!-- end of SVG.circle.element -->]]>
+
+<!ENTITY % SVG.circle.attlist "INCLUDE" >
+<![%SVG.circle.attlist;[
+<!ATTLIST %SVG.circle.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    cx %Coordinate.datatype; #IMPLIED
+    cy %Coordinate.datatype; #IMPLIED
+    r %Length.datatype; #REQUIRED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.circle.attlist -->]]>
+
+<!-- line: Line Element ................................ -->
+
+<!ENTITY % SVG.line.extra.content "" >
+
+<!ENTITY % SVG.line.element "INCLUDE" >
+<![%SVG.line.element;[
+<!ENTITY % SVG.line.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.line.extra.content; )*)"
+>
+<!ELEMENT %SVG.line.qname; %SVG.line.content; >
+<!-- end of SVG.line.element -->]]>
+
+<!ENTITY % SVG.line.attlist "INCLUDE" >
+<![%SVG.line.attlist;[
+<!ATTLIST %SVG.line.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Marker.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    x1 %Coordinate.datatype; #IMPLIED
+    y1 %Coordinate.datatype; #IMPLIED
+    x2 %Coordinate.datatype; #IMPLIED
+    y2 %Coordinate.datatype; #IMPLIED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.line.attlist -->]]>
+
+<!-- ellipse: Ellipse Element .......................... -->
+
+<!ENTITY % SVG.ellipse.extra.content "" >
+
+<!ENTITY % SVG.ellipse.element "INCLUDE" >
+<![%SVG.ellipse.element;[
+<!ENTITY % SVG.ellipse.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.ellipse.extra.content; )*)"
+>
+<!ELEMENT %SVG.ellipse.qname; %SVG.ellipse.content; >
+<!-- end of SVG.ellipse.element -->]]>
+
+<!ENTITY % SVG.ellipse.attlist "INCLUDE" >
+<![%SVG.ellipse.attlist;[
+<!ATTLIST %SVG.ellipse.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    cx %Coordinate.datatype; #IMPLIED
+    cy %Coordinate.datatype; #IMPLIED
+    rx %Length.datatype; #REQUIRED
+    ry %Length.datatype; #REQUIRED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.ellipse.attlist -->]]>
+
+<!-- polyline: Polyline Element ........................ -->
+
+<!ENTITY % SVG.polyline.extra.content "" >
+
+<!ENTITY % SVG.polyline.element "INCLUDE" >
+<![%SVG.polyline.element;[
+<!ENTITY % SVG.polyline.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.polyline.extra.content; )*)"
+>
+<!ELEMENT %SVG.polyline.qname; %SVG.polyline.content; >
+<!-- end of SVG.polyline.element -->]]>
+
+<!ENTITY % SVG.polyline.attlist "INCLUDE" >
+<![%SVG.polyline.attlist;[
+<!ATTLIST %SVG.polyline.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Marker.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    points %Points.datatype; #REQUIRED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.polyline.attlist -->]]>
+
+<!-- polygon: Polygon Element .......................... -->
+
+<!ENTITY % SVG.polygon.extra.content "" >
+
+<!ENTITY % SVG.polygon.element "INCLUDE" >
+<![%SVG.polygon.element;[
+<!ENTITY % SVG.polygon.content
+    "(( %SVG.Description.class; )*, ( %SVG.Animation.class;
+        %SVG.polygon.extra.content; )*)"
+>
+<!ELEMENT %SVG.polygon.qname; %SVG.polygon.content; >
+<!-- end of SVG.polygon.element -->]]>
+
+<!ENTITY % SVG.polygon.attlist "INCLUDE" >
+<![%SVG.polygon.attlist;[
+<!ATTLIST %SVG.polygon.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Marker.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    points %Points.datatype; #REQUIRED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.polygon.attlist -->]]>
+
+<!-- end of svg-shape.mod -->
+]]>
+
+<!-- Basic Text Module ........................................... -->
+<!ENTITY % svg-text.module "INCLUDE" >
+<![%svg-text.module;[
+<!ENTITY % svg-text.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Text//EN"
+           "svg-basic-text.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Basic Text Module ............................................. -->
+<!-- file: svg-basic-text.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Text//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-basic-text.mod"
+
+     ....................................................................... -->
+
+<!-- Basic Text
+
+        text
+
+     This module declares markup to provide support for text.
+-->
+
+<!-- 'font-family' property/attribute value (i.e., list of fonts) -->
+<!ENTITY % FontFamilyValue.datatype "CDATA" >
+
+<!-- 'font-size' property/attribute value -->
+<!ENTITY % FontSizeValue.datatype "CDATA" >
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.text.qname "text" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Text.class .................................... -->
+
+<!ENTITY % SVG.Text.extra.class "" >
+
+<!ENTITY % SVG.Text.class
+    "| %SVG.text.qname; %SVG.Text.extra.class;"
+>
+
+<!-- SVG.TextContent.attrib ............................ -->
+
+<!ENTITY % SVG.TextContent.extra.attrib "" >
+
+<!ENTITY % SVG.TextContent.attrib
+    "text-anchor ( start | middle | end | inherit ) #IMPLIED
+     %SVG.TextContent.extra.attrib;"
+>
+
+<!-- SVG.Font.attrib ................................... -->
+
+<!ENTITY % SVG.Font.extra.attrib "" >
+
+<!ENTITY % SVG.Font.attrib
+    "font-family %FontFamilyValue.datatype; #IMPLIED
+     font-size %FontSizeValue.datatype; #IMPLIED
+     font-style ( normal | italic | oblique | inherit ) #IMPLIED
+     font-weight ( normal | bold | bolder | lighter | 100 | 200 | 300 | 400 |
+                   500 | 600 | 700 | 800 | 900 | inherit ) #IMPLIED
+     %SVG.Font.extra.attrib;"
+>
+
+<!-- text: Text Element ................................ -->
+
+<!ENTITY % SVG.text.extra.content "" >
+
+<!ENTITY % SVG.text.element "INCLUDE" >
+<![%SVG.text.element;[
+<!ENTITY % SVG.text.content
+    "( #PCDATA | %SVG.Description.class; | %SVG.Animation.class;
+       %SVG.Hyperlink.class; %SVG.text.extra.content; )*"
+>
+<!ELEMENT %SVG.text.qname; %SVG.text.content; >
+<!-- end of SVG.text.element -->]]>
+
+<!ENTITY % SVG.text.attlist "INCLUDE" >
+<![%SVG.text.attlist;[
+<!ATTLIST %SVG.text.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.TextContent.attrib;
+    %SVG.Font.attrib;
+    %SVG.Paint.attrib;
+    %SVG.Color.attrib;
+    %SVG.Opacity.attrib;
+    %SVG.Graphics.attrib;
+    %SVG.Clip.attrib;
+    %SVG.Mask.attrib;
+    %SVG.Filter.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.Cursor.attrib;
+    %SVG.External.attrib;
+    x %Coordinates.datatype; #IMPLIED
+    y %Coordinates.datatype; #IMPLIED
+    rotate %Numbers.datatype; #IMPLIED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.text.attlist -->]]>
+
+<!-- end of svg-basic-text.mod -->
+]]>
+
+<!-- Hyperlinking Module ......................................... -->
+<!ENTITY % svg-hyperlink.module "INCLUDE" >
+<![%svg-hyperlink.module;[
+<!ENTITY % svg-hyperlink.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Hyperlinking//EN"
+           "svg-hyperlink.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Hyperlinking Module ........................................... -->
+<!-- file: svg-hyperlink.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Hyperlinking//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-hyperlink.mod"
+
+     ....................................................................... -->
+
+<!-- Hyperlinking
+
+        a
+
+     This module declares markup to provide support for hyper linking.
+-->
+
+<!-- link to this target -->
+<!ENTITY % LinkTarget.datatype "NMTOKEN" >
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.a.qname "a" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Text.attrib "" >
+<!ENTITY % SVG.TextContent.attrib "" >
+<!ENTITY % SVG.Font.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.Gradient.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.FilterColor.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.XLinkReplace.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Hyperlink.class ............................... -->
+
+<!ENTITY % SVG.Hyperlink.extra.class "" >
+
+<!ENTITY % SVG.Hyperlink.class
+    "| %SVG.a.qname; %SVG.Hyperlink.extra.class;"
+>
+
+<!-- SVG.Presentation.attrib ........................... -->
+
+<!ENTITY % SVG.Presentation.extra.attrib "" >
+
+<!ENTITY % SVG.Presentation.attrib
+    "%SVG.Container.attrib;
+     %SVG.Viewport.attrib;
+     %SVG.Text.attrib;
+     %SVG.TextContent.attrib;
+     %SVG.Font.attrib;
+     %SVG.Paint.attrib;
+     %SVG.Color.attrib;
+     %SVG.Opacity.attrib;
+     %SVG.Graphics.attrib;
+     %SVG.Marker.attrib;
+     %SVG.ColorProfile.attrib;
+     %SVG.Gradient.attrib;
+     %SVG.Clip.attrib;
+     %SVG.Mask.attrib;
+     %SVG.Filter.attrib;
+     %SVG.FilterColor.attrib;
+     %SVG.Cursor.attrib;
+     flood-color %SVGColor.datatype; #IMPLIED
+     flood-opacity %OpacityValue.datatype; #IMPLIED
+     lighting-color %SVGColor.datatype; #IMPLIED
+     %SVG.Presentation.extra.attrib;"
+>
+
+<!-- a: Anchor Element ................................. -->
+
+<!ENTITY % SVG.a.extra.content "" >
+
+<!ENTITY % SVG.a.element "INCLUDE" >
+<![%SVG.a.element;[
+<!ENTITY % SVG.a.content
+    "( #PCDATA | %SVG.Description.class; | %SVG.Animation.class;
+       %SVG.Structure.class; %SVG.Conditional.class; %SVG.Image.class;
+       %SVG.Style.class; %SVG.Shape.class; %SVG.Text.class; %SVG.Marker.class;
+       %SVG.ColorProfile.class; %SVG.Gradient.class; %SVG.Pattern.class;
+       %SVG.Clip.class; %SVG.Mask.class; %SVG.Filter.class; %SVG.Cursor.class;
+       %SVG.Hyperlink.class; %SVG.View.class; %SVG.Script.class;
+       %SVG.Font.class; %SVG.a.extra.content; )*"
+>
+<!ELEMENT %SVG.a.qname; %SVG.a.content; >
+<!-- end of SVG.a.element -->]]>
+
+<!ENTITY % SVG.a.attlist "INCLUDE" >
+<![%SVG.a.attlist;[
+<!ATTLIST %SVG.a.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.XLinkReplace.attrib;
+    %SVG.External.attrib;
+    transform %TransformList.datatype; #IMPLIED
+    target %LinkTarget.datatype; #IMPLIED
+>
+<!-- end of SVG.a.attlist -->]]>
+
+<!-- end of svg-hyperlink.mod -->
+]]>
+
+<!-- Animation Module ............................................ -->
+<!ENTITY % svg-animation.module "INCLUDE" >
+<![%svg-animation.module;[
+<!ENTITY % svg-animation.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Animation//EN"
+           "svg-animation.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Animation Module .............................................. -->
+<!-- file: svg-animation.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Animation//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-animation.mod"
+
+     ....................................................................... -->
+
+<!-- Animation
+
+        animate, set, animateMotion, animateColor, animateTransform, mpath
+
+     This module declares markup to provide support for animation.
+-->
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.animate.qname "animate" >
+<!ENTITY % SVG.set.qname "set" >
+<!ENTITY % SVG.animateMotion.qname "animateMotion" >
+<!ENTITY % SVG.animateColor.qname "animateColor" >
+<!ENTITY % SVG.animateTransform.qname "animateTransform" >
+<!ENTITY % SVG.mpath.qname "mpath" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.AnimationEvents.attrib "" >
+<!ENTITY % SVG.XLink.attrib "" >
+<!ENTITY % SVG.XLinkRequired.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Animation.class ............................... -->
+
+<!ENTITY % SVG.Animation.extra.class "" >
+
+<!ENTITY % SVG.Animation.class
+    "%SVG.animate.qname; | %SVG.set.qname; | %SVG.animateMotion.qname; |
+     %SVG.animateColor.qname; | %SVG.animateTransform.qname;
+     %SVG.Animation.extra.class;"
+>
+
+<!-- SVG.Animation.attrib .............................. -->
+
+<!ENTITY % SVG.Animation.extra.attrib "" >
+
+<!ENTITY % SVG.Animation.attrib
+    "%SVG.XLink.attrib;
+     %SVG.Animation.extra.attrib;"
+>
+
+<!-- SVG.AnimationAttribute.attrib ..................... -->
+
+<!ENTITY % SVG.AnimationAttribute.extra.attrib "" >
+
+<!ENTITY % SVG.AnimationAttribute.attrib
+    "attributeName  CDATA  #REQUIRED
+     attributeType  CDATA  #IMPLIED
+     %SVG.AnimationAttribute.extra.attrib;"
+>
+
+<!-- SVG.AnimationTiming.attrib ........................ -->
+
+<!ENTITY % SVG.AnimationTiming.extra.attrib "" >
+
+<!ENTITY % SVG.AnimationTiming.attrib
+    "begin CDATA #IMPLIED
+     dur CDATA #IMPLIED
+     end CDATA #IMPLIED
+     min CDATA #IMPLIED
+     max CDATA #IMPLIED
+     restart ( always | never | whenNotActive ) 'always'
+     repeatCount CDATA #IMPLIED
+     repeatDur CDATA #IMPLIED
+     fill ( remove | freeze ) 'remove'
+     %SVG.AnimationTiming.extra.attrib;"
+>
+
+<!-- SVG.AnimationValue.attrib ......................... -->
+
+<!ENTITY % SVG.AnimationValue.extra.attrib "" >
+
+<!ENTITY % SVG.AnimationValue.attrib
+    "calcMode ( discrete | linear | paced | spline ) 'linear'
+     values CDATA #IMPLIED
+     keyTimes CDATA #IMPLIED
+     keySplines CDATA #IMPLIED
+     from CDATA #IMPLIED
+     to CDATA #IMPLIED
+     by CDATA #IMPLIED
+     %SVG.AnimationValue.extra.attrib;"
+>
+
+<!-- SVG.AnimationAddtion.attrib ....................... -->
+
+<!ENTITY % SVG.AnimationAddtion.extra.attrib "" >
+
+<!ENTITY % SVG.AnimationAddtion.attrib
+    "additive ( replace | sum ) 'replace'
+     accumulate ( none | sum ) 'none'
+     %SVG.AnimationAddtion.extra.attrib;"
+>
+
+<!-- animate: Animate Element .......................... -->
+
+<!ENTITY % SVG.animate.extra.content "" >
+
+<!ENTITY % SVG.animate.element "INCLUDE" >
+<![%SVG.animate.element;[
+<!ENTITY % SVG.animate.content
+    "( %SVG.Description.class; %SVG.animate.extra.content; )*"
+>
+<!ELEMENT %SVG.animate.qname; %SVG.animate.content; >
+<!-- end of SVG.animate.element -->]]>
+
+<!ENTITY % SVG.animate.attlist "INCLUDE" >
+<![%SVG.animate.attlist;[
+<!ATTLIST %SVG.animate.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.AnimationEvents.attrib;
+    %SVG.External.attrib;
+    %SVG.Animation.attrib;
+    %SVG.AnimationAttribute.attrib;
+    %SVG.AnimationTiming.attrib;
+    %SVG.AnimationValue.attrib;
+    %SVG.AnimationAddtion.attrib;
+>
+<!-- end of SVG.animate.attlist -->]]>
+
+<!-- set: Set Element .................................. -->
+
+<!ENTITY % SVG.set.extra.content "" >
+
+<!ENTITY % SVG.set.element "INCLUDE" >
+<![%SVG.set.element;[
+<!ENTITY % SVG.set.content
+    "( %SVG.Description.class; %SVG.set.extra.content; )*"
+>
+<!ELEMENT %SVG.set.qname; %SVG.set.content; >
+<!-- end of SVG.set.element -->]]>
+
+<!ENTITY % SVG.set.attlist "INCLUDE" >
+<![%SVG.set.attlist;[
+<!ATTLIST %SVG.set.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.AnimationEvents.attrib;
+    %SVG.External.attrib;
+    %SVG.Animation.attrib;
+    %SVG.AnimationAttribute.attrib;
+    %SVG.AnimationTiming.attrib;
+    to CDATA #IMPLIED
+>
+<!-- end of SVG.set.attlist -->]]>
+
+<!-- animateMotion: Animate Motion Element ............. -->
+
+<!ENTITY % SVG.animateMotion.extra.content "" >
+
+<!ENTITY % SVG.animateMotion.element "INCLUDE" >
+<![%SVG.animateMotion.element;[
+<!ENTITY % SVG.animateMotion.content
+    "(( %SVG.Description.class; )*, %SVG.mpath.qname;?
+        %SVG.animateMotion.extra.content; )"
+>
+<!ELEMENT %SVG.animateMotion.qname; %SVG.animateMotion.content; >
+<!-- end of SVG.animateMotion.element -->]]>
+
+<!ENTITY % SVG.animateMotion.attlist "INCLUDE" >
+<![%SVG.animateMotion.attlist;[
+<!ATTLIST %SVG.animateMotion.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.AnimationEvents.attrib;
+    %SVG.External.attrib;
+    %SVG.Animation.attrib;
+    %SVG.AnimationTiming.attrib;
+    %SVG.AnimationAddtion.attrib;
+    calcMode ( discrete | linear | paced | spline ) 'paced'
+    values CDATA #IMPLIED
+    keyTimes CDATA #IMPLIED
+    keySplines CDATA #IMPLIED
+    from CDATA #IMPLIED
+    to CDATA #IMPLIED
+    by CDATA #IMPLIED
+    path CDATA #IMPLIED
+    keyPoints CDATA #IMPLIED
+    rotate CDATA #IMPLIED
+    origin CDATA #IMPLIED
+>
+<!-- end of SVG.animateMotion.attlist -->]]>
+
+<!-- animateColor: Animate Color Element ............... -->
+
+<!ENTITY % SVG.animateColor.extra.content "" >
+
+<!ENTITY % SVG.animateColor.element "INCLUDE" >
+<![%SVG.animateColor.element;[
+<!ENTITY % SVG.animateColor.content
+    "( %SVG.Description.class; %SVG.animateColor.extra.content; )*"
+>
+<!ELEMENT %SVG.animateColor.qname; %SVG.animateColor.content; >
+<!-- end of SVG.animateColor.element -->]]>
+
+<!ENTITY % SVG.animateColor.attlist "INCLUDE" >
+<![%SVG.animateColor.attlist;[
+<!ATTLIST %SVG.animateColor.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.AnimationEvents.attrib;
+    %SVG.External.attrib;
+    %SVG.Animation.attrib;
+    %SVG.AnimationAttribute.attrib;
+    %SVG.AnimationTiming.attrib;
+    %SVG.AnimationValue.attrib;
+    %SVG.AnimationAddtion.attrib;
+>
+<!-- end of SVG.animateColor.attlist -->]]>
+
+<!-- animateTransform: Animate Transform Element ....... -->
+
+<!ENTITY % SVG.animateTransform.extra.content "" >
+
+<!ENTITY % SVG.animateTransform.element "INCLUDE" >
+<![%SVG.animateTransform.element;[
+<!ENTITY % SVG.animateTransform.content
+    "( %SVG.Description.class; %SVG.animateTransform.extra.content; )*"
+>
+<!ELEMENT %SVG.animateTransform.qname; %SVG.animateTransform.content; >
+<!-- end of SVG.animateTransform.element -->]]>
+
+<!ENTITY % SVG.animateTransform.attlist "INCLUDE" >
+<![%SVG.animateTransform.attlist;[
+<!ATTLIST %SVG.animateTransform.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.AnimationEvents.attrib;
+    %SVG.External.attrib;
+    %SVG.Animation.attrib;
+    %SVG.AnimationAttribute.attrib;
+    %SVG.AnimationTiming.attrib;
+    %SVG.AnimationValue.attrib;
+    %SVG.AnimationAddtion.attrib;
+    type ( translate | scale | rotate | skewX | skewY ) 'translate'
+>
+<!-- end of SVG.animateTransform.attlist -->]]>
+
+<!-- mpath: Motion Path Element ........................ -->
+
+<!ENTITY % SVG.mpath.extra.content "" >
+
+<!ENTITY % SVG.mpath.element "INCLUDE" >
+<![%SVG.mpath.element;[
+<!ENTITY % SVG.mpath.content
+    "( %SVG.Description.class; %SVG.mpath.extra.content; )*"
+>
+<!ELEMENT %SVG.mpath.qname; %SVG.mpath.content; >
+<!-- end of SVG.mpath.element -->]]>
+
+<!ENTITY % SVG.mpath.attlist "INCLUDE" >
+<![%SVG.mpath.attlist;[
+<!ATTLIST %SVG.mpath.qname;
+    %SVG.Core.attrib;
+    %SVG.XLinkRequired.attrib;
+    %SVG.External.attrib;
+>
+<!-- end of SVG.mpath.attlist -->]]>
+
+<!-- end of svg-animation.mod -->
+]]>
+
+<!-- Basic Font Module ........................................... -->
+<!ENTITY % svg-font.module "INCLUDE" >
+<![%svg-font.module;[
+<!ENTITY % svg-font.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Font//EN"
+           "svg-basic-font.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Basic Font Module ............................................. -->
+<!-- file: svg-basic-font.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Basic Font//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-basic-font.mod"
+
+     ....................................................................... -->
+
+<!-- Basic Font
+
+        font, font-face, glyph, missing-glyph, hkern, font-face-src,
+        font-face-name
+
+     This module declares markup to provide support for template.
+-->
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.font.qname "font" >
+<!ENTITY % SVG.font-face.qname "font-face" >
+<!ENTITY % SVG.glyph.qname "glyph" >
+<!ENTITY % SVG.missing-glyph.qname "missing-glyph" >
+<!ENTITY % SVG.hkern.qname "hkern" >
+<!ENTITY % SVG.font-face-src.qname "font-face-src" >
+<!ENTITY % SVG.font-face-name.qname "font-face-name" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Container.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Text.attrib "" >
+<!ENTITY % SVG.TextContent.attrib "" >
+<!ENTITY % SVG.Font.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.ColorProfile.attrib "" >
+<!ENTITY % SVG.Gradient.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.FilterColor.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.XLinkRequired.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Font.class .................................... -->
+
+<!ENTITY % SVG.Font.extra.class "" >
+
+<!ENTITY % SVG.Font.class
+    "| %SVG.font.qname; | %SVG.font-face.qname; %SVG.Font.extra.class;"
+>
+
+<!-- font: Font Element ................................ -->
+
+<!ENTITY % SVG.font.extra.content "" >
+
+<!ENTITY % SVG.font.element "INCLUDE" >
+<![%SVG.font.element;[
+<!ENTITY % SVG.font.content
+    "(( %SVG.Description.class; )*, %SVG.font-face.qname;,
+        %SVG.missing-glyph.qname;, ( %SVG.glyph.qname; | %SVG.hkern.qname;
+        %SVG.font.extra.content; )*)"
+>
+<!ELEMENT %SVG.font.qname; %SVG.font.content; >
+<!-- end of SVG.font.element -->]]>
+
+<!ENTITY % SVG.font.attlist "INCLUDE" >
+<![%SVG.font.attlist;[
+<!ATTLIST %SVG.font.qname;
+    %SVG.Core.attrib;
+    %SVG.Style.attrib;
+    %SVG.External.attrib;
+    horiz-origin-x %Number.datatype; #IMPLIED
+    horiz-adv-x %Number.datatype; #REQUIRED
+>
+<!-- end of SVG.font.attlist -->]]>
+
+<!-- font-face: Font Face Element ...................... -->
+
+<!ENTITY % SVG.font-face.extra.content "" >
+
+<!ENTITY % SVG.font-face.element "INCLUDE" >
+<![%SVG.font-face.element;[
+<!ENTITY % SVG.font-face.content
+    "(( %SVG.Description.class; )*, %SVG.font-face-src.qname;?
+        %SVG.font-face.extra.content; )"
+>
+<!ELEMENT %SVG.font-face.qname; %SVG.font-face.content; >
+<!-- end of SVG.font-face.element -->]]>
+
+<!ENTITY % SVG.font-face.attlist "INCLUDE" >
+<![%SVG.font-face.attlist;[
+<!ATTLIST %SVG.font-face.qname;
+    %SVG.Core.attrib;
+    font-family CDATA #IMPLIED
+    font-style CDATA #IMPLIED
+    font-variant CDATA #IMPLIED
+    font-weight CDATA #IMPLIED
+    font-stretch CDATA #IMPLIED
+    font-size CDATA #IMPLIED
+    unicode-range CDATA #IMPLIED
+    units-per-em %Number.datatype; #IMPLIED
+    panose-1 CDATA #IMPLIED
+    stemv %Number.datatype; #IMPLIED
+    stemh %Number.datatype; #IMPLIED
+    slope %Number.datatype; #IMPLIED
+    cap-height %Number.datatype; #IMPLIED
+    x-height %Number.datatype; #IMPLIED
+    accent-height %Number.datatype; #IMPLIED
+    ascent %Number.datatype; #IMPLIED
+    descent %Number.datatype; #IMPLIED
+    widths CDATA #IMPLIED
+    bbox CDATA #IMPLIED
+    ideographic %Number.datatype; #IMPLIED
+    alphabetic %Number.datatype; #IMPLIED
+    mathematical %Number.datatype; #IMPLIED
+    hanging %Number.datatype; #IMPLIED
+    underline-position %Number.datatype; #IMPLIED
+    underline-thickness %Number.datatype; #IMPLIED
+    strikethrough-position %Number.datatype; #IMPLIED
+    strikethrough-thickness %Number.datatype; #IMPLIED
+    overline-position %Number.datatype; #IMPLIED
+    overline-thickness %Number.datatype; #IMPLIED
+>
+<!-- end of SVG.font-face.attlist -->]]>
+
+<!-- glyph: Glyph Element .............................. -->
+
+<!ENTITY % SVG.glyph.extra.content "" >
+
+<!ENTITY % SVG.glyph.element "INCLUDE" >
+<![%SVG.glyph.element;[
+<!ENTITY % SVG.glyph.content
+    "( %SVG.Description.class; %SVG.glyph.extra.content; )*"
+>
+<!ELEMENT %SVG.glyph.qname; %SVG.glyph.content; >
+<!-- end of SVG.glyph.element -->]]>
+
+<!ENTITY % SVG.glyph.attlist "INCLUDE" >
+<![%SVG.glyph.attlist;[
+<!ATTLIST %SVG.glyph.qname;
+    %SVG.Core.attrib;
+    %SVG.Style.attrib;
+    unicode CDATA #IMPLIED
+    glyph-name CDATA #IMPLIED
+    d %PathData.datatype; #IMPLIED
+    arabic-form CDATA #IMPLIED
+    lang %LanguageCodes.datatype; #IMPLIED
+    horiz-adv-x %Number.datatype; #IMPLIED
+>
+<!-- end of SVG.glyph.attlist -->]]>
+
+<!-- missing-glyph: Missing Glyph Element .............. -->
+
+<!ENTITY % SVG.missing-glyph.extra.content "" >
+
+<!ENTITY % SVG.missing-glyph.element "INCLUDE" >
+<![%SVG.missing-glyph.element;[
+<!ENTITY % SVG.missing-glyph.content
+    "( %SVG.Description.class; %SVG.missing-glyph.extra.content; )*"
+>
+<!ELEMENT %SVG.missing-glyph.qname; %SVG.missing-glyph.content; >
+<!-- end of SVG.missing-glyph.element -->]]>
+
+<!ENTITY % SVG.missing-glyph.attlist "INCLUDE" >
+<![%SVG.missing-glyph.attlist;[
+<!ATTLIST %SVG.missing-glyph.qname;
+    %SVG.Core.attrib;
+    %SVG.Style.attrib;
+    d %PathData.datatype; #IMPLIED
+    horiz-adv-x %Number.datatype; #IMPLIED
+>
+<!-- end of SVG.missing-glyph.attlist -->]]>
+
+<!-- hkern: Horizontal Kerning Element ................. -->
+
+<!ENTITY % SVG.hkern.element "INCLUDE" >
+<![%SVG.hkern.element;[
+<!ENTITY % SVG.hkern.content "EMPTY" >
+<!ELEMENT %SVG.hkern.qname; %SVG.hkern.content; >
+<!-- end of SVG.hkern.element -->]]>
+
+<!ENTITY % SVG.hkern.attlist "INCLUDE" >
+<![%SVG.hkern.attlist;[
+<!ATTLIST %SVG.hkern.qname;
+    %SVG.Core.attrib;
+    u1 CDATA #IMPLIED
+    g1 CDATA #IMPLIED
+    u2 CDATA #IMPLIED
+    g2 CDATA #IMPLIED
+    k %Number.datatype; #REQUIRED
+>
+<!-- end of SVG.hkern.attlist -->]]>
+
+<!-- font-face-src: Font Face Source Element ........... -->
+
+<!ENTITY % SVG.font-face-src.extra.content "" >
+
+<!ENTITY % SVG.font-face-src.element "INCLUDE" >
+<![%SVG.font-face-src.element;[
+<!ENTITY % SVG.font-face-src.content
+    "( %SVG.font-face-name.qname; %SVG.font-face-src.extra.content; )+"
+>
+<!ELEMENT %SVG.font-face-src.qname; %SVG.font-face-src.content; >
+<!-- end of SVG.font-face-src.element -->]]>
+
+<!ENTITY % SVG.font-face-src.attlist "INCLUDE" >
+<![%SVG.font-face-src.attlist;[
+<!ATTLIST %SVG.font-face-src.qname;
+    %SVG.Core.attrib;
+>
+<!-- end of SVG.font-face-src.attlist -->]]>
+
+<!-- font-face-name: Font Face Name Element ............ -->
+
+<!ENTITY % SVG.font-face-name.element "INCLUDE" >
+<![%SVG.font-face-name.element;[
+<!ENTITY % SVG.font-face-name.content "EMPTY" >
+<!ELEMENT %SVG.font-face-name.qname; %SVG.font-face-name.content; >
+<!-- end of SVG.font-face-name.element -->]]>
+
+<!ENTITY % SVG.font-face-name.attlist "INCLUDE" >
+<![%SVG.font-face-name.attlist;[
+<!ATTLIST %SVG.font-face-name.qname;
+    %SVG.Core.attrib;
+    name CDATA #IMPLIED
+>
+<!-- end of SVG.font-face-name.attlist -->]]>
+
+<!-- end of svg-basic-font.mod -->
+]]>
+
+<!-- Extensibility Module ........................................ -->
+<!ENTITY % svg-extensibility.module "INCLUDE" >
+<![%svg-extensibility.module;[
+<!ENTITY % svg-extensibility.mod
+    PUBLIC "-//W3C//ELEMENTS SVG 1.1 Extensibility//EN"
+           "svg-extensibility.mod" >
+<!-- ....................................................................... -->
+<!-- SVG 1.1 Extensibility Module .......................................... -->
+<!-- file: svg-extensibility.mod
+
+     This is SVG, a language for describing two-dimensional graphics in XML.
+     Copyright 2001, 2002 W3C (MIT, INRIA, Keio), All Rights Reserved.
+     Revision: $Id: svg11-tiny-flat.dtd,v 1.1.2.1 2003/06/08 20:19:48 link Exp $
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+        PUBLIC "-//W3C//ELEMENTS SVG 1.1 Extensibility//EN"
+        SYSTEM "http://www.w3.org/Graphics/SVG/1.1/DTD/svg-extensibility.mod"
+
+     ....................................................................... -->
+
+<!-- Extensibility
+
+        foreignObject
+
+     This module declares markup to provide support for extensibility.
+-->
+
+<!-- Qualified Names (Default) ......................... -->
+
+<!ENTITY % SVG.foreignObject.qname "foreignObject" >
+
+<!-- Attribute Collections (Default) ................... -->
+
+<!ENTITY % SVG.Core.attrib "" >
+<!ENTITY % SVG.Conditional.attrib "" >
+<!ENTITY % SVG.Style.attrib "" >
+<!ENTITY % SVG.Viewport.attrib "" >
+<!ENTITY % SVG.Text.attrib "" >
+<!ENTITY % SVG.TextContent.attrib "" >
+<!ENTITY % SVG.Font.attrib "" >
+<!ENTITY % SVG.Paint.attrib "" >
+<!ENTITY % SVG.Color.attrib "" >
+<!ENTITY % SVG.Opacity.attrib "" >
+<!ENTITY % SVG.Graphics.attrib "" >
+<!ENTITY % SVG.Marker.attrib "" >
+<!ENTITY % SVG.Gradient.attrib "" >
+<!ENTITY % SVG.Clip.attrib "" >
+<!ENTITY % SVG.Mask.attrib "" >
+<!ENTITY % SVG.Filter.attrib "" >
+<!ENTITY % SVG.FilterColor.attrib "" >
+<!ENTITY % SVG.GraphicalEvents.attrib "" >
+<!ENTITY % SVG.Cursor.attrib "" >
+<!ENTITY % SVG.External.attrib "" >
+
+<!-- SVG.Extensibility.class ........................... -->
+
+<!ENTITY % SVG.Extensibility.extra.class "" >
+
+<!ENTITY % SVG.Extensibility.class
+    "| %SVG.foreignObject.qname; %SVG.Extensibility.extra.class;"
+>
+
+<!-- SVG.Presentation.attrib ........................... -->
+
+<!ENTITY % SVG.Presentation.extra.attrib "" >
+
+<!ENTITY % SVG.Presentation.attrib
+    "%SVG.Container.attrib;
+     %SVG.Viewport.attrib;
+     %SVG.Text.attrib;
+     %SVG.TextContent.attrib;
+     %SVG.Font.attrib;
+     %SVG.Paint.attrib;
+     %SVG.Color.attrib;
+     %SVG.Opacity.attrib;
+     %SVG.Graphics.attrib;
+     %SVG.Marker.attrib;
+     %SVG.ColorProfile.attrib;
+     %SVG.Gradient.attrib;
+     %SVG.Clip.attrib;
+     %SVG.Mask.attrib;
+     %SVG.Filter.attrib;
+     %SVG.FilterColor.attrib;
+     %SVG.Cursor.attrib;
+     flood-color %SVGColor.datatype; #IMPLIED
+     flood-opacity %OpacityValue.datatype; #IMPLIED
+     lighting-color %SVGColor.datatype; #IMPLIED
+     %SVG.Presentation.extra.attrib;"
+>
+
+<!-- foreignObject: Foreign Object Element ............. -->
+
+<!ENTITY % SVG.foreignObject.extra.content "" >
+
+<!ENTITY % SVG.foreignObject.element "INCLUDE" >
+<![%SVG.foreignObject.element;[
+<!ENTITY % SVG.foreignObject.content
+    "( #PCDATA %SVG.foreignObject.extra.content; )*"
+>
+<!ELEMENT %SVG.foreignObject.qname; %SVG.foreignObject.content; >
+<!-- end of SVG.foreignObject.element -->]]>
+
+<!ENTITY % SVG.foreignObject.attlist "INCLUDE" >
+<![%SVG.foreignObject.attlist;[
+<!ATTLIST %SVG.foreignObject.qname;
+    %SVG.Core.attrib;
+    %SVG.Conditional.attrib;
+    %SVG.Style.attrib;
+    %SVG.Presentation.attrib;
+    %SVG.GraphicalEvents.attrib;
+    %SVG.External.attrib;
+    x %Coordinate.datatype; #IMPLIED
+    y %Coordinate.datatype; #IMPLIED
+    width %Length.datatype; #REQUIRED
+    height %Length.datatype; #REQUIRED
+    transform %TransformList.datatype; #IMPLIED
+>
+<!-- end of SVG.foreignObject.attlist -->]]>
+
+<!-- end of svg-extensibility.mod -->
+]]>
+
+<!-- end of SVG 1.1 Tiny DTD ............................................... -->
+<!-- ....................................................................... -->

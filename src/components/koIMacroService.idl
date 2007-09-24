@@ -1,0 +1,20 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(0DEEBD87-E28A-47B0-92FE-27CE0922AF4A)]
+interface koIMacroService: nsISupports {
+    // Run the given macro string or file.
+    //  "language" is the language of the macro code. One of
+    //      "javascript" or "python".
+    //  "code" is the macro code.
+    //  "filename" is the path to a macro file or the given langauge.
+    //
+    // An exception is raised if there is a problem and the error code
+    // and string are set on the LastErrorService in case of a problem.
+    //
+    void runString(in string language, in wstring code);
+    void runFile(in string language, in wstring filename);
+};
+

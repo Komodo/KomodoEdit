@@ -1,0 +1,21 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/multiple_inheritance.py">
+    <scope ilk="blob" lang="Python" name="multiple_inheritance">
+      <scope ilk="class" line="1" name="Alice">
+        <scope attributes="__ctor__" doc="give me an A" ilk="function" line="2" name="__init__" signature="Alice(a)">
+          <variable citdl="Alice" ilk="argument" name="self" />
+          <variable ilk="argument" name="a" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="4" name="Bob">
+        <scope attributes="__ctor__" doc="give me a B" ilk="function" line="5" name="__init__" signature="Bob(b)">
+          <variable citdl="Bob" ilk="argument" name="self" />
+          <variable ilk="argument" name="b" />
+        </scope>
+      </scope>
+      <scope classrefs="Alice Bob" ilk="class" line="7" lineend="8" name="Carl" />
+      <scope classrefs="Bob Carl" ilk="class" line="9" lineend="10" name="Dan" />
+      <scope classrefs="Carl" ilk="class" line="11" lineend="12" name="Earl" />
+    </scope>
+  </file>
+</codeintel>

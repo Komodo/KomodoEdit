@@ -1,0 +1,27 @@
+# Define a transition table for html/xhtml
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+include "markup-base.udl"
+sublanguage HTML
+
+# This is complicated because HTML can have unquoted attribute values
+
+state IN_M_STAG_POST_ATTRNAME_2
+'\"' : paint(upto, M_TAGSPACE), => IN_M_STAG_ATTR_DSTRING
+'\'' : paint(upto, M_TAGSPACE), => IN_M_STAG_ATTR_SSTRING
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC), => IN_M_DEFAULT
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo, => IN_M_STAG_ATTR_USTRING # unquoted
+
+state IN_M_STAG_ATTR_USTRING:
+'>'    : paint(upto, M_STRING), paint(include, M_STAGC), => IN_M_DEFAULT
+'/>'    : paint(upto, M_STRING), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+/[$WS]/ : paint(upto, M_STRING), => IN_M_STAG_POST_TAGNAME
+# Assume a < or > means we're way out of sync
+'<'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
+'>'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
+/./ : paint(upto, M_STRING) #stay

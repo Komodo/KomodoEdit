@@ -1,0 +1,16 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\bug_32815.pl">
+    <scope ilk="blob" lang="Perl" name="bug_32815">
+      <scope ilk="function" line="1" lineend="21" name="CheckOnly" signature="CheckOnly($section, $line, $input)">
+        <variable ilk="argument" name="$section" />
+        <variable ilk="argument" name="$line" />
+        <variable ilk="argument" name="$input" />
+        <variable attributes="__local__" line="4" name="$tmpSection" />
+        <variable attributes="__local__" line="4" name="@results" />
+        <variable attributes="__local__" line="8" name="$premsg" />
+        <variable attributes="__local__" line="9" name="$search" />
+        <variable attributes="__local__" line="10" name="$postmsg" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

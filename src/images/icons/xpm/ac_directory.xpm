@@ -1,0 +1,23 @@
+/* XPM */
+static char *ac_directory[] = {
+/* columns rows colors chars-per-pixel */
+"18 12 5 1",
+"  c #000000",
+". c #808000",
+"X c #FFFF00",
+"o c #FFFFFF",
+"O c None",
+/* pixels */
+"OOOOOOOOOOOOOOOOOO",
+"OOO   OOOOOOOOOOOO",
+"OO oXo       OOOOO",
+"OO XoXoXoXoX OOOOO",
+"OO oXoXoXoXo OOOOO",
+"OO XoXo          O",
+"OO oXo ......... O",
+"OO Xo ......... OO",
+"OO o ......... OOO",
+"OO  ......... OOOO",
+"OO           OOOOO",
+"OOOOOOOOOOOOOOOOOO"
+};

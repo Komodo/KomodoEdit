@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: //depot/main/Apps/Komodo-open/src/codeintel/share/cix-0.1.rng#1 $ -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+    <start>
+        <ref name="CodeIntel"/>
+    </start>
+
+    <define name="CodeIntel">
+        <element name="codeintel">
+            <attribute name="version"/>
+            <oneOrMore>
+                <ref name="File"/>
+            </oneOrMore>
+        </element>
+    </define>
+
+    <define name="File">
+        <element name="file">
+            <attribute name="generator"/> <!-- name of the language engine -->
+            <attribute name="language"/> <!-- language of the file content -->
+            <attribute name="path"/> <!-- Given path of the scanned file -->
+            <choice>
+                <!-- a successful scan -->
+                <group>
+                    <!-- Last modified time of the file, in seconds since the
+                         "epoch". -->
+                    <attribute name="mtime"/>
+                    <attribute name="md5"/> <!-- MD5 hex digest of content -->
+                    <!-- Typically a file only defines one module but some
+                         languages, notably Perl, can create/modify in
+                         multiple modules in one file. -->
+                    <oneOrMore>
+                        <ref name="Module"/>
+                    </oneOrMore>
+                </group>
+                <!-- a failed scan -->
+                <attribute name="error"/> <!-- description of scan failure -->
+            </choice>
+        </element>
+    </define>
+
+    <define name="Module">
+        <element name="module">
+            <attribute name="name"/>
+            <!-- 1-based line number on which the module definition
+                 starts. Typically this is left blank: implying line 1.
+                 However, a language like Perl might want to specify
+                 the line number of a 'package' statement. -->
+            <optional> <attribute name="line"/> </optional>
+            <!-- Special module attributes:
+                __script__
+                    The existence of this attribute means this is a fake
+                    module for a script file that isn't actually importable.
+                    For example, Tcl files that do not define packages should
+                    be marked with this attribute.
+                __version__=<version>
+                    This can be used to define the version of a
+                    module/package. It should only be used for languages
+                    where a module version is relevant for import semantic,
+                    e.g. Tcl. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Interface"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Import">
+        <element name="import">
+            <!-- The module being imported, or from which a symbol(s) is
+                 being imported. -->
+            <attribute name="module"/>
+            <attribute name="line"/> <!-- 1-based line of import statement -->
+            <!-- Symbol being imported from the module, if any.
+                 This should be left blank if just the module name is
+                 "imported", as with "use Foo();" in Perl and "import foo"
+                 in Python.
+
+                 If a single code statement imports multiple symbols, then
+                 multiple <import> CIX tags should be generated. E.g.:
+                    use Alphagetti qw(a b);         # Perl
+                    from Alphagetti import a, b     # Python
+                 should result in something like:
+                    <import module="Alphagetti" symbol="a"/>
+                    <import module="Alphagetti" symbol="b"/>
+
+                 There are two special symbol values:
+                 - symbol="*"
+                    Indicates that all normally exported symbols are
+                    imported. E.g. "from foo import *" in Python, "use Foo;"
+                    in Perl.
+                 - symbol="**"
+                    Indicates that all exportable symbols are imported. This
+                    is essentially a hack for Perl to somewhat support
+                    %EXPORT_TAGS usage. AutoComplete evaluation will treat
+                    "**" as an import of all @EXPORT and @EXPORT_OK symbols.
+              -->
+            <optional> <attribute name="symbol"/> </optional>
+            <!-- Alias for the imported symbol or module, if any.
+                 Python, for example, allows this:
+                    import pcre as re
+                    from cgi import escape as htmlescape -->
+            <optional> <attribute name="alias"/> </optional>
+        </element>
+    </define>
+
+    <define name="Class">
+        <element name="class">
+            <attribute name="name"/>
+            <!-- 1-based line range of definition. These are only optional to
+                 allow for CIX describing binary modules (where a line
+                 number does not make sense). They are strongly recommended
+                 for text files. -->
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special class attributes:
+                __namespace__
+                    For languages that have a concept of a namespace separate
+                    from a class, specifying this attribute tells the Code
+                    Intel system to treat this as a namespace, as
+                    necessary.
+                __exported__, __exportable__
+                    To support Perl's special @EXPORT and @EXPORT_OK Exporter
+                    variables, respectively. A Perl symbol tag should have
+                    the appropriate attribute if it is a member of one of
+                    these lists.
+                __hidden__
+                    Indicates that this symbol is not externally accessible for
+                    the purposes of completion. This can be required for binary
+                    modules. For example Python's pyexpat module has a
+                    ParserCreate() factory function which returns a
+                    pyexpat.xmlparser class instance. However, the 'xmlparser'
+                    class is not otherwise accessible on the pyexpat module.
+                private, protected
+                    Indicates that this class is private or protected.
+                    Note: Current completion processing does not use these
+                    attributes. Komodo's code browser does, however. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <!-- DEPRECATED: use "signature" sub-element/tag instead -->
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <element name="signature"> <text/> </element> </optional>
+            <zeroOrMore> <!-- base classes -->
+                <ref name="ClassRef"/>
+            </zeroOrMore>
+            <zeroOrMore> <!-- implemented interfaces -->
+                <ref name="InterfaceRef"/>
+            </zeroOrMore>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Interface">
+        <element name="interface">
+            <attribute name="name"/>
+            <!-- 1-based line range of definition. These are only optional to
+                 allow for CIX describing binary modules (where a line
+                 number does not make sense). They are strongly recommended
+                 for text files. -->
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Attributes:
+                __hidden__
+                    See discussion above.
+                private, protected
+                    Indicates that this class is private or protected.
+                    Note: Current completion processing does not use these
+                    attributes. Komodo's code browser does, however. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <!-- DEPRECATED: no interface signature should be necessary -->
+            <optional> <attribute name="signature"/> </optional>
+            <zeroOrMore> <!-- base interfaces -->
+                <ref name="InterfaceRef"/>
+            </zeroOrMore>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Function">
+        <element name="function">
+            <attribute name="name"/>
+            <!-- 1-based line range of definition. These are only optional to
+                 allow for CIX describing binary modules (where a line
+                 number does not make sense). They are strongly recommended
+                 for text files. -->
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special function attributes:
+                __ctor__
+                    Used to indicate that this is a constructor for its
+                    containing class.
+                __export__, __export_ok__
+                    To support Perl's special @EXPORT and @EXPORT_OK Exporter
+                    variables. A Perl symbol tag should have the appropriate
+                    attribute if it is a member of one of these lists.
+                __classmethod__
+                    Used to differentiate between class and instance methods. I
+                    think most OO-capable languages have this distinct (at
+                    least Python and Ruby do). Initially probably only Ruby
+                    will use this.
+                private, protected
+                    Indicates that this class is private or protected.
+                    Note: Current completion processing does not use these
+                    attributes. Komodo's code browser does, however. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <!-- DEPRECATED: use "signature" sub-element/tag instead -->
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <element name="signature"> <text/> </element> </optional>
+            <zeroOrMore>
+                <ref name="Argument"/>
+            </zeroOrMore>
+            <optional>
+                <element name="doc"> <text/> </element>
+            </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+            <optional>
+                <element name="returns">
+                    <ref name="Type"/>
+                </element>
+            </optional>
+        </element>
+    </define>
+
+    <define name="Variable">
+        <element name="variable">
+            <attribute name="name"/>
+            <!-- 1-based line range of definition. This is only optional to
+                 allow for CIX describing binary modules (where a line
+                 number does not make sense). It is strongly recommended
+                 for text files. -->
+            <optional> <attribute name="line"/> </optional>
+            <!-- Special variable attributes:
+                __instancevar__
+                    This can be used to differentiate between class instance
+                    variables and static class variables. Some language, e.g.
+                    Python, allow you to add attributes to class instance
+                    objects on the fly.
+                __export__, __export_ok__
+                    To support Perl's special @EXPORT and @EXPORT_OK Exporter
+                    variables. A Perl symbol tag should have the appropriate
+                    attribute if it is a member of one of these lists.
+                __local__
+                    Indicates that this variable is local to this scope, i.e.
+                    not visible externally. This was added to support Perl's
+                    package variables declared with "my". This should,
+                    however, extend to other languages (e.g. "static" in
+                    C/C++).
+                __const__
+                    Indicates that this is a constant (if the particular
+                    language distinguishes that at all, e.g. Ruby).
+                private, protected
+                    Indicates that this class is private or protected.
+                    Note: Current completion processing does not use these
+                    attributes. Komodo's code browser does, however. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <ref name="Type"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Argument">
+        <element name="argument">
+            <attribute name="name"/>
+            <!-- XXX Consider adding a __block__ or __ruby_block__
+                 attribute at some point for Ruby block params. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="line"/> </optional>
+            <!-- DEPRECATED: Argument signatures are now deprecated. Put this
+                 information in the function signature. See:
+                    http://specs.activestate.com/komodo30/func/code_intelligence.html#determining-a-function-calltip
+                -->
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <ref name="Type"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="ClassRef">
+        <element name="classref">
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <!-- Special module attributes:
+                __mixin__
+                    Indicates that this isn't really a base class, but a mixin;
+                    which in some languages (e.g. Ruby) is a different
+                    syntactic thing. -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <ref name="Type"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="InterfaceRef">
+        <element name="interfaceref">
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <optional> <element name="doc"> <text/> </element> </optional>
+            <zeroOrMore>
+                <ref name="Type"/>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Type">
+        <element name="type">
+            <!-- CITDL (Code Intel Type Determination Language) expression.
+                 This mini-language is currently ill-defined so don't
+                 get too hung up on it for now. Basically the idea is to
+                 provide enough info to lazily lookup the type in the
+                 database at runtime. -->
+            <attribute name="type"/>
+            <!-- An optional mechanism to note which of many possible types
+                 for a variable/argument/classref/interfaceref is the most
+                 likely. Currently this is not used. -->
+            <optional> <attribute name="score"/> </optional>
+        </element>
+    </define>
+</grammar>
+

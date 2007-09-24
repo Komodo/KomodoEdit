@@ -1,0 +1,46 @@
+# A typical template description file includes the following
+# other detailed descriptions:
+
+# One for each language "family" (markup:html, css, client-side:js,
+# server-side: php)
+
+# Transitions out of and back to markup(html) for each of the
+# other language types.
+
+# So this four-family template language needs 10 modules: 
+# 4 sublanguages, 3 html=>x, and 3 x=>html
+
+# keep in mind that the transition modules need to go before the
+# main language modules.  This is because the lexer will attempt
+# tests in the order they're given, and we want to attempt
+# inter-language tests first.
+
+# Implementation note:
+# The inter-family transitions will reference pattern variables
+# that are defined in the main module for each family.
+
+# To build:
+# python luddite.py compile kid-mainlex.udl -f
+# python luddite.py package luddite -f
+# python luddite.py package -c "Eric Promislow" --version "1.0.0" Kid -f
+
+language Kid
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "kid/html2python.udl"
+
+include "kid/css2python.udl"
+include "css2html.udl"
+
+include "kid/js2python.udl"
+include "js2html.udl"
+
+include "kid/python2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "pythonlex.udl"

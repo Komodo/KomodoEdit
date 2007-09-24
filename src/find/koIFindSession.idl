@@ -1,0 +1,70 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIFinder.idl"
+
+
+[scriptable, uuid(C2F74525-AB2A-46da-9D00-A805EB77E256)]
+interface koIFindSession : nsISupports {
+    // It is important to know when repeated "Find Next" calls and "Replace"
+    // calls come full circle in the target file(s), because this is used to (1)
+    // let the user know when we have searched through the whole file start
+    // from their start position (useful feedback); and (2) let ReplaceAll know
+    // when to stop (necessary to avoid an infinite loop when the replacement
+    // string contains the find pattern). A FindSession provides this
+    // information by tracking the "find session". Unfortunately the
+    // semantics are not that clean. This is heavily tuned to the usage in
+    // find_functions.js.
+
+    // reset the find session (equivalent to creating a new instance)
+    void Reset();
+
+    void NoteUrl(in wstring url);
+    void StartFind(in wstring pattern,
+                   in wstring url,
+                   in koIFindOptions options,
+                   in PRUint32 findStartPos,
+                   in PRUint32 findSelectionStartPos,
+                   in PRUint32 findSelectionEndPos,
+                   in string mode);
+    void NoteFind(in koIFindResult findResult);
+    void StartReplace(in wstring pattern,
+                      in wstring replacement,
+                      in wstring url,
+                      in koIFindOptions options);
+    void NoteReplace(in koIReplaceResult replaceResult);
+    void NoteReplaces(in PRUint32 count,
+                      [array, size_is(count)] in koIReplaceResult replaces);
+
+    attribute boolean wrapped;
+    boolean HaveSearchedThisUrlAlready(in wstring url);
+    boolean WasAlreadyFound(in koIFindResult findResult);
+    // Return true iff the given findResult overlaps a previous replace
+    // result, i.e. is a find hit created by a replacement.
+    boolean IsRecursiveHit(in koIFindResult findResult);
+
+    // The current cursor and selection state in the current file when
+    // searching began in the current file.
+    attribute PRUint32 fileStartPos;
+    attribute PRUint32 fileSelectionStartPos;
+    attribute PRUint32 fileSelectionEndPos;
+    
+    // The editor state when this find session began.
+    attribute wstring firstUrl;
+    attribute PRUint32 firstFileStartPos;
+    attribute PRUint32 firstFileSelectionStartPos;
+    attribute PRUint32 firstFileSelectionEndPos;
+    
+    // Useful information for the UI.
+    wstring GetPattern();
+    wstring GetReplacement();
+    PRUint32 GetNumFinds();
+    PRUint32 GetNumReplacements();
+    void GetFinds(out PRUint32 count,
+                  [retval, array, size_is(count)] out koIFindResult rv);
+    void GetReplacements(out PRUint32 count,
+                         [retval, array, size_is(count)] out koIReplaceResult rv);
+    koIFindResult GetLastFindResult();
+};
+

@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'mozBin',
+    'unsiloedPythonExe',
+    'jarring',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'mozVersion',
+    'mozMajorVersion',
+    'mozMinorVersion',
+);
+
+$cons->Preprocess('komodo.p.css', 'komodo.css');
+$cons->InstallInChrome('komodo.css');
+$cons->Preprocess('toolbar.unprocessed.css', 'toolbar.css');
+$cons->InstallInChrome('toolbar.css');
+$cons->InstallInChrome('browser.css');
+$cons->InstallInChrome('codeintel.css');
+$cons->InstallInChrome('autocomplete.css');

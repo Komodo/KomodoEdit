@@ -1,0 +1,7 @@
+<!ENTITY browse.label "Browse...">
+<!ENTITY exportNameAndLocation.label "Export Name and Location">
+<!ENTITY finishedWithExport.label "Finished with export">
+<!ENTITY finishedWithImport.label "Finished with import">
+<!ENTITY importNameAndLocation.label "Import Name and Location">
+<!ENTITY packageExportWizard.title "Package Export Wizard">
+<!ENTITY packageImportWizard.title "Package Import Wizard">

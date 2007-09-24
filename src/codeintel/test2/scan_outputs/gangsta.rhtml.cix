@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="RHTML" mtime="42" path="scan_inputs/gangsta.rhtml">
+    <scope ilk="blob" lang="JavaScript" name="gangsta.rhtml" src="scan_inputs/gangsta.rhtml">
+      <scope ilk="function" line="5" lineend="7" name="yoyoyo" signature="yoyoyo(span)">
+        <variable ilk="argument" name="span" />
+      </scope>
+    </scope>
+    <scope ilk="blob" lang="Ruby" name="gangsta.rhtml">
+      <scope ilk="function" line="14" lineend="16" name="spitit" signature="spitit" />
+    </scope>
+  </file>
+</codeintel>

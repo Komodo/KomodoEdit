@@ -1,0 +1,1077 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-editor"
+    extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
+    <content>
+        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
+            mozcontext="editorContextMenu"/>
+    </content>
+    <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
+
+        <property name="cwd">
+             <getter><![CDATA[
+                if (this.document && ! this.document.isUntitled) {
+                    return this.document.file.dirName;
+                }
+                return null;
+            ]]></getter>
+        </property>
+        <property name="prefs">
+             <getter><![CDATA[
+                if (this.document && this.document.prefs) {
+                    return this.document.prefs;
+                }
+                return null;
+            ]]></getter>
+        </property>
+
+        <field name="_everLinted">false</field>
+
+        <!--attribute koIDocument document;-->
+        <field name="_document">null</field>
+        <property name="document"
+            onget="return this._document;">
+        <setter>
+        <![CDATA[
+            ko.trace.get().enter('document setter');
+            this.log.info("view-editor:document setter");
+            if (this._document) {
+                try {
+                // We are detaching a document from the view
+                if (this.isCICitadelStuffEnabled
+                    && this._document.numScintillas == 1)
+                {
+                    gCodeIntelSvc.ideEvent("closing_document", null,
+                                           this._document);
+                }
+                this._document.releaseView(this);
+                this._document.releaseReference();
+                this._document.observerService.removeObserver(this,'buffer_dirty');
+                this._document.observerService.removeObserver(this,'language_changed');
+                this._document.observerService.removeObserver(this,'encoding_changed');
+                this._document.observerService.removeObserver(this,'buffer_changed');
+                } catch(e) {
+                    this.log.exception(e);
+                }
+            }
+
+            // reset those items that are buffer dependent
+            // new objects will be recreated on request
+            this.item = null;
+            this.lintBuffer = null;
+            this.isCICitadelStuffEnabled = false;
+            this.isCIXMLStuffEnabled = false;
+            this.isCICplnEnabled = false;
+
+            this._document = val;
+            if (val) {
+                // We are attaching a document to this view
+                val.addReference();
+                val.addView(this);
+                // isSpecial typicaly denotes sockets and such, is also
+                // used by us to identify things like dbgp files
+                // we don't want special files in our mru
+                if (!val.isUntitled && val.file && !val.file.isSpecial) {
+                    ko.mru.addURL("mruFileList", val.file.URI);
+                }
+                // we want to listen for any changes in the document
+                val.observerService.addObserver(this,'buffer_dirty',0);
+                val.observerService.addObserver(this,'language_changed',0);
+                val.observerService.addObserver(this,'encoding_changed',0);
+                val.observerService.addObserver(this,'buffer_changed',0);
+                this.parentView.updateLeafName(this);
+                this.parentView.updateFileStatus(this);
+                this.parentView.updateDirtyStatus(this);
+
+                if (!ko.views.manager.batchMode &&
+                    this.lintBuffer &&
+                    this.prefs.getBooleanPref("editUseLinting")) {
+                    this.lintBuffer.request("reset the view's document");
+                    this._everLinted = true;
+                }
+                this.isCICplnEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_cpln_lang(val.language));
+                this.isCICitadelStuffEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_citadel_lang(val.language));
+                this.isCIXMLStuffEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_xml_lang(val.language));
+            }
+            ko.trace.get().leave('document setter');
+        ]]>
+        </setter>
+        </property>
+
+        <field name="_languageObj">null</field>
+        <property name="languageObj"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="return this.document.languageObj"/>
+
+        <method name="init">
+        <body>
+        <![CDATA[
+            this.parentView.setContext(this, "tabContextMenu");
+            this.__observersvc.addObserver(this, "codeintel_activated", 0);
+            this.__observersvc.addObserver(this, "codeintel_deactivated", 0);
+            this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
+            this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
+        ]]>
+        </body>
+        </method>
+
+        <method name="initWithDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+        try {
+            this.log.info("view-editor:initWithDocument");
+            ko.trace.get().enter('view-editor:initWithDocument')
+            this.scintilla.language = doc.language;
+            this.scintilla.symbolMargin = true;
+            this.scintilla.encoding = doc.encoding.python_encoding_name;
+            this.scintilla.init();
+            this.document = doc;
+
+            this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
+            this._genericController.view = this;
+
+            this.scintilla.controllers.appendController(this._genericController);
+            // I'd like to do the latter instead of what is done above, but that doesn't
+            // work, for reasons which escape me but probably have to do with the
+            // special hack in commands.js to deal with focus on embed elements.
+            // this.controllers.appendController(this._genericController);
+
+            try {
+                this.__observersvc.notifyObservers(this, 'current_view_changed', '');
+            } catch (e) {
+                // nobody home
+            }
+            this.scintilla.scimoz.hookEvents(this);
+            this._inInitPhase = false;
+            ko.macros.eventHandler.hookPostFileOpen();
+        } catch (e) {
+            this.log.exception(e);
+        }
+        this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
+        this.log.debug('document code page after initWithDoc is '+this.document.codePage);
+        ko.trace.get().leave('view-editor:initWithDocument')
+        ]]>
+        </body>
+        </method>
+
+        <method name="getTooltipText">
+            <body>
+            <![CDATA[
+            var text = null;
+            try {
+                var x = this.scintilla._lastx;
+                var y = this.scintilla._lasty;
+                var sm = this.scintilla.scimoz;
+                var pos = sm.positionFromPoint(x, y);
+                if (pos > 0 && pos < sm.length) {
+                    var lineNo = sm.lineFromPosition(pos);
+                    if (this.lintBuffer && this.lintBuffer.lintResults) {
+                        var column = sm.getColumn(pos);
+                        var charOffset = pos - sm.positionFromLine(lineNo) + 1;
+                        var results = new Object();
+                        var numResults = new Object();
+                        this.lintBuffer.lintResults.
+                                getResultsInLineRange(lineNo + 1,
+                                                        lineNo + 1,
+                                                        results,
+                                                        numResults);
+                        for (var i = 0; i < numResults.value; i++) {
+                            var r = results.value[i];
+                            //XXX lintResult.column* are actually
+                            //    misnomers. They give character
+                            //    offsets from the begining of the
+                            //    line, not column numbers
+                            if (r.columnStart <= charOffset &&
+                                charOffset <= r.columnEnd) {
+                                if (text)
+                                    text += "\n" + r.description;
+                                else
+                                    text = r.description;
+                            }
+                        }
+                    }
+                }
+            } catch(e) {
+                this.log.exception(e);
+            }
+            return text;
+            ]]>
+            </body>
+        </method>
+
+        <method name="doFocus">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            try {
+                if (this.document &&
+                    !ko.views.manager.batchMode &&
+                    !this._everLinted &&
+                    this.lintBuffer &&
+                    this.prefs.getBooleanPref("editUseLinting")) {
+                    this.lintBuffer.request("focussing view and have not yet linted");
+                    this._everLinted = true;
+                }
+                if (typeof(gVimController) != 'undefined' &&
+                                       gVimController.enabled) {
+                    gVimController.onBufferFocus();
+                }
+            } catch (e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <!--nsIObserver implementation-->
+        <method name="observe">
+        <!-- Generally the subject of the notification is the view's
+             document (notifications sent directly on the private
+             nsIObserverService instance for that document instance).
+             However this is not *always* the case: this view does
+             register to observer some other notifications. -->
+        <parameter name="doc"/>
+        <parameter name="topic"/>
+        <parameter name="data"/>
+        <body>
+        <![CDATA[
+            // XXX we need to also observe changes in the file
+            // status so we can apropriately update our tab icons
+            this.log.debug("editor view for document '"+
+                           this.document.baseName+"' observed '"+topic+"'\n");
+            switch (topic) {
+            case 'language_changed':
+                this.log.info("Changed language to:" + doc.language);
+                this.scintilla.language = doc.language;
+                this.commandCompletionSvc = null;
+                this._languageObj = null;
+                this.isCICplnEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_cpln_lang(doc.language));
+                this.isCICitadelStuffEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_citadel_lang(doc.language));
+                this.isCIXMLStuffEnabled = (gCodeIntelActive
+                    && gCodeIntelSvc.is_xml_lang(doc.language));
+                if (this == ko.views.manager.currentView) {
+                    if (this.lintBuffer && this.prefs.getBooleanPref("editUseLinting")) {
+                        //XXX What if the language of a view other than the
+                        //    current is changed (not possible in Komodo
+                        //    right now?). This will not re-lint in that case.
+                        this.lintBuffer.request("language changed");
+                    }
+                    try {
+                        this.__observersvc.notifyObservers(this, 'current_view_language_changed', doc.language);
+                    } catch (e) {
+                        // nobody home
+                    }
+                    // The change in language may affect controllers
+                    window.setTimeout("window.updateCommands('current_view_language_changed');", 1)
+                }
+                break;
+            case 'title_changed':
+                // XXX need a way to observer file/title changes
+                throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+                this.parentView.updateLeafName(this);
+                break;
+            case 'buffer_dirty':
+                if (this.parentView && typeof(this.parentView['updateDirtyStatus']) != 'undefined') {
+                    this.parentView.updateDirtyStatus(this);
+                    if (this.isCurrent) {
+                        ko.uilayout.updateTitlebar(this);
+                    }
+                }
+                break;
+            case 'encoding_changed':
+                // got notification from document, update the statusbar
+                if (this.isCurrent)
+                    this.__observersvc.notifyObservers(this, 'current_view_encoding_changed','');
+                break;
+            case 'codeintel_activated':
+                this.isCICplnEnabled =
+                    gCodeIntelSvc.is_cpln_lang(this.document.language);
+                this.isCICitadelStuffEnabled =
+                    gCodeIntelSvc.is_citadel_lang(this.document.language);
+                this.isCIXMLStuffEnabled =
+                    gCodeIntelSvc.is_xml_lang(this.document.language);
+                break;
+            case 'codeintel_deactivated':
+                this.isCICplnEnabled = false;
+                this.isCICitadelStuffEnabled = false;
+                this.isCIXMLStuffEnabled = false;
+                break;
+            case 'ySlop':
+                this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
+                break;
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="getURI">
+        <body>
+        <![CDATA[
+            if (!this.document.isUntitled)
+                return this.document.file.URI;
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <property name="isDirty">
+            <getter><![CDATA[
+            return this.document && this.document.isDirty;
+            ]]>
+            </getter>
+        </property>
+
+        <method name="saveState">
+        <body>
+        <![CDATA[
+            if (this.document && !this.document.isUntitled) {
+                this.document.saveState(this);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="closeUnconditionally">
+            <body><![CDATA[
+                this.saveState();
+                this.document = null;
+                if (this.preview) {
+                    this.preview.sourceView = null;
+                    this.preview = null;
+                }
+                this.__observersvc.removeObserver(this, "codeintel_activated");
+                this.__observersvc.removeObserver(this, "codeintel_deactivated");
+                this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
+
+                // XXX nothing should ever inherit from view-editor
+                // if they do, this code using __proto__ must be changed
+                return this.__proto__.__proto__.close.call(this)
+            ]]></body>
+        </method>
+
+        <method name="close">
+        <body>
+        <![CDATA[
+            // Return true if the view ends up closed.
+            try {
+                try {
+                    this.__observersvc.notifyObservers(this, 'view_closing', '');
+                } catch(e) {
+                    // no one is listening
+                }
+                if (ko.macros.eventHandler.hookPreFileClose()) {
+                    ko.statusBar.AddMessage("Macro interrupted file closing procedure.",
+                                         "macro",
+                                         5000,
+                                         true);
+                    return false;
+                }
+                if (this.document &&
+                    this.document.numScintillas == 1 &&  // if we're split let it be dirty
+                    this.document.isDirty) {
+                    var res = ko.dialogs.yesNoCancel("Save changes to " +
+                                                    this.document.baseName +
+                                                    "?");
+                    if (res == "Cancel") {
+                        return false;
+                    }
+                    if (res == "Yes") {
+                        if (this.document.isUntitled) {
+                            if (! this.saveAs()) {
+                                return false;
+                            }
+                        } else {
+                            if (! this.save()) {
+                                return false;
+                            }
+                        } // if "No" is selected, then just close.
+                    }
+                }
+                var retval = this.closeUnconditionally();
+                ko.macros.eventHandler.hookPostFileClose();
+                return retval;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="revertUnconditionally">
+        <body>
+        <![CDATA[
+            this.document.revert();
+        ]]>
+        </body>
+        </method>
+
+        <method name="revert">
+        <body>
+        <![CDATA[
+            var baseName = this.document.baseName;
+            if (ko.dialogs.yesNo("Do you wish to revert to the last saved version of " + baseName + "?",
+                             "Yes") == "Yes") {
+                this.revertUnconditionally();
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="reloadIfChanged">
+        <body>
+        <![CDATA[
+            if (!this.document || !this.document.differentOnDisk()) return;
+            var baseName = this.document.baseName;
+            if (this.document.isDirty) {
+                prompt = 'The file ' + baseName + ' is unsaved, and the file changed '+
+                         'on disk.  You can use '+
+                         '"Show Unsaved Changes" to view a diff of the changes, '+
+                         'revert or save your changes.';
+                title = 'Current unsaved buffer has changed on disk';
+                if (this.prefs.getBooleanPref("donotask_buffer_conflicts_with_file_on_disk")) return;
+                var choice = ko.dialogs.customButtons(
+                    prompt,
+                    ["Ok", "Show Changes"],
+                    "Ok", // default response
+                    null, // text
+                    title); // title
+                if (choice == "Show Changes") {
+                    ko.commands.doCommand('cmd_showUnsavedChanges');
+                }
+                return;
+            }
+            if (ko.dialogs.yesNo("The file " + baseName + " has changed, would you like to reload the file?",
+                             "Yes" /* default button */,
+                             null /* additional text */,
+                             null /* title */,
+                             "reload_changed_files" /* doNotAsk pref */
+                             ) == "Yes") {
+                this.revertUnconditionally();
+            } else {
+                this.document.isDirty = true;
+            }
+        ]]>
+        </body>
+        </method>
+
+        <!-- Save the view's document and do associated actions.
+
+             Preconditions:
+                - view.document is writeable
+
+             Returns true iff the file is successfully saved, false
+             otherwise. -->
+        <method name="_doSave">
+        <parameter name="forceSave"/>
+        <body>
+        <![CDATA[
+            if (typeof(forceSave) == 'undefined') forceSave = false;
+            try {
+                this.document.save(forceSave);
+            } catch (ex) {
+                var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                   getService(Components.interfaces.koILastErrorService);
+                var msg = lastErrorSvc.getLastErrorMessage();
+                if (!msg) {
+                    msg = ex.toString();
+                }
+                ko.dialogs.alert("There was an error attempting to save '"+
+                             this.document.baseName+"': "+
+                             msg);
+                return false;
+            }
+            // reset those items that are buffer dependent
+            // new objects will be recreated on request
+            this.item = null;
+            if (this.preview) {
+                this.preview.reload();
+            }
+
+            ko.macros.eventHandler.hookPostFileSave();
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="_validateEncoding">
+        <body>
+        <![CDATA[
+            var baseName = this.document.baseName;
+
+            // Ensure that the current file can actually be saved with the
+            // current encoding.
+            // XXX Untested: I don't know how to force this to test it.
+            if (! this.document.isEncodable) {
+                prompt = "Some of the characters in '"+baseName+
+                         "' cannot be saved using the current encoding.  "+
+                         "Komodo can force the save by "+
+                         "replacing all unrepresentable "+
+                         "characters with a question mark, '?', or you "+
+                         "may Cancel and select a different encoding in "+
+                         "the 'Edit | Current File Settings' dialog.";
+                //XXX Really should offer to change the encoding in-line,
+                //    right here.
+                choice = ko.dialogs.customButtons(prompt, ["Force", "Cancel"],
+                                              "Cancel"); // default
+                if (choice != "Force") {
+                    return false;
+                } else {
+                    prompt = "You will lose data if you proceed. Are you " +
+                             "sure that you want to continue saving?";
+                    if (ko.dialogs.yesNo(prompt, "No") != "Yes") {
+                        return false;
+                    } else {
+                        //XXX koIDocument.removeUnencodeable() should specify
+                        //    possible failure modes and use koILastErrorService
+                        //    if there are any. Ideally this should share
+                        //    the code that currentViewPrefs.js is using
+                        //    when changing the encoding.
+                        this.document.removeUnencodeable();
+                    }
+                }
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <!-- Save the document of the given view.
+             Return true iff the file was successfully saved, false
+             otherwise. -->
+        <method name="save">
+        <body>
+        <![CDATA[
+            try {
+                if (ko.macros.eventHandler.hookPreFileSave()) {
+                    ko.statusBar.AddMessage("Macro interrupted file saving procedure.",
+                                         "macro",
+                                         5000,
+                                         true);
+                    return false;
+                }
+                var prompt, choice;
+
+                // Untitled documents get "saved as".
+                if (this.document.isUntitled) {
+                    return this.saveAs();
+                }
+
+                var baseName = this.document.baseName;
+                var file = this.document.file;
+                var hasChanged = 0;
+
+                // If the disk file has changed under us on disk, then ask the
+                // user what to do.
+                try {
+                    if (file.isLocal) {
+                        hasChanged = this.document.differentOnDisk();
+                    } else {
+                        // Different for remote files, we check the file stats
+                        // This uses a python property getter to update itself.
+                        hasChanged = file.hasChangedNoStatUpdate;
+                    }
+                } catch (ex) {
+                    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                       getService(Components.interfaces.koILastErrorService);
+                    ko.dialogs.alert("There was an error attempting to save '"+
+                                 this.document.baseName+"': "+
+                                 lastErrorSvc.getLastErrorMessage());
+                    return false;
+                }
+
+                if (hasChanged) {
+                    choice = ko.dialogs.customButtons(
+                        "The file has changed on disk. Are you sure you "+
+                            "want to overwrite those changes?",
+                        ["Yes", "No", "No, Show Changes"],
+                        "No", // default response
+                        null, // text
+                        "File Conflict"); // title
+                    if (choice == "No" || choice == "Cancel") {
+                        return false;
+                    } else if (choice == "No, Show Changes") {
+                        ko.commands.doCommand('cmd_showUnsavedChanges');
+                        return false;
+                    }
+                }
+
+                if (!this._validateEncoding()) return false;
+
+                if (file.isWriteable || !file.exists) { // save it
+                    return this._doSave();
+                }
+
+                else if (!file.isLocal) { // offer "Save As"
+                    choice = ko.dialogs.customButtons(
+                        "The non-local file '"+baseName+"' cannot be saved. "+
+                        "Would you like to save your changes under a "+
+                        "different name?",
+                        ["Cancel", "Save Locally As...", "Save Remotely As..."],
+                        "Save Remotely As..."); // default
+                    if (choice == "Cancel") {
+                        return false;
+                    } else if (choice == "Save Locally As...") {
+                        // This brings up a local file dialog
+                        return this.saveAs();
+                    } else {
+                        // This brings up a remote file dialog
+                        return this.saveAsRemote();
+                    }
+                }
+
+                else { // offer forced save
+                    choice = ko.dialogs.customButtons(
+                        "The file '"+baseName+"' is read-only. Would you like to save "+
+                            "your changes under a different name or force the save?",
+                        ["Save As...", "Force Save", "Cancel"],
+                        "Save As..."); // default
+                    if (choice == "Cancel") {
+                        return false;
+                    } else if (choice == "Save As...") {
+                        return this.saveAs();
+                    } else /* else choice == "Force Save" */ {
+                        return this._doSave(true);
+                    }
+                }
+
+            } catch(ex) {
+                ko.dialogs.internalError(
+                    "Unexpected internal error saving '"+this.title+"'.",
+                    ex+"\n\n-- TRACEBACK:\n"+ko.logging.getStack());
+                this.log.exception(ex, "Error in editor view .save()");
+            }
+            return false;
+        ]]>
+        </body>
+        </method>
+
+        <!-- Open Remote path
+               - Determine the default path and default file name
+             No return value -->
+        <method name="openRemote">
+        <body>
+        <![CDATA[
+        try {
+            this.makeCurrent();
+            if (this.document.file && !this.document.file.isLocal) {
+                // Try and open to the same location as current file
+                ko.filepicker.openRemoteFiles(this.document.file.URI, this.document.file.baseName);
+            } else {
+                ko.filepicker.openRemoteFiles(null,this.document.baseName);
+            }
+        } catch (e) {
+            this.log.exception(e);
+        }
+        ]]>
+        </body>
+        </method>
+
+        <!-- Save As Remote file
+             Return true if the file was successfully saved, false 
+             otherwise. -->
+        <method name="saveAsRemote">
+        <body>
+        <![CDATA[
+        try {
+            this.makeCurrent();
+            if (!this._validateEncoding()) return false;
+            var uri = null;
+            if (this.document.file && !this.document.file.isLocal) {
+                uri = ko.filepicker.saveAsRemoteFiles(this.document.file.URI, this.document.file.baseName);
+            } else {
+                uri = ko.filepicker.saveAsRemoteFiles(null, this.document.baseName);
+            }
+            if (uri == null) {
+                return false;
+            }
+
+            return this.saveAsURI(uri);
+        } catch (e) {
+            this.log.exception(e);
+        }
+        return false;
+        ]]>
+        </body>
+        </method>
+
+        <!-- Save As
+             Return true iff the file was successfully saved, false
+             otherwise. -->
+        <method name="saveAs">
+        <parameter name="directory"/>
+        <body>
+        <![CDATA[
+        try {
+            if (typeof(directory)=='undefined') directory = null;
+            this.makeCurrent();
+            if (!this._validateEncoding()) return false;
+            var path = ko.filepicker.saveFile(
+                        directory, /* default directory */
+                        this.document.displayPath, /* default name - knows about dirs */
+                        "Save '"+this.document.baseName+"' As...",
+                        this.language);
+            if (path == null) {
+                return false;
+            }
+
+            // Need to create a new document, assign the file to it,
+            // and assign the view to it.
+            var uri = ko.uriparse.localPathToURI(path);
+            return this.saveAsURI(uri);
+        } catch (e) {
+            this.log.exception(e);
+        }
+        return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="_copyDocumentPrefs">
+        <parameter name="docNew"/>
+        <parameter name="docOld"/>
+        <body>
+        <![CDATA[
+            docNew.prefs.update(docOld.prefs);
+            // now delete some prefs that we do not want to copy
+            if (docNew.prefs.hasPrefHere("preview_path")) {
+                // the fact that there is a pref here means that the user
+                // choose to remember the path they last selected, there
+                // is no other associated pref
+                docNew.prefs.deletePref("preview_path");
+            }
+            // remove the filename from the invocation prefs
+            if (docNew.prefs.hasPrefHere("Invocations")) {
+                var root = docNew.prefs.getPref("Invocations");
+                var ids = new Object();
+                root.getPrefIds(ids, new Object());
+                ids = ids.value;
+                for (var i=0; i < ids.length; i++) {
+                    var storedPrefs = root.getPref(ids[i]);
+                    if (storedPrefs.hasStringPref("filename") && docOld.file &&
+                        storedPrefs.getStringPref("filename") == docOld.file.path) {
+                        storedPrefs.deletePref("filename");
+                    }
+                }
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="saveAsURI">
+        <parameter name="uri"/>
+        <body>
+        <![CDATA[
+        var views = ko.views.manager.topView.findViewsForURI(uri);
+        if ((views.length == 1 && views[0] != this) ||
+            views.length > 1) {
+            ko.dialogs.alert("Unable to save this file with the same name as "+
+                         "another open buffer.");
+            return false;
+        }
+        try {
+            this.document.docSettingsMgr.applyViewSettingsToDocument(this);
+            var newdocument = this.__docsvc.createDocumentFromURI(uri);
+            if (newdocument.file.exists && newdocument.file.isReadOnly) {
+                ko.dialogs.alert("Unable to overwrite a readonly file.");
+                return false;
+            }
+
+            // Copy over document prefs and other settings.
+            this._copyDocumentPrefs(newdocument, this.document);
+            newdocument.new_line_endings = this.document.new_line_endings;
+
+            // XXX this buffer switching is not optimal, first we copy from
+            // scintilla to a non-scintilla buffer, then we turn the
+            // non-scintilla into a scintilla.
+            var anchor, currentPos, xOffset, fvl;
+            anchor = this.scimoz.anchor;
+            currentPos = this.scimoz.currentPos;
+            xOffset = this.scimoz.xOffset;
+            fvl = this.scimoz.firstVisibleLine;
+            newdocument.setBufferAndEncoding(this.document.buffer, this.document.encoding.python_encoding_name);
+            var codePage = this.document.codePage;
+            this.document = newdocument;
+            this.document.codePage = codePage;
+            this.document.language = ''; // trigger a re-guessing of lang
+            this._doSave();
+            this.scimoz.anchor = anchor;
+            this.scimoz.currentPos = currentPos;
+            this.scimoz.xOffset = xOffset;
+            this.scimoz.lineScroll(0, fvl-this.scimoz.firstVisibleLine);
+            window.updateCommands('SCC');
+            window.updateCommands('previewability_changed');
+            this.lintBuffer.request("save as");
+            return true;
+        } catch (ex) {
+            ko.dialogs.internalError(
+                "Unexpected internal error saving (Save As) '"+this.title+"'.",
+                ex+"\n\n-- TRACEBACK:\n"+ko.logging.getStack());
+            this.log.exception(ex, "Error in editor view .saveAs()");
+        }
+        return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getState">
+        <body>
+        <![CDATA[
+            if (this._document.isUntitled || this._document.file.isSpecial) { return null; }
+            var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            myState.setStringPref('viewtype', 'editor');
+            myState.setStringPref('URI', this._document.file.URI);
+            return myState;
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerGet">
+        <parameter name="line"/>
+        <body>
+        <![CDATA[
+            return this.scimoz.markerGet(line)
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerNext">
+        <parameter name="line"/>
+        <parameter name="mask"/>
+        <body>
+        <![CDATA[
+            return this.scimoz.markerNext(line, mask)
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerAdd">
+        <parameter name="line"/>
+        <parameter name="type"/>
+        <body>
+        <![CDATA[
+            this.scimoz.markerAdd(line, type);
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerDelete">
+        <parameter name="line"/>
+        <parameter name="type"/>
+        <body>
+        <![CDATA[
+            this.scimoz.markerDelete(line, type);
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerDeleteAll">
+        <parameter name="type"/>
+        <body>
+        <![CDATA[
+            this.scimoz.markerDeleteAll(type);
+        ]]>
+        </body>
+        </method>
+
+        <method name="markerClearAll">
+        <parameter name="type"/>
+        <body>
+        <![CDATA[
+            this.scimoz.markerDeleteAll(type);
+        ]]>
+        </body>
+        </method>
+
+        <!-- koIBookmarkableView implementation -->
+        <method name="addBookmark">
+        <parameter name="line"/>
+        <body>
+        <![CDATA[
+            this.markerAdd(line, ko.markers.MARKNUM_BOOKMARK);
+        ]]>
+        </body>
+        </method>
+        <method name="removeBookmark">
+        <parameter name="line"/>
+        <body>
+        <![CDATA[
+            this.markerDelete(line, ko.markers.MARKNUM_BOOKMARK);
+        ]]>
+        </body>
+        </method>
+
+        <method name="removeAllBookmarks">
+        <parameter name="line"/>
+        <body>
+        <![CDATA[
+            this.markerClearAll(ko.markers.MARKNUM_BOOKMARK);
+        ]]>
+        </body>
+        </method>
+
+        <method name="hasBookmark">
+        <parameter name="line"/>
+        <body>
+        <![CDATA[
+            this.markerGet(line) && ko.markers.MARKNUM_BOOKMARK;
+        ]]>
+        </body>
+        </method>
+
+        <method name="_getPreviewPath">
+        <body>
+        <![CDATA[
+            // Return the user's chosen preview path for this document,
+            // asking if necessary. This may return null, meaning the
+            // action calling this method should abort.
+            var previewPath=null;
+            if (this.document.prefs.hasStringPref("preview_path")) {
+                previewPath = this.document.prefs.getStringPref("preview_path");
+            }
+            if (!previewPath) {
+                var pick = ko.dialogs.pickPreview(this.document.file.displayPath);
+                if (pick == null)
+                    return null;
+                previewPath = pick.preview;
+                if (pick.remember) {
+                    this.document.prefs.setStringPref("preview_path",
+                                                      previewPath);
+                }
+            }
+            return previewPath;
+        ]]>
+        </body>
+        </method>
+
+        <field name="preview">null</field>
+        <method name="viewPreview">
+        <parameter name="browserURI"/>
+        <body>
+        <![CDATA[
+        // Open (if necessary) and switch to the browser preview for
+        // this view.
+        //
+        //  "browserURI" is a URI to a browser executable to use.
+        //      If left null or undefined (as is the case when the
+        //      preview toolbar button is just pressed) the
+        //      "browserPreview" pref is used to indicate where to
+        //      open the view.
+        //
+        //      Note: I believe (TrentM) that the browser is passed as a
+        //      URI to avoid problems in escaping Windows dir separators.
+        //
+        try {
+            if (this.document.isUntitled) {
+                ko.dialogs.alert("You must save '"+this.title+
+                             "' before you can preview it in the browser.");
+                return;
+            }
+
+            // If a browser is specified then use it.
+            if (typeof(browserURI) != 'undefined' && browserURI != null) {
+                //XXX kind of a hack, see ko.uilayout.populatePreviewToolbarButton
+                var browserPath = ko.uriparse.URIToLocalPath(browserURI);
+                var previewPath = this._getPreviewPath();
+                if (previewPath == null)
+                    return;
+                ko.browse.openUrlInDefaultBrowser(previewPath, browserPath);
+            }
+
+            // Else if this view already has an open browser preview, switch
+            // to it.
+            else if (this.preview) {
+                this.preview.makeCurrent();
+                this.preview.reload();
+            }
+
+            // Otherwise, open the browser preview as specified by the
+            // appropriate pref.
+            else {
+                var previewPath = this._getPreviewPath();
+                if (previewPath == null)
+                    return;
+
+                var bpm = this.__globalPrefs.getStringPref("browser_preview_method");
+                switch (bpm) {
+                case "external":
+                    ko.browse.openUrlInDefaultBrowser(previewPath);
+                    return;
+                case "in-tab-other-group":
+                    var previewURI = ko.uriparse.pathToURI(previewPath);
+                    var doc;
+                    if (previewURI == this.document.file.URI) {
+                        doc = this.document;
+                    } else {
+                        doc = this.docSvc.createDocumentFromURI(previewURI);
+                    }
+                    this.preview = this.alternateViewList
+                        .createViewFromDocument(doc, 'browser');
+                    break;
+                case "in-tab-same-group":
+                    var previewURI = ko.uriparse.pathToURI(previewPath);
+                    var doc;
+                    if (previewURI == this.document.file.URI) {
+                        doc = this.document;
+                    } else {
+                        doc = this.docSvc.createDocumentFromURI(previewURI);
+                    }
+                    this.preview = this.parentView
+                        .createViewFromDocument(doc, 'browser');
+                    break;
+                }
+                this.preview.sourceView = this;
+                this.preview.makeCurrent();
+            }
+        } catch(ex) {
+            this.log.exception(ex, "Error viewing preview.");
+        }
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+    <handlers>
+            <!-- Keypress handler was explicitly added for vi keybindings -->
+	    <handler event="keypress" phase="capturing">
+                <![CDATA[
+                var vi_mode_enabled = (typeof(gVimController) != 'undefined' &&
+                                       gVimController.enabled);
+                // Ensure vi is enabled and no keypress catcher (like iSearch)
+                // has been set to handle keypress events.
+                if (vi_mode_enabled && !this.scintilla.key_handler) {
+                    //dump("check for vi use of binding\n");
+                    if (gVimController.handleKeypress(event)) {
+                        //dump("    yes, vi handles this, stop the event\n");
+                        event.stopPropagation();
+                        event.preventDefault();
+                        event.cancelBubble = true;
+                    } else {
+                        //dump("    no\n");
+                    }
+                }
+                ]]>
+            </handler>
+    </handlers>
+
+</binding>
+
+
+</bindings>
+

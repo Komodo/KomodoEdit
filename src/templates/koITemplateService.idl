@@ -1,0 +1,64 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+/* Templates use in Komodo (mainly for "New File" dialog
+ *
+ * The "New File" dialog has two outliners/trees: one for template categories
+ * and one for templates in those categories. The nsITreeView sub-interfaces
+ * below are for those. Here is a basic outline on how to use this stuff:
+ *
+ *  - get a koITemplateService service
+ *  - generate the template tree from disk (.loadTemplates())
+ *    (This step can be skipped as the .initialize() will do this if
+ *    necessary.)
+ *  - get koITemplateCategoriesView and koITemplatesView instances
+ *  - initialize() the koITemplateCategoriesView with the koITemplatesView
+ *    (It needs to be able to drive the koITemplatesView on selection changes.
+ *    Initialization will also result in last selections being restored.)
+ *  - use the components...
+ *  - optionally .saveSelections() to persist the current user selections.
+ */
+
+[scriptable, uuid(EDB3CD03-F434-4315-A286-B0681CF362FE)]
+interface koITemplateService : nsISupports {
+    // Initialize a template tree in the user's AppData directory, if
+    // necessary.
+    //
+    // This should be called on Komodo initialization. If such a tree already
+    // exists, then this is no-op. If there is an error an exception is
+    // raised at set on the koILastErrorService.
+    void initializeUserTemplateTree();
+    
+    void loadTemplates(); // Load the template tree from disk.
+    void dumpTemplates(); // Dump the currently loaded template tree to stdout.
+    readonly attribute boolean loaded;
+
+    wstring getDefaultTemplatesDir();
+    wstring getUserTemplatesDir();
+    wstring getSharedTemplatesDir();
+};
+
+[scriptable, uuid(A116EEDF-C8C9-42BD-AEEE-FDCCBA0456B7)]
+interface koITemplatesView : nsITreeView {
+    // Return the full path to the currently selected template.
+    // If no template is currently selected, null is returned.
+    wstring getSelectedTemplate();
+};
+
+[scriptable, uuid(2B4EFE2D-A1BF-4FFF-8C0D-D5664C5A19BF)]
+interface koITemplateCategoriesView : nsITreeView {
+    // Restore the last user selection states in the views.
+    // This will .loadTemplates() if necessary.
+    void initialize(in koITemplateService templateSvc,
+                    in koITemplatesView templatesView);
+    void saveSelections(); // Persist the user selection states.
+    
+    void templateSelectionChanged();
+    long getDefaultCategoryIndex();
+    long getDefaultTemplateIndex();  // ... for the current category
+};
+
+

@@ -1,0 +1,1100 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!--
+    NOTES:
+    scintilla requires functions from:
+    chrome://komodo/content/library/color_functions.js
+    -->
+    <binding id="scintilla" extends="xul:box">
+        <content>
+<!-- #if PLATFORM == "win" -->
+            <html:embed type="application/x-scimoz-plugin" flex="1" width="0" height="0" xbl:inherits="focused,flex,width,height"/>
+<!-- #else -->
+            <html:embed type="application/x-scimoz-plugin" flex="1" width="100%" height="100%" xbl:inherits="focused,flex,width,height"/>
+<!-- #endif -->
+        </content>
+        <implementation implements="nsIObserver">
+            <field name='_inMouseDown'>-1</field>
+            <field name='_startDragDrop'>false</field>
+            <field name='_inDragDrop'>false</field>
+            <field name='_lastx'>0</field>
+            <field name='_lasty'>0</field>
+
+            <!-- key_handler: Javascript function which gets first dibs on
+                              keypressed events. Function gets called in
+                              the "keypress" event handler below. -->
+            <!-- Currently used for:
+                    * interactive search
+                    * raw key handling
+                    * repeat next keypress N times
+                 Note1: This will override all keypress events to scintilla,
+                        so commands (including vi) will not work whilst this
+                        field is set.
+                 Note2: View bindings that inherit this class and override the
+                        "keypress" event handler, should ensure they don't break
+                        this functionality.
+            -->
+            <field name="key_handler">null</field>
+            <!-- mouse_handler: Javascript function which gets first dibs on mouse events -->
+            <field name="mouse_handler">null</field>
+            <field name='_mozcontext'>null</field>
+            <field name='_contextShowing'>false</field>
+
+            <field name="canHandleMultipleItems">true</field>
+            <field name='symbolMargin'>true</field>
+
+<!-- #if PLATFORM != "darwin" -->
+            <!--// "solo" Alt key handling needs special care, as alt-click/drag results in
+                // scintilla rectangular selections, while alt key with no mouse action need to
+                // bubble up to Mozilla for selecting the File menu
+                // There are three values to "dealtWithAlt" -
+                //    -1: Not in the process of dealing with an Alt key
+                //     0: Keydown of Alt received
+                //     1: Mouse down received while in a '0' state.
+                // At keyup, this widget looks at it and sees if it's 0 or 1 - if it's 1, then
+                // the bubble is canceled.-->
+            <field name='dealtWithAlt'>-1</field>
+            <field name='_dragScrollHits'>1</field>
+<!-- #endif -->
+
+            <!--nsIObserver implementation-->
+            <method name="observe">
+            <parameter name="subject"/>
+            <parameter name="topic"/>
+            <parameter name="data"/>
+            <body>
+            <![CDATA[
+            try {
+                //     dump('got ' + topic + ', subject = ' + subject + ', data = ' + data + '\n');
+                // we're only concerned with global prefs here
+                var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                        getService(Components.interfaces.koIPrefService).prefs;
+                switch (topic) {
+                    case 'editor-scheme': // pref notification
+                        // Get the scheme from the scheme service
+                        try {
+                            var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
+                        } catch (e) {
+                            // This means we're in shutdown mode -- just ignore it and return
+                            return;
+                        }
+                        var schemeName = prefs.getStringPref('editor-scheme');
+                        // dump('got schemename in observer ' + schemeName + '\n');
+                        this.scheme = schemeService.getScheme(schemeName);
+                        break;
+                    case 'scheme-changed':
+                        // dump("applying scheme\n");
+                        if (this.inited) {
+                            this.scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
+                        }
+                        break;
+                    case 'scrollEndAtLastLine': // pref notification
+                        // XXX this doesn't seem to work right
+                        this.scimoz.endAtLastLine = prefs.getBooleanPref('scrollEndAtLastLine');
+                        break;
+                };
+            } catch (e) {
+                this.log.exception(e);
+            }
+            ]]>
+            </body>
+            </method>
+
+            <property name="scimoz" onget="return document.getAnonymousNodes(this)[0].ISciMoz;"/>
+
+            <field name="_log">null</field>
+            <property name="log">
+                <getter><![CDATA[
+                if (!this._log)
+                    this._log = ko.logging.getLogger('scintilla');
+                return this._log;
+                ]]></getter>
+            </property>
+
+            <field name="_scheme">null</field>
+            <property name="scheme">
+                <setter><![CDATA[
+                    this._scheme = val;
+                    // dump("applying scheme!\n");
+                    if (this.inited) {
+                        this._scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
+                    }
+                ]]>
+                </setter>
+                <getter><![CDATA[
+                    if (! this._scheme) {
+                        // Get the scheme from the scheme service
+                        var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                        getService(Components.interfaces.koIPrefService).prefs;
+                        var obsvc = Components.classes['@mozilla.org/observer-service;1'].
+                                getService(Components.interfaces.nsIObserverService);                        // Get the scheme from the scheme service
+                        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
+                        obsvc.addObserver(this, "scheme-changed",false);
+                        var schemeName = prefs.getStringPref('editor-scheme');
+                        // dump("using schemeName = "+ schemeName+'\n');
+                        this._scheme = schemeService.getScheme(schemeName);
+                    }
+                    return this._scheme;
+                ]]>
+                </getter>
+            </property>
+
+            <field name="inited">false</field> <!--Set to true once initialization complete.-->
+
+            <field name="_language">Text</field>
+            <property name="language">
+                <getter><![CDATA[
+                    return this._language;
+                ]]></getter>
+                <setter><![CDATA[
+                    var old = this._language;
+                    this._language = val;
+                    if (old != val && this.inited) {
+                        this.scheme.applyScheme(this.scimoz, this._language, this.encoding, this.alternateFaceType);
+                    } // Otherwise we'll let init do it;
+                ]]></setter>
+            </property>
+
+            <field name="_encoding">null</field>
+            <property name="encoding">
+                <getter><![CDATA[
+                    if (!this._encoding) {
+                        this._encoding = 'default';
+                    }
+                    return this._encoding;
+                ]]></getter>
+                <setter><![CDATA[
+                    var old = this._encoding;
+                    this._encoding = val;
+                    if (old != val && this.inited) {
+                        this.scheme.applyScheme(this.scimoz, this.language, this._encoding, this.alternateFaceType);
+                    }
+                ]]></setter>
+            </property>
+
+            <field name="_alternateFaceType">false</field>
+            <property name="alternateFaceType">
+                <getter><![CDATA[
+                    return this._alternateFaceType;
+                ]]></getter>
+                <setter><![CDATA[
+                    var old = this._alternateFaceType;
+                    if (old != val) {
+                        this._alternateFaceType = val;
+                        if (this.inited) {
+                            this.scheme.applyScheme(this.scimoz, this.language,
+                                this.encoding, this._alternateFaceType);
+                        }
+                    }
+                ]]></setter>
+            </property>
+
+            <field name="DECORATOR_SOFT_CHAR">Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR</field>
+            <field name="bracketedDecoratedChars">null</field>
+            <destructor>
+            <![CDATA[
+            this.unload();
+            ]]>
+            </destructor>
+
+            <method name="init">
+                <body>
+                <![CDATA[
+            try {
+                ko.trace.get().enter('scintilla: init');
+                this.log.debug('scintilla init');
+                var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                getService(Components.interfaces.koIPrefService).prefs;
+                // NOTE: This method is really a helper - if you want more
+                // control, you can do all this yourself!
+                try {
+                    var controller = Components.classes['@ActiveState.com/scintilla/controller;1'].createInstance().QueryInterface(Components.interfaces.ISciMozController);
+                    controller.init( this.scimoz );
+                    controller = controller.QueryInterface(Components.interfaces.nsIController);
+                    this.controllers.appendController(controller);
+                    this.scimoz.setCommandUpdateTarget(window);
+                } catch(e) {
+                    this.log.exception(e);
+                }
+                var context = this.getAttribute('mozcontext');
+                if (context)
+                    this._mozcontext = document.getElementById(context);
+                if (this._mozcontext || this.getAttribute('context')) {
+                    this.scimoz.usePopUp(0);
+                }
+
+                // mouseDownCaptures must be true, otherwise, when
+                // selecting text with the mouse, if you go outside
+                // the scimoz plugin and release the mouse button,
+                // scintilla will not know and continue to track the
+                // mouse position as if you had not released the mouse
+                // button.
+                // XXX unfortunately, this causes other mouse problems,
+                // so we'll keep one bug until we figure it out.
+<!-- #if PLATFORM == "darwin" or PLATFORM == "win" -->
+                this.scimoz.mouseDownCaptures = 1;
+<!-- #else -->
+                this.scimoz.mouseDownCaptures = 0;
+<!-- #endif -->
+                this.scimoz.mouseDwellTime = 500;
+                this.scimoz.indent = 4;
+                this.scimoz.tabWidth = 8;
+                this.scimoz.setProperty('smartCloseTags', '1');
+                this.scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
+                // XXX this allows us to scroll the last line to the top of the
+                // view of the buffer. Not sure if we will keep this in, or
+                // perhaps make it a pref
+                prefs.prefObserverService.addObserver(this, 'scrollEndAtLastLine', false);
+                if (prefs.getBooleanPref("scrollEndAtLastLine"))
+                    this.scimoz.endAtLastLine = false;
+
+<!-- #if PLATFORM == "win" -->
+                this.scimoz.eOLMode = this.scimoz.SC_EOL_CRLF;
+<!-- #else -->
+                this.scimoz.eOLMode = this.scimoz.SC_EOL_LF;
+<!-- #endif -->
+                this.scimoz.codePage = 65001;
+
+                var scimoz = this.scimoz;
+
+                const SC_MOD_WANTED = scimoz.SC_MOD_CHANGESTYLE |
+                      scimoz.SC_MOD_INSERTTEXT | scimoz.SC_MOD_DELETETEXT |
+                      scimoz.SC_MOD_BEFOREDELETE | scimoz.SC_MOD_BEFOREINSERT;
+
+                // Don't let scintilla send us every single event it fires, these are the
+                // only ones we care about.
+                scimoz.modEventMask = SC_MOD_WANTED;
+
+                // Don't feel the need to make this a pref yet.
+                scimoz.setXCaretPolicy(scimoz.CARET_SLOP, 75);
+
+                // Setup margins and markers.
+                // - margin 0: line numbers
+                // - margin 1: folding (controlled by Python code,
+                //             koDocumentSettingsManager)
+                // - margin 2: symbols (iff this.symbolMargin)
+                var symbolMarginMask = ko.markers.setup(scimoz);
+                scimoz.setMarginTypeN(0, scimoz.SC_MARGIN_NUMBER);
+                scimoz.setMarginWidthN(1, 0);
+                if (this.symbolMargin) {
+                    scimoz.setMarginTypeN(2, scimoz.SC_MARGIN_SYMBOL);
+                    scimoz.setMarginMaskN(2, symbolMarginMask);
+                    scimoz.setMarginSensitiveN(2, 1);
+                    scimoz.setMarginWidthN(2, 16);
+                } else {
+                    scimoz.setMarginWidthN(2, 0);
+                }
+
+                this.scheme.applyScheme(scimoz, this.language, this.encoding, this.alternateFaceType); // Shouldn't do these for editor views?
+                this.inited = true;
+                prefs.prefObserverService.addObserver(this, 'editor-scheme', false);
+                scimoz.visible = true;
+                ko.trace.get().leave('scintilla: init');
+            } catch (e) {
+                this.log.exception(e);
+            }
+                ]]>
+                </body>
+            </method>
+
+            <method name="unload">
+                <body>
+                <![CDATA[
+                try {
+                    var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                    getService(Components.interfaces.koIPrefService).prefs;
+                    prefs.prefObserverService.removeObserver(this, 'editor-scheme');
+                    prefs.prefObserverService.removeObserver(this, 'scrollEndAtLastLine');
+                } catch (e) {
+                    this.log.debug('pref observer service gone already');
+                }
+                try {
+                    var obsvc = Components.classes['@mozilla.org/observer-service;1'].
+                                    getService(Components.interfaces.nsIObserverService);
+                    obsvc.removeObserver(this, "scheme-changed");
+                } catch (e) {
+                    this.log.debug('observer service gone already');
+                }
+                try {
+                    this.scimoz.setCommandUpdateTarget(null);
+                } catch (e) {
+                    this.log.warn("Scintilla ["+this.id+"] was gone before we unloaded!");
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="getSupportedFlavours">
+                <body>
+                <![CDATA[
+                var flavours = new FlavourSet();
+                flavours.appendFlavour("text/unicode");
+<!-- #if PLATFORM != "win" -->
+                flavours.appendFlavour("TEXT");
+<!-- #endif -->
+                return flavours;
+                ]]>
+                </body>
+            </method>
+
+            <method name="canDrop">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                session.canDrop = this.getAttribute('acceptdrop')!='false';
+                return session.canDrop;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragOver">
+                <parameter name="event"/>
+                <parameter name="flavour"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                session.canDrop = this.getAttribute('acceptdrop')!='false';
+                if (session.canDrop) {
+                    var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                    var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
+                    var pos = this.scimoz.positionFromPoint(x, y);
+<!-- #if PLATFORM != "darwin" -->
+                    var docLine = this.scimoz.lineFromPosition(pos);
+                    var visibleLine = this.scimoz.visibleFromDocLine(docLine);
+                    if (visibleLine <= this.scimoz.firstVisibleLine) {
+                        if (this._dragScrollHits++ > 10) {
+                            this.scimoz.lineScroll(0,-5);
+                        } else {
+                            this.scimoz.lineScroll(0,-1);
+                        }
+                        pos = this.scimoz.positionFromPoint(x, y);
+                    } else if (visibleLine >= this.scimoz.firstVisibleLine + this.scimoz.linesOnScreen - 1) {
+                        if (this._dragScrollHits++ > 10) {
+                            this.scimoz.lineScroll(0,5);
+                        } else {
+                            this.scimoz.lineScroll(0,1);
+                        }
+                        pos = this.scimoz.positionFromPoint(x, y);
+                    } else {
+                        this._dragScrollHits=0;
+                    }
+<!-- #endif -->
+                    this.scimoz.dragPosition = pos;
+                }
+                return session.canDrop;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragExit">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    this.scimoz.dragPosition = -1;
+                    this._inDragDrop = this._startDragDrop = false;
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDrop">
+                <parameter name="event"/>
+                <parameter name="transferData"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
+                var pos = this.scimoz.positionFromPoint(x, y);
+                var onselection = (pos > this.scimoz.selectionStart &&
+                                    pos < this.scimoz.selectionEnd);
+
+                this.scimoz.dragPosition = -1;
+                var text;
+                if (ko && typeof(ko.dragDrop) != 'undefined') {
+                    var data = ko.dragDrop.dragObserver.onDrop(event, transferData, session)
+                    if (!data) return;
+                    text = data.text;
+                } else {
+                    if (transferData._XferID == "TransferDataSet")
+                        text = transferData.first.first.data;
+                    else
+                        text = transferData.data;
+                }
+                // rules:
+                // 1. if from outside scimoz
+                //   a. dropped on selection, replace selection
+                //   b. insert text
+                // 2. if from inside scimoz (startdragdrop == true)
+                //   a. if droped on selection, cancel
+                //   b. if action copy, insert text
+                //   c. if action move, remove old, insert text
+
+                // first, convert line endings the correct style for this
+                // document, since the text could have come from anywhere
+                var eol = [];
+                eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
+                eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
+                eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
+                text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
+
+                this.scimoz.beginUndoAction();
+                try {
+<!-- #if PLATFORM == "darwin" -->
+                    if (this.scimoz.inDragSession)
+<!-- #else -->
+                    if (this._startDragDrop) 
+<!-- #endif -->
+                    {
+                        // data from inside scimoz
+                        if (onselection) return;
+                        var start = this.scimoz.selectionStart;
+                        var length = this.scimoz.selectionEnd - start;
+                        if (session.dragAction == Components.interfaces.nsIDragService.DRAGDROP_ACTION_MOVE) {
+                            this.scimoz.replaceSel(''); // remove the dragged text
+                            if (start < pos) pos -= length; // adjust where we insert our data
+                        }
+                        this.scimoz.insertText(pos,text);
+                    } else {
+                        // data from outside scimoz
+                        if (onselection) {
+                            pos = this.scimoz.selectionStart;
+                            this.scimoz.replaceSel('');
+                        } else {
+                            this.scimoz.gotoPos(pos);
+                        }
+                        this.scimoz.insertText(pos, text);
+                    }
+                    this.scimoz.selectionStart = pos;
+                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                    this.scimoz.currentPos = this.scimoz.selectionEnd;
+                } finally {
+                    this.scimoz.endUndoAction();
+                }
+                this.focus();
+                this.scimoz.endDrop();
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragStart">
+                <parameter name="event"/>
+                <parameter name="transferData"/>
+                <parameter name="dragAction"/>
+                <body>
+                <![CDATA[
+                var unicodetext = this.scimoz.selText
+                transferData.data = new TransferData();
+                transferData.data.addDataForFlavour("text/unicode",unicodetext);
+
+                this._startDragDrop = 1;
+                this._inDragDrop = true;
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                ]]>
+                </body>
+            </method>
+
+            <method name="canUndo">
+                <body>
+                <![CDATA[
+                    return this.scimoz.canUndo();
+                ]]>
+                </body>
+            </method>
+            <method name="canRedo">
+                <body>
+                <![CDATA[
+                    return this.scimoz.canRedo();
+                ]]>
+                </body>
+            </method>
+
+            <method name="setFoldStyle">
+                <parameter name="whichMargin"/>
+                <parameter name="foldstyle"/>
+                <body><![CDATA[
+                    var scimoz = this.scimoz;
+                    scimoz.setMarginTypeN(whichMargin, scimoz.SC_MARGIN_SYMBOL);
+                    scimoz.setMarginSensitiveN(whichMargin, whichMargin);
+                    var fore, back;
+                    switch (foldstyle) {
+                        case 'none':
+                            scimoz.showLines(0, scimoz.lineCount-1);
+                            for (line = 0; line < scimoz.lineCount; line++) {
+                                if (scimoz.getFoldLevel(line) &
+                                    scimoz.SC_FOLDLEVELHEADERFLAG) {
+                                    scimoz.setFoldExpanded(line, 1);
+                                }
+                            }
+                            // If we don't do this, folding trails off
+                            // into other buffers.
+                            scimoz.setProperty("fold", "0");
+                            scimoz.setMarginWidthN(1, 0);
+                            break;
+                        case 'arrows':
+                            // Arrow pointing right for contracted folders,
+                            // arrow pointing down for expanded
+                            back = xtk.color.RGB(0x50, 0x50, 0x50);
+                            fore = xtk.color.RGB(0xaa, 0xaa, 0xaa);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
+                                                scimoz.SC_MARK_ARROWDOWN);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
+                                                scimoz.SC_MARK_ARROW);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERSUB,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERTAIL,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEREND,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPENMID,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERMIDTAIL,
+                                                scimoz.SC_MARK_EMPTY);
+                            break;
+                        case 'plusminus':
+                            // Plus for contracted folders, minus for expanded
+                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
+                            back = xtk.color.RGB(0x00, 0x00, 0x00);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
+                                                scimoz.SC_MARK_MINUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
+                                                scimoz.SC_MARK_PLUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERSUB,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERTAIL,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEREND,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPENMID,
+                                                scimoz.SC_MARK_EMPTY);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERMIDTAIL,
+                                                scimoz.SC_MARK_EMPTY);
+                            break;
+                        case 'curvytree':
+                            // Like a flattened tree control using circular headers
+                            // and curved joins
+                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
+                            back = xtk.color.RGB(0x40, 0x40, 0x40);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
+                                                scimoz.SC_MARK_CIRCLEPLUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERSUB,
+                                                scimoz.SC_MARK_VLINE);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERTAIL,
+                                                scimoz.SC_MARK_LCORNERCURVE);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEREND,
+                                                scimoz.SC_MARK_CIRCLEPLUSCONNECTED);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
+                                                scimoz.SC_MARK_CIRCLEMINUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPENMID,
+                                                scimoz.SC_MARK_CIRCLEMINUSCONNECTED);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERMIDTAIL,
+                                                scimoz.SC_MARK_TCORNERCURVE);
+                            break;
+                        case 'squaretree':
+                            // Like a flattened tree control using square headers
+                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
+                            back = xtk.color.RGB(0x80, 0x80, 0x80);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
+                                                scimoz.SC_MARK_BOXMINUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
+                                                scimoz.SC_MARK_BOXPLUS);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERSUB,
+                                                scimoz.SC_MARK_VLINE);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERTAIL,
+                                                scimoz.SC_MARK_LCORNER);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEREND,
+                                                scimoz.SC_MARK_BOXPLUSCONNECTED);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPENMID,
+                                                scimoz.SC_MARK_BOXMINUSCONNECTED);
+                            scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERMIDTAIL,
+                                                scimoz.SC_MARK_TCORNER);
+                            break;
+                    }
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDER, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDER, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERSUB, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERSUB, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERTAIL, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERTAIL, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEREND, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEREND, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEROPEN, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEROPEN, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEROPENMID, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEROPENMID, back);
+                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERMIDTAIL, fore);
+                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERMIDTAIL, back);
+                    scimoz.setMarginMaskN(whichMargin, scimoz.SC_MASK_FOLDERS);
+                    scimoz.setProperty("fold", "1");
+                    scimoz.setFoldFlags(16);
+                    scimoz.setMarginWidthN(whichMargin, 15);
+                ]]></body>
+            </method>
+        </implementation>
+
+        <handlers>
+            <handler event="focus" phase="capturing">
+                <![CDATA[
+                ko.trace.get().enter('scintilla: focus');
+                this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
+                this.scimoz.focus = true;
+                ko.trace.get().leave('scintilla: focus');
+                ]]>
+            </handler>
+
+            <handler event="blur" phase="capturing">
+                <![CDATA[
+                // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
+                // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
+                if (this._inMouseDown != -1 && event.originalTarget != this) {
+                    this.scimoz.buttonUp( this._lastx, this._lasty, this._inMouseDown, event.timeStamp, 0, 0, 0);
+                    // The selection may have changed as a result.
+                    // We could get smarter about only sending this when it truly _has_
+                    // changed, but this would require remembering the position in the
+                    // "mousedown" event, and speed here isnt a real issue.
+                    this._inMouseDown = -1;
+                }
+                this.scimoz.focus = false;
+                ]]>
+            </handler>
+
+            <handler event="keypress" phase="capturing">
+                <![CDATA[
+                var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
+                if (this.scimoz.focus &&
+                    (event.charCode == 0 || cmdkey || this.key_handler)) {
+                    // Setup a callback to check if we've moved away from the
+                    // adjacent soft character.
+                    var currentPos = this.scimoz.currentPos;
+                    if (this.scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)) {
+                        if (event.keyCode == event.DOM_VK_BACK_SPACE) {
+                            // Separate check to see if the current char is indicated
+                            if (currentPos > 0) {
+                                var rightChar = this.scimoz.getWCharAt(currentPos);
+                                var leftChar = this.scimoz.getWCharAt(currentPos - 1);
+                                if (!this.bracketedDecoratedChars) {
+                                    this.bracketedDecoratedChars = {"(":")","{":"}", "[":"]"};
+                                }
+                                if (leftChar == rightChar
+                                    || (leftChar in this.bracketedDecoratedChars
+                                        && this.bracketedDecoratedChars[leftChar] == rightChar)) {
+                                    this.scimoz.targetStart = currentPos;
+                                    this.scimoz.targetEnd = currentPos + 1;
+                                    this.scimoz.replaceTarget(0, "");
+                                }
+                            }
+                            // And let standard handling of the backspace take place.
+                        } else {
+                            // harden any soft characters we move away from.  The only
+                            // range of soft chars in a document are immediately to the right
+                            // of the cursor on the same line.
+                            setTimeout(function(scimoz, softPosition, softCharDecorator) {
+                                var newPosition = scimoz.currentPos;
+                                if (newPosition == softPosition) {
+                                    return;
+                                }
+                                var softPositionEnd = scimoz.indicatorEnd(softCharDecorator, softPosition)
+                                var clearEndPos = ((newPosition < softPosition    // moved left
+                                                    || newPosition >= softPositionEnd) // moved right of last soft char
+                                                   ? softPositionEnd : newPosition);
+                                if (clearEndPos > softPosition) {
+                                    scimoz.indicatorCurrent = softCharDecorator;
+                                    //dump("Clear soft chars from " + softPosition + " to " + clearEndPos + "\n");
+                                    scimoz.indicatorClearRange(softPosition, clearEndPos - softPosition);
+                                }
+                            }, 0, this.scimoz, currentPos, this.DECORATOR_SOFT_CHAR);
+                        }
+                    }
+                }
+                if (this.key_handler) {
+                    // The key_handler will cancelBubble or preventDefault if it
+                    // is necessary.
+                    this.key_handler(event);
+                    return;
+                }
+                if (cmdkey)
+                    // Keybindings handle these key events
+                    return;
+
+                // See if scintilla component uses this event
+                switch (event.keyCode) {
+                    case event.DOM_VK_ENTER:
+                    case event.DOM_VK_RETURN:
+                        if (this.scimoz.autoCActive()) {
+                            this.scimoz.autoCComplete();
+                            event.stopPropagation();
+                            event.preventDefault();
+                            event.cancelBubble = true;
+                            return;
+                        }
+                        break;
+                    case event.DOM_VK_TAB:
+                        if (this.scimoz.focus) {
+                            // it's ours
+                            event.preventDefault();
+                            if (event.shiftKey) {
+                                ko.commands.doCommand('cmd_dedent');
+                            } else {
+                                ko.commands.doCommand('cmd_indent');
+                            }
+                            return;
+                        }
+                        break;
+                    case event.DOM_VK_ESCAPE:
+                        if (this.scimoz.autoCActive()) {
+                            this.scimoz.autoCCancel();
+                            event.stopPropagation();
+                            event.preventDefault();
+                            event.cancelBubble = true;
+                            return;
+                        } else if (this.scimoz.callTipActive()) {
+                            this.scimoz.callTipCancel();
+                            event.stopPropagation();
+                            event.preventDefault();
+                            event.cancelBubble = true;
+                            return;
+                        }
+                        break;
+                }
+                if (event.charCode == 0)
+                    return;
+
+                if (this.scimoz.focus) {
+                    //dump("event.charCode: " + event.charCode + ", pos " + this.scimoz.currentPos + "\n");
+                    var currentPos = this.scimoz.currentPos;
+                    if (this.scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
+                        && event.charCode == this.scimoz.getCharAt(currentPos)) {
+                        this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                        this.scimoz.indicatorClearRange(currentPos, 1);
+                        if (this.scimoz.autoCActive()) {
+                            // Do this to remove an interaction between
+                            // the auto-complete mechanism and the soft-character mechanism
+                            // when the trigger character is also a soft character.
+                            // Only current case (2007-07) is for Ruby require statements.
+                            this.scimoz.autoCCancel();
+                        }
+                        this.scimoz.gotoPos(currentPos + 1);
+                    } else {
+                        this.scimoz.addChar(event.charCode);
+                    }
+                    event.stopPropagation();
+                    event.preventDefault();
+                    event.cancelBubble = true;
+                    if (typeof(ko.macros) != 'undefined' && ko.macros.recorder.mode == 'recording') {
+                        ko.macros.recorder.recordKeyPress(String.fromCharCode(event.charCode));
+                    }
+                }
+                ]]>
+            </handler>
+
+            <handler event="text" phase="capturing">
+                <![CDATA[
+                this.scimoz.handleTextEvent(event);
+                ]]>
+            </handler>
+
+<!-- #if PLATFORM != "darwin" -->
+            <handler event="keyup" phase="capturing" keycode="VK_ALT">
+                <![CDATA[
+                if (this.dealtWithAlt == 1) {
+                    event.cancelBubble = true;
+                    this.dealtWithAlt = -1;
+                }
+                ]]>
+            </handler>
+            <handler event="keydown" phase="capturing" keycode="VK_ALT">
+                <![CDATA[
+                this.dealtWithAlt = 0;
+                ]]>
+            </handler>
+<!-- #endif -->
+
+            <handler event="keydown" phase="capturing">
+                <![CDATA[
+                if (this.key_handler) {
+                    // The key_handler will cancelBubble or preventDefault if it
+                    // is necessary.
+                    this.key_handler(event);
+                    return;
+                }
+                ]]>
+            </handler>
+
+            <handler event="mouseup" phase="capturing">
+                <![CDATA[
+                var x;
+                var y;
+                this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
+                if (event.button != 2) { // right-click is handled by us
+                    
+<!-- #if PLATFORM != "darwin" -->
+                    x = event.layerX < 0 ? 0 : event.layerX;
+                    y = event.layerY; // Must allow this to be -ve so we scroll up
+                    var pos = this.scimoz.positionFromPoint(x, y);
+
+                    // only disable scintilla mouseup if this is a single left button
+                    // click.  Otherwise selections get disabled on linux
+                    if (this._startDragDrop && event.detail == 1 && event.button==0) {
+                        if (this._inDragDrop) {
+                            // XXX this should never happen unless an exception
+                            // occurs somewhere in D&D code
+                            this.log.error('scintilla mouseup during dragdrop!\n');
+                        }
+                        //dump('scintilla reset mouseup positions\n');
+                        // get the position, set the selection start/end
+                        this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
+                        this.scimoz.currentPos = pos;
+                        this.scimoz.dragPosition = -1;
+                    } else {
+                        this.scimoz.buttonUp( x, y,
+                                            event.button,
+                                            event.timeStamp,
+                                            event.shiftKey, event.ctrlKey, event.metaKey);
+                    }
+<!-- #endif -->
+
+                    this._inDragDrop = false;
+                    this._startDragDrop = false;
+
+                    // The selection may have changed as a result.
+                    // We could get smarter about only sending this when it truly _has_
+                    // changed, but this would require remembering the position in the
+                    // "mousedown" event, and speed here isnt a real issue.
+                    window.updateCommands("select")
+                    this._inMouseDown = -1;
+                } else if (this._mozcontext && !this._contextShowing) {
+                    // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
+                    x = event.clientX < 0 ? 0 : event.clientX;
+                    y = event.clientY < 0 ? 0 : event.clientY;
+                    this._mozcontext.showPopup(this, x, y, 'context');
+                    this._contextShowing = true;
+                }
+                ]]>
+            </handler>
+
+            <handler event="contextmenu">
+                <![CDATA[
+                /*  XXX bug 42126
+                    this is causing too many issues, it is meant to support the
+                    OSX behaviour of holding a mouse button down for a period of
+                    time to get a context menu.  There are just too many areas
+                    of conflict to try and handle this from here, have to change
+                    the code in scimoz to do this.
+                    if (this._mozcontext && !this._contextShowing && !this.scimoz.isTracking && !this.scimoz.inDragSession) {
+                        var x = event.clientX < 0 ? 0 : event.clientX;
+                        var y = event.clientY < 0 ? 0 : event.clientY;
+                        this._mozcontext.showPopup(this, x, y, 'context');
+                        this._contextShowing = true;
+                    }
+                */
+                ]]>
+            </handler>
+
+            <handler event="mousedown" phase="capturing">
+                <![CDATA[
+                this._lastx = event.layerX;
+                this._lasty = event.layerY;
+                if (this._contextShowing && this._mozcontext) {
+                    // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
+                    this._mozcontext.hidePopup();
+                    this._contextShowing = false;
+                }
+
+                if (this.mouse_handler) {
+                    this.mouse_handler(event);
+                }
+                this._inDragDrop = false;
+                this._startDragDrop = false;
+                // No need to check X or Y are in range, as we will only get
+                // this event when we do!
+                var pos = this.scimoz.positionFromPoint(event.layerX, event.layerY);
+                if (event.button != 2) { // right-click is handled by us
+                    this._inMouseDown = event.button;
+                    //dump('pos: '+pos+' s: '+this.scimoz.selectionStart+' e: '+this.scimoz.selectionEnd+' style: '+this.scimoz.getStyleAt(pos)+'\n');
+                    // shift key is used to make a selection with the mouse, and
+                    // is not associated with drag/drop as is ctrl.  If the
+                    // shift key is pressed on click, always pass to scintilla.
+                    if (event.detail != 1 || event.shiftKey ||
+                        (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
+                        pos < this.scimoz.selectionStart ||
+                        pos > this.scimoz.selectionEnd+1)) {
+<!-- #if PLATFORM != "darwin" -->
+                        //dump('clicked outside selection '+event.timeStamp+'\n');
+                        this.scimoz.buttonDown( event.layerX, event.layerY,
+                                                        event.button,
+                                                        event.timeStamp,
+                                                        event.shiftKey, event.ctrlKey, event.metaKey);
+<!-- #endif -->
+                    } else {
+                        //dump('clicked in selection\n');
+                        this._startDragDrop = true;
+                    }
+                } else if (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
+                        pos < this.scimoz.selectionStart ||
+                        pos > this.scimoz.selectionEnd+1) {
+                    // if we right click, put the cursor there unless we're clicking
+                    // on a selection
+                    this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
+                }
+<!-- #if PLATFORM != "darwin" -->
+                if (event.altKey) {
+                    this.dealtWithAlt = 1;
+                }
+<!-- #endif -->
+                ]]>
+            </handler>
+            <handler event="mousemove">
+                <![CDATA[
+            try {
+<!-- #if PLATFORM != "darwin" -->
+                if (this._startDragDrop && !this._inDragDrop) {
+                    nsDragAndDrop.startDrag(event,this);
+                }
+<!-- #endif -->
+
+                // Note we seem to get mousemove messages every second or so.  I
+                // think it is related to the cursor, but not sure.  It seems to originate
+                // from Windows itself, but I don't know what triggers it.  mh.
+                var x = event.layerX < 0 ? 0 : event.layerX;
+                var y = event.layerY; // Must allow this to be -ve so we scroll up
+<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
+                // darwin and windows handle this (somewhat differently) in
+                // scimoz now
+                this.scimoz.buttonMove( x, y );
+<!-- #endif -->
+
+                // Handle detecing if we're over a hotspotted style and
+                // put up a status message accordingly.
+                if (window.document.getElementById('komodo_main')) {
+                    var pos = this.scimoz.positionFromPoint(x, y);
+                    var style = this.scimoz.getStyleAt(pos);
+                    var isHotspot = this.scimoz.styleGetHotSpot(style);
+                    if (isHotspot) {
+                        ko.statusBar.AddMessage("Double-click to jump to the corresponding file and line number.",
+                                             'doubleclick', 3000, false);
+                    }
+                }
+                // store the mouse position for tooltip usage
+                if ((x != this._lastx) || (y != this._lasty)) {
+                    this._lastx = x;
+                    this._lasty = y;
+                }
+            } catch (e) {
+                this.log.exception(e);
+            }
+                ]]>
+            </handler>
+            <handler event="mouseover">
+                <![CDATA[
+                //dump('mouseover\n');
+                ]]>
+            </handler>
+            <handler event="mouseout">
+                <![CDATA[
+                ]]>
+            </handler>
+
+            <handler event="draggesture" phase="capturing">
+            <![CDATA[
+                try {
+                // XXX on linux, this is unecessary, and breaks drag/drop
+                //nsDragAndDrop.startDrag(event,this);
+                } catch(e) {/*let the event bubble*/}
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+            ]]>
+            </handler>
+            <handler event="dragdrop" phase="capturing">
+            <![CDATA[
+                try {
+                    if (!nsDragAndDrop.mDragSession)
+                        nsDragAndDrop.mDragSession = nsDragAndDrop.mDragService.getCurrentSession();
+                    var flavourSet = this.getSupportedFlavours();
+                    var transferData = nsTransferable.get(flavourSet, nsDragAndDrop.getDragData, true);
+                    if (transferData.dataList.length) {
+                        this.onDrop(event, transferData, nsDragAndDrop.mDragSession);
+                        event.cancelBubble = true;
+                        event.preventDefault();
+                    }
+                } catch(e) {
+                    // nsTransferable fails if the drag data type is not
+                    // supported.  We want to catch this so the event will
+                    // bubble up to the workspace.
+                    // this.log.debug('doDragDropOnView failed:\n'+e);
+                }
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+            ]]>
+            </handler>
+            <handler event="dragenter" phase="capturing">
+            <![CDATA[
+                try {
+                nsDragAndDrop.dragEnter(event,this);
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragexit" phase="capturing">
+            <![CDATA[
+                try {
+                nsDragAndDrop.dragExit(event,this);
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragover" phase="capturing">
+            <![CDATA[
+                try {
+                nsDragAndDrop.dragOver(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+
+            <handler event="DOMMouseScroll" phase="capturing">
+            <![CDATA[
+            var rows = event.detail;
+            if (event.ctrlKey && event.shiftKey) {
+                if (rows > 0)
+                    this.scimoz.zoomIn();
+                else if (rows < 0)
+                    this.scimoz.zoomOut();
+            } else {
+                if (rows == NSUIEvent.SCROLL_PAGE_UP ||
+                    (rows < 0 && event.ctrlKey))
+                    rows = -this.scimoz.linesOnScreen;
+                else if (rows == NSUIEvent.SCROLL_PAGE_DOWN ||
+                    (rows > 0 && event.ctrlKey))
+                    rows = this.scimoz.linesOnScreen;
+                this.scimoz.lineScroll(0,rows);
+            }
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+</bindings>

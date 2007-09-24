@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="576EEC95-1E74-4A79-AF0C-78620F54288B" name="toolbox" kpf_version="2">
+<preference-set id="">
+</preference-set>
+<menu priority="999" accesskey="K" id="D68E4ECA-FA96-4B3F-9F8C-11B5D2059B73" name="KoDev">
+<command parseRegex="" keyboard_shortcut="" name="Edit in Gvim" insertOutput="0" id="5F480370-8030-4461-B487-4D81093EA01F" runIn="no-console" operateOnSelection="0" cwd="%D" env="" doNotOpenOutputWindow="0" showParsedOutputList="0" parseOutput="0" icon="chrome://jaguar/content/icons/insert-fields-author.png">
+gvim +%L "%F"</command>
+<macro keyboard_shortcut="" name="README" language="JavaScript" trigger_enabled="0" rank="100" trigger="trigger_postopen" async="0" id="91DAD787-6BA4-4E2F-A95A-AE435C1E2FEC" icon="chrome://jaguar/content/icons/help-agent.png">
+alert(\n  "- 'Edit in Gvim' presumes that Gvim is on your PATH.\\n" +\n  "- 'ReST to HTML' setup: run 'cd util/rst2html &amp;&amp; python setup.py install'. Also requires docutils (http://sf.net/projects/docutils/).");</macro>
+<folder id="67404723-7CE4-4F1C-B9E5-4AE185F9C903" name="ReST">
+<command insertOutput="0" keyboard_shortcut="" name="ReST to HTML" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" id="37B8CC9E-773A-4DBD-B1FA-9EC054FC76CB" operateOnSelection="0" cwd="%D" env="" doNotOpenOutputWindow="0" icon="chrome://jaguar/content/icons/presentation-styles.png" showParsedOutputList="1" parseOutput="1" runIn="command-output-window">
+python -m rst2html -b %f</command>
+<snippet keyboard_shortcut="" set_selection="true" id="DD4E0798-D469-4A68-8EF3-66F213542D59" indent_relative="false" name="&lt;a&gt; (one word)">
+!@#_anchor[[%w1:orask:Word]]_\n\n.. _[[%w1]]: [[%ask:URL]]\n!@#_currentPos</snippet>
+<snippet keyboard_shortcut="" set_selection="false" id="3931A536-2661-427E-B735-82177A6D24A9" indent_relative="false" name="&lt;a&gt; (multi-word)">
+`[[%w1:orask:Phrase]]`_\n\n.. _`[[%w1]]`: [[%ask:URL]]\n!@#_currentPos!@#_anchor</snippet>
+<snippet keyboard_shortcut="" set_selection="true" id="B8C2467B-BF44-45DF-AC6A-717D648A9D5A" indent_relative="false" name="&lt;a&gt; (inline)">
+`[[%w:orask:Text]] &lt;[[%ask:URL]]&gt;`_!@#_currentPos!@#_anchor</snippet>
+<snippet keyboard_shortcut="" set_selection="true" id="24BB2263-C6C4-48B6-863C-BFE0EC714251" indent_relative="true" name="&lt;dl&gt;">
+``[[%ask:term 1:milk]]``\n    [[%ask:defn 1:I like skim.]]\n``[[%ask:term 2:fruit]]``\n    [[%ask:defn 2:Berries are swell.]]!@#_currentPos!@#_anchor\n</snippet>
+<snippet keyboard_shortcut="" set_selection="true" id="8A7B53A5-41FD-4CD7-925E-060154600279" indent_relative="false" name="Komodo spec field list">
+:Komodo Version: [[%ask:Komodo Version:4.0]]\n:Status: [[%ask:Status:in progress]]\n:Spec Revision: $Revision$\n:Author: [[%ask1:Username:TrentM]]\n:Owner: [[%ask1]]!@#_currentPos!@#_anchor\n</snippet>
+<URL keyboard_shortcut="" id="532D8EFD-E275-45D8-9C57-3AB0BD9EE736" name="Quick Ref">
+http://docutils.sourceforge.net/docs/user/rst/quickref.html</URL>
+</folder>
+</menu>
+</project>

@@ -1,0 +1,14 @@
+<!ENTITY accounts.tooltiptext "Accounts">
+<!ENTITY cancel.label "Cancel">
+<!ENTITY createDirectory.tooltiptext "Create Directory">
+<!ENTITY delete.label "Delete">
+<!ENTITY goToTheLastVisitedDirectory.tooltiptext "Go to the last visited Directory">
+<!ENTITY goUpOneDirectory.tooltiptext "Go up one Directory">
+<!ENTITY help.label "Help">
+<!ENTITY lastModified.label "Last Modified">
+<!ENTITY name.label "Name">
+<!ENTITY prefsHelpButton.accesskey "H">
+<!ENTITY refreshList.tooltiptext "Refresh List">
+<!ENTITY rename.label "Rename">
+<!ENTITY size.label "Size">
+<!ENTITY textInput.label "textInput">

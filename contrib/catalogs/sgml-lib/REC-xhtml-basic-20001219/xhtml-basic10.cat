@@ -1,0 +1,34 @@
+-- .......................................................................... --
+-- File catalog  ............................................................ --
+
+--  XHTML Basic Catalog Data File
+
+    Revision:  xhtml-basic10.cat,v 1.1 2001/05/10 08:41:58 gerald Exp SMI
+
+    See "Entity Management", SGML Open Technical Resolution 9401 for detailed
+    information on supplying and using catalog data. This document is available
+    from OASIS at URL:
+
+        <http://www.oasis-open.org/html/tr9401.html>
+--
+
+-- .......................................................................... --
+-- SGML declaration associated with XML  .................................... --
+
+OVERRIDE YES
+
+SGMLDECL "xml1.dcl"
+
+-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: --
+
+-- XHTML Basic DTD modular driver file  ..................................... --
+
+PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"                       "xhtml-basic10.dtd"
+
+-- XHTML Basic framework module ............................................. --
+
+PUBLIC "-//W3C//ENTITIES XHTML Basic 1.0 Document Model 1.0//EN"  "xhtml-basic10-model-1.mod"
+
+
+-- End of catalog data  ..................................................... --
+-- .......................................................................... --

@@ -1,0 +1,232 @@
+Index: extensions/python/xpcom/__init__.py
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/__init__.py,v
+retrieving revision 1.5
+diff -u -r1.5 extensions/python/xpcom/__init__.py
+--- extensions/python/xpcom/__init__.py	20 Jan 2006 05:50:16 -0000	1.5
++++ extensions/python/xpcom/__init__.py	13 Jun 2007 22:00:36 -0000
+@@ -39,32 +39,112 @@
+ # The XPCOM (Cross Platform COM) package.
+ import exceptions
+ 
++import os
++_location = os.path.dirname(__file__)
++
+ # A global "verbose" flag - currently used by the
+ # server package to print trace messages
+ verbose = 0
+ # Map of nsresult -> constant_name.
+ hr_map = {}
+ 
++class nsStackFrame:
++    language = 0 # what should it be?
++    languageName = "Python"
++
++    def __init__(self, tb):
++        try:
++            # magic to hook up com interface after xpcom is loaded
++            if not hasattr(nsStackFrame, "_com_interfaces_"):
++                from xpcom import components
++                nsStackFrame._com_interfaces_ = [components.interfaces.nsIStackFrame]
++        except Exception, e:
++            # not initialized yet, cannot make this an xpcom component
++            pass
++
++        self.caller = None
++
++        import linecache
++    
++        f = tb.tb_frame
++        self.lineNumber = tb.tb_lineno
++        co = f.f_code
++        self.filename = co.co_filename
++        self.name = co.co_name
++        linecache.checkcache(self.filename)
++        line = linecache.getline(self.filename, self.lineNumber)
++        if line: self.sourceLine = line.strip()
++        else: self.sourceLine = None
++
++    def toString(self):
++        return 'File "%s", line %d, in %s' % (self.filename,
++                                              self.lineNumber,
++                                              self.name)
++
+ # The standard XPCOM exception object.
+ # Instances of this class are raised by the XPCOM extension module.
+ class Exception(exceptions.Exception):
+     def __init__(self, errno, message = None):
+         assert int(errno) == errno, "The errno param must be an integer"
++        exceptions.Exception.__init__(self, errno)
++        try:
++            # magic to hook up com interface after xpcom is loaded
++            if not hasattr(Exception, "_com_interfaces_"):
++                import components
++                Exception._com_interfaces_ = [components.interfaces.nsIException]
++        except exceptions.Exception, e:
++            # not initialized yet, cannot make this an xpcom component
++            pass
++
+         self.errno = errno
+         self.message = message
+-        exceptions.Exception.__init__(self, errno)
++        self.result = errno
++        self.name = hr_map.get(self.errno, "")
++        self.filename = None
++        self.lineNumber = 0
++        self.columnNumber = 0
++        self.location = None
++        self.inner = None
++        self.data = None
++
++    def setExcInfo(self, exc_info):
++        if exc_info[2]:
++            self.setStackFrame(exc_info[2])
++        
++    def setStackFrame(self, tb):
++        caller = None
++        while tb.tb_next is not None:
++            f = nsStackFrame(tb)
++            if not f.filename.startswith(_location):
++                prev_caller = caller
++                caller = f
++                caller.caller = prev_caller
++            tb = tb.tb_next
++
++        f = nsStackFrame(tb)
++        if caller and f.filename[0] == "<":
++            self.location = caller
++            self.location.caller = caller.caller
++        else:
++            self.location = f
++            self.location.caller = caller
++        self.lineNumber = f.lineNumber
++        self.filename = f.filename
++        self.name = f.name
++
++    def setData(self, exc_info):
++        import traceback
++        textObj = components.classes["@mozilla.org/supports-string;1"]\
++                .createInstance(components.interfaces.nsISupportsString)
++        textObj.data = '\n'.join(traceback.format_tb(exc_info[2]))
++        self.data = textObj;
++
+     def __str__(self):
+-        if not hr_map:
+-            import nsError
+-            for name, val in nsError.__dict__.items():
+-                if type(val)==type(0):
+-                    hr_map[val] = name
+-        message = self.message
+-        if message is None:
+-            message = hr_map.get(self.errno)
+-            if message is None:
+-                message = ""
+-        return "%d (%s)" % (self.errno, message)
++        if self.message is None:
++            return self.name
++        return str(self.message)
++    def toString(self):
++        return str(self)
+ 
+ # An alias for Exception - allows code to say "from xpcom import COMException"
+ # rather than "Exception", preventing clashes with the builtin Exception
+Index: extensions/python/xpcom/server/policy.py
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/server/policy.py,v
+retrieving revision 1.12
+diff -u -r1.12 extensions/python/xpcom/server/policy.py
+--- extensions/python/xpcom/server/policy.py	16 Oct 2006 09:19:39 -0000	1.12
++++ extensions/python/xpcom/server/policy.py	13 Jun 2007 22:07:01 -0000
+@@ -277,39 +277,63 @@
+             return 0, func(*params)
+ 
+     def _doHandleException(self, func_name, exc_info):
++        try:
++            # allow this exception to be caught in JavaScript
++            from xpcom import components
++            xs = components.classes["@mozilla.org/exceptionservice;1"].getService(components.interfaces.nsIExceptionService)
++            xm = xs.currentExceptionManager
++        except:
++            xs = xm = components = None
++
+         exc_val = exc_info[1]
+-        is_server_exception = isinstance(exc_val, ServerException)
+-        if is_server_exception:
+-            # When a component raised an explicit COM exception, it is
+-            # considered 'normal' - however, we still write a debug log
+-            # record to help track these otherwise silent exceptions.
+-
+-            if sys.version_info < (2,4):
+-                # Note that Python 2.3 does not allow an explicit exc_info tuple
+-                # and passing 'True' will not work as there is no exception pending.
+-                # Trick things!
+-                if logger.isEnabledFor(logging.DEBUG):
++        if isinstance(exc_val, (ServerException, COMException)):
++            try:
++                # we can only unwrap python exceptions, so ignore if we
++                # cannot unwrap.
++                # Update the exception information so it is accurate, just
++                # raising Server/COMException will not have all the data
++                exc_val = xpcom.server.UnwrapObject(exc_val)
++                exc_val.setExcInfo(exc_info)
++            except ValueError, e:
++                pass
++
++            if xm and exc_val.message is None:
++                exc = xm.getCurrentException()
++                if exc:
++                    # someone we called raised an exception, so we're the
++                    # inner exception.  If we cannot modify the exception to
++                    # add ourselves as the inner, then reset the exception
++                    # to a python based class
+                     try:
+-                        raise exc_info[0], exc_info[1], exc_info[2]
+-                    except:
+-                        logger.debug("'%s' raised COM Exception %s",
+-                                 func_name, exc_val, exc_info = 1)
++                        # we can only unwrap python exceptions, so ignore if we
++                        # cannot unwrap
++                        exc = xpcom.server.UnwrapObject(exc)
++                        exc.inner = exc_val
++                        exc_val = exc
++                    except ValueError, e:
++                        pyexec = exc_val
++                        exc_val = COMException(exc.result, exc.message)
++                        exc_val.filename = exc.filename
++                        exc_val.lineNumber = exc.lineNumber
++                        exc_val.filename = exc.filename
++                        exc_val.name = exc.name
++                        exc_val.location = exc.location
++                        exc_val.inner = pyexec
++        else:
++            # Unhandled exception - always print a warning.
++            logger.exception("Unhandled exception calling '%s'", func_name)
++            if hasattr(exc_val, "__class__"):
++                message = "%s: %s" % (exc_info[1].__class__.__name__, str(exc_val))
+             else:
+-                logger.debug("'%s' raised COM Exception %s",
+-                             func_name, exc_val, exc_info=exc_info)
++                message = str(exc_val)
++            exc_val = COMException(nsError.NS_ERROR_FAILURE, message)
++            if components:
++                exc_val.setExcInfo(exc_info)
+ 
+-            return exc_val.errno
+-        # Unhandled exception - always print a warning and the traceback.
+-        # As above, trick the logging module to handle Python 2.3
+-        if sys.version_info < (2,4):
+-            try:
+-                raise exc_info[0], exc_info[1], exc_info[2]
+-            except:
+-                logger.exception("Unhandled exception calling '%s'", func_name)
+-        else:
+-            logger.error("Unhandled exception calling '%s'", func_name,
+-                         exc_info=exc_info)
+-        return nsError.NS_ERROR_FAILURE
++        if components:
++            xs.currentExceptionManager.setCurrentException(exc_val)
++
++        return exc_val.result
+ 
+     # Called whenever an unhandled Python exception is detected as a result
+     # of _CallMethod_ - this exception may have been raised during the _CallMethod_

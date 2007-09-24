@@ -1,0 +1,41 @@
+/* Todd's additions */
+span.variable,
+span.function,
+span.class
+    {
+    font-weight: bolder;
+    }
+div.class,
+div.function,
+div.variable,
+div.class_variables,
+div.class_functions,
+div.function_arguments,
+div.function_returns,
+hr.function_separator,
+hr.variable_separator,
+hr.class_separator,
+span.argument
+    {
+    margin-left: 2em;
+    }
+p.doc
+    {
+    white-space: pre;
+    }
+p.doc_for_namespace
+    {
+    white-space: pre;
+    }
+div.doc_for_argument
+    {
+    margin-left: 2em;
+    }
+h3.class
+    {
+    margin-left: 2em;
+    }
+span.argument
+    {
+    font-weight: bolder;
+    }

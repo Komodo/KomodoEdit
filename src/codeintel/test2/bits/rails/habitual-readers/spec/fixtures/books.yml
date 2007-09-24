@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+HHGTTG:
+  id: 1
+  title: Hitchhikers Guide To The Galaxy
+  author: Douglas Adams
+  isbn: 0345391802
+  summary: Laugh a minute satirical sci-fi
+LOTR:
+  id: 2
+  title: Lord of the Rings
+  author: J.R.R. Tolkien
+  isbn: 0618346244
+  summary: Hobbits, Orcs, and Elves, walking, walking, walking...

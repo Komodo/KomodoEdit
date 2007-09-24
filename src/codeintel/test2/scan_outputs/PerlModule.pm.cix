@@ -1,0 +1,26 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\PerlModule.pm">
+    <scope ilk="blob" lang="Perl" name="PerlModule">
+      <scope classrefs="Exporter" ilk="class" line="1" lineend="15" name="PerlModule">
+        <import line="3" module="Exporter" />
+        <variable attributes="__exported__" line="2" name="$myscalar" />
+        <variable attributes="__exported__" line="2" name="%myhash" />
+        <variable attributes="__exported__" line="2" name="@myarray" />
+        <scope attributes="__exported__" ilk="function" line="9" lineend="11" name="myfunc" signature="myfunc($a, $b)">
+          <variable ilk="argument" name="$a" />
+          <variable ilk="argument" name="$b" />
+        </scope>
+      </scope>
+      <scope classrefs="Exporter" ilk="class" line="18" lineend="34" name="PerlModule::SubModule">
+        <import line="20" module="Exporter" />
+        <variable attributes="__exported__" line="19" name="$subscalar" />
+        <variable attributes="__exported__" line="19" name="%subhash" />
+        <variable attributes="__exported__" line="19" name="@subarray" />
+        <scope attributes="__exported__" ilk="function" line="26" lineend="28" name="subfunc" signature="subfunc($a, $b)">
+          <variable ilk="argument" name="$a" />
+          <variable ilk="argument" name="$b" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

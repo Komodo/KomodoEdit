@@ -1,0 +1,38 @@
+# Used by xbl2js, mxml2js (for Flex/MXML)
+
+state IN_H2CSL_STAG_POST_TAGNAME:
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_CSL_DEFAULT
+# empty tag : nothing to lex inside it.
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
+# XXX case-insensitive
+# If we find a src attribute, there shouldn't be any script to process,
+# so bail back to the regular html state.
+/src\b/i : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), => IN_M_STAG_POST_ATTRNAME_1
+/[$CS]/ : paint(upto, M_TAGSPACE) => IN_H2CSL_STAG_IN_ATTRNAME
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
+
+state IN_H2CSL_STAG_IN_ATTRNAME
+/[^$CS]/ :  paint(upto, M_ATTRNAME), redo, => IN_H2CSL_STAG_POST_ATTRNAME_1
+'<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+state IN_H2CSL_STAG_POST_ATTRNAME_1
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_H2CSL_STAG_POST_ATTRNAME_2
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo => IN_H2CSL_STAG_POST_TAGNAME
+
+state IN_H2CSL_STAG_POST_ATTRNAME_2
+'\"' : paint(upto, M_TAGSPACE), => IN_H2CSL_STAG_ATTR_DSTRING
+'\'' : paint(upto, M_TAGSPACE), => IN_H2CSL_STAG_ATTR_SSTRING
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC), => IN_CSL_DEFAULT
+# Bail out
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+'<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+state IN_H2CSL_STAG_ATTR_DSTRING:
+'"' : paint(include, M_STRING), => IN_H2CSL_STAG_POST_TAGNAME
+# Assume a < means we're way out of sync, bail
+'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
+
+state IN_H2CSL_STAG_ATTR_SSTRING:
+'\'' : paint(include, M_STRING), => IN_H2CSL_STAG_POST_TAGNAME
+# Assume a < means we're way out of sync
+'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT

@@ -1,0 +1,115 @@
+Index: toolkit/xre/nsNativeAppSupportWin.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsNativeAppSupportWin.cpp,v
+retrieving revision 1.28
+diff -u -r1.28 nsNativeAppSupportWin.cpp
+--- toolkit/xre/nsNativeAppSupportWin.cpp	30 Jan 2007 05:14:47 -0000	1.28
++++ toolkit/xre/nsNativeAppSupportWin.cpp	13 Jun 2007 21:20:52 -0000
+@@ -370,20 +370,27 @@
+ 
+ void
+ nsNativeAppSupportWin::CheckConsole() {
++    // -console used to mean:
++    //      Allocate a console and map stdout and stderr to it.
++    // -console now means:
++    //      Check startup information. If valid handles are provided for
++    //      stdout and stderr then map those handles. NOTE: The value of 
++    //      stdin is *not* used because Win9x seems to yield an invalid handle
++    //      for it for startup. Otherwise, do as before: allocate a console and
++    //      map stdout and stderr to it.  This allows Mozilla to be spawned by
++    //      another process which provides these handles.
+     for ( int i = 1; i < gArgc; i++ ) {
+         if ( strcmp( "-console", gArgv[i] ) == 0
+              ||
+              strcmp( "/console", gArgv[i] ) == 0 ) {
+-            // Users wants to make sure we have a console.
+-            // Try to allocate one.
+-            BOOL rc = ::AllocConsole();
+-            if ( rc ) {
+-                // Console allocated.  Fix it up so that output works in
+-                // all cases.  See http://support.microsoft.com/support/kb/articles/q105/3/05.asp.
+-
+-                // stdout
+-                int hCrt = ::_open_osfhandle( (long)GetStdHandle( STD_OUTPUT_HANDLE ),
+-                                            _O_TEXT );
++            STARTUPINFO startupInfo;
++            GetStartupInfo(&startupInfo);
++            if (/* startupInfo.hStdInput  != INVALID_HANDLE_VALUE && */
++                startupInfo.hStdOutput != INVALID_HANDLE_VALUE &&
++                startupInfo.hStdError  != INVALID_HANDLE_VALUE) {
++
++                // map stdout
++                int hCrt = ::_open_osfhandle( (long)startupInfo.hStdOutput, _O_TEXT );
+                 if ( hCrt != -1 ) {
+                     FILE *hf = ::_fdopen( hCrt, "w" );
+                     if ( hf ) {
+@@ -394,9 +401,8 @@
+                     }
+                 }
+ 
+-                // stderr
+-                hCrt = ::_open_osfhandle( (long)::GetStdHandle( STD_ERROR_HANDLE ),
+-                                          _O_TEXT );
++                // map stderr
++                hCrt = ::_open_osfhandle( (long)startupInfo.hStdError, _O_TEXT );
+                 if ( hCrt != -1 ) {
+                     FILE *hf = ::_fdopen( hCrt, "w" );
+                     if ( hf ) {
+@@ -418,11 +424,54 @@
+                     }
+                 }
+                 */
+-            } else {
+-                // Failed.  Probably because there already is one.
+-                // There's little we can do, in any case.
+             }
+ 
++            else {
++                // Users wants to make sure we have a console.
++                // Try to allocate one.
++                BOOL rc = ::AllocConsole();
++                if ( rc ) {
++                    // Console allocated.  Fix it up so that output works in
++                    // all cases.  See http://support.microsoft.com/support/kb/articles/q105/3/05.asp.
++
++                    // stdout
++                    int hCrt = ::_open_osfhandle( (long)GetStdHandle( STD_OUTPUT_HANDLE ),
++                                                _O_TEXT );
++                    if ( hCrt != -1 ) {
++                        FILE *hf = ::_fdopen( hCrt, "w" );
++                        if ( hf ) {
++                            *stdout = *hf;
++                            ::fprintf( stdout, "stdout directed to dynamic console¡Àn" );
++                        }
++                    }
++
++                    // stderr
++                    hCrt = ::_open_osfhandle( (long)::GetStdHandle( STD_ERROR_HANDLE ),
++                                              _O_TEXT );
++                    if ( hCrt != -1 ) {
++                        FILE *hf = ::_fdopen( hCrt, "w" );
++                        if ( hf ) {
++                            *stderr = *hf;
++                            ::fprintf( stderr, "stderr directed to dynamic console¡Àn" );
++                        }
++                    }
++
++                    // stdin?
++                    /* Don't bother for now.
++                    hCrt = ::_open_osfhandle( (long)::GetStdHandle( STD_INPUT_HANDLE ),
++                                              _O_TEXT );
++                    if ( hCrt != -1 ) {
++                        FILE *hf = ::_fdopen( hCrt, "r" );
++                        if ( hf ) {
++                            *stdin = *hf;
++                        }
++                    }
++                    */
++                } else {
++                    // Failed.  Probably because there already is one.
++                    // There's little we can do, in any case.
++                }
++
+             // Remove the console argument from the command line.
+             do {
+                 gArgv[i] = gArgv[i + 1];

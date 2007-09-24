@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF SYSTEM "chrome://branding/locale/brand.dtd" >
+<rdf:RDF xmlns:nc="http://home.netscape.com/NC-rdf#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description about="urn:root">
+  <nc:subheadings>
+    <rdf:Seq>
+      <rdf:li> <rdf:Description ID="aux_live_folders" nc:link="komodo-doc-folders.html#folders_top" nc:name="Live Folders" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="aux_virtual_folders" nc:link="komodo-doc-folders.html#folders_top" nc:name="Virtual Folders" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="aux_plink" nc:link="komodo-doc-scc.html#config_putty_install" nc:name="Installing and Configuring Putty on Windows (plink.exe)" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="project_templates" nc:link="komodo-doc-templates.html#project_templates" nc:name="Komodo Extension Project Template" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="project_templates" nc:link="komodo-doc-templates.html#project_templates" nc:name="Mozilla Extension Project Template" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="project_templates" nc:link="komodo-doc-templates.html#project_templates" nc:name="Ruby on Rails Project Template" /> </rdf:li>
+    </rdf:Seq>
+  </nc:subheadings>
+</rdf:Description>
+
+</rdf:RDF>

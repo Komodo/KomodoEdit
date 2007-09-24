@@ -1,0 +1,362 @@
+// The hierarchy of koIPart interfaces. A koIPart instance is the base
+// piece for inclusion in Komodo's project system.
+
+#include "nsISupports.idl"
+#include "nsIObserver.idl"
+#include "koIPrefs.idl"
+#include "nsIDOMWindowInternal.idl"
+#include "nsIDOMDocument.idl"
+#include "ISciMoz.idl"
+
+interface koIDocument;
+interface koIView;
+interface koIFile;
+interface koIFileEx;
+
+[scriptable, uuid(8EAA9B6D-1D59-43f6-8D0E-F992429ECFE2)]
+interface koIPart: nsIObserver {
+    attribute wstring id;
+    attribute wstring type; // the programmer-oriented type, e.g. "command"
+    attribute wstring prettytype;  // A user-intended version of the type: e.g. "Run Command"
+    readonly attribute wstring primaryInterface;
+    attribute wstring iconurl;
+    attribute wstring url;
+    attribute wstring name;
+    readonly attribute boolean live;  // is this contained in a live folder?
+    koIFileEx getFile();
+    
+    wstring get_keybinding_description();
+    
+    // Content for serialization in the CDATA section. 
+    // (Not used for all part types.)
+    attribute wstring value;
+    // A reference to the containing project.
+    // (Currently needed to notify on URL addition.)
+    attribute koIPart project;
+    
+    // A reference to the part's parents.  If none, then it is a reference to the same part
+    // (i.e. top-level parts have self.parent = self
+    attribute koIPart parent;
+
+    /* is the part my ancestor? */
+    boolean isAncestor(in koIPart part);
+
+    // usually a noop, but used in toolbar/menu customization
+    void added();
+    void removed();
+
+    // koIParts maintain a dictionary of attributes, corresponding to
+    // attributes on the serialized koIPart's XML tag.
+    boolean hasAttribute(in wstring name);
+
+    nsISupports getAttribute(in wstring name);
+    void setAttribute(in wstring name, in nsISupports value);
+
+    void removeAttribute(in wstring name);
+
+    wstring getStringAttribute(in wstring name);
+    void setStringAttribute(in wstring name, in wstring value);
+
+    long getLongAttribute(in wstring name);
+    void setLongAttribute(in wstring name, in long value);
+
+    boolean getBooleanAttribute(in wstring name);
+    void setBooleanAttribute(in wstring name, in boolean value);
+
+    // koIPart data may also be serialized in its 'prefset'. This
+    // prefset is inserted into Komodo's preference inheritance stack
+    // when appropriate. Data that is appropriate for that stack should
+    // be set here.  The prefset will always exist, but empty prefsets
+    // may not be serialized.
+    attribute koIPreferenceSet prefset;
+    void dump(in long indent);
+    // This can raise an exception, in which case an appropriate error is
+    // set on the last error service.
+    void serialize(in koIFile stream);
+
+    wstring getDragData(); 
+    void getDragFlavors([array, size_is(count)] out wstring flavors,
+                     out unsigned long count);
+    
+    koIPart clone();
+    
+    void applyKeybindings(in boolean recurse); // cause kb-load notifications for all relevant parts
+    void removeKeybindings(in boolean recurse); // cause kb-unload notifications for all relevant parts
+
+    // invoke the part -- do nothing if that doesn't make sense.
+    void invoke(); 
+};
+
+/* koIContainerBase is a base interface for all container types.
+  Types that want to have a heirarchy should inherit this interface.
+  Parts (ie a folder or project) that want to contain any other part should
+  inherit koIContainer, and not koIContainerBase.  Parts that want
+  to be containers, but will implement specific parts that it will
+  contain should inherit koIContainerBase (ie WebServices).
+*/
+[scriptable, uuid(649FBD6D-BA35-46a9-946B-91DA766BC691)]
+interface koIContainerBase: koIPart {
+    void getChildren([array, size_is(count)] out koIPart child,
+                     out unsigned long count);
+
+    koIPart getChildById(in wstring id);
+    /* hasChild does not recurse */
+    boolean hasChild(in koIPart child);
+    boolean isEmpty();
+    void getChildrenByType(in wstring type,
+                           in boolean recurse,
+                           [array, size_is(count)] out koIPart child,
+                           out unsigned long count);
+    koIPart getChildWithTypeAndStringAttribute(in wstring type,
+                                               in wstring attribname,
+                                               in wstring attribvalue,
+                                               in boolean recurse);
+    koIPart getChildByAttributeValue(in wstring attribname,
+                                     in wstring attribvalue,
+                                     in boolean recurse);
+    void addChild(in koIPart child);
+    void removeChild(in koIPart child);
+
+};
+
+/* koIContainer is a base interface for all container types that
+  may contain any other type of part. Most actions, such as
+  add file or add folder, are attached to koIContainer.  */
+[scriptable, uuid(72FFD301-1CFF-4418-98DF-30A70E0C21B5)]
+interface koIContainer: koIContainerBase {
+};
+
+[scriptable, uuid(0B2531D9-E75E-4428-A5E9-F4F97D21D89C)]
+interface koIPart_folder: koIContainer {
+    koIPart_folder getLanguageFolder(in wstring language);
+    koIPart_folder getDirFolder(in wstring basedir, in wstring targetdir);
+};
+
+// our command system depends on the idl inheritence, so we make a livefolder
+// subclass a container, rather than subclassing the folder above.
+[scriptable, uuid(8D1C1A69-DFB7-11DA-85CA-000D935D3368)]
+interface koIPart_livefolder: koIContainer {
+    readonly attribute wstring liveDirectory;
+    void refreshChildren();
+};
+
+[scriptable, uuid(D571C805-F554-4de9-AD6E-0D0D8F198705)]
+interface koIFileImportingService : nsISupports { 
+    // Import files from disk and add them under this folder.
+    // XXX We need to move this to a service, since it does not modify the part.
+    void findCandidateFiles(in koIPart_folder folder,
+                            in wstring dirname, in wstring include,
+                            in wstring exclude, in boolean recursive,
+                            [array, size_is(count)] out wstring filenames,
+                            out unsigned long count);
+    void findCandidateFilesRemotely(in koIPart_folder folder,
+                            in wstring dirname, in wstring include,
+                            in wstring exclude, in boolean recursive,
+                            [array, size_is(count)] out wstring filenames,
+                            out unsigned long count);
+    void addSelectedFiles(in koIPart_folder folder, in wstring importType,
+                          in wstring basedir,
+                          [array, size_is(count)] in wstring filenames,
+                          in unsigned long count);
+};
+
+[scriptable, uuid(9D67C0BC-D8D7-4158-9065-28E26466859F)]
+interface koIProject: koIPart_livefolder { 
+    // Note: Renaming is done by modifying either the URL or the name.
+    attribute boolean isDirty;
+    void create();
+    void activate(); // called when project is made active
+    void deactivate(); // called when another project is made active
+    
+    void load(in wstring url);  // raises an exception on error
+                                // and uses the lastErrorService to return error information
+    void loadQuiet(in wstring url);  // same as load, but prevents notifications
+                                    // when reading toolbars/menu's
+    void loadFromString(in wstring data, in wstring url);
+
+    void revert();
+    // This can raise an exception, in which case an appropriate error is
+    // set on the last error service.
+    void save();
+    void close();
+
+    // Return a reference to any contained koIPart with the given URL.
+    // Return NULL if the project contains no such child.
+    koIPart getChildByURL(in wstring url);
+
+    // A registry of contained url-addressable koIParts(where
+    // "contained" is of arbitrary depth) is maintained in a koIProject
+    // for convenient (and efficient) use of getChildByURL().
+    void registerChildByURL(in koIPart child);
+    void forgetChildByURL(in koIPart child);
+
+    void getAllContainedURLs([array, size_is(count)] out wstring url,
+                             out unsigned long count);
+    
+    koIPart createPartFromType(in wstring type);
+
+    // look in all live parts and see if this path would be dynamically
+    // included in the project.
+    boolean containsLiveURL(in wstring url);
+};
+
+
+[scriptable, uuid(2F84B17E-FCEB-4cd0-8579-6C0F4E95CCA0)]
+interface koIPart_file: koIPart {
+};
+
+[scriptable, uuid(E6016D36-A240-40ea-A106-FCBBEAE617F4)]
+interface koIPart_ProjectRef: koIPart_file {
+};
+
+
+[scriptable, uuid(B49E8715-8189-40b3-AAC5-07E5160F2F10)]
+interface koIPart_snippet: koIPart {
+};
+
+
+[scriptable, uuid(4FCEB967-6C72-41fc-9668-D81EAB1577DC)]
+interface koIPart_template: koIPart {
+    // The 'template' koIPart (as best as I can tell --TM) uses the following
+    // attributes:
+    //      "name" (string) is the name of the template, typically this is
+    //          the basename of the template URI. The name extension currently
+    //          implies the template language.
+    //
+    // The .value attribute is the template URI.
+};
+
+
+[scriptable, uuid(4DA537A9-6E1F-4c52-A602-50D09FD61E30)]
+interface koIPart_command: koIPart {
+    // The 'command' koIPart uses the following attributes (see
+    // {get|set}*Attribute() methods above).
+    //      "name" (string) is the name of the command, typically this
+    //          is set to the command string.
+    //      "insertOutput" (boolean) specifies that the output of the
+    //          command should be inserted into the current document.
+    //      "operateOnSelection" (boolean) specifies whether the current
+    //          selection should be used as input for the given command.
+    //      "doNotOpenOutputWindow" (boolean), if true, will explicitly
+    //          NOT open the output window in which results are
+    //          displayed.
+    //      "runIn" (string), specifies what window the command should
+    //          be run in. This is only applicable if the command is
+    //          just being run (i.e. its ouput is not being captured).
+    //          Valid values are (and <menuitem> entries in run.xul must
+    //          concur):
+    //              'command-output-window'
+    //              'new-console'
+    //              'no-console'
+    //      "parseOutput" (boolean) indicates whether to parse output
+    //          lines with the given regular expression, "parseRegex".
+    //      "parseRegex" (string) is a regex pattern to use to parse the
+    //          output lines into the command output window tree.
+    //      "showParsedOutputList" (boolean) indicates whether to view
+    //          parsed results in the tree.
+    //
+    // The .value attribute (where "attribute" now means an XPCOM
+    // interface attribute), a.k.a. the CDATA section, is the actual
+    // command string.
+};
+
+[scriptable, uuid(41D39E8C-1E20-480d-A3F1-56A2E6FB8BCC)]
+interface koIPart_URL: koIPart {
+};
+
+[scriptable, uuid(37944B8A-C534-418c-BFFA-9F73C4445C85)]
+interface koIPart_webservice: koIPart {
+};
+
+[scriptable, uuid(BFAC0E16-3B01-409a-96D8-E2CAC9AA302B)]
+interface koIPart_macro: koIPart {
+    wstring evalAsPython(in nsIDOMDocument domdocument,
+                         in nsIDOMWindowInternal window,
+                         in ISciMoz scimoz,
+                         in koIDocument document,
+                         in koIView view,
+                         in wstring code,
+                         in boolean asynchronous);
+};
+
+[scriptable, uuid(1DE1C350-5975-4E6E-A4F7-7182223CE180)]
+interface koIDirectoryShortcut : koIPart {
+};
+
+[scriptable, uuid(7FC4F61B-2C30-47B2-82A2-5D5F42431931)]
+interface koIToolbox : koIPart {
+};
+
+[scriptable, uuid(49C0A185-F27B-4C59-8C17-FE9713A82FD8)]
+interface koIPart_menu : koIContainerBase {
+};
+
+[scriptable, uuid(9082556F-0A23-4683-84AB-F99C01E5D903)]
+interface koIPart_toolbar : koIContainerBase {
+};
+
+[scriptable, uuid(0A6C17E8-B7A2-4424-8200-9D1A08C6EC75)]
+interface koIPartService: nsISupports
+{
+    // Return a reference to the koIPart with the given id.
+    // Return NULL if such a part does not exist.
+    koIPart getPartById(in wstring id);
+
+    koIProject getProjectForURL(in wstring url);
+
+    // return prefs for a uri, look in the current project first,
+    // then look in all other projects
+    koIPreferenceSet getEffectivePrefsForURL(in wstring url);
+    
+    void addProject(in koIProject project);
+    void removeProject(in koIProject project);
+    void getProjects([array, size_is(count)] out koIProject project,
+                             out unsigned long count);
+
+    attribute koIProject toolbox;
+    attribute koIProject sharedToolbox;
+    attribute koIProject currentProject;
+
+    // findPart will search the toolboxes and the project the provided koIPart
+    // object belongs to for another item defined by type and name.
+    //
+    // where: is one of
+    //        "container"
+    //        "toolbox"
+    //        "shared toolbox"
+    //        "toolboxes"
+    //        "*"
+    //    where "*" means "current part project, toolbox, shared toolbox"
+    koIPart findPart(in wstring type,
+                     in wstring name,
+                     in wstring where,
+                     in koIPart macro);
+
+    /* DEPRECATED, DO NOT USE, see findPart above */
+    attribute koIPart runningMacro;
+    koIPart findPartForRunningMacro(in wstring type,
+                                    in wstring name,
+                                    in wstring where);
+};
+
+[scriptable, uuid(bad42fbe-e309-4404-abf7-ff83d4d4c564)]
+interface koIProjectPackageService: nsISupports {
+    // takes a name and a project, calls packageParts with the projects children
+    void packageProject(in wstring packageName, in koIProject project, in boolean overwrite);
+
+    // takes a name and a list of parts, creates a zip file
+    void packageParts(in wstring packageName,
+                      in unsigned long count,
+                      [array, size_is(count)] in koIPart child,
+                      in boolean overwrite);
+    
+    // extracts the package at packagePath to the destination directory
+    void extractPackage(in wstring packagePath, in wstring destinationPath);
+
+    // extracts the package at packagePath to the destination directory, then adds
+    // the parts in the package project to the provided part
+    void importPackage(in wstring packagePath, in wstring destinationPath,
+                       in koIPart part);
+    
+    koIProject newProjectFromPackage(in wstring packagePath, in wstring destinationPath);
+};

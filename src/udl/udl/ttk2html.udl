@@ -1,0 +1,44 @@
+# And back
+
+family tpl
+
+state IN_TPL_COMMENTBLOCK:
+/-?%\]/ : paint(include, TPL_COMMENT), => IN_M_DEFAULT  # No push happened.
+
+state IN_TPL_DEFAULT:
+/-?%\]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT
+
+# This part actually works on Perl code, but put it here
+
+family ssl
+
+state IN_SSL_DEFAULT:
+/\[%(?=\s|E)/ : paint(upto, SSL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_PERL_2_DEFAULT_1
+
+state IN_TPL_PERL_2_DEFAULT_1:
+/[\s]+/: #stay
+# We need to do this a bit at a time, or the udl lexer will end
+# up back in SSL for the rest of the expression.
+'E' : paint(upto, TPL_DEFAULT) => IN_TPL_PERL_2_DEFAULT_2
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_SSL_DEFAULT
+
+state IN_TPL_PERL_2_DEFAULT_2:
+'N' : => IN_TPL_PERL_2_DEFAULT_3
+/./ : paint(upto, TPL_IDENTIFIER), redo, => IN_SSL_DEFAULT
+
+state IN_TPL_PERL_2_DEFAULT_3:
+'D' :  => IN_TPL_PERL_2_DEFAULT_4
+/./ : paint(upto, TPL_IDENTIFIER), redo, => IN_SSL_DEFAULT
+
+state IN_TPL_PERL_2_DEFAULT_4
+/[\w_\d]/ : paint(upto, TPL_IDENTIFIER), => IN_M_DEFAULT  # Reflect intentions
+/./ : paint(upto, TPL_WORD), redo, => IN_TPL_PERL_2_DEFAULT_5
+
+state IN_TPL_PERL_2_DEFAULT_5
+/[\s]+/: #stay
+/-?%\]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+'#' : paint(upto, TPL_DEFAULT),  => IN_TPL_COMMENT
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_M_DEFAULT  # Reflect intentions
+
+
+

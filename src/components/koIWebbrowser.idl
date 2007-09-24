@@ -1,0 +1,23 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// An XPCOM interface to Python's std webbrowser.py
+// XXX just the open_new() for now
+
+#include "nsISupports.idl"
+
+// Provides the URIs to Komodo files.
+[scriptable, uuid(711CC13B-681C-4af1-8655-2624F6FC5629)]
+interface koIWebbrowser : nsISupports {
+    boolean open_new(in wstring url);
+    boolean open_new_browser(in wstring url, in wstring browser);
+    // return array of all browsers found on path
+    void get_possible_browsers(out PRUint32 count,
+        [retval, array, size_is(count)] out wstring str);
+
+    void get_firefox_paths(out PRUint32 count,
+        [retval, array, size_is(count)] out wstring firefoxes);
+    void install_firefox_xpis(in wstring firefox_path,
+        in PRUint32 count,
+        [array, size_is(count)] in wstring xpi_paths);
+};

@@ -1,0 +1,51 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_yui.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_yui.js" src="scan_inputs/javascript_yui.js">
+      <variable citdl="Object" line="4" lineend="4" name="YAHOO">
+        <variable citdl="Object" line="5" lineend="5" name="widget">
+          <scope classrefs="YAHOO.widget.Node" ilk="class" line="28" lineend="35" name="TextNode">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: The default node presentation.  The first parameter should be&#xA;either a string that will be used as the node&apos;s label, or an object&#xA;that has a string propery called label.  By default, the clicking the&#xA;label will toggle the expanded/collapsed state of the node.  By&#xA;changing the href property of the instance, this behavior can be&#xA;changed so that the label will go to the specified href." ilk="function" line="28" lineend="35" name="TextNode" signature="TextNode(oData, oParent, expanded)">
+              <variable citdl="Object" doc="a string or object containing the data that will&#xA;be used to render this node" ilk="argument" name="oData" />
+              <variable citdl="YAHOO.widget.Node" doc="this node&apos;s parent node" ilk="argument" name="oParent" />
+              <variable citdl="Boolean" doc="the initial expanded/collapsed state" ilk="argument" name="expanded" />
+              <variable citdl="TextNode" name="this" />
+            </scope>
+            <variable citdl="String" line="39" name="labelStyle" />
+            <variable line="41" name="labelElId" />
+            <scope ilk="function" line="43" lineend="47" name="textNodeParentChange" signature="textNodeParentChange()" />
+            <variable line="49" name="label" />
+          </scope>
+          <scope ilk="class" line="89" lineend="104" name="Menu">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: The Menu class creates a container that holds a vertical list representing&#xA;a set of options or commands.  Menu is the base class for all&#xA;menu containers." ilk="function" line="89" lineend="104" name="Menu" signature="Menu(p_oElement, p_oConfig)">
+              <variable citdl="String" doc="String specifying the id attribute of the&#xA;&lt;code&gt;&amp;#60;select&amp;#62;&lt;/code&gt; element to be used as the data source&#xA;for the menu." ilk="argument" name="p_oElement" />
+              <variable citdl="Object" doc="Optional. Object literal specifying the&#xA;configuration for the menu. See configuration class documentation for&#xA;more details." ilk="argument" name="p_oConfig" />
+              <variable citdl="Menu" name="this" />
+            </scope>
+            <variable citdl="p_oConfig.parent" line="92" name="parent" />
+            <variable citdl="p_oConfig.lazyLoad" line="93" name="lazyLoad" />
+            <variable citdl="p_oConfig.itemData" line="94" name="itemData" />
+          </scope>
+          <scope classrefs="YAHOO.widget.Menu" ilk="class" line="136" lineend="142" name="ContextMenu">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: Creates a list of options or commands which are made visible in response to&#xA;an HTML element&apos;s &quot;contextmenu&quot; event (&quot;mousedown&quot; for Opera)." ilk="function" line="136" lineend="142" name="ContextMenu" signature="ContextMenu(p_oElement, p_oConfig)">
+              <variable citdl="String" doc="String specifying the id attribute of the&#xA;&lt;code&gt;&amp;#60;select&amp;#62;&lt;/code&gt; element to be used as the data source for the&#xA;context menu." ilk="argument" name="p_oElement" />
+              <variable citdl="Object" doc="Optional. Object literal specifying the&#xA;configuration for the context menu. See configuration class documentation&#xA;for more details." ilk="argument" name="p_oConfig" />
+              <variable citdl="ContextMenu" name="this" />
+            </scope>
+            <variable attributes="private constant" citdl="Object" doc="PRIVATE CONSTANT: Constant representing the name of the ContextMenu&apos;s events" line="151" lineend="158" name="_EVENT_TYPES">
+              <variable citdl="String" line="152" name="TRIGGER_CONTEXT_MENU" />
+              <variable line="155" name="CONTEXT_MENU" />
+              <variable citdl="String" line="157" name="CLICK" />
+            </variable>
+            <variable attributes="private constant" citdl="Object" doc="PRIVATE CONSTANT: Constant representing the ContextMenu&apos;s configuration properties" line="167" lineend="171" name="_DEFAULT_CONFIG">
+              <variable citdl="Object" line="168" lineend="170" name="TRIGGER">
+                <variable citdl="String" line="169" name="key" />
+              </variable>
+            </variable>
+            <variable attributes="private" citdl="String" doc="PRIVATE: Object reference to the current value of the &quot;trigger&quot;&#xA;configuration property." line="187" name="_oTrigger" />
+            <variable attributes="private" citdl="Boolean" doc="PRIVATE: Boolean indicating if the display of the context menu should&#xA;be cancelled." line="198" name="_bCancelled" />
+          </scope>
+        </variable>
+      </variable>
+    </scope>
+  </file>
+</codeintel>

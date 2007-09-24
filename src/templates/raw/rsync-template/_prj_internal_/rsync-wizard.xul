@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<wizard id="rsync-setup-window"
+        title="RSync Configuration Wizard"
+        class="color-dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        >
+    
+<script type="application/x-javascript">
+<![CDATA[
+var data = window.arguments[0];
+
+function validatePrefs() {
+    data.username = document.getElementById("ssh-username").value;
+    data.host = document.getElementById("remote-server").value;
+    data.path = document.getElementById("remote-path").value;
+    data.syncnow = document.getElementById("syncnow").checked;
+}
+
+function fillinPrefs() {
+    document.getElementById("ssh-username").value = data.username;
+    document.getElementById("remote-server").value = data.host;
+    document.getElementById("remote-path").value = data.path;
+}
+]]>
+</script>
+    <wizardpage id="start" label="RSync: Before you begin">
+        <description>
+            This project template requires rsync and ssh binaries to be
+            available on the path and that they are properly configured.
+        </description>
+            
+        <html:ul>
+            <html:li>rsync on path</html:li>
+            <html:li>ssh on path</html:li>
+            <html:li>either ssh-agent or askpass is configured</html:li>
+        </html:ul>
+            
+        <description>
+            This project tempate does not work with Putty on Windows.
+        </description>
+            
+        <description>
+            The following steps will configure the project with information
+            necessary to synchronize remote files to your local system.
+        </description>
+
+        <description>
+            You may rerun the "oncreate" macro to reconfigure these settings if
+            necessary.
+        </description>
+    </wizardpage>
+
+    <wizardpage id="username" label="RSync: Configuration"
+                onpageadvanced="return validatePrefs();"
+                onpageshow="fillinPrefs();">
+        <grid>
+            <columns>
+                <column/>
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <label value="SSH User Name"/>
+                    <textbox id="ssh-username"/>
+                </row>
+                <row align="center">
+                    <label value="Remote Server Name"/>
+                    <textbox id="remote-server"/>
+                </row>
+                <row align="center">
+                    <label value="Remote Path"/>
+                    <textbox id="remote-path"/>
+                </row>
+            </rows>
+        </grid>
+        <checkbox id="syncnow" label="RSync Download Now" checked="true"/>
+    </wizardpage>
+    
+</wizard>

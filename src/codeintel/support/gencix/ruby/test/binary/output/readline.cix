@@ -1,0 +1,27 @@
+    <scope ilk="blob" lang="Ruby" name="readline">
+      <scope ilk="namespace" name="Readline">
+        <scope ilk="function" name="basic_quote_characters" />
+        <scope ilk="function" name="basic_quote_characters=" />
+        <scope ilk="function" name="basic_word_break_characters" />
+        <scope ilk="function" name="basic_word_break_characters=" />
+        <scope ilk="function" name="completer_quote_characters" />
+        <scope ilk="function" name="completer_quote_characters=" />
+        <scope ilk="function" name="completer_word_break_characters" />
+        <scope ilk="function" name="completer_word_break_characters=" />
+        <scope ilk="function" name="completion_append_character" />
+        <scope ilk="function" name="completion_append_character=" />
+        <scope ilk="function" name="completion_case_fold" />
+        <scope ilk="function" name="completion_case_fold=" />
+        <scope ilk="function" name="completion_proc" />
+        <scope ilk="function" name="completion_proc=" />
+        <scope ilk="function" name="emacs_editing_mode" />
+        <scope ilk="function" name="filename_quote_characters" />
+        <scope ilk="function" name="filename_quote_characters=" />
+        <scope ilk="function" name="readline" />
+        <scope ilk="function" name="vi_editing_mode" />
+        <variable name="FILENAME_COMPLETION_PROC" attributes="__const__" citdl="Object"/>
+        <variable name="HISTORY" attributes="__const__" citdl="Object"/>
+        <variable name="USERNAME_COMPLETION_PROC" attributes="__const__" citdl="Object"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+      </scope>
+    </scope>

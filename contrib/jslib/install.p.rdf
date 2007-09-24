@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{DF8E5247-8E0A-4de6-B393-0735A39DFD80}</em:id>
+    <em:version>0.1.338</em:version>
+    
+    <!-- Target Application this extension can install into, 
+        with minimum and maximum supported versions. -->
+    <!-- Komodo -->
+    <em:targetApplication>
+	    <Description>
+		    <!-- Komodo Snapdragon uuid -->
+		    <em:id>{2cb9d397-8ec9-4211-bd89-7fea34120af6}</em:id>
+		    <em:minVersion>0</em:minVersion>
+		    <em:maxVersion>1.*</em:maxVersion>
+	    </Description>
+    </em:targetApplication>
+    <em:targetApplication>
+      <Description>
+        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
+        <em:minVersion>3.5</em:minVersion>
+        <em:maxVersion>KOMODO_SHORT_VERSION</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+    <!-- Firefox -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>2.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Thunderbird -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>1.5.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Seamonkey : See bug 246891 -->
+    <!-- Will only be used for listing on update.mozilla.org -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</em:id>
+        <em:minVersion>1.7</em:minVersion>
+        <em:maxVersion>1.8</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+    <!-- Front End MetaData -->
+    <em:name>jsLib</em:name>
+    <em:description>Mozilla JavaScript Library</em:description>
+    <em:creator>Pete Collins</em:creator>
+    <em:contributor>Eric Plaster</em:contributor>
+    <em:contributor>Martin.T.Kutschker</em:contributor>
+    <em:contributor>Rajeev J Sebastian</em:contributor>
+    <em:contributor>Neil Deakin</em:contributor>
+    <em:contributor>Brian King</em:contributor>
+    <em:homepageURL>http://jslib.mozdev.org/</em:homepageURL>
+    <em:updateURL>http://jslib.mozdev.org/update.rdf</em:updateURL>
+
+    <!-- Front End Integration Hooks (used by Extension Manager)-->
+    <!-- <em:optionsURL>javascript:alert("No Options for jslib");</em:optionsURL>-->
+    <em:aboutURL>chrome://jslib/content/jslib/content/aboutDialog.xul</em:aboutURL>
+    <em:iconURL>chrome://jslib/content/icons/jslib-icon.png</em:iconURL>
+    
+    <!-- Packages, Skins and Locales that this extension registers -->
+    <em:file>
+      <Description about="urn:mozilla:extension:file:jslib.jar">
+        <em:package>/</em:package>
+      </Description>
+    </em:file>
+  </Description>
+
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{0b7965f9-a95c-4422-b6c2-c338d1cc463b}</em:id>
+    <em:version>1.0</em:version>
+    
+    <!-- Firefox -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>2.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Thunderbird -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+        <em:minVersion>1.0</em:minVersion>
+        <em:maxVersion>1.5.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <em:targetApplication>
+      <Description>
+        <em:id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</em:id>
+        <em:minVersion>1.7</em:minVersion>
+        <em:maxVersion>1.8</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+    <!-- Front End MetaData -->
+    <em:name>jsliblive</em:name>
+    <em:description>JavaScript Live Chrome Dir</em:description>
+
+    <em:file>
+      <Description about="urn:mozilla:extension:file:jsliblive">
+        <em:package>/</em:package>
+      </Description>
+    </em:file>
+  </Description>
+</RDF>

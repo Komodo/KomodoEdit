@@ -1,0 +1,128 @@
+# Lexer for HTML::Mason -- a perl-based (sort of) template language
+
+family tpl
+sublanguage Mason
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+keyword_style TPL_IDENTIFIER => TPL_WORD
+keywords [
+args attr cleanup def doc filter flags init method once perl shared text
+]
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern CS = '$NMSTART\d'   # inside cset
+pattern VARNAME = '[$NMSTART][$CS]*'
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '~!%#^*()-=+\[\]\{\}\\\|;:,<.>\/\?' # Every char
+
+# Got here typing '<%' at IN_M_DEFAULT
+# Grammar: <%word { spaces | numbers | names | strings | ops }> => perl ... </%word>
+state IN_TPL_CHOOSE_TOP_LEVEL:
+/def\b/i: paint(include, TPL_IDENTIFIER), => IN_TPL_STAG_DEF_1
+/doc\b/i: paint(include, TPL_IDENTIFIER), => IN_TPL_STAG_DOC_1
+/text\b/i: paint(include, TPL_IDENTIFIER), => IN_TPL_STAG_TEXT_1
+/[A-Za-z_][A-Za-z_]*/ : paint(include, TPL_IDENTIFIER), => IN_TPL_BEFORE_GT
+'%>' : paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+/\s*(?=\#)/ : paint(include, TPL_DEFAULT), => IN_TPL_SINGLE_LINE_COMMENT
+# Do this to simplify processing of space after <%
+' ' : paint(include, TPL_DEFAULT), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_DEFAULT  # Go to Perl mode, mason2html looks for '%>'
+
+state IN_TPL_BEFORE_GT:
+'>' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_SSL_DEFAULT
+
+#<%def ... > ... </%def> does not contain Perl code
+state IN_TPL_STAG_DEF_1:
+/[\r\n]/ : paint(upto, TPL_DEFAULT), => IN_M_DEFAULT #end prematurely
+/[$WS]/ #stay
+'>' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+/\.?$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+#<%doc ... > ... </%doc> and <%text>...</%text> are like big comments
+state IN_TPL_STAG_DOC_1:
+/[\r\n]/ : paint(upto, TPL_DEFAULT), => IN_TPL_STAG_DOC_2 #end prematurely
+/[$WS]/ #stay
+'>' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_STAG_DOC_2
+/\.?$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+state IN_TPL_STAG_DOC_2:
+/<\/%(?=doc\b>?)/i: paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), => IN_TPL_STAG_DOC_3
+
+state IN_TPL_STAG_DOC_3:
+/\w+\b/i : paint(include, TPL_IDENTIFIER), => IN_TPL_STAG_DOC_4
+/./ : paint(upto, TPL_IDENTIFIER), redo, => IN_M_DEFAULT
+
+state IN_TPL_STAG_DOC_4:
+'>': paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+/./ : redo, => IN_M_DEFAULT
+
+# Same for text (yuk, but Luddite has no variables)
+#<%text ... > ... </%doc> and <%text>...</%text> are like big comments
+state IN_TPL_STAG_TEXT_1:
+/[\r\n]/ : paint(upto, TPL_DEFAULT), => IN_TPL_STAG_TEXT_2 #end prematurely
+/[$WS]/ #stay
+'>' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_STAG_TEXT_2
+/\.?$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+state IN_TPL_STAG_TEXT_2:
+/<\/%(?=text\b>?)/i: paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), => IN_TPL_STAG_DOC_3
+
+state IN_TPL_SINGLE_LINE_COMMENT:
+'%>' : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+# Not sure what <% # ...
+#                  keyword
+# is supposed to be, but let's allow it.
+/\r?\n/ : paint(upto, TPL_COMMENT), paint(include, TPL_DEFAULT), => IN_TPL_CHOOSE_TOP_LEVEL
+
+# Things to do going from Perl back to markup:
+# </%word...
+state IN_TPL_FINISH_ETAGC_1:
+/[$CS]/: #stay
+/[ \t]/: paint(upto, TPL_IDENTIFIER), => IN_TPL_FINISH_ETAGC_2
+/[\r\n]/: paint(upto, TPL_IDENTIFIER), => IN_M_DEFAULT # early end
+'>' : paint(upto, TPL_IDENTIFIER), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+
+state IN_TPL_FINISH_ETAGC_2
+/[ \t]/: #stay
+'>' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
+/[\r\n]/: paint(upto, TPL_DEFAULT), => IN_M_DEFAULT # early end
+
+# Mason component calls are pseudo calls to Perl blocks, and look like so:
+# <&  <& /shared/masthead, color=>'salmon' &>
+
+# # this component path MUST have quotes because it contains a comma
+# <& "sugar,eggs", mix=>1 &>
+
+state IN_TPL_COMPONENT_1:
+/[$WS]/ : #stay
+/[-\/$NMSTART]/ : paint(upto, TPL_DEFAULT), => IN_TPL_COMPONENT_PATH_1
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_COMPONENT_DEFAULT
+
+state IN_TPL_COMPONENT_PATH_1:
+/[$WS]/ : paint(upto, TPL_STRING), paint(include, TPL_DEFAULT) => IN_TPL_COMPONENT_DEFAULT
+',' : paint(upto, TPL_STRING), paint(include, TPL_OPERATOR) => IN_TPL_COMPONENT_DEFAULT
+/\\./ : #stay
+/[-.\/=&%?$CS]/ : #stay
+/./ : paint(upto, TPL_STRING), redo => IN_TPL_COMPONENT_DEFAULT
+# Probably other things will need to go here
+
+state IN_TPL_COMPONENT_DEFAULT:
+'&>': paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) => IN_M_DEFAULT
+/[$WS]/ : #stay
+/$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_C_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_C_SSTRING
+/[\$%@]$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_VARIABLE)
+/[$OP]+/: paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR)
+
+state IN_TPL_C_DSTRING:
+'"' : paint(include, TPL_STRING), => IN_TPL_COMPONENT_DEFAULT
+/\\./ : #backslash-escape
+
+state IN_TPL_C_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_COMPONENT_DEFAULT
+/\\./ : #backslash-escape
+
+

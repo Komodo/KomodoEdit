@@ -1,0 +1,169 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\Data\Dumper.pm">
+    <scope ilk="blob" lang="Perl" name="Dumper">
+      <scope classrefs="Exporter" ilk="class" line="10" lineend="652" name="Data::Dumper">
+        <import line="17" module="Exporter" />
+        <import line="18" module="XSLoader" />
+        <import line="19" module="overload" />
+        <import line="21" module="Carp" symbol="*" />
+        <variable line="12" name="$VERSION" />
+        <variable line="30" name="$Indent" />
+        <variable line="31" name="$Purity" />
+        <variable line="32" name="$Pad" />
+        <variable line="33" name="$Varname" />
+        <variable line="34" name="$Useqq" />
+        <variable line="35" name="$Terse" />
+        <variable line="36" name="$Freezer" />
+        <variable line="37" name="$Toaster" />
+        <variable line="38" name="$Deepcopy" />
+        <variable line="39" name="$Quotekeys" />
+        <variable line="40" name="$Bless" />
+        <variable line="42" name="$Maxdepth" />
+        <variable line="43" name="$Pair" />
+        <variable line="44" name="$Useperl" />
+        <variable line="45" name="$Sortkeys" />
+        <variable line="46" name="$Deparse" />
+        <variable attributes="__local__" line="599" name="%esc" />
+        <scope attributes="__ctor__" ilk="function" line="54" lineend="93" name="new" signature="new($c, $v, $n)">
+          <variable ilk="argument" name="$c" />
+          <variable ilk="argument" name="$v" />
+          <variable ilk="argument" name="$n" />
+          <variable attributes="__local__" line="61" name="$s" />
+        </scope>
+        <scope ilk="function" line="98" lineend="125" name="Seen" signature="Seen($s, $g)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$g" />
+          <variable attributes="__local__" line="101" name="$id" />
+          <variable attributes="__local__" line="101" name="$k" />
+          <variable attributes="__local__" line="101" name="$v" />
+        </scope>
+        <scope ilk="function" line="130" lineend="139" name="Values" signature="Values($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="144" lineend="153" name="Names" signature="Names($s, $n)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$n" />
+        </scope>
+        <scope ilk="function" line="155" lineend="155" name="DESTROY" signature="DESTROY()" />
+        <scope ilk="function" line="157" lineend="163" name="Dump" signature="Dump()" />
+        <scope ilk="function" line="169" lineend="216" name="Dumpperl" signature="Dumpperl()">
+          <variable attributes="__local__" line="170" name="$s" />
+          <variable attributes="__local__" line="171" name="$name" />
+          <variable attributes="__local__" line="171" name="$val" />
+          <variable attributes="__local__" line="171" name="@out" />
+          <variable attributes="__local__" line="172" name="$i" />
+          <variable attributes="__local__" line="178" name="$out" />
+          <variable attributes="__local__" line="179" name="@post" />
+          <variable attributes="__local__" line="201" name="$valstr" />
+        </scope>
+        <scope ilk="function" line="224" lineend="477" name="_dump" signature="_dump($s, $val, $name)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$val" />
+          <variable ilk="argument" name="$name" />
+          <import line="382" module="B::Deparse" />
+          <variable attributes="__local__" line="226" name="$sname" />
+          <variable attributes="__local__" line="227" name="$blesspad" />
+          <variable attributes="__local__" line="227" name="$id" />
+          <variable attributes="__local__" line="227" name="$ipad" />
+          <variable attributes="__local__" line="227" name="$out" />
+          <variable attributes="__local__" line="227" name="$realpack" />
+          <variable attributes="__local__" line="227" name="$realtype" />
+          <variable attributes="__local__" line="227" name="$type" />
+          <variable attributes="__local__" line="257" name="$start" />
+          <variable attributes="__local__" line="318" name="$mname" />
+          <variable attributes="__local__" line="318" name="$pad" />
+          <variable attributes="__local__" line="318" name="$v" />
+          <variable attributes="__local__" line="319" name="$i" />
+          <variable attributes="__local__" line="337" name="$k" />
+          <variable attributes="__local__" line="337" name="$lpad" />
+          <variable attributes="__local__" line="337" name="$pair" />
+          <variable attributes="__local__" line="347" name="$key" />
+          <variable attributes="__local__" line="347" name="$keys" />
+          <variable attributes="__local__" line="347" name="$sortkeys" />
+          <variable attributes="__local__" line="364" name="$nk" />
+          <variable attributes="__local__" line="383" name="$sub" />
+          <variable attributes="__local__" line="406" name="$ref" />
+          <variable attributes="__local__" line="436" name="$gval" />
+          <variable attributes="__local__" line="441" name="$postlen" />
+        </scope>
+        <scope attributes="__exported__" ilk="function" line="482" lineend="484" name="Dumper" signature="Dumper()" />
+        <scope attributes="__exportable__" ilk="function" line="487" lineend="489" name="DumperX" signature="DumperX()" />
+        <scope ilk="function" line="491" lineend="491" name="Dumpf" signature="Dumpf()" />
+        <scope ilk="function" line="493" lineend="493" name="Dumpp" signature="Dumpp()" />
+        <scope ilk="function" line="498" lineend="502" name="Reset" signature="Reset()">
+          <variable attributes="__local__" line="499" name="$s" />
+        </scope>
+        <scope ilk="function" line="504" lineend="521" name="Indent" signature="Indent($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="523" lineend="526" name="Pair" signature="Pair($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="528" lineend="531" name="Pad" signature="Pad($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="533" lineend="536" name="Varname" signature="Varname($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="538" lineend="541" name="Purity" signature="Purity($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="543" lineend="546" name="Useqq" signature="Useqq($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="548" lineend="551" name="Terse" signature="Terse($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="553" lineend="556" name="Freezer" signature="Freezer($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="558" lineend="561" name="Toaster" signature="Toaster($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="563" lineend="566" name="Deepcopy" signature="Deepcopy($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="568" lineend="571" name="Quotekeys" signature="Quotekeys($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="573" lineend="576" name="Bless" signature="Bless($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="578" lineend="581" name="Maxdepth" signature="Maxdepth($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="583" lineend="586" name="Useperl" signature="Useperl($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="588" lineend="591" name="Sortkeys" signature="Sortkeys($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="593" lineend="596" name="Deparse" signature="Deparse($s, $v)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$v" />
+        </scope>
+        <scope ilk="function" line="610" lineend="646" name="qquote" signature="qquote($high)">
+          <variable ilk="argument" name="$high" />
+          <variable attributes="__local__" line="613" name="$bytes" />
+        </scope>
+        <scope ilk="function" line="650" lineend="650" name="_sortkeys" signature="_sortkeys()" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

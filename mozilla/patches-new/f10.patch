@@ -1,0 +1,20 @@
+Index: layout/xul/base/src/nsMenuBarListener.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/layout/xul/base/src/nsMenuBarListener.cpp,v
+retrieving revision 1.66
+diff -d -u -u -r1.66 nsMenuBarListener.cpp
+--- layout/xul/base/src/nsMenuBarListener.cpp	25 Jul 2003 08:26:11 -0000	1.66
++++ layout/xul/base/src/nsMenuBarListener.cpp	29 Jan 2004 19:18:45 -0000
+@@ -248,8 +248,10 @@
+           
+           retVal = NS_ERROR_BASE;       // I am consuming event
+         }
+-      }    
+-#if !defined(XP_MAC) && !defined(XP_MACOSX)
++      }
++/* XXX ActiveState.  Dissable f10 on all platforms so
++    we can handle it ourselves */
++#if 0 && !defined(XP_MAC) && !defined(XP_MACOSX)
+       // Also need to handle F10 specially on Non-Mac platform.
+       else if (keyCode == NS_VK_F10) {
+         PRBool alt,ctrl,shift,meta;

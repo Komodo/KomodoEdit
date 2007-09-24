@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<!DOCTYPE dialog PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<dialog id="keytest"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="cancel"
+        onload="setTimeout('onload();',100);">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+<!--
+
+    See: http://bugzilla.mozilla.org/show_bug.cgi?id=50255
+    and: http://bugzilla.mozilla.org/show_bug.cgi?id=203231
+-->
+    <script src="chrome://komodo/content/library/logging.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/trace.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/windowManager.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/timers.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/testkeys.js"
+            type="application/x-javascript;version=1.7" />
+
+    <commandset>
+        <command id="cmd_showkey"
+            oncommand="showkey(event)"/>
+    </commandset>
+    <menubar id="menubar_main"/>
+
+<grid flex="1">
+  <columns>
+    <column/>
+    <column flex="1"/>
+  </columns>
+
+  <rows>
+    <row align="center">
+        <label value="Type Here"/>
+        <textbox/>
+    </row>
+    <row align="center">
+      <label value="Key Element: "/>
+        <textbox id="keyevent"/>
+    </row>
+  </rows>
+</grid>
+
+<grid flex="1">
+  <columns>
+    <column flex="2"/>
+    <column flex="1"/>
+    <column flex="1"/>
+    <column flex="1"/>
+  </columns>
+
+  <rows>
+    <row align="center">
+      <label value="Events"/>
+      <label value="keydown"/>
+      <label value="keypress"/>
+      <label value="keyup"/>
+    </row>
+    <row align="center">
+      <label value="In KeyMap?"/>
+      <textbox id="existsDown"/>
+      <textbox id="existsPress"/>
+      <textbox id="existsUp"/>
+    </row>
+    <row align="center">
+      <label value="event2keylabel"/>
+      <textbox id="eventDown"/>
+      <textbox id="eventPress"/>
+      <textbox id="eventUp"/>
+    </row>
+    <row align="center">
+      <label value="charCode"/>
+      <textbox id="charcodeDown"/>
+      <textbox id="charcodePress"/>
+      <textbox id="charcodeUp"/>
+    </row>
+    <row align="center">
+	<label value="keyCode"/>
+	<textbox id="keycodeDown"/>
+	<textbox id="keycodePress"/>
+	<textbox id="keycodeUp"/>
+    </row>
+  </rows>
+</grid>
+<!--
+<keyset id="testset">
+        <key id="Meta+Shift+-" name="Meta+Shift+-" keycode="VK_SUBTRACT" modifiers="meta,shift" oncommand="alert('zoom out');"/>
+</keyset>
+-->
+</dialog>
+

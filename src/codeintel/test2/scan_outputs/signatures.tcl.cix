@@ -1,0 +1,46 @@
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="42" path="scan_inputs\signatures.tcl">
+    <scope ilk="blob" lang="Tcl" name="signatures">
+      <scope ilk="function" line="2" lineend="2" name="a" signature="a {}" />
+      <scope ilk="function" line="3" lineend="3" name="b" signature="b {args}">
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope ilk="function" line="4" lineend="4" name="c" signature="c {d e f}">
+        <variable ilk="argument" name="d" />
+        <variable ilk="argument" name="e" />
+        <variable ilk="argument" name="f" />
+      </scope>
+      <scope ilk="function" line="5" lineend="5" name="d" signature="d {a args}">
+        <variable ilk="argument" name="a" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope ilk="function" line="6" lineend="6" name="e" signature="e {a args b}">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="args" />
+        <variable ilk="argument" name="b" />
+      </scope>
+      <scope ilk="function" line="7" lineend="7" name="f" signature="f {a b {c {}}}">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="b" />
+        <variable ilk="argument" name="c" />
+      </scope>
+      <scope ilk="function" line="8" lineend="8" name="g" signature="g {a b {c barf}}">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="b" />
+        <variable ilk="argument" name="c" />
+      </scope>
+      <scope ilk="function" line="9" lineend="9" name="h" signature="h {a b {c barf} args}">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="b" />
+        <variable ilk="argument" name="c" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope ilk="function" line="10" lineend="10" name="i" signature="i {a b args {c barf}}">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="b" />
+        <variable ilk="argument" name="args" />
+        <variable ilk="argument" name="c" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

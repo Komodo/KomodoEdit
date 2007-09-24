@@ -1,0 +1,57 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// some useful system utilities
+[scriptable, uuid(6D9F47DE-ADC1-4a8e-8E7D-2F7B037239BF)]
+interface koISysUtils : nsISupports {
+    // Search for 'exeName' on the user's startup PATH.
+    // Returns the fullpath to the executable if found, the empty string
+    // otherwise.
+    wstring Which(in wstring exeName);
+    // Search for 'exeName' on the user's startup PATH.
+    // Returns a list of fullpaths if found, the empty string if not.
+    void WhichAll(in wstring exeName,
+        out PRUint32 count,
+        [retval, array, size_is(count)] out wstring str);
+    // do a quick search if an executable with this name exists.
+    // designed to be fast, but *may* rarely return false when
+    // Which() would find something.
+    boolean FastCheckIfHaveExecutable(in wstring exeName);
+
+    // see similarly named functions in Python's os and os.path modules
+    boolean IsFile(in wstring filename);
+    boolean IsDir(in wstring dirname);
+    void Stat(in wstring filename,
+              out PRUint32 st_mode,
+              out PRUint32 st_ino,
+              out PRUint32 st_dev,
+              out PRUint32 st_nlink,
+              out PRUint32 st_uid,
+              out PRUint32 st_gid,
+              out PRUint32 st_size,
+              out PRUint32 st_atime,
+              out PRUint32 st_mtime,
+              out PRUint32 st_ctime);
+    // e.g. Access("myfile.txt", W_OK) to see if a file is read-only
+    boolean Access(in wstring filename, in PRUint32 mode);
+    readonly attribute PRUint32 F_OK;
+    readonly attribute PRUint32 R_OK;
+    readonly attribute PRUint32 W_OK;
+    readonly attribute PRUint32 X_OK;
+
+    void Touch(in wstring filename);
+    
+    // some os finder style utility functions
+    void MoveToTrash(in wstring filename);
+    void ShowFileInFileManager(in wstring filename);
+    void OpenFile(in wstring filename);
+    
+    wstring joinargv(in PRUint32 count, [array, size_is(count)] in wstring args);
+
+    wstring diff_files(in wstring fname1, in wstring fname2);
+    string pickColor(in string startincolor);
+    long byteLength(in wstring unicodestr);
+    long charIndexFromPosition(in wstring unicodestr, in long bytePos);
+};

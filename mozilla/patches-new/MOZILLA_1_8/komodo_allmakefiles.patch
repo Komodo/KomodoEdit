@@ -1,0 +1,70 @@
+Index: config/autoconf.mk.in
+===================================================================
+RCS file: /cvsroot/mozilla/config/autoconf.mk.in,v
+retrieving revision 3.363.2.19
+diff -u -r3.363.2.19 config/autoconf.mk.in
+--- config/autoconf.mk.in	25 Jul 2006 20:11:12 -0000	3.363.2.19
++++ config/autoconf.mk.in	1 Aug 2006 23:47:54 -0000
+@@ -558,6 +558,7 @@
+ MOZ_MAPINFO	= @MOZ_MAPINFO@
+ 
+ MOZ_PHOENIX	= @MOZ_PHOENIX@
++MOZ_KOMODO	= @MOZ_KOMODO@
+ MOZ_XULRUNNER	= @MOZ_XULRUNNER@
+ MOZ_XUL_APP	= @MOZ_XUL_APP@
+ MOZ_THUNDERBIRD = @MOZ_THUNDERBIRD@
+Index: allmakefiles.sh
+===================================================================
+RCS file: /cvsroot/mozilla/allmakefiles.sh,v
+retrieving revision 1.579.2.21
+diff -u -r1.579.2.21 allmakefiles.sh
+--- allmakefiles.sh	28 Jun 2006 03:35:12 -0000	1.579.2.21
++++ allmakefiles.sh	1 Aug 2006 23:48:41 -0000
+@@ -907,6 +907,12 @@
+ extensions/metrics/test/Makefile
+ "
+ 
++MAKEFILES_komodo="
++komodo/Makefile
++komodo/app/Makefile
++komodo/app/profile/extensions/Makefile
++"
++
+ MAKEFILES_phoenix="
+ browser/Makefile
+ browser/app/Makefile
+@@ -1663,9 +1669,13 @@
+     add_makefiles "$MAKEFILES_xulapp"
+ fi
+ 
++if test -n "$MOZ_KOMODO"; then
++    add_makefiles "$MAKEFILES_komodo"
++else
+ if test -n "$MOZ_XULRUNNER"; then
+     add_makefiles "$MAKEFILES_xulrunner"
+ fi
++fi
+ 
+ if test -n "$MOZ_THUNDERBIRD"; then
+     add_makefiles "$MAKEFILES_thunderbird"
+Index: Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/Makefile.in,v
+retrieving revision 1.299.2.16
+diff -u -r1.299.2.16 Makefile.in
+--- Makefile.in	23 Jun 2006 22:48:01 -0000	1.299.2.16
++++ Makefile.in	1 Aug 2006 23:49:23 -0000
+@@ -340,9 +340,13 @@
+ tier_99_dirs	+= browser xpfe/bootstrap/init.d
+ endif
+ 
++ifdef MOZ_KOMODO
++tier_99_dirs	+= komodo
++else
+ ifdef MOZ_XULRUNNER
+ tier_99_dirs	+= xulrunner
+ endif
++endif
+ 
+ ifdef MOZ_COMPOSER
+ tier_99_dirs	+= editor/ui

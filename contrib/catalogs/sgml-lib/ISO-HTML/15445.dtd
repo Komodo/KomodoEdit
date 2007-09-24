@@ -1,0 +1,693 @@
+<!-- 15445.dtd
+     ISO/IEC 15445:2000  Hypertext Markup Language (HTML) 
+     Document Type Definition.
+
+     Copyright (C) 2000, IETF, W3C (MIT, Inria, Keio), ISO/IEC.
+               All Rights Reserved.
+
+     Permission to copy in any form is granted for use with
+     validating and conforming systems and applications as defined
+     in ISO/IEC 15445:2000, provided this copyright notice is included
+     with all copies.  
+
+     The DTD is typically invoked by one of the following declarations:
+
+     <!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HyperText Markup Language//EN">
+     <!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HTML//EN">
+
+     In order to use the HTML document type definition as a base architecture for
+     other SGML applications, the following architectural support declaration 
+     should be used:
+
+     <?IS10744 arch name="html"
+     public-id="ISO/IEC 15445:2000//DTD HyperText Markup Language//EN"
+     dtd-system-id="ftp://ftp.cs.tcd.ie/isohtml/15445.dtd"
+     renamer-att="HTMLnames"
+     doc-elem-form="HTML"
+     >
+-->
+                <!-- Part 1 - Entity set -->
+
+<!-- The Preparation parameter entity shall be set to IGNORE for HTML, 
+     and to INCLUDE for a document to be submitted to the preparation
+     process -->
+<!ENTITY % Preparation "IGNORE" >
+
+<!-- This definition generates the inverse entity 
+     NoPreparation which is internal to the DTD -->
+<![ %Preparation; [
+<!ENTITY % NoPreparation "IGNORE"    -- Inverse of Preparation = INCLUDE -->
+                   ]]>
+<!ENTITY % NoPreparation "INCLUDE"   -- Inverse of Preparation = IGNORE -->
+<!-- End of definition -->
+
+
+        <!-- Tokens defined by other standards -->
+
+<!ENTITY % Content-Type "CDATA" -- MIME content type, RFC1521 -->
+<!ENTITY % HTTP-Method "(get | post)" -- as per HTTP/1.1 RFC2068  -->
+<!ENTITY % URI "CDATA" -- Universal Resource Identifier, RFC1630 -->
+
+        <!-- Element tokens -->
+
+<!ENTITY % special "A | BDO | BR | IMG | OBJECT | 
+                    MAP | Q | SPAN" >
+
+<!-- Logical character styles -->
+<!ENTITY % logical.styles "ABBR | ACRONYM | CITE | CODE | DFN | EM |
+                           KBD | SAMP | STRONG | VAR" >
+
+<!-- Physical character styles -->
+<!ENTITY % physical.styles "B | I | SUB | SUP | TT" >
+
+        <!-- Model groups -->
+
+<!-- Block-like elements eg. paragraphs and lists -->
+<!ENTITY % block "BLOCKQUOTE | DIV | DL | FIELDSET | FORM |
+                  HR | OL | P | PRE | TABLE | UL" >
+
+<!-- Form fields - input elements that should appear only within forms -->
+<!ENTITY % form.fields "BUTTON | INPUT | LABEL | SELECT | TEXTAREA" >
+
+<!-- Character level elements and text strings -->
+<!ENTITY % text "#PCDATA | %physical.styles; | %logical.styles; | %special;
+                         | %form.fields;" >
+
+<!-- Elements that may appear in a section or table -->
+<!ENTITY % section.content "(%block; | %text; | ADDRESS)+" >
+<!ENTITY % table.content   "(%block; | %text;)*" >
+
+        <!-- Generic attributes -->
+
+<!ENTITY % core
+   "CLASS      CDATA      #IMPLIED -- Comma separated list of class values --
+    --The name space of the ID attribute is shared with the name space of
+      the NAME attribute.  Both ID and NAME attributes may be provided for
+      the <A> and <MAP> elements. When both ID and NAME values are provided
+      for an element, the values shall be identical.  It is an error for an
+      ID or NAME value to be associated with more than one element in a
+      document.
+
+      It is recommended that authors of documents specify both the ID
+      attribute and the NAME attribute for the <A> and <MAP> elements.
+    --
+    ID         ID         #IMPLIED -- Document-wide unique id --
+    TITLE      CDATA      #IMPLIED -- Advisory title or amplification --" >
+
+        <!-- Internationalization attributes -->
+
+<!ENTITY % i18n
+   "DIR        (ltr|rtl)  #IMPLIED -- Direction for weak/neutral text --
+    LANG       NAME       #IMPLIED -- RFC1766 language value --" >
+
+        <!-- Presentation styles -->
+
+<!ENTITY % shape     "(circle | default | poly | rect)" >
+<!ENTITY % InputType "(checkbox | file | hidden | password | 
+                       radio | reset | submit | text)" >
+
+<!-- SHORTREF mapping for the tab character -->
+<!-- Use of the tab character is deprecated.  However, to facilitate
+     the preparation of conforming documents by authors who use it,
+     the tab character is tolerated and is mapped into a single space. -->
+<!ENTITY   nontab  " " >
+<!SHORTREF tabmap  "&#TAB;" nontab >
+<!USEMAP   tabmap  HTML >
+
+        <!-- Specify character entity sets defined by W3C -->
+
+<!ENTITY % HTMLlat1    PUBLIC "-//W3C//ENTITIES Full Latin 1//EN//HTML" >
+<!ENTITY % HTMLsymbol  PUBLIC "-//W3C//ENTITIES Symbolic//EN//HTML" >
+<!ENTITY % HTMLspecial PUBLIC "-//W3C//ENTITIES Special//EN//HTML" >
+<!-- Reference character entities -->
+%HTMLlat1;%HTMLsymbol;%HTMLspecial;
+
+                <!-- Part 2 - Document structure -->
+
+<!-- Further normative requirements on the elements defined in this part
+     of the DTD are provided in Part 3.-->
+<!--      ELEMENTS    MIN  CONTENT  (EXCEPTIONS) -->
+<!ELEMENT HTML        - -  (HEAD, BODY) >
+<!ELEMENT HEAD        - O  (TITLE) +(LINK | META | STYLE) >
+<!ELEMENT TITLE       - -  (#PCDATA) -(LINK | META | STYLE) >
+<!ELEMENT LINK        - O  EMPTY >
+<!ELEMENT META        - O  EMPTY >
+<!ELEMENT STYLE       - -  CDATA >
+
+<!-- The following marked section is informative only -->
+<![ %Preparation; [
+<!ELEMENT Pre-HTML    - -  (HEAD, BODY) >
+<!ATTLIST Pre-HTML %i18n;  -- Internationalization DIR and LANG -->
+<!ELEMENT BODY        - O  ((%block;)*,(H1,DIV1)* ) +(DEL|INS) >
+<!ELEMENT H1          - -  (%text;)+ >
+<!ELEMENT DIV1        O O  ((%block;)*, (H2,DIV2)* ) >
+<!ELEMENT H2          - -  (%text;)+ >
+<!ELEMENT DIV2        O O  ((%block;)*, (H3,DIV3)* ) >
+<!ELEMENT H3          - -  (%text;)+ >
+<!ELEMENT DIV3        O O  ((%block;)*, (H4,DIV4)* ) >
+<!ELEMENT H4          - -  (%text;)+ >
+<!ELEMENT DIV4        O O  ((%block;)*, (H5,DIV5)* ) >
+<!ELEMENT H5          - -  (%text;)+ >
+<!ELEMENT DIV5        O O  ((%block;)*, (H6,DIV6)* ) >
+<!ELEMENT H6          - -  (%text;)+ >
+<!ELEMENT DIV6        O O  ((%block;)*) >
+                 ]]>
+<!-- The following marked section is normative -->
+<![ %NoPreparation; [
+<!ELEMENT BODY        - O  (%block;|H1|H2|H3|H4|H5|H6)+ +(DEL|INS) >
+<!ELEMENT (H1|H2|H3|H4|H5|H6) - - (%text;)+ >
+                   ]]>
+<!ELEMENT DIV         - -  %section.content; >
+<!ELEMENT ADDRESS     - -  (%text;)+ -(IMG|OBJECT|MAP) >
+<!ELEMENT P           - O  (%text;)+ >
+<!ELEMENT (OL|UL)     - -  (LI)+ >
+<!ELEMENT LI          - O  (%text; | %block;)+ >
+<!ELEMENT DL          - -  (DT|DD)+ >
+<!ELEMENT DT          - O  (%text;)+ >
+<!ELEMENT DD          - O  %section.content; -(ADDRESS) >
+<!ELEMENT PRE         - -  (%text;)+ -(IMG|MAP|OBJECT|SUB|SUP) >
+<!ELEMENT BLOCKQUOTE  - -  (%block;)+ >
+<!ELEMENT Q           - -  (%text;)+ >
+<!ELEMENT FORM        - -  (%block;)+ -(FORM) >
+
+<!-- #PCDATA required to absorb leading white space -->
+<!ELEMENT FIELDSET    - -  (#PCDATA,LEGEND,(%block; | %text; | ADDRESS)+)
+                            -(FIELDSET) >
+<!ELEMENT INPUT       - O  EMPTY >
+<!ELEMENT BUTTON      - -  (%text;)+ -(A|FIELDSET|FORM|%form.fields;) >
+<!ELEMENT LABEL       - -  (%text;)+ -(LABEL) >
+<!ELEMENT LEGEND      - -  (#PCDATA) >
+<!ELEMENT SELECT      - -  (OPTGROUP|OPTION)+ >
+<!ELEMENT OPTGROUP    - -  (OPTION)+ >
+<!ELEMENT OPTION      - O  (#PCDATA) >
+<!ELEMENT TEXTAREA    - -  (#PCDATA) >
+<!ELEMENT HR          - O  EMPTY >
+<!ELEMENT TABLE       - -  (CAPTION?, (COL*|COLGROUP*), 
+                              THEAD?, TFOOT?, TBODY+) >
+<!ELEMENT CAPTION     - -  (%text;)+ >
+<!ELEMENT (THEAD,TFOOT,TBODY) - O  (TR)+ >
+<!ELEMENT COL         - O  EMPTY >
+<!ELEMENT COLGROUP    - O  (COL)* >
+<!ELEMENT TR          - O  (TH|TD)+ >  
+<!ELEMENT (TH|TD)     - O  %table.content; >
+<!ELEMENT (%logical.styles;|%physical.styles;)
+                      - -  (%text;)+ >
+<!ELEMENT A           - -  (%text;)* -(A) >
+<!ELEMENT IMG         - O  EMPTY >
+<!ELEMENT OBJECT      - -  (PARAM | %section.content;)* >
+<!ELEMENT PARAM       - O  EMPTY >
+<!ELEMENT BR          - O  EMPTY >
+<!-- Authors should use the block-level content of the <MAP> element when
+     creating accessible documents.  Each region should be specified using
+     an <A> element to define its associated link and shape.  User agents
+     should render the block-level content of a <MAP> element. -->
+<!ELEMENT MAP         - -  ((%block;)|AREA)+ >
+<!ELEMENT AREA        - O  EMPTY >
+<!ELEMENT SPAN        - -  (%text;)+ >
+<!ELEMENT (DEL|INS)   - -  (%text;)+ >
+<!ELEMENT BDO         - -  (%text;)+ >
+
+                <!-- Part 3 - Attribute definition lists -->
+
+<!--      ELEMENTS 
+    NAME       VALUE       DEFAULT --> 
+<!ATTLIST A
+  --Case shall not be taken into account when determining a match
+    between an ID value and a NAME value, between an ID value and 
+    an HREF value or between a NAME value and an HREF value.  
+    Comparisons should be made with the values folded to upper case.
+
+    The NAME attribute value specification shall be processed as if the
+    declared value were NAME.
+
+    It is recommended that authors of HTML documents specify both ID and
+    NAME attributes.  When both attributes are specified, they shall have
+    identical values.
+
+    COORDS shall not be specified if SHAPE has the value `default'.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    CHARSET    CDATA      #IMPLIED -- Character encoding as per RFC2045 --
+    COORDS     CDATA      #IMPLIED -- Comma separated list of values --
+    HREF       %URI;      #IMPLIED -- Source anchor is URI of target --
+    HREFLANG   NAME       #IMPLIED -- Language code of resource --
+    NAME       CDATA      #IMPLIED -- Target anchor --
+    REL        CDATA      #IMPLIED -- Forward link types --
+    REV        CDATA      #IMPLIED -- Reverse link types --
+    SHAPE      %shape;        rect -- Control interpretation of coords --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order --
+    TYPE       CDATA      #IMPLIED -- Advisory content type -->
+
+<!ATTLIST ADDRESS
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST AREA     
+  --One of HREF or NOHREF shall be specified.  
+
+    COORDS shall not be specified if SHAPE has the value `default'.
+
+    Authors are very strongly recommended to provide meaningful ALT 
+    attributes to support interoperability with speech-based or text-only 
+    agents.  The language and direction of the text provided by the ALT 
+    attribute are defined by the containing elements.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    ALT        CDATA     #REQUIRED -- Description for text-only UAs --
+    COORDS     CDATA      #IMPLIED -- Comma separated list of values --
+    HREF       %URI;      #IMPLIED -- This region acts as hypertext link --
+    NOHREF     (nohref)   #IMPLIED -- This region has no action --
+    SHAPE      %shape;        rect -- Control interpretation of coords --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order -->
+
+<!ATTLIST BDO
+    %core;                         -- Element CLASS, ID and TITLE --
+    DIR        (ltr|rtl) #REQUIRED -- Direction of writing --
+    LANG       NAME       #IMPLIED -- RFC1766 language value -->
+
+<!ATTLIST BLOCKQUOTE
+  --The contents of the <BLOCKQUOTE> element shall not be surrounded with
+    quotation marks.  These may be added by the user agent through the use
+    of a style sheet.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CITE       %URI;      #IMPLIED -- URI for source document or message -->
+
+<!ATTLIST BODY
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST BR
+    %core;                         -- Element CLASS, ID and TITLE -->
+
+<!ATTLIST BUTTON
+  --The <BUTTON> element shall not contain the <A>, <BUTTON>, <FIELDSET>,
+    <FORM>, <INPUT>, <LABEL>, <SELECT> or <TEXTAREA> elements.
+
+    If the <BUTTON> element contains an <IMG> element, the <IMG> shall not
+    have an ISMAP or USEMAP attribute.
+    
+    The TYPE attribute shall be provided, and when the TYPE is
+    specified as `submit', the NAME and VALUE attributes shall be provided.
+
+    The NAME attribute is required if the TYPE attribute has the value 
+    `submit'.
+
+    If the TYPE attribute has value `reset', and the <BUTTON> is contained 
+    in a <FIELDSET>, the reset action is limited to the contents of the 
+    <FIELDSET>.
+
+    The VALUE attribute is required if the TYPE attribute has the value
+    `submit' and specifies the value to be returned if the button
+    is selected.
+
+    The <BUTTON> element should be used only in the content of a <FORM>
+    element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    NAME       CDATA      #IMPLIED -- Required for all except submit, reset -- 
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order --
+    TYPE  (submit|reset)    submit -- For use as form submit/reset button --
+    VALUE      CDATA      #IMPLIED -- Passed to server when submitted -->
+
+<!ATTLIST CAPTION
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST COL
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    SPAN       NUMBER            1 -- Number of cols spanned -->
+
+<!ATTLIST COLGROUP
+  --The SPAN attribute should only be used if the <COLGROUP> element
+    has no content.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    SPAN       NUMBER            1 -- Number of cols spanned by group -->
+
+<!ATTLIST DD
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST DEL
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CITE       %URI;      #IMPLIED -- Information on reason for change --
+    DATETIME   CDATA      #IMPLIED -- When changed, subset of ISO/IEC 8601 -->
+
+<!ATTLIST DIV
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST DL
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST DT
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST FIELDSET
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST FORM
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCEPT     CDATA      #IMPLIED -- List of MIME types for file upload --
+    ACCEPT-CHARSET CDATA  #IMPLIED -- List of supported char sets --
+    ACTION     %URI;     #REQUIRED -- Server-side form handler --
+    ENCTYPE    %Content-Type; "application/x-www-form-urlencoded"
+    METHOD     %HTTP-Method;   get -- See HTTP specification -->
+
+<!ATTLIST HEAD
+    %i18n;                         -- Internationalization DIR and LANG --
+    PROFILE    %URI;      #IMPLIED -- Named dictionary of meta info -->
+
+<!ATTLIST HR
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST HTML 
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST (H1 | H2 | H3 | H4 | H5 | H6)
+  --The <H1> element shall not be followed by an <H3>, <H4>, <H5> or
+    <H6> element without an intervening <H2> element.  
+
+    The <H2> element shall not be followed by an <H4>, <H5> or <H6>
+    element without an intervening <H3> element.
+
+    The <H3> element shall not be followed by an <H5> or <H6> element
+    without an intervening <H4> element.
+
+    The <H4> element shall not be followed by an <H6> element without an 
+    intervening <H5> element.
+
+    An <H2> element shall be preceded by an <H1> element.
+
+    An <H3> element shall be preceded by an <H2> element.
+
+    An <H4> element shall be preceded by an <H3> element.
+
+    An <H5> element shall be preceded by an <H4> element.
+
+    An <H6> element shall be preceded by an <H5> element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST IMG
+  --If the <IMG> element is contained in a <BUTTON> element, the <IMG>
+    shall not have an ISMAP or USEMAP attribute.
+
+    If the ISMAP attribute is present in an <IMG> element, that <IMG>
+    element shall be contained in an <A> element with an HREF attribute
+    present.
+
+    At most one of the attributes ISMAP and USEMAP may be provided.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ALT        CDATA     #REQUIRED -- Text for text-only user agent --
+    ISMAP      (ismap)    #IMPLIED -- Use server image map --
+    LONGDESC   %URI;      #IMPLIED -- Extended description for text UA --
+    SRC        %URI;     #REQUIRED -- URI of image to embed --
+    USEMAP     %URI;      #IMPLIED -- Use client-side image map -->
+
+<!ATTLIST INPUT
+  --If the attribute TYPE has the value `checkbox', values shall be 
+    provided for the NAME and VALUE attributes.
+  
+    If the attribute TYPE has the value `file', a value shall be 
+    provided for the NAME attribute; HTML interpreting agents should 
+    request user confirmation of any default file names that might 
+    be suggested, and fields specifying files shall not be hidden.
+
+    If the attribute TYPE has the value `hidden', values shall be 
+    provided for the NAME and VALUE attributes.
+  
+    If the attribute TYPE has the value `password', a value shall be 
+    provided for the NAME attribute.
+
+    If the attribute TYPE has the value `radio', values shall be 
+    provided for the the NAME and VALUE attributes. At all times, 
+    one and only one of the radio buttons shall be checked.  
+    Initially, if none of the <INPUT> elements in a set of radio 
+    buttons specifies CHECKED, then the user agent shall mark the 
+    first radio button of the set as checked.
+
+    If the attribute TYPE has the value `submit', and a value is 
+    specified for the VALUE attribute, then a value shall be provided 
+    for the NAME attribute.
+
+    If the attribute TYPE has the value `text', values shall be 
+    provided for the NAME and VALUE attributes.
+  
+    The MAXLENGTH and TABINDEX values shall be considered as integers 
+    with any leading zeroes ignored.
+
+    The <INPUT> element should be used only in the content of a <FORM>
+    element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCEPT     CDATA      #IMPLIED -- List of MIME types for file upload --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    CHECKED    (checked)  #IMPLIED -- For radio buttons, checkboxes --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    MAXLENGTH  NUMBER     #IMPLIED -- Max chars for text fields --
+    NAME       CDATA      #IMPLIED -- Required for all except submit, reset --
+    READONLY   (READONLY) #IMPLIED -- For text --
+    SIZE       CDATA      #IMPLIED -- Specific to each type of field --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order --
+    TYPE       %InputType;    text -- Widget --
+    VALUE      CDATA      #IMPLIED -- Required for radio, checkboxes -->
+
+<!ATTLIST INS
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CITE       %URI;      #IMPLIED -- Information on reason for change --
+    DATETIME   CDATA      #IMPLIED -- When changed, subset of ISO/IEC 8601 -->
+
+<!ATTLIST LABEL
+  --The <LABEL> element shall refer to a form field in the content of the 
+    <FORM> element which contains the <LABEL>.
+
+    The <LABEL> element should be used only in the content of a <FORM>
+    element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    FOR        IDREF      #IMPLIED -- Points to associated field -->
+
+<!ATTLIST LEGEND
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character -->
+
+<!ATTLIST LI
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST LINK
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CHARSET    CDATA      #IMPLIED -- Character encoding as per RFC2045 --
+    HREF       %URI;      #IMPLIED -- URI for link resource --
+    HREFLANG   NAME       #IMPLIED -- Language code of resource --
+    MEDIA      CDATA      #IMPLIED -- Destination media of referenced doc --
+    REL        CDATA      #IMPLIED -- Forward link types --
+    REV        CDATA      #IMPLIED -- Reverse link types --
+    TYPE       CDATA      #IMPLIED -- Advisory Internet content type -->
+
+<!ATTLIST MAP
+  --The value of the NAME attribute is case sensitive, and the attribute 
+    value specification shall be processed as if the declared value were 
+    NAME.
+
+    It is recommended that authors of HTML documents specify both ID and
+    NAME attributes.  When both attributes are specified, they shall have
+    identical values.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    NAME       CDATA     #REQUIRED -- Referenced by USEMAP in <IMG> -->
+
+<!ATTLIST META     
+    %i18n;                         -- Internationalization DIR and LANG --
+    CONTENT    CDATA     #REQUIRED -- Associated information --
+    HTTP-EQUIV NAME       #IMPLIED -- HTTP response header name --
+    NAME       NAME       #IMPLIED -- Meta-information name --
+    SCHEME     CDATA      #IMPLIED -- Nature of content -->
+
+<!ATTLIST OBJECT   
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CLASSID    %URI;      #IMPLIED -- Identifies implementation --
+    CODEBASE   %URI;      #IMPLIED -- Needed by some systems --
+    CODETYPE   CDATA      #IMPLIED -- Internet content type for code --
+    DATA       %URI;      #IMPLIED -- Reference to objects data --
+    DECLARE    (declare)  #IMPLIED -- Flag: declare but dont instantiate --
+    NAME       CDATA      #IMPLIED -- Submit as part of form --
+    STANDBY    CDATA      #IMPLIED -- Show this msg while loading --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order --
+    TYPE       CDATA      #IMPLIED -- Internet content type for data --
+    USEMAP     %URI;      #IMPLIED -- Reference to image map -->
+
+<!ATTLIST OL
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST OPTGROUP
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    LABEL      CDATA     #REQUIRED -- For use in hierarchical menus -->
+
+<!ATTLIST OPTION
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    LABEL      CDATA      #IMPLIED -- For use in hierarchical menus --
+    SELECTED   (selected) #IMPLIED -- Pre-selected option --
+    VALUE      CDATA      #IMPLIED -- Defaults to content -->
+
+<!ATTLIST P
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST PARAM
+    ID         ID         #IMPLIED -- Document-wide unique id --
+    NAME       CDATA     #REQUIRED -- Name of parameter --
+    TYPE       CDATA      #IMPLIED -- Internet Media Type --
+    VALUE      CDATA      #IMPLIED -- Value of parameter --
+    VALUETYPE  (data|ref|object)
+                              data -- Interpret value as -->
+
+<!ATTLIST PRE
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST Q
+  --The textual contents of the <Q> element shall not be surrounded with
+    quotation marks.  These may be added by the user agent through the
+    use of a style sheet.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    CITE       %URI;      #IMPLIED -- URI for source document or message -->
+
+<!ATTLIST SELECT
+  --The <SELECT> element should be used only in the content of a <FORM>
+    element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    MULTIPLE   (multiple) #IMPLIED -- Default is single selection --
+    NAME       CDATA     #REQUIRED -- Field name --
+    SIZE       NUMBER     #IMPLIED -- Rows visible --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order -->
+
+<!ATTLIST SPAN
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST STYLE
+  --The <STYLE> element contains style sheet information which shall be
+    passed to the user agent's style manager.  Any style sheet language
+    may be used.  It is a user agent error to render the style sheet 
+    information as if it were part of a document's text.
+  --
+    %i18n;                         -- Internationalization DIR and LANG --
+    MEDIA      CDATA      #IMPLIED -- Designed for use with these media --
+    TITLE      CDATA      #IMPLIED -- Advisory title --
+    TYPE       CDATA     #REQUIRED -- Internet content type for style lang. -->
+
+<!ATTLIST TABLE
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    SUMMARY    CDATA     #REQUIRED -- Purpose/structure for speech output -->
+
+<!ATTLIST TBODY
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST TD
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ABBR       CDATA      #IMPLIED -- Abbreviation for header cell --
+    AXIS       CDATA      #IMPLIED -- Names groups of related headers --
+    COLSPAN    NUMBER            1 -- Number of columns spanned by cell --
+    HEADERS    IDREFS     #IMPLIED -- List of ID's for header cells --
+    ROWSPAN    NUMBER            1 -- Number of rows spanned by cell --
+    SCOPE      (col|colgroup|row|rowgroup)
+                          #IMPLIED -- Scope covered by header cells -->
+
+<!ATTLIST TEXTAREA
+  --The <TEXTAREA> element should be used only in the content of a <FORM>
+    element.
+  --
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ACCESSKEY  CDATA      #IMPLIED -- Accessibility key character --
+    COLS       NUMBER    #REQUIRED -- Number required in av char widths --
+    DISABLED   (disabled) #IMPLIED -- Control unavailable in this context --
+    NAME       CDATA     #REQUIRED -- Name of form field --
+    READONLY   (readonly) #IMPLIED -- For text --
+    ROWS       NUMBER    #REQUIRED -- Number of rows required --
+    TABINDEX   NUMBER     #IMPLIED -- Position in tabbing order -->
+
+<!ATTLIST TFOOT
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST TH
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG --
+    ABBR       CDATA      #IMPLIED -- Abbreviation for header cell --
+    AXIS       CDATA      #IMPLIED -- Names groups of related headers --
+    COLSPAN    NUMBER            1 -- Number of columns spanned by cell --
+    HEADERS    IDREFS     #IMPLIED -- List of ID's for header cells --
+    ROWSPAN    NUMBER            1 -- Number of rows spanned by cell --
+    SCOPE      (col|colgroup|row|rowgroup)
+                          #IMPLIED -- Scope covered by header cells -->
+
+<!ATTLIST THEAD
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST TITLE
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST TR
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST UL
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+        <!-- Attribute group definition lists -->
+
+<!ATTLIST (%physical.styles;)
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!ATTLIST (%logical.styles;)
+    %core;                         -- Element CLASS, ID and TITLE --
+    %i18n;                         -- Internationalization DIR and LANG -->
+
+<!-- End of file -->

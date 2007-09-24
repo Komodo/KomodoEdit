@@ -1,0 +1,8 @@
+<%= error_messages_for :book %>
+<% my_form_for :book, @book, :url => book_url, :html => { :method => ( @book.new_record? ? "post" : "put") } do |f| %>
+	<%= f.text_field :title %>
+	<%= f.text_field :author %>
+	<%= f.text_field :isbn %>
+	<%= f.text_area :summary %>
+	<%= submit_tag "Save" %>
+<% end %>

@@ -1,0 +1,15 @@
+/* Copyright (c) 2007 ActiveState Software Inc.
+ * See the file LICENSE.txt for licensing information.
+ *
+ * Support for Komodo test cases using PyXPCOM.
+ */
+
+#include "nsISupports.idl"
+#include "nsIFile.idl"
+#include "nsIDirectoryService.idl"
+
+[scriptable, uuid(82c95ddc-9ebe-41e1-bcce-537130a056de)]
+interface koITestService: nsISupports {
+    void init();
+};
+

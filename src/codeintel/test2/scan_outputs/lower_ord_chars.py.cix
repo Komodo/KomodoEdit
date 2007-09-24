@@ -1,0 +1,38 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs\lower_ord_chars.py">
+    <scope doc="Name  Dec  Oct  Hex Literals ----------------------------" ilk="blob" lang="Python" name="lower_ord_chars">
+      <scope doc="(nul)   0 0000 0x00 &amp;#0; &amp;#0;" ilk="function" line="9" name="zero" signature="zero()" />
+      <scope doc="(soh)   1 0001 0x01 &amp;#1; &amp;#1;" ilk="function" line="11" name="one" signature="one()" />
+      <scope doc="(stx)   2 0002 0x02 &amp;#2; &amp;#2;" ilk="function" line="13" name="two" signature="two()" />
+      <scope doc="(etx)   3 0003 0x03 &amp;#3; &amp;#3;" ilk="function" line="15" name="three" signature="three()" />
+      <scope doc="(eot)   4 0004 0x04 &amp;#4; &amp;#4;" ilk="function" line="17" name="four" signature="four()" />
+      <scope doc="(enq)   5 0005 0x05 &amp;#5; &amp;#5;" ilk="function" line="19" name="five" signature="five()" />
+      <scope doc="(ack)   6 0006 0x06 &amp;#6; &amp;#6;" ilk="function" line="21" name="six" signature="six()" />
+      <scope doc="(bel)   7 0007 0x07 &amp;#7; &amp;#7; &amp;#7;" ilk="function" line="23" name="seven" signature="seven()" />
+      <scope doc="(bs)    8 0010 0x08 &amp;#8; &amp;#8;" ilk="function" line="25" name="eight" signature="eight()" />
+      <scope doc="(ht)    9 0011 0x09 &apos;   &apos; &apos;     &apos;" ilk="function" line="27" name="nine" signature="nine()" />
+      <scope doc="(nl)   10 0012 0x0a &apos; &apos; &apos; &apos;" ilk="function" line="29" name="ten" signature="ten()" />
+      <scope doc="(vt)   11 0013 0x0b" ilk="function" line="31" name="eleven" signature="eleven()" />
+      <scope doc="(np)   12 0014 0x0c" ilk="function" line="33" name="twelve" signature="twelve()" />
+      <scope doc="(cr)   13 0015 0x0d &apos; &apos; &apos; &apos;" ilk="function" line="35" name="thirteen" signature="thirteen()" />
+      <scope doc="(so)   14 0016 0x0e &amp;#14;" ilk="function" line="37" name="fourteen" signature="fourteen()" />
+      <scope doc="(si)   15 0017 0x0f &amp;#15;" ilk="function" line="39" name="fifteen" signature="fifteen()" />
+      <scope doc="(dle)  16 0020 0x10 &amp;#16;" ilk="function" line="41" name="sixteen" signature="sixteen()" />
+      <scope doc="(dc1)  17 0021 0x11 &amp;#17;" ilk="function" line="43" name="seventeen" signature="seventeen()" />
+      <scope doc="(dc2)  18 0022 0x12 &amp;#18;" ilk="function" line="45" name="eighteen" signature="eighteen()" />
+      <scope doc="(dc3)  19 0023 0x13 &amp;#19;" ilk="function" line="47" name="nineteen" signature="nineteen()" />
+      <scope doc="(dc4)  20 0024 0x14 &amp;#20;" ilk="function" line="49" name="twenty" signature="twenty()" />
+      <scope doc="(nak)  21 0025 0x15 &amp;#21;" ilk="function" line="51" name="twenty_one" signature="twenty_one()" />
+      <scope doc="(syn)  22 0026 0x16 &amp;#22;" ilk="function" line="53" name="twenty_two" signature="twenty_two()" />
+      <scope doc="(etb)  23 0027 0x17 &amp;#23;" ilk="function" line="55" name="twenty_three" signature="twenty_three()" />
+      <scope doc="(can)  24 0030 0x18 &amp;#24;" ilk="function" line="57" name="twenty_four" signature="twenty_four()" />
+      <scope doc="(em)   25 0031 0x19 &amp;#25;" ilk="function" line="59" name="twenty_five" signature="twenty_five()" />
+      <scope doc="(sub)  26 0032 0x1a &amp;#26;" ilk="function" line="61" name="twenty_six" signature="twenty_six()" />
+      <scope doc="(esc)  27 0033 0x1b &amp;#27;" ilk="function" line="63" name="twenty_seven" signature="twenty_seven()" />
+      <scope doc="(fs)   28 0034 0x1c &amp;#28;" ilk="function" line="65" name="twenty_eight" signature="twenty_eight()" />
+      <scope doc="(gs)   29 0035 0x1d &amp;#29;" ilk="function" line="67" name="twenty_nine" signature="twenty_nine()" />
+      <scope doc="(rs)   30 0036 0x1e &amp;#30;" ilk="function" line="69" name="thirty" signature="thirty()" />
+      <scope doc="(us)   31 0037 0x1f &amp;#31;" ilk="function" line="71" name="thirty_one" signature="thirty_one()" />
+    </scope>
+  </file>
+</codeintel>

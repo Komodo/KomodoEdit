@@ -1,0 +1,1136 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- Language list menupopup -->
+    <binding id="lang-list">
+        <content>
+            <xul:menulist oncommand="this.parentNode.changedSelection(event);"
+                          xbl:inherits="class, selected, flex, disabled">
+                <xul:menupopup />
+            </xul:menulist>
+        </content>
+        <implementation>
+            <constructor>
+                <![CDATA[
+                    this.getHierarchy(); // fill in the menupopup
+                ]]>
+            </constructor>
+            <destructor>
+                <![CDATA[
+
+                ]]>
+            </destructor>
+            <method name="getHierarchy">
+                <body>
+                    <![CDATA[
+                        var langService = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                                    getService(Components.interfaces.koILanguageRegistryService);
+                        var langHierarchy = langService.getLanguageHierarchy();
+                        var popup = document.getAnonymousNodes(this)[0].firstChild;
+                        var items = this.buildMenuTree(langHierarchy, true);
+                        for (var i=0;i<items.length;i++)  {
+                            popup.appendChild(items[i]);
+                        }
+                    ]]>
+                </body>
+            </method>
+            <method name="buildMenuTree">
+                <parameter name="hierarchy"/>
+                <parameter name="toplevel"/>
+                <body>
+                    <![CDATA[
+                        var menu;
+                        var menupopup;
+                        var menuitems = new Array();
+                        var menuitem;
+                        var children = new Object();
+                        var count = new Object();
+                        var i, j;
+                        const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+                        if (hierarchy.container == true)  {
+                            // build menu
+                            hierarchy.getChildren(children, count);
+                            children = children.value;
+
+                            for (i=0;i<children.length;i++)  {
+                                menuitems.push(this.buildMenuTree(children[i], false));
+                            }
+                            if (!toplevel)  {
+                                menu = document.createElementNS(XUL_NS, 'menu');
+                                menupopup = document.createElementNS(XUL_NS, 'menupopup');
+                                menupopup.setAttribute('class','menulist-menupopup');
+                                menu.setAttribute('label', hierarchy.name);
+                                menu.setAttribute('class', 'menulist-subLevel');
+                                for (j=0;j<menuitems.length;j++)  {
+                                    menupopup.appendChild(menuitems[j]);
+                                }
+                                menu.appendChild(menupopup);
+                                return menu;
+                            }
+                            return menuitems;
+                        }
+                        else  {
+                            menuitem = document.createElementNS(XUL_NS, 'menuitem');
+                            menuitem.setAttribute('label', hierarchy.name);
+                            return menuitem;
+                        }
+                    ]]>
+                </body>
+            </method>
+            <method name="changedSelection">
+                <parameter name="event"/>
+                <body>
+                    <![CDATA[
+                        var list = document.getAnonymousNodes(this)[0];
+                        list.parentNode.setAttribute('data', this.selection);
+                        list.selectedItem = event.originalTarget;
+                    ]]>
+                </body>
+            </method>
+            <property name="selection">
+                <setter>
+                    <![CDATA[
+                        var list = document.getAnonymousNodes(this)[0];
+                        var item = document.getAnonymousElementByAttribute(list, 'label', val);
+                        list.selectedItem = item;
+                    ]]>
+                </setter>
+                <getter>
+                    <![CDATA[
+                        var list = document.getAnonymousNodes(this)[0];
+                        return list.selectedItem.getAttribute('label');
+                    ]]>
+                </getter>
+            </property>
+        </implementation>
+    </binding>
+
+    <!-- XSLT URLBar styling -->
+    <binding id="double-box">
+        <content>
+            <xul:box class="db-internal-box" flex="1">
+                <children/>
+            </xul:box>
+        </content>
+    </binding>
+
+    <binding id="kotooltip" extends="chrome://global/content/bindings/popup.xml#popup">
+        <content>
+        <children>
+            <xul:description multiline="true" class="tooltip-label" xbl:inherits="value=label,crop" crop="right" flex="1"/>
+        </children>
+        </content>
+    </binding>
+
+    <binding id="toolbar-overflow" extends="chrome://global/content/bindings/toolbar.xml#toolbar">
+        <content>
+            <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden"
+                               tbattr="toolbar-grippy"
+                               class="toolbar-grippy"/>
+            <xul:hbox class="toolbar-prefix"
+                      xbl:inherits="onclick=prefixonclick,tooltiptext=prefixtooltip,hidden=prefixhidden,prefixopen"/>
+            <xul:scrollbox flex="1" class="toolbar-holder" align="center"
+                      xbl:inherits="collapsed,last-toolbar,orient=tborient,align=tbalign,pack=tbpack,onunderflow,onoverflow,onunderflowchanged">
+                <children/>
+            </xul:scrollbox>
+        </content>
+    </binding>
+
+    <!-- A slightly customized <tree/> for use by the Code Browser.
+
+         The whole purpose of this new widget is to prevent <Enter> and
+         double-click on container rows in the tree from toggling the open
+         state of that row. Here is a list of desired/attempts describing
+         how this was accomplished:
+
+         1. Ideally this would just be an option on a tree widget:
+                <tree togglerowoninvoke="false" .../>
+            but Mozilla's tree.xml does not have such a feature and we don't
+            want to do a Mozilla patch.
+
+         2. We hoped we would be able to capture the <Enter> and double-click
+            events before they got the <tree/> binding and cancel them.
+
+            We are only able to get the double-click event before the <tree/>
+            by handling it in the capturing phase. Therefore, using a XBL
+            binding was required because <tree ondblclick="..."/> is for the
+            later bubbling phase. We *are* able to cancel this event.
+
+            We *are* able to get the <Enter> event before the <tree/> does
+            using the bubbling phase (i.e. either with
+            <tree onkeypress="..."/> or with a <handler/> in this XBL.
+            However, we are *not* able to cancel the event (whether we work
+            on the capturing or bubbling phases). Therefore a HACK was
+            required: tell our nsITreeView implementation to ignore the
+            coming .toggleOpenState() call via the special
+            .ignoreNextToggleOpenState().
+      -->
+    <binding id="cbtree" extends="chrome://global/content/bindings/tree.xml#tree">
+        <handlers>
+            <handler event="click" clickcount="2" phase="capturing">
+                <![CDATA[
+                    // Both 'event.cancelBubble = true;' and
+                    // 'event.stopPropagation();' work to cancel the event.
+                    // Seeing as the later is actually documented for the
+                    // Event object, we'll use that one. Note that this
+                    // doesn't cancel the
+                    //  <tree ondblclick="..."/>
+                    // that we use for other purposes. That is a good thing.
+                    event.stopPropagation();
+                ]]>
+            </handler>
+            <handler event="keypress" keycode="vk_enter">
+                <![CDATA[
+                    var currentIndex = this.view.selection.currentIndex;
+                    if (currentIndex != -1 && this.view.isContainer(currentIndex)) {
+                        this.view.ignoreNextToggleOpenState();
+                    }
+                ]]>
+            </handler>
+            <handler event="keypress" keycode="vk_return">
+                <![CDATA[
+                    var currentIndex = this.view.selection.currentIndex;
+                    if (currentIndex != -1 && this.view.isContainer(currentIndex)) {
+                        this.view.ignoreNextToggleOpenState();
+                    }
+                ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+    <!-- TODO: add a "check path validity" icon -->
+
+    <binding id="listbox-patheditor"
+             extends="xul:vbox">
+        <content type="directory" orient="vertical">
+            <xul:hbox style="margin-right: 5px">
+                <xul:spring flex="1"/>
+                <xul:button class="list-item-add-icon button-toolbar-a"
+                            anonid="addDir"
+                            oncommand="this.parentNode.parentNode.add()"
+                            tooltiptext="&add.tooltiptext;"/>
+                <xul:button class="list-item-remove-icon button-toolbar-a"
+                            anonid="deleteDir"
+                            oncommand="this.parentNode.parentNode.delete()"
+                            tooltiptext="&delete.tooltiptext;"/>
+                <xul:button class="list-item-up-icon button-toolbar-a"
+                            anonid="moveUpDir"
+                            oncommand="this.parentNode.parentNode.moveUp()"
+                            tooltiptext="&moveUp.tooltiptext;"/>
+                <xul:button class="list-item-down-icon button-toolbar-a"
+                            anonid="moveDownDir"
+                            oncommand="this.parentNode.parentNode.moveDown()"
+                            tooltiptext="&moveDown.tooltiptext;"/>
+            </xul:hbox>
+            <xul:listbox
+                flex="1"
+                style="min-height: 80px"
+                seltype="multiple"
+                rows="4"
+                type="editable"
+                onclick="this.parentNode.updateButtons()"
+                xbl:inherits="flex,seltype,rows,style">
+                <children/>
+            </xul:listbox>
+        </content>
+        <handlers>
+            <handler event="keypress">
+                <![CDATA[
+                    this.updateButtons();
+                ]]>
+            </handler>
+        </handlers>
+        <implementation>
+            <property name="value"
+                      onset="this.setData(val);"
+                      onget="return this.getData();"/>
+
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="init">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    var listbox = document.getAnonymousNodes(this)[1];
+                    var rowcount = listbox.getRowCount();
+                    if (rowcount) {
+                        for (var i = 0; i < rowcount; i++) {
+                            var item = listbox.getItemAtIndex(i);
+                            item.setAttribute('type', 'editable');
+                        }
+                        listbox.selectAll();
+                    }
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="setCwd">
+                <parameter name="cwd"/>
+                <body>
+                    <![CDATA[
+                        this.cwd = cwd;
+                    ]]>
+                </body>
+            </method>
+
+            <method name="setData">
+                <parameter name="encpathlist"/>
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                        var paths = encpathlist.split(os.pathsep);
+                        var listitem;
+                        while (listbox.firstChild) {
+                            listbox.removeChild(listbox.firstChild);
+                        }
+                        for (var i = 0; i < paths.length; i++) {
+                            listitem = document.createElement('listitem');
+                            listitem.setAttribute('type', 'editable');
+                            listitem.setAttribute('crop', 'center');
+                            listitem.setAttribute('label', paths[i]);
+                            listbox.appendChild(listitem);
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="deleteEmptyEntries">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var listitem = listbox.lastChild;
+                        var prev;
+                        while (listitem) {
+                            prev = listitem.previousSibling;
+                            if (!listitem.getAttribute('label')) {
+                                listbox.removeChild(listitem);
+                            }
+                            listitem = prev;
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="getData">
+                <body>
+                    <![CDATA[
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                        var paths = []
+                        for (var i = 0; i < listbox.getRowCount(); i++) {
+                            paths.push(listbox.getItemAtIndex(i).getAttribute('label'));
+                        }
+                        return paths.join(os.pathsep);
+                    ]]>
+                </body>
+            </method>
+
+            <method name="updateButtons">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var deleteDir = this.getElement('button', 'deleteDir');
+                        var moveUpDir = this.getElement('button', 'moveUpDir');
+                        var moveDownDir = this.getElement('button', 'moveDownDir');
+                        if (listbox.selectedCount > 0) {
+                            deleteDir.removeAttribute('disabled');
+                        } else {
+                            deleteDir.setAttribute('disabled', 'true');
+                        }
+                        if (listbox.selectedCount == 1 && listbox.selectedIndex != listbox.getRowCount()-1) {
+                            moveDownDir.removeAttribute('disabled');
+                        } else {
+                            moveDownDir.setAttribute('disabled', 'true');
+                        }
+                        if (listbox.selectedCount == 1 && listbox.selectedIndex != 0) {
+                            moveUpDir.removeAttribute('disabled');
+                        } else {
+                            moveUpDir.setAttribute('disabled', 'true');
+                        }
+                        if (this.getAttribute('oncommand')) {
+                            eval(this.getAttribute('oncommand'));
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="add">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var selectedItems = listbox.selectedItems;
+                        var defaultDir = "";
+                        if (selectedItems.length > 0) {
+                            defaultDir = selectedItems[0].getAttribute('label');
+                        } else {
+                            defaultDir = '.';
+                        }
+                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                        defaultDir = os.path.expanduser(defaultDir);
+                        if (! os.path.isabs(defaultDir)) {
+                            // Need to join with curdir
+                            if (this.cwd) {
+                                defaultDir = os.path.join(this.cwd,
+                                                          defaultDir);
+                            } else {
+                                defaultDir = '';
+                            }
+                        }
+                        defaultDir = os.path.normpath(defaultDir);
+                        var path = null;
+                        if (this.getAttribute('type') == 'directory') {
+                            path = ko.filepicker.getFolder(defaultDir,
+                                    "Select a folder to add to the list");
+                        } else {
+                            path = ko.filepicker.openFiles(defaultDir, null,
+                                    "Select a folder to add to the list");
+                        }
+                        if (!path) return;
+                        this.deleteEmptyEntries();
+                        var listitem = document.createElement('listitem');
+                        listitem.setAttribute('type', 'editable');
+                        listitem.setAttribute('label', path);
+                        listbox.appendChild(listitem);
+                        // need to ensure element is visible otherwise
+                        // new listitem doesn't show as selected when
+                        // selected.
+                        listbox.ensureElementIsVisible(listitem);
+                        listbox.selectItem(listitem);
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="delete">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var selectedItems = listbox.selectedItems;
+                        for (var i = selectedItems.length-1; i >= 0; i--) {
+                            listbox.removeChild(selectedItems[i]);
+                        }
+                        if (listbox.getRowCount() > 0) {
+                            listbox.selectItem(listbox.getItemAtIndex(0));
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="moveUp">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var curItem = listbox.selectedItem;
+                        curItem.parentNode.insertBefore(curItem,
+                                                        curItem.previousSibling);
+                        listbox.selectItem(curItem);
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="moveDown">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[1];
+                        var curItem = listbox.selectedItem;
+                        if (curItem.nextSibling && curItem.nextSibling.nextSibling) {
+                            curItem.parentNode.insertBefore(curItem,
+                                                            curItem.nextSibling.nextSibling);
+                        } else {
+                            listbox.appendChild(curItem);
+                        }
+                        listbox.selectItem(curItem);
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("anonid") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+    </binding>
+
+    <binding id="listbox-checklist"
+             extends="xul:vbox">
+        <content>
+            <xul:vbox flex="1">
+                <xul:hbox style="margin-right: 5px">
+                    <xul:spring flex="1"/>
+                    <xul:button class="list-item-add-icon button-toolbar-a"
+                                id="addItem"
+                                oncommand="this.parentNode.parentNode.parentNode.addItem()"
+                                tooltiptext="&addEntry.tooltiptext;"/>
+                    <xul:button class="list-item-remove-icon button-toolbar-a"
+                                id="deleteItem"
+                                oncommand="this.parentNode.parentNode.parentNode.deleteItems()"
+                                tooltiptext="&deleteEntries.tooltiptext;"/>
+                </xul:hbox>
+                <xul:listbox
+                    flex="1"
+                    style="min-height: 80px"
+                    seltype="multiple"
+                    rows="4"
+                    pref="true"
+                    type="editable"
+                    onclick="this.parentNode.parentNode.updateButtons()"
+                    xbl:inherits="prefstring,flex,seltype,rows,style"/>
+            </xul:vbox>
+        </content>
+        <handlers>
+            <handler event="keypress">
+                <![CDATA[
+                    this.updateButtons();
+                ]]>
+            </handler>
+        </handlers>
+        <implementation>
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <property name="value"
+                      onset="this.setData(val);"
+                      onget="return this.getData();"/>
+
+            <method name="init">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                    var rowcount = listbox.getRowCount();
+                    if (rowcount) {
+                        for (var i = 0; i < rowcount; i++) {
+                            var item = listbox.getItemAtIndex(i);
+                            item.setAttribute('type', 'checkbox');
+                        }
+                        listbox.selectAll();
+                    }
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="saveprefs">
+                <parameter name="prefwindow"/>
+                <body> <![CDATA[
+                    //dump("closing "+this.prefstring+"\n");
+                    // should be nothing to do
+                ]]> </body>
+            </method>
+
+            <method name="setData">
+                <parameter name="listitems"/>
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var listitem;
+                        var items = listitems.split(':');
+                        var item;
+                        for (var i = 0; i < items.length; i++) {
+                            if (!items[i]) continue;
+                            item = items[i].split(',');
+                            listitem = document.createElement('listitem');
+                            listitem.setAttribute('type', 'checkbox');
+                            listitem.setAttribute('label', item[1]);
+                            listitem.setAttribute('checked', item[0]);
+                            listbox.appendChild(listitem);
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="getData">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var items = [];
+                        var item;
+                        for (var i = 0; i < listbox.getRowCount(); i++) {
+                            item = listbox.getItemAtIndex(i);
+                            items.push(item.getAttribute('checked')+','+
+                                       item.getAttribute('label'));
+                        }
+                        return items.join(':');
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="updateButtons">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var deleteItem = this.getElement('button', 'deleteItem');
+                        if (listbox.selectedCount > 0) {
+                            deleteItem.removeAttribute('disabled');
+                        } else {
+                            deleteItem.setAttribute('disabled', 'true');
+                        }
+                        if (this.getAttribute('oncommand')) {
+                            eval(this.getAttribute('oncommand'));
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="addItem">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var item = ko.dialogs.prompt("Module Name");
+                        if (!item) return;
+                        var listitem = document.createElement('listitem');
+                        listitem.setAttribute('type', 'checkbox');
+                        listitem.setAttribute('checked', 'true');
+                        listitem.setAttribute('label', item);
+                        listbox.appendChild(listitem);
+                        // need to ensure element is visible otherwise
+                        // new listitem doesn't show as selected when
+                        // selected.
+                        listbox.ensureElementIsVisible(listitem);
+                        listbox.selectItem(listitem);
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="deleteItems">
+                <body>
+                    <![CDATA[
+                    try {
+                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var selectedItems = listbox.selectedItems;
+                        for (var i = selectedItems.length-1; i >= 0; i--) {
+                            listbox.removeChild(selectedItems[i]);
+                        }
+                        if (listbox.getRowCount() > 0) {
+                            listbox.selectItem(listbox.getItemAtIndex(0));
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("id") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+    </binding>
+
+
+    <binding id="tree-mappededitor" extends="xul:vbox">
+        <content orient="vertical" flex="1">
+            <xul:hbox style="margin-right: 5px">
+                <xul:spring flex="1"/>
+                <xul:button class="list-item-add-icon button-toolbar-a"
+                            anonid="addDir"
+                            oncommand="this.parentNode.parentNode.add()"
+                            tooltiptext="&add.tooltiptext;"/>
+                <xul:button class="list-item-remove-icon button-toolbar-a"
+                            anonid="deleteDir"
+                            oncommand="this.parentNode.parentNode.delete()"
+                            tooltiptext="&delete.tooltiptext;"/>
+                <xul:button class="list-item-up-icon button-toolbar-a"
+                            anonid="moveUpDir"
+                            oncommand="this.parentNode.parentNode.moveUp()"
+                            tooltiptext="&moveUp.tooltiptext;"/>
+                <xul:button class="list-item-down-icon button-toolbar-a"
+                            anonid="moveDownDir"
+                            oncommand="this.parentNode.parentNode.moveDown()"
+                            tooltiptext="&moveDown.tooltiptext;"/>
+            </xul:hbox>
+            <xul:tree anonid="mapping" flex="1"
+                      onselect="this.parentNode.updateButtons();"
+                      ondblclick="this.parentNode.edit();">
+                <xul:treecols>
+                    <xul:treecol id="name" label="&URI.label;" flex="1"/>
+                    <xul:splitter class="tree-splitter"/>
+                    <xul:treecol id="value" label="&localPath.label;" flex="1"/>
+                </xul:treecols>
+                <xul:treechildren flex="1" alternatingbackground="true" style="min-height: 100px">
+                    <children/>
+                </xul:treechildren>
+            </xul:tree>
+        </content>
+        
+        <handlers>
+            <handler event="keypress">
+                <![CDATA[
+                    this.updateButtons();
+                ]]>
+            </handler>
+        </handlers>
+        <implementation>
+            <property name="value"
+                      onset="this.setData(val);"
+                      onget="return this.getData();"/>
+
+            <property name="tree"
+                      onget="return document.getAnonymousNodes(this)[1];"/>
+            <property name="treeView"
+                      onget="return this.tree.view;"/>
+            <property name="treeChildren"
+                      onget="return this.tree.lastChild;"/>
+
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="init">
+                <parameter name="prefwindow"/>
+                <body>
+                <![CDATA[
+                try {
+                    this.updateButtons();
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="setCwd">
+                <parameter name="cwd"/>
+                <body>
+                    <![CDATA[
+                        this.cwd = cwd;
+                    ]]>
+                </body>
+            </method>
+
+            <method name="getCellText">
+                <parameter name="row"/>
+                <parameter name="col"/>
+                <body>
+                    <![CDATA[
+                        if (row >=0 && row < this.treeView.rowCount) {
+                            var item = this.treeChildren.childNodes[row].firstChild;
+                            return item.childNodes[col].getAttribute('label');
+                        }
+                        return null;
+                    ]]>
+                </body>
+            </method>
+
+            <method name="setCellText">
+                <parameter name="row"/>
+                <parameter name="col"/>
+                <parameter name="text"/>
+                <body>
+                    <![CDATA[
+                        if (row >=0 && row < this.treeView.rowCount) {
+                            var item = this.treeChildren.childNodes[row].firstChild;
+                            item.childNodes[col].setAttribute('label', text);
+                        }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="setData">
+                <parameter name="encpathlist"/>
+                <body>
+                    <![CDATA[
+                    try {
+                        // empty the tree
+                        while (this.treeChildren.firstChild) {
+                            this.treeChildren.removeChild(this.treeChildren.firstChild);
+                        }
+
+                        if (!encpathlist) return;
+                        var paths = encpathlist.split('::');
+                        for (var i = 0; i < paths.length; i++) {
+                            var data = paths[i].split('##');
+                            if (data.length == 2)
+                                this.addRow(data[0],data[1]);
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="getData">
+                <body>
+                    <![CDATA[
+                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                        var paths = []
+                        for (var i = 0; i < this.treeView.rowCount; i++) {
+                            var uri = this.getCellText(i, 0);
+                            var path = this.getCellText(i, 1);
+                            paths.push(uri + '##' + path);
+                        }
+                        return paths.join('::');
+                    ]]>
+                </body>
+            </method>
+
+            <property name="prefstring"
+                      onget="return this.getAttribute('prefstring');"/>
+            <property name="value"
+                      onset="this.setData(val);"
+                      onget="return this.getData();"/>
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body> <![CDATA[
+                    //dump("loading "+this.prefstring+"\n");
+                ]]> </body>
+            </method>
+            <method name="saveprefs">
+                <parameter name="prefwindow"/>
+                <body> <![CDATA[
+                    //dump("closing "+this.prefstring+"\n");
+                    // should be nothing to do
+                ]]> </body>
+            </method>
+
+            <method name="updateButtons">
+                <body>
+                    <![CDATA[
+                    try {
+                        var deleteDir = this.getElement('button', 'deleteDir');
+                        var moveUpDir = this.getElement('button', 'moveUpDir');
+                        var moveDownDir = this.getElement('button', 'moveDownDir');
+                        var selCount = this.treeView.selection.count;
+                        var index = this.treeView.selection.currentIndex;
+                        var selItem = null;
+                        if (this.treeView.rowCount < 0) {
+                            index = -1;
+                            selCount = -1;
+                        } else if (index < 0 || index >= this.treeView.rowCount) {
+                            index = 0;
+                        }
+                        if (index >= 0) {
+                            selItem = this.treeChildren.childNodes[index];
+                        }
+                        
+                        if (selCount > 0) {
+                            deleteDir.removeAttribute('disabled');
+                        } else {
+                            deleteDir.setAttribute('disabled', 'true');
+                        }
+                        if (selCount == 1 && selItem.nextSibling) {
+                            moveDownDir.removeAttribute('disabled');
+                        } else {
+                            moveDownDir.setAttribute('disabled', 'true');
+                        }
+                        if (selCount == 1 && selItem.previousSibling) {
+                            moveUpDir.removeAttribute('disabled');
+                        } else {
+                            moveUpDir.setAttribute('disabled', 'true');
+                        }
+                        if (this.getAttribute('oncommand')) {
+                            eval(this.getAttribute('oncommand'));
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="addRow">
+                <parameter name="uri"/>
+                <parameter name="localpath"/>
+                <body>
+                    <![CDATA[
+                        var item = document.createElement('treeitem');
+                        var row = document.createElement('treerow');
+                        var uriCell = document.createElement('treecell');
+                        var pathCell = document.createElement('treecell');
+                        uriCell.setAttribute('crop', 'center');
+                        uriCell.setAttribute('label', uri);
+                        row.appendChild(uriCell);
+                        pathCell.setAttribute('crop', 'center');
+                        pathCell.setAttribute('label', localpath);
+                        row.appendChild(pathCell);
+                        item.appendChild(row);
+                        this.treeChildren.appendChild(item);
+                        return item;
+                    ]]>
+                </body>
+            </method>
+
+            <method name="add">
+                <body>
+                    <![CDATA[
+                    try {
+                        var defaultDir = this.getCellText(this.treeView.selection.currentIndex, 1);
+                        if (defaultDir) {
+                            var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                            defaultDir = os.path.expanduser(defaultDir);
+                            if (! os.path.isabs(defaultDir)) {
+                                // Need to join with curdir
+                                if (this.cwd) {
+                                    defaultDir = os.path.join(this.cwd,
+                                                              defaultDir);
+                                } else {
+                                    defaultDir = '';
+                                }
+                            }
+                            defaultDir = os.path.normpath(defaultDir);
+                        }
+                        var info = {
+                            uri: null,
+                            path: defaultDir
+                        };
+                        window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
+                        if (!info.uri || !info.path) return;
+                        var item = this.addRow(info.uri,info.path);
+                        // need to ensure element is visible otherwise
+                        // new listitem doesn't show as selected when
+                        // selected.
+                        this.tree.treeBoxObject.ensureRowIsVisible(this.treeView.rowCount-1);
+                        this.treeView.selection.select(this.treeView.rowCount-1);
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="edit">
+                <body>
+                    <![CDATA[
+                    try {
+                        var info = {
+                            uri: this.getCellText(this.treeView.selection.currentIndex, 0),
+                            path: this.getCellText(this.treeView.selection.currentIndex, 1)
+                        };
+                        window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
+                        if (!info.uri || !info.path) return;
+                        this.setCellText(this.treeView.selection.currentIndex, 0, info.uri);
+                        this.setCellText(this.treeView.selection.currentIndex, 1, info.path);
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="delete">
+                <body>
+                    <![CDATA[
+                    try {
+                        for (var i = this.treeView.rowCount; i >= 0; i--) {
+                            if (this.treeView.selection.isSelected(i)) {
+                                this.treeChildren.removeChild(this.treeChildren.childNodes[i]);
+                            }
+                        }
+                        if (this.treeView.rowCount > 0) {
+                            this.tree.treeBoxObject.ensureRowIsVisible(0);
+                            this.treeView.selection.select(0);
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="moveUp">
+                <body>
+                    <![CDATA[
+                    try {
+                        var si = this.treeView.selection.currentIndex;
+                        var curItem = this.treeChildren.childNodes[si];
+                        if (curItem.previousSibling) {
+                            curItem.parentNode.insertBefore(curItem,
+                                                        curItem.previousSibling);
+                            this.treeView.selection.select(si-1);
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="moveDown">
+                <body>
+                    <![CDATA[
+                    try {
+                        var si = this.treeView.selection.currentIndex;
+                        var curItem = this.treeChildren.childNodes[si];
+                        if (curItem.nextSibling && curItem.nextSibling.nextSibling) {
+                            curItem.parentNode.insertBefore(curItem,
+                                                        curItem.nextSibling.nextSibling);
+                            this.treeView.selection.select(si+1);
+                        } else {
+                            curItem.parentNode.appendChild(curItem);
+                            this.treeView.selection.select(this.treeView.rowCount-1);
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("anonid") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+
+    </binding>
+</bindings>
+
+
+

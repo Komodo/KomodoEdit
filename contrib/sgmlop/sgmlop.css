@@ -1,0 +1,95 @@
+/* style sheet for the 2001 edition of www.pythonware.com */
+
+BODY {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    color: #000000; background: #ffffff;
+    /* background-image: url(images/snow2.gif) */
+}
+
+.normal {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+}
+
+H1, H2, H3 {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    color: #044484; font-weight: bold; font-style: italic;
+}
+
+.title {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    font-size: 18pt; font-style: normal; font-weight: normal;
+    background: #044484; color: white;
+}
+
+.footer {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    background: #044484; color: white;
+}
+
+.titlebox {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    font-size: 18pt; font-style: normal; font-weight: normal;
+    background: #044484; color: white;
+    padding: 5px;
+}
+
+IMG.title { border: 1px; margin: 5px; padding: 5px; }
+
+.browser {
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-size: 8pt; border-bottom: 1px solid #add8e6;
+}
+
+.news {
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+}
+
+.newsdate {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+    font-weight: bold; color: #044484;
+}
+
+.newsitem {
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+}
+
+.search {
+   font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+   background: #c0c0c0; padding: 2px;
+}
+
+.pad {
+   font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+   padding: 20px;
+}
+
+.news {
+   font-family: "Trebuchet MS", Helvetica, Arial, sans-serif;
+   padding: 5px;
+}
+
+PRE { margin-left: 20px; color: #044484; }
+
+HR { height: 2px; color: #044484; }
+
+A:link { color: #044484; }
+A:active { color: #044484; }
+A:visited { color: #444444; }
+
+/* make sure title anchors stay the same */
+H1 A:visited { color: #044484; }
+H2 A:visited { color: #044484; }
+H3 A:visited { color: #044484; }
+
+/* assorted style classes */
+.timestamp { color: #044484; }
+.bluebox { background: #add8e6; } /* light blue */
+.compact { margin: 0; }
+.mark { color: #044484; }
+.small { font-size: xx-small; }
+.highlight { background: #ffffcc; }
+.note { background: #ffffcc; }
+.mark { color: #044484; }
+.grid { background: #000000; }
+.hidden { background: #c0c0c0; color: #c0c0c0; }

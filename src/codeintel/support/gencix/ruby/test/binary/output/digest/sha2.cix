@@ -1,0 +1,16 @@
+    <scope ilk="blob" lang="Ruby" name="digest/sha2">
+      <scope ilk="namespace" name="Digest">
+        <scope ilk="class" name="Base" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="digest" />
+          <scope ilk="function" name="hexdigest" />
+          <scope ilk="function" name="update" />
+        </scope>
+        <scope ilk="class" name="SHA256" mixinrefs="Kernel" classrefs="Digest::Base">
+        </scope>
+        <scope ilk="class" name="SHA384" mixinrefs="Kernel" classrefs="Digest::Base">
+        </scope>
+        <scope ilk="class" name="SHA512" mixinrefs="Kernel" classrefs="Digest::Base">
+        </scope>
+      </scope>
+    </scope>

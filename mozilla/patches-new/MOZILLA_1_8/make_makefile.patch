@@ -1,0 +1,27 @@
+diff
+
+Fix this build error on Windows:
+
+make[6]: Entering directory `/cygdrive/c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.0-moz40b/mozilla/ko-rel-ns/toolkit/mozapps/update/src'
+/cygdrive/c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.0-moz40b/mozilla/build/cygwin-wrapper /cygdrive/c/Perl58/bin//perl /cygdrive/c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.0-moz40b/mozilla/build/autoconf/make-makefile -t /cygdrive/c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.0-moz40b/mozilla -d ../../../.. -nowrap -p /cygdrive/c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.0-moz40b/mozilla -wrap updater/Makefile
+creating toolkit/mozapps/update/src/updater/Makefile
+'.' is not recognized as an internal or external command,
+operable program or batch file.
+
+
+Index: build/autoconf/make-makefile
+===================================================================
+RCS file: /cvsroot/mozilla/build/autoconf/make-makefile,v
+retrieving revision 1.18
+diff -u -r1.18 build/autoconf/make-makefile
+--- build/autoconf/make-makefile	4 Mar 2005 13:37:14 -0000	1.18
++++ build/autoconf/make-makefile	24 Aug 2006 20:58:13 -0000
+@@ -310,6 +310,6 @@
+   #
+   if (@unhandled) {
+     $ENV{CONFIG_FILES}= join ' ', @unhandled;
+-    system "./config.status";
++    system "bash ./config.status";
+   }
+ }
+

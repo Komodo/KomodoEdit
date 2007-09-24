@@ -1,0 +1,84 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'buildFlavour',
+    'supportDir',
+    'platform',
+    'productType',
+    'mozVersion',
+    'komodoShortVersion',
+    'mozExtensionDir',
+);
+
+# The Plan:
+# - installer builds:
+#   Install a casper.xpi so this can be optionally installed into an
+#   installation.
+# - dev builds:
+#   Install the casper extension by default.
+#   Note: this part is spread out over "src/modules/casper/...Conscript".
+
+$cons->Preprocess('install.p.rdf', 'install.rdf',
+                  {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
+
+if ($buildFlavour ne "full") {
+    $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/install.rdf", 'install.rdf');
+    $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome.manifest", 'devbuild.manifest');
+
+} else {
+    $cons->Command(
+        ["casper.xpi", "casper.jar"],
+        # needed for 1.8 extensions
+        "install.rdf",
+        "chrome.manifest",
+        # extension files
+        "content/testrunner.xul",
+        "content/unittest.js",
+        "content/logger.js",
+        "content/xpath.js",
+        "content/events.js",
+        "content/json.js",
+        "content/recorder.js",
+        "content/recorder.xul",
+        "content/komodoOverlay.xul",
+        "content/tasksOverlay.xul",
+        "content/tasksOverlay-ff.xul",
+        "content/tasksOverlay-tb.xul",
+        "content/test/test_test.js",
+        "content/test/test_async.js",
+        "content/test/_event_test_template.js",
+        "components/casper-clhandler.js",
+        "skin/casper.css",
+        qq(
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr casper.jar content
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr casper.jar skin
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip casper.xpi casper.jar install.rdf chrome.manifest
+        )
+    );
+    
+    if (0) {
+        # if we want this by default
+        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/casper.jar", 'casper.jar');
+        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/install.rdf", 'install.rdf');
+        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome.manifest", 'devbuild.manifest');
+    } else {
+        # install the xpi with komodo
+        $cons->Install("$supportDir/modules", 'casper.xpi');
+    }
+
+}

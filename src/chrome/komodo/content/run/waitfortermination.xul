@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % runDTD SYSTEM "chrome://komodo/locale/run.dtd">
+  %runDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Wait for termination dialog
+
+  This dialog expects an object as the first window argument with the following
+  properties:
+    "command" is the command string being waited on.
+    "process" is the process running that command.
+
+  On exit, the "retval" attribute of the object is set to either "terminated
+  cleanly" or "killed" to indicate how the process finished.
+  -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog id="dialog-waitfortermination"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_waitfortermination"
+        title="&waitForCommandToTerminate.title;"
+        class="kodialog"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical"
+        flex="1"
+        style="min-width: 30em; max-width: 45em;"
+        buttons="accept"
+        ondialogaccept="return Kill();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/run/waitfortermination.js" type="application/x-javascript;version=1.7" />
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image class="question-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <description id="warning-description" flex="1">
+                You have started a command that modifies the current buffer.
+                The command is taking a long time to complete. It might be
+                hung. You can wait for the command to complete (this dialog
+                will automatically be dismissed) or abort the command by
+                clicking 'Kill.'
+            </description>
+            <separator class="thin"/>
+            <textbox id="command-textbox" readonly="true"/>
+        </vbox>
+        <separator class="thin"/>
+    </hbox>
+    <!--<separator class="thin"/>-->
+    <!--<checkbox id="doNotAsk-checkbox" checked="false" collapsed="true"-->
+    <!--          label="Don't show me this again." accesskey="d"/>-->
+
+
+
+  <!--<hbox>-->
+  <!--  <spacer flex="1"/>-->
+  <!--  <button class="exit-dialog" id="kill-button" label="Abort Command"-->
+  <!--          oncommand="Kill();"/>-->
+  <!--  <spacer flex="1"/>-->
+  <!--</hbox>-->
+
+</dialog>
+
+

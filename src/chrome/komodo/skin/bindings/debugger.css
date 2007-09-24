@@ -1,0 +1,13 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* variableviewer is specific to the debugger */
+VariableViewer  {
+  -moz-binding    : url("chrome://komodo/content/debugger/koDebuggerWidgets.xml#VariableViewer");
+}
+
+DebuggerPanel  {
+  -moz-binding    : url("chrome://komodo/content/debugger/koDebuggerWidgets.xml#DebuggerPanel");
+}

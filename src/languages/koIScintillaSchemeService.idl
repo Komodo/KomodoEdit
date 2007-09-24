@@ -1,0 +1,83 @@
+#include "nsISupports.idl"
+#include "ISciMoz.idl"
+
+interface ISciMoz;
+
+[scriptable, uuid(D116A318-F894-42C5-A7D5-1F37171832AC)]
+interface koIScintillaSchemeService : nsISupports {
+
+    void getSchemeNames([array, size_is(count)] out wstring schemes,
+                        out unsigned long count);
+
+    boolean isSchemeWriteable(in wstring scheme);
+
+    void copySchemeMakeCurrent(in ISciMoz scintilla,
+                               in wstring newscheme);
+
+    void deleteScheme(in wstring scheme);
+
+    // This will setup an observer
+    void registerScintillaPrefApplier(in koIScintillaPrefApplier prefApplier,
+                                      in string group);
+    void applyScheme(in wstring scheme,
+                     in ISciMoz scintilla,
+                     in string language,
+                     in string encoding,
+                     in boolean useFixed):
+
+    void setCurrentScheme(in wstring scheme, in string group);
+
+    void updateScheme(in wstring scheme, in string group);
+
+
+    void getCommonStyles([array, size_is(count)] out string styleLabels,
+                         out unsigned long count);
+    void getLanguageStyles(in string language,
+                           [array, size_is(count)] out string styleLabels,
+                           out unsigned long count);
+    
+    void setFore(in string language, /* null means common styles */
+                 in string styleId,
+                 in long color);
+    void setBack(in string language, /* null means common styles */
+                 in string styleId,
+                 in long color);
+    void setBold(in string language, /* null means common styles */
+                 in string styleId,
+                 in boolean bold);
+    void setItalic(in string language, /* null means common styles */
+                   in string styleId,
+                   in boolean italic);
+    void setFont(in string language, /* null means common styles */
+                 in string styleId, /* null means default */
+                 in string encoding,
+                 in boolean fixedWidth,
+                 in string font);
+    void setSize(in string language, /* null means common styles */
+                 in string styleId, /* null means default */
+                 in string encoding,
+                 in boolean fixedWidth,
+                 in long size);
+
+    long getFore(in string language, /* null means common styles */
+                 in string styleId);
+    long getBack(in string language, /* null means common styles */
+                 in string styleId);
+    boolean getBold(in string language, /* null means common styles */
+                 in string styleId);
+    boolean getItalic(in string language, /* null means common styles */
+                      in string styleId);
+    string getFont(in string language, /* null means common styles */
+                   in string styleId, /* null means default */
+                   in string encoding,
+                 in boolean fixedWidth);
+    long getSize(in string language, /* null means common styles */
+                 in string styleId, /* null means default */
+                 in string encoding,
+                 in boolean fixedWidth);
+
+    void resetStyle(in string language, /* null means common styles */
+                    in string styleId);
+
+};
+

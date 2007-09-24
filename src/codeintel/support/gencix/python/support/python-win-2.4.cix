@@ -1,0 +1,146 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="0" path="python-win-2.4.cix">
+    <scope ilk="blob" lang="Python" name="msvcrt">
+      <variable citdl="int" name="LK_LOCK" />
+      <variable citdl="int" name="LK_NBLCK" />
+      <variable citdl="int" name="LK_NBRLCK" />
+      <variable citdl="int" name="LK_RLCK" />
+      <variable citdl="int" name="LK_UNLCK" />
+      <scope ilk="function" name="get_osfhandle" signature="get_osfhandle(...)" />
+      <scope ilk="function" name="getch" signature="getch(...)" />
+      <scope ilk="function" name="getche" signature="getche(...)" />
+      <scope ilk="function" name="heapmin" signature="heapmin(...)" />
+      <scope ilk="function" name="kbhit" signature="kbhit(...)" />
+      <scope ilk="function" name="locking" signature="locking(...)" />
+      <scope ilk="function" name="open_osfhandle" signature="open_osfhandle(...)" />
+      <scope ilk="function" name="putch" signature="putch(...)" />
+      <scope ilk="function" name="setmode" signature="setmode(...)" />
+      <scope ilk="function" name="ungetch" signature="ungetch(...)" />
+    </scope>
+    <scope doc="This module provides access to the Windows registry API.&#xA;&#xA;Functions:" ilk="blob" lang="Python" name="_winreg">
+      <scope doc="Closes a previously opened registry key." ilk="function" name="CloseKey" signature="CloseKey(hkey)" />
+      <scope doc="Establishes a connection to a predefined registry handle on&#xA;another computer." ilk="function" name="ConnectRegistry" signature="ConnectRegistry(computer_name, key) -&gt; key" />
+      <scope doc="Creates or opens the specified key." ilk="function" name="CreateKey" signature="CreateKey(key, sub_key) -&gt; key" />
+      <scope doc="Deletes the specified key." ilk="function" name="DeleteKey" signature="DeleteKey(key, sub_key)" />
+      <scope doc="Removes a named value from a registry key." ilk="function" name="DeleteValue" signature="DeleteValue(key, value)" />
+      <scope doc="Enumerates subkeys of an open registry key." ilk="function" name="EnumKey" signature="EnumKey(key, index) -&gt; string" />
+      <scope doc="Enumerates values of an open registry key." ilk="function" name="EnumValue" signature="EnumValue(key, index) -&gt; tuple" />
+      <scope doc="Writes all the attributes of a key to the registry." ilk="function" name="FlushKey" signature="FlushKey(key)" />
+      <scope classrefs="object" doc="PyHKEY Object - A Python object, representing a win32 registry key.&#xA;&#xA;This object wraps a Windows HKEY object, automatically closing it when" ilk="class" name="HKEYType">
+        <scope doc="x.__abs__() &lt;==&gt; abs(x)" ilk="function" name="__abs__" signature="x.__abs__() &lt;==&gt; abs(x)" />
+        <scope doc="x.__add__(y) &lt;==&gt; x+y" ilk="function" name="__add__" signature="x.__add__(y) &lt;==&gt; x+y" />
+        <scope doc="x.__and__(y) &lt;==&gt; x&amp;y" ilk="function" name="__and__" signature="x.__and__(y) &lt;==&gt; x&amp;y" />
+        <scope doc="x.__cmp__(y) &lt;==&gt; cmp(x,y)" ilk="function" name="__cmp__" signature="x.__cmp__(y) &lt;==&gt; cmp(x,y)" />
+        <scope doc="x.__div__(y) &lt;==&gt; x/y" ilk="function" name="__div__" signature="x.__div__(y) &lt;==&gt; x/y" />
+        <scope doc="x.__divmod__(y) &lt;==&gt; divmod(x, y)" ilk="function" name="__divmod__" signature="x.__divmod__(y) &lt;==&gt; divmod(x, y)" />
+        <scope doc="x.__float__() &lt;==&gt; float(x)" ilk="function" name="__float__" signature="x.__float__() &lt;==&gt; float(x)" />
+        <scope doc="x.__hash__() &lt;==&gt; hash(x)" ilk="function" name="__hash__" signature="x.__hash__() &lt;==&gt; hash(x)" />
+        <scope doc="x.__hex__() &lt;==&gt; hex(x)" ilk="function" name="__hex__" signature="x.__hex__() &lt;==&gt; hex(x)" />
+        <scope doc="x.__int__() &lt;==&gt; int(x)" ilk="function" name="__int__" signature="x.__int__() &lt;==&gt; int(x)" />
+        <scope doc="x.__invert__() &lt;==&gt; ~x" ilk="function" name="__invert__" signature="x.__invert__() &lt;==&gt; ~x" />
+        <scope doc="x.__long__() &lt;==&gt; long(x)" ilk="function" name="__long__" signature="x.__long__() &lt;==&gt; long(x)" />
+        <scope doc="x.__lshift__(y) &lt;==&gt; x&lt;&lt;y" ilk="function" name="__lshift__" signature="x.__lshift__(y) &lt;==&gt; x&lt;&lt;y" />
+        <scope doc="x.__mod__(y) &lt;==&gt; x%y" ilk="function" name="__mod__" signature="x.__mod__(y) &lt;==&gt; x%y" />
+        <scope doc="x.__mul__(y) &lt;==&gt; x*y" ilk="function" name="__mul__" signature="x.__mul__(y) &lt;==&gt; x*y" />
+        <scope doc="x.__neg__() &lt;==&gt; -x" ilk="function" name="__neg__" signature="x.__neg__() &lt;==&gt; -x" />
+        <scope doc="x.__nonzero__() &lt;==&gt; x != 0" ilk="function" name="__nonzero__" signature="x.__nonzero__() &lt;==&gt; x != 0" />
+        <scope doc="x.__oct__() &lt;==&gt; oct(x)" ilk="function" name="__oct__" signature="x.__oct__() &lt;==&gt; oct(x)" />
+        <scope doc="x.__or__(y) &lt;==&gt; x|y" ilk="function" name="__or__" signature="x.__or__(y) &lt;==&gt; x|y" />
+        <scope doc="x.__pos__() &lt;==&gt; +x" ilk="function" name="__pos__" signature="x.__pos__() &lt;==&gt; +x" />
+        <scope doc="x.__pow__(y[, z]) &lt;==&gt; pow(x, y[, z])" ilk="function" name="__pow__" signature="x.__pow__(y[, z]) &lt;==&gt; pow(x, y[, z])" />
+        <scope doc="x.__radd__(y) &lt;==&gt; y+x" ilk="function" name="__radd__" signature="x.__radd__(y) &lt;==&gt; y+x" />
+        <scope doc="x.__rand__(y) &lt;==&gt; y&amp;x" ilk="function" name="__rand__" signature="x.__rand__(y) &lt;==&gt; y&amp;x" />
+        <scope doc="x.__rdiv__(y) &lt;==&gt; y/x" ilk="function" name="__rdiv__" signature="x.__rdiv__(y) &lt;==&gt; y/x" />
+        <scope doc="x.__rdivmod__(y) &lt;==&gt; divmod(y, x)" ilk="function" name="__rdivmod__" signature="x.__rdivmod__(y) &lt;==&gt; divmod(y, x)" />
+        <scope doc="x.__rlshift__(y) &lt;==&gt; y&lt;&lt;x" ilk="function" name="__rlshift__" signature="x.__rlshift__(y) &lt;==&gt; y&lt;&lt;x" />
+        <scope doc="x.__rmod__(y) &lt;==&gt; y%x" ilk="function" name="__rmod__" signature="x.__rmod__(y) &lt;==&gt; y%x" />
+        <scope doc="x.__rmul__(y) &lt;==&gt; y*x" ilk="function" name="__rmul__" signature="x.__rmul__(y) &lt;==&gt; y*x" />
+        <scope doc="x.__ror__(y) &lt;==&gt; y|x" ilk="function" name="__ror__" signature="x.__ror__(y) &lt;==&gt; y|x" />
+        <scope doc="y.__rpow__(x[, z]) &lt;==&gt; pow(x, y[, z])" ilk="function" name="__rpow__" signature="y.__rpow__(x[, z]) &lt;==&gt; pow(x, y[, z])" />
+        <scope doc="x.__rrshift__(y) &lt;==&gt; y&gt;&gt;x" ilk="function" name="__rrshift__" signature="x.__rrshift__(y) &lt;==&gt; y&gt;&gt;x" />
+        <scope doc="x.__rshift__(y) &lt;==&gt; x&gt;&gt;y" ilk="function" name="__rshift__" signature="x.__rshift__(y) &lt;==&gt; x&gt;&gt;y" />
+        <scope doc="x.__rsub__(y) &lt;==&gt; y-x" ilk="function" name="__rsub__" signature="x.__rsub__(y) &lt;==&gt; y-x" />
+        <scope doc="x.__rxor__(y) &lt;==&gt; y^x" ilk="function" name="__rxor__" signature="x.__rxor__(y) &lt;==&gt; y^x" />
+        <scope doc="x.__str__() &lt;==&gt; str(x)" ilk="function" name="__str__" signature="x.__str__() &lt;==&gt; str(x)" />
+        <scope doc="x.__sub__(y) &lt;==&gt; x-y" ilk="function" name="__sub__" signature="x.__sub__(y) &lt;==&gt; x-y" />
+        <scope doc="x.__xor__(y) &lt;==&gt; x^y" ilk="function" name="__xor__" signature="x.__xor__(y) &lt;==&gt; x^y" />
+      </scope>
+      <variable citdl="int" name="HKEY_CLASSES_ROOT" />
+      <variable citdl="int" name="HKEY_CURRENT_CONFIG" />
+      <variable citdl="int" name="HKEY_CURRENT_USER" />
+      <variable citdl="int" name="HKEY_DYN_DATA" />
+      <variable citdl="int" name="HKEY_LOCAL_MACHINE" />
+      <variable citdl="int" name="HKEY_PERFORMANCE_DATA" />
+      <variable citdl="int" name="HKEY_USERS" />
+      <variable citdl="int" name="KEY_ALL_ACCESS" />
+      <variable citdl="int" name="KEY_CREATE_LINK" />
+      <variable citdl="int" name="KEY_CREATE_SUB_KEY" />
+      <variable citdl="int" name="KEY_ENUMERATE_SUB_KEYS" />
+      <variable citdl="int" name="KEY_EXECUTE" />
+      <variable citdl="int" name="KEY_NOTIFY" />
+      <variable citdl="int" name="KEY_QUERY_VALUE" />
+      <variable citdl="int" name="KEY_READ" />
+      <variable citdl="int" name="KEY_SET_VALUE" />
+      <variable citdl="int" name="KEY_WRITE" />
+      <scope doc="Creates a subkey under the specified key" ilk="function" name="LoadKey" signature="LoadKey(key, sub_key, file_name)" />
+      <scope doc="Opens the specified key." ilk="function" name="OpenKey" signature="OpenKey(key, sub_key, res = 0, sam = KEY_READ) -&gt; key" />
+      <scope doc="See OpenKey()" ilk="function" name="OpenKeyEx" signature="OpenKeyEx(...)" />
+      <scope doc="Returns information about a key." ilk="function" name="QueryInfoKey" signature="QueryInfoKey(key) -&gt; tuple" />
+      <scope doc="retrieves the unnamed value for a key." ilk="function" name="QueryValue" signature="QueryValue(key, sub_key) -&gt; string" />
+      <scope doc="Retrieves the type and data for a specified value name&#xA;associated with an open registry key." ilk="function" name="QueryValueEx" signature="QueryValueEx(key, value_name) -&gt; value,type_id" />
+      <variable citdl="int" name="REG_BINARY" />
+      <variable citdl="int" name="REG_CREATED_NEW_KEY" />
+      <variable citdl="int" name="REG_DWORD" />
+      <variable citdl="int" name="REG_DWORD_BIG_ENDIAN" />
+      <variable citdl="int" name="REG_DWORD_LITTLE_ENDIAN" />
+      <variable citdl="int" name="REG_EXPAND_SZ" />
+      <variable citdl="int" name="REG_FULL_RESOURCE_DESCRIPTOR" />
+      <variable citdl="int" name="REG_LEGAL_CHANGE_FILTER" />
+      <variable citdl="int" name="REG_LEGAL_OPTION" />
+      <variable citdl="int" name="REG_LINK" />
+      <variable citdl="int" name="REG_MULTI_SZ" />
+      <variable citdl="int" name="REG_NONE" />
+      <variable citdl="int" name="REG_NOTIFY_CHANGE_ATTRIBUTES" />
+      <variable citdl="int" name="REG_NOTIFY_CHANGE_LAST_SET" />
+      <variable citdl="int" name="REG_NOTIFY_CHANGE_NAME" />
+      <variable citdl="int" name="REG_NOTIFY_CHANGE_SECURITY" />
+      <variable citdl="int" name="REG_NO_LAZY_FLUSH" />
+      <variable citdl="int" name="REG_OPENED_EXISTING_KEY" />
+      <variable citdl="int" name="REG_OPTION_BACKUP_RESTORE" />
+      <variable citdl="int" name="REG_OPTION_CREATE_LINK" />
+      <variable citdl="int" name="REG_OPTION_NON_VOLATILE" />
+      <variable citdl="int" name="REG_OPTION_OPEN_LINK" />
+      <variable citdl="int" name="REG_OPTION_RESERVED" />
+      <variable citdl="int" name="REG_OPTION_VOLATILE" />
+      <variable citdl="int" name="REG_REFRESH_HIVE" />
+      <variable citdl="int" name="REG_RESOURCE_LIST" />
+      <variable citdl="int" name="REG_RESOURCE_REQUIREMENTS_LIST" />
+      <variable citdl="int" name="REG_SZ" />
+      <variable citdl="int" name="REG_WHOLE_HIVE_VOLATILE" />
+      <scope doc="Saves the specified key, and all its subkeys to the&#xA;specified file." ilk="function" name="SaveKey" signature="SaveKey(key, file_name)" />
+      <scope doc="Associates a value with a specified key." ilk="function" name="SetValue" signature="SetValue(key, sub_key, type, value)" />
+      <scope doc="Stores data in the value field of an open registry key." ilk="function" name="SetValueEx" signature="SetValueEx(key, value_name, reserved, type, value)" />
+      <scope classrefs="OSError" doc="MS-Windows OS system call failed." ilk="class" name="error" />
+    </scope>
+    <scope doc="PlaySound(sound, flags) - play a sound&#xA;SND_FILENAME - sound is a wav file name&#xA;SND_ALIAS - sound is a registry sound association name" ilk="blob" lang="Python" name="winsound">
+      <scope doc="a wrapper around the Windows Beep API" ilk="function" name="Beep" signature="Beep(frequency, duration)" />
+      <variable citdl="long" name="MB_ICONASTERISK" />
+      <variable citdl="long" name="MB_ICONEXCLAMATION" />
+      <variable citdl="long" name="MB_ICONHAND" />
+      <variable citdl="long" name="MB_ICONQUESTION" />
+      <variable citdl="long" name="MB_OK" />
+      <scope doc="call Windows MessageBeep(x). x defaults to MB_OK." ilk="function" name="MessageBeep" signature="MessageBeep(x)" />
+      <scope doc="a wrapper around the Windows PlaySound API" ilk="function" name="PlaySound" signature="PlaySound(sound, flags)" />
+      <variable citdl="long" name="SND_ALIAS" />
+      <variable citdl="long" name="SND_APPLICATION" />
+      <variable citdl="long" name="SND_ASYNC" />
+      <variable citdl="long" name="SND_FILENAME" />
+      <variable citdl="long" name="SND_LOOP" />
+      <variable citdl="long" name="SND_MEMORY" />
+      <variable citdl="long" name="SND_NODEFAULT" />
+      <variable citdl="long" name="SND_NOSTOP" />
+      <variable citdl="long" name="SND_NOWAIT" />
+      <variable citdl="long" name="SND_PURGE" />
+    </scope>
+  </file>
+</codeintel>

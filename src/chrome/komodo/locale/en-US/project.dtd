@@ -1,0 +1,69 @@
+<!ENTITY DDirectoryPathOfFile.label "[[&#37;D]]: directory path of file">
+<!ENTITY FFilePath.label "[[&#37;F]]: file path">
+<!ENTITY LCurrentLineNumber.label "[[&#37;L]]: current line number">
+<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
+<!ENTITY SURLEscapedSelection.label "[[&#37;S]]: URL-escaped selection">
+<!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]]: URL-escaped selection or word under cursor">
+<!ENTITY accesskey.accesskey "m">
+<!ENTITY afterFileClose.label "After file close">
+<!ENTITY afterFileOpen.label "After file open">
+<!ENTITY afterFileSave.label "After file save">
+<!ENTITY askAskForUserInput.label "[[&#37;ask]]: ask for user input">
+<!ENTITY askpassAskForPassword.label "[[&#37;askpass]]: ask for password">
+<!ENTITY async.accesskey "b">
+<!ENTITY bFileBaseNameWithoutExtension.label "[[&#37;b]]: file base name without extension">
+<!ENTITY beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label "Before file close (the macro can return true to prevent file close)">
+<!ENTITY beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label "Before file save (the macro can return true to prevent file save)">
+<!ENTITY changeIcon.accesskey "h">
+<!ENTITY changeIcon.label "Change Icon...">
+<!ENTITY dDirectoryBaseNameOfFile.label "[[&#37;d]]: directory base name of file">
+<!ENTITY dateCurrentDate.label "[[&#37;date]]: Current date">
+<!ENTITY directoryFilter.label "Directory Filter">
+<!ENTITY fFileBaseName.label "[[&#37;f]]: file base name">
+<!ENTITY general.label "General">
+<!ENTITY guidANewGUID.label "[[&#37;guid]]: A new GUID">
+<!ENTITY helpOnShortcuts.label "Help on Shortcuts...">
+<!ENTITY importDirectoryStructure.label "Import directory structure">
+<!ENTITY importFromFileSystem.title "Import from File System">
+<!ENTITY importSubdirectoriesRecursively.label "Import Subdirectories Recursively">
+<!ENTITY javaScript.accesskey "j">
+<!ENTITY javaScript.label "JavaScript">
+<!ENTITY k.accesskey "k">
+<!ENTITY keyBinding.label "Key Binding">
+<!ENTITY locally.label "Locally...">
+<!ENTITY m.accesskey "m">
+<!ENTITY macro.label "Macro">
+<!ENTITY macroShouldTriggerOnAKomodoEvent.label "Macro should trigger on a Komodo event">
+<!ENTITY maintainIndentationContextAfterInsertion.label "Maintain indentation context after insertion">
+<!ENTITY maintainSelectedTextOrCursorPositionAfterInsertion.label "Maintain selected text or cursor position after insertion">
+<!ENTITY makeAFolderPerLanguage.label "Make a folder per language">
+<!ENTITY makeOneFlatList.label "Make one flat list">
+<!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the macro can return true to prevent shutdown)">
+<!ENTITY onStartup.label "On startup">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
+<!ENTITY partvalue.accesskey "n">
+<!ENTITY pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext "Pick a letter in the name to use as the Alt+ shortcut.">
+<!ENTITY priority.accesskey "p">
+<!ENTITY priorityLabel.accesskey "p">
+<!ENTITY properties.label "Properties">
+<!ENTITY python.accesskey "p">
+<!ENTITY python.label "Python">
+<!ENTITY remotely.label "Remotely...">
+<!ENTITY renameItem.title "Rename Item">
+<!ENTITY reset.label "Reset">
+<!ENTITY reseticon.accesskey "t">
+<!ENTITY runInBackground.label "Run in Background">
+<!ENTITY sSelection.label "[[&#37;s]]: selection">
+<!ENTITY shortcutTab.accesskey "k">
+<!ENTITY shortcuts.tooltiptext "Shortcuts">
+<!ENTITY snippet.label "Snippet">
+<!ENTITY snippetTab.accesskey "n">
+<!ENTITY specifyFilesToAddIntoTheCurrentProject.label "Specify files to add into the current project">
+<!ENTITY tabstopTabStopReplace.label "[[&#37;tabstop]]: Tab Stop/Replace">
+<!ENTITY triggerPostopen.accesskey "o">
+<!ENTITY triggerPreclose.accesskey "c">
+<!ENTITY triggerPresave.accesskey "s">
+<!ENTITY triggerQuit.accesskey "q">
+<!ENTITY triggerStartup.accesskey "t">
+<!ENTITY triggers.label "Triggers">
+<!ENTITY wSelectionOrWordUnderCursor.label "[[&#37;w]]: selection or word under cursor">

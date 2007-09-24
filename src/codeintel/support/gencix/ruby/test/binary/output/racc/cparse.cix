@@ -1,0 +1,10 @@
+    <scope ilk="blob" lang="Ruby" name="racc/cparse">
+      <scope ilk="namespace" name="Racc">
+        <scope ilk="class" name="CparseParams" mixinrefs="Kernel" classrefs="Object">
+        </scope>
+        <scope ilk="class" name="Parser" mixinrefs="Kernel" classrefs="Object">
+          <variable name="Racc_Runtime_Core_Id_C" attributes="__const__" citdl="String"/>
+          <variable name="Racc_Runtime_Core_Version_C" attributes="__const__" citdl="String"/>
+        </scope>
+      </scope>
+    </scope>

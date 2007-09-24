@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % spellcheckDTD SYSTEM "chrome://komodospellchecker/locale/spellcheck.dtd">
+  %spellcheckDTD;
+]>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="komodospellcheckerOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+    <script src="chrome://komodo/content/library/trace.js"    type="application/x-javascript" />
+    <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript" />
+    <script src="chrome://komodospellchecker/content/koLaunchSpellcheck.js"  type="application/x-javascript" />
+
+  <commandset id="allcommands">
+    <command id="Tasks:CheckSpelling" oncommand="spellcheckerLauncher_run();"/>
+  </commandset>
+  <menupopup id="editorContextMenu">
+    <menuitem id="menu_komodospellchecker"
+              label="&checkSpelling.label;"
+              observes="Tasks:CheckSpelling"
+              insertafter="editor-context-sep-extensions"
+              class="menuitem-iconic-wide"/>
+  </menupopup>
+
+  <menupopup id="popup_tools">
+    <menuitem id="menu_komodospellchecker"
+              label="&checkSpelling.label;"
+              observes="Tasks:CheckSpelling"
+              class="menuitem-iconic-wide"/>
+  </menupopup>
+    
+</overlay>

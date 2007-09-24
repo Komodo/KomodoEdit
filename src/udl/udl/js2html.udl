@@ -1,0 +1,66 @@
+# Another transition thing
+# This is exactly like css2html.txt, with macro replacement
+
+family csl
+
+state IN_CSL_DEFAULT:
+'</' : paint(upto, CSL_DEFAULT) => IN_CSL2H_1
+
+# Check to see if we're actually ending a script tag, or just
+# typing some random characters
+
+state IN_CSL2H_1:
+/script\b/i: paint(upto, M_ETAGO), paint(include, M_TAGNAME), => IN_CSL2H_2
+/./ : paint(upto, CSL_OPERATOR), redo, => IN_CSL_DEFAULT
+/\z/ : paint(upto, CSL_OPERATOR)
+
+# This state here is to check for the closing '>'.
+# Whether it's there or not we're going back to HTML
+
+state IN_CSL2H_2:
+/[$WS]/ : #stay
+'>' : paint(upto, M_TAGSPACE), paint(include, M_ETAGC) => IN_M_DEFAULT
+/./ : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+/\z/ : paint(upto, M_TAGSPACE)
+
+# Override std js lexer handling of //... line-comments
+# to allow for an embedded </script> that ends both the
+# comment and the script tag.
+
+state IN_CSL_DEFAULT:
+'//': paint(upto, CSL_DEFAULT), => IN_CSL_COMMENT_LINE_1
+
+state IN_CSL_COMMENT_LINE_1:
+/.*(?=<\/script>)/i : paint(include, CSL_COMMENT), => IN_CSL_COMMENTLINE_TO_MARKUP_1
+/.*/ : paint(include, CSL_COMMENT), => IN_CSL_DEFAULT
+/\z/: paint(upto, CSL_COMMENT)
+
+state IN_CSL_COMMENTLINE_TO_MARKUP_1:
+'</' : => IN_CSL2H_1
+/.*/ : paint(include, CSL_COMMENT), => IN_CSL_DEFAULT
+
+# Do same in block-comments and strings
+
+state IN_CSL_COMMENT_1:
+/.*(?=<\/script>)/i : paint(include, CSL_COMMENTBLOCK), => IN_CSL_COMMENT_TO_MARKUP_1
+
+state IN_CSL_COMMENT_TO_MARKUP_1:
+'</' : => IN_CSL2H_1
+/./ : => IN_CSL_COMMENT_1  # Shouldn't happen
+/\z/: paint(upto, CSL_COMMENTBLOCK)
+
+state IN_CSL_DSTRING:
+/.*(?=<\/script>)/i : paint(include, CSL_STRING), => IN_CSL_DSTRING_TO_MARKUP_1
+
+state IN_CSL_DSTRING_TO_MARKUP_1:
+'</' : => IN_CSL2H_1
+/./ : => IN_CSL_DSTRING  # Shouldn't happen
+/\z/: paint(upto, CSL_STRING)
+
+state IN_CSL_SSTRING:
+/.*(?=<\/script>)/i : paint(include, CSL_STRING), => IN_CSL_SSTRING_TO_MARKUP_1
+
+state IN_CSL_SSTRING_TO_MARKUP_1:
+'</' : => IN_CSL2H_1
+/./ : => IN_CSL_SSTRING  # Shouldn't happen
+/\z/: paint(upto, CSL_STRING) # 

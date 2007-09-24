@@ -1,0 +1,46 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'mozBin',
+    'version',
+    'buildNum',
+    'buildType',
+    'buildFlavour',
+    'komodoPythonUtilsDir',
+    'platform',
+    'productType',
+    'unsiloedPythonExe',
+    'mozVersion',
+    'sdkDir',
+);
+
+
+# koICommandmentService
+$cons->Preprocess('koCommandmentService.p.py', 'koCommandmentService.py',
+                  # Yes, "PRODUCT_TYPE" is a default preprocessor var,
+                  # however $cons->Preprocess() doesn't do preprocessor
+                  # *substitution* unless an explicit extra subst hash
+                  # is given.
+                  {"PP_PROD_TYPE" => "$productType"});
+$cons->InstallXpcomComponent('koCommandmentService.py');
+$cons->Install($idlExportDir, 'koICommandmentService.idl');
+$cons->BuildAndInstallXpt('koICommandmentService.idl');
+
+#XXX kocommandments.py is out of date since the Commandment changes
+#    for Firefox/XRE-based Komodo. I don't think it is used, so
+#    don't install it for now.
+#my $kmm = $version;
+#$kmm =~ s/^(\d+\.\d+).*$/$1/;
+#$cons->Preprocess('kocommandments.unprocessed.py', 'kocommandments.py',
+#                  {'KOMODO_MAJOR_MINOR' => $kmm});
+#$cons->InstallPythonUtility('kocommandments.py');
+

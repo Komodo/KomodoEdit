@@ -1,0 +1,3 @@
+content xtk jar:xtk.jar!/content/ xpcnativewrappers=yes
+locale xtk en-US jar:xtk.jar!/locale/en-US/
+skin xtk classic/1.0 jar:xtk.jar!/skin/

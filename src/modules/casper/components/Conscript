@@ -1,0 +1,26 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'buildFlavour',
+    'mozExtensionDir',
+);
+
+if ($buildFlavour ne "full") { # don't want this in installer builds
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/components/casper-clhandler.js", 'casper-clhandler.js');
+}
+

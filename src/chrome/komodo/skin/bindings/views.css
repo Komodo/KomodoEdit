@@ -1,0 +1,47 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+view[type='base-dont-use-directly']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views.xml#view-base');
+}
+
+view[type='tabbed']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-tabbed.xml#view-tabbed-list');
+}
+
+view[type='multiview']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-multi.xml#view-multiview');
+}
+
+view[type='editor']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-editor.xml#view-editor');
+}
+
+view[type='diff']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-diff.xml#view-diff');
+}
+
+view[type='buffer']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#view-buffer');
+  border: thin ThreeDDarkShadow solid;
+}
+
+view[type='terminal']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-terminal.xml#view-terminal');
+  border: thin ThreeDDarkShadow solid;
+}
+
+view[type='browser']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-browser.xml#view-browser');
+}
+
+view[type='xul']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-xul.xml#view-xul');
+}
+
+menupopup[type='buffercontext']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#popup-buffer');
+}
+

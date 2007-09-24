@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        onload="langhelp_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/pref/pref-helplang.js" type="application/x-javascript;version=1.7" />
+
+    <groupbox orient="vertical">
+        <caption label="&languageLookupCommands.label;"/>
+        <description id="language_help_desc"/>
+        <separator class="thin"/>
+        <hbox align="center">
+            <label style="width: 6em;" value="Default:"/>
+            <textbox id="DefaultHelpCommand"
+                     pref="true"
+                     flex="1"
+                     prefstring="DefaultHelpCommand"
+                     prefattribute="value"/>
+            <button class="green-undo-icon button-toolbar-a"
+                    tooltiptext="&resetToDefault.tooltiptext;"
+                    oncommand="_reset('DefaultHelpCommand');"/>
+        </hbox>
+        <separator class="thin"/>
+        <hbox align="center">
+            <langlist id="languageName" class="lang-menulist"
+                      oncommand="langhelp_updateLanguage();"/>
+            <textbox id="helpCommand"
+                     onchange="langhelp_changeLanguage();"
+                     flex="1"/>
+            <button class="green-undo-icon button-toolbar-a"
+                    tooltiptext="&resetToDefault.tooltiptext;"
+                    oncommand="langhelp_reset();"/>
+        </hbox>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&alternateHelp.label;"/>
+        <description id="language_help_alt_desc"/>
+        <separator class="thin"/>
+        <hbox align="center">
+            <label style="width: 6em;" value="General Help:"/>
+            <textbox id="OtherHelpCommand"
+                     pref="true"
+                     flex="1"
+                     prefstring="OtherHelpCommand"
+                     prefattribute="value"/>
+            <button class="green-undo-icon button-toolbar-a"
+                    tooltiptext="&resetToDefault.tooltiptext;"
+                    oncommand="_reset('OtherHelpCommand');"/>
+        </hbox>
+    </groupbox>
+</window>
+

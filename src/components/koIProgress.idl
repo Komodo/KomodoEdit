@@ -1,0 +1,27 @@
+// Copyright (c) 2006 ActiveState Software Inc.
+// See the file LICENSE.txt for licensing information.
+
+/* See library/otherdialogs.js:dialog_progress() for details. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(7F35F217-9804-4949-97AA-70A190F222AE)]
+interface koIProgressController : nsISupports {
+    // Methods for the processor to report progress on the UI.
+    void set_stage(in wstring stage);
+    void set_desc(in wstring desc);
+    void set_progress_mode(in wstring stage); // "determined" or "undetermined" (c.f. xul <progressmeter>)
+    void set_progress_value(in PRUint32 value); // 0 - 100
+
+    // Called by koIShowsProgress processor to close the progress UI.
+    // If successful then errmsg and errtext should be null.
+    void done(in wstring errmsg, in wstring errtext);
+};
+
+[scriptable, uuid(4DAECBAA-94BF-435F-83DE-B046AEC251B3)]
+interface koIShowsProgress : nsISupports {
+    void set_controller(in koIProgressController controller);
+    void cancel();
+};
+
+

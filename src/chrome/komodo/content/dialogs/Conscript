@@ -1,0 +1,62 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'unsiloedPythonExe',
+    'productType',
+    'jarring',
+    'buildFlavour',
+    'mozVersion',
+);
+
+$cons->Preprocess("prompt.p.js", "prompt.js");
+$cons->InstallInChrome('prompt.js');
+$cons->Preprocess("prompt.p.xul", "prompt.xul");
+$cons->InstallInChrome('prompt.xul');
+$cons->InstallInChrome('yesNoCancel.js');
+$cons->InstallInChrome('yesNoCancel.xul');
+$cons->InstallInChrome('yesNo.js');
+$cons->InstallInChrome('yesNo.xul');
+$cons->InstallInChrome('okCancel.js');
+$cons->InstallInChrome('okCancel.xul');
+$cons->InstallInChrome('alert.js');
+$cons->InstallInChrome('alert.xul');
+$cons->InstallInChrome('selectFromList.js');
+$cons->InstallInChrome('selectFromList.xul');
+$cons->InstallInChrome('customButtons.js');
+$cons->InstallInChrome('customButtons.xul');
+$cons->Preprocess('editEnvVar.unprocessed.js', 'editEnvVar.js');
+$cons->InstallInChrome('editEnvVar.js');
+$cons->InstallInChrome('editEnvVar.xul');
+$cons->Preprocess('editPathMap.p.xul', 'editPathMap.xul');
+$cons->InstallInChrome('editPathMap.xul');
+$cons->InstallInChrome('internalError.js');
+$cons->InstallInChrome('internalError.xul');
+$cons->InstallInChrome('authenticate.js');
+$cons->InstallInChrome('authenticate.xul');
+$cons->InstallInChrome('pickPreview.js');
+$cons->InstallInChrome('pickPreview.xul');
+
+$cons->InstallInChrome('compare.js');
+$cons->InstallInChrome('compare.xul');
+
+$cons->InstallInChrome('diff.js');
+$cons->Preprocess('diff.unprocessed.xul', 'diff.xul');
+$cons->InstallInChrome('diff.xul');
+
+$cons->Preprocess("featureControlPanel.unprocessed.js", "featureControlPanel.js");
+$cons->InstallInChrome('featureControlPanel.js');
+$cons->Preprocess("featureControlPanel.unprocessed.xul", "featureControlPanel.xul");
+$cons->InstallInChrome('featureControlPanel.xul');
+
+$cons->InstallInChrome('progress.js');
+$cons->InstallInChrome('progress.xul');
+
+$cons->InstallInChrome('iconpicker.js');
+$cons->InstallInChrome('iconpicker.xul');
+

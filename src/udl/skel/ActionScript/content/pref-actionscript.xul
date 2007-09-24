@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	class="kodialog"
+	orient="vertical"
+	onload="PrefActionScript_OnLoad();">
+
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript"/>
+    <script src="chrome://actionscriptprefs/content/info.js" type="application/x-javascript"/>
+    <script src="chrome://actionscriptprefs/content/prefs.js" type="application/x-javascript"/>
+
+    <groupbox orient="vertical">
+        <caption label="Default ActionScript Interpreter"/>
+        <text value="Use this interpreter:" style="padding: 2px 6px 2px 6px"/>
+        <hbox align="center">
+            <textbox id="actionScript_interpreterPath" pref="true" prefstring="actionScriptDefaultInterpreter" flex="1"/>
+            <button label="Browse..." oncommand="loadActionScriptExecutable();"/>
+        </hbox>
+        <vbox flex="1" align="center">
+            <description>
+                Komodo currently only supports ActionScript syntax checking
+                with the freely available MTASC compiler.  You can download
+                MTASC, and find more information about it at this website:
+            </description>
+            <button label="&lt;http://www.mtasc.org/&gt;"
+                class="button-link"
+                style="margin: -10px; color: #b82619;"
+                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.mtasc.org/');"/>
+            <separator class="thin"/>
+        </vbox>
+    </groupbox>
+</window>

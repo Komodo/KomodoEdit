@@ -1,0 +1,21 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_objects.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_objects.js" src="scan_inputs/javascript_objects.js">
+      <variable citdl="String" line="1" name="value" />
+      <variable citdl="Object" line="3" lineend="5" name="testobject">
+        <variable citdl="value" line="4" name="property" />
+      </variable>
+      <variable citdl="Object" line="7" lineend="10" name="testobject2">
+        <variable citdl="value" line="8" name="property" />
+        <variable citdl="value" line="9" name="name" />
+      </variable>
+      <variable citdl="Object" line="12" lineend="14" name="testobject3">
+        <variable citdl="value" line="13" name="property" />
+      </variable>
+      <variable citdl="Object" line="16" lineend="19" name="testobject4">
+        <variable citdl="value" line="17" name="property" />
+        <variable citdl="value" line="18" name="name" />
+      </variable>
+    </scope>
+  </file>
+</codeintel>

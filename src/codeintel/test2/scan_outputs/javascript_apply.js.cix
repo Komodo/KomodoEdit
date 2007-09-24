@@ -1,0 +1,30 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_apply.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_apply.js" src="scan_inputs/javascript_apply.js">
+      <variable citdl="Object" line="4" lineend="4" name="applyToObject">
+        <variable citdl="String" line="7" name="var1" />
+        <variable citdl="String" line="8" name="var2" />
+        <variable attributes="__local__ private" citdl="Object" line="9" lineend="12" name="finder">
+          <variable citdl="String" line="10" name="searchString" />
+          <variable citdl="Number" line="11" name="direction" />
+        </variable>
+        <scope ilk="function" line="14" lineend="16" name="log" signature="log(msg)">
+          <variable ilk="argument" name="msg" />
+          <variable citdl="applyToObject" name="this" />
+        </scope>
+      </variable>
+      <variable citdl="Object" line="20" lineend="20" name="ns">
+        <variable citdl="String" line="22" name="name" />
+        <variable attributes="__local__ private" citdl="Object" line="23" lineend="25" name="willQuitListener">
+          <scope ilk="function" line="24" lineend="24" name="observe" signature="observe(subject, topic, data)">
+            <variable ilk="argument" name="subject" />
+            <variable ilk="argument" name="topic" />
+            <variable ilk="argument" name="data" />
+            <variable citdl="willQuitListener" name="this" />
+          </scope>
+        </variable>
+      </variable>
+      <scope ilk="function" line="30" lineend="30" name="testing_apply" signature="testing_apply()" />
+    </scope>
+  </file>
+</codeintel>

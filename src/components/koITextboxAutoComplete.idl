@@ -1,0 +1,17 @@
+/* Copyright (c) 2007 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIAutoCompleteResult.idl"
+
+// Note that this is a *textbox*-autocomplete result. This has nothing
+// to do with Komodo's codeintel system.
+[scriptable, uuid(abd05075-d511-4669-a4bc-6739389b6126)]
+interface koIAutoCompleteResult : nsIAutoCompleteResult {
+    void init(in wstring searchString);
+    void setIgnored();
+    void setFailed(in wstring errorDescription);
+    void addMatch(in wstring value, in wstring comment,
+                  in wstring style, in boolean isDefault);
+};
+

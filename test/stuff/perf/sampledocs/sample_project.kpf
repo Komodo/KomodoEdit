@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project kpf_version="2" name="sample_project">
+<preference-set id="sample_project">
+</preference-set>
+<file url="perl_sample.pl">
+ </file>
+<file url="rx_sample.pl">
+ </file>
+<file url="python_sample.py">
+ </file>
+<file url="javascript_sample.js">
+ </file>
+<file url="php_sample.php">
+ </file>
+<file url="tcl_sample.tcl">
+ </file>
+<file url="xslt_sample.xsl">
+ </file>
+<file url="birds.xml">
+ </file>
+<dialog language="tcl" startup="C:\depot\main\Apps\Komodo-devel\src\samples\Dialog.tcl" url="Dialog.ui">
+<file url="Dialog_ui.tcl">
+</file>
+<file url="Dialog.tcl">
+</file>
+</dialog>
+</project>

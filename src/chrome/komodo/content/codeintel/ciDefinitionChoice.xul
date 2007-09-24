@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % codeintelDTD SYSTEM "chrome://komodo/locale/codeintel.dtd">
+  %codeintelDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+
+<dialog id="dialog_ciDefinitionChoice"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        width="560" height="300"
+        persist="screenX screenY width height"
+        buttons="accept,cancel"
+        onload="ciDefinitionChoice_onLoad();"
+        onunload="ciDefinitionChoice_onUnload();"
+        ondialogaccept="return ciDefinitionChoice_onOK();"
+        ondialogcancel="return ciDefinitionChoice_onCancel();">
+        >
+        <!--ondialogaccept="return ciDefinitionChoice_onOK();"-->
+        <!--ondialogcancel="return ciDefinitionChoice_onCancel();">-->
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/codeintel/ciDefinitionChoice.js" type="application/x-javascript;version=1.7"/>
+
+    <vbox flex="1">
+        <tree id="ciDefinitionChoice_requestHeadersTree"
+              flex="1"
+              minheight="50"
+              persist="height"
+              ondblclick="ciDefinitionChoice_onTreeDblClick();"
+              enableColumnDrag="true"
+              hidecolumnpicker="false">
+              <!--onkeypress="gHttpInspector.onRequestHeadersKeyPress(event);"-->
+            <treecols>
+              <treecol id="ciDefinitionChoice_treecol_name"
+                       flex="1"
+                       label="&name.label;"
+                       crop="right"
+                       onclick="gHttpInspector.sortByTreeColumn(this);"
+                       persist="width hidden sortActive sortDirection"
+                       class="sortDirectionIndicator"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="ciDefinitionChoice_treecol_type"
+                       flex="1"
+                       label="&type.label;"
+                       crop="right"
+                       onclick="gHttpInspector.sortByTreeColumn(this);"
+                       persist="width hidden sortActive sortDirection"
+                       class="sortDirectionIndicator"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="ciDefinitionChoice_treecol_path"
+                       flex="4"
+                       label="&path.label;"
+                       crop="right"
+                       onclick="gHttpInspector.sortByTreeColumn(this);"
+                       persist="width hidden sortActive sortDirection"
+                       class="sortDirectionIndicator"/>
+              <splitter class="tree-splitter"/>
+            </treecols>
+            <!-- Tree children are dynamically generated, we use our own custom tree view -->
+            <treechildren/>
+        </tree>
+    </vbox>
+</dialog>

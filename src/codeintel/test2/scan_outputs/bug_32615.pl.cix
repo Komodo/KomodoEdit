@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\bug_32615.pl">
+    <scope ilk="blob" lang="Perl" name="bug_32615">
+      <variable line="7" name="$updating" />
+      <scope ilk="function" line="1" lineend="88" name="autoupdate" signature="autoupdate($onlyifmandatory)">
+        <variable ilk="argument" name="$onlyifmandatory" />
+        <variable attributes="__local__" line="22" name="$description" />
+        <variable attributes="__local__" line="22" name="$newestversion" />
+        <variable attributes="__local__" line="22" name="$oldestversion" />
+        <variable attributes="__local__" line="22" name="$releasedate" />
+        <variable attributes="__local__" line="28" name="$mandatorytext" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

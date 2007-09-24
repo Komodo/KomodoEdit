@@ -1,0 +1,32 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'build',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'komodoPythonUtilsDir',
+    'mozVersion',
+    'sdkDir',
+);
+
+$cons->Preprocess('koIProject.unprocessed.idl', 'koIProject.idl');
+$cons->Install($idlExportDir, 'koIProject.idl');
+$cons->BuildAndInstallXpt('koIProject.idl');
+$cons->Preprocess('koProject.unprocessed.py', 'koProject.py');
+$cons->InstallXpcomComponent('koProject.py');
+$cons->InstallPythonUtility('komodo.py');
+
+$cons->Install($idlExportDir, 'koIKPFTreeView.idl');
+$cons->BuildAndInstallXpt('koIKPFTreeView.idl');
+$cons->Preprocess('koKPFTreeView.unprocessed.py', 'koKPFTreeView.py');
+$cons->InstallXpcomComponent('koKPFTreeView.py');

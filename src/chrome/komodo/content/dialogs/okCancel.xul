@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Generic OK/Cancel dialog: see "okCancel.js" documentation. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog id="dialog-okcancel"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 40em; max-width: 55em;"
+        flex="1"
+        buttons="accept,cancel"
+        ondialogaccept="return OK();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/okCancel.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image class="warning-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <description id="prompt" flex="1"/>
+            <textbox id="text" multiline="true" flex="1"
+                     style="min-width: 40em; min-height: 8em;"
+                     readonly="true" collapsed="true"/>
+        </vbox>
+    </hbox>
+    <separator class="thin"/>
+    <checkbox id="doNotAsk-checkbox" checked="false" collapsed="true"
+              label="&donTAskMeAgain.label;" accesskey="&doNotAskCheckbox.accesskey;"/>
+
+</dialog>
+

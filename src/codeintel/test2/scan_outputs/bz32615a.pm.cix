@@ -1,0 +1,22 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\bz32615a.pm">
+    <scope ilk="blob" lang="Perl" name="bz32615a">
+      <scope ilk="class" line="1" lineend="105" name="Blatz">
+        <variable line="3" name="$pup" />
+        <variable line="15" name="$updating" />
+        <scope ilk="function" line="5" lineend="7" name="blah" signature="blah()">
+          <variable attributes="__local__" line="6" name="$a" />
+        </scope>
+        <scope ilk="function" line="9" lineend="105" name="autoupdate" signature="autoupdate($onlyifmandatory)">
+          <variable ilk="argument" name="$onlyifmandatory" />
+          <variable attributes="__local__" line="30" name="$description" />
+          <variable attributes="__local__" line="30" name="$newestversion" />
+          <variable attributes="__local__" line="30" name="$oldestversion" />
+          <variable attributes="__local__" line="30" name="$releasedate" />
+          <variable attributes="__local__" line="36" name="$mandatorytext" />
+          <variable attributes="__local__" line="93" name="$process" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

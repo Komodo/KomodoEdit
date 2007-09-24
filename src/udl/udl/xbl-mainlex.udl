@@ -1,0 +1,20 @@
+# XBL UDL definition
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# No ssl or css families here, just markup and csl
+
+language XBL
+
+namespace "http://www.mozilla.org/xbl"
+public_id "-//MOZILLA//DTD XBL V1.0//EN"
+system_id "http://www.mozilla.org/xbl"
+
+include "xbl2js.udl"
+
+include "js2xbl.udl"
+
+include "xml.udl"
+include "jslex.udl"

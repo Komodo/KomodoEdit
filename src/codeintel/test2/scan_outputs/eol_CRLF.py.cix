@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs\eol_CRLF.py">
+    <scope ilk="blob" lang="Python" name="eol_CRLF">
+      <import line="4" module="sys" />
+      <import line="4" module="time" />
+      <import line="5" module="thread" />
+      <scope ilk="function" line="7" lineend="10" name="counting" signature="counting(name, duration=10)">
+        <variable ilk="argument" name="name" />
+        <variable citdl="int" ilk="argument" name="duration" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

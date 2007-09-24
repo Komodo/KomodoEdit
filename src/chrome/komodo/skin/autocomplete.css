@@ -1,0 +1,20 @@
+/* Copyright (c) 2005-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/*
+ * Textbox autocomplete menulist classes. These can be given for individual
+ * textbox autocomplete hits in our autocomplete search backends in
+ * koTextboxAutoComplete.py.
+ */
+
+
+/* Would like some nice way to subtley visually separate autocomplete *mru*
+ * results from *filepath* results. XXX However, all I know how to do right now
+ * is modify the result font. I.e. I don't yet know how to add a separator, add
+ * identifying images, etc.
+ */
+treechildren:-moz-tree-cell-text(ac-special) {
+    font-style: italic;
+}
+
+

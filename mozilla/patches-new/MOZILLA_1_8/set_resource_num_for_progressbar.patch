@@ -1,0 +1,18 @@
+diff
+
+Can probably drop this: don't use progress bar anymore.
+
+--- xpfe/bootstrap/nsNativeAppSupportWin.cpp.orig	Wed Jan 22 09:29:28 2003
++++ xpfe/bootstrap/nsNativeAppSupportWin.cpp	Wed Jan 22 09:30:21 2003
+@@ -474,6 +474,11 @@
+     if ( fileNameLen >= 3 ) {
+         fileName[ fileNameLen - 3 ] = 0;
+         strcat( fileName, "bmp" );
++        // This is a "special" random number that's used in progressbar.py to
++        // identify the window handle for the splash dialog.  The number is
++        // chosen to not possibly being a valid pointer, and to try and be
++        // somewhat random.
++        SetWindowLong(mDlg, GWL_USERDATA, (LONG)11757453);
+         // Try to load bitmap from that file.
+         HBITMAP bitmap = (HBITMAP)::LoadImage( NULL,
+                                                fileName,

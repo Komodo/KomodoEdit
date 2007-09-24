@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module and Class Hierarchies</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Trees&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/trees.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="trees.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF MODULE HIERARCHY =========== -->
+<h2>Module Hierarchy</h2>
+<ul>
+<li> <b><a href="paramiko-module.html"><code>paramiko</code></a></b>: <i><i>Paramiko</i> (a combination of the esperanto words for 
+&quot;paranoid&quot; and &quot;friend&quot;) is a module for python 2.3 
+or greater that implements the SSH2 protocol for secure (encrypted and 
+authenticated) connections to remote machines.</i>
+  <ul>
+    <li> <b><a href="paramiko.util-module.html"><code>util</code></a></b>: <i>Useful functions used by the rest of paramiko.</i>
+  </ul>
+</ul>
+
+<!-- =========== START OF CLASS HIERARCHY =========== -->
+<h2>Class Hierarchy</h2>
+<ul>
+  <li> <b><a href="UserDict.DictMixin-class.html"><code>UserDict.DictMixin</code></a></b>
+    <ul>
+  <li> <b><a href="paramiko.HostKeys-class.html"><code>paramiko.HostKeys</code></a></b>: <i>
+Representation of an openssh-style &quot;known hosts&quot; file.</i>
+    </ul>
+  <li> <b><a href="__builtin__.object-class.html"><code>__builtin__.object</code></a></b>: <i>
+The most base type</i>
+    <ul>
+  <li> <b><a href="paramiko.BufferedFile-class.html"><code>paramiko.BufferedFile</code></a></b>: <i>
+Reusable base class to implement python-style file buffering around a 
+simpler stream.</i>
+    <ul>
+  <li> <b><a href="paramiko.SFTPFile-class.html"><code>paramiko.SFTPFile</code></a></b>: <i>
+Proxy object for a file on the remote server, in client mode SFTP.</i>
+    </ul>
+  <li> <b><a href="paramiko.Channel-class.html"><code>paramiko.Channel</code></a></b>: <i>
+A secure tunnel across an SSH <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.</i>
+  <li> <b><a href="paramiko.Message-class.html"><code>paramiko.Message</code></a></b>: <i>
+An SSH2 <i>Message</i> is a stream of bytes that encodes some 
+combination of strings, integers, bools, and infinite-precision integers 
+(known in python as <i>long</i>s).</i>
+  <li> <b><a href="paramiko.MissingHostKeyPolicy-class.html"><code>paramiko.MissingHostKeyPolicy</code></a></b>: <i>
+Interface for defining the policy that <a 
+href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a> should use when the SSH server's 
+hostname is not in either the system host keys or the application's 
+keys.</i>
+    <ul>
+  <li> <b><a href="paramiko.AutoAddPolicy-class.html"><code>paramiko.AutoAddPolicy</code></a></b>: <i>
+Policy for automatically adding the hostname and new host key to the 
+local <a href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a> object, and saving it.</i>
+    </ul>
+  <li> <b><a href="paramiko.util.PFilter-class.html"><code>paramiko.util.PFilter</code></a></b>
+  <li> <b><a href="paramiko.SFTPAttributes-class.html"><code>paramiko.SFTPAttributes</code></a></b>: <i>
+Representation of the attributes of a file (or proxied file) for SFTP 
+in client or server mode.</i>
+  <li> <b><a href="paramiko.SFTPHandle-class.html"><code>paramiko.SFTPHandle</code></a></b>: <i>
+Abstract object representing a handle to an open file (or folder) in 
+an SFTP server implementation.</i>
+  <li> <b><a href="paramiko.SSHClient-class.html"><code>paramiko.SSHClient</code></a></b>: <i>
+A high-level representation of a session with an SSH server.</i>
+  <li> <b><a href="paramiko.SSHConfig-class.html"><code>paramiko.SSHConfig</code></a></b>: <i>
+Representation of config information as stored in the format used by 
+OpenSSH.</i>
+  <li> <b><a href="__builtin__.type-class.html"><code>__builtin__.type</code></a></b>: <i>
+type(object) -&gt; the object's type type(name, bases, dict) -&gt; a 
+new type</i>
+    <ul>
+    </ul>
+    <ul>
+    </ul>
+    <ul>
+    </ul>
+    </ul>
+  <li> <b><a href="exceptions.Exception-class.html"><code>exceptions.Exception</code></a></b>: <i>
+Common base class for all exceptions.</i>
+    <ul>
+  <li> <b><a href="paramiko.SFTPError-class.html"><code>paramiko.SFTPError</code></a></b>
+  <li> <b><a href="paramiko.SSHException-class.html"><code>paramiko.SSHException</code></a></b>: <i>
+Exception raised by failures in SSH2 protocol negotiation or logic 
+errors.</i>
+    <ul>
+  <li> <b><a href="paramiko.AuthenticationException-class.html"><code>paramiko.AuthenticationException</code></a></b>: <i>
+Exception raised when authentication failed for some reason.</i>
+    <ul>
+  <li> <b><a href="paramiko.BadAuthenticationType-class.html"><code>paramiko.BadAuthenticationType</code></a></b>: <i>
+Exception raised when an authentication type (like password) is used, 
+but the server isn't allowing that type.</i>
+  <li> <b><a href="paramiko.PasswordRequiredException-class.html"><code>paramiko.PasswordRequiredException</code></a></b>: <i>
+Exception raised when a password is needed to unlock a private key 
+file.</i>
+    </ul>
+  <li> <b><a href="paramiko.BadHostKeyException-class.html"><code>paramiko.BadHostKeyException</code></a></b>: <i>
+The host key given by the SSH server did not match what we were 
+expecting.</i>
+  <li> <b><a href="paramiko.ChannelException-class.html"><code>paramiko.ChannelException</code></a></b>: <i>
+Exception raised when an attempt to open a new <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a> 
+fails.</i>
+    </ul>
+  <li> <b><a href="exceptions.StandardError-class.html"><code>exceptions.StandardError</code></a></b>: <i>
+Base class for all standard Python exceptions.</i>
+    <ul>
+  <li> <b><a href="exceptions.EnvironmentError-class.html"><code>exceptions.EnvironmentError</code></a></b>: <i>
+Base class for I/O related errors.</i>
+    <ul>
+  <li> <b><a href="exceptions.IOError-class.html"><code>exceptions.IOError</code></a></b>: <i>
+I/O operation failed.</i>
+    </ul>
+    </ul>
+    </ul>
+  <li> <b><a href="paramiko.Agent-class.html"><code>paramiko.Agent</code></a></b>: <i>
+Client interface for using private keys from an SSH agent running on 
+the local machine.</i>
+</ul>
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:06 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

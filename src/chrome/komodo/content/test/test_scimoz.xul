@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2004-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<window id="test_scimoz"
+        title="SciMoz Tests"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        screenX="40" screenY="40"
+        width="650" height="600"
+        persist="screenX screenY width height"
+        orient="vertical">
+
+    <hbox id="scintillaOverlayXul"/>
+    <script src="chrome://komodo/content/test/test_scimoz.js" type="application/x-javascript;version=1.7"/>
+
+    <vbox style="padding: 10px 10px 20px 10px;">
+        <description>
+            This dialog is used as a launch point for various test suites in
+            Komodo that depend on having an operable SciMoz. Select a test
+            below to run.
+        </description>
+        <hbox flex="1" align="center">
+            <separator flex="1"/>
+            <label value="Test Names" control="test-names" accesskey="N"/>
+            <menulist id="test-names"
+                      style="min-width: 150px;">
+                <menupopup>
+                    <menuitem label="koRubyCodeIntelCompletionLanguageService"
+                              value="koRubyCodeIntelCompletionLanguageService"/>
+                    <menuitem label="koPythonLanguage"
+                              value="koPythonLanguage"/>
+                    <menuitem label="koPerlCodeIntelCompletionLanguageService"
+                              value="koPerlCodeIntelCompletionLanguageService"/>
+                    <menuitem label="koPythonCodeIntelCompletionLanguageService"
+                              value="koPythonCodeIntelCompletionLanguageService"/>
+                    <menuitem label="koCSSLanguage"
+                              value="koCSSLanguage"/>
+                    <menuitem label="koSciMozController"
+                              value="koSciMozController"/>
+                    <menuitem label="koSciUtils"
+                              value="koSciUtils"/>
+                </menupopup>
+            </menulist>
+            <button label="Run Test" accesskey="R" oncommand="RunTest();"/>
+            <separator flex="1"/>
+        </hbox>
+    </vbox>
+
+    <view type="buffer" id="view" flex="1"/>
+</window>
+

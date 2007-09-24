@@ -1,0 +1,23 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "ISciMoz.idl"
+#include "ISciMozEvents.idl"
+#include "koIFile.idl"
+
+[scriptable, uuid(3EACD1EE-AAB8-4f00-8677-AE6FE434ADE3)]
+interface koITailObserver : nsISupports
+{
+  void init(in ISciMozLite scintilla);
+  void notify(in wstring text);
+};
+
+[scriptable, uuid(B770E332-95D0-4d54-97BF-09A0194FF596)]
+interface koITail : nsISupports
+{
+  void init(in ISciMoz scintilla, in wstring url);
+  void initFile(in ISciMoz scintilla, in koIFile file);
+  void terminate();
+  void terminateSoon(in PRUint32 secs);
+};

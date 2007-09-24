@@ -1,0 +1,30 @@
+.fileexplorer-locate-button,
+.fileexplorer-locate-button:hover
+{
+    list-style-image : url("chrome://komodo/content/icons/draw-connector-with-arrows.png");
+}
+
+.fileexplorer-refresh-button,
+.fileexplorer-refresh-button:hover
+{
+    list-style-image : url("chrome://komodo/content/icons/refresh.png");
+}
+
+.fileexplorer-add-button,
+.fileexplorer-add-button:hover
+{
+    list-style-image : url("chrome://komodo/skin/images/folder-open.png");
+}
+
+.fileexplorer-makeproject-button,
+.fileexplorer-makeproject-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/new_project.png");
+}
+
+.fileexplorer-open-button,
+.fileexplorer-open-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/open.png");
+}
+

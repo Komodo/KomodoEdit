@@ -1,0 +1,14 @@
+diff -r -du src/LexGen.py src/LexGen.py
+--- src/LexGen.py	2005-08-29 18:09:20.000000000 -0700
++++ src/LexGen.py	2007-05-01 17:00:17.000000000 -0700
+@@ -119,8 +119,8 @@
+ 		out.write(updated)
+ 		out.close()
+ 		print "Changed", filename
+-	#~ else:
+-		#~ print "Unchanged", filename
++	else:
++		print "Unchanged", filename
+ 
+ def Generate(inpath, outpath, commentPrefix, eolType, *lists):
+ 	"""Generate 'outpath' from 'inpath'.

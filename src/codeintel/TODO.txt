@@ -1,0 +1,46 @@
+
+High Priority
+=============
+
+- BUG: SilverCity Python lexer spurious stderr styles.
+
+
+Medium Priority
+===============
+
+- build, multilang: need to rationalize lmUDT with SilverCity.
+
+
+Low Priority
+============
+
+
+*** Everything below here is out of date. ***
+
+- brainstorm how the Django server-side stuff would work 
+- use all the JS libraries off this post for stress testing the JS
+  integration:
+    http://www.nedbatchelder.com/blog/200601.html#e20060121T123934
+
+NG
+==
+
+- <constant>
+- <mixin> or <module> or something for this. The processing is just different
+  and keying off of a __mixin__ attribute is more painful: I think.
+- A generic/easy way for a language to have implicit variables in certain
+  scopes. E.g. "self" everywhere for Ruby (meaning different things in
+  different scopes, see play/whatisself.rb). E.g. "this" in C++. Or should we
+  just have the "self" variables actually put in by the CILEs and have them
+  marked "__hidden__" or "__implicit__"? The latter sounds more sane.
+- a separation of the concept of a class object and a class instance object
+  for the <type> of something. For one, this is important for choosing btwn
+  Ruby instance methods and class methods. The same for Python, but this kind
+  of thing is much more common in Ruby.
+- usage of <returns> and the required extensions to CITDL and processing for
+  that
+- improved CILE processing to get better docs and better type info:
+    - define things users can do to help improve
+- improve clarity of CodeIntel names vs. language specific names
+- faster CILEs
+

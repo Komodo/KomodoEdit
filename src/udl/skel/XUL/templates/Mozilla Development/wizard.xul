@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<wizard id="wizard-window"
+        title="Wizard Title"
+        class="color-dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        >
+    
+    <wizardpage id="start" label="Wizard Page Label">
+        <description>
+            A description of this wizard panel.
+        </description>
+    </wizardpage>
+    
+</wizard>

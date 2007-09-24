@@ -1,0 +1,559 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/* Global Styles used by Komodo */
+
+/* Folder Icons */
+
+.folder-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/folder.png");
+}
+
+.openfolder-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/openFolder.png");
+}
+
+.upfolder-icon
+{
+  list-style-image : url("chrome://komodo/skin/global/images/upLevel.png");
+}
+
+.upfolder-icon[disabled="true"],
+.upfolder-icon[disabled="true"]:hover,
+.upfolder-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/global/images/upLevel_disable.png");
+}
+
+.newfolder-icon
+{
+  list-style-image : url("chrome://komodo/skin/global/images/newDirectory.png");
+}
+
+.newfolder-icon[disabled="true"],
+.newfolder-icon[disabled="true"]:hover,
+.newfolder-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/global/images/newDirectory.png");
+}
+
+/* General Icons */
+.komodo-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/komodo-icon.png");
+}
+
+.refresh-icon
+{
+    list-style-image: url("chrome://komodo/skin/global/images/refresh.png");
+}
+
+.goback-icon
+{
+    list-style-image: url("chrome://komodo/skin/global/images/goBack.png");
+}
+.goback-icon[disabled="true"],
+.goback-icon[disabled="true"]:hover,
+.goback-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/global/images/goBack_disable.png");
+}
+.goback-icon:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/global/images/goBack_hover.png");
+}
+
+.warning-icon
+{
+    list-style-image : url("chrome://global/skin/icons/Warning.png");
+    height: 32px;
+    width: 32px;
+}
+
+.small-warning-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/warning_small.png");
+    min-height: 16px;
+    height: 16px;
+    width: 16px;
+}
+
+.question-icon
+{
+    list-style-image : url("chrome://global/skin/icons/Question.png");
+    height: 32px;
+    width: 32px;
+}
+
+
+.help-icon {
+  list-style-image : url("chrome://komodo/skin/images/help.png");
+}
+.help-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/help_hover.png");
+}
+.help-icon[disabled="true"],
+.help-icon[disabled="true"]:hover,
+.help-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/help_disable.png");
+}
+
+
+.double-down-icon, .more-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/more.gif");
+}
+
+.double-up-icon, .less-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/less.gif");
+}
+
+.arrow-right-6x3-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/arrow_right_6x3.png");
+}
+
+.go-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/go.png");
+}
+.go-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/go-hover.png");
+}
+
+.project-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/project_icon.png");
+}
+
+.server-pref-icon
+{
+  list-style-image: url("chrome://komodo/skin/global/images/serverAccount.png");
+}
+
+.preview-icon
+{
+  list-style-image: url("chrome://komodo/skin/global/images/preview.png");
+}
+
+.preview-icon[disabled="true"],
+.preview-icon[disabled="true"]:hover,
+.preview-icon[disabled="true"]:hover:active
+{
+  list-style-image: url("chrome://komodo/skin/global/images/preview_disable.png");
+}
+
+.preview-icon:hover
+{
+  list-style-image: url("chrome://komodo/skin/global/images/preview_hover.png");
+}
+
+.refreshFile-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/refreshFile.png");
+}
+
+.configure-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/configure.gif");
+}
+
+.small-x-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x.png");
+}
+
+.small-x-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
+}
+
+.small-x-icon[disabled="true"],
+.small-x-icon[disabled="true"]:hover,
+.small-x-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
+}
+
+.bulletlist-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/bulletlist.png");
+}
+.bulletlist-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/bulletlist_hover.png");
+}
+.bulletlist-icon[disabled="true"],
+.bulletlist-icon[disabled="true"]:hover,
+.bulletlist-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/bulletlist_disable.png");
+}
+
+.scrollright-arrow-mini-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight-mini.png");
+}
+
+.scroll-arrow-right-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight.png");
+}
+
+.scroll-arrow-right-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_hover.png");
+}
+
+.scroll-arrow-right-icon[disabled="true"],
+.scroll-arrow-right-icon[disabled="true"]:hover,
+.scroll-arrow-right-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
+}
+
+.scroll-arrow-left-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft.png");
+}
+
+.scroll-arrow-left-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft_hover.png");
+}
+
+.scroll-arrow-left-icon[disabled="true"],
+.scroll-arrow-left-icon[disabled="true"]:hover,
+.scroll-arrow-left-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
+}
+
+.colorbg-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/colorbg.png");
+}
+
+.boldtext-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/boldButton.png");
+}
+
+.boldtext-icon[disabled="true"],
+.boldtext-icon[disabled="true"]:hover,
+.boldtext-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/boldButton_disable.png");
+}
+
+.boldtext-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/boldButton_hover.png");
+}
+
+.italictext-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/italicButton.png");
+}
+
+.italictext-icon[disabled="true"],
+.italictext-icon[disabled="true"]:hover,
+.italictext-icon[disabled="true"]:hover:active
+
+{
+  list-style-image : url("chrome://komodo/skin/images/italicButton_disable.png");
+}
+
+.italictext-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/italicButton_hover.png");
+}
+
+.find-stop-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/find_stop.png");
+}
+.find-stop-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/find_stop_hover.png");
+}
+.find-stop-icon[disabled="true"],
+.find-stop-icon[disabled="true"]:hover,
+.find-stop-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/find_stop_disable.png");
+}
+
+
+.macro-play-icon {
+  list-style-image : url("chrome://komodo/skin/images/macro_play.png");
+}
+.macro-play-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/macro_play_hover.png");
+}
+.macro-play-icon[disabled="true"],
+.macro-play-icon[disabled="true"]:hover,
+.macro-play-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/macro_play_disable.png");
+}
+
+.macro-pause-icon {
+  list-style-image : url("chrome://komodo/skin/images/macro_pause.png");
+}
+.macro-pause-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/macro_pause_hover.png");
+}
+.macro-pause-icon[disabled="true"],
+.macro-pause-icon[disabled="true"]:hover,
+.macro-pause-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/macro_pause_disable.png");
+}
+
+.macro-record-icon {
+  list-style-image : url("chrome://komodo/skin/images/macro_record.png");
+}
+.macro-record-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/macro_record_hover.png");
+}
+.macro-record-icon[disabled="true"],
+.macro-record-icon[disabled="true"]:hover,
+.macro-record-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/macro_record_disable.png");
+}
+
+.macro-stop-icon {
+  list-style-image : url("chrome://komodo/skin/images/macro_stop.png");
+}
+.macro-stop-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/macro_stop_hover.png");
+}
+.macro-stop-icon[disabled="true"],
+.macro-stop-icon[disabled="true"]:hover,
+.macro-stop-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/macro_stop_disable.png");
+}
+
+.macro-save-icon {
+  list-style-image : url("chrome://komodo/skin/images/macro_save.png");
+}
+.macro-save-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/macro_save_hover.png");
+}
+.macro-save-icon[disabled="true"],
+.macro-save-icon[disabled="true"]:hover,
+.macro-save-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/macro_save_disable.png");
+}
+
+.new-project-icon {
+    list-style-image: url("chrome://komodo/skin/images/new_project.png")
+}
+.new-project-icon:hover {
+    list-style-image: url("chrome://komodo/skin/images/new_project_hover.png")
+}
+
+.new-file-icon {
+  list-style-image : url("chrome://komodo/skin/images/newText.png");
+}
+
+.open-file-nohover-icon {
+  list-style-image : url("chrome://komodo/skin/images/open.png");
+}
+
+.open-file-icon {
+  list-style-image : url("chrome://komodo/skin/images/open.png");
+}
+
+.open-file-icon[disabled="true"],
+.open-file-icon[disabled="true"]:hover,
+.open-file-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/open_disabled.png");
+}
+
+.open-file-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/open_hover.png");
+}
+
+.open-project-icon {
+  list-style-image : url("chrome://komodo/skin/images/open_project.png");
+}
+.open-project-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/open_project_hover.png");
+}
+
+.new-template-icon {
+  list-style-image : url("chrome://komodo/skin/images/newTemplate.png");
+}
+
+.close-buffer-icon {
+  list-style-image : url("chrome://komodo/skin/images/small-x.png");
+}
+
+.save-buffer-icon {
+  list-style-image : url("chrome://komodo/skin/images/save.png");
+}
+
+.save-buffer-icon[disabled="true"],
+.save-buffer-icon[disabled="true"]:hover,
+.save-buffer-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/save_disabled.png");
+}
+
+.save-buffer-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/save_hover.png");
+}
+
+.run-command-icon {
+  list-style-image : url("chrome://komodo/skin/images/run_commands.png");
+}
+
+.breakpoint-toggle-icon {
+  list-style-image : url("chrome://komodo/skin/images/breakpoint_toggle_state.gif");
+}
+
+
+.next-buffer-icon {
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight.png");
+}
+
+.next-buffer-icon[disabled="true"] {
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
+}
+
+
+.previous-buffer-icon {
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft.png");
+}
+
+.previous-buffer-icon[disabled="true"] {
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
+}
+
+.list-item-down-icon {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow.png");
+}
+.list-item-down-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow_hover.png");
+}
+.list-item-down-icon[disabled="true"],
+.list-item-down-icon[disabled="true"]:hover,
+.list-item-down-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow_disable.png");
+}
+
+
+.list-item-up-icon {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow-up.png");
+}
+.list-item-up-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow-up_hover.png");
+}
+.list-item-up-icon[disabled="true"],
+.list-item-up-icon[disabled="true"]:hover,
+.list-item-up-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/small-arrow-up_disable.png");
+}
+
+
+.list-item-add-icon {
+  list-style-image : url("chrome://komodo/skin/images/list_item_add.png");
+}
+.list-item-add-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/list_item_add_hover.png");
+}
+.list-item-add-icon[disabled="true"],
+.list-item-add-icon[disabled="true"]:hover,
+.list-item-add-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/list_item_add_disable.png");
+}
+
+.list-item-edit-icon {
+  list-style-image : url("chrome://komodo/skin/images/list_item_edit.png");
+}
+.list-item-edit-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/list_item_edit_hover.png");
+}
+.list-item-edit-icon[disabled="true"],
+.list-item-edit-icon[disabled="true"]:hover,
+.list-item-edit-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/list_item_edit_disable.png");
+}
+
+.list-item-remove-icon {
+  list-style-image : url("chrome://komodo/skin/images/list_item_remove.png");
+}
+.list-item-remove-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/list_item_remove_hover.png");
+}
+.list-item-remove-icon[disabled="true"],
+.list-item-remove-icon[disabled="true"]:hover,
+.list-item-remove-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/list_item_remove_disable.png");
+}
+
+.green-undo-icon
+{
+  list-style-image : url("chrome://komodo/content/icons/undo.png");
+}
+.green-undo-icon:hover
+{
+  list-style-image : url("chrome://komodo/content/icons/undo.png");
+}
+.green-undo-icon[disabled="true"],
+.green-undo-icon[disabled="true"]:hover,
+.green-undo-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/content/icons/undo.png");
+}
+
+
+
+menulist {
+    min-height: 1.8em;
+}
+
+textbox {
+    min-height: 1.8em;
+}
+
+description {
+    line-height: 1.2;
+}
+description[disabled="true"] {
+    /* XXX Why do I have to specify this? Shouldn't Moz default styles
+      do this? */
+    color: GrayText;
+}
+
+button[type="moreinfo"] > .button-box > .button-icon
+{
+  margin-right: 0px;
+  margin-left: 2px;
+}
+
+button[type="moreinfo"][open="true"]  {
+  list-style-image: url("chrome://komodo/skin/images/less.gif");
+  background-color: transparent;
+}
+
+button[type="moreinfo"]  {
+  list-style-image: url("chrome://komodo/skin/images/more.gif");
+}
+
+treechildren::-moz-tree-image(remotefolder)
+{
+  list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
+}
+
+treechildren::-moz-tree-image(remotefile)
+{
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+}

@@ -1,0 +1,82 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+HHGTTG:
+  id: 1
+  title: Hitchhikers Guide To The Galaxy
+  author: Douglas Adams
+  isbn: 0345391802
+  summary: Laugh a minute satirical sci-fi
+LOTR:
+  id: 2
+  title: Lord of the Rings
+  author: J.R.R. Tolkien
+  isbn: 0618346244
+  summary: Hobbits, Orcs, and Elves, walking, walking, walking...
+BrickLane:
+  id: 3
+  title: "Brick Lane: A Novel"
+  author: Monica Ali
+  isbn: 0743243315
+  summary: "The immigrant world Ali chronicles in this penetrating, unsentimental debut has much in common with Zadie Smith's scrappy, multicultural London, though its sheltered protagonist rarely leaves her rundown East End apartment block where she is surrounded by fellow Bangladeshis. After a brief opening section set in East Pakistan-Nazneen's younger sister, the beautiful Hasina, elopes in a love marriage, and the quiet, plain Nazneen is married off to an older man-Ali begins a meticulous exploration of Nazneen's life in London, where her husband has taken her to live. Chanu fancies himself a frustrated intellectual and continually expounds upon the \"tragedy of immigration\" to his young wife (and anyone else who will listen), while letters from downtrodden Hasina provide a contrast to his idealized memories of Bangladesh. Nazneen, for her part, leads a relatively circumscribed life as a housewife and mother, and her experience of London in the 1980s and '90s is mostly indirect, through her children (rebellious Shahana and meek Bibi) and her variously assimilated neighbors. The realistic complexity of the characters is quietly stunning: Nazneen shrugs off her passivity at just the right moment, and the supporting cast-Chanu, the ineffectual patriarch; Nazneen's defiant and struggling neighbor, Razia (proud wearer of a Union Jack sweatshirt); and Karim, the foolish young Muslim radical with whom Nazneen eventually has an affair-are all richly drawn. By keeping the focus on their perceptions, Ali comments on larger issues of identity and assimilation without drawing undue attention to the fact, even gracefully working in September 11. Carefully observed and assured, the novel is free of pyrotechnics, its power residing in Ali's unsparing scrutiny of its hapless, hopeful protagonists. -- Publisher's Weekly"
+
+Interpreter:
+  id: 4
+  title: "Interpreter of Maladies"
+  author: Jhumpa Lahiri
+  isbn: 039592720X
+  summary: "Of course, Mr. Kapasi has no cure for what ails Mrs. Das--or himself. Lahiri's subtle, bittersweet ending is characteristic of the collection as a whole. Some of these nine tales are set in India, others in the United States, and most concern characters of Indian heritage. Yet the situations Lahiri's people face, from unhappy marriages to civil war, transcend ethnicity. As the narrator of the last story, \"The Third and Final Continent,\" comments: \"There are times I am bewildered by each mile I have traveled, each meal I have eaten, each person I have known, each room in which I have slept.\" In that single line Jhumpa Lahiri sums up a universal experience, one that applies to all who have grown up, left home, fallen in or out of love, and, above all, experienced what it means to be a foreigner, even within one's own family. --Alix Wilber  "
+
+Kite:
+  id: 5
+  title: "The Kite Runner"
+  author: Khaled Hosseini
+  isbn: 1594480001
+  summary: "Some of the plot's turns and twists may be somewhat implausible, but Hosseini has created characters that seem so real that one almost forgets that The Kite Runner is a novel and not a memoir. At a time when Afghanistan has been thrust into the forefront of America's collective consciousness (\"people sipping lattes at Starbucks were talking about the battle for Kunduz\"), Hosseini offers an honest, sometimes tragic, sometimes funny, but always heartfelt view of a fascinating land. Perhaps the only true flaw in this extraordinary novel is that it ends all too soon. --Gisele Toueg  "
+
+FatSmash:
+  id: 6
+  title: "The Fat Smash Diet: The Last Diet You'll Ever Need"
+  author: "Ian K. Smith"
+  isbn: 0312363133
+  summary: |
+    NO MORE COUNTING CALORIES!
+    NO MORE WASTING TIME!
+    NO MORE UNREALISTIC DIETS!
+    BUST THROUGH THE PLATEAU!
+    THE NEW YOU BEGINS NOW!
+
+AngelsFall:
+  id: 7
+  title: "Angels Fall"
+  author: Nora Roberts
+  isbn: 0399153721
+  summary: "Roberts's latest novel of romantic suspense is a cunningly calibrated portrait of a young chef's recovery from violent trauma. While driving in the Grand Tetons, displaced Bostonian Reece Gilmore stops in the small town of Angel's Fist, near Jackson Hole, Wyo., and considers the \"Cook Wanted\" sign in Joanie's, a local diner. Still rattled by a shooting spree at her Boston restaurant that left her wounded and the only survivor among 12 co-workers, Reece is easily spooked, as noted by her plainspoken new boss, Joanie, and the locals who frequent the restaurant."
+
+Morrigans:
+  id: 8
+  title: "Morrigan's Cross (Circle Trilogy)"
+  author: Nora Roberts
+  isbn: 0515141658
+  summary: "As a storm rages, the tale of a powerful vampire's lust for destruction-and of the circle of six charged by the goddess Morrigan to stop her-begins. One of the chosen is a medieval sorcerer whose quest will take him through time-and into the arms of a woman courageous enough to link her destiny to his own."
+
+HowStuffworks:
+  id: 9
+  title: "Marshall Brain's How Stuff Works"
+  author: Marshall Brain
+  isbn: 0764565184
+  summary: "
+    Marshall Brain's How Stuff Works is a lavish, full-color, highly visual resource for those with hungry minds who crave an understanding of the way things work around them-from submarine ships to digital technology to toilets!
+    With over 1,000 full-color illustrations and photos showing step-by-step images of how stuff works, these easy-to-understand explanations cover the most popular and interesting subject areas, including Technology, Science, Health, Fitness, Transportation, and more! Sample topics include: How CDs Work, How Car Engines Work, and How Nuclear Radiation and Power Work."
+
+NewHow:
+  id: 10
+  title: "New How Things Work: From Lawn Mowers to Surgical Robots and Everthing in Between"
+  author: John Langone
+  isbn: 079226956X
+  summary: "The New How Things Work updates the original with informative coverage of the objects and ideas that are changing our everyday lives, from DVDs and MP3 music files to plasma screen televisions and wireless internet technology."
+
+NGES:
+  id: 11
+  title: "National Geographic Encyclopedia of Space"
+  author: Linda K. Glover
+  isbn: 0792273192
+  summary: "Glover, the primary author and editor of this exceptional book, explains its concept: \"I couldn't find a 'SPACE 101' book anywhere that covered all the subjects I needed at an entry level.\" This is the book she wanted--arranged by concepts, not alphabetically. It is organized in six chapters: \"Deep Space,\" \"Our Solar System,\" \"Reaching and Maneuvering in Space,\" \"Human Spaceflight,\" \"Earth Science and Commerce from Space,\" and \"Military and Intelligence Uses of Space.\""

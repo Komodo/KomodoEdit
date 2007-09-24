@@ -1,0 +1,1347 @@
+#!/usr/bin/env python
+# Copyright (c) 2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+"""Test some JavaScript-specific codeintel handling."""
+
+import os
+import sys
+import re
+from os.path import join, dirname, abspath, exists, basename
+from glob import glob
+import unittest
+import subprocess
+import logging
+
+from codeintel2.common import *
+from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.environment import SimplePrefsEnvironment
+
+from testlib import TestError, TestSkipped, TestFailed, tag
+from citestsupport import CodeIntelTestCase, run, writefile
+
+
+
+log = logging.getLogger("test")
+
+
+
+class TriggerTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+
+    def test_complete_object_members(self):
+        # Triggers after full stop on identifiers:
+        #        abc.<|>
+        self.assertTriggerMatches("abc.<|>def",
+                                  name="javascript-complete-object-members",
+                                  pos=4)
+        self.assertNoTrigger("abc.d<|>ef")
+        self.assertNoTrigger("abc<|>.def")
+        # assert no trig in strings or comments
+        self.assertNoTrigger('var s = "abc.<|>def";')
+        self.assertNoTrigger("var s = 'abc.<|>def';r")
+        self.assertNoTrigger('/* abc.<|>def */')
+        self.assertNoTrigger('// abc.<|>def')
+
+    def test_calltip_call_signature(self):
+        # Triggers after open bracket:
+        #        abc(<|>
+        self.assertTriggerMatches("alert(<|>'myAlert');",
+                                  name="javascript-calltip-call-signature",
+                                  form=TRG_FORM_CALLTIP)
+        # assert no trig from non-identifer words
+        self.assertNoTrigger('if (<|>myValue) {')
+        # assert no trig in strings or comments
+        self.assertNoTrigger('var s = "alert(<|>def);";')
+        self.assertNoTrigger("var s = 'alert(<|>def);';r")
+        self.assertNoTrigger('/* myfunc.callthis(<|>arg1); */')
+        self.assertNoTrigger('// myfunc.callthis(<|>arg1);')
+
+    def test_doctags(self):
+        # Triggers after @ in a comment block
+        #        /** @param
+        cpln_trigger_name = "javascript-complete-jsdoc-tags"
+        calltip_trigger_name = "javascript-calltip-jsdoc-tags"
+        self.assertTriggerMatches("/** @<|>param",
+                                  name=cpln_trigger_name,
+                                  pos=5)
+        self.assertTriggerMatches("/** @param <|>",
+                                  name=calltip_trigger_name,
+                                  pos=9)
+        # Don't trigger in normal code or inside strings
+        self.assertNoTrigger("@<|>something")
+        self.assertNoTrigger("var s = '@<|>something';")
+
+    @tag("toddw")
+    def test_bug53247(self):
+        self.assertTriggerMatches(dedent("""\
+                function Cat(name){
+                    this.<|>name = name;
+                }
+            """),
+            name="javascript-complete-object-members")
+
+    @tag("bug70627", "knownfailure")
+    def test_preceding_with_numeric(self):
+        self.assertPrecedingTriggerMatches(
+            "c.command2k<$><|>",
+            name="javascript-complete-object-members", pos=2)
+
+class CplnTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    test_dir = join(os.getcwd(), "tmp")
+
+    def setUp(self):
+        CodeIntelTestCase.setUp(self)
+        if sys.platform == "win32":
+            run('rd /s/q "%s"' % self.test_dir)
+        else:
+            run('rm -rf "%s"' % self.test_dir)
+        log.debug("mkdir `%s'", self.test_dir)
+        os.makedirs(self.test_dir)
+
+    def test_doctags(self):
+        # Triggers after @ in a comment block
+        #        /** @param
+        content, positions = unmark_text(dedent("""\
+            /** @<1>param <2>name Some comment
+        """))
+        from codeintel2.jsdoc import jsdoc_tags
+        cplns = [ ("variable", x) for x in sorted(jsdoc_tags.keys()) ]
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]), cplns)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             jsdoc_tags["param"])
+
+    @tag("bug68727")
+    def test_jsdoc_parsing(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=68727
+        content, positions = unmark_text(dedent("""\
+            function dummyfunction() { }
+            /* some unrelated comment */
+
+            /**
+             * open window
+             * @param {String} page  a page tag
+             */
+            myopen = function(page) { }
+            myopen(<1>);
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "myopen(page)\nopen window")
+
+    @tag("bug53217", "bug53237")
+    def test_local(self):
+        # JS completion for stuff in just the local file.
+        content, positions = unmark_text(dedent("""\
+            function Mammal(name){
+                this.name=name;
+                this.offspring=[];
+            }
+            Mammal.prototype.haveABaby=function(){
+                var newBaby=new Mammal("Baby "+this.name);
+                this.offspring.push(newBaby);
+                return newBaby;
+            }
+            Cat.prototype = new Mammal();
+            Cat.prototype.constructor=Cat;
+            function Cat(name){
+                this.<7>name = name;
+                name.<8>toLowerCase();
+            }
+            Cat.prototype.meow = function() { dump("meow"); }
+
+            var felix = new Cat(<4>'Felix');
+            felix.<1>meow(<5>);
+            felix.haveABaby(<6>);
+
+            function comics() {
+                var garfield = new Cat('Garfield');
+                dump(garfield.<2>name);
+                alert(felix.<3>name);
+            }
+        """))
+        cat_instance_cplns = [("function", "haveABaby"),
+                              ("function", "meow"),
+                              ("variable", "name"),
+                              ("variable", "offspring")]
+        for marker in range(1, 4):
+            self.assertCompletionsAre(
+                markup_text(content, pos=positions[marker]),
+                cat_instance_cplns)
+
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[6]), "haveABaby()")
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[5]), "meow()")
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[4]), "Cat(name)")
+
+        # This is bug 53237.
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[7]),
+            cat_instance_cplns)
+
+        # Testing that completion on a var for which we have no type
+        # inference info doesn't blow up. I'm cheating because I
+        # know what "name" here doesn't have type info.
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[8]),
+            None)
+
+    #TODO:
+    # - Test case where a JS class' ctor is NOT the same name as the
+    #   class. E.g., is it possible for class Cat in test_local()
+    #   above to not define it's own ctor -- i.e. just use Mammal's?
+
+    def test_local2(self):
+        # JS completion for stuff in just the local file.
+        content, positions = unmark_text(dedent("""\
+            var treeView2 = {
+               treebox : null,
+               setTree: function(treebox){ this.<1>treebox = treebox; }
+            };
+        """))
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("function", "setTree"),
+             ("variable", "treebox")])
+
+    def test_private_variables(self):
+        # JS completion for stuff in just the local file.
+        content, positions = unmark_text(dedent("""\
+            function testme() {
+                var name = "testme";
+                this.treebox = null;
+                this.setTree = function(treebox) { this.treebox = treebox; }
+            };
+            var t = new testme();
+            t.<1>xxx;
+        """))
+        # Should not include name, due to it being private
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("function", "setTree"),
+             ("variable", "treebox")])
+
+    def test_ctor_scope_cheat(self):
+        # At one point was getting this error:
+        #     error: error evaluating 'this.baz' at rand20#7: ValueError: too many values to unpack (/home/trentm/as/Komodo-devel/src/codeintel/lib/codeintel2/tree.py#854 in get_parent_scope)
+        # Make sure we don't anymore.
+        #
+        # Also, we need to deal with our ctor cheat. If the start
+        # scope for evaluation a CITDL expression is at class scope,
+        # then we should push it to the ctor's scope. Otherwise, in
+        # this example, we'd never be able to resolve "Robin" for
+        # this.robin.
+        content, positions = unmark_text(dedent("""\
+            function Batman() { this.pow = 42; }
+            Batman.prototype.pif = function() {}
+            function Comic() {
+                function Robin() { this.blim = 42; }
+                Robin.prototype.blam = function() {}
+                this.batman = new Batman();
+                this.robin = new Robin();
+            }
+            Comic.prototype.read = function() {
+                this.batman.<1>pif();
+                this.robin.<2>blam();
+            }
+        """))
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("function", "pif"), ("variable", "pow")])
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[2]),
+            [("function", "blam"), ("variable", "blim")])
+
+    def test_event_heuristic(self):
+        # JS completion for event heuristic.
+        content, positions = unmark_text(dedent("""\
+            Foo.prototype.onTreeKeyPress = function(event) {
+                event.<1>target;
+            }
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "target")])
+
+    @tag("bug57037")
+    def test_builtin_types(self):
+        # JS completion for event heuristic.
+        content, positions = unmark_text(dedent("""\
+            String.<1>toLowerCase(<2>);
+            RegExp.<3>ignoreCase;
+            Object.<4>valueOf();
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "toLowerCase")])
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[2]),
+            "toLowerCase() -> String\nReturn a lowercase version of the string.")
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("variable", "ignoreCase")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[4]),
+            [("function", "valueOf")])
+
+    def test_builtin_vars(self):
+        content, positions = unmark_text(dedent("""\
+            document.<1>getElementById(<2>);
+            window.<3>blur(<4>);
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "getElementById")])
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[2]),
+            dedent("""\
+                getElementById(elementId)
+                Returns the Element whose ID is given by elementId. If no
+                such element exists, returns null."""))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("function", "blur"), ("variable", "scrollX")])
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[4]),
+            dedent("""\
+                blur()
+                Shifts focus away from the window. The window.blur() method
+                is the programmatic equivalent of the user shifting focus
+                away from the current window."""))
+
+    @tag("bug58307")
+    def test_builtin_funcs(self):
+        content, positions = unmark_text(dedent("""\
+            dump(<1>"yo yo yo");
+            alert(<2>"yowzer!");
+        """))
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[1]),
+            "dump(text)\n"
+            "Prints messages to the console. window.dump is commonly used\n"
+            "to debug JavaScript.")
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[2]),
+            dedent("""\
+                alert(text)
+                Display an alert dialog with the specified text. The alert
+                dialog should be used for messages which do not require any
+                response of the part of the user, other than the
+                acknowledgement of the message."""))
+
+    def test_intermixed_class_definitions(self):
+        # JS completion when intermixing class definitions
+        content, positions = unmark_text(dedent("""\
+                // Define class 1
+                function test_code() {
+                    this.field1 = null;
+                    this.field2 = null;
+                }
+
+                // Define class 2
+                function test_event(key, ctrl) {
+                    this.keyCode = key;
+                    if (ctrl) {
+                        this.ctrlKey = ctrl;
+                    }
+                }
+
+                // Define class 1 function
+                test_code.prototype.sendKeyPressEvent = function(key, ctrl) {
+                    this.<1>field1 = 1;
+                }
+
+                // Third class
+                function test_result() {
+                    this.result = 0;
+                }
+
+                // Define class 2 function
+                test_event.prototype.getResult = function() {
+                    this.<2>keyCode = 101;
+                }
+                """))
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[1]),
+            ["test_code", "sendKeyPressEvent"])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "field1"), ("variable", "field2")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("variable", "keyCode"), ("variable", "ctrlKey")])
+
+    def test_finding_start_scope_in_var_scope(self):
+        content, positions = unmark_text(dedent("""\
+            <1>
+            var treeView2 = {
+                <2>
+                rowCount : 10000, <3>
+                treebox : null,
+                getCellText : function(row,column){ <4>
+                    <5>
+                    if (column.id == "namecol") return "Row "+row;
+                    else return "February 18";
+                },
+            };
+            <6>
+        """))
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[1]),
+            [])
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[2]),
+            ["treeView2"])
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[3]),
+            ["treeView2"])
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[4]),
+            ["treeView2", "getCellText"])
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[5]),
+            ["treeView2", "getCellText"])
+        self.assertScopeLpathIs(
+            markup_text(content, pos=positions[6]),
+            [])
+
+    @tag("bug58157")
+    def test_calltip_from_function_definition(self):
+        # Assert we don't have a calltip when defining a function
+        self.assertNoTrigger("function abc(<|>) {}")
+
+    @tag("bug62528", "knownfailure")
+    def test_obj_var_with_method_assignment(self):
+        # Such as XMLHttpRequest callback:
+        self.assertCompletionsInclude(
+            dedent("""\
+                http_request = new XMLHttpRequest();
+                http_request.onreadystatechange = function() { alertContents(http_request); };
+                http_request.<|>open('GET', url, true);
+                http_request.send(null);
+            """),
+            [("function", "onreadystatechange"),
+             ("function", "open"),
+             ("function", "send"),
+             ("function", "abort")])
+
+    def test_files_in_same_dir(self):
+        test_dir = join(self.test_dir, "test_files_in_same_dir")
+        foo_js_content, foo_js_positions = unmark_text(dedent("""\
+            var b = new Bar(<1>"blah blah");
+            b.<2>bar();
+        """))
+
+        manifest = [
+            ("bar.js", dedent("""
+                function Bar(name) {
+                    this.name = name;
+                }
+                Bar.prototype = {
+                    bar: function() { alert('bar'); }
+                };
+             """)),
+            ("foo.js", foo_js_content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo.js"),
+                                     lang="JavaScript")
+        self.assertCalltipIs2(buf, foo_js_positions[1], "Bar(name)");
+        self.assertCompletionsInclude2(buf, foo_js_positions[2],
+            [("function", "bar"), ("variable", "name")])
+
+    def test_override_stdlib_class(self):
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['prototype'])
+        content, positions = unmark_text(dedent("""\
+            var String = {
+                foo: function(a, b) {}
+            };
+
+            String.<1>foo; // should still get stdlib String attrs here
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [# local extensions:
+             ("function", "foo"),
+             # prototype extensions:
+             ("function", "camelize"),
+             ("function", "escapeHTML"),
+             # std String attrs:
+             ("variable", "length"),
+             ("function", "concat"),
+            ],
+            env=env)
+
+    @tag("bug65447")
+    def test_cpln_with_unknown_parent(self):
+        content, positions = unmark_text(dedent("""\
+            function test_cplns() {
+                this.x = 1;
+            }
+            
+            test_cplns.prototype = new UnknownParentX();
+            test_cplns.prototype.constructor = test_cplns;
+            
+            test_cplns.prototype.showMe = function(arg1) {
+                alert(arg1);
+            }
+            
+            var tc = new test_cplns();
+            tc.<1>abc;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "x"),
+             ("function", "showMe"),])
+
+    @tag("bug59127")
+    def test_builtin_object_calltips(self):
+        self.assertCalltipIs("var foo = new String(<|>);",
+            "String(...)")
+        self.assertCalltipIs("var foo = new Boolean(<|>);",
+            "Boolean(...)")
+
+    @tag("bug65277")
+    def test_citdl_expr_with_exclamation(self):
+        self.assertCITDLExprIs("!foo.<|>", "foo")
+
+    @tag("bug65672")
+    def test_explicit_citdl_expr_with_comments(self):
+        # Test we don't include the citdl expression from the comment section
+        self.assertCITDLExprIs(dedent("""
+            // Guide.
+            document.<|>
+        """), "document", implicit=False)
+        self.assertCITDLExprIs(dedent("""
+            /* Guide. */
+            document.<|>
+        """), "document", implicit=False)
+        # Test we still get the citdl expression from a comment
+        self.assertCITDLExprIs(dedent("""
+            document. // Guide<1>
+        """), "Guide", implicit=False)
+
+    @tag("bug66637")
+    def test_function_return_types(self):
+        content, positions = unmark_text(dedent("""
+            // Function type return
+            function test() { return "abc"; }
+            var s = test();
+            s.<1>x;
+
+            // Function variable return from function variable
+            function test2() { var d = document.getElementById("mydomElement"); return d; }
+            var dEl = test2();
+            dEl.<2>x;
+
+            // Function inside function return
+            function test3() {
+                function test4() {
+                    return "xyz";
+                }
+                var x = test4();
+                return x;
+            }
+            var t3 = test3();
+            t3.<3>x;
+
+            // Test dom example
+            var domEl = document.getElementById("mydomElement");
+            domEl.<4>x;
+            var newNode = domEl.insertBefore(a, b);
+            newNode.<5>x;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "length"),
+             ("function", "indexOf"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "nodeName"),
+             ("function", "appendChild"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("variable", "length"),
+             ("function", "indexOf"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+            [("variable", "nodeName"),
+             ("function", "appendChild"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+            [("variable", "nodeName"),
+             ("function", "appendChild"),])
+
+    @tag("bug66842")
+    def test_function_return_chaining(self):
+        content, positions = unmark_text(dedent("""
+            function returnString() {
+              return 'abc';
+            }
+            var x = returnString();
+            // <1> String choices
+            // <2> Array choices
+            var y = x.<1>split('').<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "length"),
+             ("function", "indexOf"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "length"),
+             ("function", "push"),])
+
+    @tag("bug67123")
+    def test_named_function(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=67123
+        # Should ignore the optional function name "my_f"
+        content, positions = unmark_text(dedent("""
+            var functest = function my_f(a, b) { };
+            functest(<1>);
+            var functestnew = new function my_f(a, b) { };
+            functestnew(<2>);
+        """))
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[1]), "functest(a, b)")
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[2]), "functestnew(a, b)")
+
+    def test_string_literals(self):
+        content, positions = unmark_text(dedent("""\
+
+            // Standard string completions
+            "".<1>charAt(<2>);
+            '\\n'.<3>charAt();
+
+            // String delimiter inside string (should not trigger)
+            "My '.<4>field";
+            'My ".<5>field';
+
+            // Test we don't get string completions on function returns like:
+            function test(arg1) { return document; }
+            test("".<6>charAt()).<7>xyz;
+
+            // There is/was something wierd with this in my Komodo, so
+            // adding a testcase for this sucker.
+            function test2(arg1) { return 1; }
+            test2("abc").<8>xyz;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [('function', 'concat'),
+             ('function', 'toLowerCase'),
+             ('function', 'indexOf')])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+            "charAt(pos) -> String\nReturn the character at a particular "
+            "index in the string.")
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [('function', 'concat'),
+             ('function', 'toLowerCase'),
+             ('function', 'indexOf')])
+        self.assertNoTrigger(markup_text(content, pos=positions[4]))
+        self.assertNoTrigger(markup_text(content, pos=positions[5]))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[6]),
+            [('function', 'concat'),
+             ('function', 'toLowerCase'),
+             ('function', 'indexOf')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
+            [('function', 'getElementById'), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[8]),
+            [('function', 'toPrecision'), ])
+
+    @tag("bug71343")
+    def test_instance_defined_in_class_function(self):
+        content, positions = unmark_text(dedent("""\
+            function test_scope() {
+            }
+            test_scope.prototype.setup = function() {
+                var tmpStr = new String();
+                this.str = tmpStr.<1>replace("x", "y");
+            }
+            var v = new test_scope();
+            v.str.<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "charAt"),
+             ("function", "concat")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "charAt"),
+             ("function", "concat")])
+
+    @tag("bug71345")
+    def test_find_scope_from_line(self):
+        content, positions = unmark_text(dedent("""\
+            function test_scope() {
+            }
+            test_scope.prototype.setup = function() {
+                var tmpStr = new String();
+                this.str = tmpStr.<1>replace("x", "y");
+            }
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "charAt"),
+             ("function", "concat")])
+
+    @tag("bug71666")
+    def test_instance_name_same_as_class(self):
+        content, positions = unmark_text(dedent("""\
+            var test_scope = {};
+            (function() {
+                function test_this_class() {
+                    this.name = "";
+                }
+                test_this_class.prototype.setup = function() {
+                    this.str = "Test class";
+                    return this.str;
+                }
+                this.test_this_class = test_this_class;
+            }).apply(test_scope);
+            var t = new test_scope.test_this_class();
+            t.<1>;
+            var myvalue = t.setup(<2>);
+            myvalue.<3>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "name"),
+             ("variable", "str"),
+             ("function", "setup")])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+            "setup()")
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("variable", "length"),
+             ("function", "toLowerCase"),
+             ("function", "indexOf")])
+
+    @tag("bug72159")
+    def test_variable_call(self):
+        content, positions = unmark_text(dedent("""\
+            function testme() {
+                return "";
+            }
+            var x = testme;
+            var s = x();
+            s.<1>xxx;    // Expect string completions
+            x().<2>xxx;  // Test function chaining.
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "length"),
+             ("function", "toLowerCase"),
+             ("function", "indexOf")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "length"),
+             ("function", "toLowerCase"),
+             ("function", "indexOf")])
+
+class MochiKitTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+
+    @tag("bug62967")
+    def test_basics(self):
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['mochikit'])
+        content, positions = unmark_text(dedent("""\
+            MochiKit.<1>Visual.<2>roundElement(<3>);
+            roundElement(<4>);
+
+            MochiKit.<5>DateTime.<6>toISODate(<7>);
+            toISODate(<8>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "Visual"), ("namespace", "DateTime")],
+            env=env)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "roundElement"), ("function", "roundClass")],
+            env=env)
+        calltip = dedent("""\
+            roundElement(element[, options])
+            Immediately round the corners of the specified element. The
+            element can be given as either a string with the element ID,
+            or as an element object.""")
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+            calltip, env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+            calltip, env=env)
+
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+            [("namespace", "Visual"), ("namespace", "DateTime")],
+            env=env)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[6]),
+            [("function", "toISODate"),
+             ("function", "toAmericanDate")],
+            env=env)
+        calltip = dedent("""\
+            toISODate(date)
+            Convert a Date object to an ISO 8601 [1] date string (YYYY-
+            MM-DD)""")
+        self.assertCalltipIs(markup_text(content, pos=positions[7]),
+            calltip, env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[8]),
+            calltip, env=env)
+
+    @tag("bug63228")
+    def test_repr_with_collision(self):
+        # There had been some collision btwn repr() in mochikit and dojo that
+        # causes:
+        #    ...
+        #      File ".../codeintel2/tree_javascript.py", line 68, in eval_calltips
+        #        return self._calltips_from_hits(hits)
+        #      File ".../codeintel2/tree_javascript.py", line 249, in _calltips_from_hits
+        #        calltips.append(self._calltip_from_class(elem))
+        #      File ".../codeintel2/tree_javascript.py", line 230, in _calltip_from_class
+        #        ctor = elem.names[name]
+        #    KeyError: 'repr'
+        #    test_repr_with_collision (test_javascript.MochiKitTestCase) ... FAIL
+        env = SimplePrefsEnvironment(
+                codeintel_selected_catalogs=['mochikit', 'dojo'])
+        self.assertCalltipIs("repr(<|>)",
+            ('repr(obj)\n'
+             'Return a programmer representation for obj. See the\n'
+             'Programmer Representation overview for more information\n'
+             'about this function.'),
+            env=env)
+
+    @tag("bug59477", "knownfailure")
+    def test_deferred(self):
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['mochikit'])
+        content, positions = unmark_text(dedent("""\
+            function gotDocument(json) { /* ... */ }
+            function delay(res) { return wait(2.0, res); }
+            var d = loadJSONDoc('example.json');
+            d.<1>addCallback(<2>delay);
+            d.addCallback(gotDocument);   
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "addCallback"), ("function", "addErrback"),
+             ("function", "cancel")],
+            env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+            "addCallback(...) blah blah", env=env)
+
+    @tag("bug65370")
+    def test_class_ctor(self):
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['mochikit'])
+        expected_signature = """Logger([maxSize])
+A basic logger object that has a buffer of recent messages
+plus a listener dispatch mechanism for "real-time" logging
+of important messages. maxSize is the maximum number of
+entries in the log."""
+
+        content, positions = unmark_text(dedent("""\
+            var log = new MochiKit.Logging.Logger(<1>);
+            log.<2>xyz();
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+            expected_signature, env=env)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "addListener"),
+             ("function", "baseLog"),
+             ("function", "clear")],
+            env=env)
+
+
+class DojoTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+
+    @tag("bug63087")
+    def test_toplevel(self):
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
+        content, positions = unmark_text(dedent("""\
+            dojo.<1>addOnLoad(<2>);
+            dojo.byId(<3>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "addOnLoad"), ("function", "byId"),
+             ("function", "require")],
+            env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+            "addOnLoad(obj, fcnName)", env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+            "byId(id, doc)", env=env)
+
+
+class YUITestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    env = SimplePrefsEnvironment(codeintel_selected_catalogs=['yui'])
+
+    def test_toplevel(self):
+        self.assertCompletionsInclude("YAHOO.<|>",
+            [("namespace", "util"), ("namespace", "widget")])
+
+    @tag("bug63258", "bug63297")
+    def test_util(self):
+        # Try more than once to test alternate code path after caching.
+        for i in range(2):
+            self.assertCompletionsInclude("YAHOO.<|>util",
+                [("namespace", "util")])
+            self.assertCompletionsInclude("YAHOO.<|>util.<|>",
+                [("class", "Anim"), 
+                 ("class", "DD"),
+                 ("namespace", "Dom"), # bug 63297
+                ])
+            # bug 63258
+            self.assertCompletionsInclude("YAHOO.<|>util.DD.<|>",
+                [("function", "alignElWithMouse"), 
+                 ("function", "autoScroll"),
+                 ("variable", "scroll"),
+                ])
+
+    @tag("bug60048")
+    def test_yui_with_local_YAHOO(self):
+        self.assertCompletionsInclude(
+            dedent("""\
+                YAHOO.util.Easing.<|>;
+
+                YAHOO.example.init = function() {   
+                  var anim = new YAHOO.util.Anim('demo', { width: {to: 500} }, 1,
+                                 YAHOO.util.Easing.);
+                  YAHOO.util.Event.on(document, 'click', anim.animate, anim, true);
+                };
+                YAHOO.util.Event.onAvailable('demo', YAHOO.example.init);
+            """),
+            [("function", "easeBoth"), ("function", "bounceIn")])
+
+
+class PrototypeTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    env = SimplePrefsEnvironment(codeintel_selected_catalogs=['prototype'])
+
+    @tag("bug63098")
+    def test_dollar_func(self):
+        self.assertCalltipIs("$(<|>)",
+            ("$(elementId [, ...]) --> Element\n"
+             "The $() function is a handy shortcut to the all-too-frequent\n"
+             "document.getElementById() function of the DOM. Like the DOM\n"
+             "function, this one returns the element that has the id\n"
+             "passed as an argument."),
+            env=self.env)
+
+    def test_basics(self):
+        # Some basic prototype definitions.
+        content, positions = unmark_text(dedent("""\
+            Ajax.<1>activeRequestCount;
+            Enumerable.<2>each(<3>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "activeRequestCount"),
+             ("namespace", "Responders"),
+             ("function", "getTransport"),
+             ("class", "Base")],
+            env=self.env)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "each"),
+             ("function", "all"),
+             ("function", "grep")],
+            env=self.env)
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+            ("each(iterator)\n"
+             "Calls the given iterator function passing each element in\n"
+             "the list in the first argument and the index of the element\n"
+             "in the second argument"),
+            env=self.env)
+        
+    @tag("bug63137", "bug63208")
+    def test_extend_builtins1(self):
+        # Test some of the places in which prototype extends JS builtins.
+        content, positions = unmark_text(dedent("""\
+            String.<1>stripTags(<2>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "toUpperCase"),   # from JS String
+             ("variable", "length"),        # from JS String
+             ("function", "toString"),      # from JS Object
+             ("function", "stripTags"),     # from Prototype's String
+             ("function", "camelize"),      # from Prototype's String
+             ("function", "inspect"),       # from Prototype's Object
+             ],
+            env=self.env)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+            ("stripTags()\n"
+             "Returns the string with any HTML or XML tags removed"),
+            env=self.env)
+
+    @tag("bug63137")
+    def test_extend_builtins2(self):
+        # Test some of the places in which prototype extends JS builtins.
+        content, positions = unmark_text(dedent("""\
+            document.<3>getElementsByClassName(<4>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("function", "getElementById"),            # from JS
+             ("function", "getElementsByClassName"),    # from Prototype
+             ],
+            env=self.env)
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+            ("getElementsByClassName(className [, parentElement])\n"
+             "Returns all the elements that are associated with the given\n"
+             "CSS class name. If no parentElement id given, the entire\n"
+             "document body will be searched."),
+            env=self.env)
+
+    @tag("bug63297", "knownfailure")
+    def test_self_invoking_functions(self):
+        # XXX - I'm still not 100% sure this is correct and viable js syntax
+        content, positions = unmark_text(dedent("""\
+            (function() {
+              TestCode = function(a1) {
+                  this.a1 = a1;
+              }
+              TestCode.prototype = {
+                  c1: "c1",
+                  test: function() {},
+                  enabled: true
+              }
+            })();
+            t = new TestCode(<1>"a1");
+            t.<2>c1 = "new c1";
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+            ("TestCode(a1)"))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "a1"),
+             ("variable", "c1"),
+             ("function", "test"),
+             ("variable", "enabled")])
+
+    @tag("bug65197")
+    def test_multiple_variable_assignment(self):
+        content, positions = unmark_text(dedent("""\
+            TestCode = function(a1) {
+                this.a1 = a1;
+            }
+            TestCode.prototype = {
+                c1: "c1",
+                test: function() {},
+                enabled: true
+            }
+            var x;
+            var t = x = new TestCode("a1");
+            t.<1>c1 = "new c1";
+            x.<2>test();
+
+            var item1 = 7, item2 = 'cat', item3 = [];
+            item2.<3>toString();
+            item3.<4>toString();
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "a1"),
+             ("variable", "c1"),
+             ("function", "test"),
+             ("variable", "enabled")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "a1"),
+             ("variable", "c1"),
+             ("function", "test"),
+             ("variable", "enabled")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("function", "toUpperCase"),   # from JS String
+             ("variable", "length"),        # from JS String
+             ("function", "toString"),      # from JS Object
+             ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+            [("function", "push"),          # from JS Array
+             ("variable", "length"),        # from JS Array
+             ("function", "toString"),      # from JS Object
+             ])
+
+    @tag("knownfailure", "bug63717")
+    def test_try_calltip(self):
+        # Note that *creating a Try instance* isn't really typical
+        # usage:
+        #   http://www.sergiopereira.com/articles/prototype.js.html#TryThese
+        self.assertCalltipIs("Try(<|>", "Try(...)", env=self.env)
+
+
+# ext JS framework
+class ExtTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    env = SimplePrefsEnvironment(codeintel_selected_catalogs=['ext'])
+
+    #def test_toplevel(self):
+    #    self.assertCompletionsInclude("YAHOO.<|>",
+    #        [("variable", "util"), ("variable", "widget")])
+
+    @tag("bug70684", "knownfailure")
+    def test_intelligent_type_scanning(self):
+        # Try more than once to test alternate code path after caching.
+        content, positions = unmark_text(dedent("""\
+            Ext = {};
+            Ext.Element = function(element, forceNew) {
+                this.dom = element;
+            }
+            var El = Ext.Element;
+            El.prototype = {
+                originalDisplay : "",
+                visibilityMode : 1
+            }
+            var myElem = new Ext.Element();
+            myElem.<1>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "dom"),
+             ("variable", "originalDisplay"),
+             ("variable", "visibilityMode"),
+             ])
+
+
+class ExtendTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    test_dir = join(os.getcwd(), "tmp")
+
+    @tag("bug63258", "yui")
+    def test_yahoo_extend(self):
+        content, positions = unmark_text(dedent("""\
+            function Mammal(name){ 
+                    this.name=name;
+                    this.offspring=[];
+            }
+            Mammal.prototype.haveABaby=function(){ 
+                    var newBaby=new Mammal("Baby "+this.name);
+                    this.offspring.push(newBaby);
+                    return newBaby;
+            }
+            Mammal.prototype.toString=function(){ 
+                    return '[Mammal "'+this.name+'"]';
+            }
+            
+            function Dog(name) {
+                    this.name=name;
+            }
+            YAHOO.extend(Dog, Mammal, {
+                    colour: 'brown',
+                    toString: function() {
+                            return '[Dog "'+this.name+'"]';
+                    }
+            });
+            
+            var myDog = new Dog('Rover');
+            myDog.<1>haveABaby();
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "name"),          # From Dog
+             ("variable", "offspring"),     # From Mammel
+             ("variable", "colour"),        # From Dog extension
+             ("function", "toString"),      # From Dog extension
+             ("function", "haveABaby")])    # From Mammel
+
+
+class DefnTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    test_dir = join(os.getcwd(), "tmp")
+
+    def test_citdl_expr_under_pos_simple(self):
+        self.assertCITDLExprUnderPosIs("foo.<|>", "foo")
+        self.assertCITDLExprUnderPosIs("foo.bar<|>", "foo.bar")
+        self.assertCITDLExprUnderPosIs("f<|>oo.bar", "foo")
+        self.assertCITDLExprUnderPosIs("foo(bar.<|>", "bar")
+        self.assertCITDLExprUnderPosIs("foo[b<|>ar.", "bar")
+        self.assertCITDLExprUnderPosIs("foo{bar.<|>", "bar")
+        self.assertCITDLExprUnderPosIs("foo().<|>", "foo()")
+        self.assertCITDLExprUnderPosIs("foo(a,b).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs("a = fo<|>o.", "foo")
+        self.assertCITDLExprUnderPosIs("a = foo(ba<|>r., blam)", "bar")
+        self.assertCITDLExprUnderPosIs("blam()\nfoo.<|>", "foo")
+        self.assertCITDLExprUnderPosIs("blam()\nfoo.bar.<|>", "foo.bar")
+        # Ensure we only grab the correct context, and not too much
+        self.assertCITDLExprUnderPosIs("foo.bar.baz<|>", "foo.bar.baz")
+        self.assertCITDLExprUnderPosIs("foo.b<|>ar.baz", "foo.bar")
+        self.assertCITDLExprUnderPosIs("<|>foo.bar.baz", "foo")
+    def test_citdl_expr_under_pos_multiline(self):
+        self.assertCITDLExprUnderPosIs("foo(bar,\nblam.<|>)", "blam")
+        self.assertCITDLExprUnderPosIs("foo(bar,\nblam).spam.<|>", "foo().spam")
+        self.assertCITDLExprUnderPosIs("foo.\\\nbar.<|>", "foo.bar")
+        self.assertCITDLExprUnderPosIs("foo(1, // one\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs("foo(1, // o)ne\n2).b<|>ar.", "foo().bar")
+        self.assertCITDLExprUnderPosIs("foo(1, // (o)ne\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs("foo(1, // (one\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs("foo( //this is a ) comment\nb,d).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs("foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+    def test_citdl_expr_under_pos_extra(self):
+        self.assertCITDLExprUnderPosIs("if (foo.<|>(", "foo")
+        self.assertCITDLExprUnderPosIs("else if (foo.<|>(", "foo")
+        self.assertCITDLExprUnderPosIs("while (foo.<|>(", "foo")
+        self.assertCITDLExprUnderPosIs("foo.pr<|>ototype(", "foo.prototype")
+
+    def test_simple(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            function test1(i) {
+                var b = 0;
+                if (i > 0) {
+                    b = i;
+                }
+            }
+            
+            t = test<1>1(0);
+        """))
+
+        path = join(test_dir, "foo.js")
+        writefile(path, foo_content)
+
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=1, path=path, )
+
+    @tag("knownfailure")
+    def test_simple_import(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            <html>
+            <head>
+                <script type="application/x-javascript" src="bar.js" />
+                <script type="application/x-javascript">
+                    t = test<1>1(0);
+                </script>
+            </head>
+            <body>
+            </html>
+        """))
+
+        manifest = [
+            ("bar.js", dedent("""
+                function test1(i) {
+                    var b = 0;
+                    if (i > 0) {
+                        b = i;
+                    }
+                }
+             """)),
+            ("foo.js", foo_content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo.js"))
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=1,
+            path=join(test_dir, "bar.js"), )
+
+    @tag("bug65366")
+    def test_duplicate_defns(self):
+        # Setup
+        test_dir = join(self.test_dir, "test_duplicate_defns")
+        foo_path = join(test_dir, "foo.js")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            function startSessionInterval()
+            {
+                // 5second ping
+                sessionK<1>eepAlive(); // just to get an answer fast.
+                var sessionInterval = setInterval(sessionKeepAlive, 5000);
+            };
+
+            function sessionKeepAlive()
+            {
+                //...
+            };
+        """))
+        writefile(foo_path, foo_content)
+
+        # Test away...
+        buf = self.mgr.buf_from_path(foo_path)
+        self.assertNoDuplicateDefns2(buf, foo_positions[1])
+
+    @tag("bug70438")
+    def test_list_tuple_exception(self):
+        test_dir = join(self.test_dir, "test_defn")
+        path = join(test_dir, "bug70438.js")
+        content, positions = unmark_text(dedent("""\
+            var ko = {};
+            ko.test = {};
+            ko.test.func_test = function() { };
+            ko.test.class_test = function() { this.var1 = 1; };
+            ko.test.class_test.prototype.getName = function() { };
+            var t1 = ko.test.func<1>_test();
+            var t2 = new ko.test.class<2>_test();
+            t2.getNa<3>me();
+             """))
+        writefile(path, content)
+
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, positions[1],
+            ilk="function", name="func_test", line=3, path=path, )
+        self.assertDefnMatches2(buf, positions[2],
+            ilk="class", name="class_test", line=4, path=path, )
+        self.assertDefnMatches2(buf, positions[3],
+            ilk="function", name="getName", line=5, path=path, )
+
+class XPCOMTestCase(CodeIntelTestCase):
+    __tags__ = ["pyxpcom"]
+    lang = "JavaScript"
+    test_dir = join(os.getcwd(), "tmp")
+
+    def test_xpcom_cplns(self):
+        # JS completion for stuff in just the local file.
+        content, positions = unmark_text(dedent("""\
+            var observerSvc = Components.<1>classes["@mozilla.org/observer-service;1"].
+                           getService(Components.interfaces.<2>nsIObserverService);
+            observerSvc.<3>;
+            observerSvc.addObserver(<4>);
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "classes"),
+             ("namespace", "interfaces")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("class", "nsIObserverService"),
+             ("class", "nsIFile")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("function", "addObserver"),
+             ("function", "notifyObservers")])
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+                             "addObserver(in nsIObserver, in String, in Boolean)")
+
+    def test_xpcom_returns(self):
+        content, positions = unmark_text(dedent("""\
+            var file = Components.classes["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+            var clonefile = file.<1>clone();
+            clonefile.<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "followLinks"),
+             ("variable", "path"),
+             ("function", "clone"),
+             ("function", "exists"),
+             ("function", "initWithPath")])
+        # clone should return a nsIFile object
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "path"),
+             ("function", "clone"),
+             ("function", "exists")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+            [("variable", "followLinks"),
+             ("function", "initWithPath")])
+
+    def test_query_interface(self):
+        content, positions = unmark_text(dedent("""\
+            var aFile = Components.classes["@mozilla.org/file/local;1"].createInstance();
+            if (aFile) {
+                var qiFile = aFile.QueryInterface(Components.interfaces.nsILocalFile);
+                // Should now know that this supports nsILocalFile
+                qiFile.<1>;
+            }
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "followLinks"),
+             ("variable", "path"),
+             ("function", "clone"),
+             ("function", "exists"),
+             ("function", "initWithPath")])
+
+    @tag("knownfailure")
+    def test_query_interface_2(self):
+        content, positions = unmark_text(dedent("""\
+            var aFile = Components.classes["@mozilla.org/file/local;1"].createInstance();
+            if (aFile) {
+                aFile.QueryInterface(Components.interfaces.nsILocalFile);
+                // Should now know that this supports nsILocalFile
+                aFile.<1>;
+            }
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "followLinks"),
+             ("variable", "path"),
+             ("function", "clone"),
+             ("function", "exists"),
+             ("function", "initWithPath")])
+
+#---- mainline
+
+if __name__ == "__main__":
+    unittest.main()
+
+

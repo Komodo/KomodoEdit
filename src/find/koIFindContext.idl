@@ -1,0 +1,33 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Find Context class hierarchy
+
+[scriptable, uuid(DC6E2856-3B9B-4d7a-A9D1-92102DDCDC0A)]
+interface koIFindContext : nsISupports {
+    // context types
+    const long FCT_CURRENT_DOC = 0;   // in the current document
+    const long FCT_SELECTION = 1;     // in the current selection
+    const long FCT_ALL_OPEN_DOCS = 2; // in all open documents
+    const long FCT_IN_FILES = 3;      // in files
+
+    attribute PRUint32 type;
+    readonly attribute wstring name;   // a human readable name
+};
+
+[scriptable, uuid(AC460813-782F-40e4-887F-B9B2BFBD5DF6)]
+interface koIRangeFindContext : koIFindContext {
+    // These are *character* offsets (as opposed to *byte* offsets).
+    attribute PRUint32 startIndex;
+    attribute PRUint32 endIndex;
+};
+
+[scriptable, uuid(4F9ECE5C-D88C-46A2-B087-5E159CC3177D)]
+interface koIFindInFilesContext : koIFindContext {
+    // A working directory from which to base relative paths.
+    attribute wstring cwd;
+};
+
+

@@ -1,0 +1,20 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2007 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'sdkDir',
+);
+
+
+$cons->InstallXpcomComponent('koTest.py');
+$cons->Install($idlExportDir, 'koITest.idl');
+$cons->BuildAndInstallXpt('koITest.idl');
+

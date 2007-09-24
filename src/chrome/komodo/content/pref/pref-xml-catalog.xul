@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+
+function OnPreferencePageLoading() {
+    var extraPaths = document.getElementById("xmlCatalogPaths");
+    extraPaths.init() // must happen after onpageload
+}
+
+]]>
+</script>
+
+    <groupbox orient="vertical">
+        <caption label="&XMLCatalogs.label;"/>
+        <description>
+            Komodo identifies the type of your XML/HTML documents, and uses that
+            to provide autocompletion appropriate for each document.
+        </description>
+        <description>
+            Komodo ships with built-in support for a wide range of built-in
+            document schemas, including HTML/XHTML, XSL, XBL, XUL, RDF,
+            Relax-NG, DocBook, Atom, VXML, WML, and SVG (for a full list see the
+            documentation).
+        </description>
+        <description>
+            This dialog lets you add your own SGML or XML Catalog files for use
+            in XML/HTML autocompletion. See the documentation for detailed
+            instructions on how to create your own catalog file from a Schema or
+            DTD.
+        </description>
+	<pathlist
+		id="xmlCatalogPaths"
+                flex="1"
+                seltype="multiple"
+                type="files"
+                rows="4"
+		pref="true" prefwidget="true"
+                prefstring="xmlCatalogPaths"/>
+    </groupbox>
+
+</window>
+

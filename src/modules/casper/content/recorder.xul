@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. -->
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://casper/skin/casper.css" type="text/css"?>
+
+<window id="TestRecorderWindow"
+  title="Test Recorder"
+  xmlns:html="http://www.w3c.org/1999/xhtml"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  persist="screenX screenY width height"
+  onload="recorder_onload();"
+  >
+
+  <script src="chrome://jslib/content/jslib.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/logger.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/xpath.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/events.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/json.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/recorder.js" type="application/x-javascript"/>
+
+    <toolbox>
+      <toolbar id="casper-toolbar">
+      <toolbarbutton label="Start" onclick="recorder_start()"
+                     class="text-button"/>
+      <toolbarbutton label="Stop" onclick="recorder_stop()"
+                     class="text-button"/>
+      <toolbarbutton label="Play" onclick="recorder_play()"
+                     class="text-button"/>
+      <toolbarbutton label="Save" onclick="recorder_save(false)"
+                     class="text-button"/>
+      <toolbarbutton label="Save All" onclick="recorder_save(true)"
+                     class="text-button"/>
+      <toolbarbutton label="Load" onclick="recorder_load()"
+                     class="text-button"/>
+      <toolbarbutton label="Show JSON" onclick="recorder_showJSON()"
+                     class="text-button"/>
+      <toolbarbutton label="Create UnitTest" onclick="recorder_createUnitTest()"
+                     class="text-button"/>
+      <spacer flex="1"/>
+      <toolbarbutton label="Close" onclick="window.close()"
+                     class="text-button"/>
+      </toolbar>
+    </toolbox>
+  <vbox flex="1" style="margin-top: 3px">
+    <tabbox id="recorder_tabbox" flex="1">
+      <tabs id="recorder_tabs">
+        <tab id="tab_config" label="Configuration"/>
+        <tab id="tab_currentTest" label="Recorded"/>
+        <tab id="tab_json" label="JSON"/>
+        <tab id="tab_xpathTest" label="Test XPath"/>
+      </tabs>
+      <tabpanels id ="recorder_tabpanels" flex="1">
+        <tabpanel id="tabpanel_config">
+          <vbox>
+            <label value="Events"/>
+            <listbox id="eventList" flex="1"/>
+          </vbox>
+          <splitter/>
+          <vbox flex="1">
+          </vbox>
+        </tabpanel>
+        <tabpanel id="tabpanel_results">
+          <listbox id="resultsList"
+                   flex="1"
+                   onselect="recorder_show_event()"
+                   onkeypress="recorder_onListItemKeypress(event);">
+            <listcols>
+              <listcol/>
+              <listcol/>
+              <listcol/>
+              <listcol flex="1"/>
+            </listcols>
+            <listhead>
+              <listheader label=""/>
+              <listheader label="Action"/>
+              <listheader label="Event"/>
+              <listheader label="Target" flex="1"/>
+            </listhead>
+          </listbox>
+          <splitter/>
+          <vbox>
+          <listbox id="eventInfo"
+                   onselect="recorder_show_event_item();"
+                   flex="1">
+            <listcols>
+              <listcol/>
+              <splitter class="list-splitter"/>
+              <listcol flex="1"/>
+            </listcols>
+            <listhead>
+              <listheader label="Name"/>
+              <listheader label="Value" flex="1"/>
+            </listhead>
+          </listbox>
+          <textbox id="prop_name" flex="1" readonly="true"/>
+          <textbox id="prop_value" flex="1" readonly="true" multiline="true" rows="3" wrap="on"/>
+          <hbox align="right">
+          <toolbarbutton label="Test XPATH" onclick="recorder_testXpath()"
+                         class="text-button"/>
+          </hbox>
+          </vbox>
+        </tabpanel>
+        <tabpanel id="tabpanel_json" orient="vertical">
+          <textbox id="json_value" flex="1" readonly="true" multiline="true" wrap="on"/>
+        </tabpanel>
+        <tabpanel id="tabpanel_xpathtest" orient="vertical">
+          <textbox id="xpath_test_expression" multiline="true" rows="3" wrap="on"/>
+          <hbox pack="center">
+          <button id="xpath_test_start" label="run" oncommand="recorder_run_xpath_test()"/>
+          </hbox>
+          <textbox id="xpath_test_result" flex="1" readonly="true" multiline="true" rows="3" wrap="on"/>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+
+  </vbox>
+</window>

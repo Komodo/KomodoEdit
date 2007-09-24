@@ -1,0 +1,22 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozChromeDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+);
+
+$cons->InstallInChrome('package-export-wizard.xul');
+$cons->InstallInChrome('package-import-wizard.xul');
+

@@ -1,0 +1,155 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// Komodo's linting backend
+//
+// Here is how linting basically works: The JavaScript runtime gets a
+// handle on the koLintingService and makes requests (koILintRequest)
+// to lint given documents. The linting service processes those requests
+// asynchronously with appropriate koILinter instances and passes results
+// back via 'lint_results' (koILintResults) notifications.
+// It is then up to the JavaScript runtime to display those results as it
+// sees fit (see koLintDisplayer.py).
+//
+
+
+#include "nsISupports.idl"
+#include "koIEncoding.idl"
+#include "ISciMoz.idl"
+#include "nsIObserverService.idl"
+interface koIDocument;
+interface koILintRequest;
+
+[scriptable, uuid(2164884D-492F-11d4-AC24-0090273E6A60)]
+interface koILintResult : nsISupports
+{
+    //XXX should maybe be derived from something in common with FindResult
+    //XXX because display and navigation should be similar for both
+    attribute long lineStart;   // negative value indicates unknown line
+    attribute long lineEnd;     // negative value indicates unknown line
+    attribute long columnStart; // negative value indicates unknown column
+    attribute long columnEnd;   // negative value indicates unknown column
+    
+    attribute wstring description;
+
+    //XXX look at perldoc perldiag for good list of possible severities
+    const long SEV_INFO = 0;
+    const long SEV_WARNING = 1;
+    const long SEV_ERROR = 2;
+    attribute long severity;
+
+    // Constants used for Scintilla decorators introduced 2007-spring
+    // XXX: soft chars are why these decl'ns should be moved elsewhere.
+    // They need to be kept together because different custom indicators
+    // need different values. 
+    const long DECORATOR_ERROR = 15;
+    const long DECORATOR_WARNING = 16;
+    const long DECORATOR_SOFT_CHAR = 17;
+  
+};
+
+[scriptable, uuid(D990E18E-807F-47f9-8C9D-5D2AC5D9A4CF)]
+interface koILintResults : nsISupports {
+    void addResult(in koILintResult result);
+    void getResults([array, size_is(count)] out koILintResult results,
+                    out unsigned long count);
+    // This one _was_ used by the old kombo.js for displaying a tooltip.
+    // No longer it seems.
+    void getResultsInLineRange(in long start, in long end,
+                               [array, size_is(count)] out koILintResult results,
+                               out unsigned long count);
+    void getResultsAtPosition(in long line, in long column,
+                              [array, size_is(count)] out koILintResult results,
+                              out unsigned long count);
+
+    // Convenience methods (for status bar UI).
+    long getNumResults();
+    long getNumWarnings();
+    long getNumErrors();
+    koILintResult getNextResult(in long line, in long column);
+};
+
+
+[scriptable, uuid(2164884B-492F-11d4-AC24-0090273E6A60)]
+interface koILinter : nsISupports
+{  
+    // Check/lint the given content.
+    //
+    //  "request" is a the koILintRequest object. Generally the linter only
+    //      needs the "content", "cwd" and "encoding" attributes.
+    //
+    // If there is an error linting then an exception should be raised.
+    // How the error is handled is up to the caller but the errno may be
+    // used to ensure that subsequent errors of the same errno are suppressed
+    // (so the user is not unnecessarily innudated).
+    koILintResults lint(in koILintRequest request);
+};
+
+
+[scriptable, uuid(21648851-492F-11d4-AC24-0090273E6A60)]
+interface koILintDisplayer : nsISupports
+{
+    // display the visible koILintResult's in the given editor buffer
+    void display(in ISciMoz scin,
+                 in koILintResults lintResults,
+                 in unsigned long numBits,
+                 in unsigned long startPos,
+                 in unsigned long styleLen);
+    void displayClear(in ISciMoz scin,
+                      in unsigned long numBits);
+};
+
+
+// JS-implemented interface to enable the Python backend to pass results
+// back to the UI. (XXX: a nsIObserver-mechanism was being clumsily used
+// for this before.)
+[scriptable, uuid(4912AE60-7AD4-4B02-9D9D-8CE4199C67A3)]
+interface koILintBuffer : nsISupports {
+    void reportResults(in koILintRequest request);
+};
+
+
+[scriptable, uuid(0A5B4FFC-737C-4103-992F-CB1BB2504598)]
+interface koILintRequest : nsISupports {
+    // This first block of attributes should be set when the request is made.
+    attribute long rid; // relatively-unique request id
+    attribute koIDocument document;
+    attribute string uid;        // a unique view id
+    // Specifying a null linterType will just result in an encoding check
+    // on the document.
+    attribute string linterType;
+    attribute wstring cwd;
+    attribute koILintBuffer lintBuffer;
+
+    // The following attributes are for internal use and/or are set while
+    // processing the request.
+    attribute wstring content;
+    attribute koIEncoding encoding;
+    attribute koILinter linter;
+    attribute koILintResults results;
+    attribute string errorString;
+
+    wstring describe(); // Return a desc of this request. For debugging.
+};
+
+
+[scriptable, uuid(2AC66B1E-77CD-493D-A8FC-8188B7881BC4)]
+interface koILintService : nsISupports {
+    // Shutdown the lint service and its worker threads.  
+    void terminate();
+
+    // Request a lint.
+    // If there is an error an exception is raised and an error is set on
+    // koILintRequest:errorString.
+    void addRequest(in koILintRequest request);
+    
+    // Cancel all pending lint requests for the given view.
+    //
+    //  "uid" is meant to uniquely identify a view (XXX crappy name))
+    //
+    // Note that if there is a request currently being processed (whether
+    // for this "uid" or not, it is NOT cancelled).
+    void cancelPendingRequests(in string uid);
+};
+
+

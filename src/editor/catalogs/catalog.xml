@@ -1,0 +1,51 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+
+<!-- XML Catalog data for Komodo
+
+     This catalog points to other catalogs, and provides mappings from
+     namespace to DTD/RelaxNG Schema files
+     
+     Komodo supports both SGML Catalogs and XML Catalogs with either
+     DTD files or RelaxNG Schema files.  XML Schema files are unsupported
+     at this time for editing features.
+
+-->
+
+    <!-- Namespace to URI mappings to RelaxNG Schemas -->
+    <uri name="http://purl.org/atom/ns#"
+         uri="rng/atom3.rng"/>
+    <uri name="http://www.w3.org/2005/Atom"
+         uri="rng/atom.rng"/>
+    <uri name="http://purl.org/dc/elements/1.1/"
+         uri="rng/dc.rng"/>
+    <uri name="http://www.xml.gr.jp/xmlns/relaxCore"
+         uri="rng/relaxCore.rng"/>
+    <uri name="http://relaxng.org/ns/structure/1.0"
+         uri="rng/relaxng.rng"/>
+    <uri name="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         uri="rng/rdfxml.rng"/>
+    <uri name="http://www.w3.org/2001/XMLSchema"
+         uri="rng/xmlschema.rng"/>
+    <uri name="http://www.w3.org/1999/XSL/Transform"
+         uri="rng/xslt.rng"/>
+    
+    <!-- Namespace to URI mappings to DTD -->
+    <uri name="http://www.w3.org/2000/svg"
+         uri="sgml-lib/REC-SVG11-20030114/svg11.dtd"/>
+    <uri name="http://www.w3.org/1998/Math/MathML"
+         uri="sgml-lib/REC-MathML2-20031021/mathml2.dtd"/>
+    <uri name="http://www.w3.org/1999/xhtml"
+         uri="sgml-lib/REC-xhtml11-20010531/xhtml11-flat.dtd"/>
+
+    <!-- These SGML catalogs depend on DOCTYPE declarations -->
+    <nextCatalog catalog="sgml-lib/sgml.soc"/>
+    <nextCatalog catalog="sgml-lib/xml.soc"/>
+    
+    <!-- additional catalogs distributed with Komodo -->
+    <nextCatalog catalog="mozilla/catalog.xml"/>
+    <nextCatalog catalog="wapforum/catalog.xml"/>
+    <nextCatalog catalog="oasis/catalog.xml"/>
+    <nextCatalog catalog="docbook44/catalog.xml"/>
+
+</catalog>

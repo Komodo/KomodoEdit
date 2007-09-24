@@ -1,0 +1,18 @@
+# A Luddite mode written in Luddite
+
+# To build:
+# python luddite.py compile udl\luddite.udl -f
+# python luddite.py package luddite -f
+# Open luddite_language-1.0.0-ko.xpi in Komodo, install, restart
+
+language Perl2
+
+family markup
+sublanguage HTML #not used
+initial IN_M_DEFAULT
+
+# Need to get into a state with keywords -- use CSL
+state IN_M_DEFAULT:
+/./ : paint(upto, SSL_DEFAULT), redo => IN_SSL_DEFAULT
+
+include "perllex.udl"

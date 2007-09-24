@@ -1,0 +1,9 @@
+
+PUBLIC "-//MOZILLA//DTD XUL V1.0//EN"
+       "mozilla/xul.dtd"
+SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+       "mozilla/xul.dtd"
+PUBLIC "-//MOZILLA//DTD XBL V1.0//EN"
+       "mozilla/xbl.dtd"
+SYSTEM "http://www.mozilla.org/xbl"
+       "mozilla/xul.dtd"

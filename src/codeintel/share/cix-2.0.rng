@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: //depot/main/Apps/Komodo-open/src/codeintel/share/cix-2.0.rng#1 $
+
+# Basic structure of a CIX 2.0 file.
+
+    <codeintel version="2.0" xmlns="urn:activestate:cix:2.0">
+        <file lang="Perl" path=".../Foo.pm">
+            <scope ilk="blob" lang="Perl" name="Foo" src=".../Foo.pm">
+                ...classes, functions, variables, imports...
+            </scope>
+        </file>
+    </codeintel>
+
+    # a multi-lang file
+    <codeintel version="2.0" xmlns="urn:activestate:cix:2.0">   
+        <file lang="RHTML" path=".../blah.rhtml">
+            <scope ilk="blob" lang="JavaScript" name="blah.rhtml" src=".../blah.rhtml">
+                ...JavaScript classes, functions, variables...
+            </scope>
+            <scope ilk="blob" lang="Ruby" name="blah.rhtml" src=".../blah.rhtml">
+                ...Ruby classes, functions, variables, imports...
+            </scope>
+        </file>
+    </codeintel>
+
+
+# Notes on this schema
+
+"line" and "lineend" attributes are 1-based. As well, they are only optional to
+allow for CIX describing binary modules (where a line number does not make
+sense). They are strongly recommended for text files.
+
+CITDL stands for CodeIntel Type Determination Language. It is an expression
+that is evaluated to figure out what type a variable is. Examples:
+
+    list       # the list symbol (possibly Python's built-in list object)
+    foo()      # the result of calling function foo
+    foo.bar    # member 'bar' of symbol 'foo'
+
+I have no idea if the "value" attribute on <attribute> is legal Relax NG, but
+tough, the authors of the RelaxNG spec strove for obtusness. You know what I
+mean.
+
+Why 'ilk' for scope type? Ilk is a synonym for "type", but "type" is
+overloaded. It is short (good for space savings), it is weird (people won't
+think this is related to type inferencing info) and it is rare (good for
+finding uses in the codeintel sources).
+
+Why 'blob' for modules/packages/importable-things? See
+<http://p4.activestate.com/p4db/changeView.cgi?CH=269772> for a reasons why.
+
+
+# Common attributes
+
+These are the shared common attributes that are used in any of the elements
+below.
+
+    __exported__, __exportable__
+        To support Perl's special @EXPORT and @EXPORT_OK Exporter
+        variables, respectively. A Perl symbol tag should have
+        the appropriate attribute if it is a member of one of
+        these lists.
+    __hidden__
+        Indicates that this symbol is not externally accessible for
+        the purposes of completion. This can be required for binary
+        modules. For example Python's pyexpat module has a
+        ParserCreate() factory function which returns a
+        pyexpat.xmlparser class instance. However, the 'xmlparser'
+        class is not otherwise accessible on the pyexpat module.
+    __local__
+        Indicates that this element is local to the current scope, i.e.
+        not visible externally. This was initially added to support
+        Perl's package variables declared with "my". This has started
+        to extend to other languages such as JavaScript, which uses
+        this attribute for variables declared with "var" and "const".
+    __fabricated__
+        Indicates that this element (and its contents) does not necessarily
+        represent the actual code in the underlying document.  For example,
+        Rails migration classes contain an "uninteresting" class, which
+        often contain methods that define parts of an ActiveRecord::Base
+        class.  Fabricated items are intended to be usable in code-completion
+        lists, but need not show up in code browser windows.
+    private, protected
+        Indicates that this item is private or protected.
+        Note: Current completion processing does not use these
+        attributes. Komodo's code browser does, however, adding
+        a small black lock icon to the element.
+    deprecated
+        Indicates that this item should not be used anymore.
+    constant
+        Indicates that this item can/should not be modified.
+
+
+# TODO
+
+- Change "module" on <import> be to blob (to conform to the s/module/blob/
+  changes elsewhere.
+
+-->
+
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+         ns="urn:activestate:cix:2.0">
+    <start>
+        <ref name="CodeIntel"/>
+    </start>
+
+    <define name="CodeIntel">
+        <element name="codeintel">
+            <attribute name="version"/>
+            <optional>
+                <!-- An optional name and description of what this CIX content
+                     describes. This is only suggested for API catalogs and
+                     perhaps stdlib CIX files (i.e. normal scanners should not
+                     bother. "name" should be just one work, e.g. "MochiKit",
+                     and "description" should be short (one line). -->
+                <attribute name="name" />
+                <attribute name="description" />
+            </optional>
+            <oneOrMore> <!-- Note: should be able to make this exactly one. -->
+                <ref name="File"/>
+            </oneOrMore>
+        </element>
+    </define>
+
+    <define name="File">
+        <element name="file">
+            <attribute name="lang"/> <!-- language of the file content -->
+            <!-- path of the scanned file, must use '/' as dir separator -->
+            <attribute name="path"/>
+            <choice>
+                <!-- a successful scan -->
+                <group>
+                    <!-- Last modified time of the file or time of the scan (in
+                         seconds since the "epoch"). -->
+                    <attribute name="mtime"/>
+                    <!-- Only multi-lang files can have more than one module. -->
+                    <zeroOrMore>
+                        <ref name="Blob"/>
+                    </zeroOrMore>
+                </group>
+                <!-- a failed scan 
+                     Note: This may be dropped in favour of an error return
+                     from the CILE scan methods. -->
+                <attribute name="error"/> <!-- description of scan failure -->
+            </choice>
+        </element>
+    </define>
+
+    <!-- Represents the content for one language in a file. E.g., a Python
+         module, the JS code in an HTML file. -->
+    <define name="Blob">
+        <element name="scope">
+            <attribute name="ilk" value="blob"/>
+            <!-- The name of the module. The file extension should be left on
+                 if the file extension is used for importing by that language's
+                 import statement. -->
+            <attribute name="lang"/>
+            <attribute name="name"/>
+            <optional>
+                <!-- Special module attributes:
+                    __script__
+                        The existence of this attribute means this is a fake
+                        module for a script file that isn't actually
+                        importable.  For example, Tcl files that do not define
+                        packages should be marked with this attribute.
+                    __version__=<version>
+                        This can be used to define the version of a
+                        module/package. It should only be used for languages
+                        where a module version is relevant for import semantic,
+                        e.g. Tcl.
+                    Also see common attributes at the top of the file.
+                -->
+                <attribute name="attributes"/>
+            </optional>
+            <optional>
+                <!-- *Short* doc (i.e. appropriate for Komodo's Code Browser's
+                     description area) for the blob, if any. -->
+                <attribute name="doc" /> 
+            </optional>
+            <optional>
+                <!-- Path of the scanned file (same as 'path' attr on File
+                     element). Must use '/' as dir separator (even on Windows).
+
+                     Was added to easily get the file path from a blob, used
+                     for "Goto Definition" functionality. -->
+                <attribute name="src" /> 
+            </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Namespace"/>
+                    <ref name="Interface"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Import">
+        <element name="import">
+            <!-- The module being imported, or from which a symbol(s) is
+                 being imported. 
+                
+                 With Ruby's 'include'-statement you import a symbol (a Ruby
+                 'module') from an unspecified blob (a.k.a. a module).
+                 -->
+            <optional> <attribute name="module"/> </optional>
+            <optional> <attribute name="line"/> </optional>
+            <!-- Symbol being imported from the module, if any.
+                 This should be left blank if just the module name is
+                 "imported", as with "use Foo();" in Perl and "import foo"
+                 in Python.
+
+                 If a single code statement imports multiple symbols, then
+                 multiple <import> CIX tags should be generated. E.g.:
+                    use Alphagetti qw(a b);         # Perl
+                    from Alphagetti import a, b     # Python
+                 should result in something like:
+                    <import module="Alphagetti" symbol="a"/>
+                    <import module="Alphagetti" symbol="b"/>
+
+                 There are two special symbol values:
+                 - symbol="*"
+                    Indicates that all normally exported symbols are
+                    imported. E.g. "from foo import *" in Python, "use Foo;"
+                    in Perl.
+                 - symbol="**"
+                    Indicates that all exportable symbols are imported. This
+                    is essentially a hack for Perl to somewhat support
+                    %EXPORT_TAGS usage. AutoComplete evaluation will treat
+                    "**" as an import of all @EXPORT and @EXPORT_OK symbols.
+              -->
+            <optional> <attribute name="symbol"/> </optional>
+            <!-- Alias for the imported symbol or module, if any.
+                 Python, for example, allows this:
+                    import pcre as re
+                    from cgi import escape as htmlescape -->
+            <optional> <attribute name="alias"/> </optional>
+        </element>
+    </define>
+
+    <define name="Class">
+        <element name="scope">
+            <attribute name="ilk" value="class"/>
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special attributes:
+                None. See common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="signature"/> </optional>
+            <!-- Space-separate list of base classes. The given strings are
+                 actually the CITDL expr used to resolve the base class. -->
+            <optional> <attribute name="classrefs"/> </optional>
+            <optional> <attribute name="interfacerefs"/> </optional>
+            <optional> <attribute name="mixinrefs"/> </optional>
+            <optional> <attribute name="doc" /> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Namespace"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Namespace">
+        <element name="scope">
+            <attribute name="ilk" value="namespace"/>
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special attributes:
+                None. See common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <attribute name="interfacerefs"/> </optional>
+            <!-- XXX Can a Ruby module include mixins? -->
+            <optional> <attribute name="mixinrefs"/> </optional>
+            <optional> <attribute name="doc" /> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Namespace"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Interface">
+        <element name="scope">
+            <attribute name="ilk" value="interface"/>
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special attributes:
+                None. See common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <attribute name="interfacerefs"/> </optional>
+            <optional> <attribute name="doc"/> </optional>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Function">
+        <element name="scope">
+            <attribute name="ilk" value="function"/>
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <optional> <attribute name="lineend"/> </optional>
+            <!-- Special function attributes:
+                __ctor__
+                    Used to indicate that this is a constructor for its
+                    containing class.
+                __classmethod__
+                    Used to differentiate between class and instance methods. I
+                    think most OO-capable languages have this distinct (at
+                    least Python and Ruby do). Initially probably only Ruby
+                    will use this.
+                __instancemethod__
+                    Used to indicate the method can only be called off an
+                    instance.  Functions that have neither the __classmethod__
+                    or __instancemethod__ attribute are assumed to be either
+                    callable in either context, or not enough info is available.
+                Also, see common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="signature"/> </optional>
+            <optional> <attribute name="doc"/> </optional>
+            <!-- CITDL expression for the return type. -->
+            <optional> <attribute name="returns"/> </optional>
+            <zeroOrMore>
+                <ref name="Argument"/>
+            </zeroOrMore>
+            <zeroOrMore>
+                <choice>
+                    <ref name="Import"/>
+                    <ref name="Class"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <define name="Variable">
+        <element name="variable">
+            <attribute name="name"/>
+            <optional> <attribute name="line"/> </optional>
+            <!-- Special variable attributes:
+                __instancevar__
+                    This can be used to differentiate between class instance
+                    variables and static class variables. Some language, e.g.
+                    Python, allow you to add attributes to class instance
+                    objects on the fly.
+                __const__
+                    Indicates that this is a constant (if the particular
+                    language distinguishes that at all, e.g. Ruby).
+                Also, see common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="doc"/> </optional>
+            <!-- CITDL expression type inference for this variable.
+                 E.g., if a Python variable "foo" is a list this will be
+                 "list". -->
+            <optional> <attribute name="citdl"/> </optional>
+            <!-- A variable can have behave as a namespace in JavaScript. -->
+            <zeroOrMore>
+                <choice>
+                    <ref name="Class"/>
+                    <ref name="Function"/>
+                    <ref name="Variable"/>
+                </choice>
+            </zeroOrMore>
+        </element>
+    </define>
+
+    <!-- A function argument. Otherwise, very similar to Variable. 
+         XXX PHP CILE is putting "default" attributes on arguments which,
+             technically is not in the spec. If they prove useful though, go
+             crazy.
+      -->
+    <define name="Argument">
+        <element name="variable">
+            <attribute name="ilk" value="argument"/>
+            <attribute name="name"/>
+            <!-- XXX Consider adding a __block__ or __ruby_block__
+                 attribute at some point for Ruby block params.
+                Also, see common attributes at the top of the file.
+            -->
+            <optional> <attribute name="attributes"/> </optional>
+            <optional> <attribute name="citdl"/> </optional>
+            <optional> <attribute name="doc"/> </optional>
+        </element>
+    </define>
+</grammar>
+

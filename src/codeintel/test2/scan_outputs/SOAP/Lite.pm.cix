@@ -1,0 +1,1002 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\SOAP\Lite.pm">
+    <scope ilk="blob" lang="Perl" name="Lite">
+      <scope classrefs="SOAP::Cloneable" ilk="class" line="11" lineend="2903" name="SOAP::Lite">
+        <import line="2659" module="Carp" />
+        <variable line="15" name="$VERSION" />
+        <variable line="2658" name="$AUTOLOAD" />
+        <variable line="2658" name="@ISA" />
+        <variable line="2688" name="$SOAP::Constants::SOAP_VERSION" />
+        <variable line="2708" name="$soap" />
+        <scope ilk="function" line="2664" lineend="2664" name="self" signature="self()" />
+        <scope ilk="function" line="2669" lineend="2669" name="autodispatched" signature="autodispatched()" />
+        <scope ilk="function" line="2671" lineend="2690" name="soapversion" signature="soapversion($self, $version)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$version" />
+        </scope>
+        <scope ilk="function" line="2694" lineend="2733" name="import" signature="import($pkg, $command)">
+          <variable ilk="argument" name="$pkg" />
+          <variable ilk="argument" name="$command" />
+          <variable attributes="__local__" line="2696" name="$caller" />
+          <variable attributes="__local__" line="2705" name="@parameters" />
+          <variable attributes="__local__" line="2711" name="$sub" />
+          <variable attributes="__local__" line="2726" name="$package" />
+        </scope>
+        <scope ilk="function" line="2735" lineend="2735" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="2737" lineend="2765" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2741" name="$class" />
+          <variable attributes="__local__" line="2758" name="$method" />
+          <variable attributes="__local__" line="2758" name="$params" />
+        </scope>
+        <scope ilk="function" line="2767" lineend="2805" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="2769" name="$method" />
+          <variable attributes="__local__" line="2770" name="$field" />
+          <variable attributes="__local__" line="2772" name="$self" />
+        </scope>
+        <scope ilk="function" line="2807" lineend="2817" name="service" signature="service()">
+          <variable attributes="__local__" line="2808" name="$field" />
+          <variable attributes="__local__" line="2809" name="$self" />
+          <variable attributes="__local__" line="2812" name="%services" />
+        </scope>
+        <scope ilk="function" line="2819" lineend="2822" name="schema" signature="schema()" />
+        <scope ilk="function" line="2824" lineend="2830" name="on_debug" signature="on_debug($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="2832" lineend="2847" name="AUTOLOAD" signature="AUTOLOAD($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2833" name="$method" />
+          <variable attributes="__local__" line="2841" name="$som" />
+        </scope>
+        <scope ilk="function" line="2849" lineend="2903" name="call" signature="call($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2854" name="$serializer" />
+          <variable attributes="__local__" line="2860" name="$response" />
+          <variable attributes="__local__" line="2871" name="$result" />
+          <variable attributes="__local__" line="2887" name="$num" />
+          <variable attributes="__local__" line="2888" name="%signatures" />
+          <variable attributes="__local__" line="2890" name="$signature" />
+          <variable attributes="__local__" line="2892" name="$param" />
+          <variable attributes="__local__" line="2893" name="$value" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="21" lineend="38" name="SOAP::XMLSchemaSOAP1_1::Deserializer">
+        <variable attributes="__local__" line="31" name="$method" />
+        <variable attributes="__local__" line="37" name="$name" />
+        <scope ilk="function" line="23" lineend="23" name="anyTypeValue" signature="anyTypeValue()" />
+        <scope ilk="function" line="25" lineend="25" name="as_boolean" signature="as_boolean($value)">
+          <variable ilk="argument" name="$value" />
+        </scope>
+        <scope ilk="function" line="26" lineend="26" name="as_base64" signature="as_base64()">
+          <import line="26" module="MIME::Base64" />
+        </scope>
+        <scope ilk="function" line="27" lineend="27" name="as_ur_type" signature="as_ur_type()" />
+      </scope>
+      <scope ilk="class" line="42" lineend="59" name="SOAP::XMLSchemaSOAP1_2::Deserializer">
+        <variable line="46" name="*as_boolean" />
+        <variable attributes="__local__" line="52" name="$method" />
+        <variable attributes="__local__" line="58" name="$name" />
+        <scope ilk="function" line="44" lineend="44" name="anyTypeValue" signature="anyTypeValue()" />
+        <scope ilk="function" line="47" lineend="47" name="as_base64" signature="as_base64()">
+          <import line="47" module="MIME::Base64" />
+        </scope>
+        <scope ilk="function" line="48" lineend="48" name="as_anyType" signature="as_anyType()" />
+      </scope>
+      <scope ilk="class" line="63" lineend="69" name="SOAP::XMLSchemaApacheSOAP::Deserializer">
+        <variable line="69" name="*as_Map" />
+        <scope ilk="function" line="65" lineend="68" name="as_map" signature="as_map($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="67" name="$hash" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="73" lineend="82" name="SOAP::XMLSchema::Serializer">
+        <variable line="75" name="@ISA" />
+        <scope ilk="function" line="77" lineend="82" name="xmlschemaclass" signature="xmlschemaclass($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="86" lineend="151" name="SOAP::XMLSchema1999::Serializer">
+        <variable line="88" name="$AUTOLOAD" />
+        <variable line="88" name="@EXPORT" />
+        <scope ilk="function" line="90" lineend="107" name="AUTOLOAD" signature="AUTOLOAD($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <variable attributes="__local__" line="92" name="$method" />
+          <variable attributes="__local__" line="92" name="$package" />
+        </scope>
+        <scope ilk="function" line="122" lineend="122" name="nilValue" signature="nilValue()" />
+        <scope ilk="function" line="123" lineend="123" name="anyTypeValue" signature="anyTypeValue()" />
+        <scope ilk="function" line="125" lineend="130" name="as_base64" signature="as_base64($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <import line="128" module="MIME::Base64" />
+        </scope>
+        <scope ilk="function" line="132" lineend="136" name="as_hex" signature="as_hex($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="138" lineend="143" name="as_string" signature="as_string($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="145" lineend="145" name="as_undef" signature="as_undef()" />
+        <scope ilk="function" line="147" lineend="151" name="as_boolean" signature="as_boolean($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="155" lineend="174" name="SOAP::XMLSchema1999::Deserializer">
+        <variable line="159" name="*as_string" />
+        <variable line="160" name="*as_boolean" />
+        <variable attributes="__local__" line="167" name="$method" />
+        <variable attributes="__local__" line="173" name="$name" />
+        <scope ilk="function" line="157" lineend="157" name="anyTypeValue" signature="anyTypeValue()" />
+        <scope ilk="function" line="161" lineend="161" name="as_hex" signature="as_hex($value)">
+          <variable ilk="argument" name="$value" />
+        </scope>
+        <scope ilk="function" line="162" lineend="162" name="as_ur_type" signature="as_ur_type()" />
+        <scope ilk="function" line="163" lineend="163" name="as_undef" signature="as_undef($value)">
+          <variable ilk="argument" name="$value" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="178" lineend="227" name="SOAP::XMLSchema2001::Serializer">
+        <variable line="180" name="@EXPORT" />
+        <variable line="185" name="*AUTOLOAD" />
+        <variable line="216" name="*as_string" />
+        <variable line="217" name="*as_hex" />
+        <variable line="218" name="*as_base64" />
+        <variable line="219" name="*as_timeInstant" />
+        <scope ilk="function" line="200" lineend="200" name="nilValue" signature="nilValue()" />
+        <scope ilk="function" line="201" lineend="201" name="anyTypeValue" signature="anyTypeValue()" />
+        <scope ilk="function" line="203" lineend="207" name="as_hexBinary" signature="as_hexBinary($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="209" lineend="214" name="as_base64Binary" signature="as_base64Binary($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <import line="212" module="MIME::Base64" />
+        </scope>
+        <scope ilk="function" line="221" lineend="221" name="as_undef" signature="as_undef()" />
+        <scope ilk="function" line="223" lineend="227" name="as_boolean" signature="as_boolean($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="231" lineend="251" name="SOAP::XMLSchema2001::Deserializer">
+        <variable line="235" name="*as_string" />
+        <variable line="236" name="*as_boolean" />
+        <variable line="237" name="*as_base64Binary" />
+        <variable line="238" name="*as_hexBinary" />
+        <variable line="239" name="*as_undef" />
+        <variable attributes="__local__" line="243" name="$method" />
+        <variable attributes="__local__" line="250" name="$name" />
+        <scope ilk="function" line="233" lineend="233" name="anyTypeValue" signature="anyTypeValue()" />
+      </scope>
+      <scope ilk="class" line="255" lineend="333" name="SOAP::Constants">
+        <variable line="259" name="$ELMASK" />
+        <variable line="259" name="$NSMASK" />
+        <variable line="264" name="$NEXT_ACTOR" />
+        <variable line="264" name="$NS_APS" />
+        <variable line="264" name="$NS_ENC" />
+        <variable line="264" name="$NS_ENV" />
+        <variable line="265" name="$FAULT_CLIENT" />
+        <variable line="265" name="$FAULT_SERVER" />
+        <variable line="265" name="$FAULT_VERSION_MISMATCH" />
+        <variable line="266" name="$FAULT_MUST_UNDERSTAND" />
+        <variable line="266" name="$HTTP_ON_FAULT_CODE" />
+        <variable line="266" name="$HTTP_ON_SUCCESS_CODE" />
+        <variable line="267" name="$DEFAULT_XML_SCHEMA" />
+        <variable line="267" name="$NS_XSI_ALL" />
+        <variable line="267" name="$NS_XSI_NILS" />
+        <variable line="267" name="%XML_SCHEMAS" />
+        <variable line="268" name="$SOAP_VERSION" />
+        <variable line="268" name="$WRONG_VERSION" />
+        <variable line="268" name="%SOAP_VERSIONS" />
+        <variable line="269" name="$NS_SL_HEADER" />
+        <variable line="269" name="$NS_SL_PERLTYPE" />
+        <variable line="269" name="$PREFIX_ENC" />
+        <variable line="269" name="$PREFIX_ENV" />
+        <variable line="270" name="$DO_NOT_CHECK_MUSTUNDERSTAND" />
+        <variable line="270" name="$DO_NOT_USE_XML_PARSER" />
+        <variable line="271" name="$DO_NOT_PROCESS_XML_IN_MIME" />
+        <variable line="271" name="$DO_NOT_USE_CHARSET" />
+        <variable line="272" name="$DO_NOT_CHECK_CONTENT_TYPE" />
+        <variable line="272" name="$DO_NOT_USE_LWP_LENGTH_HACK" />
+        <variable line="273" name="$MAX_CONTENT_SIZE" />
+      </scope>
+      <scope ilk="class" line="337" lineend="388" name="SOAP::Utils">
+        <variable attributes="__local__" line="363" name="%encode_attribute" />
+        <variable attributes="__local__" line="366" name="%encode_data" />
+        <scope ilk="function" line="339" lineend="339" name="qualify" signature="qualify()" />
+        <scope ilk="function" line="340" lineend="340" name="overqualify" signature="overqualify()" />
+        <scope ilk="function" line="341" lineend="344" name="disqualify" signature="disqualify()" />
+        <scope ilk="function" line="345" lineend="345" name="splitqname" signature="splitqname()" />
+        <scope ilk="function" line="346" lineend="346" name="longname" signature="longname()" />
+        <scope ilk="function" line="347" lineend="347" name="splitlongname" signature="splitlongname()" />
+        <scope ilk="function" line="364" lineend="364" name="encode_attribute" signature="encode_attribute()" />
+        <scope ilk="function" line="367" lineend="367" name="encode_data" signature="encode_data()" />
+        <scope ilk="function" line="371" lineend="371" name="o_qname" signature="o_qname()" />
+        <scope ilk="function" line="372" lineend="372" name="o_attr" signature="o_attr()" />
+        <scope ilk="function" line="373" lineend="373" name="o_child" signature="o_child()" />
+        <scope ilk="function" line="374" lineend="374" name="o_chars" signature="o_chars()" />
+        <scope ilk="function" line="376" lineend="376" name="o_value" signature="o_value()" />
+        <scope ilk="function" line="377" lineend="377" name="o_lname" signature="o_lname()" />
+        <scope ilk="function" line="378" lineend="378" name="o_lattr" signature="o_lattr()" />
+      </scope>
+      <scope ilk="class" line="392" lineend="403" name="SOAP::Cloneable">
+        <scope attributes="__ctor__" ilk="function" line="394" lineend="403" name="clone" signature="clone($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="397" name="$clone" />
+          <variable attributes="__local__" line="399" name="$value" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Cloneable" ilk="class" line="407" lineend="452" name="SOAP::Transport">
+        <variable line="409" name="$AUTOLOAD" />
+        <variable line="409" name="@ISA" />
+        <scope ilk="function" line="413" lineend="413" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="415" lineend="422" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="417" name="$class" />
+        </scope>
+        <scope ilk="function" line="424" lineend="443" name="proxy" signature="proxy()">
+          <variable attributes="__local__" line="425" name="$self" />
+          <variable attributes="__local__" line="426" name="$class" />
+          <variable attributes="__local__" line="430" name="$protocol" />
+        </scope>
+        <scope ilk="function" line="445" lineend="452" name="AUTOLOAD" signature="AUTOLOAD()">
+          <variable attributes="__local__" line="446" name="$method" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="456" lineend="495" name="SOAP::Fault">
+        <import line="458" module="Carp" />
+        <scope ilk="function" line="462" lineend="462" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="464" lineend="477" name="new" signature="new($self, $method)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$method" />
+          <variable attributes="__local__" line="468" name="$class" />
+        </scope>
+        <scope ilk="function" line="479" lineend="482" name="stringify" signature="stringify($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="484" lineend="495" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="486" name="$method" />
+          <variable attributes="__local__" line="487" name="$field" />
+          <variable attributes="__local__" line="489" name="$self" />
+          <variable attributes="__local__" line="494" name="*detail" />
+        </scope>
+      </scope>
+      <scope classrefs="Exporter" ilk="class" line="499" lineend="632" name="SOAP::Data">
+        <import line="502" module="Exporter" symbol="*" />
+        <import line="503" module="Carp" />
+        <variable line="501" name="@EXPORT_OK" />
+        <variable line="501" name="@ISA" />
+        <variable attributes="__local__" line="567" name="$method" />
+        <variable attributes="__local__" line="568" name="$field" />
+        <variable attributes="__local__" line="570" name="$attr" />
+        <variable attributes="__local__" line="571" name="$self" />
+        <scope ilk="function" line="508" lineend="508" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="510" lineend="523" name="new" signature="new($self, $method)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$method" />
+          <variable attributes="__local__" line="514" name="$class" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="525" lineend="544" name="name" signature="name()">
+          <variable attributes="__local__" line="526" name="$self" />
+          <variable attributes="__local__" line="528" name="$name" />
+          <variable attributes="__local__" line="528" name="$prefix" />
+          <variable attributes="__local__" line="528" name="$uri" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="546" lineend="550" name="attr" signature="attr()">
+          <variable attributes="__local__" line="547" name="$self" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="552" lineend="563" name="type" signature="type()">
+          <variable attributes="__local__" line="553" name="$self" />
+        </scope>
+        <scope ilk="function" line="599" lineend="605" name="prefix" signature="prefix()">
+          <variable attributes="__local__" line="600" name="$self" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="607" lineend="615" name="uri" signature="uri()">
+          <variable attributes="__local__" line="608" name="$self" />
+          <variable attributes="__local__" line="610" name="$uri" />
+        </scope>
+        <scope ilk="function" line="617" lineend="621" name="set_value" signature="set_value()">
+          <variable attributes="__local__" line="618" name="$self" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="623" lineend="627" name="value" signature="value()">
+          <variable attributes="__local__" line="624" name="$self" />
+        </scope>
+        <scope ilk="function" line="629" lineend="632" name="signature" signature="signature()">
+          <variable attributes="__local__" line="630" name="$self" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Data" ilk="class" line="636" lineend="639" name="SOAP::Header">
+        <variable line="638" name="@ISA" />
+      </scope>
+      <scope classrefs="SOAP::Cloneable SOAP::XMLSchema::Serializer" ilk="class" line="643" lineend="1218" name="SOAP::Serializer">
+        <import line="645" module="Carp" />
+        <variable line="646" name="@ISA" />
+        <variable attributes="__local__" line="652" name="$ns" />
+        <variable attributes="__local__" line="653" name="$name" />
+        <variable attributes="__local__" line="654" name="$prefix" />
+        <scope ilk="function" line="655" lineend="655" name="gen_ns" signature="gen_ns()" />
+        <scope ilk="function" line="656" lineend="656" name="gen_name" signature="gen_name()" />
+        <scope ilk="function" line="657" lineend="657" name="prefix" signature="prefix()" />
+        <scope ilk="function" line="660" lineend="660" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="662" lineend="703" name="new" signature="new($self, $method)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$method" />
+          <variable attributes="__local__" line="666" name="$class" />
+        </scope>
+        <scope ilk="function" line="705" lineend="721" name="soapversion" signature="soapversion($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="723" lineend="758" name="xmlschema" signature="xmlschema()">
+          <variable attributes="__local__" line="724" name="$self" />
+          <variable attributes="__local__" line="727" name="@schema" />
+          <variable attributes="__local__" line="737" name="$ns" />
+          <variable attributes="__local__" line="752" name="$class" />
+        </scope>
+        <scope ilk="function" line="760" lineend="763" name="namespace" signature="namespace()" />
+        <scope ilk="function" line="765" lineend="768" name="encodingspace" signature="encodingspace()" />
+        <scope ilk="function" line="770" lineend="775" name="envprefix" signature="envprefix()">
+          <variable attributes="__local__" line="771" name="$self" />
+        </scope>
+        <scope ilk="function" line="777" lineend="782" name="encprefix" signature="encprefix()">
+          <variable attributes="__local__" line="778" name="$self" />
+        </scope>
+        <scope ilk="function" line="784" lineend="801" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="786" name="$method" />
+          <variable attributes="__local__" line="789" name="$field" />
+          <variable attributes="__local__" line="791" name="$self" />
+        </scope>
+        <scope ilk="function" line="803" lineend="803" name="gen_id" signature="gen_id()" />
+        <scope ilk="function" line="805" lineend="815" name="multiref_object" signature="multiref_object($self, $object)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$object" />
+          <variable attributes="__local__" line="808" name="$id" />
+          <variable attributes="__local__" line="809" name="$seen" />
+        </scope>
+        <scope ilk="function" line="817" lineend="820" name="recursive_object" signature="recursive_object($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="822" lineend="830" name="is_href" signature="is_href($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="824" name="$seen" />
+        </scope>
+        <scope ilk="function" line="832" lineend="835" name="multiref_anchor" signature="multiref_anchor($id)">
+          <variable ilk="argument" name="$id" />
+          <variable attributes="__local__" line="833" name="$seen" />
+        </scope>
+        <scope ilk="function" line="837" lineend="846" name="encode_multirefs" signature="encode_multirefs($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="841" name="$seen" />
+        </scope>
+        <scope ilk="function" line="850" lineend="867" name="maptypetouri" signature="maptypetouri($self, $type, $simple)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$simple" />
+          <variable attributes="__local__" line="854" name="$name" />
+          <variable attributes="__local__" line="854" name="$prefix" />
+        </scope>
+        <scope ilk="function" line="869" lineend="934" name="encode_object" signature="encode_object($self, $object, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$object" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <variable attributes="__local__" line="876" name="$id" />
+          <variable line="878" name="%objectstack" />
+          <variable attributes="__local__" line="894" name="@realvalues" />
+          <variable attributes="__local__" line="897" name="$method" />
+          <variable attributes="__local__" line="899" name="@values" />
+          <variable attributes="__local__" line="911" name="$class" />
+          <variable attributes="__local__" line="922" name="$encoded" />
+        </scope>
+        <scope ilk="function" line="936" lineend="961" name="encode_scalar" signature="encode_scalar($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <variable attributes="__local__" line="940" name="$schemaclass" />
+          <variable attributes="__local__" line="950" name="$lookup" />
+          <variable attributes="__local__" line="952" name="$method" />
+        </scope>
+        <scope ilk="function" line="963" lineend="981" name="encode_array" signature="encode_array($self, $array, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$array" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <variable attributes="__local__" line="965" name="$items" />
+          <variable attributes="__local__" line="968" name="@items" />
+          <variable attributes="__local__" line="969" name="$num" />
+          <variable attributes="__local__" line="970" name="$arraytype" />
+          <variable attributes="__local__" line="970" name="%types" />
+        </scope>
+        <scope ilk="function" line="983" lineend="997" name="encode_hash" signature="encode_hash($self, $hash, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$hash" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="1001" lineend="1009" name="as_ordered_hash" signature="as_ordered_hash($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="1011" lineend="1018" name="as_map" signature="as_map($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+          <variable attributes="__local__" line="1015" name="$prefix" />
+          <variable attributes="__local__" line="1016" name="@items" />
+        </scope>
+        <scope ilk="function" line="1020" lineend="1024" name="as_xml" signature="as_xml($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="1026" lineend="1035" name="typecast" signature="typecast($self, $value, $name, $type, $attr)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$value" />
+          <variable ilk="argument" name="$name" />
+          <variable ilk="argument" name="$type" />
+          <variable ilk="argument" name="$attr" />
+        </scope>
+        <scope ilk="function" line="1039" lineend="1054" name="fixattrs" signature="fixattrs($self, $data)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$data" />
+          <variable attributes="__local__" line="1042" name="$attr" />
+          <variable attributes="__local__" line="1042" name="$name" />
+          <variable attributes="__local__" line="1043" name="$prefix" />
+          <variable attributes="__local__" line="1043" name="$xmlns" />
+        </scope>
+        <scope ilk="function" line="1056" lineend="1062" name="toqname" signature="toqname($self, $long)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$long" />
+        </scope>
+        <scope ilk="function" line="1064" lineend="1074" name="attrstoqname" signature="attrstoqname($self, $attrs)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$attrs" />
+        </scope>
+        <scope ilk="function" line="1076" lineend="1101" name="tag" signature="tag($self, $tag, $attrs, @values)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$tag" />
+          <variable ilk="argument" name="$attrs" />
+          <variable ilk="argument" name="@values" />
+          <variable attributes="__local__" line="1079" name="$value" />
+          <variable attributes="__local__" line="1080" name="$level" />
+          <variable attributes="__local__" line="1081" name="$indent" />
+          <variable attributes="__local__" line="1087" name="$prolog" />
+          <variable attributes="__local__" line="1089" name="$namespaces" />
+          <variable attributes="__local__" line="1095" name="$tagattrs" />
+        </scope>
+        <scope ilk="function" line="1103" lineend="1112" name="xmlize" signature="xmlize($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1105" name="$attrs" />
+          <variable attributes="__local__" line="1105" name="$id" />
+          <variable attributes="__local__" line="1105" name="$name" />
+          <variable attributes="__local__" line="1105" name="$values" />
+        </scope>
+        <scope ilk="function" line="1114" lineend="1148" name="uriformethod" signature="uriformethod($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1117" name="$method_is_data" />
+          <variable attributes="__local__" line="1120" name="$method" />
+          <variable attributes="__local__" line="1120" name="$prefix" />
+          <variable attributes="__local__" line="1124" name="$attr" />
+          <variable attributes="__local__" line="1133" name="$uri" />
+        </scope>
+        <scope ilk="function" line="1150" lineend="1161" name="serialize" signature="serialize()">
+          <variable attributes="__local__" line="1151" name="$self" />
+          <variable attributes="__local__" line="1155" name="$encoded" />
+        </scope>
+        <scope ilk="function" line="1163" lineend="1218" name="envelope" signature="envelope($type)">
+          <variable ilk="argument" name="$type" />
+          <variable attributes="__local__" line="1164" name="$self" />
+          <variable attributes="__local__" line="1167" name="@header" />
+          <variable attributes="__local__" line="1167" name="@parameters" />
+          <variable attributes="__local__" line="1172" name="$header" />
+          <variable attributes="__local__" line="1173" name="$body" />
+          <variable attributes="__local__" line="1173" name="$parameters" />
+          <variable attributes="__local__" line="1176" name="$method" />
+          <variable attributes="__local__" line="1202" name="$encoded" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="1222" lineend="1291" name="SOAP::Parser">
+        <scope ilk="function" line="1224" lineend="1224" name="DESTROY" signature="DESTROY()" />
+        <scope ilk="function" line="1226" lineend="1231" name="xmlparser" signature="xmlparser($self)">
+          <variable ilk="argument" name="$self" />
+          <import line="1228" module="XML::Parser" />
+          <import line="1229" module="XML::Parser::Lite" />
+        </scope>
+        <scope ilk="function" line="1233" lineend="1236" name="parser" signature="parser()">
+          <variable attributes="__local__" line="1234" name="$self" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="1238" lineend="1247" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1240" name="$class" />
+        </scope>
+        <scope ilk="function" line="1249" lineend="1259" name="decode" signature="decode($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1261" lineend="1275" name="final" signature="final($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1277" lineend="1277" name="start" signature="start()" />
+        <scope ilk="function" line="1282" lineend="1282" name="char" signature="char()" />
+        <scope ilk="function" line="1284" lineend="1291" name="end" signature="end($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1286" name="$done" />
+        </scope>
+      </scope>
+      <scope classrefs="MIME::Parser" ilk="class" line="1295" lineend="1369" name="SOAP::MIMEParser">
+        <variable line="1297" name="@ISA" />
+        <scope ilk="function" line="1301" lineend="1301" name="DESTROY" signature="DESTROY()" />
+        <scope ilk="function" line="1303" lineend="1316" name="new" signature="new($self, $method)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$method" />
+          <import line="1303" module="MIME::Parser" />
+          <variable attributes="__local__" line="1307" name="$class" />
+        </scope>
+        <scope ilk="function" line="1318" lineend="1318" name="get_multipart_id" signature="get_multipart_id()" />
+        <scope ilk="function" line="1320" lineend="1334" name="decode" signature="decode($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1323" name="$entity" />
+          <variable attributes="__local__" line="1325" name="@result" />
+        </scope>
+        <scope ilk="function" line="1336" lineend="1349" name="decode_form_data" signature="decode_form_data($self, $entity)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$entity" />
+          <variable attributes="__local__" line="1339" name="@result" />
+          <variable attributes="__local__" line="1340" name="$part" />
+          <variable attributes="__local__" line="1341" name="$name" />
+          <variable attributes="__local__" line="1342" name="$type" />
+        </scope>
+        <scope ilk="function" line="1351" lineend="1369" name="decode_related" signature="decode_related($self, $entity)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$entity" />
+          <variable attributes="__local__" line="1353" name="$start" />
+          <variable attributes="__local__" line="1354" name="$location" />
+          <variable attributes="__local__" line="1356" name="@result" />
+          <variable attributes="__local__" line="1357" name="$part" />
+          <variable attributes="__local__" line="1358" name="$pid" />
+          <variable attributes="__local__" line="1359" name="$plocation" />
+          <variable attributes="__local__" line="1360" name="$type" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="1373" lineend="1543" name="SOAP::SOM">
+        <import line="1375" module="Carp" />
+        <scope ilk="function" line="1377" lineend="1419" name="BEGIN" signature="BEGIN($self, $self)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1379" name="%path" />
+          <variable attributes="__local__" line="1391" name="$method" />
+          <variable attributes="__local__" line="1399" name="%results" />
+        </scope>
+        <scope ilk="function" line="1425" lineend="1425" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="1427" lineend="1433" name="new" signature="new($self, $content)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$content" />
+          <variable attributes="__local__" line="1429" name="$class" />
+        </scope>
+        <scope ilk="function" line="1435" lineend="1439" name="current" signature="current($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1441" lineend="1447" name="valueof" signature="valueof($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="1449" lineend="1456" name="headerof" signature="headerof()">
+          <variable attributes="__local__" line="1453" name="$header" />
+        </scope>
+        <scope ilk="function" line="1458" lineend="1464" name="dataof" signature="dataof($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1466" lineend="1472" name="namespaceuriof" signature="namespaceuriof($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1474" lineend="1481" name="_as_data" signature="_as_data($self, $pointer)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$pointer" />
+        </scope>
+        <scope ilk="function" line="1483" lineend="1492" name="match" signature="match($self, $path)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$path" />
+        </scope>
+        <scope ilk="function" line="1494" lineend="1526" name="_traverse" signature="_traverse($self, $pointer, $itself, $path, @path)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$pointer" />
+          <variable ilk="argument" name="$itself" />
+          <variable ilk="argument" name="$path" />
+          <variable ilk="argument" name="@path" />
+          <variable attributes="__local__" line="1504" name="$num" />
+          <variable attributes="__local__" line="1504" name="$op" />
+          <variable attributes="__local__" line="1509" name="$numok" />
+          <variable attributes="__local__" line="1510" name="$nameok" />
+          <variable attributes="__local__" line="1512" name="$anynode" />
+          <variable attributes="__local__" line="1522" name="@walk" />
+        </scope>
+        <scope ilk="function" line="1528" lineend="1543" name="_traverse_tree" signature="_traverse_tree($self, $pointer, @path)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$pointer" />
+          <variable ilk="argument" name="@path" />
+          <variable attributes="__local__" line="1535" name="$itself" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Cloneable" ilk="class" line="1547" lineend="1882" name="SOAP::Deserializer">
+        <variable line="1549" name="@ISA" />
+        <scope ilk="function" line="1553" lineend="1553" name="DESTROY" signature="DESTROY()" />
+        <scope ilk="function" line="1555" lineend="1564" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="1557" name="$method" />
+          <variable attributes="__local__" line="1558" name="$field" />
+          <variable attributes="__local__" line="1560" name="$self" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="1566" lineend="1582" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="1568" name="$class" />
+        </scope>
+        <scope ilk="function" line="1584" lineend="1589" name="mimeparser" signature="mimeparser()">
+          <variable attributes="__local__" line="1585" name="$field" />
+          <variable attributes="__local__" line="1586" name="$self" />
+        </scope>
+        <scope ilk="function" line="1591" lineend="1595" name="is_xml" signature="is_xml()" />
+        <scope ilk="function" line="1597" lineend="1606" name="baselocation" signature="baselocation($self, $location)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$location" />
+          <variable attributes="__local__" citdl="URI" line="1601" name="$uri" />
+        </scope>
+        <scope ilk="function" line="1608" lineend="1626" name="mimedecode" signature="mimedecode()">
+          <variable attributes="__local__" line="1609" name="$self" />
+          <variable attributes="__local__" line="1611" name="$body" />
+          <variable attributes="__local__" line="1613" name="$id" />
+          <variable attributes="__local__" line="1613" name="$location" />
+          <variable attributes="__local__" line="1613" name="$type" />
+          <variable attributes="__local__" line="1613" name="$value" />
+          <variable attributes="__local__" line="1620" name="$part" />
+        </scope>
+        <scope ilk="function" line="1628" lineend="1633" name="decode" signature="decode()">
+          <variable attributes="__local__" line="1629" name="$self" />
+        </scope>
+        <scope ilk="function" line="1635" lineend="1651" name="deserialize" signature="deserialize()">
+          <variable attributes="__local__" line="1636" name="$self" />
+          <variable attributes="__local__" line="1643" name="$parsed" />
+        </scope>
+        <scope ilk="function" line="1653" lineend="1662" name="traverse_ids" signature="traverse_ids($self, $ref)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$ref" />
+          <variable attributes="__local__" line="1656" name="$attrs" />
+          <variable attributes="__local__" line="1656" name="$children" />
+          <variable attributes="__local__" line="1656" name="$undef" />
+        </scope>
+        <scope ilk="function" line="1664" lineend="1721" name="decode_object" signature="decode_object($self, $ref)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$ref" />
+          <variable attributes="__local__" line="1667" name="$attrs" />
+          <variable attributes="__local__" line="1667" name="$children" />
+          <variable attributes="__local__" line="1667" name="$name" />
+          <variable attributes="__local__" line="1667" name="$value" />
+          <variable line="1671" name="%uris" />
+          <variable attributes="__local__" line="1709" name="$ns" />
+        </scope>
+        <scope ilk="function" line="1723" lineend="1869" name="decode_value" signature="decode_value($self, $ref)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$ref" />
+          <variable attributes="__local__" line="1726" name="$attrs" />
+          <variable attributes="__local__" line="1726" name="$children" />
+          <variable attributes="__local__" line="1726" name="$name" />
+          <variable attributes="__local__" line="1726" name="$value" />
+          <variable line="1729" name="$level" />
+          <variable attributes="__local__" line="1731" name="$envelope" />
+          <variable attributes="__local__" line="1731" name="$namespace" />
+          <variable attributes="__local__" line="1737" name="$encodingStyle" />
+          <variable line="1746" name="$arraytype" />
+          <variable attributes="__local__" line="1748" name="$type" />
+          <variable attributes="__local__" line="1754" name="$class" />
+          <variable attributes="__local__" line="1754" name="$schema" />
+          <variable attributes="__local__" line="1756" name="$schemaclass" />
+          <variable attributes="__local__" line="1764" name="$method" />
+          <variable attributes="__local__" line="1767" name="$id" />
+          <variable attributes="__local__" line="1776" name="$ids" />
+          <variable attributes="__local__" line="1780" name="$obj" />
+          <variable attributes="__local__" line="1793" name="$res" />
+          <variable attributes="__local__" line="1803" name="$multisize" />
+          <variable attributes="__local__" line="1807" name="@dimensions" />
+          <variable attributes="__local__" line="1808" name="$size" />
+          <variable attributes="__local__" line="1826" name="@new" />
+          <variable attributes="__local__" line="1827" name="$pos" />
+          <variable attributes="__local__" line="1829" name="$position" />
+          <variable attributes="__local__" line="1838" name="$offset" />
+        </scope>
+        <scope ilk="function" line="1871" lineend="1880" name="splitarray" signature="splitarray($array)">
+          <variable ilk="argument" name="$array" />
+          <variable attributes="__local__" line="1872" name="@sizes" />
+          <variable attributes="__local__" line="1873" name="$size" />
+          <variable attributes="__local__" line="1877" name="@array" />
+        </scope>
+        <scope ilk="function" line="1882" lineend="1882" name="typecast" signature="typecast()" />
+      </scope>
+      <scope ilk="class" line="1888" lineend="1903" name="SOAP::Lite::QNameValue">
+        <scope attributes="__ctor__" ilk="function" line="1892" lineend="1895" name="new" signature="new($class, $orig_val, $ns, $name)">
+          <variable ilk="argument" name="$class" />
+          <variable ilk="argument" name="$orig_val" />
+          <variable ilk="argument" name="$ns" />
+          <variable ilk="argument" name="$name" />
+        </scope>
+        <scope ilk="function" line="1897" lineend="1900" name="qname" signature="qname($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1902" lineend="1902" name="namespace" signature="namespace()" />
+        <scope ilk="function" line="1903" lineend="1903" name="localpart" signature="localpart()" />
+      </scope>
+      <scope ilk="class" line="1907" lineend="1918" name="SOAP::Client">
+        <scope ilk="function" line="1909" lineend="1918" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="1911" name="$method" />
+          <variable attributes="__local__" line="1912" name="$field" />
+          <variable attributes="__local__" line="1914" name="$self" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="1922" lineend="1974" name="SOAP::Server::Object">
+        <variable line="1924" name="*gen_id" />
+        <variable attributes="__local__" line="1926" name="%alive" />
+        <variable attributes="__local__" line="1927" name="%objects" />
+        <scope ilk="function" line="1929" lineend="1933" name="objects_by_reference" signature="objects_by_reference()" />
+        <scope attributes="__ctor__" ilk="function" line="1935" lineend="1951" name="reference" signature="reference($self, $object)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$object" />
+          <variable attributes="__local__" line="1937" name="$stamp" />
+          <variable attributes="__local__" line="1939" name="$id" />
+          <variable attributes="__local__" line="1942" name="$time" />
+          <variable attributes="__local__" line="1943" name="$type" />
+          <variable attributes="__local__" line="1944" name="@objects" />
+        </scope>
+        <scope ilk="function" line="1953" lineend="1957" name="references" signature="references($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+        <scope ilk="function" line="1959" lineend="1968" name="object" signature="object($self, $object)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$object" />
+          <variable attributes="__local__" line="1961" name="$class" />
+          <variable attributes="__local__" line="1964" name="$reference" />
+        </scope>
+        <scope ilk="function" line="1970" lineend="1974" name="objects" signature="objects($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="1978" lineend="2000" name="SOAP::Server::Parameters">
+        <scope ilk="function" line="1980" lineend="1991" name="byNameOrOrder" signature="byNameOrOrder()">
+          <variable attributes="__local__" line="1986" name="$params" />
+          <variable attributes="__local__" line="1987" name="@mandatory" />
+          <variable attributes="__local__" line="1988" name="$byname" />
+          <variable attributes="__local__" line="1989" name="@res" />
+        </scope>
+        <scope ilk="function" line="1993" lineend="2000" name="byName" signature="byName()" />
+      </scope>
+      <scope ilk="class" line="2004" lineend="2261" name="SOAP::Server">
+        <import line="2006" module="Carp" />
+        <scope ilk="function" line="2008" lineend="2008" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="2010" lineend="2043" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2014" name="$class" />
+          <variable attributes="__local__" line="2015" name="@methods" />
+          <variable attributes="__local__" line="2015" name="@params" />
+          <variable attributes="__local__" line="2017" name="$method" />
+          <variable attributes="__local__" line="2017" name="$params" />
+        </scope>
+        <scope ilk="function" line="2045" lineend="2052" name="initialize" signature="initialize()" />
+        <scope ilk="function" line="2054" lineend="2087" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="2056" name="$method" />
+          <variable attributes="__local__" line="2057" name="$field" />
+          <variable attributes="__local__" line="2059" name="$self" />
+        </scope>
+        <scope ilk="function" line="2089" lineend="2093" name="objects_by_reference" signature="objects_by_reference()">
+          <variable attributes="__local__" line="2090" name="$self" />
+        </scope>
+        <scope ilk="function" line="2095" lineend="2099" name="dispatched" signature="dispatched()">
+          <variable attributes="__local__" line="2096" name="$self" />
+        </scope>
+        <scope ilk="function" line="2101" lineend="2162" name="find_target" signature="find_target($self, $request)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable attributes="__local__" line="2106" name="$method_name" />
+          <variable attributes="__local__" line="2106" name="$method_uri" />
+          <variable attributes="__local__" line="2119" name="$class" />
+          <variable attributes="__local__" line="2119" name="$static" />
+          <variable attributes="__local__" line="2133" name="$fullname" />
+        </scope>
+        <scope ilk="function" line="2164" lineend="2255" name="handle" signature="handle($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2173" name="$result" />
+          <variable attributes="__local__" line="2177" name="$request" />
+          <variable attributes="__local__" line="2183" name="$som" />
+          <variable attributes="__local__" line="2199" name="$class" />
+          <variable attributes="__local__" line="2199" name="$method_name" />
+          <variable attributes="__local__" line="2199" name="$method_uri" />
+          <variable attributes="__local__" line="2201" name="@results" />
+          <variable attributes="__local__" line="2202" name="@parameters" />
+        </scope>
+        <scope ilk="function" line="2257" lineend="2261" name="make_fault" signature="make_fault($self, $code, $string, $detail, $actor)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$code" />
+          <variable ilk="argument" name="$string" />
+          <variable ilk="argument" name="$detail" />
+          <variable ilk="argument" name="$actor" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="2265" lineend="2297" name="SOAP::Trace">
+        <import line="2267" module="Carp" />
+        <variable attributes="__local__" line="2269" name="@list" />
+        <scope ilk="function" line="2272" lineend="2277" name="defaultlog" signature="defaultlog()">
+          <variable attributes="__local__" line="2273" name="$caller" />
+        </scope>
+        <scope ilk="function" line="2279" lineend="2297" name="import" signature="import($pack)">
+          <variable ilk="argument" name="$pack" />
+          <variable attributes="__local__" line="2281" name="@notrace" />
+          <variable attributes="__local__" line="2281" name="@symbols" />
+          <variable attributes="__local__" line="2284" name="$call" />
+          <variable attributes="__local__" line="2289" name="$minus" />
+          <variable attributes="__local__" line="2290" name="$all" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Data" ilk="class" line="2301" lineend="2329" name="SOAP::Custom::XML::Data">
+        <variable line="2303" name="$AUTOLOAD" />
+        <variable line="2303" name="@ISA" />
+        <scope ilk="function" line="2308" lineend="2319" name="_compileit" signature="_compileit($method)">
+          <variable ilk="argument" name="$method" />
+          <variable attributes="__local__" line="2314" name="@elems" />
+        </scope>
+        <scope ilk="function" line="2321" lineend="2321" name="BEGIN" signature="BEGIN()" />
+        <scope ilk="function" line="2323" lineend="2329" name="AUTOLOAD" signature="AUTOLOAD()">
+          <variable attributes="__local__" line="2324" name="$method" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Deserializer" ilk="class" line="2333" lineend="2350" name="SOAP::Custom::XML::Deserializer">
+        <variable line="2335" name="@ISA" />
+        <scope ilk="function" line="2338" lineend="2350" name="decode_value" signature="decode_value($self, $ref)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$ref" />
+          <variable attributes="__local__" line="2341" name="$attrs" />
+          <variable attributes="__local__" line="2341" name="$children" />
+          <variable attributes="__local__" line="2341" name="$name" />
+          <variable attributes="__local__" line="2341" name="$value" />
+        </scope>
+      </scope>
+      <scope classrefs="SOAP::Custom::XML::Deserializer" ilk="class" line="2354" lineend="2357" name="SOAP::Schema::Deserializer">
+        <variable line="2356" name="@ISA" />
+      </scope>
+      <scope ilk="class" line="2361" lineend="2476" name="SOAP::Schema::WSDL">
+        <variable line="2363" name="%imported" />
+        <scope attributes="__ctor__" ilk="function" line="2365" lineend="2373" name="new" signature="new($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="2369" name="$class" />
+        </scope>
+        <scope ilk="function" line="2375" lineend="2378" name="base" signature="base()">
+          <variable attributes="__local__" line="2376" name="$self" />
+        </scope>
+        <scope ilk="function" line="2380" lineend="2404" name="import" signature="import($s, $base)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$base" />
+          <variable attributes="__local__" line="2381" name="$self" />
+          <variable attributes="__local__" line="2385" name="$schema" />
+          <variable attributes="__local__" line="2386" name="@a" />
+          <variable attributes="__local__" line="2390" name="$location" />
+          <variable attributes="__local__" line="2396" name="$root" />
+        </scope>
+        <scope ilk="function" line="2406" lineend="2476" name="parse" signature="parse($s, $service, $port)">
+          <variable ilk="argument" name="$s" />
+          <variable ilk="argument" name="$service" />
+          <variable ilk="argument" name="$port" />
+          <variable attributes="__local__" line="2407" name="$self" />
+          <variable attributes="__local__" line="2409" name="@result" />
+          <variable attributes="__local__" line="2415" name="@services" />
+          <variable attributes="__local__" line="2425" name="$name" />
+          <variable attributes="__local__" line="2427" name="%services" />
+          <variable attributes="__local__" line="2430" name="$binding" />
+          <variable attributes="__local__" line="2431" name="$endpoint" />
+          <variable attributes="__local__" line="2436" name="$porttype" />
+          <variable attributes="__local__" line="2438" name="$opername" />
+          <variable attributes="__local__" line="2439" name="$soapaction" />
+          <variable attributes="__local__" line="2440" name="$namespace" />
+          <variable attributes="__local__" line="2441" name="@parts" />
+          <variable attributes="__local__" line="2446" name="$inputmessage" />
+          <variable attributes="__local__" line="2459" name="$t" />
+          <variable attributes="__local__" line="2460" name="$tval" />
+          <variable attributes="__local__" line="2462" name="$attr" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="2480" lineend="2609" name="SOAP::Schema">
+        <import line="2482" module="Carp" />
+        <scope ilk="function" line="2484" lineend="2484" name="DESTROY" signature="DESTROY()" />
+        <scope attributes="__ctor__" ilk="function" line="2486" lineend="2502" name="new" signature="new($self, $method)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$method" />
+          <variable attributes="__local__" line="2490" name="$class" />
+        </scope>
+        <scope ilk="function" line="2504" lineend="2513" name="BEGIN" signature="BEGIN()">
+          <variable attributes="__local__" line="2506" name="$method" />
+          <variable attributes="__local__" line="2507" name="$field" />
+          <variable attributes="__local__" line="2509" name="$self" />
+        </scope>
+        <scope ilk="function" line="2515" lineend="2520" name="parse" signature="parse()">
+          <variable attributes="__local__" line="2516" name="$self" />
+          <variable attributes="__local__" line="2517" name="$s" />
+        </scope>
+        <scope ilk="function" line="2522" lineend="2529" name="load" signature="load()">
+          <variable attributes="__local__" line="2523" name="$self" />
+        </scope>
+        <scope ilk="function" line="2531" lineend="2543" name="access" signature="access($url)">
+          <variable ilk="argument" name="$url" />
+          <import line="2531" module="LWP::UserAgent" />
+          <variable attributes="__local__" line="2532" name="$self" />
+          <variable attributes="__local__" citdl="LWP::UserAgent" line="2534" name="$ua" />
+          <variable attributes="__local__" citdl="HTTP::Request" line="2537" name="$req" />
+          <variable attributes="__local__" line="2541" name="$resp" />
+        </scope>
+        <scope ilk="function" line="2545" lineend="2609" name="stub" signature="stub($package)">
+          <variable ilk="argument" name="$package" />
+          <variable attributes="__local__" line="2546" name="$self" />
+          <variable attributes="__local__" line="2548" name="$services" />
+          <variable attributes="__local__" line="2549" name="$schema" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="2613" lineend="2652" name="SOAP">
+        <import line="2616" module="URI" symbol="*" />
+        <variable line="2615" name="$AUTOLOAD" />
+        <variable attributes="__local__" line="2618" name="$soap" />
+        <variable line="2621" name="*AUTOLOAD" />
+        <variable attributes="__local__" line="2623" name="$method" />
+        <variable attributes="__local__" line="2623" name="$package" />
+        <variable attributes="__local__" citdl="URI" line="2628" name="$uri" />
+        <variable attributes="__local__" line="2629" name="$currenturi" />
+        <variable attributes="__local__" line="2639" name="$pack" />
+        <variable attributes="__local__" line="2648" name="$som" />
+      </scope>
+      <scope ilk="class" line="2907" lineend="2947" name="SOAP::Lite::COM">
+        <import line="2909" module="SOAP::Lite" />
+        <variable line="2924" name="*create" />
+        <variable line="2926" name="*soap" />
+        <scope ilk="function" line="2911" lineend="2920" name="required" signature="required()" />
+        <scope ilk="function" line="2922" lineend="2922" name="new" signature="new()" />
+        <scope ilk="function" line="2928" lineend="2928" name="xmlrpc" signature="xmlrpc()" />
+        <scope ilk="function" line="2930" lineend="2930" name="server" signature="server()" />
+        <scope ilk="function" line="2932" lineend="2932" name="data" signature="data()" />
+        <scope ilk="function" line="2934" lineend="2934" name="header" signature="header()" />
+        <scope ilk="function" line="2936" lineend="2936" name="hash" signature="hash()" />
+        <scope ilk="function" line="2938" lineend="2943" name="instanceof" signature="instanceof($class)">
+          <variable ilk="argument" name="$class" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

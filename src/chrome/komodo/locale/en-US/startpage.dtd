@@ -1,0 +1,12 @@
+<!ENTITY checkConfiguration.title "Check Configuration">
+<!ENTITY clearRecentFilesList.tooltiptext "Clear Recent Files List">
+<!ENTITY clearRecentProjectsList.tooltiptext "Clear Recent Projects List">
+<!ENTITY hidePane.tooltiptext "Hide Pane">
+<!ENTITY onlineHelp.title "Online Help">
+<!ENTITY open.label "Open">
+<!ENTITY openAllSelectedProjectsAndFiles.tooltiptext "Open All Selected Projects and Files">
+<!ENTITY openSampleProject.title "Open Sample Project">
+<!ENTITY quickLinks.title "Quick Links">
+<!ENTITY remove.label "Remove">
+<!ENTITY removeAllSelectedProjectsAndFilesFromList.tooltiptext "Remove All Selected Projects and Files from List">
+<!ENTITY whatSNew.title "What's New">

@@ -1,0 +1,652 @@
+diff -U 10 -r -N layout/build/nsLayoutModule.cpp layout/build/nsLayoutModule.cpp
+--- layout/build/nsLayoutModule.cpp	2005-09-05 15:41:46.000000000 -0500
++++ layout/build/nsLayoutModule.cpp	2006-06-09 13:46:26.000000000 -0500
+@@ -138,4 +138,7 @@
+ #include "nsContentCreatorFunctions.h"
++#if defined(XP_MAC) || defined(XP_MACOSX)
++#include "nsPluginHelper.h"
++#endif
+ 
+ // DOM includes
+ #include "nsDOMException.h"
+@@ -624,6 +627,9 @@
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsDataDocumentContentPolicy)
+ MAKE_CTOR(CreateSyncLoadDOMService,       nsISyncLoadDOMService,       NS_NewSyncLoadDOMService)
+ MAKE_CTOR(CreatePluginDocument,           nsIDocument,                 NS_NewPluginDocument)
++#if defined(XP_MAC) || defined(XP_MACOSX)
++MAKE_CTOR(CreatePluginHelper,             nsIPluginHelper,             NS_NewPluginHelper)
++#endif
+ 
+ #ifndef MOZ_NO_INSPECTOR_APIS
+ NS_GENERIC_FACTORY_CONSTRUCTOR(inDOMView)
+@@ -1392,6 +1398,13 @@
+     nsnull,
+     CreatePluginDocument },
+ 
++#if defined(XP_MAC) || defined(XP_MACOSX)
++  { "Plugin Helper",
++    NS_PLUGINHELPER_CID,
++    NS_PLUGINHELPER_CONTRACTID,
++    CreatePluginHelper },
++#endif
++
+   { "Style sheet service",
+     NS_STYLESHEETSERVICE_CID,
+     NS_STYLESHEETSERVICE_CONTRACTID,
+diff -U 10 -r -N layout/generic/Makefile.in layout/generic/Makefile.in
+--- layout/generic/Makefile.in	2005-04-18 01:33:22.000000000 -0500
++++ layout/generic/Makefile.in	2006-06-13 10:39:31.000000000 -0500
+@@ -88,20 +88,21 @@
+ 		nsHTMLReflowState.h \
+ 		nsIAnonymousContentCreator.h \
+ 		nsICanvasFrame.h \
+ 		nsIFrame.h \
+ 		nsIFrameDebug.h \
+ 		nsIFrameFrame.h \
+ 		nsIFrameUtil.h \
+ 		nsIImageFrame.h \
+ 		nsILineIterator.h \
+ 		nsIObjectFrame.h \
++		nsIPluginHelper.h \
+ 		nsIPageSequenceFrame.h \
+ 		nsIScrollableFrame.h \
+ 		nsIScrollableViewProvider.h \
+ 		nsIStatefulFrame.h \
+ 		nsReflowType.h \
+ 		$(NULL)
+ 
+ ifdef IBMBIDI
+ EXPORTS		+= \
+ 		nsTextTransformer.h \
+@@ -134,20 +135,21 @@
+ 		nsHTMLReflowCommand.cpp \
+ 		nsHTMLReflowState.cpp \
+ 		nsImageFrame.cpp \
+ 		nsImageMap.cpp \
+ 		nsInlineFrame.cpp \
+ 		nsIntervalSet.cpp \
+ 		nsLeafFrame.cpp \
+ 		nsLineBox.cpp \
+ 		nsLineLayout.cpp \
+ 		nsObjectFrame.cpp \
++		nsPluginHelper.cpp \
+ 		nsPageContentFrame.cpp \
+ 		nsPageFrame.cpp \
+ 		nsPlaceholderFrame.cpp \
+ 		nsReflowPath.cpp \
+ 		nsSelection.cpp \
+ 		nsSimplePageSequence.cpp \
+ 		nsSpaceManager.cpp \
+ 		nsSpacerFrame.cpp \
+ 		nsSplittableFrame.cpp \
+ 		nsTextFrame.cpp \
+diff -U 10 -r -N layout/generic/nsIPluginHelper.h layout/generic/nsIPluginHelper.h
+--- layout/generic/nsIPluginHelper.h	1969-12-31 18:00:00.000000000 -0600
++++ layout/generic/nsIPluginHelper.h	2006-06-09 21:19:05.000000000 -0500
+@@ -0,0 +1,91 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsIPluginHelper_h___
++#define nsIPluginHelper_h___
++
++#include "nsIView.h"
++#include "nsIWidget.h"
++#include "nsString.h"
++
++// This interface is needed to fix bmo bug 277067 (Mac OS X only), which
++// causes ghost images to appear when switching away from a tab that contains
++// one or more plugins.  The symptoms are easiest to see with Java plugins,
++// but in principal any plugin is susceptible.  So are all Mozilla.org
++// browsers for Mac OS X.  The underlying cause is that while the "new" tab
++// (including any plugins it contains) gets painted more-or-less synchronously,
++// the "old" tab's plugins weren't getting hidden until some time after the
++// "old" tab had been put away.  (This was done by a call to
++// nsPluginInstanceOwner::FixUpPluginWindow() (with inPaintState set to
++// ePluginPaintIgnore) made from nsPluginInstanceOwner::Notify().  Notify()
++// (whose main purpose is to give idle time to plugins) is called periodically
++// on a timer -- hence the delay.)  The nsIPluginHelper interface fixes this
++// problem by allowing a "hideplugin" "event" to be sent synchronously (and
++// directly) to the nsObjectFrame objects in a tab (and to their plugin
++// instance owners).  It needs to be an XPCOM interface so that it can be used
++// from objects (the View module, the Camino app) that shouldn't or can't be
++// linked to the Layout module.  Using this interface eliminates the need to
++// call FixUpPluginWindow() from Notify().
++
++// {CEB99927-56D4-4F24-9CC3-6E278DB08365}
++#define NS_IPLUGINHELPER_IID \
++  { 0xCEB99927, 0x56D4, 0x4F24, { 0x9C, 0xC3, 0x6E, 0x27, 0x8D, 0xB0, 0x83, 0x65 } }
++
++// {0EFC836C-73C8-482F-96F7-68099A21F1BC}
++#define NS_PLUGINHELPER_CID \
++  { 0x0EFC836C, 0x73C8, 0x482F, { 0x96, 0xF7, 0x68, 0x09, 0x9A, 0x21, 0xF1, 0xBC } }
++
++#define NS_PLUGINHELPER_CONTRACTID "@mozilla.org/plugin/helper;1"
++
++class nsIPluginHelper : public nsISupports
++{
++public:
++  static const nsIID& GetIID() {static const nsIID iid = NS_IPLUGINHELPER_IID; return iid;}
++
++  static const nsID& GetCID() {static const nsID cid = NS_PLUGINHELPER_CID; return cid;}
++
++  virtual nsresult DispatchEventToPluginOwners(nsIView *aView, const nsAString& aEventName) = 0;
++
++  virtual nsresult DispatchEventToPluginOwners(nsIWidget *aWidget, const nsAString& aEventName) = 0;
++
++  virtual nsIView *GetViewFor(nsIWidget *aWidget) = 0;
++
++protected:
++  virtual ~nsIPluginHelper() {}
++};
++
++#endif /* nsIPluginHelper_h___ */
+diff -U 10 -r -N layout/generic/nsObjectFrame.cpp layout/generic/nsObjectFrame.cpp
+--- layout/generic/nsObjectFrame.cpp	2006-04-20 20:36:08.000000000 -0500
++++ layout/generic/nsObjectFrame.cpp	2006-06-13 10:42:59.000000000 -0500
+@@ -364,20 +364,21 @@
+   //locals
+ 
+   NS_IMETHOD Init(nsPresContext *aPresContext, nsObjectFrame *aFrame);
+ 
+   nsPluginPort* GetPluginPort();
+   void ReleasePluginPort(nsPluginPort * pluginPort);
+ 
+   void SetPluginHost(nsIPluginHost* aHost);
+ 
+ #if defined(XP_MAC) || defined(XP_MACOSX)
++  nsresult HandleOFEvent(const nsAString& aEventName);
+   nsPluginPort* FixUpPluginWindow(PRInt32 inPaintState);
+   void GUItoMacEvent(const nsGUIEvent& anEvent, EventRecord* origEvent, EventRecord& aMacEvent);
+   void Composite();
+ #endif
+ 
+ private:
+   nsPluginNativeWindow       *mPluginWindow;
+   nsCOMPtr<nsIPluginInstance> mInstance;
+   nsObjectFrame              *mOwner;
+   nsCString                   mDocumentBase;
+@@ -3100,20 +3101,31 @@
+ 
+     // Make sure to fire the event AFTER we've finished touching out members.
+ 
+     // Hold a strong ref to our content across this event dispatch.
+     nsCOMPtr<nsIContent> kungFuDeathGrip(mContent);
+     
+     FirePluginNotFoundEvent(mContent);
+   }
+ }
+ 
++#if defined(XP_MAC) || defined(XP_MACOSX)
++nsresult
++nsObjectFrame::HandleOFEvent(const nsAString& aEventName)
++{
++	nsresult retval = NS_OK;
++	if (mInstanceOwner)
++		retval = mInstanceOwner->HandleOFEvent(aEventName);
++	return retval;
++}
++#endif
++
+ 
+ // Cache the attributes and/or parameters of our tag into a single set
+ // of arrays to be compatible with 4.x. The attributes go first,
+ // followed by a PARAM/null and then any PARAM tags. Also, hold the
+ // cached array around for the duration of the life of the instance
+ // because 4.x did. See bug 111008.
+ 
+ nsresult nsPluginInstanceOwner::EnsureCachedAttrParamArrays()
+ {
+   if (mCachedAttrParamValues)
+@@ -4013,21 +4025,24 @@
+ 
+ NS_IMETHODIMP nsPluginInstanceOwner::Notify(nsITimer* /* timer */)
+ {
+ #if defined(XP_MAC) || defined(XP_MACOSX)
+     // validate the plugin clipping information by syncing the plugin window info to
+     // reflect the current widget location. This makes sure that everything is updated
+     // correctly in the event of scrolling in the window.
+     if (mInstance) {
+         nsCOMPtr<nsIPluginWidget> pluginWidget = do_QueryInterface(mWidget);
+         if (pluginWidget && NS_SUCCEEDED(pluginWidget->StartDrawPlugin())) {
+-            nsPluginPort* pluginPort = FixUpPluginWindow(ePluginPaintIgnore);
++            // The fix for bmo bug 277067 (see nsIPluginHelper.h) means that
++            // we no longer need to call FixUpPluginWindow(ePluginPaintIgnore)
++            // here.
++            nsPluginPort* pluginPort = GetPluginPort();
+             if (pluginPort) {
+                 EventRecord idleEvent;
+                 InitializeEventRecord(&idleEvent);
+                 idleEvent.what = nullEvent;
+                     
+                 // give a bogus 'where' field of our null event when hidden, so Flash
+                 // won't respond to mouse moves in other tabs, see bug 120875
+                 if (!mWidgetVisible)
+                     idleEvent.where.h = idleEvent.where.v = 20000;
+     
+@@ -4271,20 +4286,38 @@
+     aContainerWidget = view->GetNearestWidget(&viewOffset);
+     NS_IF_ADDREF(aContainerWidget);
+     aAbs += viewOffset;
+   }
+ 
+   // Add relative coordinate to the absolute coordinate that has been calculated
+   aAbs += aRel;
+ }
+ #endif // DO_DIRTY_INTERSECT
+ 
++nsresult nsPluginInstanceOwner::HandleOFEvent(const nsAString& aEventName)
++{
++  if (aEventName.EqualsLiteral("hideplugin")) {
++    if (mInstance) {
++      nsCOMPtr<nsIPluginWidget> pluginWidget = do_QueryInterface(mWidget);
++      if (pluginWidget && NS_SUCCEEDED(pluginWidget->StartDrawPlugin())) {
++#ifdef NS_DEBUG
++        printf("Bug277067: nsPluginInstanceOwner::HandleOFEvent(), hideplugin (this 0x%.8X)\n",
++          (unsigned) this);
++#endif
++        FixUpPluginWindow(ePluginPaintIgnore);
++        pluginWidget->EndDrawPlugin();
++      }
++	}
++  }
++  return NS_OK;
++}
++
+ nsPluginPort* nsPluginInstanceOwner::FixUpPluginWindow(PRInt32 inPaintState)
+ {
+   if (!mWidget || !mPluginWindow)
+     return nsnull;
+ 
+   nsPluginPort* pluginPort = GetPluginPort(); 
+ 
+   if (!pluginPort)
+     return nsnull;
+ 
+diff -U 10 -r -N layout/generic/nsObjectFrame.h layout/generic/nsObjectFrame.h
+--- layout/generic/nsObjectFrame.h	2005-09-02 15:25:54.000000000 -0500
++++ layout/generic/nsObjectFrame.h	2006-06-03 12:45:43.000000000 -0500
+@@ -146,20 +146,24 @@
+     return mIsBrokenPlugin;
+   }
+ 
+   virtual PRBool IsContainingBlock() const
+   {
+     // Broken plugins are containing blocks.
+ 
+     return IsBroken();
+   }
+ 
++#if defined(XP_MAC) || defined(XP_MACOSX)
++  nsresult HandleOFEvent(const nsAString& aEventName);
++#endif
++
+ protected:
+   // nsISupports
+   NS_IMETHOD_(nsrefcnt) AddRef(void);
+   NS_IMETHOD_(nsrefcnt) Release(void);
+ 
+   virtual ~nsObjectFrame();
+ 
+   virtual PRIntn GetSkipSides() const;
+ 
+   // NOTE:  This frame class does not inherit from |nsLeafFrame|, so
+diff -U 10 -r -N layout/generic/nsPluginHelper.cpp layout/generic/nsPluginHelper.cpp
+--- layout/generic/nsPluginHelper.cpp	1969-12-31 18:00:00.000000000 -0600
++++ layout/generic/nsPluginHelper.cpp	2006-06-13 10:40:49.000000000 -0500
+@@ -0,0 +1,191 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++#include "nsFrame.h"
++#include "nsLayoutUtils.h"
++#include "nsObjectFrame.h"
++#include "nsPluginHelper.h"
++#ifdef NS_DEBUG
++#include "nsPrintfCString.h"
++#endif
++
++#if defined(XP_MAC) || defined(XP_MACOSX)
++
++static void
++DispatchEventToObjectFrame(nsObjectFrame *objectFrame, const nsAString& aEventName)
++{
++  if (objectFrame) {
++    objectFrame->HandleOFEvent(aEventName);
++  }
++}
++
++// Dispatches aEventName to every nsObjectFrame object in the widget hierarchy
++// whose top node is the parent of 'widget'.  We can't use the frame or view
++// hierarchies because they don't extend past any viewports they may contain.
++static void
++DispatchViaWidgetHierarchy(nsIWidget *widget, const nsAString& aEventName)
++{
++  nsIWidget *widgetLocal = widget;
++  while (widgetLocal) {
++    // Dispatch to widget children and get next child before dispatching
++    // to frame.  This causes our "event" to be processed from the bottom up.
++    DispatchViaWidgetHierarchy(widgetLocal->GetFirstChild(), aEventName);
++    nsIWidget *nextSibling = widgetLocal->GetNextSibling();
++    nsFrame *frame = nsnull;
++    nsIView *view = nsIView::GetViewFor(widgetLocal);
++    if (view) {
++      nsIFrame *iFrame = nsLayoutUtils::GetFrameFor(view);
++      frame = NS_STATIC_CAST(nsFrame *, iFrame);
++    }
++#ifdef NS_DEBUG
++    nsString name;
++    nsCString nameASC;
++    if (frame) {
++      frame->GetFrameName(name);
++      LossyCopyUTF16toASCII(name, nameASC);
++    } else {
++      nameASC += nsPrintfCString(128, "0x%p", widgetLocal);
++    }
++    printf("    widget frame %s\n", nameASC.get());
++#endif
++    // There's no need to call Release() on objectIFrame, since AddRef()
++    // and Release() don't work on frames.
++    nsIObjectFrame *objectIFrame;
++    if (frame && NS_SUCCEEDED(CallQueryInterface(frame, &objectIFrame))) {
++      nsObjectFrame *objectFrame = NS_STATIC_CAST(nsObjectFrame *, objectIFrame);
++      DispatchEventToObjectFrame(objectFrame, aEventName);
++    }
++    widgetLocal = nextSibling;
++  }
++  return;
++}
++
++static nsIWidget *
++GetNearestWidget(nsIView *aView)
++{
++  if (aView->HasWidget())
++    return aView->GetWidget();
++  nsIView *firstChild = aView->GetFirstChild();
++  if (!firstChild)
++    return nsnull;
++  // First look at all children, then all grandchildren ...
++  nsIView *child = firstChild;
++  while (child) {
++    if (child->HasWidget())
++      return child->GetWidget();
++    child = child->GetNextSibling();
++  }
++  child = firstChild;
++  while (child) {
++    nsIWidget *nearestWidget = GetNearestWidget(child->GetFirstChild());
++    if (nearestWidget)
++      return nearestWidget;
++    child = child->GetNextSibling();
++  }
++  return nsnull;
++}
++
++#endif  // #if defined(XP_MAC) || defined(XP_MACOSX)
++
++NS_IMPL_ISUPPORTS1(nsPluginHelper, nsIPluginHelper)
++
++// "Dispatches" an "object frame event" synchronously to all the nsObjectFrame
++// objects (and thereby to their nsPluginInstanceOwner objects) contained in
++// aView.  This is currently called from nsViewManager::SetViewVisibility()
++// after an nsIView object has been hidden.
++nsresult
++nsPluginHelper::DispatchEventToPluginOwners(nsIView *aView, const nsAString& aEventName)
++{
++#if defined(XP_MAC) || defined(XP_MACOSX)
++  nsCOMPtr<nsIWidget> widgetNode(GetNearestWidget(aView));
++  if (!widgetNode)
++    return NS_ERROR_NOT_AVAILABLE;
++#ifdef NS_DEBUG
++  printf("nsObjectFrameHelper::DispatchEventToPluginOwners(nsIView *), view's child frames:\n");
++#endif
++  DispatchViaWidgetHierarchy(widgetNode, aEventName);
++  return NS_OK;
++#else
++  return NS_ERROR_NOT_IMPLEMENTED;
++#endif
++}
++
++// "Dispatches" an "object frame event" synchronously to all the nsObjectFrame
++// objects (and thereby to their nsPluginInstanceOwner objects) contained in
++// aWidget.  This is currently called from [BrowserTabView selectTabViewItem]
++// (in Camino.app), after the user has switched away from the tab that contains
++// aWidget.
++nsresult
++nsPluginHelper::DispatchEventToPluginOwners(nsIWidget *aWidget, const nsAString& aEventName)
++{
++#if defined(XP_MAC) || defined(XP_MACOSX)
++#ifdef NS_DEBUG
++  printf("nsObjectFrameHelper::DispatchEventToPluginOwners(nsIWidget *), widget's child frames:\n");
++#endif
++  DispatchViaWidgetHierarchy(aWidget, aEventName);
++  return NS_OK;
++#else
++  return NS_ERROR_NOT_IMPLEMENTED;
++#endif
++}
++
++// Convenience function -- so you can call nsIView::GetViewFor() without
++// linking to the View module.
++nsIView *
++nsPluginHelper::GetViewFor(nsIWidget *aWidget)
++{
++#if defined(XP_MAC) || defined(XP_MACOSX)
++  return nsIView::GetViewFor(aWidget);
++#else
++  return nsnull;
++#endif
++}
++
++nsresult NS_NewPluginHelper(nsIPluginHelper **aInstancePtrResult)
++{
++  *aInstancePtrResult = nsnull;
++#if defined(XP_MAC) || defined(XP_MACOSX)
++  nsPluginHelper *helper = new nsPluginHelper();
++  if (!helper)
++    return NS_ERROR_OUT_OF_MEMORY;
++  NS_ADDREF(helper);
++  *aInstancePtrResult = helper;
++  return NS_OK;
++#else
++  return NS_ERROR_NOT_IMPLEMENTED;
++#endif
++}
++
+diff -U 10 -r -N layout/generic/nsPluginHelper.h layout/generic/nsPluginHelper.h
+--- layout/generic/nsPluginHelper.h	1969-12-31 18:00:00.000000000 -0600
++++ layout/generic/nsPluginHelper.h	2006-06-09 10:54:16.000000000 -0500
+@@ -0,0 +1,63 @@
++/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsPluginHelper_h___
++#define nsPluginHelper_h___
++
++#include "nsIPluginHelper.h"
++
++nsresult NS_NewPluginHelper(nsIPluginHelper **aInstancePtrResult);
++
++class nsPluginHelper : public nsIPluginHelper
++{
++public:
++  friend nsresult NS_NewPluginHelper(nsIPluginHelper **aInstancePtrResult);
++
++  NS_DECL_ISUPPORTS
++
++  virtual nsresult DispatchEventToPluginOwners(nsIView *aView, const nsAString& aEventName);
++
++  virtual nsresult DispatchEventToPluginOwners(nsIWidget *aWidget, const nsAString& aEventName);
++
++  virtual nsIView *GetViewFor(nsIWidget *aWidget);
++
++private:
++  nsPluginHelper() {}
++  virtual ~nsPluginHelper() {}
++};
++
++#endif /* nsPluginHelper_h___ */
+diff -U 10 -r -N view/src/nsViewManager.cpp view/src/nsViewManager.cpp
+--- view/src/nsViewManager.cpp	2006-02-22 19:55:44.000000000 -0600
++++ view/src/nsViewManager.cpp	2006-06-09 21:38:09.000000000 -0500
+@@ -57,20 +57,25 @@
+ #include "nsIServiceManager.h"
+ #include "nsGUIEvent.h"
+ #include "nsIPrefBranch.h"
+ #include "nsIPrefService.h"
+ #include "nsRegion.h"
+ #include "nsInt64.h"
+ #include "nsScrollPortView.h"
+ #include "nsHashtable.h"
+ #include "nsCOMArray.h"
+ 
++#if defined(XP_MAC) || defined(XP_MACOSX)
++#include "layout/nsIPluginHelper.h"
++#include "nsServiceManagerUtils.h"
++#endif
++
+ static NS_DEFINE_IID(kBlenderCID, NS_BLENDER_CID);
+ static NS_DEFINE_IID(kRegionCID, NS_REGION_CID);
+ static NS_DEFINE_IID(kRenderingContextCID, NS_RENDERING_CONTEXT_CID);
+ static NS_DEFINE_CID(kEventQueueServiceCID, NS_EVENTQUEUESERVICE_CID);
+ 
+ #define ARENA_ALLOCATE(var, pool, type) \
+     {void *_tmp_; PL_ARENA_ALLOCATE(_tmp_, pool, sizeof(type)); \
+     var = NS_REINTERPRET_CAST(type*, _tmp_); }
+ /**
+    XXX TODO XXX
+@@ -3199,21 +3204,33 @@
+ 
+     // Any child views not associated with frames might not get their visibility
+     // updated, so propagate our visibility to them. This is important because
+     // hidden views should have all hidden children.
+     for (nsView* childView = view->GetFirstChild(); childView;
+          childView = childView->GetNextSibling()) {
+       if (!childView->GetClientData()) {
+         childView->SetVisibility(aVisible);
+       }
+     }
++
++#if defined(XP_MAC) || defined(XP_MACOSX)
++    static nsIPluginHelper *pluginHelper = nsnull;
++    if (!pluginHelper)
++        CallGetService(NS_PLUGINHELPER_CONTRACTID, &pluginHelper);
++    // Fix for bmo bug 277067.  See nsIPluginHelper.h.
++    if (pluginHelper && (aVisible == nsViewVisibility_kHide)) {
++      nsCOMPtr<nsIViewManager> kungFuDeathGrip(this);
++      pluginHelper->DispatchEventToPluginOwners(view, NS_LITERAL_STRING("hideplugin"));
++    }
++#endif
+   }
++
+   return NS_OK;
+ }
+ 
+ void nsViewManager::UpdateWidgetsForView(nsView* aView)
+ {
+   NS_PRECONDITION(aView, "Must have view!");
+ 
+   if (aView->HasWidget()) {
+     aView->GetWidget()->Update();
+   }

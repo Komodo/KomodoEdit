@@ -1,0 +1,23 @@
+# Another transition thing
+
+family css
+
+state IN_CSS_DEFAULT:
+'</' : paint(upto, CSS_DEFAULT) => IN_CSS2H_1
+
+# Check to see if we're actually ending a style tag, or just
+# typing some random characters
+
+state IN_CSS2H_1:
+/style\b/i: paint(upto, M_ETAGO), paint(include, M_TAGNAME), => IN_CSS2H_2
+/./ : paint(upto, CSS_OPERATOR), redo, => IN_CSS_DEFAULT
+/\z/ : paint(upto, CSS_OPERATOR)
+
+# This state here is to check for the closing '>'.
+# Whether it's there or not we're going back to HTML
+
+state IN_CSS2H_2:
+/[$WS]/ : #stay
+'>' : paint(upto, M_TAGSPACE), paint(include, M_ETAGC) => IN_M_DEFAULT
+/./ : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+/\z/ : paint(upto, M_TAGSPACE)

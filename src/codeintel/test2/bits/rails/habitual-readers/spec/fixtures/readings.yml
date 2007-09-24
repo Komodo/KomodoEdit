@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+Ben_read_HHGTTG:
+  id: 1
+  book_id: 1
+  reader_id: 1
+  date_read: 2006-08-16 00:00:00
+  reading_time: 4
+  notes: Laughed till I dropped
+Alan_read_LOTR:
+  id: 2
+  book_id: 2
+  reader_id: 2
+  date_read: 2006-08-10 00:00:00
+  reading_time: 12
+  notes: What a bore! 

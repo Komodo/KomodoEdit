@@ -1,0 +1,808 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Luddite Reference</title>
+</head>
+
+<body>
+  <h2><a name="luddite_top" id="luddite_top">Luddite
+  Reference</a></h2>
+
+  <p>Luddite is the language Komodo uses for user-defined syntax
+  highlighting and multi-language lexing. An introduction to the
+  Luddite language can be found in the <a href=
+  "komodo-doc-udl.html">User-Defined Language Support</a>
+  documentation.</p>
+
+  <h2><a id="luddite_keywords" name=
+  "luddite_keywords">Keywords</a></h2>
+
+  <p>The following is a list of Luddite keywords - not to be
+  confused with the <a href="#keywords">keywords</a> described by
+  the UDL file itself for the target language definition. The
+  Luddite keyword is always given followed by its argument list,
+  where applicable; optional arguments are given in square brackets
+  ([ ... ]).</p>
+
+  <dl class="docutils" id="accept">
+    <dt>accept <code><em>name-or-string-list</em> | all</code></dt>
+
+    <dd>Used in <a class="reference" href=
+    "#token_check">token_check</a> definitions to disambiguate
+    characters. If <code>all</code> is specified, then a
+    <code>token_check</code> test will always succeed. If the
+    previous token falls in the <a class="reference" href=
+    "#name-or-string">name-or-string</a> list, the
+    <code>token_check</code> test succeeds. Otherwise Luddite will
+    look at the results of any <a class="reference" href=
+    "#skip">skip</a> and <a class="reference" href=
+    "#reject">reject</a> statements in the current family to decide
+    which action to take.</dd>
+  </dl>
+
+  <dl class="docutils" id="all">
+    <dt>all</dt>
+
+    <dd>Used in <a class="reference" href="#accept">accept</a>,
+    <a class="reference" href="#reject">reject</a>, and <a class=
+    "reference" href="#skip">skip</a> statements in <a class=
+    "reference" href="#token_check">token_check</a> definitions.
+    This means that the <code>token_check</code> test will follow
+    whatever directive is associated with this occurrence of
+    <code>all</code>.</dd>
+  </dl>
+
+  <dl class="docutils" id="at_eol">
+    <dt>at_eol(<code><em>state-name</em></code>)</dt>
+
+    <dd>Used to specify the Luddite state to transition to when the
+    end of the current line is reached. This is useful for
+    processing languages like the Perl-based template language,
+    Mason, in which one can embed Perl code on a single line by
+    putting a '%' character at the start of the line, as in this
+    example:</dd>
+
+    <dd>
+      <pre class="literal-block">
+  Good
+  % if ($time &gt; 12) {
+  afternoon
+  % } else {
+  morning
+  % }
+</pre>
+    </dd>
+
+    <dd>This is easily handled with this Luddite code:</dd>
+
+    <dd>
+      <pre class="literal-block">
+  state IN_M_DEFAULT:
+  /^%/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+    at_eol(IN_M_DEFAULT), =&gt; IN_SSL_DEFAULT
+</pre>
+    </dd>
+
+    <dd>If there's a percent character at the start of a line in
+    markup mode, cause it to be lexed as a <em>template</em>
+    operator, and switch to Perl lexing (<tt>IN_SSL_DEFAULT</tt>),
+    and switch back to markup-based lexing when it reaches the end
+    of the line.</dd>
+  </dl>
+
+  <dl class="docutils" id="clear_delimiter">
+    <dt>clear_delimiter</dt>
+
+    <dd>Used in conjunction with keep_delimiter, this action
+    explicitly clears the current delimiter (useful in recognizing
+    terminating identifiers in here documents).</dd>
+  </dl>
+
+  <dl class="docutils" id="delimiter">
+    <dt>delimiter</dt>
+
+    <dd>Used in place of a pattern or match-string in transitions,
+    this will succeed if there's a current delimiter defined, and
+    it can be matched at the current point in the buffer. When it's
+    matched, the current delimiter will be unset, unless the
+    <a href="#keep_delimiter"><code>keep_delimiter</code></a>
+    action is given in the transition.</dd>
+  </dl>
+
+  <dl class="docutils" id="family">
+    <dt>family <code>csl | markup | ssl | style | tpl</code></dt>
+
+    <dd>
+      <p class="first">The sub-type of this sub-language. The
+      meaning of each family name is:</p>
+
+      <dl class="last docutils">
+        <dt>csl</dt>
+
+        <dd>client-side language (e.g. usually JavaScript)</dd>
+
+        <dt>markup</dt>
+
+        <dd>markup language (e.g. HTML, XHTML, other XML
+        dialects)</dd>
+
+        <dt>ssl</dt>
+
+        <dd>server-side language (e.g. Perl, Python, Ruby)</dd>
+
+        <dt>style</dt>
+
+        <dd>stylesheet language (usually CSS)</dd>
+
+        <dt>tpl</dt>
+
+        <dd>a "template-oriented" language, usually geared to
+        either adding template-side processing to the server-side
+        language, or making it easier to inject the server-side
+        language into other parts of the full multi-language
+        document, as in CSS or JS. Examples include Smarty for PHP
+        processing.</dd>
+      </dl>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="fold">
+    <dt>fold <code>"<em>name-or-string</em>" <em>style</em>
+    +|-</code></dt>
+
+    <dd>Used to describe which tokens start and end a code-folding
+    block. For example:</dd>
+  </dl>
+  <pre class="literal-block">
+  fold "{" CSL_OPERATOR +
+  fold "if" SSL_WORD +
+  fold "end" SSL_WORD -
+</pre>
+
+  <dl class="docutils" id="keep_delimiter">
+    <dt>keep_delimiter</dt>
+
+    <dd>Used when the <code>delimiter</code> directive was used in
+    place of a pattern or string, this tells the UDL lexer to
+    retain that directive for subsequent matching. This is useful
+    for matching a construct like Perl's <code>s,/,\\,</code>
+    construct, where we would be using ',' as the regex delimiter,
+    instead of the normal '/'.</dd>
+  </dl>
+
+  <dl class="docutils" id="keywords">
+    <dt>keywords <code><em>name-or-string-list</em></code></dt>
+
+    <dd>List the words that should be colored as keywords (as
+    opposed to identifiers) in the defined language. Keywords for
+    the target language that are the same as reserved words in
+    Luddite must be quoted.</dd>
+  </dl>
+  <pre class="literal-block">
+  keywords ["__FILE__", "__LINE__", BEGIN, class ensure nil ]
+</pre>
+
+  <dl class="docutils" id="keyword_style">
+    <dt>keyword_style <code><em>style-name</em> =&gt;
+    <em>style-name</em></code></dt>
+
+    <dd>This directive works with <tt class=
+    "docutils literal"><span class="pre">keywords</span></tt> to
+    tell UDL which identifier-type style needs to be promoted to a
+    keyword style. So all tokens listed in <tt class=
+    "docutils literal"><span class="pre">keywords</span></tt> that
+    are colored as the first style normally will be promoted to the
+    second style.</dd>
+  </dl>
+  <pre class="literal-block">
+  keyword_style SSL_IDENTIFIER =&gt; SSL_WORD
+</pre>
+
+  <dl class="docutils" id="include">
+    <dt>include <code>[<em>path</em>/]<em>file</em></code></dt>
+
+    <dd>Include a UDL file. The include path starts with the
+    current directory; if you include a file in a different
+    directory, that file's directory is appended to the include
+    path.</dd>
+  </dl>
+  <pre class="literal-block">
+  include "html2ruby.udl"
+</pre>
+
+  <dl class="docutils">
+    <dt>include</dt>
+
+    <dd>When used as an argument to the <a class="reference" href=
+    "#paint">paint</a> keyword, include a style.</dd>
+  </dl>
+
+  <dl class="docutils" id="initial">
+    <dt>initial <code><em>state-name</em></code></dt>
+
+    <dd>The state processing for the current family should start
+    at.</dd>
+  </dl>
+  <pre class="literal-block">
+  initial IN_SSL_DEFAULT
+</pre>
+
+  <dl class="docutils" id="language">
+    <dt>language <code><em>name</em></code></dt>
+
+    <dd>The name of the language being defined. The language
+    directive must be given. It may be given more than once, but
+    only with the same value is given each time. This value shows
+    up in the Komodo UI in places like Language Preferences and the
+    "New File" command.</dd>
+  </dl>
+  <pre class="literal-block">
+  language RHTML
+</pre>
+
+  <dl class="docutils" id="namespace">
+    <dt>namespace <em>XML Namespace identifier</em></dt>
+
+    <dd>The namespace declaration tells Komodo to load the language
+    service described by the current Luddite program when it sees
+    an XML file that uses the specified namespace as a default
+    attribute value.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  namespace "http://www.w3.org/2001/XMLSchema"
+  namespace "http://www.w3.org/1999/XMLSchema"
+  # Be prepared if a new version is released in a few centuries.
+  namespace "http://www.w3.org/2525/XMLSchema"
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="no_keyword">
+    <dt>no_keyword</dt>
+
+    <dd>The no_keyword command is used to prevent identifier =&gt;
+    keyword promotion when an identifier is recognized. This is
+    useful for programming languages that allow any token, even
+    keywords, to be used in certain contexts, such as after the "."
+    in Python, Ruby, and VBScript, or after "::" or "-&gt;" in
+    Perl.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  state IN_SSL_DEFAULT:
+  /\.(?=[a-z])/ : paint(upto, SSL_DEFAULT), \
+    paint(include, SSL_OPERATOR), =&gt; IN_SSL_NON_KEYWORD_IDENTIFIER_1
+
+  state IN_SSL_NON_KEYWORD_IDENTIFIER_1:
+  /[^a-zA-Z0-9_]/ : paint(upto, SSL_IDENTIFIER), redo, no_keyword, \
+    =&gt; IN_SSL_DEFAULT
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="paint">
+    <dt>paint(<code>include|upto, <em>style-name</em></code>)</dt>
+
+    <dd>These directives are used in state transitions, and are key
+    to the way UDL generates lexers. They appear in a context like
+    this:</dd>
+
+    <dd>
+      <pre class="literal-block">
+  state IN_SSL_COMMENT_1 :
+  /$/ : paint(include, SSL_COMMENT) =&gt; IN_SSL_DEFAULT
+</pre>
+    </dd>
+
+    <dd>This means that when we're in a state with name
+    "IN_SSL_COMMENT_1" (remember that state names are completely
+    arbitrary in your Luddite programs), and we find the end of the
+    line, we should paint everything from the last "paint point" to
+    the end of the line with the style "SCE_UDL_SSL_COMMENT". This
+    will also move the paint-point to the point after the last
+    character this command styles.</dd>
+
+    <dd>A <em>transition</em> can have a paint(include...) command,
+    a paint(upto...) command, both of them, or neither.</dd>
+  </dl>
+
+  <dl class="docutils" id="pattern">
+    <dt>pattern <code><em>name</em> = <em>string</em></code></dt>
+
+    <dd>These are used as macro substitution inside patterns used
+    in state tables. The names should contain only letters, and are
+    referenced in patterns and the right-hand side of Luddite
+    patterns by putting a "$" before them.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  pattern NMSTART = '_\w\x80-\xff' # used inside character sets only
+  pattern NMCHAR = '$NMSTART\d'    # used inside character sets only
+  ...
+  state IN_SSL_SYMBOL_1:
+  /[$NMCHAR]+/ : paint(include, SSL_STRING), =&gt; IN_SSL_DEFAULT
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="public_id">
+    <dt>public_id <em>DOCTYPE public identifier</em></dt>
+
+    <dd>The public_id declaration tells Komodo to load the language
+    service described by the current Luddite program when it sees
+    an XML or SGML file that uses the specified public declaration
+    in its Doctype declaration.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  public_id "-//MOZILLA//DTD XBL V1.0//EN"
+  publicid "-//MOZILLA//DTD XBL V1.1//EN" # Be prepared
+  # "publicid" is a synonym for "public_id"
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="redo">
+    <dt>redo</dt>
+
+    <dd>The redo command indicates that the lexer should not
+    advance past the current characters being matched, but should
+    stay there in the new state.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  state IN_SSL_NUMBER_3:
+  ...
+  /[^\d]/ : paint(upto, SSL_NUMBER), redo, =&gt; IN_SSL_DEFAULT
+</pre>
+
+      <p>This specifies that when we're processing numbers
+      (assuming the arbitrary name "IN_SSL_NUMBER_3" reflects the
+      idea that we're trying to recognize numeric terms in the
+      input), and find a non-digit, we should paint everything up
+      to but not including the start of the matched text with the
+      SCE_UDL_SSL_NUMBER style, change to the default state for
+      this family, and retry lexing the same character.</p>
+
+      <p>Since having both a <code>redo</code> action and a
+      <code>paint(include...)</code> action in the same transition
+      would be contradictory, the Luddite compiler gives an error
+      message when it detects this condition and stops
+      processing.</p>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="reject">
+    <dt>reject <code><em>name-or-string-list</em> | all</code></dt>
+
+    <dd>Used in <a class="reference" href=
+    "#token_check">token_check</a> definitions to disambiguate
+    characters. If <tt class="docutils literal"><span class=
+    "pre">all</span></tt> is specified, then a <a class="reference"
+    href="#token_check">token_check</a> test will always fail. If
+    the previous token falls in the <a class="reference" href=
+    "#name-or-string">name-or-string</a> list, the <a class=
+    "reference" href="#token_check">token_check</a> test fails.
+    Otherwise Luddite will look at the results of any <a class=
+    "reference" href="#reject">reject</a> and <a class="reference"
+    href="#skip">skip</a> statements in the current family to
+    decide which action to take.</dd>
+  </dl>
+
+  <dl class="docutils" id="set_delimiter">
+    <dt>set_delimiter <code>(<em>number</em>)</code></dt>
+
+    <dd>This transition action takes a single argument, which must
+    be a reference to a grouped sub-pattern in the transition's
+    pattern. It sets the current delimiter to that contents of the
+    subpattern.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  /m([^\w\d])/ : paint(upto, SSL_DEFAULT), set_delimiter(1), \
+    =&gt; IN_SSL_REGEX1_TARGET
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="set_opposite_delimiter">
+    <dt>set_opposite_delimiter <code>(<em>number</em>)</code></dt>
+
+    <dd>This transition action takes a single argument, which must
+    be a reference to a grouped sub-pattern in the transition's
+    pattern. It sets the current delimiter to that contents of the
+    subpattern.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  /m([\{\[\(\&lt;])/ : paint(upto, SSL_DEFAULT), \
+    set_opposite_delimiter(1), =&gt; IN_SSL_REGEX1_TARGET
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="skip">
+    <dt>skip <code><em>name-or-string-list</em> | all</code></dt>
+
+    <dd>Used in <a class="reference" href=
+    "#token_check">token_check</a> definitions to disambiguate
+    characters. If <tt class="docutils literal"><span class=
+    "pre">all</span></tt> is specified, then a <a class="reference"
+    href="#token_check">token_check</a> test will retry with the
+    token preceding this one. If the previous token falls in the
+    <a class="reference" href="#name-or-string">name-or-string</a>
+    list, the <a class="reference" href=
+    "#token_check">token_check</a> test keeps going. Otherwise
+    Luddite will look at the results of any <a class="reference"
+    href="#accept">accept</a> and <a class="reference" href=
+    "#reject">reject</a> statements in the current family to decide
+    which action to take.</dd>
+  </dl>
+
+  <dl class="docutils" id="state">
+    <dt>state <code><em>state-name</em>:
+    <em>transition-list</em></code></dt>
+
+    <dd>The core of Luddite programs. Each state block is in effect
+    upto the next Luddite keyword.</dd>
+  </dl>
+
+  <dl class="docutils" id="sublanguage">
+    <dt>sublanguage <code><em>name</em></code></dt>
+
+    <dd>The common name of the language this family targets.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  sublanguage ruby
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="sub_language">
+    <dt>sub_language</dt>
+
+    <dd>Synonym for sublanguage</dd>
+  </dl>
+
+  <dl class="docutils" id="system_id">
+    <dt>system_id <em>DOCTYPE system identifier</em></dt>
+
+    <dd>The system_id declaration tells Komodo to load the language
+    service described by the current Luddite program when it sees
+    an XML or SGML file that uses the specified system declaration
+    in its Doctype declaration.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  
+  system_id "http://www.w3.org/2001/XMLSchema"
+  systemid "http://www.w3.org/1999/XMLSchema"
+  # "systemid" is a synonym for "system_id"
+</pre>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="token_check">
+    <dt>token_check:
+    <code><em>token-recognition-list</em></code></dt>
+
+    <dd>
+      <p class="first">A set of directives that define the token
+      checking set for this family.</p>
+
+      <p>Used in state <em>transitions</em> immediately after a
+      pattern or string (match target) is given. This is used for
+      token disambiguation. For example in Ruby, Perl, and
+      JavaScript, a '/' can either be a division operator or the
+      start of a regular expression. By looking at how the previous
+      token was styled, we can determine how to interpret this
+      character.</p>
+
+      <p class="last">If the token_check test fails, the pattern is
+      deemed to fail, and UDL tries subsequent transitions in the
+      <a class="reference" href="#state">state</a> block.</p>
+    </dd>
+  </dl>
+
+  <dl class="docutils" id="start_style">
+    <dt>start_style <code><em>style-name</em></code></dt>
+
+    <dd>The lowest style in the list of styles Luddite will use for
+    this family (in terms of the values given in Scintilla.iface).
+    This is used for <a class="reference" href=
+    "#token_check">token_check</a> processing while lexing, so it's
+    not required otherwise.</dd>
+  </dl>
+
+  <dl class="docutils" id="end_style">
+    <dt>end_style</dt>
+
+    <dd>The highest style in the list of styles Luddite will use
+    for this family (in terms of the values given in
+    Scintilla.iface). This is used for <a class="reference" href=
+    "#token_check">token_check</a> processing while lexing, so it's
+    not required otherwise.</dd>
+  </dl>
+
+  <dl class="docutils" id="upto">
+    <dt>upto</dt>
+
+    <dd>See <a class="reference" href="#paint">paint</a></dd>
+  </dl>
+
+  <dl class="docutils" id="spop_check">
+    <dt>spop_check</dt>
+
+    <dd>See <a class="reference" href=
+    "#spush_check">spush_check</a></dd>
+  </dl>
+
+  <dl class="docutils" id="spush_check">
+    <dt>spush_check(<code><em>state-name</em></code>)</dt>
+
+    <dd>Used to specify the Luddite state to transition to at a
+    later point.</dd>
+
+    <dd>
+      <pre class="literal-block">
+  state IN_SSL_DSTRING:
+  '#{' : paint(include, SSL_STRING), spush_check(IN_SSL_DSTRING), \
+    =&gt; IN_SSL_DEFAULT
+  ...
+  state IN_SSL_OP1:
+  '{' : paint(include, SSL_OPERATOR), spush_check(IN_SSL_DEFAULT) \
+    =&gt; IN_SSL_DEFAULT
+  ...
+  state IN_SSL_DEFAULT:
+  '}' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
+    spop_check, =&gt; IN_SSL_DEFAULT
+</pre>
+    </dd>
+
+    <dd>This code is used to account for the way the Ruby lexer is
+    intended to color expressions inside #{...} brackets in strings
+    as if they weren't in strings. When the "}" is reached, the
+    lexer needs to know whether it should go back to lexing a
+    string, or to the default state. We use the spush_check and
+    spop_check directives to specify this.</dd>
+  </dl>
+
+  <div class="section">
+    <h2><a id="style-names" name="style-names">Style Names</a></h2>
+
+    <p>The style names are all listed in <tt class=
+    "docutils literal"><span class=
+    "pre">Scintilla.iface</span></tt>, in the section for
+    <tt class="docutils literal"><span class="pre">UDL</span></tt>.
+    The ones for client-side, server-side, style, and template
+    languages are generic, and shouldn't need much explanation
+    here. This section will focus on the markup section in
+    specifics.</p>
+
+    <p>First, we are limited to about 56 styles, as UDL partitions
+    the style byte associated with each character by 6 bits for
+    styles, 1 bit for error squigging, and 1 bit for warnings.
+    Additionally, scintilla reserves styles 32 through 39 for its
+    own use, leaving us with 56.</p>
+
+    <p>This reduces the number of available styles for each family
+    down to the basics. This includes the default style (which
+    should only be used for white-space in most cases), comments,
+    numbers, strings, keywords, identifiers, operators, and regular
+    expressions. We add a style for variable names for the
+    server-side, and leave comment-blocks in as well, although
+    their usefulness is in question.</p>
+
+    <p>Some of the styles in the markup block reflect terms used in
+    ISO 8859, the SGML standard. These are:</p>
+
+    <dl class="docutils">
+      <dt>SCE_UDL_M_STAGO</dt>
+
+      <dd>Start-tag-open character, as in "&lt;"</dd>
+
+      <dt>SCE_UDL_M_TAGNAME</dt>
+
+      <dd>The name immediately after a tag-open character.</dd>
+
+      <dt>SCE_UDL_M_TAGSPACE</dt>
+
+      <dd>White-space in start-tags, end-tags, and empty tags.</dd>
+
+      <dt>SCE_UDL_M_ATTRNAME</dt>
+
+      <dd>Attribute names in start-tags.</dd>
+
+      <dt>SCE_UDL_M_OPERATOR</dt>
+
+      <dd>Operator characters, which is essentially just the '=' in
+      attribute assignments in start-tags.</dd>
+
+      <dt>SCE_UDL_M_STAGC</dt>
+
+      <dd>Start-tag-close character ("&gt;")</dd>
+
+      <dt>SCE_UDL_M_EMP_TAGC</dt>
+
+      <dd>Tag-close sequence for an empty start-tag ("/&gt;")</dd>
+
+      <dt>SCE_UDL_M_STRING</dt>
+
+      <dd>String attribute values in start-tags</dd>
+
+      <dt>SCE_UDL_M_ETAGO</dt>
+
+      <dd>End-tag-open character ("&lt;/")</dd>
+
+      <dt>SCE_UDL_M_ETAGC</dt>
+
+      <dd>End-tag-close character ("&gt;"). Distinguished from an
+      "STAGC" only by context.</dd>
+
+      <dt>SCE_UDL_M_ENTITY</dt>
+
+      <dd>A complete entity reference, from the leading "&amp;"
+      through the closing ";".</dd>
+
+      <dt>SCE_UDL_M_PI</dt>
+
+      <dd>Processing instructions, including the leading XML
+      declaration, from the leading "&lt;?" through the closing
+      "?&gt;".</dd>
+
+      <dt>SCE_UDL_M_CDATA</dt>
+
+      <dd>CDATA marked sections.</dd>
+
+      <dt>SCE_UDL_M_COMMENT</dt>
+
+      <dd>SGML comments.</dd>
+    </dl>
+  </div>
+
+  <div class="section">
+    <h2><a id="terms" name="terms">Terms</a></h2>
+
+    <dl class="docutils" id="name-or-string">
+      <dt>name-or-string</dt>
+
+      <dd>Either a quoted string, delimited by single- or
+      double-quote characters, with -escape sequences, or a
+      sequence of characters starting with a letter, followed by
+      zero or more alphanumeric characters, hyphens, or
+      underscores.</dd>
+    </dl>
+
+    <dl class="docutils" id="name-or-string-list">
+      <dt>name-or-string-list</dt>
+
+      <dd>List of strings or non-keyword-names surrounded by square
+      brackets. Commas are optional.</dd>
+    </dl>
+
+    <dl class="docutils" id="state-name">
+      <dt>state-name</dt>
+
+      <dd>A symbolic name for a UDL state. These names are are
+      completely arbitrary, but we recommend the convention that
+      they start with "IN_", then contain a sequence that reflects
+      the family they belong to ("SSL", "CSL", "CSS", "TPL", or "M"
+      for "Markup"), and finally a descriptive part.</dd>
+
+      <dt>Example:</dt>
+
+      <dd>IN_TPL_BLOCK_COMMENT_1</dd>
+    </dl>
+
+    <dl class="docutils" id="style-name">
+      <dt>style-name</dt>
+
+      <dd>A symbolic name that reflects the style names used in .h
+      files derived from the Scintilla.iface file. These names all
+      start with the prefix "SCE_UDL_", which may always be
+      omitted.</dd>
+
+      <dt>Example:</dt>
+
+      <dd>SSL_STRING</dd>
+    </dl>
+
+    <dl class="docutils" id="token-recognition-list">
+      <dt>token-recognition-list</dt>
+
+      <dd>A line-oriented list of directives containing a
+      <em>style-name</em>, a colon, and then an <a class=
+      "reference" href="#accept">accept</a>, <a class="reference"
+      href="#reject">reject</a>, or <a class="reference" href=
+      "#skip">skip</a> directive.</dd>
+    </dl>
+
+    <dl class="docutils" id="transition-list">
+      <dt>transition-list</dt>
+
+      <dd>Zero or more <em>transition</em>, separated by
+      newlines</dd>
+    </dl>
+
+    <dl class="docutils" id="transition">
+      <dt>transition</dt>
+
+      <dd>Consists of a string or pattern to be matched, an
+      optional <em>token_check</em>, ":" (optional), an optional
+      list of actions (comma-separated), and optionally, an "=&gt;"
+      followed by a <em>style-name</em>. Actions include <a class=
+      "reference" href="#paint">paint</a>, <a class="reference"
+      href="#redo">redo</a>, <a class="reference" href=
+      "#spush_check">spush_check</a>, and <a class="reference"
+      href="#spop_check">spop_check</a>.</dd>
+    </dl>
+  </div>
+
+  <div class="section">
+    <h2><a id="concepts" name="concepts">Concepts</a></h2>
+
+    <ol class="arabic simple">
+      <li>Order of <a class="reference" href=
+      "#token_check">token_check</a> statements</li>
+
+      <li style="list-style: none">
+        <p>The statements in a <a class="reference" href=
+        "#token_check">token_check</a> directive are followed in
+        order, and are family-specific. The default action, if no
+        term is chosen, depend on what kinds of statements are
+        specified:</p>
+
+        <ul class="simple">
+          <li>Only reject list: accept all others</li>
+
+          <li>Only accept list: reject everything else</li>
+
+          <li>Only skip list: reject everything else, but</li>
+
+          <li>having only a set of skip items is redundant, as
+          everything will be</li>
+
+          <li>rejected anyway.</li>
+
+          <li>If a style has two of the lists, the missing one is
+          the default</li>
+
+          <li>If a style has all three lists, the default action is
+          'reject'.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <ol class="arabic simple" start="2">
+      <li>Order of state transitions</li>
+
+      <li style="list-style: none">
+        <p>UDL walks the list of transitions for the current state.
+        As soon as it finds one, it does whatever painting is
+        called for, switches to the specified state, and then
+        restarts at the next state.</p>
+
+        <p>The target state is optional. A transition that contains
+        both a "paint(include...)" and a "redo" directive would
+        loop indefinitely, so UDL contains a limit of 1000 before
+        it bypasses the current character and continue with the
+        next one.</p>
+      </li>
+    </ol>
+  </div><!-- id="content" -->
+  <hr />
+</body>
+</html>

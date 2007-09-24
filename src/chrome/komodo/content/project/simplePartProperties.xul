@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<!--For the keybinding tab-->
+<?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_simplepartproperties"
+        id="dialog-simplepartproperties"
+        height="510"
+        width="470"
+        persist="screenX screenY"
+        orient="vertical"
+        onload="onLoad()"
+        buttons="accept,extra1,cancel,help"
+        ondialogaccept="return OK()"
+        ondialogextra1="return Apply()"
+        ondialogcancel="return Cancel()"
+        ondialoghelp="Help()">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/trace.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/dialogs.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/simplePartProperties.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/windowManager.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/launch.js"
+            type="application/x-javascript;version=1.7" />
+
+    <tabbox id="partProperties" orient="vertical" flex="1">
+        <tabs id="tabs" orient="horizontal">
+            <tab id="part_tab" label="&properties.label;"/>
+            <tab id="shortcut_tab" label="&keyBinding.label;"
+                 onfocus="partnamelabel.value = partname.value;"/>
+        </tabs>
+        <tabpanels flex="1">
+            <vbox id="part_tabpanel" flex="1">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image
+                                   style="max-width: 22px; max-height:16px"
+                                   id="propertiestab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                             onkeyup="UpdateField('name');"/>
+                    <spacer width="10"/>
+                    <vbox _style="padding: 5px 5px 0px 5px;">
+                        <spring flex="1"/>
+                        <button accesskey="&changeIcon.accesskey;" label="&changeIcon.label;" oncommand="pick_icon()"/>
+                    </vbox>
+                    <vbox _style="padding: 5px 5px 0px 5px;">
+                        <button id="reseticon" accesskey="&reseticon.accesskey;" label="&reset.label;" oncommand="pick_icon(true)"/>
+                        <spring flex="1"/>
+                    </vbox>
+                </hbox>
+                <spacer height="10"/>
+                <separator class="groovy-thin"/>
+                <spacer height="15"/>
+                <hbox align="center">
+                    <label value="Value:"/>
+                    <textbox flex="1" id="partvalue" accesskey="&partvalue.accesskey;" onkeyup="updateOK()" value=""/>
+                </hbox>
+            </vbox>
+            <vbox id="shortcut_tabpanel">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image
+                                   style="max-width: 22px; max-height:16px"
+                                   id="keybindingtab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <label id="partnamelabel" style="height:25px; padding-left: 2px; padding-top: 4px;"
+                           value="" flex="1"/>
+                </hbox>
+                <spacer height="10"/>
+                <separator class="groovy-thin"/>
+                <spacer height="10"/>
+                <editkeybinding id="keybindings" applycb="updateOK()" commandId="cmd_callPart"/>
+                <spacer height="10"/>
+            </vbox>
+        </tabpanels>
+    </tabbox>
+    <separator class="thin"/>
+</dialog>
+

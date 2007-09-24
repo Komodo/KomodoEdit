@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="bdaba5af-90f7-4205-9699-fe78be318150" name="spellcheck.kpf" kpf_version="4">
+<macro keyboard_shortcut="" name="build XPI" language="Python" trigger_enabled="0" rank="100" trigger="trigger_postopen" async="0" idref="906ecfbb-71b3-437a-843e-9115642bbca4" id="1e5c43d2-2ca1-44d0-b89a-6f0c88a77c9b">
+import sys, os, which
+import process
+import koprocessutils
+from xpcom import components, COMException, nsError
+
+wwatch = components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(components.interfaces.nsIWindowWatcher)
+prompt = wwatch.getNewPrompter(wwatch.activeWindow)
+userEnv = koprocessutils.getUserEnv()
+userPath = userEnv["PATH"].split(os.pathsep)
+
+def executeCmd(argv, cwd=None):
+    try:
+        #print  " ".join(argv)
+        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv)
+        return [p.stdout.read(), p.stderr.read()]
+    finally:
+        p.close()
+
+def findZipper():
+    # look for zip or 7z
+    if sys.platform.startswith('win'):
+        exts = ['.exe']
+    else:
+        exts = None
+    # get the current valid environment which is a combination of
+    # the startup envirnment and modifications in komodo preferences
+    for exe in [['zip','-Dr'], ['7z','a','-tzip']]:
+        zip = which.whichall(exe[0], exts=exts, path=userPath)
+        if zip:
+            return exe
+    else:
+        prompt.alert("XPI Build Error","Unable to find 'zip' or '7z' on path")
+        raise COMException(nsError.NS_ERROR_UNEXPECTED, "Unable to find 'zip' or '7z' on path")
+
+# build the xpi
+projectFile = komodo.macro.project.getFile()
+
+prefset = komodo.macro.project.prefset;
+if not prefset.hasPrefHere("extension_name"):
+    prompt.alert("XPI Build Error","Extension Project is not properly configured!")
+    raise COMException(nsError.NS_ERROR_UNEXPECTED, "Extension Project is not properly configured!")
+
+extName = prefset.getStringPref("extension_name")
+extVer = prefset.getStringPref("extension_version")
+dirs = ['content', 'skin', 'locale', 'components']
+cmd = []
+zipper = findZipper()
+for dir in dirs:
+    path = os.path.join(projectFile.dirName, dir);
+    if os.path.exists(path):
+        cmd = zipper + ['%s.jar' % extName, dir]
+        executeCmd(cmd, projectFile.dirName)
+
+cmd = zipper + ["%s-%s.xpi" % (extName, extVer), '%s.jar' % extName, "install.rdf", "chrome.manifest"]
+executeCmd(cmd, projectFile.dirName)
+fullname = os.path.join(projectFile.dirName, "%s-%s.xpi" % (extName, extVer))
+# print "\n**************** Done building zip file", "see %s" % fullname
+komodo.openURI('file:///' + fullname)
+
+</macro>
+<folder idref="bdaba5af-90f7-4205-9699-fe78be318150" id="906ecfbb-71b3-437a-843e-9115642bbca4" name="project">
+</folder>
+<preference-set idref="bdaba5af-90f7-4205-9699-fe78be318150">
+  <string id="extension_nice_name">Komodo Spellchecker</string>
+  <string id="import_dirname"></string>
+  <boolean id="import_recursive">1</boolean>
+  <string id="extension_name">komodospellchecker</string>
+  <string id="extension_homepage">http://komodo.activestate.com/addons/spellcheck</string>
+  <string id="extension_description">An interactive dialog-based spell-checker.  If it looks like the one in Thunderbird, it's because it's based on that one.</string>
+  <string id="extension_author_name">Eric Promislow</string>
+  <string id="extension_author_domain">activestate.com</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;_prj_internal_;#*#;*.xpi;*.jar</string>
+  <boolean id="import_live">1</boolean>
+  <string id="import_type">useFolders</string>
+  <string id="extension_version">0.1</string>
+  <string id="import_include_matches"></string>
+  <string id="extension_update_url">http://komodo.activestate.com/addons/spellcheck/update.rdf</string>
+</preference-set>
+</project>

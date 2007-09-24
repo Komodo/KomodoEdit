@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- String interpolation query dialog.
+
+  This dialog expects an object as the first window argument with the
+  following properties:
+    "queries" is an array of KoIInterpolationQuery's objects.
+    "title" is an appropriate title for the query dialog (a value of
+        null will trigger the default title).
+
+  On exit:
+    "queries" elements will be modified in-place with the user's answers.
+    "retval" will be set to "ok" or "cancel".
+  -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<dialog id="dialog-interpolationquery"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 40em; max-width: 55em;"
+        flex="1"
+        buttons="accept,cancel"
+        ondialogaccept="return OK();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/mru.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolationquery.js"/>
+
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <vbox>
+        <grid >
+            <columns>
+                <!--<column style="min-width: 100px;" flex="1"/>-->
+                <!--<column style="min-width: 200px;" flex="1"/>-->
+                <column />
+                <column flex="1"/>
+            </columns>
+            <rows id="query-rows">
+            </rows>
+        </grid>
+    </vbox>
+
+    <separator class="thin"/>
+
+</dialog>
+
+

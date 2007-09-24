@@ -1,0 +1,38 @@
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+
+[scriptable, uuid(93FC6147-9DFA-4F1F-9B64-5B4DF585D644)]
+interface koIObjectBrowser : nsITreeView {
+    void getLanguages(out PRUint32 count,
+                     [array, size_is(count)] out wstring languages);
+    void getLanguageLibs(in wstring language,
+                         out PRUint32 count,
+                         [array, size_is(count)] out wstring libs);
+
+    void search(in wstring collectionId,
+                in wstring symbolTerm,
+                in wstring moduleTerm,
+                in wstring language,
+                in boolean exact,
+                in boolean showImports);
+    // Return the number of modules for the specified language
+    // (if 'language' is the empty string, return total # of modules
+    // in database.
+    long getModuleCountForLanguage(in wstring language);
+
+    // Return the number of files for the specified language
+    // (if 'language' is the empty string, return total # of files
+    // in database.
+    long getFileCountForLanguage(in wstring language);
+
+    void sortBy(in wstring colId);
+
+    // Accessors for information about the currently selected node.
+    // They will return null or 0 if there is no current selection.
+    attribute wstring currentNodeType;
+    attribute wstring currentNodeFilePath;
+    attribute wstring currentNodeLanguage;
+    attribute long currentNodeLine;  // 1-based line number where node is defined
+};
+

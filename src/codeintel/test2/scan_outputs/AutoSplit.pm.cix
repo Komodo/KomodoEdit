@@ -1,0 +1,105 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\AutoSplit.pm">
+    <scope ilk="blob" lang="Perl" name="AutoSplit">
+      <scope classrefs="Exporter" ilk="class" line="1" lineend="484" name="AutoSplit">
+        <import line="4" module="Exporter" />
+        <import line="5" module="Config" symbol="%Config" />
+        <import line="6" module="Carp" symbol="carp" />
+        <import line="7" module="File::Basename" />
+        <import line="8" module="File::Path" symbol="mkpath" />
+        <import line="9" module="File::Spec::Functions" symbol="curdir" />
+        <import line="9" module="File::Spec::Functions" symbol="catfile" />
+        <import line="9" module="File::Spec::Functions" symbol="catdir" />
+        <variable attributes="__exportable__" line="11" name="$Keep" />
+        <variable attributes="__exportable__" line="11" name="$Maxlen" />
+        <variable attributes="__exportable__" line="11" name="$Verbose" />
+        <variable line="11" name="$VERSION" />
+        <variable line="11" name="@EXPORT" />
+        <variable line="11" name="@EXPORT_OK" />
+        <variable line="11" name="@ISA" />
+        <variable attributes="__exportable__" line="12" name="$CheckForAutoloader" />
+        <variable attributes="__exportable__" line="12" name="$CheckModTime" />
+        <variable attributes="__local__" line="142" name="$IndexFile" />
+        <variable attributes="__local__" line="143" name="$maxflen" />
+        <variable attributes="__local__" line="148" name="$Is_VMS" />
+        <variable line="153" name="$nested" />
+        <variable line="155" name="$one_attr" />
+        <variable line="156" name="$attr_list" />
+        <variable attributes="__local__" line="204" name="$self_mod_time" />
+        <scope attributes="__exported__" ilk="function" line="160" lineend="169" name="autosplit" signature="autosplit($file, $autodir, $keep, $ckal, $ckmt)">
+          <variable ilk="argument" name="$file" />
+          <variable ilk="argument" name="$autodir" />
+          <variable ilk="argument" name="$keep" />
+          <variable ilk="argument" name="$ckal" />
+          <variable ilk="argument" name="$ckmt" />
+        </scope>
+        <scope attributes="__exported__" ilk="function" line="175" lineend="199" name="autosplit_lib_modules" signature="autosplit_lib_modules(@modules)">
+          <variable ilk="argument" name="@modules" />
+          <variable attributes="__local__" line="184" name="$lib" />
+          <variable attributes="__local__" line="190" name="$dir" />
+          <variable attributes="__local__" line="190" name="$name" />
+        </scope>
+        <scope ilk="function" line="206" lineend="433" name="autosplit_file" signature="autosplit_file($filename, $autodir, $keep, $check_for_autoloader, $check_mod_time)">
+          <variable ilk="argument" name="$filename" />
+          <variable ilk="argument" name="$autodir" />
+          <variable ilk="argument" name="$keep" />
+          <variable ilk="argument" name="$check_for_autoloader" />
+          <variable ilk="argument" name="$check_mod_time" />
+          <variable attributes="__local__" line="209" name="@outfiles" />
+          <variable attributes="__local__" line="233" name="$pm_mod_time" />
+          <variable attributes="__local__" line="234" name="$autoloader_seen" />
+          <variable attributes="__local__" line="235" name="$in_pod" />
+          <variable attributes="__local__" line="236" name="$def_package" />
+          <variable attributes="__local__" line="236" name="$fnr" />
+          <variable attributes="__local__" line="236" name="$last_package" />
+          <variable attributes="__local__" line="236" name="$this_package" />
+          <variable attributes="__local__" line="260" name="$modpname" />
+          <variable attributes="__local__" line="269" name="$al_idx_file" />
+          <variable attributes="__local__" line="272" name="$al_ts_time" />
+          <variable attributes="__local__" line="281" name="$modnamedir" />
+          <variable attributes="__local__" line="296" name="$Is83" />
+          <variable attributes="__local__" line="298" name="$subname" />
+          <variable attributes="__local__" line="298" name="%package" />
+          <variable attributes="__local__" line="298" name="%proto" />
+          <variable attributes="__local__" line="298" name="@subnames" />
+          <variable attributes="__local__" line="299" name="@cache" />
+          <variable attributes="__local__" line="300" name="$caching" />
+          <variable attributes="__local__" line="302" name="$out" />
+          <variable attributes="__local__" line="319" name="$proto" />
+          <variable attributes="__local__" line="325" name="$fq_subname" />
+          <variable attributes="__local__" line="329" name="$lname" />
+          <variable attributes="__local__" line="329" name="$sname" />
+          <variable attributes="__local__" line="333" name="$lpath" />
+          <variable attributes="__local__" line="334" name="$spath" />
+          <variable attributes="__local__" line="335" name="$path" />
+          <variable attributes="__local__" line="347" name="$lineno" />
+          <variable attributes="__local__" line="382" name="%outfiles" />
+          <variable attributes="__local__" line="394" name="%outdirs" />
+          <variable attributes="__local__" line="394" name="@outdirs" />
+          <variable attributes="__local__" line="398" name="$dir" />
+          <variable attributes="__local__" line="402" name="$file" />
+          <variable attributes="__local__" line="406" name="$deleted" />
+          <variable attributes="__local__" line="406" name="$thistime" />
+          <variable attributes="__local__" line="419" name="$fqs" />
+        </scope>
+        <scope ilk="function" line="435" lineend="452" name="_modpname" signature="_modpname($package)">
+          <variable ilk="argument" name="$package" />
+          <variable attributes="__local__" line="437" name="$modpname" />
+          <variable attributes="__local__" line="441" name="@modpnames" />
+        </scope>
+        <scope ilk="function" line="454" lineend="482" name="_check_unique" signature="_check_unique($filename, $maxlen, $warn, @outfiles)">
+          <variable ilk="argument" name="$filename" />
+          <variable ilk="argument" name="$maxlen" />
+          <variable ilk="argument" name="$warn" />
+          <variable ilk="argument" name="@outfiles" />
+          <variable attributes="__local__" line="456" name="%notuniq" />
+          <variable attributes="__local__" line="457" name="%shorts" />
+          <variable attributes="__local__" line="458" name="@toolong" />
+          <variable attributes="__local__" line="465" name="$dir" />
+          <variable attributes="__local__" line="466" name="$file" />
+          <variable attributes="__local__" line="467" name="$trunc" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

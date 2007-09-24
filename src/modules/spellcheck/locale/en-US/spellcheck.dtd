@@ -1,0 +1,34 @@
+<!ENTITY L.accesskey "L">
+<!ENTITY N.accesskey "N">
+<!ENTITY W.accesskey "W">
+<!ENTITY addToDictionary.accesskey "d">
+<!ENTITY addWord.accesskey "A">
+<!ENTITY addWord.label "Add Word">
+<!ENTITY checkSpelling.label "Check Spelling...">
+<!ENTITY checkSpelling.title "Check Spelling">
+<!ENTITY checkWord.accesskey "k">
+<!ENTITY checkWord.label "Check Word">
+<!ENTITY close.accesskey "c">
+<!ENTITY close.label "Close">
+<!ENTITY edit.label "Edit...">
+<!ENTITY editDictionary.accesskey "e">
+<!ENTITY ignore.accesskey "I">
+<!ENTITY ignore.label "Ignore">
+<!ENTITY ignoreAll.accesskey "n">
+<!ENTITY ignoreAll.label "Ignore All">
+<!ENTITY personalDictionary.title "Personal Dictionary">
+<!ENTITY recheckPage.accesskey "P">
+<!ENTITY recheckPage.label "Recheck Page">
+<!ENTITY remove.label "Remove">
+<!ENTITY removeWord.accesskey "e">
+<!ENTITY replace.accesskey "R">
+<!ENTITY replace.label "Replace">
+<!ENTITY replaceAll.accesskey "A">
+<!ENTITY replaceAll.label "Replace All">
+<!ENTITY replaceWord.accesskey "R">
+<!ENTITY replaceWordLabel.accesskey "w">
+<!ENTITY send.accesskey "s">
+<!ENTITY send.label "Send">
+<!ENTITY stop.accesskey "s">
+<!ENTITY stop.label "Stop">
+<!ENTITY suggestedListLabel.accesskey "u">

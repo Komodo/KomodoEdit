@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SFTPServer</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SFTPServer
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko.SFTPServer-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SFTPServer-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SFTPServer</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+            
+         |            
+  <a href="../private/threading._Verbose-class.html"><code>_Verbose</code></a> --+        
+             |        
+        <a href="threading.Thread-class.html"><code>Thread</code></a> --+    
+                 |    
+  <a href="paramiko.SubsystemHandler-class.html"><code>SubsystemHandler</code></a> --+
+                     |
+        <a href="__builtin__.object-class.html"><code>object</code></a> --+   |
+                 |   |
+          <a href="../private/paramiko.BaseSFTP-class.html"><code>BaseSFTP</code></a> --+
+                     |
+                    <b>SFTPServer</b>
+</pre><br />
+
+<hr/>
+
+Server-side SFTP subsystem support. Since this is a <a 
+href="paramiko.SubsystemHandler-class.html" 
+class="link"><code>SubsystemHandler</code></a>, it can be (and is meant 
+to be) set as the handler for <code>&quot;sftp&quot;</code> requests. Use 
+<a href="paramiko.Transport-class.html#set_subsystem_handler" 
+class="link"><code>Transport.set_subsystem_handler</code></a> to activate 
+this class.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPServer-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>server</span>,
+          <span class=summary-sig-arg>sftp_si</span>,
+          <span class="summary-sig-vararg">*largs</span>,
+          <span class="summary-sig-kwarg">**kwargs</span>)</span></code>
+<br />
+The constructor for SFTPServer is meant to be called from within the 
+<a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> as a subsystem handler.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPServer-class.html#convert_errno" class="summary-sig-name"><code>convert_errno</code></a>(<span class=summary-sig-arg>e</span>)</span></code>
+<br />
+Convert an errno value (as from an <code>OSError</code> or 
+<code>IOError</code>) into a standard SFTP result code.    <i>(Static method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPServer-class.html#finish_subsystem" class="summary-sig-name"><code>finish_subsystem</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Perform any cleanup at the end of a subsystem.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPServer-class.html#set_file_attr" class="summary-sig-name"><code>set_file_attr</code></a>(<span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>attr</span>)</span></code>
+<br />
+Change a file's attributes on the local filesystem.    <i>(Static method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPServer-class.html#start_subsystem" class="summary-sig-name"><code>start_subsystem</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>transport</span>,
+          <span class=summary-sig-arg>channel</span>)</span></code>
+<br />
+Process an ssh subsystem in server mode.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from SubsystemHandler</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.ServerInterface-class.html" 
+        class="link"><code>ServerInterface</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SubsystemHandler-class.html#get_server" class="summary-sig-name"><code>get_server</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the <a href="../private/paramiko.ServerInterface-class.html" 
+class="link"><code>ServerInterface</code></a> object associated with this 
+channel and subsystem.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from Thread</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#getName" class="summary-sig-name"><code>getName</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isAlive" class="summary-sig-name"><code>isAlive</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isDaemon" class="summary-sig-name"><code>isDaemon</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#join" class="summary-sig-name"><code>join</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#run" class="summary-sig-name"><code>run</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setDaemon" class="summary-sig-name"><code>setDaemon</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>daemonic</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setName" class="summary-sig-name"><code>setName</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#start" class="summary-sig-name"><code>start</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF INSTANCE METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Instance Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>server</span>,
+          <span class=sig-arg>sftp_si</span>=<span class=sig-default>&lt;class&nbsp;'paramiko.SFTPServerInterface'&gt;</span>,
+          <span class="sig-vararg">*largs</span>,
+          <span class="sig-kwarg">**kwargs</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  The constructor for SFTPServer is meant to be called from within the 
+  <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> as a subsystem handler. 
+  <code>server</code> and any additional parameters or keyword parameters 
+  are passed from the original call to <a 
+  href="paramiko.Transport-class.html#set_subsystem_handler" 
+  class="link"><code>Transport.set_subsystem_handler</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         channel passed from the <a 
+        href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>name</b></code> -
+         name of the requested subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>server</b></code> -
+         the server object associated with this channel and 
+        subsystem
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.ServerInterface-class.html" 
+              class="link"><code>ServerInterface</code></a>)</i>
+      <dd><code><b>sftp_si</b></code> -
+         a subclass of <a 
+        href="../private/paramiko.SFTPServerInterface-class.html" 
+        class="link"><code>SFTPServerInterface</code></a> to use for 
+        handling individual requests.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=class)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="../private/paramiko.BaseSFTP-class.html#__init__"><code>paramiko.BaseSFTP.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="finish_subsystem"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">finish_subsystem</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Perform any cleanup at the end of a subsystem. The default 
+  implementation just closes the channel.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="paramiko.SubsystemHandler-class.html#finish_subsystem"><code>paramiko.SubsystemHandler.finish_subsystem</code></a> <i>(inherited documentation)</i>
+</dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="start_subsystem"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">start_subsystem</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>transport</span>,
+          <span class=sig-arg>channel</span>)</span>
+  </h3>
+  <p>Process an ssh subsystem in server mode. This method is called on a 
+  new object (and in a new thread) for each subsystem request. It is 
+  assumed that all subsystem logic will take place here, and when the 
+  subsystem is finished, this method will return. After this method 
+  returns, the channel is closed.</p>
+  The combination of <code>transport</code> and <code>channel</code> 
+  are unique; this handler corresponds to exactly one <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> on one <a 
+  href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         name of the requested subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>transport</b></code> -
+         the server-mode <a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Transport-class.html" 
+              class="link"><code>Transport</code></a>)</i>
+      <dd><code><b>channel</b></code> -
+         the channel associated with this subsystem request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="paramiko.SubsystemHandler-class.html#start_subsystem"><code>paramiko.SubsystemHandler.start_subsystem</code></a> <i>(inherited documentation)</i>
+</dd>
+    </dl>
+<p><b>Note:</b> It is the responsibility of this method to exit if the underlying <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> is closed. This can be done by 
+checking <a href="paramiko.Transport-class.html#is_active" 
+class="link"><code>Transport.is_active</code></a> or noticing an EOF on 
+the <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>. If this method loops forever 
+without checking for this case, your python interpreter may refuse to 
+exit because this thread will still be running.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF STATIC METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Static Method Details</th></tr>
+</table>
+
+<a name="convert_errno"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">convert_errno</span>(<span class=sig-arg>e</span>)</span>
+  </h3>
+  Convert an errno value (as from an <code>OSError</code> or 
+  <code>IOError</code>) into a standard SFTP result code. This is a 
+  convenience function for trapping exceptions in server code and 
+  returning an appropriate result.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>e</b></code> -
+         an errno code, as from <code>OSError.errno</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an SFTP error code like <a 
+        href="../private/paramiko-module.html#SFTP_NO_SUCH_FILE" 
+        class="link"><code>SFTP_NO_SUCH_FILE</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_file_attr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_file_attr</span>(<span class=sig-arg>filename</span>,
+          <span class=sig-arg>attr</span>)</span>
+  </h3>
+  <p>Change a file's attributes on the local filesystem. The contents of 
+  <code>attr</code> are used to change the permissions, owner, group 
+  ownership, and/or modification &amp; access time of the file, depending 
+  on which attributes are present in <code>attr</code>.</p>
+  This is meant to be a handy helper function for translating SFTP 
+  file requests into local file operations.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to alter (should usually be an absolute 
+        path).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>attr</b></code> -
+         attributes to change.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPAttributes-class.html" 
+              class="link"><code>SFTPAttributes</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:02 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

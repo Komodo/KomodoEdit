@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+    <!-- oasis has no master catalog, this is used by Komodo for those oasis
+        dtd's that we want to ship with Komodo -->
+
+    <public publicId="-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" 
+            uri="xmlcatalog.dtd"/>
+    <system systemId="http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd"
+            uri="xmlcatalog.dtd"/>
+    <uri name="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+            uri="xmlcatalog.dtd"/>
+
+</catalog>

@@ -1,0 +1,53 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'unsiloedPythonExe',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+    'withCrypto',
+    'sdkDir',
+);
+
+$cons->Preprocess('URIlib.unprocessed.py', 'URIlib.py');
+$cons->InstallPythonUtility('URIlib.py');
+
+$cons->Install($idlExportDir, 'koIFileEx.idl');
+$cons->BuildAndInstallXpt('koIFileEx.idl');
+$cons->InstallXpcomComponent('koFileEx.py');
+$cons->InstallXpcomComponent('koFileService.py');
+
+$cons->Install($idlExportDir, 'koIDocument.idl');
+$cons->BuildAndInstallXpt('koIDocument.idl');
+$cons->InstallXpcomComponent('koDocument.py');
+$cons->InstallXpcomComponent('koDocumentService.py');
+
+$cons->Install($idlExportDir, 'koIViews.idl');
+$cons->BuildAndInstallXpt('koIViews.idl');
+
+$cons->Install($idlExportDir, 'koIViewService.idl');
+$cons->BuildAndInstallXpt('koIViewService.idl');
+$cons->InstallXpcomComponent('koViewService.py');
+
+$cons->Preprocess('koDocumentSettingsManager.p.py', 'koDocumentSettingsManager.py');
+$cons->InstallXpcomComponent('koDocumentSettingsManager.py');
+
+## Install test cases.
+#$cons->Install("$supportDir/test", "test_URIlib.py");
+#$cons->Install("$supportDir/test", "test_koDocument.py");
+#$cons->Install("$supportDir/test", "test_koDocumentService.py");
+#$cons->Install("$supportDir/test", "test_koFileEx.py");
+#$cons->Install("$supportDir/test", "test_koFileService.py");
+

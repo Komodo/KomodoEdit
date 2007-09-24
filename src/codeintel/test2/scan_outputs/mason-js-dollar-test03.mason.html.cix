@@ -1,0 +1,21 @@
+<codeintel version="2.0">
+  <file lang="Mason" mtime="42" path="scan_inputs/mason-js-dollar-test03.mason.html">
+    <scope ilk="blob" lang="JavaScript" name="mason-js-dollar-test03.mason.html" src="scan_inputs/mason-js-dollar-test03.mason.html">
+      <variable citdl="Number" line="2" name="$a" />
+      <variable citdl="$ab.cd" line="3" name="$b" />
+      <scope ilk="function" line="4" lineend="7" name="myfunc" signature="myfunc($x1, $p2)">
+        <variable ilk="argument" name="$x1" />
+        <variable ilk="argument" name="$p2" />
+      </scope>
+    </scope>
+    <scope ilk="blob" lang="Perl" name="mason-js-dollar-test03.mason.html">
+      <variable attributes="__local__" line="13" name="$a" />
+      <variable attributes="__local__" line="14" name="$b" />
+      <scope ilk="function" line="12" lineend="12" name="cd" signature="cd()" />
+      <scope ilk="function" line="15" lineend="17" name="myfunc" signature="myfunc($x1, $p2)">
+        <variable ilk="argument" name="$x1" />
+        <variable ilk="argument" name="$p2" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

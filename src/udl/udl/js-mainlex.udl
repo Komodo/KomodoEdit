@@ -1,0 +1,17 @@
+# UDL for standalone JavaScript files
+# To build:
+# python luddite.py compile udl/js-mainlex.udl -f --ext=.js [--guid, --skel needed]
+# python luddite.py package javascript -f
+# Open javascript_language-1.0.0-ko.xpi in Komodo, install, restart
+
+language JavaScript
+
+include "jslex.udl"
+
+family markup
+sublanguage html
+
+initial IN_M_DEFAULT
+
+state IN_M_DEFAULT:
+/./ : redo, => IN_CSL_DEFAULT

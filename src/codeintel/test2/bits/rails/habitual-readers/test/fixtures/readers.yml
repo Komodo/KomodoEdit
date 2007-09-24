@@ -1,0 +1,51 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+Ben:
+  id: 1
+  username: benj72
+  fullname: Ben Askins
+  bio: Eats books for breakfast
+Alan:
+  id: 2
+  username: agreen
+  fullname: Alan Green
+  bio: Fond of snakes
+Fred:
+  id: 3
+  username: fred
+  fullname: Fred Wilkins
+  bio: Loves a good romantic thriller
+George:
+  id: 4
+  username: george
+  fullname: George Wilkins
+  bio: Like his brother, loves a good romantic thriller
+Harry:
+  id: 5
+  username: harry
+  fullname: Harry Windsor
+  bio: Everybody loves him.
+Mike:
+  id: 6
+  username: Mike
+  fullname: Mike Hansome
+  bio: A horrible disfigurement resulted in a lifelong dedication to books
+Murray:
+  id: 7
+  username: muzz
+  fullname: Murray Worry
+  bio: A good bloke
+Martha:
+  id: 8
+  username: martha
+  fullname: Martha Yonks
+  bio: Our first lady member
+David:
+  id: 9
+  username: david
+  fullname: David Everywhere
+  bio: How come we only have one David?
+Omar:
+  id: 10
+  username: omar
+  fullname: Omar Alabagh
+  bio: Library full of books.

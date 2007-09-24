@@ -1,0 +1,338 @@
+from xpcom import components, nsError, ServerException
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from koLintResult import *
+from koLintResults import koLintResults
+import os, sys, re
+import tempfile
+import string
+import process
+import koprocessutils
+import which
+
+from koLanguageServiceBase import *
+
+import logging
+log = logging.getLogger("CPPLanguage")
+#log.setLevel(logging.DEBUG)
+
+def registerLanguage(registery):
+    registery.registerLanguage(koCPPLanguage())
+    
+class koCPPLanguage(KoLanguageBase):
+    name = "C++"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{0613C3CC-EAA4-47f9-B2C3-A73270FFFB19}"
+
+    searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fwww.cppreference.com%2F+%W"
+
+    accessKey = 'c'
+    primary = 1
+    modeNames = ['c','c++']
+    defaultExtension = ".cpp"
+    commentDelimiterInfo = {
+        "line": [ "//" ],
+        "block": [ ("/*", "*/") ],
+        "markup": "*",
+    }
+    _dedenting_statements = [u'throw', u'return', u'break', u'continue']
+    _indenting_statements = [u'case', u'protected', u'private', u'public']
+    supportsSmartIndent = "brace"
+    sample = """#include <windows.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstdlib>
+
+using namespace std;    // This is a comment 
+int main(int argc, char *argv[]) 
+{
+  if (argc != 2) {
+    std::cerr << \"Usage:\\tsieve [iterations]\"; 
+    return 1;
+  };
+
+  size_t NUM = atoi(argv[1]);
+  DWORD dw = ::GetTickCount();
+  vector<char> primes(8192 + 1);
+  vector<char>::iterator pbegin = primes.begin();
+  vector<char>::iterator begin = pbegin + 2;
+  vector<char>::iterator end = primes.end();
+
+  while (NUM--) {
+    fill(begin, end, 1);
+    for (vector<char>::iterator i = begin; 
+              i < end; ++i) {
+      if (*i)  {
+        const size_t p = i - pbegin;
+        for (vector<char>::iterator k = i + p; 
+          k < end; k += p) {
+          *k = 0;
+        }
+      }
+    }
+  }
+  DWORD dw2 = ::GetTickCount();
+  std::cout << \"Milliseconds = \" << dw2-dw << std::endl;
+  return 0;
+}
+"""
+
+    def __init__(self):
+        KoLanguageBase.__init__(self)
+        self._style_info.update(
+            _block_comment_styles = [sci_constants.SCE_C_COMMENT,
+                                     sci_constants.SCE_C_COMMENTDOC,
+                                     sci_constants.SCE_C_COMMENTDOCKEYWORD,
+                                     sci_constants.SCE_C_COMMENTDOCKEYWORDERROR]
+            )
+
+    def get_lexer(self):
+        if self._lexer is None:
+            self._lexer = KoLexerLanguageService()
+            self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
+            self._lexer.setKeywords(0, self._keywords)
+            self._lexer.supportsFolding = 1
+        return self._lexer
+
+    # Taken from "The C++ Programming Language" 3rd Edition (published in 1997)
+    
+    _keywords = ["and", "and_eq",  "asm", "auto", "bitand", "bitor", "bool", "break",
+                 "case", "catch", "char", "class", "compl", "const", "const_cast",
+                 "continue", "default", "delete", "do", "double", "else", "enum",
+                 "explicit", "export", "extern", "false", "float", "for", "friend", "goto",
+                 "if", "inline", "int", "long", "mutable", "new", "not", "not_eq", "operator",
+                 "or", "or_eq", "private", "protected", "public", "register",
+                 "reinterpret_cast", "return", "short", "signed", "sizeof", "static",
+                 "static_cast", "struct", "switch", "template", "this", "throw", "true",
+                 "try", "typedef", "union", "unsigned", "using", "virtual", "void", "volatile",
+                 "wchar_t", "while", "xor", "xor_eq"]
+
+    # XXX uncomment these to integrate the info and linter classes
+    # XXX these are disabled because more work is necessary to properly
+    # support linting (ie. include paths, defines, etc.)
+    
+    #def get_interpreter(self):
+    #    if self._interpreter is None:
+    #        self._interpreter = components.classes["@activestate.com/koAppInfoEx?app=CPP;1"].getService()
+    #    return self._interpreter
+
+#---- components
+class KoCPPInfoEx:
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx]
+    _reg_clsid_ = "53b9b15c-052d-4534-9f5d-07c155e1f27d"
+    _reg_contractid_ = "@activestate.com/koAppInfoEx?app=CPP;1"
+    _reg_desc_ = "C/C++ Information"
+
+    def __init__(self):
+        # The specific installation path for which the other attributes
+        # apply to. It may be required for this to be set for certain
+        # attributes to be determined.
+        # attribute wstring installationPath;
+        self.installationPath = ''
+
+        # The path to the executable for the interpreter e.g. "usr/bin/perl"
+        # attribute wstring executablePath;
+        self.executablePath = ''
+        self._executables = []
+
+        # True if user is licensed for the current version of this app.
+        # (For an app that does not require a license this will always be
+        # true.)
+        # attribute boolean haveLicense;
+        self.haveLicense = 1
+        
+        # The build number. (May be null if it is not applicable.)
+        # attribute long buildNumber;
+        self.buildNumber = 0
+
+        # version (duh, null if don't know how to determine)
+        # attribute string version;
+        version = ''
+        
+        # path to local help file (null if none)
+        # attribute wstring localHelpFile;
+        self.localHelpFile = ''
+
+        # Web URL to main help file (null if none)
+        # attribute wstring webHelpURL;
+        self.webHelpURL = ''
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+
+
+    # Query for a list of found installations of this application.
+    # void FindInstallationPaths(out PRUint32 count,
+    #                           [retval,
+    #                            array,
+    #                            size_is(count)] out wstring strs);
+    def FindInstallationPaths(self):
+        if sys.platform.startswith('win'):
+            exts = ['.exe']
+        else:
+            exts = None
+        interpreters = ['cl','gcc','cc']
+        self._executables = []
+        installationPaths = None
+        for interp in interpreters:
+            self._executables += which.whichall(interp, exts=exts, path=self._userPath)
+        if self._executables:
+            installationPaths = [self.getInstallationPathFromBinary(p)\
+                                   for p in self._executables]
+        return installationPaths
+    
+    # Given the path to an interpreter binary, return the
+    # path of the installation
+    # wstring getInstallationPathFromBinary(in wstring binaryPath);
+    def getInstallationPathFromBinary(self, binaryPath):
+        if sys.platform.startswith("win"):
+            return os.path.dirname(binaryPath)
+        else:
+            return os.path.dirname(os.path.dirname(binaryPath))
+    
+    def set_installationPath(self, path):
+        self.installationPath = path
+        self.executablePath = ''
+    
+    def get_executablePath(self):
+        if not self.installationPath:
+            if not self._executables:
+                paths = self.FindInstallationPaths()
+                if paths:
+                    self.installationPath = paths[0]
+            if not self._executables:
+                return None
+            self.executablePath = self._executables[0]
+        return self.executablePath
+
+class KoCPPCompileLinter:
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo CPP Linter"
+    _reg_clsid_ = "{e9046284-6db1-4e17-8d28-4c5f0c688dd8}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CPP;1"
+
+    def __init__(self):
+        self.appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=CPP;1"].\
+                    getService(components.interfaces.koIAppInfoEx)
+
+        self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
+            getService(components.interfaces.koILastErrorService)
+        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
+            getService(components.interfaces.nsIProxyObjectManager)
+        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService)
+        self._prefProxy = self._proxyMgr.getProxyForObject(None,
+            components.interfaces.koIPrefService, self._prefSvc,
+            PROXY_ALWAYS | PROXY_SYNC)
+        
+    def lint(self, request):
+        """Lint the given C/C++ file.
+        
+        Raise an exception and set an error on koLastErrorService if there
+        is a problem.
+        """
+        
+        text = request.content.encode(request.encoding.python_encoding_name)
+        cwd = request.cwd
+        
+        #print "----------------------------"
+        #print "C++ Lint"
+        #print text
+        #print "----------------------------"
+        cc = self.appInfoEx.executablePath
+        if cc is None:
+            errmsg = "Could not find a suitable C/C++ interpreter for linting."
+            self._lastErrorSvc.setLastError(1, errmsg)
+            raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
+
+        if request.document.file:
+            ext = request.document.file.ext
+        else:
+            ext = koCPPLanguage.defaultExtension
+        
+        # save buffer to a temporary file
+        try:
+            filename = "%s.%s" % (tempfile.mktemp(), ext)
+            fout = open(filename, 'wb')
+            fout.write(text)
+            fout.close()
+        except:
+            errmsg = "Unable to save temporary file for C/C++ linting."
+            self._lastErrorSvc.setLastError(1, errmsg)
+            raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
+
+        if cc.startswith('cl'):
+            argv = [cc, '-c']
+            # ms cl errors
+            re_string = r'(?P<file>.+)?\((?P<line>\d+)\)\s:\s(?:(?P<type>.+)?\s(?P<number>C\d+)):\s(?P<message>.*)'
+        else: # gcc or cc
+            argv = [cc, '-c', '-gnats']
+            # gcc errors
+            re_string = r'(?P<file>[^:]+)?:(?P<line>\d+?)(?::(?P<column>\d+))?:\s(?P<type>.+)?:\s(?P<message>.*)'
+            
+        argv += [filename]
+        _re = re.compile(re_string)
+        p = None
+        #print argv
+        try:
+            env = koprocessutils.getUserEnv()
+            cwd = cwd or None
+            p = process.ProcessOpen(argv, mode='b', cwd=cwd, env=env)
+            p.stdin.close()
+            # XXX gcc hangs if we read stdout, need to test with
+            # msvc
+            #stdout = p.stdout.readlines()
+            #print stdout
+            lines = p.stderr.readlines()
+            #print lines
+        finally:
+            os.unlink(filename)
+            try:
+                if p: p.close()
+            except IOError, e:
+                if e.errno == 0:  
+                    pass
+                else:
+                    raise
+        
+        try:
+            results = koLintResults()
+            if lines:
+                datalines = re.split('\r\n|\r|\n',text)
+                numLines = len(datalines)
+                result = None
+                for line in lines:
+                    #print line
+                    if result and line[0] == ' ':
+                        result.description += '\n'+line
+                        continue
+
+                    g = _re.match(line)
+                    if not g:
+                        continue
+                    err = g.groupdict()
+                    #print repr(err)
+                    result = KoLintResult()
+                    # XXX error in FILENAME at line XXX
+                    result.lineStart = result.lineEnd = int(err['line'])
+                    result.columnStart = 1
+                    result.columnEnd = len(datalines[result.lineEnd-1]) + 1
+                    if 'error' in err['type']:
+                        result.severity = result.SEV_ERROR
+                    elif 'warn' in err['type']:
+                        result.severity = result.SEV_WARNING
+                    else:
+                        result.severity = result.SEV_ERROR
+
+                    if 'number' in err:
+                        result.description = "%s %s: %s" % (err['type'],err['number'],err['message'])
+                    else:
+                        result.description = "%s: %s" % (err['type'],err['message'])
+                    results.addResult(result)
+        except:
+            errmsg = "Exception in C/C++ linting while parsing results"
+            self._lastErrorSvc.setLastError(1, errmsg)
+            log.exception(errmsg)
+        #print "----------------------------"
+        return results
+

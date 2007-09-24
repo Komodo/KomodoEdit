@@ -1,0 +1,10 @@
+<h3>All Tags</h3>
+
+<table>
+	<%= column_headings %w(Tag Books) %>
+	<tbody>
+		<%= render :partial => "tag", :collection => @tags %>
+	</tbody>
+</table>
+
+<%= next_previous_links_for @tag_paginator %>

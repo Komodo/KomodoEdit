@@ -1,0 +1,77 @@
+# A Luddite mode written in Luddite
+
+# To build:
+# python luddite.py compile udl\luddite.udl -f
+# python luddite.py package luddite -f
+# Open luddite_language-1.0.0-ko.xpi in Komodo, install, restart
+
+language Luddite
+
+family markup
+initial IN_M_DEFAULT
+
+# Need to get into a state with keywords -- use CSL
+state IN_M_DEFAULT:
+/./ : redo, => IN_CSL_DEFAULT
+
+family csl # client-side language
+
+# We have to specify the min and max styles we'll be referring to
+start_style CSL_DEFAULT
+end_style CSL_REGEX
+
+# If the language has keywords, specify which style needs to be transformed
+
+keyword_style CSL_IDENTIFIER => CSL_WORD
+
+# Obviously all keywords will need to be quoted, since we're using
+# Luddite to describe Luddite
+
+keywords ['accept', 'all', 'at_eol', 'family', 'fold', 'keywords', 'keyword_style',
+     'include', 'initial', 'no_keyword', 'language', 'paint'
+     'pattern', 'redo', 'reject', 'skip', 'state', 'sublanguage',
+     'delimiter', 'keep_delimiter', 'set_delimiter', 'set_opposite_delimiter',
+     'sub_language', 'token_check', 'start_style', 'end_style',
+     'namespace', 'public_id', 'publicid', 'system_id', 'systemid',
+     'upto', 'spush_check', 'spop_check', 'upto']
+
+pattern NMSTART = '\w'   # inside cset
+pattern CS = '$NMSTART\d_'   # inside cset
+pattern OP = ',=>:'
+pattern NAMESEQ = "[$NMSTART][$CS]*"
+initial IN_CSL_DEFAULT
+state IN_CSL_DEFAULT:
+
+# Swallow to end-of-line
+/#.*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT) #stay
+'/' : paint(upto, CSL_DEFAULT), => IN_CSL_REGEX
+'"' : paint(upto, CSL_DEFAULT), => IN_CSL_DSTRING
+'\'' : paint(upto, CSL_DEFAULT), => IN_CSL_SSTRING
+/$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+/[$OP]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR)
+
+################ Strings ################
+
+state IN_CSL_DSTRING:
+'"' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+'\r' : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+
+state IN_CSL_SSTRING:
+'\'' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\\./ : #
+/$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+'\r' : paint(upto, CSL_STRING), => IN_CSL_DEFAULT # /$/ doesn't match here with pcre
+
+state IN_CSL_REGEX:
+/\\./ : #stay
+/\/[\w]*/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+/[\r\n]/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+fold "#{{" CSL_COMMENT +
+fold "#}}" CSL_COMMENT -
+
+
+
+

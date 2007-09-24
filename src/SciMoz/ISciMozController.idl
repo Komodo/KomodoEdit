@@ -1,0 +1,16 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// ISciMozController.idl
+// Interface to to the Scintilla controller component.
+// Author: Neil Hodgson, Mark Hammond, and Ken Simpson
+
+#include "nsIController.idl"
+
+// A utility interface without a better home.
+interface ISciMoz;
+[scriptable, uuid(063074f4-93af-47ec-ad73-fb634f2a0977)]
+interface ISciMozController : nsIController {
+    void init(in ISciMoz scimoz);
+    void test_scimoz(in ISciMoz scimoz); // SciMoz test suite entry point
+};

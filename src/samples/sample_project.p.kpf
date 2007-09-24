@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="7e3fffd0-d187-d04b-8269-0e177ad5566d" name="sample_project.p.kpf" kpf_version="4">
+<file url="birds.xml" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="32f48e32-33c5-cb42-a8fc-ea88cdfa5029" name="birds.xml">
+</file>
+<file url="html_sample.html" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="111687fa-4805-6141-9958-e822e473ea26" name="html_sample.html">
+</file>
+<file url="javascript_sample.js" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="8aaa547a-9073-7c44-856e-a0f74d03424e" name="javascript_sample.js">
+</file>
+<file url="perl_sample.pl" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="79977c66-2770-d24c-9fd7-ccc3198da13c" name="perl_sample.pl">
+</file>
+<file url="php_sample.php" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="5170df5a-7cb0-eb47-9509-7bbc5ccd0887" name="php_sample.php">
+</file>
+<file url="python_sample.py" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="98384b04-3302-fc43-9e8b-8aa03c73aad7" name="python_sample.py">
+</file>
+<file url="ruby_sample.rb" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="32fbb79e-8461-5448-9a86-cf2f144f83eb" name="ruby_sample.rb">
+</file>
+<file url="tcl_sample.tcl" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="ce4e47f6-f2b3-554b-8d5a-335a2d3b91d0" name="tcl_sample.tcl">
+</file>
+<file url="xslt_sample.xsl" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="38c4b9a0-b6a0-f549-9b84-1039b81585ca" name="xslt_sample.xsl">
+</file>
+<preference-set idref="7e3fffd0-d187-d04b-8269-0e177ad5566d">
+  <boolean id="import_recursive">0</boolean>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;*.kpf</string>
+  <boolean id="import_live">0</boolean>
+  <string id="import_type">makeFlat</string>
+  <string id="import_include_matches"></string>
+</preference-set>
+</project>

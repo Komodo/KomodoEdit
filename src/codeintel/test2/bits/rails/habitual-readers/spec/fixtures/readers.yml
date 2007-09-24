@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+Ben:
+  id: 1
+  username: benj72
+  fullname: Ben Askins
+  bio: Eats books for breakfast
+Alan:
+  id: 2
+  username: agreen
+  fullname: Alan Green
+  bio: Fond of snakes

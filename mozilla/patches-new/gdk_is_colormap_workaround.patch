@@ -1,0 +1,25 @@
+diff
+
+See http://bugs.activestate.com/show_bug.cgi?id=64037
+"GDK_IS_COLORMAP crashes"
+
+Index: widget/src/gtk2/mozcontainer.c
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk2/mozcontainer.c,v
+retrieving revision 1.14
+diff -d -u -r1.14 mozcontainer.c
+--- widget/src/gtk2/mozcontainer.c	1 Dec 2004 22:27:00 -0000	1.14
++++ widget/src/gtk2/mozcontainer.c	10 Apr 2007 18:43:04 -0000
+@@ -391,6 +391,12 @@
+     g_return_if_fail (IS_MOZ_CONTAINER(container));
+     g_return_if_fail (callback != NULL);
+ 
++    if (!callback_data) {
++        // Ugly workaround for GDK_IS_COLORMAP crash bug:
++        // http://bugs.activestate.com/show_bug.cgi?id=64037
++        return;
++    }
++
+     moz_container = MOZ_CONTAINER(container);
+ 
+     tmp_list = moz_container->children;

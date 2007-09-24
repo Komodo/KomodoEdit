@@ -1,0 +1,8 @@
+<table>
+	<%= column_headings ["#{key_field}", "When", "Hours", "Notes"], @show_actions %>
+	<tbody>
+		<%= render :partial => 'readings/reading', :collection => @readings, :locals => {:key_field => key_field} %>
+	</tbody>
+</table>
+
+<%= next_previous_links_for @reading_paginator %>

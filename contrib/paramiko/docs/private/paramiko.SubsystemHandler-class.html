@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SubsystemHandler</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SubsystemHandler
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko.SubsystemHandler-class.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SubsystemHandler-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SubsystemHandler</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+        
+         |        
+  <a href="../private/threading._Verbose-class.html"><code>_Verbose</code></a> --+    
+             |    
+        <a href="threading.Thread-class.html"><code>Thread</code></a> --+
+                 |
+                <b>SubsystemHandler</b>
+</pre><br />
+
+<dl><dt><b>Known Subclasses:</b></dt>
+<dd>
+    <a href="paramiko.SFTPServer-class.html"><code>SFTPServer</code></a></dd></dl>
+
+<hr/>
+
+<p>Handler for a subsytem in server mode. If you create a subclass of 
+this class and pass it to <a 
+href="paramiko.Transport-class.html#set_subsystem_handler" 
+class="link"><code>Transport.set_subsystem_handler</code></a>, an object 
+of this class will be created for each request for this subsystem. Each 
+new object will be executed within its own new thread by calling <a 
+href="paramiko.SubsystemHandler-class.html#start_subsystem" 
+class="link"><code>start_subsystem</code></a>. When that method 
+completes, the channel is closed.</p>
+For example, if you made a subclass <code>MP3Handler</code> and 
+registered it as the handler for subsystem <code>&quot;mp3&quot;</code>, 
+then whenever a client has successfully authenticated and requests 
+subsytem <code>&quot;mp3&quot;</code>, an object of class 
+<code>MP3Handler</code> will be created, and <a 
+href="paramiko.SubsystemHandler-class.html#start_subsystem" 
+class="link"><code>start_subsystem</code></a> will be called on it from a 
+new thread.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SubsystemHandler-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>server</span>)</span></code>
+<br />
+Create a new handler for a channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SubsystemHandler-class.html#finish_subsystem" class="summary-sig-name"><code>finish_subsystem</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Perform any cleanup at the end of a subsystem.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.ServerInterface-class.html" 
+        class="link"><code>ServerInterface</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SubsystemHandler-class.html#get_server" class="summary-sig-name"><code>get_server</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the <a href="../private/paramiko.ServerInterface-class.html" 
+class="link"><code>ServerInterface</code></a> object associated with this 
+channel and subsystem.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SubsystemHandler-class.html#start_subsystem" class="summary-sig-name"><code>start_subsystem</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>transport</span>,
+          <span class=summary-sig-arg>channel</span>)</span></code>
+<br />
+Process an ssh subsystem in server mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="_run"></a><span class="summary-sig"><span class="summary-sig-name">_run</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from Thread</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#getName" class="summary-sig-name"><code>getName</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isAlive" class="summary-sig-name"><code>isAlive</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isDaemon" class="summary-sig-name"><code>isDaemon</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#join" class="summary-sig-name"><code>join</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#run" class="summary-sig-name"><code>run</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setDaemon" class="summary-sig-name"><code>setDaemon</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>daemonic</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setName" class="summary-sig-name"><code>setName</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#start" class="summary-sig-name"><code>start</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/threading.Thread-class.html#_set_daemon" class="summary-sig-name"><code>_set_daemon</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from _Verbose</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/threading._Verbose-class.html#_note" class="summary-sig-name"><code>_note</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>format</span>,
+          <span class="summary-sig-vararg">*args</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from Thread</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>bool</code></font></td>
+<td><b><a href="../private/threading.Thread-class.html#__initialized"><code>_Thread__initialized</code></a></b> = <span title="False"><code>False                             </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>server</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  Create a new handler for a channel. This is used by <a 
+  href="../private/paramiko.ServerInterface-class.html" 
+  class="link"><code>ServerInterface</code></a> to start up a new handler 
+  when a channel requests this subsystem. You don't need to override this 
+  method, but if you do, be sure to pass the <code>channel</code> and 
+  <code>name</code> parameters through to the original 
+  <code>__init__</code> method here.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the channel associated with this subsystem request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>name</b></code> -
+         name of the requested subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>server</b></code> -
+         the server object for the session that started this 
+        subsystem
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.ServerInterface-class.html" 
+              class="link"><code>ServerInterface</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="threading.Thread-class.html#__init__"><code>threading.Thread.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="finish_subsystem"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">finish_subsystem</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Perform any cleanup at the end of a subsystem. The default 
+  implementation just closes the channel.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_server"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_server</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the <a href="../private/paramiko.ServerInterface-class.html" 
+  class="link"><code>ServerInterface</code></a> object associated with 
+  this channel and subsystem.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko.ServerInterface-class.html" 
+        class="link"><code>ServerInterface</code></a>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="start_subsystem"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">start_subsystem</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>transport</span>,
+          <span class=sig-arg>channel</span>)</span>
+  </h3>
+  <p>Process an ssh subsystem in server mode. This method is called on a 
+  new object (and in a new thread) for each subsystem request. It is 
+  assumed that all subsystem logic will take place here, and when the 
+  subsystem is finished, this method will return. After this method 
+  returns, the channel is closed.</p>
+  The combination of <code>transport</code> and <code>channel</code> 
+  are unique; this handler corresponds to exactly one <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> on one <a 
+  href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         name of the requested subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>transport</b></code> -
+         the server-mode <a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Transport-class.html" 
+              class="link"><code>Transport</code></a>)</i>
+      <dd><code><b>channel</b></code> -
+         the channel associated with this subsystem request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+<p><b>Note:</b> It is the responsibility of this method to exit if the underlying <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> is closed. This can be done by 
+checking <a href="paramiko.Transport-class.html#is_active" 
+class="link"><code>Transport.is_active</code></a> or noticing an EOF on 
+the <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>. If this method loops forever 
+without checking for this case, your python interpreter may refuse to 
+exit because this thread will still be running.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:02 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

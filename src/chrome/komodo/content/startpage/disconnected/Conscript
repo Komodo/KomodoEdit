@@ -1,0 +1,25 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'platform',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'mozVersion',
+    'productType',
+);
+
+$cons->Preprocess('disconnected.p.html', 'disconnected.html');
+$cons->InstallInChrome('disconnected.html');
+$cons->InstallInChrome('komodo_start.css');
+$cons->InstallInChrome('help.png');
+$cons->InstallInChrome('learn-workspace.png');
+$cons->InstallInChrome('komodo-start-bg-left.png');
+$cons->InstallInChrome('komodo-start-bg-middle.png');
+$cons->InstallInChrome('komodo-start-bg-right.png');
+$cons->InstallInChrome('komodo-start-bg.png');
+

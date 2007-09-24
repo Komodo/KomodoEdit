@@ -1,0 +1,184 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+Ben_read_HHGTTG:
+  id: 1
+  book_id: 1
+  reader_id: 1
+  date_read: 2006-08-16 00:00:00
+  reading_time: 4
+  notes: Laughed till I dropped
+Alan_read_LOTR:
+  id: 2
+  book_id: 2
+  reader_id: 2
+  date_read: 2006-08-10 00:00:00
+  reading_time: 12
+  notes: What a bore! 
+Alan_read_HHGTTG:
+  id: 3
+  book_id: 1
+  reader_id: 2
+  date_read: 2006-08-22 00:00:00
+  reading_time: 6
+  notes: Arthur is funny.
+# More test fixtures here
+
+# The rest are just plain data
+Reading10:
+  id: 10
+  book_id: 3
+  reader_id: 3
+  date_read: 2006-07-13 00:00:00
+  reading_time: 16
+  notes: What a tome.
+Reading11:
+  id: 11
+  book_id: 7
+  reader_id: 10
+  date_read: 2006-07-15 00:00:00
+  reading_time: 10
+  notes: Decided to read it again.
+
+Reading12:
+  id: 12
+  book_id: 7
+  reader_id: 10
+  date_read: 2006-07-14 00:00:00
+  reading_time: 10
+  notes: n/a
+
+Reading13:
+  id: 13
+  book_id: 8
+  reader_id: 9
+  date_read: 2006-10-13 00:00:00
+  reading_time: 3
+  notes: Never read this kind of stuff before. Interesting.
+
+Reading14:
+  id: 14
+  book_id: 8
+  reader_id: 2
+  date_read: 2005-11-13 00:00:00
+  reading_time: 3
+  notes: Great fantasy. Pity he got his head cut off at the end there.
+
+Reading15:
+  id: 15
+  book_id: 8
+  reader_id: 3
+  date_read: 2006-01-07 00:00:00
+  reading_time: 3
+  notes: I liked the bit about the wart.
+
+Reading16:
+  id: 16
+  book_id: 6
+  reader_id: 5
+  date_read: 2006-02-12 00:00:00
+  reading_time: 3
+  notes: Just reading this has made me thinner.
+
+Reading17:
+  id: 17
+  book_id: 6
+  reader_id: 6
+  date_read: 2006-02-14 00:00:00
+  reading_time: 3
+  notes: As good as Harry said it would be.
+
+Reading18:
+  id: 18
+  book_id: 6
+  reader_id: 7
+  date_read: 2006-02-18 00:00:00
+  reading_time: 2
+  notes: Stupid book.
+
+Reading19:
+  id: 19
+  book_id: 3
+  reader_id: 1
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading20:
+  id: 20
+  book_id: 3
+  reader_id: 2
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading21:
+  id: 21
+  book_id: 3
+  reader_id: 3
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading22:
+  id: 22
+  book_id: 3
+  reader_id: 4
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading23:
+  id: 23
+  book_id: 3
+  reader_id: 5
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading24:
+  id: 24
+  book_id: 3
+  reader_id: 6
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading25:
+  id: 25
+  book_id: 3
+  reader_id: 7
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading26:
+  id: 26
+  book_id: 3
+  reader_id: 8
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading27:
+  id: 27
+  book_id: 3
+  reader_id: 9
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading28:
+  id: 28
+  book_id: 3
+  reader_id: 10
+  date_read: 2006-07-10 00:00:00
+  reading_time: 3
+  notes: Book club read-in book.
+
+Reading29:
+  id: 29
+  book_id: 3
+  reader_id: 2
+  date_read: 2006-07-11 00:00:00
+  reading_time: 2
+  notes: I decided to read it again the next day.
+

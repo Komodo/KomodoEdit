@@ -1,0 +1,59 @@
+<!--
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+-->
+<html>
+<body>
+<p>
+Template-toolkit cile test #1
+
+<script type="text/javascript">
+var a = 42;
+var $b = $ab.cd;
+function myfunc(x1, p2) {
+   document.getElementById('q').setText(x1);
+}
+
+// Taken from test javascript_simple.js
+
+function myfunc() {
+    this.classVar1 = "MyFunc";
+    this.num = 1;
+}
+
+myfunc.prototype.list = function()
+{
+    // Do whatever you do
+}
+
+myfunc.prototype.strFunc = function(s /* s is a string */)
+{
+    var copyOfS = s;
+    if (this.classVar1 == s) {
+        this.classVar1 = copyOfS;
+    }
+    this.num = 2;
+    // Do whatever you do
+}
+
+var mf = new myfunc();
+var s = mf.classVar1;
+mf.list();
+mf.num = 4;
+mf.strFunc(s);
+gNum = 5;
+
+
+</script>
+[%PERL%]
+
+
+sub foo {
+    my ($a, $b) = @_;
+    my $c = LWP::UserAgent->new;
+    $d = $c->request('GET', $a, $b);
+    return $d->content;
+}
+
+my $d1 = foo('yob', 'bow');
+[% END %]
+and more continues...

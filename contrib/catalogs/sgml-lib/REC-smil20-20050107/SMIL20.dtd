@@ -1,0 +1,103 @@
+<!-- ....................................................................... -->
+<!-- SMIL 2.0 DTD  ......................................................... -->
+<!-- file: SMIL20.dtd                                                         
+-->
+<!-- SMIL 2.0 DTD
+
+    	This is SMIL 2.0.
+
+    	Copyright: 1998-2004 W3C (MIT, ERCIM, Keio), All Rights Reserved.
+    	See http://www.w3.org/Consortium/Legal/.
+
+	Author:     Jacco van Ossenbruggen
+        Revision:   2001/07/31  Thierry Michel  
+
+ This is the driver file for the SMIL 2.0 DTD.
+
+     This DTD module is identified by the PUBLIC and SYSTEM identifiers:
+
+     PUBLIC "-//W3C//DTD SMIL 2.0//EN"
+     SYSTEM "http://www.w3.org/2001/SMIL20/SMIL20.dtd"
+
+-->
+
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % SMIL.prefix "" >
+
+<!-- Define the Content Model -->
+<!ENTITY % smil-model.mod
+    PUBLIC "-//W3C//ENTITIES SMIL 2.0 Document Model 1.0//EN"
+           "smil-model-1.mod" >
+
+<!-- Modular Framework Module  ................................... -->
+<!ENTITY % smil-framework.module "INCLUDE" >
+<![%smil-framework.module;[
+<!ENTITY % smil-framework.mod
+     PUBLIC "-//W3C//ENTITIES SMIL 2.0 Modular Framework 1.0//EN"
+            "smil-framework-1.mod" >
+%smil-framework.mod;]]>
+
+<!-- The SMIL 2.0 Profile includes the following sections:
+             C. The SMIL Animation Module 
+             D. The SMIL Content Control Module 
+             G. The SMIL Layout Module 
+             H. The SMIL Linking Module 
+             I. The SMIL Media Object Module 
+             J. The SMIL Metainformation Module 
+             K. The SMIL Structure Module 
+             L. The SMIL Timing and Synchronization Module 
+             M. Integrating SMIL Timing into other XML-Based Languages 
+             P. The SMIL Transition effects Module 
+
+             The SMIL Streaming Media Object Module is optional.
+-->
+
+<!--
+<!ENTITY % smil-streamingmedia.model "IGNORE">
+<![%smil-streamingmedia.model;[
+  <!ENTITY % smil-streaming-mod  
+    PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Streaming Media Objects//EN" 
+    "SMIL-streamingmedia.mod">
+  %smil-streaming-mod;
+]]>
+-->
+
+<!ENTITY % SMIL.anim-mod   
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Animation//EN"  
+  "SMIL-anim.mod">
+<!ENTITY % SMIL.control-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Content Control//EN" 
+  "SMIL-control.mod">
+<!ENTITY % SMIL.layout-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Layout//EN"  
+  "SMIL-layout.mod">
+<!ENTITY % SMIL.link-mod   
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Linking//EN"  
+  "SMIL-link.mod">
+<!ENTITY % SMIL.media-mod  
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Media Objects//EN" 
+  "SMIL-media.mod">
+<!ENTITY % SMIL.meta-mod   
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Document Metainformation//EN" 
+  "SMIL-metainformation.mod">
+<!ENTITY % SMIL.struct-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Document Structure//EN" 
+  "SMIL-struct.mod">
+<!ENTITY % SMIL.timing-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Timing//EN" 
+  "SMIL-timing.mod">
+<!ENTITY % SMIL.transition-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Transition//EN"
+  "SMIL-transition.mod">
+
+%SMIL.struct-mod;
+%SMIL.anim-mod;
+%SMIL.control-mod;
+%SMIL.meta-mod;
+%SMIL.layout-mod;
+%SMIL.link-mod;
+%SMIL.media-mod;
+%SMIL.timing-mod;
+%SMIL.transition-mod;
+
+<!-- end of SMIL20.dtd -->

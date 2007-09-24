@@ -1,0 +1,48 @@
+/* Copyright (c) 2001-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsIEnumerator.idl"
+#include "nsITreeView.idl"
+
+interface koIHierarchyItem;
+
+[scriptable, uuid(99a9a01d-498e-4d79-9fb9-3e9c5cbb0d00)]
+interface koIEncodingInfo : nsISupports {
+    readonly attribute string python_encoding_name;
+    readonly attribute string friendly_encoding_name;
+    readonly attribute string short_encoding_name;
+    readonly attribute ACString byte_order_marker;
+    readonly attribute boolean ascii_superset;
+    readonly attribute string fontspec;
+};
+
+[scriptable, uuid(4474e045-c02c-4514-9cae-8411bb84488f)]
+interface koIEncodingServices : nsISupports {
+    void enumerateEncodings([array, size_is(count)] out koIEncodingInfo encodingInfo,
+                            out unsigned long count);
+
+    koIEncodingInfo get_encoding_info(in string python_encoding_name);
+    string get_canonical_python_encoding_name(in string python_encoding_name);
+    
+    // returns -1 if the encoding cannot be found in the list of supported encodings 
+    PRInt32 get_encoding_index(in string python_encoding_name);
+    readonly attribute koIHierarchyItem encoding_hierarchy;
+    
+    // The meaning of errors is as in the Python standard library w.r.t. dealing with 
+    // characters that can't fit in the encoding which is asked for.
+    //   'ignore': means they are skipped
+    //   'strict': means that the lastErrorService will be used to signal errors
+    //   'replace': means that a ? will be inserted instead (not recommended)
+    // Both of these functions use the lastErrorSvc to report errors
+    wstring unicode(in ACString encoded_string,
+                    in string python_encoding_name,
+                    in string errors);
+    ACString encode(in wstring unicode_string,
+                    in string python_encoding_name,
+                    in string errors);
+    void getUnicodeEncodedString(in ACString raw_string,
+                                 out wstring unicode_string,
+                                 out wstring encoding_name,
+                                 out wstring bom);
+};
+

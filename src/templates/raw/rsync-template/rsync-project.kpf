@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="d66a4491-5edd-11db-8a24-000d935d3368" name="rsync-project.kpf" kpf_version="3">
+<folder idref="d66a4491-5edd-11db-8a24-000d935d3368" id="18d052f4-5ede-11db-8a24-000d935d3368" name="commands">
+</folder>
+<command insertOutput="0" keyboard_shortcut="" idref="18d052f4-5ede-11db-8a24-000d935d3368" name="rsync Download" parseRegex="" id="1c1b03b8-5ede-11db-8a24-000d935d3368" operateOnSelection="0" cwd="%p" env="" doNotOpenOutputWindow="0" showParsedOutputList="0" parseOutput="0" runIn="command-output-window">
+rsync -avz --rsh=ssh %(pref:rsync-username)@%(pref:rsync-host):%(pref:rsync-remote-path)/*.* .</command>
+<command insertOutput="0" keyboard_shortcut="" idref="18d052f4-5ede-11db-8a24-000d935d3368" name="rsync Upload" parseRegex="" id="a3b5db3a-5ede-11db-8a24-000d935d3368" operateOnSelection="0" cwd="%p" env="" doNotOpenOutputWindow="0" showParsedOutputList="0" parseOutput="0" runIn="command-output-window">
+rsync -avz --rsh=ssh *.* %(pref:rsync-username)@%(pref:rsync-host):%(pref:rsync-remote-path)</command>
+<macro keyboard_shortcut="" name="oncreate" language="JavaScript" trigger_enabled="0" rank="100" trigger="trigger_postopen" async="0" idref="18d052f4-5ede-11db-8a24-000d935d3368" id="9e89313e-5edf-11db-9c6a-000d935d3368">
+var project = komodo.macro.project;\nvar wizard = project.getChildByAttributeValue('name','rsync-wizard.xul', 1);\nvar prefset = project.prefset;\nvar data = {};\ndata.username = "";\ndata.host = "";\ndata.path = "";\nif (prefset.hasPrefHere("rsync-username")) {\ndata.username = prefset.getStringPref("rsync-username");\n}\nif (prefset.hasPrefHere("rsync-host")) {\ndata.host = prefset.getStringPref("rsync-host");\n}\nif (prefset.hasPrefHere("rsync-remote-path")) {\ndata.path = prefset.getStringPref("rsync-remote-path");\n}\n\nwindow.openDialog(wizard.getFile().URI,\n                  "_blank",\n                  "centerscreen,chrome,resizable,scrollbars,dialog=no,close,modal=yes",\n                  data);\nif (data.username &amp;&amp; data.host &amp;&amp; data.path) {\n    prefset.setStringPref("rsync-username",data.username);\n    prefset.setStringPref("rsync-host",data.host);\n    prefset.setStringPref("rsync-remote-path",data.path);\n    if (data.syncnow) {\n        // find the rsync download run command and execute it\n        var cmd = project.getChildByAttributeValue('name','rsync Download', 1);\n        Run_CommandPart(cmd);\n    }\n}\n</macro>
+<file url="_prj_internal_/rsync-wizard.xul" idref="18d052f4-5ede-11db-8a24-000d935d3368" id="d8913546-6854-11db-b063-000d935d3368" name="rsync-wizard.xul">
+</file>
+<preference-set idref="d66a4491-5edd-11db-8a24-000d935d3368">
+  <string id="import_dirname"></string>
+  <boolean id="import_recursive">1</boolean>
+  <boolean id="import_live">1</boolean>
+  <string id="import_type">useFolders</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;_prj_internal_</string>
+  <string id="import_include_matches"></string>
+</preference-set>
+</project>

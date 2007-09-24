@@ -1,0 +1,30 @@
+# JavaScript UDL definition
+# 
+# Copyright (C) 2007 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# Lexer description for javascript
+
+# First we need to tell the lexer a bit about this language
+
+family csl # client-side language
+sublanguage JavaScript
+
+# Quote any keywords that collide with tpl's keywords:
+# family keywords keyword_style pattern initial state paint redo
+
+# From http://www.mozilla.org/js/language/E262-3.pdf
+
+keywords [as break case catch class const continue default delete do else
+export extends false finally for function if import in instanceof is 'namespace'
+new null package private public return super switch this throw true try typeof
+use var void while with
+get "include" set
+abstract debugger enum goto implements interface native protected short synchronized throws transient volatile
+] 
+# rows 1 - 4 - reserved
+# row 5  - non-reserved
+# row 6 - "future reserved"
+
+include "ecmascript_262.udl"

@@ -1,0 +1,63 @@
+Index: layout/xul/base/src/tree/src/nsTreeSelection.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/layout/xul/base/src/tree/src/nsTreeSelection.cpp,v
+retrieving revision 1.47
+diff -u -r1.47 nsTreeSelection.cpp
+--- layout/xul/base/src/tree/src/nsTreeSelection.cpp	28 Jul 2005 17:18:28 -0000	1.47
++++ layout/xul/base/src/tree/src/nsTreeSelection.cpp	1 Mar 2006 21:58:21 -0000
+@@ -345,7 +345,9 @@
+ {
+   mShiftSelectPivot = -1;
+ 
+-  SetCurrentIndex(aIndex);
++  nsresult rv = SetCurrentIndex(aIndex);
++  if (NS_FAILED(rv))
++    return rv;
+ 
+   if (mFirstRange) {
+     PRBool alreadySelected = mFirstRange->Contains(aIndex);
+@@ -389,9 +391,10 @@
+   // (5) The addition of the item causes two ranges to be merged.
+   // (6) The removal of the item causes two ranges to be split.
+   mShiftSelectPivot = -1;
+-  SetCurrentIndex(aIndex);
++  nsresult rv = SetCurrentIndex(aIndex);
++  if (NS_FAILED(rv))
++    return rv;
+ 
+-  nsresult rv = NS_OK;
+   if (!mFirstRange)
+     Select(aIndex);
+   else {
+@@ -435,7 +438,9 @@
+   }
+ 
+   mShiftSelectPivot = aStartIndex;
+-  SetCurrentIndex(aEndIndex);
++  nsresult rv = SetCurrentIndex(aEndIndex);
++  if (NS_FAILED(rv))
++    return rv;
+   
+   PRInt32 start = aStartIndex < aEndIndex ? aStartIndex : aEndIndex;
+   PRInt32 end = aStartIndex < aEndIndex ? aEndIndex : aStartIndex;
+@@ -466,7 +471,9 @@
+ 
+ NS_IMETHODIMP nsTreeSelection::ClearRange(PRInt32 aStartIndex, PRInt32 aEndIndex)
+ {
+-  SetCurrentIndex(aEndIndex);
++  nsresult rv = SetCurrentIndex(aEndIndex);
++  if (NS_FAILED(rv))
++    return rv;
+ 
+   if (mFirstRange) {
+     PRInt32 start = aStartIndex < aEndIndex ? aStartIndex : aEndIndex;
+@@ -590,6 +597,9 @@
+ 
+ NS_IMETHODIMP nsTreeSelection::SetCurrentIndex(PRInt32 aIndex)
+ {
++  if (!mTree) {
++    return NS_ERROR_UNEXPECTED;
++  }
+   if (mCurrentIndex == aIndex) {
+     return NS_OK;
+   }

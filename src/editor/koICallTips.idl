@@ -1,0 +1,11 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(3F2AF0EA-260C-48f8-B628-33DE75015C1B)]
+interface koICallTips : nsISupports
+{
+  wstring CallTips(in wstring source_line, in wstring text);
+  void Exec(in wstring source_line);
+};

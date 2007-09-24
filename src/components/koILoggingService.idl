@@ -1,0 +1,43 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Komodo Logging system service -- a subset of the logging.py API
+
+[scriptable, uuid(E2E8C6CE-D0B9-49DE-A39D-496E9E5F32C4)]
+interface koILogger: nsISupports {
+    void setLevel(in long level);
+    long getEffectiveLevel();
+    attribute long level;
+    boolean isEnabledFor(in long level);
+    void debug(in wstring msg);
+    void info(in wstring msg);
+    void warn(in wstring msg);
+    // void exception(in wstring msg); // not using since we can't do x-language exceptions
+    void error(in wstring msg);
+    void critical(in wstring msg);
+};
+
+[scriptable, uuid(E4810284-E021-4FE2-B031-25C721879D21)]
+interface koILoggingService: nsISupports {
+    koILogger getLogger(in wstring logger_name);
+    void getLoggerNames(out PRUint32 count,
+                        [retval,
+                        array,
+                        size_is(count)] out wstring strs);
+    const long DEBUG = 10;
+    const long INFO = 20;
+    const long WARN = 30;
+    const long ERROR = 40;
+    const long CRITICAL = 50;
+};
+
+
+[scriptable, uuid(8AC7F72A-2717-4264-B881-05FA6D3D7973)]
+interface koILogRecord: nsISupports {
+    attribute wstring logger;
+    attribute wstring levelname;
+    attribute wstring message;
+};
+

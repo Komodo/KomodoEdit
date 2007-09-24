@@ -1,0 +1,25 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_multiple_assignment.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_multiple_assignment.js" src="scan_inputs/javascript_multiple_assignment.js">
+      <scope classrefs="Object" ilk="class" line="4" lineend="11" name="TestCode">
+        <scope attributes="__ctor__" ilk="function" line="4" lineend="6" name="TestCode" signature="TestCode(a1)">
+          <variable ilk="argument" name="a1" />
+          <variable citdl="TestCode" name="this" />
+        </scope>
+        <variable citdl="a1" line="5" name="a1" />
+        <variable citdl="String" line="8" name="c1" />
+        <scope ilk="function" line="9" lineend="9" name="test" signature="test()">
+          <variable citdl="TestCode" name="this" />
+        </scope>
+        <variable citdl="Boolean" line="10" name="enabled" />
+      </scope>
+      <variable citdl="TestCode" line="12" name="x" />
+      <variable citdl="TestCode" line="13" name="t" />
+      <variable citdl="String" line="17" name="item2" />
+      <variable citdl="Array" line="17" name="item3" />
+      <variable citdl="Number" line="17" name="item1" />
+      <variable citdl="gFastIndex" line="21" name="high" />
+      <variable citdl="Number" line="21" name="low" />
+    </scope>
+  </file>
+</codeintel>

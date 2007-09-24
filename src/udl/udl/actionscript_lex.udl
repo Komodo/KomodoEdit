@@ -1,0 +1,123 @@
+# ActionScript UDL definition
+# 
+# Copyright (C) 2007 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# Lexer description for ActionScript
+
+
+family csl # client-side language
+sublanguage ActionScript
+
+# Quote any keywords that collide with tpl's keywords:
+# family keywords keyword_style pattern initial state paint redo
+
+
+# From http://blog.pettomato.com/content/actionscript-mode.el
+
+keywords [
+"-Infinity"
+"ArgumentError"
+"Array"
+"Array"
+"Boolean"
+"Boolean"
+"Class"
+"Date"
+"DefinitionError"
+"Error"
+"EvalError"
+"Function"
+"Infinity"
+"Math"
+"NaN"
+"Namespace"
+"Number"
+"Number"
+"Object"
+"Object"
+"QName"
+"RangeError"
+"ReferenceError"
+"RegExp"
+"SecurityError"
+"String"
+"String"
+"SyntaxError"
+"TypeError"
+"URIError"
+"VerifyError"
+"XML"
+"XML"
+"XMLList"
+"XMLList"
+
+"arguments"
+"as"
+"break"
+"case"
+"catch"
+"class"
+"const"
+"continue"
+"decodeURI"
+"decodeURIComponent"
+"default"
+"delete"
+"do"
+"dynamic"
+"else"
+"encodeURI" 
+"encodeURIComponent"
+"escape"
+"extends"
+"false"
+"finally"
+"for"
+"function"
+"get"
+"if"
+"implements"
+"import"
+"instanceof"
+"int"
+"int"
+"interface"
+"intrinsic"
+"is"
+"isFinite"
+"isNaN"
+"isXMLName"
+"new"
+"null"
+"override"
+"package"
+"parseFloat"
+"parseInt"
+"private"
+"protected"
+"public"
+"return"
+"set"
+"static"
+"super"
+"switch"
+"this"
+"throw"
+"trace"
+"true"
+"try"
+"typeof"
+"uint"
+"uint" 
+"undefined"
+"unescape"
+"var"
+"void"
+"while"
+"with"
+
+        ]
+
+include "ecmascript_262.udl"

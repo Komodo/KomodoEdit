@@ -1,0 +1,219 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\LWP\UserAgent.pm">
+    <scope ilk="blob" lang="Perl" name="UserAgent">
+      <scope classrefs="LWP::MemberMixin" ilk="class" line="1" lineend="772" name="LWP::UserAgent">
+        <import line="8" module="LWP::MemberMixin" />
+        <import line="12" module="HTTP::Request" />
+        <import line="13" module="HTTP::Response" />
+        <import line="14" module="HTTP::Date" />
+        <import line="16" module="LWP" />
+        <import line="17" module="LWP::Debug" />
+        <import line="18" module="LWP::Protocol" />
+        <import line="20" module="Carp" />
+        <import line="23" module="LWP::Protocol::http10" />
+        <import line="26" module="LWP::Protocol::https10" />
+        <variable line="6" name="$VERSION" />
+        <variable line="6" name="@ISA" />
+        <scope attributes="__ctor__" ilk="function" line="33" lineend="108" name="new" signature="new($class, %cnf)">
+          <variable ilk="argument" name="$class" />
+          <variable ilk="argument" name="%cnf" />
+          <variable attributes="__local__" line="38" name="$agent" />
+          <variable attributes="__local__" line="41" name="$from" />
+          <variable attributes="__local__" line="42" name="$timeout" />
+          <variable attributes="__local__" line="44" name="$use_eval" />
+          <variable attributes="__local__" line="46" name="$parse_head" />
+          <variable attributes="__local__" line="48" name="$max_size" />
+          <variable attributes="__local__" line="49" name="$max_redirect" />
+          <variable attributes="__local__" line="51" name="$env_proxy" />
+          <variable attributes="__local__" line="53" name="$cookie_jar" />
+          <variable attributes="__local__" line="54" name="$conn_cache" />
+          <variable attributes="__local__" line="55" name="$keep_alive" />
+          <variable attributes="__local__" line="61" name="$protocols_allowed" />
+          <variable attributes="__local__" line="62" name="$protocols_forbidden" />
+          <variable attributes="__local__" line="64" name="$requests_redirectable" />
+          <variable attributes="__local__" line="81" name="$self" />
+        </scope>
+        <scope ilk="function" line="112" lineend="128" name="_request_sanity_check" signature="_request_sanity_check($self, $request)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+        </scope>
+        <scope ilk="function" line="131" lineend="234" name="send_request" signature="send_request($self, $request, $arg, $size)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable ilk="argument" name="$arg" />
+          <variable ilk="argument" name="$size" />
+          <import line="172" module="LWP::Protocol::nogo" />
+          <import line="179" module="LWP::Protocol::nogo" />
+          <variable attributes="__local__" line="136" name="$method" />
+          <variable attributes="__local__" line="136" name="$url" />
+          <variable attributes="__local__" line="151" name="$scheme" />
+          <variable attributes="__local__" line="152" name="$proxy" />
+          <variable attributes="__local__" citdl="LWP::Protocol::nogo" line="160" name="$protocol" />
+          <variable attributes="__local__" line="165" name="$x" />
+          <variable attributes="__local__" line="193" name="$response" />
+          <variable attributes="__local__" line="207" name="$cookie_jar" />
+          <variable attributes="__local__" line="207" name="$max_size" />
+          <variable attributes="__local__" line="207" name="$parse_head" />
+          <variable attributes="__local__" line="207" name="$timeout" />
+          <variable attributes="__local__" line="207" name="$use_eval" />
+        </scope>
+        <scope ilk="function" line="237" lineend="257" name="prepare_request" signature="prepare_request($self, $request)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable attributes="__local__" line="243" name="$agent" />
+          <variable attributes="__local__" line="243" name="$cookie_jar" />
+          <variable attributes="__local__" line="243" name="$from" />
+          <variable attributes="__local__" line="243" name="$max_size" />
+          <variable attributes="__local__" line="250" name="$last" />
+        </scope>
+        <scope ilk="function" line="260" lineend="266" name="simple_request" signature="simple_request($self, $request, $arg, $size)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable ilk="argument" name="$arg" />
+          <variable ilk="argument" name="$size" />
+          <variable attributes="__local__" line="264" name="$new_request" />
+        </scope>
+        <scope ilk="function" line="269" lineend="388" name="request" signature="request($self, $request, $arg, $size, $previous)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable ilk="argument" name="$arg" />
+          <variable ilk="argument" name="$size" />
+          <variable ilk="argument" name="$previous" />
+          <import line="342" module="HTTP::Headers::Util" />
+          <variable attributes="__local__" line="275" name="$response" />
+          <variable attributes="__local__" line="277" name="$code" />
+          <variable attributes="__local__" line="291" name="$referral" />
+          <variable attributes="__local__" line="294" name="$referral_uri" />
+          <variable attributes="__local__" line="299" name="$base" />
+          <variable attributes="__local__" line="315" name="$count" />
+          <variable attributes="__local__" line="316" name="$r" />
+          <variable attributes="__local__" line="333" name="$proxy" />
+          <variable attributes="__local__" line="334" name="$ch_header" />
+          <variable attributes="__local__" line="335" name="@challenge" />
+          <variable attributes="__local__" line="343" name="$challenge" />
+          <variable attributes="__local__" line="346" name="$scheme" />
+          <variable attributes="__local__" line="359" name="$class" />
+        </scope>
+        <scope ilk="function" line="394" lineend="399" name="get" signature="get($self, @parameters)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="@parameters" />
+          <import line="395" module="HTTP::Request::Common" />
+          <variable attributes="__local__" line="397" name="@suff" />
+        </scope>
+        <scope ilk="function" line="402" lineend="407" name="post" signature="post($self, @parameters)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="@parameters" />
+          <import line="403" module="HTTP::Request::Common" />
+          <variable attributes="__local__" line="405" name="@suff" />
+        </scope>
+        <scope ilk="function" line="410" lineend="415" name="head" signature="head($self, @parameters)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="@parameters" />
+          <import line="411" module="HTTP::Request::Common" />
+          <variable attributes="__local__" line="413" name="@suff" />
+        </scope>
+        <scope ilk="function" line="418" lineend="465" name="_process_colonic_headers" signature="_process_colonic_headers($self, $args, $start_index)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$args" />
+          <variable ilk="argument" name="$start_index" />
+          <variable attributes="__local__" line="422" name="$arg" />
+          <variable attributes="__local__" line="422" name="$size" />
+          <variable attributes="__local__" line="423" name="$i" />
+        </scope>
+        <scope ilk="function" line="471" lineend="496" name="is_protocol_supported" signature="is_protocol_supported($self, $scheme)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$scheme" />
+          <variable attributes="__local__" line="484" name="$x" />
+        </scope>
+        <scope ilk="function" line="499" lineend="499" name="protocols_allowed" signature="protocols_allowed()" />
+        <scope ilk="function" line="500" lineend="500" name="protocols_forbidden" signature="protocols_forbidden()" />
+        <scope ilk="function" line="501" lineend="501" name="requests_redirectable" signature="requests_redirectable()" />
+        <scope ilk="function" line="504" lineend="527" name="redirect_ok" signature="redirect_ok($self, $request)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$request" />
+          <variable attributes="__local__" line="516" name="$method" />
+        </scope>
+        <scope ilk="function" line="530" lineend="534" name="credentials" signature="credentials($self, $netloc, $realm, $uid, $pass)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$netloc" />
+          <variable ilk="argument" name="$realm" />
+          <variable ilk="argument" name="$uid" />
+          <variable ilk="argument" name="$pass" />
+        </scope>
+        <scope ilk="function" line="537" lineend="548" name="get_basic_credentials" signature="get_basic_credentials($self, $realm, $uri, $proxy)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$realm" />
+          <variable ilk="argument" name="$uri" />
+          <variable ilk="argument" name="$proxy" />
+          <variable attributes="__local__" line="542" name="$host_port" />
+        </scope>
+        <scope ilk="function" line="551" lineend="560" name="agent" signature="agent($self, $agent)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$agent" />
+          <variable attributes="__local__" line="553" name="$old" />
+        </scope>
+        <scope ilk="function" line="563" lineend="563" name="_agent" signature="_agent()" />
+        <scope ilk="function" line="565" lineend="565" name="timeout" signature="timeout()" />
+        <scope ilk="function" line="566" lineend="566" name="from" signature="from()" />
+        <scope ilk="function" line="567" lineend="567" name="parse_head" signature="parse_head()" />
+        <scope ilk="function" line="568" lineend="568" name="max_size" signature="max_size()" />
+        <scope ilk="function" line="569" lineend="569" name="max_redirect" signature="max_redirect()" />
+        <scope ilk="function" line="572" lineend="584" name="cookie_jar" signature="cookie_jar($self, $jar)">
+          <variable ilk="argument" name="$self" />
+          <variable citdl="HTTP::Cookies" ilk="argument" name="$jar" />
+          <import line="578" module="HTTP::Cookies" />
+          <variable attributes="__local__" line="574" name="$old" />
+        </scope>
+        <scope ilk="function" line="587" lineend="599" name="conn_cache" signature="conn_cache($self, $cache)">
+          <variable ilk="argument" name="$self" />
+          <variable citdl="LWP::ConnCache" ilk="argument" name="$cache" />
+          <import line="593" module="LWP::ConnCache" />
+          <variable attributes="__local__" line="589" name="$old" />
+        </scope>
+        <scope ilk="function" line="603" lineend="603" name="use_eval" signature="use_eval()" />
+        <scope ilk="function" line="604" lineend="609" name="use_alarm" signature="use_alarm()" />
+        <scope attributes="__ctor__" ilk="function" line="612" lineend="626" name="clone" signature="clone($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="615" name="$copy" />
+        </scope>
+        <scope ilk="function" line="629" lineend="681" name="mirror" signature="mirror($self, $url, $file)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$url" />
+          <variable ilk="argument" name="$file" />
+          <variable attributes="__local__" citdl="HTTP::Request" line="634" name="$request" />
+          <variable attributes="__local__" line="637" name="$mtime" />
+          <variable attributes="__local__" line="643" name="$tmpfile" />
+          <variable attributes="__local__" line="645" name="$response" />
+          <variable attributes="__local__" line="648" name="$file_length" />
+          <variable attributes="__local__" line="649" name="$content_length" />
+        </scope>
+        <scope ilk="function" line="684" lineend="696" name="proxy" signature="proxy($self, $key)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$key" />
+          <variable attributes="__local__" line="693" name="$old" />
+        </scope>
+        <scope ilk="function" line="699" lineend="719" name="env_proxy" signature="env_proxy($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="701" name="$k" />
+          <variable attributes="__local__" line="701" name="$v" />
+        </scope>
+        <scope ilk="function" line="722" lineend="730" name="no_proxy" signature="no_proxy($self, @no)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="@no" />
+        </scope>
+        <scope ilk="function" line="735" lineend="757" name="_need_proxy" signature="_need_proxy($self, $url)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$url" />
+          <variable attributes="__local__" line="740" name="$scheme" />
+          <variable attributes="__local__" line="744" name="$domain" />
+        </scope>
+        <scope ilk="function" line="760" lineend="769" name="_new_response" signature="_new_response($request, $code, $message)">
+          <variable ilk="argument" name="$request" />
+          <variable ilk="argument" name="$code" />
+          <variable ilk="argument" name="$message" />
+          <variable attributes="__local__" citdl="HTTP::Response" line="762" name="$response" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

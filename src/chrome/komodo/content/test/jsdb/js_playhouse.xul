@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2005-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Applet for testing JavaScript embedding, driving from Python -->
+<!-- And Eric's refamiliarization with XUL -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+
+<window id="komodo_javascript_playhouse"
+        title="JavaScript Playhouse"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_test"
+        class="kodialog"
+        width="600"
+        height="400"
+        persist="screenX screenY width height"
+        onload="jsPlayhouse_OnLoad();"
+        onunload="jsPlayhouse_OnUnload();"
+        flex="1"
+        >
+
+    <script src="chrome://komodo/content/library/logging.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/trace.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/timers.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/stringutils.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/color_functions.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/commands.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/open.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/test/js_playhouse.js"
+	    type="application/x-javascript;version=1.7"/>
+
+    <vbox flex="1">
+      <hbox flex="1">
+        <textbox id="code_buffer" flex="1"
+		 multiline="true"
+		 minheight="8"
+		 >dimper</textbox>
+	<vbox pack="end">
+	  <button id="code_buffer_clear"
+		  label="Clear"
+		  oncommand="jsp_buffer_clear('code_buffer');"
+		  />
+	    <button id="stuff_run"
+		    label="Run"
+		    readonly="true"
+		    oncommand="jsp_run();"
+		    />
+	</vbox>
+      </hbox>
+      <splitter id="splitter-1"/>
+      <hbox flex="1">
+	<textbox id="output_buffer" flex="1" disabled="true"
+		 multiline="true"
+		 minheight="8"
+		 />
+	<vbox pack="end">
+	  <button id="output_buffer_clear"
+		  label="Clear"
+		  oncommand="jsp_buffer_clear('output_buffer');"
+		  />
+	</vbox>
+      </hbox>
+    </vbox>
+</window>

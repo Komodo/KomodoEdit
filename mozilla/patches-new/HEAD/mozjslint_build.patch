@@ -1,0 +1,79 @@
+Index: js/src/jsconfig.mk
+===================================================================
+RCS file: /cvsroot/mozilla/js/src/jsconfig.mk,v
+retrieving revision 3.9
+diff -u -r3.9 jsconfig.mk
+--- js/src/jsconfig.mk	15 Nov 2003 00:10:56 -0000	3.9
++++ js/src/jsconfig.mk	2 Feb 2006 04:04:10 -0000
+@@ -43,6 +43,10 @@
+   endif
+ endif
+ 
++ifndef MOZ_OBJDIR
++MOZ_OBJDIR = $(MOZ_DEPTH)
++endif
++
+ NSPR_VERSION = v4.0
+ NSPR_LIBSUFFIX = 4
+ 
+@@ -104,8 +108,12 @@
+ 	echo $(NSPR_VERSION) > $(NSPR_VERSIONFILE)
+ endif
+ 
++ifndef SHIP_DIST
+ SHIP_DIST  = $(MOZ_DEPTH)/dist/$(OBJDIR)
++endif
++ifndef SHIP_DIR
+ SHIP_DIR   = $(SHIP_DIST)/SHIP
++endif
+ 
+ SHIP_LIBS      = libjs.$(SO_SUFFIX) libjs.a
+ ifdef JS_LIVECONNECT
+@@ -117,23 +125,25 @@
+     SHIP_LIBS += jsj.dll jsj.lib
+   endif
+ endif
+-SHIP_LIBS     += $(LCJAR)
+-SHIP_LIBS     := $(addprefix $(SHIP_DIST)/lib/, $(SHIP_LIBS))
++ifdef JS_LIVECONNECT
++  SHIP_LIBS   += $(LCJAR)
++endif
++SHIP_LIBS     := $(addprefix $(OBJDIR)/, $(SHIP_LIBS))
+ 
+ SHIP_INCS      = js*.h prmjtime.h resource.h *.msg *.tbl
+ ifdef JS_LIVECONNECT
+   SHIP_INCS   += netscape*.h nsC*.h nsI*.h
+ endif
+-SHIP_INCS     := $(addprefix $(SHIP_DIST)/include/, $(SHIP_INCS))
++SHIP_INCS     := $(addprefix ./, $(SHIP_INCS))
+ 
+ SHIP_BINS      = js
+ ifdef JS_LIVECONNECT
+   SHIP_BINS   += lcshell
+ endif
+ ifeq ($(OS_ARCH), WINNT)
+-  SHIP_BINS   := $(addsuffix .exe, $(SHIP_BINS))
++  SHIP_BINS   := $(addsuffix .exe, $(SHIP_BINS)) js32.dll
+ endif
+-SHIP_BINS     := $(addprefix $(SHIP_DIST)/bin/, $(SHIP_BINS))
++SHIP_BINS     := $(addprefix $(OBJDIR)/, $(SHIP_BINS))
+ 
+ ifdef BUILD_OPT
+   JSREFJAR = jsref_opt.jar
+@@ -158,6 +168,16 @@
+ 	cp $(SHIP_DIR)/$(JSREFJAR) $(BUILD_SHIP)
+ endif
+ 
++dist:
++	mkdir -p $(MOZ_OBJDIR)/dist/lib/js
++	mkdir -p $(MOZ_OBJDIR)/dist/include/js
++	cp $(SHIP_BINS) $(MOZ_OBJDIR)/dist/bin
++	cp $(SHIP_LIBS) $(MOZ_OBJDIR)/dist/lib/js
++	cp $(SHIP_INCS) $(MOZ_OBJDIR)/dist/include/js
++
++distbin:
++	cp $(SHIP_BINS) $(MOZ_OBJDIR)/dist/bin
++
+ CWD = $(shell pwd)
+ shipSource: $(SHIP_DIR)/jsref_src.lst .FORCE
+ 	mkdir -p $(SHIP_DIR)

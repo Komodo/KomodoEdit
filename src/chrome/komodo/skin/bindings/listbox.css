@@ -1,0 +1,35 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/******** listbox widget **********/
+.list-splitter {
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  cursor: ew-resize;
+  min-width: 2px;
+  min-height: 9px;  width: 2px;
+  max-width: 2px;
+  background: transparent;
+}
+
+listbox[type="editable"] {
+  -moz-binding: url("chrome://komodo/content/bindings/listbox.xml#listbox-editable");
+}
+
+listitem[type="editable"] {
+  -moz-binding: url("chrome://komodo/content/bindings/listbox.xml#listitem-editable");
+}
+
+listcell[type="editable"] {
+  -moz-binding: url("chrome://komodo/content/bindings/listbox.xml#listcell-editable");
+}
+
+listcell[type="editable"] > .listcell-editable-deck > .listcell-label {
+    padding-top: 2px;
+}
+
+listcell[type="editable"] > .listcell-editable-deck > .listcell-textbox {
+    border: 0px;
+    margin: 0px 1px;
+    padding: 0px 1px;
+}

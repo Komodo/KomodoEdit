@@ -1,0 +1,248 @@
+version TclTip-1.0
+#################################################################
+## Tk Core method tip/completion definitions
+##
+## Any stripped line not starting with a wordchar is ignored
+##
+## Arguments in <>s are considered variable args.
+## Arguments in ??s are considered optional args.
+##
+## Variable and optional args are part of the method tips,
+## while the base method info is part of method completion.
+##
+#################################################################
+
+bell ?-displayof window? ?-nice?
+
+bind <tag>
+bind <tag> <sequence>
+bind <tag> <sequence> <script>
+bind <tag> <sequence> +<script>
+
+bindtags <window> ?tagList?
+
+image create bitmap ?name? ?options?
+
+button <pathName> ?options?
+
+canvas <pathName> ?options?
+
+checkbutton <pathName> ?options?
+
+clipboard clear ?-displayof window?
+clipboard append ?-displayof window? ?-format format? ?-type type? ?--? <data>
+clipboard get ?-displayof window? ?-type?
+
+destroy ?window window ...?
+
+entry <pathName> ?options?
+
+event add <<virtual>> <sequence> ?sequence ...?
+event delete <<virtual>> ?sequence sequence ...?
+event generate <window> <event> ?option value option value ...?
+event info ?<<virtual>>?
+
+focus
+focus <window>
+focus -displayof <window>
+focus -force <window>
+focus -lastfor <window>
+
+font actual <font> ?-displayof window? ?option?
+font configure <fontname> ?option? ?value option value ...?
+font create ?fontname? ?option value ...?
+font delete <fontname> ?fontname ...?
+font families ?-displayof window?
+font measure <font> ?-displayof window? <text>
+font metrics <font> ?-displayof window? ?option?
+font names
+
+frame <pathName> ?options?
+
+grab ?-global? <window>
+grab current ?window?
+grab release <window>
+grab set ?-global? <window>
+grab status <window>
+
+grid <slave> ?slave ...? ?options?
+grid bbox <master> ?column row? ?column2 row2?
+grid columnconfigure <master> <index> ?-option value...?
+grid configure <slave> ?slave ...? ?options?
+grid forget <slave> ?slave ...?
+grid info <slave>
+grid location <master> <x> <y>
+grid propagate <master> ?boolean?
+grid rowconfigure <master> <index> ?-option value...?
+grid remove <slave> ?slave ...?
+grid size <master>
+grid slaves <master> ?-option value?
+
+image create bitmap ?name? ?option value ...?
+image create photo ?name? ?option value ...?
+image delete ?name name ...?
+image height <name>
+image inuse <name>
+image names
+image type <name>
+image types
+image width <name>
+
+label <pathName> ?options?
+
+listbox <pathName> ?options?
+
+safe::loadTk <slave> ?-use windowId? ?-display displayName?
+
+lower <window> ?belowThis?
+
+menu <pathName> ?options?
+
+menubutton <pathName> ?options?
+
+message <pathName> ?options?
+
+option add <pattern> <value> ?priority?
+option clear
+option get <window> <name> <class>
+option readfile <fileName> ?priority?
+
+pack slave ?slave ...? ?options?
+pack configure <slave> ?slave ...? ?options?
+pack forget <slave> ?slave ...?
+pack info <slave>
+pack propagate <master> ?boolean?
+pack slaves <master>
+
+place <window> option value ?option value ...?
+place configure <window> option value ?option value ...?
+place forget <window>
+place info <window>
+place slaves <window>
+
+radiobutton <pathName> ?options?
+
+raise <window> ?aboveThis?
+
+scale <pathName> ?options?
+
+scrollbar <pathName> ?options?
+
+selection clear ?-displayof window? ?-selection selection?
+selection get ?-displayof window? ?-selection selection? ?-type type?
+selection handle ?-selection selection? ?-type type? ?-format format? <window> <command>
+selection own ?-displayof window? ?-selection selection?
+selection own ?-command command? ?-selection selection? <window>
+
+send ?-async? ?-displayof pathname? ?--? app cmd ?arg arg ...?
+
+spinbox <pathName> ?options?
+
+text <pathName> ?options?
+
+tk appname ?newName?
+tk scaling ?-displayof window? ?number?
+tk useinputmethods ?-displayof window? ?boolean?
+
+tk_setPalette <background>
+tk_setPalette <name> <value> ?name value ...?
+tk_bisque
+
+tk_chooseColor ?-initialcolor color? ?-parent window? ?-title titleString?
+
+tk_chooseDirectory ?-initialdir dirname? ?-parent window? ?-title titleString? ?-mustexist boolean?
+
+tk_dialog <window> <title> <text> <bitmap> <default> <string> <string> ...
+
+tk_focusNext <window>
+tk_focusPrev <window>
+tk_focusFollowsMouse
+
+tk_getOpenFile ?option value ...?
+tk_getSaveFile ?option value ...?
+
+tk_messageBox ?-default name? ?-icon iconImage? ?-message string? ?-parent window? ?-title titleString? ?-type type?
+
+tk_optionMenu <w> <varName> <value> ?value value ...?
+
+tk_popup <menu> <x> <y> ?entry?
+
+toplevel <pathName> ?options?
+
+winfo atom ?-displayof window? <name>
+winfo atomname ?-displayof window? <id>
+winfo cells <window>
+winfo children <window>
+winfo class <window>
+winfo colormapfull <window>
+winfo containing ?-displayof window? <rootX> <rootY>
+winfo depth <window>
+winfo exists <window>
+winfo fpixels <window> <number>
+winfo geometry <window>
+winfo height <window>
+winfo id <window>
+winfo interps ?-displayof window?
+winfo ismapped <window>
+winfo manager <window>
+winfo name <window>
+winfo parent <window>
+winfo pathname ?-displayof window? <id>
+winfo pixels <window> <number>
+winfo pointerx <window>
+winfo pointerxy <window>
+winfo pointery <window>
+winfo reqheight <window>
+winfo reqwidth <window>
+winfo rgb <window> <color>
+winfo rootx <window>
+winfo rooty <window>
+winfo screen <window>
+winfo screencells <window>
+winfo screendepth <window>
+winfo screenheight <window>
+winfo screenmmheight <window>
+winfo screenmmwidth <window>
+winfo screenvisual <window>
+winfo screenwidth <window>
+winfo server <window>
+winfo toplevel <window>
+winfo viewable <window>
+winfo visual <window>
+winfo visualid <window>
+winfo visualsavailable <window> ?includeids?
+winfo vrootheight <window>
+winfo vrootwidth <window>
+winfo vrootx <window>
+winfo vrooty <window>
+winfo width <window>
+winfo x <window>
+winfo y <window>
+
+wm aspect <window> ?minNumer minDenom maxNumer maxDenom?
+wm client <window> ?name?
+wm colormapwindows <window> ?windowList?
+wm command <window> ?value?
+wm deiconify <window>
+wm focusmodel <window> ?active|passive?
+wm frame <window>
+wm geometry <window> ?newGeometry?
+wm grid <window> ?baseWidth baseHeight widthInc heightInc?
+wm group <window> ?pathName?
+wm iconbitmap <window> ?bitmap?
+wm iconify <window>
+wm iconmask <window> ?bitmap?
+wm iconname <window> ?newName?
+wm iconposition <window> ?x y?
+wm iconwindow <window> ?pathName?
+wm maxsize <window> ?width height?
+wm minsize <window> ?width height?
+wm overrideredirect <window> ?boolean?
+wm positionfrom <window> ?who?
+wm protocol <window> ?name? ?command?
+wm resizable <window> ?width height?
+wm sizefrom <window> ?who?
+wm state <window> ?newstate?
+wm title <window> ?string?
+wm transient <window> ?master?
+wm withdraw <window>

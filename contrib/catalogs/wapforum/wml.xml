@@ -1,0 +1,232 @@
+<!--
+Wireless Markup Language (WML) Document Type Definition.
+WML is an XML language.  Typical usage:
+   <?xml version="1.0"?>
+   <!DOCTYPE WML PUBLIC "-//WAPFORUM//DTD WML 1.0//EN"
+          "http://www.wapforum.org/DTD/wml.xml">
+   <WML>
+   ...
+   </WML>
+-->
+
+<!ENTITY % length  "CDATA">    <!-- [0-9]+ for pixels or [0-9]+"%" for
+                                    percentage length -->
+<!ENTITY % vdata   "CDATA">    <!-- attribute value possibly containing
+                                    variable references -->
+<!ENTITY % URL     "%vdata;">  <!-- URL or URN designating a hypertext
+                                    node. May contain variable references -->
+<!ENTITY % boolean	"(TRUE|FALSE)">
+<!ENTITY % number  "NMTOKEN">  <!-- a number, with format [0-9]+ -->
+
+<!ENTITY % emph    "EM | STRONG | B | I | U | BIG | SMALL">
+<!ENTITY % tab     "TAB">
+<!ENTITY % layout  "BR">
+
+<!ENTITY % text     "#PCDATA | %emph; | %tab;">
+<!ENTITY % inline   "%text; | %layout;">
+
+<!-- flow covers "card-level" elements, such as text and images -->
+<!ENTITY % flow     "%inline; | IMG | A">
+
+<!-- Task types -->
+<!ENTITY % task   "GO | PREV | NOOP | REFRESH">
+
+<!-- Navigation and event elements -->
+<!ENTITY % navelmts "DO | ONEVENT">
+
+<!--================ Decks and Cards ================-->
+
+<!ELEMENT WML ( HEAD?, TEMPLATE?, CARD+ )>
+<!ATTLIST WML
+  xml:lang        NMTOKEN        #IMPLIED
+  >
+
+<!-- card intrinsic events -->
+<!ENTITY % cardev
+ "ONENTERFORWARD  %URL;          #IMPLIED
+  ONENTERBACKWARD %URL;          #IMPLIED
+  ONTIMER         %URL;          #IMPLIED"
+  >
+
+<!-- CARD field types -->
+<!ENTITY % fields  "%flow; | INPUT | SELECT | FIELDSET">
+
+<!ELEMENT CARD (%fields; | %navelmts; | TIMER)*>
+<!ATTLIST CARD
+  NAME            NMTOKEN       #IMPLIED
+  TITLE           %vdata;       #IMPLIED
+  NEWCONTEXT      %boolean;     "FALSE"
+  STYLE           (LIST|SET)    "LIST"
+  %cardev;
+  >
+
+<!--================ Event Bindings ================-->
+
+<!ELEMENT DO (%task;)>
+<!ATTLIST DO
+  TYPE         CDATA       #REQUIRED
+  LABEL        %vdata;     #IMPLIED
+  NAME         NMTOKEN     #IMPLIED
+  OPTIONAL     %boolean;   "FALSE"
+  >
+
+<!ELEMENT ONEVENT (%task;)>
+<!ATTLIST ONEVENT
+  TYPE         CDATA       #REQUIRED
+  >
+
+<!--================ Deck-level declarations ================-->
+
+<!ELEMENT HEAD ( ACCESS | META )+>
+
+<!ELEMENT TEMPLATE (%navelmts;)*>
+<!ATTLIST TEMPLATE
+  %cardev;
+  >
+
+<!ELEMENT ACCESS EMPTY>
+<!ATTLIST ACCESS
+  DOMAIN       CDATA       #IMPLIED
+  PATH         CDATA       #IMPLIED
+  PUBLIC       %boolean;   "FALSE"
+  >
+
+<!ELEMENT META EMPTY>
+<!ATTLIST META
+  HTTP-EQUIV     CDATA      #IMPLIED
+  NAME           CDATA      #IMPLIED
+  USER-AGENT     CDATA      #IMPLIED
+  CONTENT        CDATA      #REQUIRED
+  SCHEME         CDATA      #IMPLIED
+  >
+
+<!--================ Tasks ================-->
+
+<!ELEMENT GO (VAR)*>
+<!ATTLIST GO
+  URL             %URL;           #REQUIRED
+  SENDREFERER     %boolean;       "FALSE"
+  METHOD          (POST|GET)      "GET"
+  ACCEPT-CHARSET  CDATA           #IMPLIED
+  POSTDATA        %vdata;         #IMPLIED
+  >
+
+<!ELEMENT PREV (VAR)*>
+
+<!ELEMENT REFRESH (VAR)+>
+
+<!ELEMENT NOOP EMPTY>
+
+<!--================ VAR ================-->
+
+<!ELEMENT VAR EMPTY>
+<!ATTLIST VAR
+  NAME         %vdata;           #REQUIRED
+  VALUE        %vdata;           #REQUIRED
+  >
+
+<!--================ CARD Fields ================-->
+
+<!ELEMENT SELECT (OPTGROUP|OPTION)+>
+<!ATTLIST SELECT
+  TITLE        %vdata;           #IMPLIED
+  KEY          NMTOKEN           #IMPLIED
+  DEFAULT      %vdata;           #IMPLIED
+  IKEY         NMTOKEN           #IMPLIED
+  IDEFAULT     %vdata;           #IMPLIED
+  MULTIPLE     %boolean;         "FALSE"
+  TABINDEX     %number;          #IMPLIED
+  >
+
+<!ELEMENT OPTGROUP (OPTGROUP|OPTION)+ >
+<!ATTLIST OPTGROUP
+  TITLE      %vdata;    #IMPLIED
+  >
+
+<!ELEMENT OPTION (%text; | ONEVENT)*>
+<!ATTLIST OPTION
+  VALUE      %vdata;    #IMPLIED
+  TITLE      %vdata;    #IMPLIED
+  ONCLICK    %URL;      #IMPLIED
+  >
+
+<!ELEMENT INPUT EMPTY>
+<!ATTLIST INPUT
+  KEY        NMTOKEN           #REQUIRED
+  TYPE       (TEXT|PASSWORD)   "TEXT"
+  VALUE      %vdata;           #IMPLIED
+  DEFAULT    %vdata;           #IMPLIED
+  FORMAT     CDATA             #IMPLIED
+  EMPTYOK    %boolean;         "FALSE"
+  SIZE       %number;          #IMPLIED
+  MAXLENGTH  %number;          #IMPLIED
+  TABINDEX   %number;          #IMPLIED
+  TITLE      %vdata;           #IMPLIED
+  >
+
+<!ELEMENT FIELDSET (%fields;)* >
+<!ATTLIST FIELDSET
+  TITLE           %vdata;      #IMPLIED
+  >
+
+<!ELEMENT TIMER EMPTY>
+<!ATTLIST TIMER
+  KEY        NMTOKEN           #IMPLIED
+  DEFAULT    %vdata;           #REQUIRED
+  >
+
+<!--================ Images ================-->
+
+<!ENTITY % IAlign "(TOP|MIDDLE|BOTTOM)" >
+
+<!ELEMENT IMG EMPTY>
+<!ATTLIST IMG
+  ALT        %vdata;      #IMPLIED
+  SRC        %URL;        #IMPLIED
+  LOCALSRC   %vdata;      #IMPLIED
+  VSPACE     %length;     "0"
+  HSPACE     %length;     "0"
+  ALIGN      %IAlign;     "BOTTOM"
+  HEIGHT     %length;     #IMPLIED
+  WIDTH      %length;     #IMPLIED
+  >
+
+<!--================ Anchor ================-->
+
+<!ELEMENT A ( %inline; | GO | PREV | REFRESH )*>
+<!ATTLIST A
+  TITLE        %vdata;      #IMPLIED
+  >
+
+<!--================ Text layout and line breaks ================-->
+
+<!-- Text alignment attributes -->
+<!ENTITY % TAlign   "(LEFT|RIGHT|CENTER)" >
+
+<!ELEMENT TAB EMPTY>
+<!ATTLIST TAB
+  ALIGN   %TAlign;   "LEFT"
+  >
+
+<!ELEMENT EM     (%flow;)*>
+<!ELEMENT STRONG (%flow;)*>
+<!ELEMENT B      (%flow;)*>
+<!ELEMENT I      (%flow;)*>
+<!ELEMENT U      (%flow;)*>
+<!ELEMENT BIG    (%flow;)*>
+<!ELEMENT SMALL  (%flow;)*>
+
+<!ENTITY % BRMode    "(WRAP|NOWRAP)" >
+<!ELEMENT BR EMPTY>
+<!ATTLIST BR
+  ALIGN   %TAlign;   "LEFT"
+  MODE    %BRMode;   #IMPLIED
+  >
+
+<!ENTITY quot  "&#34;">     <!-- quotation mark -->
+<!ENTITY amp   "&#38;#38;"> <!-- ampersand -->
+<!ENTITY apos  "&#39;">     <!-- apostrophe -->
+<!ENTITY lt    "&#38;#60;"> <!-- less than -->
+<!ENTITY gt    "&#62;">     <!-- greater than -->
+<!ENTITY nbsp  "&#160;">    <!-- non-breaking space -->
+<!ENTITY shy   "&#173;">    <!-- soft hyphen (discretionary hyphen) -->

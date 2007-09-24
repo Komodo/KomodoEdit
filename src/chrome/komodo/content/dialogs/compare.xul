@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Ask the user for two file to compare. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<dialog id="dialog-compare"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 45em; max-width: 45em;"
+        flex="1"
+        persist="screenX screenY width height"
+        buttons="accept,cancel"
+        ondialogaccept="return OK();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script
+        src="chrome://komodo/content/library/trace.js"
+        type="application/x-javascript;version=1.7"/>
+    <script
+        src="chrome://komodo/content/library/logging.js"
+        type="application/x-javascript;version=1.7"/>
+    <script
+        src="chrome://komodo/content/library/filepickers.js"
+        type="application/x-javascript;version=1.7"/>
+    <script
+        src="chrome://komodo/content/library/mru.js"
+        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js" type="application/x-javascript;version=1.7"/>
+    <script
+        src="chrome://komodo/content/dialogs/compare.js"
+        type="application/x-javascript;version=1.7"/>
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image class="question-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <vbox>
+                <description>Please choose two files that you wish to compare.</description>
+                <separator class="thin"/>
+                <description>Note that if the two files are very large or very different, then comparing them may take a few seconds.</description>
+                <separator class="thin"/>
+            </vbox>
+            <separator class="thin"/>
+            <vbox>
+                <hbox align="center">
+                    <label width="60" value="First file:"/>
+<!--
+            <textbox id="textbox_findInFiles"
+                     tooltiptext="Press Enter to Find in Files"
+                     type="autocomplete"
+                     style="min-height: 16px;"
+                     flex="1"
+                     size="30"
+                     maxrows="10"
+                     autocompletesearch="mru_and_filepath"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     autocompletesearchparam="mru: find_findInFilesFieldMru; maxmru: 5"
+                     enablehistory="true"
+                     completeselectedindex="true"
+                     onblur="document.getElementById('findButton').setAttribute('class', 'find');"
+                     onfocus="Findtoolbar_FindFilesOnFocus(this, event);"
+                     onmousedown="this.searchParam = stringutils_updateSubAttr(
+                                    this.searchParam, 'cwd', ko.window.getCwd());"
+                     ontextentered="this.focus();
+                                    this.setSelectionRange(0, this.textLength);"
+                     onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"/>
+                                      if (0 && event.target.nodeName == 'html:input') { 
+                                        var textbox = this.parentNode.parentNode.parentNode;
+                                        textbox.searchParam = stringutils_updateSubAttr(
+                                            textbox.searchParam, 'cwd', ko.window.getCwd());
+                                      }"
+                                      if (0 && event.target.nodeName == 'html:input') { 
+                                        var textbox = this.parentNode.parentNode.parentNode;
+                                        textbox.searchParam = stringutils_updateSubAttr(
+                                            textbox.searchParam, 'cwd', ko.window.getCwd());
+                                      }"
+-->
+                    <textbox id="first"
+                             style="min-height: 20px;"
+                             flex="1"
+                             type="autocomplete"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             autocompletesearch="mru_and_filepath"
+                             autocompletesearchparam="mru: compare_files_first; maxmru: 5"
+                             maxrows="10"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             tabscrolling="true"
+                             ontextentered="this.focus();"
+                             onfocus="this.setSelectionRange(0, this.value.length);"
+                             oninput="updateOK()"/>
+                    <button label="&browse.label;" oncommand="choose('first')"/>
+                </hbox>
+            </vbox>
+            <separator class="thin"/>
+            <vbox>
+                <hbox align="center">
+                    <label width="60" value="Second file:"/>
+                    <textbox id="second"
+                             style="min-height: 20px;"
+                             flex="1"
+                             type="autocomplete"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             autocompletesearch="mru_and_filepath"
+                             autocompletesearchparam="mru: compare_files_second; maxmru: 5"
+                             maxrows="10"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             tabscrolling="true"
+                             ontextentered="this.focus();"
+                             onfocus="this.setSelectionRange(0, this.value.length);"
+                             oninput="updateOK()"/>
+                    <button label="&browse.label;" oncommand="choose('second')"/>
+                </hbox>
+            </vbox>
+        </vbox>
+    </hbox>
+    <separator class="thin"/>
+</dialog>

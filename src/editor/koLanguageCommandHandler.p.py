@@ -1,0 +1,1616 @@
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+import os
+from xpcom import components
+sci_constants = components.interfaces.ISciMoz
+from xpcom.server import WrapObject, UnwrapObject
+import scimozindent
+import logging
+import re
+import eollib
+log = logging.getLogger('koLanguageCommandHandler')
+indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
+#indentlog.setLevel(logging.DEBUG)
+jumplog = logging.getLogger('koLanguageCommandHandler.jump')
+
+import string
+import timeline
+
+"""
+The generic command handler is appropriate for all languages.
+
+  It handles things like:
+    block selection
+    brace matching and jumps to matching brace
+    transpose
+    ctrl-space
+    indentation control
+    
+"""
+
+def _is_header_line(scimoz, line):
+    return scimoz.getFoldLevel(line) & scimoz.SC_FOLDLEVELHEADERFLAG
+
+def _fold_level(scimoz, line):
+    return scimoz.getFoldLevel(line) & scimoz.SC_FOLDLEVELNUMBERMASK
+
+class GenericCommandHandler:
+    _com_interfaces_ = [components.interfaces.koIViewController,
+                        components.interfaces.nsIController,
+                        components.interfaces.nsIObserver]
+    _reg_desc_ = "Command Handler for All files"
+    _reg_contractid_ = "@activestate.com/koGenericCommandHandler;1"
+    _reg_clsid_ = "{B383592C-5343-4AA7-9419-04D1B34EC906}"
+    
+    def __init__(self):
+        log.info("in __init__ for GenericCommandHandler")
+        self._completeWordState = None
+        self._view = None
+        self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
+            getService(components.interfaces.koISysUtils)
+        self._last_tabstop = None
+
+    def __del__(self):
+        log.info("in __del__ for GenericCommandHandler")
+        
+    def set_view(self, view):
+        if view:
+            self._view = view.QueryInterface(components.interfaces.koIScintillaView)
+        else:
+            self._view = None
+
+    def get_view(self):
+        return self._view
+
+    def _is_cmd_fontFixed_enabled(self):
+        return 1
+
+    def _do_cmd_fontFixed(self):
+        view = self._view
+        view.alternateFaceType = not view.alternateFaceType
+        view.prefs.setBooleanPref('editUseAlternateFaceType',
+                                        not view.prefs.getBooleanPref('editUseAlternateFaceType'))
+
+    def _is_cmd_viewWhitespace_enabled(self):
+        return self._view.scimoz.viewWS
+
+    def _do_cmd_viewWhitespace(self):
+        self._view.scimoz.viewWS = not self._view.scimoz.viewWS
+
+    def _is_cmd_viewLineNumbers_enabled(self):
+        return self._view.scimoz.getMarginWidthN(0) > 0
+
+    def _updateLineNumberMargin(self):
+        view = self._view
+        numLinesToAccountFor = max(1000,view.scimoz.lineCount*2)
+        padding = 5
+        textWidth = view.scimoz.textWidth(0, str(numLinesToAccountFor))
+        view.scimoz.setMarginWidthN(0, textWidth + padding)
+
+    def _do_cmd_viewLineNumbers(self):
+        shown = self._view.scimoz.getMarginWidthN(0) > 0
+        shown = not shown
+        if shown:
+            self._updateLineNumberMargin()
+        else:
+            self._view.scimoz.setMarginWidthN(0, 0)
+
+    def _is_cmd_viewIndentationGuides_enabled(self):
+        return self._view.scimoz.indentationGuides
+
+    def _do_cmd_viewIndentationGuides(self):
+        self._view.scimoz.indentationGuides = not self._view.scimoz.indentationGuides
+
+    def _is_cmd_viewEOL_enabled(self):
+        return self._view.scimoz.viewEOL
+
+    def _do_cmd_viewEOL(self):
+        self._view.scimoz.viewEOL = not self._view.scimoz.viewEOL
+
+    def _is_cmd_wordWrap_enabled(self):
+        return self._view.scimoz.wrapMode
+
+    def _do_cmd_wordWrap(self):
+        sm = self._view.scimoz
+        if sm.wrapMode == sm.SC_WRAP_NONE:
+            sm.wrapMode = sm.SC_WRAP_WORD
+            sm.layoutCache = sm.SC_CACHE_PAGE
+        else:
+            sm.wrapMode = sm.SC_WRAP_NONE
+            sm.layoutCache = sm.SC_CACHE_NONE
+
+    def _is_cmd_jumpToCorrespondingLine_enabled(self):
+        return self._view.languageObj.name == 'Diff'
+    
+    def _do_cmd_jumpToCorrespondingLine(self):
+        # Better code for doing this exists in bindings/views-diff.xml. However,
+        # that code may have to query the user for info so currently has to
+        # be in JS. At some point we'll want to just have these smarts in one
+        # place.
+        import difflibex
+        
+        sm = self._view.scimoz
+        diff = difflibex.Diff(sm.text)
+
+        currentPosLine = sm.lineFromPosition(sm.currentPos)
+        currentPosCol = sm.currentPos - sm.positionFromLine(currentPosLine)
+        try:
+            currentPosFilePath, currentPosFileLine, currentPosFileCol \
+                = diff.file_pos_from_diff_pos(currentPosLine, currentPosCol)
+        except difflibex.DiffLibExError, ex:
+            log.warn("could not jump to corresponding line: %s", ex)
+            return
+        
+        # Ensure can use that file path (normalized, not relative,
+        # etc.)
+        resolvedFilePath = os.path.normpath(currentPosFilePath)
+        if not os.path.exists(currentPosFilePath):
+            #XXX This is where bindings/views-diff.xml will ask the user to
+            #    browse the actual path (if any).
+            log.warn("could not jump to corresponding line: `%s' does not exist",
+                     currentPosFilePath)
+        
+        if sm.anchor == sm.currentPos:
+            openFileArg = "%s\t%s,%s" \
+                          % (resolvedFilePath,
+                             currentPosFileLine+1,
+                             currentPosFileCol+1)
+        else:
+            anchorLine = sm.lineFromPosition(sm.anchor)
+            anchorCol = sm.anchor - sm.positionFromLine(anchorLine)
+            try:
+                anchorFilePath, anchorFileLine, anchorFileCol \
+                    = diff.file_pos_from_diff_pos(anchorLine, anchorCol)
+            except difflibex.DiffLibExError, ex:
+                log.warn("could not jump to corresponding line: %s", ex)
+                return
+            
+            if anchorFilePath != currentPosFilePath:
+                # The selection spans files. Just use the currentPos info.
+                openFileArg = "%s\t%s,%s" \
+                              % (resolvedFilePath,
+                                 currentPosFileLine+1,
+                                 currentPosFileCol+1)
+            else:
+                openFileArg = "%s\t%s,%s-%s,%s" \
+                              % (resolvedFilePath,
+                                 anchorFileLine+1,
+                                 anchorFileCol+1,
+                                 currentPosFileLine+1,
+                                 currentPosFileCol+1)
+
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+        observerSvc.notifyObservers(None, 'open_file', openFileArg)
+
+    def _do_cmd_transientMarkSet(self):
+        self._view.transientMark = self._view.scimoz.currentPos
+
+    def _do_cmd_transientMarkMoveBack(self):
+        view = self._view
+        sm = view.scimoz
+        mark = view.transientMark
+        if mark == -1:
+            return
+        sm.anchor = sm.currentPos = mark
+        view.rotateTransientMarkRing()
+        sm.scrollCaret()
+
+    def _do_cmd_cutRegion(self):
+        view = self.view()
+        sm = view.scimoz
+        mark = view.transientMark
+        if mark == -1:
+            return
+        sm.anchor = mark
+        sm.cut()
+        sm.sendUpdateCommands("clipboard")
+        
+    def _do_cmd_transientMarkExchangeWithPoint(self):
+        view = self._view
+        mark = view.transientMark
+        if mark == -1:
+            return
+        sm = view.scimoz
+        view.transientMark = view.scimoz.currentPos
+        sm.currentPos = sm.anchor = mark
+        sm.scrollCaret()
+
+    def _do_cmd_editReflow(self):
+        """ Reflow -- currently only works for paragraphs in text documents
+        needs to be tweaked for comments and strings in code.
+        """
+        
+        scin = self._view.scimoz
+        import reflow
+        # First figure out what paragraphs the current selection spans.
+        # Walk back to the first blank line or to the top of the
+        # document.
+        # first we move the starting 'position of interest' to the beginning
+        # of the current line
+        startLineNo = scin.lineFromPosition(scin.selectionStart)
+
+        if 0: # I think Trent has convinced me it's a bad idea.
+            # we will swallow lines back from our current position if
+            # they're not empty
+            while startLineNo and getLine(scin, startLineNo-1).strip():
+                startLineNo -= 1
+
+        scin.targetStart = scin.positionFromLine(startLineNo)
+
+        if (scin.getColumn(scin.selectionEnd) == 0 and
+            scin.selectionEnd != 0 and
+            scin.selectionEnd != scin.selectionStart and
+            not getLine(scin, scin.lineFromPosition(scin.selectionEnd)).strip()):
+            # if our selection ends after the newline chars and the next
+            # line is blank, we don't want to skip over that line and go
+            # on to the next paragraph.
+            #
+            # in other words:
+            #
+            #   adsa<|asdasjdlakjdas
+            #   asdasdsa
+            #   |>
+            #
+            # is a case where we don't want to deal w/ line 3 above, but
+            #
+            #   <|>asdlkhas dkljas kldjalkdsj saldj
+            #
+            # we obviously want to deal with line 1.
+            #
+            scin.selectionEnd -= 1
+            _steppedBack = True
+        else:
+            _steppedBack = False
+
+        endLineNo = scin.lineFromPosition(scin.selectionEnd)
+
+        if (scin.selectionEnd != scin.selectionStart and 
+            scin.getColumn(scin.selectionEnd) == 0):
+            # we don't really want to include that line by default
+            endLineNo -= 1
+
+        # let's find out what indents we're going to count as being part of
+        # the last relevant paragraph.
+        para = reflow.Para(reflow.Line(getLine(scin, endLineNo)))
+        
+        if scin.selectionEnd == scin.selectionStart:
+            # We're going to reflow including lines that are part of the
+            # paragraph being considered.  To figure that out, we look for
+            # lines which, among other criteria, have the same styling
+            # as the current line. The styling is derived from the last
+            # _non-whitespace_ character in the line we're ending with.
+            curStyle = scin.getStyleAt(scin.getLineEndPosition(endLineNo)-1)
+    
+            while 1:
+                # if we reach end of document, stop going on
+                if endLineNo+1 >= scin.lineCount:
+                    break
+                # if the next line contains styles (not in whitespace
+                # characters) which aren't like the current style, then
+                # don't include said line in reflowable region
+                try:
+                    for pos in range(scin.positionFromLine(endLineNo+1),
+                                     scin.getLineEndPosition(endLineNo+1)):
+                        c = scin.getWCharAt(pos)
+                        s = scin.getStyleAt(pos)
+                        if c in ' \t': continue
+                        if s != curStyle:
+                            #print "breaking", c,s
+                            raise ValueError
+                        #print "ok with", c
+                except ValueError:
+                    break
+                # if the next line doesn't fit in to the current paragraph,
+                # then stop.
+                if not para.accept(reflow.Line(getLine(scin, endLineNo+1))):
+                    break
+                para.append(reflow.Line(getLine(scin, endLineNo+1)))
+                endLineNo += 1
+        scin.targetEnd = scin.getLineEndPosition(endLineNo)
+        start = scin.positionFromLine(startLineNo)
+        end = min(scin.textLength, scin.getLineEndPosition(endLineNo))
+        
+        # if we have whitespace to our left we'll want to make sure that we end
+        # up with whitespace to our left
+        hadWhitespaceToLeft = scin.anchor <= scin.currentPos and scin.getWCharAt(scin.currentPos-1) in ' \t'
+
+        if end <= start:  # no point -- nothing to reflow
+            return
+        text = scin.getTextRange(start, end)
+        
+        # we want to find out where (relative to non-whitespace characters) the cursor
+        # is _before_ the reflow, so we can try to maintain that after reflow.
+        textBeforeCurrentPos = scin.getTextRange(scin.targetStart, scin.currentPos)
+        textBeforeCurrentPosNoWS = ''.join([word.strip() for word in textBeforeCurrentPos.split()])
+        numChars = len(textBeforeCurrentPosNoWS)
+
+        # we now know what text to reflow.
+        # we need the eol characters to use for reflowing
+        eol = eollib.eol2eolStr[eollib.scimozEOL2eol[scin.eOLMode]]
+        # boom
+        # reflow doesn't know how to deal with tabs of non-8-space width
+        # so we'll do a conversion here, then convert back after
+        text = text.expandtabs(scin.tabWidth)
+        reflowed = reflow.reflow(text, scin.edgeColumn, eol)
+        if scin.useTabs:
+            lines = reflowed.splitlines(1)
+            for pos in range(len(lines)):
+                line = lines[pos]
+                if line:
+                    raw, effective = classifyws(line, scin.tabWidth)
+                    ntabs, nspaces = divmod(effective, scin.tabWidth)
+                    lines[pos] = '\t' * ntabs + ' ' * nspaces + line[raw:]
+            reflowed = ''.join(lines)
+        orig = scin.getTextRange(scin.targetStart, scin.targetEnd)
+        if orig == reflowed:
+            return  # do nothing
+        # replacing what we've come up with as a selection
+        reflowedUtf8Len = self.sysUtils.byteLength(reflowed)
+        scin.replaceTarget(reflowedUtf8Len, reflowed)
+        # now we look for where we want to put the cursor
+        # we'll move N characters from the start of the range, where
+        # N is 'numChars' as determined above.
+        numCharsSkipped = 0
+        i = 0
+        while numCharsSkipped < numChars and i < len(reflowed):
+            if reflowed[i] not in string.whitespace:
+                numCharsSkipped += 1
+            i += 1
+        if hadWhitespaceToLeft:
+            i += 1
+        scin.currentPos = scin.anchor = min(scin.textLength, scin.targetStart + i)
+        if _steppedBack:
+            # step forward to the next line
+            scin.currentPos = scin.anchor = min(scin.textLength,
+                                                scin.positionFromLine(scin.lineFromPosition(scin.currentPos)+1))
+        scin.xOffset = 0
+
+    def _do_cmd_editCenterVertically(self):
+        # center the buffer on the cursor (vertically)
+        scimoz = self._view.scimoz
+        fvl = scimoz.firstVisibleLine
+        vis_curLineNo = scimoz.visibleFromDocLine(scimoz.lineFromPosition(scimoz.currentPos))
+        scimoz.lineScroll(0, (vis_curLineNo - fvl) - (scimoz.linesOnScreen // 2))
+
+    def _do_cmd_editMoveCurrentLineToTop(self):
+        # scroll the buffer so the current line is at the top
+        scimoz = self._view.scimoz
+        fvl = scimoz.firstVisibleLine
+        vis_curLineNo = scimoz.visibleFromDocLine(scimoz.lineFromPosition(scimoz.currentPos))
+        scimoz.lineScroll(0, vis_curLineNo - fvl)
+
+    def isCommandEnabled( self, command_name ):
+        # Result: boolean
+        # In: param0: wstring
+        meth = getattr(self, "_is_%s_enabled" % (str(command_name),), None)
+        if meth is None:
+            rc = 1
+        else:
+            rc = meth()
+        #log.debug("koLanguageCommandHandler - isCommandEnabled '%s' -> %d", command_name, rc)
+        return rc
+
+    def supportsCommand( self, command_name ):
+        # Result: boolean
+        # In: param0: wstring
+        rc = hasattr(self, "_do_" + command_name)
+        #log.debug("koLanguageCommandHandler - SupportsCommand '%s' -> %d", command_name, rc)
+        return rc
+
+    def doCommand( self, command_name ):
+        # Result: void - None
+        # In: param0: wstring
+        meth = getattr(self, "_do_" + command_name)
+        try:
+            # Some CommandHandler's do not have a wrapper, e.g. TerminalCommandHandler
+            #if self.wrapper is not None:
+            #    self.wrapper.beginBatchOperation()
+            #try:
+                meth()
+            #finally:
+                #if self.wrapper is not None:
+                #    self.wrapper.endBatchOperation()
+        except KeyboardInterrupt: # User cancelled a dialog.
+            pass
+
+    def _do_cmd_newlineExtra(self):
+        self._do_cmd_newline(None, 1)
+
+    def _do_cmd_newlineBare(self):
+        self._do_cmd_newline('none', 0)
+
+    def _do_cmd_newlineSame(self):
+        self._do_cmd_newline('plain', 0)
+
+    def _do_cmd_newline(self, indentStyle=None, continueComments=0):
+        view = self._view
+        if indentStyle is None:
+            indentStyle = view.prefs.getStringPref('editAutoIndentStyle')
+            # allowExtraNewline deals with the default of adding an extra
+            # newline when the user presses return between two chars.
+            allowExtraNewline = True
+        else:
+            allowExtraNewline = indentStyle != "plain"
+        sm = view.scimoz
+        sm.beginUndoAction()
+        try:
+            if indentStyle == 'none':
+                indent = ''
+                languageObj = None
+            else:
+                languageObj = UnwrapObject(view.languageObj)
+                indent = languageObj.computeIndent(view.scimoz,
+                                                   indentStyle,
+                                                   continueComments)
+            # Optionally clean up whitespace characters to the left of cursor if there
+            # is something else there (leave whitespace-only lines alone, as otherwise
+            # typing { <cr><cr> } up-arrow is frustrating.
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineStart = sm.positionFromLine(lineNo)
+            stuffToLeft = sm.getTextRange(lineStart, sm.currentPos)
+            lineEnd = sm.getLineEndPosition(lineNo)
+            matchedCharPosn = None
+            finalSpot = None
+            if stuffToLeft.strip():
+                while (sm.currentPos > lineStart and
+                       sm.getWCharAt(sm.positionBefore(sm.currentPos)) in ' \t'):
+                    sm.deleteBack()
+                # OPTIONALLY delete whitespace to the right of the 
+                # current cursor position
+                if 1: # XXX make a pref, give a UI.
+                    while sm.getWCharAt(sm.currentPos) in ' \t':
+                        sm.clear()
+                
+                # if only one char is to the right, we might want to do
+                # some magic with where it goes (eg., next line or the line
+                # after that)
+                currentPos = sm.currentPos
+                textToRight = sm.getTextRange(currentPos, lineEnd)
+                if (textToRight
+                    and languageObj is not None
+                    and (len(textToRight) == 1
+                         or self._remainingCharsAreSoft(sm, currentPos))):
+                    openingChar = sm.getWCharAt(sm.positionBefore(currentPos))
+                    matchedChar = languageObj.getMatchingChar(openingChar)
+                    if (matchedChar
+                        and openingChar != matchedChar # Don't do quote-like things
+                        and matchedChar == sm.getWCharAt(currentPos)):
+                        matchedCharPosn = currentPos
+            else:
+                currentPos = sm.currentPos
+                
+            if matchedCharPosn is not None:
+                # Pressed return between an opening char and its matching close char
+                sm.indicatorCurrent = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
+                sm.indicatorClearRange(currentPos, lineEnd - currentPos);
+                lang_svc, style_info = \
+                    self._actualLangSvcAndStyleFromPos(languageObj, sm,
+                                                       matchedCharPosn)
+                finalSpot = lang_svc.insertElectricNewline(sm, indentStyle, matchedCharPosn,
+                                                           allowExtraNewline, style_info)
+            elif (languageObj is not None
+                and currentPos > lineStart
+                and currentPos < lineEnd
+                and sm.getWCharAt(currentPos) not in ' \t'):
+                lang_svc, style_info = \
+                    self._actualLangSvcAndStyleFromPos(languageObj, sm,
+                                                       sm.positionBefore(currentPos))
+                finalSpot = lang_svc.insertInternalNewline_Special(sm, indentStyle, currentPos,
+                                                                   allowExtraNewline, style_info)
+
+            # If finalSpot is none do default indentation
+            if finalSpot is not None:
+                sm.gotoPos(finalSpot)
+            else:
+                sm.newLine()
+                if indent:
+                    sm.addText(self.sysUtils.byteLength(indent), indent) # consider using replaceTarget??
+            sm.chooseCaretX()
+        finally:
+            sm.endUndoAction()
+
+    def _actualLangSvcAndStyleFromPos(self, languageObj, scimoz, pos):
+        if languageObj.isUDL():
+            # find the actual language service
+            return languageObj.getLangSvcAndStyleInfoFromStyle(scimoz.getStyleAt(pos))
+        else:
+            return languageObj, languageObj._style_info
+            
+    def _remainingCharsAreSoft(self, scimoz, currentPos):
+        softCharDecorator = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
+        endPos = scimoz.indicatorEnd(softCharDecorator, currentPos)
+        lineEnd = scimoz.getLineEndPosition(scimoz.lineFromPosition(currentPos))
+        return endPos == lineEnd
+        
+    def _getIndentWidthForLine(self, lineNo, upto=None):
+        indent = self._getIndentForLine(lineNo, upto)
+        return len(indent.expandtabs(self._view.scimoz.tabWidth))
+
+    def _getIndentForLine(self, lineNo, upto=None):
+        sm = self._view.scimoz
+        lineStart = sm.positionFromLine(lineNo)
+        if upto:
+            lineEnd = min(upto, sm.getLineEndPosition(lineNo))
+        else:
+            lineEnd = sm.getLineEndPosition(lineNo)
+        line = sm.getTextRange(lineStart, lineEnd)
+        indentLength = len(line)-len(line.lstrip())
+        return line[:indentLength]
+
+    def _getIndentWidthFromIndent(self, indentstring):
+        """ Given an indentation string composed of tabs and spaces,
+        figure out how long it is (get the tabWidth from scimoz) """
+        expandedstring = indentstring.expandtabs(self._view.scimoz.tabWidth)
+        return len(expandedstring)
+
+    def _getFoldLevel(self, line):
+        """Return a fold level for the current line that guarantees that:
+            - if at the top level, the fold level is zero
+            - the deeper you are the higher the fold level
+        It does *not* guarantee that:
+            - a depth of three means then level is three
+        """
+        
+        # _getFoldLevel depends on the document being styled.  It currently
+        # is only called from _do_cmd_blockSelect below, which calls this within
+        # loops, so the colourise call is done first rather than here.  topFoldLevel
+        # is also set before using this function
+        sm = self._view.scimoz
+        foldLevel = sm.getFoldLevel(line)
+        foldLevel &= sm.SC_FOLDLEVELNUMBERMASK
+        foldLevel -= self.__topFoldLevel
+        return foldLevel
+
+    def _do_cmd_blockSelect(self):
+        """Use the lexer's fold markers to increase the selection.
+        If the current selection *is* a complete "fold block" then increase
+        to the next fold block. If the current selection is *not* a complete
+        fold block then select the fold block of the shallowest end of the
+        selection.
+
+        The logic is complicated somewhat because, the line preceeding a
+        block at a certain level should be included in the block selection.
+        For example, in the following code, if "Ctrl-B" is hit with the
+        cursor on the "print 1" line, the "for element in mylist:" line
+        should be included in the selection.
+
+        LEVEL   CODE
+        0       def foo(a):
+        1           mylist = ["hello", 42, "there", 3.14159]
+        1           while 1:
+        2               for element in mylist:
+        3                   print 1
+        3                   if type(element) == type(""):
+        4                       print "element %s is a string" % element
+        1           print
+        """
+        #log.debug("----------------- BLOCK SELECT ---------------------")
+        # Ensure cursor is at the start of the current selection (so we
+        # don't have to deal with the reverse condition in the calculations
+        # below.
+        view = self._view
+        sm = view.scimoz
+        if sm.anchor < sm.currentPos:
+            sm.anchor, sm.currentPos =\
+                sm.currentPos, sm.anchor
+
+        startLine = sm.lineFromPosition(sm.currentPos)
+        endLine = sm.lineFromPosition(sm.anchor)
+        lastLine = sm.lineFromPosition(sm.textLength-1)
+        
+        # if the lexer doesn't support folding, select all and get out of here fast.
+        lexer = view.languageObj.getLanguageService(
+            components.interfaces.koILexerLanguageService)
+        if not lexer.supportsFolding:
+            sm.selectAll()
+            return
+
+        # since we need all the fold data, ensure the entire document is styled
+        if sm.endStyled < sm.length:
+            sm.colourise(sm.endStyled, -1)
+
+        self.__topFoldLevel = sm.getFoldLevel(0)
+        self.__topFoldLevel &= sm.SC_FOLDLEVELNUMBERMASK
+
+        # If the next line after the startLine is "deeper" then move the
+        # startLine to there. See the doc string for why this is done.
+        if (startLine != lastLine and
+            self._getFoldLevel(startLine+1) > self._getFoldLevel(startLine)):
+            startLine += 1
+
+        # If there is a selection and selectionEnd is at the start of a line
+        # then move up the end of the previous line because this simplifies
+        # the subsequent logic.
+        if (sm.selText != ""
+            and sm.getColumn(sm.anchor) == 0):
+            endLine -= 1
+            sm.anchor = sm.getLineEndPosition(endLine)
+        #log.debug("BLOCKSELECT: startLine=%d, endLine=%d, lastLine=%d",
+        #          startLine, endLine, lastLine)
+
+        # Determine the minimum fold level in the current selection.
+        minFoldLevel = self._getFoldLevel(startLine)
+        for line in range(startLine, endLine):
+            #log.debug("BLOCKSELECT: foldLevel for line %d is: %x",
+            #          line, self._getFoldLevel(line))
+            minFoldLevel = min(minFoldLevel, self._getFoldLevel(line))
+        #log.debug("BLOCKSELECT: minFoldLevel is %x", minFoldLevel)
+
+        # Determine if the current selection is a complete fold block.
+        # - selection start must be at the start of a line
+        # - selection end must be at the end of a line
+        # - start and end fold level must both be at the bound of the
+        #   minFoldLevel
+        if (sm.getColumn(sm.currentPos) == 0
+            and sm.anchor == sm.getLineEndPosition(endLine)
+            and (startLine == 0
+                 or (self._getFoldLevel(startLine-1) < minFoldLevel
+                     and self._getFoldLevel(startLine)
+                         > self._getFoldLevel(startLine-1))
+                )
+            and (endLine == lastLine
+                 or (self._getFoldLevel(endLine+1) < minFoldLevel
+                     and self._getFoldLevel(endLine)
+                         > self._getFoldLevel(endLine+1))
+                )
+           ):
+            #log.debug("BLOCKSELECT: *is* a complete fold block")
+            if startLine == 0:
+                targetFoldLevel = 0
+            else:
+                targetFoldLevel = self._getFoldLevel(startLine-1)
+        else:
+            #log.debug("BLOCKSELECT: condition: start of selection on column 0? %s",
+            #          sm.getColumn(sm.currentPos) == 0)
+            #log.debug("BLOCKSELECT: condition: end of selection at eol? %s",
+            #          sm.anchor == sm.getLineEndPosition(endLine))
+            #log.debug("BLOCKSELECT: condition: startLine at minFoldLevel boundary? %s",
+            #          (startLine == 0 or
+            #           (self._getFoldLevel(startLine-1) < minFoldLevel
+            #            and self._getFoldLevel(startLine)
+            #                > self._getFoldLevel(startLine-1))))
+            #log.debug("BLOCKSELECT: condition: endLine at minFoldLevel boundary? %s",
+            #          (endLine == lastLine or
+            #           (self._getFoldLevel(endLine+1) < minFoldLevel
+            #            and self._getFoldLevel(endLine)
+            #                > self._getFoldLevel(endLine+1))))
+            #log.debug("BLOCKSELECT: is *not* a complete fold block")
+            targetFoldLevel = minFoldLevel
+        #log.debug("BLOCKSELECT: targetFoldLevel is %x", targetFoldLevel)
+
+        # increase the selection to the target fold level
+        if targetFoldLevel == 0:
+            #log.debug("BLOCKSELECT: select all")
+            sm.anchor = sm.textLength
+            sm.currentPos = 0
+            sm.ensureVisibleEnforcePolicy(0)
+        else:
+            # expand upwards
+            while startLine > 0:  #XXX are line's in SciMoz 0- or 1-based???
+                #log.debug("BLOCKSELECT: level(%x) up one line(%d) > target level(%x)?",
+                #          self._getFoldLevel(startLine-1), startLine-1,
+                #          targetFoldLevel)
+                if self._getFoldLevel(startLine-1) >= targetFoldLevel:
+                    startLine -= 1
+                else:
+                    break 
+            # select the leading line in the block as well
+            if startLine != 0:
+                startLine -= 1
+
+            # expand downwards
+            while endLine < lastLine:
+                #log.debug("BLOCKSELECT: level(%x) down one line(%d) > target level(%x)?",
+                #          self._getFoldLevel(endLine+1), endLine+1,
+                #          targetFoldLevel)
+                if self._getFoldLevel(endLine+1) >= targetFoldLevel:
+                    endLine += 1
+                else:
+                    break 
+
+            # make the selection
+            #log.debug("BLOCKSELECT: startLine=%d, endLine=%d",
+            #          startLine, endLine)
+            if endLine == lastLine:
+                sm.anchor = sm.textLength
+            else:
+                sm.anchor = sm.positionFromLine(endLine+1)
+            sm.currentPos = sm.positionFromLine(startLine)
+            sm.ensureVisibleEnforcePolicy(startLine)
+
+    def _is_cmd_comment_enabled(self):
+        commenter = self._view.languageObj.getLanguageService(
+            components.interfaces.koICommenterLanguageService)
+        return commenter is not None
+
+    def _do_cmd_comment(self):
+        view = self._view
+        commenter = view.languageObj.getLanguageService(
+            components.interfaces.koICommenterLanguageService)
+        if not commenter:
+            # not all languages have commentor services, and the commands
+            # are not always updated to improve performance.  Log it as
+            # an error
+            log.error("%s does not have a commenter service!",
+                      view.languageObj.name)
+            return
+        commenter.comment(view.scimoz)
+
+    def _is_cmd_uncomment_enabled(self):
+        commenter = self._view.languageObj.getLanguageService(
+            components.interfaces.koICommenterLanguageService)
+        return commenter is not None
+
+    def _do_cmd_uncomment(self):
+        view = self._view
+        commenter = view.languageObj.getLanguageService(
+            components.interfaces.koICommenterLanguageService)
+        if not commenter:
+            # not all languages have commentor services, and the commands
+            # are not always updated to improve performance.  Log it as
+            # an error
+            log.error("%s does not have a commenter service!",
+                      view.languageObj.name)
+            return
+        commenter.uncomment(view.scimoz)
+
+    # See http://bugs.activestate.com/show_bug.cgi?id=68806
+    # for problems in this routine
+    def _do_cmd_convertUpperCase(self):
+        sm = self._view.scimoz
+        if sm.selectionMode == sm.SC_SEL_STREAM:
+            selStart = sm.selectionStart
+            selEnd = sm.selectionEnd
+            sm.replaceSel(sm.selText.upper())
+            sm.selectionStart = selStart
+            sm.selectionEnd = selEnd
+        else:
+            sm.upperCase()
+
+    # See http://bugs.activestate.com/show_bug.cgi?id=68806
+    # for problems in this routine
+    def _do_cmd_convertLowerCase(self):
+        sm = self._view.scimoz
+        if sm.selectionMode == sm.SC_SEL_STREAM:
+            selStart = sm.selectionStart
+            selEnd = sm.selectionEnd
+            sm.replaceSel(sm.selText.lower())
+            sm.selectionStart = selStart
+            sm.selectionEnd = selEnd
+        else:
+            sm.lowerCase()
+
+    def _is_cmd_selectToMatchingBrace_enabled(self):
+        sm = self._view.scimoz
+        matchingBrace = sm.braceMatch(sm.positionBefore(sm.currentPos))
+        log.info("matchingBrace @ %d : %d", sm.currentPos, matchingBrace)
+        if matchingBrace != -1: return 1 # we're there
+        # also check to the right
+        if sm.currentPos < sm.textLength:
+            matchingBrace = sm.braceMatch(sm.currentPos)
+            log.info("matchingBrace @ %d : %d", sm.currentPos, matchingBrace)
+            return matchingBrace != -1
+        else:
+            log.info("matchingBrace: returning 0") 
+            return 0
+
+    _is_cmd_jumpToMatchingBrace_enabled = _is_cmd_selectToMatchingBrace_enabled
+    _is_cmd_braceMatch_enabled = _is_cmd_selectToMatchingBrace_enabled
+
+    def _do_cmd_braceMatch(self):
+        view = self._view
+        sm = view.scimoz
+        if not view.languageObj.supportsBraceHighlighting:
+            return
+        braceAtCaret, braceOpposite, isInside = self._findMatchingBracePosition(sm.currentPos)
+        
+        if braceAtCaret != -1 and braceOpposite == -1:
+            sm.braceBadLight(braceAtCaret)
+            sm.highlightGuide = 0
+        else:
+            chBrace = sm.getWCharAt(braceAtCaret)
+            sm.braceHighlight(braceAtCaret, braceOpposite)
+            columnAtCaret = sm.getColumn(braceAtCaret)
+            if chBrace == ':':
+                lineStart = sm.lineFromPosition(braceAtCaret)
+                indentPos = sm.getLineIndentPosition(lineStart)
+                indentPosNext = sm.getLineIndentPosition(lineStart+1)
+                columnAtCaret = sm.getColumn(indentPos)
+                columnAtCaretNext = sm.getColumn(indentPosNext)
+                indentSize = sm.indent
+                if (columnAtCaretNext - indentSize > 1):
+                    columnAtCaret = columnAtCaretNext - indentSize 
+            columnOpposite = sm.getColumn(braceOpposite)
+            sm.highlightGuide = min(columnAtCaret, columnOpposite)
+
+    def _do_cmd_selectToMatchingBrace(self):
+        self._goMatchingBrace(1)
+
+    def _do_cmd_jumpToMatchingBrace(self):
+        self._goMatchingBrace(0)
+
+    def _goMatchingBrace(self, select):
+        sm = self._view.scimoz
+        braceAtCaret, braceOpposite, isInside = self._findMatchingBracePosition(sm.currentPos)
+        log.info("braceAtCaret: %d, braceOpposite: %d, isInside: %s", braceAtCaret, braceOpposite, isInside)
+        # Convert the character positions into caret positions based on whether
+        # the caret position was inside or outside the braces.
+        if isInside:
+            if braceOpposite > braceAtCaret:
+                braceAtCaret += 1
+            else:
+                braceOpposite += 1
+        else: # Outside
+            if braceOpposite > braceAtCaret:
+                braceOpposite += 1
+            else:
+                braceAtCaret += 1
+        if braceOpposite >= 0:
+            self._ensureRangeVisible(braceOpposite, braceOpposite)
+            if select:
+                sm.anchor = braceAtCaret
+                sm.currentPos = braceOpposite
+            else:
+                sm.anchor = braceOpposite
+                sm.currentPos = braceOpposite
+            # Ensure the caret is visible, bug:
+            #   http://bugs.activestate.com/show_bug.cgi?id=43690
+            sm.scrollCaret()
+        sm.chooseCaretX()
+
+    def _ensureRangeVisible(self, posStart, posEnd, enforcePolicy=1):
+        sm = self._view.scimoz
+        lineStart = sm.lineFromPosition(min(posStart, posEnd))
+        lineEnd = sm.lineFromPosition(max(posStart, posEnd))
+        for line in range(lineStart, lineEnd+1):
+            if enforcePolicy:
+                sm.ensureVisibleEnforcePolicy(line)
+            else:
+                sm.ensureVisible(line)
+
+    # Find the brace that matches the brace before or after the given caret
+    # position. The character before has precedence if it is a brace.
+    # Returns three values: whether the caret is inside the braces,
+    # and the indexes of the current and the matching brace.
+    def _findMatchingBracePosition(self, caretPos, sloppy=1):
+        view = self._view
+        sm = view.scimoz
+        mask = view.languageObj.stylingBitsMask
+        isInside = 0
+        braceAtCaret = -1
+        braceOpposite = -1
+        charBefore = '\0'
+        styleBefore = 0
+        textLength = sm.textLength
+        if caretPos > textLength:
+            caretPos = textLength
+        if (caretPos > 0) :
+            charBefore = sm.getWCharAt(sm.positionBefore(caretPos))
+            styleBefore = sm.getStyleAt(sm.positionBefore(caretPos)) & mask
+        # Priority goes to character before caret
+        if charBefore and view.languageObj.getBraceIndentStyle(charBefore, styleBefore):
+            braceAtCaret = caretPos - 1
+        
+        colonMode = 0
+        if view.languageObj.name == 'Python' and ':' == charBefore:
+            braceAtCaret = caretPos - 1
+            colonMode = 1
+
+        isAfter = 1
+        if sloppy and (braceAtCaret < 0) and \
+           0 <= caretPos < textLength: # XXX check last edge condition
+            # No brace found so check other side
+            charAfter = sm.getWCharAt(caretPos)
+            styleAfter = sm.getStyleAt(caretPos) & mask
+            
+            if charAfter and (charAfter in "[](){}") and \
+               view.languageObj.getBraceIndentStyle(charAfter, styleAfter):
+                braceAtCaret = caretPos
+                isAfter = 0
+
+            if view.languageObj.name == 'Python' and ':' == charAfter:
+                braceAtCaret = caretPos
+                colonMode = 1
+                
+        if braceAtCaret >= 0:
+            if colonMode:
+                lineStart = sm.lineFromPosition(braceAtCaret)
+                lineMaxSubord = sm.getLastChild(lineStart, -1)
+                braceOpposite = sm.getLineEndPosition(lineMaxSubord)
+            else:
+                braceOpposite = sm.braceMatch(braceAtCaret)
+                
+        if braceOpposite > braceAtCaret:
+            isInside = isAfter
+        else:
+            isInside = not isAfter
+        return braceAtCaret, braceOpposite, isInside
+
+    def _is_cmd_folding_enabled(self):
+        return self._view.languageObj.foldable
+
+    _is_cmd_foldExpand_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldExpandAll_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldCollapse_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldCollapseAll_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldToggle_enabled = _is_cmd_folding_enabled
+    
+    def _do_cmd_foldExpand(self):
+        sm = self._view.scimoz
+        lineno = sm.lineFromPosition(sm.currentPos);
+        if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
+            not sm.getFoldExpanded(lineno):
+            sm.toggleFold(lineno)
+
+    def _do_cmd_foldExpandRecursive(self):
+        sm = self._view.scimoz
+        lineno = sm.lineFromPosition(sm.currentPos);
+        
+        # if we are doing this on a header, we'll want the top level to
+        # start at the level just inside the fold
+        if _is_header_line(sm, lineno):
+            if not sm.getFoldExpanded(lineno):
+                sm.toggleFold(lineno)
+            lineno += 1
+        # skip non-header top-level lines
+        elif _fold_level(sm, lineno) == sm.SC_FOLDLEVELBASE:
+            return
+
+        # we're going to unfold everything under this level
+        origlevel = _fold_level(sm, lineno)
+
+        while (_fold_level(sm, lineno) >= origlevel):
+            if _is_header_line(sm, lineno) and not sm.getFoldExpanded(lineno):
+                sm.toggleFold(lineno)
+            lineno += 1
+
+    def _do_cmd_foldExpandAll(self):
+        sm = self._view.scimoz
+        for lineno in range(0, sm.lineCount):
+            if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
+                not sm.getFoldExpanded(lineno):
+                    sm.toggleFold(lineno)
+
+    def _do_cmd_foldCollapse(self):
+        sm = self._view.scimoz
+        lineno = sm.lineFromPosition(sm.currentPos)
+        while not (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG):
+            if lineno == 1 or not sm.getFoldExpanded(lineno):
+                return
+            lineno -= 1
+        sm.toggleFold(lineno)
+        sm.gotoLine(lineno)
+
+    def _do_cmd_foldCollapseAll(self):
+        sm = self._view.scimoz
+        if sm.endStyled < sm.length:
+            sm.colourise(sm.endStyled,-1)
+        for lineno in range(0, sm.lineCount):
+            if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
+                sm.getFoldExpanded(lineno):
+                sm.toggleFold(lineno)
+        
+    def _do_cmd_foldCollapseRecursive(self):
+        sm = self._view.scimoz
+        lineno = sm.lineFromPosition(sm.currentPos);
+
+        if _fold_level(sm, lineno) == sm.SC_FOLDLEVELBASE:
+            return
+
+        # search up to the header
+        while not _is_header_line(sm, lineno):
+            if lineno == 1:
+                return
+            lineno -= 1
+        
+        # get the last line visible in this fold and go up from there
+        lastchild = sm.getLastChild(lineno, -1)
+        lines = range(lineno, lastchild)
+        lines.reverse()
+        
+        # close em up
+        for l in lines:
+            if _is_header_line(sm, l) and sm.getFoldExpanded(l):
+                sm.toggleFold(l)
+        sm.gotoLine(lineno)
+
+    def _do_cmd_foldToggle(self):
+        sm = self._view.scimoz
+        lineno = sm.lineFromPosition(sm.currentPos);
+        if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG):
+            if not sm.getFoldExpanded(lineno):
+                sm.toggleFold(lineno)
+            else:
+                self._do_cmd_foldCollapse()
+
+    def _asktabwidth(self):
+        dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
+            getService(components.interfaces.asIDialogProxy)
+        tabwidth = self._view.prefs.getLongPref('tabWidth')
+        value = dialogproxy.prompt("Tab Width (between 0 and 16)", str(tabwidth), "OK", None)
+        if value is not None:
+            return int(value)
+        else:
+            return value
+
+    def _do_cmd_tabify(self):
+        sm = self._view.scimoz
+        selection = sm.selText
+        tabwidth = self._asktabwidth()
+        if tabwidth is None: return
+        lines = selection.splitlines(1)
+        for pos in range(len(lines)):
+            line = lines[pos]
+            if line:
+                raw, effective = classifyws(line, tabwidth)
+                ntabs, nspaces = divmod(effective, tabwidth)
+                lines[pos] = '\t' * ntabs + ' ' * nspaces + line[raw:]
+        sm.replaceSel(''.join(lines))
+
+    def _do_cmd_untabify(self):
+        sm = self._view.scimoz
+        selection = sm.selText
+        lines = selection.splitlines(1)
+        tabwidth = self._asktabwidth()
+        if tabwidth is None: return
+        for pos in range(len(lines)):
+            lines[pos] = lines[pos].expandtabs(tabwidth)
+        sm.replaceSel(''.join(lines))
+
+    def _do_cmd_backSmart(self):
+        view = self._view
+        sm = view.scimoz
+        # if the pref is off, just do a regular delete
+        if (sm.currentPos != sm.anchor or
+            not view.prefs.getBooleanPref('editBackspaceDedents')):
+            sm.deleteBack()
+            return
+        # If there is only whitespace to the left of us (on the current line), we delete enough characters
+        #    to do a proper alignment ( this is currently done by IDLE, and works well w.r.t. tabs, spaces, etc.
+        # Else we just do a regular backspace.
+        lineNo = sm.lineFromPosition(sm.currentPos)
+        lineStart = sm.positionFromLine(lineNo)
+        before = sm.getTextRange(lineStart, sm.currentPos)
+        if not before or before.strip() != '':
+            # we're either at the beginning of the line or
+            # somewhere in the line with text to our left -- just do a backspace.
+            sm.deleteBack()
+            return
+        # the following is taken from idle (with variable renamings)
+        # here we've got only whitespace to our left.
+        # Delete whitespace left, until hitting a real char or closest
+        # preceding virtual tab stop.
+        # Ick.  It may require *inserting* spaces if we back up over a
+        # tab character!  This is written to be clear, not fast.
+        tabwidth = sm.tabWidth
+        indentwidth = sm.indent
+        have = len(before.expandtabs(tabwidth))
+        assert have > 0
+        want = int((have - 1) / indentwidth) * indentwidth
+        ncharsdeleted = 0
+        while 1:
+            before = before[:-1]
+            ncharsdeleted = ncharsdeleted + 1
+            have = len(before.expandtabs(tabwidth))
+            if have <= want or before[-1] not in " \t":
+                break
+        sm.beginUndoAction()
+        try:
+            for i in range(ncharsdeleted):
+                sm.deleteBack()
+            if have < want:
+                inserted = ' ' * (want - have)
+                sm.replaceSel(inserted)
+        finally:
+            sm.endUndoAction()
+
+    def _insertIndent(self):
+        sm = self._view.scimoz
+        currentLineNo = sm.lineFromPosition(sm.currentPos)
+        lineStart = sm.positionFromLine(currentLineNo)
+        toLeft = sm.getTextRange(lineStart, sm.currentPos)
+        if not toLeft.strip(): # we've got nothing but whitespace to our left:
+            currentIndentWidth = self._getIndentWidthForLine(currentLineNo,
+                                                            sm.currentPos)
+            numIndents, extras = divmod(currentIndentWidth, sm.indent)
+            numIndents += 1
+            newIndentWidth = numIndents * sm.indent
+            newIndent = scimozindent.makeIndentFromWidth(sm, newIndentWidth)
+            sm.anchor = sm.positionFromLine(currentLineNo)
+            sm.replaceSel(newIndent)
+        else:
+            # this isn't quite what vs.net does -- vs.net converts
+            # all of the whitespace around the cursor to tabs
+            # if appropriate
+            startCol = sm.getColumn(sm.currentPos)
+            numIndents, extras = divmod(startCol, sm.indent)
+            numIndents += 1
+            targetCol = numIndents * sm.indent
+            if sm.useTabs:
+                sm.replaceSel('\t')
+            else:
+                sm.replaceSel(' ' * (targetCol - startCol))
+
+    def _insertDedent(self):
+        sm = self._view.scimoz
+        startCol = sm.getColumn(sm.currentPos)
+        if sm.indent == 0:
+            log.error("scimoz indent was 0, should never happen")
+            return
+        numIndents, extras = divmod(startCol, sm.indent)
+        if numIndents and not extras:
+            numIndents -= 1
+        targetCol = numIndents * sm.indent
+        sm.beginUndoAction()
+        try:
+            while (sm.getColumn(sm.currentPos) > targetCol and
+                   sm.getWCharAt(sm.positionBefore(sm.currentPos)) in ' \t'):
+                sm.deleteBack()
+            curCol = sm.getColumn(sm.currentPos)
+            if curCol < targetCol:
+                d = targetCol-curCol
+                sm.addText(d, d*' ')
+        finally:
+            sm.endUndoAction()
+
+    def _do_cmd_dedent(self):
+        view = self._view
+        sm = view.scimoz
+
+        # Do tab autocompletion, assuming it's in progress.
+        if sm.autoCActive():
+            sm.autoCComplete()
+            sm.scrollCaret()
+            return
+
+        if sm.currentPos == sm.anchor and \
+           view.prefs.getBooleanPref('editTabCompletes') and \
+           sm.getWCharAt(sm.positionBefore(sm.currentPos)) in self.wordchars:
+            self._doCompleteWord(1)
+            return
+
+        selectionStartLine = sm.lineFromPosition(sm.selectionStart)
+        endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
+        selectionEndLine = sm.lineFromPosition(sm.selectionEnd)
+        startColumn = sm.getColumn(sm.selectionStart)
+
+        # Do we have a selection?  If no, then it's 'insert a backwards tab'
+        if sm.currentPos == sm.anchor:
+            if startColumn == 0:
+                sm.currentPos = endOfSelectionStartLine
+                self._regionShift(-1)
+                sm.currentPos = sm.anchor
+            else:
+                self._insertDedent()
+            return
+
+        # If we have a selection, we first figure out if it's within-line or
+        # either whole-line or multi-line.
+        
+        if (selectionStartLine != selectionEndLine or
+            startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine):
+            return self._regionShift(-1)
+        else:
+            return self._insertDedent()
+
+    wordchars = string.letters + string.digits + "_"
+    
+    def _do_cmd_completeWord(self):
+        self._doCompleteWord(0)
+
+    def _do_cmd_completeWordBack(self):
+        self._doCompleteWord(1)
+
+    def _doCompleteWord(self, backwards):
+        # adapted from IDLE's AutoExpand code, with the additional
+        # tweak of 'going backwards'
+        sm = self._view.scimoz
+        curinsert = sm.currentPos
+        lineNo = sm.lineFromPosition(sm.currentPos)
+        startofLinePos = sm.positionFromLine(lineNo)
+        endofLinePos = sm.getLineEndPosition(lineNo)
+        curline = sm.getTextRange(startofLinePos, endofLinePos)
+        if not self._completeWordState:
+            words = self._getwords()
+            index = 0
+        else:
+            words, index, insert, line = self._completeWordState
+            if insert != curinsert or line != curline:
+                words = self._getwords()
+                index = 0
+        if not words:
+            return
+        word = self._getprevword()
+        sm.anchor = sm.currentPos - len(word)
+        sm.replaceSel('')
+        if backwards:
+            newword = words[(index-2)  % len(words)]
+            index = (index - 1) % len(words)
+        else:
+            newword = words[index]
+            index = (index + 1) % len(words)
+        sm.replaceSel(newword)
+        curinsert = sm.currentPos
+        lineNo = sm.lineFromPosition(sm.currentPos)
+        startofLinePos = sm.positionFromLine(lineNo)
+        endofLinePos = sm.getLineEndPosition(lineNo)
+        curline = sm.getTextRange(startofLinePos, endofLinePos)
+        
+        self._completeWordState = words, index, curinsert, curline
+        sm.scrollCaret()
+
+    def _getwords(self):
+        sm = self._view.scimoz
+        # this is where we would do magic to look through other buffers
+        word = self._getprevword()
+        if not word:
+            return []
+        before = sm.getTextRange(0, sm.currentPos)
+        wbefore = re.findall(r"\b" + word + r"\w+\b", before)
+        del before
+        after = sm.getTextRange(sm.currentPos, sm.textLength)
+        wafter = re.findall(r"\b" + word + r"\w+\b", after)
+        del after
+        if not wbefore and not wafter:
+            return []
+        words = []
+        dict = {}
+        # search backwards through words before
+        wbefore.reverse()
+        for w in wbefore:
+            if dict.get(w):
+                continue
+            words.append(w)
+            dict[w] = w
+        # search onwards through words after
+        for w in wafter:
+            if dict.get(w):
+                continue
+            words.append(w)
+            dict[w] = w
+        words.append(word)
+        return words
+
+    def _getprevword(self):
+        sm = self._view.scimoz
+        curinsert = sm.currentPos
+        lineno = sm.lineFromPosition(sm.currentPos)
+        startofLinePos = sm.positionFromLine(lineno)
+        line = sm.getTextRange(startofLinePos, curinsert)
+        i = len(line)
+        while i > 0 and line[i-1] in self.wordchars:
+            i = i-1
+        return line[i:]
+
+    def _handle_tabstop(self):
+        """Handle <Tab> to the next tabstop.
+        
+        If there was a last tabstop that was just replaced, then we also
+        replace other occurrences of tabstops with the same default value.
+        
+        Returns True iff a tabstop was found and handled.
+        """
+        DEBUG = False
+        tab_handled = False
+        sm = self._view.scimoz
+
+        # First, fill in any duplicate defaults.
+        if self._last_tabstop and self._last_tabstop[1] != u"\xab\xbb" \
+           and sm.currentPos > self._last_tabstop[0]:
+            # Get the last tabstop replaced value.
+            value = sm.getTextRange(self._last_tabstop[0], sm.currentPos)
+            if value and '\n' not in value and '\r' not in value:
+                if value[0] == u"\xab":
+                    if value == self._last_tabstop[1]:
+                        value = value[1:-1]
+                    else:
+                        value = None
+                if DEBUG:
+                    print "tabstop: last %r, value %r" % (self._last_tabstop, value)
+                
+                # Replace all instances of the same tabstop with this value.
+                if value:
+                    sm.anchor = 0
+                    sm.searchAnchor()
+                    loc = sm.searchNext(0, self._last_tabstop[1])
+                    sm.beginUndoAction()
+                    try:
+                        while loc >= 0:
+                            if DEBUG:
+                                print "tabstop: found %r at %d" % (sm.selText, loc)
+                            sm.selectionStart = loc
+                            sm.selectionEnd = sm.positionAfter(
+                                loc + len(self._last_tabstop[1]) + 1)
+                            sm.replaceSel(value)
+                            tab_handled = True
+                            loc = sm.searchNext(0, self._last_tabstop[1])
+                    finally:
+                        sm.endUndoAction()
+                    sm.anchor = 0
+        elif sm.selText == u"\xab\xbb":
+            sm.replaceSel("")
+        self._last_tabstop = None
+
+        # Jump to the next tabstop.
+        # A tabstop is '<<something>>' where:
+        #   '<<' is actually \xab,
+        #   '>>' is actually \xbb, and
+        #   'something' can be empty (no default value for the tabstop),
+        #       otherwise can have any characters except EOL chars, but
+        #       cannot start or end with whitespace.
+        # The "cannot start or end with whitespace" is an attempt to skip
+        # usages of '\xab' and '\xbb' as prose quoting characters in French.
+        # See the discussion in bug 69949.
+        if sm.anchor == 0 or sm.currentPos == sm.anchor:
+            # Note: this is complicated because Scintilla's built-in regex
+            # doesn't support look-behind|ahead assertions -- so we have
+            # to watch for starting/ending whitespace manually.
+            start_pos = sm.currentPos
+            sm.anchor = 0
+            while True:
+                sm.searchAnchor()
+                sloc = sm.searchNext(sm.SCFIND_REGEXP, u"\xab[^\r\n]*\xbb")
+                if sloc < 0:
+                    sm.anchor = sm.currentPos = start_pos
+                    return tab_handled
+                elif sm.getWCharAt(sm.positionAfter(sloc)) in " \t":
+                    if DEBUG:
+                        print "tabstop: space after '<<' at %d (skip)" % sloc
+                    sm.currentPos = sm.anchor
+                    continue
+                
+                # This is a tabstop, provided there is no whitespace before '>>'.
+                eloc = sm.searchNext(0, u"\xbb")
+                if sm.getWCharAt(sm.positionBefore(eloc)) in " \t":
+                    if DEBUG:
+                        print "tabstop: space before '>>' at %d (skip)" % eloc
+                    sm.currentPos = sm.anchor
+                    continue
+                elif eloc < sloc:
+                    sm.anchor = sm.currentPos = start_pos
+                    return tab_handled
+                break
+
+        else:
+            if sm.getWCharAt(sm.anchor) != u"\xab" and \
+                sm.getWCharAt(sm.currentPos) != u"\xbb":
+                return tab_handled
+            sloc = sm.anchor
+            eloc = sm.currentPos
+        
+        sm.anchor = sm.selectionStart = sloc
+        sm.selectionEnd = sm.positionAfter(eloc+1)
+        self._last_tabstop = (sloc, sm.selText)
+        if DEBUG:
+            print "tabstop: %r" % (self._last_tabstop,)
+        return True
+
+    def _do_cmd_indent(self):
+        view = self._view
+        sm = view.scimoz
+
+        # Do tab autocompletion, assuming it's in progress.
+        if sm.autoCActive():
+            shouldAdjust = 0
+            # if we're closing a </ tag, then adjust it.
+            # Closing a </ tag is defined as "in XML, going backwards,
+            # we hit a < before a whitespace character, and
+            # there is a / to the right of that <.
+            if view.languageObj.supportsSmartIndent == 'XML':
+                lineno = sm.lineFromPosition(sm.currentPos)
+                startofLinePos = sm.positionFromLine(lineno)
+                line = sm.getTextRange(startofLinePos, sm.currentPos)
+                lastWS = max(line.rfind(' '), line.rfind('\t'))
+                lastBracket = line.rfind('<')
+                if lastWS < lastBracket and \
+                   lastBracket+1 < len(line) and \
+                    line[lastBracket+1] == '/':
+                    shouldAdjust = 1
+            sm.autoCComplete()
+            if shouldAdjust:
+                scimozindent.adjustClosingXMLTag(sm)
+            sm.scrollCaret()
+            return
+
+        if self._handle_tabstop():
+            return
+
+        if sm.currentPos == sm.anchor:
+            if view.prefs.getBooleanPref('editTabCompletes') and \
+               sm.getWCharAt(sm.currentPos-1) in self.wordchars:
+                self._doCompleteWord(0)
+                return
+    
+            # Do we have a selection?  If no, then it's 'insert a tab'
+            self._insertIndent()
+            return
+        
+        # If we have a selection, we first figure out if it's within-line or
+        # either whole-line or multi-line.
+        
+        selectionStartLine = sm.lineFromPosition(sm.selectionStart)
+        selectionEndLine = sm.lineFromPosition(sm.selectionEnd)
+        startColumn = sm.getColumn(sm.selectionStart)
+        endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
+        if (selectionStartLine != selectionEndLine or
+            startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine):
+            return self._regionShift(1)
+        else:
+            return self._insertIndent()
+
+    def _regionShift(self, shift):
+        """ This code shifts regions of text left or right depending on the
+        sign of 'shift' (which should be +1 for a rightward shift or
+        -1 for a leftward shift
+        
+        First we adjust the selection to consist only of whole lines.
+        
+        Then we look for the delta in number of spaces that should be applied
+        to the first line which has a non-zero indent.
+        
+        Then we apply that delta to each line in the selection, ensuring that
+        the indentations that result respect the use of tabs as specified
+        in the widget
+        """
+        sm = self._view.scimoz
+        indentlog.info("doing _regionShift by shift: %s", shift)
+        # first adjust the selection to span full lines.
+        anchorLine = sm.lineFromPosition(sm.anchor)
+        currentPosLine = sm.lineFromPosition(sm.currentPos)
+        if sm.anchor < sm.currentPos:
+            anchorFirst = 1
+            startLine = anchorLine
+            endLine = currentPosLine
+        else:
+            anchorFirst = 0
+            endLine = anchorLine
+            startLine = currentPosLine
+            # ensure that anchor starts for the sake of our computation
+            # things get fixed at the end.
+            sm.anchor, sm.currentPos = sm.currentPos, sm.anchor
+
+        anchorColumn = sm.getColumn(sm.anchor)
+        currentPosColumn = sm.getColumn(sm.currentPos)
+        if anchorColumn != 0:
+            l = sm.lineFromPosition(sm.anchor)
+            sm.anchor = sm.positionFromLine(l)
+        if currentPosColumn != 0:
+            # adjust to end of line
+            l = sm.lineFromPosition(sm.currentPos)
+            sm.currentPos = sm.getLineEndPosition(l)
+        # figure out what delta we need to apply to the first line
+        for line in range(startLine, max(endLine, startLine+1)):
+            currentIndentWidth = self._getIndentWidthForLine(line)
+            if shift == 1 or currentIndentWidth:
+                break
+        if currentIndentWidth == 0 and shift == -1:
+            return # nothing to do, nothing's indented!
+        numIndents, extras = divmod(currentIndentWidth, sm.indent)
+        if shift == 1:
+            numIndents += 1
+        elif shift == -1 and numIndents and not extras:
+            numIndents -= 1
+        newIndentWidth = numIndents * sm.indent
+        delta = newIndentWidth - currentIndentWidth
+        indentlog.info("delta = %d", delta)
+        # apply that delta to each line in the region
+        region = sm.getTextRange(sm.anchor, sm.currentPos)
+        lines = region.splitlines(1) # keep line ends
+        data = []
+        for line in lines:
+            count = 0
+            for char in line:
+                if char in ' \t':
+                    count += 1
+                else:
+                    break
+            indent = line[:count].expandtabs(sm.tabWidth)
+            rest = line[count:]
+            numspaces = max(len(indent) + delta, 0)
+            indent = scimozindent.makeIndentFromWidth(sm, numspaces)
+            newline = indent + rest
+            data.append(newline)
+        region = ''.join(data)
+        regionUtf8Len = self.sysUtils.byteLength(region)
+        before = min(sm.currentPos, sm.anchor)
+        sm.targetStart = sm.anchor
+        sm.targetEnd = sm.currentPos
+        sm.replaceTarget(regionUtf8Len, region)
+        if anchorFirst:
+            sm.anchor = before
+            sm.currentPos = before + regionUtf8Len
+        else:
+            sm.currentPos = before
+            sm.anchor = before + regionUtf8Len
+
+    def unexpandtabs(self, line):
+        numspaces = len(line)-len(line.lstrip())
+        rest = line[numspaces:]
+        numtabs, numspaces = divmod(numspaces, self._view.scimoz.tabWidth)
+        indent = '\t'*numtabs + ' '*numspaces
+        return indent + rest
+
+    def _do_cmd_moveToScreenTop(self):
+        # move the cursor to the start of the first visible line
+        view = self._view
+        scimoz = view.scimoz
+        linesFromTop = view.prefs.getLongPref('ySlop')
+        lineno = min(scimoz.firstVisibleLine + linesFromTop, scimoz.lineCount)
+        lineno = max(0, lineno)
+        scimoz.gotoPos(scimoz.positionFromLine(lineno))
+
+    def _do_cmd_moveToScreenCenter(self):
+        # move the cursor to the center of the visibles lines
+        scimoz = self._view.scimoz
+        fvl = scimoz.firstVisibleLine
+        linesOnScreen = scimoz.linesOnScreen
+        lineno = min(fvl + (linesOnScreen//2), scimoz.lineCount)
+        lineno = max(0, lineno)
+        scimoz.gotoPos(scimoz.positionFromLine(lineno))
+
+    def _do_cmd_moveToScreenBottom(self):
+        # move the cursor to the start of the first visible line
+        view = self._view
+        scimoz = view.scimoz
+        linesFromBottom = view.prefs.getLongPref('ySlop')
+        lineno = min(scimoz.firstVisibleLine + (scimoz.linesOnScreen - linesFromBottom) - 1, scimoz.lineCount)
+        lineno = max(0, lineno)
+        scimoz.gotoPos(scimoz.positionFromLine(lineno))
+
+    def _do_cmd_moveScreenTop(self):
+        sm = self._view.scimoz
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.lineEndWrap()
+
+    def _do_cmd_newlinePrevious(self):
+        sm = self._view.scimoz
+        # Ensure we move to the first visible character on the line
+        sm.home()
+        sm.vCHomeWrap()
+        self._do_cmd_newline()
+        sm.lineUp()
+
+    def _do_cmd_swapCase(self):
+        sm = self._view.scimoz
+        selStart = sm.selectionStart
+        selEnd = sm.selectionEnd
+        if selStart == selStart:
+            # Nothing selected
+            # Just swap the current character position then
+            curChar = sm.getWCharAt(sm.currentPos)
+            if curChar:
+                newChar = curChar.swapcase()
+                sm.targetStart = sm.currentPos
+                sm.targetEnd = sm.positionAfter(sm.currentPos)
+                sm.replaceTarget(self.sysUtils.byteLength(newChar), newChar)
+                # Move the cursor right (if not at end of line)
+                curLine = sm.lineFromPosition(sm.currentPos)
+                lineEndPos = sm.getLineEndPosition(curLine)
+                if sm.currentPos < lineEndPos:
+                    sm.charRight()
+        else:
+            sm.replaceSel(sm.selText.swapCase())
+            sm.selectionStart = selStart
+            sm.selectionEnd = selEnd
+
+
+def classifyws(s, tabwidth):
+    raw = effective = 0
+    for ch in s:
+        if ch == ' ':
+            raw = raw + 1
+            effective = effective + 1
+        elif ch == '\t':
+            raw = raw + 1
+            effective = (effective / tabwidth + 1) * tabwidth
+        else:
+            break
+    return raw, effective
+
+def getLine(scin, lineNo):
+    lineStart = scin.positionFromLine(lineNo)
+    lineEnd = scin.getLineEndPosition(lineNo)
+    line = scin.getTextRange(lineStart, lineEnd)
+    return line

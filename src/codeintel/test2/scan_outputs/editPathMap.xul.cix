@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="XUL" mtime="42" path="scan_inputs\editPathMap.xul">
+    <scope ilk="blob" lang="JavaScript" name="editPathMap.xul" src="scan_inputs/editPathMap.xul">
+      <scope ilk="function" line="26" lineend="32" name="onLoad" signature="onLoad()" />
+      <scope ilk="function" line="33" lineend="37" name="onOK" signature="onOK()" />
+      <scope ilk="function" line="38" lineend="42" name="onCancel" signature="onCancel()" />
+      <scope ilk="function" line="44" lineend="56" name="browseForDir" signature="browseForDir(elem, remote)">
+        <variable ilk="argument" name="elem" />
+        <variable ilk="argument" name="remote" />
+        <variable attributes="__local__ private" citdl="elem.value" line="50" name="path" />
+        <variable attributes="__local__ private" citdl="document.getElementById()" line="51" name="uri" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,34 @@
+Index: toolkit/xre/nsAppRunner.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsAppRunner.cpp,v
+retrieving revision 1.27.2.1.4.40
+diff -u -r1.27.2.1.4.40 nsAppRunner.cpp
+--- toolkit/xre/nsAppRunner.cpp	2 Nov 2004 23:27:24 -0000	1.27.2.1.4.40
++++ toolkit/xre/nsAppRunner.cpp	20 Jul 2005 21:08:11 -0000
+@@ -1890,6 +1890,26 @@
+         appShellService->ExitLastWindowClosingSurvivalArea();
+ #endif
+ 
++#ifdef XP_MACOSX
++        {
++         OSErr osError;
++         ProcessSerialNumber psn;
++
++         /* Make sure the window comes up in the front of the calling
++          * application.
++          */
++         if (GetCurrentProcess(&psn) >= 0) {
++             //printf("setting as front process\n");
++             osError = SetFrontProcess(&psn);
++             if (osError != noErr) {
++          printf("error setting as front process: %d!\n", osError);
++             }
++         } else {
++             printf("error: couldn't get process number\n");
++         }
++        }
++#endif
++
+ #ifdef MOZ_ENABLE_XREMOTE
+         // if we have X remote support and we have our one window up and
+         // running start listening for requests on the proxy window.

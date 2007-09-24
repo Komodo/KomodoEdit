@@ -1,0 +1,70 @@
+<!ENTITY DDirectoryPathOfFile.label "&#37;D : directory path of file">
+<!ENTITY FFilePath.label "&#37;F : file path">
+<!ENTITY LCurrentLineNumber.label "&#37;L : current line number">
+<!ENTITY PPathOfTheActiveProject.label "&#37;P : path of the active project">
+<!ENTITY S.accesskey "S">
+<!ENTITY SURLEscapedSelection.label "&#37;S : URL-escaped selection">
+<!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "&#37;W : URL-escaped selection or word under cursor">
+<!ENTITY addToToolbox.label "Add to Toolbox">
+<!ENTITY addToToolboxCheckbox.accesskey "A">
+<!ENTITY advancedOptions.label "Advanced Options">
+<!ENTITY askAskForUserInput.label "&#37;(ask) : ask for user input">
+<!ENTITY askpassAskForPassword.label "&#37;(askpass) : ask for password">
+<!ENTITY bFileBaseNameWithoutExtension.label "&#37;b : file base name without extension">
+<!ENTITY browse.label "Browse...">
+<!ENTITY browserConfiguredBrowser.label "&#37;(browser) : Configured browser">
+<!ENTITY changeIcon.accesskey "h">
+<!ENTITY changeIcon.label "Change Icon...">
+<!ENTITY close.accesskey "c">
+<!ENTITY close.label "Close">
+<!ENTITY command.label "Command">
+<!ENTITY commandOutputTab.label "Command Output Tab">
+<!ENTITY commandProperties.title "Command Properties">
+<!ENTITY commandTextbox.accesskey "u">
+<!ENTITY cwdBrowseButton.accesskey "b">
+<!ENTITY dDirectoryBaseNameOfFile.label "&#37;d : directory base name of file">
+<!ENTITY delete.label "Delete">
+<!ENTITY doNotOpenOutputPane.label "Do not open output pane">
+<!ENTITY doNotOpenOutputWindowCheckbox.accesskey "o">
+<!ENTITY edit.label "Edit...">
+<!ENTITY envDeleteButton.accesskey "d">
+<!ENTITY envEditButton.accesskey "e">
+<!ENTITY envNewButton.accesskey "n">
+<!ENTITY escapedPercentSign.label "&#37;&#37; : escaped percent sign">
+<!ENTITY fFileBaseName.label "&#37;f : file base name">
+<!ENTITY help.accesskey "H">
+<!ENTITY help.label "Help">
+<!ENTITY helpOnShortcuts.label "Help on Shortcuts...">
+<!ENTITY insertOutput.label "Insert output">
+<!ENTITY insertOutputCheckbox.accesskey "I">
+<!ENTITY keyBinding.label "Key Binding">
+<!ENTITY m.accesskey "m">
+<!ENTITY more.label "More">
+<!ENTITY moreOptionsButton.accesskey "m">
+<!ENTITY new.label "New...">
+<!ENTITY newConsole.label "New Console">
+<!ENTITY noConsoleGUIApplication.label "No Console (GUI Application)">
+<!ENTITY operateOnSelectionCheckbox.accesskey "l">
+<!ENTITY pDirectoryPathOfActiveProject.label "&#37;p : directory path of active project">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "&#37;p : directory path of the active project">
+<!ENTITY parseOutputWith.label "Parse output with:">
+<!ENTITY parseRegexTextbox.accesskey "c">
+<!ENTITY passSelectionAsInput.label "Pass selection as input">
+<!ENTITY perlConfiguredPerlInterpreter.label "&#37;(perl) : Configured Perl Interpreter">
+<!ENTITY phpConfiguredPHPInterpreter.label "&#37;(php) : Configured PHP Interpreter">
+<!ENTITY pythonConfiguredPythonInterpreter.label "&#37;(python) : Configured Python Interpreter">
+<!ENTITY reset.label "Reset">
+<!ENTITY reseticon.accesskey "t">
+<!ENTITY rubyConfiguredRubyInterpreter.label "&#37;(ruby) : Configured Ruby Interpreter">
+<!ENTITY run.accesskey "r">
+<!ENTITY run.label "Run">
+<!ENTITY runCommand.title "Run Command">
+<!ENTITY sSelection.label "&#37;s : selection">
+<!ENTITY saveAdvancedOptionsAsDefaults.label "Save advanced options as defaults">
+<!ENTITY saveOptionsCheckbox.accesskey "v">
+<!ENTITY shortcuts.tooltiptext "Shortcuts">
+<!ENTITY showParsedOutputAsAList.label "Show parsed output as a list">
+<!ENTITY value.label "Value">
+<!ENTITY variable.label "Variable">
+<!ENTITY wSelectionOrWordUnderCursor.label "&#37;w : selection or word under cursor">
+<!ENTITY waitForCommandToTerminate.title "Wait for Command to Terminate">

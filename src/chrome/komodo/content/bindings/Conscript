@@ -1,0 +1,41 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'mozVersion',
+);
+
+$cons->InstallInChrome('scrolltabs.xml');
+$cons->InstallInChrome('buttons.xml');
+$cons->InstallInChrome('listbox.xml');
+$cons->InstallInChrome('colorpicker.xml');
+$cons->Preprocess('scintilla.unprocessed.xml', 'scintilla.xml');
+$cons->InstallInChrome('scintilla.xml');
+$cons->InstallInChrome('scintilla-overlay.xul');
+$cons->InstallInChrome('widgets.xml');
+$cons->Preprocess('views.unprocessed.xml', 'views.xml');
+$cons->InstallInChrome('views.xml');
+$cons->InstallInChrome('views-tabbed.xml');
+$cons->InstallInChrome('views-browser.xml');
+$cons->InstallInChrome('views-xul.xml');
+$cons->Preprocess('views-editor.unprocessed.xml', 'views-editor.xml');
+$cons->InstallInChrome('views-editor.xml');
+$cons->Preprocess('views-buffer.p.xml', 'views-buffer.xml');
+$cons->InstallInChrome('views-buffer.xml');
+$cons->Preprocess('views-diff.unprocessed.xml', 'views-diff.xml');
+$cons->InstallInChrome('views-diff.xml');
+$cons->InstallInChrome('views-multi.xml');
+$cons->Preprocess('views-terminal.unprocessed.xml', 'views-terminal.xml');
+$cons->InstallInChrome('views-terminal.xml');
+$cons->Preprocess('partviewer.unprocessed.xml', 'partviewer.xml');
+$cons->InstallInChrome('partviewer.xml');
+
+$cons->InstallInChrome('toolbar.xml');

@@ -1,0 +1,22 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'mozVersion',
+    'withCrypto',
+);
+
+$cons->InstallInChrome('filebrowser.xul');
+$cons->Preprocess("filebrowser.unprocessed.js", "filebrowser.js");
+$cons->InstallInChrome('filebrowser.js');
+$cons->Preprocess("filebrowseview.unprocessed.js", "filebrowseview.js");
+$cons->InstallInChrome('filebrowseview.js');
+

@@ -1,0 +1,8 @@
+<h3>recent reads</h3>
+
+<table>
+	<%= column_headings ["Who", "What", "When"] %>
+	<tbody>
+		<%= render :partial => "reading", :collection => @readings %>
+	</tbody>
+</table>

@@ -1,0 +1,34 @@
+Index: extensions/python/xpcom/src/VariantUtils.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/VariantUtils.cpp,v
+retrieving revision 1.19
+diff -d -u -r1.19 VariantUtils.cpp
+--- extensions/python/xpcom/src/VariantUtils.cpp	25 Aug 2005 21:52:18 -0000	1.19
++++ extensions/python/xpcom/src/VariantUtils.cpp	2 Sep 2005 02:15:20 -0000
+@@ -2032,8 +2032,7 @@
+ 	  case nsXPTType::T_ARRAY: {
+ 		void *t = DEREF_IN_OR_OUT(ns_v.val.p, void *);
+ 		if (t==NULL) {
+-			ret = Py_None;
+-			Py_INCREF(Py_None);
++			ret = PyList_New(0);
+ 		} else {
+ 			PRUint8 array_type;
+ 			nsresult ns = GetArrayType(index, &array_type);
+Index: extensions/python/xpcom/test/test_test_component.js
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/test/test_test_component.js,v
+retrieving revision 1.4
+diff -d -u -r1.4 test_test_component.js
+--- extensions/python/xpcom/test/test_test_component.js	18 Apr 2004 22:13:54 -0000	1.4
++++ extensions/python/xpcom/test/test_test_component.js	2 Sep 2005 02:15:20 -0000
+@@ -130,5 +130,9 @@
+ if (c.SumArrays(v.length, v, v2) != 21)
+ 	throw("Could not sum an array of integers!");
+ 
++var count = new Object();
++count.value = 0;
++var out = [];
++c.DoubleStringArray(count, out);
+ 
+ print("javascript successfully tested the Python test component.");

@@ -1,0 +1,141 @@
+    <scope ilk="blob" lang="Ruby" name="syck">
+      <scope ilk="namespace" name="YAML">
+        <scope ilk="namespace" name="Syck">
+          <scope ilk="class" name="BadAlias" mixinrefs="Comparable Kernel" classrefs="Object">
+            <scope ilk="function" name="between?" />
+            <scope ilk="function" name="name=" />
+          </scope>
+          <scope ilk="class" name="DefaultKey" mixinrefs="Kernel" classrefs="Object">
+          </scope>
+          <scope ilk="class" name="Emitter" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="emit" />
+            <scope ilk="function" name="level" />
+            <scope ilk="function" name="level=" />
+            <scope ilk="function" name="node_export" />
+            <scope ilk="function" name="reset" />
+            <scope ilk="function" name="set_resolver" />
+          </scope>
+          <scope ilk="class" name="Map" mixinrefs="Kernel" classrefs="YAML::Syck::Node">
+            <scope ilk="function" name="add" />
+            <scope ilk="function" name="style=" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="class" name="MergeKey" mixinrefs="Kernel" classrefs="Object">
+          </scope>
+          <scope ilk="class" name="Node" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="emitter" />
+            <scope ilk="function" name="emitter=" />
+            <scope ilk="function" name="kind" />
+            <scope ilk="function" name="resolver" />
+            <scope ilk="function" name="resolver=" />
+            <scope ilk="function" name="transform" />
+            <scope ilk="function" name="type_id" />
+            <scope ilk="function" name="type_id=" />
+            <scope ilk="function" name="value" />
+          </scope>
+          <scope ilk="class" name="Out" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="emitter" />
+            <scope ilk="function" name="emitter=" />
+            <scope ilk="function" name="map" />
+            <scope ilk="function" name="scalar" />
+            <scope ilk="function" name="seq" />
+          </scope>
+          <scope ilk="class" name="Parser" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="bufsize" />
+            <scope ilk="function" name="bufsize=" />
+            <scope ilk="function" name="input" />
+            <scope ilk="function" name="input=" />
+            <scope ilk="function" name="load" />
+            <scope ilk="function" name="load_documents" />
+            <scope ilk="function" name="options" />
+            <scope ilk="function" name="options=" />
+            <scope ilk="function" name="resolver" />
+            <scope ilk="function" name="resolver=" />
+            <scope ilk="function" name="set_resolver" />
+          </scope>
+          <scope ilk="class" name="Resolver" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_type" />
+            <scope ilk="function" name="detect_implicit" />
+            <scope ilk="function" name="node_import" />
+            <scope ilk="function" name="tags" />
+            <scope ilk="function" name="tags=" />
+            <scope ilk="function" name="tagurize" />
+            <scope ilk="function" name="transfer" />
+            <scope ilk="function" name="use_types_at" />
+          </scope>
+          <scope ilk="class" name="Scalar" mixinrefs="Kernel" classrefs="YAML::Syck::Node">
+            <scope ilk="function" name="style=" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="class" name="Seq" mixinrefs="Kernel" classrefs="YAML::Syck::Node">
+            <scope ilk="function" name="add" />
+            <scope ilk="function" name="style=" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="function" name="compile" />
+          <variable name="DefaultResolver" attributes="__const__" citdl="YAML::Syck::Resolver"/>
+          <variable name="GenericResolver" attributes="__const__" citdl="YAML::Syck::Resolver"/>
+          <variable name="VERSION" attributes="__const__" citdl="String"/>
+        </scope>
+        <scope ilk="class" name="DomainType" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="domain" />
+          <scope ilk="function" name="domain=" />
+          <scope ilk="function" name="type_id" />
+          <scope ilk="function" name="type_id=" />
+          <scope ilk="function" name="value" />
+          <scope ilk="function" name="value=" />
+        </scope>
+        <scope ilk="class" name="Object" mixinrefs="Kernel">
+          <scope ilk="function" name="==" />
+          <scope ilk="function" name="===" />
+          <scope ilk="function" name="=~" />
+          <scope ilk="function" name="__id__" />
+          <scope ilk="function" name="__send__" />
+          <scope ilk="function" name="class" />
+          <scope ilk="function" name="class=" />
+          <scope ilk="function" name="clone" />
+          <scope ilk="function" name="display" />
+          <scope ilk="function" name="dup" />
+          <scope ilk="function" name="eql?" />
+          <scope ilk="function" name="equal?" />
+          <scope ilk="function" name="extend" />
+          <scope ilk="function" name="freeze" />
+          <scope ilk="function" name="frozen?" />
+          <scope ilk="function" name="hash" />
+          <scope ilk="function" name="id" />
+          <scope ilk="function" name="inspect" />
+          <scope ilk="function" name="instance_eval" />
+          <scope ilk="function" name="instance_of?" />
+          <scope ilk="function" name="instance_variable_get" />
+          <scope ilk="function" name="instance_variable_set" />
+          <scope ilk="function" name="instance_variables" />
+          <scope ilk="function" name="is_a?" />
+          <scope ilk="function" name="ivars" />
+          <scope ilk="function" name="ivars=" />
+          <scope ilk="function" name="kind_of?" />
+          <scope ilk="function" name="method" />
+          <scope ilk="function" name="methods" />
+          <scope ilk="function" name="nil?" />
+          <scope ilk="function" name="object_id" />
+          <scope ilk="function" name="private_methods" />
+          <scope ilk="function" name="protected_methods" />
+          <scope ilk="function" name="public_methods" />
+          <scope ilk="function" name="respond_to?" />
+          <scope ilk="function" name="send" />
+          <scope ilk="function" name="singleton_methods" />
+          <scope ilk="function" name="taint" />
+          <scope ilk="function" name="tainted?" />
+          <scope ilk="function" name="to_a" />
+          <scope ilk="function" name="to_s" />
+          <scope ilk="function" name="type" />
+          <scope ilk="function" name="untaint" />
+          <scope ilk="function" name="yaml_initialize" />
+        </scope>
+        <scope ilk="class" name="PrivateType" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="type_id" />
+          <scope ilk="function" name="type_id=" />
+          <scope ilk="function" name="value" />
+          <scope ilk="function" name="value=" />
+        </scope>
+      </scope>
+    </scope>

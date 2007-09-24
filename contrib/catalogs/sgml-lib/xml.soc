@@ -1,0 +1,109 @@
+OVERRIDE YES
+SGMLDECL "xml.dcl"
+
+PUBLIC "-//W3C//DTD Specification V2.0//EN"
+       "http://www.w3.org/XML/1998/06/xmlspec-v20.dtd"
+SYSTEM "spec.dtd"
+       "http://www.w3.org/XML/1998/06/xmlspec-v20.dtd"
+
+
+-- MathML --
+
+PUBLIC "-//W3C//DTD MathML 2.0//EN"
+       "REC-MathML2-20031021/mathml2.dtd"
+SYSTEM "http://www.w3.org/Math/DTD/mathml2/mathml2.dtd"
+       "REC-MathML2-20031021/mathml2.dtd"
+
+PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
+       "REC-MathML2-20031021/xhtml-math11-f.dtd"
+SYSTEM "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd"
+       "REC-MathML2-20031021/xhtml-math11-f.dtd"
+
+
+-- SVG --
+
+PUBLIC "-//W3C//DTD SVG 1.0//EN"
+       "REC-SVG-20010904/svg10.dtd"
+PUBLIC "-//W3C//DTD SVG 1.1//EN"
+       "REC-SVG11-20030114/svg11-flat.dtd"
+
+
+-- XHTML --
+
+PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+       "REC-xhtml11-20010531/xhtml11-flat.dtd"
+PUBLIC "-//W3C//ENTITIES XHTML 1.1 Document Model 1.0//EN"
+       "REC-xhtml11-20010531/xhtml11-model-1.mod"
+
+PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+       "REC-xhtml1-20020801/xhtml1-strict.dtd"
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "REC-xhtml1-20020801/xhtml1-transitional.dtd"
+PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
+       "REC-xhtml1-20020801/xhtml1-frameset.dtd"
+PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN"
+       "REC-xhtml1-20020801/xhtml-lat1.ent"
+PUBLIC "-//W3C//ENTITIES Symbols for XHTML//EN"
+       "REC-xhtml1-20020801/xhtml-symbol.ent"
+PUBLIC "-//W3C//ENTITIES Special for XHTML//EN"
+       "REC-xhtml1-20020801/xhtml-special.ent"
+
+PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
+       "REC-xhtml-basic-20001219/xhtml-basic10.dtd"
+PUBLIC "-//W3C//ENTITIES XHTML Basic 1.0 Document Model 1.0//EN"
+       "REC-xhtml-basic-20001219/xhtml-basic10-model-1.mod"
+
+
+-- XHTML + MathML + SVG --
+
+PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+       "xhtml-math-svg-flat-20020809.dtd"
+
+-- SMIL --
+
+-- DTD drivers --
+PUBLIC "-//W3C//DTD SMIL 1.0//EN"       "REC-smil-19980615/smil10.dtd"
+PUBLIC "-//W3C//DTD SMIL 2.0//EN"       "REC-smil20-20050107/SMIL20.dtd"
+PUBLIC "-//W3C//DTD SMIL 2.0 Basic//EN" "REC-smil20-20050107/SMIL20Basic.dtd"
+
+-- Framework utilities ---
+PUBLIC "-//W3C//ENTITIES SMIL 2.0 Modular Framework 1.0//EN"
+       "REC-smil20-20050107/smil-framework-1.mod"
+PUBLIC "-//W3C//ENTITIES SMIL 2.0 Datatypes 1.0//EN"
+       "REC-smil20-20050107/smil-datatypes-1.mod"
+PUBLIC "-//W3C//ENTITIES SMIL 2.0 Qualified Names 1.0//EN"
+       "REC-smil20-20050107/smil-qname-1.mod"
+PUBLIC "-//W3C//ENTITIES SMIL 2.0 Common Attributes 1.0//EN"
+       "REC-smil20-20050107/smil-attribs-1.mod"
+PUBLIC "-//W3C//ENTITIES SMIL 2.0 Document Model 1.0//EN"
+       "REC-smil20-20050107/smil-model-1.mod"
+
+-- SMIL 2.0 elements from section modules ---
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Document Structure//EN"
+       "REC-smil20-20050107/SMIL-struct.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Animation//EN"
+       "REC-smil20-20050107/SMIL-anim.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Content Control//EN"
+       "REC-smil20-20050107/SMIL-control.mod"
+
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Document Metainformation//EN"
+       "REC-smil20-20050107/SMIL-metainformation.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Layout//EN"
+       "REC-smil20-20050107/SMIL-layout.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Linking//EN"
+       "REC-smil20-20050107/SMIL-link.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Media Objects//EN"
+       "REC-smil20-20050107/SMIL-media.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Timing//EN"
+       "REC-smil20-20050107/SMIL-timing.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Transition//EN"
+       "REC-smil20-20050107/SMIL-transition.mod"
+PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Integration//EN"
+       "REC-smil20-20050107/SMIL-integrate.mod"
+
+-- Do not prefer document type name over a SYSTEM Identifier. --
+OVERRIDE NO
+
+-- Fallback if no FPI is given. --
+DOCTYPE html xml.dtd
+

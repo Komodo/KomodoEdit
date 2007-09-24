@@ -1,0 +1,280 @@
+<section>
+    
+<declarepackage>SilverCity</declarepackage>
+
+<heading>
+<package>SilverCity</package> 
+    --- Multilanguage lexical analysis package
+</heading>
+
+<p>SilverCity is a library that can provide lexical analysis for over 20 different 
+programming languages. SilverCity is packaged as both a C++ library and as a 
+Python extension. This documentation applies to the Python extension.</p>
+<p>At this point I'd like to acknoledge that this documentation is incomplete. Writting
+isn't a hobby of mine. So if you need any help, just let me know at &lt;brian@sweetapp.com&gt;.</p>
+<contents/>
+
+<seealso>
+    <see>
+        <ref href="http://www.scintilla.org/"/>
+        <title>Scintilla</title>
+        <description>Scintilla is the open-source source editing component
+        upon which SilverCity is built</description>
+    </see>
+    <see>
+        <ref href="http://www.python.org/doc/current/lib/module-tokenize.html"/>
+        <title>Python tokenize module</title>
+        <description>Python's built-in lexical scanner for Python source code.
+        </description>    </see>
+</seealso>
+
+<subsection>
+<title>Module Contents</title>
+<funcdesc>
+    <name>find_lexer_module_by_id</name>
+    <arguments>
+        <argument>id</argument>
+    </arguments>
+    <description>
+        The <function>find_lexer_module_by_id</function> function
+        returns a <class>LexerModule</class> object given an integer
+        constant. These constants are defined in the 
+        <refmodule>ScintillaConstants</refmodule> module.
+        <p>A <exception>ValueError</exception> is raised if the
+        provided constant does not map to a <class>LexerModule</class>.</p>
+    </description>
+</funcdesc>
+
+<funcdesc>
+    <name>find_lexer_module_by_name</name>
+    <arguments>
+        <argument>name</argument>
+    </arguments>
+    <description>
+        The <function>find_lexer_module_by_name</function> function
+        returns a <class>LexerModule</class> object given it's name.
+        <p>A <exception>ValueError</exception> is raised if no <class>LexerModule</class>
+        has the given name</p>
+    </description>
+</funcdesc>
+
+<classconstructor>
+    <name>WordList</name>
+    <arguments>
+        <argument default="yes">keywords</argument>
+    </arguments>
+    <description>
+        Create a new <class>WordList</class> instance. 
+        This class is used by the 
+        <class>LexerModule</class> class to determine which
+        words should be lexed as keywords.
+        <p>
+        <var>keywords</var> should be
+        a string containing keywords separated by spaces 
+        e.g. "and assert break class..."
+        </p>
+        <p><class>WordList</class> objects have no methods. They simply act as placeholders for 
+        language keywords.</p>
+    </description>
+</classconstructor>
+
+<classconstructor>
+    <name>PropertySet</name>
+    <arguments>
+        <argument default="yes">properties</argument>
+    </arguments>
+    <description>
+        Create a new <class>PropertySet</class> instance. 
+        This class is used by the 
+        <class>LexerModule</class> class to determine various
+        lexer options. For example, the 'styling.within.preprocessor'
+        property determines if the C lexer should use a single or
+        multiple lexical states when parsing C preprocessor expressions.
+        <p>
+        <var>properties</var> should be
+        a dictionary of lexer options.
+        </p>
+    </description>
+</classconstructor>
+</subsection>
+<subsection>
+<title>LexerModule objects</title>
+<p>The <class>LexerModule</class> class provides a single method:</p>
+<methoddesc>
+    <name>get_number_of_wordlists</name>
+    <arguments>
+    </arguments>
+    <description>
+        Returns the number of <class>WordLists</class> that the lexer requires. 
+        This is the number of <class>WordLists</class> that must be
+        passed to the <method>tokenize_by_style</method>.
+        <p>If the number of required WordLists cannot be determined, a ValueError,
+        is raised</p>
+    </description>
+</methoddesc>
+
+<methoddesc>
+    <name>tokenize_by_style</name>
+    <arguments>
+        <argument>source</argument>
+        <argument>keywords</argument>
+        <argument>propertyset</argument>
+        <argument default="yes">func</argument>
+    </arguments>
+    <description>
+        Lexes the provided source code into a list of tokens. Each token is a dictionary with the following
+        keys:
+        <p>
+            <table>
+                <thead><th>Key</th><th>Value</th></thead>
+                <tbody>
+                    <tr><td>style</td><td>The lexical style of the token e.g. 11</td></tr>
+                    <tr><td>text</td><td>The text of the token e.g. 'import'</td></tr>
+                    <tr><td>start_index</td><td>The index in <var>source</var> where the token begins e.g. 0</td></tr>
+                    <tr><td>end_index</td><td>The index in <var>source</var> where the token ends e.g. 5</td></tr>
+                    <tr><td>start_column</td><td>The column position (0-based) where the token begins e.g. 0</td></tr>
+                    <tr><td>end_column</td><td>The column position (0-based) where the token ends e.g. 5</td></tr>
+                    <tr><td>start_line</td><td>The line position (0-based) where the token begins e.g. 0</td></tr>
+                    <tr><td>end_line</td><td>The line position (0-based) where the token ends e.g. 0</td></tr>
+                </tbody>
+            </table>        
+        </p>
+        
+        <p><var>source</var> is a string containing the source code.
+
+        <var>keywords</var> is a list of <class>WordList</class> instances.
+        The number of <class>WordLists</class> that should be passed depends on the particular 
+        <class>LexerModule</class>.
+        
+        <var>propertyset</var> is a <class>PropertySet</class> instance.
+        The relevant properties are dependant on the particular <class>LexerModule</class>.</p>
+
+        <p>If the optional <var>func</var> argument is used, it must be a callable object. It will
+        be called, using keyword arguments, for each token found in the source. Since additional
+        keys may be added in the future, it is recommended that additional keys be collected e.g.
+        <example>
+            import SilverCity
+            from SilverCity import ScintillaConstants
+            
+            def func(style, text, start_column, start_line, **other_args): 
+                if style == ScintillaConstants.SCE_P_WORD and text == 'import':
+                    print 'Found an import statement at (%d, %d)' % (start_line + 1, start_column + 1)
+            
+            
+            keywords = SilverCity.WordList(SilverCity.Keywords.python_keywords)
+            properties = SilverCity.PropertySet()
+            lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_PYTHON)
+            
+            lexer.tokenize_by_style(source_code, keywords, properties, func)
+        </example></p>
+
+    </description>
+</methoddesc>
+</subsection>
+
+<subsection>
+<title>WordList objects</title>
+<p><class>WordList</class> objects have no methods. They simply act as placeholders for 
+language keywords.</p>
+</subsection>
+
+<subsection>
+<title>PropertySet objects</title>
+<p><class>PropertySet</class> objects have no methods. They act as dictionaries were the
+names of the properties are the keys. All keys must be strings, values will be converted to strings
+upon assignment i.e. retrieved values will always be strings. There is no mechanism to delete
+assigned keys.</p>
+<p>Different properties apply to different languages. The following table is a complete
+list of properties, the language that they apply to, and their meanings:</p>
+
+<table>
+    <thead><th>Property</th><th>Language</th><th>Values</th></thead>
+    <tbody>
+        <tr><td>asp.default.language</td><td>HTML</td>
+<td>Sets the default language for ASP scripts:<br/>
+0 => None<br/>
+1 => JavaScript<br/>
+2 => VBScript<br/>
+3 => Python<br/>
+4 => PHP<br/>
+5 => XML-based<br/>
+</td></tr>
+    <tr><td>styling.within.preprocessor</td><td>C++</td>
+<td>Determines if all preprocessor instruments should be lexed identically or
+if subexpressions should be given different lexical states:<br/>
+0 => Same<br/>
+1 => Different<br/>
+</td></tr>
+    <tr><td>tab.timmy.whinge.level</td><td>Python</td>
+<td>The property value is a bitfield that causes different types of  incorrect 
+whitespace characters to cause there lexical states to be incremeted by 64:<br/>
+0 => no checking<br/>
+1 => check for correct indenting<br/>
+2 => check for literal tabs<br/>
+4 => check for literal spaces used as tabs<br/>
+8 => check for mixed tabs and spaces<br/>
+</td></tr>
+    </tbody>
+</table>
+<p>Example <class>PropertySet</class> usage:
+<example>
+    import SilverCity
+    
+    propset = SilverCity.PropertySet({'styling.within.preprocessor' : 0})
+    propset['styling.within.preprocessor'] = 1 # changed my mind
+</example>
+</p>
+</subsection>
+
+<subsection>
+<title>Language Modules</title>
+<p>There are submodules available for many of the languages supported by SilverCity.</p>
+<p>These submodules offer a slightly more convenient interface for tokenization and have
+HTML generation code. Here is an example using the Python submodule:
+<example>
+    >>> from SilverCity import Python
+    >>> Python.PythonLexer().tokenize_by_style('import test')
+    [{'style': 5, 'end_line': 0, 'end_column': 5, 'text': 'import', 'start_line': 0,
+     'start_column': 0, 'start_index': 0, 'end_index': 5}, {'style': 0, 'end_line':
+    0, 'end_column': 6, 'text': ' ', 'start_line': 0, 'start_column': 6, 'start_inde
+    x': 6, 'end_index': 6}, {'style': 11, 'end_line': 0, 'end_column': 10, 'text': '
+    test', 'start_line': 0, 'start_column': 7, 'start_index': 7, 'end_index': 10}]
+    >>> import StringIO
+    >>> test_file = StringIO.StringIO()
+    >>> Python.PythonHTMLGenerator().generate_html(StringIO.StringIO(), 'import test')
+    >>> test_file.getvalue()
+    &lt;span class="p_word">import&lt;/span>&lt;span class="p_default">&amp;nbsp;&lt;/span>&lt;span cl
+    ass="p_identifier">test&lt;/span>'
+</example>
+All of the language modules have the same interface. Here is another example for the C++ language:
+<example>
+    >>> from SilverCity import CPP
+    >>> test_file = StringIO.StringIO()
+    >>> CPP.CPPHTMLGenerator().generate_html(test_file, 'return 5+5')
+    >>> test_file.getvalue()
+    '&lt;span class="c_word">return&lt;/span>&lt;span class="c_default">&amp;nbsp;&lt;/span>&lt;span cl
+    ass="c_number">5&lt;/span>&lt;span class="c_operator">+&lt;/span>&lt;span class="c_number">5
+    &lt;/span>'
+    >>>
+</example>
+</p>
+</subsection>
+
+<subsection>
+<title>Stuff that should be documented better</title>
+<p>The <module>ScintillaConstants</module> module contains a list of lexer identifiers
+(used by <function>find_lexer_module_by_id</function>) and lexical states for each
+<class>LexerModule</class>. You should take a look at this module to find the states
+that are useful for your programming language.</p>
+<p>The <module>Keywords</module> module contains lists of keywords that can be
+used to create <class>WordList</class> objects.</p>
+<p>There are also some modules that package <function>tokenize_by_style</function>
+into a class that offers a visitor pattern (think SAX). You don't have to worry about these
+modules if you don't want to. But, if you do, they are all written in Python so you can probably
+muddle through.</p>
+<p>Note that some lexer that are supported by Scintilla, are not supported by 
+<package>SilverCity</package>. This is because I am lazy. Any contributions are welcome
+(and should be pretty easy to make).</p>
+</subsection>
+
+</section>

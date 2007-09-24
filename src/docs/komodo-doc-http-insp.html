@@ -1,0 +1,241 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>HTTP Inspector</title>
+</head>
+
+<body>
+  <h1><a name="http_top" id="http_top">HTTP Inspector</a>
+  <span class="version_alert">Komodo IDE only</span></h1>
+
+  <p>The <strong>HTTP Inspector</strong> is used to examine HTTP
+  requests and responses as they happen. It runs a local proxy
+  service to intercepts HTTP traffic and display each
+  transaction.</p>
+
+  <p>Transactions highlighted in the <strong>Transaction</strong>
+  table are displayed in detail in the <strong>Request</strong> and
+  <strong>Response</strong> panes below.</p>
+
+  <h2><a name="http_start_inspector" id=
+  "http_start_inspector">Starting the HTTP Inspector</a></h2>
+
+  <p>The HTTP Inspector runs a local proxy for intercepting HTTP
+  traffic. Start the proxy by opening the HTTP Inspector
+  (<strong>Tools</strong>|<strong>HTTP Inspector</strong>) and
+  selecting the <strong>Start</strong> button on the
+  <strong>Inspector</strong> toolbar.</p>
+
+  <p>Alternatively, set Komodo to start the HTTP Inspector proxy
+  automatically at startup. Under
+  <strong>Preferences</strong>|<strong>HTTP Inspector</strong>,
+  select <strong>Run HTTP Inspector in the background when Komodo
+  starts up</strong>. If you want to run the Inspector on a port
+  other than 8080 (the default) specify it in the <strong>Listen on
+  port</strong> field.</p>
+
+  <p>If you are working behind a web proxy (i.e. at your network
+  gateway) you can specify the hostname and port of the proxy for
+  the HTTP Inspector to forward connections through. Select
+  <strong>Enable proxy forwarding</strong> and enter the hostname
+  and port (e.g. <code>host.example.org:18080</code>) of the proxy.
+  If no port is specified Komodo will attempt to use port 8080.</p>
+
+  <h2><a name="http_browser_connect" id=
+  "http_browser_connect">Connecting the Browser</a></h2>
+
+  <p>Once the HTTP Inspector is running, your browser must be
+  configured to connect to it. Set the browser's internet
+  connection settings to point to the HTTP proxy on
+  <code>localhost:8080</code> (default). If you've set the
+  Inspector to use a different port, use the port specified above
+  in <strong>Preferences</strong>|<strong>HTTP Inspector</strong>.
+  If you are running the browser on a different machine, specify
+  the hostname of the system running Komodo.</p>
+
+  <p>Debugging HTTP connections may require you to switch back and
+  forth from using the Inspector to making a direct connection to
+  the internet. If this is the case you may find it useful to
+  configure a separate browser for debugging HTTP, or use a browser
+  plugin (e.g. <a target="_blank" href=
+  "https://addons.mozilla.org/firefox/125/">SwitchProxy Tool</a>
+  for Firefox) that allows you to change your proxy configuration
+  quickly.</p>
+
+  <p><strong>Note</strong>: The HTTP Inspector does not unencrypt
+  HTTPS (encrypted) sessions.</p>
+
+  <h2><a name="http_inspect" id="http_inspect">Inspecting the HTTP
+  Data</a></h2>
+
+  <p>Once Komodo and your browser have been configured to debug
+  HTTP sessions, load the page you are trying to analyze:</p>
+
+  <ol>
+    <li>If it is not already running, <a href=
+    "#http_start_inspector">start the HTTP Inspector</a></li>
+
+    <li>Load the page in the browser</li>
+
+    <li>Watch the HTTP transactions (request/response pairs).</li>
+
+    <li>Select a transaction to view details in the
+    <strong>Request</strong> and <strong>Response</strong> panes. A
+    data dump of the transactions can be seen in the data buffer
+    panes below.</li>
+  </ol>
+
+  <p>By default, the <strong>Transaction</strong> table shows the
+  following columns:</p>
+
+  <ul>
+    <li>State: This appears blank for an uninterrupted transaction.
+    If a <a href="#http_break">Break on Request/Response</a> has
+    been selected, an icon will appear in this column indicating
+    the break state of the current transaction (Request or
+    Response).</li>
+
+    <li>Time: Time of the transaction.</li>
+
+    <li>Duration: How long the transaction took.</li>
+
+    <li>Method: HTTP method used (GET, POST, etc.)</li>
+
+    <li>Status: Status returned by the server.</li>
+
+    <li>Size: Amount of data transferred in bytes
+    (content-length.</li>
+
+    <li>Content: MIME content-type.</li>
+
+    <li>URL: Full URL of the target.</li>
+  </ul><!-- XXX: not yet fully implemented.
+
+<p>These additional fields can be added to the table by clicking the Add
+Columns button at the top right corner of the table:</p>
+
+<ul>
+ <li>Id: A number assigned by the HTTP Inspector. This numbering is
+ reset when the Inspector is restarted.</li>
+ <li>Name: Name of the saved transaction.</li>
+ <li>Client Address: The IP address of the Inspector proxy. </li>
+</ul>
+-->
+
+  <h2><a name="http_break" id="http_break">Break on
+  Request/Response</a></h2>
+
+  <p>Selecting <strong>Break on every Request</strong> <img class=
+  "icon" src="img/break_request.png" /> or <strong>Break on every
+  Response</strong> <img class="icon" src=
+  "img/break_response.png" /> in the toolbar will stop on the
+  appropriate part of the next transaction. The request or response
+  can then be edited before being submitted. The current break
+  state of the transaction will appear in the
+  <strong>State</strong> column in the main Inspector window.</p>
+
+  <h3><a name="edit_transaction" id="edit_transaction">Editing a
+  Request/Response</a></h3>
+
+  <p>All fields, headers and data buffers in the
+  <strong>Request</strong> and <strong>Response</strong> panes are
+  editable in the relevant break state.</p>
+
+  <p>If the response is returned in a compressed format (i.e. the
+  response headers contain a "gzip" content-encoding) the unzipped
+  data will be displayed in the data buffer. If any modifications
+  are made, the data will be re-compressed before being passed back
+  to the browser.</p>
+
+  <p>When modifying request or response data, the content-length
+  header will be automatically modified to match the length of data
+  in the corresponding data buffer.</p>
+
+  <h2><a name="http_ruleset" id="http_ruleset">Rules</a></h2>
+
+  <p>Rules perform specified actions when a certain HTTP request or
+  response is detected. They can be created
+  (<strong>New...</strong>), edited (<strong>Edit...</strong>),
+  removed (<strong>Delete</strong>) and ordered (<strong>Move
+  Up</strong> and <strong>Move Down</strong>). The order of the
+  rules can be important as all matching rules are processed
+  sequentially.</p>
+
+  <p>The following parameters can be set for each rule:</p>
+
+  <ul>
+    <li><strong>Rule Name</strong>: Arbitrary name for the
+    rule.</li>
+
+    <li><strong>Rule Type</strong>: Match on a request, a response,
+    or either one.</li>
+
+    <li>
+      <strong>Tests</strong>: The match criteria for triggering a
+      rule.
+
+      <ul>
+        <li><strong>Match on all|any of the following</strong>: One
+        or more match criteria can be set. This option selects
+        whether the match should apply to <strong>all</strong> or
+        <strong>any</strong> of the match criteria.</li>
+
+        <li><strong>Request/Response part to match</strong>: The
+        rule can match against the URL, Method, Status, Version,
+        Header or Data fields of an HTTP Request or Response.</li>
+
+        <li><strong>Match type</strong>: Use
+        <strong>contains</strong> for a substring match or
+        <strong>regex</strong> for a regular expresion pattern
+        (Python syntax)</li>
+
+        <li><strong>Match string</strong>: The string or pattern
+        which triggers the rule.</li>
+      </ul>
+    </li>
+
+    <li>
+      <strong>Actions</strong>: Specifies one or more actions to be
+      taken once a rule is triggered. The following actions are
+      available:
+
+      <ul>
+        <li><strong>Break</strong>: <a href=
+        "#http_break">Breaks</a> at the point the rule is
+        triggered. The HTTP Inspector window must be open for the
+        break to occur.</li>
+
+        <li><strong>Delay</strong>: Delays the request or response
+        by a specified number of seconds. Use up to three decimal
+        places to specify milliseconds (e.g. 0.001 = 1 ms). Use
+        <strong>literal</strong> to specify the exact value, or
+        <strong>random</strong> to set a range.</li>
+
+        <li><strong>Timeout</strong>: Wait for the HTTP
+        timeout.</li>
+
+        <li><strong>Modify Field</strong>: Change the value of a
+        Method, URL, Client IP, Status or Data.</li>
+
+        <li><strong>Set Header</strong>: Add a new header or change
+        the value of an existing one.</li>
+
+        <li><strong>Remove Header</strong>: Remove a named
+        header.</li>
+      </ul>
+    </li>
+  </ul>
+  <hr />
+</body>
+</html>

@@ -1,0 +1,35 @@
+<codeintel version="2.0">
+  <file lang="TemplateToolkit" mtime="42" path="scan_inputs/ttkt-test02-withjs.ttkt.html">
+    <scope ilk="blob" lang="JavaScript" name="ttkt-test02-withjs.ttkt.html" src="scan_inputs/ttkt-test02-withjs.ttkt.html">
+      <variable citdl="Number" line="10" name="a" />
+      <variable citdl="$ab.cd" line="11" name="$b" />
+      <scope ilk="class" line="18" lineend="21" name="myfunc">
+        <scope attributes="__ctor__" ilk="function" line="18" lineend="21" name="myfunc" signature="myfunc()">
+          <variable citdl="myfunc" name="this" />
+        </scope>
+        <variable citdl="String" line="19" name="classVar1" />
+        <variable citdl="Number" line="20" name="num" />
+        <scope ilk="function" line="24" lineend="26" name="list" signature="list()">
+          <variable citdl="myfunc" name="this" />
+        </scope>
+        <scope ilk="function" line="29" lineend="36" name="strFunc" signature="strFunc(s)">
+          <variable ilk="argument" name="s" />
+          <variable citdl="myfunc" name="this" />
+          <variable attributes="__local__ private" citdl="String" line="30" name="copyOfS" />
+        </scope>
+      </scope>
+      <variable citdl="myfunc" line="38" name="mf" />
+      <variable citdl="String" line="39" name="s" />
+      <variable citdl="Number" line="43" name="gNum" />
+    </scope>
+    <scope ilk="blob" lang="Perl" name="ttkt-test02-withjs.ttkt.html">
+      <variable line="53" name="$d" />
+      <variable attributes="__local__" line="57" name="$d1" />
+      <scope ilk="function" line="50" lineend="55" name="foo" signature="foo($a, $b)">
+        <variable ilk="argument" name="$a" />
+        <variable ilk="argument" name="$b" />
+        <variable attributes="__local__" citdl="LWP::UserAgent" line="52" name="$c" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

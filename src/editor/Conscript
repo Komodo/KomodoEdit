@@ -1,0 +1,46 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'unsiloedPythonExe',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+    'sdkDir',
+);
+
+
+$cons->Install($idlExportDir, 'koIAutoComplete.idl');
+$cons->Install($idlExportDir, 'koICallTips.idl');
+$cons->Install($idlExportDir, 'koIViewController.idl');
+$cons->BuildAndInstallXpt('koIAutoComplete.idl');
+$cons->BuildAndInstallXpt('koICallTips.idl');
+$cons->BuildAndInstallXpt('koIViewController.idl');
+
+$cons->InstallXpcomComponent('koTclCompletion.py');
+$cons->InstallXpcomComponent('koPerlCompletion.py');
+$cons->InstallXpcomComponent('koPerlAutoComplete.py');
+$cons->InstallXpcomComponent('koPerlCallTips.py');
+
+$cons->Preprocess('koLanguageCommandHandler.p.py','koLanguageCommandHandler.py');
+$cons->InstallXpcomComponent('koLanguageCommandHandler.py');
+
+$cons->InstallPythonUtility('scimozindent.py');
+
+$cons->Install("$supportDir/tcl", 'tcl-core.tip');
+$cons->Install("$supportDir/tcl", 'tk-core.tip');
+
+$cons->Install("$supportDir/perl", 'perl-core.tip');
+
+

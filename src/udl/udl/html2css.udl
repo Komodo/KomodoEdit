@@ -1,0 +1,79 @@
+
+family markup
+
+# States to switch into CSS
+
+# This is a lot like going into a JS script tag, but it's hard
+# to parameterize this and keep the language simple.
+# Copy/paste/replace city.
+
+# Let the main markup description handle a single '<'
+# Here we look for an instance of the style keyword to determine
+# whether to start transitioning into CSS
+
+# In most states an "<" indicates the lexer is no longer handling
+# a style tag, and it bails out back into markup mode.
+
+state IN_M_STAG_EXP_TNAME:
+/style\b/i : paint(upto, M_STAGO), paint(include, M_TAGNAME), => IN_H2CSS_STAG_POST_TAGNAME
+
+state IN_H2CSS_STAG_POST_TAGNAME:
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_CSS_DEFAULT
+# empty tag : nothing to lex inside it.
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
+
+# If we find a src attribute, there shouldn't be any script to process,
+# so bail back to the regular html state.
+/src\b/i : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), => IN_M_STAG_POST_ATTRNAME_1
+/[$CS]/ : paint(upto, M_TAGSPACE) => IN_H2CSS_STAG_IN_ATTRNAME
+# Assume a < means we're out of sync, bail
+'<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+state IN_H2CSS_STAG_IN_ATTRNAME
+/[^$CS]/ :  paint(upto, M_ATTRNAME), redo, => IN_H2CSS_STAG_POST_ATTRNAME_1
+
+state IN_H2CSS_STAG_POST_ATTRNAME_1
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_H2CSS_STAG_POST_ATTRNAME_2
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo => IN_H2CSS_STAG_POST_TAGNAME
+'<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+# This is complicated because HTML can have unquoted attribute values
+
+state IN_H2CSS_STAG_POST_ATTRNAME_2
+'\"' : paint(upto, M_TAGSPACE), => IN_H2CSS_STAG_ATTR_DSTRING
+'\'' : paint(upto, M_TAGSPACE), => IN_H2CSS_STAG_ATTR_SSTRING
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC), => IN_CSS_DEFAULT
+# Bail out
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo, => IN_H2CSS_STAG_ATTR_USTRING # unquoted
+
+state IN_H2CSS_STAG_ATTR_DSTRING:
+'"' : paint(include, M_STRING), => IN_H2CSS_STAG_POST_TAGNAME
+'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
+
+state IN_H2CSS_STAG_ATTR_SSTRING:
+'\'' : paint(include, M_STRING), => IN_H2CSS_STAG_POST_TAGNAME
+'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
+
+state IN_H2CSS_STAG_ATTR_USTRING:
+'>'    : paint(upto, M_STRING), paint(include, M_STAGC), => IN_CSS_DEFAULT
+# Empty-tag bail
+'/>'    : paint(upto, M_STRING), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+/[$WS]/ : paint(upto, M_STRING), => IN_H2CSS_STAG_POST_TAGNAME
+'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
+
+# Allow for style attributes
+
+state IN_M_STAG_POST_TAGNAME:
+/(?:[a-zA-Z]*:)?style\b/i: paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME) => IN_H2CSS_STYLE_ATTR_1
+
+state IN_H2CSS_STYLE_ATTR_1:
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_H2CSS_STYLE_ATTR_2
+# bail
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo => IN_M_STAG_POST_TAGNAME
+
+state IN_H2CSS_STYLE_ATTR_2:
+/[$WS]+/ : #stay
+/(["'])/ : set_delimiter(1), paint(upto, M_TAGSPACE), paint(include, M_STRING), => IN_CSS_STAG_ATTR_DEFAULT
+# bail, but allow for other handling of attribute values
+/./ : paint(upto, M_TAGSPACE), redo, => IN_M_STAG_POST_ATTRNAME_2

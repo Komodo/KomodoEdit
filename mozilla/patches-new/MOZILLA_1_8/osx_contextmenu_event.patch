@@ -1,0 +1,21 @@
+Index: content/events/src/nsEventStateManager.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/content/events/src/nsEventStateManager.cpp,v
+retrieving revision 1.595.2.9
+diff -d -u -r1.595.2.9 nsEventStateManager.cpp
+--- content/events/src/nsEventStateManager.cpp	27 Sep 2005 00:04:13 -0000	1.595.2.9
++++ content/events/src/nsEventStateManager.cpp	15 Oct 2005 23:22:00 -0000
+@@ -1320,11 +1323,13 @@
+                                type == NS_FORM_INPUT_FILE ||
+                                type == NS_FORM_TEXTAREA);
+         }
++#if 0 // ACTIVESTATE we want this for scintilla
+         else if (tag == nsHTMLAtoms::applet ||
+                  tag == nsHTMLAtoms::embed  ||
+                  tag == nsHTMLAtoms::object) {
+           allowedToDispatch = PR_FALSE;
+         }
++#endif
+       }
+ 
+       if (allowedToDispatch) {

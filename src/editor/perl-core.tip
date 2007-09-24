@@ -1,0 +1,231 @@
+version PerlTip-1.0
+
+abs [VALUE]
+accept NEWSOCKET, GENERICSOCKET
+alarm [SECONDS]
+atan2 Y, X
+bind SOCKET, NAME
+binmode FILEHANDLE, [DISCIPLINE]
+bless REF, [CLASSNAME]
+caller [EXPR]
+chdir EXPR
+chmod LIST
+chomp [VARIABLE|LIST]
+chop [VARIABLE|LIST]
+chown LIST
+chr NUMBER
+chr
+chroot [FILENAME]
+close [FILEHANDLE]
+closedir DIRHANDLE
+connect SOCKET, NAME
+continue BLOCK
+cos [EXPR]
+crypt PLAINTEXT, SALT
+dbmclose HASH
+dbmopen HASH, DBNAME, MASK
+defined [EXPR]
+delete EXPR
+die LIST
+do BLOCK
+do SUBROUTINE(LIST)
+do EXPR
+dump [LABEL]
+each HASH
+eof FILEHANDLE
+eof ()
+eof
+eval [EXPR|BLOCK]
+exec [PROGRAM] LIST
+exists EXPR
+exit EXPR
+exp [EXPR]
+fcntl FILEHANDLE, FUNCTION, SCALAR
+fileno FILEHANDLE
+flock FILEHANDLE, OPERATION
+fork
+format
+formline PICTURE, LIST
+getc [FILEHANDLE]
+getlogin
+getpeername SOCKET
+getpgrp PID
+getppid
+getpriority WHICH, WHO
+getpwnam NAME
+getgrnam NAME
+gethostbyname NAME
+getnetbyname NAME
+getprotobyname NAME
+getpwuid UID
+getgrgid GID
+getservbyname NAME, PROTO
+gethostbyaddr ADDR, ADDRTYPE
+getnetbyaddr ADDR, ADDRTYPE
+getprotobynumber NUMBER
+getservbyport PORT, PROTO
+getpwent
+getgrent
+gethostent
+getnetent
+getprotoent
+getservent
+setpwent
+setgrent
+sethostent STAYOPEN
+setnetent STAYOPEN
+setprotoent STAYOPEN
+setservent STAYOPEN
+endpwent
+endgrent
+endhostent
+endnetent
+endprotoent
+endservent
+getsockname SOCKET
+getsockopt SOCKET, LEVEL, OPTNAME
+glob [EXPR]
+gmtime EXPR
+goto [LABEL|EXPR,&NAME]
+grep [BLOCK LIST | EXPR, LIST]
+hex [EXPR]
+import
+index STR, SUBSTR, [POSITION]
+int [EXPR]
+ioctl FILEHANDLE, FUNCTION, SCALAR
+join EXPR, LIST
+keys HASH
+kill SIGNAL, LIST
+last [LABEL]
+lc [EXPR]
+lcfirst [EXPR]
+length [EXPR]
+link OLDFILE, NEWFILE
+listen SOCKET, QUEUESIZE
+local EXPR
+localtime EXPR
+lock
+log [EXPR]
+lstat [FILEHANDLE|EXPR]
+m//
+map BLOCK LIST
+map EXPR, LIST
+mkdir FILENAME, [MASK]
+msgctl ID, CMD, ARG
+msgget KEY, FLAGS
+msgrcv ID, VAR, SIZE, TYPE, FLAGS
+msgsnd ID, MSG, FLAGS
+my EXPR [: ATTRIBUTES]
+next [LABEL]
+no Module LIST
+oct [EXPR]
+open FILEHANDLE, MODE, LIST
+open FILEHANDLE, EXPR
+open FILEHANDLE
+opendir DIRHANDLE, EXPR
+ord [EXPR]
+our EXPR
+pack TEMPLATE, LIST
+package [NAMESPACE]
+pipe READHANDLE, WRITEHANDLE
+pop [ARRAY]
+pos [SCALAR]
+print [[FILEHANDLE] LIST]
+printf [FILEHANDLE] FORMAT, LIST
+prototype FUNCTION
+push ARRAY, LIST
+q/STRING/
+qq/STRING/
+qr/STRING/
+qx/STRING/
+qw/STRING/
+quotemeta [EXPR]
+rand [EXPR]
+read FILEHANDLE, SCALAR, LENGTH, [OFFSET]
+readdir DIRHANDLE
+readline EXPR
+readlink [EXPR]
+readpipe EXPR
+recv SOCKET, SCALAR, LENGTH, FLAGS
+redo [LABEL]
+ref [EXPR]
+rename OLDNAME, NEWNAME
+require [VERSION|EXPR]
+reset [EXPR]
+return [EXPR]
+reverse LIST
+rewinddir DIRHANDLE
+rindex STR, SUBSTR, [POSITION]
+rmdir [FILENAME]
+s///
+scalar EXPR
+seek FILEHANDLE, POSITION, WHENCE
+seekdir DIRHANDLE, POS
+select [FILEHANDLE]
+select RBITS, WBITS, EBITS, TIMEOUT
+semctl ID, SEMNUM, CMD, ARG
+semget KEY, NSEMS, FLAGS
+semop KEY, OPSTRING
+send SOCKET, MSG, FLAGS, [TO]
+send SOCKET, MSG, FLAGS
+setpgrp PID, PGRP
+setpriority WHICH, WHO, PRIORITY
+setsockopt SOCKET, LEVEL, OPTNAME, OPTVAL
+shift [ARRAY]
+shmctl ID, CMD, ARG
+shmget KEY, SIZE, FLAGS
+shmread ID, VAR, POS, SIZE
+shmwrite ID, STRING, POS, SIZE
+shutdown SOCKET, HOW
+sin [EXPR]
+sleep [EXPR]
+socket SOCKET, DOMAIN, TYPE, PROTOCOL
+socketpair SOCKET1, SOCKET2, DOMAIN, TYPE, PROTOCOL
+sort [SUBNAME|BLOCK] LIST
+splice ARRAY, [OFFSET, [LENGTH, [LIST]]]
+split [/PATTERN/, [EXPR, [LIMIT]]]
+sprintf FORMAT, LIST
+sqrt [EXPR]
+srand [EXPR]
+stat [FILEHANDLE|EXPR]
+study [SCALAR]
+sub BLOCK
+sub NAME, [BLOCK]
+substr EXPR, OFFSET, [LENGTH, [REPLACEMENT]]
+symlink OLDFILE, NEWFILE
+syscall LIST
+sysopen FILEHANDLE, FILENAME, MODE, [PERMS]
+sysread FILEHANDLE, SCALAR, LENGTH, [OFFSET]
+sysseek FILEHANDLE, POSITION, WHENCE
+system [PROGRAM] LIST
+syswrite FILEHANDLE, SCALAR, [LENGTH, [OFFSET]]
+tell [FILEHANDLE]
+telldir DIRHANDLE
+tie VARIABLE, CLASSNAME, LIST
+tied VARIABLE
+time
+times
+tr///
+truncate [FILEHANDLE|EXPR], LENGTH
+uc [EXPR]
+ucfirst [EXPR]
+umask [EXPR]
+undef [EXPR]
+unlink [LIST]
+unpack TEMPLATE, EXPR
+untie VARIABLE
+unshift ARRAY, LIST
+use Module VERSION LIST
+use Module VERSION
+use Module LIST
+use Module
+use VERSION
+utime LIST
+values HASH
+vec EXPR, OFFSET, BITS
+wait
+waitpid PID, FLAGS
+wantarray
+warn LIST
+write [FILEHANDLE|EXPR]
+y///

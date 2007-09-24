@@ -1,0 +1,94 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// This allows for querying of
+// information on a particular installation of an application.
+[scriptable, uuid(61a45a55-0cb0-4019-b1a7-8096ab2cca88)]
+interface koIAppInfoEx : nsISupports {
+    // Query for a list of found installations of this application.
+    void FindInstallationPaths(out PRUint32 count,
+                               [retval,
+                                array,
+                                size_is(count)] out wstring strs);
+    // Given the path to an interpreter binary, return the
+    // path of the installation
+    wstring getInstallationPathFromBinary(in wstring binaryPath);
+
+    // The specific installation path for which the other attributes
+    // apply to. It may be required for this to be set for certain
+    // attributes to be determined.
+    attribute wstring installationPath;
+
+    // The path to the executable for the interpreter e.g. "usr/bin/perl"
+    attribute wstring executablePath;
+
+    // True if user is licensed for the current version of this app.
+    // (For an app that does not require a license this will always be
+    //  true.)
+    attribute boolean haveLicense;
+
+    // version (duh, null if don't know how to determine)
+    attribute string version;
+    // The build number. (May be null if it is not applicable.)
+    attribute long buildNumber;
+
+    // path to local help file (null if none)
+    attribute wstring localHelpFile;
+    // Web URL to main help file (null if none)
+    attribute wstring webHelpURL;
+};
+
+[scriptable, uuid(3E2D6B06-3488-4069-B471-2510DE0109C2)]
+interface koIPerlInfoEx : koIAppInfoEx {
+    // Return true if the current Perl installation has the given modules.
+    boolean haveModules(in PRUint32 count,
+                        [array, size_is(count)] in wstring modules);
+    wstring getVersionForBinary(in wstring binaryPath);
+};
+
+
+[scriptable, uuid(e31fcd80-dca2-4174-8d7d-243423775b95)]
+interface koIPHPInfoEx : koIAppInfoEx {
+    // The PHP.ini file which would be used by the given PHP installation.
+    // NOTE: This cannot handle the case where an alternate PHP.ini file
+    //       is typically specified on the command line of the PHP
+    //       invocation.
+    attribute wstring cfg_file_path;
+    // get the sapi version (cgi, cgi-fcgi, cli, etc.)
+    readonly attribute wstring sapi;
+    readonly attribute wstring cliExecutable;
+    readonly attribute wstring cgiExecutable;
+
+    void FindInstallationExecutables(out PRUint32 count,
+                               [retval,
+                                array,
+                                size_is(count)] out wstring strs);
+
+    // Configuration items of interest.
+    // where php looks for included files
+    readonly attribute wstring include_path;
+    void GetIncludePathArray(out PRUint32 count,    // must use method
+                             [retval,               // retval to return array
+                              array,
+                              size_is(count)] out wstring strs);
+    // where activedebug extension is located
+    readonly attribute wstring extension_dir;
+    // determines if php is 4.0.5 or later
+    readonly attribute boolean valid_version;
+    // True if the ActiveState debugging extension is loadable.
+    readonly attribute boolean isDebuggerExtensionLoadable;
+    
+    wstring autoConfigureDebugger();
+};
+
+[scriptable, uuid(6e94fcbf-4e62-11db-9b45-000d935d3368)]
+interface koIRubyInfoEx : koIAppInfoEx {
+    readonly attribute boolean valid_version;
+    void FindInstallationExecutables(out PRUint32 count,
+                               [retval,
+                                array,
+                                size_is(count)] out wstring strs);
+};
+

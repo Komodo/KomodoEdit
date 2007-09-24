@@ -1,0 +1,24 @@
+family markup
+
+state IN_M_DEFAULT:
+
+/{%\s+comment\s+%\}/ : paint(upto, M_DEFAULT), => IN_TPL_COMMENTBLOCK
+
+'{%' : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_DEFAULT
+
+'{{'  : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_DEFAULT), => IN_TPL_DEFAULT
+
+# See djangolex.txt for details on this state
+
+# And django transitions can show up in attribute strings too
+
+state IN_M_STAG_ATTR_DSTRING:
+'{{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_DSTRING), \
+	=> IN_TPL_DEFAULT
+
+state IN_M_STAG_ATTR_SSTRING:
+'{{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_SSTRING), \
+	=> IN_TPL_DEFAULT 

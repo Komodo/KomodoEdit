@@ -1,0 +1,37 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'buildFlavour',
+    'mozExtensionDir',
+);
+
+if ($buildFlavour ne "full") { # don't want this in installer builds
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/testrunner.xul", 'testrunner.xul');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/unittest.js", 'unittest.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/komodoOverlay.xul", 'komodoOverlay.xul');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/recorder.xul", 'recorder.xul');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/recorder.js", 'recorder.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/logger.js", 'logger.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/xpath.js", 'xpath.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/events.js", 'events.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/json.js", 'json.js');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/tasksOverlay.xul", 'tasksOverlay.xul');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/tasksOverlay-ff.xul", 'tasksOverlay-ff.xul');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/content/tasksOverlay-tb.xul", 'tasksOverlay-tb.xul');
+}
+

@@ -1,0 +1,259 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2004-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    "build",
+    "platform",
+    "komodoVersion",
+    "mozComponentsDir",
+    "mozIdlIncludePath",
+    "mozChromeDir",
+    "mozExtensionDir",
+    "mozBin",
+    "idlExportDir",
+    "ranRegxpcomStateFileName",
+    "mozChromeDir",
+    "productType",
+    "version",
+);
+
+my $imagesDir = "$mozChromeDir/komodo/skin/images";
+
+# Code Intelligence system icons
+$cons->Install($imagesDir, "icons/codeintel_sort_by_file_order.gif");
+$cons->Install($imagesDir, "icons/codeintel_sort_alphabetically.gif");
+$cons->Install($imagesDir, "icons/codeintel_sort_by_access.gif");
+$cons->Install($imagesDir, "icons/codeintel_sort_by_type.gif");
+$cons->Install($imagesDir, "icons/codeintel_group_by_type.gif");
+$cons->Install($imagesDir, "icons/codeintel_search.gif");
+$cons->Install($imagesDir, "icons/codeintel_search_disable.gif");
+
+$cons->Install($imagesDir, "icons/cb_scanning.png");
+$cons->Install($imagesDir, "icons/cb_error.png");
+$cons->Install($imagesDir, "icons/cb_function.png");
+$cons->Install($imagesDir, "icons/cb_function_private.png");
+$cons->Install($imagesDir, "icons/cb_function_protected.png");
+$cons->Install($imagesDir, "icons/cb_class.png");
+$cons->Install($imagesDir, "icons/cb_class_private.png");
+$cons->Install($imagesDir, "icons/cb_class_protected.png");
+$cons->Install($imagesDir, "icons/cb_variable.png");
+$cons->Install($imagesDir, "icons/cb_variable_private.png");
+$cons->Install($imagesDir, "icons/cb_variable_protected.png");
+$cons->Install($imagesDir, "icons/cb_argument.png");
+$cons->Install($imagesDir, "icons/cb_argument_private.png");
+$cons->Install($imagesDir, "icons/cb_argument_protected.png");
+$cons->Install($imagesDir, "icons/cb_import.png");
+$cons->Install($imagesDir, "icons/cb_instance_variable.png");
+$cons->Install($imagesDir, "icons/cb_instance_variable_private.png");
+$cons->Install($imagesDir, "icons/cb_instance_variable_protected.png");
+$cons->Install($imagesDir, "icons/cb_interface.png");
+$cons->Install($imagesDir, "icons/cb_interface_protected.png");
+$cons->Install($imagesDir, "icons/cb_interface_private.png");
+$cons->Install($imagesDir, "icons/cb_namespace.png");
+
+
+$cons->Install($imagesDir, "icons/lang_perl.png");
+$cons->Install($imagesDir, "icons/lang_python.png");
+$cons->Install($imagesDir, "icons/lang_php.png");
+$cons->Install($imagesDir, "icons/lang_tcl.png");
+$cons->Install($imagesDir, "icons/lang_xml.png");
+$cons->Install($imagesDir, "icons/lang_ruby.png");
+
+
+# AutoComplete UI images.
+$cons->Install($imagesDir, "icons/xpm/ac_class.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_directory.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_function.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_module.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_variable.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_variable_scalar.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_variable_array.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_variable_hash.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_interface.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_namespace.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_xml_element.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_xml_attribute.xpm");
+
+# Find system icons
+$cons->Install($imagesDir, "icons/find_stop.png");
+$cons->Install($imagesDir, "icons/find_stop_hover.png");
+$cons->Install($imagesDir, "icons/find_stop_disable.png");
+
+$cons->Install($imagesDir, "icons/find.png");
+$cons->Install($imagesDir, "icons/find_in_files.png");
+
+
+# Other tool icons
+$cons->InstallAs("$imagesDir/preview_in_browser.png", "icons/preview.png");
+$cons->InstallAs("$imagesDir/preview_in_browser_hover.png", "icons/preview-hover.png");
+$cons->InstallAs("$imagesDir/preview_in_browser_disable.png", "icons/preview-disabled.png");
+
+
+# Right/left/bottom pane internal icons and icons for the "Workspace" toolbar
+$cons->Install($imagesDir, "icons/minimize_left.gif");
+$cons->Install($imagesDir, "icons/minimize_left_hover.gif");
+$cons->Install($imagesDir, "icons/minimize_left_disable.gif");
+$cons->Install($imagesDir, "icons/minimize_right.png");
+$cons->Install($imagesDir, "icons/minimize_right_hover.png");
+$cons->Install($imagesDir, "icons/minimize_right_disable.png");
+$cons->Install($imagesDir, "icons/minimize_down.gif");
+$cons->Install($imagesDir, "icons/minimize_down_hover.gif");
+$cons->Install($imagesDir, "icons/minimize_down_disable.gif");
+
+$cons->Install($imagesDir, "icons/show_left_pane.png");
+$cons->Install($imagesDir, "icons/show_left_pane_hover.png");
+$cons->Install($imagesDir, "icons/hide_left_pane.png");
+$cons->Install($imagesDir, "icons/hide_left_pane_hover.png");
+$cons->Install($imagesDir, "icons/show_right_pane.png");
+$cons->Install($imagesDir, "icons/show_right_pane_hover.png");
+$cons->Install($imagesDir, "icons/hide_right_pane.png");
+$cons->Install($imagesDir, "icons/hide_right_pane_hover.png");
+$cons->Install($imagesDir, "icons/show_bottom_pane.png");
+$cons->Install($imagesDir, "icons/show_bottom_pane_hover.png");
+$cons->Install($imagesDir, "icons/hide_bottom_pane.png");
+$cons->Install($imagesDir, "icons/hide_bottom_pane_hover.png");
+
+# Macro icons
+# Other macro icons are coming from src/images/famfamfam[_derived]/...
+# now. This one still needs a replacement at some point.
+$cons->Install($imagesDir, "icons/macro.png");
+
+
+# Other icons
+$cons->Install($imagesDir, "icons/list_item_add.png");
+$cons->Install($imagesDir, "icons/list_item_add_hover.png");
+$cons->Install($imagesDir, "icons/list_item_add_disable.png");
+$cons->Install($imagesDir, "icons/list_item_edit.png");
+$cons->Install($imagesDir, "icons/list_item_edit_hover.png");
+$cons->Install($imagesDir, "icons/list_item_edit_disable.png");
+$cons->Install($imagesDir, "icons/list_item_remove.png");
+$cons->Install($imagesDir, "icons/list_item_remove_hover.png");
+$cons->Install($imagesDir, "icons/list_item_remove_disable.png");
+
+$cons->Install($imagesDir, "icons/tree_select.png");
+$cons->Install($imagesDir, "icons/tree_select_hover.png");
+$cons->Install($imagesDir, "icons/tree_select_disable.png");
+
+$cons->Install($imagesDir, "icons/grippy.png");
+$cons->Install($imagesDir, "icons/grippy_vertical.png");
+$cons->Install($imagesDir, "icons/grippy_horizontal.png");
+$cons->Install($imagesDir, "icons/grippy_horizontal_left.png");
+$cons->Install($imagesDir, "icons/grippy_horizontal_right.png");
+$cons->Install($imagesDir, "icons/grippy_vertical_up.png");
+$cons->Install($imagesDir, "icons/grippy_vertical_down.png");
+
+# Other images
+$cons->Install($imagesDir, "other/calltip_screenshot.gif");
+$cons->Install($imagesDir, "other/komodo_icon.gif");
+$cons->Install($imagesDir, "other/progress-busy.gif");
+
+# derived famfamfam icons
+$cons->InstallAs("$imagesDir/redo.png", "famfamfam_derived/arrow_redo.png");
+$cons->InstallAs("$imagesDir/redo_hover.png", "famfamfam_derived/arrow_redo_hover.png");
+$cons->InstallAs("$imagesDir/redo_disabled.png", "famfamfam_derived/arrow_redo_disabled.png");
+
+$cons->InstallAs("$imagesDir/undo.png", "famfamfam_derived/arrow_undo.png");
+$cons->InstallAs("$imagesDir/undo_hover.png", "famfamfam_derived/arrow_undo_hover.png");
+$cons->InstallAs("$imagesDir/undo_disabled.png", "famfamfam_derived/arrow_undo_disabled.png");
+
+$cons->InstallAs("$imagesDir/macro_pause.png", "famfamfam_derived/control_pause_blue.png");
+$cons->InstallAs("$imagesDir/macro_pause_hover.png", "famfamfam_derived/control_pause_hover.png");
+$cons->InstallAs("$imagesDir/macro_pause_disable.png", "famfamfam_derived/control_pause.png");
+
+$cons->InstallAs("$imagesDir/macro_play.png", "famfamfam_derived/control_play_blue.png");
+$cons->InstallAs("$imagesDir/macro_play_hover.png", "famfamfam_derived/control_play_hover.png");
+$cons->InstallAs("$imagesDir/macro_play_disable.png", "famfamfam_derived/control_play.png");
+
+$cons->InstallAs("$imagesDir/macro_record.png", "famfamfam_derived/control_record_blue.png");
+$cons->InstallAs("$imagesDir/macro_record_hover.png", "famfamfam_derived/control_record_hover.png");
+$cons->InstallAs("$imagesDir/macro_record_disable.png", "famfamfam_derived/control_record.png");
+
+$cons->InstallAs("$imagesDir/macro_save.png", "famfamfam_derived/control_save_blue.png");
+$cons->InstallAs("$imagesDir/macro_save_hover.png", "famfamfam_derived/control_save_hover.png");
+$cons->InstallAs("$imagesDir/macro_save_disable.png", "famfamfam_derived/control_save.png");
+
+$cons->InstallAs("$imagesDir/macro_stop.png", "famfamfam_derived/control_stop_blue.png");
+$cons->InstallAs("$imagesDir/macro_stop_hover.png", "famfamfam_derived/control_stop.png");
+$cons->InstallAs("$imagesDir/macro_stop_disable.png", "famfamfam_derived/control_stop.png");
+
+$cons->InstallAs("$imagesDir/cut_hover.png", "famfamfam_derived/cut_red.png");
+$cons->InstallAs("$imagesDir/cut.png", "famfamfam_derived/cut.png");
+$cons->InstallAs("$imagesDir/cut_disabled.png", "famfamfam_derived/cut_disabled.png");
+
+$cons->InstallAs("$imagesDir/copy.png", "famfamfam_derived/page_copy.png");
+$cons->InstallAs("$imagesDir/copy_hover.png", "famfamfam_derived/page_copy_hover.png");
+$cons->InstallAs("$imagesDir/copy_disabled.png", "famfamfam_derived/page_copy_disabled.png");
+
+$cons->InstallAs("$imagesDir/paste.png", "famfamfam_derived/page_paste.png");
+$cons->InstallAs("$imagesDir/paste_hover.png", "famfamfam_derived/page_paste_hover.png");
+$cons->InstallAs("$imagesDir/paste_disabled.png", "famfamfam_derived/page_paste_disabled.png");
+
+$cons->InstallAs("$imagesDir/print_button.png", "famfamfam_derived/printer.png");
+$cons->InstallAs("$imagesDir/print_button_hover.png", "famfamfam_derived/printer_hover.png");
+$cons->InstallAs("$imagesDir/print_button_disabled.png", "famfamfam_derived/printer_disabled.png");
+
+$cons->InstallAs("$imagesDir/help.png", "famfamfam_derived/help.png");
+$cons->InstallAs("$imagesDir/help_hover.png", "famfamfam_derived/help_hover.png");
+$cons->InstallAs("$imagesDir/help_disabled.png", "famfamfam_derived/help_disabled.png");
+
+$cons->InstallAs("$imagesDir/save.png", "famfamfam_derived/disk.png");
+$cons->InstallAs("$imagesDir/save_hover.png", "famfamfam_derived/disk_hover.png");
+$cons->InstallAs("$imagesDir/save_disabled.png", "famfamfam_derived/disk_disabled.png");
+
+$cons->InstallAs("$imagesDir/saveAll.png", "famfamfam_derived/disk_multiple.png");
+$cons->InstallAs("$imagesDir/saveAll_hover.png", "famfamfam_derived/disk_multiple_hover.png");
+$cons->InstallAs("$imagesDir/saveAll_disabled.png", "famfamfam_derived/disk_multiple_disabled.png");
+
+$cons->InstallAs("$imagesDir/newText.png", "famfamfam_derived/newText.png");
+$cons->InstallAs("$imagesDir/newText_hover.png", "famfamfam_derived/newText_hover.png");
+$cons->InstallAs("$imagesDir/newText_disabled.png", "famfamfam_derived/newText_disabled.png");
+
+$cons->InstallAs("$imagesDir/open.png", "famfamfam_derived/folder.png");
+$cons->InstallAs("$imagesDir/open_hover.png", "famfamfam_derived/folder_hover.png");
+$cons->InstallAs("$imagesDir/open_disabled.png", "famfamfam_derived/folder_disabled.png");
+
+$cons->InstallAs("$imagesDir/wand.png", "famfamfam_derived/wand.png");
+$cons->InstallAs("$imagesDir/wand_hover.png", "famfamfam_derived/wand_hover.png");
+$cons->InstallAs("$imagesDir/wand_disabled.png", "famfamfam_derived/wand_disabled.png");
+
+
+# Raw famfamfam icons
+# (Eventually we may just want to install a bunch of these for users to
+# use in toolbar stuff.)
+my %images = (
+    "famfamfam_derived/arrow_up.png" => "$imagesDir/famfamfam/arrow_up.png",
+    "famfamfam_derived/arrow_down.png" => "$imagesDir/famfamfam/arrow_down.png",
+    "famfamfam_derived/page_white_go.png" => "$imagesDir/famfamfam/page_white_go.png",
+    "famfamfam_derived/information.png" => "$imagesDir/famfamfam/information.png",
+);
+foreach my $src (keys %images) {
+    my $dst = $images{$src};
+    $cons->InstallAs($dst, $src);
+}
+
+
+
+# Install the about box images.
+my $aboutSrc;
+if ($komodoVersion =~ /alpha/) {
+    $aboutSrc = "other/about_" . $productType . "_alpha.png";
+} elsif ($komodoVersion =~ /beta/) {
+    $aboutSrc = "other/about_" . $productType . "_beta.png";
+} else {
+    $aboutSrc = "other/about_" . $productType . ".png";
+}
+$cons->InstallAs("$imagesDir/about.png", $aboutSrc);
+
+
+# install famfamfam extension
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfam/silkicons.jar');
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/install.rdf", 'famfamfam/install.rdf');
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfamfam/chrome.manifest');
+
+# install openoffice extension
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/industrial.jar", 'openoffice/industrial.jar');
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/install.rdf", 'openoffice/install.rdf');
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/chrome.manifest", 'openoffice/chrome.manifest');

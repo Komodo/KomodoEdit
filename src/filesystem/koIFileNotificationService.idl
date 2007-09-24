@@ -1,0 +1,126 @@
+/* Copyright (c) 2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIFileEx.idl"
+
+/*
+ * Description:
+ *   Watches for file changes in the operating system and sends observer
+ *   notifications to Komodo when a watched file has changed. Komodo starts this
+ *   service and then adds and removes files to be watched as needed.
+ */
+
+
+/*
+ * koIFileNotificationObserver:
+ *   When a change happens that matches the watched parameters the notification
+ *   service will call the observers fileNotification with the given path and
+ *   changes.
+ */
+[scriptable, uuid(02359788-0942-44CC-9A76-DAD84E83B44E)]
+interface koIFileNotificationObserver: nsISupports {
+
+    //   uri      - the uri of the location that has changed
+    //   flags    - notify flags, what has changed regarding this path
+    //              Will be combo of NOTIFY_FILE_CREATED, NOTIFY_FILE_DELETED etc.
+    void fileNotification(in wstring uri, in long flags);
+};
+
+
+/*
+ * koIFileNotificationService:
+ *   Anything that wants to watch files or directories must pass an object
+ *   that implements this koIFileNotificationObserver interface. This is usually
+ *   a koIFile, koIProject object or similar. When a change happens that matches
+ *   the given watch parameters, the notification service will call the
+ *   fileNotification function of the observer (koIFileNotificationObserver) with
+ *   the given path and changes.
+ */
+[scriptable, uuid(6219D7E6-2E56-4602-96A8-417943FCFBA8)]
+interface koIFileNotificationService: nsISupports {
+
+    // watch_type - Type of watch to perform (used in addObserver)
+    const long WATCH_FILE = 0;
+    const long WATCH_DIR = 1;
+    const long WATCH_DIR_RECURSIVE = 2;
+
+    // flags - filesystem notifications available to watch for
+    //   (used in addObserver and the koIFileNotificationObserver)
+    const long FS_FILE_CREATED      = 0x01;
+    const long FS_FILE_DELETED      = 0x02;
+    const long FS_FILE_MODIFIED     = 0x04;
+    //const long FS_FILE_SPARE        = 0x08;
+    const long FS_DIR_CREATED       = 0x10;
+    const long FS_DIR_DELETED       = 0x20;
+    const long FS_DIR_MODIFIED      = 0x40;
+    // Unknown was added to deal with samba, where a notification error
+    // occurs for windows system watching samba shares:
+    // http://bugs.activestate.com/show_bug.cgi?id=50838
+    // exc: (59, 'ReadDirectoryChangesW', 'An unexpected network error occurred.')
+    // Returns this value for the path being observed
+    const long FS_UNKNOWN           = 0x80;
+    const long FS_NOTIFY_ALL        = 0xFF;
+    // For when an observer's path is deleleted, or when the observer is
+    // explicitly removed
+    //const long FS_OBSERVER_REMOVED     = 0x100;    // Needed ??
+
+    // Start monitoring filesystem changes
+    // Return value:
+    //     Returns 1 on success
+    //     Returns 0 on failure (unable to start the file notification service)
+    long startNotificationService();
+
+    // Stop monitoring filesystem changes
+    void stopNotificationService();
+
+    // Watch this location and notify when the given flag is changed
+    //   observer   - koIFileNotificationObserver to which notifications get sent
+    //   path       - the filename or uri of the location to watch
+    //                XXX: Only supports filename at present
+    //   watch_type - what type of watch this is (file, dir, recursive dir)
+    //   flags      - notify flags, a notification will be sent when this happens
+    // Notes:
+    //   - Raises ServerException when unable to monitor the path
+    //   - The service stops monitoring this path for this observer if the file or
+    //     directory being watched is deleted. If the observer is set to watch for
+    //     the delete notification (FS_DIR_DELETED or FS_FILE_DELETED), this
+    //     notification is sent prior to the observer being removed.
+    //   - When checking a directory recusively, no notifications will be sent for
+    //     recursive paths that have a symlinked cylical path. I.e. when checking
+    //     recusively on "dir1", no change notifications will be sent for the path
+    //     dir1->dir3->dir1_link (or any subpaths of dir1_link).
+    //     dir1->
+    //        dir2
+    //        dir3->
+    //           dir1_link (link to dir1 two dirs above)
+    // Todo:
+    //   - Add a depth to watch, useful to avoid un-necessary processing, i.e. for
+    //     a live folder that has not been fully expanded.
+    void addObserver(in koIFileNotificationObserver observer,
+                     in wstring path,
+                     in long watch_type,
+                     in long flags);
+
+    // Stop watching this location for the given observer.
+    //   observer - koIFileNotificationObserver to which addObserver was called
+    //   path     - the filename or uri of the location being watched
+    void removeObserver(in koIFileNotificationObserver observer,
+                        in wstring path);
+
+    // URI's that are being polled by the file notification service
+    void getAllPolledUris([array, size_is(count)] out wstring urilist,
+                           out PRUint32 count);
+
+    // XXX - Not used yet, RFU.
+    // Send observer notification the file has changed to all observers
+    //   path: the Komodo filename or URI for this location
+    //void sendNotification(in wstring path);
+
+    // Print out all the directories and files being watched
+    void dump();    // XXX - Remove this later ???
+
+    // Whether this OS supports file change notifications from the kernel level
+    // If this is false, a general file polling service will be used
+    readonly attribute boolean os_notifications_available;
+};

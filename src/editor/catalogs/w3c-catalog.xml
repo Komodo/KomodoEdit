@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+    <!-- w3c has no master catalog, this is used by Komodo for those w3c
+        dtd's that we want to ship with Komodo -->
+
+    <!-- voicexml 2.x http://www.w3.org/2001/vxml
+                    <!DOCTYPE vxml 
+                         PUBLIC "-//W3C//DTD VOICEXML 2.0//EN" 
+                         "http://www.w3.org/TR/voicexml20/vxml.dtd">
+    -->
+
+    <public publicId="-//W3C//DTD VOICEXML 2.0//EN" 
+            uri="vxml.dtd"/>
+    <system systemId="http://www.w3.org/TR/voicexml20/vxml.dtd"
+            uri="vxml.dtd"/>
+    <uri name="http://www.w3.org/2001/vxml"
+         uri="vxml.dtd"/>
+
+</catalog>

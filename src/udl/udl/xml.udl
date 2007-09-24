@@ -1,0 +1,14 @@
+# The standard XML lexer
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+include "markup-base.udl"
+sublanguage XML
+
+# Unlike HTML, in XML an unquoted attribute value is an error,
+# so we leave this state and go back to the default.
+
+state IN_M_STAG_POST_ATTRNAME_2
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo, => IN_M_DEFAULT

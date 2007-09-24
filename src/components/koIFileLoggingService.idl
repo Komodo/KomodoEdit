@@ -1,0 +1,22 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Support for file logging of arbitrary measurements.
+//
+// The intention of the log file output format is to make it easy to import
+// data into a database of some kind for post-processing/analysis.
+
+[scriptable, uuid(900ae54d-8b49-4dd9-8329-d60fa154541c)]
+interface koIFileLoggingService : nsISupports {
+    wstring GetLogFileName(in string category);
+    void LogMeasurement(in string category,
+                        in string name,
+                        in wstring measurement);
+    void LogMeasurementSet(in string category,
+                           in string name,
+                           in PRUint32 count,
+                           [array, size_is(count)] in wstring measurements);
+};
+

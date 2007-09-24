@@ -1,0 +1,35 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\Date\Calc.pm">
+    <scope ilk="blob" lang="Perl" name="Calc">
+      <scope classrefs="Exporter DynaLoader" ilk="class" line="12" lineend="315" name="Date::Calc">
+        <import line="17" module="Exporter" />
+        <import line="18" module="DynaLoader" />
+        <variable line="15" name="$VERSION" />
+        <variable line="15" name="%EXPORT_TAGS" />
+        <variable line="15" name="@EXPORT" />
+        <variable line="15" name="@EXPORT_OK" />
+        <variable line="15" name="@ISA" />
+        <scope attributes="__exportable__" ilk="function" line="105" lineend="175" name="Decode_Date_EU2" signature="Decode_Date_EU2($buffer)">
+          <variable ilk="argument" name="$buffer" />
+          <variable attributes="__local__" line="111" name="$day" />
+          <variable attributes="__local__" line="111" name="$length" />
+          <variable attributes="__local__" line="111" name="$month" />
+          <variable attributes="__local__" line="111" name="$year" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="177" lineend="283" name="Decode_Date_US2" signature="Decode_Date_US2($buffer)">
+          <variable ilk="argument" name="$buffer" />
+          <variable attributes="__local__" line="183" name="$day" />
+          <variable attributes="__local__" line="183" name="$length" />
+          <variable attributes="__local__" line="183" name="$month" />
+          <variable attributes="__local__" line="183" name="$year" />
+        </scope>
+        <scope attributes="__exportable__" ilk="function" line="285" lineend="313" name="Parse_Date" signature="Parse_Date($date)">
+          <variable ilk="argument" name="$date" />
+          <variable attributes="__local__" line="291" name="$day" />
+          <variable attributes="__local__" line="291" name="$month" />
+          <variable attributes="__local__" line="291" name="$year" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

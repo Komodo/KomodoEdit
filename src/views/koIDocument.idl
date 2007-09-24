@@ -1,0 +1,235 @@
+/* Copyright (c) 2003-2006 ActiveState Software Inc.
+ * See the file LICENSE.txt for licensing information.
+ */
+
+#include "nsISupports.idl"
+
+#include "koIFileEx.idl"
+#include "koIEncoding.idl"
+#include "koIPrefs.idl"
+#include "koILanguage.idl"
+#include "ISciMoz.idl"
+#include "nsIObserverService.idl"
+
+interface koIDocumentSettingsManager;
+interface koICodeIntelBuffer;
+
+/* A koIDocument instance represents the contents of a file in Komodo,
+ * whether saved or unsaved.
+ */
+[scriptable, uuid(BE0B2F5D-DB83-427B-9C41-FA8E890F81AF)]
+interface koIDocument : nsISupports
+{
+    void initWithFile(in koIFileEx file, in boolean untitled);
+    void initWithURI(in wstring URI); // Cruft? No-one is using this. --TM
+    void initUntitled(in wstring name, in wstring encoding);
+
+    // Basic operations.
+    //
+    // Each of load(), save() and revert() can raise an exception if
+    // the operation fails. If so the error is set on the
+    // koILastErrorService.
+    void load();
+    void save(in boolean forceSave); 
+    void revert(); 
+
+    // Manual reference counting.
+    void addReference();
+    void releaseReference();
+
+    // The baseName and displayPath for untitled documents is just its
+    // name.
+    attribute wstring baseName;
+    readonly attribute wstring displayPath;
+
+    // The file that this document corresponds to, or NULL if untitled
+    // document.
+    readonly attribute koIFileEx file;
+
+    attribute koICodeIntelBuffer ciBuf;
+
+    attribute wstring buffer; // The contents of the document
+    readonly attribute long bufferLength;
+
+    attribute boolean isDirty; // There are unsaved changes to the document.
+    attribute boolean isUntitled;
+    
+    // Returns true if the contents of the file on disk have changed from
+    // the last save/load/revert or call to differentOnDisk.  It DOES NOT
+    // compare against the current contents of the buffer in memory.
+    boolean differentOnDisk();
+
+    // The EOL_* constants must remain in sync with the ones in eol.py
+    const long EOL_LF = 0;
+    const long EOL_CR = 1;
+    const long EOL_CRLF = 2;
+    // EOL to use for new lines
+    // - Must be one of the above three EOL_* constants.
+    attribute long new_line_endings;
+    const long EOL_MIXED = 3;
+    const long EOL_NOEOL = 4;
+    // Getting/setting this involves reading/changing the document.
+    // - Can be any of the above five EOL_* constants.
+    //XXX Might want to add a get_dominant_line_ending() method to know
+    //    what to use when existing_line_endings returns EOL_MIXED.
+    attribute long existing_line_endings;
+
+    void cleanLineEndings();
+
+    attribute wstring language;  // what language is this document in?
+    attribute koILanguage languageObj;  // what language object corresponds to language?
+    // subLanguage returns the language for the current position in the
+    // document. the document must be using a UDL buffer, otherwise it is the
+    // same as language above 
+    readonly attribute wstring subLanguage; 
+
+    // encoding support
+    attribute long codePage; // the code page -- 65001 if unicode
+    attribute koIEncoding encoding; // The name of the Unicode encoding -- undefined if codepage is not 65001
+    readonly attribute boolean isEncodable; // true if the file can be encoded using it's current encoding settings
+    void setEncodingFromEncodingName(in string encoding_name);
+    void forceEncodingFromEncodingName(in string encoding_name);
+    // encodedText must be an 8bit string as it is the byte representation of a file
+    // that is only used for saving a buffer (see autoSave)
+    readonly attribute ACString encodedText;
+    readonly attribute ACString utf8Text;
+    void removeUnencodeable();  
+
+    void setBufferAndEncoding(in wstring buffer, in string encoding_name);
+
+    // document prefset
+    readonly attribute koIPreferenceSet prefs;
+    // see if this document is in the current project, if so, use those
+    // prefs, if not, find it in any open project and use those prefs.
+    // if the document is not in a project, the return is the prefs above
+    koIPreferenceSet getEffectivePrefs();
+    // this gets the *language*ExtraPaths preference, from the prefset
+    // returned by getEffectivePrefs.
+    void getExtraPaths([array, size_is(count)] out wstring paths,
+                             out unsigned long count);
+    
+    void saveState(in koIScintillaView scintilla);
+    
+    // Maintain a list of editor views that are using this document.
+    // XXX we will want to revisit this and make it less scintilla-specific
+    void addView(in koIScintillaView scintilla);
+    void releaseView(in koIScintillaView scintilla);
+    koIScintillaView getView(); // return first view
+    readonly attribute long numScintillas; // the number of scintillas for this view.
+    
+    // Users can observe changes of a number of document attributes.
+    readonly attribute nsIObserverService observerService;
+
+    // The indentation parameters are derived from prefs if they exist
+    // in prefs, or guessed from analysis of the document if not.
+    attribute long tabWidth;    // number of spaces that a tab character uses in display
+    attribute boolean useTabs;  // true if tabs are used for indentation
+    attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
+    wstring getUnsavedChanges();
+    
+    // removeAutoSaveFile should only called from the viewManager
+    // canClose handler.  Other uses are internal to koDocument.  The
+    // auto save file is removed by revert and save.
+    void removeAutoSaveFile();
+
+    boolean haveAutoSave();
+    void forceAutoSave();
+    void doAutoSave();
+    void restoreAutoSave();
+    wstring getAutoSaveFileName();
+    koIFileEx getAutoSaveFile();
+    readonly attribute koIDocumentSettingsManager docSettingsMgr;
+};
+
+/*
+ * The koIDocumentService knows all of the open documents.
+ */
+[scriptable, uuid(CA0A2B77-781B-49E9-B394-B6F8DD56700E)]
+interface koIDocumentService: nsISupports
+{
+    wstring getUntitledNameForLanguage(in wstring language);
+    koIDocument createDocumentFromFile(in koIFileEx file);
+    koIDocument createDocumentFromURI(in wstring uri);
+    koIDocument createDocumentFromTemplate(in wstring content,
+                                           in wstring encodingName,
+                                           in wstring name,
+                                           in wstring ext);
+    koIDocument createNewDocumentFromTemplate(in wstring content,
+                                           in wstring encodingName,
+                                           in wstring uri,
+                                           in boolean savenow);
+    koIDocument createUntitledDocument(in string language);
+    void getAllDocuments([array, size_is(count)] out koIDocument documents,
+                     out PRUint32 count);
+    koIDocument findDocumentByURI(in wstring URI);
+
+    // Interpolate the old (deprecated) template code in the given content.
+    //
+    // This functionality will be removed in the version of Komodo
+    // after Komodo 2.5 (replaced by interpolation shortcuts).
+    wstring deprecatedInterpolateTemplate(in wstring content);
+    
+    // This should indicate that it is intended to be an error line with
+    // a parseable filepath and line number.
+    void parseHotspotLine(in wstring line,
+                          in wstring cwd,
+                          out PRUint32 count,
+                          [array, size_is(count)] out wstring results);
+    
+    //XXX These are not implemented so shouldn't be here. Suspect this is
+    //    relic from before koIDiff was added.
+    wstring diffFiles(in wstring uri1, in wstring uri2);
+    wstring diffDocuments(in koIDocument doc1, in koIDocument doc2);
+};
+
+/* The koIDocumentSettingsManager manages the transfer of data between
+ * document prefs and scintilla views.  There is one per document.
+ */
+[scriptable, uuid(F42C1036-6AAA-4B9A-8623-B398983095E3)]
+interface koIDocumentSettingsManager : nsISupports {
+    void register(in koIDocument document, in koIScintillaView scintilla);
+    void unregister(in koIScintillaView scintilla);
+    void applyViewSettingsToDocument(in koIScintillaView scintilla);
+    void applyDocumentSettingsToView(in koIScintillaView scintilla);
+};
+
+
+// koIDiff usage:
+// 1. Initialize with one of the init*() methods
+// 2. Use the data or extra methods for info.
+[scriptable, uuid(0c70afc1-a195-4578-8c5e-f82cd0aba531)]
+interface koIDiff : nsISupports
+{
+    void initByDiffingFiles(in wstring fname1, in wstring fname2);
+    void initByDiffingDocuments(in koIDocument doc1, in koIDocument doc2);
+    void initWithDiffContent(in wstring diff);
+
+
+    readonly attribute wstring diff;    // the diff content
+    readonly attribute wstring warning; // a possible warning about the diff
+    // These two are not available if initialized via initWithDiffContent().
+    readonly attribute koIDocument doc1;
+    readonly attribute koIDocument doc2;
+    
+    // Find the file and file position corresponding to the given position
+    // in the diff.
+    //
+    // All line and column numbers are 0-based.
+    //
+    // Raises an exception if it could not be determined. The reason is set
+    // on koILastErrorService. Note also that 'filePath' could be relative.
+    void filePosFromDiffPos(in PRUint32 line,
+                            in PRUint32 column,
+                            out wstring filePath,
+                            out PRUint32 fileLine,
+                            out PRUint32 fileColumn);
+
+    // Infer, if possible, an appropriate 'cwd' and 'strip' (i.e.
+    // `patch -p <val>`) given different paths in the diff and actual on disk.
+    //
+    // Raises an exception if it could not infer these.
+    void inferCwdAndStripFromPath(in wstring pathInDiff,
+                                  in wstring actualPath,
+                                  out wstring cwd,
+                                  out PRUint32 strip);
+};

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2007 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<overlay id="updatesOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://komodo/content/library/logging.js"        type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/trace.js"          type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/dialogs.js"        type="application/x-javascript"/>
+    <script src="chrome://komodo/content/browse.js"                 type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/windowManager.js"  type="application/x-javascript"/>
+
+    <script><![CDATA[
+    function onclick_handler(event) {
+        var url = event.target.getAttribute("href");
+        if (url && url.match(/^\w+:\/\//)) {
+            ko.browse.openUrlInDefaultBrowser(url);
+            event.stopPropagation();
+            event.preventDefault();
+            event.cancelBubble = true;
+        }
+    }
+    
+    window.addEventListener("click", onclick_handler, true);
+    ]]></script>
+
+
+</overlay>

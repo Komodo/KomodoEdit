@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project kpf_version="2" name="webservices.kpf">
+<preference-set id="webservices">
+</preference-set>
+<file url="reversephonelookup.pm">
+ </file>
+<file url="babel_news.py">
+ </file>
+</project>

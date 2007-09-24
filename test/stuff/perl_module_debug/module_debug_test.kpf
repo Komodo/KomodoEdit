@@ -1,0 +1,8 @@
+<project name="module_debug_test.kpf">
+<files>
+ <file url="program.pl">
+ </file>
+ <file url="module.pm">
+ </file>
+</files>
+</project>

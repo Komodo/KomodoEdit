@@ -1,0 +1,22 @@
+    <scope ilk="blob" lang="Ruby" name="nkf">
+      <scope ilk="namespace" name="NKF">
+        <scope ilk="function" name="guess" />
+        <scope ilk="function" name="guess1" />
+        <scope ilk="function" name="guess2" />
+        <scope ilk="function" name="nkf" />
+        <variable name="ASCII" attributes="__const__" citdl="Fixnum"/>
+        <variable name="AUTO" attributes="__const__" citdl="Fixnum"/>
+        <variable name="BINARY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="EUC" attributes="__const__" citdl="Fixnum"/>
+        <variable name="JIS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="NKF_RELEASE_DATE" attributes="__const__" citdl="String"/>
+        <variable name="NKF_VERSION" attributes="__const__" citdl="String"/>
+        <variable name="NOCONV" attributes="__const__" citdl="Fixnum"/>
+        <variable name="SJIS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="UNKNOWN" attributes="__const__" citdl="Fixnum"/>
+        <variable name="UTF16" attributes="__const__" citdl="Fixnum"/>
+        <variable name="UTF32" attributes="__const__" citdl="Fixnum"/>
+        <variable name="UTF8" attributes="__const__" citdl="Fixnum"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+      </scope>
+    </scope>

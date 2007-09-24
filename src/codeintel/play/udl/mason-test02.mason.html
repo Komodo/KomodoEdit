@@ -1,0 +1,116 @@
+ % my $var;
+<ol>
+<&| list_items , list => \@items, var => \$var, 'zigmatx' &>
+<li> <% $var %>
+</&>
+</ol>
+
+# relative component paths
+<& topimage &>
+</&>
+<& tools/searchbox &>
+</&>
+
+# absolute component path
+<& /shared/masthead, color=>'salmon' &>
+</&>
+
+# this component path MUST have quotes because it contains a comma
+<& "sugar,eggs", mix=>1 &>
+
+# variable component path
+</&>
+<& $comp &>
+
+# variable component and arguments
+</&>
+<& $comp, %args &>
+
+# you can use arbitrary expression for component path, but it cannot
+# begin with a letter or number; delimit with () to remedy this
+</&>
+<& (int(rand(2)) ? 'thiscomp' : 'thatcomp'), id=>123 &>
+</&>
+<&| /path/to/comp &> this is the content </&>
+
+ <&| comp, arg1 => 'hi' &> filters can take arguments </&>
+<&| comp &> content can include <% "tags" %> of all kinds </&>
+<&| comp1 &> nesting is also <&| comp2 &> OK </&> </&>
+<&| SELF:method1 &> subcomponents can be filters </&>
+
+<&| /i18n/itext &>
+     <en>Hello, <% $name %> This is a string in English</en>
+     <de>Schoene Gruesse, <% $name %>, diese Worte sind auf Deutsch</de>
+     <pig>ellohay <% substr($name,2).substr($name,1,1).'ay' %>,
+     isthay isay igpay atinlay</pig>
+  </&>
+    
+<% $text %>
+
+<%init>
+# this assumes $lang is a global variable which has been set up earlier.
+local $_ = $m->content;
+my ($text) = m{<$lang>(.*?)</$lang>};
+</%init>
+
+Here is a simple example using the second method:
+
+% my $var;
+<ol>
+<&| list_items , list => \@items, var => \$var &>
+<li> <% $var %>
+</&>
+</ol>
+
+list_items component:
+
+<%args>
+@list
+$var
+</%args>
+% foreach (@list) {
+% $$var = $_;  # $var is a reference
+<% $m->content %>
+% }
+
+Using global variables can be somew
+   
+<%init>
+my $ua = $r->header_in('User-Agent');
+return ($ua =~ /Mozilla/i && $ua !~ /MSIE/i) ? 1 : 0;
+</%init>
+
+% if ($m->comp('is_netscape')) {
+Welcome, Netscape user!
+% }
+<%perl>my $req = $m->make_subrequest( comp => '/some/comp', args => [ id => 172 ] );
+$req->exec;
+</%perl>
+
+%#If you want to capture the subrequest's output in a scalar, you can simply pass an out_method parameter to $m->make_subrequest:
+
+<%perl>
+my $buffer;
+my $req =
+    $m->make_subrequest
+        ( comp => '/some/comp', args => [ id => 172 ], out_method => \$buffer );
+$req->exec;
+</%perl>
+
+<& header &>
+<b><% $headline %></b><p>
+<% $body %>
+<& footer &>
+
+<%init>
+my $arg = $m->dhandler_arg;                # get rest of path
+my ($section, $story) = split("/", $arg);  # split out pieces
+my $sth = $DBH->prepare
+    ("{SELECT headline,body FROM news
+        WHERE section = ? AND story = ?)";
+    (qq({SELECT headline,body FROM news
+        WHERE section = ? AND story = ?));
+$sth->execute($section, $story);
+my ($headline, $body) = $sth->fetchrow_array;
+return 404 if !$headline;                  # return "not found" if no such story
+</%init>

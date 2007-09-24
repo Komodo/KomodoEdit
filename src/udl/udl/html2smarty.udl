@@ -1,0 +1,45 @@
+family markup
+
+state IN_M_DEFAULT:
+
+'{*' : paint(upto, M_DEFAULT),  => IN_TPL_BLOCK_COMMENT_1
+
+# These are comment-like things: smarty doesn't process the intervening text
+/{\/?(=literal})/ : paint(upto, M_DEFAULT) => IN_M_DEFAULT_SMARTY_LITERAL_1
+
+#xxx Push a search item
+# Like (TPL_OPERATOR, "}", -1, IN_M_DEFAULT, new family | -1)
+# And  (TPL_OPERATOR, "{", +1, -1) indicates what we push on
+
+'{'  : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_DEFAULT), => IN_TPL_DEFAULT
+
+# See smartylex.txt for details on this state
+
+# And smarty transitions can show up in attribute strings too
+
+#xxx Push a search item!!!
+
+state IN_M_STAG_ATTR_DSTRING:
+'{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_DSTRING), \
+	=> IN_TPL_DEFAULT
+
+state IN_M_STAG_ATTR_SSTRING:
+'{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_SSTRING), \
+	=> IN_TPL_DEFAULT 
+
+# Tentative comments
+
+#XXX Push something on the fallback
+
+state IN_M_DEFAULT_SMARTY_LITERAL_1:
+/literal(=})/ paint(include, TPL_OPERATOR), paint(upto, TPL_WORD), => IN_M_DEFAULT_SMARTY_LITERAL_2
+/./ : paint(upto, TPL_WORD), redo, => IN_TPL_DEFAULT
+
+state IN_M_DEFAULT_SMARTY_LITERAL_2:
+'}' : paint(upto, TPL_OPERATOR), => IN_M_DEFAULT
+
+
+

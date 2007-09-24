@@ -1,0 +1,20 @@
+/* Copyright (c) 2001-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIEncodingServices.idl"
+   
+[scriptable, uuid(5b575d37-9b3f-408d-915b-9c755d9153da)]
+interface koIEncoding : nsISupports
+{
+    attribute boolean use_byte_order_marker;
+    attribute string python_encoding_name;
+    readonly attribute string friendly_encoding_name;
+    readonly attribute string short_encoding_name;
+    
+    readonly attribute koIEncodingInfo encoding_info;    
+};
+
+
+
+

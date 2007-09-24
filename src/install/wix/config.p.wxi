@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <!-- Is this a build for debugging the MSI? "yes" or "no" -->
+  <?define IsMSIDebugBuild = "no" ?>
+
+  <!-- Conditional values (i.e. upon which WiX preprocessor conditional
+       statements key) -->
+  <!-- Is this a final or a pre-release version of Komodo: "yes" or "no" -->
+  <?define IsPreReleaseVersion = "PP_MSI_IS_PRE_RELEASE_VERSION" ?>
+  <?define ProductType = "PRODUCT_TYPE" ?> <!-- ide|edit -->
+  <?define ProductTagLine = "PP_PRODUCT_TAG_LINE" ?>
+
+  <?define WithDocJarring = "PP_MSI_AVEC_DOC_JARRING" ?> <!-- yes|no -->
+  <?define WithCrypto = "PP_MSI_AVEC_CRYPTO" ?> <!-- yes|no -->
+  <?define WithCasper = "PP_MSI_AVEC_CASPER" ?> <!-- yes|no -->
+  <?define WithJSLib = "PP_MSI_AVEC_JSLIB" ?> <!-- yes|no -->
+
+  <!-- Basic configuration data -->
+  <?if $(var.IsMSIDebugBuild) = "yes" ?>
+    <?define ProductName = "PP_MSI_PRODUCT_NAME [MSIDebug]" ?>
+  <?else ?>
+    <?define ProductName = "PP_MSI_PRODUCT_NAME" ?>
+  <?endif ?>
+  <?define InstallName = "PP_MSI_INSTALL_NAME" ?>
+  <?define KomodoPrettyId = "PP_MSI_KOMODO_PRETTY_ID" ?>
+  <?define KomodoId = "PP_MSI_KOMODO_ID" ?>
+  <?define KomodoVersion = "PP_MSI_KOMODO_VERSION" ?>
+  <?define KomodoRegistryId = "PP_MSI_REGISTRY_ID" ?>
+  <?define KomodoHelpFile = "[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-top.html" ?>
+  <?if $(var.ProductType) = "edit" ?>
+    <?define ProductURL = "http://www.activestate.com/products/komodo_edit/" ?>
+  <?else ?>
+    <?define ProductURL = "http://www.activestate.com/products/komodo_ide/" ?>
+  <?endif ?>
+
+
+  <?if $(var.IsPreReleaseVersion) = "yes" ?>
+    <?define InstallLevel = "500" ?>  <!-- skip some features by default -->
+  <?else ?>
+    <?define InstallLevel = "1000" ?> <!-- install everything by default -->
+  <?endif ?>
+</Include>
+

@@ -1,0 +1,28 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_getter_setter.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_getter_setter.js" src="scan_inputs/javascript_getter_setter.js">
+      <scope ilk="class" line="6" lineend="8" name="jsclass">
+        <scope attributes="__ctor__" ilk="function" line="6" lineend="8" name="jsclass" signature="jsclass()">
+          <variable citdl="jsclass" name="this" />
+        </scope>
+        <variable citdl="Number" line="7" name="_num" />
+        <variable line="9" name="num" />
+      </scope>
+      <scope classrefs="Object" ilk="class" line="18" lineend="23" name="myclass">
+        <scope attributes="__ctor__" ilk="function" line="18" lineend="20" name="myclass" signature="myclass(initial_rows)">
+          <variable ilk="argument" name="initial_rows" />
+          <variable citdl="myclass" name="this" />
+        </scope>
+        <variable citdl="initial_rows" line="19" name="_rows" />
+        <variable line="22" name="rowCount" />
+      </scope>
+      <scope classrefs="Object" ilk="class" line="29" lineend="34" name="thirdclass">
+        <scope attributes="__ctor__" ilk="function" line="29" lineend="31" name="thirdclass" signature="thirdclass()">
+          <variable citdl="thirdclass" name="this" />
+        </scope>
+        <variable citdl="String" line="30" name="_name" />
+        <variable line="33" name="name" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

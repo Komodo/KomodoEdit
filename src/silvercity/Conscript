@@ -1,0 +1,63 @@
+#!/usr/local/bin/perl -w
+# Copyright (c) 2005-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+use Cwd;
+
+Import(
+    "cons",
+    "platform",
+    "build",
+    "install",
+    "komodoPythonUtilsDir",
+    "productType",
+    "version",
+    'scintillaBuildDir',
+);
+
+my $LIB = '.a';
+my $mkwriteable = "chmod u+w";
+if ($platform eq "win") {
+    $LIB = '.lib';
+    $mkwriteable = "attrib -R";
+}
+
+
+my $landmark = "$komodoPythonUtilsDir/SilverCity/__init__.py";
+$cons->Command(
+    $landmark,
+    "setup.py",
+    # Actually we depends on most everything under:
+    #   ../scintilla/include/...
+    #   ../scintilla/src/...
+    # but depending on these two generated files should do the trick.
+    "../scintilla/include/Scintilla.h",
+    "../scintilla/include/Scintilla.iface",
+    
+    "libpcre$LIB", # built and installed from contrib/pcre
+    
+    #XXX '--prefix' necessary for 'setup.py install' because
+    #    '--install-data' handling is broken: the 'default.css' data
+    #    file still gets installed to the calling Python's site-packages
+    #    dir.
+    qq(
+        cd %1:d && $mkwriteable PySilverCity/SilverCity/ScintillaConstants.py
+        cd %1:d && python PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
+        cd %1:d && python setup.py build
+        cd %1:d && python setup.py install --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
+    )
+);
+
+my $pluginName;
+
+if ($platform eq "win") {
+    # no depends?
+} elsif ($platform eq "darwin") {
+    $cons->Depends($landmark, "$scintillaBuildDir/bin/libscintilla.a");
+} else {
+    $cons->Depends($landmark, "$scintillaBuildDir/bin/scintilla.a");
+}
+$cons->DependsRecursive($landmark, "PySilverCity");
+$cons->DependsRecursive($landmark, "Lib");
+$cons->DependsRecursive($landmark, "CSS");
+

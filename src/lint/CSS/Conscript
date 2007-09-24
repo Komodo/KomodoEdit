@@ -1,0 +1,143 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'idlExportDir',
+    'mozComponentsDir',
+    'ranRegxpcomStateFileName',
+    'mozIncludePath',
+    'mozIdlIncludePath',
+    'mozLibPath',
+    'mozSrc',
+    'mozDevelDist',
+    'mozObjDir',
+    'platform',
+    'architecture',
+    'buildType',
+    'supportDir',
+    'withSymbols',
+    'unsiloedPerlExe',
+    'mozVersionNumber',
+    'mozDist',
+    'sdkDir',
+);
+
+
+# koICSSParser
+$cons->Install($idlExportDir, 'koICSSParser.idl');
+$cons->BuildAndInstallXpt('koICSSParser.idl');
+$cons->BuildHeaderFromIdl('koICSSParser.idl');
+
+if ($platform eq "win") {
+    my $LDFLAGS = "";
+    my $CXXFLAGS = "";
+    foreach my $includeDir (split(';', $mozIncludePath)) {
+        $CXXFLAGS .= " -I$includeDir";
+    }
+    $CXXFLAGS .= " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/necko" .
+        " -I$mozDevelDist/include/layout";
+
+    # override the construction environment as necessary:
+    #   - specify a DLL
+    #   - link in some Mozilla libs
+    #   - CXXFLAGS is basically a copy of the that obtained via Mozilla's
+    #     build makefiles, huge, mostly probably not necessary
+    foreach my $libDir (split(';', $mozLibPath)) {
+        $LDFLAGS .= " /libpath:$libDir";
+    }
+
+    $CXXFLAGS .= ' -I./include';
+    $CXXFLAGS .= ' -I./include/private';
+    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib ";
+    $LDFLAGS .= " /dll";
+    $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
+    $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
+    $CXXFLAGS .= " /FI$mozObjDir\\mozilla-config.h";
+
+    if ($buildType eq 'debug') {
+        $LDFLAGS .= " /DEBUG";
+        $CXXFLAGS .= " /Od -Zi  -DDEBUG  -D_DEBUG -MDd";
+    } else {
+        $CXXFLAGS .= " /Ox -DNDEBUG -D_NDEBUG -MD";
+        # LDFLAGS is fine!
+    }
+    $dllName = 'koCSSParser.dll';
+
+    $cons->Command($dllName,
+        "koCSSParser.cpp",
+        "koICSSParser.idl",
+        "koICSSParser.h",
+        qq(
+            pwd || exit 0
+            cl /nologo $CXXFLAGS /Fo%1:b.obj /c %1
+            link /nologo $LDFLAGS /out:%0 %1:b.obj
+        )
+    );
+}
+
+else {
+    %consLocal = $cons->copy();
+
+    $consLocal{'LIBPATH'} = $mozLibPath;
+    $consLocal{'CPPPATH'} = "$mozIncludePath";
+    $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/necko" .
+        " -I$mozDevelDist/include/layout";
+
+    
+
+    $consLocal{'CXX'} = "g++";
+    $consLocal{'CC'} = "gcc";
+    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core ";
+    if ($mozVersionNumber >= 190) {
+      $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
+      $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
+      $consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue.a ";
+    }
+    if ($platform eq "darwin") {
+        $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
+    } else {
+        $consLocal{'LDFLAGS'} = "-fPIC -shared";
+    }
+    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
+    $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
+
+    if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
+
+	# big-endian byte order indicator to license code
+        $consLocal{'CXXFLAGS'} .= " -DBYTEORDER=0x4321";
+    }
+    # On Solaris, you have to use the -mimpure-text option if you are linking
+    # a shared library that links to static libs.
+    if ($platform eq "solaris") {
+        $consLocal{'LDFLAGS'} .= " -mimpure-text";
+    }
+
+    if ($buildType eq 'debug') {
+        $consLocal{'CXXFLAGS'} .= " -g -DDEBUG -D_DEBUG";
+    } else {
+        $consLocal{'CXXFLAGS'} .= " -DNDEBUG -D_NDEBUG";
+        if ($withSymbols) {
+            $consLocal{'CXXFLAGS'} .= " -g";
+        }
+    }
+    if ($platform eq "darwin") {
+      $consLocal{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
+      $dllName = "libkoCSSParser.dylib";
+    } else {
+      $dllName = 'libkoCSSParser.so';
+    }
+    $consLocal = new cons(%consLocal);
+
+    $consLocal->Program($dllName,
+                        "koCSSParser.cpp");
+}
+
+$cons->InstallXpcomComponent($dllName);
+$cons->InstallXpcomComponent('koCSSLinter.py');
+

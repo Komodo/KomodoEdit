@@ -1,0 +1,6 @@
+# This is trivial, but should still be an includable component
+
+family ssl
+
+state IN_SSL_DEFAULT:
+/-?%>/ : paint(upto, SSL_DEFAULT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT

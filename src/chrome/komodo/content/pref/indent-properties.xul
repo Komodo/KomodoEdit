@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+
+    <groupbox orient="vertical">
+        <caption label="&indentation.label;"/>
+            <checkbox id="useSmartTabs" label="&allowFileContentsToOverrideTabSettings.label;"
+                      pref="true" prefstring="useSmartTabs"
+                      prefattribute="checked"/>
+            <checkbox id="useTabs"
+                      label="&preferTabCharactersOverSpaces.label;"
+                      pref="true"
+                      prefstring="useTabs"
+                      prefattribute="checked"/>
+            <hbox align="center">
+                <textbox id="indentWidth" size="3"
+                          pref="true" prefstring="indentWidth"
+                          prefattribute="value"/>
+                <label value="Number of spaces per indent" control="indentWidth"/>
+            </hbox>
+            <hbox align="center">
+                <textbox id="tabWidth" size="3"
+                          pref="true" prefstring="tabWidth"
+                          prefattribute="value"/>
+                    <label value="Width of each Tab character" control="tabWidth"/>
+            </hbox>
+    </groupbox>
+
+</window>

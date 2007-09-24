@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\all_uppercase_vars.pl">
+    <scope ilk="blob" lang="Perl" name="all_uppercase_vars">
+      <variable line="2" name="$camelCase" />
+      <variable line="2" name="$lowercase" />
+      <variable line="2" name="$MixedCase" />
+      <variable line="2" name="$UPPER_UNDER" />
+      <variable line="2" name="$UPPERCASE" />
+      <variable line="2" name="$VERSION" />
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,53 @@
+Index: xpfe/bootstrap/bootstrap-mac.pkg
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/bootstrap/bootstrap-mac.pkg,v
+retrieving revision 1.2
+diff -u -d -u -r1.2 bootstrap-mac.pkg
+--- xpfe/bootstrap/bootstrap-mac.pkg	7 Jan 2004 01:22:26 -0000	1.2
++++ xpfe/bootstrap/bootstrap-mac.pkg	17 Mar 2005 00:53:51 -0000
+@@ -7,6 +7,7 @@
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/component.icns  approot/Resources/component.icns
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/html.icns       approot/Resources/html.icns
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/mozilla.icns    approot/Resources/mozilla.icns
++@topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/komodo.icns    approot/Resources/komodo.icns
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/plugin.icns     approot/Resources/plugin.icns
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/pref.icns       approot/Resources/pref.icns
+ @topsrcdir@/xpfe/bootstrap/macbuild/Contents/Resources/text.icns       approot/Resources/text.icns
+@@ -15,4 +16,4 @@
+ 
+ dist/package/mozillaSuite.rsrc   approot/Resources/@PROGRAM@.rsrc
+ 
+-!touch approot/PkgInfo APPLMOZZ
++!touch approot/PkgInfo APPLKOMO
+Index: xpfe/bootstrap/appleevents/mozilla.sdef
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/bootstrap/appleevents/mozilla.sdef,v
+retrieving revision 1.2
+diff -u -r1.2 mozilla.sdef
+--- xpfe/bootstrap/appleevents/mozilla.sdef	2 Jul 2005 20:35:12 -0000	1.2
++++ xpfe/bootstrap/appleevents/mozilla.sdef	22 Aug 2005 21:43:35 -0000
+@@ -8,7 +8,7 @@
+ -->
+ 
+ <dictionary title="">
+-	<suite name="SeaMonkey" code="MOZZ">
++	<suite name="Komodo" code="KOMO">
+ 
+ 	</suite>
+
+Index: xpfe/bootstrap/browser-prefs.js
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/bootstrap/browser-prefs.js,v
+retrieving revision 1.28
+diff -u -r1.28 browser-prefs.js
+--- xpfe/bootstrap/browser-prefs.js	20 Jul 2005 19:01:19 -0000	1.28
++++ xpfe/bootstrap/browser-prefs.js	22 Aug 2005 21:46:15 -0000
+@@ -42,7 +42,7 @@
+  */
+ 
+ pref("startup.homepage_override_url","chrome://navigator-region/locale/region.properties");
+-pref("browser.chromeURL","chrome://navigator/content/navigator.xul");
++pref("browser.chromeURL","chrome://komodo/content/komodo.xul");
+ 
+ pref("general.startup.browser",             true);
+ pref("general.startup.mail",                false);

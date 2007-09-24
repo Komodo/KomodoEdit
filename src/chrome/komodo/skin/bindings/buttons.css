@@ -1,0 +1,550 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/**
+ * Komodo Toolbar Buttons
+ **/
+
+/* button-toolbar-a = used for image only buttons */
+.button-toolbar-a
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-a");
+    margin              : 1px;
+    border              : 1px solid transparent;
+    min-width           : 0px;
+    max-width           : 14em;
+    color               : WindowText;
+    -moz-user-focus     : ignore;
+}
+
+.button-menu-a {
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-menu-a");
+    margin              : 1px;
+    border              : 1px solid transparent;
+    min-width           : 0px;
+    max-width           : 14em;
+    color               : WindowText;
+    -moz-user-focus     : ignore;
+}
+
+.button-menu-dropmarker,
+.button-menubutton-dropmarker {
+  margin: 1px;
+  background-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  min-width:11px;
+  min-height:11px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+/* button-toolbar-b = transparent -> image and text */
+/* XXX Currently NOT used */
+.button-toolbar-b
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
+    margin              : 1px;
+    border              : 1px solid transparent;
+    min-width           : 0px;
+    color               : WindowText;
+    -moz-user-focus     : ignore;
+}
+
+/**
+ * toolbar buttons on editor toolbar in workspace
+ * button-toolbar-c -> regular
+ * button-toolbar-d -> no text
+ **/
+.button-toolbar-c
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
+    min-width           : 40px;
+    max-width           : 14em;
+    margin              : 0px;
+    border              : 1px solid transparent;
+    color               : WindowText;
+    background-color    : transparent;
+    -moz-user-focus     : ignore;
+}
+
+/* no text */
+.button-toolbar-d,
+.button-toolbar-e
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
+    margin              : 0px;
+    border              : 1px solid transparent;
+    min-width           : 0px;
+    max-width           : 14em;
+    color               : WindowText;
+    background-color    : transparent;
+    -moz-user-focus     : ignore;
+}
+
+/* Rx panel step/run buttons */
+.button-toolbar-rx
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
+    margin              : 5px;
+    min-width           : 60px;
+    border              : 1px solid ThreeDDarkShadow;
+    color               : WindowText;
+    background-color    : transparent;
+    -moz-user-focus     : ignore;
+    height              : 2.5em;
+}
+
+.button-menu-a > .button-internal-box,
+.button-toolbar-a > .button-internal-box,
+.button-toolbar-b > .button-internal-box
+{
+    border              : 1px solid transparent;
+    padding             : 1px 1px 1px 1px;
+}
+
+.button-toolbar-c > .button-internal-box,
+.button-toolbar-d > .button-internal-box,
+.button-toolbar-e > .button-internal-box,
+.button-toolbar-rx > .button-internal-box
+{
+    padding             : 1px 3px 1px 3px;
+    border              : 1px solid transparent;
+}
+
+/* disable text buttons for button-toolbar-a */
+.button-menu-a > .button-internal-box > .button-text-container,
+.button-toolbar-a > .button-internal-box > .button-text-container,
+.button-toolbar-d > .button-internal-box > .button-text-container,
+.button-toolbar-e > .button-internal-box > .button-text-container
+{
+    display        : none;
+}
+
+/* enable text buttons for button-toolbar-b,c */
+.button-toolbar-b > .button-internal-box > .button-text-container,
+.button-toolbar-c > .button-internal-box > .button-text-container
+{ }
+
+.button-menu-a:hover,
+.button-toolbar-a:hover,
+.button-toolbar-b:hover,
+.button-toolbar-c:hover,
+.button-toolbar-d:hover,
+.button-toolbar-e:hover,
+.button-toolbar-rx:hover
+{
+    border              : 1px solid ThreeDDarkShadow;
+}
+
+.button-menu-a:hover > .button-internal-box,
+.button-toolbar-a:hover > .button-internal-box,
+.button-toolbar-b:hover > .button-internal-box
+{
+    border-left         : 1px solid ThreeDHighlight;
+    border-top          : 1px solid ThreeDHighlight;
+    border-right        : 1px solid ThreeDShadow;
+    border-bottom       : 1px solid ThreeDShadow;
+    color               : #0000FF;
+}
+.button-toolbar-c:hover > .button-internal-box,
+.button-toolbar-d:hover > .button-internal-box,
+.button-toolbar-e:hover > .button-internal-box,
+.button-toolbar-rx:hover > .button-internal-box
+{
+    border-left         : 1px solid ThreeDHighlight;
+    border-top          : 1px solid ThreeDHighlight;
+    border-right        : 1px solid ThreeDShadow;
+    border-bottom       : 1px solid ThreeDShadow;
+}
+.button-toolbar-rx:hover > .button-internal-box
+{
+    color               : blue;
+}
+
+.button-menu-a:hover:active > .button-internal-box,
+.button-toolbar-a:hover:active > .button-internal-box,
+.button-toolbar-b:hover:active > .button-internal-box
+{
+    padding             : 2px 0px 0px 2px;
+    border-left         : 1px solid ThreeDShadow;
+    border-top          : 1px solid ThreeDShadow;
+    border-right        : 1px solid ThreeDHighlight;
+    border-bottom       : 1px solid ThreeDHighlight;
+    color               : #000080;
+}
+.button-toolbar-c:hover:active > .button-internal-box,
+.button-toolbar-d:hover:active > .button-internal-box,
+.button-toolbar-rx:hover:active > .button-internal-box,
+.button-toolbar-e:hover:active > .button-internal-box
+{
+    padding             : 2px 2px 0px 4px;
+    border-left         : 1px solid ThreeDShadow !important;
+    border-top          : 1px solid ThreeDShadow !important;
+    border-right        : 1px solid ThreeDHighlight !important;
+    border-bottom       : 1px solid ThreeDHighlight !important;
+    color               : #000080;
+}
+
+.button-menu-a[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-a[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-c[disabled="true"]:hover:active > .button-internal-box
+{
+    color               : GrayText;
+}
+
+.button-menu-a[disabled="true"],
+.button-menu-a[disabled="true"]:hover,
+.button-menu-a[disabled="true"]:hover:active,
+.button-toolbar-a[disabled="true"],
+.button-toolbar-a[disabled="true"]:hover,
+.button-toolbar-a[disabled="true"]:hover:active,
+.button-toolbar-b[disabled="true"],
+.button-toolbar-b[disabled="true"]:hover,
+.button-toolbar-b[disabled="true"]:hover:active,
+.button-toolbar-c[disabled="true"],
+.button-toolbar-c[disabled="true"]:hover,
+.button-toolbar-c[disabled="true"]:hover:active,
+.button-toolbar-d[disabled="true"],
+.button-toolbar-d[disabled="true"]:hover,
+.button-toolbar-d[disabled="true"]:hover:active
+.button-toolbar-e[disabled="true"],
+.button-toolbar-e[disabled="true"]:hover,
+.button-toolbar-e[disabled="true"]:hover:active,
+.button-toolbar-rx[disabled="true"],
+.button-toolbar-rx[disabled="true"]:hover,
+.button-toolbar-rx[disabled="true"]:hover:active
+{
+    color               : GrayText;
+    border              : 1px solid transparent;
+}
+
+.button-menu-a[disabled="true"] > .button-internal-box,
+.button-menu-a[disabled="true"]:hover > .button-internal-box,
+.button-menu-a[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-a[disabled="true"] > .button-internal-box,
+.button-toolbar-a[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-a[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-b[disabled="true"] > .button-internal-box,
+.button-toolbar-b[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-b[disabled="true"]:hover:active > .button-internal-box
+{
+    color               : GrayText;
+    padding             : 1px 1px 1px 1px !important;
+    border              : 1px solid transparent !important;
+}
+.button-toolbar-c[disabled="true"] > .button-internal-box,
+.button-toolbar-c[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-c[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-d[disabled="true"] > .button-internal-box,
+.button-toolbar-d[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-d[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-e[disabled="true"] > .button-internal-box,
+.button-toolbar-e[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-e[disabled="true"]:hover:active > .button-internal-box,
+.button-toolbar-rx[disabled="true"] > .button-internal-box,
+.button-toolbar-rx[disabled="true"]:hover > .button-internal-box,
+.button-toolbar-rx[disabled="true"]:hover:active > .button-internal-box
+{
+    padding             : 1px 3px 1px 3px !important;
+    border              : 1px solid transparent !important;
+    color               : GrayText;
+}
+
+/* toggled toolbar styles (editor formatting toolbars, etc) */
+.button-toolbar-c[toggled="true"] > .button-internal-box,
+.button-toolbar-d[checked="true"] > .button-internal-box,
+.button-toolbar-e[checked="true"] > .button-internal-box,
+.button-toolbar-rx[checked="true"] > .button-internal-box,
+.button-toolbar-rx[checked="true"]:hover > .button-internal-box
+{
+    border-left         : 1px solid ThreeDShadow;
+    border-top          : 1px solid ThreeDShadow;
+    border-right        : 1px solid ThreeDHighlight;
+    border-bottom       : 1px solid ThreeDHighlight;
+    background-color	  : ThreeDHighlight;
+}
+.button-toolbar-e[checked="true"] > .button-internal-box
+{
+    background-color	  : ThreeDFace;
+}
+
+.button-toolbar-c[toggled="true"]:hover > .button-internal-box,
+.button-toolbar-d[checked="true"]:hover > .button-internal-box,
+.button-toolbar-e[checked="true"]:hover > .button-internal-box
+{
+    border-left         : 1px solid ThreeDShadow;
+    border-top          : 1px solid ThreeDShadow;
+    border-right        : 1px solid ThreeDHighlight;
+    border-bottom       : 1px solid ThreeDHighlight;
+    background-color	  : ThreeDFace;
+}
+
+
+/** .button-text-link & .button-text-link-sparkline
+ *
+ * Two button classes meant to look somewhat like HTML links (<a/>).
+ * You can use them in text (e.g. in a <description>). You can optionally
+ * specify an image. Use the "-sparkline" version to have the image
+ * constrained to 1em by 1em (to fit in line height).
+ *
+ * If you want an image that changes on hover then the best solution is
+ * to use a separate CSS class for that (e.g. see the "help-icon" class
+ * in global.css) and specify both CSS classes on the <button> tag.
+ * 
+ * Dev Notes:
+ * - Perhaps the width should not be constrained. But it *does* make it more
+ *   convenient to use larger images that get scaled down proportionately.
+ **/
+.button-text-link,
+.button-text-link-sparkline
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
+    min-width           : 1px;
+    margin              : 0px;
+    padding             : 0px;
+    border              : none;
+    display             : inline;
+    background-color    : transparent;
+    -moz-user-focus     : ignore;
+    text-decoration     : underline;
+    cursor              : pointer;
+}
+.button-text-link .button-icon
+{
+    margin: 0px 2px 0px 0px;
+    padding: 0px;
+}
+.button-text-link-sparkline .button-icon
+{
+    margin: 0px 2px 0px 0px;
+    padding: 0px;
+    max-width: 1em;
+    max-height: 1em;
+}
+.button-text-link .button-text,
+.button-text-link-sparkline .button-text
+{
+    padding: 0px;
+    margin: 0px;
+}
+
+
+/**
+ * Link text buttons
+ * Used on getting started mru list - homepage.xul/.js/.css
+ **/
+.button-link
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
+    min-width           : 1px;
+    margin              : 0px;
+    border              : none;
+    color               : WindowText;
+    background-color    : transparent;
+    -moz-user-focus     : ignore;
+}
+
+/**
+ * Getting Started text buttons
+ * Used on getting started openning project or sample - homepage.xul/.js/.css
+ **/
+.button-link-a
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
+    min-width           : 1px;
+    margin              : 0px;
+    border-top          : 1px solid #eaeaea;
+    border-right	: 1px solid black;
+    border-bottom	: 1px solid black;
+    border-left		: 1px solid #dadada;
+    color               : WindowText;
+    background-color    : #F6F6F6;
+    -moz-user-focus     : ignore;
+}
+
+/**
+ * Getting Started text buttons
+ * Used on getting started openning project or sample -gettingstarted.xul/.js/.css
+ **/
+.button-link-b
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
+    min-width           : 1px;
+    margin              : 0px;
+    border-top          : 1px solid #eaeaea;
+    border-right	: 1px solid black;
+    border-bottom	: 1px solid black;
+    border-left		: 1px solid #dadada;
+    color               : WindowText;
+    background-color    : #F6F6F6;
+    -moz-user-focus     : ignore;
+}
+
+.button-link:hover,
+.button-link-a:hover,
+.button-link-b:hover
+{
+    color: #b82619;
+    text-decoration:underline;
+}
+
+.button-link > .button-internal-box,
+.button-link-a > .button-internal-box
+{
+    padding             : 2px 7px 2px 6px;
+    border              : 1px solid transparent;
+}
+.button-link-b > .button-internal-box
+{
+    padding             : 2px 2px 2px 2px;
+    border		: 1px solid transparent;
+}
+
+.button-link-b > .button-internal-box > .button-icon
+{
+    padding-right : 10px;
+}
+
+.button-link[disabled="true"],
+.button-link[disabled="true"]:hover,
+.button-link[disabled="true"]:hover:active,
+.button-link-a[disabled="true"],
+.button-link-a[disabled="true"]:hover,
+.button-link-a[disabled="true"]:hover:active,
+.button-link-b[disabled="true"],
+.button-link-b[disabled="true"]:hover,
+.button-link-b[disabled="true"]:hover:active
+{
+    color               : GrayText;
+    border              : 1px solid transparent;
+}
+
+.button-link[disabled="true"]:hover:active > .button-internal-box,
+.button-link-a[disabled="true"]:hover:active > .button-internal-box,
+.button-link-b[disabled="true"]:hover:active > .button-internal-box
+{
+    color               : GrayText;
+}
+
+.button-link:hover > .button-internal-box,
+.button-link-a:hover > .button-internal-box
+{
+    padding             : 2px 7px 2px 6px;
+    border              : 1px solid transparent;
+}
+.button-link-b:hover > .button-internal-box
+{
+    padding             : 2px 2px 2px 2px;
+    border              : 1px solid transparent;
+}
+
+.button-link:hover:active > .button-internal-box,
+.button-link-a:hover:active > .button-internal-box
+{
+    padding             : 2px 7px 2px 6px;
+    border              : 1px solid transparent;
+}
+.button-link-b:hover:active > .button-internal-box
+{
+    padding             : 2px 2px 2px 2px;
+    border              : 1px solid transparent;
+}
+
+.button-link[disabled="true"] > .button-internal-box,
+.button-link[disabled="true"]:hover > .button-internal-box,
+.button-link[disabled="true"]:hover:active > .button-internal-box,
+.button-link-a[disabled="true"] > .button-internal-box,
+.button-link-a[disabled="true"]:hover > .button-internal-box,
+.button-link-a[disabled="true"]:hover:active > .button-internal-box
+{
+    padding             : 2px 7px 2px 6px !important;
+    border              : 1px solid transparent !important;
+}
+.button-link-b[disabled="true"] > .button-internal-box,
+.button-link-b[disabled="true"]:hover > .button-internal-box,
+.button-link-b[disabled="true"]:hover:active > .button-internal-box
+{
+    padding             : 2px 2px 2px 2px !important;
+    border              : 1px solid transparent !important;
+}
+
+.button-link > .button-internal-box > .button-text-container,
+.button-link-a > .button-internal-box > .button-text-container,
+.button-link-b > .button-internal-box > .button-text-container
+{}
+
+/* A small button with an image and a menu with orientation to the right.
+ * Currently used in a few places.
+ */
+.rightarrow-button  {
+    -moz-binding          : url("chrome://komodo/content/bindings/buttons.xml#rightarrow-button");
+    margin		  : 1px;
+    min-width		  : 0px;
+    max-width		  : 14em;
+    border-left           : 1px solid ThreeDHighlight;
+    border-top            : 1px solid ThreeDHighlight;
+    border-right          : 1px solid ThreeDShadow;
+    border-bottom         : 1px solid ThreeDShadow;
+    background-color	  : buttonface;
+    color		  : windowtext;
+    -moz-user-focus       : ignore !important;
+}
+
+.rightarrow-button > .button-internal-box,
+.rightarrow-button > .menubutton-internal-box
+{
+   border              : 1px solid transparent;
+   padding             : 1px 3px 1px 3px;
+   vertical-align      : middle;
+}
+
+.rightarrow-button:hover  {
+	border              : 1px solid ThreeDDarkShadow;
+}
+
+.rightarrow-button:hover:active  {
+    text-decoration       : none;
+}
+
+.rightarrow-button:hover > .menubutton-internal-box  {
+    border-left         : 1px solid ThreeDHighlight;
+    border-top          : 1px solid ThreeDHighlight;
+    border-right        : 1px solid ThreeDShadow;
+    border-bottom       : 1px solid ThreeDShadow;
+	color               : buttonface;
+}
+
+.rightarrow-button:hover:active > .menubutton-internal-box  {
+    padding             : 2px 2px 0px 4px;
+    border-left         : 1px solid ThreeDShadow;
+    border-top          : 1px solid ThreeDShadow;
+    border-right        : 1px solid ThreeDHighlight;
+    border-bottom       : 1px solid ThreeDHighlight;
+	color               : buttonface;
+}
+
+.rightarrow-button > .button-internal-box > .button-icon  {
+   list-style-image: url("chrome://komodo/skin/images/scrollArrowRight.png");
+}
+.rightarrow-button:hover > .button-internal-box > .button-icon {
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_hover.png");
+}
+.rightarrow-button[disabled="true"] > .button-internal-box > .button-icon,
+.rightarrow-button[disabled="true"]:hover > .button-internal-box > .button-icon,
+.rightarrow-button[disabled="true"]:hover:active > .button-internal-box > .button-icon{
+  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
+}
+
+
+
+.menuitem-iconic-wide {
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#menuitem-iconic-wide");
+}
+
+.menu-iconic-wide {
+    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#menu-iconic-wide");
+}
+
+menulist > menupopup > menuitem.menuitem-iconic {
+  -moz-binding: url("chrome://komodo/content/bindings/buttons.xml#menuitem-iconic");
+}

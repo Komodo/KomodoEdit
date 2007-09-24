@@ -1,0 +1,45 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\HTTP\Request.pm">
+    <scope ilk="blob" lang="Perl" name="Request">
+      <scope classrefs="HTTP::Message" ilk="class" line="1" lineend="109" name="HTTP::Request">
+        <import line="5" module="HTTP::Message" />
+        <variable line="7" name="$VERSION" />
+        <variable line="89" name="*url" />
+        <scope ilk="function" line="13" lineend="20" name="new" signature="new($class, $method, $uri, $header, $content)">
+          <variable ilk="argument" name="$class" />
+          <variable ilk="argument" name="$method" />
+          <variable ilk="argument" name="$uri" />
+          <variable ilk="argument" name="$header" />
+          <variable ilk="argument" name="$content" />
+          <variable attributes="__local__" line="16" name="$self" />
+        </scope>
+        <scope ilk="function" line="23" lineend="41" name="parse" signature="parse($class, $str)">
+          <variable ilk="argument" name="$class" />
+          <variable ilk="argument" name="$str" />
+          <variable attributes="__local__" line="26" name="$request_line" />
+          <variable attributes="__local__" line="35" name="$self" />
+          <variable attributes="__local__" line="36" name="$method" />
+          <variable attributes="__local__" line="36" name="$protocol" />
+          <variable attributes="__local__" line="36" name="$uri" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="44" lineend="51" name="clone" signature="clone($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="47" name="$clone" />
+        </scope>
+        <scope ilk="function" line="54" lineend="57" name="method" signature="method()" />
+        <scope ilk="function" line="60" lineend="87" name="uri" signature="uri($self, $uri)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$uri" />
+          <variable attributes="__local__" line="63" name="$old" />
+        </scope>
+        <scope ilk="function" line="92" lineend="106" name="as_string" signature="as_string($self, $eol)">
+          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" name="$eol" />
+          <variable attributes="__local__" line="98" name="$req_line" />
+          <variable attributes="__local__" line="99" name="$uri" />
+          <variable attributes="__local__" line="102" name="$proto" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

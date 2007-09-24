@@ -1,0 +1,24 @@
+/* Copyright (c) 2001-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsIEnumerator.idl"
+
+[scriptable, uuid(a2300c8e-bcac-4e8c-8983-d5e53361ddf4)]
+interface koIHierarchyItem : nsISupports {
+    attribute wstring name;
+    attribute wstring key; // additional data value
+    
+    // Interpret available_types as a bitfield to indicate the availability
+    // of the various item_* attributes e.g.
+    // if (item.available_types & item.ITEM_STRING)
+    //     // item.item_string is usable
+    readonly attribute PRUint32 available_types;
+    const long ITEM_HAS_STRING = 1;
+    const long ITEM_HAS_OBJECT = 2; 
+    
+    readonly attribute wstring item_string;
+    readonly attribute nsISupports item_object;
+    
+    readonly attribute boolean container;    
+    void getChildren([array, size_is(count)] out koIHierarchyItem hierarchyItem, out unsigned long count);
+};

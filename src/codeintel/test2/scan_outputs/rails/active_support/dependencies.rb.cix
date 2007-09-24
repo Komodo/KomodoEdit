@@ -1,0 +1,84 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/rails/active_support/dependencies.rb">
+    <scope ilk="blob" lang="Ruby" name="dependencies">
+      <import line="1" module="set" symbol="*" />
+      <import line="2" module="core_ext/module/attribute_accessors" symbol="*" />
+      <import line="3" module="core_ext/load_error" symbol="*" />
+      <import line="4" module="core_ext/kernel" symbol="*" />
+      <scope ilk="namespace" line="6" lineend="82" name="Dependencies">
+        <scope doc="Should we load files or require them?" ilk="function" line="25" lineend="27" name="load?" signature="load?">
+          <variable attributes="__local__" citdl="Dependencies" line="25" name="self" />
+        </scope>
+        <scope ilk="function" line="29" lineend="33" name="depend_on" signature="depend_on(file_name, swallow_load_errors = false)">
+          <variable ilk="argument" name="file_name" />
+          <variable ilk="argument" name="swallow_load_errors" />
+          <variable attributes="__local__" citdl="Dependencies" line="29" name="self" />
+        </scope>
+        <scope ilk="function" line="35" lineend="37" name="associate_with" signature="associate_with(file_name)">
+          <variable ilk="argument" name="file_name" />
+          <variable attributes="__local__" citdl="Dependencies" line="35" name="self" />
+        </scope>
+        <scope ilk="function" line="39" lineend="41" name="clear" signature="clear">
+          <variable attributes="__local__" citdl="Dependencies" line="39" name="self" />
+        </scope>
+        <scope ilk="function" line="43" lineend="70" name="require_or_load" signature="require_or_load(file_name)">
+          <variable ilk="argument" name="file_name" />
+          <import line="56" module="&quot;" symbol="*" />
+          <variable attributes="__local__" citdl="Dependencies" line="43" name="self" />
+          <variable attributes="__local__" line="44" name="file_name" />
+        </scope>
+        <scope classrefs="Object" ilk="class" line="72" lineend="81" name="LoadingModule">
+          <scope attributes="__classmethod__" doc="Old style environment.rb referenced this method directly." ilk="function" line="75" lineend="80" name="root" signature="self.root(*args)">
+            <variable ilk="argument" name="*args" />
+          </scope>
+        </scope>
+      </scope>
+      <scope classrefs="Object" ilk="class" line="88" lineend="126" name="Module">
+        <variable attributes="__alias__" citdl="const_missing" line="90" name="rails_original_const_missing" />
+        <scope doc="Use const_missing to autoload associations so we don&apos;t have&#xA;to require_association when using single-table inheritance." ilk="function" line="94" lineend="125" name="const_missing" signature="const_missing(class_id)">
+          <variable ilk="argument" name="class_id" />
+          <variable attributes="__local__" citdl="Module" line="94" name="self" />
+          <variable attributes="__local__" line="95" name="file_name" />
+          <variable attributes="__local__" line="96" name="file_path" />
+          <variable attributes="__local__" line="99" name="brief_name" />
+          <variable attributes="__local__" citdl="Module" line="108" name="mod" />
+        </scope>
+      </scope>
+      <scope classrefs="Object" ilk="class" line="128" lineend="136" name="Class">
+        <scope ilk="function" line="129" lineend="135" name="const_missing" signature="const_missing(class_id)">
+          <variable ilk="argument" name="class_id" />
+          <variable attributes="__local__" citdl="Class" line="129" name="self" />
+        </scope>
+      </scope>
+      <scope classrefs="Object" ilk="class" line="138" lineend="152" name="Object">
+        <scope doc=":nodoc:" ilk="function" line="139" lineend="144" name="load" signature="load(file, *extras)">
+          <variable ilk="argument" name="file" />
+          <variable ilk="argument" name="*extras" />
+          <variable attributes="__local__" citdl="Object" line="139" name="self" />
+        </scope>
+        <scope ilk="function" line="146" lineend="151" name="require" signature="require(file, *extras)">
+          <variable ilk="argument" name="file" />
+          <variable ilk="argument" name="*extras" />
+          <variable attributes="__local__" citdl="Object" line="146" name="self" />
+        </scope>
+      </scope>
+      <scope classrefs="Object" doc="Add file-blaming to exceptions" ilk="class" line="155" lineend="173" name="Exception">
+        <variable attributes="__instancevar__ __local__" line="170" name="@blamed_files" />
+        <scope doc=":nodoc:" ilk="function" line="156" lineend="158" name="blame_file!" signature="blame_file!(file)">
+          <variable ilk="argument" name="file" />
+          <variable attributes="__local__" citdl="Exception" line="156" name="self" />
+        </scope>
+        <scope ilk="function" line="160" lineend="162" name="blamed_files" signature="blamed_files">
+          <variable attributes="__local__" citdl="Exception" line="160" name="self" />
+        </scope>
+        <scope ilk="function" line="164" lineend="167" name="describe_blame" signature="describe_blame">
+          <variable attributes="__local__" citdl="Exception" line="164" name="self" />
+        </scope>
+        <scope ilk="function" line="169" lineend="172" name="copy_blame!" signature="copy_blame!(exc)">
+          <variable ilk="argument" name="exc" />
+          <variable attributes="__local__" citdl="Exception" line="169" name="self" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,161 @@
+#content h3 {
+    clear:both; 
+    margin: 1em 0 0.7em 0; 
+    padding: 0.2em 0em 0.3em 45px;
+    background:#d85d5d; 
+    background-image: url(/images/book_small.jpg);
+    background-position: 5px;
+    background-repeat: no-repeat;
+    color:white;
+    font-weight:normal; 
+    font-size: 1.7em; 
+    letter-spacing:-0.10em;
+}
+
+#content h4 {
+    clear:both; 
+    color:black;
+    padding 0;
+    margin: 2em 0 0.5em 0; 
+    font-weight:bold; 
+    font-size: 1.2em; 
+    letter-spacing:0.10em;
+}
+
+#content img {
+    border: 0px;
+}
+
+#content table {
+    clear: both;
+    width: 100%;
+}
+
+#content th {
+    color: white;
+    background: #d85d5d;
+}
+
+#content td {
+    border: 1px solid black;
+    vertical-align: top;
+}
+
+#site_info {
+    clear:both; 
+    text-align: right;
+    border-top: 1px solid black;
+    margin: 2em 0 0 0; 
+    padding: 0.2em 0em 0.3em 0.5em;
+    letter-spacing:-0.05em;
+}
+
+/*
+ * Links
+ */
+#content a {
+    color: #783434;
+    font-weight: 600;
+}
+
+
+/*
+ * Table layout.
+ */
+
+.tag_col {
+    width: 9em;
+}
+.name_col {
+    width: 9em;
+}
+.num_col {
+    width: 6em;
+    text-align: center;
+}
+.date_col {
+    width: 9em;
+    text-align: center;
+}
+
+.thumb_col {
+    width: 60px;
+    text-align: center;
+}
+
+/*
+ * Tag lists
+ */
+
+#content p.taglist {
+
+    margin: 0.5em 1em;
+    padding: 0.5em 1em;
+    border: 1px dashed #ccc;
+}
+
+#content p.taglist a {
+    color: #555;
+}
+
+#content p.taglist a.level_9 {
+    font-size: 200%;
+    color: #000;
+}
+
+#content p.taglist a.level_7 {
+    font-size: 150%;
+    color: #333;
+}
+
+.level_5 {
+    font-size: 120%;
+}
+
+.level_3 {
+}
+
+#content p.taglist a.level_1 {
+    color: #888;
+}
+
+
+/*
+ * Page back and forth 
+ */
+.page_button {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    font-weight: bold;
+    background: #d85d5d;
+    color: white;
+    border: 1px solid #888;
+}
+
+
+.on_left {
+    float: left;
+}
+
+.on_right {
+    float: right;
+}
+
+/*
+ * misc.
+ */
+.cover {
+    text-align: center;
+}
+.byline {
+    text-align: center;
+}
+
+
+
+#content img.reader_picture {
+    float: right;
+    padding: 2px;
+    border: 1px solid #888;
+    margin: 5px;
+}

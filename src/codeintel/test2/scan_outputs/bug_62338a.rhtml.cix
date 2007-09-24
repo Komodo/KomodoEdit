@@ -1,0 +1,23 @@
+<codeintel version="2.0">
+  <file lang="RHTML" mtime="42" path="scan_inputs/bug_62338a.rhtml">
+    <scope ilk="blob" lang="Ruby" name="bug_62338a.rhtml">
+      <scope classrefs="Object" ilk="class" line="1" name="Bug62338">
+        <variable attributes="__local__" citdl="Bug62338" line="11" name="b" />
+        <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="2" name="@acc" />
+        <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="3" name="@rdr" />
+        <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="4" name="@wtr" />
+        <scope ilk="function" line="2" lineend="2" name="acc" />
+        <scope ilk="function" line="2" lineend="2" name="acc=">
+          <variable ilk="argument" name="acc" />
+        </scope>
+        <scope ilk="function" line="3" lineend="3" name="rdr" />
+        <scope ilk="function" line="4" lineend="4" name="wtr=">
+          <variable ilk="argument" name="wtr" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="5" lineend="9" name="initialize" signature="initialize">
+          <variable attributes="__local__" citdl="Bug62338" line="5" name="self" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

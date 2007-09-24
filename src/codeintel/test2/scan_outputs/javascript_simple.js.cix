@@ -1,0 +1,24 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_simple.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_simple.js" src="scan_inputs/javascript_simple.js">
+      <scope ilk="class" line="5" lineend="8" name="myfunc">
+        <scope attributes="__ctor__" ilk="function" line="5" lineend="8" name="myfunc" signature="myfunc()">
+          <variable citdl="myfunc" name="this" />
+        </scope>
+        <variable citdl="String" line="6" name="classVar1" />
+        <variable citdl="Number" line="7" name="num" />
+        <scope ilk="function" line="11" lineend="13" name="list" signature="list()">
+          <variable citdl="myfunc" name="this" />
+        </scope>
+        <scope ilk="function" line="16" lineend="23" name="strFunc" signature="strFunc(s)">
+          <variable ilk="argument" name="s" />
+          <variable citdl="myfunc" name="this" />
+          <variable attributes="__local__ private" citdl="String" line="17" name="copyOfS" />
+        </scope>
+      </scope>
+      <variable citdl="myfunc" line="25" name="mf" />
+      <variable citdl="String" line="26" name="s" />
+      <variable citdl="Number" line="30" name="gNum" />
+    </scope>
+  </file>
+</codeintel>

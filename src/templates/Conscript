@@ -1,0 +1,48 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2001-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+use File::Basename;
+
+Import(
+    'cons',
+    'build',
+    'supportDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'mozBin',
+    'version',
+    'buildNum',
+    'buildType',
+    'buildFlavour',
+    'komodoPythonUtilsDir',
+    'platform',
+    'mozVersion',
+    'productType',
+    'unsiloedPythonExe',
+    'sdkDir',
+);
+
+$cons->Preprocess('koTemplateService.unprocessed.py', 'koTemplateService.py');
+$cons->InstallXpcomComponent('koTemplateService.py');
+$cons->Install($idlExportDir, 'koITemplateService.idl');
+$cons->BuildAndInstallXpt('koITemplateService.idl');
+
+
+$cons->InstallRecursive("$supportDir/default-templates",
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/src/templates/default-templates");
+if (-d "src/templates/default-project-templates") {
+    $cons->InstallRecursive("$supportDir/default-project-templates",
+                            #XXX must be absolute path (bug in InstallRecursive)
+                            cwd()."/src/templates/default-project-templates");
+}
+if ($buildFlavour eq "dev") {
+    $cons->InstallRecursive("$supportDir/default-templates",
+                            #XXX must be absolute path (bug in InstallRecursive)
+                            cwd()."/src/templates/dev-templates");
+}
+
+

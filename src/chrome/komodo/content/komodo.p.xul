@@ -1,0 +1,2358 @@
+<?xml version="1.0"?>
+<!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/partviewer.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/codeintel.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<?xul-overlay href="chrome://komodo/content/commandsOverlay.xul"?>
+
+
+<!-- #ifndef PP_KO_TITLE_BAR_NAME -->
+<!-- #define PP_KO_TITLE_BAR_NAME ActiveState Komodo -->
+<!-- #endif --> 
+<window id="komodo_main"
+        windowtype="Komodo"
+        title="&titleBar.title;"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        width="800"
+        height="600"
+        screenX="20"
+        screenY="20"
+        onclose="return canQuitApplication(); /* handle os close controls */"
+        persist="screenX screenY width height"
+        onfocus="if (event.eventPhase == event.AT_TARGET) {ko.window.checkDiskFiles(event)}"
+        ondragover="ko.dragDrop.dragObserver.doDragOverEvent(event);return true;"
+        ondragdrop="ko.dragDrop.dragObserver.doDropEvent(event);return true;"
+        >
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <!--Mozilla sources-->
+    <!--globalOverlay.js contains application shutdown and controller code-->
+    <script src="chrome://global/content/globalOverlay.js"                type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/printUtils.js"                   type="application/x-javascript;version=1.7"/>
+    <!--nsDragAndDrop/nsTransferable used for Drag&Drop-->
+    <script src="chrome://global/content/nsDragAndDrop.js"                type="application/x-javascript;version=1.7"/>
+
+    <!--Komodo library resources-->
+    <!-- "komodo.js" must be the first Komodo .js file included so that its
+         top-level code can be sure that it is run first. -->
+    <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/komodo.js"                       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/DragDrop.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/otherdialogs.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/controller.js"           type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/printing.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uilayout.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/mru.js"                  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/color_functions.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/macros.js"               type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/isearch.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/baseTreeView.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"                type="application/x-javascript;version=1.7"/>
+<!-- #if BUILD_FLAVOUR == "dev" -->
+    <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
+<!-- #endif -->
+
+    <script src="chrome://komodo/content/find/find_functions.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/find/findtoolbar.js"             type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/run/runOutputWindow.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/run/run_functions.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/run/interpolate.js"              type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/library/viewhistory.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/prefs.js"                   type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/keybindings/viKeyBinder.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/keybindings/keybindings.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/browse.js"                       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/project/partutils.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/baseManager.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/projectManager.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/projectExtensionManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/toolboxManager.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peFile.js"               type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peFolder.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peSnippet.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peCommand.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peTemplate.js"           type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peURL.js"                type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peMenu.js"               type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peMacro.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/lint/lint.js"                    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/codeintel/codeintel.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/eggs.js"                 type="application/x-javascript;version=1.7"/>
+
+    <!-- This is used by the view editor for displaying
+         scintilla tooltips -->
+    <popupset id="editorTooltipSet">
+        <popup type="tooltip" id="editorTooltip" flex="1">
+            <description multiline="true" id="editorTooltip-tooltipText" class="tooltip-label" flex="1"/>
+        </popup>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <popupset id="extensionPopupSet"/>
+
+    <menupopup
+        style="height: 250px;"
+        id = "context-filetype-menu"
+        onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
+        />
+
+    <menu
+        collapsed="true"
+        class="menu-iconic-wide"
+        id="folder_context"
+        label="&add.label;"
+        accesskey="&folderContext.accesskey;">
+        <menupopup id="folder_context_popup">
+            <menuitem id="folder_context_newFile"
+                      label="&newFile.label;"
+                      accesskey="&folderContextNewFile.accesskey;"
+                      class="menuitem-iconic-wide"
+                      image="chrome://komodo/skin/images/new_file.png"
+                      oncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newFolder"
+                      label="&newFolder.label;"
+                      accesskey="&folderContextNewFolder.accesskey;"
+                      class="menuitem-iconic-wide"
+                      image="chrome://komodo/skin/images/new_folder.png"
+                      oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newLiveFolder"
+                      label="&newLiveFolder.label;"
+                      accesskey="&folderContextNewLiveFolder.accesskey;"
+                      class="menuitem-iconic-wide"
+                      image="chrome://komodo/skin/images/new_live_folder.png"
+                      oncommand="ko.projects.addNewPart('livefolder', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_existingFile"
+                      label="&existingFileS.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextExistingFile.accesskey;"
+                      image="chrome://komodo/skin/images/existing_file.png"
+                      oncommand="ko.projects.addNewPart('files', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_remoteFile"
+                      label="&existingRemoteFile.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextRemoteFile.accesskey;"
+                      image="chrome://komodo/skin/images/remote_file.png"
+                      oncommand="ko.projects.addNewPart('remotefiles', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newSnippet"
+                      label="&newSnippet.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewSnippet.accesskey;"
+                      image="chrome://komodo/skin/images/new_snippet.png"
+                      oncommand="ko.projects.addNewPart('snippet', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newCommand"
+                      label="&newCommand.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewCommand.accesskey;"
+                      image="chrome://komodo/skin/images/new_run_command.png"
+                      oncommand="ko.projects.addNewPart('command', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newTemplate"
+                      label="&newTemplate.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewTemplate.accesskey;"
+                      image="chrome://komodo/skin/images/new_template.png"
+                      oncommand="ko.projects.addNewPart('template', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newURL"
+                      label="&newURL.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewURL.accesskey;"
+                      image="chrome://komodo/skin/images/new_url.png"
+                      oncommand="ko.projects.addNewPart('URL', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newMacro"
+                      label="&newMacro.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewMacro.accesskey;"
+                      image="chrome://komodo/skin/images/new_macro.png"
+                      oncommand="ko.projects.addNewPart('macro', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newShortcut"
+                      label="&newOpenShortcut.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewShortcut.accesskey;"
+                      image="chrome://komodo/skin/images/new_open_shortcut.png"
+                      oncommand="ko.projects.addNewPart('directoryshortcut', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newMenu"
+                      label="&newCustomMenu.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewMenu.accesskey;"
+                      image="chrome://komodo/skin/images/new_custom_menu.png"
+                      oncommand="ko.projects.addNewPart('menu', this.parentNode.getAttribute('partviewer'))"
+                      />
+            <menuitem id="folder_context_newToolbar"
+                      label="&newCustomToolbar.label;"
+                      class="menuitem-iconic-wide"
+                      accesskey="&folderContextNewToolbar.accesskey;"
+                      image="chrome://komodo/skin/images/new_custom_toolbar.png"
+                      oncommand="ko.projects.addNewPart('toolbar', this.parentNode.getAttribute('partviewer'))"
+                      />
+        </menupopup>
+    </menu>
+
+
+    <menupopup id="projectContext">
+        <menuseparator anonid="primaryseparator"
+                       keep_background="true"
+                       keep="true"/>
+        <menuitem id="projectContextMenu_cut"
+                  observes="cmd_cut"
+                  label="&cut.label;"
+                  keep="true"
+                  class="menuitem-iconic-wide cut-button"
+                  />
+        <menuitem id="projectContextMenu_copy"
+                  observes="cmd_copy"
+                  label="&copy.label;"
+                  class="menuitem-iconic-wide copy-button"
+                  keep="true"
+                  />
+        <menuitem id="projectContextMenu_partPaste"
+                  observes="cmd_paste"
+                  keep_background="true"
+                  class="menuitem-iconic-wide paste-button"
+                  label="&paste.label;"
+                  keep="true"
+                  />
+        <menuseparator anonid="secondaryseparator"
+                       keep="true"
+                       />
+        <menuitem id="projectContextMenu_delete"
+                  observes="cmd_delete"
+                  label="&delete.label;"
+                  class="menuitem-iconic-wide list-item-remove-icon"
+                  keep="true"
+                  />
+        <menuseparator keep="true"
+                       intoplevel="true"/>
+        <menuitem id="projectContextMenu_editProperties"
+                  observes="cmd_editProperties"
+                  label="&properties.label;"
+                  class="menuitem-iconic-wide"
+                  intoplevel="true"
+                  keep="true"
+                  />
+    </menupopup>
+    <menupopup id="toolboxContext">
+        <menuseparator anonid="primaryseparator"
+                       keep_background="true"
+                       keep="true"/>
+        <menuitem id="toolboxContextMenu_cut"
+                  observes="cmd_cut"
+                  label="&cut.label;"
+                  keep="true"
+                  class="menuitem-iconic-wide cut-button"
+                  />
+        <menuitem id="toolboxContextMenu_copy"
+                  observes="cmd_copy"
+                  label="&copy.label;"
+                  class="menuitem-iconic-wide copy-button"
+                  keep="true"
+                  />
+        <menuitem id="toolboxContextMenu_partPaste"
+                  observes="cmd_paste"
+                  keep_background="true"
+                  class="menuitem-iconic-wide paste-button"
+                  label="&paste.label;"
+                  keep="true"
+                  />
+        <menuseparator anonid="secondaryseparator"
+                       keep="true"
+                       />
+        <menuitem id="toolboxContextMenu_delete"
+                  observes="cmd_delete"
+                  label="&delete.label;"
+                  class="menuitem-iconic-wide list-item-remove-icon"
+                  keep="true"
+                  />
+        <menuseparator keep="true"
+                       intoplevel="true"/>
+        <menuitem id="toolboxContextMenu_editProperties"
+                  observes="cmd_editProperties"
+                  label="&properties.label;"
+                  class="menuitem-iconic-wide"
+                  intoplevel="true"
+                  keep="true"
+                  />
+    </menupopup>
+
+    <menupopup id="context-toolbox-menu">
+        <menuitem id="context_toggleButtonText"
+            label="&buttonText.label;"
+            type="checkbox"
+            observes="cmd_toggleButtonText"
+            key="key_viewButtonText"/>
+        <menuseparator/>
+        <menuitem id="context_viewStandardToolbar"
+                  label="&standardToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewedittoolbar"
+                  key="key_viewToolbarEdit"/>
+        <menuitem id="context_viewtoolstoolbar"
+                  label="&toolsToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewtoolstoolbar"
+                  key="key_viewToolbarTools"/>
+        <menuitem id="context_viewworkspacetoolbar"
+                  label="&workspaceToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewworkspacetoolbar"
+                  key="key_viewToolbarWorkspace"/>
+        <menuitem id="context_viewfindtoolbar"
+                  label="&openFindToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewfindtoolbar"
+                  key="key_viewToolbarFind"/>
+        <menuitem id="context_viewmacrotoolbar"
+                  label="&macroToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewmacrotoolbar"
+                  key="key_viewToolbarMacro"/>
+        <menuitem id="context_viewkomodotoolbar"
+                  label="&komodoResourcesToolbar.label;"
+                  type="checkbox"
+                  observes="cmd_viewkomodotoolbar"
+                  key="key_viewToolbarKomodo"/>
+        <menuseparator collapsed="true"/>
+    </menupopup>
+
+    <!-- this toolbox is used to provide a document link to menus we dynamicaly display -->
+    <menu id="hidden-toolbox" collapsed="true">
+        <menupopup id="hidden-toolbox-popup"/>
+    </menu>
+
+
+    <menupopup id="context_lint">
+        <menuitem id="context_doLint"
+                  label="&checkSyntaxNow.label;"
+                  observes="cmd_lintNow"
+                  />
+        <menuitem id="context_describeResults"
+                  label="&jumpToNextResult.label;"
+                  observes="cmd_nextLintResult"
+                  />
+        <menuitem id="context_clearResults"
+                  label="&clearWarningErrorSquigglies.label;"
+                  observes="cmd_lintClearResults"
+                  />
+    </menupopup>
+
+    <toolbox id="toolbox_main"  type="reflow"
+             context="context-toolbox-menu"
+             class="chromeclass-toolbar toolbox-top">
+        <menubar id="menubar_main"
+              class="chromeclass-menubar"
+            grippyhidden="true"
+            fullscreentoolbar="true"
+            align="start"
+            flex="1"
+            >
+            <menu id="menu_file" label="&file.label;" accesskey="&menuFile.accesskey;">
+                <menupopup id="popup_file">
+                    <menu id="menu_file_new" label="&new.label;"
+                          class="menu-iconic-wide"
+                          accesskey="&menuFileNew.accesskey;">
+                        <menupopup id="popup_filenew"
+                                   onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('template');">
+                            <menuitem id="menu_file_newFile" label="&newFile.label;"
+                                      class="menuitem-iconic-wide new-file-icon"
+                                      observes="cmd_newTemplate"
+                                      />
+                            <menuitem label="&newProject.label;"
+                                      id="menu_newProject"
+                                      class="menuitem-iconic-wide new-project-icon"
+                                      observes="cmd_newProject"
+                                      />
+                            <menuitem label="&newProjectFromTemplate.label;"
+                                      id="menu_newProjectFromTemplate"
+                                      class="menuitem-iconic-wide new-project-icon"
+                                      observes="cmd_newProjectFromTemplate"
+                                      />
+                            <menuseparator id="separator_mruTemplates"/>
+                            <!-- menuitems are added dynamically for each
+                                 entry in the file MRU -->
+                        </menupopup>
+                    </menu>
+                    <menu id="menu_file_open" label="&open.label;"
+                          class="menu-iconic-wide"
+                          accesskey="&menuFileOpen.accesskey;">
+                        <menupopup id="popup_file_open">
+                            <menuitem label="&file.label;"
+                                      id="menu_openFile"
+                                      class="menuitem-iconic-wide open-file-icon"
+                                      observes="cmd_open"
+                                      key="key_open"
+                                      />
+                            <menuitem label="&remoteFile.label;"
+                                      id="menu_openRemoteFile"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_open_remote"
+                                      />
+                            <menuitem label="&templateFile.label;"
+                                      id="menu_openTemplateFile"
+                                      class="menuitem-iconic-wide new-template-icon"
+                                      observes="cmd_openTemplate"
+                                      />
+                            <menuseparator/>
+                            <menuitem label="&project.label;"
+                                      id="menu_openProject"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_openProject"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menuitem
+                        id="menu_bufferClose"
+                        label="&close.label;"
+                        class="menuitem-iconic-wide close-buffer-icon"
+                        accesskey="&menuBufferClose.accesskey;"
+                        observes="cmd_bufferClose"
+                        />
+                    <menuseparator/>
+                    <menuitem label="&save.label;"
+                              id="menu_save"
+                              class="menuitem-iconic-wide save-buffer-icon"
+                              observes="cmd_save"
+                              accesskey="&menuSave.accesskey;"
+                              />
+                    <menuitem label="&showUnsavedChanges.label;"
+                              accesskey="&menuShowUnsavedChanges.accesskey;"
+                              class="menuitem-iconic-wide"
+                              id="menu_showUnsavedChanges"
+                              observes="cmd_showUnsavedChanges"
+                              />
+                    <menuitem label="&saveAs.label;"
+                              id="menu_saveAs"
+                              observes="cmd_saveAs"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuSaveAs.accesskey;"
+                              />
+                    <menuitem label="&saveRemotelyAs.label;"
+                              disabled="true"
+                              id="menu_saveAsRemote"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_saveAs_remote"
+                              />
+                    <menuitem label="&saveAsTemplate.label;"
+                              id="menu_saveAsTemplate"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_saveAsTemplate"
+                              />
+                    <menuitem label="&saveAll.label;"
+                              id="menu_saveAll"
+                              observes="cmd_saveAll"
+                              class="menuitem-iconic-wide save-all-buffers-icon"
+                              accesskey="&menuSaveAll.accesskey;"
+                              />
+                    <menuitem label="&revert.label;"
+                              id="menu_revert"
+                              accesskey="&menuRevert.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_revert"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&closeProject.label;"
+                              id="menu_closeProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_closeProject"
+                              />
+                    <menuitem label="&saveProject.label;"
+                              id="menu_saveProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_saveProject"
+                              />
+                    <menuitem label="&saveProjectAs.label;"
+                              id="menu_saveProjectAs"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_saveProjectAs"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&refreshStatus.label;"
+                              id="menu_refreshStatus"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuRefreshStatus.accesskey;"
+                              observes="cmd_refreshStatus"
+                              >
+                    </menuitem>
+                    <menuseparator/>
+                    <menu id="menu_Printmenu"
+                          class="menu-iconic-wide"
+                          label="&print.label;">
+                        <menupopup id="popup_Printmenu">
+                            <menuitem label="&pageSetup.label;"
+                                      id="menu_printSetup"
+                                      class="menuitem-iconic-wide"
+                                      oncommand="PrintUtils.showPageSetup();"
+                                      />
+                            <menuitem id="menu_PrintSettings"
+                                oncommand="prefs_doGlobalPrefs('printItem');"
+                                label="&printSettings.label;"
+                                accesskey="&menuPrintSettings.accesskey;"
+                                class="menuitem-iconic-wide"
+                                />
+<!-- #if PLATFORM != "darwin" -->
+                            <menuitem label="&printPreview.label;"
+                                      id="menu_printPreview"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_printPreview"
+                                      accesskey="&menuPrintPreview.accesskey;"
+                                      />
+                            <menuitem label="&printPreviewSelection.label;"
+                                      id="menu_printPreviewSelection"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_printPreviewSelection"
+                                      accesskey=""
+                                      />
+<!-- #endif -->
+                            <menuitem label="&print.label;"
+                                      id="menu_print"
+                                      accesskey="&menuPrint.accesskey;"
+                                      class="menuitem-iconic-wide print-button"
+                                      observes="cmd_print"
+                                      />
+                            <menuitem label="&printSelectedText.label;"
+                                      id="menu_printSelected"
+                                      class="menuitem-iconic-wide print-button"
+                                      observes="cmd_printSelection"
+                                      />
+                            <menuitem label="&printToHTMLFile.label;"
+                                      id="menu_exportHTML"
+                                      class="menuitem-iconic-wide"
+                                      accesskey="&menuExportHTML.accesskey;"
+                                      observes="cmd_exportHTML"
+                                      />
+                            <menuitem label="&printSelectedTextToHTMLFile.label;"
+                                      id="menu_exportHTMLSelection"
+                                      class="menuitem-iconic-wide"
+                                      accesskey="&menuExportHTMLSelection.accesskey;"
+                                      observes="cmd_exportHTMLSelection"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menuseparator/>
+                    <menu
+                        id="menu_mruFiles"
+                        accesskey="&menuMruFiles.accesskey;"
+                        class="menu-iconic-wide menu_mru"
+                        label="&recentFiles.label;">
+                        <menupopup
+                            id="popup_mruFiles"
+                            class="popup_mru"
+                            onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file');">
+                            <!-- menuitems are added dynamically for each entry
+                                            in the file MRU -->
+                            </menupopup>
+                    </menu>
+                    <menu
+                        id="menu_mruProjects"
+                        accesskey="&menuMruProjects.accesskey;"
+                        label="&recentProjects.label;"
+                        class="menu-iconic-wide menu_mru">
+                        <menupopup
+                            id="popup_mruProjects"
+                            class="popup_mru"
+                            onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project');">
+                            <!-- menuitems are added dynamically for each entry
+                                in the project MRU -->
+                        </menupopup>
+                    </menu>
+                    <!-- more mozilla menu magic for osx.  FileQuit id's are
+                         necessary for proper aqua menu's -->
+                    <menuseparator id="menu_FileQuitSeparator"/>
+                    <menuitem
+                        id="menu_FileQuitItem"
+                        label="&exit.label;"
+                        class="menuitem-iconic-wide"
+                        accesskey="&menuFileQuitItem.accesskey;"
+                        observes="cmd_quit"
+                        />
+                </menupopup>
+            </menu>
+
+            <menu id="menu_edit" label="&edit.label;" accesskey="&menuEdit.accesskey;">
+                <menupopup id="popup_edit">
+                    <menuitem label="&undo.label;"
+                              class="menuitem-iconic-wide"
+                              id="undoButton"
+                              accesskey="&undoButton.accesskey;"
+                              observes="cmd_undo"
+                              />
+                    <menuitem label="&redo.label;"
+                              id="redoButton"
+                              class="menuitem-iconic-wide"
+                              accesskey="&redoButton.accesskey;"
+                              observes="cmd_redo"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&cut.label;"
+                              id="cutButton"
+                              class="menuitem-iconic-wide cut-button"
+                              accesskey="&cutButton.accesskey;"
+                              observes="cmd_cut"
+                              />
+                    <menuitem label="&copy.label;"
+                              id="copyButton"
+                              class="menuitem-iconic-wide copy-button"
+                              accesskey="&copyButton.accesskey;"
+                              observes="cmd_copy"
+                              />
+                    <menuitem label="&paste.label;"
+                              id="pasteButton"
+                              class="menuitem-iconic-wide paste-button"
+                              accesskey="&pasteButton.accesskey;"
+                              observes="cmd_paste"
+                              />
+                    <menuitem label="&delete.label;"
+                              id="menu_delete"
+                              class="menuitem-iconic-wide list-item-remove-icon"
+                              observes="cmd_delete"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&selectAll.label;"
+                              id="menu_editSelectAll"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_selectAll"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&find.label;"
+                              id="menu_find"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuFind.accesskey;"
+                              observes="cmd_find"
+                              />
+                    <menuitem label="&findNext.label;"
+                              id="menu_findNext"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuFindNext.accesskey;"
+                              observes="cmd_findNext"
+                              />
+                    <menuitem label="&replace.label;"
+                              id="menu_replace"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuReplace.accesskey;"
+                              observes="cmd_replace"
+                              />
+                    <menuitem label="&incrementalSearch.label;"
+                              id="menu_startIncrementalSearch"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuStartIncrementalSearch.accesskey;"
+                              observes="cmd_startIncrementalSearch"
+                              />
+                    <menuitem label="&findInFiles.label;"
+                              id="menu_findInFiles"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_findInFiles"
+                              />
+                    <menuseparator/>
+                    <!-- mozilla magic...menu_preferences id makes the preference
+                        menu appear in the proper place on osx -->
+                    <menuitem label="&preferences.label;"
+                              id="menu_preferences"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_editPrefs"
+                              accesskey="&menuPreferences.accesskey;"
+                              />
+                    <menuitem label="&currentFileSettings.label;"
+                              id="menu_editPrefsCurrent"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuEditPrefsCurrent.accesskey;"
+                              observes="cmd_editPrefsCurrent"
+                              />
+                </menupopup>
+            </menu>
+            <menu id="menu_code" label="&code.label;" accesskey="&menuCode.accesskey;">
+                <menupopup id="popup_sourcecode">
+                    <menuitem label="&reflowParagraph.label;"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuReflow.accesskey;"
+                              id="menu_reflow"
+                              observes="cmd_editReflow"
+                              />
+                    <menuitem label="&joinLines.label;"
+                              id="menu_join"
+                              accesskey="&menuJoin.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_join"
+                              />
+                    <menuitem label="&increaseLineIndent.label;"
+                              id="menu_indent"
+                              accesskey="&menuIndent.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_indent"
+                              />
+                    <menuitem label="&decreaseLineIndent.label;"
+                              id="menu_dedent"
+                              accesskey="&menuDedent.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_dedent"
+                              />
+                    <menuseparator/>
+                    <menu id="menu_marks" class="menu-iconic-wide"
+                          label="&marks.label;"
+                          accesskey="&menuMarks.accesskey;">
+                        <menupopup id="popup_marks">
+                            <menuitem label="&toggleBookmark.label;"
+                                      id="menu_bookmarkToggle"
+                                      accesskey="&menuBookmarkToggle.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_bookmarkToggle"
+                                      />
+                            <menuitem label="&removeAllBookmarks.label;"
+                                      id="menu_bookmarkRemoveAll"
+                                      accesskey="&menuBookmarkRemoveAll.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_bookmarkRemoveAll"
+                                      />
+                            <menuitem label="&nextBookmark.label;"
+                                      id="menu_bookmarkGotoNext"
+                                      accesskey="&menuBookmarkGotoNext.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_bookmarkGotoNext"
+                                      />
+                            <menuitem label="&previousBookmark.label;"
+                                      accesskey="&menuBookmarkGotoPrevious.accesskey;"
+                                      id="menu_bookmarkGotoPrevious"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_bookmarkGotoPrevious"
+                                      />
+                            <menuseparator/>
+                            <menuitem label="&setTransientMark.label;"
+                                      id="menu_transientMarkSet"
+                                      accesskey="&menuTransientMarkSet.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_transientMarkSet"
+                                      />
+                            <menuitem label="&exchangePositionAndMark.label;"
+                                      id="menu_transientMarkExchangeWithPoint"
+                                      accesskey="&menuTransientMarkExchangeWithPoint.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_transientMarkExchangeWithPoint"
+                                      />
+                            <menuitem label="&moveToPreviousMark.label;"
+                                      id="menu_transientMarkMoveBack"
+                                      accesskey="&menuTransientMarkMoveBack.accesskey;"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_transientMarkMoveBack"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menuseparator/>
+                    <menuitem label="&makeUppercase.label;"
+                              id="menu_convertUpperCase"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_convertUpperCase"
+                              />
+                    <menuitem label="&makeLowercase.label;"
+                              id="menu_convertLowerCase"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_convertLowerCase"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&commentRegion.label;"
+                              id="menu_comment"
+                              accesskey="&menuComment.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_comment"
+                              />
+                    <menuitem label="&unCommentRegion.label;"
+                              id="menu_uncomment"
+                              accesskey="&menuUncomment.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_uncomment"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&cleanLineEndings.label;"
+                              id="menu_cleanLineEndings"
+                              accesskey="&menuCleanLineEndings.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_cleanLineEndings"
+                              />
+                    <menuitem label="&tabifyRegion.label;"
+                              id="menu_tabify"
+                              accesskey="&menuTabify.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_tabify"
+                              />
+                    <menuitem label="&untabifyRegion.label;"
+                              id="menu_untabify"
+                              accesskey="&menuUntabify.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_untabify"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&completeWord.label;"
+                              id="menu_completeWord"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_completeWord"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&jumpToMatchingBrace.label;"
+                              id="menu_jumpToMatchingBrace"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_jumpToMatchingBrace"
+                              />
+                    <menuitem label="&selectToMatchingBrace.label;"
+                              id="menu_selectToMatchingBrace"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_selectToMatchingBrace"
+                              />
+                    <menuitem label="&selectBlock.label;"
+                              id="menu_blockSelect"
+                              accesskey="&menuBlockSelect.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_blockSelect"
+                              />
+                    <menuitem id="menu_goToDefinition"
+                              label="&goToDefinition.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_goToDefinition"/>
+                    <menuitem id="editor-jump-corresponding"
+                              label="&jumpToCorrespondingLineForDiffMode.label;"
+                              class="menuitem-iconic-wide reveal-in-editor-icon"
+                              observes="cmd_jumpToCorrespondingLine"/>
+                    <menuseparator/>
+                    <menuitem label="&findNextFunction.label;"
+                              id="menu_findNextFunction"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_findNextFunction"
+                              />
+                    <menuitem label="&findPreviousFunction.label;"
+                              id="menu_findPreviousFunction"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_findPreviousFunction"
+                              />
+                    <menuitem label="&findAllFunctions.label;"
+                              id="menu_findAllFunctions"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_findAllFunctions"
+                              />
+                    <menuseparator/>
+                    <menuitem label="&enterNextCharacterAsRawLiteral.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_rawKey"
+                              observes="cmd_rawKey"
+                              />
+                    <menuitem label="&repeatNextKeystrokeNTimes.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_repeatNextCommandBy"
+                              observes="cmd_repeatNextCommandBy"
+                              />
+                </menupopup>
+            </menu>
+            <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
+                <menupopup id="popup_view"
+                           onpopupshowing="ko.uilayout.updateFullScreen(this)">
+<!-- #if PLATFORM != "darwin" -->
+                    <menuitem label="&fullScreen.label;"
+                              class="menuitem-iconic-wide"
+                              id="menuitem_fullScreen"
+                              type="checkbox"
+                              observes="cmd_viewFullScreen"
+                              />
+<!-- #endif -->
+                    <menu class="menu-iconic-wide" label="&tabs.label;" id="menu_view_tabs">
+                        <menupopup
+                            id="menu_view_tabs_popup"
+                            onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
+                            type="menu"
+                            >
+                            <menuitem id="show_project_tab2"
+                                observes="show_project_tab"
+                                class="menuitem-iconic-wide"
+                                oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
+                                label="&projects.label;"
+                                />
+                            <menuitem id="show_toolbox_tab2"
+                                observes="show_toolbox_tab"
+                                class="menuitem-iconic-wide"
+                                oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
+                                label="&toolbox.label;"
+                                />
+                            <menuseparator/>
+                            <menuitem id="show_findresults1_tab2"
+                                observes="show_findresults1_tab"
+                                class="menuitem-iconic-wide"
+                                oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
+                                label="&findResults1.label;"
+                                />
+                            <menuitem id="show_findresults2_tab2"
+                                observes="show_findresults2_tab"
+                                oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
+                                class="menuitem-iconic-wide"
+                                label="&findResults2.label;"
+                                />
+                            <menuitem id="show_runoutput_tab2"
+                                observes="show_runoutput_tab"
+                                oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
+                                class="menuitem-iconic-wide"
+                                label="&commandOutput.label;"
+                                />
+                        </menupopup>
+                    </menu>
+                    <menu id="menu_toolbars" class="menu-iconic-wide" label="&toolbars.label;">
+                        <menupopup id="popup_toolbars">
+                            <menuitem label="&showButtonText.label;"
+                                      id="menu_toggleButtonText"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_toggleButtonText"
+                                      checked="true"
+                                      persist="checked"
+                                      type="checkbox"
+                                      />
+                            <menuseparator/>
+                            <menuitem label="&standard.label;"
+                                      id="menu_viewedittoolbar"
+                                      observes="cmd_viewedittoolbar"
+                                      class="menuitem-iconic-wide"
+                                      persist="checked"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuitem id="menu_viewtoolstoolbar"
+                                      label="&tools.label;"
+                                      observes="cmd_viewtoolstoolbar"
+                                      class="menuitem-iconic-wide"
+                                      persist="checked"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuitem id="menu_viewworkspacetoolbar"
+                                      label="&workspace.label;"
+                                      observes="cmd_viewworkspacetoolbar"
+                                      class="menuitem-iconic-wide"
+                                      persist="checked"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuitem label="&openFind.label;"
+                                      id="menu_viewfindtoolbar"
+                                      observes="cmd_viewfindtoolbar"
+                                      persist="checked"
+                                      class="menuitem-iconic-wide"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuitem label="&macro.label;"
+                                      id="menu_viewmacrotoolbar"
+                                      observes="cmd_viewmacrotoolbar"
+                                      persist="checked"
+                                      class="menuitem-iconic-wide"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuitem label="&komodoResources.label;"
+                                      id="menu_viewkomodotoolbar"
+                                      observes="cmd_viewkomodotoolbar"
+                                      persist="checked"
+                                      class="menuitem-iconic-wide"
+                                      checked="true"
+                                      type="checkbox"
+                                      />
+                            <menuseparator collapsed="true"/>
+                        </menupopup>
+                    </menu>
+                    <menuseparator/>
+                    <menuitem label="&gotoLine.label;"
+                              id="menu_gotoLine"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_gotoLine"
+                              />
+                    <menu id="menu_viewAsLanguage"
+                          label="&viewAsLanguage.label;"
+                          class="menu-iconic-wide"
+                          observes="cmd_viewAsLanguage">
+                        <menupopup id="popup_viewAsLanguage"
+                                   onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
+                                   />
+                    </menu>
+                    <menuitem id="menu_previewInBrowser"
+                              label="&previewInBrowser.label;"
+                              accesskey="&menuPreviewInBrowser.accesskey;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_browserPreview"/>
+                    <menuseparator/>
+                    <menuitem id="menu_viewWhitespace"
+                              label="&viewWhitespace.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_viewWhitespace"
+                              />
+                    <menuitem id="menu_viewIndentationGuides"
+                              label="&viewIndentationGuides.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_viewIndentationGuides"
+                              />
+                    <menuitem id="menu_viewLineNumbers"
+                              label="&viewLineNumbers.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_viewLineNumbers"
+                              />
+                    <menuitem id="menu_viewEOLMarkers"
+                              label="&viewEOLMarkers.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_viewEOL"
+                              />
+                    <menuitem id="menu_wordWrap"
+                              label="&wordWrap.label;"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_wordWrap"
+                              />
+                    <menu id="menu_font" class="menu-iconic-wide" label="&font.label;">
+                        <menupopup id="popup_font">
+                            <menuitem label="&increase.label;"
+                                      id="menu_fontZoomIn"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_fontZoomIn"
+                                      />
+                            <menuitem label="&decrease.label;"
+                                      id="menu_fontZoomOut"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_fontZoomOut"
+                                      />
+                            <menuitem label="&toggleFixedProportionalFonts.label;"
+                                      id="menu_fontFixed"
+                                      class="menuitem-iconic-wide"
+                                      observes="cmd_fontFixed"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menu id="menu_fold" label="&fold.label;" class="menu-iconic-wide">
+                        <menupopup id="popup_fold">
+                            <menuitem label="&expand.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldExpand"
+                                      observes="cmd_foldExpand"
+                                      />
+                            <menuitem label="&expandAll.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldExpandAll"
+                                      observes="cmd_foldExpandAll"
+                                      />
+                            <menuitem label="&expandRecursively.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldExpandRecursive"
+                                      observes="cmd_foldExpandRecursive"
+                                      />
+                            <menuitem label="&collapse.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldCollapse"
+                                      observes="cmd_foldCollapse"
+                                      />
+                            <menuitem label="&collapseAll.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldCollapseAll"
+                                      observes="cmd_foldCollapseAll"
+                                      />
+                            <menuitem label="&collapseRecursively.label;"
+                                      class="menuitem-iconic-wide"
+                                      id="menu_foldCollapseRecursive"
+                                      observes="cmd_foldCollapseRecursive"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menuseparator/>
+                    <menuitem label="&scrollCurrentLineToCenterOfScreen.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_editCenterVertically"
+                              observes="cmd_editCenterVertically"
+                              />
+                    <menuitem label="&scrollCurrentLineToTopOfScreen.label;"
+                              class="menuitem-iconic-wide"
+                              id="move_editMoveCurrentLineToTop"
+                              observes="cmd_editMoveCurrentLineToTop"
+                              />
+                </menupopup>
+            </menu>
+            <menu id="menu_project" label="&project.label;" accesskey="&menuProject.accesskey;">
+                <menupopup id="popup_project"
+                    onpopupshowing="ko.projects.extensionManager.updateToplevelMenu('popup_project', event, 'projectview')">
+                    <menu id="menu_project_submenu" class="menu-iconic-wide" label="&selection.label;">
+                        <menupopup/>
+                    </menu>
+                    <menuseparator id="project-menuseparator"/>
+                    <menuitem label="&newProject.label;"
+                              id="menu_projectNewProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_newProject"
+                              />
+                    <menuitem label="&newProjectFromTemplate.label;"
+                              id="menu_projectNewProjectFromTemplate"
+                              class="menuitem-iconic-wide new-project-icon"
+                              observes="cmd_newProjectFromTemplate"
+                              />
+                    <menuitem label="&openProject.label;"
+                              id="menu_projectOpenProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_openProject"
+                              />
+                    <menu label="&makeActiveProject.label;"
+                          id="menu_projectMakeActive"
+                          class="menu-iconic-wide"
+                          observes="broadcaster_projectCurrent">
+                        <menupopup  id="menu_projectMakeActive_popup"
+                            onpopupshowing="ko.projects.manager.getProjectsMenu(this);"/>
+                    </menu>
+                    <menu id="menu_projectAdd" label="&add.label;" accesskey="&menuProjectAdd.accesskey;"
+                          class="menu-iconic-wide" observes="broadcaster_projectCurrent">
+                          <menupopup id="projectAdd_popup" partviewer="projectview"
+                                      onpopupshowing="ko.projects.ensureAddMenu(this);"/>
+                    </menu>
+                    <menuitem label="&importFromFileSystem.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_importFromFS"
+                              observes="cmd_importFromFS_Project"
+                              />
+                    <menuitem label="&reImport.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_reimportFromFS"
+                              tooltiptext="&reImportFromFileSystemWithSameSettings.tooltiptext;"
+                              observes="cmd_reimportFromFS_Project"
+                              />
+                    <menuitem label="&closeProject.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_closeProject"
+                              observes="cmd_closeProject"
+                              />
+                    <menuitem label="&saveProject.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_saveProject"
+                              observes="cmd_saveProject"
+                              />
+                    <menuitem label="&saveProjectAs.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_saveProjectAs"
+                              observes="cmd_saveProjectAs"
+                              />
+                    <menuitem label="&createTemplateFromProject.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_saveProjectAsTemplate"
+                              observes="cmd_saveProjectAsTemplate"
+                              />
+                    <menuitem label="&revertProject.label;"
+                              class="menuitem-iconic-wide"
+                              id="menu_revertProject"
+                              observes="cmd_revertProject"
+                              />
+                </menupopup>
+            </menu>
+            <menu id="menu_toolbox" label="&toolbox.label;" allowevents="false" accesskey="&menuToolbox.accesskey;">
+                <menupopup id="popup_toolbox"
+                    onpopupshowing="ko.projects.extensionManager.updateToplevelMenu('popup_toolbox', event, 'toolboxview')"
+                    >
+                    <menu id="menu_toolboxHiddenMenu" class="menu-iconic-wide" label="&selection.label;">
+                        <menupopup/>
+                    </menu>
+                    <menuseparator id="toolbox-menuseparator"/>
+                    <menuitem id="menu_toolboxImportPackage" label="&importPackage.label;"
+                              class="menuitem-iconic-wide"
+                              oncommand="ko.toolboxes.importPackage()"/>
+                    <menuitem id="menu_toolboxExportPackage" label="&exportPackage.label;"
+                              class="menuitem-iconic-wide"
+                              command="cmd_toolboxExportPackage"/>
+                    <menuseparator/>
+                    <menu id="menu_toolboxAdd" label="&add.label;" class="menu-iconic-wide" accesskey="&menuToolboxAdd.accesskey;">
+                        <menupopup id="popup_toolboxAdd" partviewer="toolboxview"
+                                   onpopupshowing="ko.projects.ensureAddMenu(this);"/>
+                    </menu>
+                </menupopup>
+            </menu>
+            <menu id="menu_tools" label="&tools.label;" accesskey="&menuTools.accesskey;">
+                <menupopup id="popup_tools">
+                    <menuitem label="&runCommand.label;"
+                              class="menuitem-iconic-wide run-command-icon"
+                              id="menu_toolsRunCommand"
+                              observes="cmd_toolsRunCommand"
+                              accesskey="&menuToolsRunCommand.accesskey;"/>
+                    <menu label="&recentCommands.label;"
+                          id="menu_toolsRecentCommands"
+                          class="menu-iconic-wide"
+                          accesskey="&menuToolsRecentCommands.accesskey;">
+                        <menupopup id="menu_toolsRecentCommands_popup" onpopupshowing="ko.run.buildRecentCommandsMenu(this);"/>
+                    </menu>
+                    <menu id="menu_macros" label="&macros.label;"
+                          class="menu-iconic-wide"
+                          accesskey="&menuMacros.accesskey;">
+                        <menupopup id="popup_macros">
+                            <menuitem label="&startRecording.label;"
+                                      id="menu_startMacroMode"
+                                      observes="cmd_startMacroMode"
+                                      class="menuitem-iconic-wide macro-record-icon"
+                                      />
+                            <menuitem label="&pauseRecording.label;"
+                                      id="menu_pauseMacroMode"
+                                      observes="cmd_pauseMacroMode"
+                                      class="menuitem-iconic-wide macro-pause-icon"
+                                      />
+                            <menuitem label="&stopRecording.label;"
+                                      id="menu_stopMacroMode"
+                                      observes="cmd_stopMacroMode"
+                                      class="menuitem-iconic-wide macro-stop-icon"
+                                      />
+                            <menuitem label="&runLastMacro.label;"
+                                      id="menu_executeLastMacro"
+                                      observes="cmd_executeLastMacro"
+                                      class="menuitem-iconic-wide macro-play-icon"
+                                      />
+                            <menuitem label="&saveToToolbox.label;"
+                                      id="menu_saveMacroToToolbox"
+                                      observes="cmd_saveMacroToToolbox"
+                                      class="menuitem-iconic-wide macro-save-icon"
+                                      />
+                        </menupopup>
+                    </menu>
+                    <menuseparator id="menu_tools_separator"/>
+                    <menuitem label="&watchFile.label;"
+                              accesskey="&menuWatchThread.accesskey;"
+                              class="menuitem-iconic-wide"
+                              id="menu_watchThread"
+                              observes="cmd_toolsWatchFile"
+                              />
+                    <menuitem label="&compareFiles.label;"
+                              accesskey="&menuCompareFiles.accesskey;"
+                              class="menuitem-iconic-wide"
+                              id="menu_compareFiles"
+                              oncommand="window.openDialog('chrome://komodo/content/dialogs/compare.xul', '_blank', 'chrome,modal,titlebar,resizable');"
+                              />
+                    <menuitem label="&extensionManager.label;"
+                              id="menu_extensionmanager"
+                              observes="cmd_openextmgr"
+                              class="menuitem-iconic-wide" />
+                </menupopup>
+            </menu>
+            <menu id="menu_window" label="&window.label;" accesskey="&menuWindow.accesskey;" ordinal="9995">
+                <menupopup id="popup_window"
+                    onpopupshowing="ko.uilayout.updateWindowList(this);">
+                    <menuitem
+                        id="menu_bufferClose2"
+                        label="&close.label;"
+                        class="menuitem-iconic-wide close-buffer-icon"
+                        accesskey="&menuBufferClose2.accesskey;"
+                        observes="cmd_bufferClose"
+                    />
+                    <menuitem
+                        id="menu_closeAll"
+                        label="&closeAll.label;"
+                        accesskey="&menuCloseAll.accesskey;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_closeAll"
+                    />
+                    <menuitem
+                        id="menu_openStartPage"
+                        label="&startPage.label;"
+                        observes="cmd_openStartPage"
+                        class="menuitem-iconic-wide"
+                        accesskey="&menuOpenStartPage.accesskey;"
+                        />
+                    <menuseparator/>
+                    <menuitem
+                        id="menu_bufferNext"
+                        label="&nextFile.label;"
+                        accesskey="&menuBufferNext.accesskey;"
+                        class="menuitem-iconic-wide next-buffer-icon"
+                        observes="cmd_bufferNext"
+                    />
+                    <menuitem
+                        id="menu_bufferPrevious"
+                        label="&previousFile.label;"
+                        accesskey="&menuBufferPrevious.accesskey;"
+                        class="menuitem-iconic-wide previous-buffer-icon"
+                        observes="cmd_bufferPrevious"
+                    />
+                    <menuseparator/>
+                    <menuitem
+                        id="menu_moveTab"
+                        label="&moveToOtherTabGroup.label;"
+                        accesskey="&menuMoveTab.accesskey;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_movetab"
+                    />
+                    <menuitem
+                        id="menu_splitTab"
+                        label="&splitView.label;"
+                        accesskey="&menuSplitTab.accesskey;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_splittab"
+                    />
+                    <menuitem
+                        id="menu_rotateSplitter"
+                        label="&rotateTabGroups.label;"
+                        accesskey="&menuRotateSplitter.accesskey;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_rotateSplitter"
+                    />
+                    <menuseparator id="window-menu-separator" collapsed="true"/>
+
+
+                </menupopup>
+            </menu>
+            <menu id="help_menu" label="&help.label;" accesskey="&helpMenu.accesskey;"
+                ordinal="9996">
+                <menupopup id="popup_help">
+                    <menuitem
+                        id="menu_helpHelp"
+                        label="&help.label;"
+                        observes="cmd_helpHelp"
+                        accesskey="&menuHelpHelp.accesskey;"
+                        class="menuitem-iconic-wide help-icon"
+                        />
+                    <menuitem
+                        id="menu_helpShowKeybindings"
+                        label="&listKeyBindings.label;"
+                        accesskey="&menuHelpShowKeybindings.accesskey;"
+                        class="menuitem-iconic-wide"
+                        oncommand="ko.browse.showKeybindings()"
+                        />
+                    <menuseparator/>
+                    <menuitem
+                        id="menu_helpCommunity"
+                        label="&komodoCommunity.label;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_helpCommunity"
+                    />
+                    <menuitem
+                        id="menu_helpViewBugs"
+                        label="&komodoBugDatabase.label;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_helpViewBugs"
+                        />
+                    <menuitem
+                        id="menu_helpReleaseNotes"
+                        label="&releaseNotes.label;"
+                        class="menuitem-iconic-wide"
+                        oncommand="ko.help.open('release_notes')"
+                        />
+<!-- #if BUILD_FLAVOUR != "dev" -->
+                    <menuitem
+                        id="menu_helpUpdates"
+                        label="&checkForUpdates.label;"
+                        accesskey="U"
+                        class="menuitem-iconic-wide"
+                        oncommand="ko.launch.checkForUpdates()"
+                        />
+<!-- #endif -->
+<!-- #if PLATFORM != "darwin" -->
+                    <menuseparator/>
+                    <menuitem
+                        id="about_menu"
+                        label="&aboutKomodo.label;"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_helpAbout"
+                        accesskey="&aboutMenu.accesskey;"
+                        />
+<!-- #else -->
+                    <!-- more moz magic for osx aqua menu's, 'aboutName' id
+                         required for aqua menu 'about komodo' to work.
+                    -->
+                    <menuitem
+                        id="aboutName"
+                        label="&aboutKomodo.label;"
+                        hidden="true"
+                        class="menuitem-iconic-wide"
+                        observes="cmd_helpAbout"
+                        accesskey="&aboutName.accesskey;"
+                        />
+<!-- #endif -->
+                </menupopup>
+            </menu>
+<!-- #if PLATFORM != "darwin" -->
+            <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
+            <hbox id="window-controls" flex="1" hidden="true" fullscreencontrol="true"
+                ordinal="9999" align="right" pack="center">
+            <toolbarbutton id="minimize-button" class="rightarrow-button-a"
+                            oncommand="window.minimize();"/>
+
+            <toolbarbutton id="restore-button" class="rightarrow-button-a"
+                            oncommand="ko.uilayout.fullScreen();"/>
+
+            <toolbarbutton id="close-button" class="rightarrow-button-a"
+                            oncommand="window.close();"/>
+            </hbox>
+<!-- #endif -->
+        </menubar>
+        <toolboxrow id="main-toolboxrow" flex="1">
+        <toolbar
+            id="standardToolbar"
+            class="chromeclass-toolbar"
+            align="stretch"
+            persist="hidden collapsed buttonstyle"
+            buttonstyle="pictures"
+            grippyhidden="true"
+            broadcaster="cmd_viewedittoolbar"
+            tooltiptext="&standardToolbar.tooltiptext;">
+            <toolbarbutton id="newButton"
+                tooltiptext="&newFileUsingDefaultLanguage.tooltiptext;"
+                observes="cmd_new"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                label="&new.label;"/>
+            <toolbarbutton id="openButton"
+                tooltiptext="&openFile.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="open-file-icon"
+                observes="cmd_open"
+                label="&open.label;"/>
+            <toolbarbutton id="saveButton"
+                tooltiptext="&saveFile.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_save"
+                class="save-buffer-icon"
+                label="&saveFile.label;"/>
+            <toolbarbutton id="saveAllButton"
+                tooltiptext="&saveAllFiles.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_saveAll"
+                class="save-all-buffers-icon"
+                label="&saveAll.label;"/>
+            <toolbarseparator/>
+            <toolbarbutton id="cutButton"
+                tooltiptext="&cut.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_cut"
+                class="cut-button"
+                label="&cut.label;"/>
+            <toolbarbutton id="copyButton"
+                tooltiptext="&copy.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_copy"
+                class="copy-button"
+                label="&copy.label;"/>
+            <toolbarbutton id="pasteButton"
+                tooltiptext="&paste.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_paste"
+                class="paste-button"
+                label="&paste.label;"/>
+            <toolbarseparator/>
+            <toolbarbutton id="undoButton"
+                tooltiptext="&undoLastAction.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_undo"
+                label="&undo.label;"/>
+            <toolbarbutton id="redoButton"
+                tooltiptext="&redoLastAction.tooltiptext;"
+                observes="cmd_redo"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                label="&redo.label;"/>
+            <toolbarseparator/>
+            <toolbarbutton id="printButton"
+                tooltiptext="&print.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="print-button"
+                observes="cmd_print"
+                label="&print.label;"/>
+            <toolbarbutton id="helpButton"
+                tooltiptext="&help.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="help-icon"
+                observes="cmd_helpHelp"
+                label="&help.label;"/>
+        </toolbar>
+        <toolbar class="chromeclass-toolbar"
+                 id="toolsToolbar"
+                 broadcaster="cmd_viewtoolstoolbar"
+                 grippyhidden="true"
+                 align="center"
+                 persist="hidden collapsed buttonstyle"
+                 buttonstyle="pictures"
+                 tooltiptext="&toolsToolbar.tooltiptext;">
+            <toolbarbutton id="buttonBrowserPreview"
+                           tooltiptext="&previewBufferInBrowser.tooltiptext;"
+                           type="menu-button"
+                           persist="buttonstyle"
+                           buttonstyle="pictures"
+                           observes="cmd_browserPreview"
+                           label="&preview.label;">
+                <menupopup id="buttonBrowserPreviewPopup" onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
+            </toolbarbutton>
+        </toolbar>
+        <toolbar class="chromeclass-toolbar"
+                 id="workspaceToolbar"
+                 broadcaster="cmd_viewworkspacetoolbar"
+                 grippyhidden="true"
+                 align="center"
+                 persist="hidden collapsed buttonstyle"
+                 buttonstyle="pictures"
+                 tooltiptext="&workspaceToolbar.tooltiptext;">
+            <toolbarbutton id="toggleLeftPane"
+                tooltiptext="&showHideLeftPane.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                type="checked"
+                observes="cmd_viewLeftPane"
+                oncommand="ko.uilayout.togglePane('workspace_left_splitter', 'project_toolbox_tabs', 'cmd_viewLeftPane', true)"
+                label="&toggleLeft.label;">
+            </toolbarbutton>
+            <toolbarbutton id="toggleBottomPane"
+                tooltiptext="&showHideBottomPane.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                type="checked"
+                observes="cmd_viewBottomPane"
+                oncommand="ko.uilayout.togglePane('bottom_splitter', 'output_tabs', 'cmd_viewBottomPane', true)"
+                label="&toggleBottom.label;">
+            </toolbarbutton>
+            <toolbarbutton id="toggleRightPane"
+                tooltiptext="&showHideRightPane.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                type="checked"
+                observes="cmd_viewRightPane"
+                oncommand="ko.uilayout.togglePane('workspace_right_splitter', 'right_toolbox_tabs', 'cmd_viewLeftPane', true)"
+                label="&toggleRight.label;">
+            </toolbarbutton>
+            <toolbarbutton id="tabPicker"
+                tooltiptext="&showSpecificTab.tooltiptext;"
+                type="menu-button"
+                persist="buttonstyle"
+                class="tabPicker-icon"
+                buttonstyle="pictures"
+                onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
+                label="&showTab.label;">
+                <menupopup id="tabPicker_popup">
+                    <menuitem id="show_project_tab"
+                        oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
+                        label="&projects.label;"
+                        />
+                    <menuitem id="show_toolbox_tab"
+                        oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
+                        label="&toolbox.label;"
+                        />
+                    <menuseparator/>
+                    <menuitem id="show_findresults1_tab"
+                        oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
+                        label="&findResults1.label;"
+                        />
+                    <menuitem id="show_findresults2_tab"
+                        oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
+                        label="&findResults2.label;"
+                        />
+                    <menuitem id="show_runoutput_tab"
+                        oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
+                        label="&commandOutput.label;"
+                        />
+                </menupopup>
+            </toolbarbutton>
+        </toolbar>
+        <toolbar class="chromeclass-toolbar"
+                 id="macrosToolbar"
+                 broadcaster="cmd_viewmacrotoolbar"
+                 grippyhidden="true"
+                 align="center"
+                 hidden="true"
+                 persist="hidden collapsed buttonstyle"
+                 buttonstyle="pictures"
+                 tooltiptext="&macroToolbar.tooltiptext;">
+            <toolbarbutton id="macroRecord"
+                label="&record.label;"
+                tooltiptext="&recordMacro.tooltiptext;"
+                persist="buttonstyle"
+                class="macro-record-icon"
+                buttonstyle="pictures"
+                observes="cmd_startMacroMode"/>
+            <toolbarbutton id="macroPause"
+                label="&pause.label;"
+                tooltiptext="&pauseMacroRecording.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="macro-pause-icon"
+                observes="cmd_pauseMacroMode"/>
+            <toolbarbutton id="macroStop"
+                label="&stop.label;"
+                tooltiptext="&stopRecordingMacro.tooltiptext;"
+                persist="buttonstyle"
+                class="macro-stop-icon"
+                buttonstyle="pictures"
+                observes="cmd_stopMacroMode"/>
+            <toolbarbutton id="macroPlay"
+                label="&runLast.label;"
+                tooltiptext="&playLastMacro.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="macro-play-icon"
+                observes="cmd_executeLastMacro"/>
+            <toolbarbutton id="macroSave"
+                label="&save.label;"
+                tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
+                persist="buttonstyle"
+                class="macro-save-icon"
+                buttonstyle="pictures"
+                observes="cmd_saveMacroToToolbox"/>
+        </toolbar>
+        <toolbar id="komodoToolbar"
+            broadcaster="cmd_viewkomodotoolbar"
+            grippyhidden="true"
+            align="center"
+            class="chromeclass-toolbar"
+            persist="hidden collapsed buttonstyle"
+            buttonstyle="pictures"
+            tooltiptext="&komodoResourcesToolbar.tooltiptext;">
+            <toolbarbutton id="komodoButtonCommunity"
+                tooltiptext="&komodoCommunity.tooltiptext;"
+                observes="cmd_helpCommunity"
+                persist="buttonstyle"
+                class="komodo-button-community"
+                buttonstyle="pictures"
+                label="&community.label;"/>
+            <toolbarbutton id="komodoButtonMaillist"
+                tooltiptext="&komodoEmailLists.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                observes="cmd_helpKomodoMailLists"
+                class="komodo-button-maillist"
+                label="&mailLists.label;"/>
+            <toolbarbutton id="komodoButtonBugDB"
+                tooltiptext="&komodoBugDatabase.tooltiptext;"
+                persist="buttonstyle"
+                buttonstyle="pictures"
+                class="komodo-button-bugs"
+                observes="cmd_helpViewBugs"
+                label="&bugs.label;"/>
+        </toolbar>
+        </toolboxrow>
+        <toolbar class="chromeclass-toolbar"
+                 id="findToolbar"
+                 align="center"
+                 broadcaster="cmd_viewfindtoolbar"
+                 hidden="true"
+                 persist="hidden collapsed buttonstyle"
+                 buttonstyle="pictures"
+                 tooltiptext="&openFindToolbar.tooltiptext;">
+            <image id="openButton"
+                   class="open-file-nohover-icon"
+                   style="margin-left: 7px;"/>
+            <label value="Open"
+                   accesskey="&openLabel.accesskey;"
+                   control="textbox_open"
+                   id="open_label"
+                   style="margin-right: 0px"/>
+            <textbox id="textbox_open"
+                     tooltiptext="&open.tooltiptext;"
+                     type="autocomplete"
+                     style="min-height: 16px;"
+                     flex="1"
+                     maxrows="10"
+                     size="30"
+                     onfocus="if (event.target.nodeName == 'html:input') {
+                                var textbox = this.parentNode.parentNode.parentNode;
+                                textbox.searchParam = ko.window.getCwd();
+                              }"
+                     onmousedown="this.searchParam = ko.window.getCwd();"
+                     autocompletesearch="filepath"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     enablehistory="true"
+                     tabscrolling="true"
+                     completeselectedindex="true"
+                     ontextentered="this.focus();
+                                    this.setSelectionRange(this.textLength, this.textLength);"
+                     onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"/>
+            <toolbarseparator/>
+            <image id="findButton" class="find"/>
+            <label value="Find"
+                   accesskey="&findLabel.accesskey;"
+                   id="find_label"
+                   control="textbox_find"
+                   style="margin-right: 0px"/>
+            <textbox id="textbox_find"
+                     tooltiptext="&pressEnterToFind.tooltiptext;"
+                     type="autocomplete"
+                     style="min-height: 16px;"
+                     flex="1"
+                     maxrows="10"
+                     size="20"
+                     autocompletesearch="mru"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     autocompletesearchparam="find-patternMru"
+                     enablehistory="true"
+                     tabscrolling="true"
+                     completeselectedindex="true"
+                     ontextentered="this.focus();
+                                    this.setSelectionRange(0, this.textLength);"
+                     onkeypress="Findtoolbar_FindTextboxKeyPress(this, event);"/>
+            <label value="in"
+                   style="margin-left: 0px; margin-right: 0px"/>
+            <textbox id="textbox_findInFiles"
+                     tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
+                     type="autocomplete"
+                     style="min-height: 16px;"
+                     flex="1"
+                     size="30"
+                     maxrows="10"
+                     autocompletesearch="mru_and_filepath"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     autocompletesearchparam="mru: find_findInFilesFieldMru; maxmru: 5"
+                     enablehistory="true"
+                     completeselectedindex="true"
+                     tabscrolling="true"
+                     onblur="document.getElementById('findButton').setAttribute('class', 'find');"
+                     onfocus="Findtoolbar_FindFilesOnFocus(this, event);"
+                     onmousedown="this.searchParam = stringutils_updateSubAttr(
+                                    this.searchParam, 'cwd', ko.window.getCwd());"
+                     ontextentered="this.focus();
+                                    this.setSelectionRange(0, this.textLength);"
+                     onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"/>
+            <toolbarbutton id="find-toolbar-browsedirectory"
+                           class="folder-icon" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                           style="min-width: 0px; margin: 0px"
+                           tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
+                           oncommand="Findtoolbar_AddBrowsedDirectory();"/>
+        </toolbar>
+
+    </toolbox>
+
+<!-- Popup for clicking on the *content area* in the Editor -->
+    <menupopup id="editorContextMenu">
+        <menuitem id="editor-context-cut"
+                label="&cut.label;"
+                class="menuitem-iconic-wide cut-button"
+                observes="cmd_cut"/>
+        <menuitem id="editor-context-copy"
+                label="&copy.label;"
+                class="menuitem-iconic-wide copy-button"
+                observes="cmd_copy"/>
+        <menuitem id="editor-context-paste"
+                label="&paste.label;"
+                class="menuitem-iconic-wide paste-button"
+                observes="cmd_paste"/>
+        <menuitem id="editor-context-editSelectAll"
+                label="&selectAll.label;"
+                class="menuitem-iconic-wide"
+                observes="cmd_selectAll"/>
+        <menuseparator id="context-sep-paste"/>
+        <menuitem id="editor-context-makeSnippet"
+                label="&addAsSnippetInToolbox.label;"
+                class="menuitem-iconic-wide"
+                observes="cmd_makeSnippetFromSelection"/>
+        <menuitem id="editor-go-to-definition"
+                label="&goToDefinition.label;"
+                class="menuitem-iconic-wide"
+                observes="cmd_goToDefinition"/>
+        <menuitem id="editor-jump-corresponding"
+                label="&jumpToCorrespondingLine.label;"
+                class="menuitem-iconic-wide reveal-in-editor-icon"
+                observes="cmd_jumpToCorrespondingLine"/>
+        <menuitem label="&toggleBookmark.label;"
+                id="menu_bookmarkToggle"
+                class="menuitem-iconic-wide"
+                observes="cmd_bookmarkToggle"/>
+        <menuseparator id="context-sep-debug"/>
+        <menuitem id="menu_showUnsavedChanges"
+                  class="menuitem-iconic-wide"
+                  label="&showUnsavedChanges.label;"
+                  observes="cmd_showUnsavedChanges"/>
+        <menuitem id="editor-context-print"
+                class="menuitem-iconic-wide print-button"
+                label="&print.label;"
+                observes="cmd_print"/>
+        <menuseparator/>
+        <menuitem id="menu_refreshStatus2"
+                class="menuitem-iconic-wide"
+                label="&refreshStatus.label;"
+                observes="cmd_refreshStatus"/>
+        <menuseparator id="editor-context-sep-extensions"/>
+        <!-- Note: two separators in a row is okay because we always expect
+             to have at least one user of this space (the spell checker). -->
+        <menuseparator id="editor-context-sep-properties"/>
+        <menuitem id="editor-context-mapuri"
+                  class="menuitem-iconic-wide"
+                  label="&createMappedURI.label;"
+                  observes="cmd_createMappedURI"/>
+        <menuitem id="editor-context-properties"
+                label="&propertiesAndSettings.label;"
+                class="menuitem-iconic-wide"
+                observes="cmd_editPrefsCurrent"/>
+    </menupopup>
+
+<!-- Popup for clicking on the *tab* in the Editor -->
+    <menupopup id="tabContextMenu">
+        <menuitem id="menu_movetab"
+                    observes="cmd_movetab"
+                    class="menuitem-iconic-wide"
+                    label="&moveToOtherTabGroup.label;"/>
+        <menuitem id="menu_splittab"
+                    observes="cmd_splittab"
+                    class="menuitem-iconic-wide"
+                    label="&splitView.label;"/>
+        <menuseparator />
+        <menuitem id="menu_save2"
+                  class="menuitem-iconic-wide save-buffer-icon"
+                  observes="cmd_save"
+                  label="&save.label;"/>
+        <menu id="menu_saveAsSubMenu"
+              class="menu-iconic-wide"
+              label="&saveAs.label;">
+            <menupopup id="menu_saveAsSubPopup">
+                <menuitem id="menu_saveAs2"
+                    class="menuitem-iconic-wide"
+                    observes="cmd_saveAs"
+                    label="&localFile.label;"/>
+                <menuitem id="menu_saveAs_remote2"
+                    class="menuitem-iconic-wide"
+                    observes="cmd_saveAs_remote"
+                    label="&remoteFile.label;"/>
+                <menuitem id="menu_saveAsTemplate2"
+                    class="menuitem-iconic-wide"
+                    observes="cmd_saveAsTemplate"
+                    label="&template.label;"/>
+            </menupopup>
+        </menu>
+
+        <menuitem id="buffertab-context-close"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_bufferClose"
+                  label="&close.label;"/>
+        <menuitem id="menu_showUnsavedChanges2"
+                  label="&showUnsavedChanges.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_showUnsavedChanges"/>
+        <menuseparator/>
+        <menuitem id="menu_refreshStatus3"
+                  label="&refreshStatus.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_refreshStatus"/>
+        <menuseparator id="buffertab-context-sep-properties"/>
+        <menuitem id="buffertab-context-mapuri"
+                  class="menuitem-iconic-wide"
+                  label="&createMappedURI.label;"
+                  observes="cmd_createMappedURI"/>
+        <menuitem id="buffertab-context-properties"
+                  class="menuitem-iconic-wide"
+                  label="&propertiesAndSettings.label;"
+                  observes="cmd_editPrefsCurrent"/>
+    </menupopup>
+
+    <!-- Popup for clicking on the Start Page *tab* -->
+    <menupopup id="startpageTabContextMenu">
+        <menuitem id="menu_movetab4"
+                  observes="cmd_movetab"
+                  label="&moveToOtherTabGroup.label;"/>
+        <menuitem id="menu_bufferClose4"
+                  label="&close.label;"
+                  observes="cmd_bufferClose"/>
+    </menupopup>
+
+<!-- Popup for clicking on the buffer windows -->
+    <menupopup id="bufferContextMenu">
+        <menuitem id="buffer-context-copy"
+                label="&copy.label;"
+                class="menuitem-iconic-wide copy-button"
+                observes="cmd_copy"/>
+        <menuitem id="buffer-context-paste"
+                label="&paste.label;"
+                class="menuitem-iconic-wide paste-button"
+                observes="cmd_paste"/>
+        <menuitem id="buffer-context-editSelectAll"
+                label="&selectAll.label;"
+                class="menuitem-iconic-wide"
+                observes="cmd_selectAll"/>
+        <menuseparator id="context-buffer-sep-paste"/>
+        <menuitem id="buffer-view-whitespace"
+                  label="&viewWhitespace.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_viewWhitespace"/>
+        <menuitem id="buffer-view-indentation-guides"
+                  label="&viewIndentationGuides.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_viewIndentationGuides"/>
+        <menuitem id="buffer-view-line-numbers"
+                  label="&viewLineNumbers.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_viewLineNumbers"/>
+        <menuitem id="buffer-view-eol-markers"
+                  label="&viewEOLMarkers.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_viewEOL"/>
+        <menuitem id="buffer-view-word-wrap"
+                  label="&wordWrap.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_wordWrap"/>
+        <menuitem id="buffer-view-jump-to-line"
+                  label="&jumpToCorrespondingLine.label;"
+                  class="menuitem-iconic-wide"
+                  observes="cmd_jumpToCorrespondingLine"/>
+    </menupopup>
+
+    <!-- main window box -->
+    <deck id="komodo-box" selectedIndex="0" flex="1">
+    <vbox id="komodo-vbox" flex="1">
+        <hbox id="komodo-hbox" flex="1">
+            <vbox id="project_toolbox_area"
+                width="200"
+                collapsed="true"
+                persist="width collapsed">
+                <tabbox orient="vertical"
+                        flex="1"
+                        id="leftTabBox"
+                        class="whiteout">
+                    <tabs type="scrollable" collapsable="true"
+                          id="project_toolbox_tabs" orient="horizontal"
+                          class="tabs-inset"
+                          splitterId="workspace_left_splitter"
+                          onminimize="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
+                          minimizeleftcollapsed="false">
+                        <tab id="project_tab" label="&projects.label;"
+                             oncommand="ko.projects.manager.viewMgr.tree.focus();"
+                             onfocus="ko.projects.manager.viewMgr.focus();"/>
+                    </tabs>
+                    <tabpanels flex="1" id="project_toolbox_tabpanels"
+                            onfocus="
+                            if (!ko.views.manager.batchMode) {
+                                window.updateCommands('SCC');
+                                window.updateCommands('select');
+                            }
+                                "
+                            onblur="
+                            if (!ko.views.manager.batchMode) {
+                                window.updateCommands('SCC');
+                                window.updateCommands('select');
+                            }
+                                "
+                    >
+                        <tabpanel flex="1" id="projectviewbox">
+                            <vbox flex="1" id="projectview-vbox">
+                                <partviewer
+                                    id="projectview"
+                                    viewcontext='projectContext'
+                                    tabid="project_tab"
+                                    flex="1"
+                                    menuobserves="broadcaster_projectCurrent"
+                                    treecollabel="Name"
+                                    candrag="true"
+                                    candrop="true">
+                                    <toolbarbutton
+                                        id="projectView_newProjectButton"
+                                        observes="cmd_newProject"
+                                        tooltiptext="&newProject.tooltiptext;"
+                                        buttonstyle="pictures"
+                                        label="&newProject.label;"
+                                        class="new-project-icon"
+                                        />
+                                    <toolbarbutton id="projectView_openButton"
+                                        tooltiptext="&openProject.tooltiptext;"
+                                        persist="buttonstyle"
+                                        class="open-project-icon"
+                                        buttonstyle="pictures"
+                                        observes="cmd_openProject"/>
+                                    <toolbarbutton
+                                        id="projectView_saveButton"
+                                        observes="cmd_saveProject"
+                                        tooltiptext="&saveProject.tooltiptext;"
+                                        buttonstyle="pictures"
+                                        class="save-buffer-icon"
+                                        />
+                                    <toolbarbutton
+                                        id="projectView_AddItem"
+                                        tooltiptext="&addItemToCurrentProject.tooltiptext;"
+                                        buttonstyle="pictures"
+                                        label="&add.label;"
+                                        type="menu"
+                                        orient="horizontal"
+                                        class="rightarrow-button-a addToolboxItemButton"
+                                        observes="broadcaster_projectCurrent"
+                                        >
+                                        <menupopup id="projectView_AddItemPopup" partviewer="projectview"
+                                                   onpopupshowing="ko.projects.ensureAddMenu(this);"/>
+                                    </toolbarbutton>
+                                </partviewer>
+                            </vbox>
+                        </tabpanel>
+                   </tabpanels>
+                </tabbox>
+            </vbox>
+            <splitter id="workspace_left_splitter"
+                      class="divot_splitter"
+                      orient="horizontal"
+                      collapse="none"
+                      collapsed="true"
+                      splitterCmdId="cmd_viewLeftPane"
+                      persist="collapsed"
+                      style="margin: 0px; padding: 0px; border: none;"/>
+            <vbox id="editorviewbox" flex="1" class="blank-workspace">
+                <view id="topview"
+                      type="multiview"
+                      orient="vertical"
+                      persist="orient"
+                      flex="1"/>
+                <!-- This is used for capturing user input while slow dialogs
+                (e.g. find.xul) load. -->
+                <textbox id="hidden-input-buffer" collapsed="true"
+                     onfocus="InputBuffer_OnFocus(event);"/>
+            </vbox>
+            <splitter id="workspace_right_splitter"
+                      orient="horizontal"
+                      class="divot_splitter"
+                      collapse="none"
+                      collapsed="true"
+                      splitterCmdId="cmd_viewRightPane"
+                      persist="collapsed"
+                      style="margin: 0px; padding: 0px; border: none;"/>
+            <vbox id="right_toolbox_area"
+                width="200"
+                collapsed="true"
+                persist="width collapsed">
+                <tabbox orient="vertical"
+                        flex="1"
+                        id="rightTabBox"
+                        class="whiteout">
+                    <tabs type="scrollable" collapsable="true"
+                          class="tabs-inset"
+                          id="right_toolbox_tabs" orient="horizontal"
+                          splitterId="workspace_right_splitter"
+                          onminimize="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
+                          minimizerightcollapsed="false">
+                        <tab type="file-tab" id="toolbox_tab" label="&toolbox.label;"
+                             locktip="&thisToolboxIsReadOnly.locktip;"
+                             accesskey="&toolboxTab.accesskey;"
+                             oncommand="ko.toolboxes.user.viewMgr.tree.focus();"
+                             onfocus="ko.toolboxes.user.viewMgr.focus();"/>
+                    </tabs>
+                    <tabpanels flex="1" id="right_toolbox_tabpanels"
+                            onfocus="
+                            if (!ko.views.manager.batchMode) {
+                                window.updateCommands('SCC');
+                                window.updateCommands('select');
+                            }
+                                "
+                            onblur="
+                            if (!ko.views.manager.batchMode) {
+                                window.updateCommands('SCC');
+                                window.updateCommands('select');
+                            }
+                                "
+                    >
+                        <tabpanel flex="1" id="toolboxviewbox">
+                            <vbox flex="1" id="toolboxview-vbox">
+                                <partviewer
+                                    id="toolboxview"
+                                    viewcontext='toolboxContext'
+                                    tabid="toolbox_tab"
+                                    flex="1"
+                                    hidecolumnpicker="true"
+                                    hideheader="true"
+                                    candrag="true"
+                                    candrop="true"
+                                    lock_icon_id="toolbox_tab"
+                                    >
+                                    <toolbarbutton
+                                        id="toolboxView_AddItem"
+                                        tooltiptext="&addItemToToolbox.tooltiptext;"
+                                        buttonstyle="pictures"
+                                        label="&add.label;"
+                                        type="menu"
+                                        orient="horizontal"
+                                        class="rightarrow-button-a addToolboxItemButton"
+                                        >
+                                        <menupopup id="toolboxView_AddItemPopup" partviewer="toolboxview"
+                                                   onpopupshowing="ko.projects.ensureAddMenu(this);"/>
+                                    </toolbarbutton>
+                                </partviewer>
+                            </vbox>
+                        </tabpanel>
+                    </tabpanels>
+                </tabbox>
+            </vbox>
+        </hbox>
+
+        <splitter id="bottom_splitter"
+                  collapse="none"
+                  splitterCmdId="cmd_viewBottomPane"
+                  class="divot_splitter"
+                  persist="collapsed"
+                  collapsed="true"
+                  orient="vertical"
+                  style="margin: 0px; padding: 0px; border: none;"/>
+
+        <!-- Output Area -->
+        <!--Persisting of collapsed disabled because of http://bugs.activestate.com/Komodo/show_bug.cgi?id=25918-->
+        <vbox id="output_panel"
+            class="thin-inset-border"
+            height="200"
+            collapsed="true"
+            persist="height collapsed"
+            >
+            <!-- XXX Will have to select a starting tab that is
+                 not a collapsed one, otherwise opening the bottom panel on
+                 startup will show a blank tabpanel area with no selected
+                 tab. -->
+            <!-- only allow drag-drop for widgets that specificly support it -->
+            <tabbox id="output_area" orient="vertical" flex="1"
+                class="whiteout"
+                handleCtrlTab="true"
+                handleCtrlPageUpDown="true"
+                ondragover="event.cancelBubble=true; return false;"
+                ondragdrop="event.cancelBubble=true; return true;">
+                <tabs type="scrollable" collapsable="true"
+                    id="output_tabs" orient="horizontal"
+                    splitterId="bottom_splitter"
+                    onminimize="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
+                    minimizedowncollapsed="false"
+                    closecollapsed="true">
+                    <!-- Need both onmousedown and onfocus to catch selection
+                         by mouse and Ctrl[+Shift]+Tab -->
+                    <tab id="runoutput_tab" label="&commandOutput.label;"
+                        onmousedown="document.getElementById('runoutput-deck').focus();"
+                        onfocus="document.getElementById('runoutput-deck').focus();"/>
+                    <tab id="findresults1_tab" label="&findResults1.label;"
+                         collapsed="true" hidden="true"
+                         onmousedown="document.getElementById('findresults1-body').focus();"
+                         onfocus="document.getElementById('findresults1-body').focus();"/>
+                    <tab id="findresults2_tab" label="&findResults2.label;"
+                         collapsed="true" hidden="true"
+                         onmousedown="document.getElementById('findresults2-body').focus();"
+                         onfocus="document.getElementById('findresults2-body').focus();"/>
+                </tabs>
+                <tabpanels flex="1" id="output_tabpanels">
+                    <!-- Run output tab of the output pane. This pane is made
+                        of two levels: (1) a scintilla terminal to show
+                        unparsed output and (2) an tree to show parsed
+                        output.
+                    -->
+                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel">
+                        <hbox id="runoutput-desc-tabpanel-toolbar-hbox">
+                            <vbox flex="1">
+                                <spring flex="1"/>
+                                <label id="runoutput-desc" style="height: 15px;"
+                                       flex="1" crop="center"/>
+                                <spring flex="1"/>
+                            </vbox>
+                            <spacer flex="1"/>
+                            <button id="runoutput-list-button"
+                                    class="bulletlist-icon button-toolbar-a"
+                                    tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
+                                    oncommand="ko.run.output.toggleView();"
+                                    disabled="true"/>
+                            <button id="runoutput-close-button"
+                                    class="small-x-icon button-toolbar-a"
+                                    tooltiptext="&terminateProcess.tooltiptext;"
+                                    oncommand="ko.run.output.kill(-1);"
+                                    disabled="true"/>
+                        </hbox>
+                        <vbox flex="1" id="runoutput-desc-tabpanel-vbox">
+                            <hbox flex="1" id="runoutput-desc-tabpanel-hbox">
+                                <deck id="runoutput-deck"
+                                      selectedIndex="0" flex="1">
+                                    <view type="terminal"
+                                          onclick="ko.run.output.scintillaOnClick(event);"
+                                          id="runoutput-scintilla"
+                                          flex="1" style="cursor: text;"/>
+                                    <tree id="runoutput-tree" flex="1" class="no-border"
+                                          onclick="ko.run.output.treeOnClick(event);"
+                                          onkeypress="return ko.run.output.treeOnKeyPress(event);">
+                                        <treecols>
+                                        <treecol primary="true"
+                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                                 id="runoutput-tree-file"
+                                                 label="&file.label;" flex="6"
+                                                 persist="width"
+                                                 crop="left"/>
+                                        <splitter class="tree-splitter"/>
+                                        <treecol id="runoutput-tree-line"
+                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                                 label="&line.label;"
+                                                 persist="width"
+                                                 style="width: 5em;"/>
+                                        <splitter class="tree-splitter"/>
+                                        <treecol id="runoutput-tree-column"
+                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                                 label="&column.label;"
+                                                 persist="width"
+                                                 style="width: 5em;"/>
+                                        <splitter class="tree-splitter"/>
+                                        <treecol id="runoutput-tree-content"
+                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                                 persist="width"
+                                                 label="&content.label;" flex="12"/>
+                                        </treecols>
+                                        <treechildren id="runoutput-tree-body" flex="1"/>
+                                    </tree>
+                                </deck>
+                            </hbox>
+                        </vbox>
+                    </tabpanel>
+
+                    <!-- The two Find Results tabs of the output pane -->
+                    <tabpanel id="findresults1_tabpanel" orient="vertical"
+                              flex="1" collapsed="true">
+                        <hbox align="center" id="findresults1_tabpanel-toolbarbox">
+                            <label id="findresults1-desc" style="height: 18px;"
+                                   flex="1" crop="center"/>
+                            <separator flex="1"/>
+                            <button id="findresults1-jumptoprev-button"
+                                    class="list-item-up-icon button-toolbar-a"
+                                    tooltiptext="&jumpToPreviousResult.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(1).jumpToPrevResult();"/>
+                            <button id="findresults1-jumptonext-button"
+                                    class="list-item-down-icon button-toolbar-a"
+                                    tooltiptext="&jumpToNextResult.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(1).jumpToNextResult();"/>
+                            <button id="findresults1-stopsearch-button"
+                                    class="find-stop-icon button-toolbar-a"
+                                    tooltiptext="&stopSearch.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(1).stopSearch();"
+                                    disabled="true"/>
+                        </hbox>
+                        <tree id="findresults1" flex="1"
+                              seltype="single" class="no-border"
+                              onclick="FindResultsTab_GetManager(1).onClick(event);"
+                              onkeypress="return FindResultsTab_GetManager(1).onKeyPress(event);">
+                            <treecols>
+                                <treecol primary="true"
+                                         id="findresults1-filename"
+                                         label="&file.label;" flex="6"
+                                         persist="width"
+                                         crop="left"/>
+                                <splitter class="tree-splitter"/>
+                                <treecol id="findresults1-linenum"
+                                         label="&line.label;"
+                                         persist="width"
+                                         style="width: 4em;"/>
+                                <splitter class="tree-splitter"/>
+                                <treecol id="findresults1-context"
+                                         persist="width"
+                                         label="&content.label;" flex="12"/>
+                            </treecols>
+                            <treechildren id="findresults1-body" flex="1"/>
+                        </tree>
+                    </tabpanel>
+                    <tabpanel id="findresults2_tabpanel" orient="vertical"
+                              flex="1" collapsed="true">
+                        <hbox align="center" id="findresults2_tabpanel-toolbarbox">
+                            <label id="findresults2-desc" style="height: 15px;"
+                                   flex="1" crop="center"/>
+                            <separator flex="1"/>
+                            <button id="findresults2-jumptoprev-button"
+                                    class="list-item-up-icon button-toolbar-a"
+                                    tooltiptext="&jumpToPreviousResult.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(2).jumpToPrevResult();"/>
+                            <button id="findresults2-jumptonext-button"
+                                    class="list-item-down-icon button-toolbar-a"
+                                    tooltiptext="&jumpToNextResult.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(2).jumpToNextResult();"/>
+                            <button id="findresults2-stopsearch-button"
+                                    class="find-stop-icon button-toolbar-a"
+                                    tooltiptext="&stopSearch.tooltiptext;"
+                                    oncommand="FindResultsTab_GetManager(2).stopSearch();"
+                                    disabled="true"/>
+                        </hbox>
+                        <tree id="findresults2" flex="1"
+                              seltype="single" class="no-border"
+                              onclick="FindResultsTab_GetManager(2).onClick(event);"
+                              onkeypress="return FindResultsTab_GetManager(2).onKeyPress(event);">
+                            <treecols>
+                                <treecol primary="true"
+                                         id="findresults2-filename"
+                                         label="&file.label;" flex="6"
+                                         persist="width"
+                                         crop="left"/>
+                                <splitter class="tree-splitter"/>
+                                <treecol id="findresults2-linenum"
+                                         label="&line.label;"
+                                         persist="width"
+                                         style="width: 4em;"/>
+                                <splitter class="tree-splitter"/>
+                                <treecol id="findresults2-context"
+                                         persist="width"
+                                         label="&content.label;" flex="12"/>
+                            </treecols>
+                            <treechildren id="findresults2-body" flex="1"/>
+                        </tree>
+                    </tabpanel>
+
+                </tabpanels>
+            </tabbox>
+        </vbox>
+
+    </vbox> <!-- main window box -->
+    <browser id="printBrowser" type="content-primary" flex="1"/>
+    </deck>
+    <!-- we need a browser widget to do our printing for us, unfortunatly
+        if we collapse or hide it, printing still fails.  So we have to
+        hide it somehow, thus a deck widget will hide the browser behind
+        our statusbar.  -->
+    <statusbar fullscreentoolbar="true" orient="horizontal"
+               id="statusbarviewbox"
+               class="chromeclass-status"
+               style="min-height: 1.5em;">
+        <statusbarpanel id="statusbar-message" label="&ready.label;" crop="right" flex="1"/>
+        <statusbarpanel id="statusbar-check"
+                        class="statusbarpanel-iconic"
+                        tooltiptext="&syntaxCheckingStatus.tooltiptext;"
+                        onclick="ko.lint.doClick(event);"
+                        ondblclick="ko.lint.jumpToNextLintResult();"
+                        context="context_lint"
+                        style="width: 30px;"/>
+        <statusbarpanel id="statusbar-encoding"
+                        tooltiptext="&fileEncoding.tooltiptext;"
+                        style="min-width: 6em;"/>
+        <statusbarpanel id="statusbar-line-col"
+                        tooltiptext="&filePosition.tooltiptext;"
+                        style="min-width: 10.5em;"/>
+        <statusbarpanel id="statusbar-selection"
+                        label="&noSelection.label;"
+                        tooltiptext="&selectionInformation.tooltiptext;"
+                        style="min-width: 8em;"
+                        insertafter="statusbar-line-col"/>
+        <statusbarpanel id="statusbar-language"
+                        context="context-filetype-menu"
+                        tooltiptext="&fileType.tooltiptext;"
+                        style="min-width: 8em; max-width: 12em;"
+			/>
+    </statusbar>
+    <commandset id="allcommands"/>
+    <keyset id="widekeyset" persist="persisted_kb" persisted_kb="false"/>
+</window>
+

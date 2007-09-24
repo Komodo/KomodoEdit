@@ -1,0 +1,812 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-list-base" display="xul:box">
+    <implementation name="viewlistbase" implements="koIViewList">
+
+        <property name="__globalPrefs"
+            onget="return Components.classes['@activestate.com/koPrefService;1'].
+                        getService(Components.interfaces.koIPrefService).prefs"/>
+
+        <property name="__prefSvc"
+            onget="return Components.classes['@activestate.com/koPrefService;1'].
+                        getService(Components.interfaces.koIPrefService)"/>
+
+        <property name="__docsvc"
+            onget="return Components.classes['@activestate.com/koDocumentService;1']
+                    .getService(Components.interfaces.koIDocumentService)"/>
+
+        <property name="__observersvc"
+            onget="return Components.classes['@mozilla.org/observer-service;1'].
+                                getService(Components.interfaces.nsIObserverService);"/>
+
+        <property name="dragHandler">null</property>
+
+        <field name="_uid">0</field>
+        <property name="uid">
+            <getter><![CDATA[
+            if (!this._uid) {
+                var _uuidGenerator = Components.classes["@mozilla.org/uuid-generator;1"].getService(Components.interfaces.nsIUUIDGenerator);
+                this._uid = _uuidGenerator.generateUUID();
+            }
+            return this._uid;
+            ]]></getter>
+        </property>
+
+        <field name="_log">null</field>
+        <property name="log">
+            <getter><![CDATA[
+            if (!this._log) {
+                var type = this.getAttribute('type');
+                this._log = ko.logging.getLogger('view.'+type);
+            }
+            return this._log;
+            ]]></getter>
+        </property>
+
+        <!--attribute koIView currentView;-->
+        <property name="currentView"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"/>
+
+        <field name="_prefs">null</field>
+        <property name="prefs">
+            <getter><![CDATA[
+            if (!this._prefs) {
+                this._prefs = Components.classes['@activestate.com/koPreferenceSet;1'].
+                                     createInstance(Components.interfaces.koIPreferenceSet);
+                this._prefs.parent = this.__globalPrefs;
+            }
+            return this._prefs;
+            ]]></getter>
+        </property>
+
+        <method name="init">
+        <body>
+        <![CDATA[
+            this.log.debug('view initializing');
+        ]]>
+        </body>
+        </method>
+
+        <!--koIView createViewFromDocument(in koIDocument document, in wstring type);-->
+        <method name="createViewFromDocument">
+        <parameter name="doc"/>
+        <parameter name="type"/>
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('view: createViewFromDocument');
+            var view = this.newView(type);
+            view.initWithDocument(doc);
+            ko.trace.get().leave('view: createViewFromDocument');
+            return view;
+        ]]>
+        </body>
+        </method>
+
+        <!--koIView findViewForDocument(in koIDocument document);-->
+        <method name="findViewForDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews();
+            for (var i = 0; i < views.length; i++) {
+                if (views[i].document == doc) return views[i];
+            }
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="findViewsForDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews();
+            var list = [];
+            for (var i = 0; i < views.length; i++) {
+                if (views[i].document == doc)
+                    list.push(views[i]);
+            }
+            return list;
+        ]]>
+        </body>
+        </method>
+
+        <!-- XXX Usages of this should be replaced by .getViewsByTypeAndURI()
+             but I don't have the energy for that right now. If the "TypeAnd"
+             part of that is really not wanted a .getViewsByURI() would
+             be easy to add. -->
+        <method name="findViewsForURI">
+        <parameter name="uri"/>
+        <body>
+        <![CDATA[
+            // Return true iff the two file paths are equal.
+            function fequal(a, b) {
+<!-- #if PLATFORM == "win" -->
+                return a.toLowerCase() == b.toLowerCase();
+<!-- #else -->
+                return a == b;
+<!-- #endif -->
+            }
+
+            var views = this.getViews();
+            var list = [];
+            var view;
+
+            var find_uri = Components.classes["@activestate.com/koFileEx;1"]
+                      .createInstance(Components.interfaces.koIFileEx);
+            find_uri.URI = uri;
+
+            for (var i = 0; i < views.length; i++) {
+                view = views[i];
+                if (view.document &&
+                    !view.document.isUntitled &&
+                    fequal(view.document.file.URI, find_uri.URI)
+                   ) {
+                    list.push(view);
+                }
+            }
+            return list;
+        ]]>
+        </body>
+        </method>
+
+        <!-- Set the context menu id for the given view.
+
+             View list manager must implement this method to support
+             context menus on their child views. Views typically call
+             this method on their parent view in their .init() method.
+
+             XXX Shane notes that this method's call signature should be
+                 revisited. Currently this method puts the job of creating
+                 a view's context menu on the view. This should be the job
+                 of the view list manager, with this method providing a
+                 mechanism for a view to customize it somewhat.
+        -->
+        <method name="setContext">
+        <parameter name="view"/>
+        <parameter name="contextId"/>
+        <body>
+        <![CDATA[
+            // virtual base
+        ]]>
+        </body>
+        </method>
+
+        <method name="getViewIndex">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews();
+            for (var i = 0; i < views.length; i++) {
+                if (views[i] == view) return i;
+            }
+            throw Components.results.NS_ERROR_FAILURE;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getCurrentViewIndex">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            return this.getViewIndex(this.currentView);
+        ]]>
+        </body>
+        </method>
+
+        <!--void makeNextViewCurrent();-->
+        <method name="makeNextViewCurrent">
+        <body>
+        <![CDATA[
+            try {
+                var i = this.getCurrentViewIndex();
+                var views = this.getViews();
+                i++;
+                if (i >= views.length) i = 0;
+                this.currentView = views[i];
+            } catch(e) {
+                this.log.debug(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <!--void makePreviousViewCurrent();-->
+        <method name="makePreviousViewCurrent">
+        <body>
+        <![CDATA[
+            try {
+                var i = this.getCurrentViewIndex();
+                var views = this.getViews();
+                i--;
+                if (i < 0) i = views.length-1;
+                this.currentView = views[i];
+            } catch(e) {
+                this.log.debug(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+
+        <method name="getDocumentViews">
+        <parameter name="recursive"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews(recursive);
+            var list = [];
+            for (var i = 0; i < views.length; ++i) {
+                if (views[i].document) {
+                    list.push(views[i]);
+                }
+            }
+            return list;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getDocumentViewList">
+        <parameter name="recursive"/>
+        <body>
+        <![CDATA[
+            var views = this.getViews(recursive);
+            var unique_views = {};
+            var v;
+            // now weed out the duplicates
+            for (v in views) {
+                if (views[v].document && views[v].document.file)
+                    unique_views[views[v].document.file.URI] = views[v];
+            }
+            // build an array from that
+            views = [];
+            for (v in unique_views) {
+                views.push(unique_views[v]);
+            }
+            return views;
+        ]]>
+        </body>
+        </method>
+
+        <method name="getViews">
+        <parameter name="recursive"/>
+        <body><![CDATA[
+            if (typeof(recursive)=='undefined') recursive = false;
+            this.log.info("getViews(recursive="+recursive+")");
+            var allViews = [];
+            try {
+                const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                var nodes = document.getAnonymousNodes(this);
+                var children, view, views;
+                for (var i = 0; i < nodes.length; ++i) {
+                    // Skip comment nodes.
+                    if (nodes[i].nodeType == nodes[i].COMMENT_NODE) continue;
+
+                    views = nodes[i].getElementsByTagNameNS(XUL_NS, "view");
+                    for (var j = 0; j < views.length; ++j) {
+                        view = views[j];
+                        allViews = allViews.concat(view);
+                        if (recursive) {
+                            children = view.getViews();
+                            allViews = allViews.concat(children);
+                        }
+                    }
+                }
+            } catch(ex) {
+                this.log.exception(ex);
+            }
+            return allViews;
+        ]]></body>
+        </method>
+
+        <!-- XPCOM-ified version of getViews -->
+        <method name="getViewsX">
+            <parameter name="recursive"/>
+            <parameter name="viewsObj"/>
+            <parameter name="countObj"/>
+            <body><![CDATA[
+                viewsObj.value = this.getViews(recursive);
+                countObj.value = viewsObj.value.length;
+            ]]></body>
+        </method>
+
+        <method name="getViewsByType">
+        <parameter name="recursive"/>
+        <parameter name="type"/>
+        <body><![CDATA[
+            if (typeof(recursive)=='undefined') recursive = false;
+            if (typeof(type)=='undefined') type = null;
+            this.log.info("getViewsByType(recursive="+recursive+
+                          ", type='"+type+"')");
+            var views = [];
+            try {
+                var allViews = this.getViews(recursive);
+                if (type) {
+                    for (var i = 0; i < allViews.length; ++i) {
+                        if (allViews[i].getAttribute('type') == type) {
+                            views = views.concat(allViews[i]);
+                        }
+                    }
+                } else {  // No 'type' argument means accept all view types.
+                    views = allViews;
+                }
+            } catch(ex) {
+                this.log.exception(ex);
+            }
+            return views;
+        ]]></body>
+        </method>
+
+        <!-- XPCOM-ified version of getViewsByType -->
+        <method name="getViewsByTypeX">
+            <parameter name="recursive"/>
+            <parameter name="type"/>
+            <parameter name="viewsObj"/>
+            <parameter name="countObj"/>
+            <body><![CDATA[
+                viewsObj.value = this.getViewsByType(recursive, type);
+                countObj.value = viewsObj.value.length;
+            ]]></body>
+        </method>
+
+        <method name="getViewsByTypeAndURI">
+        <parameter name="recursive"/>
+        <parameter name="type"/>
+        <parameter name="uri"/>
+        <body><![CDATA[
+            if (typeof(recursive)=='undefined') recursive = false;
+            if (typeof(type)=='undefined') type = null;
+            this.log.info("getViewsByTypeAndURI(recursive="+recursive+
+                          ", type='"+type+"', uri='"+uri+"')");
+            var views = [];
+            try {
+                // Return true iff the two file paths are equal.
+                function fequal(a, b) {
+<!-- #if PLATFORM == "win" -->
+                    return a.toLowerCase() == b.toLowerCase();
+<!-- #else -->
+                    return a == b;
+<!-- #endif -->
+                }
+
+                // Clean up the URI (this is a little hacky).
+                var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                             .createInstance(Components.interfaces.koIFileEx);
+                koFileEx.URI = uri;
+                uri = koFileEx.URI;
+
+                var typedViews = this.getViewsByType(recursive, type);
+                var typedView;
+                for (var i = 0; i < typedViews.length; ++i) {
+                    typedView = typedViews[i];
+                    if (typedView.document && typedView.document.file
+                        && fequal(typedView.document.file.URI, uri)) {
+                        views = views.concat(typedView);
+                    }
+                }
+            } catch(ex) {
+                this.log.exception(ex);
+            }
+            return views;
+        ]]></body>
+        </method>
+
+        <!-- XPCOM-ified version of getViewsByTypeAndURI -->
+        <method name="getViewsByTypeAndURIX">
+            <parameter name="recursive"/>
+            <parameter name="type"/>
+            <parameter name="uri"/>
+            <parameter name="viewsObj"/>
+            <parameter name="countObj"/>
+            <body><![CDATA[
+                viewsObj.value = this.getViewsByTypeAndURI(recursive, type,
+                                                           uri);
+                countObj.value = viewsObj.value.length;
+            ]]></body>
+        </method>
+
+        <method name="closeCurrentView">
+        <body>
+        <![CDATA[
+            if (this.currentView) {
+                this.currentView.close();
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="newView">
+            <parameter name="type"/>
+        <body>
+        <![CDATA[
+            try {
+                ko.trace.get().enter('view.newView');
+                var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                var box = this.createNewViewContainer();
+                var v = document.createElementNS(XUL_NS, 'view');
+                v.setAttribute('type',type);
+                v.setAttribute('flex','1');
+                v.parentView = this;
+                box.appendChild(v);
+                v.init();
+                v.makeCurrent();
+                ko.trace.get().enter('notifying: view_opened');
+                this.__observersvc.notifyObservers(v, 'view_opened', '');
+                ko.trace.get().leave('notifying: view_opened');
+                ko.trace.get().leave('view.newView');
+                return v;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="removeView">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="setFocus">
+        <body>
+        <![CDATA[
+            this.focus();
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateLeafName">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            // if we are not overwritten by a subclass, try
+            // to propogate this upwards
+            if (this.parentView)
+                this.parentView.updateLeafName(this);
+            else
+                throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateDirtyStatus">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            // if we are not overwritten by a subclass, try
+            // to propogate this upwards
+            if (this.parentView)
+                this.parentView.updateDirtyStatus(this);
+            else
+                throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateFileStatus">
+        <parameter name="view"/>
+        <body>
+        <![CDATA[
+            // if we are not overwritten by a subclass, try
+            // to propogate this upwards
+            if (this.parentView)
+                this.parentView.updateFileStatus(this);
+            else
+                throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="doDragDropOnView">
+        <parameter name="event"/>
+        <parameter name="dragHandler"/>
+        <body>
+        <![CDATA[
+            try {
+                if (!nsDragAndDrop.mDragSession)
+                    nsDragAndDrop.mDragSession = nsDragAndDrop.mDragService.getCurrentSession();
+                var flavourSet = dragHandler.getSupportedFlavours();
+                var transferData = nsTransferable.get(flavourSet, nsDragAndDrop.getDragData, true);
+                if (transferData.dataList.length) {
+                    dragHandler.onDrop(event, transferData, nsDragAndDrop.mDragSession);
+                }
+                return true;
+            } catch(e) {
+                // nsTransferable fails if the drag data type is not
+                // supported.  We want to catch this so the event will
+                // bubble up to the workspace.
+                // this.log.debug('doDragDropOnView failed:\n'+e);
+            }
+            return false;
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+
+    <handlers>
+        <handler event="focus" phase="capturing">
+            <![CDATA[
+            // XXX this may be a slowdown on tab switching, need to test
+            // this.setAttribute('focused','true');
+            ]]>
+        </handler>
+        <handler event="blur" phase="capturing">
+            <![CDATA[
+            // XXX this may be a slowdown on tab switching, need to test
+            // this.removeAttribute('focused');
+            ]]>
+        </handler>
+        <!--Because plugin dragdrop events are so messed up, we somehow
+        catch the event here.  So now we look to see if there is a
+        draghandler somewhere that we can pass the event to, or otherwise
+        ignore it and let the workspace handler catch it if it can-->
+        <handler event="dragdrop" phase="capturing">
+        <![CDATA[
+            var ok = true;
+            if (this.currentView &&
+                typeof(this.currentView.dragHandler) != 'undefined' &&
+                this.currentView.dragHandler) {
+
+                this.log.debug('dragdrop parent has handler');
+                ok = this.doDragDropOnView(event,this.currentView.dragHandler);
+                event.cancelBubble = true;
+                event.preventDefault();
+            } else if (typeof(this.dragHandler) != 'undefined' &&
+                this.dragHandler) {
+                this.log.debug('dragdrop has handler');
+                ok = this.doDragDropOnView(event,this.dragHandler);
+                event.cancelBubble = true;
+                event.preventDefault();
+            } else {
+                this.log.debug('dragdrop no handler');
+            }
+            if (!ok || event.eventPhase == event.BUBBLING_PHASE) {
+                // our children did not handle the event, and now it is
+                // bubbling back to us.  So pass it to the workspace
+                this.log.debug('dragdrop passing off to workspace');
+                ko.dragDrop.dragObserver.doDropEvent(event);
+                event.cancelBubble = true;
+                event.preventDefault();
+            }
+        ]]>
+        </handler>
+    </handlers>
+</binding>
+
+<binding id="view-base"
+    extends="chrome://komodo/content/bindings/views.xml#view-list-base">
+    <implementation name="viewbase" implements="koIView">
+        <!--attribute koIDocument document;-->
+        <property name="document"/>
+
+        <property name="title" readonly="true">
+        <getter>
+        <![CDATA[
+            if (this.document) {
+                return this.document.baseName;
+            }
+            return '(untitled)';
+        ]]>
+        </getter>
+        </property>
+
+        <!--attribute koIViewList parentView;-->
+        <property name="parentView">null</property>
+
+        <!--readonly attribute boolean isCurrent;-->
+        <property name="isCurrent">
+            <getter><![CDATA[
+            return this.parentView && this == this.parentView.currentView;
+            ]]></getter>
+        </property>
+
+        <!--attribute koIViewWidget widget;-->
+        <property name="widget"/>
+
+        <!--XXX alternateViewList is a temporary hack to get debugging working-->
+        <field name="_alternateViewList">null</field>
+        <property name="alternateViewList"
+            onset="this._alternateViewList = val;"
+            onget="if (!this._alternateViewList) {
+                        this._alternateViewList = ko.views.manager.topView.getAltViewListForView(this);
+                   }
+                   return this._alternateViewList"/>
+
+        <field name="_item">null</field>
+        <property name="item">
+            <setter><![CDATA[
+                if (this._item) {
+                    this._item = {};
+                }
+                this._item = val;
+            ]]></setter>
+            <getter><![CDATA[
+            if (!this._item) {
+                this._item = {};
+                this._item._file = null;
+                this._item.url = null;
+                this._item.getFile = function() {return this._file};
+            }
+            // always update the file and uri  XXX why?
+            if (this.document) {
+                if (this.document.isUntitled) {
+                    this._item.url = this.document.baseName;
+                } else if (!this._item._file || this._item._file != this.document.file) {
+                    this._item.url = this.document.file.URI;
+                    this._item._file = this.document.file;
+                    // XXX fixme
+                    //this._item.updateStatus();
+                }
+            }
+            return this._item;
+            ]]></getter>
+        </property>
+
+        <property name="currentLine"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"/>
+
+        <property name="currentColumn"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"/>
+
+        <property name="anchor"
+            onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
+            onget="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"/>
+
+        <property name="isDirty">false</property>
+
+        <method name="getState">
+        <body>
+        <![CDATA[
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="setState">
+        <parameter name="pref"/>
+        <body>
+        <![CDATA[
+        ]]>
+        </body>
+        </method>
+
+        <method name="saveState">
+        <parameter name="pref"/>
+        <body>
+        <![CDATA[
+        ]]>
+        </body>
+        </method>
+
+        <!--void makeCurrent();-->
+        <field name="_doNotGrabFocus">false</field>
+        <method name="makeCurrent">
+        <parameter name="noFocus"/>
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('view-base: makeCurrent');
+            if (typeof("noFocus") == "undefined") {
+                this._doNotGrabFocus = false;
+            } else {
+                this._doNotGrabFocus = noFocus;
+            }
+            this.parentView.currentView = this;
+            try {
+                // this is a sub-optimal solution for getting the correct
+                // focus into the multiview.  Basicly, the view may already
+                // be current, thus the above setting will not really do
+                // anything at all.  We need to see if the current view
+                // parent for this view is the current view for the multiview
+                // if is is not, we need to make it so, otherwise things
+                // go haywire.  This works, but a better solution is
+                // needed.  this also affects setstate in multiview
+                if (!this._doNotGrabFocus) {
+                    if (this.parentView &&
+                        this.parentView != ko.views.manager.topView.lastFocused) {
+                        ko.views.manager.topView.lastFocused = this.parentView;
+                    }
+                    this.setFocus();
+                }
+            } catch(e) {
+                this.log.exception(e);
+            }
+            this._doNotGrabFocus = false;
+            ko.trace.get().leave('view-base: makeCurrent');
+        ]]>
+        </body>
+        </method>
+
+        <!--void close(); // this will decrease the refcount on the document-->
+        <method name="close">
+        <body>
+        <![CDATA[
+            // XXX this code is duplicated in view-buffer to avoid xbl inheritance limitations
+            try {
+                this.__observersvc.notifyObservers(this, 'view_closed', '');
+            } catch(e) {
+                // no one is listening
+            }
+            try {
+                if (this.parentView)
+                    this.parentView.removeView(this);
+            } catch (e) {
+                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <!--void saveAs(in string URI); // XXX review signature-->
+        <method name="saveAs">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <!--void gotoLine(in long lineNo);-->
+        <method name="gotoLine">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <!--void printView(); // 'print' is a python keyword :(-->
+        <method name="printView">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="viewPreview">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="viewSource">
+        <body>
+        <![CDATA[
+            throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+        ]]>
+        </body>
+        </method>
+
+        <method name="reloadIfChanged">
+        <body>
+        <![CDATA[
+        /* do nothing */
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+</binding>
+
+</bindings>
+

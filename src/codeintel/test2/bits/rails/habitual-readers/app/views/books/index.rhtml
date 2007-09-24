@@ -1,0 +1,15 @@
+<h3>All Books</h3>
+<% if @show_actions %>
+	<p>
+		Hi <%= @logged_in_reader.fullname %>, would you like to <%= link_to "Add a new book", new_book_url %>
+	</p>
+<% end %>
+
+<table>
+	<%= column_headings %w(Buy Book Tags),  @show_actions %>
+	<tbody>
+			<%= render :partial => "book", :collection => @books %>
+	</tbody>
+</table>
+
+<%= next_previous_links_for @book_paginator %>

@@ -1,0 +1,46 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'platform',
+    'buildType',
+    'mozVersion',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'sdkDir',
+);
+
+$cons->Install($idlExportDir, 'koIFinder.idl');
+$cons->BuildAndInstallXpt('koIFinder.idl');
+
+$cons->InstallXpcomComponent('koFinder.py');
+$cons->InstallPythonUtility('findlib.py');
+
+$cons->Install($idlExportDir, 'koIFindResultsView.idl');
+$cons->BuildAndInstallXpt('koIFindResultsView.idl');
+$cons->Preprocess('koFindResultsView.unprocessed.py', 'koFindResultsView.py');
+$cons->InstallXpcomComponent('koFindResultsView.py');
+
+$cons->Install($idlExportDir, 'koIFindContext.idl');
+$cons->BuildAndInstallXpt('koIFindContext.idl');
+$cons->InstallXpcomComponent('koFindContext.py');
+
+$cons->Install($idlExportDir, 'koIFindSession.idl');
+$cons->BuildAndInstallXpt('koIFindSession.idl');
+$cons->InstallXpcomComponent('koFindSession.py');
+
+$cons->Install($idlExportDir, 'koIFindBrowseForDirs.idl');
+$cons->BuildAndInstallXpt('koIFindBrowseForDirs.idl');
+$cons->Preprocess('koFindBrowseForDirs.unprocessed.py', 'koFindBrowseForDirs.py');
+$cons->InstallXpcomComponent('koFindBrowseForDirs.py');
+

@@ -1,0 +1,20 @@
+--- SilverCity/setup.py.original	2005-10-17 16:48:15.000000000 -0700
++++ SilverCity/setup.py	2005-10-17 16:51:48.000000000 -0700
+@@ -37,8 +37,15 @@
+     )
+ 
+ # Add Scintilla support files
+-scintilla_scr = 'scintilla/src'
+-scintilla_include = 'scintilla/include'
++scintilla_candidates = [os.path.join(os.pardir, 'scintilla'), 'scintilla']
++for candidate in scintilla_candidates:
++    if os.path.exists(os.path.join(candidate, 'src')):
++        scintilla_scr = os.path.join(candidate, 'src')
++        scintilla_include = os.path.join(candidate, 'include')
++        break
++else:
++    raise OSError("couldn't find scintilla src and include dirs: '%s'"
++                  % "', '".join(scintilla_candidates))
+ src_files.extend(
+         [os.path.join(scintilla_scr, file) for file in
+             ["KeyMap.cxx",

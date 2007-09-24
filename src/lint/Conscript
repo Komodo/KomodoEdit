@@ -1,0 +1,35 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'sdkDir',
+    'platform',
+);
+
+$cons->Install($idlExportDir, 'koILinter.idl');
+$cons->BuildAndInstallXpt('koILinter.idl');
+
+$cons->InstallXpcomComponent('koLintDisplayer.py');
+$cons->InstallPythonUtility('koLintResult.py');
+$cons->InstallXpcomComponent('koPerlCompileLinter.py');
+$cons->InstallXpcomComponent('koPythonLinter.py');
+$cons->Install("$supportDir/python", 'pycompile.py');
+$cons->InstallXpcomComponent('koHTMLLinter.py');
+$cons->InstallXpcomComponent('koPHPLinter.py');
+$cons->InstallXpcomComponent('koXPCShellLinter.py');
+$cons->InstallXpcomComponent('koLintService.py');
+$cons->InstallPythonUtility('koLintResults.py');
+
+if ($platform eq "win") {
+    $cons->Install("$supportDir/perl/perltray", 'PerlTray.pm');
+}
+    

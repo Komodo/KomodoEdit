@@ -1,0 +1,34 @@
+<h1>
+<p>Usual old HTML text costing $x.yz to write.
+Shouldn't be a perl var
+</p>
+<style type="text/css">
+#tag {
+  color : $dollar_signs;
+}
+</style>
+<script type="text/javascript">
+var a = 42;
+var b = $ab.cd;
+function myfunc(x1, p2) {
+   document.getElementById('q').setText(x1);
+}
+</script>
+
+<%init>
+# Make sure that these vars don't collide with JavaScript's
+sub a {
+}
+sub b {
+}
+sub ab {
+}
+sub myfunc {
+}
+</%init>
+
+<%perl>
+sub foo2 {
+    my ($p1, $p2, @p_rest) = @_;
+}
+</%perl>

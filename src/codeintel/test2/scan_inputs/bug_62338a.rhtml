@@ -1,0 +1,15 @@
+<body><p><%= class Bug62338
+        attr_accessor :acc
+        attr_reader :rdr
+        attr_writer :wtr
+        def initialize
+            @acc = 1
+            @rdr = 2
+            @wtr = 3
+        end
+    end
+    b = Bug62338.new
+    puts b.acc
+    %>
+      </p>
+</body>

@@ -1,0 +1,43 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIFileEx.idl"
+
+// Provide a file status service that continously updates status information
+[scriptable, uuid(607513C6-32D3-444d-8A07-84EE150B4B4E)]
+interface koIFileStatusService : nsISupports {
+    void init();
+    void unload();
+    
+    // url's are added to the status service by sending a notification
+    // of view_opened, file_project or file_added.  If the notification is file_added,
+    // the status service will persist that url until it receives a notification
+    // of file_removed.  This is used by partWrapper.js to update
+    // the status service with files loaded in projects or toolbox
+    // view_opened is sent by scintillaview when a file is opened
+    // view_closed is sent by scintillaview when a file is closed
+    // file_changed is sent by scintillaview when a file is saved
+    
+    // the service does not check anything on it's own.  Additional PYTHON
+    // non-xpcom classes must be added.  The background thread will
+    // call on each status checker to gather information about the file
+    // then it will send a notification of 'file_status' with the url.
+    // at the end of an update run, 'file_status_updated' is notified.
+
+    // Synchronous call gets the status and fills in koIFileEx attributes
+    // @param file {koIFile} file to check SCC status on
+    // @param forceRefresh {boolean} forces server contact for the information,
+    //                               this is notably used for Subversion.
+    void getStatusForFile(in koIFileEx file, in boolean forceRefresh);
+    //
+    // Same as getStatusForFile, except service finds the file and then does
+    // the same check as getStatusForFile
+    // @param URI {string} uri for the file to check
+    // @param forceRefresh {boolean} forces server contact for the information,
+    //                               this is notably used for Subversion.
+    void getStatusForUri(in wstring URI, in boolean forceRefresh);
+
+    // returns 'p4' or 'cvs' or empty string if not in repository
+    string isRepository(in wstring url);
+};

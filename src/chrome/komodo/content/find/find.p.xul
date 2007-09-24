@@ -1,0 +1,563 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % findDTD SYSTEM "chrome://komodo/locale/find.dtd">
+  %findDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<!-- for textbox-autocomplete styles -->
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<window id="findandreplace-window"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="Find &amp; Replace"
+        windowtype="komodo_find"
+        class="kodialog"
+        persist="screenX screenY"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/mru.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/stringutils.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find_functions.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find.js"/>
+
+    <keyset id="findKeys">
+        <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
+        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
+<!-- #if PLATFORM != "darwin" -->
+        <key key="f" modifiers="control" oncommand="SwitchToPanel('find');" />
+        <key key="h" modifiers="control" oncommand="SwitchToPanel('replace');" />
+<!-- #else -->
+        <key key="F" modifiers="meta" oncommand="SwitchToPanel('find');" />
+        <key key="=" modifiers="meta" oncommand="SwitchToPanel('replace');" />
+        <key key="G" modifiers="meta" oncommand="doFindNext();" />
+<!-- #endif -->
+    </keyset>
+
+    <menupopup id="dialogTooltip" />
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <tabbox style="padding: 5px 10px 10px 10px;">
+        <tabs id="tabs" orient="horizontal"
+              onselect="SwitchToPanel(event.target.selectedItem.getAttribute('name'));">
+            <tab id="find-tab" name="find" label="&find.label;"/>
+            <tab id="replace-tab" name="replace" label="&replace.label;"/>
+        </tabs>
+        <tabpanels orient="vertical" flex="1">
+
+            <!-- Find Tab -->
+            <hbox id="find-panel" flex="1">
+                <vbox>
+                    <hbox align="center">
+                        <label value="Find what:" control="find-pattern"
+                               _accesskey="n" uses-accesskey="true"
+                               style="width: 6.3em"/>
+                        <textbox id="find-pattern"
+                                 flex="1"
+                                 style="min-width: 30em;"
+                                 type="autocomplete"
+                                 maxrows="10"
+                                 autocompletesearch="mru"
+                                 autocompletesearchparam="find-patternMru"
+                                 autocompletepopup="popupTextboxAutoComplete"
+                                 enablehistory="true"
+                                 completeselectedindex="true"
+                                 ontextentered="this.focus();"
+                                 onfocus="this.setSelectionRange(0,this.value.length);"/>
+                        <button type="menu" id="find-shortcuts"
+                                tooltiptext="&regularExpressionShortcuts.tooltiptext;"
+                                class="rightarrow-button">
+                            <menupopup popupanchor="topright">
+                                <menuitem label="&escapeRegexSpecialCharacters.label;"
+                                          oncommand="RegexEscape();"/>
+                                <menuseparator/>
+                                <menuitem label="&anyCharacterExceptANewline.label;"
+                                          shortcut="."
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&dAnyDecimalDigit.label;"
+                                          shortcut="\d"
+                                          tooltiptext="&equivalentTo09.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&DAnyNonDigit.label;"
+                                          shortcut="\D"
+                                          tooltiptext="&equivalentTo09.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&sAnyWhitespaceCharacter.label;"
+                                          shortcut="\s"
+                                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&SAnyNonWhitespaceCharacter.label;"
+                                          shortcut="\S"
+                                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&wAnyAlphanumericCharacter.label;"
+                                          shortcut="\w"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&WAnyNonAlphanumericCharacter.label;"
+                                          shortcut="\W"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&numberTheContentsOfTheGroupOfTheGivenNumber.label;"
+                                          shortcut="\number"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&PNameTheContentsOfTheGroupOfTheGivenName.label;"
+                                          shortcut="(?P=name)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&zeroOrMoreOfThePrecedingBlock.label;"
+                                          shortcut="*"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrMoreOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="*?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&oneOrMoreOfThePrecedingBlock.label;"
+                                          shortcut="+"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&oneOrMoreOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="+?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrOneOfThePrecedingBlock.label;"
+                                          shortcut="?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrOneOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="??"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mExactlyMCopiesOfThePrecedingBlock.label;"
+                                          shortcut="{m}"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mNMToNCopiesOfThePrecedingBlock.label;"
+                                          shortcut="{m,n}"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mNMToNCopiesOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="{m,n}?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&beginningOfLine.label;"
+                                          shortcut="^"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&endOfLine.label;"
+                                          shortcut="$"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&bTheBeginningOrEndOfAWord.label;"
+                                          shortcut="\b"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&BAnythingBUTTheBeginningOrEndOfAWord.label;"
+                                          shortcut="\B"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&ABeginningOfTheString.label;"
+                                          shortcut="\A"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&ZEndOfTheString.label;"
+                                          shortcut="\Z"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&group.label;"
+                                          shortcut="(...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?P&lt;name&gt;...) : named group"
+                                          shortcut="(?P&lt;name&gt;...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&nonGroupingGroup.label;"
+                                          shortcut="(?:...)"
+                                          tooltiptext="&theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&aCommentTheContentsAreIgnored.label;"
+                                          shortcut="(?#...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?=...) : matches if &lt;...&gt; matches next, but does not consume the string"
+                                          shortcut="(?=...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string"
+                                          shortcut="(?!...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?&lt;=...) : positive lookbehind assertion"
+                                          shortcut="(?&lt;=...)"
+                                          tooltiptext="matches if the current position is immediately preceded by a match for &lt;...&gt;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?&lt;!...) : negative lookbehind assertion"
+                                          shortcut="(?&lt;!...)"
+                                          tooltiptext="matches if the current position is NOT immediately preceded by a match for &lt;...&gt;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                            </menupopup>
+                        </button>
+                    </hbox>
+                    <hbox style="height: 5ex;"/>
+
+                    <separator class="thin"/>
+
+                    <hbox flex="1">
+                        <groupbox orient="vertical" flex="1">
+                            <caption label="&options.label;"/>
+                            <vbox>
+                                <hbox align="center">
+                                    <label value="Match case:"
+                                           _accesskey="c" uses-accesskey="true"
+                                           control="find-case-menulist"
+                                           style="width: 6em;"/>
+                                    <menulist id="find-case-menulist"
+                                              sizetopopup="false"
+                                              style="width: 140px;"
+                                              oncommand="UpdateOption('case');">
+                                        <menupopup>
+                                            <menuitem value="insensitive" label="&no.label;"/>
+                                            <menuitem value="sensitive" label="&yes.label;"/>
+                                            <menuitem value="smart" label="&yesIfSearchStringContainsCapitalLetters.label;"/>
+                                        </menupopup>
+                                    </menulist>
+                                </hbox>
+
+                                <hbox align="center">
+                                    <label value="Use:"
+                                           _accesskey="e" uses-accesskey="true"
+                                           control="find-use-menulist"
+                                           style="width: 6em;"/>
+                                    <menulist id="find-use-menulist"
+                                              sizetopopup="false"
+                                              style="width: 140px;"
+                                              oncommand="UpdateOption('use');">
+                                        <menupopup>
+                                            <menuitem value="simple" label="&plainText.label;"/>
+                                            <menuitem value="regex-python" label="&regularExpressionsPythonSyntax.label;"/>
+                                            <menuitem value="wildcard" label="&wildcards.label;"/>
+                                        </menupopup>
+                                    </menulist>
+                                </hbox>
+                            </vbox>
+
+                            <vbox flex="1">
+                                <checkbox id="find-match-word"
+                                          label="&matchWholeWord.label;"
+                                          _accesskey="w" uses-accesskey="true"
+                                          oncommand="UpdateOption('matchWord');"/>
+                                <checkbox id="find-search-backward"
+                                          label="&searchUp.label;"
+                                          _accesskey="u" uses-accesskey="true"
+                                          oncommand="UpdateOption('searchBackward');"/>
+                                <checkbox id="find-display-in-find-results-2"
+                                          label="&displayResultsInFindResults2Tab.label;"
+                                          _accesskey="2" uses-accesskey="true"
+                                          oncommand="UpdateOption('displayInFindResults2');"/>
+                                <spacer flex="1"/>
+                            </vbox>
+                        </groupbox>
+
+                        <groupbox orient="vertical" flex="1">
+                            <caption label="&searchIn.label;"/>
+                            <radiogroup id="find-context" orient="vertical"
+                                        oncommand="UpdateContext();">
+                                <radio group="find-context"
+                                       id="find-context-currentdoc"
+                                       _accesskey="d" uses-accesskey="true"
+                                       label="&currentDocument.label;"/>
+                                <radio group="find-context"
+                                       id="find-context-selection"
+                                       _accesskey="l" uses-accesskey="true"
+                                       label="&selectionOnly.label;"/>
+                                <radio group="find-context"
+                                       id="find-context-allopendocs"
+                                       _accesskey="o" uses-accesskey="true"
+                                       label="&allOpenDocuments.label;"/>
+                                <!-- XXX: add "Current project", "Only: <current context>" -->
+                            </radiogroup>
+                        </groupbox>
+                    </hbox>
+                </vbox>
+
+                <vbox style="width: 10em;">
+                    <button id="find-findnext-button" label="&findNext.label;"
+                            _accesskey="F" uses-accesskey="true"
+                            oncommand="doFindNext();"/>
+                    <button id="find-findall-button" label="&findAll.label;"
+                            _accesskey="A" uses-accesskey="true"
+                            oncommand="doFindAll();"/>
+                    <button id="find-markall-button" label="&markAll.label;"
+                            _accesskey="m" uses-accesskey="true"
+                            oncommand="doMarkAll();"/>
+                    <button id="find-close-button" label="&close.label;"
+                            _accesskey="s" uses-accesskey="true"
+                            oncommand="window.close();"/>
+                    <button id="find-help-button" label="&help.label;"
+                            _accesskey="H" uses-accesskey="true"
+                            oncommand="ko.help.open('find_dialog');"/>
+                </vbox>
+            </hbox>
+            <!-- end of Find tab -->
+
+            <!-- Replace Tab -->
+            <hbox id="replace-panel" flex="1">
+                <vbox>
+                    <hbox align="center">
+                        <label value="Find what:" control="replace-pattern"
+                               _accesskey="n" uses-accesskey="true"
+                               style="width: 6.3em;"/>
+                        <textbox id="replace-pattern"
+                                 flex="1"
+                                 style="min-width: 30em;"
+                                 type="autocomplete"
+                                 maxrows="10"
+                                 autocompletesearch="mru"
+                                 autocompletesearchparam="find-patternMru"
+                                 autocompletepopup="popupTextboxAutoComplete"
+                                 enablehistory="true"
+                                 completeselectedindex="true"
+                                 ontextentered="this.focus();"
+                                 onfocus="this.setSelectionRange(0,this.value.length);"/>
+                        <button type="menu" id="replace-shortcuts"
+                                tooltiptext="&regularExpressionShortcuts.tooltiptext;"
+                                class="rightarrow-button">
+                            <menupopup popupanchor="topright">
+                                <menuitem label="&escapeRegexSpecialCharacters.label;"
+                                          oncommand="RegexEscape();"/>
+                                <menuseparator/>
+                                <menuitem label="&anyCharacterExceptANewline.label;"
+                                          shortcut="."
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&dAnyDecimalDigit.label;"
+                                          shortcut="\d"
+                                          tooltiptext="&equivalentTo09.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&DAnyNonDigit.label;"
+                                          shortcut="\D"
+                                          tooltiptext="&equivalentTo09.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&sAnyWhitespaceCharacter.label;"
+                                          shortcut="\s"
+                                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&SAnyNonWhitespaceCharacter.label;"
+                                          shortcut="\S"
+                                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&wAnyAlphanumericCharacter.label;"
+                                          shortcut="\w"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&WAnyNonAlphanumericCharacter.label;"
+                                          shortcut="\W"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&numberTheContentsOfTheGroupOfTheGivenNumber.label;"
+                                          shortcut="\number"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&PNameTheContentsOfTheGroupOfTheGivenName.label;"
+                                          shortcut="(?P=name)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&zeroOrMoreOfThePrecedingBlock.label;"
+                                          shortcut="*"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrMoreOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="*?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&oneOrMoreOfThePrecedingBlock.label;"
+                                          shortcut="+"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&oneOrMoreOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="+?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrOneOfThePrecedingBlock.label;"
+                                          shortcut="?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&zeroOrOneOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="??"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mExactlyMCopiesOfThePrecedingBlock.label;"
+                                          shortcut="{m}"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mNMToNCopiesOfThePrecedingBlock.label;"
+                                          shortcut="{m,n}"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&mNMToNCopiesOfThePrecedingBlockNonGreedy.label;"
+                                          shortcut="{m,n}?"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&beginningOfLine.label;"
+                                          shortcut="^"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&endOfLine.label;"
+                                          shortcut="$"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&bTheBeginningOrEndOfAWord.label;"
+                                          shortcut="\b"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&BAnythingBUTTheBeginningOrEndOfAWord.label;"
+                                          shortcut="\B"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&ABeginningOfTheString.label;"
+                                          shortcut="\A"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&ZEndOfTheString.label;"
+                                          shortcut="\Z"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuseparator/>
+                                <menuitem label="&group.label;"
+                                          shortcut="(...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?P&lt;name&gt;...) : named group"
+                                          shortcut="(?P&lt;name&gt;...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&nonGroupingGroup.label;"
+                                          shortcut="(?:...)"
+                                          tooltiptext="&theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="&aCommentTheContentsAreIgnored.label;"
+                                          shortcut="(?#...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?=...) : matches if &lt;...&gt; matches next, but does not consume the string"
+                                          shortcut="(?=...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string"
+                                          shortcut="(?!...)"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?&lt;=...) : positive lookbehind assertion"
+                                          shortcut="(?&lt;=...)"
+                                          tooltiptext="matches if the current position is immediately preceded by a match for &lt;...&gt;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                                <menuitem label="(?&lt;!...) : negative lookbehind assertion"
+                                          shortcut="(?&lt;!...)"
+                                          tooltiptext="matches if the current position is NOT immediately preceded by a match for &lt;...&gt;"
+                                          oncommand="InsertRegexShortcut(this);"/>
+                            </menupopup>
+                        </button>
+                    </hbox>
+                    <hbox align="center" style="height: 5ex;">
+                        <label value="Replace with:"
+                               control="replace-replacement"
+                               _accesskey="p" uses-accesskey="true"
+                               style="width: 6.3em;"/>
+                        <textbox id="replace-replacement"
+                                 flex="1"
+                                 style="min-width: 30em;"
+                                 type="autocomplete"
+                                 maxrows="10"
+                                 autocompletesearch="mru"
+                                 autocompletesearchparam="find-replacementMru"
+                                 autocompletepopup="popupTextboxAutoComplete"
+                                 enablehistory="true"
+                                 completeselectedindex="true"
+                                 ontextentered="this.focus();"
+                                 onfocus="this.setSelectionRange(0,this.value.length);"/>
+                    </hbox>
+
+                    <separator class="thin"/>
+
+                    <hbox flex="1">
+                        <groupbox orient="vertical" flex="1">
+                            <caption label="&options.label;"/>
+                            <vbox>
+                                <hbox align="center">
+                                    <label value="Match case:"
+                                           _accesskey="c" uses-accesskey="true"
+                                           control="replace-case-menulist"
+                                           style="width: 6em;"/>
+                                    <menulist id="replace-case-menulist"
+                                              style="width: 140px;"
+                                              sizetopopup="false"
+                                              oncommand="UpdateOption('case');">
+                                        <menupopup>
+                                            <menuitem value="insensitive" label="&no.label;"/>
+                                            <menuitem value="sensitive" label="&yes.label;"/>
+                                            <menuitem value="smart" label="&yesIfSearchStringContainsCapitalLetters.label;"/>
+                                        </menupopup>
+                                    </menulist>
+                                </hbox>
+                                <hbox align="center">
+                                    <label value="Use:"
+                                           _accesskey="e" uses-accesskey="true"
+                                           control="replace-use-menulist"
+                                           style="width: 6em;"/>
+                                    <menulist id="replace-use-menulist"
+                                              sizetopopup="false"
+                                              style="width: 140px;"
+                                              oncommand="UpdateOption('use');">
+                                        <menupopup>
+                                            <menuitem value="simple" label="&plainText.label;"/>
+                                            <menuitem value="regex-python" label="&regularExpressionsPythonSyntax.label;"/>
+                                            <menuitem value="wildcard" label="&wildcards.label;"/>
+                                        </menupopup>
+                                    </menulist>
+                                </hbox>
+                            </vbox>
+
+                            <vbox flex="1">
+                                <checkbox id="replace-match-word"
+                                          label="&matchWholeWord.label;"
+                                          _accesskey="w" uses-accesskey="true"
+                                          oncommand="UpdateOption('matchWord');"/>
+                                <checkbox id="replace-search-backward"
+                                          label="&searchUp.label;"
+                                          _accesskey="u" uses-accesskey="true"
+                                          oncommand="UpdateOption('searchBackward');"/>
+                                <checkbox id="replace-show-results"
+                                          label="&showReplaceAllResults.label;"/>
+                                <checkbox id="replace-display-in-find-results-2"
+                                          label="&displayResultsInFindResults2Tab.label;"
+                                          _accesskey="2" uses-accesskey="true"
+                                          oncommand="UpdateOption('displayInFindResults2');"/>
+                            </vbox>
+                        </groupbox>
+
+                        <groupbox orient="vertical" flex="1">
+                            <caption label="&replaceIn.label;"/>
+                            <radiogroup id="replace-context" orient="vertical"
+                                        oncommand="UpdateContext();">
+                                <radio group="replace-context"
+                                       id="replace-context-currentdoc"
+                                       _accesskey="d" uses-accesskey="true"
+                                       label="&currentDocument.label;"/>
+                                <radio group="replace-context"
+                                       id="replace-context-selection"
+                                       _accesskey="l" uses-accesskey="true"
+                                       label="&selectionOnly.label;"/>
+                                <radio group="replace-context"
+                                       id="replace-context-allopendocs"
+                                       _accesskey="o" uses-accesskey="true"
+                                       label="&allOpenDocuments.label;"/>
+                                <!-- XXX: add "Current project", "Only: <current context>" -->
+                            </radiogroup>
+                        </groupbox>
+                    </hbox>
+                </vbox>
+
+                <vbox style="width: 10em;">
+                    <button id="replace-findnext-button" label="&findNext.label;"
+                            _accesskey="F" uses-accesskey="true"
+                            oncommand="doFindNext();"/>
+                    <button id="replace-replace-button" label="&replace.label;"
+                            _accesskey="R" uses-accesskey="true"
+                            oncommand="doReplace();"/>
+                    <button id="replace-replaceall-button" label="&replaceAll.label;"
+                            _accesskey="A" uses-accesskey="true"
+                            oncommand="doReplaceAll();"/>
+                    <button id="replace-close-button" label="&close.label;"
+                            _accesskey="s" uses-accesskey="true"
+                            oncommand="window.close();"/>
+                    <button id="replace-help-button" label="&help.label;"
+                            _accesskey="H" uses-accesskey="true"
+                            oncommand="ko.help.open('find_dialog');"/>
+                </vbox>
+            </hbox>
+            <!-- end of Replace tab -->
+
+        </tabpanels>
+    </tabbox>
+
+</window>
+

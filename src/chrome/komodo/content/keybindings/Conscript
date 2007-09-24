@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozChromeDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'platform',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'mozVersion',
+);
+
+$cons->Preprocess('keybindings.p.xml', 'keybindings.xml');
+$cons->InstallInChrome('keybindings.xml');
+$cons->Preprocess('keybindings.unprocessed.js', 'keybindings.js');
+$cons->InstallInChrome('keybindings.js');
+$cons->InstallInChrome('vi-commands-overlay.xul');
+$cons->InstallInChrome('viKeyBinder.js');

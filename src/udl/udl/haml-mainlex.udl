@@ -1,0 +1,13 @@
+# Describe a lexer for Haml files
+
+# Build instructions
+# guid=6B22D713-D6C2-4B2A-91E6-DED7C833C6ED
+# python luddite.py compile -f --ext=.haml --guid=$guid --skel udl/haml-mainlex.udl
+# python luddite.py package -c  "ActiveState Software Inc." --version 0.1.0 Haml -f
+
+language Haml
+
+include "haml/ruby2haml.udl"
+include "haml/hamllex.udl"
+
+include "rubylex.udl"

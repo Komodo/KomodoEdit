@@ -1,0 +1,51 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\NEXT.pm">
+    <scope ilk="blob" lang="Perl" name="NEXT">
+      <scope ilk="class" line="1" lineend="83" name="NEXT">
+        <import line="3" module="Carp" symbol="*" />
+        <variable line="2" name="$VERSION" />
+        <scope ilk="function" line="6" lineend="16" name="NEXT::ELSEWHERE::ancestors" signature="NEXT::ELSEWHERE::ancestors(@inlist)">
+          <variable ilk="argument" name="@inlist" />
+          <variable attributes="__local__" line="9" name="@outlist" />
+        </scope>
+        <scope ilk="function" line="18" lineend="30" name="NEXT::ELSEWHERE::ordered_ancestors" signature="NEXT::ELSEWHERE::ordered_ancestors(@inlist)">
+          <variable ilk="argument" name="@inlist" />
+          <variable attributes="__local__" line="21" name="@outlist" />
+        </scope>
+        <scope ilk="function" line="32" lineend="81" name="AUTOLOAD" signature="AUTOLOAD($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="35" name="$caller" />
+          <variable attributes="__local__" line="36" name="$wanted" />
+          <variable attributes="__local__" line="38" name="$caller_class" />
+          <variable attributes="__local__" line="38" name="$caller_method" />
+          <variable attributes="__local__" line="39" name="$wanted_class" />
+          <variable attributes="__local__" line="39" name="$wanted_method" />
+          <variable attributes="__local__" line="48" name="@forebears" />
+          <variable attributes="__local__" line="63" name="$call_method" />
+        </scope>
+      </scope>
+      <scope classrefs="NEXT" ilk="class" line="84" lineend="84" name="NEXT::UNSEEN" />
+      <scope classrefs="NEXT" ilk="class" line="85" lineend="85" name="NEXT::DISTINCT" />
+      <scope classrefs="NEXT" ilk="class" line="86" lineend="86" name="NEXT::ACTUAL" />
+      <scope classrefs="NEXT" ilk="class" line="87" lineend="87" name="NEXT::ACTUAL::UNSEEN" />
+      <scope classrefs="NEXT" ilk="class" line="88" lineend="88" name="NEXT::ACTUAL::DISTINCT" />
+      <scope classrefs="NEXT" ilk="class" line="89" lineend="89" name="NEXT::UNSEEN::ACTUAL" />
+      <scope classrefs="NEXT" ilk="class" line="90" lineend="90" name="NEXT::DISTINCT::ACTUAL" />
+      <scope classrefs="EVERY" ilk="class" line="92" lineend="92" name="EVERY::LAST" />
+      <scope classrefs="NEXT" ilk="class" line="93" lineend="157" name="EVERY">
+        <scope ilk="function" line="94" lineend="154" name="AUTOLOAD" signature="AUTOLOAD($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="97" name="$caller" />
+          <variable attributes="__local__" line="98" name="$wanted" />
+          <variable attributes="__local__" line="100" name="$wanted_class" />
+          <variable attributes="__local__" line="100" name="$wanted_method" />
+          <variable attributes="__local__" line="107" name="@forebears" />
+          <variable attributes="__local__" line="111" name="%seen" />
+          <variable attributes="__local__" line="112" name="$sub" />
+          <variable attributes="__local__" line="112" name="@every" />
+          <variable attributes="__local__" line="117" name="$want" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

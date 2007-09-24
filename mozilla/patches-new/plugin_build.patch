@@ -1,0 +1,18 @@
+Index: modules/plugin/base/src/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/base/src/Makefile.in,v
+retrieving revision 1.104
+diff -d -u -r1.104 Makefile.in
+--- modules/plugin/base/src/Makefile.in	8 Jun 2005 16:48:43 -0000	1.104
++++ modules/plugin/base/src/Makefile.in	24 Aug 2005 17:43:55 -0000
+@@ -167,8 +167,8 @@
+ endif		#MOZ_ENABLE_GTK
+ 
+ ifdef MOZ_ENABLE_GTK2
+-CXXFLAGS        += $(MOZ_GTK2_CFLAGS)
+-CFLAGS          += $(MOZ_GTK2_CFLAGS)
++CXXFLAGS        += $(MOZ_GTK2_CFLAGS) -I$(DEPTH)/widget/src/gtksuperwin
++CFLAGS          += $(MOZ_GTK2_CFLAGS) -I$(DEPTH)/widget/src/gtksuperwin
+ EXTRA_DSO_LDOPTS += -lgtkxtbin $(XLDFLAGS) $(XT_LIBS) $(MOZ_GTK2_LIBS) $(XLIBS)
+ endif           #MOZ_ENABLE_GTK2
+ 

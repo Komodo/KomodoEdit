@@ -1,0 +1,32 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+
+[scriptable, uuid(5FF6F4A0-1834-4be8-B674-A92B61EEFCDE)]
+interface koIEnvironmentView : nsITreeView {
+    // An tree view for CGI Variables data.
+
+    // Clear the list of find results.
+    void Clear();
+
+    // Add a single find result.
+    void AddVariable(in wstring name, in wstring value);
+    long haveVariable(in wstring name);
+    void removeRow(in PRUint32 index);
+    
+    // Extract part of the find result data at a specific index.
+    wstring GetVariable(in PRUint32 index); // return "NAME=Value"
+    wstring GetName(in PRUint32 index);  
+    wstring GetValue(in PRUint32 index);
+
+    // Sort the find result data by a certain key (this key typically matches
+    // the <treecol id=.../>  id's).
+    void Sort(in string sortBy);
+                                                   
+    void setVariables(in wstring env);
+    wstring getVariables();
+};
+    

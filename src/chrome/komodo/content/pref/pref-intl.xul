@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window id="filePrefWindow"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        onload="PrefIntl_OnLoad()">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/encodingmenu.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/pref-intl.js" type="application/x-javascript;version=1.7"/>
+
+    <groupbox orient="vertical">
+        <caption label="&defaultEditorEncoding.label;"/>
+        <vbox flex="1">
+            <hbox flex="1">
+                <checkbox id="encodingEnvironment"
+                          baselabel="Use Encoding Defined in Environment"
+                          pref="true" oncommand="updateDefaultEncodingSection();"
+                          prefattribute="checked" flex="1"/>
+                <hbox id="unsupportedEncodingWarningBox" collapsed="true"
+                      align="center">
+                    <image id="unsupportedEncodingWarningImage"
+                           src="chrome://komodo/skin/global/images/warning_small.png"/>
+                    <label id="unsupportedEncodingWarningLabel"
+                           style="color: #CC3333;"/>
+                </hbox>
+            </hbox>
+            <hbox flex="1" style="padding-left: 20px;">
+                <hbox align="center" pack="end">
+                    <text class="kopadded" value="Custom Encoding"/>
+                </hbox>
+                <menulist id="encodingDefault" flex="1"
+                          pref="true"
+                          prefattribute="data">
+                    <menupopup/>
+                </menulist>
+            </hbox>
+            <separator class="thin"/>
+            <checkbox id="encodingAutoDetect" label="&autoDetectFileEncodingWhenOpened.label;"
+                      pref="true"
+                      prefattribute="checked"/>
+            <checkbox id="encodingXMLDec" label="&allowXMLDeclarationToOverrideAutoDetection.label;"
+                      pref="true"
+                      prefattribute="checked"/>
+            <checkbox id="encodingHTML" label="&allowHTMLMETATagToOverrideAutoDetection.label;"
+                      pref="true"
+                      prefattribute="checked"/>
+            <checkbox id="encodingModeline" label="&allowCodingTagToOverrideAutoDetection.label;"
+                      pref="true"
+                      prefattribute="checked"/>
+        </vbox>
+    </groupbox>
+    <groupbox orient="vertical">
+        <caption label="&languageSpecificDefaultEncoding.label;"/>
+        <grid>
+            <columns>
+                <column />
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row>
+                    <langlist id="newlangList" class="lang-menulist"
+                              oncommand="changeNewLanguage(this, null)"/>
+                    <menulist id="newencodingList">
+                        <menupopup/>
+                    </menulist>
+                </row>
+                <row>
+                    <spacer />
+                    <checkbox id="bomBox" label="&signatureBOM.label;"
+                              oncommand="changeNewBOM(this)"/>
+                </row>
+            </rows>
+        </grid>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="Date &amp; Time"/>
+        <grid>
+            <columns>
+                <column />
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row>
+                    <hbox align="center" pack="end">
+                        <label value="Format"/>
+                    </hbox>
+                    <hbox>
+                        <textbox id="defaultDateFormat" flex="1"
+                                 onkeyup="setDateFormatExample()"
+                                 pref="true" prefattribute="value"
+                                 prefstring="defaultDateFormat"/>
+                        <button type="menu" id="shortcuts-menubutton"
+                                class="rightarrow-button"
+                                image="chrome://komodo/skin/images/scrollArrowRight-mini.png">
+                            <menupopup id="dateShortcutsPopup"
+                                       popupanchor="topright">
+                                <menuitem label="&cDefaultDateAndTimeRepresentation.label;"
+                                          shortcut="%c"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&xDefaultDateRepresentation.label;"
+                                          shortcut="%x"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&XDefaultTimeRepresentation.label;"
+                                          shortcut="%X"
+                                          oncommand="insertDateShortcut(this);"/>
+
+                                <menuitem label="&yYearWithoutCentury0099.label;"
+                                          shortcut="%y"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&YYearWithCentury.label;"
+                                          shortcut="%Y"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&mMonth0112.label;"
+                                          shortcut="%m"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&bAbbreviatedMonthName.label;"
+                                          shortcut="%b"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&BFullMonthName.label;"
+                                          shortcut="%B"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&dDayOfTheMonth0131.label;"
+                                          shortcut="%d"
+                                          oncommand="insertDateShortcut(this);"/>
+
+                                <menuitem label="&wWeekday0Sunday6.label;"
+                                          shortcut="%w"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&aAbbreviatedWeekdayName.label;"
+                                          shortcut="%a"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&AFullWeekdayName.label;"
+                                          shortcut="%A"
+                                          oncommand="insertDateShortcut(this);"/>
+
+                                <menuitem label="&HHour24HourClock.label;"
+                                          shortcut="%H"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&IHour12HourClock.label;"
+                                          shortcut="%I"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&MMinute0059.label;"
+                                          shortcut="%M"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&SSecond.label;"
+                                          shortcut="%S"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&pAMOrPM.label;"
+                                          shortcut="%p"
+                                          oncommand="insertDateShortcut(this);"/>
+
+                                <menuitem label="&ZTimeZoneName.label;"
+                                          shortcut="%Z"
+                                          oncommand="insertDateShortcut(this);"/>
+                                <menuitem label="&aLiteralCharacter.label;"
+                                          shortcut="%%"
+                                          oncommand="insertDateShortcut(this);"/>
+
+                                <menuseparator/>
+                                <menuitem shortcut="%a %b %d %H:%M:%S %Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d/%m/%Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%A, %B %d, %Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%B %d, %Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%Y-%m-%d"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d-%b-%y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d.%m.%Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d %B %Y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%B %y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%b-%y"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d/%m/%Y %I:%M:%S %p"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%d/%m/%Y %H:%M:%S"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%I:%M:%S %p"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                                <menuitem shortcut="%H:%M:%S"
+                                          oncommand="insertDateShortcut(this, true);"/>
+                            </menupopup>
+                        </button>
+                    </hbox>
+                </row>
+                <row>
+                    <hbox/>
+                    <hbox align="center">
+                        <hbox align="center" pack="end">
+                            <label value="Example:" control="dateFormatExample"/>
+                            <label id="dateFormatExample" flex="1"/>
+                        </hbox>
+                    </hbox>
+                </row>
+            </rows>
+        </grid>
+    </groupbox>
+</window>
+

@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: sgmlop
+Version: 1.1.1-20040207
+Summary: SGMLOP -- a small and fast SGML/XML parser
+Home-page: http://www.effbot.org/zone/sgmlop-index.htm
+Author: Fredrik Lundh
+Author-email: fredrik@pythonware.com
+License: UNKNOWN
+Download-URL: http://www.effbot.org/downloads#sgmlop
+Description: UNKNOWN
+Platform: UNKNOWN

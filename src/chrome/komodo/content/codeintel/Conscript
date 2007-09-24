@@ -1,0 +1,18 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    "cons",
+    "platform",
+    "productType",
+    "buildFlavour",
+    "unsiloedPythonExe",
+    "mozChromeDir",
+    "mozVersion",
+);
+
+$cons->Preprocess("codeintel.unprocessed.js", "codeintel.js");
+$cons->InstallInChrome("codeintel.js");
+$cons->InstallInChrome("ciDefinitionChoice.js");
+$cons->InstallInChrome("ciDefinitionChoice.xul");

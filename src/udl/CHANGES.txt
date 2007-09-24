@@ -1,0 +1,12 @@
+Changes to Luddite
+
+Version 1.1.0 - February 23, 2007
+
+- Added the clear_delimiter action
+
+This is needed to handle cases where we might have matched
+a delimiter, but need to investigate further to determine
+whether we succeeded.  So on the first match we include
+a keep_delimiter action, and then if we've got it, we
+issue a clear_delimiter action.  This is used to
+implement here-documents.

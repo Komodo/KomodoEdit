@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\bz43676a.pl">
+    <scope ilk="blob" lang="Perl" name="bz43676a">
+      <scope ilk="function" line="4" lineend="6" name="func1" signature="func1()" />
+      <scope ilk="function" line="11" lineend="13" name="func2" signature="func2()" />
+      <scope ilk="function" line="14" lineend="16" name="func3" signature="func3()" />
+    </scope>
+  </file>
+</codeintel>

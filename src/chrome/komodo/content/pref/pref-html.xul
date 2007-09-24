@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	class="kodialog"
+	orient="vertical"
+	onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+    function loadTidyConfigFile()
+    {
+        var file = ko.filepicker.openFile();
+        if (file != null) {
+            var textbox = document.getElementById("tidy_configpath");
+            textbox.value = file;
+        }
+    }
+
+function OnPreferencePageLoading(prefset) {
+    try {
+    var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
+                       getService(Components.interfaces.koIXMLCatalogService);
+    var decl = prefset.getStringPref("defaultHTMLDecl");
+    var idlist = catSvc.getPublicIDList(new Object());
+    var popup = document.getElementById("doctypePopup");
+    var selected = null;
+    for (var i =0 ; i < idlist.length; i++) {
+        // is this an HTML decl?
+        if (idlist[i].match(/DTD HTML/)) {
+            var el = document.createElement("menuitem");
+            el.setAttribute("label", idlist[i]);
+            popup.appendChild(el);
+            if (idlist[i] == decl) selected = el;
+        }
+    }
+    popup.parentNode.selectedItem = selected;
+    } catch(e) {
+        log.exception(e);
+    }
+}
+
+function OnPreferencePageOK(prefset) {
+    var popup = document.getElementById("doctypePopup");
+    var decl = popup.parentNode.selectedItem.getAttribute("label");
+    prefset.setStringPref("defaultHTMLDecl", decl);
+    return true;
+}
+
+    ]]>
+    </script>
+    <groupbox orient="vertical">
+        <caption label="&defaultHTMLDocumentType.label;"/>
+        <menulist id="doctypeList"
+                  flex="1">
+            <menupopup id="doctypePopup"/>
+        </menulist>
+    </groupbox>
+    <groupbox orient="vertical">
+        <caption label="&syntaxChecking.label;"/>
+        <vbox flex="1" align="center">
+            <description>
+                Komodo uses Tidy, an HTML syntax checking tool from the W3C,
+                to check for errors in your HTML files.  Here you can set error
+                levels, and the WAI Accessibility Conformance level you wish to support.
+                If you need a deeper level of customization for Tidy, you can
+                customize the way Tidy works by creating a Tidy configuration file.
+                You can find more details on Tidy configuration at the website below.
+            </description>
+            <separator class="thin"/>
+            <label value="You can find more information about Tidy at:"/>
+            <separator class="thin"/>
+            <button label="&lt;http://tidy.sourceforge.net/&gt;"
+                class="button-link"
+                style="margin: -10px; color: #b82619;"
+                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
+            <separator/>
+            <label value="You can find more information about WAI at:"/>
+            <separator class="thin"/>
+            <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
+                class="button-link"
+                style="margin: -10px; color: #b82619;"
+                oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
+            <separator class="thin"/>
+        </vbox>
+
+        <separator class="groovy-thin"
+                   style="margin-top: 10px; margin-bottom: 10px;"/>
+        <grid>
+            <columns>
+                <column/>
+                <column/>
+            </columns>
+            <rows>
+                <row align="center">
+                <label>Error Level:</label>
+                <menulist pref="true" prefattribute="data"
+                          prefstring="tidy_errorlevel">
+                    <menupopup>
+                        <menuitem data="errors"   label="&errorsOnly.label;"/>
+                        <menuitem data="warnings" label="&errorsAndWarnings.label;"/>
+                    </menupopup>
+                </menulist>
+                </row>
+                <row align="center">
+                    <label>WAI Accessibility Conformance Level:</label>
+                    <menulist pref="true" prefattribute="data"
+                              prefstring="tidy_accessibility">
+                        <menupopup>
+                            <menuitem data="0" label="&off.label;"/>
+                            <menuitem data="1" label="&priority1.label;"/>
+                            <menuitem data="2" label="&priority2.label;"/>
+                            <menuitem data="3" label="&priority3.label;"/>
+                        </menupopup>
+                    </menulist>
+                </row>
+            </rows>
+        </grid>
+
+        <separator class="groovy-thin"
+                   style="margin-top: 10px; margin-bottom: 10px;"/>
+        <text value="Configuration File:" style="padding: 2px 6px 2px 6px"/>
+        <hbox align="center">
+            <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
+            <button label="&browse.label;"
+                    oncommand="loadTidyConfigFile();"/>
+        </hbox>
+    </groupbox>
+
+    <spacer flex="1"/>
+
+</window>
+

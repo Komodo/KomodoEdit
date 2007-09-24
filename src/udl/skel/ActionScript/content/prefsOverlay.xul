@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<overlay id="ActionScriptPrefsOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <treechildren container="false" id="languagesChildren">
+    <treeitem container="false" id="actionScriptItem">
+      <treerow>
+	<treecell class="treecell-indent"
+		  url="chrome://actionscriptprefs/content/pref-actionscript.xul"
+		  label="ActionScript"/>
+      </treerow>
+    </treeitem>
+  </treechildren>
+</overlay>

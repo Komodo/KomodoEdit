@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Dialog to edit an environment variable. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<dialog id="dialog-editenvvar"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical"
+        style="min-width: 40em; max-width: 55em;"
+        flex="1"
+        buttons="accept,cancel"
+        ondialogaccept="return OK();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/mru.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/editEnvVar.js"  type="application/x-javascript;version=1.7"/>
+
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <hbox align="center">
+        <label control="name" value="Variable Name:" style="width: 7em;"/>
+        <textbox id="name"
+                 flex="1"
+                 type="autocomplete"
+                 autocompletepopup="popupTextboxAutoComplete"
+                 autocompletesearch="mru"
+                 disableautocomplete="true"
+                 maxrows="10"
+                 completeselectedindex="true"
+                 tabscrolling="true"
+                 ontextentered="this.focus();"
+                 onfocus="this.setSelectionRange(0, this.value.length);"/>
+    </hbox>
+    <separator class="thin"/>
+    <hbox align="center">
+        <label control="value" value="Variable Value:" style="width: 7em;"/>
+        <textbox id="value"
+                 flex="1"
+                 style="max-height: 1.5em;"
+                 type="autocomplete"
+                 autocompletepopup="popupTextboxAutoComplete"
+                 autocompletesearch="mru"
+                 disableautocomplete="true"
+                 maxrows="10"
+                 completeselectedindex="true"
+                 tabscrolling="true"
+                 ontextentered="this.focus();"
+                 onfocus="this.setSelectionRange(0, this.value.length);"/>
+        <button type="menu" id="shortcuts-menubutton"
+                collapsed="true"
+                tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
+                class="rightarrow-button">
+            <menupopup popupanchor="topright">
+                <menuitem label="&escapedPercentSign.label;"
+                          shortcut="[[%%]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&fFileBaseName.label;"
+                          shortcut="[[%f]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&FFilePath.label;"
+                          shortcut="[[%F]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&dDirectoryBaseNameOfFile.label;"
+                          shortcut="[[%d]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&DDirectoryPathOfFile.label;"
+                          shortcut="[[%D]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&bFileBaseNameWithoutExtension.label;"
+                          shortcut="[[%b]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&PPathOfTheActiveProject.label;"
+                          shortcut="[[%P]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
+                          shortcut="[[%p]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&LCurrentLineNumber.label;"
+                          shortcut="[[%L]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&sSelection.label;"
+                          shortcut="[[%s]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&SURLEscapedSelection.label;"
+                          shortcut="[[%S]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&wSelectionOrWordUnderCursor.label;"
+                          shortcut="[[%w]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&WURLEscapedSelectionOrWordUnderCursor.label;"
+                          shortcut="[[%W]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&browserConfiguredBrowser.label;"
+                          shortcut="[[%browser]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&perlConfiguredPerlInterpreter.label;"
+                          shortcut="[[%perl]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&phpConfiguredPHPInterpreter.label;"
+                          shortcut="[[%php]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&pythonConfiguredPythonInterpreter.label;"
+                          shortcut="[[%python]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&askAskForUserInput.label;"
+                          shortcut="[[%ask:QUESTION:DEFAULT]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuitem label="&askpassAskForPassword.label;"
+                          shortcut="[[%askpass:Password]]"
+                          oncommand="InsertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&helpOnShortcuts.label;"
+                          oncommand="ko.help.open('interpolation_shortcuts');"/>
+            </menupopup>
+        </button>
+        <button label="&addPath.label;" accesskey="&addPath.accesskey;"
+                oncommand="AddPath();"/>
+    </hbox>
+    <separator flex="1" style="min-height:10px;"/>
+
+</dialog>
+

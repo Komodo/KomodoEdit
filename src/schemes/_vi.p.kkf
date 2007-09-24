@@ -1,0 +1,120 @@
+#VI key bindings for Komodo
+
+# Movement commands
+binding cmd_vim_left  h
+binding cmd_vim_right  l
+binding cmd_vim_right  Space
+binding cmd_vim_linePrevious  k
+binding cmd_vim_lineNext  j
+binding cmd_vim_linePreviousHome  -
+binding cmd_vim_wordLeft  b
+binding cmd_vim_wordRight  w
+binding cmd_vim_wordRightEnd  e
+binding cmd_vim_homeAbsolute 0
+binding cmd_vim_homeAbsolute |
+binding cmd_vim_home ^
+binding cmd_vim_end $
+binding cmd_vim_wordRightPastPunctuation  W
+binding cmd_vim_wordLeftPastPunctuation  B
+binding cmd_vim_wordRightEndPastPunctuation  E
+# Larger moves
+binding cmd_vim_moveToScreenTop  H
+binding cmd_vim_moveToScreenCenter  M
+binding cmd_vim_moveToScreenBottom  L
+binding cmd_vim_moveSentenceBegin (
+binding cmd_vim_moveSentenceEnd   )
+binding cmd_vim_moveParagraphBegin {
+binding cmd_vim_moveParagraphEnd   }
+binding cmd_vim_moveFunctionPrevious [ [
+binding cmd_vim_moveFunctionNext     ] ]
+
+# Scrolling movements
+#binding cmd_vim_halfPageDown  Ctrl+D
+#binding cmd_vim_halfPageUp  Ctrl+U
+binding cmd_vim_pageDown  Ctrl+F
+binding cmd_vim_pageUp  Ctrl+B
+binding cmd_vim_gotoLine  G
+binding cmd_vim_lineScrollUp  Ctrl+P
+binding cmd_vim_lineScrollDown  Ctrl+E
+
+# Select commands
+
+# Copy commands
+binding cmd_vim_yankLine Y
+binding cmd_vim_yankOperation y
+
+# Paste commands
+binding cmd_vim_paste P
+binding cmd_vim_pasteAfter p
+
+# Insert mode commands
+binding cmd_vim_insert i
+binding cmd_vim_insertHome I
+binding cmd_vim_append a
+binding cmd_vim_appendEnd A
+binding cmd_vim_insert_newline_previous  O
+binding cmd_vim_insert_newline_next  o
+
+# Change commands
+binding cmd_vim_changeChar  s
+binding cmd_vim_changeLine  S
+binding cmd_vim_changeOperation c
+binding cmd_vim_changeLineEnd  C
+binding cmd_vim_replaceChar  r
+binding cmd_vim_overtype  R
+
+# Delete commands
+binding cmd_vim_cutChar x
+binding cmd_vim_cutCharLeft  X
+binding cmd_vim_deleteOperation d
+binding cmd_vim_lineCutEnd D
+
+# XXX - Fixme (delete to end of file): binding cmd_vim_deleteLineToEnd  dG
+
+# Search commands
+binding cmd_vim_findNext  n
+binding cmd_vim_findPrevious  N
+binding cmd_vim_enterSearchForward /
+binding cmd_vim_enterSearchBackward ?
+binding cmd_vim_findCharInLine  f
+binding cmd_vim_findPreviousCharInLine  F
+binding cmd_vim_findCharInLinePosBefore  t
+binding cmd_vim_findPreviousCharInLinePosAfter  T
+binding cmd_vim_repeatLastFindCharInLine  ;
+binding cmd_vim_repeatLastFindCharInLineReversed  ,
+binding cmd_vim_findWordUnderCursor  *
+binding cmd_vim_findWordUnderCursorBack  #
+
+# Visual mode commands
+binding cmd_vim_toggleVisualMode v
+binding cmd_vim_toggleVisualLineMode V
+binding cmd_vim_toggleVisualBlockMode Ctrl+V
+
+# Folding commands
+binding cmd_foldExpand z o
+binding cmd_foldExpandAll z R
+binding cmd_foldCollapse z c
+binding cmd_foldCollapseAll z M
+binding cmd_foldToggle z a
+
+# Special commands
+binding cmd_vim_cancel Ctrl+[
+binding cmd_vim_undo u
+binding cmd_vim_redo Ctrl+R
+binding cmd_vim_join J
+binding cmd_vim_swapCase ~
+binding cmd_vim_jumpToMatchingBrace  %
+binding cmd_vim_enterCommandMode :
+binding cmd_vim_repeatLastCommand .
+binding cmd_vim_dedentOperation <
+binding cmd_vim_indentOperation >
+binding cmd_vim_saveAndClose Z Z
+binding cmd_vim_closeNoSave Z Q
+
+# Register commands
+binding cmd_vim_setRegister "
+
+# Additional commands needed due to case sensitive behaviour if vi
+# Projects
+binding cmd_refreshStatus Ctrl+K r
+

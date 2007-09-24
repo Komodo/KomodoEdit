@@ -1,0 +1,46 @@
+:KD: [[%ask:KD number]]
+:Title: [[%ask1:KD Title]]
+:Status: <draft | active | final | finished | obsolete | stale | unknown>
+:Type: <meta | spec | informational>
+:Authors: <list of authors' names>
+:Created: [[%date:%d-%b-%Y]]
+:Revision: $Id$
+:Content-Type: text/x-rst
+:Komodo-Version:
+
+
+KD Template
+~~~~~~~~~~~
+
+.. contents:: Table of Contents
+
+TODO
+====
+
+- Note: Consider creating this document by changing to the
+  internal-docs/kd directory and running 'python kd.py -N'.
+
+- Fill in all the metadata fields according to `KD 1 <kd-0001.txt>`_.
+- Update the title heading.
+- Write the spec.
+- Save it as 'Komodo-devel/internal-docs/kd/kd-NNNN.txt'.
+- `p4 add -t text+k kd-NNNN.txt`
+
+
+
+Heading A
+=========
+
+blah blah blah
+
+heading 1
+---------
+
+blah blah blah
+
+
+Heading B
+=========
+
+blah blah blah
+

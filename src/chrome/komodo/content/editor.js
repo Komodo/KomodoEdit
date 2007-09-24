@@ -1,0 +1,228 @@
+// Controller for "view" related edit menu items.
+// XXX - should be moved to view.js.
+// XXX - note - we could probably get _significant_ performance
+// gains by ensuring that this controller is _only_ in place when
+// a view is current.  When we can guarntee this, all "isCommandEnabled()"
+// calls, which currently call viewManager.getCurrentView(), can be replaced with
+// "return true;".  This may already be true, but not going to
+// attempt this optimization for release.
+xtk.include("controller");
+
+// hide this controller from our global namespace, we simply dont need to
+// touch anything in it from the outside world
+(function() {
+    
+function editor_editorController() {
+}
+
+// The following two lines ensure proper inheritance (see Flanagan, p. 144).
+editor_editorController.prototype = new xtk.Controller();
+editor_editorController.prototype.constructor = editor_editorController;
+
+editor_editorController.prototype.destructor = function() {
+}
+
+// boolean prefs are marked "not supported" if there is no view
+// This is to handle that "isCommandEnabled" is actually doing
+// the state of the checkbox.
+editor_editorController.prototype._is_bool_pref_command_supported = function(pref_name) {
+    return ko.views.manager.currentView != null;
+}
+
+// This is probably bogus.  Instead of asking scintilla its current state
+// we should just ask the preference service for the state.
+// See _is_bool_real_pref_command_enabled
+editor_editorController.prototype._is_bool_pref_command_enabled = function(sci_prop_name) {
+    var v = ko.views.manager.currentView;
+    if (v) {
+        var exist = v.scintilla.scimoz[sci_prop_name];
+        return exist;
+    }
+    return false;
+}
+
+editor_editorController.prototype._is_bool_real_pref_command_enabled = function(pref_name) {
+    var cv = ko.views.manager.currentView;
+    if (cv) {
+        return cv.prefs.getBooleanPref(pref_name)
+    }
+    return false;
+}
+
+editor_editorController.prototype._do_bool_pref_command = function(pref_name, existing_val) {
+    ko.views.manager.currentView.prefs.setBooleanPref(pref_name, !existing_val);
+    // DONT update SciMoz here - let the preference notify mechanism
+    // trigger the normal preference handling code.
+}
+
+
+//---- find stuff
+
+editor_editorController.prototype.is_cmd_findNextSelected_enabled = function() {
+    return ko.views.manager.currentView ? true : false;
+}
+
+editor_editorController.prototype.do_cmd_findNextSelected = function() {
+    if (findSvc == null) {
+        findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
+    }
+    var v = ko.views.manager.currentView;
+    var scimoz = v.scintilla.scimoz
+    if (!scimoz) return;
+    var pattern = scimoz.selText;
+    if (pattern == '') {
+        scimoz.wordLeft();
+        var curChar = scimoz.getWCharAt(scimoz.currentPos);
+        while (curChar.search(/\W/) == -1) {
+            pattern += curChar;
+            scimoz.charRight();
+            curChar = scimoz.getWCharAt(scimoz.currentPos);
+        }
+    }
+
+    var context = Components.classes["@activestate.com/koFindContext;1"]
+        .createInstance(Components.interfaces.koIFindContext);
+    context.type = findSvc.options.preferredContextType;
+    Find_FindNext(window, context, pattern);
+}
+
+editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {
+    return ko.views.manager.currentView != null;
+}
+editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
+    var v = ko.views.manager.currentView;
+    var line_no = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
+    var markerState = v.scintilla.scimoz.markerGet(line_no);
+    if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
+        v.scintilla.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
+    } else {
+        v.scintilla.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
+    }
+}
+
+editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() {
+    return ko.views.manager.currentView != null;
+}
+editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
+    var v = ko.views.manager.currentView;
+    if (v) v.scintilla.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+}
+
+editor_editorController.prototype.is_cmd_bookmarkGotoNext_enabled = function() {
+    return ko.views.manager.currentView != null;
+}
+editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
+    var v = ko.views.manager.currentView;
+    var thisLine = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
+    var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    var nextLine = v.scintilla.scimoz.markerNext(thisLine+1, marker_mask);
+    if (nextLine < 0) {
+        // try for search from top of file.
+        nextLine = v.scintilla.scimoz.markerNext(0, marker_mask);
+    }
+    if (nextLine < 0 || nextLine == thisLine) {
+        ko.statusBar.AddMessage("No next bookmark can be found.", "bookmark",
+                             3000, true);
+    } else {
+        v.scintilla.scimoz.ensureVisibleEnforcePolicy(nextLine);
+        v.scintilla.scimoz.gotoLine(nextLine);
+    }
+}
+
+
+editor_editorController.prototype.is_cmd_bookmarkGotoPrevious_enabled = function() {
+    return ko.views.manager.currentView != null;
+}
+editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
+    var v = ko.views.manager.currentView;
+    var thisLine = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
+    var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    var prevLine = v.scintilla.scimoz.markerPrevious(thisLine-1, marker_mask);
+    if (prevLine < 0) {
+        // try for search from bottom of file.
+        prevLine = v.scintilla.scimoz.markerPrevious(v.scintilla.scimoz.lineCount-1, marker_mask);
+    }
+    if (prevLine < 0 || prevLine == thisLine) {
+        ko.statusBar.AddMessage("No previous bookmark can be found.", "bookmark",
+                             3000, true);
+    } else {
+        v.scintilla.scimoz.ensureVisibleEnforcePolicy(prevLine);
+        v.scintilla.scimoz.gotoLine(prevLine);
+    }
+}
+
+editor_editorController.prototype.is_cmd_startMacroMode_enabled = function() {
+    return ko.macros.recorder.mode != 'recording';
+}
+
+editor_editorController.prototype.do_cmd_startMacroMode= function() {
+    ko.macros.recorder.startRecording();
+}
+
+editor_editorController.prototype.is_cmd_pauseMacroMode_enabled = function() {
+    return ko.macros.recorder.mode == 'recording';
+}
+
+editor_editorController.prototype.do_cmd_pauseMacroMode= function() {
+    ko.macros.recorder.pauseRecording();
+}
+
+editor_editorController.prototype.is_cmd_stopMacroMode_enabled = function() {
+    return ko.macros.recorder.mode != 'stopped';
+}
+
+editor_editorController.prototype.do_cmd_stopMacroMode= function() {
+    ko.macros.recorder.stopRecording();
+}
+
+editor_editorController.prototype.is_cmd_executeLastMacro_enabled = function() {
+    return ko.macros.recorder.mode != 'recording' && ko.macros.recorder.currentMacro != null;
+}
+
+editor_editorController.prototype.do_cmd_executeLastMacro = function() {
+    ko.macros.recorder.executeLastMacro()
+}
+
+editor_editorController.prototype.is_cmd_saveMacroToToolbox_enabled = function() {
+    return ko.macros.recorder.mode != 'recording' && ko.macros.recorder.currentMacro != null;
+}
+
+editor_editorController.prototype.do_cmd_saveMacroToToolbox = function() {
+    ko.macros.recorder.saveToToolbox();
+}
+
+editor_editorController.prototype.is_cmd_viewAsGuessedLanguage_enabled = function() {
+    return (ko.views.manager.currentView != null &&
+      ko.views.manager.currentView.getAttribute('type') == 'editor');
+}
+
+editor_editorController.prototype.do_cmd_viewAsGuessedLanguage = function() {
+    try {
+        ko.views.manager.currentView.document.language = '';
+        ko.views.manager.currentView.document.language = ko.views.manager.currentView.document.language;
+    } catch (e) {
+        log.exception(e);
+    }
+}
+
+editor_editorController.prototype.is_cmd_browserPreview_enabled = function() {
+    var view = ko.views.manager.currentView;
+    return (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.document && view.document.file && view.document.file.isLocal);
+}
+
+editor_editorController.prototype.do_cmd_browserPreview = function() {
+    var view = ko.views.manager.currentView;
+    var canPreview = (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.document && view.document.file && view.document.file.isLocal);
+    if (canPreview)
+        ko.views.manager.currentView.viewPreview();
+}
+
+
+window.controllers.appendController(new editor_editorController());
+
+}).apply(); // apply into the global namespace

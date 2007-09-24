@@ -1,0 +1,59 @@
+CGIPrefs {
+  -moz-user-focus: normal;
+  -moz-binding: url('chrome://komodo/content/pref/koPrefWidgets.xml#CGIPrefs');
+}
+
+EnvPrefs {
+  -moz-user-focus: normal;
+  -moz-binding: url('chrome://komodo/content/pref/koPrefWidgets.xml#EnvPrefs');
+}
+
+/* debugger invocation widgets */
+
+debugProperties[type='perl']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#perl');
+}
+
+debugProperties[type='python']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#python');
+}
+
+debugProperties[type='php']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#php');
+}
+
+debugProperties[type='ruby']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#ruby');
+}
+
+debugProperties[type='tcl']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#tcl');
+}
+
+debugProperties[type='xslt']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#xslt');
+}
+
+debugOptions[type='perl']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#perl-params');
+}
+
+debugOptions[type='python']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#python-params');
+}
+
+debugOptions[type='php']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#php-params');
+}
+
+debugOptions[type='ruby']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#ruby-params');
+}
+
+debugOptions[type='tcl']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#tcl-params');
+}
+
+debugOptions[type='xslt']  {
+  -moz-binding: url('chrome://komodo/content/pref/invocations/debugging-languages.xml#xslt-params');
+}

@@ -1,0 +1,59 @@
+Index: extensions/python/xpcom/src/PyGInputStream.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyGInputStream.cpp,v
+retrieving revision 1.4
+diff -d -u -r1.4 PyGInputStream.cpp
+--- extensions/python/xpcom/src/PyGInputStream.cpp	18 Apr 2004 22:13:54 -0000	1.4
++++ extensions/python/xpcom/src/PyGInputStream.cpp	24 Apr 2007 02:37:54 -0000
+@@ -105,7 +105,13 @@
+ 	if (NS_SUCCEEDED(nr)) {
+ 		PRUint32 py_size;
+ 		const void *py_buf;
+-		if (PyObject_AsReadBuffer(ret, &py_buf, (int *)&py_size)!=0) {
++		if (
++#if PY_VERSION_HEX >= 0x02050000
++		    PyObject_AsReadBuffer(ret, &py_buf, (Py_ssize_t *)&py_size)
++#else
++		    PyObject_AsReadBuffer(ret, &py_buf, (int *)&py_size)
++#endif
++		    !=0) {
+ 			PyErr_Format(PyExc_TypeError, "nsIInputStream::read() method must return a buffer object - not a '%s' object", ret->ob_type->tp_name);
+ 			nr = HandleNativeGatewayError(methodName);
+ 		} else {
+Index: extensions/python/xpcom/src/PyIInputStream.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyIInputStream.cpp,v
+retrieving revision 1.6
+diff -d -u -r1.6 PyIInputStream.cpp
+--- extensions/python/xpcom/src/PyIInputStream.cpp	25 Nov 2005 08:16:25 -0000	1.6
++++ extensions/python/xpcom/src/PyIInputStream.cpp	24 Apr 2007 02:37:58 -0000
+@@ -66,7 +66,13 @@
+ 	PRUint32 nread;
+ 	void *buf;
+ 	PRUint32 buf_len;
+-	if (PyObject_AsWriteBuffer(obBuffer, &buf, (int *)&buf_len) != 0) {
++	if (
++#if PY_VERSION_HEX >= 0x02050000
++	    PyObject_AsWriteBuffer(obBuffer, &buf, (Py_ssize_t *)&buf_len)
++#else
++	    PyObject_AsWriteBuffer(obBuffer, &buf, (int *)&buf_len)
++#endif
++	    !=0) {
+ 		PyErr_Clear();
+ 		PyErr_SetString(PyExc_TypeError, "The buffer object does not have a write buffer!");
+ 		return NULL;
+@@ -117,7 +123,13 @@
+ 		if (rc != NULL) {
+ 			void *ob_buf;
+ 			PRUint32 buf_len;
+-			if (PyObject_AsWriteBuffer(rc, &ob_buf, (int *)&buf_len) != 0) {
++			if (
++#if PY_VERSION_HEX >= 0x02050000
++			    PyObject_AsReadBuffer(rc, (const void**)&ob_buf, (Py_ssize_t *)&buf_len)
++#else
++			    PyObject_AsReadBuffer(rc, &ob_buf, (int *)&buf_len)
++#endif
++			    !=0) {
+ 				// should never fail - we just created it!
+ 				return NULL;
+ 			}

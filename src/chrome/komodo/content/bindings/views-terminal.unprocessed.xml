@@ -1,0 +1,671 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-terminal"
+    extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer">
+    <content>
+        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
+                       mozcontext="bufferContextMenu"
+                       flex="1"/>
+    </content>
+    <implementation name="viewterminal" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+        <field name="terminalHandler">null</field>
+        <field name="cwd">null</field>
+        <field name='promptPos'>0</field>
+        <field name='haveBufferIn'>false</field>
+        <field name='history'>['']</field>
+        <field name='historySelection'>0</field>
+        <field name='lastHistorySelection'>0</field>
+        <field name='lastPrompt'>0</field>
+        <field name='newlineText'>null</field>
+
+        <property name="language">
+            <getter><![CDATA[
+                return this._language;
+            ]]>
+            </getter>
+            <setter><![CDATA[
+                this._language = val;
+                this._languageObj = null; // remove our language object
+                this.scintilla.language = val; // change scintilla
+                this.terminalHandler.setLanguage(this.languageObj);
+            ]]>
+            </setter>
+        </property>
+
+        <method name="initWithTerminal">
+        <parameter name="terminalHandler"/>
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('view-terminak:initWithTerminal')
+            this.log.info("view-terminal:initWithTerminal");
+            this.terminalHandler = terminalHandler;
+            this.terminalHandler.setScintilla(this.scimoz);
+            this.language = "Errors"; //  Should do 'errors' language?
+            this.scintilla.encoding = 'UTF-8'; // Should allow configuration XXXX
+            this.scintilla.init();
+            this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
+            this._genericController.view = this;
+            this.scintilla.controllers.appendController(this._genericController);
+            this.scimoz.hookEvents(this);
+            this.scimoz.wrapMode = Components.interfaces.ISciMoz.SC_WRAP_WORD;
+            this.scimoz.useTabs = 0; // don't use tabs in a terminal
+            this.scimoz.setProperty('smartCloseTags', '0');
+            this.document = null; // needed?
+            this._inInitPhase = false;
+            this.promptPos = 0;
+            this.haveBufferIn = false;
+            this.history = [''];
+            this.historySelection = 0;
+            this.lastHistorySelection = 0;
+            // the terminal scimoz is readonly until terminalHandler.startSession
+            // is called.  When terminalHandler.endSession is called, then
+            // scimoz is made read only again.
+            this.scimoz.readOnly = 1
+            ko.trace.get().leave('view-terminal:initWithTerminal')
+        ]]>
+        </body>
+        </method>
+
+        <method name="startSession">
+        <parameter name="clearContent"/>
+        <body>
+        <![CDATA[
+            this.scimoz.readOnly = 0;
+            this.terminalHandler.startSession();
+            if (typeof(clearContent) == "undefined" || clearContent) {
+                this.clear();
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="endSession">
+        <body>
+        <![CDATA[
+            try {
+                // Sometimes the terminal window has already been closed,
+                // so there is no scimoz object.
+                this.scimoz.readOnly = 1;
+            } catch(ex) {}
+            this.terminalHandler.endSession();
+        ]]>
+        </body>
+        </method>
+
+        <method name="clear">
+        <body>
+        <![CDATA[
+            this.scimoz.text = '';
+            this.scimoz.gotoPos(0);
+            this.promptPos = 0;
+            this.haveBufferIn = false;
+            this.history = [''];
+            this.historySelection = 0;
+            this.lastHistorySelection = 0;
+            this.terminalHandler.clear();
+        ]]>
+        </body>
+        </method>
+
+        <method name="clearBuffer">
+        <body>
+        <![CDATA[
+            //dump('clearBuffer to acquire lock\n');
+            this.terminalHandler.acquireLock()
+            try {
+                var markerState = this.scimoz.markerGet(this.scimoz.lineCount-1);
+                var marker;
+                if (markerState & (1 << ko.markers.MARKNUM_STDIN_PROMPT)) {
+                    marker = ko.markers.MARKNUM_STDIN_PROMPT;
+                } else if(markerState & (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT)) {
+                    marker = ko.markers.MARKNUM_INTERACTIVE_PROMPT;
+                } else if(markerState & (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE)) {
+                    marker = ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE;
+                } else {
+                    marker = 0;
+                }
+                this.scimoz.text = '';
+                if (marker)
+                    this.scimoz.markerAdd(0, marker);
+                this.scimoz.gotoPos(0);
+                this.promptPos = 0;
+                this.haveBufferIn = false;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            this.terminalHandler.releaseLock()
+            //dump('clearBuffer to release lock\n');
+        ]]>
+        </body>
+        </method>
+
+        <method name="addLineToHistory">
+        <parameter name="text"/>
+        <body>
+        <![CDATA[
+            var textTrimmed = text.replace(/(^\s+)|(\s+$)/g, '');
+            this.history[0] = '';
+            // add to history, but only if it isn't the same as the last command
+            if (textTrimmed.length > 0 &&
+                (this.history.length < 2 ||
+                text != this.history[1])) {
+                    this.history.splice(1, 0, text);
+                    this.lastHistorySelection = this.historySelection + 1;
+            }
+            this.historySelection = 0;
+        ]]>
+        </body>
+        </method>
+
+        <method name="doEnter">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            //dump('terminal keypress '+event.keyCode+'\n');
+            if (!this.terminalHandler.active) return;
+            // let the normal event mechanisms handle autocompletion
+
+            // XXX WORKAROUND: Until autocomplete works better for e.g. Tcl,
+            // this avoids calltips sticking around uncomfortably long in the
+            // interactive shell.
+            if (this.scimoz.autoCActive()) return;
+
+            if (this.scimoz.callTipActive()) this.scimoz.callTipCancel();
+            try {
+                if (event.ctrlKey && this.scimoz.currentPos < this.scimoz.length) {
+                    // chomp to end of line so we can insert into newline
+                    var currLine = this.scimoz.lineFromPosition(this.scimoz.currentPos);
+                    var currLineEndPos = this.scimoz.getLineEndPosition(currLine);
+                    if (currLineEndPos > this.scimoz.currentPos) {
+                        this.newlineTextLength = currLineEndPos - this.scimoz.currentPos;
+                        this.newlineText = this.scimoz.getTextRange(this.scimoz.currentPos,
+                                                                    currLineEndPos);
+                        this.scimoz.targetStart = this.scimoz.currentPos;
+                        this.scimoz.targetEnd = currLineEndPos;
+                        this.scimoz.replaceTarget(0, "");
+                    }
+                } else {
+                    this.clearSoftChars();
+                }
+                this.setPromptPos();
+                this.scimoz.currentPos = this.scimoz.anchor = this.scimoz.length;
+                var text = this.getLineBuffer();
+                this.addLineToHistory(text);
+                this.promptPos = 0;
+                this.haveBufferIn = false;
+
+                //dump('enter in linecount '+this.scimoz.lineCount+'\n');
+                var markerStatus = this.scimoz.markerGet(this.scimoz.lineCount - 1);
+
+                ko.commands.doCommand('cmd_newline')
+                this.setPromptMarker(this.lastPrompt);
+                this.terminalHandler.lastWritePosition = this.scimoz.length;
+
+                if (text.length < 1 && markerStatus & (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT)) {
+                    // no data to send, just return
+                    return;
+                }
+
+                // if we dont have any data to send, see we need to dedent
+                var textTrimmed = text.replace(/(^\s+)|(\s+$)/g, '');
+                if (textTrimmed.length < 1 && markerStatus & (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE)) {
+                    // dedent one level, and get the new text to send
+                    ko.commands.doCommand('cmd_dedent');
+                    text = this.getLineBuffer();
+                }
+
+                this.dataToSend = text;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            // pass through to scintilla
+        ]]>
+        </body>
+        </method>
+
+        <method name="doEnterCompletion">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            //dump("doEnterCompletion ["+this.dataToSend+"]\n");
+            try {
+                this.scimoz.scrollCaret();
+                if (this.newlineText) {
+                    var endPos = this.scimoz.length;
+                    this.scimoz.addText(this.newlineTextLength, this.newlineText);
+                    this.scimoz.gotoPos(endPos);
+                    delete this.newlineText;
+                }
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                if (typeof(this.dataToSend) == 'undefined') return;
+                if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(this.dataToSend)) {
+                    this.terminalHandler.stdin.puts(this.dataToSend+'\n');
+                }
+                delete this.dataToSend;
+            } catch(e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="setPromptMarker">
+            <parameter name="prompt"/>
+        <body>
+        <![CDATA[
+            var markerState = this.scimoz.markerGet(this.scimoz.lineCount-1)
+            if (markerState & (1 << prompt)) {
+                this.scimoz.scrollCaret();
+                return;
+            }
+            this.terminalHandler.acquireLock()
+            try {
+                if (prompt != ko.markers.MARKNUM_STDIN_PROMPT) {
+                    // we allow text on the same line as a stdin prompt, but not
+                    // for interactive prompts.  If this is an interactive prompt,
+                    // see if we need to advance the line.
+                    if (markerState & ((1 << ko.markers.MARKNUM_STDERR) | (1 << ko.markers.MARKNUM_STDOUT))) {
+                        this.terminalHandler.lastWritePosition = this.scimoz.length;
+                        this.scimoz.newLine();
+                        this.scimoz.gotoPos(this.scimoz.length);
+                        this.scimoz.scrollCaret();
+                    }
+                }
+
+                var line = this.scimoz.lineCount-1;
+                if (this.lastPrompt)
+                    this.scimoz.markerDelete(line, this.lastPrompt);
+                this.lastPrompt = prompt;
+
+                //dump("Adding prompt "+prompt+" at line "+line+"\n");
+                this.scimoz.markerAdd(line, prompt);
+            } catch(e) { this.log.exception(e); }
+            this.terminalHandler.releaseLock()
+            //dump('setPromptMarker to release lock\n');
+        ]]>
+        </body>
+        </method>
+
+        <method name="clearSoftChars">
+        <body>
+        <![CDATA[
+        var currentPos = this.scimoz.currentPos;
+        var softCharDecorator = Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR;
+        if (this.scimoz.indicatorValueAt(softCharDecorator, currentPos)) {
+            var softPositionEnd = this.scimoz.indicatorEnd(softCharDecorator, currentPos);
+            if (softPositionEnd <= currentPos) return; // sanity check
+            this.scimoz.indicatorCurrent = softCharDecorator;
+            //dump("Clear soft chars from " + currentPos + " to " + softPositionEnd + "\n");
+            this.scimoz.indicatorClearRange(currentPos, softPositionEnd - currentPos);
+        }
+        ]]>
+        </body>
+        </method>
+
+        <method name="setPromptPos">
+        <body>
+        <![CDATA[
+            // we want to ignore any text on the input line that we received
+            // from the process since this will typically be a prompt.  On
+            // the first keypress after hitting enter or starting a new shell
+            // we retrieve the position and use that as the prompt location.
+            if (this.haveBufferIn) return;
+            //dump('setPromptPos to acquire lock\n');
+            this.terminalHandler.acquireLock()
+            try {
+                this.promptPos = 0;
+                this.haveBufferIn = true;
+
+                // we only worry about this for stdin, not for an interactive prompt
+                var prompts = (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT) |
+                              (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE);
+                var markerState = this.scimoz.markerGet(this.scimoz.lineCount - 1);
+                if (!(markerState & prompts)) {
+                    var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
+                    var line = this.getLineBuffer();
+                    if (line.length > 0)
+                        this.promptPos = this.scimoz.length - linePos;
+                }
+            } catch(e) { /* do nothing */ }
+            this.terminalHandler.releaseLock()
+            //dump('setPromptPos to release lock\n');
+        ]]>
+        </body>
+        </method>
+
+        <method name="getLineBuffer">
+        <body>
+        <![CDATA[
+            var text = new Object();
+            this.scimoz.getLine(this.scimoz.lineCount - 1, text);
+            return text.value.substring(this.promptPos, text.value.length);
+        ]]>
+        </body>
+        </method>
+
+        <method name="onModifiedHandler">
+        <parameter name="position"/>
+        <parameter name="modificationType"/>
+        <!-- XXX 'text' is NOT unicode ('wstring' in IDL-speak) because of
+             <http://bugs.activestate.com/Komodo/show_bug.cgi?id=26793>.
+             Be warned that 'text' is UTF-8 encoded and must be used as such.
+        -->
+        <parameter name="text"/>
+        <parameter name="length"/>
+        <parameter name="linesAdded"/>
+        <parameter name="line"/>
+        <parameter name="foldLevelNow"/>
+        <parameter name="foldLevelPrev"/>
+        <body>
+        <![CDATA[
+            const SC_MOD_INSERTTEXT = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
+
+            if (modificationType & (SC_MOD_INSERTTEXT)) {
+                //dump("onModifiedHandler line["+line+"] position["+position+"] length["+length+"] linesAdded["+linesAdded+"]\n");
+                // a paste can be handled normally if it does not contain
+                // multiple lines and the data is not only a newline.
+                // Otherwise we use our paste timeout and handle entering the
+                // data ourselves.
+                if (text != '\n' && text != '\r' && text != '\r\n') {
+                    if (linesAdded > 0) {
+                        var sline = this.scintilla.scimoz.lineFromPosition(position);
+                        var eline = this.scintilla.scimoz.lineFromPosition(position + length);
+                        var start = this.scintilla.scimoz.positionFromLine(sline);
+                        var end = this.scimoz.getLineEndPosition(eline);
+                        var data = this.scintilla.scimoz.getTextRange(start, end);
+
+                        // we have either paste or dropped data, handle it now
+                        this._pasteTimer = new objectTimer(this, this.doPasteHandler, [start, end-start, linesAdded]);
+                        this._pasteTimer.startTimeout(1);
+                        return true; // no further onmodified processing
+                    } else if (length>1) {
+                        this.haveBufferIn = true;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="doPasteHandler">
+        <parameter name="position"/>
+        <parameter name="length"/>
+        <parameter name="linesAdded"/>
+        <body>
+        <![CDATA[
+            // split the pasted data into lines, then send one line down
+            // at a time
+            try {
+                var data = this.scintilla.scimoz.getTextRange(position, position+length);
+                //dump('got paste data ['+data+']\n');
+                // if data does not end with a newline, do not send the last
+                // line pasted.  the user will need to hit enter to send that.
+                var lines = data.split(/\r\n|\n|\r/);
+                if (data[data.length-1] != '\n') {
+                    lines.splice(lines.length-1, 1);
+                }
+                // strip blank lines at end of paste block
+                while (lines.length > 1 && lines[lines.length - 1] == '\n') {
+                    lines.splice(lines.length-1, 1);
+                }
+                data = lines.join('\n');
+                for (var i = 0; i < lines.length; i++) {
+                    this.addLineToHistory(lines[i]);
+                }
+                //dump('sending data ['+data+']\n');
+                if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(data)) {
+                    // If there is a stdin, send the input to it.
+                    // There won't be for macros that write to the command output window.
+                    if (this.terminalHandler.stdin) {
+                        this.terminalHandler.stdin.puts(data+'\n');
+		    }
+                }
+                this.scimoz.anchor = this.scimoz.selectionStart = this.scimoz.selectionEnd = this.scimoz.length;
+            } catch(e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="resetToCommandPosition">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            try {
+                // The purpose of this function is to make sure that keyboard motions stay within
+                // the current line.  There are a few cases to worry about:
+                //   - cursor motions left (VK_LEFT, VK_BACK) further than
+                //     the beginning of the current line,
+
+                // Some things _should_ be allowed, however, such as:
+                //   - shift-cursor/ctrl-cursor motions, which select
+                //   - VK_BACKSPACE if the cursor is at column 0 _if there is a selection
+
+                this.setPromptPos();
+                var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
+
+                var forbidden = false;
+                if (this.scimoz.currentPos != this.scimoz.anchor) {
+                    // if there is a selection, forbid nothing
+                    forbidden = false;
+                } else {
+                    // there is no selection -- allow movement right if on current line,
+                    // forbid (jump to current line) otherwise
+                    if (event.keyCode == event.DOM_VK_RIGHT) {
+                        forbidden = this.scimoz.currentPos < linePos;
+                    } else { // left or back
+                        forbidden = this.scimoz.currentPos - 1 < linePos;
+                    }
+                }
+                if (forbidden) {
+                    this.scimoz.currentPos = this.scimoz.anchor = linePos;
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            } catch(e) {
+                this.log.exception(e);
+            }
+            // pass through to scintilla
+        ]]>
+        </body>
+        </method>
+
+        <method name="sendEOF">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            // send EOF
+            try {
+                if (this.terminalHandler.stdinHandler)
+                    this.terminalHandler.stdinHandler.puts(null)
+                this.terminalHandler.stdin.close();
+                this.scimoz.newLine();
+                this.scimoz.readOnly = 1;
+                if (typeof(event) != 'undefined') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            } catch(e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="scrollHistoryUp">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            //dump('terminal keypress VK_UP\n');
+            // get our history and put it in the last line
+            try {
+                if (this.scimoz.autoCActive()) {
+                    return;
+                }
+                if (this.scimoz.callTipActive()) {
+                    this.scimoz.callTipCancel();
+                }
+                this.setPromptPos();
+                if (this.historySelection == 0) {
+                    // save the current selection
+                    this.history[0] = this.getLineBuffer();
+                }
+
+                this.historySelection += 1;
+                if (this.historySelection >= this.history.length) {
+                    this.historySelection = this.history.length - 1;
+                }
+                var line = this.history[this.historySelection];
+                //dump('terminal history line: ['+line+']\n');
+
+                var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
+                this.scimoz.anchor = this.scimoz.selectionStart = linePos + this.promptPos;
+                this.scimoz.selectionEnd = this.scimoz.length;
+                this.scimoz.replaceSel(line);
+                this.scimoz.currentPos = this.scimoz.anchor = this.scimoz.length;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            event.preventDefault();
+            event.stopPropagation();
+        ]]>
+        </body>
+        </method>
+
+        <method name="scrollHistoryDown">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            //dump('terminal keypress VK_DOWN\n');
+            // get our history and put it in the last line
+            try {
+                if (this.scimoz.autoCActive()) {
+                    return;
+                }
+                if (this.scimoz.callTipActive()) {
+                    this.scimoz.callTipCancel();
+                }
+                this.setPromptPos();
+                if (this.historySelection == 0) {
+                    // save the current selection
+                    this.history[0] = this.getLineBuffer();
+                    this.historySelection = this.lastHistorySelection;
+                    this.lastHistorySelection = 0;
+                }
+
+                this.historySelection -= 1;
+                if (this.historySelection < 0) {
+                    this.historySelection = 0;
+                }
+                var line = this.history[this.historySelection];
+                //dump('terminal history line: ['+line+']\n');
+
+                var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
+                this.scimoz.anchor = this.scimoz.selectionStart = linePos + this.promptPos;
+                this.scimoz.selectionEnd = this.scimoz.length;
+                this.scimoz.replaceSel(line);
+                this.scimoz.currentPos = this.scimoz.anchor = this.scimoz.length;
+            } catch(e) {
+                this.log.exception(e);
+            }
+            event.preventDefault();
+            event.stopPropagation();
+        ]]>
+        </body>
+        </method>
+
+        <method name="scrollBufferUp">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            //dump('terminal keypress ctrl VK_UP\n');
+            try {
+                this.scimoz.lineScrollUp();
+            } catch(e) {
+                this.log.exception(e);
+            }
+            // prevent any other keypress event
+            event.preventDefault();
+            event.stopPropagation();
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+    <handlers>
+        <!--
+             keypress handlers that are done during the capturing phase will
+             happen before the scintilla widget gets the event.  We can then
+             prevent the event from reaching scintilla, or allow it through.
+             If we want to get the event after scintilla, leave out the
+             phase attribute on the handler.
+        -->
+        <handler event="keypress" phase="capturing">
+        <![CDATA[
+            var cmdKey = event.ctrlKey || event.altKey || event.metaKey;
+            if (!this.haveBufferIn && event.charCode != 0 && !cmdKey) {
+                this.setPromptPos();
+            }
+            // never allow text entry at a line less than the last
+            //dump("linepos: "+this.scimoz.positionFromLine(this.scimoz.lineCount - 1)+" curpos: "+this.scimoz.currentPos+"\n");
+            if (event.charCode >= 32 && !cmdKey &&
+                this.scimoz.positionFromLine(this.scimoz.lineCount - 1) >
+                this.scimoz.currentPos) {
+                this.scimoz.gotoPos(this.scimoz.length);
+            }
+        ]]>
+        </handler>
+
+        <handler event="keypress" phase="capturing" keycode="VK_ENTER" action="this.doEnter(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_RETURN" action="this.doEnter(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_ENTER" modifiers="shift" action="this.doEnter(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_RETURN" modifiers="shift" action="this.doEnter(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_ENTER" modifiers="control" action="this.doEnter(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_RETURN" modifiers="control" action="this.doEnter(event);"/>
+
+        <!--  these get called AFTER scintilla, which is a good thing, we dont
+              send to the debugger until the scintilla gets to do it's thing.  -->
+        <handler event="keypress" keycode="VK_ENTER" action="this.doEnterCompletion(event);"/>
+        <handler event="keypress" keycode="VK_RETURN" action="this.doEnterCompletion(event);"/>
+        <handler event="keypress" keycode="VK_ENTER" modifiers="shift" action="this.doEnterCompletion(event);"/>
+        <handler event="keypress" keycode="VK_RETURN" modifiers="shift" action="this.doEnterCompletion(event);"/>
+        <handler event="keypress" keycode="VK_ENTER" modifiers="control" action="this.doEnterCompletion(event);"/>
+        <handler event="keypress" keycode="VK_RETURN" modifiers="control" action="this.doEnterCompletion(event);"/>
+
+        <handler event="keypress" phase="capturing" keycode="VK_TAB">
+        <![CDATA[
+            if (!this.haveBufferIn) {
+                this.setPromptPos();
+            }
+        ]]>
+        </handler>
+
+        <handler event="keypress" phase="capturing" key="d" modifiers="control" action="this.sendEOF(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_BACK" action="this.resetToCommandPosition(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_LEFT" action="this.resetToCommandPosition(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_RIGHT" action="this.resetToCommandPosition(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_UP" action="this.scrollHistoryUp(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_DOWN" action="this.scrollHistoryDown(event);"/>
+        <handler event="keypress" phase="capturing" keycode="VK_UP" modifiers="control" action="this.scrollBufferUp(event);"/>
+
+    </handlers>
+</binding>
+
+</bindings>
+

@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2005-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<window id="test_firefoxAutoComplete"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="Test Firefox AutoComplete"
+        windowtype="komodo_test"
+        class="kodialog"
+        onload="OnLoad()"
+        orient="vertical"
+        width="650" height="800"
+        persist="screenX screenY width height"
+        flex="1">
+
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/test/test_firefoxAutoComplete.js" type="application/x-javascript;version=1.7"/>
+
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <vbox style="padding: 10px 10px 20px 10px;" flex="1">
+        <description>
+            This dialog is used to test/try out Firefox's new autocomplete
+            textbox functionality. Note that you must manually edit the
+            'autocompletesearch' attribute in test_firefoxAutoComplete.xul to
+            try out the other available autocomplete searches. Changing that
+            dynamically doesn't "take".
+        </description>
+
+        <separator style="height: 10px;"/>
+        <hbox align="center" flex="1">
+            <label value="Complete:" accesskey="m" control="complete"/>
+            <!-- Notes:
+                 - Note that "onfocus", if that attribute is defined, will get
+                   hit twice: once for the textbox and once for the underlying
+                   html:input. Guard against that like this:
+                     onfocus="if (event.target.nodeName == 'textbox') { /* do stuff */ }"
+                   Actually sometimes the only event is on the html:input.
+              -->
+            <textbox id="complete"
+                     type="autocomplete"
+                     flex="1" 
+                     accesskey="m"
+                     autocompletesearch="mru_and_filepath"
+                     autocompletesearchparam="mru:find-patternMru; cwd: /Users/trentm; maxmru: 4"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     enablehistory="true"
+                     tabscrolling="true"
+                     maxrows="10"
+                     completeselectedindex="true"
+                     />
+        </hbox>
+
+        <spacer flex="1"/>
+        <groupbox orient="vertical" flex="1">
+            <caption label="Options"/>
+            <hbox align="center">
+                <label value="autocompletesearch:" control="autocompletesearch"/>
+                <!-- changing the autocompletesearch type on the fly doesn't "take" 
+                <menulist id="autocompletesearch"
+                          sizetopopup="false"
+                          style="width: 140px;"
+                          flex="1"
+                          value="filepath"
+                          oncommand="UpdateStringCompleteAttribute('autocompletesearch', this.value);">
+                    <menupopup>
+                        <menuitem value="demo" label="demo (files in ~/tmp)"/>
+                        <menuitem value="filepath" label="filepath (local file paths)"/>
+                    </menupopup>
+                </menulist>
+                -->
+                <label value="mru_and_filepath (must change manually in XUL)"/>
+            </hbox>
+            <hbox align="center">
+                <label value="autocompletesearchparam:" control="autocompletesearchparam"/>
+                <textbox id="autocompletesearchparam" flex="1"
+                         value="mru:find-patternMru; cwd: /Users/trentm; maxmru: 4"
+                         onchange="UpdateStringCompleteAttribute('autocompletesearchparam', this.value);"/>
+            </hbox>
+            <checkbox label="enablehistory" checked="true"
+                      oncommand="UpdateBooleanCompleteAttribute('enablehistory', this.checked);"/>
+            <checkbox label="tabscrolling" checked="true"
+                      oncommand="UpdateBooleanCompleteAttribute('tabscrolling', this.checked);"/>
+            <checkbox label="completeselectedindex" checked="true"
+                      oncommand="UpdateBooleanCompleteAttribute('completeselectedindex', this.checked);"/>
+            <checkbox label="completedefaultindex" checked="false"
+                      oncommand="UpdateBooleanCompleteAttribute('completedefaultindex', this.checked);"/>
+            <checkbox label="showcommentcolumn" checked="false"
+                      oncommand="UpdateBooleanCompleteAttribute('showcommentcolumn', this.checked);"/>
+        </groupbox>
+
+        <hbox align="right">
+            <button id="close" accesskey="c" label="Close" oncommand="window.close();"/>
+        </hbox>
+    </vbox>
+</window>
+

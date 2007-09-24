@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<dialog id="dialog-editpathmap"
+        title="&URIToPathMapping.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        orient="vertical"
+        style="min-width: 35em;"
+        buttons="accept,cancel"
+        ondialogcancel="return onCancel();"
+        ondialogaccept="return onOK();"
+        onload="onLoad();">
+
+<script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+var dialog = null;
+var uri = null;
+var path = null;
+
+function onLoad() {
+    // get window arguments and fill in our dialog
+    uri = document.getElementById('uri');
+    path = document.getElementById('path');
+    dialog = document.documentElement;
+    if (window.arguments[0]) {
+        uri.value = window.arguments[0].uri;
+        path.value = window.arguments[0].path;
+        if (window.arguments[0].project_name) {
+            document.getElementById("project_radio").setAttribute('label', "'"+window.arguments[0].project_name+"' Project");
+        }
+    }
+    updateAccept();
+    if (!opener.ko || ! opener.ko.projects) {
+        var el = document.getElementById("prefchoice");
+        el.parentNode.removeChild(el);
+    } else
+    if (!opener.ko.projects.manager.currentProject) {
+        document.getElementById("prefchoice").disabled = true;
+    }
+}
+
+function updateAccept() {
+    if (!uri.value || !path.value) {
+        dialog.getButton("accept").disabled = true;
+    } else {
+        dialog.getButton("accept").disabled = false;
+    }
+}
+
+function onOK() {
+    // set the window arguments for results
+    window.arguments[0].uri = document.getElementById('uri').value;
+    window.arguments[0].path = document.getElementById('path').value;
+    if (document.getElementById('prefchoice'))
+        window.arguments[0].project = document.getElementById('prefchoice').selectedItem.value;
+}
+function onCancel() {
+    // set the window arguments for results so we dont do anything with them
+    window.arguments[0].uri = null;
+    window.arguments[0].path = null;
+}
+
+function browseForDir(elem, remote) {
+    if (!remote) {
+        ko.filepicker.browseForDir(elem);
+    } else {
+        ko.filepicker.browseForRemoteDir(elem);
+    }
+    var path = elem.value;
+    var uri = document.getElementById('uri');
+    if (!uri || uri[uri.length-1] == "/") {
+<!-- # if PLATFORM == "win" -->
+        if (!remote && path[path.length-1] != "\\")
+            document.getElementById('path').value = path +"\\";
+        else
+<!-- # endif -->
+        if (path[path.length-1] != "/")
+            document.getElementById('path').value = path +"/";
+    }
+}
+]]>
+</script>
+<vbox flex="1">
+    <caption label="&addEditPathMapping.label;"/>
+    <grid>
+        <columns>
+            <column/>
+            <column flex="1"/>
+        </columns>
+        <rows>
+        <row>
+            <label value="URI:" control="varName" class="kopadded"
+                   style="width: 50px;margin: 5px 1px;"/>
+            <textbox id="uri" flex="1" onchange="updateAccept()"/>
+        </row>
+        <row>
+            <label value="Path:" control="varValue" class="kopadded"
+                   style="width: 50px; margin: 5px 1px;"/>
+            <textbox id="path" flex="1" onchange="updateAccept()"/>
+        </row>
+        <row>
+            <hbox/>
+            <hbox align="right">
+                <button label="&local.label;" oncommand="browseForDir(document.getElementById('path'))" />
+                <button label="&remote.label;" oncommand="browseForDir(document.getElementById('path'),true);" />
+            </hbox>
+        </row>
+        </rows>
+    </grid>
+    <separator class="thin"/>
+    <vbox id="add-to" flex="1">
+        <radiogroup id="prefchoice">
+        <caption label="&saveMappingTo.label;"/>
+            <radio label="&globalPreferences.label;" selected="true" value="false"/>
+            <radio id="project_radio" label="&currentProjectPreferences.label;" value="true"/>
+        </radiogroup>
+    </vbox>
+    <separator class="thin"/>
+
+</vbox>
+</dialog>

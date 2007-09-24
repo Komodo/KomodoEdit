@@ -1,0 +1,28 @@
+#!/bin/sh
+# Stub to call main Komodo binary.
+
+# Resolve all symlinks to this stub path.
+STUB=$0
+while [ -h "$STUB" ]; do
+    ls=`ls -ld "$STUB"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        STUB="$link"
+    else
+        STUB="`dirname $STUB`/$link"
+    fi
+done
+
+INSTALLDIR="`dirname $STUB`/.."
+isdevtree="$INSTALLDIR/../bin/is_dev_tree.txt"
+if test -f "$isdevtree"; then
+    mozdir=$INSTALLDIR/../bin
+else
+    mozdir=$INSTALLDIR/lib/mozilla
+fi
+"$mozdir/komodo" "$@" &
+if test `uname` = "SunOS"; then
+    sleep 1
+else
+    sleep 0.3
+fi

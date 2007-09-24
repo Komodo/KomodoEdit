@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SFTP</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SFTP
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko.SFTP-class.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SFTP-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SFTP</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+        
+         |        
+  <a href="../private/paramiko.BaseSFTP-class.html"><code>BaseSFTP</code></a> --+    
+             |    
+    <a href="paramiko.SFTPClient-class.html"><code>SFTPClient</code></a> --+
+                 |
+                <b>SFTP</b>
+</pre><br />
+
+<hr/>
+
+an alias for <a href="paramiko.SFTPClient-class.html" 
+class="link"><code>SFTPClient</code></a> for backwards compatability
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from SFTPClient</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sock</span>)</span></code>
+<br />
+Create an SFTP client from an existing <a 
+href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chdir" class="summary-sig-name"><code>chdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Change the &quot;current directory&quot; of this SFTP session.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chmod" class="summary-sig-name"><code>chmod</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+<br />
+Change the mode (permissions) of a file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chown" class="summary-sig-name"><code>chown</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>uid</span>,
+          <span class=summary-sig-arg>gid</span>)</span></code>
+<br />
+Change the owner (<code>uid</code>) and group (<code>gid</code>) of a 
+file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close the SFTP session and its underlying channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPFile
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#file" class="summary-sig-name"><code>file</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>mode</span>,
+          <span class=summary-sig-arg>bufsize</span>)</span></code>
+<br />
+Open a file on the remote server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#from_transport" class="summary-sig-name"><code>from_transport</code></a>(<span class=summary-sig-arg>cls</span>,
+          <span class=summary-sig-arg>t</span>)</span></code>
+<br />
+Create an SFTP client channel from an open <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.    <i>(Class method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#get" class="summary-sig-name"><code>get</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>remotepath</span>,
+          <span class=summary-sig-arg>localpath</span>)</span></code>
+<br />
+Copy a remote file (<code>remotepath</code>) from the SFTP server to 
+the local host as <code>localpath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#getcwd" class="summary-sig-name"><code>getcwd</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the &quot;current working directory&quot; for this SFTP 
+session, as emulated by paramiko.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list of str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#listdir" class="summary-sig-name"><code>listdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return a list containing the names of the entries in the given 
+<code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list of <a href="paramiko.SFTPAttributes-class.html" 
+        class="link"><code>SFTPAttributes</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#listdir_attr" class="summary-sig-name"><code>listdir_attr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return a list containing <a href="paramiko.SFTPAttributes-class.html" 
+class="link"><code>SFTPAttributes</code></a> objects corresponding to 
+files in the given <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPAttributes
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#lstat" class="summary-sig-name"><code>lstat</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Retrieve information about a file on the remote system, without 
+following symbolic links (shortcuts).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#mkdir" class="summary-sig-name"><code>mkdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+<br />
+Create a folder (directory) named <code>path</code> with numeric mode 
+<code>mode</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#normalize" class="summary-sig-name"><code>normalize</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return the normalized path (on the server) of a given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPFile
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#file" class="summary-sig-name"><code>open</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>mode</span>,
+          <span class=summary-sig-arg>bufsize</span>)</span></code>
+<br />
+Open a file on the remote server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#put" class="summary-sig-name"><code>put</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>localpath</span>,
+          <span class=summary-sig-arg>remotepath</span>)</span></code>
+<br />
+Copy a local file (<code>localpath</code>) to the SFTP server as 
+<code>remotepath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#readlink" class="summary-sig-name"><code>readlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return the target of a symbolic link (shortcut).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#remove" class="summary-sig-name"><code>remove</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the file at the given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#rename" class="summary-sig-name"><code>rename</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>oldpath</span>,
+          <span class=summary-sig-arg>newpath</span>)</span></code>
+<br />
+Rename a file or folder from <code>oldpath</code> to 
+<code>newpath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#rmdir" class="summary-sig-name"><code>rmdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the folder named <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPAttributes
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#stat" class="summary-sig-name"><code>stat</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Retrieve information about a file on the remote system.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#symlink" class="summary-sig-name"><code>symlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>source</span>,
+          <span class=summary-sig-arg>dest</span>)</span></code>
+<br />
+Create a symbolic link (shortcut) of the <code>source</code> path at 
+<code>destination</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#truncate" class="summary-sig-name"><code>truncate</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Change the size of the file specified by <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#remove" class="summary-sig-name"><code>unlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the file at the given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#utime" class="summary-sig-name"><code>utime</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>times</span>)</span></code>
+<br />
+Set the access and modified times of the file specified by 
+<code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_adjust_cwd" class="summary-sig-name"><code>_adjust_cwd</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return an adjusted path if we're emulating a &quot;current working 
+directory&quot; for the server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_async_request" class="summary-sig-name"><code>_async_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>fileobj</span>,
+          <span class=summary-sig-arg>t</span>,
+          <span class="summary-sig-vararg">*arg</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_convert_status" class="summary-sig-name"><code>_convert_status</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>msg</span>)</span></code>
+<br />
+Raises EOFError or IOError on error status; otherwise does 
+nothing.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_finish_responses" class="summary-sig-name"><code>_finish_responses</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>fileobj</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_read_response" class="summary-sig-name"><code>_read_response</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>waitfor</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPClient-class.html#_request" class="summary-sig-name"><code>_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>t</span>,
+          <span class="summary-sig-vararg">*arg</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from BaseSFTP</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_log" class="summary-sig-name"><code>_log</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>level</span>,
+          <span class=summary-sig-arg>msg</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_read_all" class="summary-sig-name"><code>_read_all</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>n</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_read_packet" class="summary-sig-name"><code>_read_packet</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_send_packet" class="summary-sig-name"><code>_send_packet</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>t</span>,
+          <span class=summary-sig-arg>packet</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_send_server_version" class="summary-sig-name"><code>_send_server_version</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_send_version" class="summary-sig-name"><code>_send_version</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.BaseSFTP-class.html#_write_all" class="summary-sig-name"><code>_write_all</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>out</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:41:59 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

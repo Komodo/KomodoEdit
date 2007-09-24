@@ -1,0 +1,317 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.-->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Templates</title>
+</head>
+
+<body>
+  <h1><a name="templates_top" id="templates_top">Templates</a></h1>
+
+  <div class="right-float-box">
+    <p><strong>Feature Showcase</strong></p>
+
+    <ul>
+      <li>store a <a href=
+      "tutorial/tourlet_tempproj.html#tempproj_top">template in a
+      project</a></li>
+    </ul>
+  </div>
+
+  <p>Templates are files that contain the basic structure for new
+  files or <a href="#project_templates">projects</a>. For example,
+  a Perl template might contain the standard "#!" line, appropriate
+  copyright statements, and <code>use</code> statements calling a
+  standard set of modules.</p>
+
+  <p>Komodo includes templates for a number of languages languages,
+  and lets you create and use your own. Templates can contain
+  <a href="komodo-doc-shortcuts.html#shortcuts_top">Interpolation
+  Shortcuts</a> or <a href=
+  "komodo-doc-shortcuts.html#tab_stops">Tab Stops</a>. They can be
+  stored in a <a href=
+  "komodo-doc-project.html#project_top">project</a> or in the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> for
+  quick access, and shared via the <a href=
+  "komodo-doc-prefs.html#Shared_Support">Common Data
+  Directory</a>.</p>
+
+  <h2><a name="templates_newmenu" id="templates_newmenu">Creating
+  New Files from Templates</a></h2>
+
+  <p>The <strong>New File</strong> menu option, invoked via
+  <strong>File|New|New File</strong>, or via the associated
+  <a href="komodo-doc-prefs.html#Config_Key_Bindings">key
+  binding</a>, provides access to numerous templates for creating
+  new files. These templates consist of standard code that is
+  generally included in programs of the selected type. For example,
+  the Perl template creates a file with a "<code>.pl</code>"
+  extension that contains the line "<code>use strict;</code>"; the
+  XSLT stylesheet template creates a file with an
+  "<code>.xsl</code>" extension and an xml version and xsl
+  stylesheet declaration.</p>
+
+  <p>To create a new file from a template file, in the New File
+  dialog box, select the category in the Left Pane, then
+  double-click the template name in the Right Pane. A new file is
+  created in the Komodo editor using the code stored in the
+  template.</p>
+
+  <p>When using the <strong>New File</strong> button on the
+  Standard Toolbar, the template (if any) associated with the
+  language in the <a href="komodo-doc-prefs.html#new_files">new
+  files preferences</a> is used to create the new file.</p>
+
+  <p>Alternatively, templates can be stored in a <a href=
+  "komodo-doc-project.html#project_top">project</a> or the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, and can be
+  associated with a key binding.</p>
+
+  <h2><a name="create_custom" id="create_custom">Creating Custom
+  Templates</a></h2>
+
+  <p>Custom templates are created in the Komodo editor; on saving
+  the file, it is identified as a template.</p>
+
+  <ol>
+    <li><strong>Create Template File</strong>: In Komodo, create a
+    file with the desired contents for the template.</li>
+
+    <li><strong>Save as Template</strong>: Select <strong>File|Save
+    As Template</strong>.</li>
+  </ol>
+
+  <p>Custom templates are stored in the "My Templates" folder (as
+  displayed in the Save File dialog box). Due to a Komodo bug
+  (41829), OS X users must navigate manually to:</p>
+  <pre class="code">
+&lt;<em>User-home-directory</em>&gt;/Library/Application Support/Komodo/3.x/templates/My Templates
+</pre>
+
+  <p>Optionally, create shortcuts (on Windows), aliases (Mac OS X)
+  or symlinks (on Linux or Mac OS X) in the "My Templates"
+  directory structure that point to files located elsewhere on the
+  system. Files should have an extension that allows Komodo to
+  correctly detect the language (according to the settings
+  configured in Komodo's <a href=
+  "komodo-doc-prefs.html#File_Associations">File Associations</a>
+  preference).</p>
+
+  <p>If you create a directory alongside <code>My Templates</code>
+  with the same name as a template group that already exists in
+  Komodo (such as <code>Common</code> or <code>Web</code>), the
+  contents of the two directories are merged. If files of the same
+  name exist in both directories, the file in the directory at the
+  same level as <code>My Templates</code> is used.</p>
+
+  <p>For example:</p>
+  <pre class="code">
+templates\
+  My Templates\    &lt;--directory
+    MyCGI.pl         &lt;--file in the My Templates directory
+    TestSystem.tcl   &lt;--file in the My Templates directory
+    Corporate        &lt;--shortcut/symlink to corporate templates
+  Common\          &lt;--directory
+    Python.py        &lt;--file; takes precedence over the Python.py template
+    MyCGI.pl         &lt;--file; displays in the Common folder
+</pre>
+
+  <p>To edit an existing template, select
+  <strong>File|Open|Template File</strong>. The directory
+  containing the <code>My Templates</code> directory (and any
+  "merge" directories, as described above) is displayed. Select the
+  desired template and make the desired changes.</p>
+
+  <h3><a name="template_variables" id="template_variables">Using
+  Interpolation Shortcuts in Custom Templates</a></h3>
+
+  <p><a href=
+  "komodo-doc-shortcuts.html#shortcuts_top">Interpolation
+  shortcuts</a> can be used in templates. When a new file is
+  generated from a template file containing interpolation
+  shortcuts, the shortcut is converted to its relevant value.</p>
+
+  <p>For example, if a template file contains the interpolation
+  shortcut <code>[[%date:%d/%m/%Y %H:%M:%S]]</code>, when a new
+  file is created from that template, the interpolation shortcut is
+  converted to the current date and time in the following format:
+  <code>27/06/2004 11:10:21</code>.</p>
+
+  <p>Interpolation shortcuts within templates use the <a href=
+  "komodo-doc-shortcuts.html#basic">bracketed syntax</a>. Refer to
+  the <a href=
+  "komodo-doc-shortcuts.html#shortcuts_top">interpolation
+  shortcut</a> section for a complete description of the code,
+  syntax and usage.</p>
+
+  <h2><a name="project_templates" id="project_templates">Project
+  Templates</a></h2>
+
+  <p>Just as template files contain the basic structure for new
+  files, project templates provide a basic framework for new
+  projects.</p>
+
+  <p>To create a new project from a project template, click
+  <strong>File|New|New Project from Template</strong> and choose
+  from one of the available templates.</p>
+
+  <p>To save any project as a template select the project and click
+  <strong>Project|Create Template From Project...</strong>, or
+  right-click on the project and click <strong>Create Template From
+  Project....</strong> in the context-menu. The project will be
+  exported as a <a href=
+  "komodo-doc-project.html#project_impexp">project package</a> and
+  saved in the <em>project-templates/My Templates</em>
+  sub-directory of the <a href=
+  "komodo-doc-trouble.html#appdata_dir">user data directory</a>.
+  Once the project has been saved as a template, it becomes
+  available via <strong>File|New|New Project from
+  Template</strong>.</p>
+
+  <p>Komodo ships with project templates for, Ruby on Rails, Komodo
+  Extensions, and Firefox Extensions.</p>
+
+  <h2><a name="templates_projtool" id="templates_projtool">Storing
+  Templates in a Project or the Toolbox</a></h2>
+
+  <p>Use the Komodo <a href=
+  "komodo-doc-project.html#project_top">Projects tab</a> or the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> to
+  store frequently used templates. In addition to the general
+  methods described in <a href=
+  "komodo-doc-project.html#project_add_comp">Adding Components to
+  Projects</a> and <a href=
+  "komodo-doc-toolbox.html#toolbox_addcomp">Adding Components to
+  the Toolbox</a>, templates can be added to the Toolbox via the
+  New File dialog box. Select <strong>Add to Toolbox</strong> to
+  add the selected template to the Toolbox.</p>
+
+  <h3><a name="templates_options" id="templates_options">Template
+  Options</a></h3>
+
+  <p>Right-click a template to access the following options:</p>
+
+  <ul>
+    <li><strong>Open Template</strong>: Use this option to create a
+    new file from the selected template.</li>
+
+    <li><strong>Cut/Copy/Paste</strong>: These options are used to
+    remove the template from a project or the Toolbox, or to move
+    templates between the project and the Toolbox (and vice
+    versa).</li>
+
+    <li><strong>Export as Project File</strong>: When this option
+    is invoked, a new project file is created that contains the
+    template from which the option is invoked. You are prompted to
+    provide the name of the new project file and the directory
+    where it will be stored. To open the new project file, select
+    <strong>File|Open|Project</strong>.</li>
+
+    <li><strong>Export Package</strong>: Templates can be archived
+    and distributed among multiple Komodo users via "packages".
+    Packages are compressed archive files that contain the template
+    from which the <strong>Export Package</strong> option was
+    invoked. Packages are stored in files with a ".kpz" extension,
+    and can be opened by any archiving utility that supports
+    <code>libz</code> (for example WinZip). The <strong>Export
+    Package</strong> option differs from the <strong>Export as
+    Project File</strong> option in that copies of filesystem-based
+    components (such as files and dialog projects) are included in
+    the archive. Conversely, <strong>Export as Project
+    File</strong> creates a project with a reference to the
+    component's original location and does not create copies of the
+    components. When <strong>Export Package</strong> is invoked,
+    you are prompted for a name and file location for the package.
+    Exported packages can only be imported into "container" objects
+    in Komodo, such as projects, the Toolbox, and folders within
+    projects and the Toolbox. See <a href=
+    "komodo-doc-toolbox.html#export_import">Toolbox - Exporting and
+    Importing Toolbox Contents</a>, <a href=
+    "komodo-doc-project.html#project_impexp">Projects - Importing
+    and Exporting Projects via Packages</a>, or <a href=
+    "komodo-doc-folders.html#folders_importpack">Folders - Import
+    Contents from Package</a> for more information.</li>
+
+    <li><strong>Rename</strong>: To change the name of a template
+    (as displayed in the Projects tab or Toolbox), select this
+    option and enter a new name.</li>
+
+    <li><strong>Delete</strong>: To remove a template from a
+    project or the Toolbox, select this option. The reference to
+    the template is deleted; the file containing the template is
+    not deleted.</li>
+
+    <li><strong>Properties</strong>: Changes the title or the disk
+    location of the template. In addition, the icon and key binding
+    assigned to the template are accessed via the Properties dialog
+    box. See below for instructions on altering the template's icon
+    or key binding.</li>
+  </ul>
+
+  <h3><a name="Cust_Icons" id="Cust_Icons">Assigning Custom Icons
+  to Templates</a></h3>
+
+  <p>The default template icon can be replaced with custom icons.
+  Komodo includes more than 600 icons; alternatively, select a
+  custom image stored on a local or network drive (use 16x16-pixel
+  images for best results).</p>
+
+  <p>To assign a custom icon to a template:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> or
+    <strong>Toolbox</strong> tab, right-click the desired template
+    and select <strong>Properties</strong>. Alternatively, click
+    the template in the <strong>Projects</strong> or
+    <strong>Toolbox</strong> tab, then select
+    <strong>Projects|<em>template_name</em>|Properties</strong> or
+    <strong>Toolbox|<em>template_name</em>|Properties</strong>.</li>
+
+    <li>In the Properties dialog box, click <strong>Change
+    Icon</strong>.</li>
+
+    <li>In the Pick an Icon dialog box, select a new icon and click
+    <strong>OK</strong>. Alternatively, click <strong>Choose
+    Other</strong>, and browse to the desired image file.</li>
+
+    <li>In the Properties dialog box for the template, click
+    <strong>OK</strong>. The custom icon is displayed next to the
+    template.</li>
+  </ol>
+
+  <p>To revert to the default icon for a selected template:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> or
+    <strong>Toolbox</strong> tab, right-click the desired template
+    and select <strong>Properties</strong>.</li>
+
+    <li>Click <strong>Reset</strong>, then click
+    <strong>OK</strong>. The default icon is displayed next to the
+    template.</li>
+  </ol>
+
+  <h3><a name="template_key_bindings" id=
+  "template_key_bindings">Template Key Bindings</a></h3>
+
+  <p>Custom key bindings can be assigned to templates stored in the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or in a
+  <a href="komodo-doc-project.html#project_top">Project</a>. Use
+  the <strong>Key Binding</strong> tab in the template's Properties
+  to specify the keystrokes that invoke the template. See <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">Key Bindings for
+  Custom Components</a> for more information.</p>
+  <!-- Footer Start -->
+  <hr />
+</body>
+</html>

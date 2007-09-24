@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+
+function OnPreferencePageLoading() {
+    var file;
+    if (parent.part) {
+        file = parent.part.getFile();
+    } else {
+        file = parent.view.document.file;
+    }
+    var sccType = null;
+    if (file) {
+        switch (file.sccType) {
+            case "p4":
+                sccType = "Perforce";
+                break;
+            case "cvs":
+                sccType = "CVS";
+                break;
+            case "svn":
+                sccType = "Subversion";
+        }
+    }
+    if (sccType) {
+        document.getElementById("scc-name").value = file.baseName;
+        document.getElementById("scc-type").value = sccType;
+        document.getElementById("scc-status").value = file.sccStatus;
+        document.getElementById("scc-depotRevision").value = file.sccDepotRevision;
+        document.getElementById("scc-localRevision").value = file.sccLocalRevision;
+    }
+}
+
+]]>
+</script>
+
+    <groupbox orient="vertical">
+        <caption label="&sourceCodeControlProperties.label;"/>
+            <grid flex="1">
+                <columns>
+                    <column style="min-width: 90px;"/>
+                    <column flex="1"/>
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="Name:"/>
+                        <textbox id="scc-name" readonly="true" flex="1"/>
+                    </row>
+                    <separator style="height: 8px;"/>
+                    <separator class="groovy-thin"/>
+                    <separator class="thin"/>
+
+                    <row align="center">
+                        <label value="SCC System:"/>
+                        <label id="scc-type" value="N/A" crop="middle"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Status:"/>
+                        <label id="scc-status" value="N/A" crop="middle"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Depot Revision:"/>
+                        <label id="scc-depotRevision" value="N/A" crop="middle"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Local Revision:"/>
+                        <label id="scc-localRevision" value="N/A" crop="middle"/>
+                    </row>
+                    <separator class="thin"/>
+                </rows>
+            </grid>
+
+
+    </groupbox>
+
+</window>

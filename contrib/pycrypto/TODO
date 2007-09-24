@@ -1,0 +1,31 @@
+
+* Add more tests for random pool code?
+
+* Manual and Web page: point to SF project for bug reports
+
+* Update documentation (mention dodgy status of PublicKey code)
+
+* Clean up markup in pycrypt.tex
+
+* Reformat all the code to MEMS Exchange style
+
+* Document the functions and macros for adding a new algorithm
+    Hash functions:
+  hash_init(), hash_copy(), DIGEST_SIZE, hash_update(), hash_digest()
+    Block functions: 
+  ...
+
+* Provide drop-in support for extensions/drivers like
+amkCrypto/mxCrypto. There should be some way to register these
+drivers in your package, e.g. by defining a certain subdirectory
+to be a place where pycrypto looks for these drivers at startup
+time.
+
+* Add a secure PRNG (Yarrow, maybe?)
+
+* A secret sharing module should be added to Util or Protocols.
+	
+Documentation:
+	Document chaff/winnow better
+	Add docstrings everywhere.
+

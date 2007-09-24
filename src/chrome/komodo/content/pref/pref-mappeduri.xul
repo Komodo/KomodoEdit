@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	class="kodialog"
+	orient="vertical"
+	onload="onload();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+
+<script><![CDATA[
+function onload() {
+    // for project prefs, we do not want to inherit the parent prefs
+    if (parent.part) {
+        document.getElementById("mappings").setAttribute("prefhere","true");
+        var remove = document.getElementById("dropask");
+        remove.parentNode.removeChild(remove);
+    }
+    parent.initPanel();
+}
+]]></script>
+
+
+    <groupbox orient="vertical">
+        <caption label="&mappedURIs.label;"/>
+        <description>
+            Specify any mapping of a URI to a local path that you would like Komodo
+            to use when opening files, debugging, etc.
+        </description>
+  
+        <mappededitor id="mappings"
+                pref="true" prefwidget="true"
+                prefstring="mappedPaths" flex="1"/>
+    <separator/>
+    <vbox id="dropask">
+        <label value="When dropping a URL on Komodo:"/>
+        <menulist pref="true"
+                  id="dragdrop_mapped_uri"
+                  prefattribute="data"
+                  prefstrings="donotask_dragdrop_mapped_uri,donotask_action_dragdrop_mapped_uri">
+            <menupopup>
+                <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
+                <menuitem data="true,Yes" label="&addAURIMapping.label;"/>
+                <menuitem data="false,No" label="&doNotAddAURIMapping.label;"/>
+            </menupopup>
+        </menulist>
+    </vbox>
+    </groupbox>
+
+</window>
+
+

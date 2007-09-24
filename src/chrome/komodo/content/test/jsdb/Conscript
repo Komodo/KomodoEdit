@@ -1,0 +1,24 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2004-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    "mozChromeDir",
+    "platform",
+    "productType",
+    "buildFlavour",
+    "unsiloedPythonExe",
+);
+
+$cons->InstallInChrome("jsd_driver02.xul");
+$cons->InstallInChrome("jsd_driver02.js");
+$cons->InstallInChrome("js_playhouse.xul");
+$cons->InstallInChrome("js_playhouse.js");
+$cons->InstallInChrome("server_test02.xul");
+$cons->InstallInChrome("server_test02.js");
+$cons->InstallInChrome("client_test02.xul");
+$cons->InstallInChrome("client_test02.js");
+$cons->InstallInChrome("utils.js");
+

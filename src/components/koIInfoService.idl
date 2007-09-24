@@ -1,0 +1,45 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Provide general (read-only) information about a Komodo build/installation
+[scriptable, uuid(0AB1F57E-B2BD-4796-B579-D57CBA4E795D)]
+interface koIInfoService : nsISupports {
+    //---- Platform information. (XXX This should be minimized.)
+    readonly attribute string platform;
+    readonly attribute boolean isWindows;
+
+    // exports from platform.py
+    readonly attribute string osSystem;   // e.g. Linux, Windows
+    readonly attribute string osRelease;  // "NT", "2000", "2.2.0"
+    readonly attribute string osVersion;
+
+    //---- Generic Komodo information.
+    readonly attribute string version;
+    readonly attribute string buildNumber;  
+    readonly attribute string buildASCTime;
+    readonly attribute string buildPlatform;
+    readonly attribute wstring mozBinDir;  
+
+    // "debug" or "release" build of Komodo and Mozilla
+    readonly attribute string buildType;
+    // "dev" or "full", note that this isn't really the right way to
+    // distinguish versus whether internal features should be turned on.
+    // It is currently the *best* such way, though.
+    readonly attribute string buildFlavour;
+    readonly attribute string productType;          // 'edit' or 'ide'
+    readonly attribute string prettyProductType;    // 'Edit' or 'IDE'
+
+    // Indicates whether Komodo is operating in a non-interactive mode,
+    // e.g. when the performance metric suite is being run via "bk
+    // perf". This allows some parts of Komodo to avoid halting
+    // operation with "Can I do you this favour?" dialogs. Note that
+    // this is NOT enforced at all, i.e. there is guarantee that Komodo
+    // won't hang waiting for user input when in this mode.
+    //
+    // Currently non-interactive mode is intiated if the
+    // KOMODO_NONINTERACTIVE environment variable is non-zero.
+    readonly attribute boolean nonInteractiveMode;
+
+};

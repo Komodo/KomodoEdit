@@ -1,0 +1,89 @@
+--- 
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: W+MICAMy
+    fullname: Ben Askins
+    username: benj72
+    id: "1"
+    password_hash: f964618aa5cb9fce835c09ad7c3a3b0c3af14f7db6f128000cd403bbf970735f
+    bio: Eats books for breakfast
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Alan Green
+    username: agreen
+    id: "2"
+    password_hash: 
+    bio: Fond of snakes
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Fred Wilkins
+    username: fred
+    id: "3"
+    password_hash: 
+    bio: Loves a good romantic thriller
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: George Wilkins
+    username: george
+    id: "4"
+    password_hash: 
+    bio: Like his brother, loves a good romantic thriller
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Harry Windsor
+    username: harry
+    id: "5"
+    password_hash: 
+    bio: Everybody loves him.
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Mike Hansome
+    username: Mike
+    id: "6"
+    password_hash: 
+    bio: A horrible disfigurement resulted in a lifelong dedication to books
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Murray Worry
+    username: muzz
+    id: "7"
+    password_hash: 
+    bio: A good bloke
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Martha Yonks
+    username: martha
+    id: "8"
+    password_hash: 
+    bio: Our first lady member
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: David Everywhere
+    username: david
+    id: "9"
+    password_hash: 
+    bio: How come we only have one David?
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: 
+    fullname: Omar Alabagh
+    username: omar
+    id: "10"
+    password_hash: 
+    bio: Library full of books.
+- !ruby/object:Reader 
+  attributes: 
+    password_salt: yX5bULPy
+    fullname: Karen Askins
+    username: kazza
+    id: "11"
+    password_hash: 01bd8ea84d9fdf8397e8079f617bb5dd0f7a60812bca47a45f72c14086841519
+    bio: Love's books - yeah

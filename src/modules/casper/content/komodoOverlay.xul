@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<overlay id="komodoOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://jslib/content/jslib.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/logger.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/xpath.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/json.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/events.js" type="application/x-javascript"/>
+  <script src="chrome://casper/content/unittest.js" type="application/x-javascript"/>
+    
+  <commandset id="allcommands">
+    <broadcasterset id="broadcasterset_global">
+        <broadcaster
+          id="cmd_opentestrunner"
+          oncommand="Casper.UnitTest.runTestsText()"/>
+        <broadcaster
+          id="cmd_openxultestrunner"
+          oncommand="Casper.UnitTest.runTestsXUL()"/>
+        <broadcaster
+          id="cmd_opentestrecorder"
+          oncommand="Casper.UnitTest.openRecorder();"/>
+    </broadcasterset>
+  </commandset>
+
+  <menupopup id="popup_tools">
+    <menu id="menu_casper"
+          label="Casper"
+          class="menu-iconic-wide">
+      <menupopup id="popup_casper">
+        <menuitem label="Text Test Runner"
+                  id="menu_opentestrunner"
+                  observes="cmd_opentestrunner"
+                  class="menuitem-iconic-wide" />
+        <menuitem label="XUL Test Runner"
+                  id="menu_openxultestrunner"
+                  observes="cmd_openxultestrunner"
+                  class="menuitem-iconic-wide" />
+        <menuitem label="Test Recorder"
+                  id="menu_opentestrecorder"
+                  observes="cmd_opentestrecorder"
+                  class="menuitem-iconic-wide" />
+      </menupopup>
+    </menu>
+  </menupopup>
+
+</overlay>

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Generic prompt dialog.
+
+     See "authenticate.js" for documentation on how to use this dialog.
+  -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<dialog id="dialog-authenticate"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 35em; max-width: 55em;"
+        flex="1"
+        buttons="accept,cancel"
+        ondialogaccept="return Login();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/mru.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/authenticate.js" type="application/x-javascript;version=1.7"/>
+
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image class="question-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <description id="prompt" flex="1"/>
+            <separator class="thin"/>
+            <hbox id="server-box" collapsed="true" align="center"
+                  style="min-height: 20px;">
+                <label value="Server:" control="server" style="min-width: 70px;"/>
+                <label id="server" value=""/>
+            </hbox>
+            <hbox align="center">
+                <label value="User Name:" control="username" accesskey="&U.accesskey;"
+                       style="min-width: 70px;"/>
+                <textbox id="username"
+                         flex="1"
+                         type="autocomplete"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         autocompletesearch="mru"
+                         disableautocomplete="true"
+                         maxrows="10"
+                         completeselectedindex="true"
+                         tabscrolling="true"
+                         ontextentered="this.focus();"
+                         onfocus="this.setSelectionRange(0,this.value.length);"/>
+            </hbox>
+            <hbox align="center">
+                <label id="password-label" value="Password:"
+                       control="password"
+                       accesskey="&passwordLabel.accesskey;" style="min-width: 70px;"/>
+                <textbox id="password" 
+                         type="password"
+                         flex="1"/>
+            </hbox>
+            <separator class="thin"/>
+            <checkbox id="anonymous" checked="false"
+                      oncommand="ToggleAnonymous()"
+                      style="padding-left: 0px;"
+                      accesskey="&anonymous.accesskey;"
+                      label="&loginAnonymously.label;"
+                      collapsed="true"/>
+        </vbox>
+    </hbox>
+    <separator flex="1" style="min-height:10px;"/>
+
+</dialog>
+

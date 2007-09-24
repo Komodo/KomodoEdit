@@ -1,0 +1,280 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+
+/* ::::: fullscreen window controls ::::: */
+
+#window-controls {
+  -moz-box-align: center;
+  padding: 0 2px 0 4px;
+}
+
+#minimize-button {
+  list-style-image: url("chrome://global/skin/icons/Minimize.gif");
+}
+
+#restore-button {
+  list-style-image: url("chrome://global/skin/icons/Restore.gif");
+}
+
+#close-button {
+  list-style-image: url("chrome://global/skin/icons/Close.gif");
+}
+
+toolbar[printpreview="true"] {
+  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
+}
+
+/* #if PLATFORM == "linux" */
+/*
+ * Problem with toolbar buttons showing the checked state on linux.
+ * See bug: http://bugs.activestate.com/show_bug.cgi?id=64328
+ */
+toolbarbutton {
+  -moz-appearance: none !important;
+}
+/* #endif */
+
+#noPreviewAvailable 
+{
+  background-color: white !important;
+  font-size: 12px !important;
+}
+ 
+/* ::::: tooltip :::::
+  copied from popup.css, but modified to be a class rather than
+  element name.  */
+
+popup[type="tooltip"] {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#kotooltip');
+  -moz-appearance: tooltip;
+  margin-top: 11px;
+  border: 1px solid InfoText;
+  padding: 2px 3px;
+  max-width: 40em;
+  background-color: InfoBackground;
+  color: InfoText;
+  font: message-box;
+}
+
+.tooltip-label {
+  margin: 0px !important;
+}
+
+statusbarpanel[highlite="true"] {
+  margin: 0px;
+  padding: 0px;
+}
+
+statusbarpanel[highlite="true"] > label {
+  color: highlighttext;
+  background-color: highlight;
+  margin: 0px 0px 0px 0px;
+  padding: 1px 10px 2px 10px;
+}
+
+.primary_menu_item {
+    font-weight: bold;
+}
+
+.thin-inset-border {
+    border: 1px ThreeDHighlight inset;
+    margin: 0px;
+    padding: 0px;
+}
+
+.thin-outset-border {
+    border: 1px ThreeDHighlight outset;
+    margin: 0px;
+    padding: 0px;
+}
+
+.zero-space {
+    margin: 0px;
+    padding: 0px;
+}
+
+.no-border {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+.blank-workspace {
+    border: 1px ThreeDHighlight inset;
+    margin: 0px;
+    padding: 0px;
+    background-color: appworkspace;
+}
+
+
+/* groovy separator (0 padding, for dividing effects)
+   XXX This was the only thing needed from the old KomodoDialog.css. Should
+       this be in its own dialog.css?
+*/
+separator.groovy-thin
+{
+    border-top: 1px solid threedshadow;
+    border-bottom: 1px solid threedhighlight;
+    height: 0px;
+}
+
+/* add some exra space between a tab icon and the tab text */
+tab > .tab-text {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+
+tree.codetree {
+    -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#cbtree');
+}
+treechildren.codetree:-moz-tree-image(primaryColumn) {
+    width: 22px;
+}
+
+
+.divot_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy.png");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.grippy_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal.png");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.grippy_splitter[orient="vertical"] {
+  background-image: url("chrome://komodo/skin/images/grippy_vertical.png");
+}
+
+
+.divot_splitter[collapsed="true"] {
+  visibility: collapse;
+}
+
+.grippy_splitter_collapsable {
+  background-image: none;
+}
+
+.grippy_splitter_collapsable > grippy {
+  min-height: 80px;
+  min-width: 10px;
+  border: none;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"] > grippy {
+  min-height: 10px;
+  min-width: 80px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.grippy_splitter_collapsable[collapse="before"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_left.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="before"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_right.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="after"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_right.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="after"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_left.png");
+  background-repeat: no-repeat;
+}
+
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="before"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_up.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="before"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_down.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="after"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_down.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="after"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_up.png");
+  background-repeat: no-repeat;
+}
+
+/*
+  These wizard styles can be found in mozilla/themes/classic/global/win
+  we want linux to look the same, so duplicating here.  If we do osx ever,
+  we need to remove this for that platform.
+
+  XXX:TM Commented out for Mac OS X. Are these style hacks still necessary for
+         Linux now that Komodo is based on the XRE?
+
+.wizard-header {
+  border-bottom: 2px groove ThreeDFace;
+  padding: 10px 0px 10px 0px;
+  background-color: white;
+  color: WindowText;
+}
+
+.wizard-header-label {
+  margin-left: 23px;
+  font-weight: bold;
+}
+
+.wizard-header-description {
+  margin-left: 44px;
+}
+
+.wizard-page-box {
+  margin: 10px 44px;
+}
+
+.wizard-buttons-separator {
+  margin-bottom: 0px !important;
+}
+
+.wizard-buttons-box-2 {
+  margin: 10px;
+}
+
+.wizard-button[wizardbutton="finish"],
+.wizard-button[wizardbutton="next"] {
+  margin-left: -1px !important;
+}
+
+.wizard-button[wizardbutton="back"] {
+  margin-right: 0px !important;
+}
+*/
+
+
+
+/*
+textbox {
+    min-height: 1.8em !important;
+}
+*/
+

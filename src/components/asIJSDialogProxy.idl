@@ -1,0 +1,40 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIDOMWindow.idl"
+
+interface nsIDOMWindowInternal;
+
+[scriptable, uuid(E59E34ED-7D95-4460-87E9-FDCEF7C79D62)]
+interface asIDialogProxy: nsISupports {
+    void init(in nsIDOMWindowInternal inWindow);
+    /* alert is just a simplified alertEx, passing defaults for all additional parameters */
+    wstring alert(in wstring prompt);
+    /* alertEx:
+        okIsDefault should be true by default
+        hideCancel should be true by default
+        okLabel should be "OK" by default
+        cancelLabel should be "Cancel" by default
+    */
+    wstring alertEx(in wstring prompt,
+                         in PRBool okIsDefault,
+                         in PRBool hideCancel,
+                         in wstring okLabel,
+                         in wstring cancelLabel);
+    wstring prompt(in wstring prompt,
+                          in wstring defaultResponse,
+                          in wstring okLabel,
+                          in wstring cancelLabel);
+    // authenticate returns string with username:password
+    wstring authenticate(in wstring title,
+                                  in wstring server,
+                                  in wstring prompt,
+                                  in wstring loginname,
+                                  in PRBool allowAnonymous,
+                                  in PRBool allowPersist);
+    
+    wstring open(in wstring url, in wstring name, in wstring flags, in nsISupports obj);
+    wstring openDialog(in wstring url, in wstring name, in wstring flags, in nsISupports obj);
+    wstring eval_(in nsIDOMWindow window, in wstring evalcode);
+};

@@ -1,0 +1,86 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'supportDir',
+    'buildFlavour',
+    'buildAbsDir',
+    'buildType',
+    'platform',
+    'productType',
+    'mozVersion',
+    'komodoShortVersion',
+    'mozExtensionDir',
+);
+
+# The Plan:
+# - dev builds: Install the spellcheck extension with*out* jarring.
+# - full (i.e. installer) builds: Install with jarring.
+
+my $ext_name = "komodospellchecker";
+my $ext_dir = "$mozExtensionDir/$ext_name\@ActiveState.com";
+
+
+$cons->Preprocess('install.p.rdf', 'install.rdf',
+                  {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
+
+if ($buildFlavour eq "full") {
+    $cons->Command(
+        ["komodospellchecker.xpi", "komodospellchecker.jar"],
+        "install.rdf",
+        "chrome.manifest",
+        "content/EdDialogCommon.js",
+        "content/EdDictionary.js",
+        "content/editorUtilities.js",
+        "content/koDictionary.js",
+        "content/koDictionary.xul",
+        "content/koLaunchSpellcheck.js",
+        "content/koSpellCheck.js",
+        "content/koSpellCheckOverlay.xul",
+        "content/koSpellCheck.xul",
+        "locale/en-US/spellcheck.dtd",
+        qq(
+           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr komodospellchecker.jar content locale
+           $unsiloedPythonExe bin/run-in-dir.py %1:d zip komodospellchecker.xpi komodospellchecker.jar install.rdf chrome.manifest
+        )
+    );
+
+    $cons->Install($ext_dir, 'komodospellchecker.jar');
+    $cons->Install($ext_dir, 'install.rdf');
+    $cons->Install($ext_dir, 'chrome.manifest');
+}
+
+else { # dev builds
+    $cons->InstallAs("$ext_dir/chrome.manifest", 'devbuild.manifest');
+    $cons->Install($ext_dir, 'install.rdf');
+
+    my @content_files = (
+        "content/EdDialogCommon.js",
+        "content/EdDictionary.js",
+        "content/editorUtilities.js",
+        "content/koDictionary.js",
+        "content/koDictionary.xul",
+        "content/koLaunchSpellcheck.js",
+        "content/koSpellCheck.js",
+        "content/koSpellCheckOverlay.xul",
+        "content/koSpellCheck.xul",
+    );
+    foreach my $file (@content_files) {
+        $cons->Install("$ext_dir/content", $file);
+    }
+    $cons->Install("$ext_dir/locale/en-US", "locale/en-US/spellcheck.dtd");
+}

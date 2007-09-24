@@ -1,0 +1,16 @@
+# MXML UDL definition
+# 
+# Copyright (C) 2007 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+family markup
+
+state IN_M_STAG_EXP_TNAME:
+#XXX XML is case-sensitive, but allow for "script" because so many people
+# don't like languages that require upper-case
+# Hardwired optional prefixes until Luddite learns namespaces
+/(?:mx:)?(?:Script)\b/i : \
+    paint(upto, M_STAGO), paint(include, M_TAGNAME) => IN_H2CSL_STAG_POST_TAGNAME
+
+include "xml_common2js.udl"

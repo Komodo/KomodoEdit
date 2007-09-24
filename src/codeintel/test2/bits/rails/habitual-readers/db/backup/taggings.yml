@@ -1,0 +1,19 @@
+--- 
+- !ruby/object:Tagging 
+  attributes: 
+    tag_id: "1"
+    id: "1"
+    taggable_type: Book
+    taggable_id: "1"
+- !ruby/object:Tagging 
+  attributes: 
+    tag_id: "2"
+    id: "2"
+    taggable_type: Book
+    taggable_id: "1"
+- !ruby/object:Tagging 
+  attributes: 
+    tag_id: "3"
+    id: "3"
+    taggable_type: Book
+    taggable_id: "1"

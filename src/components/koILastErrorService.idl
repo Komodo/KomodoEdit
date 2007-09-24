@@ -1,0 +1,35 @@
+// A service to maintain the last error state on a per thread basis.
+//
+// This is similar in spirit to the Win32 API's SetLastError() and
+// GetLastError() functions. It would not really be necessary if XPCOM
+// currently had rich exceptions, but it does not.
+//
+// Usage:
+//  - XPCOM methods should specify if they call setLastError() (on error
+//    and/or success).
+//  - User code can then query getLastError() if a calling function
+//    returns a failure code or raises an exception.
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(3DF4D9EF-FA13-4d30-B537-A1E0B9F2CAE6)]
+interface koILastErrorService : nsISupports {
+    // Set the last error for the calling thread.
+    //  "code" is some arbitrary error number that might be useful for
+    //      those calling getLastError, if it is not intended to be used
+    //      then zero (0) should be used.
+    //  "message" is a description of the error.
+    void setLastError(in PRUint32 code, in wstring message);
+
+    // Get the last error for the calling thread.
+    // If no error has ever been set for this thread then (0, '') is
+    // returned.
+    void getLastError(out PRUint32 code, out wstring message);
+
+    // Convenience functions because XPCOM methods with multiple out
+    // parameters are a pain to use in JavaScript.
+    PRUint32 getLastErrorCode();
+    wstring getLastErrorMessage();
+};
+

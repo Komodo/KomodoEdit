@@ -1,0 +1,752 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/xbl" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="CGIPrefs" extends="xul:hbox">
+        <content>
+            <xul:vbox flex="1">
+                <xul:radiogroup id="request-method"
+                                pref="true" prefattribute="label"
+                                selectedItem="0" align="center"
+                                orient="horizontal">
+                    <xul:description value="Request Method" class="kopadded"/>
+                    <xul:radio group="request-method" id="GET" label="&GET.label;"/>
+                    <xul:radio group="request-method" id="POST" label="&POST.label;"/>
+                    <xul:description value="Post Type" class="kopadded"/>
+                    <xul:menulist id="postType"
+                                  pref="true" prefstring="posttype"
+                                  prefattribute="data">
+                        <xul:menupopup>
+                            <xul:menuitem data="application/x-www-form-urlencoded" label="&URLEncoded.label;"/>
+                            <xul:menuitem data="multipart/form-data" label="&multipart.label;"/>
+                            <xul:menuitem data="application/x-raw-post-data" label="&rawData.label;"/>
+                        </xul:menupopup>
+                    </xul:menulist>
+                </xul:radiogroup>
+                <xul:description value="Browser Arguments" class="kopadded"/>
+                <xul:tree id="browserArgs" flex="1"
+                          onclick="this.parentNode.parentNode.onSelect(event);">
+                    <xul:treecols>
+                        <xul:treecol id="type" label="&type.label;" flex="1"/>
+                        <xul:splitter class="tree-splitter"/>
+                        <xul:treecol id="name" label="&name.label;" flex="1"/>
+                        <xul:splitter class="tree-splitter"/>
+                        <xul:treecol id="value" label="&value.label;" flex="1"/>
+                    </xul:treecols>
+                    <xul:treechildren flex="1" style="min-height: 50px;"/>
+                </xul:tree>
+                <xul:separator height="7px"/>
+                <xul:groupbox orient="vertical"
+                              style="padding-bottom: 7px; border-top:  2px solid ThreeDShadow; border-right:  2px solid ThreeDShadow; border-left:  2px solid ThreeDShadow; border-bottom: 2px solid ThreeDShadow">
+                    <xul:caption label="&requestVariable.label;" class="kopadded"/>
+                    <xul:hbox flex="1">
+                        <xul:vbox flex="1">
+                            <xul:description value="Type" class="kopadded"/>
+                            <xul:menulist id="cgiVarType">
+                                <xul:menupopup>
+                                    <xul:menuitem label="&GET.label;" onclick="this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.setType('GET');"/>
+                                    <xul:menuitem label="&POST.label;" onclick="this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.setType('POST');"/>
+                                    <xul:menuitem label="&cookie.label;" onclick="this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.setType('Cookie');"/>
+                                    <xul:menuitem label="&file.label;" onclick="this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.setType('File');"/>
+                                </xul:menupopup>
+                            </xul:menulist>
+                        </xul:vbox>
+                        <xul:vbox flex="1">
+                            <xul:description value="Name" class="kopadded"/>
+                            <xul:textbox id="cgiVarName"
+                                         oninput="this.parentNode.parentNode.parentNode.parentNode.parentNode.varNameKeypress(event);"/>
+                        </xul:vbox>
+                        <xul:vbox flex="1">
+                            <xul:description value="Value" class="kopadded"/>
+                            <xul:textbox id="cgiVarValue" multiline="true" height="60px"
+                                         oninput="this.parentNode.parentNode.parentNode.parentNode.parentNode.varValueKeypress(event);"/>
+                        </xul:vbox>
+                    </xul:hbox>
+                    <xul:separator class="thin" />
+                    <xul:hbox align="center" pack="end" flex="1">
+                        <xul:button id="clearButton" label="&clear.label;" oncommand="this.parentNode.parentNode.parentNode.parentNode.newVar();"/>
+                        <xul:button id="addButton" label="&add.label;" oncommand="this.parentNode.parentNode.parentNode.parentNode.updateVar(1);"/>
+                        <xul:button id="updateButton" label="&update.label;" oncommand="this.parentNode.parentNode.parentNode.parentNode.updateVar(0);"/>
+                        <xul:button id="deleteButton" label="&delete.label;" oncommand="this.parentNode.parentNode.parentNode.parentNode.deleteVar();"/>
+                        <xul:button id="browseButton" label="&browseFiles.label;" oncommand="this.parentNode.parentNode.parentNode.parentNode.doBrowseForFile('cgiVarValue');"/>
+                    </xul:hbox>
+                </xul:groupbox>
+            </xul:vbox>
+        </content>
+        <implementation>
+            <!--
+            @field {Boolean} existing_value: true when the user types
+            the name of a variable that already has a value in the
+            current list of variables.  Means that the contents of the
+            variable value field are copied and can readily be discarded or
+            overwritten.
+            -->
+            <field name="existing_value">false</field>
+            <constructor><![CDATA[
+                this.prefsview = null;
+            ]]></constructor>
+
+            <destructor><![CDATA[
+                // Refer to http://www.mozilla.org/projects/xbl/xbl.html#binding-detached
+            ]]></destructor>
+
+            <property name="prefsview"/>
+
+            <property name="tree" readonly="true">
+            <getter><![CDATA[
+                var tree = null;
+                var v = document.getAnonymousNodes(this);
+                for (var i = 0; i < v.length; i++) {
+                    try {
+                        var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                                                            "tree");
+                        if (l.length > 0) {
+                            tree = l[0];
+                            break; // I think this is giving us a JS error...
+                        }
+                    } catch (e) {}
+                }
+                return tree;
+            ]]></getter>
+            </property>
+
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body><![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("id") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]></body>
+            </method>
+
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body><![CDATA[
+                    this.prefsview = Components.classes[
+                        '@activestate.com/KoCGIVariablesView;1']
+                        .createInstance(Components.interfaces.koICGIVariablesView);
+                    var treeWidget = this.tree;
+                    treeWidget.treeBoxObject
+                                  .QueryInterface(Components.interfaces.nsITreeBoxObject)
+                                  .view = this.prefsview;
+
+                    // initialize everything
+                    this.newVar();
+                    this.getElement("menulist","cgiVarType").selectedIndex = 0;
+                    this.setType("");
+
+                    // get the prefs we need
+                    var requestMethod = prefwindow.getPref("request-method");
+                    var posttype = prefwindow.getPref("posttype");
+                    var getargs = prefwindow.getPref("getparams");
+                    var postargs = prefwindow.getPref("postparams");
+                    var cookies = prefwindow.getPref("cookieparams");
+                    var mpostargs = prefwindow.getPref("mpostparams");
+
+                    // set them into our window
+
+                    // set the request method
+                    var elt = this.getElement("radiogroup","request-method");
+                    elt.selectedItem = this.getElement("radio", requestMethod);
+
+                    // set the mime type of the request method
+                    elt = this.getElement("menulist","postType");
+                    var popup = elt.getElementsByTagName("menupopup")[0];
+                    var items = elt.getElementsByTagName("menuitem");
+                    for (var i=0;i<items.length;i++) {
+                        var item = items[i];
+                        if (item.getAttribute("data") == posttype) {
+                            elt.setAttribute("label", item.getAttribute("label"));
+                            elt.selectedIndex = i;
+                        }
+                    }
+
+                    // set the tree values
+                    if (getargs) {
+                        this.prefsview.setVariables("GET",getargs);
+                    }
+                    if (postargs) {
+                        this.prefsview.setVariables("POST",postargs);
+                    }
+                    if (cookies) {
+                        this.prefsview.setVariables("Cookie",cookies);
+                    }
+                    if (mpostargs) {
+                        this.prefsview.setVariables("File",mpostargs);
+                    }
+                ]]></body>
+            </method>
+
+            <method name="saveprefs">
+                <parameter name="prefwindow"/>
+                <body><![CDATA[
+                    // XXX how do I properly do callback here?
+
+                    // set the request method
+                    var elt = this.getElement("radiogroup","request-method");
+                    if (!elt.selectedItem) return false;
+
+                    //dump("setting request-method to "+elt.selectedItem.id+"\n");
+                    prefwindow.setPref("request-method", elt.selectedItem.id);
+
+                    // set the mime type of the request method
+                    elt = this.getElement("menulist","postType");
+                    //dump("setting posttype to "+elt.selectedItem.getAttribute("data")+"\n");
+                    prefwindow.setPref("posttype", elt.selectedItem.getAttribute("data"));
+
+                    // set the tree values
+                    var env = this.prefsview.getVariables("GET");
+                    //dump("setting getparams to "+env+"\n");
+                    prefwindow.setPref("getparams", env);
+
+                    env = this.prefsview.getVariables("POST");
+                    //dump("setting postparams to "+env+"\n");
+                    prefwindow.setPref("postparams", env);
+
+                    env = this.prefsview.getVariables("Cookie");
+                    //dump("setting cookieparams to "+env+"\n");
+                    prefwindow.setPref("cookieparams", env);
+
+                    env = this.prefsview.getVariables("File");
+                    //dump("setting mpostparams to "+env+"\n");
+                    prefwindow.setPref("mpostparams", env);
+                    return true;
+                ]]></body>
+            </method>
+
+            <method name="doBrowseForFile">
+                <parameter name="element_id"/>
+                <body><![CDATA[
+                    var textField = this.getElement("textbox",element_id);
+                    var path = ko.filepicker.openFile(null, textField.value);
+                    if (path != null) {
+                        textField.value = path;
+                    }
+                ]]></body>
+            </method>
+
+            <method name="setType">
+                <parameter name="type"/>
+                <body><![CDATA[
+                    var b;
+                    if (type == "File") {
+                        // enable the browse button
+                        b = this.getElement("button","browseButton");
+                        if (b) b.disabled = false;
+                    } else {
+                        // dissable the browse button
+                        b = this.getElement("button","browseButton");
+                        if (b) b.disabled = true;
+                    }
+                ]]></body>
+            </method>
+
+            <method name="newVar">
+                <body><![CDATA[
+                    // simply clear the values
+                    this.getElement("textbox","cgiVarName").value="";
+                    this.getElement("textbox","cgiVarValue").value="";
+                    // clear the selection!
+                    this.tree.currentIndex = -1;
+                    // dissable the delete button
+                    this.getElement("button","deleteButton").disabled = true;
+                    this.getElement("button","updateButton").disabled = true;
+                ]]></body>
+            </method>
+
+            <method name="updateVar">
+                <parameter name="doadd"/>
+                <body><![CDATA[
+                    // get the values, put into the tree.
+                    var type = this.getElement("menulist","cgiVarType").selectedItem.getAttribute("label");
+                    var name = this.getElement("textbox","cgiVarName").value;
+                    var value = this.getElement("textbox","cgiVarValue").value;
+                    if (type == "" || name == "" || value == "") return;
+                    //dump("adding: type="+type+" name="+name+" value="+value+"\n");
+                    if (!doadd) {
+                        var treeWidget = this.tree;
+                        var index = -1;
+                        if (treeWidget.currentIndex >= 0) {
+                            var selname = this.prefsview.GetName(treeWidget.currentIndex);
+                            if (selname == name) index = treeWidget.currentIndex
+                        }
+                        if (index < 0)
+                            index = this.prefsview.haveVariable(type, name);
+                        if (index >= 0) {
+                            this.prefsview.removeRow(index);
+                        }
+                    }
+                    this.prefsview.AddVariable(type,name,value);
+                    // now clear the entry box
+                    this.newVar();
+                ]]></body>
+            </method>
+
+            <method name="deleteVar">
+                <body><![CDATA[
+                    var treeWidget = this.tree;
+                    if (treeWidget.currentIndex >= 0) {
+                        //var type = this.prefsview.GetType(treeWidget.currentIndex);
+                        //var name = this.prefsview.GetName(treeWidget.currentIndex);
+                        //var value = this.prefsview.GetValue(treeWidget.currentIndex);
+                        //dump("removing: type="+type+" name="+name+" value="+value+"\n");
+
+                        this.prefsview.removeRow(treeWidget.currentIndex);
+                    }
+                    // now clear the entry box
+                    this.newVar();
+                ]]></body>
+            </method>
+
+            <method name="onSelect">
+                <parameter name="event"/>
+                <body><![CDATA[
+                    // c.f. mozilla/mailnews/base/resources/content/threadPane.js
+                    var t = event.originalTarget;
+
+                    // single-click on a column
+                    if (t.localName == "treecol") {
+                        this.columnClick(t.id);
+                    }
+
+                    // click in the tree body
+                    else if (t.localName == "treechildren") {
+                        this.rowClick();
+                    }
+                ]]></body>
+            </method>
+
+            <method name="columnClick">
+                <parameter name="columnID"/>
+                <body><![CDATA[
+                    this.prefsview.Sort(columnID);
+                ]]></body>
+            </method>
+
+            <method name="getVarType">
+                <body><![CDATA[
+                    var type = this.prefsview.GetType(treeWidget.currentIndex);
+                    var si = 0;
+                    if (type=="GET") si = 0;
+                    else if (type=="POST") si = 1;
+                    else if (type=="Cookie") si = 2;
+                    else if (type=="File") si = 3;
+                    else return;
+                ]]></body>
+            </method>
+
+            <method name="rowClick">
+                <body><![CDATA[
+                    var treeWidget = this.tree;
+                    if (treeWidget.currentIndex >= 0) {
+                        var type = this.prefsview.GetType(treeWidget.currentIndex);
+                        var name = this.prefsview.GetName(treeWidget.currentIndex);
+                        var value = this.prefsview.GetValue(treeWidget.currentIndex);
+                        //dump("loading: type="+type+" name="+name+" value="+value+"\n");
+
+                        //XXX stupid but quick
+                        var si = 0;
+                        if (type=="GET") si = 0;
+                        else if (type=="POST") si = 1;
+                        else if (type=="Cookie") si = 2;
+                        else if (type=="File") si = 3;
+                        else return;
+
+                        this.getElement("menulist","cgiVarType").selectedIndex = si;
+                        this.getElement("textbox","cgiVarName").value=name;
+                        this.getElement("textbox","cgiVarValue").value=value;
+                        this.getElement("button","deleteButton").disabled = false;
+                        this.getElement("button","updateButton").disabled = false;
+                    }
+                ]]></body>
+            </method>
+
+            <method name="updateSortIndicators">
+                <parameter name="mainWindow"/>
+                <parameter name="sortId"/>
+                <body><![CDATA[
+                    var sortedColumn = null;
+
+                    // set the sort indicator on the column we are sorted by
+                    if (sortId) {
+                        sortedColumn = this.getElement("treecol",sortId);
+                        if (sortedColumn) {
+                            var sortDirection = sortedColumn.getAttribute("sortDirection");
+                            if (sortDirection && sortDirection == "ascending") {
+                                sortedColumn.setAttribute("sortDirection", "descending");
+                            } else {
+                                sortedColumn.setAttribute("sortDirection", "ascending");
+                            }
+                        }
+                    }
+
+                    // remove the sort indicator from all the columns
+                    // except the one we are sorted by
+                    var currCol = this.tree.firstChild.firstChild;
+                    while (currCol) {
+                        while (currCol && currCol.localName != "treecol") {
+                            currCol = currCol.nextSibling;
+                        }
+                        if (currCol && (currCol != sortedColumn)) {
+                            currCol.removeAttribute("sortDirection");
+                        }
+                        if (currCol) {
+                            currCol = currCol.nextSibling;
+                        }
+                    }
+                ]]></body>
+            </method>
+
+            <method name="varNameKeypress">
+                <parameter name="event"/>
+                <body><![CDATA[
+                    // check to see if this is in the list, change the updatebutton value
+                    var type = this.getElement("menulist","cgiVarType").selectedItem.getAttribute("label");
+                    var name = this.getElement("textbox","cgiVarName").value;
+                    var btn = this.getElement("button","updateButton");
+                    var index = this.prefsview.haveVariable(type, name);
+                    var valueField = this.getElement("textbox","cgiVarValue");
+                    if (index >= 0) {
+                        if (valueField.value == "" || this.existing_value) {
+                            var currentValue = this.prefsview.GetValue(index);
+                            valueField.value = currentValue;
+                            this.tree.currentIndex = index;
+                            this.existing_value = true;
+                        }
+                        btn.disabled = false;
+                    } else {
+                        if (this.existing_value) {
+                            // Change the name => clear the value
+                            valueField.value = "";
+                            this.existing_value = false;
+                        }
+                        btn.disabled = true;
+                    }
+                ]]></body>
+            </method>
+            
+            <method name="varValueKeypress">
+                <parameter name="event"/>
+                <body><![CDATA[
+                this.existing_value = false;
+                ]]></body>
+            </method>
+
+        </implementation>
+
+    </binding>
+
+
+    <binding id="EnvPrefs" extends="xul:hbox">
+        <content>
+            <xul:vbox flex="1">
+                <xul:tree id="envVars" flex="1"
+                          onclick="this.parentNode.parentNode.onSelect(event);"
+                          ondblclick="this.parentNode.parentNode.editVar();">
+                    <xul:treecols>
+                        <xul:treecol id="name" label="&name.label;" flex="1"/>
+                        <xul:splitter class="tree-splitter"/>
+                        <xul:treecol id="value" label="&value.label;" flex="1"/>
+                    </xul:treecols>
+                    <xul:treechildren flex="1"/>
+                </xul:tree>
+                <xul:separator class="thin"/>
+                <xul:hbox id="buttons" align="center" pack="end"
+                          collapsed="true">
+                    <xul:button id="clearButton" label="&new.label;"
+                                accesskey="&clearButton.accesskey;"
+                                oncommand="this.parentNode.parentNode.parentNode.newVar();"/>
+                    <xul:button id="editButton" label="&edit.label;"
+                                accesskey="&editButton.accesskey;"
+                                oncommand="this.parentNode.parentNode.parentNode.editVar();"
+                                disabled="true"/>
+                    <xul:button id="deleteButton" label="&delete.label;"
+                                accesskey="&deleteButton.accesskey;"
+                                oncommand="this.parentNode.parentNode.parentNode.deleteVar();"
+                                disabled="true"/>
+                </xul:hbox>
+            </xul:vbox>
+        </content>
+        <implementation>
+            <constructor> <![CDATA[
+                this.prefsview = null;
+                this.uservars = null;
+            ]]> </constructor>
+
+            <destructor> <![CDATA[
+                // Refer to http://www.mozilla.org/projects/xbl/xbl.html#binding-detached
+            ]]> </destructor>
+
+            <property name="prefsview"/>
+            <property name="prefstring"/>
+            <property name="editable"/>
+            <property name="uservars"/>
+
+            <property name="tree" readonly="true">
+            <getter> <![CDATA[
+                var tree = null;
+                var v = document.getAnonymousNodes(this);
+                for (var i = 0; i < v.length; i++) {
+                    try {
+                        var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "tree");
+                        if (l.length > 0) {
+                            tree = l[0];
+                            break; // I think this is giving us a JS error...
+                        }
+                    } catch (e) {}
+                }
+                return tree;
+            ]]> </getter>
+            </property>
+
+            <property name="value"
+                      onset="this.prefsview.setVariables(val);"
+                      onget="return this.prefsview.getVariables();"/>
+
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body> <![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("id") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]> </body>
+            </method>
+
+            <method name="onpageload">
+                <parameter name="prefwindow"/>
+                <body> <![CDATA[
+                    //dump("loading "+this.prefstring+"\n");
+                    this.prefsview = Components.classes[
+                        '@activestate.com/KoEnvironmentView;1']
+                        .createInstance(Components.interfaces.koIEnvironmentView);
+                    var treeWidget = this.tree;
+                    treeWidget.treeBoxObject
+                                  .QueryInterface(Components.interfaces.nsITreeBoxObject)
+                                  .view = this.prefsview;
+                    this.editable = this.getAttribute("editable")
+                    if (this.editable == "true") {
+                        var b = this.getElement("hbox","buttons");
+                        b.removeAttribute("collapsed");
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="saveprefs">
+                <parameter name="prefwindow"/>
+                <body> <![CDATA[
+                    //dump("closing "+this.prefstring+"\n");
+                    // should be nothing to do
+                ]]> </body>
+            </method>
+
+            <method name="editWindow">
+                <parameter name="name"/>
+                <parameter name="value"/>
+                <body> <![CDATA[
+                   var obj = new Object ();
+                   obj.name = name;
+                   obj.value = value;
+                   window.openDialog
+                     ("chrome://komodo/content/pref/editenvironvar.xul",
+                      "Komodo:EnvironmentVariable",
+                      "chrome,dialog=yes,close=yes,dependent=yes,modal=yes", obj);
+                   if (obj && obj.name && obj.res != "cancel") {
+                       return obj;
+                   }
+                   return null;
+                ]]> </body>
+            </method>
+
+            <method name="insertVar">
+                <parameter name="name"/>
+                <parameter name="value"/>
+                <body> <![CDATA[
+                    if (this.editable != "true") return;
+                    var index = this.prefsview.haveVariable(name);
+                    if (index >= 0) {
+                        this.prefsview.removeRow(index);
+                    }
+                    this.prefsview.AddVariable(name,value);
+                ]]> </body>
+            </method>
+
+            <method name="newVar">
+                <parameter name="name"/>
+                <parameter name="value"/>
+                <body> <![CDATA[
+                    if (this.editable != "true") return;
+                    this.tree.currentIndex = -1;
+                    // dissable the delete button
+                    this.getElement("button","deleteButton").disabled = true;
+                    this.getElement("button","editButton").disabled = true;
+                    if (typeof(name) == 'undefined') name = "";
+                    if (typeof(value) == 'undefined') value = "";
+                    var obj = this.editWindow(name, value);
+                    if (obj) {
+                        this.insertVar(obj.name, obj.value);
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="editVar">
+                <parameter name="name"/>
+                <parameter name="value"/>
+                <body> <![CDATA[
+                    // get the values, put into the tree.
+                    if (this.editable != "true" && !this.uservars) return;
+                    var treeWidget = this.tree;
+                    if (typeof(name) == 'undefined') {
+                        if (treeWidget.currentIndex < 0) return;
+                        name = this.prefsview.GetName(treeWidget.currentIndex);
+                    }
+                    if (typeof(value) == 'undefined') 
+                        if (treeWidget.currentIndex < 0) return;
+                        value = this.prefsview.GetValue(treeWidget.currentIndex);
+                    if (name == "") return;
+                    var index;
+                    if (this.uservars) {
+                        index = this.uservars.prefsview.haveVariable(name);
+                        if (index >= 0) {
+                            this.uservars.editVar(name, value);
+                        } else {
+                            this.uservars.insertVar(name, value);
+                        }
+                        return;
+                    }
+                    var obj = this.editWindow(name, value);
+                    if (obj) {
+                        this.insertVar(obj.name, obj.value);
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="deleteVar">
+                <body> <![CDATA[
+                    if (this.editable != "true") return;
+                    var treeWidget = this.tree;
+                    if (treeWidget.currentIndex >= 0) {
+                        var name = this.prefsview.GetName(treeWidget.currentIndex);
+                        var value = this.prefsview.GetValue(treeWidget.currentIndex);
+                        //dump("removing: name="+name+" value="+value+"\n");
+
+                        this.prefsview.removeRow(treeWidget.currentIndex);
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="onSelect">
+                <parameter name="event"/>
+                <body> <![CDATA[
+                    // c.f. mozilla/mailnews/base/resources/content/threadPane.js
+                    var t = event.originalTarget;
+
+                    // single-click on a column
+                    if (t.localName == "treecol") {
+                        this.columnClick(t.id);
+                    }
+
+                    // click in the tree body
+                    else if (t.localName == "treechildren") {
+                        this.rowClick();
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="columnClick">
+                <parameter name="columnID"/>
+                <body> <![CDATA[
+                    this.prefsview.Sort(columnID);
+                ]]> </body>
+            </method>
+
+            <method name="rowClick">
+                <body> <![CDATA[
+                    var treeWidget = this.tree;
+                    if (treeWidget.currentIndex >= 0) {
+                        this.getElement("button","deleteButton").disabled = false;
+                        this.getElement("button","editButton").disabled = false;
+                    }
+                ]]> </body>
+            </method>
+
+            <method name="updateSortIndicators">
+                <parameter name="mainWindow"/>
+                <parameter name="sortId"/>
+                <body> <![CDATA[
+                    var sortedColumn = null;
+
+                    // set the sort indicator on the column we are sorted by
+                    if (sortId) {
+                        sortedColumn = this.getElement("treecol",sortId);
+                        if (sortedColumn) {
+                            var sortDirection = sortedColumn.getAttribute("sortDirection");
+                            if (sortDirection && sortDirection == "ascending") {
+                                sortedColumn.setAttribute("sortDirection", "descending");
+                            } else {
+                                sortedColumn.setAttribute("sortDirection", "ascending");
+                            }
+                        }
+                    }
+
+                    // remove the sort indicator from all the columns
+                    // except the one we are sorted by
+                    var currCol = this.tree.firstChild.firstChild;
+                    while (currCol) {
+                        while (currCol && currCol.localName != "treecol") {
+                            currCol = currCol.nextSibling;
+                        }
+                        if (currCol && (currCol != sortedColumn)) {
+                            currCol.removeAttribute("sortDirection");
+                        }
+                        if (currCol) {
+                            currCol = currCol.nextSibling;
+                        }
+                    }
+                ]]> </body>
+            </method>
+
+         </implementation>
+
+    </binding>
+
+</bindings>

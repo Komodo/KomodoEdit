@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE wizard PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<wizard id="komodo-extension-setup-window"
+        title="Komodo Extension Wizard"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        onload="onload();"
+        onwizardfinish="return onfinish();"
+        >
+
+<script type="application/x-javascript">
+<![CDATA[
+var data = window.arguments[0];
+
+function onload() {
+    if (!data.extension_nice_name) return;
+    
+    document.getElementById("extension_nice_name").value = data.extension_nice_name;
+    document.getElementById("extension_version").value = data.extension_version;
+    document.getElementById("extension_description").value = data.extension_description;
+    document.getElementById("author_name").value = data.extension_description;
+    document.getElementById("author_domain").value = data.extension_author_domain;
+    document.getElementById("homepage").value = data.extension_homepage;
+    document.getElementById("update_url").value = data.extension_update_url;
+    //document.getElementById("profile_dir").value = data.extension_profile_dir;
+}
+
+function onfinish() {
+    data.extension_nice_name = document.getElementById("extension_nice_name").value;
+    data.extension_version = document.getElementById("extension_version").value;
+    data.extension_description = document.getElementById("extension_description").value;
+    data.extension_author_name = document.getElementById("author_name").value;
+    data.extension_author_domain = document.getElementById("author_domain").value;
+    data.extension_homepage = document.getElementById("homepage").value;
+    data.extension_update_url = document.getElementById("update_url").value;
+    //data.extension_profile_dir = document.getElementById("profile_dir").value;
+}
+]]>
+</script>
+    <wizardpage id="start" label="Komodo: Before you begin">
+        <description>
+            This wizard will guide you through the basic configuration of this
+            extension.  At the end of this wizard, you can use the "build XPI"
+            command in the "project" folder to build the sample extension.  The
+            xpi file will appear in the project, and simply drag the file into
+            the toolbar or editor pane to install.  
+            After restarting Komodo, you will see a new menu under the Tools menu,
+            which will simply show an alert dialog that say's "Hello World".
+        </description>
+    </wizardpage>
+
+    <wizardpage id="extension_info" label="Komodo: Extension Information"
+                xonpageadvanced="return validatePrefs();"
+                xonpageshow="fillinPrefs();">
+        <description>
+            Give your extension a nice readable name, and a starting version
+            number.  The description should be a sentence or two describing
+            what the extension is.
+        </description>
+        <grid>
+            <columns>
+                <column/>
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <label value="Extension Name"/>
+                    <textbox id="extension_nice_name" value="Hello World"/>
+                </row>
+                <row align="center">
+                    <label value="Version"/>
+                    <textbox id="extension_version" value="1.0"/>
+                </row>
+                <row align="top">
+                    <label value="Description"/>
+                    <textbox id="extension_description" multiline="true" value="A simple Hello World alert dialog"/>
+                </row>
+            </rows>
+        </grid>
+    </wizardpage>
+    
+    <wizardpage id="user_info" label="Komodo: Author Information"
+                xonpageadvanced="return validatePrefs();"
+                xonpageshow="fillinPrefs();">
+        <description>
+            Tell us about yourself.  We need a domain that will be used as
+            part of the ID for the extension and your name.
+        </description>
+        <grid>
+            <columns>
+                <column/>
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <label value="Author Name"/>
+                    <textbox id="author_name" value="Your Name"/>
+                </row>
+                <row align="center">
+                    <label value="Author Domain"/>
+                    <textbox id="author_domain" value="YourDomain.com"/>
+                </row>
+            </rows>
+        </grid>
+    </wizardpage>
+
+    <wizardpage id="distro_info" label="Komodo: Distribution Information"
+                xonpageadvanced="return validatePrefs();"
+                xonpageshow="fillinPrefs();">
+        <description>
+            Where will the extension be available?  The Homepage should be
+            an HTML page describing the extention.  The update url should
+            be a reference to an rdf file that provides Komodo with current
+            version information that is used to update the extension.
+        </description>
+        <grid>
+            <columns>
+                <column/>
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row align="center">
+                    <label value="Home Page"/>
+                    <textbox id="homepage" value="http://yourdomain.com/extension"/>
+                </row>
+                <row align="center">
+                    <label value="Update URL"/>
+                    <textbox id="update_url" value="http://yourdomain.com/extension/extension.rdf"/>
+                </row>
+            </rows>
+        </grid>
+    </wizardpage>
+
+    <wizardpage id="finished" label="Komodo: Ready to Go!"
+                xonpageadvanced="return validatePrefs();"
+                xonpageshow="fillinPrefs();">
+        <description>
+            Clicking DONE now will cause the files in the project to be updated
+            with the information you have provided.  
+        </description>
+    </wizardpage>
+</wizard>

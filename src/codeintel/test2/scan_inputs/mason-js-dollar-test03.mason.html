@@ -1,0 +1,20 @@
+<script type="text/javascript">
+var $a = 42;
+var $b = $ab.cd;
+function myfunc($x1, $p2) {
+   // JS vars can start with $, don't let them collide with Perl's.
+   document.getElementById('q').setText($x1);
+}
+</script>
+
+<%init>
+# Make sure 
+sub cd() {}
+my $a = 42;
+my $b = $ab.cd;
+sub myfunc {
+  my ($x1, $p2) = @_;
+}
+</%init>
+
+</%perl>

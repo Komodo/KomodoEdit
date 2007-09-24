@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % runDTD SYSTEM "chrome://komodo/locale/run.dtd">
+  %runDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<window id="run-window"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&runCommand.title;"
+        windowtype="komodo_run"
+        class="kodialog"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical"
+        persist="screenX screenY"
+        style="padding: 10px;">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/mru.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/browse.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/stringutils.js"/>
+
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/run_functions.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/run.js"/>
+
+    <keyset id="runKeys">
+        <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
+        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
+    </keyset>
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <vbox flex="1">
+        <!-- Always shown stuff -->
+        <hbox flex="1">
+            <vbox flex="1">
+                <hbox align="center">
+                    <label value="Run:" control="command-textbox"/>
+                    <textbox id="command-textbox"
+                             accesskey="&commandTextbox.accesskey;"
+                             width="323"
+                             maxrows="10"
+                             type="autocomplete"
+                             autocompletesearch="mru"
+                             autocompletesearchparam="run-commandStringMru"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             tabscrolling="true"
+                             ontextentered="this.focus(); UpdateCommand();"
+                             onkeyup="UpdateCommand();"/>
+                    <button type="menu" id="shortcuts-menubutton"
+                            tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
+                            class="rightarrow-button">
+                        <menupopup popupanchor="topright">
+                            <menuitem label="&escapedPercentSign.label;"
+                                      shortcut="%%"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&fFileBaseName.label;"
+                                      shortcut="%f"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&FFilePath.label;"
+                                      shortcut="%F"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&dDirectoryBaseNameOfFile.label;"
+                                      shortcut="%d"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&DDirectoryPathOfFile.label;"
+                                      shortcut="%D"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&bFileBaseNameWithoutExtension.label;"
+                                      shortcut="%b"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&PPathOfTheActiveProject.label;"
+                                      shortcut="%P"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
+                                      shortcut="%p"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&LCurrentLineNumber.label;"
+                                      shortcut="%L"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&sSelection.label;"
+                                      shortcut="%s"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&SURLEscapedSelection.label;"
+                                      shortcut="%S"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&wSelectionOrWordUnderCursor.label;"
+                                      shortcut="%w"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&WURLEscapedSelectionOrWordUnderCursor.label;"
+                                      shortcut="%W"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&browserConfiguredBrowser.label;"
+                                      shortcut="%(browser)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&perlConfiguredPerlInterpreter.label;"
+                                      shortcut="%(perl)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&phpConfiguredPHPInterpreter.label;"
+                                      shortcut="%(php)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&pythonConfiguredPythonInterpreter.label;"
+                                      shortcut="%(python)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&rubyConfiguredRubyInterpreter.label;"
+                                      shortcut="%(ruby)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&askAskForUserInput.label;"
+                                      shortcut="%(ask:QUESTION:DEFAULT)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&askpassAskForPassword.label;"
+                                      shortcut="%(askpass:Password)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&helpOnShortcuts.label;"
+                                      oncommand="ko.help.open('interpolation_shortcuts_and_tab_stops');"/>
+                        </menupopup>
+                    </button>
+                </hbox>
+
+                <spacer height="15"/>
+                <checkbox id="operate-on-selection-checkbox"
+                          label="&passSelectionAsInput.label;"
+                          accesskey="&operateOnSelectionCheckbox.accesskey;"/>
+                <checkbox id="insert-output-checkbox" label="&insertOutput.label;"
+                          accesskey="&insertOutputCheckbox.accesskey;" oncommand="UpdateInsertOutput();"/>
+                <spacer height="10"/>
+                <checkbox label="&addToToolbox.label;" id="add-to-toolbox-checkbox"
+                          accesskey="&addToToolboxCheckbox.accesskey;"/>
+
+            </vbox>
+
+            <vbox flex="1">
+                <vbox>
+                  <button id="run" label="&run.label;" accesskey="&run.accesskey;"
+                          oncommand="RunCommandAndExit();" default="true"/>
+                  <button id="close" label="&close.label;" accesskey="&close.accesskey;"
+                          oncommand="window.close();"/>
+                  <button id="help" label="&help.label;" accesskey="&help.accesskey;"
+                          oncommand="ko.help.open('run_command_properties');"/>
+                </vbox>
+                <spacer flex="1"/>
+                <button id="more-options-button"
+                        label="&more.label;" dir="rtl" align="center" accesskey="&moreOptionsButton.accesskey;"
+                        type="moreinfo"
+                        oncommand="ToggleMoreOptions();"/>
+            </vbox>
+        </hbox>
+
+        <!-- More options stuff (sometimes collapsed) -->
+        <vbox id="more-options-box" hidden="true">
+            <spacer height="5"/>
+            <groupbox id="more-options-box" orient="vertical">
+                <caption label="&advancedOptions.label;"/>
+
+                <hbox flex="1" align="center">
+                    <label value="Start in:" control="cwd-textbox"
+                           style="width: 50px;" accesskey="&S.accesskey;"/>
+                    <textbox id="cwd-textbox"
+                             flex="1"
+                             maxrows="10"
+                             type="autocomplete"
+                             autocompletesearch="mru_and_filepath"
+                             autocompletesearchparam="mru: run-cwdMru; maxmru: 5"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             tabscrolling="true"
+                             ontextentered="this.focus();"/>
+                    <button type="menu" id="shortcuts-menubutton"
+                            tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
+                            class="rightarrow-button">
+                        <menupopup popupanchor="topright">
+                            <menuitem label="&escapedPercentSign.label;"
+                                      shortcut="%%"
+                                      oncommand="InsertCwdShortcut(this);"/>
+                            <menuitem label="&DDirectoryPathOfFile.label;"
+                                      shortcut="%D"
+                                      oncommand="InsertCwdShortcut(this);"/>
+                            <menuitem label="&pDirectoryPathOfActiveProject.label;"
+                                      shortcut="%p"
+                                      oncommand="InsertCwdShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&askAskForUserInput.label;"
+                                      shortcut="%(ask:QUESTION:DEFAULT)"
+                                      oncommand="InsertCwdShortcut(this);"/>
+                            <menuseparator/>
+                            <menuitem label="&helpOnShortcuts.label;"
+                                      oncommand="ko.help.open('interpolation_shortcuts');"/>
+                        </menupopup>
+                    </button>
+                    <button id="cwd-browse-button" label="&browse.label;"
+                            oncommand="BrowseForCwd();" accesskey="&cwdBrowseButton.accesskey;"/>
+                </hbox>
+                <spacer height="5"/>
+
+                <hbox flex="1">
+                    <label value="Run in:" control="run-in-menulist"
+                           style="width: 50px;"/>
+                    <vbox flex="1">
+                        <menulist id="run-in-menulist" oncommand="UpdateRunIn();">
+                            <menupopup>
+                                <menuitem value="command-output-window"
+                                          label="&commandOutputTab.label;"/>
+                                <menuitem value="new-console"
+                                          label="&newConsole.label;"/>
+                                <menuitem value="no-console"
+                                          label="&noConsoleGUIApplication.label;"/>
+                            </menupopup>
+                        </menulist>
+                        <checkbox id="do-not-open-output-window-checkbox"
+                                  label="&doNotOpenOutputPane.label;"
+                                  accesskey="&doNotOpenOutputWindowCheckbox.accesskey;"/>
+                        <hbox>
+                            <checkbox id="parse-output-checkbox"
+                                      label="&parseOutputWith.label;"
+                                      oncommand="UpdateParseOutput();"/>
+                            <textbox id="parse-regex-textbox"
+                                     flex="1"
+                                     accesskey="&parseRegexTextbox.accesskey;"
+                                     maxrows="10"
+                                     type="autocomplete"
+                                     autocompletesearch="mru"
+                                     autocompletesearchparam="run-parseRegexMru"
+                                     autocompletepopup="popupTextboxAutoComplete"
+                                     enablehistory="true"
+                                     tabscrolling="true"
+                                     completeselectedindex="true"
+                                     ontextentered="this.focus();"/>
+                        </hbox>
+                        <checkbox id="show-parsed-output-list-checkbox"
+                                  label="&showParsedOutputAsAList.label;"/>
+                    </vbox>
+                </hbox>
+
+                <!-- Environment variables tree and buttons -->
+                <spacer height="5"/>
+                <vbox flex="1">
+                    <script>var gRunEnvView = null;</script>
+                    <label value="Environment Variables:"/>
+                    <tree id="env" style="height: 70px;"
+                              onclick="RunEnv_OnClick(event);"
+                              onkeypress="return RunEnv_OnKeyPress(event);">
+                        <treecols>
+                        <treecol id="env-variable" primary="true" label="&variable.label;"
+                                     class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                     flex="1" persist="width"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol id="env-value" label="&value.label;"
+                                     class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                     flex="3" persist="width"/>
+                        </treecols>
+                        <treechildren id="env-body" flex="1"/>
+                    </tree>
+                    <spacer height="5"/>
+                    <hbox pack="end">
+                        <button id="env-new-button" label="&new.label;"
+                                accesskey="&envNewButton.accesskey;" oncommand="RunEnv_New();"/>
+                        <button id="env-edit-button" label="&edit.label;"
+                                accesskey="&envEditButton.accesskey;" oncommand="RunEnv_Edit();"
+                                disabled="true"/>
+                        <button id="env-delete-button" label="&delete.label;"
+                                accesskey="&envDeleteButton.accesskey;" oncommand="RunEnv_Delete();"
+                                disabled="true"/>
+                    </hbox>
+                </vbox>
+
+                <spacer height="10"/>
+                <checkbox id="save-options-checkbox" accesskey="&saveOptionsCheckbox.accesskey;"
+                          label="&saveAdvancedOptionsAsDefaults.label;"/>
+            </groupbox>
+        </vbox>
+    </vbox>
+
+</window>
+
+

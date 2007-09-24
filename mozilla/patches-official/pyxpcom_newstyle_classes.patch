@@ -1,0 +1,77 @@
+diff
+
+See https://bugzilla.mozilla.org/show_bug.cgi?id=345551
+
+Index: server/loader.py
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/server/loader.py,v
+retrieving revision 1.12.20.1
+diff -u -r1.12.20.1 loader.py
+--- extensions/python/xpcom/server/loader.py	31 Aug 2005 13:18:32 -0000	1.12.20.1
++++ extensions/python/xpcom/server/loader.py	22 Jul 2006 02:06:48 -0000
+@@ -58,7 +58,7 @@
+     # For now, just run over all classes looking for likely candidates.
+     comps = []
+     for name, object in py_module.__dict__.items():
+-        if type(object)==types.ClassType and \
++        if type(object) in (types.ClassType, types.TypeType) and \
+            _has_good_attr(object, "_com_interfaces_") and \
+            _has_good_attr(object, "_reg_clsid_") and \
+            _has_good_attr(object, "_reg_contractid_"):
+Index: src/PyGBase.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyGBase.cpp,v
+retrieving revision 1.14.28.1
+diff -u -r1.14.28.1 PyGBase.cpp
+--- extensions/python/xpcom/src/PyGBase.cpp	31 Aug 2005 13:18:32 -0000	1.14.28.1
++++ extensions/python/xpcom/src/PyGBase.cpp	22 Jul 2006 02:06:48 -0000
+@@ -195,7 +195,7 @@
+ PyG_Base::AutoWrapPythonInstance(PyObject *ob, const nsIID &iid, nsISupports **ppret)
+ {
+ 	NS_PRECONDITION(ppret!=NULL, "null pointer when wrapping a Python instance!");
+-	NS_PRECONDITION(ob && PyInstance_Check(ob), "AutoWrapPythonInstance is expecting an non-NULL instance!");
++	NS_PRECONDITION(ob && PyObject_HasAttrString(ob, "__class__"), "AutoWrapPythonInstance is expecting an non-NULL instance!");
+ 	PRBool ok = PR_FALSE;
+     // XXX - todo - this static object leaks! (but Python on Windows leaks 2000+ objects as it is ;-)
+ 	static PyObject *func = NULL; // fetch this once and remember!
+Index: src/PyIID.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyIID.cpp,v
+retrieving revision 1.5
+diff -u -r1.5 PyIID.cpp
+--- extensions/python/xpcom/src/PyIID.cpp	18 Apr 2004 22:13:54 -0000	1.5
++++ extensions/python/xpcom/src/PyIID.cpp	22 Jul 2006 02:06:48 -0000
+@@ -110,7 +110,7 @@
+ 		}
+ 	} else if (ob->ob_type == &type) {
+ 		iid = ((Py_nsIID *)ob)->m_iid;
+-	} else if (PyInstance_Check(ob)) {
++	} else if (PyObject_HasAttrString(ob, "__class__")) {
+ 		// Get the _iidobj_ attribute
+ 		PyObject *use_ob = PyObject_GetAttrString(ob, "_iidobj_");
+ 		if (use_ob==NULL) {
+Index: src/PyISupports.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyISupports.cpp,v
+retrieving revision 1.5.28.1
+diff -u -r1.5.28.1 PyISupports.cpp
+--- extensions/python/xpcom/src/PyISupports.cpp	31 Aug 2005 13:18:32 -0000	1.5.28.1
++++ extensions/python/xpcom/src/PyISupports.cpp	22 Jul 2006 02:06:48 -0000
+@@ -218,7 +218,7 @@
+ 	// support nsIVariant
+ 	if (iid.Equals(NS_GET_IID(nsIVariant)) || iid.Equals(NS_GET_IID(nsIWritableVariant))) {
+ 		// Check it is not already nsIVariant
+-		if (PyInstance_Check(ob)) {
++		if (PyObject_HasAttrString(ob, "__class__")) {
+ 			PyObject *sub_ob = PyObject_GetAttrString(ob, "_comobj_");
+ 			if (sub_ob==NULL) {
+ 				PyErr_Clear();
+@@ -236,7 +236,7 @@
+ 	}
+ 	// end of variant support.
+ 
+-	if (PyInstance_Check(ob)) {
++	if (PyObject_HasAttrString(ob, "__class__")) {
+ 		// Get the _comobj_ attribute
+ 		PyObject *use_ob = PyObject_GetAttrString(ob, "_comobj_");
+ 		if (use_ob==NULL) {

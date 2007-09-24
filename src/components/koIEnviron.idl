@@ -1,0 +1,75 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Interface to the Komodo process' environment variables.
+[scriptable, uuid(30537776-473C-4ad6-9A2D-3320B3B5517D)]
+interface koIEnviron : nsISupports {
+  boolean has(in wstring key);
+  wstring get(in wstring key);
+  void set(in wstring key, in wstring value);
+};
+
+
+// Interface to the user's environment (to be used for spawning external
+// commands on behalf of the user in Komodo).
+//
+// Typically/historically this is the system or shell environment when
+// Komodo is started: i.e. before komodo.exe/komodo-bin mucks with it.
+// However, the environment may be retrieved from the user's shell (as
+// set in the "Environment" prefs panel on non-Windows systems).
+//
+[scriptable, uuid(CD50AE4E-52DF-499a-95FB-E964F6A42AD2)]
+interface koIUserEnviron : nsISupports {
+    boolean has(in wstring key);
+    wstring get(in wstring key);
+
+    // return all the env vars as "<name>=<value>" strings
+    //  - this is a convenience function for passing to process creation
+    //  - it is named after the Win32 API but no FreeEnvironmentStrings is
+    //    necessary
+    void GetEnvironmentStrings(
+      out PRUint32 count,
+      [retval, array, size_is(count)] out wstring envStrs);
+
+    // Return the user environment as a string encoded as specified by
+    // run_functions.js::Run_RunCommand()'s env argument.
+    wstring GetEncodedEnvironment();
+    wstring GetEncodedStartupEnvironment();
+
+    // Update the user environment from the given system shell.
+    //
+    //  "shell" is the full path to a system shell
+    //
+    // Returns null if successful, otherwise returns an error string.
+    wstring UpdateFromShell(in wstring shell);
+};
+
+
+[scriptable, uuid(10afb005-4472-4d04-9372-94addc092928)]
+interface koIEnvironUtils : nsISupports {
+    // Utils for working with the environment sets.
+
+    // Merge a set of "diff" environment strings into a "base" set of
+    // environment strings. The "diff" strings are interpolated
+    // according to the current platform shell interpolation rules,
+    // i.e.  %FOO% to interpolate in the env. var. FOO on Windows,
+    //       $FOO or $(FOO) otherwise.
+    void MergeEnvironmentStrings(
+        in PRUint32 baseCount,
+        [array, size_is(baseCount)] in wstring baseEnvStrs,
+        in PRUint32 diffCount,
+        [array, size_is(diffCount)] in wstring diffEnvStrs,
+        out PRUint32 resultCount,
+        [array, size_is(resultCount)] out wstring resultEnvStrs);
+
+    // Return a list of available system shells from which the user can
+    // select in the Environment prefs panel. (non-Windows only)
+    void GetUserShells(
+        out PRUint32 count,
+        [retval, array, size_is(count)] out wstring shells
+    );
+};
+
+

@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/bug56598.php">
+    <scope ilk="blob" lang="PHP" name="bug56598.php" src="scan_inputs/bug56598.php">
+      <scope classrefs="PDO" ilk="class" line="4" lineend="16" name="one">
+        <variable attributes="public" citdl="DOMDocument" line="5" name="obj" />
+        <scope attributes="__ctor__" ilk="function" line="7" lineend="11" name="__construct" signature="__construct(xx)">
+          <variable ilk="argument" name="xx" />
+        </scope>
+        <scope ilk="function" line="13" lineend="15" name="foo" signature="foo()" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

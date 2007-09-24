@@ -1,0 +1,21 @@
+<tr>
+	<% if @show_actions %>
+		<td>
+			<%= link_to "Edit", edit_reading_url(reading.book, reading) %>
+			<br/>
+			<%= link_to "Delete", reading_url(reading.book, reading), :method => "delete" %>
+		</td>
+	<% end %>
+	
+  <td class="name_col">
+		<% if key_field == "Book" %>
+			<%= link_to reading.book.title, book_url(reading.book) %>
+		<% else %>
+			<%= link_to reading.reader.fullname, reader_url(reading.reader) %>			
+		<% end %>
+	</td>
+  <td class="date_col"><%= reading.date_read_for_display %></td>
+
+  <td class="num_col"><%= reading.reading_time %></td>
+  <td><%= reading.notes %></td>
+</tr>

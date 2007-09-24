@@ -1,0 +1,991 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/resolv.rb">
+    <scope ilk="blob" lang="Ruby" name="resolv">
+      <import line="192" module="socket" symbol="*" />
+      <import line="193" module="fcntl" symbol="*" />
+      <import line="194" module="timeout" symbol="*" />
+      <import line="195" module="thread" symbol="*" />
+      <scope classrefs="Object" ilk="class" line="197" lineend="1767" name="Resolv">
+        <variable line="1765" name="DefaultResolver" />
+        <variable line="1766" name="AddressRegex" />
+        <variable attributes="__instancevar__ __local__" citdl="resolvers" line="223" name="@resolvers" />
+        <scope attributes="__classmethod__" ilk="function" line="198" lineend="200" name="getaddress" signature="self.getaddress(name)">
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="202" lineend="204" name="getaddresses" signature="self.getaddresses(name)">
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="206" lineend="208" name="each_address" signature="self.each_address(name, &amp;block)">
+          <variable ilk="argument" name="name" />
+          <variable ilk="argument" name="&amp;block" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="210" lineend="212" name="getname" signature="self.getname(address)">
+          <variable ilk="argument" name="address" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="214" lineend="216" name="getnames" signature="self.getnames(address)">
+          <variable ilk="argument" name="address" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="218" lineend="220" name="each_name" signature="self.each_name(address, &amp;proc)">
+          <variable ilk="argument" name="address" />
+          <variable ilk="argument" name="&amp;proc" />
+        </scope>
+        <scope attributes="__ctor__" ilk="function" line="222" lineend="224" name="initialize" signature="initialize(resolvers=[Hosts.new, DNS.new])">
+          <variable ilk="argument" name="resolvers" />
+          <variable attributes="__local__" citdl="Resolv" line="222" name="self" />
+        </scope>
+        <scope ilk="function" line="226" lineend="229" name="getaddress" signature="getaddress(name)">
+          <variable ilk="argument" name="name" />
+          <variable attributes="__local__" citdl="Resolv" line="226" name="self" />
+        </scope>
+        <scope ilk="function" line="231" lineend="235" name="getaddresses" signature="getaddresses(name)">
+          <variable ilk="argument" name="name" />
+          <variable attributes="__local__" citdl="Resolv" line="231" name="self" />
+          <variable attributes="__local__" citdl="Array" line="232" name="ret" />
+        </scope>
+        <scope ilk="function" line="237" lineend="250" name="each_address" signature="each_address(name)">
+          <variable ilk="argument" name="name" />
+          <variable attributes="__local__" citdl="Resolv" line="237" name="self" />
+          <variable attributes="__local__" line="242" name="yielded" />
+        </scope>
+        <scope ilk="function" line="252" lineend="255" name="getname" signature="getname(address)">
+          <variable ilk="argument" name="address" />
+          <variable attributes="__local__" citdl="Resolv" line="252" name="self" />
+        </scope>
+        <scope ilk="function" line="257" lineend="261" name="getnames" signature="getnames(address)">
+          <variable ilk="argument" name="address" />
+          <variable attributes="__local__" citdl="Resolv" line="257" name="self" />
+          <variable attributes="__local__" citdl="Array" line="258" name="ret" />
+        </scope>
+        <scope ilk="function" line="263" lineend="272" name="each_name" signature="each_name(address)">
+          <variable ilk="argument" name="address" />
+          <variable attributes="__local__" citdl="Resolv" line="263" name="self" />
+          <variable attributes="__local__" line="264" name="yielded" />
+        </scope>
+        <scope classrefs="StandardError" ilk="class" line="274" lineend="275" name="ResolvError" />
+        <scope classrefs="TimeoutError" ilk="class" line="277" lineend="278" name="ResolvTimeout" />
+        <scope classrefs="Object" ilk="class" line="280" lineend="359" name="Hosts">
+          <import line="282" module="win32/resolv" symbol="*" />
+          <variable citdl="String" line="283" name="DefaultFileName" />
+          <variable attributes="__instancevar__ __local__" citdl="filename" line="289" name="@filename" />
+          <variable attributes="__instancevar__ __local__" citdl="Mutex" line="290" name="@mutex" />
+          <variable attributes="__instancevar__ __local__" line="291" name="@initialized" />
+          <variable attributes="__instancevar__ __local__" citdl="Hash" line="297" name="@name2addr" />
+          <variable attributes="__instancevar__ __local__" citdl="Hash" line="298" name="@addr2name" />
+          <scope attributes="__ctor__" ilk="function" line="288" lineend="292" name="initialize" signature="initialize(filename = DefaultFileName)">
+            <variable ilk="argument" name="filename" />
+            <variable attributes="__local__" citdl="Hosts" line="288" name="self" />
+          </scope>
+          <scope ilk="function" line="294" lineend="322" name="lazy_initialize" signature="lazy_initialize">
+            <variable attributes="__local__" citdl="Hosts" line="294" name="self" />
+          </scope>
+          <scope ilk="function" line="324" lineend="327" name="getaddress" signature="getaddress(name)">
+            <variable ilk="argument" name="name" />
+            <variable attributes="__local__" citdl="Hosts" line="324" name="self" />
+          </scope>
+          <scope ilk="function" line="329" lineend="333" name="getaddresses" signature="getaddresses(name)">
+            <variable ilk="argument" name="name" />
+            <variable attributes="__local__" citdl="Hosts" line="329" name="self" />
+            <variable attributes="__local__" citdl="Array" line="330" name="ret" />
+          </scope>
+          <scope ilk="function" line="335" lineend="340" name="each_address" signature="each_address(name, &amp;proc)">
+            <variable ilk="argument" name="name" />
+            <variable ilk="argument" name="&amp;proc" />
+            <variable attributes="__local__" citdl="Hosts" line="335" name="self" />
+          </scope>
+          <scope ilk="function" line="342" lineend="345" name="getname" signature="getname(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="Hosts" line="342" name="self" />
+          </scope>
+          <scope ilk="function" line="347" lineend="351" name="getnames" signature="getnames(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="Hosts" line="347" name="self" />
+            <variable attributes="__local__" citdl="Array" line="348" name="ret" />
+          </scope>
+          <scope ilk="function" line="353" lineend="358" name="each_name" signature="each_name(address, &amp;proc)">
+            <variable ilk="argument" name="address" />
+            <variable ilk="argument" name="&amp;proc" />
+            <variable attributes="__local__" citdl="Hosts" line="353" name="self" />
+          </scope>
+        </scope>
+        <scope classrefs="Object" ilk="class" line="361" lineend="1595" name="DNS">
+          <variable citdl="Fixnum" line="365" name="Port" />
+          <variable citdl="Fixnum" line="366" name="UDPSize" />
+          <variable citdl="ThreadGroup" line="368" name="DNSThreadGroup" />
+          <variable attributes="__instancevar__ __local__" citdl="Mutex" line="381" name="@mutex" />
+          <variable attributes="__instancevar__ __local__" citdl="Config" line="382" name="@config" />
+          <variable attributes="__instancevar__ __local__" line="383" name="@initialized" />
+          <variable attributes="__instancevar__ __local__" citdl="Requester::ConnectedUDP" line="392" name="@requester" />
+          <scope attributes="__classmethod__" doc="STD0013 (RFC 1035, etc.) ftp://ftp.isi.edu/in-&#xA;notes/iana/assignments/dns-parameters" ilk="function" line="370" lineend="378" name="open" signature="self.open(*args)">
+            <variable ilk="argument" name="*args" />
+            <variable attributes="__local__" line="371" name="dns" />
+          </scope>
+          <scope attributes="__ctor__" ilk="function" line="380" lineend="384" name="initialize" signature="initialize(config_info=nil)">
+            <variable ilk="argument" name="config_info" />
+            <variable attributes="__local__" citdl="DNS" line="380" name="self" />
+          </scope>
+          <scope ilk="function" line="386" lineend="400" name="lazy_initialize" signature="lazy_initialize">
+            <variable attributes="__local__" citdl="DNS" line="386" name="self" />
+          </scope>
+          <scope ilk="function" line="402" lineend="410" name="close" signature="close">
+            <variable attributes="__local__" citdl="DNS" line="402" name="self" />
+          </scope>
+          <scope ilk="function" line="412" lineend="415" name="getaddress" signature="getaddress(name)">
+            <variable ilk="argument" name="name" />
+            <variable attributes="__local__" citdl="DNS" line="412" name="self" />
+          </scope>
+          <scope ilk="function" line="417" lineend="421" name="getaddresses" signature="getaddresses(name)">
+            <variable ilk="argument" name="name" />
+            <variable attributes="__local__" citdl="DNS" line="417" name="self" />
+            <variable attributes="__local__" citdl="Array" line="418" name="ret" />
+          </scope>
+          <scope ilk="function" line="423" lineend="425" name="each_address" signature="each_address(name)">
+            <variable ilk="argument" name="name" />
+            <variable attributes="__local__" citdl="DNS" line="423" name="self" />
+          </scope>
+          <scope ilk="function" line="427" lineend="430" name="getname" signature="getname(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="DNS" line="427" name="self" />
+          </scope>
+          <scope ilk="function" line="432" lineend="436" name="getnames" signature="getnames(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="DNS" line="432" name="self" />
+            <variable attributes="__local__" citdl="Array" line="433" name="ret" />
+          </scope>
+          <scope ilk="function" line="438" lineend="450" name="each_name" signature="each_name(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="DNS" line="438" name="self" />
+            <variable attributes="__local__" citdl="address" line="441" name="ptr" />
+          </scope>
+          <scope ilk="function" line="452" lineend="455" name="getresource" signature="getresource(name, typeclass)">
+            <variable ilk="argument" name="name" />
+            <variable ilk="argument" name="typeclass" />
+            <variable attributes="__local__" citdl="DNS" line="452" name="self" />
+          </scope>
+          <scope ilk="function" line="457" lineend="461" name="getresources" signature="getresources(name, typeclass)">
+            <variable ilk="argument" name="name" />
+            <variable ilk="argument" name="typeclass" />
+            <variable attributes="__local__" citdl="DNS" line="457" name="self" />
+            <variable attributes="__local__" citdl="Array" line="458" name="ret" />
+          </scope>
+          <scope ilk="function" line="463" lineend="492" name="each_resource" signature="each_resource(name, typeclass, &amp;proc)">
+            <variable ilk="argument" name="name" />
+            <variable ilk="argument" name="typeclass" />
+            <variable ilk="argument" name="&amp;proc" />
+            <variable attributes="__local__" citdl="DNS" line="463" name="self" />
+            <variable attributes="__local__" citdl="Queue" line="465" name="q" />
+            <variable attributes="__local__" citdl="Hash" line="466" name="senders" />
+            <variable attributes="__local__" citdl="Message" line="469" name="msg" />
+            <variable attributes="__local__" line="473" name="sender" />
+            <variable attributes="__local__" line="477" name="reply" />
+          </scope>
+          <scope ilk="function" line="494" lineend="523" name="extract_resources" signature="extract_resources(msg, name, typeclass)">
+            <variable ilk="argument" name="msg" />
+            <variable ilk="argument" name="name" />
+            <variable ilk="argument" name="typeclass" />
+            <variable attributes="__local__" citdl="DNS" line="494" name="self" />
+            <variable attributes="__local__" line="496" name="n0" />
+            <variable attributes="__local__" line="501" name="yielded" />
+          </scope>
+          <scope classrefs="Object" ilk="class" line="525" lineend="712" name="Requester">
+            <variable attributes="__instancevar__ __local__" citdl="Hash" line="527" name="@senders" />
+            <variable attributes="__instancevar__ __local__" line="531" name="@sock" />
+            <scope attributes="__ctor__" ilk="function" line="526" lineend="528" name="initialize" signature="initialize">
+              <variable attributes="__local__" citdl="Requester" line="526" name="self" />
+            </scope>
+            <scope ilk="function" line="530" lineend="540" name="close" signature="close">
+              <variable attributes="__local__" citdl="Requester" line="530" name="self" />
+            </scope>
+            <scope ilk="function" line="542" lineend="551" name="delete" signature="delete(arg)">
+              <variable ilk="argument" name="arg" />
+              <variable attributes="__local__" citdl="Requester" line="542" name="self" />
+            </scope>
+            <scope classrefs="Object" ilk="class" line="553" lineend="565" name="Sender">
+              <variable attributes="__instancevar__ __local__" citdl="msg" line="555" name="@msg" />
+              <variable attributes="__instancevar__ __local__" citdl="data" line="556" name="@data" />
+              <variable attributes="__instancevar__ __local__" citdl="sock" line="557" name="@sock" />
+              <variable attributes="__instancevar__ __local__" citdl="queue" line="558" name="@queue" />
+              <scope attributes="__ctor__" ilk="function" line="554" lineend="559" name="initialize" signature="initialize(msg, data, sock, queue)">
+                <variable ilk="argument" name="msg" />
+                <variable ilk="argument" name="data" />
+                <variable ilk="argument" name="sock" />
+                <variable ilk="argument" name="queue" />
+                <variable attributes="__local__" citdl="Sender" line="554" name="self" />
+              </scope>
+              <scope ilk="function" line="560" lineend="560" name="queue" />
+              <scope ilk="function" line="562" lineend="564" name="recv" signature="recv(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="Sender" line="562" name="self" />
+              </scope>
+            </scope>
+            <scope classrefs="Requester" ilk="class" line="567" lineend="615" name="UnconnectedUDP">
+              <variable attributes="__instancevar__ __local__" citdl="UDPSocket" line="570" name="@sock" />
+              <variable attributes="__instancevar__ __local__" citdl="Hash" line="572" name="@id" />
+              <variable attributes="__instancevar__ __local__" line="574" name="@thread" />
+              <scope attributes="__ctor__" ilk="function" line="568" lineend="591" name="initialize" signature="initialize">
+                <variable attributes="__local__" citdl="UnconnectedUDP" line="568" name="self" />
+                <variable attributes="__local__" line="578" name="msg" />
+              </scope>
+              <scope ilk="function" line="593" lineend="602" name="sender" signature="sender(msg, data, queue, host, port=Port)">
+                <variable ilk="argument" name="msg" />
+                <variable ilk="argument" name="data" />
+                <variable ilk="argument" name="queue" />
+                <variable ilk="argument" name="host" />
+                <variable ilk="argument" name="port" />
+                <variable attributes="__local__" citdl="UnconnectedUDP" line="593" name="self" />
+                <variable attributes="__local__" citdl="Array" line="594" name="service" />
+                <variable attributes="__local__" line="595" name="id" />
+                <variable attributes="__local__" line="598" name="request" />
+              </scope>
+              <scope classrefs="Requester::Sender" ilk="class" line="604" lineend="614" name="Sender">
+                <variable attributes="__instancevar__ __local__" citdl="host" line="607" name="@host" />
+                <variable attributes="__instancevar__ __local__" citdl="port" line="608" name="@port" />
+                <scope attributes="__ctor__" ilk="function" line="605" lineend="609" name="initialize" signature="initialize(msg, data, sock, host, port, queue)">
+                  <variable ilk="argument" name="msg" />
+                  <variable ilk="argument" name="data" />
+                  <variable ilk="argument" name="sock" />
+                  <variable ilk="argument" name="host" />
+                  <variable ilk="argument" name="port" />
+                  <variable ilk="argument" name="queue" />
+                  <variable attributes="__local__" citdl="Sender" line="605" name="self" />
+                </scope>
+                <scope ilk="function" line="611" lineend="613" name="send" signature="send">
+                  <variable attributes="__local__" citdl="Sender" line="611" name="self" />
+                </scope>
+              </scope>
+            </scope>
+            <scope classrefs="Requester" ilk="class" line="617" lineend="660" name="ConnectedUDP">
+              <variable attributes="__instancevar__ __local__" citdl="host" line="620" name="@host" />
+              <variable attributes="__instancevar__ __local__" citdl="port" line="621" name="@port" />
+              <variable attributes="__instancevar__ __local__" citdl="UDPSocket" line="622" name="@sock" />
+              <variable attributes="__instancevar__ __local__" line="625" name="@id" />
+              <variable attributes="__instancevar__ __local__" line="626" name="@thread" />
+              <scope attributes="__ctor__" ilk="function" line="618" lineend="643" name="initialize" signature="initialize(host, port=Port)">
+                <variable ilk="argument" name="host" />
+                <variable ilk="argument" name="port" />
+                <variable attributes="__local__" citdl="ConnectedUDP" line="618" name="self" />
+                <variable attributes="__local__" line="629" name="reply" />
+                <variable attributes="__local__" line="630" name="msg" />
+              </scope>
+              <scope ilk="function" line="645" lineend="653" name="sender" signature="sender(msg, data, queue, host=@host, port=@port)">
+                <variable ilk="argument" name="msg" />
+                <variable ilk="argument" name="data" />
+                <variable ilk="argument" name="queue" />
+                <variable ilk="argument" name="host" />
+                <variable ilk="argument" name="port" />
+                <variable attributes="__local__" citdl="ConnectedUDP" line="645" name="self" />
+                <variable attributes="__local__" line="649" name="id" />
+                <variable attributes="__local__" line="650" name="request" />
+              </scope>
+              <scope classrefs="Requester::Sender" ilk="class" line="655" lineend="659" name="Sender">
+                <scope ilk="function" line="656" lineend="658" name="send" signature="send">
+                  <variable attributes="__local__" citdl="Sender" line="656" name="self" />
+                </scope>
+              </scope>
+            </scope>
+            <scope classrefs="Requester" ilk="class" line="662" lineend="708" name="TCP">
+              <variable attributes="__instancevar__ __local__" citdl="host" line="665" name="@host" />
+              <variable attributes="__instancevar__ __local__" citdl="port" line="666" name="@port" />
+              <variable attributes="__instancevar__ __local__" citdl="TCPSocket" line="667" name="@sock" />
+              <variable attributes="__instancevar__ __local__" line="670" name="@id" />
+              <variable attributes="__instancevar__ __local__" citdl="Hash" line="671" name="@senders" />
+              <variable attributes="__instancevar__ __local__" line="672" name="@thread" />
+              <scope attributes="__ctor__" ilk="function" line="663" lineend="690" name="initialize" signature="initialize(host, port=Port)">
+                <variable ilk="argument" name="host" />
+                <variable ilk="argument" name="port" />
+                <variable attributes="__local__" citdl="TCP" line="663" name="self" />
+                <variable attributes="__local__" line="675" name="len" />
+                <variable attributes="__local__" line="676" name="reply" />
+                <variable attributes="__local__" line="677" name="msg" />
+              </scope>
+              <scope ilk="function" line="692" lineend="700" name="sender" signature="sender(msg, data, queue, host=@host, port=@port)">
+                <variable ilk="argument" name="msg" />
+                <variable ilk="argument" name="data" />
+                <variable ilk="argument" name="queue" />
+                <variable ilk="argument" name="host" />
+                <variable ilk="argument" name="port" />
+                <variable attributes="__local__" citdl="TCP" line="692" name="self" />
+                <variable attributes="__local__" line="696" name="id" />
+                <variable attributes="__local__" line="697" name="request" />
+              </scope>
+              <scope classrefs="Requester::Sender" ilk="class" line="702" lineend="707" name="Sender">
+                <scope ilk="function" line="703" lineend="706" name="send" signature="send">
+                  <variable attributes="__local__" citdl="Sender" line="703" name="self" />
+                </scope>
+              </scope>
+            </scope>
+            <scope classrefs="StandardError" ilk="class" line="710" lineend="711" name="RequestError" />
+          </scope>
+          <scope classrefs="Object" ilk="class" line="714" lineend="881" name="Config">
+            <variable citdl="Fixnum" line="842" name="InitialTimeout" />
+            <variable attributes="__instancevar__ __local__" citdl="Mutex" line="716" name="@mutex" />
+            <variable attributes="__instancevar__ __local__" citdl="config_info" line="717" name="@config_info" />
+            <variable attributes="__instancevar__ __local__" line="718" name="@initialized" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="763" name="@nameserver" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="764" name="@search" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="765" name="@ndots" />
+            <scope attributes="__ctor__" ilk="function" line="715" lineend="719" name="initialize" signature="initialize(config_info=nil)">
+              <variable ilk="argument" name="config_info" />
+              <variable attributes="__local__" citdl="Config" line="715" name="self" />
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="721" lineend="744" name="parse_resolv_conf" signature="Config.parse_resolv_conf(filename)">
+              <variable ilk="argument" name="filename" />
+              <variable attributes="__local__" citdl="Array" line="722" name="nameserver" />
+              <variable attributes="__local__" citdl="Array" line="723" name="search" />
+              <variable attributes="__local__" citdl="Fixnum" line="724" name="ndots" />
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="746" lineend="758" name="default_config_hash" signature="Config.default_config_hash(filename=&quot;/etc/resolv.conf&quot;)">
+              <variable ilk="argument" name="filename" />
+              <variable attributes="__local__" citdl="Hash" line="748" name="config_hash" />
+            </scope>
+            <scope ilk="function" line="760" lineend="815" name="lazy_initialize" signature="lazy_initialize">
+              <variable attributes="__local__" citdl="Config" line="760" name="self" />
+              <variable attributes="__local__" line="768" name="config_hash" />
+              <variable attributes="__local__" line="790" name="hostname" />
+            </scope>
+            <scope ilk="function" line="817" lineend="824" name="single?" signature="single?">
+              <variable attributes="__local__" citdl="Config" line="817" name="self" />
+            </scope>
+            <scope ilk="function" line="826" lineend="840" name="generate_candidates" signature="generate_candidates(name)">
+              <variable ilk="argument" name="name" />
+              <variable attributes="__local__" citdl="Config" line="826" name="self" />
+              <variable attributes="__local__" citdl="Array" line="827" name="candidates" />
+              <variable attributes="__local__" line="828" name="name" />
+            </scope>
+            <scope ilk="function" line="844" lineend="850" name="generate_timeouts" signature="generate_timeouts">
+              <variable attributes="__local__" citdl="Config" line="844" name="self" />
+              <variable attributes="__local__" citdl="Array" line="845" name="ts" />
+            </scope>
+            <scope ilk="function" line="852" lineend="874" name="resolv" signature="resolv(name)">
+              <variable ilk="argument" name="name" />
+              <variable attributes="__local__" citdl="Config" line="852" name="self" />
+              <variable attributes="__local__" line="853" name="candidates" />
+              <variable attributes="__local__" citdl="generate_timeouts" line="854" name="timeouts" />
+            </scope>
+            <scope classrefs="ResolvError" ilk="class" line="876" lineend="877" name="NXDomain" />
+            <scope classrefs="ResolvError" ilk="class" line="879" lineend="880" name="OtherResolvError" />
+          </scope>
+          <scope ilk="namespace" line="883" lineend="889" name="OpCode">
+            <variable citdl="Fixnum" line="884" name="Query" />
+            <variable citdl="Fixnum" line="885" name="IQuery" />
+            <variable citdl="Fixnum" line="886" name="Status" />
+            <variable citdl="Fixnum" line="887" name="Notify" />
+            <variable citdl="Fixnum" line="888" name="Update" />
+          </scope>
+          <scope ilk="namespace" line="891" lineend="910" name="RCode">
+            <variable citdl="Fixnum" line="892" name="NoError" />
+            <variable citdl="Fixnum" line="893" name="FormErr" />
+            <variable citdl="Fixnum" line="894" name="ServFail" />
+            <variable citdl="Fixnum" line="895" name="NXDomain" />
+            <variable citdl="Fixnum" line="896" name="NotImp" />
+            <variable citdl="Fixnum" line="897" name="Refused" />
+            <variable citdl="Fixnum" line="898" name="YXDomain" />
+            <variable citdl="Fixnum" line="899" name="YXRRSet" />
+            <variable citdl="Fixnum" line="900" name="NXRRSet" />
+            <variable citdl="Fixnum" line="901" name="NotAuth" />
+            <variable citdl="Fixnum" line="902" name="NotZone" />
+            <variable citdl="Fixnum" line="903" name="BADVERS" />
+            <variable citdl="Fixnum" line="904" name="BADSIG" />
+            <variable citdl="Fixnum" line="905" name="BADKEY" />
+            <variable citdl="Fixnum" line="906" name="BADTIME" />
+            <variable citdl="Fixnum" line="907" name="BADMODE" />
+            <variable citdl="Fixnum" line="908" name="BADNAME" />
+            <variable citdl="Fixnum" line="909" name="BADALG" />
+          </scope>
+          <scope classrefs="StandardError" ilk="class" line="912" lineend="913" name="DecodeError" />
+          <scope classrefs="StandardError" ilk="class" line="915" lineend="916" name="EncodeError" />
+          <scope ilk="namespace" line="918" lineend="952" name="Label">
+            <scope attributes="__classmethod__" ilk="function" line="919" lineend="923" name="split" signature="self.split(arg)">
+              <variable ilk="argument" name="arg" />
+              <variable attributes="__local__" citdl="Array" line="920" name="labels" />
+            </scope>
+            <scope classrefs="Object" ilk="class" line="925" lineend="951" name="Str">
+              <variable attributes="__instancevar__ __local__" citdl="string" line="927" name="@string" />
+              <variable attributes="__instancevar__ __local__" line="928" name="@downcase" />
+              <scope attributes="__ctor__" ilk="function" line="926" lineend="929" name="initialize" signature="initialize(string)">
+                <variable ilk="argument" name="string" />
+                <variable attributes="__local__" citdl="Str" line="926" name="self" />
+              </scope>
+              <scope ilk="function" line="930" lineend="930" name="string" />
+              <scope ilk="function" line="930" lineend="930" name="downcase" />
+              <scope ilk="function" line="932" lineend="934" name="to_s" signature="to_s">
+                <variable attributes="__local__" citdl="Str" line="932" name="self" />
+              </scope>
+              <scope ilk="function" line="936" lineend="938" name="inspect" signature="inspect">
+                <variable attributes="__local__" citdl="Str" line="936" name="self" />
+              </scope>
+              <scope ilk="function" line="940" lineend="942" name="==" signature="==(other">
+                <variable attributes="__local__" citdl="Str" line="940" name="self" />
+              </scope>
+              <scope ilk="function" line="944" lineend="946" name="eql?" signature="eql?(other)">
+                <variable ilk="argument" name="other" />
+                <variable attributes="__local__" citdl="Str" line="944" name="self" />
+              </scope>
+              <scope ilk="function" line="948" lineend="950" name="hash" signature="hash">
+                <variable attributes="__local__" citdl="Str" line="948" name="self" />
+              </scope>
+            </scope>
+          </scope>
+          <scope classrefs="Object" ilk="class" line="954" lineend="999" name="Name">
+            <variable attributes="__instancevar__ __local__" citdl="labels" line="967" name="@labels" />
+            <variable attributes="__instancevar__ __local__" citdl="absolute" line="968" name="@absolute" />
+            <scope attributes="__classmethod__" ilk="function" line="955" lineend="964" name="create" signature="self.create(arg)">
+              <variable ilk="argument" name="arg" />
+            </scope>
+            <scope attributes="__ctor__" ilk="function" line="966" lineend="969" name="initialize" signature="initialize(labels, absolute=true)">
+              <variable ilk="argument" name="labels" />
+              <variable ilk="argument" name="absolute" />
+              <variable attributes="__local__" citdl="Name" line="966" name="self" />
+            </scope>
+            <scope ilk="function" line="971" lineend="973" name="absolute?" signature="absolute?">
+              <variable attributes="__local__" citdl="Name" line="971" name="self" />
+            </scope>
+            <scope ilk="function" line="975" lineend="977" name="==" signature="==(other">
+              <variable attributes="__local__" citdl="Name" line="975" name="self" />
+            </scope>
+            <scope ilk="function" line="980" lineend="982" name="hash" signature="hash">
+              <variable attributes="__local__" citdl="Name" line="980" name="self" />
+            </scope>
+            <scope ilk="function" line="984" lineend="986" name="to_a" signature="to_a">
+              <variable attributes="__local__" citdl="Name" line="984" name="self" />
+            </scope>
+            <scope ilk="function" line="988" lineend="990" name="length" signature="length">
+              <variable attributes="__local__" citdl="Name" line="988" name="self" />
+            </scope>
+            <scope ilk="function" line="992" lineend="994" name="[]" signature="[](i">
+              <variable attributes="__local__" citdl="Name" line="992" name="self" />
+            </scope>
+            <scope ilk="function" line="996" lineend="998" name="to_s" signature="to_s">
+              <variable attributes="__local__" citdl="Name" line="996" name="self" />
+            </scope>
+          </scope>
+          <scope classrefs="Object" ilk="class" line="1001" lineend="1305" name="Message">
+            <variable attributes="__local__" line="1002" name="@@identifier" />
+            <variable attributes="__instancevar__ __local__" citdl="id" line="1005" name="@id" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1006" name="@qr" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1007" name="@opcode" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1008" name="@aa" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1009" name="@tc" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1010" name="@rd" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1011" name="@ra" />
+            <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1012" name="@rcode" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="1013" name="@question" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="1014" name="@answer" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="1015" name="@authority" />
+            <variable attributes="__instancevar__ __local__" citdl="Array" line="1016" name="@additional" />
+            <scope attributes="__ctor__" ilk="function" line="1004" lineend="1017" name="initialize" signature="initialize(id = (@@identifier += 1) &amp; 0xffff)">
+              <variable ilk="argument" name="id" />
+              <variable attributes="__local__" citdl="Message" line="1004" name="self" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="id" />
+            <scope ilk="function" line="1019" lineend="1019" name="id=">
+              <variable ilk="argument" name="id" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="qr" />
+            <scope ilk="function" line="1019" lineend="1019" name="qr=">
+              <variable ilk="argument" name="qr" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="opcode" />
+            <scope ilk="function" line="1019" lineend="1019" name="opcode=">
+              <variable ilk="argument" name="opcode" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="aa" />
+            <scope ilk="function" line="1019" lineend="1019" name="aa=">
+              <variable ilk="argument" name="aa" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="tc" />
+            <scope ilk="function" line="1019" lineend="1019" name="tc=">
+              <variable ilk="argument" name="tc" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="rd" />
+            <scope ilk="function" line="1019" lineend="1019" name="rd=">
+              <variable ilk="argument" name="rd" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="ra" />
+            <scope ilk="function" line="1019" lineend="1019" name="ra=">
+              <variable ilk="argument" name="ra" />
+            </scope>
+            <scope ilk="function" line="1019" lineend="1019" name="rcode" />
+            <scope ilk="function" line="1019" lineend="1019" name="rcode=">
+              <variable ilk="argument" name="rcode" />
+            </scope>
+            <scope ilk="function" line="1020" lineend="1020" name="question" />
+            <scope ilk="function" line="1020" lineend="1020" name="answer" />
+            <scope ilk="function" line="1020" lineend="1020" name="authority" />
+            <scope ilk="function" line="1020" lineend="1020" name="additional" />
+            <scope ilk="function" line="1022" lineend="1035" name="==" signature="==(other">
+              <variable attributes="__local__" citdl="Message" line="1022" name="self" />
+            </scope>
+            <scope ilk="function" line="1037" lineend="1039" name="add_question" signature="add_question(name, typeclass)">
+              <variable ilk="argument" name="name" />
+              <variable ilk="argument" name="typeclass" />
+              <variable attributes="__local__" citdl="Message" line="1037" name="self" />
+            </scope>
+            <scope ilk="function" line="1041" lineend="1045" name="each_question" signature="each_question">
+              <variable attributes="__local__" citdl="Message" line="1041" name="self" />
+            </scope>
+            <scope ilk="function" line="1047" lineend="1049" name="add_answer" signature="add_answer(name, ttl, data)">
+              <variable ilk="argument" name="name" />
+              <variable ilk="argument" name="ttl" />
+              <variable ilk="argument" name="data" />
+              <variable attributes="__local__" citdl="Message" line="1047" name="self" />
+            </scope>
+            <scope ilk="function" line="1051" lineend="1055" name="each_answer" signature="each_answer">
+              <variable attributes="__local__" citdl="Message" line="1051" name="self" />
+            </scope>
+            <scope ilk="function" line="1057" lineend="1059" name="add_authority" signature="add_authority(name, ttl, data)">
+              <variable ilk="argument" name="name" />
+              <variable ilk="argument" name="ttl" />
+              <variable ilk="argument" name="data" />
+              <variable attributes="__local__" citdl="Message" line="1057" name="self" />
+            </scope>
+            <scope ilk="function" line="1061" lineend="1065" name="each_authority" signature="each_authority">
+              <variable attributes="__local__" citdl="Message" line="1061" name="self" />
+            </scope>
+            <scope ilk="function" line="1067" lineend="1069" name="add_additional" signature="add_additional(name, ttl, data)">
+              <variable ilk="argument" name="name" />
+              <variable ilk="argument" name="ttl" />
+              <variable ilk="argument" name="data" />
+              <variable attributes="__local__" citdl="Message" line="1067" name="self" />
+            </scope>
+            <scope ilk="function" line="1071" lineend="1075" name="each_additional" signature="each_additional">
+              <variable attributes="__local__" citdl="Message" line="1071" name="self" />
+            </scope>
+            <scope ilk="function" line="1077" lineend="1081" name="each_resource" signature="each_resource">
+              <variable attributes="__local__" citdl="Message" line="1077" name="self" />
+            </scope>
+            <scope ilk="function" line="1083" lineend="1112" name="encode" signature="encode">
+              <variable attributes="__local__" citdl="Message" line="1083" name="self" />
+            </scope>
+            <scope classrefs="Object" ilk="class" line="1114" lineend="1168" name="MessageEncoder">
+              <variable attributes="__instancevar__ __local__" citdl="String" line="1116" name="@data" />
+              <variable attributes="__instancevar__ __local__" citdl="Hash" line="1117" name="@names" />
+              <scope attributes="__ctor__" ilk="function" line="1115" lineend="1119" name="initialize" signature="initialize">
+                <variable attributes="__local__" citdl="MessageEncoder" line="1115" name="self" />
+              </scope>
+              <scope ilk="function" line="1121" lineend="1123" name="to_s" signature="to_s">
+                <variable attributes="__local__" citdl="MessageEncoder" line="1121" name="self" />
+              </scope>
+              <scope ilk="function" line="1125" lineend="1127" name="put_bytes" signature="put_bytes(d)">
+                <variable ilk="argument" name="d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1125" name="self" />
+              </scope>
+              <scope ilk="function" line="1129" lineend="1131" name="put_pack" signature="put_pack(template, *d)">
+                <variable ilk="argument" name="template" />
+                <variable ilk="argument" name="*d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1129" name="self" />
+              </scope>
+              <scope ilk="function" line="1133" lineend="1140" name="put_length16" signature="put_length16">
+                <variable attributes="__local__" citdl="MessageEncoder" line="1133" name="self" />
+                <variable attributes="__local__" line="1134" name="length_index" />
+                <variable attributes="__local__" line="1136" name="data_start" />
+                <variable attributes="__local__" line="1138" name="data_end" />
+              </scope>
+              <scope ilk="function" line="1142" lineend="1145" name="put_string" signature="put_string(d)">
+                <variable ilk="argument" name="d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1142" name="self" />
+              </scope>
+              <scope ilk="function" line="1147" lineend="1149" name="put_name" signature="put_name(d)">
+                <variable ilk="argument" name="d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1147" name="self" />
+              </scope>
+              <scope ilk="function" line="1151" lineend="1163" name="put_labels" signature="put_labels(d)">
+                <variable ilk="argument" name="d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1151" name="self" />
+                <variable attributes="__local__" line="1153" name="domain" />
+              </scope>
+              <scope ilk="function" line="1165" lineend="1167" name="put_label" signature="put_label(d)">
+                <variable ilk="argument" name="d" />
+                <variable attributes="__local__" citdl="MessageEncoder" line="1165" name="self" />
+              </scope>
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="1170" lineend="1201" name="decode" signature="Message.decode(m)">
+              <variable ilk="argument" name="m" />
+              <variable attributes="__local__" citdl="Message" line="1171" name="o" />
+            </scope>
+            <scope classrefs="Object" ilk="class" line="1203" lineend="1304" name="MessageDecoder">
+              <variable attributes="__instancevar__ __local__" citdl="data" line="1205" name="@data" />
+              <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="1206" name="@index" />
+              <variable attributes="__instancevar__ __local__" citdl="save_limit" line="1207" name="@limit" />
+              <scope attributes="__ctor__" ilk="function" line="1204" lineend="1209" name="initialize" signature="initialize(data)">
+                <variable ilk="argument" name="data" />
+                <variable attributes="__local__" citdl="MessageDecoder" line="1204" name="self" />
+              </scope>
+              <scope ilk="function" line="1211" lineend="1223" name="get_length16" signature="get_length16">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1211" name="self" />
+                <variable attributes="__local__" line="1213" name="save_limit" />
+                <variable attributes="__local__" line="1215" name="d" />
+              </scope>
+              <scope ilk="function" line="1225" lineend="1229" name="get_bytes" signature="get_bytes(len = @limit - @index)">
+                <variable ilk="argument" name="len" />
+                <variable attributes="__local__" citdl="MessageDecoder" line="1225" name="self" />
+                <variable attributes="__local__" line="1226" name="d" />
+              </scope>
+              <scope ilk="function" line="1231" lineend="1249" name="get_unpack" signature="get_unpack(template)">
+                <variable ilk="argument" name="template" />
+                <variable attributes="__local__" citdl="MessageDecoder" line="1231" name="self" />
+                <variable attributes="__local__" citdl="Fixnum" line="1232" name="len" />
+                <variable attributes="__local__" line="1246" name="arr" />
+              </scope>
+              <scope ilk="function" line="1251" lineend="1257" name="get_string" signature="get_string">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1251" name="self" />
+                <variable attributes="__local__" line="1252" name="len" />
+                <variable attributes="__local__" line="1254" name="d" />
+              </scope>
+              <scope ilk="function" line="1259" lineend="1261" name="get_name" signature="get_name">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1259" name="self" />
+              </scope>
+              <scope ilk="function" line="1263" lineend="1286" name="get_labels" signature="get_labels(limit=nil)">
+                <variable ilk="argument" name="limit" />
+                <variable attributes="__local__" citdl="MessageDecoder" line="1263" name="self" />
+                <variable attributes="__local__" line="1264" name="limit" />
+                <variable attributes="__local__" citdl="Array" line="1265" name="d" />
+                <variable attributes="__local__" line="1272" name="idx" />
+                <variable attributes="__local__" line="1276" name="save_index" />
+              </scope>
+              <scope ilk="function" line="1288" lineend="1290" name="get_label" signature="get_label">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1288" name="self" />
+              </scope>
+              <scope ilk="function" line="1292" lineend="1296" name="get_question" signature="get_question">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1292" name="self" />
+                <variable attributes="__local__" line="1293" name="name" />
+              </scope>
+              <scope ilk="function" line="1298" lineend="1303" name="get_rr" signature="get_rr">
+                <variable attributes="__local__" citdl="MessageDecoder" line="1298" name="self" />
+                <variable attributes="__local__" line="1299" name="name" />
+                <variable attributes="__local__" line="1301" name="typeclass" />
+              </scope>
+            </scope>
+          </scope>
+          <scope classrefs="Object" ilk="class" line="1307" lineend="1315" name="Query">
+            <scope ilk="function" line="1308" lineend="1310" name="encode_rdata" signature="encode_rdata(msg)">
+              <variable ilk="argument" name="msg" />
+              <variable attributes="__local__" citdl="Query" line="1308" name="self" />
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="1312" lineend="1314" name="decode_rdata" signature="self.decode_rdata(msg)">
+              <variable ilk="argument" name="msg" />
+            </scope>
+          </scope>
+          <scope classrefs="Query" ilk="class" line="1317" lineend="1594" name="Resource">
+            <variable citdl="Hash" line="1318" name="ClassHash" />
+            <variable line="1392" name="ClassValue" />
+            <variable citdl="Array" line="1520" name="ClassInsensitiveTypes" />
+            <scope ilk="function" line="1320" lineend="1322" name="encode_rdata" signature="encode_rdata(msg)">
+              <variable ilk="argument" name="msg" />
+              <variable attributes="__local__" citdl="Resource" line="1320" name="self" />
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="1324" lineend="1326" name="decode_rdata" signature="self.decode_rdata(msg)">
+              <variable ilk="argument" name="msg" />
+            </scope>
+            <scope ilk="function" line="1328" lineend="1333" name="==" signature="==(other">
+              <variable attributes="__local__" citdl="Resource" line="1328" name="self" />
+            </scope>
+            <scope ilk="function" line="1335" lineend="1337" name="eql?" signature="eql?(other)">
+              <variable ilk="argument" name="other" />
+              <variable attributes="__local__" citdl="Resource" line="1335" name="self" />
+            </scope>
+            <scope ilk="function" line="1339" lineend="1345" name="hash" signature="hash">
+              <variable attributes="__local__" citdl="Resource" line="1339" name="self" />
+              <variable attributes="__local__" citdl="Fixnum" line="1340" name="h" />
+            </scope>
+            <scope attributes="__classmethod__" ilk="function" line="1347" lineend="1350" name="get_class" signature="self.get_class(type_value, class_value)">
+              <variable ilk="argument" name="type_value" />
+              <variable ilk="argument" name="class_value" />
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1352" lineend="1374" name="Generic">
+              <variable attributes="__instancevar__ __local__" citdl="data" line="1354" name="@data" />
+              <scope attributes="__ctor__" ilk="function" line="1353" lineend="1355" name="initialize" signature="initialize(data)">
+                <variable ilk="argument" name="data" />
+                <variable attributes="__local__" citdl="Generic" line="1353" name="self" />
+              </scope>
+              <scope ilk="function" line="1356" lineend="1356" name="data" />
+              <scope ilk="function" line="1358" lineend="1360" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="Generic" line="1358" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1362" lineend="1364" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1366" lineend="1373" name="create" signature="self.create(type_value, class_value)">
+                <variable ilk="argument" name="type_value" />
+                <variable ilk="argument" name="class_value" />
+                <variable attributes="__local__" citdl="Class" line="1367" name="c" />
+              </scope>
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1376" lineend="1389" name="DomainName">
+              <variable attributes="__instancevar__ __local__" citdl="name" line="1378" name="@name" />
+              <scope attributes="__ctor__" ilk="function" line="1377" lineend="1379" name="initialize" signature="initialize(name)">
+                <variable ilk="argument" name="name" />
+                <variable attributes="__local__" citdl="DomainName" line="1377" name="self" />
+              </scope>
+              <scope ilk="function" line="1380" lineend="1380" name="name" />
+              <scope ilk="function" line="1382" lineend="1384" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="DomainName" line="1382" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1386" lineend="1388" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+              </scope>
+            </scope>
+            <scope classrefs="DomainName" doc="Standard (class generic) RRs" ilk="class" line="1394" lineend="1396" name="NS">
+              <variable citdl="Fixnum" line="1395" name="TypeValue" />
+            </scope>
+            <scope classrefs="DomainName" ilk="class" line="1398" lineend="1400" name="CNAME">
+              <variable citdl="Fixnum" line="1399" name="TypeValue" />
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1402" lineend="1429" name="SOA">
+              <variable citdl="Fixnum" line="1403" name="TypeValue" />
+              <variable attributes="__instancevar__ __local__" citdl="mname" line="1406" name="@mname" />
+              <variable attributes="__instancevar__ __local__" citdl="rname" line="1407" name="@rname" />
+              <variable attributes="__instancevar__ __local__" citdl="serial" line="1408" name="@serial" />
+              <variable attributes="__instancevar__ __local__" citdl="refresh" line="1409" name="@refresh" />
+              <variable attributes="__instancevar__ __local__" citdl="retry_" line="1410" name="@retry" />
+              <variable attributes="__instancevar__ __local__" citdl="expire" line="1411" name="@expire" />
+              <variable attributes="__instancevar__ __local__" citdl="minimum" line="1412" name="@minimum" />
+              <scope attributes="__ctor__" ilk="function" line="1405" lineend="1413" name="initialize" signature="initialize(mname, rname, serial, refresh, retry_, expire, minimum)">
+                <variable ilk="argument" name="mname" />
+                <variable ilk="argument" name="rname" />
+                <variable ilk="argument" name="serial" />
+                <variable ilk="argument" name="refresh" />
+                <variable ilk="argument" name="retry_" />
+                <variable ilk="argument" name="expire" />
+                <variable ilk="argument" name="minimum" />
+                <variable attributes="__local__" citdl="SOA" line="1405" name="self" />
+              </scope>
+              <scope ilk="function" line="1414" lineend="1414" name="mname" />
+              <scope ilk="function" line="1414" lineend="1414" name="rname" />
+              <scope ilk="function" line="1414" lineend="1414" name="serial" />
+              <scope ilk="function" line="1414" lineend="1414" name="refresh" />
+              <scope ilk="function" line="1414" lineend="1414" name="retry" />
+              <scope ilk="function" line="1414" lineend="1414" name="expire" />
+              <scope ilk="function" line="1414" lineend="1414" name="minimum" />
+              <scope ilk="function" line="1416" lineend="1420" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="SOA" line="1416" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1422" lineend="1428" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" line="1423" name="mname" />
+                <variable attributes="__local__" line="1424" name="rname" />
+              </scope>
+            </scope>
+            <scope classrefs="DomainName" ilk="class" line="1431" lineend="1433" name="PTR">
+              <variable citdl="Fixnum" line="1432" name="TypeValue" />
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1435" lineend="1454" name="HINFO">
+              <variable citdl="Fixnum" line="1436" name="TypeValue" />
+              <variable attributes="__instancevar__ __local__" citdl="cpu" line="1439" name="@cpu" />
+              <variable attributes="__instancevar__ __local__" citdl="os" line="1440" name="@os" />
+              <scope attributes="__ctor__" ilk="function" line="1438" lineend="1441" name="initialize" signature="initialize(cpu, os)">
+                <variable ilk="argument" name="cpu" />
+                <variable ilk="argument" name="os" />
+                <variable attributes="__local__" citdl="HINFO" line="1438" name="self" />
+              </scope>
+              <scope ilk="function" line="1442" lineend="1442" name="cpu" />
+              <scope ilk="function" line="1442" lineend="1442" name="os" />
+              <scope ilk="function" line="1444" lineend="1447" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="HINFO" line="1444" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1449" lineend="1453" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" line="1450" name="cpu" />
+                <variable attributes="__local__" line="1451" name="os" />
+              </scope>
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1456" lineend="1475" name="MINFO">
+              <variable citdl="Fixnum" line="1457" name="TypeValue" />
+              <variable attributes="__instancevar__ __local__" citdl="rmailbx" line="1460" name="@rmailbx" />
+              <variable attributes="__instancevar__ __local__" citdl="emailbx" line="1461" name="@emailbx" />
+              <scope attributes="__ctor__" ilk="function" line="1459" lineend="1462" name="initialize" signature="initialize(rmailbx, emailbx)">
+                <variable ilk="argument" name="rmailbx" />
+                <variable ilk="argument" name="emailbx" />
+                <variable attributes="__local__" citdl="MINFO" line="1459" name="self" />
+              </scope>
+              <scope ilk="function" line="1463" lineend="1463" name="rmailbx" />
+              <scope ilk="function" line="1463" lineend="1463" name="emailbx" />
+              <scope ilk="function" line="1465" lineend="1468" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="MINFO" line="1465" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1470" lineend="1474" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" line="1471" name="rmailbx" />
+                <variable attributes="__local__" line="1472" name="emailbx" />
+              </scope>
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1477" lineend="1496" name="MX">
+              <variable citdl="Fixnum" line="1478" name="TypeValue" />
+              <variable attributes="__instancevar__ __local__" citdl="preference" line="1481" name="@preference" />
+              <variable attributes="__instancevar__ __local__" citdl="exchange" line="1482" name="@exchange" />
+              <scope attributes="__ctor__" ilk="function" line="1480" lineend="1483" name="initialize" signature="initialize(preference, exchange)">
+                <variable ilk="argument" name="preference" />
+                <variable ilk="argument" name="exchange" />
+                <variable attributes="__local__" citdl="MX" line="1480" name="self" />
+              </scope>
+              <scope ilk="function" line="1484" lineend="1484" name="preference" />
+              <scope ilk="function" line="1484" lineend="1484" name="exchange" />
+              <scope ilk="function" line="1486" lineend="1489" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="MX" line="1486" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1491" lineend="1495" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" line="1493" name="exchange" />
+              </scope>
+            </scope>
+            <scope classrefs="Resource" ilk="class" line="1498" lineend="1514" name="TXT">
+              <variable citdl="Fixnum" line="1499" name="TypeValue" />
+              <variable attributes="__instancevar__ __local__" citdl="data" line="1502" name="@data" />
+              <scope attributes="__ctor__" ilk="function" line="1501" lineend="1503" name="initialize" signature="initialize(data)">
+                <variable ilk="argument" name="data" />
+                <variable attributes="__local__" citdl="TXT" line="1501" name="self" />
+              </scope>
+              <scope ilk="function" line="1504" lineend="1504" name="data" />
+              <scope ilk="function" line="1506" lineend="1508" name="encode_rdata" signature="encode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" citdl="TXT" line="1506" name="self" />
+              </scope>
+              <scope attributes="__classmethod__" ilk="function" line="1510" lineend="1513" name="decode_rdata" signature="self.decode_rdata(msg)">
+                <variable ilk="argument" name="msg" />
+                <variable attributes="__local__" line="1511" name="data" />
+              </scope>
+            </scope>
+            <scope classrefs="Query" ilk="class" line="1516" lineend="1518" name="ANY">
+              <variable citdl="Fixnum" line="1517" name="TypeValue" />
+            </scope>
+            <scope doc="ARPA Internet specific RRs" ilk="namespace" line="1525" lineend="1593" name="IN">
+              <variable citdl="Fixnum" line="1526" name="ClassValue" />
+              <variable attributes="__local__" citdl="Class" line="1529" name="c" />
+              <scope classrefs="Resource" ilk="class" line="1536" lineend="1551" name="A">
+                <variable attributes="__instancevar__ __local__" line="1540" name="@address" />
+                <scope attributes="__ctor__" ilk="function" line="1539" lineend="1541" name="initialize" signature="initialize(address)">
+                  <variable ilk="argument" name="address" />
+                  <variable attributes="__local__" citdl="A" line="1539" name="self" />
+                </scope>
+                <scope ilk="function" line="1542" lineend="1542" name="address" />
+                <scope ilk="function" line="1544" lineend="1546" name="encode_rdata" signature="encode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                  <variable attributes="__local__" citdl="A" line="1544" name="self" />
+                </scope>
+                <scope attributes="__classmethod__" ilk="function" line="1548" lineend="1550" name="decode_rdata" signature="self.decode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                </scope>
+              </scope>
+              <scope classrefs="Resource" ilk="class" line="1553" lineend="1575" name="WKS">
+                <variable attributes="__instancevar__ __local__" line="1557" name="@address" />
+                <variable attributes="__instancevar__ __local__" citdl="protocol" line="1558" name="@protocol" />
+                <variable attributes="__instancevar__ __local__" citdl="bitmap" line="1559" name="@bitmap" />
+                <scope attributes="__ctor__" ilk="function" line="1556" lineend="1560" name="initialize" signature="initialize(address, protocol, bitmap)">
+                  <variable ilk="argument" name="address" />
+                  <variable ilk="argument" name="protocol" />
+                  <variable ilk="argument" name="bitmap" />
+                  <variable attributes="__local__" citdl="WKS" line="1556" name="self" />
+                </scope>
+                <scope ilk="function" line="1561" lineend="1561" name="address" />
+                <scope ilk="function" line="1561" lineend="1561" name="protocol" />
+                <scope ilk="function" line="1561" lineend="1561" name="bitmap" />
+                <scope ilk="function" line="1563" lineend="1567" name="encode_rdata" signature="encode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                  <variable attributes="__local__" citdl="WKS" line="1563" name="self" />
+                </scope>
+                <scope attributes="__classmethod__" ilk="function" line="1569" lineend="1574" name="decode_rdata" signature="self.decode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                  <variable attributes="__local__" citdl="IPv4" line="1570" name="address" />
+                  <variable attributes="__local__" line="1572" name="bitmap" />
+                </scope>
+              </scope>
+              <scope classrefs="Resource" ilk="class" line="1577" lineend="1592" name="AAAA">
+                <variable attributes="__instancevar__ __local__" line="1581" name="@address" />
+                <scope attributes="__ctor__" ilk="function" line="1580" lineend="1582" name="initialize" signature="initialize(address)">
+                  <variable ilk="argument" name="address" />
+                  <variable attributes="__local__" citdl="AAAA" line="1580" name="self" />
+                </scope>
+                <scope ilk="function" line="1583" lineend="1583" name="address" />
+                <scope ilk="function" line="1585" lineend="1587" name="encode_rdata" signature="encode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                  <variable attributes="__local__" citdl="AAAA" line="1585" name="self" />
+                </scope>
+                <scope attributes="__classmethod__" ilk="function" line="1589" lineend="1591" name="decode_rdata" signature="self.decode_rdata(msg)">
+                  <variable ilk="argument" name="msg" />
+                </scope>
+              </scope>
+            </scope>
+          </scope>
+        </scope>
+        <scope classrefs="Object" ilk="class" line="1597" lineend="1650" name="IPv4">
+          <variable line="1598" name="Regex" />
+          <variable attributes="__instancevar__ __local__" citdl="address" line="1622" name="@address" />
+          <scope attributes="__classmethod__" ilk="function" line="1600" lineend="1616" name="create" signature="self.create(arg)">
+            <variable ilk="argument" name="arg" />
+          </scope>
+          <scope attributes="__ctor__" ilk="function" line="1618" lineend="1623" name="initialize" signature="initialize(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="IPv4" line="1618" name="self" />
+          </scope>
+          <scope ilk="function" line="1624" lineend="1624" name="address" />
+          <scope ilk="function" line="1626" lineend="1628" name="to_s" signature="to_s">
+            <variable attributes="__local__" citdl="IPv4" line="1626" name="self" />
+          </scope>
+          <scope ilk="function" line="1630" lineend="1632" name="inspect" signature="inspect">
+            <variable attributes="__local__" citdl="IPv4" line="1630" name="self" />
+          </scope>
+          <scope ilk="function" line="1634" lineend="1637" name="to_name" signature="to_name">
+            <variable attributes="__local__" citdl="IPv4" line="1634" name="self" />
+          </scope>
+          <scope ilk="function" line="1639" lineend="1641" name="==" signature="==(other">
+            <variable attributes="__local__" citdl="IPv4" line="1639" name="self" />
+          </scope>
+          <scope ilk="function" line="1643" lineend="1645" name="eql?" signature="eql?(other)">
+            <variable ilk="argument" name="other" />
+            <variable attributes="__local__" citdl="IPv4" line="1643" name="self" />
+          </scope>
+          <scope ilk="function" line="1647" lineend="1649" name="hash" signature="hash">
+            <variable attributes="__local__" citdl="IPv4" line="1647" name="self" />
+          </scope>
+        </scope>
+        <scope classrefs="Object" ilk="class" line="1652" lineend="1763" name="IPv6">
+          <variable line="1653" name="Regex_8Hex" />
+          <variable line="1658" name="Regex_CompressedHex" />
+          <variable line="1663" name="Regex_6Hex4Dec" />
+          <variable line="1668" name="Regex_CompressedHex4Dec" />
+          <variable line="1674" name="Regex" />
+          <variable attributes="__instancevar__ __local__" citdl="address" line="1730" name="@address" />
+          <scope attributes="__classmethod__" ilk="function" line="1680" lineend="1724" name="create" signature="self.create(arg)">
+            <variable ilk="argument" name="arg" />
+            <variable attributes="__local__" citdl="String" line="1685" name="address" />
+            <variable attributes="__local__" line="1689" name="prefix" />
+            <variable attributes="__local__" line="1690" name="suffix" />
+            <variable attributes="__local__" citdl="String" line="1691" name="a1" />
+            <variable attributes="__local__" citdl="String" line="1692" name="a2" />
+            <variable attributes="__local__" line="1695" name="omitlen" />
+          </scope>
+          <scope attributes="__ctor__" ilk="function" line="1726" lineend="1731" name="initialize" signature="initialize(address)">
+            <variable ilk="argument" name="address" />
+            <variable attributes="__local__" citdl="IPv6" line="1726" name="self" />
+          </scope>
+          <scope ilk="function" line="1732" lineend="1732" name="address" />
+          <scope ilk="function" line="1734" lineend="1740" name="to_s" signature="to_s">
+            <variable attributes="__local__" citdl="IPv6" line="1734" name="self" />
+            <variable attributes="__local__" line="1735" name="address" />
+          </scope>
+          <scope ilk="function" line="1742" lineend="1744" name="inspect" signature="inspect">
+            <variable attributes="__local__" citdl="IPv6" line="1742" name="self" />
+          </scope>
+          <scope ilk="function" line="1746" lineend="1750" name="to_name" signature="to_name">
+            <variable attributes="__local__" citdl="IPv6" line="1746" name="self" />
+          </scope>
+          <scope ilk="function" line="1752" lineend="1754" name="==" signature="==(other">
+            <variable attributes="__local__" citdl="IPv6" line="1752" name="self" />
+          </scope>
+          <scope ilk="function" line="1756" lineend="1758" name="eql?" signature="eql?(other)">
+            <variable ilk="argument" name="other" />
+            <variable attributes="__local__" citdl="IPv6" line="1756" name="self" />
+          </scope>
+          <scope ilk="function" line="1760" lineend="1762" name="hash" signature="hash">
+            <variable attributes="__local__" citdl="IPv6" line="1760" name="self" />
+          </scope>
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

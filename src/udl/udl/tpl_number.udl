@@ -1,0 +1,24 @@
+# Generic number processing for templates
+
+state IN_TPL_NUMBER_1 :
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+'.' : => IN_TPL_NUMBER_2
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_TPL_NUMBER_3
+/./ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_NUMBER_2:
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_TPL_NUMBER_3
+/./ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_NUMBER_2b:
+/$/ : paint(upto, TPL_OPERATOR), => IN_TPL_DEFAULT
+/[\d]+/ : #stay
+/[Ee][-+]?/ : => IN_TPL_NUMBER_3
+/./ : paint(upto, TPL_OPERATOR), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_NUMBER_3:
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+/[^\d]/ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT

@@ -1,0 +1,200 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIEnumerator.idl"
+#include "nsIObserverService.idl"
+#include "nsIObserver.idl"
+
+interface koIFile;
+
+// A component which provides a unit test.
+[scriptable, uuid(899516f6-06a4-4ffa-b75e-7616f43030a3)]
+interface koITestable : nsISupports {
+  void testComponent();
+};
+
+// A serializable object. Writes itself to the specified file 
+// -- usually as a stream of XML elements.
+// Note: This interface should be split out into a separate IDL file
+// and stored in a more "global" location.
+[scriptable, uuid(1912A0AE-D9A4-4f55-A4E0-A80DAD21396D)]
+interface koISerializable : nsISupports {
+  void serialize(in koIFile file, in wstring basedir);
+  void serializeToFile(in wstring filename);
+};
+
+[scriptable, uuid(7d310389-0f33-45c0-8765-c6dab8fcbdd3)]
+interface koISerializableFast : koISerializable {
+  void serializeToFileFast(in wstring filename);
+};
+
+// A preference.
+// Every preference has an id.
+[scriptable, uuid(73CAF531-9512-4627-9685-262E41FAA545)]
+interface koIPreference : koISerializable {
+  attribute string id;
+  attribute string type;
+
+  // clone a copy of this preference set and all child preferences.
+  koIPreference clone();
+  // update from another preference set object - presumably a modified clone!
+  void update(in koIPreference source);
+
+  // For debugging.
+  void dump(in long indent);
+};
+
+[scriptable, uuid(5789255d-5d6f-471e-ac03-a4c5f2c7880a)]
+interface koIPreferenceSetObjectFactory : nsISupports {
+  koIPreference deserializeFile(in wstring filename);
+};
+
+[scriptable, uuid(f89ad940-3168-4240-bb5f-b944fba8ca51)]
+interface koIPreferenceSimpleValue : koIPreference {
+  // Get the best "nsISupportsPrimitives" interface for this value.
+  // A QI on this object for this IID is (almost ;-) guaranteed to succeed.
+  readonly attribute nsIIDRef primitiveIID;
+};
+
+// Allows preference change notifications to be notified.  Re-use the
+// nsIObserver interface for the notification.
+[scriptable, uuid(0720887f-ebd3-45d8-a236-7a6c3585dfa0)]
+interface koIPreferenceObserver: nsISupports {
+    // prefset id is the topic, pref name is the data
+    readonly attribute nsIObserverService observerService;
+    
+    // because traditionaly the preference observing was done on
+    // prefset id's, we need a seperate observer service if we
+    // want to observe on a preference name instead.  For these,
+    // the prefset id is sent as the data, and prefname as the topic
+    readonly attribute nsIObserverService prefObserverService;
+    
+    void addObserver( in nsIObserver anObserver);
+    void removeObserver( in nsIObserver anObserver);
+};
+
+// A set of preferences -- a dictionary-like object with
+// strings as keys and preferences as values having a one-to-one
+// relationship between keys and values.
+[scriptable, uuid(18A3E62A-E947-4001-A6C0-8AB26DA954CD)]
+interface koIPreferenceSet : koIPreference {
+  // A reference to the parent of this preference set,
+  // or null if this preference set has no parent set.
+  attribute koIPreferenceSet parent;
+
+  // Returns the ids of all prefs stored in the preference set.
+  void getPrefIds([array, size_is(count)] out string ids,
+                out unsigned long count);
+
+  // Returns the ids of all prefs stored in the preference set,
+  // *including* those in the parent (recursive)
+  void getAllPrefIds([array, size_is(count)] out string ids,
+                out unsigned long count);
+  
+  // Set a preference in the preference set. If the preference does not
+  // currently exist then a new one with the given name is created. If
+  // the preference is of a simple type then one of the set*Pref() methods
+  // can be used. More complex preferences contain arbitrary objects and
+  // provide serialize and deserialize methods for persisting themselves.
+  // They must use setPref().
+  
+  // If any of these fail, use the lastErrorSvc to find out why
+  void setPref(in string prefName, in koIPreference pref);
+  void setStringPref(in string prefName, in wstring pref);
+  void setLongPref(in string prefName, in long pref);
+  void setDoublePref(in string prefName, in double pref);
+  void setBooleanPref(in string prefName, in boolean pref);
+  
+  // Retrieve a particular preference from the preference set.
+  // It is an error to "get" a preference which does not exist or is of the
+  // wrong type. Use "has*Pref" to ensure the pref exists.
+  koIPreference getPref(in string prefName);
+  wstring getPrefType(in string prefName);
+  wstring getStringPref(in string prefName);
+  long getLongPref(in string prefName);
+  double getDoublePref(in string prefName);
+  boolean getBooleanPref(in string prefName);
+    
+  // Return true iff a preference with the specified name and type exists
+  // in the preference set.
+  boolean hasPref(in string prefName);
+  boolean hasStringPref(in string prefName);
+  boolean hasLongPref(in string prefName);
+  boolean hasDoublePref(in string prefName);
+  boolean hasBooleanPref(in string prefName);
+
+  // Return true iff a preference with the specified name and type exists
+  // in the preference set.
+  boolean hasPrefHere(in string prefName);
+
+  // Remove a preference from the preference set.
+  void deletePref(in string prefName);
+  // Reset to an empty preference set.
+  void reset();
+
+  attribute boolean chainNotifications;
+  
+  // validation related calls
+  // 'validation' must be a python expression that refers to 'value'
+  // and returns a true value if the value is corect.
+  // e.g. "value > 3" or "positive(3)", where positive() is 
+  // defined in koPrefs.py
+  void setValidation(in wstring prefName, in wstring validation);
+  // These return true if the proposed value is valid for the 
+  // specified preference.  No preference change occurs.
+  boolean validateLong(in wstring prefName, in long value);
+  boolean validateString(in wstring prefName, in wstring value);
+};
+
+[scriptable, uuid(022e7c64-5097-4aa7-9270-a27bfc858937)]
+interface koIUIPreferenceSet : koIPreference {
+    koIPreference getPref( in string prefType );
+    void setPref(in string prefType, in koIPreference pref);
+    // XXX enumPrefs unused, commented to prevent usage
+    // if needed, reimplement to not use enumerator!
+    //nsISimpleEnumerator enumPrefs(in string prefType);
+};
+
+/* A preference set cache - a collection of preference sets that can
+   be indexed by a unique ID, and automatically maintains a maximum
+   size.
+
+*/
+[scriptable, uuid(68d73b86-c1f2-48fe-8b14-02f5a296863c)]
+interface koIPreferenceCache : koIPreference {
+    void setPref(in koIPreference pref);
+    koIPreferenceSet getPref(in wstring id);
+    boolean hasPref(in wstring id);
+    attribute PRUint32 length;
+    attribute PRUint32 max_length; // defaults to 0, meaning no max size.
+    nsISimpleEnumerator enumPreferences();
+};
+
+// A service to manage top-level, well-known preference sets.
+// There is one implicit "global" prefset that can be accessed via
+// the "prefs" attribute, or as a named prefset called "global".
+// We should have some decent way of "registering" well known
+// preference sets, but have punted for now.  See
+// |koGlobalPreferenceDefinition| in koPrefs.py
+[scriptable, uuid(4a263fc0-f763-4e9b-a2f4-4588f6f6d9ad)]
+interface koIPrefService : nsISupports {
+  
+  // Get a well-known preference set.
+  koIPreference getPrefs(in wstring name);
+
+  // Get the global preference set.  Equivalent to |getPrefs("global")|
+  readonly attribute koIPreference prefs;
+  
+  // integrates project preferences in a way that is easy for most code points
+  // in Komodo to reach.  This will return the current project prefs if there
+  // is a current project, otherwise, returns the global prefs above.  The parent
+  // of project prefs is always global prefs.
+  readonly attribute koIPreference effectivePrefs;
+
+  // Save the global preference sets to disk - Equivilent to |savePrefs("global")|
+  void saveState();
+
+  // Save the named preference set to disk.
+  void savePrefsState(in wstring prefName);
+};

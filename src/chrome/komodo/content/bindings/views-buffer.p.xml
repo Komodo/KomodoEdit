@@ -1,0 +1,1133 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="popup-buffer"
+         extends="chrome://global/content/bindings/popup.xml#popup">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/bindings/toolbar.css"/>
+    </resources>
+    <content>
+        <xul:menuitem id="buffer-context-cut"
+                      label="&cut.label;"
+                      class="menuitem-iconic-wide cut-button"
+                      observes="cmd_cut"/>
+        <xul:menuitem id="buffer-context-copy"
+                      label="&copy.label;"
+                      class="menuitem-iconic-wide copy-button"
+                      observes="cmd_copy"/>
+        <xul:menuitem id="buffer-context-paste"
+                      label="&paste.label;"
+                      class="menuitem-iconic-wide paste-button"
+                      observes="cmd_paste"/>
+        <xul:menuitem id="buffer-context-editSelectAll"
+                      label="&selectAll.label;"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_selectAll"/>
+        <xul:menuseparator id="context-buffer-sep-paste"/>
+        <xul:menuitem label="&showHideIndentationGuides.label;"
+                      type="checkbox"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_viewIndentationGuides"/>
+        <xul:menuitem label="&showHideLineNumbers.label;"
+                      type="checkbox"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_viewLineNumbers"/>
+        <xul:menuitem label="&showHideEOLMarkers.label;"
+                      type="checkbox"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_viewEOL"/>
+        <xul:menuitem label="&showHideWhitespace.label;"
+                      type="checkbox"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_viewWhitespace"/>
+        <xul:menuitem label="&wordWrap.label;"
+                      type="checkbox"
+                      class="menuitem-iconic-wide"
+                      observes="cmd_wordWrap"/>
+        <children/>
+    </content>
+</binding>
+
+<binding id="view-buffer-base"
+    extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/bindings/scintilla.css"/>
+    </resources>
+    <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+        <property name="scintilla" onget="return document.getAnonymousNodes(this)[0];"/>
+
+        <field name="__docSvc">null</field>
+        <property name="docSvc">
+        <getter><![CDATA[
+            if (!this.__docSvc)
+                this.__docSvc = Components.classes['@activestate.com/koDocumentService;1']
+                    .getService(Components.interfaces.koIDocumentService);
+            return this.__docSvc;
+        ]]></getter>
+        </property>
+        <property name="scimoz"
+            onget="return this.scintilla.scimoz;"/>
+
+        <field name="_uiTimer">null</field>
+
+        <property name="dragHandler"
+            onget="return this.scintilla;"/>
+
+        <field name="_lastCharAdded">null</field>
+        <property name="lastCharAdded">
+            <getter><![CDATA[
+                // if fast code is used
+                if (this.scimoz.lastCharCodeAdded)
+                    return String.fromCharCode(this.scimoz.lastCharCodeAdded);
+                else
+                    return "";
+                // if SLOW CODE is used
+                return String.fromCharCode(this._lastCharAdded);
+            ]]></getter>
+            <setter><![CDATA[
+                // if fast code is used
+                this.scimoz.lastCharCodeAdded = val;
+                return;
+                // if SLOW CODE is used
+                this._lastCharAdded = val;
+            ]]></setter>
+        </property>
+
+
+        <!-- Properties related to CodeIntel functionality for this view. -->
+
+        <!-- Is CodeIntel-based completion enabled for this buffer?
+             To be true:
+             - the codeintel system must be active (gCodeIntelActive)
+             - this buffer lang must be a codeintel completion language,
+               gCodeIntelSvc.is_cpln_lang().
+             - XXX this buffer must have a document object
+            
+            This is set in various places that watch for relevant changes
+            (e.g. change in the buffer's language, changes in user prefs,
+            etc.) -->
+        <property name="isCICplnEnabled">
+            <getter><![CDATA[
+                return this._isCICplnEnabled;
+            ]]></getter>
+            <setter><![CDATA[
+                try {
+                    this.ciCompletionUIHandler = null;
+                    this.log.info("["+this.title+"].isCICplnEnabled = "+val);
+                    this._isCICplnEnabled = val;
+                    if (val) {
+                        this.ciCompletionUIHandler = new CodeIntelCompletionUIHandler(
+                            this.document.displayPath, this.scimoz,
+                            this.languageObj.name,
+                            this.document.ciBuf);
+                    }
+                } catch(ex) {
+                    this.log.exception(ex);
+                }
+            ]]></setter>
+        </property>
+        <field name="_isCICplnEnabled">null</field>
+
+        <!-- Is CodeIntel-based Citadel stuff enabled for this buffer?
+             "Citadel stuff" include the Code Browser, Object Browser and
+             the Current Scope statusbar area.
+             To be true:
+             - the codeintel system must be active (gCodeIntelActive)
+             - this buffer lang must be a codeintel citadel language,
+               gCodeIntelSvc.is_citadel_lang().
+            
+            This is set in various places that watch for relevant changes
+            (e.g. change in the buffer's language, changes in user prefs,
+            etc.) -->
+        <property name="isCICitadelStuffEnabled">
+            <getter><![CDATA[
+                return this._isCICitadelStuffEnabled;
+            ]]></getter>
+            <setter><![CDATA[
+                this.log.info("["+this.title+"].isCICitadelStuffEnabled = "+val);
+                this._isCICitadelStuffEnabled = val;
+            ]]></setter>
+        </property>            
+        <field name="_isCICitadelStuffEnabled">null</field>
+
+        <!-- Is CodeIntel-based XML stuff enabled for this buffer?
+             "XML stuff" includes XML parsing for XML completion and for the
+             DOM viewer.
+
+             To be true:
+             - the codeintel system must be active (gCodeIntelActive)
+             - this buffer lang must be a codeintel XML language,
+               gCodeIntelSvc.is_xml_lang().
+
+            This is set in various places that watch for relevant changes
+            (e.g. change in the buffer's language, changes in user prefs,
+            etc.) -->
+        <property name="isCIXMLStuffEnabled">
+            <getter><![CDATA[
+                return this._isCIXMLStuffEnabled;
+            ]]></getter>
+            <setter><![CDATA[
+                this.log.info("["+this.title+"].isCIXMLStuffEnabled = "+val);
+                this._isCIXMLStuffEnabled = val;
+            ]]></setter>
+        </property>            
+        <field name="_isCIXMLStuffEnabled">null</field>
+
+        <!-- Is CodeIntel-based re-scanning enabled for this buffer?
+             The 'codeintel_rescan_while_typing_enabled' pref for this
+             buffer. Note that this doesn't make sense unless
+             gCodeIntelSvc.is_citadel_lang() is true for this buffer.
+             XXX:FIXME bug http://bugs.activestate.com/show_bug.cgi?id=58058
+             XXX:PERF Cache this and use pref observer. -->
+        <field name="_isCIRescanningEnabled">true</field>
+        
+        <!-- Is CodeIntel-based implicit triggering enabled for this buffer?
+             The 'codeintel_completion_triggering_enabled' pref for this
+             buffer.
+             
+             XXX:PERF Cache this and use pref observer. -->
+        <property name="_isCITriggeringEnabled"
+                  onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');"/>
+
+        <property name="ciCompletionUIHandler">
+            <getter><![CDATA[
+                return this._ciCompletionUIHandler;
+            ]]></getter>
+            <setter><![CDATA[
+                if (this._ciCompletionUIHandler)
+                    this._ciCompletionUIHandler.finalize();
+                this._ciCompletionUIHandler = val;
+            ]]></setter>
+        </property>
+        <field name="_ciCompletionUIHandler">null</field>
+
+        <field name="_ciLastTrg">null</field>
+
+        <property name="_doAutoComplete"
+            onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
+        <property name="_doStartCallTip"
+            onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
+
+        <field name="_transientMarkRingSize">16</field>
+        <field name="_transientMarkRing">[]</field>
+
+        <property name="transientMark">
+            <getter>
+                <![CDATA[
+                try {
+                    if (this._transientMarkRing.length == 0) {
+                        return null;
+                    }
+                    // Return the last thing on the ring.
+                    var index = this._transientMarkRing.length-1;
+                    var dict = this._transientMarkRing[index];
+                    var handle = dict['handle'];
+                    var column = dict['column'];
+                    var context = dict['context'];
+                    var lineNo = this.scimoz.markerLineFromHandle(handle);
+                    var pos = ko.views.ScimozOffsetFromUCS2Offset(this.scimoz,
+                                 this.scimoz.positionFromLine(lineNo), column);
+                    // verify that the context is valid
+                    var newPos = ko.views.ScimozOffsetFromUCS2Offset(this.scimoz, pos, context.length);
+                    if (this.scimoz.getTextRange(pos, newPos) == context) {
+                        return pos;
+                    } else {
+                        // look for context on this line
+                        var lineStart = this.scimoz.positionFromLine(lineNo);
+                        var lineEnd = this.scimoz.getLineEndPosition(lineNo);
+                        var line = this.scimoz.getTextRange(lineStart, lineEnd);
+                        var column = line.indexOf(context);
+                        if (column != -1) { // found it
+                            this._transientMarkRing[index]['column'] = column;
+                            return lineStart + column;
+                        } else if (lineNo < this.scimoz.lineCount) { // look at next line
+                            lineStart = this.scimoz.positionFromLine(lineNo+1);
+                            lineEnd = this.scimoz.getLineEndPosition(lineNo+1);
+                            line = this.scimoz.getTextRange(lineStart, lineEnd);
+                            column = line.indexOf(context);
+                            if (column != -1) { // found it
+                                this._transientMarkRing[index]['column'] = column;
+                                this.scimoz.markerDeleteHandle(handle);
+                                handle = this.scimoz.markerAdd(lineNo, ko.markers.MARKNUM_TRANSIENTMARK);
+                                this._transientMarkRing[index]['handle'] = handle;
+                                return lineStart + column;
+                            }
+                        }
+                        this._transientMarkRing.pop();
+                        ko.statusBar.AddMessage("Mark not found - deleted",
+                                             "mark", 3000, true);
+                        return -1;
+                    }
+                    return pos;
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                return -1;
+                ]]>
+            </getter>
+            <setter>
+                <![CDATA[
+                try {
+                    if (this._transientMarkRing.length >= this._transientMarkRingSize) { // emacs default size
+                        this._transientMarkRing.shift();
+                    }
+                    // We are given a position, but what we need to store
+                    // is a scintilla mark _handle_ and a column offset.
+                    var lineNo = this.scimoz.lineFromPosition(val);
+                    var handle = this.scimoz.markerAdd(lineNo, ko.markers.MARKNUM_TRANSIENTMARK);
+                    var column = this.scimoz.getColumn(val);
+                    var lineEnd = this.scimoz.getLineEndPosition(lineNo);
+                    var newPos = ko.views.ScimozOffsetFromUCS2Offset(this.scimoz, val, 5);
+                    if (newPos > lineEnd) {
+                        newPos = lineEnd;
+                    }
+                    var context = this.scimoz.getTextRange(val, newPos);
+                    var dict = {'handle': handle, 'column' : column,
+                                'context': context}
+                    this._transientMarkRing.push(dict);
+                    ko.statusBar.AddMessage("Transient mark set",
+                                         "mark", 3000, false);
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+            </setter>
+        </property>
+
+        <method name="rotateTransientMarkRing">
+                <body>
+                <![CDATA[
+                try {
+                    this._transientMarkRing = [this._transientMarkRing.pop()].concat(this._transientMarkRing);
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+            </body>
+        </method>
+
+        <!-- Note: this guy is the *non-CodeIntel-based* completion service.
+             I.e., languages using CodeIntel for AutoComplete/CallTips do
+             no use these. -->
+        <field name="__commandCompletionSvcGetterAttempted">false</field>
+        <field name="_commandCompletionSvc">null</field>
+        <property name="commandCompletionSvc">
+            <setter><![CDATA[
+            if (val == null) {
+                this.__commandCompletionSvcGetterAttempted = false;
+                this._commandCompletionSvc = null;
+            } else {
+                throw("cannot set 'commandCompletionSvc' to anything but null!");
+            }
+            ]]></setter>
+            <getter><![CDATA[
+            if (!this.__commandCompletionSvcGetterAttempted) {
+                this.__commandCompletionSvcGetterAttempted = true;
+                this._commandCompletionSvc = this.languageObj.getLanguageService(Components.interfaces.koICompletionLanguageService)
+                var languageName = this.languageObj.name;
+                if (!this._commandCompletionSvc) {
+                    this.log.debug('no completion service for '+this.languageObj.name);
+                    return null;
+                } else if (languageName == "Tcl") {
+                    // Register AutoComplete images for languages that
+                    // (1) are not yet using CodeIntel for AutoComplete
+                    //     (images for those langs are registered in
+                    //     codeintel.js); and
+                    // (2) support AutoComplete images (not all do).
+                    var iface = Components.interfaces.koICodeIntelCompletionUIHandler;
+                    this.scimoz.registerImage(iface.ACIID_CLASS,            ko.markers.getPixmap("chrome://komodo/skin/images/ac_class.xpm"));
+                    this.scimoz.registerImage(iface.ACIID_FUNCTION,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_function.xpm"));
+                    this.scimoz.registerImage(iface.ACIID_MODULE,           ko.markers.getPixmap("chrome://komodo/skin/images/ac_module.xpm"));
+                    this.scimoz.registerImage(iface.ACIID_VARIABLE,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable.xpm"));
+                    this.scimoz.registerImage(iface.ACIID_INTERFACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_interface.xpm"));
+                    this.scimoz.registerImage(iface.ACIID_NAMESPACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_namespace.xpm"));
+                }
+                this.scimoz.autoCSeparator = this._commandCompletionSvc.completionSeparator;
+                if (this.document) { // We should get rid of the passing of files and pass the text along.
+                    if (this.document.isUntitled) {
+                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, null);
+                    } else {
+                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, this.document.file.URI);
+                    }
+                }
+            }
+            return this._commandCompletionSvc;
+            ]]></getter>
+        </property>
+
+        <property name="currentLine"
+            onset="this.scimoz.ensureVisibleEnforcePolicy(val-1);
+                   this.scimoz.gotoLine(val-1);
+                   this.scimoz.scrollCaret();"
+            onget="return this.scimoz.lineFromPosition(this.scimoz.currentPos)+1;"/>
+
+        <property name="currentColumn"
+            onget="return this.scimoz.getColumn(this.scimoz.currentPos)+1;"
+            onset="this.scimoz.currentPos = this.scimoz.positionAtColumn(this.currentLine-1,val-1);
+                    this.scimoz.scrollCaret();"/>
+
+        <property name="anchor"
+            onset="this.scimoz.anchor = val;"
+            onget="return this.scimoz.anchor;"/>
+
+        <property name="currentPos"
+            onset="this.scimoz.currentPos = val;"
+            onget="return this.scimoz.currentPos;"/>
+
+        <property name="selection"
+            onset="this.scimoz.replaceSel(val)"
+            onget="return this.scimoz.selText;"/>
+
+        <property name="encoding"
+            onset="this.scintilla.encoding = val"
+            onget="return this.scintilla.encoding;"/>
+
+        <property name="scheme"
+            onset="this.scintilla.scheme= val"
+            onget="return this.scintilla.scheme;"/>
+
+        <property name="alternateFaceType"
+            onset="this.scintilla.alternateFaceType= val"
+            onget="return this.scintilla.alternateFaceType;"/>
+        <method name="setFoldStyle">
+            <parameter name="whichMargin"/>
+            <parameter name="foldstyle"/>
+            <body>
+                <![CDATA[
+                    this.scintilla.setFoldStyle(whichMargin, foldstyle);
+                ]]>
+            </body>
+        </method>
+
+        <field name="_language">Text</field>
+        <property name="language">
+            <getter><![CDATA[
+                return this._language;
+            ]]>
+            </getter>
+            <setter><![CDATA[
+                this._language = val;
+                this._languageObj = null; // remove our language object
+                this.scintilla.language = val; // change scintilla
+            ]]>
+            </setter>
+        </property>
+
+        <field name="_languageObj">null</field>
+        <property name="languageObj">
+            <getter><![CDATA[
+            if (!this._languageObj) {
+                var registryService = Components.classes['@activestate.com/koLanguageRegistryService;1'].
+                       getService(Components.interfaces.koILanguageRegistryService)
+                this._languageObj = registryService.getLanguage(this.language);
+            }
+            return this._languageObj;
+            ]]>
+            </getter>
+        </property>
+
+        <field name="_genericController">null</field>
+
+        <destructor>
+        <![CDATA[
+            //dump("destructor for view-buffer called\n");
+        ]]>
+        </destructor>
+
+        <field name="_inInitPhase">true</field>
+
+        <field name="_lintBuffer">null</field>
+        <property name="lintBuffer">
+            <setter><![CDATA[
+            if (this._lintBuffer)
+                this._lintBuffer.destructor();
+            this._lintBuffer = val;
+            ]]></setter>
+            <getter><![CDATA[
+            try {
+                if (!this._lintBuffer && this.document)
+                    this._lintBuffer = new ko.lint.lintBuffer(this);
+            } catch (e) {
+                // If we have not loaded lint.js into chrome, then we
+                // do not care about linting and we ignore this error.
+            }
+            return this._lintBuffer;
+            ]]></getter>
+        </property>
+
+        <method name="close">
+        <body>
+        <![CDATA[
+            //this.log.info('view-buffer is closing')
+            // force scimoz to stop ticking, bug 
+            this.scimoz.focus = false; 
+            try {
+                this.scimoz.unhookEvents(this);  // This needs to be done in a close() method.
+                this.scintilla.controllers.removeController(this._genericController);
+                this._genericController.view = null;
+                this._genericController = null;
+            } catch(e) {
+                // if anything bad happened, we still want to close the view!
+                this.log.exception(e);
+            }
+            this.lintBuffer = null;
+            this.ciCompletionUIHandler = null;
+
+            /////// copied from view-base.close due to xbl inheritance issues //////
+            try {
+                this.__observersvc.notifyObservers(this, 'view_closed', '');
+            } catch(e) {
+                // no one is listening
+            }
+            try {
+                if (this.parentView)
+                    this.parentView.removeView(this);
+            } catch (e) {
+                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
+            }
+            return true;
+            ////////////////////////////////////////////////////////////////////////
+        ]]>
+        </body>
+        </method>
+
+        <method name="init">
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('view: init');
+            this.log.debug('view initializing');
+            ko.trace.get().leave('view: init');
+        ]]>
+        </body>
+        </method>
+
+        <method name="initWithBuffer">
+        <parameter name="buffer"/>
+        <parameter name="language"/>
+        <body>
+        <![CDATA[
+        try {
+            this.log.info("view-buffer:initWithBuffer");
+            ko.trace.get().enter('view-buffer:initWithBuffer')
+            this.language = language
+            this.scintilla.encoding = 'utf-8';
+            this.scintilla.init();
+            this.document = null;
+            this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
+            this._genericController.view = this;
+            this.scintilla.controllers.appendController(this._genericController);
+
+            // I'd like to do the latter instead of what is done above, but that doesn't
+            // work, for reasons which escape me but probably have to do with the
+            // special hack in commands.js to deal with focus on embed elements.
+            // this.controllers.appendController(this._genericController);
+
+            this.scimoz.hookEvents(this);
+
+            this.setBufferText(buffer);
+            ko.trace.get().leave('view-buffer:initWithBuffer')
+            this._inInitPhase = false;
+        } catch (e) {
+            this.log.exception(e);
+        }
+        ]]>
+        </body>
+        </method>
+
+        <method name="setBufferText">
+            <parameter name="buffer"/>
+            <body>
+            <![CDATA[
+            // Undo magic as we set the buffer.
+            this.scimoz.undoCollection = 0
+            this.scimoz.emptyUndoBuffer()
+            this.scimoz.readOnly = 0
+            this.scimoz.text = buffer;
+            this.scimoz.undoCollection = 1;
+            this.scimoz.setSavePoint();
+            this.scimoz.emptyUndoBuffer();
+            ]]>
+            </body>
+        </method>
+
+        <!--this is not a focus handler, but rather a set of stuff we
+        need to do in relation to forcing focus at certain points-->
+        <method name="setFocus">
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('view-buffer: setFocus');
+            /* doing this does not bubble the focus event back
+               to ourselves, so anything we'd do in the focus
+               handler also needs to be done here. */
+            this.log.info("in setFocus");
+            if (this._doNotGrabFocus) {
+                this.scimoz.focus = true;
+            } else {
+                window.setTimeout(function (me) {
+                    try {
+                        me.scintilla.focus();
+                    } catch(ex) {
+                        // dump("focus failed: " + ex.message + "\n");
+                    }
+                }, 1, this);
+            }
+            this.doFocus(null);
+            ko.trace.get().leave('view-buffer: setFocus');
+        ]]>
+        </body>
+        </method>
+
+        <method name="doFocus">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            this.log.info('in doFocus');
+            /* if event==null, then it's not a real focus event */
+            // XXX this slows down tab switching, file loading, file closing :(
+            // window.updateCommands('editor_has_focus');
+        ]]>
+        </body>
+        </method>
+
+        <method name="_handleCITriggering">
+        <body>
+        <![CDATA[
+            // Trigger a completion (i.e. an autocomplete or calltip session)
+            // if appropriate.
+            //XXX Do we need triggering to happen for
+            //    an insertion that does not come via onCharAdded()?
+            //    e.g. typing '. (' while in a completion session? Does that
+            //    trigger onCharAdded()?
+
+            var trg = this.document.ciBuf.trg_from_pos(
+                        this.scimoz.currentPos, true);
+            if (!trg) {
+                // Do nothing.
+            } else if (this.scimoz.autoCActive() && this._ciLastTrg
+                && trg.is_same(this._ciLastTrg))
+            {
+                // Bug 55378: Don't re-eval trigger if same one is showing.
+                // PERF: Consider passing _ciLastTrg to trg_from_pos() if
+                //       autoCActive to allow to abort early if looks like
+                //       equivalent trigger will be generated.
+            } else {
+                // PERF: Should we re-use controllers? Need a pool then?
+                //       Try to save and re-use ctlr on each view.
+                var ctlr = 
+                    Components.classes["@activestate.com/koCodeIntelEvalController;1"].
+                    createInstance(Components.interfaces.koICodeIntelEvalController);
+                ctlr.set_ui_handler(this.ciCompletionUIHandler);
+                this._ciLastTrg = trg;
+                this.document.ciBuf.async_eval_at_trg(trg, ctlr);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="doCommandCompletion">
+        <body>
+        <![CDATA[
+            this.log.info("in doCommandCompletion");
+
+            if (!this.commandCompletionSvc) return;
+            var _lastCharAdded = this.lastCharAdded;
+            if (!_lastCharAdded) return;
+            
+            if (this._doAutoComplete &&
+                (!this.commandCompletionSvc.triggers ||
+                 this.commandCompletionSvc.triggers.indexOf(_lastCharAdded) > -1)) {
+                this.commandCompletionSvc.AutoComplete(_lastCharAdded, this.scimoz);
+            }
+            // MUST have a trigger to do calltips!
+            if (this._doStartCallTip && this.commandCompletionSvc.triggersCallTip &&
+                this.commandCompletionSvc.triggersCallTip.indexOf(_lastCharAdded) > -1) {
+                this.commandCompletionSvc.StartCallTip(_lastCharAdded, this.scimoz);
+            }
+            return;
+        ]]>
+        </body>
+        </method>
+
+
+        <!--ISciMozEvents implementation-->
+        <method name="onStyleNeeded">
+        <parameter name="position"/>
+        <body><![CDATA[return true;]]></body>
+        </method>
+
+        <method name="onCharAdded">
+        <parameter name="ch"/>
+        <body>
+        <![CDATA[
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onSavePointReached">
+        <body>
+        <![CDATA[
+            this.log.info("in onSavePointReached");
+            if (this.document) {
+                // we may not have a document yet
+                this.document.isDirty = false;
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onSavePointLeft">
+        <body>
+        <![CDATA[
+            this.log.info("in onSavePointLeft");
+            if (this.document) {
+                // we may not have a document yet
+                this.document.isDirty = true;
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onDwellStart">
+            <parameter name="position"/>
+            <parameter name="x"/>
+            <parameter name="y"/>
+        <body><![CDATA[
+            if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
+                gEditorTooltipHandler.show(this,x + this.boxObject.x,y + this.boxObject.y);
+            return true;
+        ]]></body>
+        </method>
+
+        <method name="onDwellEnd">
+            <parameter name="position"/>
+            <parameter name="x"/>
+            <parameter name="y"/>
+        <body><![CDATA[
+            if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
+                gEditorTooltipHandler.hide();
+            return true;
+        ]]></body>
+        </method>
+
+        <method name="onModifyAttemptRO">
+        <body><![CDATA[return true;]]></body>
+        </method>
+
+        <method name="onKey">
+        <parameter name="ch"/>
+        <parameter name="modifiers"/>
+        <body><![CDATA[return true;]]></body>
+        </method>
+
+        <method name="onDoubleClick">
+        <body>
+        <![CDATA[
+        // XXX replace with scimoz.setWordChars
+        
+            // get the selection, and see if a variable is selected,
+            // if so, make sure the entire variable is selected
+            // this adds variable prefixes $@%, etc. (dependent on lang)
+            // to the selection
+            //
+            //XXX Could do better here so that a Perl variable like @$foo
+            //    gets picked up.
+            var sm = this.scimoz;
+            var haveSelNow = sm.selectionEnd != sm.selectionStart
+            if (sm.selectionStart > 0 && haveSelNow) {
+                var indicators = null;
+                if (this.document)
+                    indicators = this.document.languageObj.variableIndicators;
+                if (indicators) {
+                    var ch = sm.getWCharAt(sm.positionBefore(sm.selectionStart));
+                    if (indicators.indexOf(ch) >= 0)
+                        sm.selectionStart = sm.positionBefore(sm.selectionStart);
+                }
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <!-- Called in a timer from onUpdateUI. -->
+        <method name="doUpdateUI">
+        <body>
+        <![CDATA[
+            this.log.debug('doUpdateUI called');
+            this._uiTimer = null;
+
+            this.scimoz.doBraceMatch();
+
+            // If there is an active calltip, then update it as necessary.
+            if (this.isCICplnEnabled) { 
+                this.ciCompletionUIHandler.updateCallTip();
+            } else if (this.scimoz.callTipActive()) {
+                // For languages NOT using CodeIntel-based completion, make
+                // sure an active CallTip gets canceled if the cursor moves
+                // off the CallTip line or before the start pos. (Komodo-only
+                // patches to Scintilla make Scintilla NOT cancel this
+                // automatically for these cases.)
+                var posStart = this.scimoz.callTipPosStart();
+                var curPos = this.scimoz.currentPos;
+                if (curPos < posStart) {
+                    this.scimoz.callTipCancel();
+                } else {
+                    var curLine = this.scimoz.lineFromPosition(curPos);
+                    var posStartLine = this.scimoz.lineFromPosition(posStart);
+                    if (curLine != posStartLine)
+                        this.scimoz.callTipCancel();
+                }
+            }
+
+            // Hmm, we might be able to now catch tabs, etc. right here.
+            var _lastCharAdded = this.lastCharAdded;
+            if (_lastCharAdded) {
+                if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
+                    this._handleCITriggering();
+                }
+
+                this.doCommandCompletion();
+                if (this.languageObj &&
+                    this.prefs.getBooleanPref("editElectricBrace")) {
+                    // "keyPressed" is the poorly named mechanism to initiate
+                    // auto-indenting functionality.
+                    this.languageObj.keyPressed(_lastCharAdded,
+                                                         this.scimoz);
+                }
+            }
+
+            this.lastCharAdded = null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onUpdateUI">
+        <body>
+        <![CDATA[
+            ko.trace.get().enter('onUpdateUI');
+            try {
+                this.__observersvc.notifyObservers(this, 'current_view_linecol_changed', '');
+            } catch(e) { /* no one is home */ }
+
+            // often painting during onUpdateUI doesn't work correctly since it
+            // has to reenter scimoz, if we set it in a timeout, it works.
+            if (this._uiTimer) {
+                this._uiTimer.stopTimeout();
+                this._uiTimer.free();
+            }
+            this._uiTimer = new objectTimer(this, this.doUpdateUI); //XXX or ,[]);
+            this._uiTimer.startTimeout(50);
+            ko.trace.get().leave('onUpdateUI');
+            return true;
+        ]]>
+        </body>
+        </method>
+
+        <method name="positionAtColumn">
+            <parameter name="line"/>
+            <parameter name="col"/>
+            <body>
+                <![CDATA[
+                    // Convert a line,col tuple to a character position
+                    return this.scimoz.positionAtColumn(line, col);
+                ]]>
+            </body>
+        </method>
+
+        <field name="hotspothandler">null</field>
+
+        <method name="onHotSpotDoubleClick">
+        <parameter name="position"/>
+        <parameter name="modifiers"/>
+        <body>
+        <![CDATA[
+            try {
+                // It's possible that a view has defined a special
+                // handler for hotspotting.  If so, use it.  If it
+                // returns true, then do nothing else.
+                if (this.hotspothandler) {
+                    var retval = this.hotspothandler(position, modifiers);
+                    if (retval) return;
+                }
+
+                // We know what position we are at, but we don't know anything else
+                // about the buffer.  We don't know what languages are to be expected
+                // either.  The lexers seem to deal with all languages, so we should be
+                // able to as well.
+
+                var lineNo = this.scimoz.lineFromPosition(position);
+                var startOfLine = this.scimoz.positionFromLine(lineNo);
+                var endOfLine = this.scimoz.getLineEndPosition(lineNo);
+                var line = this.scimoz.getTextRange(startOfLine, endOfLine);
+
+                // We should be able to get a filename/URI (and possibly a line
+                // number) from the hotspot line.
+                // - Some views may display relative filenames (e.g. the Command
+                //   Output window when displaying the results of grep or findstr
+                //   output).  These views should set the "cwd" property.
+                var resultsObj = new Array();
+                var countObj = new Object();
+                this.docSvc.parseHotspotLine(line, this.cwd, countObj,
+                                             resultsObj);
+                var results = resultsObj.value;
+                // We don't know how to stop the double-click on a hotspot
+                // line from selecting the current word, so we 'undo' that
+                // word selection here.  It'd be nice to avoid this.
+                this.scimoz.currentPos = position;
+                this.scimoz.anchor = position;
+                if (results.length == 2) {
+                    fname = results[0];
+                    lineNo = results[1];
+                    lineNo = Number(lineNo);
+                    var os = Components.classes["@activestate.com/koOs;1"].createInstance();
+                    if (os.path.exists(fname)) {
+                        // this is called from an event handler, so we have to
+                        // do this in a timeout and let the event finish,
+                        // otherwise setfocus does not work.
+                        window.setTimeout('ko.views.manager.doFileOpenAtLine("'+ko.uriparse.pathToURI(fname)+'", '+lineNo+');',1);
+                    } else {
+                        ko.statusBar.AddMessage("The file '" + fname + "' could not be found.",
+                                             'hotspot', 5000, true);
+                    }
+                } else {
+                    // Parsing in koIDocumentService.parseHotspotLine() is not
+                    // fully compliant with LexOthers.cxx hotspot lexing.
+                    ko.statusBar.AddMessage("Could not parse hotspot line: " + line,
+                                         'hotspot', 5000, true);
+                    // internal error dialogs are too much of a bother for users.
+                    //ko.dialogs.internalError("Komodo could not successfully parse a "+
+                    //    "filename and line number from the hotspot line "+
+                    //    "you clicked.",
+                    //    "Could not parse hotspot line:\n\n"+line);
+                }
+            } catch (e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="onModified">
+        <parameter name="position"/>
+        <parameter name="modificationType"/>
+        <!-- XXX 'text' is NOT unicode ('wstring' in IDL-speak) because of
+             <http://bugs.activestate.com/Komodo/show_bug.cgi?id=26793>.
+             Be warned that 'text' is UTF-8 encoded and must be used as such.
+        -->
+        <parameter name="text"/>
+        <parameter name="length"/>
+        <parameter name="linesAdded"/>
+        <parameter name="line"/>
+        <parameter name="foldLevelNow"/>
+        <parameter name="foldLevelPrev"/>
+        <body>
+        <![CDATA[
+        try {
+            // if we have an override handler, then use it, if it returns false,
+            // we'll go on normally.  This is used by the terminal view.
+            if (typeof(this.onModifiedHandler) != 'undefined') {
+                if (this.onModifiedHandler(position, modificationType,
+                                        text, length, linesAdded, line,
+                                        foldLevelNow, foldLevelPrev)) return;
+            }
+            // This method is called _very_ frequently. One must take care
+            // to ensure that it does not take a long time.
+            //
+            // NOTE: Do _not_ cause any restyling to occur if in the middle
+            //       of handling a SC_MOD_CHANGESTYLE.  This will cause
+            //       lexing failures. See bug 26575
+            ko.trace.get().enter('onModified');
+
+            const SC_MOD_BEFOREINSERT = Components.interfaces.ISciMoz.SC_MOD_BEFOREINSERT;
+            const SC_MOD_BEFOREDELETE = Components.interfaces.ISciMoz.SC_MOD_BEFOREDELETE;
+            const SC_FOLDLEVELHEADERFLAG = Components.interfaces.ISciMoz.SC_FOLDLEVELHEADERFLAG;
+            const SC_MOD_INSERTTEXT = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
+            const SC_MOD_DELETETEXT = Components.interfaces.ISciMoz.SC_MOD_DELETETEXT;
+
+            // if deleting or inserting text...
+            if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
+            {
+                if (this.lintBuffer &&
+                    this.prefs.getBooleanPref("editUseLinting"))
+                {
+                    this.lintBuffer.request("buffer was modified");
+                }
+
+                if (this.document && (this.isCICitadelStuffEnabled 
+                                      || this.isCIXMLStuffEnabled))
+                {
+                    gCodeIntelSvc.ideEvent_EditedCurrentDocument(
+                        this.document, this.scimoz, linesAdded,
+                        this._isCIRescanningEnabled);
+                }
+
+                if (this.document) {
+                    if ((modificationType & SC_MOD_DELETETEXT)
+                        && this.commandCompletionSvc
+                        && this._doAutoComplete
+                        && !(this.commandCompletionSvc.triggers ||
+                             (text && this.commandCompletionSvc.triggers.indexOf(text[0]) > -1)
+                            )
+                        && this.scimoz.autoCActive())
+                    {
+                        this.scimoz.autoCCancel();
+                    }
+
+                    // Signal command completion to update information.
+                    // _Don't_ do it on a single char change, i.e. we are
+                    // looking for eol or mass paste/delete.
+                    if (this.commandCompletionSvc
+                        && this._doAutoComplete
+                        && !this.document.isUntitled
+                        && (text.length > 1 || linesAdded > 0))
+                    {
+                        this.commandCompletionSvc.scanBufferCompletion(
+                            this.scimoz, this.document.file.URI);
+                    }
+                }
+            }
+
+            ko.trace.get().leave('onModified');
+            } catch(e) { dump(e); }
+        ]]>
+        </body>
+        </method>
+
+        <method name="onMacroRecord">
+        <parameter name="message"/>
+        <parameter name="wParam"/>
+        <parameter name="lParam"/>
+        <body><![CDATA[return true;]]></body>
+        </method>
+
+        <method name="onMarginClick">
+        <parameter name="modifiers"/>
+        <parameter name="position"/>
+        <parameter name="margin"/>
+        <body>
+        <![CDATA[
+            var s = this.scimoz;
+            var lineClicked = s.lineFromPosition(position);
+
+            if (margin == 1) {
+                // this block formerly from editorWrapper.onMarginClick
+                // If the language doesnt support folding, we can't get
+                // a click on the margin!
+                if (s.getFoldLevel(lineClicked) & s.SC_FOLDLEVELHEADERFLAG) {
+                    if (s.getFoldExpanded(lineClicked)) {
+                        // check to see if cursor is inside fold, if so, move it to a visible place
+                        var level = s.getFoldLevel(lineClicked);
+                        var lineMaxSubord = s.getLastChild(lineClicked, level);
+                        var currentLine = s.lineFromPosition(s.currentPos);
+                        if (currentLine > lineClicked && currentLine <= lineMaxSubord) {
+                            var pos = s.positionFromLine(lineClicked);
+                            s.selectionStart = pos;
+                            s.selectionEnd = pos;
+                            s.currentPos = pos;
+                        }
+                    }
+                    s.toggleFold(lineClicked);
+                }
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="onNeedShown">
+        <parameter name="position"/>
+        <parameter name="length"/>
+        <body><![CDATA[return true;]]></body>
+        </method>
+
+        <method name="onPosChanged">
+        <parameter name="position"/>
+        <body>
+        <![CDATA[return true;]]>
+        </body>
+        </method>
+
+        <method name="onZoom">
+        <parameter name="position"/>
+        <body>
+        <![CDATA[
+            if (this.scimoz.getMarginWidthN(0)) {
+                this.scimoz.setMarginWidthN(0, this.scimoz.textWidth(0, String(this.scimoz.lineCount))+12);
+            }
+            return true;
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+    <handlers>
+        <handler event="focus" phase="capturing">
+            <![CDATA[
+            window.setTimeout("window.updateCommands('scintilla-focus');", 1);
+            /* code common to setFocus and the focus event needs
+               to be in doFocus. */
+            this.doFocus(event);
+            ]]>
+        </handler>
+        <handler event="click" phase="capturing">
+            <![CDATA[
+            window.setTimeout("window.updateCommands('scintilla-focus');", 1);
+            ]]>
+        </handler>
+        <handler event="blur" phase="capturing">
+            <![CDATA[
+            window.setTimeout("window.updateCommands('scintilla-focus');", 1);
+            ]]>
+        </handler>
+    </handlers>
+
+</binding>
+
+<binding id="view-buffer"
+    extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
+    <content>
+        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
+                       mozcontext="bufferContextMenu"
+                       flex="1"/>
+    </content>
+    <implementation name="viewbuffer" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+        <field name="onPosChangedCB">null</field>
+        <method name="onPosChanged">
+        <parameter name="position"/>
+        <body>
+        <![CDATA[
+            if (this.onPosChangedCB) {
+                this.onPosChangedCB(position);
+            }
+        ]]>
+        </body>
+        </method>
+        <field name="_foldstyle">null</field>
+        <property name="foldstyle">
+            <setter><![CDATA[
+                this._foldstyle = val;
+                this.scintilla.setFoldStyle(1, val);
+            ]]></setter>
+            <getter><![CDATA[
+                return this._foldstyle;
+            ]]></getter>
+        </property>
+    </implementation>
+
+</binding>
+
+</bindings>
+

@@ -1,0 +1,2070 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Customizing Preferences</title>
+</head>
+
+<body>
+  <h1><a name="prefs_top" id="prefs_top">Customizing
+  Komodo</a></h1>
+
+  <p>Komodo's preferences are used to set the default behavior of
+  Komodo. Preferences can be set for various aspects of Komodo
+  functionality, such as editor behavior, preferred language
+  interpreters, the Komodo workspace layout, etc.</p>
+
+  <p>Some preferences can also be configured on a per-file basis.
+  For example, the configuration of line endings, indentation style
+  and word wrap can be configured for individual files.
+  File-specific settings override the default preferences described
+  in this section. To configure file-specific defaults, see
+  <a href="komodo-doc-files.html#files_settings">File Properties
+  and Settings</a> in the File section of the Komodo
+  documentation.</p>
+
+  <p>To display the Preferences dialog box, on the
+  <strong>Edit</strong> menu, click <strong>Preferences</strong>.
+  Or, in Komodo for Mac OS X, on the <strong>Komodo</strong> menu,
+  click <strong>Preferences</strong>.</p>
+
+  <h2><a name="UI_Configuration" id="UI_Configuration">Appearance
+  Preferences</a></h2>
+
+  <p>Use the Appearance preferences to customize the default layout
+  of the Komodo workspace. The functions described below can also
+  be changed using keyboard shortcuts; see <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">Key Bindings</a> for
+  more information. To customize the Komodo workspace, select
+  <strong>Edit|Preferences|Appearance</strong>. Configure the
+  following options:</p>
+
+  <p><strong>Toolbar Configuration</strong></p>
+
+  <ul>
+    <li><strong>Show button text</strong>: Descriptive text
+    displayed beneath toolbar icons.</li>
+
+    <li><strong>Show standard toolbar</strong>: Toolbar with
+    commonly used functions, for example, Open and Save.</li>
+
+    <li><strong>Show macro toolbar</strong>: Toolbar containing
+    commands for recording <a href=
+    "komodo-doc-macros.html#macros_top">macros</a>.</li>
+  </ul>
+
+  <p><strong>Initial Page Configuration</strong></p>
+
+  <ul>
+    <li><strong>Show Komodo Start Page on startup</strong>: Select
+    to display the Start Page in the Editor Pane when Komodo
+    launches.</li>
+
+    <li><strong>Hide Tutorials Pane</strong>: Select to hide the
+    Tutorials section of the Komodo Start Page.</li>
+
+    <li><strong>Hide Quick Links Pane</strong>: Select to hide the
+    Quick Links section of the Komodo Start Page.</li>
+
+    <li><strong>Hide Tip of the Day Pane</strong>: Select to hide
+    the Tip of the Day section of the Komodo Start Page.</li>
+  </ul>
+
+  <p><strong>Most Recently Used</strong></p>
+
+  <ul>
+    <li><strong>Number of Projects</strong>: The number of <a href=
+    "komodo-doc-project.html#project_top">projects</a> displayed on
+    Komodo's Start Page, and on the Recent Projects menu.</li>
+
+    <li><strong>Number of Files</strong>: The number of <a href=
+    "komodo-doc-files.html#files_top">files</a> displayed on
+    Komodo's Start Page, and on the Recent Files menu.</li>
+  </ul>
+
+  <h2><a name="code_intel" id="code_intel">Code Intelligence
+  Preferences</a></h2>
+
+  <p><strong>Code Intelligence</strong> refers to the system that
+  provides autocomplete, calltips, and the Code Browser.</p>
+
+  <ul>
+    <li><strong>Enable automatic autocomplete and calltip
+    triggering while you type</strong>: Toggles automatic
+    autocomplete triggering and calltips (Enabled by default).
+    Click <strong>OK</strong> to save changes.</li>
+
+    <li><strong>Enable autocomplete fill-up characters</strong>:
+    Toggles"fill-up" characters. Typing certain characters, like
+    '(' or '.', during an autocomplete session will trigger
+    insertion of the current completion before the character itself
+    is inserted.</li>
+  </ul>
+
+  <p><strong>API Catalogs</strong></p>
+
+  <p>Komodo uses API catalogs to provide autocomplete and calltips
+  for 3rd-party libraries. In the <strong>API Catalogs</strong>
+  panel, select the libraries that you use in your code to enable
+  them. Selecting multiple API catalogs for a particular language
+  can yield confusing results if there are overlapping namespaces,
+  classes or function names.</p>
+
+  <h2><a name="Directory_Import" id="Directory Import">Directory
+  Import</a></h2>
+
+  <p>These preferences define how Komodo imports files and
+  directories. The following import options are available:</p>
+
+  <ul>
+    <li><strong>Live Import</strong>: Keep the imported directories
+    and files current with the file system via <a href=
+    "komodo-doc-folders.html#folders_top">Live Folders</a>. By
+    default, new projects use the base directory in which they are
+    created as the project's root directory and import all files
+    and directories recursively. Files and directories in the
+    project are kept synchronized with the filesystem. For example,
+    when new files are added to a directory in the project, they
+    will automatically appear in the corresponding Live Folder in
+    the project. This setting can be overridden in a particular
+    Project's scope in <a href=
+    "komodo-doc-project.html#project_props">Project Properties and
+    Settings</a>.</li>
+
+    <li><strong>Directory to import from</strong>: Specify the
+    directory from which you want to import files. Use the
+    <strong>Browse</strong> button to navigate the file
+    system.</li>
+
+    <li><strong>Files to include</strong>: Specify the filenames to
+    include. Use wildcards ("*" and "?") to specify groups of
+    files. Separate multiple file specifications with semicolons.
+    If the field is left blank, all files in the specified
+    directory are imported.</li>
+
+    <li><strong>Files and directories to exclude</strong>: Specify
+    the file and directory names to exclude. Use wildcards ("*" and
+    "?") to specify groups of files. Separate multiple file
+    specifications with semicolons. If the field is left blank, no
+    files in the specified directory are excluded.</li>
+
+    <li><strong>Import Subdirectories Recursively</strong>: Select
+    this check box to import directories (and files contained in
+    those directories) located beneath the directory specified in
+    the <strong>Directory to import from</strong> field. This check
+    box must be checked in order to specify the "Import Directory
+    Structure" option as the <strong>Type of folder structure to
+    create</strong>.</li>
+
+    <li>
+      <strong>Type of folder structure to create</strong>:
+
+      <ul>
+        <li><strong>Import directory structure</strong>: If the
+        <strong>Import Subdirectories Recursively</strong> box is
+        selected and this option is selected, Komodo creates
+        folders within the project that represent imported
+        directories. Thus, the directory structure is preserved
+        within the project.</li>
+
+        <li><strong>Make a folder per language</strong>: If this
+        option is selected, imported files are organized into
+        folders according to the language indicated by file pattern
+        in the filename. File associations are configured in the
+        Komodo <a class="doc" href=
+        "komodo-doc-prefs.html#File_Associations">Preferences</a>.
+        Each folder is named after the associated language, for
+        example, "Perl files", "XML files", etc. Files that don't
+        correspond to a known file pattern are stored in a folder
+        called "Other files".</li>
+
+        <li><strong>Make one flat list</strong>: If this option is
+        selected, all the imported files are placed directly under
+        the project from which the <strong>Import from File
+        System</strong> command was invoked.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p>These settings apply to all new projects in Komodo. They can
+  be overridden in:</p>
+
+  <ul>
+    <li>the specific project's <strong>Directory Import</strong>
+    settings</li>
+
+    <li>the <strong>Directory Filter</strong> properties (Live
+    Folders)</li>
+
+    <li>the <strong>Import from Filesystem</strong> settings
+    (Virtual Folders).</li>
+  </ul>
+
+  <h2><a name="prefs_editor" id="Editor">Editor
+  Preferences</a></h2>
+
+  <p>To configure <a href=
+  "komodo-doc-editor.html#editor_top">editing</a> preferences,
+  select <strong>Edit|Preferences|Editor</strong>.</p>
+
+  <p><strong>General Preferences</strong></p>
+
+  <ul>
+    <li><strong><a name="show_whitespace" id="show_whitespace">Show
+    whitespace characters</a></strong>: Display or hide whitespace
+    characters in the editor. Spaces are displayed as dots; tab
+    characters appear as right arrows.</li>
+
+    <li><strong>Show end-of-line characters</strong>: This option
+    sets the default for displaying end of line markers. Display
+    can also be toggled using the <strong>View|View EOL
+    Markers</strong> menu option.</li>
+
+    <li><strong>Show line numbers</strong>: This option sets the
+    default for displaying line numbers. If enabled, line numbers
+    are displayed on the left side of the <a href=
+    "komodo-doc-top.html#Editor_Pane">Editor Pane</a>. Line numbers
+    can also be toggled using the <strong>View|View Line
+    Numbers</strong> menu option.</li>
+  </ul>
+
+  <p>Options set through the Preferences dialog box are the default
+  for all files opened in Komodo. Some display characteristics can
+  be assigned to <a href=
+  "komodo-doc-files.html#files_settings">individual files</a>.</p>
+
+  <p><strong>Confirmation Dialogs</strong></p>
+
+  <p>When files that are opened in the Komodo editor are changed by
+  another application, Komodo can be configured to respond in
+  various ways:</p>
+
+  <ul>
+    <li><strong>Detect when files are changed outside the
+    environment</strong>: When this option is enabled, Komodo pays
+    attention to changes made to files outside the Komodo
+    environment.</li>
+
+    <li><strong>If files have been changed</strong>: When files are
+    changed outside Komodo, select whether Komodo should
+    <strong>Ask me what files to reload</strong> (prompt for reload
+    confirmation); <strong>Reload all files</strong> (reload
+    without prompting); or <strong>Reload no files</strong> (do
+    nothing).</li>
+
+    <li><strong>If files have been deleted</strong>: When files are
+    deleted outside Komodo, select whether Komodo should
+    <strong>Ask me what files to close</strong> (prompt for close
+    confirmation); <strong>Close all files</strong> (close without
+    prompting); or <strong>Close no files</strong> (do
+    nothing).</li>
+  </ul>
+
+  <p>If <strong>Ask me what files to reload</strong> <strong>Ask me
+  what files to close</strong> are selected, the prompt is
+  displayed when:</p>
+
+  <ul>
+    <li>changing between tabs in the editor</li>
+
+    <li>switching back to Komodo from another application</li>
+
+    <li>saving a file</li>
+
+    <li>deleting a file</li>
+  </ul>
+
+  <p><strong>Scrolling</strong></p>
+
+  <p>The <a name="scrolling" id="scrolling">Scrolling</a> setting
+  determines the number of lines that are be displayed above or
+  below the editing cursor. As the editing cursor moves, the number
+  of lines specified here are displayed between the cursor and the
+  top or bottom of the <a href=
+  "komodo-doc-top.html#Editor_Pane">Editor Pane</a>. You can also
+  set the horizontal scroll bar width by entering the desired size
+  in pixels.</p>
+
+  <p><strong>Incremental Search</strong></p>
+
+  <p>These options set the defaults for the <a class="doc" href=
+  "komodo-doc-search.html#incr_search">Incremental Search</a>
+  feature.</p>
+
+  <ul>
+    <li><strong>Matches Case</strong>: Specify whether Incremental
+    Search should be case sensitive.</li>
+
+    <li><strong>Uses</strong>: Specify the search syntax type.
+    <strong>Plain Text</strong> exactly matches the search string;
+    <strong>Regular Expressions</strong> interprets the search text
+    as a regular expression; <strong>Wildcard</strong> interprets
+    asterisk and question mark characters as wildcards.</li>
+  </ul>
+
+  <h3><a name="Config_Key_Bindings" id=
+  "Config_Key_Bindings">Configuring Key Bindings</a></h3>
+
+  <p>Most Komodo functions can be invoked via key bindings. These
+  key bindings can be customized. To view an HTML list of the key
+  bindings currently in effect, select <strong>Help|List Key
+  Bindings</strong>.</p>
+
+  <p>On Linux systems, key bindings defined in the window manager
+  (including default key bindings) take precedence over Komodo key
+  bindings. If certain keys or key combinations do not work as
+  expected in Komodo, check the window manager's key binding
+  scheme. In the case of conflicts, change either the Komodo key
+  bindings or the window manager key bindings.</p>
+
+  <p>To configure key binding defaults, select
+  <strong>Edit|Preferences|Editor|Key Bindings</strong>. By
+  default, menu key bindings are accessed using 'Alt' key
+  combinations on Windows and Linux. For example, the
+  <strong>File</strong> menu is opened via 'Alt'+'F'. Select
+  <strong>Remove Alt-&lt;letter&gt; shortcuts from menus</strong>
+  to disable menu access via these key bindings. The 'Alt' key
+  still activates the <strong>File</strong> menu.</p>
+
+  <p><strong>Key Binding Schemes</strong></p>
+
+  <p>Key binding "schemes" are sets of pre-configured key bindings.
+  Click the links below to view a list of key bindings for each of
+  the schemes.</p>
+
+  <ul>
+    <li><a href="komodo-doc-defkeybind.html">Windows/Linux</a>:
+    Consistent with standard key bindings on Windows and
+    Linux.</li>
+
+    <li><a href="komodo-doc-osxkeybind.html">Mac OS X</a>:
+    Consistent with standard key bindings on Mac OS X.</li>
+
+    <li><a href="komodo-doc-emacskeybind.html">Emacs</a>: Contains
+    many of the most commonly used Emacs key bindings.</li>
+
+    <li><a href="komodo-doc-vikeybind.html">Vi</a>: Contains many
+    of the most commonly used Vi key bindings. Requires <strong>Vi
+    emulation</strong>.</li>
+  </ul>
+
+  <p>Pre-configured schemes cannot be modified. When you attempt to
+  modify a key binding, you are prompted to make a copy of the
+  scheme with a new name before making changes.</p>
+
+  <p><strong>Remove Alt-&lt;letter&gt; shortcuts from
+  menus</strong></p>
+
+  <p>Some Emacs key bindings use 'Alt'+'<em>letter</em>'
+  combinations that are also used to access Komodo menus. To avoid
+  this conflict, select <strong>Remove Alt-&lt;letter&gt; shortcuts
+  from menus</strong>.</p>
+
+  <p><strong>Vi Emulation</strong></p>
+
+  <p>Vi emulation mimics the modal behavior of the Vi editor.
+  Selecting <strong>Enable Vi emulation</strong> when a scheme
+  other than Vi is selected prompts you to create a new scheme.
+  This scheme is based on the current scheme with the Vi emulation
+  behavior added.</p>
+
+  <p>Schemes created with Vi emulation enabled (including the
+  default Vi scheme) will always require Vi emulation. The
+  <strong>Enable Vi emulation</strong> checkbox cannot be
+  toggled.</p>
+
+  <p><strong>Modifying Key Bindings</strong></p>
+
+  <p>To alter or view a specific key binding, scroll the
+  <strong>Commands</strong> list or enter characters in the filter
+  field. If multiple key bindings are assigned to a single command,
+  the <strong>Current Key Sequence</strong> field displays as a
+  drop-down list. Click the <strong>Clear</strong> button to delete
+  the key binding displayed for the selected command; click
+  <strong>Clear All</strong> to delete all key bindings for the
+  selected command.</p>
+
+  <p>To add a new key binding for the selected command, enter the
+  desired key binding in the <strong>New Key Sequence</strong>
+  field. If the key sequence is already assigned to another
+  command, the current assignment is displayed in the <strong>Key
+  Sequence Already Used By</strong> field. Click
+  <strong>Change</strong> to update the key binding displayed in
+  the <strong>Current Key Sequence</strong> field; click
+  <strong>Add</strong> to make the new key binding an additional
+  key binding. If the key binding is already assigned, the original
+  assignment is cleared.</p>
+
+  <p><strong>Key Bindings for Custom Components</strong></p>
+
+  <p>Custom key bindings can be assigned to the following types of
+  components:</p>
+
+  <ul>
+    <li><a href="komodo-doc-openshort.html#openshort_top">Open
+    Shortcuts</a></li>
+
+    <li><a href="komodo-doc-urls.html#urls_top">URLs</a></li>
+
+    <li><a href="komodo-doc-run.html#run_top">Run Commands</a></li>
+
+    <li><a href="komodo-doc-macros.html#macros_top">Macros</a></li>
+
+    <li><a href=
+    "komodo-doc-snippets.html#snippets_top">Snippets</a></li>
+
+    <li><a href=
+    "komodo-doc-templates.html#templates_top">Templates</a></li>
+  </ul>
+
+  <p>When the key binding associated with a component is invoked,
+  it has the same action as double-clicking the component in the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or
+  <a href="komodo-doc-project.html#project_top">Projects
+  tab</a>.</p>
+
+  <p>Key bindings assigned to components in a project are only
+  available for the <a href=
+  "komodo-doc-project.html#Switching_Between_Projects">active
+  project</a>. Key bindings for Toolbox components are always
+  available.</p>
+
+  <p>To assign a key binding to a component, or to alter or delete
+  an existing key binding, right-click the desired component in the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or
+  <a href="komodo-doc-project.html#project_top">Projects tab</a> to
+  display the Properties dialog box, then click the <strong>Key
+  Binding</strong> tab. Configure as described above.</p>
+
+  <h3><a name="Indentation_Features" id=
+  "Indentation_Features">Configuring Indentation</a></h3>
+
+  <p>From the <strong>Edit</strong> menu, select
+  <strong>Preferences</strong>, then click
+  <strong>Editor|Indentation</strong>.</p>
+
+  <ul>
+    <li>
+      <strong>Auto-Indent Style</strong>: Choose from one of three
+      indentation styles:
+
+      <ul>
+        <li><strong>Use Smart Indent</strong>: Komodo automatically
+        anticipates logical indentation points, based on language
+        cues (such as open braces).</li>
+
+        <li><strong>Indent to first non-empty column</strong>:
+        Komodo maintains the current level of indentation.</li>
+
+        <li><strong>Don't auto-indent</strong>: Select to prevent
+        all forms of automatic indentation.</li>
+      </ul>
+    </li>
+
+    <li><strong>Auto-adjust closing braces</strong>: Komodo
+    automatically aligns closing braces with corresponding opening
+    braces.</li>
+
+    <li><strong><a name="indent_guide" id="indent_guide">Show
+    indentation guides</a></strong>: Select to display indentation
+    markers (grey vertical lines). An indentation marker is
+    displayed every time the number of spaces on the left margin
+    equals the value specified in the <a name=
+    "#spaces_per_indent">Number of spaces per indent</a>
+    field.</li>
+
+    <li><strong><a name="file_contents" id="file_contents">Allow
+    file contents to override Tab settings</a></strong>: If
+    selected when files are open, Komodo uses the indentation
+    settings saved in the file, possibly overriding the other
+    preferences. If de-selected, Komodo uses the preference
+    configuration regardless of the indentation values in the
+    file.</li>
+
+    <li><strong><a name="prefer_tabs" id="prefer_tabs">Prefer Tab
+    characters over spaces</a></strong>: Komodo displays Tab
+    characters wherever possible, according to the values specified
+    in the <strong>Number of spaces per indent</strong> and the
+    <strong>Width of each Tab character</strong> fields. When the
+    'Tab' key is pressed, Komodo inserts indentation up to the next
+    indent width. If the new indentation is a multiple of the Tab
+    width, Komodo inserts a Tab character. <em>Example</em>: With a
+    Tab width of 8 and an indent width of 4, the first indent is 4
+    spaces, the second indent is a Tab character, and the third
+    indent is a Tab character plus 4 spaces.</li>
+  </ul>
+
+  <p>Tab and indent widths are specified as follows:</p>
+
+  <ul>
+    <li><strong><a name="spaces_per_indent" id=
+    "spaces_per_indent">Number of spaces per indent</a></strong>:
+    Number of spaces Komodo inserts on the left margin when
+    indenting a line of code.</li>
+
+    <li><strong><a name="width_tabs" id="width_tabs">Width of each
+    Tab character</a></strong>: Number of spaces that are equal to
+    a Tab character.</li>
+
+    <li><strong><a name="fold_style" id="fold_style">Fold mark
+    style</a></strong>: Use the drop-down list to select the style
+    of node used in <a class="doc" href=
+    "komodo-doc-editor.html#Folding">code folding</a>.</li>
+
+    <li><strong><a name="horiz_line" id="horiz_line">Use horizontal
+    line on folds</a></strong>: Displays collapsed code with fold
+    marks; a thin line also spans the width of the <a href=
+    "komodo-doc-top.html#Editor_Pane">Editor Pane</a>.</li>
+
+    <li><strong>'Backspace' decreases indentation in leading
+    whitespace</strong>: If this option is enabled, pressing
+    'Backspace' clears an entire indentation, rather than a single
+    space, if there is nothing between the editing cursor and the
+    left margin. For example, if the number of spaces per indent is
+    set to four, and there are five spaces between the left margin
+    and the editing cursor, pressing 'Backspace' once clears one
+    space; pressing 'Backspace' a second time clears four
+    spaces.</li>
+
+    <li><strong>Restore fold state on document load (slows down
+    file opening)</strong>: If this option is enabled, the current
+    state of <a href="komodo-doc-editor.html#Folding">code
+    folding</a> is remembered when a file is closed, and reinstated
+    when the file is next opened.</li>
+  </ul>
+
+  <p>Options set through the Preferences dialog box are the default
+  for all files opened in Komodo. Some indentation characteristics
+  can be assigned to <a href=
+  "komodo-doc-files.html#files_settings">individual files</a>.</p>
+
+  <h3><a name="smart_editing" id="smart_editing">Smart
+  Editing</a></h3>
+
+  <h4><a name="syntax_checking" id="syntax_checking">Background
+  Syntax Checking</a></h4>
+
+  <p>Background syntax checking validates code against the language
+  interpreter as you type. (If <a href="#code_intel">Code
+  Intelligence</a> is enabled for Python, the code intelligence
+  database is used to validate Python code.) Syntax errors and
+  warnings are underlined in the <a href=
+  "komodo-doc-top.html#Editor_Pane">Editor Pane</a>. See <a href=
+  "komodo-doc-editor.html#Linting">Background Syntax Checking</a>
+  for more information.</p>
+
+  <p>By default, Komodo performs a background syntax check one
+  second (1000 msecs) after you stop typing. In very large files,
+  this background process can slow down editing. If you notice
+  slowness in the editor pane, try extending the delay or disabling
+  background syntax checking. Syntax checking can be run manually
+  by clicking the syntax checking icon (<img class="icon" src=
+  "img/icon_check_ok.png" /> or <img class="icon" src=
+  "img/icon_check_error.png" />) in the status bar.</p>
+
+  <p>The level of background syntax checking for Perl is determined
+  by the setting on the <a href="#Perl">Perl Language</a>
+  preference page.</p>
+
+  <h4><a name="Config_Word_Complete" id=
+  "Config_Word_Complete">Configuring Word Completion</a></h4>
+
+  <p>The Komodo editor maintains an index of words in the current
+  file. Instead of re-entering words that already exist in the
+  current file, you can use the <a class="doc" href=
+  "komodo-doc-editor.html#Complete_Word">Complete Word</a> function
+  to finish words. If you are using the default <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>
+  scheme, word completion is invoked from the keyboard by pressing
+  'Ctrl'+'Space' ('F5' or 'Alt'+'Esc' on Mac OS X). If you also
+  want to be able to complete words by pressing the 'Tab' key,
+  select the check box labeled <strong>Use tab character to
+  complete words like Ctrl+Space</strong>. Note that the 'Tab' key
+  can still be used for other purposes when this check box is
+  selected. Word completion only occurs when the cursor is
+  positioned to the right of a character that begins a word that
+  has been stored in the editor's index.</p>
+
+  <h4><a name="Config_Auto_Wrap" id="Config_Auto_Wrap">Configuring
+  Word or Character Wrap</a></h4>
+
+  <p>Select an option from the <strong>Word wrap long
+  lines</strong> drop-down list to have lines automatically
+  "wrapped"; that is, when a line exceeds the width of the <a href=
+  "komodo-doc-workspace.html#Editor_Pane">Editor Pane</a>, it wraps
+  to the next line. This is merely a display characteristic - no
+  end-of-line marker is inserted. You can choose
+  <strong>Word</strong>, <strong>Character</strong>, or leave it as
+  the default value of <strong>None</strong>. The
+  <strong>Character</strong> option wraps the line at the immediate
+  position where the line exceeds the width of the Editor Pane; the
+  <strong>Word</strong> option wraps the line from the beginning of
+  the word that extends beyond the width of the Editor Pane.</p>
+
+  <p><strong>Note</strong>: For lines that have been wrapped
+  automatically, the behavior of the 'Home' and 'End' keys is
+  slightly different. Pressing 'Home' or 'End' moves the cursor to
+  the beginning or end of the current line. Pressing the same key a
+  second time moves the cursor to the previous or next end-of-line
+  marker.</p>
+
+  <p>Select an option from the <strong>Word wrap markers</strong>
+  drop-down list to display markers in the Editor Pane. You can
+  choose to view <strong>End of line</strong> markers,
+  <strong>Start of line</strong> markers, <strong>Both</strong> or
+  <strong>None</strong>. The default is <strong>None</strong>.</p>
+
+  <h4><a name="Config_Edge_Line" id="Config_Edge_Line">Configuring
+  Edge Lines</a></h4>
+
+  <p>The edge line is a vertical line that indicates a column
+  marker.</p>
+
+  <ul>
+    <li><strong>Show edge line / Highlight characters beyond edge
+    line</strong>: Select to show where the line wraps, and to
+    highlight characters beyond the wrap column. With fixed-width
+    fonts, a line is drawn at the column specified. With
+    proportional-width fonts, those characters beyond the specified
+    column are drawn on a colored background. The line or
+    background color is configured on the <a class="doc" href=
+    "#Customizing_Fonts">Fonts and Colors</a> preference page.</li>
+
+    <li><strong>Edge line column</strong>: Specify the column
+    position of the vertical marker.</li>
+  </ul>
+
+  <p>Options set through the Preferences dialog box are the default
+  for all files opened in Komodo. Some <a href=
+  "#Smart_Editing">Smart Editing</a> features can be assigned to
+  <a href="komodo-doc-files.html#files_settings">individual
+  files</a>.</p>
+
+  <h4><a name="Soft_Chars" id="Soft_Chars">Soft Characters</a></h4>
+
+  <p><strong>Enable soft characters</strong> turns on
+  language-specific autocompletion for brackets, braces and other
+  delimiters. The highlighted closing character is inserted after
+  the cursor and can be "typed over". See <a href=
+  "komodo-doc-editor.html#Soft_Char">Soft Characters</a> in the
+  Editor section for more information.</p>
+
+  <p>This option also enables <a href=
+  "komodo-doc-editor.html#Fast_Char">Fast Characters</a> which
+  automatically moves the semicolon ";" to the correct position
+  when it is entered immediately before one or more soft
+  characters.</p>
+
+  <h4><a name="Folding" id="Folding">Configuring
+  Folding</a></h4>Komodo can fold (i.e. hide and un-hide) logical
+  segments of code in many languages and data file types. The
+  following options define how code folding looks and works:
+
+  <ul>
+    <li>
+      <strong>Fold mark style</strong>: Controls how the folding
+      will look.
+
+      <ul>
+        <li>Don't show fold marks (disables code folding)</li>
+
+        <li>Square Trees (default)</li>
+
+        <li>Curvy Trees</li>
+
+        <li>+/- signs</li>
+
+        <li>Arrows</li>
+      </ul>
+    </li>
+
+    <li><strong>Use horizontal line on folds</strong>: Draws a
+    horizontal line at the point of the code fold.</li>
+
+    <li><strong>Restore fold state on document load</strong>:
+    Preserves all folding from the previous editing session of a
+    file. Enabling this option may increase the loading time for
+    larger files with numerous folds.</li>
+  </ul>
+
+  <h3><a name="Save_Options" id="Save_Options">Save
+  Options</a></h3>
+
+  <p>To automatically fix whitespace errors when saving files:</p>
+
+  <ul>
+    <li><strong>Clean trailing whitespace and EOL markers</strong>:
+    Eliminates unnecessary empty space between text and EOL
+    markers, and fixes inappropriate EOL markers.</li>
+
+    <li><strong>Ensure file ends with EOL marker</strong>: Adds an
+    EOL marker to the last line in a file if one does not already
+    exist.</li>
+  </ul>
+
+  <p>Based on the specified <strong>Minutes between
+  auto-save</strong>, Komodo saves backup copies of all files open
+  in the editor. When Komodo is shut down normally, the backup
+  copies are deleted. If Komodo is shut down abnormally (such as
+  through a system crash), Komodo prompts to restore the backup
+  copy when the file is next opened. If you respond "Yes", the
+  backup copy of the file, rather than the (older) disk copy, is
+  opened in the editor.</p>
+
+  <p>When files without extensions are saved, Komodo can be
+  configured to prompt for an action. Configure the <strong>If
+  filename has no extension</strong> drop-down list:</p>
+
+  <ul>
+    <li><strong>Ask me what to do</strong>: Komodo prompts you with
+    a dialog box to decide what to do when a particular file is
+    saved without an extension.</li>
+
+    <li><strong>Add appropriate extension</strong>: Komodo
+    automatically adds an extension based on file content.</li>
+
+    <li><strong>Leave filename alone</strong>: Komodo does nothing
+    when a file is saved without an extension.</li>
+  </ul>
+
+  <h2><a name="Environment" id="Environment">Environment</a></h2>
+
+  <p>At startup, Komodo loads all environment variables it can
+  access. If it is launched from a desktop icon rather than a
+  shell, environment variables set in the default shell will
+  <em>not</em> be loaded automatically.</p>
+
+  <p>To ensure that Komodo runs with the correct environment
+  variables, (e.g. SCC settings, library locations, SSH options,
+  etc.) set them in the <strong>User Environment Variables
+  (override defaults)</strong> list box. Three buttons are
+  available for manipulating this list:</p>
+
+  <ul>
+    <li><strong>New...</strong>: opens a dialog box prompting for a
+    <strong>Name</strong> and <strong>Value</strong>.</li>
+
+    <li><strong>Edit...</strong>: opens a dialog box with the
+    currently selected user environment variable.
+    <strong>Name</strong> and <strong>Value</strong> can be
+    edited.</li>
+
+    <li><strong>Delete...</strong>: Deletes the currently selected
+    user environment variable.</li>
+  </ul>
+
+  <p>Additionally, double-clicking a variable in <strong>Startup
+  Environment Variables</strong> copies it into <strong>User
+  Environment Variables (override defaults)</strong> where it can
+  be edited. This new variable will override the one in
+  <strong>Startup Environment Variables</strong></p>
+
+  <h2><a name="File_Associations" id="File_Associations">File
+  Associations</a></h2>
+
+  <p>Komodo's file associations determine the functionality of
+  editing features such as <a href=
+  "komodo-doc-editor.html#AutoComplete">autocomplete</a> and
+  <a href="#Customizing_Fonts">code coloring</a>. Use the
+  <strong>File Associations</strong> preference to associate file
+  extensions and characteristics with particular languages.</p>
+
+  <p><strong><a name="edit_lang" id="edit_lang">Editing the
+  Language Associated with a File Pattern</a></strong></p>
+
+  <p>To edit the language associated with a file pattern:</p>
+
+  <ol>
+    <li>Select the desired extension from the
+    <strong>Patterns</strong> list.</li>
+
+    <li>From the <strong>Language</strong> drop-down list, select
+    the language to associate with the selected file pattern.</li>
+  </ol>
+
+  <p>To remove an association, select the desired pattern and click
+  <strong>Remove</strong>.</p>
+
+  <p><strong><a name="add" id="add">Adding a New File
+  Association</a></strong></p>
+
+  <p>To add a new file pattern/language association:</p>
+
+  <ol>
+    <li>Enter the desired pattern in the <strong>Pattern</strong>
+    field. The pattern consists of the wildcards and the naming
+    convention. Typically, file associations are made by the
+    filename extension; for example, a Perl script has the
+    extension ".pl". The pattern for a Perl script is therefore
+    "*.pl".</li>
+
+    <li>Select the language to associate with the pattern from the
+    <strong>Language</strong> drop-down list.</li>
+  </ol>
+
+  <p><strong><a name="file_content" id="file_content">Use File
+  Content to Determine Language</a></strong></p>
+
+  <p>Komodo can be configured to identify the language of a file
+  based on its contents rather than its extension. The following
+  characteristics can be used to override the file associations
+  settings for syntax checking and debugging configuration.</p>
+
+  <ul>
+    <li><strong><a name="xml_declarations" id=
+    "xml_declarations">XML Declarations</a></strong>: The
+    <strong>Use XML Declarations</strong> option checks for XML
+    declarations that specify the language of a file (e.g.
+    &lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt; for
+    XHTML 1.0).</li>
+
+    <li><strong>Shebang (#!...) Line</strong>: The <strong>Use
+    shebang line</strong> option checks for a "#!/..." line at the
+    top of a file that specifies the interpreter (e.g.
+    <code>#!/usr/bin/perl</code>).</li>
+
+    <li><strong><a name="emacs_style" id="emacs_style">Emacs-Style
+    Mode Variable</a></strong>: When this check box is selected, as
+    Komodo opens files, it checks for an embedded Emacs "mode"
+    specification used to set the syntax checking and debugging
+    configuration.</li>
+  </ul>
+
+  <h2><a name="Customizing_Fonts" id="Customizing_Fonts">Fonts and
+  Colors Preferences</a></h2>
+
+  <p>Komodo's Fonts and Colors Preference is used to customize the
+  display of text in the <a href=
+  "komodo-doc-top.html#Editor_Pane">Editor Pane</a>. To modify the
+  font and color preferences, from the <strong>Edit</strong> menu,
+  select <strong>Preferences</strong>, then click <strong>Fonts and
+  Colors</strong>.</p>
+
+  <p>The <strong>Sample Text</strong> window at the top of the
+  Fonts and Colors page offers a preview of the current scheme. If
+  multiple schemes are configured, select the desired scheme from
+  the <strong>Scheme</strong> drop-down list.</p>
+
+  <p>To create a new scheme:</p>
+
+  <ol>
+    <li>Select the scheme that you want to base your new scheme
+    upon.</li>
+
+    <li>Click the <strong>New</strong> button and enter a name for
+    the new scheme.</li>
+
+    <li>Make any necessary changes using the controls on the
+    <a class="doc" href="#fonts">Fonts</a>, <a class="doc" href=
+    "#colors">Colors</a>, <a class="doc" href=
+    "#common_syntax">Common Syntax Coloring</a>, and <a class="doc"
+    href="#lang_specific">Language-Specific Coloring</a> tabs.</li>
+
+    <li>Click <strong>OK</strong> to save the new scheme.</li>
+  </ol>
+
+  <p>Schemes are added to the <strong>Scheme</strong> drop-down
+  list. Remove the selected scheme by clicking the
+  <strong>Delete</strong> button. System schemes appear in bold and
+  cannot be deleted.</p>
+
+  <h3><a name="fonts" id="fonts">Fonts</a></h3>
+
+  <p>The <strong>Fonts</strong> tab is used to configure the
+  display characteristics for fixed-width and/or proportional
+  fonts. Note that the default font characteristics configured on
+  this tab are not overridden by any <a href=
+  "#lang_specific">language-specific</a> font configurations.</p>
+
+  <p>To create a scheme that affects characters in specific
+  encodings, select the type of encoding from the
+  <strong>Encoding</strong> drop-down list. If you do not specify
+  the encoding, Komodo uses the system's default encoding.</p>
+
+  <p>The <strong>Fonts</strong> tab contains two identical sets of
+  font controls, one for fixed-width fonts on the left, and the
+  other for proportional fonts on the right. Select the
+  <strong>Prefer Fixed</strong> or <strong>Prefer Prop.</strong>
+  option button to set the desired font type and then use the
+  drop-down list immediately beneath the selected option to choose
+  a specific font.</p>
+
+  <ul>
+    <li><strong>Font</strong>: Select specific fixed-width or
+    proportional fonts from the drop-down lists. (On Linux, the
+    same list of fonts is displayed in both drop-down lists. On
+    GTK, there is no programmatic way to identify whether a font is
+    proportional or not; therefore, you must know the properties of
+    the individual fonts when modifying these values.)</li>
+
+    <li><strong>Font Size</strong>: Select the size of the font
+    from the drop-down list.</li>
+
+    <li><strong>Bold</strong>: If you want the default font to be
+    displayed in bold, click the "B".</li>
+
+    <li><strong>Italic</strong>: If you want the default font to be
+    displayed in italics, click the "I".</li>
+
+    <li><strong>Font Color</strong>: Set the font color by clicking
+    on the "Fore" color box. Select the desired color from the
+    color picker dialog box. Click the small arrow button to set
+    the font color using the system color palette.</li>
+
+    <li><strong>Background Color</strong>: Set the background color
+    for the <a href="komodo-doc-top.html#Editor_Pane">Editor
+    Pane</a> by clicking on the "Back" color box. Select the
+    desired color from the color picker dialog box. Click the small
+    arrow button to set the background color using the system color
+    palette.</li>
+
+    <li><strong>Reset</strong>: Click this button to return the
+    font and color preferences to Komodo's original, default
+    settings.</li>
+  </ul>
+
+  <h3><a name="colors" id="colors">Colors</a></h3>
+
+  <p>Use the <strong>Color Choice</strong> drop-down list on the
+  <strong>Colors</strong> tab to configure general color properties
+  for the Editor Pane. After selecting an interface component from
+  the list, click the box to the right of the drop-down list to
+  choose a color from the color palette, or click the small arrow
+  button to select a color from the system color palette.</p>
+
+  <p>The following interface elements can be configured:</p>
+
+  <ul>
+    <li><strong>Current Line Background Color</strong>: The color
+    configured here does not take effect unless the
+    <strong>Highlight Current Line</strong> check box is selected.
+    This sets the highlighting color of the line in which the
+    editing cursor is positioned.</li>
+
+    <li><strong>Cursor Color</strong>: Sets the color of the
+    editing cursor.</li>
+
+    <li><strong>Selection Background Color</strong>: The background
+    of text that has been selected in the <a href=
+    "komodo-doc-top.html#Editor_Pane">Editor Pane</a> (by
+    double-clicking, or clicking and dragging), is colored
+    according to this setting.</li>
+
+    <li><strong>Selection Text Color</strong>: This option is only
+    available if the <strong>Override Text Color in
+    Selection</strong> check box is selected. Regardless of other
+    color configurations, all text that has been selected in the
+    Editor Pane (by double-clicking, or clicking and dragging), is
+    displayed in the color specified in this setting.</li>
+
+    <li><strong>Active Breakpoints Color</strong>: Sets the color
+    of the breakpoint at which the <a href=
+    "komodo-doc-debugger.html#debugger_top">debugger</a> is
+    currently stopped.</li>
+
+    <li><strong>Pending Breakpoints Color</strong>: Sets the color
+    of breakpoints at which the debugger has yet to stop.</li>
+
+    <li><strong>Bookmark Color</strong>: Sets the color of the
+    <a class="doc" href=
+    "komodo-doc-editor.html#bookmarks">bookmarks</a> that are
+    inserted in the margin to the left of the Editor Pane.</li>
+
+    <li><strong>Debugger Current Line Background Color</strong>:
+    Sets the background color of the line highlighted by the
+    debugger.</li>
+
+    <li><strong>Debugger Calling Line Background Color</strong>:
+    Sets the color of lines that call subroutines. Caller line
+    coloring is applied only when you have changed the stack
+    position to view the line that calls the current line. View
+    caller lines in the <strong>Call Stack</strong> drop-down list
+    box on the <strong>Variables</strong> tab on the
+    <strong>Debug</strong> tab.</li>
+
+    <li><strong>Edge Line/Background Color of Text Too
+    Far</strong>: If <a class="doc" href="#Config_Auto_Wrap">Word
+    Wrap</a> is enabled, use this option to set the color of the
+    word wrap column marker, as well as the highlighted characters
+    beyond the wrap column. If using fixed-width fonts, a line is
+    drawn at the specified column. If using a proportional-width
+    font, characters beyond the specified column are drawn on a
+    colored background.</li>
+  </ul>
+
+  <p>The <strong>Override Text Color in Selection</strong> check
+  box activates the "Selection Text Color" setting described above.
+  The <strong>Highlight Current Line</strong> check box activates
+  the coloring specified in the "Current Line Background Color"
+  setting described above.</p>
+
+  <h3><a name="common_syntax" id="common_syntax">Common Syntax
+  Coloring</a></h3>
+
+  <p>Some language elements are common to a number of programming
+  languages. The element colors specified on the <strong>Common
+  Syntax Coloring</strong> tab applies to all languages that use
+  these elements. Select an element from the <strong>Element
+  Type</strong> drop-down list and use controls described below to
+  set the font characteristics. Note that the font characteristics
+  configured on this tab are overridden by any <a class="doc" href=
+  "#lang_specific">language-specific</a> font configurations.</p>
+
+  <ul>
+    <li><strong>Face</strong>: Select the typeface of the font from
+    the drop-down list. You can choose either "Fixed-width" or
+    "Proportional".</li>
+
+    <li><strong>Size</strong>: Select the size of the font from the
+    drop-down list.</li>
+
+    <li><strong>Bold</strong>: If you want the default font to be
+    displayed in bold, click the "B".</li>
+
+    <li><strong>Italic</strong>: If you want the default font to be
+    displayed in italics, click the "I".</li>
+
+    <li><strong>Font Color</strong>: Set the font color by clicking
+    on the foreground color box. Select the desired color from the
+    color picker dialog box, or click the small arrow button to
+    select a color from the system color palette.</li>
+
+    <li><strong>Background Color</strong>: Set the background color
+    for the Editor Pane by clicking on the background color box.
+    Select the desired color from the color picker dialog box, or
+    click the small arrow button to select a color from the system
+    color palette.</li>
+
+    <li><strong>Reset</strong>: Click this button to return the
+    font and color preferences to Komodo's original, default
+    settings.</li>
+  </ul>
+
+  <h3><a name="lang_specific" id="lang_specific">Language-Specific
+  Coloring</a></h3>
+
+  <p>The colors configured on the <strong>Language-Specific
+  Coloring</strong> tab apply to elements that appear in a specific
+  language. Select a language from the <strong>Language</strong>
+  drop-down list and an element from the <strong>Element
+  Type</strong> drop-down list, then use the controls described
+  below to set the font characteristics.</p>
+
+  <ul>
+    <li><strong>Face</strong>: Select the typeface of the font from
+    the drop-down list. You can choose either "Fixed-width" or
+    "Proportional".</li>
+
+    <li><strong>Size</strong>: Select the size of the font from the
+    drop-down list.</li>
+
+    <li><strong>Bold</strong>: If you want the default font to be
+    displayed in bold, click the "B".</li>
+
+    <li><strong>Italic</strong>: If you want the default font to be
+    displayed in italics, click the "I".</li>
+
+    <li><strong>Font Color</strong>: Set the font color by clicking
+    on the foreground color box. Select the desired color from the
+    color picker dialog box, or click the small arrow button to
+    select a color from the system color palette.</li>
+
+    <li><strong>Background Color</strong>: Set the background color
+    for the Editor Pane by clicking on the background color box.
+    Select the desired color from the color picker dialog box, or
+    click the small arrow button to select a color from the system
+    color palette.</li>
+
+    <li><strong>Reset</strong>: Click this button to return the
+    font and color preferences to Komodo's original, default
+    settings.</li>
+  </ul>
+
+  <h2><a name="http_inspector" id="http_inspector">HTTP Inspector
+  Preferences</a> <span class="version_alert">Komodo IDE
+  only</span></h2>
+
+  <p>The HTTP Inspector runs a local proxy for examining HTTP
+  traffic between browser and server. This proxy has the following
+  configuration options:</p>
+
+  <p><strong>HTTP Inspector Options</strong>:</p>
+
+  <ul>
+    <li><strong>Run HTTP Inspector at startup</strong>: If
+    selected, this starts the proxy when Komodo is launched. If
+    not, the proxy can be started from the HTTP Inspector
+    interface.</li>
+
+    <li><strong>Listen on port</strong>: Specify the port the proxy
+    runs on. Most proxies use port 8080.</li>
+
+    <li><strong>Only accept connections from the local
+    machine</strong>: Enabled by default.</li>
+  </ul>
+
+  <p><strong>Proxy forwarding</strong>:</p>
+
+  <ul>
+    <li><strong>Enable proxy forwarding</strong>: Enable this
+    option if you use an HTTP proxy to connect to the internet
+    (i.e. at your network gateway).</li>
+
+    <li><strong>Forward proxy connections on to this host</strong>:
+    If you have enabled proxy forwarding, enter the proxy
+    information in the format
+    <code>&lt;hostname&gt;:&lt;port&gt;</code>. If no port is
+    specified, Komodo will attempt to use port 8080.</li>
+  </ul>
+
+  <h2><a name="int_shell" id="int_shell">Interactive Shell
+  Preferences</a> <span class="version_alert">Komodo IDE
+  only</span></h2>
+
+  <p>The <a href=
+  "komodo-doc-intshell.html#intshell_top">Interactive Shell</a> is
+  an implementation of the language interpreter's shell within the
+  Komodo environment. These preferences set the default behavior
+  for interactive shell functionality.</p>
+
+  <ul>
+    <li><strong>Preferred Language</strong>: Specify which language
+    interpreter's shell is launched when the interactive shell is
+    invoked.</li>
+
+    <li>
+      <strong>Session Control</strong>:
+
+      <ul>
+        <li><strong>Close tab when interactive shell session
+        ends</strong>: If this option is selected, the
+        <strong>Shell</strong> tab closes when the
+        <strong>Stop</strong> button is clicked. Otherwise, the tab
+        remains visible (although you must invoke another
+        interactive shell session to use the shell).</li>
+
+        <li><strong>Confirm when closing interactive
+        shell</strong>: When you attempt to close the
+        <strong>Shell</strong> tab before stopping the session (by
+        clicking the <strong>Stop</strong> button), this option
+        determines whether you are prompted for confirmation. The
+        confirmation dialog box has an option to disable the
+        warning; to re-enable the warning, set this field to
+        <strong>Ask me each time</strong>.</li>
+      </ul>
+    </li>
+
+    <li><strong>Working Directory</strong>: This option sets the
+    "current" directory for the interactive shell session. Specify
+    the desired directory.</li>
+  </ul>
+
+  <h2><a name="Internationalization" id=
+  "Internationalization">Internationalization Preferences</a></h2>
+
+  <p>Language encodings provide support for files containing
+  characters in non-ASCII character sets.</p>
+
+  <p>Encodings are determined in the following order:</p>
+
+  <ol>
+    <li><strong>File Preference</strong>: If a specific encoding
+    has been assigned to a file via the file's <a class="doc" href=
+    "komodo-doc-files.html#files_settings">Properties and
+    Settings</a> context menu, the assigned encoding is always used
+    when that file is opened.</li>
+
+    <li><strong>Auto-Detect</strong>: If the <strong>Auto-Detect
+    File Encoding when Opened</strong> box is checked, Komodo
+    analyzes the existing encoding of the file by first looking for
+    a Byte Order Marker (BOM), then by checking for an XML
+    declaration, and then by performing heuristic analysis on the
+    file's contents. If an encoding can be determined, it is
+    applied.</li>
+
+    <li><strong>Language-specific Default Encoding</strong>:
+    Specific encodings can be assigned to programming languages.
+    (Komodo determines the programming language of a file based on
+    the <a class="doc" href="#File_Associations">File
+    Association</a> preferences.) If an encoding is associated with
+    a programming language, that encoding is used. Check
+    <strong>Signature (BOM)</strong> to embed a Byte Order Marker
+    (BOM) at the beginning of the file. If the specified encoding
+    is set to the default encoding, the <strong>System Encoding or
+    Custom Encoding</strong> is used.</li>
+
+    <li>
+      <strong>System Encoding or Custom Encoding</strong>: If the
+      <strong>Use Encoding Defined in Environment</strong> box is
+      checked, Komodo uses the encoding specified in the operating
+      system. The following system variables are checked:
+
+      <ul>
+        <li><strong>Windows</strong>: The Control Panel's "Regional
+        Settings" (Windows 98, ME, and NT); "Regional Options"
+        (Windows 2000); "Regional and Language Options" (Windows
+        XP).</li>
+
+        <li><strong>Mac OS X</strong>: The "International" settings
+        accessed via the the OS X System Preferences.</li>
+
+        <li><strong>Linux</strong>: <code>LC_CTYPE</code>,
+        <code>LANG</code> and <code>LANGUAGE</code>.</li>
+      </ul>To use a different encoding, uncheck this box and select
+      the desired encoding from the <strong>Custom
+      Encoding</strong> drop-down list.
+    </li>
+  </ol>
+
+  <p>When you create a <a href="#new_files">new file</a>, only the
+  third and fourth methods described above are used to set the
+  file's encoding.</p>
+
+  <p>The following settings override all other encoding settings
+  except the <strong>File Preference</strong> setting.</p>
+
+  <ul>
+    <li><strong>Allow XML Declaration to Override
+    Auto-Detection</strong>: Komodo always uses the XML encoding
+    declaration contained in the XML file when opening XML files
+    (if applicable).</li>
+
+    <li><strong>Allow HTML META tag to Override
+    Auto-Detection</strong>: Komodo uses the <code>charset</code>
+    setting defined in META tags in HTML documents.</li>
+
+    <li><strong>Allow 'coding:' tag to Override
+    Auto-Detection</strong>: If the file contains a
+    "<code>coding:&nbsp;&lt;encoding_name&gt;</code>" directive
+    within the first two lines, that encoding is used.</li>
+  </ul>
+
+  <p>The <strong>Date &amp; Time</strong> format determines the
+  display format of the date and time for items listed on the Start
+  Page, and for the <a class="doc" href=
+  "komodo-doc-files.html#files_settings">Current File settings</a>
+  display.</p>
+
+  <h2><a name="language_help" id="language_help">Language Help
+  Settings</a></h2>
+
+  <p>Use the <strong>Language Help</strong> page in Komodo
+  Preferences (<strong>Edit|Preferences|Language Help</strong>) to
+  configure context-sensitive language look-up.</p>
+
+  <h3>Configuring Reference Locations</h3>
+
+  <p>The <strong>Language Lookup Commands</strong> section of the
+  Language Help page displays the default URL for language-specific
+  help. (The <code>%(browser)</code> string is an <a href=
+  "komodo-doc-shortcuts.html#shortcuts_top">interpolation
+  shortcut</a>.) If you are using the default <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>
+  scheme, 'Shift'+'F1' ('Meta'+'/' on Mac OS X) opens a browser
+  window and looks up the address of the sites specified here. The
+  site is selected according to the type of file currently active
+  in the Editor Pane. (To configure file association, see <a class=
+  "doc" href="#File_Associations">File Associations</a>.)</p>
+
+  <p>The <strong>General Help</strong> field is used to specify a
+  help location that does not specifically apply to a language (or
+  applies to a language not available in the above list).</p>
+
+  <p>To reset any of the help settings to their original value,
+  click <strong>Reset</strong> beside the pertinent field.</p>
+
+  <h3>Using Language Help</h3>
+
+  <p>In the <a href="komodo-doc-top.html#Editor_Pane">Editor
+  Pane</a>, double-click to select the keyword that you want to
+  look up. Then, if you are using the default <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>
+  scheme, press 'Shift'+'F1' ('Meta'+'/' on Mac OS X) to invoke a
+  browser window and look up the keyword on the site configured in
+  the Preferences. Press 'Ctrl'+'F1' ('Meta'+'Ctrl'+'/' on Mac OS
+  X) to perform the lookup using the site configured in the
+  <strong>General Help</strong> field on the Language Help
+  page.</p>
+
+  <h2><a name="lang_config" id="lang_config">Language
+  Configuration</a></h2>
+
+  <p>To configure the languages supported by Komodo, select
+  <strong>Edit|Preferences|Languages</strong>, then select the
+  desired language.</p>
+
+  <h3><a name="JavaScript" id="JavaScript">Configuring
+  JavaScript</a></h3>
+
+  <p><strong>Firefox Extension for Debugging</strong>: The
+  <strong>Komodo JavaScript Debugger</strong> Firefox extension is
+  required to support the browser-side component of JavaScript
+  debugging. Click <strong>Install/Upgrade 'Komodo JavaScript
+  Debugger' Firefox extension</strong> to install this extension
+  (and the 'jslib' extension it needs) into Firefox.</p>
+
+  <p><strong>JavaScript Directories</strong>: Specify any
+  directories that you want Komodo to use for autocompletion and
+  calltips. Komodo scans these directories recursively (up to 5
+  directories deep) for information.</p>
+
+  <h3><a name="html" id="html">Configuring HTML</a></h3>
+
+  <p>Komodo works in conjunction with <a target="_blank" href=
+  "http://tidy.sourceforge.net/">HTML Tidy</a> to provide
+  configurable syntax checking for HTML files. The following
+  options can be configured:</p>
+
+  <ul>
+    <li><strong>Error Level</strong>: <strong>Errors Only</strong>
+    displays all HTML errors with a red underline; <strong>Errors
+    and Warnings</strong> displays both errors and warnings with a
+    red underline.</li>
+
+    <li>
+      <strong>WAI Accessibility Conformance level</strong>: The
+      <a target="_blank" href=
+      "http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/">Web
+      Accessibility Initiative</a> (WAI) provides HTML developers
+      with <a target="_blank" href=
+      "http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#themes">guidelines</a>
+      for making web content accessible to those with disabilities.
+      These guidelines include methods for making content
+      understandable and navigable (for example, adding "alt" text
+      to an "img" tag for those who cannot view images). WAI
+      accessibility levels are:
+
+      <ul>
+        <li><strong>Off</strong>: WAI accessibility is off. No
+        WAI-related syntax errors are reported.</li>
+
+        <li><strong>Priority 3</strong>: The lowest WAI conformance
+        level. One or more groups will have difficulty accessing
+        the information in this document.</li>
+
+        <li><strong>Priority 2</strong>: Satisfying this level
+        removes significant barriers to accessing content in this
+        document.</li>
+
+        <li><strong>Priority 1</strong>: The highest WAI
+        conformance level. A web content developer must satisfy
+        this level for the greatest content accessibility.</li>
+      </ul>
+    </li>
+
+    <li><strong>Configuration File</strong>: Tidy functionality can
+    be customized via a custom configuration file. See <a target=
+    "_blank" href="http://www.w3.org/People/Raggett/tidy/">teaching
+    Tidy about new tags</a> on the W3C site for information on
+    building a custom configuration file. To specify a custom Tidy
+    configuration file, click <strong>Browse</strong> beside the
+    <strong>Configuration File</strong> text box to locate the
+    configuration file on your filesystem.</li>
+  </ul>
+
+  <h3><a name="xml_catalogs" id="xml_catalogs">Configuring XML
+  Catalogs</a></h3>
+
+  <p>Komodo has built-in support for a wide range of <a href=
+  "komodo-doc-editor.html#XML_AutoComplete">XML dialects</a>.
+  Support for additional XML dialects can be configured by adding
+  <a href="komodo-doc-catalogs.html">XML Catalog</a> files. These
+  files map XML namespaces to local DTD and RelaxNG Schema
+  files.</p>
+
+  <p>Click the <strong>Add...</strong> button to add your own
+  catalogs.</p>
+
+  <p>Click the <strong>Delete...</strong> button to delete the
+  currently selected catalog from the list.</p>
+
+  <p>Use the arrow buttons to rearrange the order of the catalogs.
+  Catalogs at the top of the list take precedence over those below.
+  All catalogs specified here (and the DTDs and RelaxNG Schemas
+  referenced by them) take precedence over the ones that ship with
+  Komodo.</p>
+
+  <h2><a name="mapped_uris" id="mapped_uris">Mapped URIs</a></h2>
+
+  <p>Mapped URIs are associations that allow Komodo to open files
+  specified at one location using a different path.</p>
+
+  <p>For example, opening a file with the URL:</p>
+  <pre class="code">
+http://www.example.org/index.html
+</pre>... might open the file from:
+  <pre class="code">
+/var/www/index.html
+</pre>... which would be an editable copy of the file.
+
+  <p>These URI mappings are particularly useful for:</p>
+
+  <ul>
+    <li>remote debugging</li>
+
+    <li>dragging URLs into the Editor pane</li>
+
+    <li>previewing HTML files</li>
+  </ul>
+
+  <p>To map a URI (the address of an internet or network resource,
+  such as a web URL) to a local directory:</p>
+
+  <ol>
+    <li>Click the <strong>Add...</strong> button.</li>
+
+    <li>Enter the URI in the <strong>URI</strong> field.</li>
+
+    <li>Enter the path in the <strong>Path</strong> field or click
+    the <strong>Local...</strong> or <strong>Remote...</strong>
+    buttons to browse to and select the desired directory.</li>
+  </ol>
+
+  <p>The <strong>Path</strong> can refer to remote paths that are accessed via
+  FTP, SFTP, or SCP (e.g. scp://user@host.example.org:/home/user/) in addition
+  to paths on the local filesystem. If the remote server is configured under <a
+  href="#Servers">Servers Preferences</a>, Komodo will open the file without
+  prompting for authentication.</p>
+
+  <p>Double-click an existing mapping in the list to edit the URI
+  or Local Path. URI mappings are substring matches. For example,
+  <em>/home/user/public_html/project</em> would match any
+  directories starting with that string (i.e. subdirectories
+  <em>project_1</em>, <em>project_2</em>, etc.).</p>
+
+  <h2><a name="new_files" id="new_files">New Files
+  Preferences</a></h2>
+
+  <p>When the <strong>New</strong> button is used to create a new
+  file, Komodo, by default, opens a text file in the <a href=
+  "komodo-doc-top.html#Editor_Pane">Editor Pane</a>. To alter the
+  default, select the desired file type from the drop-down list. To
+  specify the end-of-line marker for new files, select the desired
+  marker from the drop-down list.</p><!--this is gone?
+<p>If you open a file in the Komodo editor that has no line endings, Komodo will
+use the value specified in this preference for subsequent line endings. Otherwise,
+it uses the line ending already in use in the file.</p>-->
+
+  <p>The Komodo templates used to create new files
+  <strong>(File|New|New File)</strong> support the same <a class=
+  "doc" href=
+  "komodo-doc-shortcuts.html#shortcuts_top">Interpolation
+  Shortcut</a> codes as snippets and run commands. Prior to Komodo
+  Version 2.5, only a limited set of variables could be used (for
+  example, to embed the current date and time in files created from
+  custom templates). The new Interpolation Shortcuts are more
+  powerful but are backward-incompatible.</p>
+
+  <p>Enter a number in the <strong>Number of recent templates to
+  remember</strong> field to specify how many recent template names
+  appear on the <strong>File|New</strong> drop-down menu.</p>
+
+  <p>The encoding for new files is determined by the configuration
+  of the <a href="#Internationalization">Internationalization</a>
+  preference.</p>
+
+  <h2><a name="printing" id="printing">Printing
+  Preferences</a></h2>
+
+  <ul>
+    <li><strong>Print Line Numbers</strong>: Check this box to
+    print the line numbers.</li>
+
+    <li><strong>Print in Color</strong>: To print in the colors
+    displayed in the <a href=
+    "komodo-doc-top.html#Editor_Pane">Editor Pane</a>, check this
+    box.</li>
+
+    <li><strong>Wrap long lines at <em>n</em> characters</strong>:
+    Set the column at which lines will wrap. Specify "0" characters
+    for no line wrapping.</li>
+
+    <li><strong>Scale font sizes from screen to print by
+    <em>n</em></strong>: Specify the number of times larger or
+    smaller the printed font size will be in relation to its size
+    on screen. The default is "1.5". Specify "1" to print the
+    current font size.</li>
+  </ul>
+
+  <h2><a name="projects" id="projects">Projects and Workspace
+  Preferences</a></h2>
+
+  <p><strong>Workspace</strong></p>
+
+  <p>Use the <strong>When starting Komodo</strong> field to specify
+  the display when Komodo is opened.</p>
+
+  <ul>
+    <li><strong>Ask me whether to restore workspace</strong>:
+    Komodo prompts to open recent <a href=
+    "komodo-doc-files.html#files_top">files</a> and <a href=
+    "komodo-doc-project.html#project_top">projects</a>.</li>
+
+    <li><strong>Restore last workspace</strong>: Komodo displays
+    the workspace exactly as it was when you last quit Komodo
+    (including expanded tabs and open files).</li>
+
+    <li><strong>Do not restore last workspace</strong>: Komodo
+    displays the default workspace (the Start Page and no expanded
+    tabs).</li>
+  </ul>
+
+  <p><strong>Opening and Closing Projects</strong></p>
+
+  <p>These options specify the relationship between projects and
+  files that are open in the <a href=
+  "komodo-doc-top.html#Editor_Pane">Editor Pane</a>.</p>
+
+  <p>When opening a project, set Komodo to:</p>
+
+  <ul>
+    <li><strong>Ask me what to do</strong>: Komodo prompts whether
+    the files that were open when the project was last closed
+    should be re-opened.</li>
+
+    <li><strong>Open recent files</strong>: Komodo automatically
+    opens the files that were open when the project was last
+    closed.</li>
+
+    <li><strong>Open no files</strong>: Komodo opens the project
+    without opening any files.</li>
+  </ul>
+
+  <p>When closing a project, set Komodo to:</p>
+
+  <ul>
+    <li><strong>Ask me what to do</strong>: Komodo prompts whether
+    open files associated with the project should be closed.</li>
+
+    <li><strong>Close all open files in project</strong>: Komodo
+    automatically closes open files associated with the
+    project.</li>
+
+    <li><strong>Close no files</strong>: Komodo closes no
+    files.</li>
+  </ul>
+
+  <p><strong><a name="file_info" id="file_info">File Status Updates
+  in Projects tab</a></strong></p>
+
+  <p>The <strong>Update file status automatically</strong> option
+  enables a periodic check of the read/write status and the
+  <a href="komodo-doc-scc.html#scc_top">source code control</a>
+  status of components stored in the <a href=
+  "komodo-doc-project.html#project_top">Projects tab</a> and the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a>.</p>
+
+  <p>Status refresh can also be performed manually; see <a href=
+  "komodo-doc-project.html#Refreshing_a_Project">Refreshing Project
+  Status</a> for more information.</p>
+
+  <p><strong>Importing Files From Disk</strong></p>
+
+  <p>Specify the defaults for the <strong>Import from File
+  System</strong> option, available in the option in the <a href=
+  "komodo-doc-project.html#project_top">Projects tab</a>, the
+  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, and in
+  <a href="komodo-doc-folders.html#folders_top">folders</a> stored
+  in either a project or the Toolbox. These defaults can be
+  overridden in the <strong>Import from File System</strong> dialog
+  box.</p>
+
+  <ul>
+    <li><strong>Filenames to include</strong>: Specify the
+    filenames to include. Use wildcards ("*" and "?") to specify
+    groups of files. Separate multiple file specifications with
+    semicolons. If the field is left blank, all files in the
+    specified directory are imported.</li>
+
+    <li><strong>Filenames to exclude</strong>: Specify the file and
+    directory names to exclude. Use wildcards ("*" and "?") to
+    specify groups of files. Separate multiple file specifications
+    with semicolons. If the field is left blank, no files in the
+    specified directory are excluded.</li>
+
+    <li>
+      <strong>Import Subdirectories Recursively</strong>: To import
+      subdirectories located beneath the directory specified for
+      the import, check <strong>Import Subdirectories
+      Recursively</strong>. Specify how Komodo should handle
+      subdirectories by selecting one of the following options:
+
+      <ul>
+        <li><strong>Import directory structure</strong>: If the
+        <strong>Import Subdirectories Recursively</strong> box is
+        checked and this option is selected, Komodo creates folders
+        within the project that represent imported directories.
+        Thus, the directory structure is preserved within the
+        project.</li>
+
+        <li><strong>Make a folder per language</strong>: If this
+        option is selected, imported files are organized into
+        folders according to the language indicated by file pattern
+        in the filename. File associations are configured in the
+        Komodo <a class="doc" href=
+        "komodo-doc-prefs.html#File_Associations">Preferences</a>.
+        Each folder is named after the associated language, for
+        example, "Perl files", "XML files", etc. Files that don't
+        correspond to a known file pattern are stored in a folder
+        called "Other files".</li>
+
+        <li><strong>Make one flat list</strong>: If this option is
+        selected, all the imported files are placed directly under
+        the project or folder from which the <strong>Import from
+        File System</strong> command was invoked.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p><strong>Triggering Macros</strong></p>
+
+  <p><a href="komodo-doc-macros.html#macros_top">Macros</a> can be
+  configured to execute when specific Komodo events occur (such as
+  before a file is saved or after a file is closed). To disable
+  this feature, uncheck <strong>Enable triggering of macros on
+  Komodo events</strong>.</p>
+
+  <h2><a name="Servers" id="Servers">Servers Preferences</a></h2>
+
+  <p>Use the <strong>Servers</strong> page to configure server
+  account settings for remote file access. To access the Servers
+  page, select <strong>Edit|Preferences|Servers</strong>. You can
+  also manually specify a connection (server name, username and
+  password) when opening or saving remote files.</p>
+
+  <p>See <a href=
+  "komodo-doc-files.html#Opening_Remote_Files">Opening Remote
+  Files</a> for information about working with remote files.</p>
+
+  <p>If no servers have been previously configured, enter access
+  information as described below and click the <strong>Add</strong>
+  button. If there are prior server configurations, click the
+  <strong>New Server</strong> button to clear the fields. To alter
+  an existing configuration, select the configuration from the
+  drop-down list, make the desired changes, then click the
+  <strong>Update</strong> button. To delete a configuration, select
+  the desired configuration and click the <strong>Delete</strong>
+  button.</p>
+
+  <ul>
+    <li><strong>Remote Accounts</strong>: Previous server
+    configurations can be accessed via this field.</li>
+
+    <li><strong>Server Type</strong>: Select the type of connection
+    to the server (FTP, SFTP or SCP).</li>
+
+    <li><strong>Name</strong>: Enter a name for the account. The
+    value in this field is displayed in the "Remote Accounts"
+    drop-down list box, and is used as the Server name in the
+    <a class="doc" href=
+    "komodo-doc-files.html#Opening_Remote_Files">Remote File</a>
+    dialog box.</li>
+
+    <li><strong>Hostname</strong>: Enter the name of the remote
+    server. The name may be fully qualified (e.g.
+    "server.example.org", or just the hostname of a machine within
+    a local domain.</li>
+
+    <li><strong>Port</strong>: Enter the port to use to connect to
+    the server. SFTP and SCP generally use port 22. FTP generally
+    uses port 21.</li>
+
+    <li><strong>User Name</strong>: If you require an account to
+    use the remote server, enter the user name in this field. If
+    the server accepts anonymous access, enter "anonymous" or click
+    the <strong>Anonymous Login</strong> check box.</li>
+
+    <li><strong>Password</strong>: If you require an account to use
+    the remote server, enter the account password in this field. If
+    access to the server is anonymous, the password is usually an
+    email address (such as "user@host.com").</li>
+
+    <li><strong>Default Path</strong>: To specify the directory
+    that displays when you connect to the server, enter the path in
+    this field.</li>
+
+    <li><strong>Anonymous Login</strong>: If the server allows
+    anonymous login, check this box.</li>
+  </ul>
+
+  <p><strong>Note</strong>: Passwords are stored (encrypted) using
+  Mozilla's password manager.</p>
+
+  <h2><a name="Shared_Support" id="Shared_Support">Shared Support
+  Preferences</a></h2>
+
+  <p>Komodo's shared support functionality is used to configure
+  components on one machine and distribute them for use on other
+  machines. Shared support is implemented via a "Common Data
+  Directory", which stores the shared components. The following
+  components can be shared:</p>
+
+  <ul>
+    <li><a href=
+    "komodo-doc-templates.html#templates_top">templates</a></li>
+
+    <li><a href="komodo-doc-toolbox.html#toolbox_top">Shared
+    Toolbox</a></li>
+
+    <li>Tcl .tip files (<a href=
+    "komodo-doc-editor.html#Linting">syntax definition</a>
+    files)</li>
+
+    <li>.pcx files (checker extension files that define exact
+    syntax information)</li>
+
+    <li>.pdx files (debugger extension files)</li>
+
+    <li>preferences</li>
+  </ul>
+
+  <p>To configure shared support, select
+  <strong>Edit|Preferences|Shared Support</strong>.</p>
+
+  <p>To access shared components, Komodo users must have "read"
+  access rights to shared files in both the Common Data Directory
+  and the <a href="komodo-doc-toolbox.html#toolbox_share">Shared
+  Toolbox</a> (if the directory is not the same as the Common Data
+  Directory). To alter shared components, users must also have
+  "write" rights.</p>
+
+  <p>By default, the <a name="Config_CDD" id="Config_CDD">The
+  Common Data Directory</a> is the same as the <a href=
+  "komodo-doc-trouble.html#appdata_dir">user data</a>
+  directory.</p>
+
+  <p>To specify a custom location for the Common Data
+  Directory:</p>
+
+  <ol>
+    <li>On the <strong>Edit</strong> menu, select
+    <strong>Preferences|Shared Support</strong>.</li>
+
+    <li>Click <strong>Use custom Common Data Directory
+    location</strong>.</li>
+
+    <li>Click <strong>Choose</strong> to select a new
+    location.</li>
+
+    <li>Click <strong>OK</strong>.</li>
+  </ol>
+
+  <h3><a name="Share_Files" id="Share_Files">Sharing .tip, .pcx and
+  .pdx Files</a></h3>
+
+  <p>Through Shared Support, .tip files (which provide syntax
+  checking for PHP and Tcl) can be made available site-wide. All
+  .tip files should be stored along with the default .tip
+  information in the <em>tcl</em> subdirectory of the Common Data
+  Directory.</p>
+
+  <p>The other file types that can be shared are .pcx files, which
+  can be used to extend the command information supported by the
+  TDK Checker and Komodo Tcl linter, and .pdx files, which are
+  debugger extension files that define debugging functions, such as
+  spawnpoints. Like .tip files, .pcx and .pdx files are stored in
+  the <em>tcl</em> subdirectory of the Common Data Directory.</p>
+
+  <h3><a name="Share_Prefs" id="Share_Prefs">Sharing
+  Preferences</a></h3>
+
+  <p>Shared preferences are used to set a default preference
+  configuration that is shared between multiple Komodo users. An
+  organization or user group can specify defaults like the language
+  type for new files, default tab widths, and other Komodo
+  settings.</p>
+
+  <p>There are three levels of preference recognition in
+  Komodo:</p>
+
+  <ol>
+    <li>user preferences</li>
+
+    <li>shared preferences (common)</li>
+
+    <li>default preferences (factory)</li>
+  </ol>
+
+  <p>In a shared configuration, user preferences always override
+  the shared preferences. Shared preferences always override the
+  default preferences.</p>
+
+  <p>To configure shared preferences, set the desired preferences
+  in one instance of Komodo. (This sets user preferences for that
+  Komodo installation.) Then, edit the <em>prefs.xml</em> file that
+  stores the preferences.</p>
+
+  <p>The default locations are as follows:</p>
+
+  <ul>
+    <li><strong>Windows</strong>: <em>C:\Program Files\ActiveState
+    Komodo 3.x</em></li>
+
+    <li><strong>Mac OS X</strong>:
+    <em><em>&lt;komodo-install-directory&gt;</em>/Contents/SharedSupport/</em></li>
+
+    <li><strong>Linux</strong>: <em>etc/komodo/</em></li>
+  </ul>
+
+  <p>Make a backup copy of <em>prefs.xml</em> before editing it. In
+  <em>prefs.xml</em>, make the following changes:</p>
+
+  <ul>
+    <li>Change the value of <code>commonDataDirMethod</code> to
+    <code>custom</code>.</li>
+
+    <li>Change the value of <code>customCommonDataDir</code> to the
+    path to the Common Data Directory.</li>
+  </ul>
+
+  <p>Copy <em>prefs.xml</em> to the Common Data Directory. When
+  other Komodo sessions (configured to use the same Common Data
+  Directory) are started, the preferences in the Common Data
+  Directory are used.</p>
+
+  <p>Because user preferences override both default and shared
+  preferences, ensure that user preferences are not configured for
+  items defined in the shared preferences. For example, if the
+  shared preference contains a tab size definition, and a user's
+  personal preference contains a tab size definition, the user's
+  preference is used, not the shared preference.</p>
+
+  <h2><a name="scc" id="scc">Source Code Control Preferences</a>
+  <span class="version_alert">Komodo IDE only</span></h2>
+
+  <p>Komodo IDE features source code control (SCC) integration,
+  which you can use to perform the most common SCC repository tasks
+  from within Komodo, including checking files out, comparing them
+  to the repository version, and checking files back in. See
+  <a class="doc" href="komodo-doc-scc.html#scc_top">Source Code
+  Control</a> for information about using SCC functions within
+  Komodo.</p>
+
+  <ul>
+    <li><strong>Show SCC Output Tab on Commands</strong>: Select
+    the desired action from the drop-down list to specify whether
+    the SCC tab is displayed when SCC commands produce output.</li>
+
+    <li><strong>Method used to display 'diff' output</strong>:
+    Specify whether the output from the SCC diff command should be
+    displayed in a separate window, or within a new tab in the
+    Komodo Editor Pane.</li>
+  </ul>
+
+  <h3><a name="CVS" id="CVS">CVS Integration</a></h3>
+
+  <p>Configure these options to use <a target="_blank" href=
+  "http://www.nongnu.org/cvs/">CVS</a> source code control
+  integration.</p>
+
+  <ul>
+    <li><strong>CVS Integration</strong>: Select this check box if
+    you are using a CVS source code repository.</li>
+
+    <li><strong>CVS executable used</strong>: Choose the path to
+    the desired CVS executable file from the drop-down list, or
+    click <strong>Browse</strong> to navigate to the file
+    location.</li>
+
+    <li><strong>Check for status changes from outside of
+    Komodo</strong>: If this check box is selected, Komodo checks
+    to see if the status of files that are open in the editor has
+    changed from the status they had at the last check. Specify the
+    interval at which Komodo should check the file status in the
+    field below.</li>
+
+    <li><strong>Do recursive status checks</strong>: When checking
+    the CVS status of files in a project, select this check box to
+    recurse the directories. If this check box is not selected,
+    only the status of files in the current directory are
+    checked.</li>
+
+    <li><strong>Diff options</strong>: When you use the option
+    <strong>Diff (Compare Files)</strong>, the comparison is
+    performed according to the style specified here. Any CVS diff
+    options may be specified. For a complete list of options, refer
+    to the <a class="doc" href="http://ximbiot.com/cvs/manual/">CVS
+    Manual</a>.</li>
+
+    <li><strong>Do not warn about CVS external protocols (CVS_RSH)
+    at startup</strong>: If you are using an external protocol
+    (such as RSH) to connect to the CVS repository, select this
+    check box if you do not want a warning displayed when you start
+    Komodo.</li>
+  </ul>
+
+  <h3><a name="Perforce" id="Perforce">Perforce
+  Integration</a></h3>
+
+  <p>Configure these options to use <a target="_blank" href=
+  "http://www.perforce.com/">Perforce</a> source code control
+  integration.</p>
+
+  <ul>
+    <li><strong>Perforce Integration</strong>: Select this check
+    box if using a Perforce source code repository.</li>
+
+    <li><strong>Perforce executable used</strong>: Use the
+    drop-down list or the <strong>Browse</strong> button to specify
+    the path to the Perforce executable file.</li>
+
+    <li><strong>Check for status changes from outside of
+    Komodo</strong>: If this check box is selected, Komodo checks
+    to see if the status of files that are open in the editor has
+    changed from the status it had at the last check. Specify the
+    interval at which Komodo should check the file status in the
+    field below.</li>
+
+    <li><strong>Do recursive status checks</strong>: When checking
+    the status of files in a project, select this check box to
+    recurse the directories. If this box is not checked, only the
+    status of files in the current directory is checked.</li>
+
+    <li><strong>Show diff in Komodo</strong>: When you use the
+    option <strong>Diff (Compare Files)</strong>, the comparison is
+    performed according to the style specified here. Refer to the
+    <a class="doc" href=
+    "http://www.perforce.com/perforce/doc.021/manuals/cmdref/diff.html#1040665">
+    Perforce Manual</a> for a complete description of the options.
+    (Alternatively, on the command line, enter <code>p4 help
+    diff</code>.)</li>
+
+    <li><strong>Use external diff tool</strong>: If you want to use
+    a diff tool other than Perforce, it must be specified in this
+    field. The location of the diff tool must also be included in
+    your system's PATH environment variable.</li>
+
+    <li><strong>Automatically open files for edit before
+    save</strong>: Select an option from the drop-down list to
+    determine what Komodo does if you attempt to save a file that
+    has not been checked out of Perforce.</li>
+  </ul>
+
+  <h3><a name="Subversion" id="Subversion">Subversion
+  Integration</a></h3>
+
+  <p>Configure these options to use <a target="_blank" href=
+  "http://subversion.tigris.org/">Subversion</a> source code
+  control integration.</p>
+
+  <ul>
+    <li><strong>SVN Integration</strong>: Select this check box if
+    you are using a Subversion source code repository.</li>
+
+    <li><strong>SVN executable used</strong>: Use the drop-down
+    list or the <strong>Browse</strong> button to specify the path
+    to the Subversion executable file.</li>
+
+    <li><strong>Check for status changes from outside of
+    Komodo</strong>: If this box is selected, Komodo checks to see
+    if the status of files that are open in the editor has changed
+    from the status they had at the last check. Specify the
+    interval at which Komodo should check the file status in the
+    field below.</li>
+
+    <li><strong>Do recursive status checks</strong>: When checking
+    the Subversion status of files in a project, check this box to
+    recurse the directories. If this box is not checked, only the
+    status of files in the current directory are checked.</li>
+
+    <li><strong>Diff options</strong>: When you use the option
+    <strong>Diff (Compare Files)</strong>, the comparison is
+    performed according to the style specified here. Any Subversion
+    diff options may be specified. For more about diff options,
+    refer to the <a class="doc" href=
+    "http://subversion.tigris.org/servlets/ProjectDocumentList">Subversion
+    Documentation</a>.</li>
+
+    <li><strong>Do not warn about Subversion external protocols
+    (SVN_SSH) at startup</strong>: If you are using an external
+    protocol (such as SSH) to connect to the Subversion repository,
+    check this box if you do not want a warning displayed when you
+    start Komodo.</li>
+  </ul>
+
+  <h2><a name="web" id="web">Web and Browser Preferences</a></h2>
+
+  <ul>
+    <li><strong>Web Browser</strong>: Specify the browser that
+    Komodo should launch when a <a href="#language_help">web-based
+    language query</a> or the <a href=
+    "komodo-doc-editor.html#browser_preview">web browser
+    preview</a> is invoked. Select the desired browser from the
+    list, or use the <strong>Browse</strong> button to navigate to
+    the desired browser. If you do not specify a browser, Komodo
+    uses the system's default browser.</li>
+
+    <li>
+      <strong>Preview in Browser</strong>: Choose the method Komodo
+      uses to preview code in the selected web browser:
+
+      <ul>
+        <li><strong>Preview in Komodo tab, other tab
+        group</strong>: This option splits the <a href=
+        "komodo-doc-top.html#Editor_Pane">Editor Pane</a> to
+        display the browser preview in a separate pane.</li>
+
+        <li><strong>Preview in Komodo tab, same tab group</strong>:
+        This option displays the browser preview in the Editor
+        Pane.</li>
+
+        <li><strong>Preview in external browser</strong>: This
+        option opens the default browser (specified in the Web and
+        Browser Preferences drop-down list) in a separate
+        window.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h2><a name="integration" id="integration">Windows Integration
+  Preferences</a></h2>
+
+  <p>Windows Integration preferences set system-wide file
+  associations on the Windows platform. By configuring file
+  associations, Komodo becomes the default editor for specific file
+  types. When one of these files is invoked (for example, by
+  double-clicking the filename in Windows Explorer), Komodo is
+  automatically launched (if not already running), and the file is
+  loaded in the <a href="komodo-doc-top.html#Editor_Pane">Editor
+  Pane</a>.</p>
+
+  <p>When a file extension is added to the "Edit with Komodo"
+  association, the context menu displayed when the filename is
+  right-clicked in Window Explorer contains an "Edit with Komodo"
+  option.</p>
+
+  <p>To configure file associations:</p>
+
+  <ol>
+    <li>Select <strong>Edit|Preferences|Windows
+    Integration</strong>.</li>
+
+    <li>Click <strong>Configure common associations</strong>. The
+    <strong>Setup Common Komodo File Associations</strong> dialog
+    box opens.</li>
+
+    <li>Select the file extensions for which Komodo should be the
+    default editor, and the files extensions that should have the
+    "Edit with Komodo" context menu option.</li>
+  </ol>
+
+  <p>Individual file extensions may be added and deleted via the
+  lists.</p>
+
+  <p>If another application overrides the associations configured
+  by Komodo, click <strong>Re-apply settings to system</strong> to
+  reset the Komodo associations.</p>
+  <hr />
+</body>
+</html>

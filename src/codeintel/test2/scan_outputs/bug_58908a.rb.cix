@@ -1,0 +1,25 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/bug_58908a.rb">
+    <scope ilk="blob" lang="Ruby" name="bug_58908a">
+      <variable attributes="__local__" citdl="Foo" line="19" name="f3" />
+      <scope classrefs="Object" ilk="class" line="2" lineend="18" name="Foo">
+        <scope attributes="__classmethod__" ilk="function" line="3" lineend="5" name="cmethod" signature="self.cmethod(a, b, c)">
+          <variable ilk="argument" name="a" />
+          <variable ilk="argument" name="b" />
+          <variable ilk="argument" name="c" />
+        </scope>
+        <scope ilk="function" line="7" lineend="9" name="imethod" signature="imethod(d1, e2, *f3)">
+          <variable ilk="argument" name="d1" />
+          <variable ilk="argument" name="e2" />
+          <variable ilk="argument" name="*f3" />
+          <variable attributes="__local__" citdl="Foo" line="7" name="self" />
+        </scope>
+        <scope ilk="function" line="11" lineend="17" name="extend_me" signature="extend_me()" />
+        <scope ilk="function" line="13" lineend="15" name="imethod_2" signature="imethod_2(x)">
+          <variable ilk="argument" name="x" />
+          <variable attributes="__local__" citdl="self" line="13" name="self" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

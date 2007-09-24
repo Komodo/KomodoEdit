@@ -1,0 +1,45 @@
+# A typical template description file includes the following
+# other detailed descriptions:
+
+# One for each language "family" (markup:html, css, client-side:js,
+# server-side: php)
+
+# Transitions out of and back to markup(html) for each of the
+# other language types.
+
+# So this four-family template language needs 10 modules: 
+# 4 sublanguages, 3 html=>x, and 3 x=>html
+
+# keep in mind that the transition modules need to go before the
+# main language modules.  This is because the lexer will attempt
+# tests in the order they're given, and we want to attempt
+# inter-language tests first.
+
+# Implementation note:
+# The inter-family transitions will reference pattern variables
+# that are defined in the main module for each family.
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2php.udl"
+
+include "html2smarty.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+include "js2php.udl"
+
+include "php2html.udl"
+
+include "smarty2html.udl"
+
+language Smarty
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "phplex.udl"
+include "smartylex.udl"

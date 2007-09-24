@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require "drb/drb"
+
+begin
+  DRb.start_service
+  rails_spec_server = DRbObject.new_with_uri("druby://localhost:8989")
+  rails_spec_server.run(ARGV, STDERR, STDOUT)
+rescue DRb::DRbConnError
+  puts "No rails_spec_runner is running. Please start one via 'script/rails_spec_runner'"
+end

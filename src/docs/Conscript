@@ -1,0 +1,135 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'readmeDir',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+    'unsiloedPythonExe',
+    'komodoDevDir',
+    'komodoPrettyVersion',
+    'komodoShortVersion',
+    'installAbsDir',
+    'docDir',
+    'mozChromeDir',
+    'productType',
+    'withDocJarring',
+    'withKomodoCix',
+    'komodoPythonUtilsDir',
+    'siloedPython',
+);
+
+my %ppData = (
+    '__KO_PRETTY_VERSION__' => $komodoPrettyVersion,
+    '__KO_SHORT_VERSION__' => $komodoShortVersion,
+);
+
+if ($withDocJarring) {
+    $cons->InstallAs("$mozChromeDir/komododoc.manifest", "jarred.manifest");
+} else {
+    $cons->InstallAs("$mozChromeDir/komododoc.manifest", "komododoc.manifest");
+}
+$cons->Install("$mozChromeDir/komododoc/content", 'helpOverlay.xul');
+
+# install Komodo doc files in chrome
+$cons->Install($docDir, 'aspn.css');
+$cons->Install($docDir, 'api.css');
+$cons->Install($docDir, 'top.css');
+$cons->Install($docDir, 'favicon.ico');
+$cons->Install($docDir, 'komodohelp.rdf');
+$cons->Install($docDir, 'aux_search.rdf');
+$cons->Install($docDir, 'help_help.xhtml');
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-top.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-starting.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-workspace.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-getstarted.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-project.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-toolbox.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-files.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-search.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-editor.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-folders.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-snippets.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-macros.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-macroapi.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-commandid.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-templates.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-openshort.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-urls.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-udl.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-luddite.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-run.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-custtbi.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-http-insp.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-dom.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-scc.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-shortcuts.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-prefs.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-tut-intro.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'readme.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'relnotes.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-trouble.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-keybind.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-defkeybind.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-emacskeybind.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-vikeybind.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-osxkeybind.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-catalogs.html', \%ppData);
+$cons->Depends("$docDir/lic_copy.html", "LICENSE.txt"); # built by license/Conscript
+$cons->PreprocessAndInstall($docDir, 'lic_copy.html');
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-feedback.html', \%ppData);
+
+# Generate the Komodo JavaScript API documentation from the komodo cix file
+if ($withKomodoCix) {
+    my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
+    $cons->Command(
+        ["komodo-js-api.html", "komodo-js-api.toc"],
+        "api.css",
+        "../codeintel/support/cix2html.py",
+        $komodoCix,
+        "$komodoPythonUtilsDir/koCatalog.py",
+        "$komodoPythonUtilsDir/koSimpleLexer.py",
+        "$komodoPythonUtilsDir/koDTD.py",
+        "$komodoPythonUtilsDir/koRNGElementTree.py",
+        qq(
+            cd %1:d && $siloedPython ../codeintel/support/cix2html.py -o komodo-js-api.html --css aspn.css --css api.css --toc komodo-js-api.toc $komodoCix
+        )
+    );
+    $cons->Install($docDir, "komodo-js-api.html");
+}
+
+
+# Generate the mozilla help browser TOC RDF file from our toc.xml.
+$cons->Preprocess("toc.p.xml", "toc.xml",
+                  {"WITH_KOMODO_CIX" => $withKomodoCix,
+                   '__KO_SHORT_VERSION__' => $komodoShortVersion});
+if ($withKomodoCix) {
+    $cons->Depends("toc.xml", "komodo-js-api.toc");
+}
+$cons->Command(
+    'help-toc.rdf',
+    'tocxml2helptocrdf.py',
+    'toc.xml',
+    qq(
+        $unsiloedPythonExe %1 %2 > %0
+    )
+);
+$cons->Install($docDir, 'help-toc.rdf');
+
+
+# PreprocessAndInstall standalone doc bits to the "readmeDir", this is a
+# platform-specific location that is possibly difference than the main
+# docs directory to make these bits more visible.
+$cons->PreprocessAndInstall($readmeDir, 'README.txt', \%ppData);
+$cons->PreprocessAndInstall($readmeDir, 'RELNOTES.txt', \%ppData);
+$cons->PreprocessAndInstall($readmeDir, 'FEEDBACK.txt', \%ppData);
+
+
+# The in-chrome Tip of the Day needs some pieces.
+my $tipDir = "$mozChromeDir/komodo/content/tipoftheday";
+$cons->Install($tipDir, 'aspn.css');

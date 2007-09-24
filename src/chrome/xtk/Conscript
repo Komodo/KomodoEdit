@@ -1,0 +1,37 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'mozBin',
+    'unsiloedPythonExe',
+    'productType',
+    'jarring',
+    'buildFlavour',
+    'komodoTitleBarName',
+    'mozVersion',
+    'mozMajorVersion',
+    'mozMinorVersion',
+);
+
+if ($jarring) {
+    $cons->InstallAs("$mozChromeDir/xtk.manifest", "jarred.manifest");
+} else {
+    $cons->InstallAs("$mozChromeDir/xtk.manifest", "debug.manifest");
+}
+
+$cons->InstallRecursive("$mozChromeDir/xtk/content/",
+                        cwd()."/src/chrome/xtk/content/");
+if (-d "src/chrome/xtk/locale") {
+    $cons->InstallRecursive("$mozChromeDir/xtk/locale/",
+                            cwd()."/src/chrome/xtk/locale/");
+}
+if (-d "src/chrome/xtk/skin") {
+    $cons->InstallRecursive("$mozChromeDir/xtk/skin/",
+                            cwd()."/src/chrome/xtk/skin/");
+}
+

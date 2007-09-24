@@ -1,0 +1,32 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Determine the functional status of various features in Komodo
+// (Mainly this is to support part of the "feature control panel" on
+// the Getting Started/Welcome page.)
+//
+// Data is exchanged with this service via the "feature_status_request"
+// and "feature_status_ready" notifications. See
+// internal-docs/howto-notifications.txt for details.
+// 
+
+[scriptable, uuid(1CD0AAEA-10E8-4B4A-9A7D-BE70C89CE250)]
+interface koIFeatureStatus : nsISupports {
+    // e.g. "Perl Debugging", "Python Syntax Checking")
+    readonly attribute string featureName;
+    // e.g. "Active", "Disabled"
+    readonly attribute string status;
+    // e.g. "Perl at C:\Perl is of version 5.005. At least version 5.6.0 is
+    //       required."
+    // This may be null if no reason is supplied.
+    readonly attribute string reason;
+};
+
+[scriptable, uuid(6DF80015-E392-4B72-9428-7EDBB4D0350E)]
+interface koIFeatureStatusService : nsISupports {
+    // Data exchange is with nsIObserver notifications.
+};
+
+

@@ -1,0 +1,29 @@
+diff
+
+The only parts of the patch from MarkH fixing mem leaks in PyXPCOM. The rest of
+patch was for memleaks in new DOM_AGNOSITIC-only code checked into the Mozilla
+trunk -- not the 1.8 branch from which we are building. (bug 58577)
+
+--- extensions/python/xpcom/src/VariantUtils.cpp.original	Mon Nov 06 08:24:51 2006
++++ extensions/python/xpcom/src/VariantUtils.cpp	Mon Nov 06 08:33:21 2006
+@@ -2370,17 +2370,19 @@
+ 		nsIInterfaceInfo *ii = GetInterfaceInfo();
+ 		if (ii)
+ 			ii->GetIIDForParam(m_method_index, pi, &iid);
+ 
+ 		// Get it the "standard" way.
+ 		// We do allow NULL here, even tho doing so will no-doubt crash some objects.
+ 		// (but there will certainly be objects out there that will allow NULL :-(
+ 		nsIID iid_use = iid ? *iid : NS_GET_IID(nsISupports);
+-		if (!Py_nsISupports::InterfaceFromPyObject(val, iid_use, &pnew, PR_TRUE))
++		PRBool ok = Py_nsISupports::InterfaceFromPyObject(val, iid_use, &pnew, PR_TRUE);
++		nsMemory::Free(iid);
++		if (!ok)
+ 			BREAK_FALSE;
+ 		nsISupports **pp = (nsISupports **)ns_v.val.p;
+ 		if (*pp && pi->IsIn()) {
+ 			Py_BEGIN_ALLOW_THREADS; // MUST release thread-lock, incase a Python COM object that re-acquires.
+ 			(*pp)->Release();
+ 			Py_END_ALLOW_THREADS;
+ 		}
+ 

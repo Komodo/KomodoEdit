@@ -1,0 +1,37 @@
+Index: extensions/python/xpcom/src/PyGStub.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyGStub.cpp,v
+retrieving revision 1.4
+diff -d -u -r1.4 PyGStub.cpp
+--- extensions/python/xpcom/src/PyGStub.cpp	18 Apr 2004 22:13:54 -0000	1.4
++++ extensions/python/xpcom/src/PyGStub.cpp	10 Aug 2007 21:57:19 -0000
+@@ -167,7 +167,8 @@
+ 		}
+ 		// else everything is already setup,
+ 		// just clear the Python error state.
+-		PyErr_Clear();
++		// don't clear, we want the exception to continue
++		//PyErr_Clear();
+ 	}
+ 
+ 	Py_XDECREF(obMI);
+Index: extensions/python/xpcom/src/xpcom.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/Attic/xpcom.cpp,v
+retrieving revision 1.20.24.1
+diff -d -u -r1.20.24.1 xpcom.cpp
+--- extensions/python/xpcom/src/xpcom.cpp	31 Aug 2005 13:18:32 -0000	1.20.24.1
++++ extensions/python/xpcom/src/xpcom.cpp	10 Aug 2007 21:57:20 -0000
+@@ -269,9 +269,10 @@
+ 	Py_BEGIN_ALLOW_THREADS;
+ 	r = XPTC_InvokeByIndex(pis, index, arg_helper.m_num_array, arg_helper.m_var_array);
+ 	Py_END_ALLOW_THREADS;
+-	if ( NS_FAILED(r) )
++	if ( NS_FAILED(r) ) {
++		if (PyErr_Occurred()) return NULL;
+ 		return PyXPCOM_BuildPyException(r);
+-
++        }
+ 	return arg_helper.MakePythonResult();
+ }
+ 

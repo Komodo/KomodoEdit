@@ -1,0 +1,248 @@
+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+
+#include "plugin.h"
+#ifdef SCI_NAMESPACE
+using namespace Scintilla;
+#endif
+
+void SciMoz::PlatformCreate(WinID) {
+}
+
+void SciMoz::Resize() {
+}
+
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+	return NS_OK;
+}
+
+
+/* void ButtonMove( in long x, in long y); */
+NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
+	return NS_OK;
+}
+
+
+/* void AddChar( in PRUint32 ch); */
+NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
+	// XXX - Scintilla needs an SCI_ADDCHAR API??
+	GdkEventKey ev;
+
+	ev.type = GDK_KEY_PRESS;
+	ev.window = wEditor->window;
+	ev.keyval = ch;
+	ev.state = 0;
+	gtk_widget_event(wEditor, (GdkEvent *)&ev);
+	return NS_OK;
+}
+
+gint ButtonEvents(GtkWidget *widget,
+                  GdkEventButton *event,
+		  SciMoz *sciThis)
+{
+    if (event->type != GDK_BUTTON_RELEASE) {
+        gtk_grab_add(widget);
+        sciThis->sInGrab = 1;
+    } else {
+        gtk_grab_remove(widget);
+        sciThis->sInGrab = 0;
+    }
+    return FALSE;
+}
+
+void SciMoz::PlatformNew(void) {
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr,"SciMoz::PlatformNew\n");
+#endif
+    fPlatform.moz_box = 0;
+    wParkingLot = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    wEditor = scintilla_new();
+
+    // disable scintilla's builtin context menu.
+    scintilla_send_message(SCINTILLA(wEditor), SCI_USEPOPUP, FALSE, 0);
+    scintilla_send_message(SCINTILLA(wEditor), SCI_SETFOCUS, FALSE, 0);
+
+    gtk_container_add(GTK_CONTAINER(wParkingLot), wEditor);
+    gtk_signal_connect(GTK_OBJECT(wEditor), SCINTILLA_NOTIFY,
+                        GTK_SIGNAL_FUNC(NotifySignal), this);
+    
+    // these are necessary for correct focus after a drag/drop session
+    gtk_signal_connect_after(GTK_OBJECT(wEditor), "button_press_event",
+                             GTK_SIGNAL_FUNC(ButtonEvents), this);
+    gtk_signal_connect_after(GTK_OBJECT(wEditor), "button_release_event",
+                             GTK_SIGNAL_FUNC(ButtonEvents), this);
+
+    Create(wEditor);
+#ifdef GTK2
+    /* force a size request so that we get the correct scrollbar width/height */
+    GtkRequisition child_requisition;
+    gtk_widget_size_request(wEditor, &child_requisition);
+#endif
+}
+
+nsresult SciMoz::PlatformDestroy(void) {
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::PlatformDestroy\n");
+#endif
+	PlatformResetWindow();
+	// This must have reset out window.
+	NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
+	gtk_widget_destroy(wEditor);
+	wEditor = 0;
+	gtk_widget_destroy(wParkingLot);
+	wParkingLot = 0;
+	return NS_OK;
+}
+
+void SciMoz::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciMoz *scimoz) {
+	scimoz->Notify(reinterpret_cast<long>(lParam));
+}
+
+nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr,"SciMoz::PlatformSetWindow\n");
+#endif
+    NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
+    // This XFlush is required by NS4.x, or the display created by
+    // scintilla will not see window as existing.
+    XFlush(ws_info->display);
+
+    if (fWindow != NULL) {
+	/* If we already have a window, clean
+	 * it up before trying to subclass
+	 *  the new window. */
+	if (npwindow && npwindow->window && portMain == npwindow->window ) {
+	    //fprintf(stderr, "Resized to %d,%d\n", npwindow->width, npwindow->height);
+	    if (fPlatform.moz_box->window != NULL) {
+		    gdk_window_resize(fPlatform.moz_box->window,
+				    npwindow->width, npwindow->height);
+	    }
+	    /* The new window is the same as the old one. Exit now. */
+	    return NS_OK;
+	}
+	// Otherwise, just reset the window ready for the new one.
+	if (npwindow) {
+	    PlatformResetWindow();
+	}
+    }
+    
+    if (npwindow) {
+#ifdef GTK2
+#ifdef GTK2_XEMBED
+	fPlatform.moz_box = gtk_plug_new((guint)npwindow->window);
+#else
+	fPlatform.moz_box = gtk_plug_new(0);
+#endif
+	wMain = fPlatform.moz_box;
+#else /* GTK 1 */
+	GdkWindow *window = gdk_window_foreign_new((XID)npwindow->window);
+	if (!window) {
+	    fprintf(stderr, "SciMoz FAILED window %08X on display %08X\n", (XID)npwindow->window, ws_info->display);
+	    return NS_ERROR_FAILURE;
+	}
+	fPlatform.moz_box = gtk_mozbox_new(window);
+	wMain = reinterpret_cast<GtkWidget *>(npwindow->window);
+#endif
+
+	/* only set these if the above logic succeeds, otherwise we crash and burn */
+	portMain = npwindow->window;
+	fWindow = npwindow;
+	fPlatform.ws_info = ws_info;
+
+	if (parked) {
+	    // Reparent scintilla onto moz box
+	    gtk_widget_ref(wEditor);
+	    gtk_container_remove(GTK_CONTAINER(wParkingLot), wEditor);
+	    gtk_container_add(GTK_CONTAINER(fPlatform.moz_box), wEditor);
+	    gtk_widget_unref(wEditor);
+	    parked = false;
+	}
+	gtk_widget_show_all(fPlatform.moz_box);
+#ifdef GTK2
+#ifndef GTK2_XEMBED
+	/* reparent the plug to the mozilla window */
+	GdkDrawable* win = GDK_DRAWABLE(fPlatform.moz_box->window);
+	XReparentWindow(GDK_DRAWABLE_XDISPLAY(win),
+			GDK_DRAWABLE_XID(win),
+			(XID)npwindow->window, 0, 0);
+
+	XMapWindow(GDK_DRAWABLE_XDISPLAY(win),
+		   GDK_DRAWABLE_XID(win));
+#endif
+#endif
+    } else {
+	PlatformResetWindow();
+    }
+    return NS_OK;
+}
+
+nsresult SciMoz::PlatformResetWindow() {
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::PlatformResetWindow\n");
+#endif
+	// If our "parking lot" exists and is not already the parent,
+	// then park our editor
+	if (wParkingLot
+		&& wEditor
+		&& !parked) {
+		gtk_widget_ref(wEditor);
+		gtk_container_remove(GTK_CONTAINER(fPlatform.moz_box), wEditor);
+		gtk_container_add(GTK_CONTAINER(wParkingLot), wEditor);
+		gtk_widget_unref(wEditor);
+		portMain = NULL;
+		wMain = NULL;
+		parked = true;
+		fWindow = NULL;
+	}
+	if (fPlatform.moz_box) {
+	    // XXX bug 33817, when using gtk2 glib generates a warning here
+		gtk_widget_destroy(fPlatform.moz_box);
+	}
+	fPlatform.moz_box = 0;
+	fPlatform.ws_info = NULL;
+	return NS_OK;
+}
+
+int16 SciMoz::PlatformHandleEvent(void * /*event*/) {
+	/* UNIX Plugins do not use HandleEvent */
+	return 0;
+}
+
+
+/* readonly attribute boolean isOwned; */
+NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+	*_ret = wEditor && wMain;
+	return NS_OK;
+}
+
+/* attribute boolean visible */
+NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+	*_ret = wEditor != 0;
+	return NS_OK;
+}
+
+/* attribute boolean visible */
+NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+	return NS_OK;
+}
+
+/* void endDrop( ); */
+NS_IMETHODIMP SciMoz::EndDrop()
+{
+	if (sInGrab) {
+		gtk_grab_remove(wEditor);
+		sInGrab = 0;
+	}
+	return NS_OK;
+}
+
+/* attribute boolean visible */
+NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+	*_ret = 0;
+	return NS_OK;
+}
+
+/* attribute boolean isTracking */
+NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+	*_ret = 0;
+	return NS_OK;
+}

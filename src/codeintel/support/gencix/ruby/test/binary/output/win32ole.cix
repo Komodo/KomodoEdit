@@ -1,0 +1,114 @@
+    <scope ilk="blob" lang="Ruby" name="win32ole">
+      <scope ilk="class" name="WIN32OLE" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="namespace" name="VARIANT">
+          <variable name="VT_ARRAY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_BOOL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_BSTR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_BYREF" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_CY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_DATE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_DISPATCH" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_ERROR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_I1" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_I2" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_I4" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_INT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_PTR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_R4" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_R8" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_UI1" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_UI2" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_UI4" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_UINT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_UNKNOWN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_USERDEFINED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VT_VARIANT" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="function" name="[]" />
+        <scope ilk="function" name="[]=" />
+        <scope ilk="function" name="_getproperty" />
+        <scope ilk="function" name="_invoke" />
+        <scope ilk="function" name="_setproperty" />
+        <scope ilk="function" name="each" />
+        <scope ilk="function" name="invoke" />
+        <scope ilk="function" name="method_missing" />
+        <scope ilk="function" name="ole_free" />
+        <scope ilk="function" name="ole_func_methods" />
+        <scope ilk="function" name="ole_get_methods" />
+        <scope ilk="function" name="ole_method" />
+        <scope ilk="function" name="ole_method_help" />
+        <scope ilk="function" name="ole_methods" />
+        <scope ilk="function" name="ole_obj_help" />
+        <scope ilk="function" name="ole_put_methods" />
+        <scope ilk="function" name="setproperty" />
+        <variable name="ARGV" attributes="__const__" citdl="Array"/>
+        <variable name="CP_ACP" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_MACCP" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_OEMCP" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_SYMBOL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_THREAD_ACP" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_UTF7" attributes="__const__" citdl="Fixnum"/>
+        <variable name="CP_UTF8" attributes="__const__" citdl="Fixnum"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+      </scope>
+      <scope ilk="class" name="WIN32OLE_EVENT" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="on_event" />
+        <scope ilk="function" name="on_event_with_outargs" />
+      </scope>
+      <scope ilk="class" name="WIN32OLE_METHOD" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="dispid" />
+        <scope ilk="function" name="event?" />
+        <scope ilk="function" name="event_interface" />
+        <scope ilk="function" name="helpcontext" />
+        <scope ilk="function" name="helpfile" />
+        <scope ilk="function" name="helpstring" />
+        <scope ilk="function" name="invkind" />
+        <scope ilk="function" name="invoke_kind" />
+        <scope ilk="function" name="name" />
+        <scope ilk="function" name="offset_vtbl" />
+        <scope ilk="function" name="params" />
+        <scope ilk="function" name="return_type" />
+        <scope ilk="function" name="return_type_detail" />
+        <scope ilk="function" name="return_vtype" />
+        <scope ilk="function" name="size_opt_params" />
+        <scope ilk="function" name="size_params" />
+        <scope ilk="function" name="visible?" />
+      </scope>
+      <scope ilk="class" name="WIN32OLE_PARAM" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="default" />
+        <scope ilk="function" name="input?" />
+        <scope ilk="function" name="name" />
+        <scope ilk="function" name="ole_type" />
+        <scope ilk="function" name="ole_type_detail" />
+        <scope ilk="function" name="optional?" />
+        <scope ilk="function" name="output?" />
+        <scope ilk="function" name="retval?" />
+      </scope>
+      <scope ilk="class" name="WIN32OLE_TYPE" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="guid" />
+        <scope ilk="function" name="helpcontext" />
+        <scope ilk="function" name="helpfile" />
+        <scope ilk="function" name="helpstring" />
+        <scope ilk="function" name="major_version" />
+        <scope ilk="function" name="minor_version" />
+        <scope ilk="function" name="name" />
+        <scope ilk="function" name="ole_methods" />
+        <scope ilk="function" name="ole_type" />
+        <scope ilk="function" name="progid" />
+        <scope ilk="function" name="src_type" />
+        <scope ilk="function" name="typekind" />
+        <scope ilk="function" name="variables" />
+        <scope ilk="function" name="visible?" />
+      </scope>
+      <scope ilk="class" name="WIN32OLE_VARIABLE" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="name" />
+        <scope ilk="function" name="ole_type" />
+        <scope ilk="function" name="ole_type_detail" />
+        <scope ilk="function" name="value" />
+        <scope ilk="function" name="variable_kind" />
+        <scope ilk="function" name="varkind" />
+        <scope ilk="function" name="visible?" />
+      </scope>
+      <scope ilk="class" name="WIN32OLERuntimeError" mixinrefs="Kernel" classrefs="RuntimeError">
+      </scope>
+    </scope>

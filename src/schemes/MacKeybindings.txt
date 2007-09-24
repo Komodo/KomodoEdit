@@ -1,0 +1,230 @@
+version 1
+
+# NOTE:
+# Meta == Command
+# Alt == Option
+# Ctrl == Control
+
+# Apple Reserved Keybindings
+
+# Esc
+# Meta-Tab
+# Meta-Shift-Tab
+# Meta-Shift-3
+# Meta-Control-Shift-3
+# Meta-Shift-4
+# Meta-Control-Shift-4
+# Meta-Alt-8
+# Meta-Ctrl-Alt-8
+# Meta-Alt-D
+# Meta-H
+# Meta-Alt-H
+# Meta-Shift-Q
+# Meta-Alt-Shift-Q
+# Meta-Ctrl-Alt-Shift-Q
+# Meta-Space
+# Meta-Alt-Escape
+# Meta-F5
+# Ctrl-F1 to F7
+# Ctrl-Shift-F4 to F6
+# F9 - F12
+
+# Key combinations reserved for international systems
+# Note: For non-Roman script systems, Command–Left Arrow and Command–Right Arrow
+#       are reserved for changing the direction of keyboard input.
+
+# Meta-Space (Show or hide Spotlight search field)
+# Meta-Alt-Space (Show Spotlight search results window)
+# Meta-Ctrl-Space (Apple reserved)
+# Meta-Shift-Space (Apple reserved)
+# Meta-Right !!! see note above
+# Meta-Left !!! see note above 
+
+# osx standard keybindings defined in
+# http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/XHIGKeyboardShortcuts/chapter_20_section_1.html#//apple_ref/doc/uid/20000957-CH253-CHDIGFBH
+# that match up correctly
+
+binding cmd_helpHelp  Meta+?
+binding cmd_selectAll Meta+A
+binding cmd_copy Meta+C
+binding cmd_find Meta+F
+binding cmd_findNext  Meta+G 
+binding cmd_findPrevious  Meta+Shift+G
+binding cmd_new Meta+N
+binding cmd_open Meta+O
+binding cmd_quit Meta+Q
+binding cmd_save Meta+S
+binding cmd_saveAs Meta+Shift+S
+binding cmd_saveAll Meta+Alt+S
+binding cmd_paste Meta+V
+binding cmd_bufferClose Meta+W
+binding cmd_closeAll Meta+Alt+W
+binding cmd_cut Meta+X
+binding cmd_undo Meta+Z
+binding cmd_redo Meta+Shift+Z
+
+# standard osx bindings defined at
+# http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/index.html
+
+# Apple defined cursor keys
+binding cmd_right  Right
+binding cmd_left  Left
+binding cmd_linePrevious  Up 
+binding cmd_lineNext  Down
+binding cmd_wordRight  Alt+Right
+binding cmd_wordLeft  Alt+Left
+# Alt+Up (To the beginning of the current/prev paragraph)
+# Alt+Down (To the end of the current/next paragraph)
+binding cmd_home  Meta+Left 
+binding cmd_end  Meta+Right
+binding cmd_documentHome  Meta+Up
+binding cmd_documentHome  Home
+binding cmd_documentEnd Meta+Down
+binding cmd_documentEnd End
+
+# Apple defined selection keys
+binding cmd_selectCharNext  Shift+Right
+binding cmd_selectCharPrevious  Shift+Left
+binding cmd_selectLinePrevious  Shift+Up
+binding cmd_selectLineNext  Shift+Down
+binding cmd_selectWordRight  Alt+Shift+Right
+binding cmd_selectWordLeft  Alt+Shift+Left
+# Alt+Shift+Up (select to beginning current/prev para)
+# Alt+Shift+Down (select to end current/next para)
+binding cmd_selectEnd  Meta+Shift+Right
+binding cmd_selectHome  Meta+Shift+Left
+binding cmd_selectDocumentHome  Meta+Shift+Up
+binding cmd_selectDocumentHome Shift+Home
+binding cmd_selectDocumentEnd  Meta+Shift+Down
+binding cmd_selectDocumentEnd  Shift+End
+
+# XCode Bindings
+binding cmd_newProject Meta+Shift+N
+binding cmd_closeProject Meta+Ctrl+W
+binding cmd_revert Meta+Alt+U
+binding cmd_splittab Meta+"
+#binding cmd_indent Meta+]
+#binding cmd_dedent Meta+[
+binding cmd_gotoLine Meta+L
+#binding cmd_bookmarkToggle  Meta+D
+#binding cmd_viewProjects Meta+0
+
+
+# BBEdit Bindings
+binding cmd_blockSelect Meta+Alt+L
+binding cmd_replace Meta+=
+
+
+# mismatched keybindings that are standard bindings
+
+binding cmd_pasteAndSelect Meta+Shift+V
+
+
+
+# Komodo specific keybindings that use Apple defined bindings
+
+binding cmd_startIncrementalSearch Meta+I
+binding cmd_startIncrementalSearchBackwards Meta+Shift+I
+binding cmd_newTemplate Meta+Ctrl+N
+
+# Komodo specific bindings
+binding cmd_back  Shift+Backspace
+binding cmd_backSmart  Backspace
+binding cmd_bookmarkGotoNext  F2 
+binding cmd_bookmarkGotoPrevious  Shift+F2
+binding cmd_bookmarkRemoveAll  Meta+Shift+F2
+binding cmd_bookmarkToggle  Meta+F2
+binding cmd_cancel Escape 
+binding cmd_convertLowerCase Meta+Shift+U
+binding cmd_convertUpperCase Meta+U
+binding cmd_editReflow Meta+Shift+Q
+binding cmd_findAllFunctions  Meta+F8
+binding cmd_findInFiles Meta+Shift+F
+binding cmd_findNextFunction  F8 
+binding cmd_findNextResult Meta+Shift+F3
+binding cmd_findNextSelected  Meta+F3
+binding cmd_findPreviousFunction  Shift+F8
+binding cmd_fontZoomIn Meta+Shift+=
+binding cmd_fontZoomOut Meta+Shift+-
+binding cmd_helpLanguage  Meta+Shift+?
+binding cmd_helpLanguageAlternate  Meta+Ctrl+?
+binding cmd_jumpToMatchingBrace  Meta+]
+binding cmd_lineScrollDown  Meta+Alt+Down
+binding cmd_lineScrollUp  Meta+Alt+Up
+binding cmd_newline  Return
+binding cmd_newlineBare  Meta+Return
+binding cmd_newlineExtra  Shift+Return 
+binding cmd_newlineSame  Meta+Shift+Return
+binding cmd_selectPageDown  Shift+Page_Down
+binding cmd_selectPageUp  Shift+Page_Up
+binding cmd_selectRectCharNext Ctrl+Shift+Right
+binding cmd_selectRectCharPrevious Ctrl+Shift+Left
+binding cmd_selectRectEnd Ctrl+Shift+End
+binding cmd_selectRectHome Ctrl+Shift+Home
+binding cmd_selectRectLineNext Ctrl+Shift+Down
+binding cmd_selectRectLinePrevious Ctrl+Shift+Up
+binding cmd_selectRectPageDown Ctrl+Shift+Page_Down
+binding cmd_selectRectPageUp Ctrl+Shift+Page_Up
+binding cmd_selectToMatchingBrace  Meta+Shift+]
+binding cmd_pageDown  Page_Down 
+binding cmd_pageUp  Page_Up 
+binding cmd_wordPartLeft  Meta+Alt+Left
+binding cmd_wordPartRight  Meta+Alt+Right
+binding cmd_toolsRunCommand Meta+R
+binding cmd_transpose Meta+T
+binding cmd_openProject Meta+Alt+O
+binding cmd_rawKey Meta+M
+binding cmd_viewEOL Meta+Shift+7
+binding cmd_viewIndentationGuides Meta+Shift+5
+binding cmd_viewLineNumbers Meta+Shift+4
+binding cmd_viewWhitespace Meta+Shift+8
+binding cmd_wordWrap Meta+Shift+9
+binding cmd_viewBottomPane Ctrl+Shift+O
+
+binding cmd_viewProjects Ctrl+Shift+P
+binding cmd_viewToolbox Ctrl+Shift+T
+binding cmd_focusEditor Ctrl+Shift+E
+binding cmd_toggleButtonText Meta+Shift+B
+binding cmd_endOfWord Meta+E
+binding cmd_triggerPrecedingCompletion Meta+J
+
+
+
+# XXX bad bindings, conflict with apple
+binding cmd_completeWord Meta+Space
+binding cmd_completeWordBack Meta+Shift+Space
+binding cmd_comment  Meta+3
+binding cmd_uncomment  Meta+Shift+3
+binding cmd_home  Home 
+binding cmd_end  End 
+
+
+# duplicate bindings
+#binding cmd_cut Meta+Shift+X
+#binding cmd_cut Shift+Delete
+#binding cmd_copy Meta+Insert
+#binding cmd_paste Shift+Insert
+
+# Bindings not working
+binding cmd_bufferNext  Meta+Page_Down
+binding cmd_bufferPrevious Meta+Page_Up
+binding cmd_delete Delete
+binding cmd_deleteWordLeft  Meta+Backspace
+binding cmd_deleteWordRight  Meta+Delete
+binding cmd_documentHome  Meta+Home
+binding cmd_editProperties Alt+Return
+binding cmd_toggleOvertype  Insert 
+binding cmd_bufferNextLeastRecent Meta+Shift+F6
+binding cmd_bufferNextMostRecent  Meta+F6
+
+
+# Multi-Key bindings
+binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_executeLastMacro Ctrl+K _
+binding cmd_focusSource Ctrl+K Ctrl+S
+binding cmd_join Ctrl+K Ctrl+J
+binding cmd_refreshStatus Ctrl+K R
+binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
+binding cmd_startMacroMode Ctrl+K (
+binding cmd_stopMacroMode Ctrl+K )
+

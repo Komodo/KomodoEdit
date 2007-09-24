@@ -1,0 +1,17 @@
+    <scope ilk="blob" lang="Ruby" name="etc">
+      <scope ilk="namespace" name="Etc">
+        <scope ilk="function" name="endgrent" />
+        <scope ilk="function" name="endpwent" />
+        <scope ilk="function" name="getgrent" />
+        <scope ilk="function" name="getgrgid" />
+        <scope ilk="function" name="getgrnam" />
+        <scope ilk="function" name="getlogin" />
+        <scope ilk="function" name="getpwent" />
+        <scope ilk="function" name="getpwnam" />
+        <scope ilk="function" name="getpwuid" />
+        <scope ilk="function" name="group" />
+        <scope ilk="function" name="passwd" />
+        <scope ilk="function" name="setgrent" />
+        <scope ilk="function" name="setpwent" />
+      </scope>
+    </scope>

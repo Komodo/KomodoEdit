@@ -1,0 +1,10 @@
+<!ENTITY PHPConfigurationWizard.title "PHP Configuration Wizard">
+<!ENTITY browse.label "Browse...">
+<!ENTITY choosePHPExtensionDirectory.label "Choose PHP extension directory">
+<!ENTITY choosePHPINIDirectory.label "Choose PHP INI directory">
+<!ENTITY choosePHPInstallation.label "Choose PHP Installation">
+<!ENTITY clickOnAnInstallationToSetItUpForWebServices.tooltiptext "Click on an installation to set it up for Web Services">
+<!ENTITY finishedWithInstallation.label "Finished with installation">
+<!ENTITY installing.label "Installing">
+<!ENTITY readyToInstall.label "Ready To Install">
+<!ENTITY selectInstallationToConfigure.label "Select installation to configure">

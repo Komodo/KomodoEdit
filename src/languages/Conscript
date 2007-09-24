@@ -1,0 +1,98 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'buildType',
+    'supportDir',
+    'unsiloedPythonExe',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'mozVersion',
+    'sdkDir',
+);
+
+
+$cons->Install($idlExportDir, 'koILanguage.idl');
+$cons->BuildAndInstallXpt('koILanguage.idl');
+$cons->Preprocess('koPythonLanguage.unprocessed.py', 'koPythonLanguage.py');
+$cons->InstallXpcomComponent('koPythonLanguage.py');
+$cons->InstallXpcomComponent('koLanguage.py');
+$cons->InstallPythonUtility('koLanguageServiceBase.py');
+$cons->InstallPythonUtility('koUDLLanguageBase.py');
+$cons->InstallPythonUtility('koXMLLanguageBase.py');
+
+$cons->InstallXpcomComponent('koADALanguage.py');
+$cons->InstallXpcomComponent('koApacheLanguage.py');
+$cons->InstallXpcomComponent('koAPDLLanguage.py');
+$cons->InstallXpcomComponent('koAsmLanguage.py');
+$cons->InstallXpcomComponent('koASN1Language.py');
+$cons->InstallXpcomComponent('koAu3Language.py');
+$cons->InstallXpcomComponent('koAVELanguage.py');
+$cons->InstallXpcomComponent('koBaanLanguage.py');
+$cons->InstallXpcomComponent('koBashLanguage.py');
+$cons->InstallXpcomComponent('koBasicLanguage.py');
+$cons->InstallXpcomComponent('koBATLanguage.py');
+$cons->InstallXpcomComponent('koBullantLanguage.py');
+$cons->InstallXpcomComponent('koCLWLanguage.py');
+$cons->InstallXpcomComponent('koCPPLanguage.py');
+$cons->InstallXpcomComponent('koCSharpLanguage.py');
+$cons->InstallXpcomComponent('koCsoundLanguage.py');
+$cons->InstallXpcomComponent('koCSSLanguage.py');
+$cons->InstallXpcomComponent('koDiffLanguage.py');
+$cons->InstallXpcomComponent('koEiffelLanguage.py');
+$cons->InstallXpcomComponent('koErlangLanguage.py');
+$cons->InstallXpcomComponent('koErrorLanguage.py');
+$cons->InstallXpcomComponent('koEScriptLanguage.py');
+$cons->InstallXpcomComponent('koFlagshipLanguage.py');
+$cons->InstallXpcomComponent('koForthLanguage.py');
+$cons->InstallXpcomComponent('koFortranLanguage.py');
+$cons->InstallXpcomComponent('koGui4CliLanguage.py');
+$cons->InstallXpcomComponent('koHaskellLanguage.py');
+$cons->InstallXpcomComponent('koIDLLanguage.py');
+$cons->InstallXpcomComponent('koJavaLanguage.py');
+$cons->InstallXpcomComponent('koJavaScriptLanguage.py');
+$cons->InstallXpcomComponent('koKixLanguage.py');
+$cons->InstallXpcomComponent('koLispLanguage.py');
+$cons->InstallXpcomComponent('koLoutLanguage.py');
+$cons->InstallXpcomComponent('koLuaLanguage.py');
+$cons->InstallXpcomComponent('koMakefileLanguage.py');
+$cons->InstallXpcomComponent('koMatlabLanguage.py');
+$cons->InstallXpcomComponent('koMetapostLanguage.py');
+$cons->InstallXpcomComponent('koMMIXALLanguage.py');
+$cons->InstallXpcomComponent('koMPTLanguage.py');
+$cons->InstallXpcomComponent('koMSSQLLanguage.py');
+$cons->InstallXpcomComponent('konnCrontabLanguage.py');
+$cons->InstallXpcomComponent('koNsisLanguage.py');
+$cons->InstallXpcomComponent('koOthersLanguage.py');
+$cons->InstallXpcomComponent('koPascalLanguage.py');
+$cons->InstallXpcomComponent('koPowerBasicLanguage.py');
+$cons->InstallXpcomComponent('koPerlLanguage.py');
+$cons->InstallXpcomComponent('koPOVLanguage.py');
+$cons->InstallXpcomComponent('koPostScriptLanguage.py');
+$cons->InstallXpcomComponent('koREBOLLanguage.py');
+$cons->InstallXpcomComponent('koRegexLanguage.py');
+$cons->InstallXpcomComponent('koRubyLanguage.py');
+$cons->InstallXpcomComponent('koRxLanguage.py');
+$cons->InstallXpcomComponent('koScriptolLanguage.py');
+$cons->InstallXpcomComponent('koSmalltalkLanguage.py');
+$cons->InstallXpcomComponent('koSpecmanLanguage.py');
+$cons->InstallXpcomComponent('koSQLLanguage.py');
+$cons->InstallXpcomComponent('koTADS3Language.py');
+$cons->Preprocess('koTclLanguage.p.py', 'koTclLanguage.py');
+$cons->InstallXpcomComponent('koTclLanguage.py');
+$cons->InstallXpcomComponent('koTeXLanguage.py');
+$cons->InstallXpcomComponent('koTextLanguage.py');
+$cons->InstallXpcomComponent('koVBLanguage.py');
+$cons->InstallXpcomComponent('koVHDLLanguage.py');
+$cons->InstallXpcomComponent('koVerilogLanguage.py');
+$cons->InstallXpcomComponent('koYAMLLanguage.py');

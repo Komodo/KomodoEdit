@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+		    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		    class="kodialog" orient="vertical"
+		    onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+
+  <script type="application/x-javascript;version=1.7">
+  <![CDATA[
+    function OnPreferencePageLoading() {
+        if (document.getElementById('checkDiskFile').getAttribute('checked') == 'true') {
+            document.getElementById('reload_changed_files')
+                    .removeAttribute('disabled');
+            document.getElementById('close_deleted_files')
+                    .removeAttribute('disabled');
+        } else {
+            document.getElementById('reload_changed_files')
+                    .setAttribute('disabled', 'true');
+            document.getElementById('close_deleted_files')
+                    .setAttribute('disabled', 'true');
+        }
+    }
+  ]]>
+  </script>
+
+  <!-- nothing on this page has accesskeys because this is a temporary debug
+       panel and you can damn well click the widgets! -->
+
+  <!-- this function is not in place
+  <text value="Default Language"/>
+  -->
+  <groupbox orient="vertical">
+    <caption label="&general.label;"/>
+    <grid debug="false">
+        <columns>
+            <column flex="50" autostretch="never"/>
+            <column flex="50" autostretch="never"/>
+        </columns>
+        <rows>
+            <row>
+                <checkbox id="showWhitespace" label="&showWhitespaceCharacters.label;"
+                          pref="true" prefstring="showWhitespace"
+                          prefattribute="checked"/>
+                <checkbox id="showEOL" label="&showEndOfLineCharacters.label;"
+                          pref="true" prefstring="showEOL"
+                          prefattribute="checked"/>
+            </row>
+            <row>
+                <checkbox id="showLineNumbers" label="&showLineNumbers.label;"
+                          pref="true" prefstring="showLineNumbers"
+                          prefattribute="checked"/>
+            </row>
+        </rows>
+    </grid>
+  </groupbox>
+
+  <groupbox orient="vertical">
+    <caption label="&cursorOptions.label;"/>
+    <hbox align="center" flex="1">
+        <hbox align="center" flex="1">
+            <label value="Cursor style:"/>
+            <menulist pref="true"
+                      id="caretStyle"
+                      prefattribute="data">
+                <menupopup>
+                    <menuitem data="1" label="&lineCursor.label;"
+                              tooltiptext="&cursorWillBeAVerticalLine.tooltiptext;"/>
+                    <menuitem data="2" label="&blockCursor.label;"
+                              tooltiptext="&cursorWillBeACharacterSizedBlock.tooltiptext;"/>
+                    <menuitem data="0" label="&invisible.label;"
+                              tooltiptext="&cursorWillNotBeShown.tooltiptext;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+        <hbox align="center" flex="1">
+            <label value="Width of line cursor:"/>
+            <menulist pref="true"
+                      id="caretWidth"
+                      prefattribute="data"
+                      tooltiptext="&settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext;">
+                <menupopup>
+                    <menuitem data="1" label="&label.1px;"/>
+                    <menuitem data="2" label="&label.2px;"/>
+                    <menuitem data="3" label="&label.3px;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+    </hbox>
+  </groupbox>
+
+  <groupbox orient="vertical">
+    <caption label="&confirmationDialogs.label;"/>
+    <checkbox id="checkDiskFile"
+              label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
+              pref="true"
+              oncommand="update_dontasks()"/>
+    <hbox align="center">
+        <label value="If files have been changed:"/>
+        <menulist pref="true"
+                  id="reload_changed_files"
+                  prefattribute="data"
+                  prefstrings="donotask_reload_changed_files,donotask_action_reload_changed_files">
+            <menupopup>
+                <menuitem data="false,"   label="&askMeWhatFilesToReload.label;"/>
+                <menuitem data="true,All" label="&reloadAllFiles.label;"/>
+                <menuitem data="true,None"  label="&reloadNoFiles.label;"/>
+            </menupopup>
+        </menulist>
+    </hbox>
+    <hbox align="center">
+        <label value="If files have been deleted:"/>
+        <menulist pref="true"
+                  prefattribute="data"
+                  id="close_deleted_files"
+                  prefstrings="donotask_close_deleted_files,donotask_action_close_deleted_files">
+            <menupopup>
+                <menuitem data="false,"   label="&askMeWhatFilesToClose.label;"/>
+                <menuitem data="true,All" label="&closeAllFiles.label;"/>
+                <menuitem data="true,None"  label="&closeNoFiles.label;"/>
+            </menupopup>
+        </menulist>
+    </hbox>
+    <checkbox id="showFileConflictAlertDialog"
+              label="&doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label;"
+              style="padding-top: 5px;"
+              pref="true" prefstring="donotask_buffer_conflicts_with_file_on_disk"
+              prefattribute="checked"/>
+  </groupbox>
+
+ <groupbox orient="vertical">
+    <caption label="&scrolling.label;"/>
+    <hbox align="center">
+        <label value="Minimum number of lines to keep above and below cursor:"/>
+        <textbox id="ySlop"
+                    size="3"
+                    pref="true"
+                    prefstring="ySlop"
+                    prefattribute="value"/>
+    </hbox>
+    <hbox align="center">
+        <label value="Horizontal scrollbar width (in pixels):"/>
+        <textbox id="scrollWidth"
+                    size="6"
+                    pref="true"
+                    prefstring="scrollWidth"
+                    prefattribute="value"/>
+    </hbox>
+    <vbox>
+	<checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
+		  pref="true" prefstring="scrollEndAtLastLine"
+		  prefattribute="checked"/>
+	<description></description>
+    </vbox>
+  </groupbox>
+ <groupbox orient="vertical">
+    <caption label="&incrementalSearch.label;"/>
+    <grid flex="1">
+        <columns>
+            <column autostretch="never"/>
+            <column flex="1" autostretch="never"/>
+        </columns>
+        <rows>
+            <row>
+                <hbox align="center">
+                    <label style="min-width: 80px;">Matches Case:</label>
+                </hbox>
+                <menulist id="isearchCaseSensitivity"
+                        pref="true"
+                        prefattribute="data">
+                    <menupopup>
+                        <menuitem data="0" label="&never.label;"/>
+                        <menuitem data="1" label="&always.label;"/>
+                        <menuitem data="2" label="&ifSearchStringContainsCapitalLetters.label;"/>
+                    </menupopup>
+                </menulist>
+            </row>
+            <separator class="thin"/>
+            <row>
+                <hbox align="center">
+                    <label style="min-width: 80px;">Uses:</label>
+                </hbox>
+                <menulist id="isearchType"
+                        pref="true"
+                        prefattribute="data">
+                    <menupopup>
+                        <menuitem data="0" label="&plainText.label;"/>
+                        <menuitem data="2" label="&regularExpressionsPythonSyntax.label;"/>
+                        <menuitem data="1" label="&wildcard.label;"/>
+                    </menupopup>
+                </menulist>
+            </row>
+        </rows>
+    </grid>
+  </groupbox>
+</window>
+

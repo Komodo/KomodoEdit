@@ -1,0 +1,2 @@
+content  jslib       jar:chrome/jslib.jar!/
+content  jsliblive   chrome/jsliblive/

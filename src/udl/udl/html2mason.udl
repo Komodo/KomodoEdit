@@ -1,0 +1,18 @@
+family markup
+
+state IN_M_DEFAULT:
+/^%/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+      at_eol(IN_M_DEFAULT), => IN_SSL_DEFAULT
+'<%' : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+        spush_check(IN_M_DEFAULT), => IN_TPL_CHOOSE_TOP_LEVEL
+/<&\|?/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_COMPONENT_1
+'</&>' : paint(upto, M_DEFAULT), paint(include,TPL_OPERATOR) #stay here
+/<\/%(?=def\b)/i : paint(upto, M_DEFAULT), paint(include,TPL_OPERATOR), => IN_TPL_FINISH_ETAGC_1
+
+state IN_M_STAG_ATTR_DSTRING:
+'<%' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+        spush_check(IN_M_STAG_ATTR_DSTRING), => IN_TPL_CHOOSE_TOP_LEVEL
+
+state IN_M_STAG_ATTR_SSTRING:
+'<%' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+        spush_check(IN_M_STAG_ATTR_SSTRING), => IN_TPL_CHOOSE_TOP_LEVEL

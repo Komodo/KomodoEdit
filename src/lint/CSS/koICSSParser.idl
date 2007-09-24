@@ -1,0 +1,11 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIURI.idl"
+
+[scriptable, uuid(7D82F06D-CF2D-11DA-AE2F-000D935D3368)]
+interface koICSSParser: nsISupports
+{
+    void parseFile(in string filename);
+};

@@ -1,0 +1,242 @@
+/* Copyright (c) 2003-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/* Special dialog to choose how to preview a given file.
+ *
+ * Usage:
+ *  All dialog interaction is done via an object passed in and out as the first
+ *  window argument: window.arguments[0].
+ *      .url            The URL for which to chose a preview.
+ *      .language       (optional) language of the given URL. If not specified
+ *                      it will be guessed from the filename.
+ *      .mode           One of "previewing" (default) or "setting" indicating
+ *                      for what immediate purpose the preview path is
+ *                      being sought.
+ *
+ *  On return window.arguments[0] has:
+ *      .retval         "Preview"/"OK" or "Cancel" indicating how the
+ *                      dialog was exitted.
+ *  and iff .retval == "Preview":
+ *      .preview        URL to preview.
+ *      .remember       (iff mode=="previewing") a boolean indicating if
+ *                      this setting should be remembered for this URL.
+ */
+
+//---- globals
+
+var log = ko.logging.getLogger("dialogs.pickPreview");
+var widgets = {}; // cache of DOM nodes for dialog.
+var gURL = null; // the URL for which to pick a preview URL
+var gBasename = null;
+var gMode = null;
+
+
+//---- interface routines for XUL
+
+function OnLoad()
+{
+    try {
+        gMode = window.arguments[0].mode;
+        if (typeof gMode == "undefined" || gMode == null) gMode = "previewing";
+
+        var dialog = document.getElementById("dialog-pickpreview")
+        widgets.okButton = dialog.getButton("accept");
+        if (gMode == "previewing") {
+            widgets.okButton.setAttribute("label", "Preview");
+            widgets.okButton.setAttribute("accesskey", "P");
+        } else if (gMode == "setting") {
+            widgets.okButton.setAttribute("label", "OK");
+            widgets.okButton.setAttribute("accesskey", "O");
+        } else {
+            throw "Invalid mode value: '"+gMode+"'";
+        }
+        widgets.cancelButton = dialog.getButton("cancel");
+        widgets.cancelButton.setAttribute("accesskey", "C");
+
+        widgets.promptDesc = document.getElementById("prompt");
+        widgets.useWhichRadiogroup = document.getElementById("use-which-file");
+        widgets.useThisRadio = document.getElementById("use-this-file");
+        widgets.useAnotherRadio = document.getElementById("use-another-file");
+        widgets.browseButton = document.getElementById("browse-button");
+        widgets.otherFileTextbox = document.getElementById("other-file");
+        widgets.rememberCheckbox = document.getElementById("remember");
+
+        gURL = window.arguments[0].url;
+        gBasename = opener.ko.uriparse.baseName(gURL);
+        var language = window.arguments[0].language;
+        if (typeof language == "undefined" || language == null) {
+            var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"]
+                    .getService(Components.interfaces.koILanguageRegistryService);
+            language = langRegistry.suggestLanguageForFile(gBasename);
+        }
+
+        // Title
+        document.title = "Preview '"+gBasename+"' in Browser";
+
+        // Prompt
+        var prompt = "Select a file or URL to use to preview '"+gBasename+
+                     "' in the browser.";
+        widgets.promptDesc.appendChild(document.createTextNode(prompt));
+
+        var mapped = ko.uriparse.getMappedPath(gURL);
+        if (mapped != gURL) {
+            widgets.otherFileTextbox.value = mapped;
+        }
+    
+        // Language-dependent UI.
+        if (language == "HTML" || language == "XML" /* ...others? */) {
+            widgets.useWhichRadiogroup.selectedItem = widgets.useThisRadio;
+            widgets.okButton.focus();
+        } else {
+            widgets.useWhichRadiogroup.selectedItem = widgets.useAnotherRadio;
+            //widgets.useThisRadio.setAttribute("disabled", "true");
+            widgets.otherFileTextbox.focus();
+        }
+        UpdateAnotherGroup();
+
+        if (gMode == "setting") {
+            widgets.rememberCheckbox.setAttribute("collapsed", "true");
+        }
+
+        window.sizeToContent();
+        if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
+            dialog.centerWindowOnScreen();
+        } else {
+            dialog.moveToAlertPosition(); // requires a loaded opener
+        }
+    } catch(ex) {
+        log.exception(ex, "Error loading pickPreview dialog.");
+    }
+}
+
+
+function UpdateAnotherGroup()
+{
+    // Update the "Another File" group for a change in the radio buttons
+    // selection.
+    try {
+        var useWhich = widgets.useWhichRadiogroup.value;
+        if (useWhich == "use-this") {
+            widgets.otherFileTextbox.setAttribute("disabled", "true");
+            widgets.browseButton.setAttribute("disabled", "true");
+            if (widgets.okButton.hasAttribute("disabled"))
+                widgets.okButton.removeAttribute("disabled");
+        } else /* useWhich == "use-another" */ {
+            if (widgets.otherFileTextbox.hasAttribute("disabled"))
+                widgets.otherFileTextbox.removeAttribute("disabled");
+            if (widgets.browseButton.hasAttribute("disabled"))
+                widgets.browseButton.removeAttribute("disabled");
+            if (!widgets.otherFileTextbox.value) {
+                widgets.okButton.setAttribute("disabled", "true");
+            }
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating 'another file' group.");
+    }
+}
+
+
+function Browse()
+{
+    try {
+        // Default to the current textbox entry, fallback to directory
+        // of given URL.
+        var defaultDir, defaultFile;
+        if (widgets.otherFileTextbox.value) {
+            defaultDir = null;
+            defaultFile = widgets.otherFileTextbox.value;
+        } else {
+            var localPath = opener.ko.uriparse.URIToLocalPath(gURL);
+            defaultDir = opener.ko.uriparse.dirName(localPath);
+            defaultFile = null;
+        }
+        var path = ko.filepicker.openFile(
+                    defaultDir, // default dir
+                    defaultFile, // default filename
+                    "Select File to Preview '"+gBasename+"'", // title
+                    "HTML", // default filter name
+                    ["HTML", "XML", "All"]); // allowed filters
+        if (path != null) {
+            widgets.otherFileTextbox.value = path;
+            UpdateOtherFileTextbox();
+            widgets.okButton.focus();
+        } else {
+            widgets.otherFileTextbox.focus();
+        }
+    } catch(ex) {
+        log.exception(ex, "Error browsing for a preview file.");
+    }
+}
+
+
+function UpdateOtherFileTextbox()
+{
+    // Update as required for a change in the "other file" textbox element.
+    try {
+        if (widgets.otherFileTextbox.value) {
+            if (widgets.okButton.hasAttribute("disabled"))
+                widgets.okButton.removeAttribute("disabled");
+        } else {
+            widgets.okButton.setAttribute("disabled", "true");
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating for 'other file' textbox.");
+    }
+}
+
+
+function Preview()
+{
+    try {
+        window.arguments[0].retval = widgets.okButton.getAttribute("label");
+
+        var preview;
+        if (widgets.useWhichRadiogroup.value == "use-another") {
+            preview = widgets.otherFileTextbox.value;
+
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                            .createInstance(Components.interfaces.koIFileEx);
+
+            // If the preview is relative then prefix the dirname of the
+            // given URL.
+            // XXX koIFileEx doesn't provide this ability.
+            koFileEx.URI = preview;
+            if (koFileEx.isLocal) {
+                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+                                .createInstance(Components.interfaces.koIOsPath);
+                if (! osPathSvc.isabs(preview)) {
+                    preview = opener.ko.uriparse.dirName(gURL) + "/" + preview;
+                    preview = osPathSvc.normpath(preview);
+                }
+            }
+
+            // If the preview is a local file, ensure that it exists.
+            koFileEx.URI = preview;
+            if (koFileEx.isLocal && !koFileEx.exists) {
+                ko.dialogs.alert("'"+preview+"' does not exist.");
+                widgets.otherFileTextbox.focus();
+                return false;
+            }
+        } else {
+            preview = gURL;
+        }
+
+        window.arguments[0].preview = preview;
+        if (gMode == "previewing") {
+            window.arguments[0].remember = widgets.rememberCheckbox.checked;
+        }
+        return true;
+    } catch(ex) {
+        log.exception(ex, "Error running 'Login'.");
+    }
+    return false;
+}
+
+
+function Cancel()
+{
+    window.arguments[0].retval = "Cancel";
+    return true;
+}
+
+

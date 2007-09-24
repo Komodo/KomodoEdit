@@ -1,0 +1,359 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+
+
+if (typeof(ko) == 'undefined') {
+    var ko = {};
+}
+if (typeof(ko.views)=='undefined') {
+    ko.views = {};
+}
+(function() {
+
+/**
+ * view history controller
+ * 
+ *
+ * Recently-visited views:
+ * 
+ * The viewhistory object maintains a stack of recently visited lists. This
+ * information can be used to switch to recent views. The semantics of the
+ * following methods are as follows:
+ *  - .getNextMostRecentView() and .getNextLeastRecentView() are used by the
+ *    buffer switching commands to know which views to switch to.
+ *  - .enterBufferSwitchingSession() and .exitBufferSwitchingSession() are
+ *    called by the buffer swiching commands to help .setMostRecentView() know
+ *    how to behave (the "recent views" stack is NOT updated during such a
+ *    session). Note that .enter...() may be called multiple times for one
+ *    .exit...() call.
+ *  - .setMostRecentView() is called by the view manager's .selectView() and can
+ *    be called directly by the buffer switching commands for proper session
+ *    handling.
+ * 
+ *  NOTE: THIS BEHAVIOR IS TURNED OFF BY SETTING "handlestctrltab" to false on the tabbed view.
+ */
+this.ViewHistory = function viewhistory() {
+    this._recentViews = [];
+    this.inBufferSwitchingSession = false;
+    this._observingCtrlKeyUp = false;
+    this.log = ko.logging.getLogger('viewhistory');
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
+    this._currentView = null;
+    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+    obSvc.addObserver(this, 'view_closed',false);
+    obSvc.addObserver(this, 'view_opened',false);
+    obSvc.addObserver(this, 'current_view_changed',false);
+// #if PLATFORM != "win"
+    // on linux we must use a timeout since we do not get
+    // keyup events for the ctrl key
+    this._timeout = new objectTimer(this,this.exitBufferSwitchingSession,[]);
+// #endif
+}
+
+this.ViewHistory.prototype.constructor = this.ViewHistory;
+
+this.ViewHistory.prototype.doNextMostRecentView = function()
+{
+    this.log.info("doNextMostRecentView");
+    var v = this.getNextMostRecentView();
+    if (v != null) {
+        this.enterBufferSwitchingSession();
+        this._setKeyListener()
+        v.makeCurrent();
+    }
+}
+
+this.ViewHistory.prototype.doNextLeastRecentView = function()
+{
+    this.log.info("doNextLeastRecentView");
+    var v = this.getNextLeastRecentView();
+    if (v != null) {
+        this.enterBufferSwitchingSession();
+        this._setKeyListener()
+        v.makeCurrent();
+    }
+}
+
+this.ViewHistory.prototype._setKeyListener = function()
+{
+    if (this._keylistener) return;
+    var me = this;
+    this._keylistener = function (event) {
+        me.ctrlup(event);
+    }
+    window.addEventListener("keyup", this._keylistener, true);
+}
+
+this.ViewHistory.prototype.ctrlup = function(event)
+{
+    // if it's not the ctrl key, get out
+    if (event.keyCode != 17) return;
+
+    window.removeEventListener("keyup", this._keylistener, true);
+    this._keylistener = null;
+    this.exitBufferSwitchingSession();
+    this.setMostRecentView(this._currentView);
+    this._currentView.doFocus(); // needed to possibly start lint XXX want better API
+}
+
+this.ViewHistory.prototype._debug_recentViews = function()
+{
+    dump("Recent views: have " + this._recentViews.length + " views in history:\n");
+    for (var i = 0; i < this._recentViews.length; i++) {
+        dump('[' + i + ']: ');
+        try {
+            if (!this._recentViews[i]) {
+                dump('<null>\n');
+            } else {
+                var v = this._recentViews[i].document.baseName;
+                if (this._recentViews[i] == this._currentView) {
+                    dump('*** ');
+                }
+                dump(v + '\n');
+            }
+        } catch (e) {
+            this.log.error(e);
+            dump("...\n");
+        }
+    }
+}
+
+this.ViewHistory.prototype.getNextMostRecentView = function()
+{
+    this.log.info("getNextMostRecentView");
+    if (!this._recentViews || this._recentViews.length < 2) {
+        this.log.info("no _recentViews in getNextMostRecentView");
+        this._debug_recentViews();
+        return null;
+    }
+    var currIndex = null;
+    var i;
+    for (i = 0; i < this._recentViews.length; i++) {
+        if (this._recentViews[i] == this._currentView) {
+            currIndex = i;
+            break;
+        }
+    }
+    // Find the current view in the "_recentViews" stack and return the
+    // preceding view.
+    var index = (currIndex + 1) % this._recentViews.length;
+    var view = this._recentViews[index];
+    if (typeof(view) == 'undefined' || !view) {
+        // The "recent urls" list is out of date. Remove this entry and try
+        // again.
+        var newStack = new Array();
+        for (i in this._recentViews) {
+            i = Number(i);
+            if (this._recentViews[i] != view) {
+                newStack[newStack.length] = this._recentViews[i];
+            }
+        }
+        this._recentViews = newStack;
+        this.log.debug("getNextMostRecentView(): recents list is out of date, remove");
+        return this.getNextMostRecentView();
+    } else {
+        return view;
+    }
+}
+
+this.ViewHistory.prototype.getNextLeastRecentView = function()
+{
+    this.log.info("getNextLeastRecentView");
+    if (!this._recentViews || this._recentViews.length < 2) {
+        this.log.info("no _recentViews in getNextLeastRecentView");
+        return null;
+    }
+    // Find the current view in the "recent views" stack and return the
+    // succeeding view.
+    var currIndex = null;
+    var i;
+    for (i = 0; i < this._recentViews.length; i++) {
+        if (this._recentViews[i] == this._currentView) {
+            currIndex = i;
+            break;
+        }
+    }
+    // XXX JavaScript get's modulus wrong for negative values, so add the
+    //     .length to ensure the value is not negative.
+    var index = (currIndex - 1 + this._recentViews.length) %
+                this._recentViews.length;
+
+    var view = this._recentViews[index];
+    if (typeof(view) == 'undefined' || !view) {
+        // The "recent urls" list is out of date. Remove this entry and try
+        // again.
+        var newStack = new Array();
+        for (i in this._recentViews) {
+            i = Number(i);
+            if (this._recentViews[i] != view) {
+                newStack[newStack.length] = this._recentViews[i];
+            }
+        }
+        this._recentViews = newStack;
+        //this.log.debug("getNextLeastRecentView(): curr=" + currUrl +
+        //          ", recents list is out of date, remove " + url);
+        return this.getNextLeastRecentView();
+    } else {
+        this.log.debug("TabViewManager.getNextLeastRecentView()");
+        return view;
+    }
+}
+
+this.ViewHistory.prototype.enterBufferSwitchingSession = function()
+{
+    this.log.debug("enterBufferSwitchingSession()");
+    this.inBufferSwitchingSession = true;
+    ko.views.manager.batchMode = true;
+// #if PLATFORM != "win"
+    this._timeout.stopTimeout();
+    this._timeout.startTimeout(1000);
+// #endif
+}
+
+this.ViewHistory.prototype.exitBufferSwitchingSession = function()
+{
+    this.log.debug("exitBufferSwitchingSession()");
+    this.inBufferSwitchingSession = false;
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                       getService(Components.interfaces.nsIObserverService);
+    ko.views.manager.batchMode = false;
+    // We need to do a current_view_changed here because the views.js
+    // observer ignores those while in the middle of a control-tab session
+    // for purposes of optimization.
+    try {
+        observerSvc.notifyObservers(this._currentView, 'current_view_changed', '');
+    } catch (e) {
+        // nobody home;
+    }
+}
+
+this.ViewHistory.prototype.observe = function (subject, topic, data)
+{
+    switch (topic) {
+        case 'view_opened':
+            this.setMostRecentView(subject);
+            break;
+        case 'view_closed':
+            this.removeRecentView(subject);
+            break;
+        case 'current_view_changed':
+            this._currentView = subject;
+            break;
+    }
+}
+
+this.ViewHistory.prototype.setMostRecentView = function (view)
+{
+    this.log.info("setMostRecentView");
+    //if (view) {
+    //    this.log.debug("in setMostRecentView" + view.document.baseName);
+    //}
+    // Bring the given view to front of the "recent views" stack (note: it may
+    // not yet be *in* the stack) *unless* we are currently in a buffer
+    // switching session (e.g. press <Ctrl> and hold, hit <Tab> a few times,
+    // release <Ctrl>).  Have to do the "unless" checking in here because
+    // .selectView() calls this method.
+    //this._debug_recentViews();
+    var v;
+    if (! this.inBufferSwitchingSession) {
+        var newStack = new Array();
+        newStack[0] = view;
+        for (var i =0; i < this._recentViews.length; i++) {
+            v = this._recentViews[i];
+            if (v != view) {
+                newStack.push(v);
+            }
+        }
+        this._recentViews = newStack;
+        //this._debug_recentViews();
+        //this.log.debug("setMostRecentView(" + view +
+        //          "): new stack: " + this._recentViews);
+    }
+    else {
+        this.log.debug("setMostRecentView(" + view + "): ignored because in buffer switching session");
+    }
+}
+
+
+this.ViewHistory.prototype.removeRecentView = function (view)
+{
+    this.log.info("removeRecentView");
+    // this._debug_recentViews();
+    var newrecentviews = []
+
+    var i;
+    for (i = 0; i < this._recentViews.length; i++) {
+        if (this._recentViews[i] != view) {
+           newrecentviews.push(this._recentViews[i]);
+        }
+    }
+    this._recentViews = newrecentviews;
+    // this._debug_recentViews();
+}
+
+this.ViewHistory.prototype.setState = function (state, viewcontainer)
+{
+    this.log.info("setState");
+    // This function sets a control-tab history from a pref
+    // it is called by the onload handler that restores 'workspace'.
+    // It stomps over whatever recent view history is established
+    // by loading of views.  It needs to be called _after_
+    // the views are available. It ignores URIs for views that
+    // aren't loaded.
+    var _recentViews = [];
+    var marker = '?parentId=';
+    var markerLength = marker.length;
+    var identifier, URI, parent, parentId, views, view;
+    var index, i, j;
+    for (i = 0; i < state.length; i++) {
+        identifier = state.getStringPref(i);
+        index = identifier.indexOf(marker);
+        URI = identifier.slice(0, index);
+        parentId = identifier.slice(index+markerLength);
+        parent = document.getElementById(parentId);
+        views = parent.findViewsForURI(URI);
+        if (views.length > 0) {
+            _recentViews.push(views[0]);
+        }
+    }
+    // now merge in any previously opened files that
+    // were not in the prefs
+    var found;
+    for (i = 0; i < this._recentViews.length; i++) {
+        view = this._recentViews[i];
+        found = false;
+        for (j = 0; j < _recentViews.length; j++) {
+            if (view == _recentViews[j]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            _recentViews.push(view);
+        }
+    }
+    this._recentViews = _recentViews;
+}
+
+this.ViewHistory.prototype.getState = function ()
+{
+    this.log.info("getState");
+    // This function returns a pref which can be used in conjunction
+    // with .setState() to serialize the 'recent views' history.
+    var state = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
+    var index, v;
+    for (var i = 0; i < this._recentViews.length; i++) {
+        v = this._recentViews[i];
+        if (v && v.parentView &&
+            v.document && !v.document.isUntitled &&
+            v.document.file && v.document.file.URI) {
+            state.appendStringPref(v.document.file.URI + '?parentId=' + v.parentView.getAttribute('id'));
+        }
+    }
+    return state;
+}
+
+}).apply(ko.views);
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project kpf_version="2" name="dtdvalidate">
+<preference-set id="">
+</preference-set>
+<command cwd="C:\main\Apps\Komodo-devel\util\dtd\" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="DTD Validate" operateOnSelection="0" parseOutput="1" parseRegex=".*?:(?P&lt;file&gt;.*):(?P&lt;line&gt;\d*):\d*:(?P&lt;content&gt;.*)" runIn="command-output-window" showParsedOutputList="1">
+xvcmd.py -c moz.soc %F</command>
+</project>

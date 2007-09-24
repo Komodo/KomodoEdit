@@ -1,0 +1,19 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'mozBin',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+);
+
+$cons->InstallRecursive("$mozChromeDir/komodo/locale/en-US",
+                        cwd()."/src/chrome/komodo/locale/en-US");
+

@@ -1,0 +1,13 @@
+<%= error_messages_for :reading %>
+<%= @logged_in_reader.fullname %> read <%= @book.title %>
+<% my_form_for :reading, @reading, :url => reading_url(@reading.book), :html => { :method => ( @reading.new_record? ? "post" : "put") } do |f| %>
+	<%= f.date_select :date_read %>
+	<br/>
+	<%= f.text_field :reading_time %>
+	<%= f.text_area :notes %>
+	<label>Tags</label>
+	<br/>
+	<%= text_area_tag "tags" %>
+	<br/>
+	<%= submit_tag "Save" %>
+<% end %>

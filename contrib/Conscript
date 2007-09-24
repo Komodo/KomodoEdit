@@ -1,0 +1,362 @@
+#!/usr/bin/env perl
+# Copyright (c) 2005-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'buildAbsDir',
+    'compiler',
+    'platform',
+    'buildFlavour',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'unsiloedPythonExe',
+    'productType',
+    'mozVersion',
+    'mozExtensionDir',
+    'komodoShortVersion',
+    'mozBin',
+    'withCrypto',
+    'withJSLib',
+    'ranRegxpcomStateFileName',
+    'siloedPython',
+    'universal',
+);
+
+
+#---- Komodo's schema-based autocomplete and other parts of the
+#     codeintel system use ElementTree.
+# Python ElementTree (cElementTree depends upon this)
+my $landmark = "$komodoPythonUtilsDir/elementtree/__init__.py";
+$cons->Command($landmark,
+               "elementtree/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+               ));
+$cons->DependsRecursive($landmark, "elementtree", ("build"));
+# cElementTree
+my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
+my $landmark = "$komodoPythonUtilsDir/cElementTree$pydExt";
+$cons->Command($landmark,
+               "cElementTree/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+               ));
+$cons->DependsRecursive($landmark, "cElementTree", ("build"));
+
+
+#---- sgmlop (used for HTML parsing for HTML autocomplete)
+my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
+my $landmark = "$komodoPythonUtilsDir/sgmlop$pydExt";
+$cons->Command($landmark,
+               "sgmlop/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+               ));
+$cons->DependsRecursive($landmark, "sgmlop", ("build"));
+
+
+#---- Stock XML catalogs
+$cons->InstallRecursive("$supportDir/catalogs",
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/catalogs");
+
+
+#----  Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto.
+if ($withCrypto) {
+    # PyCrypto (http://www.amk.ca/python/code/crypto)
+    my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
+    $cons->Command($landmark,
+                   "pycrypto/setup.py",
+                   qq(
+                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+                   ));
+    $cons->DependsRecursive($landmark, "pycrypto", ("build"));
+    
+    # paramiko (http://www.lag.net/paramiko/)
+    $landmark = "$komodoPythonUtilsDir/paramiko/__init__.py";
+    $cons->Command($landmark,
+                   "paramiko/setup.py",
+                   qq(
+                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+                   ));
+    $cons->DependsRecursive($landmark, "paramiko",
+                            ("build", "paramiko.egg-info", "docs", "demos"));
+}
+
+
+
+if ($withJSLib or $buildFlavour eq "dev") {
+    #---- jslib
+    # Some of Komodo's optional extensions use jslib:
+    #   komodo_javascript_debugger (Komodo's FF extension for JS debugging)
+    #   Casper (a Komodo extension for GUI testing)
+    #
+    # To update jslib, do the following *on a Linux box* to avoid EOL issues.
+    #
+    #   cd contrib/jslib
+    #   rm -rf *
+    #   wget http://www.mozdevgroup.com/dropbox/jslib/signed/jslib_current_signed.xpi
+    #   unzip jslib_current_signed.xpi
+    #   rm -f jslib_current_signed.xpi
+    #   mv install.rdf install.p.rdf   # will be preprocessed later
+    #   patch -p0 < patches/jslib_komodo_rdf.patch
+    #   px diff -sn ./... | px -x - add
+    #   p4 diff -se ./... | p4 -x - edit
+    #   p4 diff -sd ./... | p4 -x - delete
+    #   p4 submit ./...
+    #       Update to jsLib version X.X.XXX
+    #
+    # Currently we install the extension for dev builds and only place
+    # the .xpi in the install tree for installer builds because jslib is
+    # only required for dev testing bits (e.g. Casper).
+
+    $cons->Preprocess('jslib/install.p.rdf', 'jslib/install.rdf',
+                      {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
+
+    if ($buildFlavour eq "dev") {
+        # install into komodo dev build
+        my $baseDir = "$mozExtensionDir/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
+        $cons->Install($baseDir, "jslib/install.rdf");
+        $cons->InstallRecursive(
+            $baseDir,
+            #XXX must be absolute path (bug in InstallRecursive)
+            cwd()."/build/release/contrib/jslib",
+            (".consign", "install.p.rdf", "jslib.xpi"));
+
+        # install into firefox
+        # XXX FIXME The following installrecursive does not work.  why?
+        $baseDir = "$firefoxProfileDir/extensions/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
+        if (! -d $baseDir) {
+            mkdir($baseDir);
+        }
+        $cons->Install($baseDir, "jslib/install.rdf");
+        $cons->InstallRecursive($baseDir,
+                                cwd()."/build/release/contrib/jslib/",
+                                (".consign", "install.p.rdf", "jslib.xpi"));
+    }
+
+    $cons->Command(
+        "jslib/jslib.xpi",
+        "jslib/install.rdf",
+        qq(
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r %0:f "*" -x install.p.rdf .consign chrome/.consign chrome/jsliblive/.consign components/.consign META-INF/.consign
+        ));
+    $cons->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign"));
+    $cons->Install("$supportDir/modules", 'jslib/jslib.xpi');
+}
+
+
+#---- PCRE
+# A C-based regex engine being used for Komodo's multi-language lexer (aka
+# luddite, aka LexUDT). Note that the code here is integrated from
+#   //depot/main/support/pcre/...
+# and the original pcre source integrated from:
+#   //depot/main/contrib/pcre/...
+# and that from:
+#   ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/
+# also here:
+#   \\crimper\apps\Komodo\support\pcre
+
+# Build a static PCRE lib.
+if ($platform eq "win") {
+    # We are currently building all Komodo bits with VC6 so we use msdev.com.
+
+    my $scintilla_dir_for_cons = "$build/scintilla";
+    my $scintilla_dir = "$buildAbsDir\\scintilla";
+    my $silvercity_dir_for_cons = "$build/silvercity";
+    my $silvercity_dir = "$buildAbsDir\\silvercity";
+
+    $landmark = "$scintilla_dir_for_cons/win32/libpcre.lib";
+    if ($compiler eq "vc6") {
+        $cons->Command([$landmark,
+                        "$scintilla_dir_for_cons/include/pcre.h",
+                        "$silvercity_dir_for_cons/libpcre.lib"],
+                       "pcre/pcreposix.h",
+                       "pcre/Win32/dftables.dsp",
+                       "pcre/Win32/libpcre.dsp",
+                       #TODO: First two build steps can be:
+                       #  msdev pcre.dsw /MAKE "libpcre - Win32 Release" /USEENV
+                       qq(
+                        cd %1:d && msdev.com Win32\\%2:f /MAKE "dftables - Win32 Release" /USEENV
+                        cd %1:d && msdev.com Win32\\%3:f /MAKE "libpcre - Win32 Release" /USEENV
+                        copy %1:d\\Win32\\Release\\libpcre.lib $scintilla_dir\\win32\\libpcre.lib
+                        copy %1:d\\Win32\\pcre.h $scintilla_dir\\include\\pcre.h
+                        attrib -R $scintilla_dir\\include\\pcre.h
+                        copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
+                       ));
+    } else {
+        # msdev does not exist in vc7 or vc8, use devenv instead
+        $cons->Command([$landmark,
+                        "$scintilla_dir_for_cons/include/pcre.h",
+                        "$silvercity_dir_for_cons/libpcre.lib"],
+                       "pcre/pcreposix.h",
+                       "pcre/Win32/dftables.sln",
+                       "pcre/Win32/libpcre.sln",
+                       qq(
+                        cd %1:d && devenv.exe Win32\\%2:f /BUILD "Release" /USEENV
+                        cd %1:d && devenv.exe Win32\\%3:f /BUILD "Release" /USEENV
+                        copy %1:d\\Win32\\Release\\libpcre.lib $scintilla_dir\\win32\\libpcre.lib
+                        copy %1:d\\Win32\\pcre.h $scintilla_dir\\include\\pcre.h
+                        attrib -R $scintilla_dir\\include\\pcre.h
+                        copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
+                       ));
+    }
+    $cons->DependsRecursive($landmark, "pcre");    
+} else {
+    my $scintilla_dir_for_cons = "$build/scintilla";
+    my $scintilla_dir = "$buildAbsDir/scintilla";
+    my $silvercity_dir_for_cons = "$build/silvercity";
+    my $silvercity_dir = "$buildAbsDir/silvercity";
+    my $build_env = "";
+
+    my $scintilla_plat_dir = "gtk";
+    if ($platform eq "darwin") {
+        $scintilla_plat_dir = "macosx";
+        if ($universal) {
+            $build_env='LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
+            $build_env.= 'CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
+            $build_env.= 'CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
+        }
+    }
+
+    $landmark = "$scintilla_dir_for_cons/$scintilla_plat_dir/libpcre.a";
+    $cons->Command([$landmark,
+                    "$scintilla_dir_for_cons/include/pcre.h",
+                    "$silvercity_dir_for_cons/libpcre.a"],
+                   "pcre/configure",
+
+                   # 'ranlib' required on Mac OS X for SilverCity build
+                   # to avoid this error:
+                   #    ld: table of contents for archive: libpcre.a is out of date; rerun ranlib(1) (can't load from it)
+                   #    error: command 'c++' failed with exit status 1
+                   # See this discussion:
+                   #    http://lists.apple.com/archives/darwin-dev/2005/Sep/msg00053.html
+                   qq(
+                    cd %1:d && ./configure --enable-shared=no --enable-utf8 --enable-unicode-properties $build_env && make
+                    cp %1:d/.libs/libpcre.a $scintilla_dir/$scintilla_plat_dir/libpcre.a
+                    cp %1:d/pcre.h $scintilla_dir/include/pcre.h
+                    cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
+                    ranlib $silvercity_dir/libpcre.a
+                   ));
+    $cons->DependsRecursive($landmark, "pcre");    
+}
+
+#---- pywin: Komodo uses wnd (named "pywin" in contrib source) to replace pythonwin
+#---- comtypes: wnd uses comtypes for COM-specific type info
+
+if ($platform eq "win") {
+    my $landmark = "$komodoPythonUtilsDir/wnd";
+    $cons->InstallRecursive($landmark,
+			    cwd() . "/contrib/pywin");
+    $landmark = "$komodoPythonUtilsDir/comtypes";
+    $cons->InstallRecursive($landmark,
+			    cwd() . "/contrib/comtypes/comtypes");
+}
+
+
+
+#---- inflector: Komodo's ruby codeintel uses this
+# svn export http://opensvn.csie.org/inflector/trunk/python inflector
+# 
+# This is a Python package providing English word inflections similar to
+# what Ruby on Rails does for naming db tables, model classes, etc. It
+# is used for providing rails completion.
+#
+# Note: Not using InstallRecursive because don't want
+# inflector/tests.py.
+$cons->InstallPythonUtility("inflector/__init__.py", "inflector");
+$cons->InstallPythonUtility("inflector/Inflector.py", "inflector");
+$cons->InstallPythonUtility("inflector/Rules/__init__.py", "inflector/Rules");
+$cons->InstallPythonUtility("inflector/Rules/Base.py", "inflector/Rules");
+$cons->InstallPythonUtility("inflector/Rules/English.py", "inflector/Rules");
+$cons->InstallPythonUtility("inflector/Rules/Spanish.py", "inflector/Rules");
+
+#---- htmltidy 
+{
+local $build = substr($build, 1, length($build)); # drop the leading '#'
+my ($exeName, $make, $makefile);
+if ($platform eq "win") {
+    $exeName = "tidy\\bin\\tidy.exe";
+    $make = "nmake";
+    $makefile = "Makefile.vc6";
+    $tidyDir = "$build\\contrib\\tidy\\build\\msvc\\";
+} else {
+    $exeName = "tidy/bin/tidy";
+    if ($platform eq "darwin") {
+      $make = "RANLIB=ranlib make";
+    } else {
+      $make = "make";
+    }
+    $makefile = "Makefile";
+    $tidyDir = "$build/contrib/tidy/build/gmake";
+}
+
+
+%consLocal = $cons->copy();
+$consLocal{CPPPATH} = "include";
+$consLocal{LIBPATH} = "obj";
+$consLocal = new cons(%consLocal);
+
+$consLocal->Command($exeName, 
+                    "tidy/build/gmake/Makefile",
+                    "tidy/build/msvc/Makefile.vc6",
+                    "tidy/console/tab2space.c",
+                    "tidy/console/tidy.c",
+                    "tidy/include/buffio.h",
+                    "tidy/include/fileio.h",
+                    "tidy/include/platform.h",
+                    "tidy/include/tidy.h",
+                    "tidy/include/tidyenum.h",
+                    "tidy/src/access.c",
+                    "tidy/src/access.h",
+                    "tidy/src/alloc.c",
+                    "tidy/src/attrask.c",
+                    "tidy/src/attrdict.c",
+                    "tidy/src/attrdict.h",
+                    "tidy/src/attrget.c",
+                    "tidy/src/attrs.c",
+                    "tidy/src/attrs.h",
+                    "tidy/src/buffio.c",
+                    "tidy/src/charsets.c",
+                    "tidy/src/charsets.h",
+                    "tidy/src/clean.c",
+                    "tidy/src/clean.h",
+                    "tidy/src/config.c",
+                    "tidy/src/config.h",
+                    "tidy/src/entities.c",
+                    "tidy/src/entities.h",
+                    "tidy/src/fileio.c",
+                    "tidy/src/forward.h",
+                    "tidy/src/iconvtc.c",
+                    "tidy/src/iconvtc.h",
+                    "tidy/src/istack.c",
+                    "tidy/src/lexer.c",
+                    "tidy/src/lexer.h",
+                    "tidy/src/localize.c",
+                    "tidy/src/message.h",
+                    "tidy/src/parser.c",
+                    "tidy/src/parser.h",
+                    "tidy/src/pprint.c",
+                    "tidy/src/pprint.h",
+                    "tidy/src/streamio.c",
+                    "tidy/src/streamio.h",
+                    "tidy/src/tagask.c",
+                    "tidy/src/tags.c",
+                    "tidy/src/tags.h",
+                    "tidy/src/tidy-int.h",
+                    "tidy/src/tidylib.c",
+                    "tidy/src/tmbstr.c",
+                    "tidy/src/tmbstr.h",
+                    "tidy/src/utf8.c",
+                    "tidy/src/utf8.h",
+                    "tidy/src/win32tc.c",
+                    "tidy/src/win32tc.h",
+                    "tidy/obj/empty.txt",
+                    qq{cd $tidyDir && $make -f $makefile}
+                   );
+$consLocal->Install("$supportDir/html", $exeName);
+
+}

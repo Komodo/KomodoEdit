@@ -1,0 +1,21 @@
+/* Copyright (c) 2003-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information.
+   
+   Authors: David Ascher
+   
+   Interface to the ko.views.manager as a service.
+*/
+
+#include "nsISupports.idl"
+#include "koIViews.idl"
+
+[scriptable, uuid(2A0B0CE4-8A62-45A2-8AE8-BAE907D6C093)]
+interface koIViewService : nsISupports
+{
+    void setViewMgr(in koIViewList viewMgr);
+    
+    readonly attribute koIView currentView;
+    readonly attribute koIView topView;
+    koIView newViewFromURI(in wstring URI, in string type);
+};
+

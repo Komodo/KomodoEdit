@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project kpf_version="2" name="sample_project">
+<preference-set id="sample_project">
+</preference-set>
+<file url="perl_sample.pl">
+ </file>
+<file url="rx_sample.pl">
+ </file>
+<file url="python_sample.py">
+ </file>
+<file url="javascript_sample.js">
+ </file>
+<file url="php_sample.php">
+ </file>
+<file url="tcl_sample.tcl">
+ </file>
+<file url="xslt_sample.xsl">
+ </file>
+<file url="birds.xml">
+ </file>
+<!-- #if PRODUCT_TYPE == "professional" -->
+<dialog startup="dlg_py_showfile.py" url="dlg_py_showfile.ui">
+<file url="dlg_py_showfile_ui.py">
+</file>
+<file url="dlg_py_showfile.py">
+</file>
+</dialog>
+<dialog startup="dlg_perl_scrolllist.pl" url="dlg_perl_scrolllist.ui">
+<file url="dlg_perl_scrolllist_ui.pl">
+</file>
+<file url="dlg_perl_scrolllist.pl">
+</file>
+</dialog>
+<dialog startup="dlg_tcl_check.tcl" url="dlg_tcl_check.ui">
+<file url="dlg_tcl_check_ui.tcl">
+</file>
+<file url="dlg_tcl_check.tcl">
+</file>
+</dialog>
+<!-- #endif -->
+</project>

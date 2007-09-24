@@ -1,0 +1,13 @@
+[
+    object,
+    uuid([[%guid]]),
+    dual,
+    helpstring("Insert your help here"),
+    pointer_default(unique)
+]
+
+interface IIMyInterface : IDispatch
+{
+    // Insert your methods here
+};
+

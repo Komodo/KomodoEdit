@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<!--For the keybinding tab-->
+<?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_custommenuproperties"
+        id="dialog-custommenuproperties"
+        height="510"
+        width="470"
+        persist="screenX screenY"
+        orient="vertical"
+        onload="onLoad()"
+        buttons="accept,extra1,cancel,help"
+        ondialogaccept="return OK()"
+        ondialogextra1="return Apply()"
+        ondialogcancel="return Cancel()"
+        ondialoghelp="ko.help.open('custom_menu_and_toolbar_properties');">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/trace.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/project/customMenuProperties.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/windowManager.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/launch.js"
+            type="application/x-javascript;version=1.7" />
+
+    <tabbox id="partProperties" orient="vertical" flex="1">
+        <tabs id="tabs" orient="horizontal">
+            <tab id="part_tab" label="&properties.label;"/>
+        </tabs>
+        <tabpanels flex="1">
+            <vbox id="part_tabpanel" flex="1">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image
+                                   style="max-width: 22px; max-height:16px"
+                                   id="propertiestab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                             onkeyup="UpdateField('name');"/>
+                </hbox>
+                <spacer height="10"/>
+                <separator class="groovy-thin"/>
+                <spacer height="15"/>
+                <grid>
+                    <rows>
+                        <row align="center">
+                            <label value="Priority"
+                                   id="priority_label"
+                                   accesskey="&priorityLabel.accesskey;"/>
+                            <textbox size="3"
+                                     maxlength="3"
+                                     id="priority"
+                                     accesskey="&priority.accesskey;"
+                                     onkeypress="keypressForPriority(event)"
+                                     onkeyup="UpdateField('priority')"
+                                     value=""/>
+                        </row>
+                        <separator class="thin"/>
+                        <row align="center" id="accessbox" collapsed="true">
+                            <label value="Menu Access Key"
+                                   tooltiptext="&pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext;"
+                                   accesskey="&m.accesskey;" />
+                            <textbox size="1"
+                                     tooltiptext="&pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext;"
+                                     maxlength="1"
+                                     id="accesskey"
+                                     accesskey="&accesskey.accesskey;"
+                                     onkeyup="UpdateField('accesskey')"
+                                     value=""/>
+                        </row>
+                    </rows>
+                </grid>
+            </vbox>
+        </tabpanels>
+    </tabbox>
+    <separator class="thin"/>
+</dialog>
+

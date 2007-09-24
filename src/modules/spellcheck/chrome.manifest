@@ -1,0 +1,3 @@
+content komodospellchecker jar:komodospellchecker.jar!/content/ xpcnativewrappers=yes
+locale komodospellchecker en-US jar:komodospellchecker.jar!/locale/en-US/
+overlay chrome://komodo/content/komodo.xul chrome://komodospellchecker/content/koSpellCheckOverlay.xul

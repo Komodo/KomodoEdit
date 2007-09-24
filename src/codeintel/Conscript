@@ -1,0 +1,208 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2003-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    "build",
+    "mozComponentsDir",
+    "mozIdlIncludePath",
+    "idlExportDir",
+    "ranRegxpcomStateFileName",
+    "komodoPythonUtilsDir",
+    'platform',
+    'mozVersion',
+    'productType',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'komodoDevDir',
+    "siloedPython",
+    'sdkDir',
+    'withKomodoCix',
+);
+
+
+# src/komodo/...
+$cons->Preprocess('src/komodo/koICodeIntel.p.idl',
+                  'src/komodo/koICodeIntel.idl');
+$cons->Install($idlExportDir, "src/komodo/koICodeIntel.idl");
+$cons->BuildAndInstallXpt("src/komodo/koICodeIntel.idl");
+$cons->Preprocess('src/komodo/koCodeIntel.p.py',
+                  'src/komodo/koCodeIntel.py');
+$cons->InstallXpcomComponent("src/komodo/koCodeIntel.py");
+$cons->InstallXpcomComponent("src/komodo/koCatalogsTree.py");
+
+my @codeintel2_files = (
+    "lib/codeintel2/accessor.py",
+    "lib/codeintel2/buffer.py",
+    "lib/codeintel2/citadel.py",
+    "lib/codeintel2/citadel_common.py",
+    "lib/codeintel2/common.py",
+    "lib/codeintel2/constants_css.py",
+    "lib/codeintel2/environment.py",
+    "lib/codeintel2/indexer.py",
+    "lib/codeintel2/gencix_utils.py",
+    "lib/codeintel2/jsdoc.py",
+    "lib/codeintel2/langintel.py",
+    "lib/codeintel2/lang_django.py",
+    "lib/codeintel2/lang_css.py",
+    "lib/codeintel2/lang_html.py",
+    "lib/codeintel2/lang_javascript.py",
+    "lib/codeintel2/lang_mason.py",
+    "lib/codeintel2/lang_perl.py",
+    "lib/codeintel2/lang_php.py",
+    "lib/codeintel2/lang_python.py",
+    "lib/codeintel2/lang_rhtml.py",
+    "lib/codeintel2/lang_ruby.py",
+    "lib/codeintel2/lang_ruby_common.py",
+    "lib/codeintel2/lang_smarty.py",
+    "lib/codeintel2/lang_tcl.py",
+    "lib/codeintel2/lang_templatetoolkit.py",
+    "lib/codeintel2/lang_xul.py",
+    "lib/codeintel2/lang_xbl.py",
+    "lib/codeintel2/lang_xml.py",
+    "lib/codeintel2/lang_xslt.py",
+    "lib/codeintel2/manager.py",
+    "lib/codeintel2/parser_cix.py",
+    "lib/codeintel2/parser_data.py",
+    "lib/codeintel2/parseutil.py",
+    "lib/codeintel2/perlcile.py",
+    "lib/codeintel2/perl_lexer.py",
+    "lib/codeintel2/perl_parser.py",
+    "lib/codeintel2/pythoncile.py",
+    "lib/codeintel2/rubycile.py",
+    "lib/codeintel2/ruby_lexer.py",
+    "lib/codeintel2/ruby_parser.py",
+    "lib/codeintel2/tclcile.py",
+    "lib/codeintel2/tcl_lexer.py",
+    "lib/codeintel2/tcl_parser.py",
+    "lib/codeintel2/tree.py",
+    "lib/codeintel2/tree_javascript.py",
+    "lib/codeintel2/tree_perl.py",
+    "lib/codeintel2/tree_php.py",
+    "lib/codeintel2/tree_python.py",
+    "lib/codeintel2/tree_ruby.py",
+    "lib/codeintel2/shared_lexer.py",
+    "lib/codeintel2/shared_parser.py",
+    "lib/codeintel2/udl.py",
+    "lib/codeintel2/util.py",
+    #"lib/codeintel2/xblcile.py",
+    #"lib/codeintel2/xsltcile.py",
+    "lib/codeintel2/__init__.py",
+);
+foreach my $file (@codeintel2_files) {
+    $cons->InstallPythonUtility($file, "codeintel2");
+}
+
+my @codeintel2_database_files = (
+    "lib/codeintel2/database/__init__.py",
+    "lib/codeintel2/database/catalog.py",
+    "lib/codeintel2/database/database.py",
+    "lib/codeintel2/database/langlib.py",
+    "lib/codeintel2/database/multilanglib.py",
+    "lib/codeintel2/database/projlib.py",
+    "lib/codeintel2/database/resource.py",
+    "lib/codeintel2/database/stdlib.py",
+    "lib/codeintel2/database/util.py",
+);
+foreach my $file (@codeintel2_database_files) {
+    $cons->InstallPythonUtility($file, "codeintel2/database");
+}
+
+my @stdlibs_files = (
+    "lib/codeintel2/stdlibs/javascript.cix",
+    "lib/codeintel2/stdlibs/python-2.4.cix",
+    "lib/codeintel2/stdlibs/python-2.5.cix",
+    "lib/codeintel2/stdlibs/perl-5.8.cix",
+    "lib/codeintel2/stdlibs/ruby.cix",
+    "lib/codeintel2/stdlibs/php-4.3.cix",
+    "lib/codeintel2/stdlibs/php-4.4.cix",
+    "lib/codeintel2/stdlibs/php-5.0.cix",
+    "lib/codeintel2/stdlibs/php-5.1.cix",
+    "lib/codeintel2/stdlibs/php-5.2.cix",
+);
+foreach my $file (@stdlibs_files) {
+    $cons->InstallPythonUtility($file, "codeintel2/stdlibs");
+}
+
+my @catalog_files = (
+    "lib/codeintel2/catalogs/dojo.cix",
+    "lib/codeintel2/catalogs/yui.cix",
+    "lib/codeintel2/catalogs/mochikit.cix",
+    "lib/codeintel2/catalogs/prototype.cix",
+    "lib/codeintel2/catalogs/pywin32.cix",
+    "lib/codeintel2/catalogs/rails.cix",
+    "lib/codeintel2/catalogs/jquery.cix",
+    #TODO: "lib/codeintel2/catalogs/pecl.cix",
+    #TODO: "lib/codeintel2/catalogs/drupal.cix",
+);
+if ($buildFlavour eq "dev") {
+    push(@catalog_files, "lib/codeintel2/catalogs/mozilla_toolkit.cix");
+}
+foreach my $file (@catalog_files) {
+    $cons->InstallPythonUtility($file, "codeintel2/catalogs");
+}
+
+
+# Build codeintel's custom cElementTree -> ciElementTree.
+my $PYD = ($platform eq "win") ? ".pyd" : ".so";
+my $ciElementTreeExt = "lib/ciElementTree$PYD";
+$cons->Command(
+    $ciElementTreeExt,
+    # files needed to do the generation
+    "Makefile.py",
+    "config.py",
+    qq(
+        $unsiloedPythonExe bin/run-in-dir.py %1:d python %1:f distclean_elementtree elementtree
+    )
+);
+$cons->DependsRecursive($ciElementTreeExt, "support",
+                        ('\.consign', '.*\.pyc', 'gencix', 'cix2html\.py'));
+$cons->DependsRecursive($ciElementTreeExt, "src/patches");
+#TODO: Should have the following 2 deps but they cause ciElementTree.so
+#      to *always* get rebuilt.
+#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/elementtree");
+#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/cElementTree");
+
+$cons->InstallPythonUtility($ciElementTreeExt);
+
+
+# Generate the Komodo JavaScript API Catalog.
+if ($withKomodoCix) {
+    my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
+    my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
+    my $cElementTreeExt = "$komodoPythonUtilsDir/cElementTree$pydExt";
+    $cons->Command(
+        $komodoCix,
+        # files needed to do the generation
+        "support/gencix/javascript/komodo/komodo_to_cix.py",
+        $ciElementTreeExt,
+        # landmark for elementtree package (built by contrib/Conscript)
+        "$komodoPythonUtilsDir/elementtree/__init__.py",
+        # landmark for SilverCity package (built by src/silvercity/Conscript)
+        "$komodoPythonUtilsDir/SilverCity/__init__.py",
+        "$komodoPythonUtilsDir/styles.py",
+        # These files used by codeintel2.lang_xml|html.
+        "$komodoPythonUtilsDir/koXMLTreeService.py",
+        "$komodoPythonUtilsDir/koXMLDatasetInfo.py",
+        "$komodoPythonUtilsDir/HTMLTreeParser.py",
+        $cElementTreeExt,
+        # To avoid the following build error with a Moz build that hasn't yet
+        # been run (common for the installer-build moz builds):
+        #  xpcom.Exception: The interface 'koICodeIntelTrigger' does not exist
+        $ranRegxpcomStateFileName,
+        qq(
+            $siloedPython %1 -o %0
+        )
+    );
+    #TODO: Should refine the exclude patterns here so only depend on the minimal
+    #      necessary set of files -- to minimize running the expensive
+    #      komodo_to_cix.py.
+    $cons->DependsRecursive($komodoCix, "lib/codeintel2",
+                            (".consign", '.*\.cix', '.*\.pyc'));
+    $cons->DependsRecursive($komodoCix, "../chrome/komodo/content",
+                            (".consign", "test", '.*\.png', '.*\.xul',
+                             '.*\.css'));
+}
+

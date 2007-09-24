@@ -1,0 +1,53 @@
+diff
+
+https://bugzilla.mozilla.org/show_bug.cgi?id=386245
+
+Index: modules/libmar/src/mar_extract.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/libmar/src/mar_extract.c,v
+retrieving revision 1.2
+diff -u -r1.2 mar_extract.c
+--- modules/libmar/src/mar_extract.c	8 Jun 2005 17:28:19 -0000	1.2
++++ modules/libmar/src/mar_extract.c	28 Jun 2007 21:03:41 -0000
+@@ -42,6 +42,7 @@
+ #include <string.h>
+ #include <stdlib.h>
+ #include <stdio.h>
++#include <errno.h>
+ #include "mar.h"
+ #include "mar_private.h"
+ 
+@@ -81,12 +81,18 @@
+ #else
+   fd = creat(item->name, item->flags);
+ #endif
+-  if (fd == -1)
++  if (fd == -1) {
++    fprintf(stderr, "mar: ERROR(%d) %s: could not create `%s'\n",
++            errno, strerror(errno), item->name);
+     return -1;
++  }
+ 
+   fp = fdopen(fd, "wb");
+-  if (!fp)
++  if (!fp) {
++    fprintf(stderr, "mar: ERROR(%d) %s: could not fdopen() descriptor for `%s'\n",
++            errno, strerror(errno), item->name);
+     return -1;
++  }
+ 
+   while ((len = mar_read(mar, item, offset, buf, sizeof(buf))) > 0) {
+     if (fwrite(buf, len, 1, fp) != 1)
+@@ -103,8 +109,10 @@
+   int rv;
+ 
+   mar = mar_open(path);
+-  if (!mar)
++  if (!mar) {
++    fprintf(stderr, "mar: ERROR: error opening `%s'\n", path);
+     return -1;
++  }
+ 
+   rv = mar_enum_items(mar, mar_test_callback, NULL);
+ 
+

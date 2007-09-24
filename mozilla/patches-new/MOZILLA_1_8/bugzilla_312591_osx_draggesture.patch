@@ -1,0 +1,17 @@
+Index: content/events/src/nsEventStateManager.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/content/events/src/nsEventStateManager.cpp,v
+retrieving revision 1.595.2.12
+diff -u -r1.595.2.12 nsEventStateManager.cpp
+--- content/events/src/nsEventStateManager.cpp	12 Jan 2006 03:50:57 -0000	1.595.2.12
++++ content/events/src/nsEventStateManager.cpp	1 Mar 2006 23:02:00 -0000
+@@ -517,6 +517,9 @@
+     // that ClearFrameRefs() has been called and it cleared out
+     // |mCurrentTarget|. As a result, we should pass |mCurrentTarget|
+     // into UpdateCursor().
++#ifdef XP_MACOSX
++    if (::StillDown()) // only generate drag gesture if button is down
++#endif
+     GenerateDragGesture(aPresContext, (nsMouseEvent*)aEvent);
+     UpdateCursor(aPresContext, aEvent, mCurrentTarget, aStatus);
+     GenerateMouseEnterExit((nsGUIEvent*)aEvent);

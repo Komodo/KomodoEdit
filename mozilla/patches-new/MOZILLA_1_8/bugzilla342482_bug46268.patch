@@ -1,0 +1,16 @@
+Index: xpcom/io/nsLocalFileOSX.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/xpcom/io/nsLocalFileOSX.cpp,v
+retrieving revision 1.29.4.5
+diff -u -r1.29.4.5 xpcom/io/nsLocalFileOSX.cpp
+--- xpcom/io/nsLocalFileOSX.cpp	8 Aug 2006 17:50:09 -0000	1.29.4.5
++++ xpcom/io/nsLocalFileOSX.cpp	14 Aug 2006 20:15:56 -0000
+@@ -64,7 +64,7 @@
+ #include <unistd.h>
+ #include <sys/stat.h>
+ 
+-#if !defined(MAC_OS_X_VERSION_10_4) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_4
++#if defined(__POWERPC__) && (!defined(MAC_OS_X_VERSION_10_4) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_4)
+ #define GetAliasSizeFromRecord(aliasRecord) aliasRecord.aliasSize
+ #else
+ #define GetAliasSizeFromRecord(aliasRecord) GetAliasSizeFromPtr(&aliasRecord)

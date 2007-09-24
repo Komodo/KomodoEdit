@@ -1,0 +1,306 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Folders</title>
+</head>
+
+<body>
+  <h1><a name="folders_top" id="folders_top">Working with
+  Folders</a></h1>
+
+  <div class="right-float-box">
+    <p><strong>Feature Showcase</strong></p>
+
+    <ul>
+      <li>import a <a href=
+      "tutorial/tourlet_filesys.html#filesys_top">filesystem
+      layout</a></li>
+    </ul>
+  </div>
+
+  <p>Komodo has two distinct types of folders that can be used in
+  projects or in the Toolbox:</p>
+
+  <ul>
+    <li>
+      <p><strong>Live Folders</strong> correspond to actual
+      directories on the filesystem. The directory tree view
+      displays the current contents of the corresponding filesystem
+      directory.</p>
+    </li>
+
+    <li>
+      <p><strong>Virtual Folders</strong> do not directly
+      correspond to directories on the filesystem. They are
+      multi-purpose containers; any component that can be added to
+      a project or the Toolbox can be stored in these folders.</p>
+
+      <p>When you <a href=
+      "komodo-doc-project.html#project_impcomp">Import from File
+      System</a>, the virtual <a href=
+      "komodo-doc-project.html#project_top">project</a> or <a href=
+      "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> folders are
+      created with the same names as the imported directories, but
+      modifying the name of the folder within Komodo has no effect
+      on the directory's name in the file system. See <a href=
+      "komodo-doc-project.html#project_add_comp">Adding Components
+      to Projects</a> or <a href=
+      "komodo-doc-toolbox.html#toolbox_addcomp">Adding Components
+      to the Toolbox</a> for instructions on adding folders.</p>
+    </li>
+  </ul>
+
+  <p>Double-click a folder to display its contents. Double-click
+  again to collapse a folder and hide its contents. Alternatively,
+  click the plus and minus icons.</p>
+
+  <h2><a name="folders_options" id="folders_options">Folder
+  Options</a></h2>
+
+  <p>To access options for the selected folder, do one of the
+  following:</p>
+
+  <ul>
+    <li><strong>Toolbox or
+    Project|<em>component_name</em>|<em>option</em></strong>: When
+    a component is selected in the Project Tab or Toolbox, use the
+    <strong>Project</strong> or <strong>Toolbox</strong> drop-down
+    menus to access the list of options. The name of the component
+    that is currently selected in a project or the Toolbox is
+    displayed in the drop-down menu.</li>
+
+    <li><strong>Context Menu</strong>: Right-click an existing
+    component in a project or the Toolbox and select the desired
+    option.</li>
+  </ul>
+
+  <p>The following options are available for folders:</p>
+
+  <h3><a name="folders_importfs" id="folders_importfs">Import from
+  File System</a></h3>
+
+  <p>This option imports the files and directories from a local or
+  network filesystem into a <strong>Virtual Folder</strong>.
+  Depending on the configuration of the options below, file and
+  directory references are created in the same hierarchical
+  structure as the filesystem. (Alternatively, all the file
+  references in a recursive directory structure can be located at
+  the same level within a folder.)</p>
+
+  <p>Use the following options on the Import from File System
+  dialog box to configure the import:</p>
+
+  <ul>
+    <li><strong>Directory to import from</strong>: Specify the
+    directory from which you want to import files. Use the
+    <strong>Browse</strong> button to navigate the file
+    system.</li>
+
+    <li><strong>Files to include</strong>: Specify the filenames to
+    include. Use wildcards ("*" and "?") to specify groups of
+    files. Separate multiple file specifications with semicolons.
+    If the field is left blank, all files in the specified
+    directory are imported.</li>
+
+    <li><strong>Files and directories to exclude</strong>: Specify
+    the file and directory names to exclude. Use wildcards ("*" and
+    "?") to specify groups of files. Separate multiple file
+    specifications with semicolons. If the field is left blank, no
+    files in the specified directory are excluded.</li>
+
+    <li><strong>Import Subdirectories Recursively</strong>: Check
+    this box to import directories (and files contained in those
+    directories) located beneath the directory specified in the
+    <strong>Directory to import from</strong> field. This box must
+    be checked in order to specify the "Import Directory Structure"
+    option as the <strong>Type of folder structure to
+    create</strong>.</li>
+
+    <li>
+      <strong>Type of folder structure to create</strong>:
+
+      <ul>
+        <li><strong>Import directory structure</strong>: If the
+        <strong>Import Subdirectories Recursively</strong> box is
+        checked and this option is selected, Komodo creates folders
+        within the project that represent imported directories.
+        Thus, the directory structure is preserved within the
+        project.</li>
+
+        <li><strong>Make a folder per language</strong>: If this
+        option is selected, imported files are organized into
+        folders according to the language indicated by file pattern
+        in the filename. File associations are configured in the
+        Komodo <a class="doc" href=
+        "komodo-doc-prefs.html#File_Associations">Preferences</a>.
+        Each folder is named after the associated language, for
+        example, "Perl files", "XML files", etc. Files that don't
+        correspond to a known file pattern are stored in a folder
+        called "Other files".</li>
+
+        <li><strong>Make one flat list</strong>: If this option is
+        selected, all the imported files are placed directly under
+        the project or folder from which the <strong>Import from
+        File System</strong> command was invoked.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p>After importing from the file system, you are prompted to
+  confirm the addition of the files that match the specified
+  criteria. You may remove one or more files from the import. Click
+  <strong>OK</strong> to proceed with the import.</p>
+
+  <p>After using the <strong>Import from File System</strong>
+  feature, if you attempt to re-import the same file system
+  location into the same project, only files that are new since the
+  last import are imported.</p>
+
+  <h3><a name="folders_opt_expack" id="folders_opt_expack">Export
+  Contents to Package</a></h3>
+
+  <p>Folders can be archived and distributed among multiple Komodo
+  users via <a href=
+  "komodo-doc-project.html#project_impexp">Packages</a>. Packages
+  are compressed archive files that contain the folder from which
+  the <strong>Export Package</strong> option was invoked, as well
+  as the folder's contents. Packages are stored in files with a
+  ".kpz" extension, and can be opened by any archiving utility that
+  supports <code>libz</code> (for example WinZip). The
+  <strong>Export Package</strong> option differs from the
+  <strong>Export to Project</strong> option in that a copy of
+  filesystem-based components (such as files and dialog projects)
+  is included in the archive. Conversely, <strong>Export to
+  Project</strong> creates a project with a reference to the
+  component's original location and does not create a copy of the
+  component.</p>
+
+  <p>To export the contents of a folder to a package:</p>
+
+  <ol>
+    <li>In the Project Tab or Toolbox, right-click the folder
+    containing the item(s) to be exported to a package and select
+    <strong>Export Package</strong>.</li>
+
+    <li>In the Package Export Wizard, enter the <strong>Package
+    Name</strong> and <strong>Export Location</strong>. Click
+    <strong>Next</strong>.</li>
+
+    <li>Click <strong>Finish</strong>.</li>
+  </ol>
+
+  <h3><a name="folders_importpack" id="folders_importpack">Import
+  Contents from Package</a></h3>
+
+  <p>Exported packages can only be imported into "container"
+  objects in Komodo, such as <a href=
+  "komodo-doc-project.html#project_impexp">projects</a>, the
+  <a href="komodo-doc-toolbox.html#export_import">Toolbox</a>, and
+  folders within projects and the Toolbox.</p>
+
+  <p>To import the contents of a package to a folder:</p>
+
+  <ol>
+    <li>In the Project Tab or Toolbox, right-click the folder and
+    select <strong>Import Package</strong>.</li>
+
+    <li>In the Package Import Wizard, enter the name of the package
+    and the location on disk where files (as opposed to internal
+    components like snippets and run commands) will be extracted.
+    Click <strong>Next</strong>.</li>
+
+    <li>Click <strong>Finish</strong>.</li>
+  </ol>
+
+  <h3><a name="folders_opt_refstat" id=
+  "folders_opt_refstat">Refresh Folder Contents Status</a></h3>
+
+  <p>The <strong>Refresh Status</strong> option checks read/write
+  disk status for filesystem-based components (such as files and
+  dialogs) contained within the folder. If a file is of a language
+  for which "code intelligence" is supported and enabled (as
+  configured in the <a href="komodo-doc-prefs.html#code_intel">Code
+  Intelligence Preferences</a>), <strong>Refresh Status</strong>
+  will also update the code intelligence database with the contents
+  of the file.</p>
+
+  <p>If the component is stored in a <a href=
+  "komodo-doc-scc.html#scc_top">source code control</a> system,
+  <strong>Refresh Status</strong> also checks the repository status
+  of the component. Komodo determines whether a file is contained
+  in an SCC repository by the following methods:</p>
+
+  <ul>
+    <li><strong>Perforce</strong>: analysis of the client
+    configuration</li>
+
+    <li><strong>CVS</strong>: analysis of the CVS control
+    directories</li>
+  </ul>
+
+  <h3><a name="folders_add" id="folders_add">Adding Components to
+  Folders</a></h3>
+
+  <p>Use this option to add components to the selected folder. All
+  components can be added to folders, in the same manner they are
+  added to projects. Refer to the individual component
+  documentation, or the topics <a href=
+  "komodo-doc-project.html#project_add_comp">Adding Components to
+  Projects</a> or <a href=
+  "komodo-doc-toolbox.html#toolbox_addcomp">Adding Components to
+  the Toolbox</a> for more information.</p>
+
+  <p>Use the cut/copy/paste options to remove folders from a
+  project or the Toolbox, or to move folders between the project
+  and the Toolbox, between projects, or between folders.</p>
+
+  <h3><a name="folders_opt_exproj" id=
+  "folders_opt_exproj">Exporting Contents as Project File</a></h3>
+
+  <p>When this option is invoked, a new project file is created
+  that contains the folder (and its contents) from which the option
+  is invoked. You are prompted to provide the name of the new
+  project file and the directory where it will be stored. To open
+  the new project file, select
+  <strong>File|Open|Project</strong>.</p>
+
+  <h3><a name="folders_opt_rename" id="folders_opt_rename">Renaming
+  Folders</a></h3>
+
+  <p>To change the name of a folder, select this option and enter a
+  new name.</p>
+
+  <h3><a name="folders_opt_scccont" id="folders_opt_scccont">Source
+  Control on Folder Contents</a></h3>
+
+  <p><strong>Source Control on Contents</strong> refreshes the
+  source code control status of all the files contained within the
+  folder. A subset of Komodo's <a href=
+  "komodo-doc-scc.html#scc_top">Source Code Control</a> functions
+  can be performed. See <a href=
+  "komodo-doc-scc.html#scc_top">Source Code Control</a> for a
+  description of specific options.</p>
+
+  <h3><a name="folders_opt_del" id="folders_opt_del">Deleting
+  Folders</a></h3>
+
+  <p>To remove a folder from a <a href=
+  "komodo-doc-project.html#project_top">project</a> or the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, select the
+  <strong>Delete</strong> option. Deleting a Komodo folder has no
+  effect on the actual filesystem contents. The folder is removed
+  from the project or Toolbox, but not deleted from the disk.</p>
+  <hr />
+</body>
+</html>

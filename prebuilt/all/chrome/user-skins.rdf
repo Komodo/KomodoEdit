@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:c="http://www.mozilla.org/rdf/chrome#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description about="urn:mozilla:package:communicator">
+    <c:selectedSkin resource="urn:mozilla:skin:classic/1.0:communicator"/>
+  </RDF:Description>
+  <RDF:Description about="urn:mozilla:package:global">
+    <c:selectedSkin resource="urn:mozilla:skin:classic/1.0:global"/>
+  </RDF:Description>
+</RDF:RDF>

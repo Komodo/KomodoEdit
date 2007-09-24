@@ -1,0 +1,2112 @@
+<!-- built from docs at http://livedocs.adobe.com/flex/201/langref/index.html -->
+
+<!ELEMENT root ANY>
+
+<!ENTITY % mx.core.UIComponent "
+    automationName CDATA #IMPLIED
+    cachePolicy (auto|on|off) 'auto'
+    currentState CDATA #IMPLIED
+    doubleClickEnabled (true | false) 'true'
+    enabled (true | false) 'true'
+    explicitHeight CDATA #IMPLIED
+    explicitMaxHeight CDATA #IMPLIED
+    explicitMaxWidth CDATA #IMPLIED
+    explicitMinHeight CDATA #IMPLIED
+    explicitMinWidth CDATA #IMPLIED
+    explicitWidth CDATA #IMPLIED
+    focusEnabled (true | false) 'true'
+    height CDATA #IMPLIED
+    id CDATA #IMPLIED
+    includeInLayout (true | false) 'true'
+    maxHeight CDATA #IMPLIED
+    maxWidth CDATA #IMPLIED
+    measuredHeight CDATA #IMPLIED
+    measuredMinHeight CDATA #IMPLIED
+    measuredMinWidth CDATA #IMPLIED
+    measuredWidth CDATA #IMPLIED
+    minHeight CDATA #IMPLIED
+    minWidth CDATA #IMPLIED
+    mouseFocusEnabled (true | false) 'true'
+    percentHeight CDATA #IMPLIED
+    percentWidth CDATA #IMPLIED
+    scaleX CDATA '1.0'
+    scaleY CDATA '1.0'
+    states CDATA #IMPLIED
+    styleName CDATA #IMPLIED
+    toolTip CDATA #IMPLIED
+    transitions CDATA #IMPLIED
+    validationSubField CDATA #IMPLIED
+    width CDATA #IMPLIED
+    x CDATA #IMPLIED
+    y CDATA #IMPLIED
+    bottom CDATA #IMPLIED
+    errorColor CDATA #IMPLIED
+    focusBlendMode CDATA 'normal'
+    focusSkin CDATA #IMPLIED
+    focusThickness CDATA #IMPLIED
+    horizontalCenter CDATA #IMPLIED
+    left CDATA #IMPLIED
+    right CDATA #IMPLIED
+    themeColor CDATA #IMPLIED
+    top CDATA #IMPLIED
+    verticalCenter CDATA #IMPLIED
+    addedEffect CDATA #IMPLIED
+    creationCompleteEffect CDATA #IMPLIED
+    focusInEffect CDATA #IMPLIED
+    focusOutEffect CDATA #IMPLIED
+    hideEffect CDATA #IMPLIED
+    mouseDownEffect CDATA #IMPLIED
+    mouseUpEffect CDATA #IMPLIED
+    moveEffect CDATA #IMPLIED
+    removedEffect CDATA #IMPLIED
+    resizeEffect CDATA #IMPLIED
+    rollOutEffect CDATA #IMPLIED
+    rollOverEffect CDATA #IMPLIED    
+    showEffect CDATA #IMPLIED
+    add CDATA #IMPLIED
+    creationComplete CDATA #IMPLIED
+    currentStateChange CDATA #IMPLIED
+    currentStateChanging CDATA #IMPLIED
+    dragComplete CDATA #IMPLIED
+    dragDrop CDATA #IMPLIED
+    dragEnter CDATA #IMPLIED
+    dragExit CDATA #IMPLIED
+    dragOver CDATA #IMPLIED
+    effectEnd CDATA #IMPLIED
+    effectStart CDATA #IMPLIED
+    enterState CDATA #IMPLIED
+    exitState CDATA #IMPLIED
+    hide CDATA #IMPLIED
+    initialize CDATA #IMPLIED
+    invalid CDATA #IMPLIED
+    mouseDownOutside CDATA #IMPLIED
+    mouseWheelOutside CDATA #IMPLIED
+    move CDATA #IMPLIED
+    preinitialize CDATA #IMPLIED
+    record CDATA #IMPLIED
+    remove CDATA #IMPLIED
+    resize CDATA #IMPLIED
+    show CDATA #IMPLIED
+    toolTipCreate CDATA #IMPLIED
+    toolTipEnd CDATA #IMPLIED
+    toolTipHide CDATA #IMPLIED
+    toolTipShow CDATA #IMPLIED
+    toolTipShown CDATA #IMPLIED
+    toolTipStart CDATA #IMPLIED
+    updateComplete CDATA #IMPLIED
+    valid CDATA #IMPLIED
+    valueCommit CDATA #IMPLIED
+">
+
+<!-- mx.controls.Button -->
+
+<!ENTITY % mx.controls.Button "
+    %mx.core.UIComponent;
+    autoRepeat (true | false) 'false'
+    emphasized (true | false) 'false'
+    label CDATA #IMPLIED
+    labelPlacement (right|left|bottom|top) 'right'
+    selected (true | false) 'false'
+    selectedField CDATA #IMPLIED
+    stickyHighlighting (true | false) 'false'
+    toggle (true | false) 'false'
+    borderColor CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    disabledIcon CDATA #IMPLIED
+    disabledSkin CDATA #IMPLIED
+    downIcon CDATA #IMPLIED
+    downSkin CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (bold|normal) 'bold'
+    highlightAlphas CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    icon CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    overIcon CDATA #IMPLIED
+    overSkin CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    repeatDelay CDATA #IMPLIED
+    repeatInterval CDATA #IMPLIED
+    selectedDisabledIcon CDATA #IMPLIED
+    selectedDisabledSkin CDATA #IMPLIED
+    selectedDownIcon CDATA #IMPLIED
+    selectedDownSkin CDATA #IMPLIED
+    selectedOverIcon CDATA #IMPLIED
+    selectedOverSkin CDATA #IMPLIED
+    selectedUpIcon CDATA #IMPLIED
+    selectedUpSkin CDATA #IMPLIED
+    textAlign (center|left|right) 'center'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    upIcon CDATA #IMPLIED
+    upSkin CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    buttonDown CDATA #IMPLIED
+    change CDATA #IMPLIED
+    dataChange CDATA #IMPLIED    
+">
+<!ELEMENT Button EMTPY>
+<!ATTLIST Button %mx.controls.Button>
+
+<!ELEMENT CheckBox EMTPY>
+<!ATTLIST CheckBox %mx.controls.Button>
+
+<!ENTITY % mx.controls.LinkButton "
+    %mx.controls.Button;
+    cornerRadius CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+">
+<!ELEMENT LinkButton EMTPY>
+<!ATTLIST LinkButton %mx.controls.LinkButton>
+
+<!ENTITY % mx.controls.PopUpButton "
+    %mx.controls.Button;
+    openAlways (false|true) 'false'
+    popUp CDATA #IMPLIED
+    arrowButtonWidth CDATA #IMPLIED
+    closeDuration CDATA #IMPLIED
+    closeEasingFunction CDATA #IMPLIED
+    openDuration CDATA #IMPLIED
+    openEasingFunction CDATA #IMPLIED
+    popUpDownSkin CDATA #IMPLIED
+    popUpGap CDATA #IMPLIED
+    popUpIcon CDATA #IMPLIED
+    popUpOverSkin CDATA #IMPLIED
+    close CDATA #IMPLIED
+    open CDATA #IMPLIED
+">
+<!ELEMENT PopUpButton EMTPY>
+<!ATTLIST PopUpButton %mx.controls.PopUpButton>
+
+<!ENTITY % mx.controls.RadioButton "
+    %mx.controls.Button;
+    groupName CDATA #IMPLIED
+    labelPlacement (right|left|top|bottom) 'right'
+">
+<!ELEMENT RadioButton EMTPY>
+<!ATTLIST RadioButton %mx.controls.RadioButton>
+
+<!-- mx.charts.chartClasses -->
+
+<!ENTITY % mx.charts.chartClasses.ChartBase "
+    -- Properties --
+    allElements CDATA #IMPLIED
+    annotationElements CDATA #IMPLIED
+    backgroundElements CDATA #IMPLIED
+    chartState CDATA #IMPLIED
+    clipContent (true | false) 'false'
+    dataProvider CDATA #IMPLIED
+    dataRegion CDATA #IMPLIED
+    dataTipFunction CDATA #IMPLIED
+    dataTipLayerIndex CDATA #IMPLIED
+    dataTipMode CDATA #IMPLIED
+    description CDATA #IMPLIED
+    labelElements CDATA #IMPLIED
+    legendData CDATA #IMPLIED
+    mouseSensitivity CDATA #IMPLIED
+    series CDATA #IMPLIED
+    seriesFilters CDATA #IMPLIED
+    showDataTips (true | false) #IMPLIED
+    transforms CDATA #IMPLIED
+    chartSeriesStyles CDATA #IMPLIED
+    dataTipCalloutStroke CDATA #IMPLIED
+    dataTipRenderer CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    maximumDataTipCount CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    showDataTipTargets (true | false) #IMPLIED  
+    itemClick CDATA #IMPLIED
+    itemDoubleClick CDATA #IMPLIED
+    itemMouseDown CDATA #IMPLIED
+    itemMouseMove CDATA #IMPLIED
+    itemMouseUp CDATA #IMPLIED
+    itemRollOut CDATA #IMPLIED
+    itemRollOver CDATA #IMPLIED
+
+">
+
+<!ENTITY % mx.charts.CartesianChart "
+    %mx.charts.chartClasses.ChartBase;
+    computedGutters CDATA #IMPLIED
+    dataRegion CDATA #IMPLIED
+    horizontalAxis CDATA #IMPLIED
+    horizontalAxisRatio CDATA #IMPLIED
+    horizontalAxisRenderer CDATA #IMPLIED
+    secondDataProvider CDATA #IMPLIED 
+    secondHorizontalAxis CDATA #IMPLIED
+    secondHorizontalAxisRenderer CDATA #IMPLIED
+    secondSeries CDATA #IMPLIED
+    secondVerticalAxis CDATA #IMPLIED
+    secondVerticalAxisRenderer CDATA #IMPLIED
+    verticalAxis CDATA #IMPLIED
+    verticalAxisRenderer CDATA #IMPLIED
+    axisTitleStyleName CDATA #IMPLIED
+    gridLinesStyleName CDATA #IMPLIED
+    gutterBottom CDATA #IMPLIED
+    gutterLeft CDATA #IMPLIED
+    gutterRight CDATA #IMPLIED
+    gutterTop CDATA #IMPLIED
+    horizontalAxixStyle CDATA #IMPLIED
+    secondHorizontalAxixStyle CDATA #IMPLIED
+    secondVerticalAxisStyleName CDATA #IMPLIED
+    textAlign (left|center|right) 'left'
+    verticalAxisStyleName CDATA #IMPLIED
+
+">
+<!ELEMENT % CartesianChart ANY>
+<!ATTLIST % CartesianChart %mx.charts.CartesianChart;>
+
+
+<!ENTITY % mx.charts.AreaChart "
+    %mx.charts.CartesianChart;
+    type (overlaid|stacked|100%) 'overlaid'
+">
+<!ELEMENT AreaChart ANY>
+<!ATTLIST AreaChart %mx.charts.AreaChart;>
+
+<!ENTITY % mx.charts.BarChart "
+    %mx.charts.CartesianChart;
+    type (clustered|overlaid|stacked|100%) 'clustered'
+    barWidthRatio CDATA #IMPLIED
+    maxBarWidth CDATA #IMPLIED
+">
+<!ELEMENT BarChart ANY>
+<!ATTLIST BarChart %mx.charts.BarChart;>
+
+<!ENTITY % mx.charts.BubbleChart "
+    %mx.charts.CartesianChart;
+    radiusAxis CDATA #IMPLIED
+    secondRadiusAxis CDATA #IMPLIED
+    maxRadius CDATA #IMPLIED
+">
+<!ELEMENT BubbleChart ANY>
+<!ATTLIST BubbleChart %mx.charts.BubbleChart;>
+
+
+<!ENTITY % mx.charts.CandlestickChart "
+    %mx.charts.CartesianChart;
+    columnWidthRatio CDATA #IMPLIED
+    maxColumnWidth CDATA #IMPLIED
+">
+<!ELEMENT CandlestickChart ANY>
+<!ATTLIST CandlestickChart %mx.charts.CandlestickChart;>
+
+
+<!ENTITY % mx.charts.ColumnChart "
+    %mx.charts.CartesianChart;
+    type (clustered|overlaid|stacked|100%) 'clustered'
+    columnWidthRatio CDATA #IMPLIED
+    maxColumnWidth CDATA #IMPLIED
+">
+<!ELEMENT ColumnChart ANY>
+<!ATTLIST ColumnChart %mx.charts.ColumnChart;>
+
+
+<!ENTITY % mx.charts.HLOCChart "
+    %mx.charts.CartesianChart;
+    columnWidthRatio CDATA #IMPLIED
+    maxColumnWidth CDATA #IMPLIED
+">
+<!ELEMENT HLOCChart ANY>
+<!ATTLIST HLOCChart %mx.charts.HLOCChart;>
+
+<!ELEMENT LineChart ANY>
+<!ATTLIST LineChart %mx.charts.CartesianChart;>
+
+<!ELEMENT PlotChart ANY>
+<!ATTLIST PlotChart %mx.charts.CartesianChart;>
+
+<!ENTITY % mx.charts.PieChart "
+    %mx.charts.chartClasses.ChartBase;
+    innerRadius CDATA #IMPLIED
+    textAlign CDATA #IMPLIED
+">
+<!ELEMENT PieChart ANY>
+<!ATTLIST PieChart %mx.charts.PieChart;>
+
+
+
+<!-- mx.controls.ComboBase -->
+
+<!ENTITY % mx.controls.ComboBase "
+    %mx.core.UIComponent;
+    dataProvider CDATA #IMPLIED
+    editable (true | false) 'false'
+    imeMode CDATA #IMPLIED
+    restrict CDATA #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    selectedItem CDATA #IMPLIED
+    text CDATA #IMPLIED
+    disabledSkin CDATA #IMPLIED
+    downSkin CDATA #IMPLIED
+    editableDisabledSkin CDATA #IMPLIED
+    editableDownSkin CDATA #IMPLIED
+    editableOverSkin CDATA #IMPLIED
+    editableUpSkin CDATA #IMPLIED
+    overSkin CDATA #IMPLIED
+    upSkin CDATA #IMPLIED
+">
+
+<!ENTITY % mx.controls.ColorPicker "
+    %mx.controls.ComboBase;
+    colorField CDATA #IMPLIED
+    labelField CDATA #IMPLIED
+    selectedColor CDATA #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    showTextField (true | false) #IMPLIED
+    backgroundColor CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    closeDuration CDATA #IMPLIED
+    closeEasingFunction CDATA #IMPLIED
+    color CDATA #IMPLIED
+    columnCount CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    FocusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontfamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle CDATA 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight CDATA 'normal'
+    highlightAlphas CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    openDuration CDATA #IMPLIED
+    openEasingFunction CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    previewHeight CDATA #IMPLIED
+    previewWidth CDATA #IMPLIED
+    swatchBorderColor CDATA #IMPLIED
+    swatchBorderSize CDATA #IMPLIED
+    swatchGridBackgroundColor CDATA #IMPLIED
+    swatchGridBorderSize CDATA #IMPLIED
+    swatchHeight CDATA #IMPLIED
+    swatchHighlightColor CDATA #IMPLIED
+    swatchHighlightSize CDATA #IMPLIED
+    swatchPanelStyleName CDATA #IMPLIED
+    swatchWidth CDATA #IMPLIED
+    textAlign CDATA #IMPLIED
+    textDecoration CDATA #IMPLIED
+    textFieldWidth CDATA #IMPLIED
+    textIndent CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    change CDATA #IMPLIED
+    close CDATA #IMPLIED
+    enter CDATA #IMPLIED
+    itemRollOut CDATA #IMPLIED
+    itemRollOver CDATA #IMPLIED
+    open CDATA #IMPLIED
+">
+<!ELEMENT ColorPicker EMTPY>
+<!ATTLIST ColorPicker %mx.controls.ColorPicker>
+
+<!ENTITY % mx.charts.ComboBox "
+    %mx.controls.ComboBase;
+    dataProvider CDATA #IMPLIED
+    dropdownFactory CDATA #IMPLIED
+    dropdownWidth CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    labelField CDATA #IMPLIED
+    labelFunction CDATA #IMPLIED
+    prompt CDATA #IMPLIED
+    rowCount CDATA #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    selectedItem CDATA #IMPLIED
+    alternatingItemColors CDATA #IMPLIED
+    arrowButtonWidth CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    closeDuration CDATA #IMPLIED
+    closeEasingFunction CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    dropDownBorderColor CDATA #IMPLIED
+    dropDownStyleName CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType (advanced|normal) 'normal'
+    fontFamily CDATA #IMPLIED
+    fontGridFitType (pixel|none|subpixel) 'pixel'
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    highlightAlphas CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    openDuration CDATA #IMPLIED
+    openEasingFunction CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    selectionDuration CDATA #IMPLIED
+    selectionEasingFunction CDATA #IMPLIED
+    textAlign (left|center|right) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    change CDATA #IMPLIED
+    close CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+    enter CDATA #IMPLIED
+    itemRollOut CDATA #IMPLIED
+    itemRollOver CDATA #IMPLIED
+    open CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+">
+<!ELEMENT ComboBox ANY>
+<!ATTLIST ComboBox %mx.charts.ComboBox;>
+
+<!ENTITY % mx.charts.DateField "
+    %mx.controls.ComboBase;
+    dayNames CDATA #IMPLIED
+    disabledDays CDATA #IMPLIED
+    disabledRanges CDATA #IMPLIED
+    displayedMonth CDATA #IMPLIED
+    displayedYear CDATA #IMPLIED
+    firstDayOfWeek CDATA #IMPLIED
+    formatString CDATA #IMPLIED
+    labelFunction CDATA #IMPLIED
+    maxYeay CDATA '2100'
+    minYear CDATA '1900'
+    monthNames CDATA #IMPLIED
+    monthSymbol CDATA #IMPLIED
+    parseFunction CDATA #IMPLIED
+    selectableRange CDATA #IMPLIED
+    selectedDate CDATA #IMPLIED
+    showToday (true | false) #IMPLIED
+    yearNavigationEnabled (true | false) 'false'
+    yearSymbol CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    dateChooserStyleName CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    headerColors CDATA #IMPLIED
+    headerStyleName CDATA #IMPLIED
+    highlightAlphas CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    textAlign (left|right|center) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    todayColor CDATA #IMPLIED
+    todayStyleName CDATA #IMPLIED
+    weekDayStyleName CDATA #IMPLIED
+    change CDATA #IMPLIED
+    close CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+    open CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+">
+<!ELEMENT DateField ANY>
+<!ATTLIST DateField %mx.charts.DateField;>
+
+<!-- mx.core.Container -->
+
+<!ENTITY % mx.core.Container "
+    %mx.core.UIComponent;
+    autoLayout (true | false) #IMPLIED
+    clipContent (true | false) #IMPLIED
+    creationIndex CDATA #IMPLIED
+    creationPolicy (auto|all|queued|none) 'auto'
+    defaultButton CDATA #IMPLIED
+    horizontalLineScrollSize CDATA #IMPLIED
+    horizontalPageScrollSize CDATA #IMPLIED
+    horizontalScrollBar CDATA #IMPLIED
+    horizontalScrollPolicy (auto|on|off) #IMPLIED
+    horizontalScrollPosition CDATA #IMPLIED
+    icon CDATA #IMPLIED
+    label CDATA #IMPLIED
+    verticalLineScrollSize CDATA #IMPLIED
+    verticalPageScrollSize CDATA #IMPLIED
+    verticalScrollBar CDATA #IMPLIED
+    verticalScrollPolicy (auto|on|off) #IMPLIED
+    verticalScrollPosition CDATA #IMPLIED
+    backgroundAlpha CDATA '1.0'
+    backgroundAttachment CDATA #IMPLIED
+    backgroundColor CDATA #IMPLIED
+    backgroundDisabledColor CDATA #IMPLIED
+    backgroundImage CDATA #IMPLIED
+    backgroundSize CDATA #IMPLIED
+    barColor CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderSides CDATA #IMPLIED
+    borderSkin CDATA #IMPLIED
+    borderStyle CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    disbledOverlayAlpha CDATA #IMPLIED
+    dropShadowColor CDATA #IMPLIED
+    dropShadowEnabled CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontfamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle CDATA 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight CDATA 'normal'
+    horizontalScrollBarStyleName CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    shadowDirection CDATA #IMPLIED
+    shadowDistance CDATA #IMPLIED
+    textAlign CDATA #IMPLIED
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    verticalScrollBarStyleName CDATA #IMPLIED
+    childAdd CDATA #IMPLIED
+    childIndexChange CDATA #IMPLIED
+    childRemove CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+  
+">
+
+<!ENTITY % mx.containers.Accordion "
+    %mx.core.Container;
+    headerRenderer CDATA #IMPLIED
+    historyManagementEnabled (true | false) #IMPLIED
+    resizeToContent (true | false) 'false'
+    selectedIndex CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    headerHeight CDATA #IMPLIED
+    headerStyleName CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    openDuration CDATA #IMPLIED
+    openEasingFunction CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    selectedFillColors CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    change CDATA #IMPLIED
+">
+<!ELEMENT Accordion ANY>
+<!ATTLIST Accordion %mx.containers.Accordion;>
+
+
+<!ENTITY % mx.containers.Box "
+    %mx.core.Container;
+    direction (vertical|horizontal) 'vertical'
+    horizontalAlign (left|center|right) 'left'
+    horizontalGap CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalAlign (top|middle|bottom) 'top'
+    verticalGap CDATA #IMPLIED
+">
+<!ELEMENT Box ANY>
+<!ATTLIST Box %mx.containers.Box;>
+
+<!ENTITY % mx.containers.ControlBar "
+    %mx.containers.Box;
+">
+<!ELEMENT ControlBar ANY>
+<!ATTLIST ControlBar %mx.containers.ControlBar;>
+
+
+<!ENTITY % mx.containers.ApplicationControlBar "
+    %mx.containers.ControlBar;
+    dock (true | false) 'false'
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+">
+<!ELEMENT ApplicationControlBar ANY>
+<!ATTLIST ApplicationControlBar %mx.containers.ApplicationControlBar;>
+
+
+<!ENTITY % mx.containers.DividedBox "
+    %mx.containers.Box;
+    liveDragging (true | false) 'false'
+    resizeToContent (true | false) 'false'
+    dividerAffordance CDATA #IMPLIED
+    dividerAlpha CDATA #IMPLIED
+    dividerColor CDATA #IMPLIED
+    dividerSkin CDATA #IMPLIED
+    dividerThickness CDATA #IMPLIED
+    horizontalDividerCursor CDATA #IMPLIED
+    verticalDividerCursor CDATA #IMPLIED
+    dividerPress CDATA #IMPLIED
+    dividerDrag CDATA #IMPLIED
+    dividerRelease CDATA #IMPLIED
+">
+<!ELEMENT DividedBox ANY>
+<!ATTLIST DividedBox %mx.containers.DividedBox;>
+
+<!ELEMENT HDividedBox ANY>
+<!ATTLIST HDividedBox %mx.containers.DividedBox;>
+<!ELEMENT VDividedBox ANY>
+<!ATTLIST VDividedBox %mx.containers.DividedBox;>
+
+<!ELEMENT HBox ANY>
+<!ATTLIST HBox %mx.containers.Box;>
+<!ELEMENT VBox ANY>
+<!ATTLIST VBox %mx.containers.Box;>
+
+<!ELEMENT GridItem ANY>
+<!ATTLIST GridItem %mx.containers.HBox;>
+
+<!ELEMENT GridRow (GridItem)*>
+<!ATTLIST GridRow %mx.containers.HBox;>
+
+<!ELEMENT Grid (GridRow)*>
+<!ATTLIST Grid %mx.containers.Box;>
+
+
+<!ENTITY % mx.containers.NavBar "
+    %mx.containers.Box;
+    dataProvider CDATA #IMPLIED
+    iconField CDATA #IMPLIED
+    labeField CDATA #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    toolTipField CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+">
+<!ELEMENT NavBar ANY>
+<!ATTLIST NavBar %mx.containers.NavBar;>
+
+<!ENTITY % mx.containers.ButtonBar "
+    %mx.containers.NavBar;
+    buttonHeight CDATA #IMPLIED
+    buttonStyleName CDATA #IMPLIED
+    buttonWidth CDATA #IMPLIED
+    firstButtonStyleName CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    horizontalAlign (center|left|right) 'center'
+    horizontalGap CDATA #IMPLIED
+    lastButtonStyleName CDATA #IMPLIED
+    verticalAlign (middle|top|bottom) 'middle'
+    verticalGap CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+">
+<!ELEMENT ButtonBar ANY>
+<!ATTLIST ButtonBar %mx.containers.ButtonBar;>
+
+<!ENTITY % mx.containers.ToggleButtonBar "
+    %mx.containers.ButtonBar;
+    selectedIndex CDATA #IMPLIED
+    toggleOnClick (true | false) 'false'
+    selectedButtonTextStyleName CDATA #IMPLIED
+">
+<!ELEMENT ToggleButtonBar ANY>
+<!ATTLIST ToggleButtonBar %mx.containers.ToggleButtonBar;>
+
+<!ENTITY % mx.containers.TabBar "
+    %mx.containers.ToggleButtonBar;
+    firstTabStyleName CDATA #IMPLIED
+    horizontalAlign (left|center|right) 'left'
+    horizontalGap CDATA #IMPLIED
+    lastTabStyleName CDATA #IMPLIED
+    selectedTabTextStyleName CDATA #IMPLIED
+    tabHeight CDATA #IMPLIED
+    tabStyleName CDATA #IMPLIED
+    tabWidth CDATA #IMPLIED
+    verticalAlign (top|middle|bottom) 'top'
+    verticalGap CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+">
+<!ELEMENT TabBar ANY>
+<!ATTLIST TabBar %mx.containers.TabBar;>
+
+
+<!ENTITY % mx.containers.LinkBar "
+    %mx.containers.NavBar;
+    selectedIndex CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    separatorColor CDATA #IMPLIED
+    separatorSkin CDATA #IMPLIED
+    separatorWidth CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+">
+<!ELEMENT LinkBar ANY>
+<!ATTLIST LinkBar %mx.containers.LinkBar;>
+
+<!ELEMENT Canvas ANY>
+<!ATTLIST Canvas %mx.containers.Container;>
+
+<!ENTITY % mx.containers.Form "
+    %mx.containers.Container;
+    horizontalGap CDATA #IMPLIED
+    indicatorGap CDATA #IMPLIED
+    labelWidth CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+">
+<!ELEMENT Form ANY>
+<!ATTLIST Form %mx.containers.Form;>
+
+
+<!ENTITY % mx.containers.FormItem "
+    %mx.containers.Container;
+    direction (vertical|horizontal) 'vertical'
+    label CDATA #IMPLIED
+    required (true | false) 'false'
+    horizontalAlign (left|center|right) 'left'
+    horizontalGap CDATA #IMPLIED
+    indicatorGap CDATA #IMPLIED
+    indicatorSkin CDATA #IMPLIED
+    labelWidth CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+">
+<!ELEMENT FormItem ANY>
+<!ATTLIST FormItem %mx.containers.FormItem;>
+
+
+<!ENTITY % mx.containers.LayoutContainer "
+    %mx.containers.Container;
+    layout (vertical|horizontal|absolute) 'vertical'
+    xmlns:No default CDATA #IMPLIED
+    horizontalAlign (center|left|right) 'center'
+    horizontalGap CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalAlign (top|bottom|middle) 'top'
+    verticalGap CDATA #IMPLIED
+">
+
+<!ELEMENT Module ANY>
+<!ATTLIST Module %mx.containers.LayoutContainer;>
+
+<!ENTITY % mx.containers.Application "
+    %mx.containers.LayoutContainer;
+    application CDATA #IMPLIED
+    controlBar CDATA #IMPLIED
+    frameRate CDATA #IMPLIED
+    layout (vertical|horizontal|absolute) 'vertical'
+    pageTitle CDATA #IMPLIED
+    preloader CDATA #IMPLIED
+    resetHistory (true | false) 'false'
+    scriptRecursionLimit CDATA #IMPLIED
+    scriptTimeLimit CDATA #IMPLIED
+    usePreloader (true | false) #IMPLIED
+    viewSourceURL CDATA #IMPLIED
+    xmlns:No default CDATA #IMPLIED
+    backgroundGradientAlphas CDATA #IMPLIED
+    backgroundGradientColors CDATA #IMPLIED
+    horizontalAlign (center|left|right) 'center'
+    horizontalGap CDATA #IMPLIED
+    modalTransparency CDATA #IMPLIED
+    modalTransparencyBlur CDATA #IMPLIED
+    modalTransparencyColor CDATA #IMPLIED
+    modalTransparencyDuration CDATA '1.0'
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalAlign (top|bottom|middle) 'top'
+    verticalGap CDATA #IMPLIED
+    applicationComplete CDATA #IMPLIED
+    error CDATA #IMPLIED
+">
+<!ELEMENT Application ANY>
+<!ATTLIST Application %mx.containers.Application;>
+
+
+<!ENTITY % mx.containers.Panel "
+    %mx.containers.Container;
+   layout (vertical|horizontal|absolute) 'vertical'
+   status CDATA #IMPLIED
+   title CDATA #IMPLIED
+   titleIcon CDATA #IMPLIED
+   borderAlpha CDATA #IMPLIED
+   borderThicknessBottom CDATA #IMPLIED
+   borderThicknessLeft CDATA #IMPLIED
+   borderThicknessRight CDATA #IMPLIED
+   borderThicknessTop CDATA #IMPLIED
+   controlBarStyleName CDATA #IMPLIED
+   cornerRadius CDATA #IMPLIED
+   dropShadowEnabled (true | false) #IMPLIED
+   footerColors CDATA #IMPLIED
+   headerColors CDATA #IMPLIED
+   headerHeight CDATA #IMPLIED
+   highlightAlphas CDATA #IMPLIED
+   horizontalAlign (left|center|right) 'left'
+   horizontalGap CDATA #IMPLIED
+   modalTransparency CDATA #IMPLIED
+   modalTransparencyBlur CDATA #IMPLIED
+   modalTransparencyColor CDATA #IMPLIED
+   modalTransparencyDuration CDATA '1.0'
+   paddingBottom CDATA #IMPLIED
+   paddingTop CDATA #IMPLIED
+   roundedBottomCorners (true | false) 'false'
+   shadowDirection (center|left|right) 'center'
+   shadowDistance CDATA #IMPLIED
+   statusStyleName CDATA #IMPLIED
+   titleBackgroundSkin CDATA #IMPLIED
+   titleStyleName CDATA #IMPLIED
+   verticalAlign (top|bottom|middle) 'top'
+   verticalGap CDATA #IMPLIED
+   resizeEndEffect CDATA #IMPLIED
+   resizeStartEffect CDATA #IMPLIED
+">
+<!ELEMENT Panel ANY>
+<!ATTLIST Panel %mx.containers.Panel;>
+
+<!ENTITY % mx.containers.RichTextEditor "
+    %mx.containers.Panel;
+     defaultLinkProtocol CDATA #IMPLIED
+     htmlText CDATA #IMPLIED
+     showControlBar (true | false) #IMPLIED
+     showToolTips (true | false) #IMPLIED
+     text CDATA #IMPLIED
+     change CDATA #IMPLIED
+">
+<!ELEMENT RichTextEditor ANY>
+<!ATTLIST RichTextEditor %mx.containers.RichTextEditor;>
+
+
+<!ENTITY % mx.containers.TitleWindow "
+    %mx.containers.Panel;
+   showCloseButton (true | false) 'false'
+   closeButtonDisabledSkin CDATA #IMPLIED
+   closeButtonDownSkin CDATA #IMPLIED
+   closeButtonOverSkin CDATA #IMPLIED
+   closeButtonUpSkin CDATA #IMPLIED
+   close CDATA #IMPLIED
+">
+<!ELEMENT TitleWindow ANY>
+<!ATTLIST TitleWindow %mx.containers.TitleWindow;>
+
+
+<!ENTITY % mx.containers.Tile "
+    %mx.containers.Container;
+    direction (horizontal|vertical) 'horizontal'
+    tileHeight CDATA #IMPLIED
+    tileWidth CDATA #IMPLIED
+    horizontalAlign (left|center|right) 'left'
+    horizontalGap CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalAlign (top|bottom|middle) 'top'
+    verticalGap CDATA #IMPLIED
+">
+<!ELEMENT Tile ANY>
+<!ATTLIST Tile %mx.containers.Tile;>
+
+<!ENTITY % mx.containers.Legend "
+    %mx.containers.Tile;
+    dataProvider CDATA #IMPLIED
+    legendItemClass CDATA #IMPLIED
+    backgroundColor CDATA #IMPLIED
+    borderStyle (inset|none|solid|outset) 'inset'
+    horizontalGap CDATA #IMPLIED
+    labelPlacement (right|left|top|bottom) 'right'
+    markerHeight CDATA #IMPLIED
+    markerWidth CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+    itemMouseDown CDATA #IMPLIED
+    itemMouseOut CDATA #IMPLIED
+    itemMouseOver CDATA #IMPLIED
+    itemMouseUp CDATA #IMPLIED
+">
+<!ELEMENT Legend ANY>
+<!ATTLIST Legend %mx.containers.Legend;>
+
+<!ENTITY % mx.containers.ViewStack "
+    %mx.containers.Container;
+    historyManagementEnabled (true | false) 'false'
+    resizeToContent (true | false) 'false'
+    selectedIndex CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    change CDATA #IMPLIED
+">
+<!ELEMENT ViewStack ANY>
+<!ATTLIST ViewStack %mx.containers.ViewStack;>
+
+
+<!ENTITY % mx.containers.TabNavigator "
+    %mx.containers.ViewStack;
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    firstTabStyleName CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    horizontalAlign (left|center|right) 'left'
+    horizontalGap CDATA #IMPLIED
+    lastTabStyleName CDATA #IMPLIED
+    selectedTabTextStyleName CDATA #IMPLIED
+    tabHeight CDATA #IMPLIED
+    tabStyleName CDATA #IMPLIED
+    tabWidth CDATA #IMPLIED
+">
+<!ELEMENT TabNavigator ANY>
+<!ATTLIST TabNavigator %mx.containers.TabNavigator;>
+
+
+<!ELEMENT DateChooser EMPTY>
+<!ATTLIST DateChooser
+    %mx.core.UIComponent;
+    allowDisjointSelection (true | false) #IMPLIED
+    allowMultipleSelection (true | false) 'false'
+    dayNames CDATA #IMPLIED
+    disabledDays CDATA #IMPLIED
+    disabledRanges CDATA #IMPLIED
+    displayedMonth CDATA #IMPLIED
+    displayedYear CDATA #IMPLIED
+    firstDayOfWeek CDATA #IMPLIED
+    maxYear CDATA #IMPLIED
+    minYear CDATA #IMPLIED
+    monthNames CDATA #IMPLIED
+    monthSymbol CDATA #IMPLIED
+    selectableRange CDATA #IMPLIED
+    selectedDate CDATA #IMPLIED
+    selectedRanges CDATA #IMPLIED
+    showToday (true | false) #IMPLIED
+    yearNavigationEnabled (true | false) 'false'
+    yearSymbol CDATA #IMPLIED
+    backgroundColor CDATA #IMPLIED
+    backgroundAlpha CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    headerColors CDATA #IMPLIED
+    headerStyleName CDATA #IMPLIED
+    highlightAlphas CDATA #IMPLIED
+    horizontalGap CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    nextMonthDisabledSkin CDATA #IMPLIED
+    nextMonthDownSkin CDATA #IMPLIED
+    nextMonthOverSkin CDATA #IMPLIED
+    nextMonthUpSkin CDATA #IMPLIED
+    nextYearDisabledSkin CDATA #IMPLIED
+    nextYearDownSkin CDATA #IMPLIED
+    nextYearOverSkin CDATA #IMPLIED
+    nextYearUpSkin CDATA #IMPLIED
+    prevMonthDisabledSkin CDATA #IMPLIED
+    prevMonthDownSkin CDATA #IMPLIED
+    prevMonthOverSkin CDATA #IMPLIED
+    prevMonthUpSkin CDATA #IMPLIED
+    prevYearDisabledSkin CDATA #IMPLIED
+    prevYearDownSkin CDATA #IMPLIED
+    prevYearOverSkin CDATA #IMPLIED
+    prevYearUpSkin CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    rollOverIndicatorSkin CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    selectionIndicatorSkin CDATA #IMPLIED
+    textAlign (left|center|right) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    todayColor CDATA #IMPLIED
+    todayIndicatorSkin CDATA #IMPLIED
+    todayStyleName CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    weekDayStyleName CDATA #IMPLIED
+    change CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+>
+
+
+<!ENTITY % mx.charts.chartClasses.DualStyleObject "
+    %mx.core.UIComponent;
+    internalStyleName CDATA #IMPLIED
+">
+
+<!ELEMENT AxisRenderer ANY>
+<!ATTLIST AxisRenderer
+    %mx.charts.chartClasses.DualStyleObject;
+    axis CDATA #IMPLIED
+    chart CDATA #IMPLIED
+    gutters CDATA #IMPLIED
+    heightLimit CDATA #IMPLIED
+    labelRenderer CDATA #IMPLIED
+    length CDATA #IMPLIED
+    otherAxes CDATA #IMPLIED
+    placement CDATA #IMPLIED
+    ticks CDATA #IMPLIED
+    axisStroke CDATA #IMPLIED
+    axisTitleStyleName CDATA #IMPLIED
+    canDropLabels (true | false) #IMPLIED
+    canStagger (true | false) #IMPLIED
+    labelGap CDATA #IMPLIED
+    labelRotation CDATA #IMPLIED
+    minorTickLength CDATA #IMPLIED
+    minorTickPlacement (none|inside|outside|cross) 'none'
+    minorTickStroke CDATA #IMPLIED
+    showLabels (true | false) #IMPLIED
+    showLine (true | false) #IMPLIED
+    tickLength CDATA #IMPLIED
+    tickPlacement (inside|outside|cross|none) 'inside'
+    tickStroke CDATA #IMPLIED
+>
+
+<!ELEMENT GridLines ANY>
+<!ATTLIST GridLines
+    %mx.charts.chartClasses.DualStyleObject;
+     direction (horizontal|vertical|both) 'horizontal'
+     horizontalAlternateFill CDATA #IMPLIED
+     horizontalChangeCount CDATA #IMPLIED
+     horizontalFill CDATA #IMPLIED
+     horizontalOriginStroke CDATA #IMPLIED
+     horizontalShowOrigin CDATA #IMPLIED
+     horizontalStroke CDATA #IMPLIED
+     horizontalTickAligned (true | false) #IMPLIED
+     verticalAlternateFill CDATA #IMPLIED
+     verticalChangeCount CDATA #IMPLIED
+     verticalFill CDATA #IMPLIED
+     verticalOriginStroke CDATA #IMPLIED
+     verticalShowOrigin CDATA #IMPLIED
+     verticalStroke CDATA #IMPLIED
+     verticalTickAligned (true | false) #IMPLIED
+>
+
+<!ELEMENT AreaSeries ANY>
+<!ATTLIST AreaSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    minField CDATA #IMPLIED
+    stacker CDATA #IMPLIED
+    stackTotals CDATA #IMPLIED
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    areaFill CDATA #IMPLIED
+    areaRenderer CDATA #IMPLIED
+    areaStroke CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    form (segment|curve|horizontal|reverseStep|step|vertical) 'segment'
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    radius CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+<!ELEMENT BarSeries ANY>
+<!ATTLIST BarSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    barWidthRatio CDATA #IMPLIED
+    maxBarWidth CDATA #IMPLIED
+    minField CDATA #IMPLIED
+    offset CDATA #IMPLIED
+    stacker CDATA #IMPLIED
+    stackTotals CDATA #IMPLIED 
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+<!ELEMENT BubbleSeries ANY>
+<!ATTLIST BubbleSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    itemType CDATA #IMPLIED
+    legendData CDATA #IMPLIED
+    maxRadius CDATA #IMPLIED
+    radiusField CDATA #IMPLIED
+    renderData CDATA #IMPLIED
+    renderDataType CDATA #IMPLIED
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+
+<!ELEMENT ColumnSeries ANY>
+<!ATTLIST ColumnSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    columnWidthRatio CDATA #IMPLIED
+    legendData CDATA #IMPLIED
+    maxColumnWidth CDATA #IMPLIED
+    minField CDATA #IMPLIED
+    offset CDATA #IMPLIED
+    sortOnXField (true | false) 'false'
+    stacker CDATA #IMPLIED
+    stackTotals CDATA #IMPLIED
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+<!ELEMENT CandlestickSeries ANY>
+<!ATTLIST CandlestickSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    boxStroke CDATA #IMPLIED
+    declineFill CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+<!ELEMENT HLOCSeries ANY>
+<!ATTLIST HLOCSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    closeTickLength CDATA #IMPLIED
+    closeTickStroke CDATA #IMPLIED
+    openTickLength CDATA #IMPLIED
+    openTickStroke CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+
+
+
+<!ELEMENT LineSeries ANY>
+<!ATTLIST LineSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    interpolateValues (true | false) 'false'
+    sortOnXField (true | false) 'false'
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    form (segment|curve|horizontal|reverseStep|step|vertical) 'segment'
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    lineSegmentRenderer CDATA #IMPLIED
+    lineStroke CDATA #IMPLIED
+    radius CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+
+<!ELEMENT PieSeries ANY>
+<!ATTLIST PieSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    explodeRadius CDATA #IMPLIED
+    field CDATA #IMPLIED
+    itemType CDATA #IMPLIED
+    labelFunction CDATA #IMPLIED
+    maxLabelRadius CDATA #IMPLIED
+    nameField CDATA #IMPLIED
+    outerRadius CDATA #IMPLIED
+    perWedgeExplodeRadius CDATA #IMPLIED
+    renderDataType CDATA #IMPLIED
+    reserveExplodeRadius CDATA #IMPLIED
+    startAngle CDATA #IMPLIED
+    calloutGap CDATA #IMPLIED
+    calloutStroke CDATA #IMPLIED
+    fills CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    innerRadius CDATA #IMPLIED
+    insideLabelSizeLimit CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    labelPosition (none|callout|inside|insideWithCallout|outside) 'none'
+    legendMarkerRenderer CDATA #IMPLIED
+    radialStroke CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+
+<!ELEMENT PlotSeries ANY>
+<!ATTLIST PlotSeries
+    %mx.charts.chartClasses.DualStyleObject;
+    radius CDATA #IMPLIED
+    xField CDATA #IMPLIED
+    yField CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    legendMarkerRenderer CDATA #IMPLIED
+    radius CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+>
+
+
+<!ELEMENT FormHeading ANY>
+<!ATTLIST FormHeading
+    %mx.core.UIComponent;
+    label CDATA #IMPLIED
+    color CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fontAntiAliasType (advanced|normal) 'advanced'
+    fontFamily CDATA #IMPLIED
+    fontGridFitType (pixel|subpixel|none) 'pixel'
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    indicatorGap CDATA #IMPLIED
+    labelWidth CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    textAlign CDATA #IMPLIED
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+>
+
+
+<!ELEMENT HRule ANY>
+<!ATTLIST HRule
+    %mx.core.UIComponent;
+    strokeColor CDATA #IMPLIED
+    shadowColor CDATA #IMPLIED
+    strokeWidth CDATA #IMPLIED
+>
+
+
+<!ENTITY % mx.controls.Label "
+    %mx.core.UIComponent;
+    condenseWhite (true | false) #IMPLIED
+    data CDATA #IMPLIED
+    htmlText CDATA #IMPLIED
+    listData CDATA #IMPLIED
+    selectable (true | false) #IMPLIED
+    text CDATA #IMPLIED
+    truncateToFit (true | false) #IMPLIED
+    color CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fontAntiAliasType (advanced|normal) 'normal'
+    fontFamily CDATA #IMPLIED
+    fontGridFitType (pixel|none|subpixel) 'pixel'
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    textAlign  (left|right|center) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+">
+<!ELEMENT Label ANY>
+<!ATTLIST Label %mx.controls.Label; >
+
+<!ELEMENT Text ANY>
+<!ATTLIST Text
+    %mx.controls.Label;
+    leading CDATA #IMPLIED
+>
+
+
+<!ELEMENT LegendItem ANY>
+<!ATTLIST LegendItem
+    %mx.core.UIComponent;
+    element CDATA #IMPLIED    
+    label CDATA #IMPLIED
+    source CDATA #IMPLIED
+    legendData CDATA #IMPLIED
+    marker CDATA #IMPLIED
+    markerAspectRatio CDATA #IMPLIED
+    fill CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    horizontalGap CDATA #IMPLIED
+    labelPlacement (right|left|top|bottom) 'right'
+    legendMarkerRenderer CDATA #IMPLIED
+    markerHeight CDATA #IMPLIED
+    markerWidth CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    stroke CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+>
+
+
+<!ELEMENT MenuBar ANY>
+<!ATTLIST MenuBar
+    %mx.core.UIComponent;
+    dataDescriptor CDATA #IMPLIED
+    dataProvider CDATA #IMPLIED
+    iconField CDATA #IMPLIED
+    labelField CDATA #IMPLIED
+    labelFunction CDATA #IMPLIED
+    menuBarItemRenderer CDATA #IMPLIED
+    menubarItems CDATA #IMPLIED
+    menus CDATA #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    showRoot CDATA #IMPLIED
+    backgroundAlpha CDATA '1.0'
+    backgroundColor CDATA #IMPLIED
+    backgroundSkin CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    highlightAlphas CDATA #IMPLIED
+    itemDownSkin CDATA #IMPLIED
+    itemOverSkin CDATA #IMPLIED
+    itemUpSkin CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    textAlign CDATA #IMPLIED
+    textDecoration CDATA #IMPLIED
+    textIndent CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+    itemRollOut CDATA #IMPLIED
+    itemRollOver CDATA #IMPLIED
+    menuHide CDATA #IMPLIED
+    menuShow CDATA #IMPLIED
+>
+
+
+<!ELEMENT NumericStepper ANY>
+<!ATTLIST NumericStepper
+    %mx.core.UIComponent;
+    imeMode CDATA #IMPLIED
+    maxChars CDATA #IMPLIED
+    maximum CDATA #IMPLIED
+    minimum CDATA #IMPLIED
+    stepSize CDATA #IMPLIED
+    value CDATA #IMPLIED
+    backgroundAlpha CDATA '1.0'
+    backgroundColor CDATA #IMPLIED
+    backgroundImage CDATA #IMPLIED
+    backgroundSize CDATA #IMPLIED
+    borderCapColor CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderSides CDATA #IMPLIED
+    borderSkin CDATA #IMPLIED
+    borderStyle CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    downArrowDisabledSkin CDATA #IMPLIED
+    downArrowDownSkin CDATA #IMPLIED
+    downArrowOverSkin CDATA #IMPLIED
+    downArrowUpSkin CDATA #IMPLIED
+    dropShadowEnabled CDATA #IMPLIED
+    dropShadowColor CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    highlightAlphas CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    shadowDirection CDATA #IMPLIED
+    shadowDistance CDATA #IMPLIED
+    textAlign (left|center|right) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    upArrowDisabledSkin CDATA #IMPLIED
+    upArrowDownSkin CDATA #IMPLIED
+    upArrowOverSkin CDATA #IMPLIED
+    upArrowUpSkin CDATA #IMPLIED
+    change CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+>
+
+<!ELEMENT ProgressBar ANY>
+<!ATTLIST ProgressBar
+    %mx.core.UIComponent;
+    conversion CDATA #IMPLIED
+    direction (right|left) 'right'
+    indeterminate (true | false) 'false'
+    label CDATA #IMPLIED
+    labelPlacement (bottom|top|left|right|center) 'bottom'
+    maximum CDATA #IMPLIED
+    minimum CDATA #IMPLIED
+    mode (event|polled|manual) 'bottom'
+    source CDATA #IMPLIED
+    barColor CDATA #IMPLIED
+    barSkin CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    color CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    fontAntiAliasType CDATA #IMPLIED
+    fontFamily CDATA #IMPLIED
+    fontGridFitType CDATA #IMPLIED
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontThickness CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontWeight (normal|bold) 'normal'
+    horizontalGap CDATA #IMPLIED
+    indeterminateSkin CDATA #IMPLIED
+    labelWidth CDATA #IMPLIED
+    leading CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    textAlign (left|center|right) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    themeColor (haloGreen|haloBlue|haloOrange) #IMPLIED
+    trackColors CDATA #IMPLIED
+    trackHeight CDATA #IMPLIED
+    trackSkin CDATA #IMPLIED
+    verticalGap CDATA #IMPLIED
+    complete CDATA #IMPLIED
+    hide CDATA #IMPLIED
+    progress CDATA #IMPLIED
+    show CDATA #IMPLIED
+    completeEffect CDATA #IMPLIED
+>
+
+<!ELEMENT Repeater ANY>
+<!ATTLIST Repeater
+    %mx.core.UIComponent;
+    id CDATA #IMPLIED
+    childDescriptors CDATA #IMPLIED
+    count CDATA #IMPLIED
+    dataProvider CDATA #IMPLIED
+    recycleChildren (true | false) 'false'
+    startingIndex CDATA #IMPLIED
+    repeat CDATA #IMPLIED
+    repeatEnd CDATA #IMPLIED
+    repeatStart CDATA #IMPLIED
+>
+
+
+<!ENTITY % mx.controls.scrollClasses.ScrollBar "
+    %mx.core.UIComponent;
+    direction (vertical|horizontal) 'vertical'
+    lineScrollSize CDATA #IMPLIED
+    maxScrollPosition CDATA #IMPLIED
+    minScrollPosition CDATA #IMPLIED
+    pageScrollSize CDATA #IMPLIED
+    pageSize CDATA #IMPLIED
+    scrollPosition CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED 
+    downArrowDisabledSkin CDATA #IMPLIED
+    downArrowDownSkin CDATA #IMPLIED
+    downArrowOverSkin CDATA #IMPLIED
+    downArrowUpSkin CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    highlightAlphas CDATA #IMPLIED
+    thumbDownSkin CDATA #IMPLIED
+    thumbIcon CDATA #IMPLIED
+    thumbOverSkin CDATA #IMPLIED
+    thumbUpSkin CDATA #IMPLIED
+    trackColors CDATA #IMPLIED
+    trackSkin CDATA #IMPLIED
+    upArrowDisabledSkin CDATA #IMPLIED
+    upArrowDownSkin CDATA #IMPLIED
+    upArrowOverSkin CDATA #IMPLIED
+    upArrowUpSkin CDATA #IMPLIED
+">
+<!ELEMENT ScrollBar ANY>
+<!ATTLIST ScrollBar %mx.controls.scrollClasses.ScrollBar>
+
+
+<!ELEMENT HScrollBar ANY>
+<!ATTLIST HScrollBar
+    %mx.controls.scrollClasses.ScrollBar;
+    repeatDelay CDATA #IMPLIED
+    repeatInterval CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+>
+
+<!ELEMENT VScrollBar ANY>
+<!ATTLIST VScrollBar
+    %mx.controls.scrollClasses.ScrollBar;
+    repeatDelay CDATA #IMPLIED
+    repeatInterval CDATA #IMPLIED
+    scroll CDATA #IMPLIED
+>
+
+
+<!ENTITY % mx.core.ScrollControlBase "
+    %mx.core.UIComponent;
+  border CDATA #IMPLIED
+  horizontalScrollPolicy (off|on|auto) 'auto'
+  horizontalScrollPosition CDATA #IMPLIED
+  liveScrolling (true | false) #IMPLIED
+  maxHorizontalScrollPosition CDATA #IMPLIED
+  maxVerticalScrollPosition CDATA #IMPLIED
+  scrollTipFunction CDATA #IMPLIED
+  showScrollTips (true | false) 'false'
+  verticalScrollPolicy (auto|off|on) 'auto'
+  verticalScrollPosition CDATA #IMPLIED 
+  backgroundAlpha CDATA '1.0'
+  backgroundColor CDATA #IMPLIED
+  backgroundImage CDATA #IMPLIED
+  backgroundSize CDATA #IMPLIED
+  borderColor CDATA #IMPLIED
+  borderSides CDATA #IMPLIED
+  borderSkin CDATA #IMPLIED
+  borderStyle CDATA #IMPLIED
+  borderThickness CDATA #IMPLIED
+  color CDATA #IMPLIED
+  cornerRadius CDATA #IMPLIED
+  disabledColor CDATA #IMPLIED
+  dropShadowColor CDATA #IMPLIED
+  dropShadowEnabled CDATA #IMPLIED
+  fontFamily CDATA #IMPLIED
+  fontSize CDATA #IMPLIED
+  fontStyle (normal|italic) 'normal'
+  fontWeight (normal|bold) 'normal'
+  horizontalScrollBarStyleName CDATA #IMPLIED
+  leading CDATA #IMPLIED
+  repeatDelay'500'
+  repeatInterval'35'
+  shadowDirection CDATA #IMPLIED
+  shadowDistance CDATA #IMPLIED
+  textAlign CDATA #IMPLIED
+  textDecoration (none|underline) 'none'
+  textIndent CDATA #IMPLIED
+  verticalScrollBarStyleName CDATA #IMPLIED
+  scroll CDATA #IMPLIED
+">
+
+
+<!ENTITY % mx.controls.listClasses.ListBase "
+    %mx.core.ScrollControlBase;
+    allowDragSelection (true | false) 'false'
+    allowMultipleSelection (true | false) 'false'
+    columnCount CDATA #IMPLIED
+    columnWidth CDATA #IMPLIED
+    dataProvider CDATA #IMPLIED
+    dataTipField CDATA #IMPLIED
+    dataTipFunction CDATA #IMPLIED
+    dragEnabled (true | false) 'false'
+    dragMoveEnabled (true | false) 'false'
+    dropEnabled (true | false) 'false'
+    iconField CDATA #IMPLIED
+    iconFunction CDATA #IMPLIED
+    itemRenderer CDATA #IMPLIED
+    labelField CDATA #IMPLIED
+    labelFunction CDATA #IMPLIED
+    lockedColumnCount CDATA #IMPLIED
+    lockedRowCount CDATA #IMPLIED
+    menuSelectionMode (true | false) 'false'
+    rowCount CDATA #IMPLIED
+    rowHeight CDATA #IMPLIED
+    selectable (true | false) #IMPLIED
+    selectedIndex CDATA #IMPLIED
+    selectedIndices CDATA #IMPLIED
+    selectedItem CDATA #IMPLIED
+    selectedItems CDATA #IMPLIED
+    showDataTips (true | false) 'false'
+    variableRowHeight (true | false) 'false'
+    wordWrap (true | false) 'false'
+    alternatingItemColors CDATA #IMPLIED
+    dropIndicatorSkin CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    paddingBottom CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    paddingTop CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    selectionDisabledColor CDATA #IMPLIED
+    selectionDuration CDATA #IMPLIED
+    selectionEasingFunction CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    useRollOver (true | false) #IMPLIED
+    verticalAlign (top|bottom|middle) 'top'
+    change CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+    itemDoubleClick CDATA #IMPLIED
+    itemRollOut CDATA #IMPLIED
+    itemRollOver CDATA #IMPLIED
+    itemClick CDATA #IMPLIED
+">
+
+<!ENTITY % mx.controls.dataGridClasses.DataGridBase "
+    %mx.controls.listClasses.ListBase;
+    headerHeight CDATA #IMPLIED
+    showHeaders (true | false) #IMPLIED
+">
+
+<!ENTITY % mx.controls.DataGrid "
+    %mx.controls.dataGridClasses.DataGridBase;
+    columns CDATA #IMPLIED
+    draggableColumns (true | false) #IMPLIED
+    editable (true | false) 'false'
+    editedItemPosition CDATA #IMPLIED
+    horizontalScrollPosition CDATA #IMPLIED
+    imeMode CDATA #IMPLIED
+    itemEditorInstance CDATA #IMPLIED
+    minColumnWidth CDATA #IMPLIED
+    resizableColumns (true | false) #IMPLIED
+    sortableColumns (true | false) #IMPLIED
+    backgroundDisabledColor CDATA #IMPLIED
+    columnDropIndicatorSkin CDATA #IMPLIED
+    columnResizeSkin CDATA #IMPLIED
+    headerColors CDATA #IMPLIED
+    headerDragProxyStyleName CDATA #IMPLIED
+    headerSeparatorSkin CDATA #IMPLIED
+    headerStyleName CDATA #IMPLIED
+    horizontalGridLineColor CDATA #IMPLIED
+    horizontalGridLines (true | false) 'false'
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    sortArrowSkin CDATA #IMPLIED
+    stretchCursor CDATA #IMPLIED
+    verticalGridLineColor CDATA #IMPLIED
+    verticalGridLines (true | false) 'false'
+    columnStretch CDATA #IMPLIED
+    headerRelease CDATA #IMPLIED
+    headerShift CDATA #IMPLIED
+    itemEditBegin CDATA #IMPLIED
+    itemEditBeginning CDATA #IMPLIED 
+    itemEditEnd CDATA #IMPLIED
+    itemFocusIn CDATA #IMPLIED
+    itemFocusOut CDATA #IMPLIED
+">
+<!ELEMENT DataGrid ANY>
+<!ATTLIST DataGrid %mx.controls.DataGrid;>
+
+<!ELEMENT PrintDataGrid ANY>
+<!ATTLIST PrintDataGrid
+    %mx.controls.DataGrid;
+    sizeToPage (true | false) #IMPLIED
+>
+
+
+<!ENTITY % mx.controls.List "
+    %mx.controls.listClasses.ListBase;
+    editable (true | false) 'false'
+    editedItemPosition CDATA #IMPLIED
+    editorDataField CDATA #IMPLIED
+    editorHeightOffset CDATA #IMPLIED
+    editorUsesEnterKey (true | false) 'false'
+    editorWidthOffset CDATA #IMPLIED
+    editorXOffset CDATA #IMPLIED
+    editorYOffset CDATA #IMPLIED
+    imeMode CDATA #IMPLIED    
+    itemEditor CDATA #IMPLIED
+    itemEditorInstance CDATA #IMPLIED
+    rendererIsEditor (true | false) 'false'
+    backgroundDisabledColor CDATA #IMPLIED
+    itemEditBegin CDATA #IMPLIED
+    itemEditEnd CDATA #IMPLIED
+    itemEditBeginning CDATA #IMPLIED
+    itemFocusIn CDATA #IMPLIED
+    itemFocusOut CDATA #IMPLIED
+">
+<!ELEMENT List ANY>
+<!ATTLIST List %mx.controls.List;>
+
+
+
+<!ELEMENT Tree ANY>
+<!ATTLIST Tree
+    %mx.controls.List;
+    dataDescriptor CDATA #IMPLIED
+    dataProvider CDATA #IMPLIED
+    dragMoveEnabled (true | false) #IMPLIED
+    firstVisibleItem CDATA #IMPLIED
+    hasRoot (true | false) 'false'
+    itemIcons CDATA #IMPLIED
+    maxHorizontalScrollPosition CDATA #IMPLIED
+    openItems CDATA #IMPLIED
+    showRoot (true | false) #IMPLIED
+    alternatingItemColors CDATA #IMPLIED
+    backgroundDisabledColor CDATA #IMPLIED
+    defaultLeafIcon CDATA #IMPLIED
+    depthColors CDATA #IMPLIED
+    disclosureClosedIcon CDATA #IMPLIED
+    disclosureOpenIcon CDATA #IMPLIED
+    folderClosedIcon CDATA #IMPLIED
+    folderOpenIcon CDATA #IMPLIED
+    indentation CDATA #IMPLIED
+    openDuration CDATA #IMPLIED
+    openEasingFunction CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    rollOverColor CDATA #IMPLIED
+    selectionColor CDATA #IMPLIED
+    selectionDisabledColor CDATA #IMPLIED
+    selectionEasingFunction CDATA #IMPLIED
+    textRollOverColor CDATA #IMPLIED
+    textSelectedColor CDATA #IMPLIED
+    change CDATA #IMPLIED
+    itemClose CDATA #IMPLIED
+    itemOpen CDATA #IMPLIED
+    itemOpening CDATA #IMPLIED
+>
+
+
+<!ELEMENT HorizontalList ANY>
+<!ATTLIST HorizontalList %mx.controls.listClasses.ListBase;>
+
+<!ELEMENT TileList ANY>
+<!ATTLIST TileList %mx.controls.listClasses.ListBase;>
+
+<!ELEMENT TextArea ANY>
+<!ATTLIST TextArea
+    %mx.core.ScrollControlBase;
+    condenseWhite (true | false) 'false'
+    data CDATA #IMPLIED
+    displayAsPassword (true | false) 'false'
+    editable (true | false) #IMPLIED
+    horizontalScrollPolicy (auto|on|off) #IMPLIED
+    horizontalScrollPosition CDATA #IMPLIED
+    htmlText CDATA #IMPLIED
+    imeMode CDATA #IMPLIED
+    length CDATA #IMPLIED
+    listData CDATA #IMPLIED
+    maxChars CDATA #IMPLIED
+    restrict CDATA #IMPLIED
+    selectionBeginIndex CDATA #IMPLIED
+    selectionEndIndex CDATA #IMPLIED
+    styleSheet CDATA #IMPLIED
+    text CDATA #IMPLIED
+    textHeight CDATA #IMPLIED
+    textWidth CDATA #IMPLIED
+    verticalScrollPolicy (auto|on|off) #IMPLIED
+    verticalScrollPosition CDATA #IMPLIED
+    wordWrap (true | false) #IMPLIED
+    disabledColor CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    change CDATA #IMPLIED
+>
+
+
+<!ENTITY % mx.controls.sliderClasses.Slider "
+    %mx.core.UIComponent;
+    allowThumbOverlap (true | false) 'false'
+    allowTrackClick (true | false) #IMPLIED
+    dataTipFormatFunction CDATA #IMPLIED
+    direction (horizontal|vertical) 'horizontal'
+    labels CDATA #IMPLIED
+    liveDragging (true | false) 'false'
+    maximum CDATA #IMPLIED
+    minimum CDATA #IMPLIED
+    showDataTip (true | false) #IMPLIED
+    sliderDataTipClass CDATA #IMPLIED
+    sliderThumbClass CDATA #IMPLIED
+    snapInterval CDATA #IMPLIED
+    thumbCount CDATA #IMPLIED
+    tickInterval CDATA #IMPLIED
+    tickValues CDATA #IMPLIED
+    value CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    dataTipOffset CDATA #IMPLIED
+    dataTipPrecision CDATA #IMPLIED
+    dataTipStyleName CDATA #IMPLIED
+    fillAlphas CDATA #IMPLIED
+    fillColors CDATA #IMPLIED
+    labelOffset CDATA #IMPLIED
+    labelStyleName CDATA #IMPLIED
+    showTrackHighlight CDATA #IMPLIED
+    slideDuration CDATA #IMPLIED
+    slideEasingFunction CDATA #IMPLIED
+    thumbDisabledSkin CDATA #IMPLIED
+    thumbDownSkin CDATA #IMPLIED
+    thumbOffset CDATA #IMPLIED
+    thumbOverSkin CDATA #IMPLIED
+    thumbUpSkin CDATA #IMPLIED
+    tickColor CDATA #IMPLIED
+    tickLength CDATA #IMPLIED
+    tickOffset CDATA #IMPLIED
+    tickThickness CDATA #IMPLIED
+    trackColors CDATA #IMPLIED
+    tracHighlightSkin CDATA #IMPLIED
+    trackMargin CDATA #IMPLIED
+    trackSkin CDATA #IMPLIED
+    change CDATA #IMPLIED
+    thumbDrag CDATA #IMPLIED
+    thumbPress CDATA #IMPLIED
+    thumbRelease CDATA #IMPLIED
+">
+<!ELEMENT HSlider ANY>
+<!ATTLIST HSlider
+    %mx.core.UIComponent;
+    dataTipPlacement CDATA #IMPLIED
+>
+<!ELEMENT VSlider ANY>
+<!ATTLIST VSlider
+    %mx.core.UIComponent;
+    dataTipPlacement CDATA #IMPLIED
+>
+
+<!ELEMENT Spacer ANY>
+<!ATTLIST Spacer %mx.core.UIComponent;>
+
+<!ENTITY % mx.controls.SWFLoader "
+    %mx.core.UIComponent;
+    autoLoad (true | false) #IMPLIED
+    loaderContext CDATA #IMPLIED
+    maintainAspectRatio (true | false) #IMPLIED
+    scaleContent (true | false) #IMPLIED
+    showBusyCursor (true | false) 'false'
+    source CDATA #IMPLIED
+    trustContent (true | false) 'false'
+    brokenImageBorderSkin CDATA #IMPLIED
+    brokenImageSkin CDATA #IMPLIED
+    horizontalAlign (left|center|right) 'left'
+    verticalAlign (top|bottom|middle) 'top'
+    completeEffect CDATA #IMPLIED
+    complete CDATA #IMPLIED
+    httpStatus CDATA #IMPLIED
+    init CDATA #IMPLIED
+    ioError CDATA #IMPLIED
+    open CDATA #IMPLIED
+    progress CDATA #IMPLIED
+    securityError CDATA #IMPLIED
+    unload CDATA #IMPLIED
+">
+<!ELEMENT SWFLoader ANY>
+<!ATTLIST SWFLoader %mx.controls.SWFLoader;>
+
+<!ELEMENT Image EMPTY>
+<!ATTLIST Image
+    %mx.controls.SWFLoader;
+    dataChange CDATA #IMPLIED
+>
+
+<!ELEMENT TextInput ANY>
+<!ATTLIST TextInput
+    %mx.core.UIComponent;
+    condenseWhite (true | false) 'false'
+    data CDATA #IMPLIED
+    displayAsPassword (true | false) 'false'
+    editable (true | false) #IMPLIED
+    horizontalScrollPosition CDATA #IMPLIED
+    htmlText CDATA #IMPLIED
+    imeMode CDATA #IMPLIED
+    length CDATA #IMPLIED
+    listData CDATA #IMPLIED
+    maxChars CDATA #IMPLIED
+    restrict CDATA #IMPLIED
+    selectionBeginIndex CDATA #IMPLIED
+    selectionEndIndex CDATA #IMPLIED
+    text CDATA #IMPLIED
+    textField CDATA #IMPLIED
+    textHeight CDATA #IMPLIED
+    textWidth CDATA #IMPLIED
+    backgroundAlpha CDATA '1.0'
+    backgroundColor CDATA #IMPLIED
+    backgroundImage CDATA #IMPLIED
+    backgroundSize CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderSides CDATA #IMPLIED
+    borderSkin CDATA #IMPLIED
+    borderStyle CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    color CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    disabledColor CDATA #IMPLIED
+    dropShadowColor CDATA #IMPLIED
+    dropShadowEnabled CDATA #IMPLIED
+    focusAlpha CDATA #IMPLIED
+    focusRoundedCorners CDATA #IMPLIED
+    fontAntiAliasType (advanced|normal) 'normal'
+    fontFamily CDATA #IMPLIED
+    fontGridFitType (pixel|none|subpixel) 'pixel'
+    fontSharpness CDATA #IMPLIED
+    fontSize CDATA #IMPLIED
+    fontStyle (normal|italic) 'normal'
+    fontThickness CDATA #IMPLIED
+    fontWeight (normal|bold) 'normal'
+    paddingLeft CDATA #IMPLIED
+    paddingRight CDATA #IMPLIED
+    shadowDirection CDATA #IMPLIED
+    shadowDistance CDATA #IMPLIED
+    textAlign (left|right|center) 'left'
+    textDecoration (none|underline) 'none'
+    textIndent CDATA #IMPLIED
+    change CDATA #IMPLIED
+    dataChange CDATA #IMPLIED
+    enter CDATA #IMPLIED
+    textInput CDATA #IMPLIED
+>
+
+
+<!ELEMENT VideoDisplay ANY>
+<!ATTLIST VideoDisplay
+    %mx.core.UIComponent;
+    autoBandWidthDetection (true | false) 'false'
+    autoPlay (true | false) #IMPLIED
+    autoRewind (true | false) #IMPLIED
+    bufferTime CDATA #IMPLIED
+    cuePointManagerClass CDATA #IMPLIED
+    cuePoints CDATA #IMPLIED
+    idleTimeout CDATA #IMPLIED
+    live (true | false) 'false'
+    maintainAspectRatio (true | false) #IMPLIED
+    playheadTime CDATA #IMPLIED
+    playheadUpdateInterval CDATA #IMPLIED
+    progressInterval CDATA #IMPLIED
+    source CDATA #IMPLIED
+    totalTime CDATA #IMPLIED
+    volume CDATA #IMPLIED
+    backgroundAlpha CDATA '1.0'
+    backgroundColor CDATA #IMPLIED
+    backgroundImage CDATA #IMPLIED
+    backgroundSize CDATA #IMPLIED
+    borderColor CDATA #IMPLIED
+    borderSides CDATA #IMPLIED
+    borderSkin CDATA #IMPLIED
+    borderStyle CDATA #IMPLIED
+    borderThickness CDATA #IMPLIED
+    cornerRadius CDATA #IMPLIED
+    dropShadowColor CDATA #IMPLIED
+    dropShadowEnabled (true | false) 'false'
+    shadowDirection CDATA #IMPLIED
+    shadowDistance CDATA #IMPLIED
+    close CDATA #IMPLIED
+    complete CDATA #IMPLIED
+    cuePoint CDATA #IMPLIED
+    playheadUpdate CDATA #IMPLIED
+    progress CDATA #IMPLIED
+    ready CDATA #IMPLIED
+    rewind CDATA #IMPLIED
+    stateChange CDATA #IMPLIED
+>
+
+<!ELEMENT VRule ANY>
+<!ATTLIST VRule
+    %mx.core.UIComponent;
+    strokeColor CDATA #IMPLIED
+    shadowColor CDATA #IMPLIED
+    strokeWidth CDATA #IMPLIED
+>
+
+
+<!ELEMENT Binding EMPTY>
+<!ATTLIST Binding
+    source CDATA #IMPLIED
+    destination CDATA #IMPLIED
+>
+
+<!ELEMENT Component ANY>
+<!ATTLIST Component
+    id CDATA #IMPLIED
+    className CDATA #IMPLIED
+>
+
+<!ELEMENT Metadata 'CDATA'>
+
+<!ELEMENT Model (root)>
+<!ATTLIST Model
+    id CDATA #IMPLIED
+    source CDATA #IMPLIED
+>
+
+<!ELEMENT Script 'CDATA'>
+<!ATTLIST Script
+    source CDATA #IMPLIED
+>
+
+<!ELEMENT Style 'CDATA'>
+<!ATTLIST Style
+    source CDATA #IMPLIED
+>
+
+<!ELEMENT XML (root)>
+<!ATTLIST XML
+    id CDATA #IMPLIED
+    format CDATA #IMPLIED
+    source CDATA #IMPLIED
+>
+
+
+<!ELEMENT XMLList ANY>
+<!ATTLIST XMLList
+    id CDATA #IMPLIED
+>
+

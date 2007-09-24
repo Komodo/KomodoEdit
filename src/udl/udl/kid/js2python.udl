@@ -1,0 +1,16 @@
+family csl
+
+state IN_CSL_DSTRING:
+'$$' : #escape, stay
+'${' : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSL_DSTRING) => IN_SSL_DEFAULT
+
+state IN_CSL_SSTRING:
+'$$' : #escape, stay
+'${' : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSL_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSL_DEFAULT:
+'$$' : #escape, stay
+'${' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSL_DEFAULT) => IN_SSL_DEFAULT

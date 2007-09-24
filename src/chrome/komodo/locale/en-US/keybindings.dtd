@@ -1,0 +1,109 @@
+<!ENTITY K.accesskey "K">
+<!ENTITY add.label "Add">
+<!ENTITY change.label "Change">
+<!ENTITY clear.label "Clear">
+<!ENTITY clearAll.label "Clear All">
+<!ENTITY editorViCancel.desc "Editor: Vi: Cancel">
+<!ENTITY editorViCloseTheCurrentBufferWithoutSaving.desc "Editor: Vi: Close the Current Buffer Without Saving">
+<!ENTITY editorViCut.desc "Editor: Vi: Cut">
+<!ENTITY editorViCutLine.desc "Editor: Vi: Cut Line">
+<!ENTITY editorViCutOneCharacter.desc "Editor: Vi: Cut One Character">
+<!ENTITY editorViCutOneCharacterToLeft.desc "Editor: Vi: Cut One Character to Left">
+<!ENTITY editorViCutToEndOfLine.desc "Editor: Vi: Cut to End of Line">
+<!ENTITY editorViCutToEndOfLineAndEnterInsertMode.desc "Editor: Vi: Cut to End of Line and Enter Insert Mode">
+<!ENTITY editorViCutWholeLineAndEnterInsertMode.desc "Editor: Vi: Cut Whole Line and Enter Insert Mode">
+<!ENTITY editorViDeleteTheCurrentCharacterAndEnterInsertMode.desc "Editor: Vi: Delete the Current Character and Enter Insert Mode">
+<!ENTITY editorViDeletesFromCursorToEndOfLine.desc "Editor: Vi: Deletes from cursor to end of line.">
+<!ENTITY editorViEnterCommandMode.desc "Editor: Vi: Enter command mode">
+<!ENTITY editorViEnterInsertMode.desc "Editor: Vi: Enter Insert Mode">
+<!ENTITY editorViEnterInsertModeAfterTheCursorPosition.desc "Editor: Vi: Enter Insert Mode after the Cursor Position">
+<!ENTITY editorViEnterInsertModeAtStartOfTheLine.desc "Editor: Vi: Enter Insert Mode at Start of the Line">
+<!ENTITY editorViEnterInsertModeAtTheEndOfTheCurrentLine.desc "Editor: Vi: Enter Insert mode at the End of the Current Line">
+<!ENTITY editorViEnterVisualBlockMode.desc "Editor: Vi: Enter visual block mode">
+<!ENTITY editorViEnterVisualCharacterMode.desc "Editor: Vi: Enter visual character mode">
+<!ENTITY editorViEnterVisualLineMode.desc "Editor: Vi: Enter visual line mode">
+<!ENTITY editorViGoToEndOfDocument.desc "Editor: Vi: Go to End of Document">
+<!ENTITY editorViGoToNextLine.desc "Editor: Vi: Go to Next Line">
+<!ENTITY editorViGoToPreviousLine.desc "Editor: Vi: Go to Previous Line">
+<!ENTITY editorViGoToTopOfDocument.desc "Editor: Vi: Go to Top of Document">
+<!ENTITY editorViGotoLine.desc "Editor: Vi: Goto Line">
+<!ENTITY editorViInsertNewline.desc "Editor: Vi: Insert Newline">
+<!ENTITY editorViInsertNewlineStartingOnThePreviousLine.desc "Editor: Vi: Insert Newline (starting on the previous line)">
+<!ENTITY editorViJoinCurrentAndNextLines.desc "Editor: Vi: Join current and next lines">
+<!ENTITY editorViMoveLeftOneCharacter.desc "Editor: Vi: Move Left One Character">
+<!ENTITY editorViMoveOnePageDown.desc "Editor: Vi: Move one page down">
+<!ENTITY editorViMoveOnePageUp.desc "Editor: Vi: Move one page up">
+<!ENTITY editorViMoveOneWordLeft.desc "Editor: Vi: Move One Word Left">
+<!ENTITY editorViMoveOneWordLeftPastAnyPunctuation.desc "Editor: Vi: Move one word left, past any punctuation">
+<!ENTITY editorViMoveOneWordRightPastAnyPunctuation.desc "Editor: Vi: Move one word right, past any punctuation">
+<!ENTITY editorViMoveRightOneCharacter.desc "Editor: Vi: Move Right One Character">
+<!ENTITY editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc "Editor: Vi: Move to Beginning of Line (first visible char/first column)">
+<!ENTITY editorViMoveToBeginningOfTheCurrentLine.desc "Editor: Vi: Move to Beginning of the Current Line">
+<!ENTITY editorViMoveToBeginningOfTheNextLine.desc "Editor: Vi: Move to Beginning of the Next Line">
+<!ENTITY editorViMoveToBeginningOfThePreviousLine.desc "Editor: Vi: Move to Beginning of the Previous Line">
+<!ENTITY editorViMoveToEndOfCurrentLine.desc "Editor: Vi: Move to End of Current Line">
+<!ENTITY editorViMoveToEndOfWordToLeft.desc "Editor: Vi: Move To End of Word To Left">
+<!ENTITY editorViMoveToEndOfWordToRight.desc "Editor: Vi: Move To End of Word To Right">
+<!ENTITY editorViMoveToEndOfWordToTheRightPastAnyPunctuation.desc "Editor: Vi: Move to end of word to the right, past any punctuation">
+<!ENTITY editorViMoveToStartOfWordToRight.desc "Editor: Vi: Move To Start of Word To Right">
+<!ENTITY editorViMoveToTheBeginningOfTheParagraph.desc "Editor: Vi: Move to the Beginning of the Paragraph">
+<!ENTITY editorViMoveToTheBeginningOfTheSection.desc "Editor: Vi: Move to the Beginning of the Section">
+<!ENTITY editorViMoveToTheBeginningOfTheSentence.desc "Editor: Vi: Move to the Beginning of the Sentence">
+<!ENTITY editorViMoveToTheBottomOfTheScreen.desc "Editor: Vi: Move to the Bottom of the Screen">
+<!ENTITY editorViMoveToTheCenterOfTheScreen.desc "Editor: Vi: Move to the Center of the Screen">
+<!ENTITY editorViMoveToTheEndOfTheParagraph.desc "Editor: Vi: Move to the End of the Paragraph">
+<!ENTITY editorViMoveToTheEndOfTheSection.desc "Editor: Vi: Move to the End of the Section">
+<!ENTITY editorViMoveToTheEndOfTheSentence.desc "Editor: Vi: Move to the End of the Sentence">
+<!ENTITY editorViMoveToTheTopOfTheScreen.desc "Editor: Vi: Move to the Top of the Screen">
+<!ENTITY editorViNewLineStartingAfterTheCurrentLine.desc "Editor: Vi: New Line Starting After the Current Line">
+<!ENTITY editorViNewLineStartingBeforeTheCurrentLine.desc "Editor: Vi: New Line Starting Before the Current Line">
+<!ENTITY editorViPaste.desc "Editor: Vi: Paste">
+<!ENTITY editorViPasteAfter.desc "Editor: Vi: Paste After">
+<!ENTITY editorViRedo.desc "Editor: Vi: Redo">
+<!ENTITY editorViRepeatTheLastCommandAgain.desc "Editor: Vi: Repeat the last command again">
+<!ENTITY editorViReplaceCharactersWithTheOnesThatAreTyped.desc "Editor: Vi: Replace characters with the ones that are typed">
+<!ENTITY editorViReplaceTheCurrentCharWithTheNextTypedCharacter.desc "Editor: Vi: Replace the current char with the next typed character">
+<!ENTITY editorViSaveAndCloseTheCurrentBuffer.desc "Editor: Vi: Save and Close the Current Buffer">
+<!ENTITY editorViScrollOneLineDown.desc "Editor: Vi: Scroll One Line Down">
+<!ENTITY editorViScrollOneLineUp.desc "Editor: Vi: Scroll One Line Up">
+<!ENTITY editorViSearchForTheNextOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Next Occurance of the Word at the Current Cursor Position">
+<!ENTITY editorViSearchForThePreviousOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Previous Occurance of the Word at the Current Cursor Position">
+<!ENTITY editorViSelectAll.desc "Editor: Vi: Select All">
+<!ENTITY editorViSelectNextCharacter.desc "Editor: Vi: Select Next Character">
+<!ENTITY editorViSelectNextWord.desc "Editor: Vi: Select Next Word">
+<!ENTITY editorViSelectPageDown.desc "Editor: Vi: Select Page Down">
+<!ENTITY editorViSelectPageUp.desc "Editor: Vi: Select Page Up">
+<!ENTITY editorViSelectPreviousCharacter.desc "Editor: Vi: Select Previous Character">
+<!ENTITY editorViSelectPreviousWord.desc "Editor: Vi: Select Previous Word">
+<!ENTITY editorViSelectToBeginningOfLineFirstCharFirstColumn.desc "Editor: Vi: Select to Beginning of Line (first char/first column)">
+<!ENTITY editorViSelectToEndOfDocument.desc "Editor: Vi: Select to End of Document">
+<!ENTITY editorViSelectToEndOfLine.desc "Editor: Vi: Select to End of Line">
+<!ENTITY editorViSelectToNextLine.desc "Editor: Vi: Select to Next Line">
+<!ENTITY editorViSelectToPreviousLine.desc "Editor: Vi: Select to Previous Line">
+<!ENTITY editorViSelectToTopOfDocument.desc "Editor: Vi: Select to Top of Document">
+<!ENTITY editorViSetRegister.desc "Editor: Vi: Set Register">
+<!ENTITY editorViStartChangeTextOperation.desc "Editor: Vi: Start Change Text Operation">
+<!ENTITY editorViStartDedentTextOperation.desc "Editor: Vi: Start Dedent Text Operation">
+<!ENTITY editorViStartDeleteTextOperation.desc "Editor: Vi: Start Delete Text Operation">
+<!ENTITY editorViStartIndentTextOperation.desc "Editor: Vi: Start Indent Text Operation">
+<!ENTITY editorViStartYankTextOperation.desc "Editor: Vi: Start Yank Text Operation">
+<!ENTITY editorViSwapTheCurrentCharacterSCase.desc "Editor: Vi: Swap the current character's case.">
+<!ENTITY editorViUndo.desc "Editor: Vi: Undo">
+<!ENTITY editorViYankLine.desc "Editor: Vi: Yank Line">
+<!ENTITY findViEnterSearchBackwards.desc "Find: Vi: Enter Search Backwards">
+<!ENTITY findViEnterSearchForward.desc "Find: Vi: Enter Search Forward">
+<!ENTITY findViFindNextPattern.desc "Find: Vi: Find Next Pattern">
+<!ENTITY findViFindNextResult.desc "Find: Vi: Find Next Result">
+<!ENTITY findViFindPreviousPattern.desc "Find: Vi: Find Previous Pattern">
+<!ENTITY findViFindTheCharacterTypedAfterCursorInCurrentLine.desc "Find: Vi: Find the Character Typed, After Cursor in Current Line">
+<!ENTITY findViFindTheCharacterTypedAfterCursorInCurrentLineMovesToPositionBeforeTheChar.desc "Find: Vi: Find the Character Typed, After Cursor in Current Line, Moves to Position Before the Char">
+<!ENTITY findViFindTheCharacterTypedBeforeCursorInCurrentLine.desc "Find: Vi: Find the Character Typed, Before Cursor in Current Line">
+<!ENTITY findViFindTheCharacterTypedBeforeCursorInCurrentLineMovesToPositionAfterTheChar.desc "Find: Vi: Find the Character Typed, Before Cursor in Current Line, Moves to Position After the Char">
+<!ENTITY findViRepeatTheLastFindCharacterInLineCommand.desc "Find: Vi: Repeat the last Find Character In Line command">
+<!ENTITY findViRepeatTheLastFindCharacterInLineCommandButReverseTheDirection.desc "Find: Vi: Repeat the last Find Character In Line command, but reverse the direction">
+<!ENTITY normal.label "Normal">
+<!ENTITY ready.label "Ready">
+<!ENTITY sourceCodeViDecreaseLineIndent.desc "Source Code: Vi: Decrease Line Indent">
+<!ENTITY sourceCodeViIncreaseLineIndent.desc "Source Code: Vi: Increase Line Indent">
+<!ENTITY sourceCodeViJumpToMatchingBrace.desc "Source Code: Vi: Jump to Matching Brace">
+<!ENTITY viEmulationMode.tooltiptext "Vi emulation mode">

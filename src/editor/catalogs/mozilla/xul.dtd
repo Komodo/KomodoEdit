@@ -1,0 +1,778 @@
+<!ENTITY % XULElement "
+	align (start | center | end | baseline | stretch | left | right) 'stretch'
+	allowevents (true | false) #IMPLIED
+	allownegativeassertions (true | false) #IMPLIED
+	class CDATA #IMPLIED
+	coalesceduplicatearcs CDATA #IMPLIED
+	collapsed (true | false) 'false'
+	container (true | false) #IMPLIED
+	containment CDATA #IMPLIED
+	context CDATA #IMPLIED
+	contextmenu CDATA #IMPLIED
+	datasources CDATA #IMPLIED
+	debug (true | false) 'false'
+	dir (ltr | rtl) 'ltr'
+	empty (true | false) #IMPLIED
+	equalsize (always | never) 'never'
+	flags (dont-test-empty) #IMPLIED
+	flex CDATA #IMPLIED
+	height CDATA #IMPLIED
+	hidden (true | false) 'false'
+	id ID #IMPLIED
+	insertafter CDATA #IMPLIED
+	insertbefore CDATA #IMPLIED
+	left CDATA #IMPLIED
+	maxheight CDATA #IMPLIED
+	maxwidth CDATA #IMPLIED
+	menu CDATA #IMPLIED
+	minheight CDATA #IMPLIED
+	minwidth CDATA #IMPLIED
+	mousethrough (always | never) 'never'
+	observes CDATA #IMPLIED
+	ordinal CDATA #IMPLIED
+	orient (horizontal | vertical) #IMPLIED
+	pack (start | center | end) 'start'
+	persist NMTOKENS #IMPLIED
+	popup CDATA #IMPLIED
+	position CDATA #IMPLIED
+	preference-editable (true | false) #IMPLIED
+	ref CDATA #IMPLIED
+	removeelement CDATA #IMPLIED
+	sortDirection (ascending | descending | natural) 'natural'
+	sortResource CDATA #IMPLIED
+	sortResource2 CDATA #IMPLIED
+	statustext CDATA #IMPLIED
+	style CDATA #IMPLIED
+	template CDATA #IMPLIED
+	tooltip CDATA #IMPLIED
+	tooltiptext CDATA #IMPLIED
+	top CDATA #IMPLIED
+	uri CDATA #IMPLIED
+	wait-cursor (true | false) #IMPLIED
+	width CDATA #IMPLIED
+        
+	onblur CDATA #IMPLIED
+	onbroadcast CDATA #IMPLIED
+	onclick CDATA #IMPLIED
+	onclose CDATA #IMPLIED
+	oncommand CDATA #IMPLIED
+	oncommandupdate CDATA #IMPLIED
+	oncontextmenu CDATA #IMPLIED
+	ondblclick CDATA #IMPLIED
+	ondragdrop CDATA #IMPLIED
+	ondragenter CDATA #IMPLIED
+	ondragexit CDATA #IMPLIED
+	ondraggesture  CDATA #IMPLIED
+	ondragover CDATA #IMPLIED
+	onfocus CDATA #IMPLIED
+	oninput CDATA #IMPLIED
+	onkeydown CDATA #IMPLIED
+	onkeypress CDATA #IMPLIED
+	onkeyup CDATA #IMPLIED
+	onload CDATA #IMPLIED
+	onmousedown CDATA #IMPLIED
+	onmousemove CDATA #IMPLIED
+	onmouseout CDATA #IMPLIED
+	onmouseup CDATA #IMPLIED
+	onoverflow CDATA #IMPLIED
+	onoverflowchanged CDATA #IMPLIED
+	onpopuphidden CDATA #IMPLIED
+	onpopuphiding CDATA #IMPLIED
+	onpopupshowing CDATA #IMPLIED
+	onpopupshown CDATA #IMPLIED
+	onunderflow CDATA #IMPLIED
+	onunload CDATA #IMPLIED
+">
+<!ENTITY % allwidgets "arrowscrollbox | box | bbox | button | browser |
+                       checkbox | colorpicker | deck | description | editor |
+                       grid | groupbox | hbox | html | iframe | image | keyset |
+                       label | menu | menubar | menulist | menupopup |
+                       popup | popupset | progressmeter | radio |
+                       radiogroup | scrollbox | separator | spacer | splitter |
+                       stack | statusbar | stringbundleset | tabbox | tabpanel |
+                       textbox | toolbar | toolbox | tree | vbox | listbox |
+                       listitem | toolbarset | toolbarpalette">
+<!ELEMENT action (treerow)>
+<!ELEMENT arrowscrollbox (autorepeatbutton)>
+<!ATTLIST arrowscrollbox
+	%XULElement; 
+	autostretch (never | always) "always"
+	crop (left | right | center | none) "none"
+>
+<!ELEMENT bbox (%allwidgets;)*>
+<!ATTLIST bbox
+	%XULElement; 
+>
+<!ELEMENT binding EMPTY>
+<!ATTLIST binding
+	subject CDATA #REQUIRED
+	predicate CDATA #REQUIRED
+	object CDATA #REQUIRED
+>
+<!ELEMENT bindings (binding+)>
+<!ELEMENT broadcaster EMPTY>
+<!ATTLIST broadcaster
+	%XULElement; 
+>
+<!ELEMENT broadcasterset (broadcasterset|broadcaster)*>
+<!ATTLIST broadcasterset
+	%XULElement; 
+>
+<!ELEMENT box (%allwidgets;)*>
+<!ATTLIST box
+	%XULElement; 
+>
+<!ELEMENT browser EMPTY>
+<!ATTLIST browser
+	%XULElement; 
+	type CDATA #IMPLIED
+	src CDATA #IMPLIED
+>
+<!ELEMENT button EMPTY>
+<!ATTLIST button
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	autoCheck CDATA #IMPLIED
+	checkState CDATA #IMPLIED
+	checked CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	dlgType (accept | cance | help | disclosure) #IMPLIED
+	group CDATA #IMPLIED
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	open CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	type (checkbox | menu | menu-button | radio) #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT caption EMPTY>
+<!ATTLIST caption
+	%XULElement; 
+	label CDATA #IMPLIED
+>
+<!ELEMENT checkbox EMPTY>
+<!ATTLIST checkbox
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	checked CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) #IMPLIED
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT colorpicker EMPTY>
+<!ATTLIST colorpicker
+	%XULElement; 
+	color CDATA #IMPLIED
+	type CDATA #IMPLIED
+>
+<!ELEMENT column EMPTY>
+<!ATTLIST column
+	%XULElement; 
+>
+<!ELEMENT columns (column+)>
+<!ATTLIST columns
+	%XULElement; 
+>
+<!ELEMENT command EMPTY>
+<!ATTLIST command
+	%XULElement; 
+	disabled (true | false) "true"
+	label CDATA #IMPLIED
+>
+<!ELEMENT commandset (command|commandset)*>
+<!ATTLIST commandset
+        id ID #IMPLIED
+	commandupdater CDATA #IMPLIED
+	oncommandupdate CDATA #IMPLIED
+	events CDATA #IMPLIED
+>
+<!ELEMENT conditions (content, member, treerow, triple)>
+<!ELEMENT content EMPTY>
+<!ATTLIST content
+	tag CDATA #IMPLIED
+	uri CDATA #IMPLIED
+>
+<!ELEMENT deck (%allwidgets;)*>
+<!ATTLIST deck
+	%XULElement; 
+	selectedIndex CDATA #IMPLIED
+>
+<!ELEMENT description EMPTY>
+<!ATTLIST description
+	%XULElement; 
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	value CDATA #IMPLIED
+>
+<!ELEMENT dialog (%allwidgets;|script|commandset|broadcasterset|tooltip)*>
+<!ATTLIST dialog
+	%XULElement; 
+	buttonalign CDATA #IMPLIED
+	buttondir (rtl | ltr) "ltr"
+	buttonorient (horizontal | vertical) "horizontal"
+	buttonpack CDATA #IMPLIED
+	buttons (accept | cancel | help | disclosure) "accept"
+	ondialogaccept CDATA #IMPLIED
+	ondialogcancel CDATA #IMPLIED
+	ondialogdisclosure CDATA #IMPLIED
+	ondialoghelp CDATA #IMPLIED
+	title CDATA #IMPLIED
+>
+<!ELEMENT editor EMPTY>
+<!ATTLIST editor
+	%XULElement; 
+>
+<!ELEMENT grid (columns, rows)>
+<!ATTLIST grid
+	%XULElement; 
+>
+<!ELEMENT grippy EMPTY>
+<!ATTLIST grippy
+	%XULElement; 
+>
+<!ELEMENT groupbox (caption, (%allwidgets;)*)>
+<!ATTLIST groupbox
+	%XULElement; 
+>
+<!ELEMENT hbox (%allwidgets;)*>
+<!ATTLIST hbox
+	%XULElement; 
+>
+<!ELEMENT iframe EMPTY>
+<!ATTLIST iframe
+	%XULElement; 
+	src CDATA #IMPLIED
+>
+<!ELEMENT image EMPTY>
+<!ATTLIST image
+	%XULElement; 
+	onerror CDATA #IMPLIED
+	src CDATA #REQUIRED
+	validate (always | never) #IMPLIED
+>
+<!ELEMENT key EMPTY>
+<!ATTLIST key
+	%XULElement; 
+	cancel (true | false) #IMPLIED
+	charcode CDATA #IMPLIED
+	disabled (true | false) #IMPLIED
+	key CDATA #IMPLIED
+	keycode CDATA #IMPLIED
+	modifiers (shift | alt | meta | control | accel) #IMPLIED
+>
+<!ELEMENT keyset (key)*>
+<!ATTLIST keyset
+	%XULElement; 
+>
+<!ELEMENT label EMPTY>
+<!ATTLIST label
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	control CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	value CDATA #IMPLIED
+>
+<!ELEMENT listbox (listhead?,listcols?,listitem*)>
+<!ATTLIST listbox
+	%XULElement; 
+	rows CDATA #IMPLIED
+	seltype (single | multiple) "multiple"
+	suppressonselect (true | false) "false"
+>
+<!ELEMENT listcell ANY>
+<!ATTLIST listcell
+	%XULElement; 
+	crop (start | end | center | none | left | right) "none"
+	label CDATA #IMPLIED
+	type CDATA #IMPLIED
+>
+<!ELEMENT listcols (listcol?)>
+<!ELEMENT listcol ANY>
+<!ATTLIST listcol
+	%XULElement; 
+>
+<!ELEMENT listhead (listheader?)>
+<!ATTLIST listhead
+	%XULElement; 
+>
+<!ELEMENT listheader EMPTY>
+<!ATTLIST listheader
+	%XULElement; 
+>
+<!ELEMENT listitem (listcell*)>
+<!ATTLIST listitem
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	checked CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	current CDATA #IMPLIED
+	disabled (true | false) #IMPLIED
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	value CDATA #IMPLIED	
+>
+<!ELEMENT member EMPTY>
+<!ATTLIST member
+	%XULElement; 
+	child CDATA #REQUIRED
+>
+<!ELEMENT menu (menupopup)*>
+<!ATTLIST menu
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+>
+<!ELEMENT menubar (menu)+>
+<!ATTLIST menubar
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	grippyhidden (true | false) "false"
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT menuitem EMPTY>
+<!ATTLIST menuitem
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	checked (true | false) #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) #IMPLIED
+	disabled (true | false) #IMPLIED
+	image CDATA #IMPLIED
+	key CDATA #IMPLIED
+	label CDATA #IMPLIED
+	modifiers (shift | alt | meta | control | accel) #IMPLIED
+	name CDATA #IMPLIED
+	selected CDATA #IMPLIED
+	type (checkbox | radio) #IMPLIED
+	validate (always | never) #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT menulist (menupopup)>
+<!ATTLIST menulist
+	%XULElement; 
+	editable (true | false) #IMPLIED
+>
+<!ELEMENT menupopup (menu|menuitem|menuseparator)*>
+<!ATTLIST menupopup
+	%XULElement; 
+>
+<!ELEMENT menuseparator EMPTY>
+<!ATTLIST menuseparator
+	%XULElement; 
+>
+<!ELEMENT observes EMPTY>
+<!ATTLIST observes
+	%XULElement; 
+	attribute CDATA #IMPLIED
+	element CDATA #IMPLIED
+>
+<!ELEMENT overlay (%allwidgets;|script|commandset|broadcasterset|tooltip)*>
+<!ATTLIST overlay
+	%XULElement; 
+	xmlns CDATA #FIXED "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html CDATA #FIXED "http://www.w3.org/1999/xhtml"
+	xmlns:rdf CDATA #FIXED "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<!ELEMENT page (%allwidgets;)*>
+<!ATTLIST page
+	%XULElement; 
+>
+<!ELEMENT popup (%allwidgets;)*>
+<!ATTLIST popup
+	%XULElement; 
+>
+<!ELEMENT popupset (popup*)>
+<!ATTLIST popupset
+	%XULElement; 
+>
+<!ELEMENT preference EMPTY>
+<!ATTLIST preference
+	%XULElement; 
+	disabled CDATA #IMPLIED
+	instantApply CDATA #IMPLIED
+	inverted CDATA #IMPLIED
+	name CDATA #IMPLIED
+	onchange CDATA #IMPLIED
+	readonly CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	type CDATA #IMPLIED
+>
+<!ELEMENT preferences (preference)+>
+<!ATTLIST preferences
+	%XULElement; 
+>
+<!ELEMENT prefpane (preferences)+>
+<!ATTLIST prefpane
+	%XULElement; 
+	helpURI CDATA #IMPLIED
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	onpaneload CDATA #IMPLIED
+	selected CDATA #IMPLIED
+	src CDATA #IMPLIED
+>
+<!ELEMENT prefwindow (prefpane|%allwidgets;|script|commandset|broadcasterset|tooltip)+>
+<!ATTLIST prefwindow
+	%XULElement; 
+>
+<!ELEMENT progressmeter EMPTY>
+<!ATTLIST progressmeter
+	mode (determined | undetermined) "determined"
+	value CDATA #IMPLIED
+ >
+<!ELEMENT radio EMPTY>
+<!ATTLIST radio
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	checked (true | false) #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) #IMPLIED
+	disabled (true | false) #IMPLIED
+	focused (true | false) #IMPLIED
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	selected CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT radiogroup (caption, radio*)>
+<!ATTLIST radiogroup
+	%XULElement; 
+	disabled (true | false) #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT resizer EMPTY>
+<!ATTLIST resizer
+	%XULElement; 
+	resizerdirection (topleft | top | topright | left | right | bottomleft | bottom | bottomright) #IMPLIED
+>
+<!ELEMENT richlistbox  (listhead?,listcols?,richlistitem*)>
+<!ATTLIST richlistbox
+	%XULElement; 
+	suppressonselect CDATA #IMPLIED
+>
+<!ELEMENT richlistitem ANY>
+<!ATTLIST richlistitem
+	%XULElement; 
+	disabled CDATA #IMPLIED
+	selected CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT resourcebundle EMPTY>
+<!ATTLIST resourcebundle
+	%XULElement; 
+>
+<!ELEMENT row (%allwidgets;)*>
+<!ATTLIST row
+	%XULElement; 
+>
+<!ELEMENT rows (row+)>
+<!ATTLIST rows
+	%XULElement; 
+>
+<!ELEMENT rule (conditions, action, bindings?)>
+<!ATTLIST rule
+	%XULElement; 
+	iscontainer (true | false) #IMPLIED
+	isempty (true | false) #IMPLIED
+	parent CDATA #IMPLIED
+>
+<!ELEMENT script (#PCDATA)>
+<!ATTLIST script
+	%XULElement; 
+	src CDATA #IMPLIED
+	type CDATA #IMPLIED
+>
+<!ELEMENT scrollbar (thumb*)>
+<!ATTLIST scrollbar
+	%XULElement; 
+	curpos CDATA #IMPLIED
+	increment CDATA #IMPLIED
+	maxpos CDATA #IMPLIED
+	pageincrement CDATA #IMPLIED
+>
+<!ELEMENT scrollcorner EMPTY>
+<!ATTLIST scrollcorner
+	%XULElement; 
+>
+<!ELEMENT scrollbox (scrollbar+)>
+<!ATTLIST scrollbox
+	%XULElement; 
+>
+<!ELEMENT separator EMPTY>
+<!ATTLIST separator
+	%XULElement; 
+>
+<!ELEMENT slider (thumb*)>
+<!ATTLIST slider
+	%XULElement; 
+	curpos CDATA #IMPLIED
+	increment CDATA #IMPLIED
+	maxpos CDATA #IMPLIED
+	pageincrement CDATA #IMPLIED
+>
+<!ELEMENT spacer EMPTY>
+<!ATTLIST spacer
+	%XULElement; 
+>
+<!ELEMENT splitter (grippy)*>
+<!ATTLIST splitter
+	%XULElement; 
+	collapse (none | before | after) "none"
+	resizeafter (closest | farthest | grow) "closest"
+	resizebefore (closest | farthest) "closest"
+>
+<!ELEMENT stack EMPTY>
+<!ATTLIST stack
+	%XULElement; 
+>
+<!ELEMENT statusbar (statusbarpanel*)>
+<!ATTLIST statusbar
+	%XULElement; 
+>
+<!ELEMENT statusbarpanel EMPTY>
+<!ATTLIST statusbarpanel
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	type CDATA #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT stringbundle EMPTY>
+<!ATTLIST stringbundle
+	%XULElement; 
+	src CDATA #REQUIRED
+>
+<!ELEMENT stringbundleset (stringbundle*)>
+<!ATTLIST stringbundleset
+	id ID #IMPLIED
+>
+<!ELEMENT tab EMPTY>
+<!ATTLIST tab
+	%XULElement; 
+	afterselected (true | false) #IMPLIED
+	beforeselected (true | false) #IMPLIED
+	label CDATA #REQUIRED
+	selected CDATA #IMPLIED
+>
+<!ELEMENT tabbrowser EMPTY>
+<!ATTLIST tabbrowser
+	%XULElement; 
+	contextcontextmenu CDATA #IMPLIED
+	contenttooltip CDATA #IMPLIED
+>
+<!ELEMENT tabbox (tabs|tabpanels)*>
+<!ATTLIST tabbox
+	%XULElement; 
+>
+<!ELEMENT tabpanel (%allwidgets;)*>
+<!ATTLIST tabpanel
+	%XULElement; 
+>
+<!ELEMENT tabpanels (tabpanel+)>
+<!ATTLIST tabpanels
+	%XULElement; 
+	selectedIndex CDATA #IMPLIED
+>
+<!ELEMENT tabs (tab+)>
+<!ATTLIST tabs
+	%XULElement; 
+>
+<!ELEMENT template (rule)>
+<!ELEMENT textbox EMPTY>
+<!ATTLIST textbox
+	%XULElement; 
+	disabled (true | false) #IMPLIED
+	focused (true | false) #IMPLIED
+	maxlength CDATA #IMPLIED
+	multiline (true | false) #IMPLIED
+	readonly (true | false) #IMPLIED
+	size CDATA #IMPLIED
+	type (password | autocomplete | text) #IMPLIED
+	value CDATA #IMPLIED
+	wrap (true | false) #IMPLIED
+>
+<!ELEMENT textnode EMPTY>
+<!ATTLIST textnode
+	%XULElement;
+	value CDATA #IMPLIED
+>
+<!ELEMENT titlebar EMPTY>
+<!ATTLIST titlebar
+	%XULElement; 
+>
+<!ELEMENT toolbar (toolbargrippy|toolbaritem|toolbarbutton|toolbarseparator|toolbarspacer|toolbarspring)*>
+<!ATTLIST toolbar
+	%XULElement; 
+	grippyhidden (true | false) "false"
+>
+<!ELEMENT toolbarbutton EMPTY>
+<!ATTLIST toolbarbutton
+	%XULElement; 
+	accesskey CDATA #IMPLIED
+	command CDATA #IMPLIED
+	crop (start | end | center | none | left | right) "none"
+	disabled (true | false) "true"
+	image CDATA #IMPLIED
+	label CDATA #IMPLIED
+	tabindex CDATA #IMPLIED
+	type CDATA #IMPLIED
+	validate (always | never) #IMPLIED
+	value CDATA #IMPLIED
+>
+<!ELEMENT toolbaritem ANY>
+<!ATTLIST toolbaritem
+	%XULElement; 
+>
+<!ELEMENT toolbargrippy EMPTY>
+<!ATTLIST toolbargrippy
+	%XULElement; 
+>
+<!ELEMENT toolbarpalette (toolbaritem | toolbarbutton)*>
+<!ATTLIST toolbarpalette
+	%XULElement; 
+>
+<!ELEMENT toolbarseparator EMPTY>
+<!ATTLIST toolbarseparator
+	%XULElement; 
+	crop (start | end | center | none | left | right) "none"
+	label CDATA #IMPLIED
+>
+<!ELEMENT toolbarspacer EMPTY>
+<!ATTLIST toolbarspacer
+	%XULElement; 
+>
+<!ELEMENT toolbarspring EMPTY>
+<!ATTLIST toolbarspring
+	%XULElement; 
+>
+<!ELEMENT toolbarset (toolbar)*>
+<!ATTLIST toolbarset
+	%XULElement; 
+>
+<!ELEMENT toolbox (toolbar*)>
+<!ATTLIST toolbox
+	%XULElement; 
+>
+<!ELEMENT tooltip ANY>
+<!ATTLIST tooltip
+	%XULElement; 
+	default (true | false) #IMPLIED
+	label CDATA #IMPLIED
+>
+<!ELEMENT tree (treecols, treechildren)>
+<!ATTLIST tree
+	%XULElement; 
+	enableColumnDrag (true | false) #IMPLIED
+	hideColumnPicker (true | false) #IMPLIED
+	onselect CDATA #IMPLIED
+	selType (single | multiple) #IMPLIED
+>
+<!ELEMENT treecell (%allwidgets;)*>
+<!ATTLIST treecell
+	%XULElement; 
+	label CDATA #IMPLIED
+	properties CDATA #IMPLIED
+>
+<!ELEMENT treechildren (treeitem*)>
+<!ATTLIST treechildren
+	%XULElement; 
+>
+<!ELEMENT treecol EMPTY>
+<!ATTLIST treecol
+	%XULElement; 
+	crop (start | end | center | none | left | right) "none"
+	cycler (true | false) #IMPLIED
+	fixed (true | false) #IMPLIED
+	label CDATA #IMPLIED
+	primary (true | false) #IMPLIED
+	sort CDATA #IMPLIED
+	sortActive (true | false) #IMPLIED
+>
+<!ELEMENT treecols (treecol|splitter)*>
+<!ATTLIST treecols
+	%XULElement; 
+>
+<!ELEMENT treeitem (treerow+)>
+<!ATTLIST treeitem
+	%XULElement; 
+	open (true | false) #IMPLIED
+>
+<!ELEMENT treerow (treecell+)>
+<!ATTLIST treerow
+	%XULElement; 
+	properties CDATA #IMPLIED
+>
+<!ELEMENT treeseparator EMPTY>
+<!ATTLIST treeseparator
+	%XULElement; 
+>
+<!ELEMENT triple EMPTY>
+<!ATTLIST triple
+	%XULElement; 
+	subject CDATA #REQUIRED
+	predicate CDATA #REQUIRED
+	object CDATA #REQUIRED
+>
+<!ELEMENT vbox (%allwidgets;)*>
+<!ATTLIST vbox
+	%XULElement; 
+>
+<!ELEMENT window (%allwidgets;|script|commandset|broadcasterset|tooltip)*>
+<!ATTLIST window
+	%XULElement; 
+	screenX CDATA #IMPLIED
+	screenY CDATA #IMPLIED
+	sizemode (maximized | minimized | normal) "normal"
+	title CDATA #IMPLIED
+	windowtype CDATA #IMPLIED
+	xmlns CDATA #FIXED "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html CDATA #FIXED "http://www.w3.org/1999/xhtml"
+	xmlns:rdf CDATA #FIXED "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<!ELEMENT wizard (wizardpage|script|commandset|broadcasterset|tooltip)+>
+<!ATTLIST wizard
+	%XULElement; 
+	onwizardback CDATA #IMPLIED
+	onwizardnext CDATA #IMPLIED
+	onwizardaccept CDATA #IMPLIED
+	onwizardcancel CDATA #IMPLIED
+	onwizardfinish CDATA #IMPLIED
+	onwizardhelp CDATA #IMPLIED
+	title CDATA #IMPLIED
+>
+<!ELEMENT wizardpage (%allwidgets;)*>
+<!ATTLIST wizardpage
+	%XULElement; 
+	description CDATA #IMPLIED
+	label CDATA #IMPLIED
+	next CDATA #IMPLIED
+	onpageadvanced CDATA #IMPLIED
+	onpagerewound CDATA #IMPLIED
+	onpagehide CDATA #IMPLIED
+	onpageshow CDATA #IMPLIED
+	pageid CDATA #IMPLIED
+>

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-xul" display="xul:box"
+    extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <content>
+        <xul:iframe flex="1"/>
+    </content>
+    <implementation name="viewxul" implements="koIXULView">
+        <property name="iframe" readonly="true"
+            onget="return document.getAnonymousNodes(this)[0];"/>
+
+        <method name="initWithDocument">
+        <parameter name="doc"/>
+        <body>
+        <![CDATA[
+            this.document = doc;
+            // XXX quick hack
+            this.iframe.setAttribute('src',doc.file.URI);
+            this.parentView.updateLeafName(this);
+            try {
+                this.__observersvc.notifyObservers(this, 'current_view_changed', '');
+            } catch (e) {
+                // nobody home
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="getState">
+        <body>
+        <![CDATA[
+            if (this.document.isUntitled) { return null; }
+            var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            myState.setStringPref('viewtype', 'xul');
+            myState.setStringPref('URI', this.document.file.URI);
+            return myState;
+        ]]>
+        </body>
+        </method>
+    </implementation>
+</binding>
+
+</bindings>
+

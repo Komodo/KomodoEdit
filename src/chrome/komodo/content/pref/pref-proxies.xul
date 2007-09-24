@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<prefwindow id="ConnectionsDialog"
+            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            title="&connectionsDialog.title;"
+            dlgbuttons="accept,cancel,help"
+            onbeforeaccept="return gConnectionsDialog.beforeAccept();">
+
+  <prefpane id="ConnectionsDialogPane"
+            helpTopic="prefs-connection-settings" helpURI="chrome://komododoc/locale/komodohelp.rdf">
+
+    <preferences>
+      <preference id="network.proxy.type"         name="network.proxy.type"         type="int" onchange="gConnectionsDialog.proxyTypeChanged();"/>
+      <preference id="network.proxy.http"         name="network.proxy.http"         type="string"/>
+      <preference id="network.proxy.http_port"    name="network.proxy.http_port"    type="int"/>
+      <preference id="network.proxy.ftp"          name="network.proxy.ftp"          type="string"/>
+      <preference id="network.proxy.ftp_port"     name="network.proxy.ftp_port"     type="int"/>
+      <preference id="network.proxy.ssl"          name="network.proxy.ssl"          type="string"/>
+      <preference id="network.proxy.ssl_port"     name="network.proxy.ssl_port"     type="int"/>
+      <preference id="network.proxy.socks"        name="network.proxy.socks"        type="string"/>
+      <preference id="network.proxy.socks_port"   name="network.proxy.socks_port"   type="int"/>
+      <preference id="network.proxy.gopher"       name="network.proxy.gopher"       type="string"/>
+      <preference id="network.proxy.gopher_port"  name="network.proxy.gopher_port"  type="int"/>
+      <preference id="network.proxy.socks_version"  name="network.proxy.socks_version"  type="int"/>
+      <preference id="network.proxy.no_proxies_on"  name="network.proxy.no_proxies_on"  type="string"/>
+      <preference id="network.proxy.autoconfig_url" name="network.proxy.autoconfig_url" type="string"/>
+      <preference id="network.proxy.share_proxy_settings"
+                  name="network.proxy.share_proxy_settings"
+                  type="bool"/>
+      
+      <preference id="pref.advanced.proxies.disable_button.reload"
+                  name="pref.advanced.proxies.disable_button.reload"
+                  type="bool"/>
+
+      <preference id="network.proxy.backup.ftp"          name="network.proxy.backup.ftp"          type="string"/>
+      <preference id="network.proxy.backup.ftp_port"     name="network.proxy.backup.ftp_port"     type="int"/>
+      <preference id="network.proxy.backup.ssl"          name="network.proxy.backup.ssl"          type="string"/>
+      <preference id="network.proxy.backup.ssl_port"     name="network.proxy.backup.ssl_port"     type="int"/>
+      <preference id="network.proxy.backup.socks"        name="network.proxy.backup.socks"        type="string"/>
+      <preference id="network.proxy.backup.socks_port"   name="network.proxy.backup.socks_port"   type="int"/>
+      <preference id="network.proxy.backup.gopher"       name="network.proxy.backup.gopher"       type="string"/>
+      <preference id="network.proxy.backup.gopher_port"  name="network.proxy.backup.gopher_port"  type="int"/>
+    </preferences>
+
+    <script type="application/x-javascript" src="chrome://komodo/content/pref/pref-proxies.js"/>
+
+    <groupbox>
+      <caption label="&proxyTitle.label;"/>
+
+      <radiogroup id="networkProxyType" preference="network.proxy.type"
+                  onsyncfrompreference="return gConnectionsDialog.readProxyType();">
+        <radio value="0" label="&directTypeRadio.label;" accesskey="&directTypeRadio.accesskey;"/>
+        <radio value="4" label="&WPADTypeRadio.label;" accesskey="&WPADTypeRadio.accesskey;"/>
+        <radio value="1" label="&manualTypeRadio.label;" accesskey="&manualTypeRadio.accesskey;"/>
+        <grid class="indent" flex="1">
+          <columns>
+            <column/>
+            <column flex="1"/>
+          </columns>
+          <rows>
+            <row align="center">
+              <hbox pack="end">
+                <label value="&http.label;" accesskey="&http.accesskey;" control="networkProxyHTTP"/>
+              </hbox>
+              <hbox align="center">
+                <textbox id="networkProxyHTTP" flex="1"
+                         preference="network.proxy.http" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyServer();"/>
+                <label value="&port.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
+                <textbox id="networkProxyHTTP_Port" size="5"
+                         preference="network.proxy.http_port" onsyncfrompreference="return gConnectionsDialog.readHTTPProxyPort();"/>
+              </hbox>
+            </row>
+            <row>
+              <hbox/>
+              <hbox>
+                <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
+                          preference="network.proxy.share_proxy_settings"
+                          onsyncfrompreference="return gConnectionsDialog.updateProtocolPrefs();"/>
+              </hbox>
+            </row>
+            <row align="center">
+              <hbox pack="end">
+                <label value="&ssl.label;" accesskey="&ssl.accesskey;" control="networkProxySSL"/>
+              </hbox>
+              <hbox align="center">
+                <textbox id="networkProxySSL" flex="1" preference="network.proxy.ssl"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', false);"/>
+                <label value="&port.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
+                <textbox id="networkProxySSL_Port" size="5" preference="network.proxy.ssl_port"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ssl', true);"/>
+              </hbox>
+            </row>
+            <row align="center">
+              <hbox pack="end">
+                <label value="&ftp.label;" accesskey="&ftp.accesskey;" control="networkProxyFTP"/>
+              </hbox>
+              <hbox align="center">
+                <textbox id="networkProxyFTP" flex="1" preference="network.proxy.ftp"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ftp', false);"/>
+                <label value="&port.label;" accesskey="&FTPport.accesskey;" control="networkProxyFTP_Port"/>
+                <textbox id="networkProxyFTP_Port" size="5" preference="network.proxy.ftp_port"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('ftp', true);"/>
+              </hbox>
+            </row>
+            <row align="center">
+              <hbox pack="end">
+                <label value="&gopher.label;" accesskey="&gopher.accesskey;" control="networkProxyGopher"/>
+              </hbox>
+              <hbox align="center">
+                <textbox id="networkProxyGopher" flex="1" preference="network.proxy.gopher"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('gopher', false);"/>
+                <label value="&port.label;" accesskey="&gopherPort.accesskey;" control="networkProxyGopher_Port"/>
+                <textbox id="networkProxyGopher_Port" size="5" preference="network.proxy.gopher_port"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('gopher', true);"/>
+              </hbox>
+            </row>
+            <row align="center">
+              <hbox pack="end">
+                <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>
+              </hbox>
+              <hbox align="center">
+                <textbox id="networkProxySOCKS" flex="1" preference="network.proxy.socks"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', false);"/>
+                <label value="&port.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
+                <textbox id="networkProxySOCKS_Port" size="5" preference="network.proxy.socks_port"
+                         onsyncfrompreference="return gConnectionsDialog.readProxyProtocolPref('socks', true);"/>
+              </hbox>
+            </row>
+            <row>
+              <spacer/>
+              <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
+                          preference="network.proxy.socks_version">
+                <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
+                <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
+              </radiogroup>
+            </row>
+
+            <row align="center"> 
+              <hbox align="center" pack="end">
+                <label value="&noproxy.label;" accesskey="&noproxy.accesskey;" control="networkProxyNone"/>
+              </hbox>
+              <textbox id="networkProxyNone" preference="network.proxy.no_proxies_on"/>
+            </row>
+            <row>
+              <spacer/>
+              <label value="&noproxyExplain.label;" control="networkProxyNone"/>
+            </row>
+          </rows>
+        </grid>
+        <radio value="2" label="&autoTypeRadio.label;" accesskey="&autoTypeRadio.accesskey;"/>
+        <hbox class="indent" flex="1" align="center">
+          <textbox id="networkProxyAutoconfigURL" flex="1" preference="network.proxy.autoconfig_url"/>
+          <button id="autoReload" icon="refresh"
+                  label="&reload.label;" accesskey="&reload.accesskey;"
+                  oncommand="gConnectionsDialog.reloadPAC();" 
+                  preference="pref.advanced.proxies.disable_button.reload"/>
+        </hbox>
+      </radiogroup>
+    </groupbox>
+  </prefpane>
+</prefwindow>
+

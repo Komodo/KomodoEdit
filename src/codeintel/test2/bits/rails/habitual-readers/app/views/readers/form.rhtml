@@ -1,0 +1,21 @@
+<%= error_messages_for :reader %>
+<% my_form_for :reader, @reader, :url => reader_url, :html => { :method => ( @reader.new_record? ? "post" : "put") } do |f| %>
+	<%= f.text_field :username %>
+	<%= f.text_field :fullname %>
+	<%= f.text_area :bio %>
+	<%= f.password_field :password %>
+	<%= submit_tag "Save" %>
+<% end %>
+<% unless @reader.new_record? %>
+<h3>Reader Image</h3>
+<% if @reader_image.filename %>
+  <%= image_tag @reader.reader_image.as_thumb, :class => "reader_picture" %>
+<% else %>
+  <p>You haven't uploaded a reader image yet, use the form below to upload a photo from your PC.</p>
+<% end %>
+<%= error_messages_for :reader_image %>
+<% my_form_for :reader_image, @reader_image, :url => route_for("reader_images", @reader, @reader_image), :html => { :method => ( @reader_image.new_record? ? "post" : "put"), :multipart => true } do |f| %>
+  <%= f.file_field :uploaded_data, :label => "Image" %>
+	<%= submit_tag "Upload" %>
+<% end %>
+<% end %>

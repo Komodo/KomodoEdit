@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2005-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Applet for testing a simple JS client that connects to a remote echo server -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<window id="komodo_jsd_driver02"
+        title="JSDebugger Driver Test #2"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_test"
+        class="kodialog"
+        width="600"
+        height="400"
+        persist="screenX screenY width height"
+        onload="jsdriver_OnLoad()"
+        onunload="jsdriver_OnUnLoad"
+        flex="1"
+        >
+  <script src="chrome://komodo/content/library/logging.js"
+            type="application/x-javascript;version=1.7" />
+  <script src="chrome://komodo/content/library/trace.js"
+            type="application/x-javascript;version=1.7" />
+  <script src="chrome://komodo/content/library/timers.js"
+            type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/stringutils.js"
+            type="application/x-javascript;version=1.7" />
+  <script src="chrome://komodo/content/library/color_functions.js"
+            type="application/x-javascript;version=1.7" />
+  <script src="chrome://komodo/content/library/commands.js"
+            type="application/x-javascript;version=1.7"/>
+  <script src="chrome://komodo/content/library/open.js"
+            type="application/x-javascript;version=1.7"/>
+  <script src="chrome://komodo/content/markers.js"
+            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/test/jsdb/utils.js"
+	    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/test/jsdb/jsd_driver02.js"
+	    type="application/x-javascript;version=1.7"/>
+    
+  <vbox flex="1">
+    <label value="Output Window (not used yet)" />
+    <textbox id="jsdriver_output" flex="1"
+		 multiline="true"
+		 minheight="12"
+		 readonly="true"
+		 >
+    </textbox>
+    <label value="Command Window (&quot;/help&quot; for help)" />
+    <hbox>
+      <textbox id="jsdriver_command" flex="1"
+		 multiline="false"
+		 maxheight="1"
+		 >
+      </textbox>
+      <button id="jsdriver_send"
+		  label="Send"
+		  oncommand="jsdriver_send();"
+		  />
+    </hbox>
+
+    <hbox>
+      <button id="jsdriver_start"
+		  label="Start"
+		  oncommand="jsdriver_start();"
+		  />
+      <button id="jsdriver_stop"
+		  label="Stop"
+		  oncommand="jsdriver_stop();"
+		  />
+    </hbox>
+  </vbox>
+</window>

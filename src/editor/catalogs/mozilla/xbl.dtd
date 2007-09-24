@@ -1,0 +1,133 @@
+<!ENTITY % bindings-content "(binding|script|stylesheet)*">
+<!ELEMENT bindings %bindings-content;>
+<!ATTLIST bindings
+   id               ID           #IMPLIED
+   class            CDATA        #IMPLIED
+   xmlns CDATA #FIXED "http://www.mozilla.org/xbl"
+   xmlns:xbl CDATA #FIXED "http://www.mozilla.org/xbl"
+   xmlns:xul CDATA #FIXED "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:html CDATA #FIXED "http://www.w3.org/1999/xhtml"
+   xmlns:rdf CDATA #FIXED "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<!ENTITY % binding-content "(resources?,content?,implementation?,handlers?)">
+<!ELEMENT binding %binding-content;>
+<!ATTLIST binding
+   id                     ID             #REQUIRED
+   extends                CDATA          #IMPLIED
+   display                CDATA          #IMPLIED
+   class                  CDATA          #IMPLIED
+>
+<!ENTITY % resources-content "(stylesheet|image)*">
+<!ELEMENT resources %resources-content;>
+<!ATTLIST resources
+   id                  ID           #IMPLIED
+   class               CDATA        #IMPLIED
+>
+<!ELEMENT stylesheet EMPTY>
+<!ATTLIST stylesheet
+   id                  ID           #IMPLIED
+   src                 CDATA        #IMPLIED
+   class               CDATA        #IMPLIED
+>
+<!ELEMENT image EMPTY>
+<!ATTLIST image
+   id                  ID           #IMPLIED
+   src                 CDATA        #IMPLIED
+   class               CDATA        #IMPLIED
+>
+<!ELEMENT content ANY>
+<!ATTLIST content
+   id                  ID           #IMPLIED
+   class               CDATA        #IMPLIED
+>
+<!ELEMENT children ANY>
+<!ATTLIST children
+   id                 ID                           #IMPLIED
+   includes           CDATA                        #IMPLIED
+   class              CDATA                        #IMPLIED
+>
+<!ENTITY % implementation-content "(constructor|destructor|field|property|method)*">
+<!ELEMENT implementation %implementation-content;>
+<!ATTLIST implementation
+   id               ID           #IMPLIED
+   class            CDATA        #IMPLIED
+   implements       CDATA        #IMPLIED
+>
+<!ENTITY % method-content "(parameter*,body?)">
+<!ELEMENT method %method-content;>
+<!ATTLIST method
+   id               ID           #IMPLIED
+   name             CDATA        #REQUIRED
+   class            CDATA        #IMPLIED
+>
+<!ELEMENT parameter EMPTY>
+<!ATTLIST parameter
+   id               ID           #IMPLIED
+   name             CDATA        #REQUIRED
+   class            CDATA        #IMPLIED
+>
+<!ELEMENT body (#PCDATA|CDATA)*>
+<!ATTLIST body
+   id               ID           #IMPLIED
+   class            CDATA        #IMPLIED
+>
+<!ELEMENT field (#PCDATA|CDATA)*>
+<!ATTLIST field
+   id               ID                  #IMPLIED
+   name             CDATA               #REQUIRED
+   readonly         (true|false)        #IMPLIED
+   class            CDATA               #IMPLIED
+>
+<!ELEMENT property (#PCDATA|getter|setter)*>
+<!ATTLIST property
+   id               ID                  #IMPLIED
+   name             CDATA               #REQUIRED
+   readonly         (true|false)        #IMPLIED
+   onget            CDATA               #IMPLIED
+   onset            CDATA               #IMPLIED
+   class            CDATA               #IMPLIED
+>
+<!ELEMENT getter (#PCDATA)*>
+<!ATTLIST getter
+   id               ID                  #IMPLIED
+   class            CDATA               #IMPLIED
+>
+<!ELEMENT setter (#PCDATA)*>
+<!ATTLIST setter
+   id               ID                  #IMPLIED
+   class            CDATA               #IMPLIED
+>
+<!ELEMENT constructor (#PCDATA|EMPTY)*>
+<!ATTLIST constructor
+   id               ID                  #IMPLIED
+   class            CDATA               #IMPLIED
+   action           CDATA               #IMPLIED
+>
+<!ELEMENT destructor (#PCDATA|EMPTY)*>
+<!ATTLIST destructor
+   id               ID                  #IMPLIED
+   class            CDATA               #IMPLIED
+   action           CDATA               #IMPLIED
+>
+<!ENTITY % handlers-content "(handler)*">
+<!ELEMENT handlers %handlers-content;>
+<!ATTLIST handlers
+   id               ID                  #IMPLIED
+   class            CDATA               #IMPLIED
+>
+<!ELEMENT handler (#PCDATA)>
+<!ATTLIST handler
+   id               ID                                  #IMPLIED
+   event            CDATA                               #REQUIRED
+   action           CDATA                               #IMPLIED
+   phase            (capturing|bubbling|target)         #IMPLIED
+   button           (1|2|3)                             #IMPLIED
+   modifiers        CDATA                               #IMPLIED
+   keycode          CDATA                               #IMPLIED
+   capturing        CDATA                               #IMPLIED
+   charcode         CDATA                               #IMPLIED
+   type             CDATA                               #IMPLIED
+   class            CDATA                               #IMPLIED
+   clickcount       CDATA                               #IMPLIED
+>
+

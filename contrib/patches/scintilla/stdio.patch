@@ -1,0 +1,148 @@
+diff -u -r1.73 LexCPP.cxx
+--- src/LexCPP.cxx	3 Jan 2007 09:39:09 -0000	1.73
++++ src/LexCPP.cxx	23 May 2007 21:07:06 -0000
+@@ -59,6 +63,13 @@
+ 	}
+ };
+ 
++// KOMODO  see if a style is one of our IO styles
++static inline bool IsIOStyle(int style) {
++	return style == SCE_C_STDIN ||
++		style == SCE_C_STDOUT ||
++		style == SCE_C_STDERR;
++}
++
+ static bool IsSpaceEquiv(int state) {
+ 	return (state <= SCE_C_COMMENTDOC) ||
+ 		// including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
+@@ -128,6 +139,8 @@
+ 				// Prevent SCE_C_STRINGEOL from leaking back to previous line which
+ 				// ends with a line continuation by locking in the state upto this position.
+ 				sc.SetState(SCE_C_STRING);
++			} else if (IsIOStyle(sc.state)) {
++				sc.SetState(SCE_C_DEFAULT);
+ 			}
+ 			// Reset states to begining of colourise so no surprises
+ 			// if different sets of lines lexed.
+@@ -159,7 +172,7 @@
+ 				}
+ 				break;
+ 			case SCE_C_IDENTIFIER:
+-				if (!setWord.Contains(sc.ch) || (sc.ch == '.')) {
++				if (!setWord.Contains(sc.ch) || (sc.ch == '.') || (sc.ch == '$')) {
+ 					char s[1000];
+ 					if (caseSensitive) {
+ 						sc.GetCurrent(s, sizeof(s));
+@@ -311,7 +324,7 @@
+ 				} else {
+ 					sc.SetState(SCE_C_NUMBER);
+ 				}
+-			} else if (setWordStart.Contains(sc.ch) || (sc.ch == '@')) {
++			} else if (setWordStart.Contains(sc.ch) || (sc.ch == '@') || (sc.ch == '$')) {
+ 				if (lastWordWasUUID) {
+ 					sc.SetState(SCE_C_UUID);
+ 					lastWordWasUUID = false;
+diff -u -r1.46 src/LexPython.cxx
+--- src/LexPython.cxx	23 Apr 2007 01:19:47 -0000	1.46
++++ src/LexPython.cxx	23 May 2007 21:10:53 -0000
+@@ -20,6 +20,38 @@
+ #include "Scintilla.h"
+ #include "SciLexer.h"
+ 
++// Should be used in the non-komodo-specific code as well.
++
++static int actual_style(int style) {
++	return style & 0x1f; // 31
++}
++
++// KOMODO  see if a style is one of our IO styles
++static inline bool IsIOStyle(int style) {
++	return style == SCE_P_STDIN ||
++		style == SCE_P_STDOUT ||
++		style == SCE_P_STDERR;
++}
++
++// KOMODO -- interactive shell colorizing
++static int prevNonEmptyLineIsStdio(int line,
++				   Accessor &styler) {
++	if (line <= 0) return false;
++	int lineStart = styler.LineStart(line);
++	if (lineStart == 0) return false;
++	// Move to the previous line
++	int pos = lineStart - 1;
++	while (pos > 0) {
++		char ch = styler.SafeGetCharAt(pos);
++		if (ch == '\n' || ch == '\r') {
++			break;
++		}
++	}
++	if (pos == 0) return false;
++	return IsIOStyle(actual_style(styler.StyleAt(pos)));
++}
++
++
+ enum kwType { kwOther, kwClass, kwDef, kwImport };
+ static const int indicatorWhitespace = 1;
+ 
+@@ -99,7 +131,11 @@
+ 	// Backtrack to previous line in case need to fix its tab whinging
+ 	int lineCurrent = styler.GetLine(startPos);
+ 	if (startPos > 0) {
+-		if (lineCurrent > 0) {
++		// KOMODO
++		if (prevNonEmptyLineIsStdio(lineCurrent, styler)) {
++			initStyle = SCE_P_DEFAULT;
++		// Don't do anything else
++		} else if (lineCurrent > 0) {
+ 			lineCurrent--;
+ 			startPos = styler.LineStart(lineCurrent);
+ 			if (startPos == 0)
+@@ -129,7 +165,33 @@
+ 	bool indentGood = true;
+ 	int startIndicator = sc.currentPos;
+ 
++	
++	// KOMODO
++	// reset the style of the first character.  This will either set it to the same
++	// style it already is, or will force it to default and cause colourise to start
++	// fresh at this position.
++	sc.SetState(initStyle);
++	
+ 	for (; sc.More(); sc.Forward()) {
++		
++		// KOMODO
++		// first, if the NEXT style is IO, then skip forward until the NEXT
++		// style IS NOT an IO style.  Then, if the current style is an IO
++		// style, reset it to the default style so colourise works correctly.
++		// this works fine if IO styles end at EOL, but *might* have slight
++		// artifacts if IO styles are mixed in with non IO styles on the same line.
++
++		// Fix bug 58648 by avoiding reading past edge of buffer
++		int nextStyle = (sc.currentPos < endPos - 1
++				 ? styler.StyleAt(sc.currentPos + 1)
++				 : SCE_P_DEFAULT);
++		if (IsIOStyle(nextStyle)) {
++			//leave the style whatever it was
++			sc.SetState(nextStyle);
++			continue;
++		} else if (IsIOStyle(sc.state)) {
++			sc.SetState(SCE_P_DEFAULT);
++		}
+ 
+ 		if (sc.atLineStart) {
+ 			styler.IndentAmount(lineCurrent, &spaceFlags, IsPyComment);
+@@ -291,6 +353,14 @@
+ 			}
+ 		}
+ 	}
++	if (sc.state == SCE_P_IDENTIFIER && sc.currentPos == (unsigned int) styler.Length()) {
++		/* Fix Komodo bug http://bugs.activestate.com/show_bug.cgi?id=44006 */
++		char s[100];
++		sc.GetCurrent(s, sizeof(s));
++		if (keywords.InList(s) || (kwLast == kwImport && strcmp(s, "as") == 0)) {
++			sc.ChangeState(SCE_P_WORD);
++		}
++	}
+ 	styler.IndicatorFill(startIndicator, sc.currentPos, indicatorWhitespace, 0);
+ 	sc.Complete();
+ }

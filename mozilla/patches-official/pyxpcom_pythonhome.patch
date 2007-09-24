@@ -1,0 +1,84 @@
+diff
+
+Patch to pyloader to have it look for and use a siloed Python at ../../python
+relative to the components dir. "Use" means setting PYTHONHOME. This is only
+necessary on Windows and Linux (Mac OS X framework handling is different).
+
+
+Index: C:\trentm\as\Mozilla-devel\build\cvs1.8-ko4.12-moz412b\mozilla\extensions\python\xpcom\src\loader\pyloader.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/loader/pyloader.cpp,v
+retrieving revision 1.19.28.1
+diff -u -r1.19.28.1 pyloader.cpp
+--- extensions/python/xpcom/src/loader/pyloader.cpp	31 Aug 2005 13:18:32 -0000	1.19.28.1
++++ extensions/python/xpcom/src/loader/pyloader.cpp	4 Jun 2007 23:15:09 -0000
+@@ -134,6 +134,58 @@
+ 	}
+ }
+ 
++
++/* Set PYTHONHOME to '../../python' dir relative to the pyloader location
++ * (if it exists).
++ */
++void SetPythonHome(nsIFile* loaderLocation) {
++    nsresult rv;
++
++    /* Look for siloed Python in ../../python relative to the pyloader.so|dll
++     * dir (i.e. the components dir).
++     */
++    nsCOMPtr<nsIFile> componentsDir;
++    rv = loaderLocation->GetParent(getter_AddRefs(componentsDir));
++    if (NS_FAILED(rv)) {
++        LogError("pyloader: Couldn't get pyloader parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsIFile> binDir;
++    rv = componentsDir->GetParent(getter_AddRefs(binDir));
++    if (NS_FAILED(rv)) {
++        LogError("pyloader: Couldn't get components parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsIFile> distDir;
++    rv = binDir->GetParent(getter_AddRefs(distDir));
++    if (NS_FAILED(rv)) {
++        LogError("pyloader: Couldn't get bin parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsILocalFile> pythonHome = do_QueryInterface(distDir);
++    rv = pythonHome->AppendRelativePath(NS_LITERAL_STRING("python"));
++    if (NS_FAILED(rv)) {
++        LogError("pyloader: Couldn't build python home dir!\n");
++        return;
++    }
++
++    PRBool exists;
++    rv = pythonHome->Exists(&exists);
++    if (NS_FAILED(rv) || !exists) return;
++
++    nsCAutoString cstr;
++    pythonHome->GetNativePath(cstr);
++    char *expr = PR_smprintf("PYTHONHOME=%s", cstr.get());
++    if (expr) {
++        LogDebug("pyloader: %s\n", expr);
++        PR_SetEnv(expr);
++    } else {
++        LogError("pyloader: Couldn't set PYTHONHOME!\n");
++    }
++}
++
++
++
+ extern "C" NS_EXPORT nsresult NSGetModule(nsIComponentManager *servMgr,
+                                           nsIFile* location,
+                                           nsIModule** result)
+@@ -145,6 +197,9 @@
+ 	PRBool bDidInitPython = !Py_IsInitialized(); // well, I will next line, anyway :-)
+ 	if (bDidInitPython) {
+ 		NS_TIMELINE_START_TIMER("PyXPCOM: Python initializing");
++#if defined(XP_WIN) || defined(XP_UNIX)
++                SetPythonHome(location);
++#endif
+ 		Py_Initialize();
+ 		if (!Py_IsInitialized()) {
+ 			LogError("Python initialization failed!\n");
+

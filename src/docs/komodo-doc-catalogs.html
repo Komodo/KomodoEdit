@@ -1,0 +1,124 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.-->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>XML Catalogs</title>
+</head>
+
+<body>
+  <h1><a name="xml_catalogs_top" id="xml_catalogs_top">XML
+  Catalogs</a></h1>
+
+  <p>Komodo can add <a href=
+  "komodo-doc-editor.html#XML_AutoComplete">XML autocompletion</a>
+  support for any XML dialect with a DTD or RelaxNG Schema. This is
+  done by mapping external identifier entries to local copies of
+  the DTD or RelaxNG Schema for that document type using <a target=
+  "_blank" href=
+  "http://www.oasis-open.org/committees/entity/spec.html">XML
+  Catalogs</a>.</p>
+
+  <h2><a name="using_xml_catalogs" id="using_xml_catalogs">Using an
+  Existing XML Catalog</a></h2>
+
+  <p>Some toolkits bundle DTDs or RelaxNG Schemas with their own
+  XML catalogs. As long as the relative path from the catalog to
+  the .dtd or .rng file is preserved on the local filesystem, you
+  can add support for the dialect by specifying the catalog file in
+  Preferences under <a href=
+  "komodo-doc-prefs.html#xml_catalogs">SGML/XML Catalogs</a>.</p>
+
+  <h2><a name="creating_xml_catalogs" id=
+  "creating_xml_catalogs">Creating an XML Catalog</a></h2>
+
+  <p>If the DTD or RelaxNG Schema for the dialect does not have a
+  catalog file, you can create one by mapping the external
+  identifiers and URI references in the document's namespace
+  declaration to a local filesystem URI. For example, the
+  <a target="_blank" href=
+  "http://www.xspf.org/specs/"><acronym title=
+  "XML Shareable Playlist Format">XSPF</acronym></a> playlist
+  format uses the following namespace declaration:</p>
+  <pre class="code">
+&lt;playlist version="1" xmlns="http://xspf.org/ns/0/"&gt;
+</pre>
+
+  <p>A simple catalog for this XML dialect would look like
+  this:</p>
+  <pre class="code">
+&lt;?xml version='1.0'?&gt;
+&lt;catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+prefer="public"&gt;
+
+  &lt;uri name="http://xspf.org/ns/0/" uri="xspf-draft8.rng"/&gt;
+
+&lt;/catalog&gt;
+</pre>
+
+  <p>If your documents use the DOCTYPE declaration, you can add
+  support for that in the catalog by using the public and system
+  identifier. For example, <a target="_blank" href=
+  "http://www.mozilla.org/projects/xul/"><acronym title=
+  "XML User Interface Language">XUL</acronym></a> uses DOCTYPE
+  declarations like this one:</p>
+  <pre class="code">
+&lt;!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN"
+"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"&gt;
+</pre>
+
+  <p>Komodo's catalog for XUL uses <code>publicId</code> and
+  <code>systemId</code> in addition to <code>uri</code> for the
+  mapping.</p>
+  <pre class="code">
+&lt;?xml version='1.0'?&gt;
+&lt;catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public"&gt;
+
+    &lt;public publicId="-//MOZILLA//DTD XUL V1.0//EN"
+            uri="xul.dtd"/&gt;
+    &lt;system systemId="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            uri="xul.dtd"/&gt;
+    &lt;uri name="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         uri="xul.dtd"/&gt;
+
+&lt;/catalog&gt;
+</pre>
+
+  <h2><a name="xml_catalog_resources" id=
+  "xml_catalog_resources">XML Catalog Resources</a></h2>
+
+  <p>The XML Catalog specification can be found at:</p>
+
+  <ul>
+    <li><a target="_blank" href=
+    "http://www.oasis-open.org/committees/entity/spec.html">http://www.oasis-open.org/committees/entity/spec.html</a></li>
+  </ul>
+
+  <p>Examples of XML catalog files can be found in the Komodo
+  installation under:</p>
+
+  <ul>
+    <li>
+    <em>&lt;komodo-install-directory&gt;\lib\support\catalogs</em>
+    (Windows)</li>
+
+    <li>
+    <em>/Applications/Komodo.app/Contents/SharedSupport/catalogs/
+    (OS X)</em></li>
+
+    <li>
+    <em>&lt;komodo-install-directory&gt;/lib/support/catalogs</em>
+    (Linux)</li>
+  </ul><!-- Footer Start -->
+  <hr />
+</body>
+</html>

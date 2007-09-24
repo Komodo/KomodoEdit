@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeintel xmlns="urn:activestate:cix:2.0" version="2.0">
+  <file lang="Python" mtime="1169687057" path="raven.py">
+    <scope doc="The Raven" ilk="blob" lang="Python" name="raven">
+      <import line="5" module="figures_of_speech" symbol="rhyme" />
+      <import line="5" module="figures_of_speech" symbol="alliteration" />
+      <import line="6" module="poetry" symbol="Character" />
+      <variable citdl="str" line="3" name="__author__" />
+      <scope classrefs="Character" doc="black, creepy thing" ilk="class" line="8" lineend="14" name="Raven">
+        <variable citdl="str" line="10" name="quoth" />
+        <scope ilk="function" line="11" lineend="14" name="speak" signature="speak(dialog=None)">
+          <variable citdl="Raven" ilk="argument" name="self" />
+          <variable citdl="str" ilk="argument" name="dialog" />
+        </scope>
+      </scope>
+      <scope classrefs="Character" ilk="class" line="16" lineend="20" name="Person">
+        <scope attributes="__ctor__" ilk="function" line="17" lineend="18" name="__init__" signature="Person(name)">
+          <variable citdl="Person" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <variable attributes="__instancevar__" line="18" name="name" />
+        <scope ilk="function" line="19" lineend="20" name="lament" signature="lament()">
+          <variable citdl="Person" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope doc="recite this poem" ilk="function" line="22" lineend="31" name="recite" signature="recite()">
+        <import line="24" module="hi" />
+        <import line="24" module="random" />
+        <variable citdl="Raven" line="25" name="raven" />
+        <variable citdl="Person" line="26" name="lenore" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

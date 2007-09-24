@@ -1,0 +1,54 @@
+# Differences from CIX 0.1
+
+- CIX 0.1: <codeintel version="0.1">
+  CIX 2.0: <codeintel version="2.0">
+
+- CIX 0.1: <file language="FOO">
+  CIX 2.0: <file lang="FOO">
+
+- CIX 2.0: drop 'md5' and 'generator' attributes from <file>
+
+- CIX 0.1: <class attributes="__namespace__ ...">
+  CIX 2.0: <scope ilk="namespace">
+
+- CIX 0.1: <class>
+  CIX 2.0: <scope ilk="class">
+           Ditto for <function> and <interface>
+
+- CIX 0.1: <module>
+  CIX 2.0: <scope ilk="blob">
+
+- CIX 0.1: <something ...>
+             <type type="FOO"/>
+           </something>
+  CIX 2.0: <something citdl="FOO" ... />
+
+- CIX 0.1: <class ...>
+             <classref name="foo"> <type type="FOO"/> </classref>
+             <classref name="bar"> <type type="BAR"/> </classref>
+             <classref name="baz" attributes="__mixin__"> <type type="BAZ"/> </classref>
+           </class>
+  CIX 2.0: <scope ilk="class" classrefs="FOO BAR" mixinrefs="BAZ" ... />
+           Note that the *type-inference* is used and not the classref name.
+           However, in all the current CIX test cases they never differed.
+           Ditto for <interfaceref>.
+
+- CIX 0.1: <variable> <type type="FOO"/> </variable>
+  CIX 2.0: <variable citdl="FOO" />
+
+- CIX 0.1: <something ...>
+             <doc>blah</doc>
+           </something>
+  CIX 2.0: <something doc="blah" ... />
+
+- CIX 0.1: <something ...>
+             <signature>blah</signature>
+           </something>
+  CIX 2.0: <something signature="blah" ... />
+
+- CIX 0.1: <function ...>
+             <argument ...>
+           </function>
+  CIX 2.0: <function ...>
+             <variable ilk="argument" ...>
+           </function>

@@ -1,0 +1,17 @@
+<h3><%= @book.title%></h3>
+
+<div class="cover">
+	<% if @book.image_url_large %>
+		<%= image_tag @book.image_url_large %>
+	<% end %>
+</div>
+
+<p class="byline"><%= @book.author %> (ISBN:<%= link_to @book.isbn, @book.url %>)</p>
+
+<p><em><%= @book.summary %></em> (<%= link_to "Buy this book", @book.url %>)</p>
+
+<h4>Tags</h4>
+<%= render :partial => 'tag', :collection => @book.tags, :spacer_template => "home/slash" %>
+
+<h4>Readings</h4>
+<%= render :partial => 'readings/list', :locals => {:key_field => "Reader"} %>

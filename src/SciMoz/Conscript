@@ -1,0 +1,370 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+# Conscript for building the scintilla dll (with lexer)
+#   Neil Hodgson provides a makefile to build this but it duplicates
+#   some stuff that is better done with Komodo's Cons built system. The
+#   makefile is pretty simple anyway so it is replaced by a direct
+#   Cons build system. This will have to be kept in sync.
+#
+#   NOTE: This *should* have been a joke in Cons, but it does not
+#     know anythings about resource compilation on Windows, so have
+#     to do it manually. I still don't want to just call Neil's
+#     makefile because it hardcodes paths.
+#
+
+Import(
+    'cons',
+    'platform',
+    'build',
+    'buildType',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozLibPath',
+    'mozBin',
+    'mozIncludePath',
+    'mozIdlIncludePath',
+    'mozPluginsDir',
+    'mozSrc',
+    'mozObjDir',
+    'mozDist',
+    'mozDevelDist',
+    'scintillaBuildDir',
+    'idlExportDir',
+    'unsiloedPythonExe',
+    'build',
+    'mozVersionNumber',
+    'architecture',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+    'sdkDir',
+    'universal',
+);
+
+if ($^O eq "linux") {
+    Import(
+        "linuxDistro",
+    );
+}
+
+# Autogenerate C++ interface functions and IDL interface stubs from
+# Scintilla.iface. The IDL stubs are patched into ISciMoz.template.idl to
+# make ISciMoz.idl.
+$cons->Command(
+    "npscimoz_gen.h",
+    # files needed to do the generation
+    "XPFacer.py",
+    "../scintilla/include/Scintilla.iface",
+    "../scintilla/include/Face.py",
+    qq(
+        $unsiloedPythonExe bin/run-in-dir.py %1:d $unsiloedPythonExe %1:f
+    )
+);
+$cons->Command(
+    "ISciMoz.idl",
+    "ISciMoz.template.idl",
+    # files needed to do the generation and patching
+    "XPFacer.py",
+    "../scintilla/include/Scintilla.iface",
+    "../scintilla/include/Face.py",
+    "#util/patch-template.py",
+    qq(
+        $unsiloedPythonExe bin/run-in-dir.py %2:d $unsiloedPythonExe %2:f
+        $unsiloedPythonExe %5 %1 %0 __ISCIMOZ_LITE_INTERFACE__ \@%1:d/ISciMoz_lite_gen.idl.fragment __ISCIMOZ_INTERFACE__ \@%1:d/ISciMoz_gen.idl.fragment
+    )
+);
+
+# build the typelibs and headers from the idl files
+$cons->Install($idlExportDir, 'ISciMoz.idl');
+$cons->Install($idlExportDir, 'ISciMozEvents.idl');
+$cons->Install($idlExportDir, 'ISciMozController.idl');
+$cons->BuildAndInstallXpt('ISciMoz.idl');
+$cons->BuildAndInstallXpt('ISciMozEvents.idl');
+$cons->BuildAndInstallXpt('ISciMozController.idl');
+$cons->BuildHeaderFromIdl('ISciMoz.idl');
+$cons->BuildHeaderFromIdl('ISciMozEvents.idl');
+$cons->Preprocess('koScintillaController.p.py','koScintillaController.py');
+$cons->InstallXpcomComponent('koScintillaController.py');
+
+# build and install the Mozilla plugin
+my $pluginName;
+my $xScintillaBuildDir = DirPath($scintillaBuildDir);
+
+if ($platform eq "win") {
+    $pluginName = 'npscimoz.dll';
+
+    my $LDFLAGS = "/dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcom.lib nspr4.lib plugingate_s.lib xpcom_core.lib";
+    foreach my $libDir (split(';', $mozLibPath)) {
+        $LDFLAGS .= " /libpath:$libDir";
+    }
+    $LDFLAGS .= " /libpath:$mozObjDir\\modules\\plugin\\tools\\sdk\\samples\\common";
+    my $CXXFLAGS = "/W3 /D_WINDOWS /DWIN32 " .
+        " /DWINVER=0x400 /I$xScintillaBuildDir/include" .
+        " /I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " /I$mozDevelDist/include/xulapp" .
+        " /I$mozSrc/mozilla/xpcom/ds" .
+        " /I$mozDevelDist/include/widget" .
+        " /I$mozDevelDist/include/dom" .
+        " /I$mozDevelDist/include/string" .
+        " /I$mozDevelDist/include/xpcom" .
+        " /I$mozDevelDist/include/nspr" .
+        " /I$mozDevelDist/include/content" .
+        " /I$mozDevelDist/include/gfx" .
+        " /I$mozDevelDist/include/plugin" .
+        " /I$mozDevelDist/include/java";
+    $CXXFLAGS .= " /FI$mozObjDir\\mozilla-config.h";
+    $CXXFLAGS .= " /DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
+
+    if ($buildType eq 'debug') {
+        $CXXFLAGS .= " /ZI /Od /DDEBUG /D_DEBUG /MDd";
+        $LDFLAGS .= " /DEBUG";
+    } else {
+        $CXXFLAGS .= " /Ox /DNDEBUG /D_NDEBUG /MD";
+        # LDFLAGS is fine!
+    }
+
+    foreach my $includeDir (split(';', $mozIncludePath)) {
+        $CXXFLAGS .= " /I$includeDir"
+    }
+
+    $cons->Command($pluginName,
+        "npscimoz.rc",
+        "plugin.cxx",
+        "nsSciMoz.cxx",
+        "nsSciMozWin.cxx",
+        "sendscintilla.cxx",
+        "npscimoz.def",
+        "plugin.h",
+        "nsSciMoz.h",
+        "SciMozEvents.h",
+        "npscimoz_gen.h",
+        "sendscintilla.h",
+        "ISciMoz.h",
+        "ISciMozEvents.h",
+        # scintilla must be built first (this is a little artificial because
+        # this is only necessary to get the scintilla headers in the build
+        # directory before this build
+        "$scintillaBuildDir/bin/SciLexer.dll",
+        qq(
+            rc /fo%1:b.res %1
+            cl /nologo $CXXFLAGS /TP /Fo%2:b.obj /c %2
+            cl /nologo $CXXFLAGS /TP /Fo%3:b.obj /c %3
+            cl /nologo $CXXFLAGS /TP /Fo%4:b.obj /c %4
+            cl /nologo $CXXFLAGS /TP /Fo%5:b.obj /c %5
+            link /nologo $LDFLAGS /out:%0 %2:b.obj %3:b.obj %4:b.obj %5:b.obj %1:b.res /DEF:%6
+        )
+    );
+}
+
+elsif ($platform eq "darwin") {
+    $pluginName = "SciMoz.plugin";
+
+    %consLocal = $cons->copy();
+    $consLocal{'LDFLAGS'} = "-dynamic";
+    $consLocal{'LIBS'} = "-bundle -lplds4 -lplc4 -lnspr4 -lxpcom -lxpcom_core -lscintilla ";
+    if ($mozVersionNumber >= 190) {
+      $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
+      $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
+      $consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue_s.a ";
+    }
+    # add required frameworks
+    $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
+    # scintilla
+    
+
+    $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:$scintillaBuildDir/bin";
+    $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common ";
+    # XXX cannot build universal unless mozilla is universal
+    if ($universal) {
+        $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+        $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+        $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+    }
+    $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DSCI_LEXER ".
+                            " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
+                            " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
+                            " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
+
+    $consLocal{'CXXFLAGS'} .= " -include Carbon/Carbon.h ";
+
+    # Ensure that these are defined for use by mozilla headers
+    $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
+        " -I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " -I$mozDevelDist/include" .
+        " -I$mozDevelDist/include/xulapp" .
+        " -I$mozDevelDist/include/widget" .
+        " -I$mozDevelDist/include/dom" .
+        " -I$mozDevelDist/include/string" .
+        " -I$mozDevelDist/include/xpcom" .
+        " -I$mozSrc/mozilla/xpcom/ds" .
+        " -I$mozDevelDist/include/nspr" .
+        " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/gfx" .
+        " -I$mozDevelDist/include/plugin" .
+        " -I$mozDevelDist/include/java" .
+	" -I/Developer/Headers/FlatCarbon";
+
+    if ($buildType eq 'debug') {
+        $consLocal{'CXXFLAGS'} .= " -g";
+        $consLocal{'CXXFLAGS'} .= " -DNS_DEBUG -DDEBUG "; # for debugging
+    } else {
+        $consLocal{'CXXFLAGS'} .= " -Os ";
+        # XXX - There may be an equivalent to -faltivec for mac x86
+        if ("$architecture" ne "x86") {
+            $consLocal{'CXXFLAGS'} .= " -faltivec -mcpu=7400 -mtune=7400 -mpowerpc -mpowerpc-gfxopt";
+        }
+    }
+
+    $consLocal = new cons(%consLocal);
+    $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/libscintilla.a");
+
+    $consLocal->Program(
+	"SciMoz",
+	"npmac.cpp",
+	"plugin.cxx",
+	"nsSciMoz.cxx",
+	"nsSciMozMac.cxx",
+	"sendscintilla.cxx",
+	);
+
+    # here we build the bundle package
+    # we also manually install since installRecursive likes to mess on up this.
+    $cons->Command("$pluginName/Contents/MacOS/SciMoz",
+		"SciMoz.r",
+		"Info.plist",
+		"English.lproj/InfoPlist.strings",
+		"./SciMoz",
+		(
+		 qq(
+$unsiloedPythonExe bin/run-in-dir.py %1:d rm -Rf SciMoz.plugin
+$unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p SciMoz.plugin
+$unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p SciMoz.plugin/Contents
+$unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p SciMoz.plugin/Contents/MacOS
+$unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p SciMoz.plugin/Contents/Resources
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp Info.plist SciMoz.plugin/Contents
+$unsiloedPythonExe bin/run-in-dir.py %1:d chmod u+w SciMoz.plugin/Contents/Info.plist
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R English.lproj SciMoz.plugin/Contents/Resources
+$unsiloedPythonExe bin/run-in-dir.py %1:d /Developer/Tools/Rez -useDF -i /Developer/Headers/FlatCarbon /Developer/Headers/FlatCarbon/Types.r SciMoz.r -o SciMoz.plugin/Contents/Resources/SciMoz.rsrc
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp SciMoz SciMoz.plugin/Contents/MacOS/SciMoz
+$unsiloedPythonExe bin/run-in-dir.py %1:d chmod -R a+r SciMoz.plugin
+$unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginName
+$unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p $mozPluginsDir
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pluginName
+chmod a+rX $mozPluginsDir/$pluginName
+                   )
+		));
+
+# this would do a build using the xcode project, however building manually allows us to rely on the
+# dependencies for scintilla better.
+
+#    my @args = ( 
+#		$pluginName,
+#		"SciMoz.xcode/project.pbxproj",
+#		"prefix.h",
+#		"npmac.cpp",
+#		"plugin.cxx",
+#		"nsSciMoz.cxx",
+#		"nsSciMoz.h",
+#		"plugin.h",
+#		"sendscintilla.cxx",
+#		"sendscintilla.h",
+#		"SciMoz.r",
+#		"Info.plist",
+#		"English.lproj/InfoPlist.strings",
+#		(qq($unsiloedPythonExe bin/run-in-dir.py %1:d xcodebuild -buildstyle Deployment))
+#	       );
+
+#    $cons->InstallRecursive("$mozBin/plugins/$pluginName", cwd()."/build/release/SciMoz/$pluginName");
+
+} 
+else {
+    $pluginName = "libnpscimoz.so";
+
+    %consLocal = $cons->copy();
+    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s";
+    $consLocal{'LIBS'} .= " $xScintillaBuildDir/bin/scintilla.a";
+
+    # PCRE is built from contrib/pcre and is require by LexUDL.
+    $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
+
+    $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$mozDevelDist/include/java";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:../scintilla/bin";
+    $consLocal{'CC'} = "gcc";
+
+    ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform
+    ## for GTK2 builds, we want two defines, GTK and GTK2
+    my $gtkConfig = "`pkg-config --cflags gtk+-2.0` -DGTK2 -DGTK2_XEMBED";
+
+    chomp($gtkConfig);
+    $consLocal{'CXXFLAGS'} = " -DGTK -W -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti ".
+        $gtkConfig;
+    $consLocal{'CXXFLAGS'} .= " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
+    $consLocal{'CXXFLAGS'} .= " -fPIC";
+    $consLocal{'CFLAGS'} = " -fPIC"; # one of these two -fPIC's might be redundant
+
+    # Ensure that these are defined for use by mozilla headers
+    $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
+        " -I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " -I$mozDevelDist/include" .
+        " -I$mozDevelDist/include/xulapp" .
+        " -I$mozSrc/mozilla/xpcom/ds" .
+        " -I$mozDevelDist/include/widget" .
+        " -I$mozDevelDist/include/dom" .
+        " -I$mozDevelDist/include/string" .
+        " -I$mozDevelDist/include/nspr" .
+        " -I$mozDevelDist/include/xpcom" .
+        " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/gfx" .
+        " -I$mozDevelDist/include/plugin" .
+        " -I$mozDevelDist/include/java" .
+        " -DMOZ_VERSION=$mozVersionNumber";
+        
+    # XXX The _Right_ fix is to depend on the version of gcc being used,
+    #     however, in the name of expediency we are just if'ing on the
+    #     Linux dist.
+    if ($linuxDistro =~ /^redhat/) {
+        $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
+    }
+
+    # Solaris ships with broken X11 headers that do not specify int
+    # return types.  The -fpermissive flag converts the errors g++
+    # would otherwise generate into warnings.
+    if ($platform eq "solaris") {
+        $consLocal{'CXXFLAGS'} .= " -fpermissive"
+    }
+
+    if ($buildType eq 'debug') {
+        $consLocal{'CXXFLAGS'} .= " -g";
+        $consLocal{'CXXFLAGS'} .= " -DNS_DEBUG "; # for debugging
+    } else {
+        $consLocal{'CXXFLAGS'} .= " -O2";
+    }
+    $consLocal{'LDFLAGS'} = "-shared `pkg-config --libs gthread-2.0 gtk+-2.0`";
+    $consLocal{'LDFLAGS'} .= " -fPIC";
+
+    # On Solaris, you have to use the -mimpure-text option if you are linking
+    # a shared library that links to static libs (like scintilla.a).
+    if ($platform eq "solaris") {
+        $consLocal{'LDFLAGS'} .= " -mimpure-text";
+    }
+
+    $consLocal = new cons(%consLocal);
+    $consLocal->Depends($pluginName, "$scintillaBuildDir/bin/scintilla.a");
+
+    #XXX have to add licensing code here as well.
+    $consLocal->Program($pluginName,
+        "plugin.cxx",
+        "nsSciMoz.cxx",
+        "nsSciMozGtk.cxx",
+        "sendscintilla.cxx",
+    );
+}
+
+if ($platform eq "darwin") {
+} else {
+    $cons->Install("$mozPluginsDir", $pluginName);
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Komodo's About dialog box -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog id="dialog-about"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&aboutKomodo.title;"
+        onload="OnLoad()"
+        orient="vertical"
+        flex="1"
+        buttons="accept"
+        buttonpack="center">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/about.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/browse.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox>
+        <separator flex="1"/>
+        <image id="about-image" style="max-width: 400px;"
+               src="chrome://komodo/skin/images/about.png"/>
+        <separator flex="1"/>
+    </hbox>
+    <separator class="thin"/>
+
+    <vbox flex="1" id="buildinfo">
+        <separator class="thin"/>
+        <label value="Build Information:"/>
+        <textbox id="build-info" readonly="true" flex="1" multiline="true"
+                 style="background-color: transparent; border: none;"/>
+    </vbox>
+    <separator class="thin"/>
+
+</dialog>
+

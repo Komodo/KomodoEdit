@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % wizardsDTD SYSTEM "chrome://komodo/locale/wizards.dtd">
+  %wizardsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<wizard id="komodo-window" title="&packageExportWizard.title;"
+        class="color-dialog"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <!-- XXX: strres.js is needed so that wizardManager.js will work -->
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/strres.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardOverlay.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardHandlerSet.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/widgetStateManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+
+<script>
+<![CDATA[
+var exportItems = window.arguments[0].items;
+
+function package_validate() {
+    var packageName = document.getElementById('packageName').value;
+    var exportLocation = document.getElementById('exportLocation').value;
+    if (packageName && exportLocation) {
+        // XXX validate exportLocation
+        var osPath = Components.classes["@activestate.com/koOsPath;1"].getService();
+        if (!osPath.exists(exportLocation)) {
+            ko.dialogs.alert("The export location '"+exportLocation+"' does not exist.");
+            return false
+        }
+        var filename = osPath.join(exportLocation, packageName) + ".kpz";
+        if (osPath.exists(filename)) {
+            ko.dialogs.alert("A package file for '"+filename+"' already exists.");
+            return false
+        }
+        return true;
+    }
+    return false;
+}
+
+function package_OnBrowse() {
+    var exportLocation = document.getElementById('exportLocation');
+    var dir = exportLocation.value;
+    dir = ko.filepicker.getFolder(dir)
+    if (exportLocation != null) {
+        exportLocation.value = dir;
+    }
+}
+
+function package_export() {
+    var packageName = document.getElementById('packageName').value+'.kpz';
+    var exportLocation = document.getElementById('exportLocation').value;
+
+    // create a full filename
+    var osPath = Components.classes["@activestate.com/koOsPath;1"].getService();
+    var filename = osPath.join(exportLocation, packageName);
+
+    var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
+                      .getService(Components.interfaces.koIProjectPackageService);
+    packager.packageParts(filename, exportItems.length, exportItems);
+}
+
+function finished_onPageShow() {
+    var donemsg = document.getElementById('finish-msg');
+    while (donemsg.firstChild) {
+        donemsg.removeChild(donemsg.firstChild)
+    }
+    donemsg.appendChild(document.createTextNode('Please wait while the package is built and exported...'));
+
+    var wizard = document.getElementById("komodo-window");
+    wizard.canAdvance = false;
+    wizard.canRewind = false;
+    try {
+        package_export();
+    } catch(e) {
+        // last errorsvc should have an error for us
+    }
+    wizard.canAdvance = true;
+
+    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                        getService(Components.interfaces.koILastErrorService);
+
+    while (donemsg.firstChild) {
+        donemsg.removeChild(donemsg.firstChild)
+    }
+    donemsg.appendChild(document.createTextNode(lastErrorSvc.getLastErrorMessage()));
+}
+]]>
+</script>
+
+    <wizardpage id="start" description="Export Steps">
+        <description>
+            To export a package you need to provide a name and location for the
+            package. Komodo will then gather any icons or files associated with
+            the items you selected to export, and create a KPZ file in the
+            location you have selected.
+        </description>
+    </wizardpage>
+
+    <wizardpage id="exportPage" description="Name and location of package export."
+                label="&exportNameAndLocation.label;"
+                onpageadvanced="return package_validate();">
+        <description>
+            Enter the name of the package, and a location to which to export it.
+        </description>
+        <seperator/>
+        <label value="Package Name:"/>
+        <textbox id="packageName"/>
+        <seperator class="thin"/>
+        <label value="Export Location:"/>
+        <hbox align="center">
+            <textbox id="exportLocation" flex="1"/>
+            <button label="&browse.label;"
+                    oncommand="package_OnBrowse();"/>
+        </hbox>
+    </wizardpage>
+
+    <wizardpage id="finished" label="&finishedWithExport.label;"
+                description="Finished with the export process."
+                onpageshow="finished_onPageShow();">
+        <description id="finish-msg"/>
+    </wizardpage>
+
+</wizard>

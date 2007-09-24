@@ -1,0 +1,1550 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.Transport</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;Transport
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko.Transport-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.Transport-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type Transport</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+        
+         |        
+  <a href="../private/threading._Verbose-class.html"><code>_Verbose</code></a> --+    
+             |    
+        <a href="threading.Thread-class.html"><code>Thread</code></a> --+
+                 |
+                <b>Transport</b>
+</pre><br />
+
+<hr/>
+
+An SSH Transport attaches to a stream (usually a socket), negotiates 
+an encrypted session, authenticates, and then creates stream tunnels, 
+called <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>s, across the session. Multiple 
+channels can be multiplexed across a single session (and often are, in 
+the case of port forwardings).
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sock</span>)</span></code>
+<br />
+Create a new SSH session over an existing socket, or socket-like 
+object.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns a string representation of this object, for debugging.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#accept" class="summary-sig-name"><code>accept</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+<br />
+Return the next channel opened by the client over this transport, in 
+server mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#add_server_key" class="summary-sig-name"><code>add_server_key</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>key</span>)</span></code>
+<br />
+Add a host key to the list of keys used for server mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#atfork" class="summary-sig-name"><code>atfork</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Terminate this Transport without closing the session.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#auth_interactive" class="summary-sig-name"><code>auth_interactive</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>handler</span>,
+          <span class=summary-sig-arg>submethods</span>)</span></code>
+<br />
+Authenticate to the server interactively.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#auth_none" class="summary-sig-name"><code>auth_none</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>)</span></code>
+<br />
+Try to authenticate to the server using no authentication at all.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#auth_password" class="summary-sig-name"><code>auth_password</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>password</span>,
+          <span class=summary-sig-arg>event</span>,
+          <span class=summary-sig-arg>fallback</span>)</span></code>
+<br />
+Authenticate to the server using a password.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#auth_publickey" class="summary-sig-name"><code>auth_publickey</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>key</span>,
+          <span class=summary-sig-arg>event</span>)</span></code>
+<br />
+Authenticate to the server using a private key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close this session, and any open channels that are tied to it.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#connect" class="summary-sig-name"><code>connect</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>hostkey</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>password</span>,
+          <span class=summary-sig-arg>pkey</span>)</span></code>
+<br />
+Negotiate an SSH2 session, and optionally verify the server's host key 
+and authenticate using a password or private key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        Exception
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_exception" class="summary-sig-name"><code>get_exception</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return any exception that happened during the last server request.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_hexdump" class="summary-sig-name"><code>get_hexdump</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return <code>True</code> if the transport is currently logging hex 
+dumps of protocol traffic.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_log_channel" class="summary-sig-name"><code>get_log_channel</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the channel name used for this transport's logging.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_remote_server_key" class="summary-sig-name"><code>get_remote_server_key</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the host key of the server (in client mode).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.SecurityOptions-class.html" 
+        class="link"><code>SecurityOptions</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_security_options" class="summary-sig-name"><code>get_security_options</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return a <a href="../private/paramiko.SecurityOptions-class.html" 
+class="link"><code>SecurityOptions</code></a> object which can be used to 
+tweak the encryption algorithms this transport will permit, and the order 
+of preference for them.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_server_key" class="summary-sig-name"><code>get_server_key</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the active host key, in server mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        string
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#get_username" class="summary-sig-name"><code>get_username</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the username this connection is authenticated for.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        tuple(str, int)
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#getpeername" class="summary-sig-name"><code>getpeername</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the address of the remote side of this Transport, if 
+possible.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#global_request" class="summary-sig-name"><code>global_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>kind</span>,
+          <span class=summary-sig-arg>data</span>,
+          <span class=summary-sig-arg>wait</span>)</span></code>
+<br />
+Make a global request to the remote host.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#is_active" class="summary-sig-name"><code>is_active</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return true if this session is active (open).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#is_authenticated" class="summary-sig-name"><code>is_authenticated</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return true if this session is active and authenticated.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#load_server_moduli" class="summary-sig-name"><code>load_server_moduli</code></a>(<span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+<i>(optional)</i> Load a file of prime moduli for use in doing 
+group-exchange key negotiation in server mode.    <i>(Static method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#open_channel" class="summary-sig-name"><code>open_channel</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>kind</span>,
+          <span class=summary-sig-arg>dest_addr</span>,
+          <span class=summary-sig-arg>src_addr</span>)</span></code>
+<br />
+Request a new channel to the server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#open_session" class="summary-sig-name"><code>open_session</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Request a new channel to the server, of type 
+<code>&quot;session&quot;</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#open_sftp_client" class="summary-sig-name"><code>open_sftp_client</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Create an SFTP client channel from an open transport.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#renegotiate_keys" class="summary-sig-name"><code>renegotiate_keys</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Force this session to switch to new keys.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="run"></a><span class="summary-sig"><span class="summary-sig-name">run</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#send_ignore" class="summary-sig-name"><code>send_ignore</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>bytes</span>)</span></code>
+<br />
+Send a junk packet across the encrypted link.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#set_hexdump" class="summary-sig-name"><code>set_hexdump</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>hexdump</span>)</span></code>
+<br />
+Turn on/off logging a hex dump of protocol traffic at DEBUG level in 
+the logs.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#set_keepalive" class="summary-sig-name"><code>set_keepalive</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>interval</span>)</span></code>
+<br />
+Turn on/off keepalive packets (default is off).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#set_log_channel" class="summary-sig-name"><code>set_log_channel</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+<br />
+Set the channel for this transport's logging.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#set_subsystem_handler" class="summary-sig-name"><code>set_subsystem_handler</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>,
+          <span class=summary-sig-arg>handler</span>,
+          <span class="summary-sig-vararg">*larg</span>,
+          <span class="summary-sig-kwarg">**kwarg</span>)</span></code>
+<br />
+Set the handler class for a subsystem in server mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#start_client" class="summary-sig-name"><code>start_client</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>event</span>)</span></code>
+<br />
+Negotiate a new SSH2 session as a client.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#start_server" class="summary-sig-name"><code>start_server</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>event</span>,
+          <span class=summary-sig-arg>server</span>)</span></code>
+<br />
+Negotiate a new SSH2 session as a server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="stop_thread"></a><span class="summary-sig"><span class="summary-sig-name">stop_thread</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Transport-class.html#use_compression" class="summary-sig-name"><code>use_compression</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>compress</span>)</span></code>
+<br />
+Turn on/off compression.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from Thread</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#getName" class="summary-sig-name"><code>getName</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isAlive" class="summary-sig-name"><code>isAlive</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#isDaemon" class="summary-sig-name"><code>isDaemon</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#join" class="summary-sig-name"><code>join</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setDaemon" class="summary-sig-name"><code>setDaemon</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>daemonic</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#setName" class="summary-sig-name"><code>setName</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="threading.Thread-class.html#start" class="summary-sig-name"><code>start</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF INSTANCE METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Instance Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>sock</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  <p>Create a new SSH session over an existing socket, or socket-like 
+  object. This only creates the Transport object; it doesn't begin the 
+  SSH session yet. Use <a href="paramiko.Transport-class.html#connect" 
+  class="link"><code>connect</code></a> or <a 
+  href="paramiko.Transport-class.html#start_client" 
+  class="link"><code>start_client</code></a> to begin a client session, 
+  or <a href="paramiko.Transport-class.html#start_server" 
+  class="link"><code>start_server</code></a> to begin a server 
+  session.</p>
+  If the object is not actually a socket, it must have the following 
+  methods:
+  <ul>
+    <li>
+      <code>send(str)</code>: Writes from 1 to <code>len(str)</code> 
+      bytes, and returns an int representing the number of bytes written. 
+      Returns 0 or raises <code>EOFError</code> if the stream has been 
+      closed.
+    </li>
+    <li>
+      <code>recv(int)</code>: Reads from 1 to <code>int</code> bytes 
+      and returns them as a string. Returns 0 or raises 
+      <code>EOFError</code> if the stream has been closed.
+    </li>
+    <li>
+      <code>close()</code>: Closes the socket.
+    </li>
+    <li>
+      <code>settimeout(n)</code>: Sets a (float) timeout on I/O 
+      operations.
+    </li>
+  </ul>
+  For ease of use, you may also pass in an address (as a tuple) or a 
+  host string as the <code>sock</code> argument. (A host string is a 
+  hostname with an optional port (separated by 
+  <code>&quot;:&quot;</code>) which will be converted into a tuple of 
+  <code>(hostname, port)</code>.) A socket will be connected to this 
+  address and used for communication. Exceptions from the 
+  <code>socket</code> call may be thrown in this case.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>sock</b></code> -
+         a socket or socket-like object to create the session over.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=socket)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="threading.Thread-class.html#__init__"><code>threading.Thread.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="__repr__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__repr__</span>(<span class=sig-arg>self</span>)</span>
+    <br /><i>(Representation operator)</i>
+  </h3>
+  Returns a string representation of this object, for debugging.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        str
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="threading.Thread-class.html#__repr__"><code>threading.Thread.__repr__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="accept"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">accept</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>timeout</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Return the next channel opened by the client over this transport, in 
+  server mode. If no channel is opened before the given timeout, 
+  <code>None</code> is returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>timeout</b></code> -
+         seconds to wait for a channel, or <code>None</code> to wait 
+        forever
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new Channel opened by the client
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="add_server_key"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">add_server_key</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>key</span>)</span>
+  </h3>
+  Add a host key to the list of keys used for server mode. When 
+  behaving as a server, the host key is used to sign certain packets 
+  during the SSH2 negotiation, so that the client can trust that we are 
+  who we say we are. Because this is used for signing, the key must 
+  contain private key info, not just the public half. Only one key of 
+  each type (RSA or DSS) is kept.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>key</b></code> -
+         the host key to add, usually an <a 
+        href="paramiko.RSAKey-class.html" 
+        class="link"><code>RSAKey</code></a> or <a 
+        href="paramiko.DSSKey-class.html" 
+        class="link"><code>DSSKey</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="atfork"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">atfork</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Terminate this Transport without closing the session. On posix 
+  systems, if a Transport is open during process forking, both parent and 
+  child will share the underlying socket, but only one process can use 
+  the connection (without corrupting the session). Use this method to 
+  clean up a Transport object without disrupting the other process.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.5.3
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="auth_interactive"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">auth_interactive</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>handler</span>,
+          <span class=sig-arg>submethods</span>=<span class=sig-default>''</span>)</span>
+  </h3>
+  <p>Authenticate to the server interactively. A handler is used to 
+  answer arbitrary questions from the server. On many servers, this is 
+  just a dumb wrapper around PAM.</p>
+  <p>This method will block until the authentication succeeds or fails, 
+  peroidically calling the handler asynchronously to get answers to 
+  authentication questions. The handler may be called more than once if 
+  the server continues to ask questions.</p>
+  <p>The handler is expected to be a callable that will handle calls of 
+  the form: <code>handler(title, instructions, prompt_list)</code>. The 
+  <code>title</code> is meant to be a dialog-window title, and the 
+  <code>instructions</code> are user instructions (both are strings). 
+  <code>prompt_list</code> will be a list of prompts, each prompt being a 
+  tuple of <code>(str, bool)</code>. The string is the prompt and the 
+  boolean indicates whether the user text should be echoed.</p>
+  <p>A sample call would thus be: <code>handler('title', 'instructions', 
+  [('Password:', False)])</code>.</p>
+  <p>The handler should return a list or tuple of answers to the server's 
+  questions.</p>
+  If the server requires multi-step authentication (which is very 
+  rare), this method will return a list of auth types permissible for the 
+  next step. Otherwise, in the normal case, an empty list is 
+  returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>handler</b></code> -
+         a handler for responding to server questions
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=callable)</i>
+      <dd><code><b>submethods</b></code> -
+         a string list of desired submethods (optional)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of auth types permissible for the next stage of 
+        authentication (normally empty).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>BadAuthenticationType</b></code> -
+        if public-key authentication isn't allowed by the server for 
+        this user
+      <dd><code><b>AuthenticationException</b></code> -
+        if the authentication failed
+      <dd><code><b>SSHException</b></code> -
+        if there was a network error
+    </dl>
+<p><b>Since:</b> 1.5
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="auth_none"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">auth_none</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>)</span>
+  </h3>
+  Try to authenticate to the server using no authentication at all. 
+  This will almost always fail. It may be useful for determining the list 
+  of authentication types supported by the server, by catching the <a 
+  href="paramiko.BadAuthenticationType-class.html" 
+  class="link"><code>BadAuthenticationType</code></a> exception 
+  raised.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of auth types permissible for the next stage of 
+        authentication (normally empty)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>BadAuthenticationType</b></code> -
+        if &quot;none&quot; authentication isn't allowed by the server 
+        for this user
+      <dd><code><b>SSHException</b></code> -
+        if the authentication failed due to a network error
+    </dl>
+<p><b>Since:</b> 1.5
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="auth_password"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">auth_password</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>password</span>,
+          <span class=sig-arg>event</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>fallback</span>=<span class=sig-default>True</span>)</span>
+  </h3>
+  <p>Authenticate to the server using a password. The username and 
+  password are sent over an encrypted link.</p>
+  <p>If an <code>event</code> is passed in, this method will return 
+  immediately, and the event will be triggered once authentication 
+  succeeds or fails. On success, <a 
+  href="paramiko.Transport-class.html#is_authenticated" 
+  class="link"><code>is_authenticated</code></a> will return 
+  <code>True</code>. On failure, you may use <a 
+  href="paramiko.Transport-class.html#get_exception" 
+  class="link"><code>get_exception</code></a> to get more detailed error 
+  information.</p>
+  <p>Since 1.1, if no event is passed, this method will block until the 
+  authentication succeeds or fails. On failure, an exception is raised. 
+  Otherwise, the method simply returns.</p>
+  <p>Since 1.5, if no event is passed and <code>fallback</code> is 
+  <code>True</code> (the default), if the server doesn't support plain 
+  password authentication but does support so-called 
+  &quot;keyboard-interactive&quot; mode, an attempt will be made to 
+  authenticate using this interactive mode. If it fails, the normal 
+  exception will be thrown as if the attempt had never been made. This is 
+  useful for some recent Gentoo and Debian distributions, which turn off 
+  plain password authentication in a misguided belief that interactive 
+  authentication is &quot;more secure&quot;. (It's not.)</p>
+  If the server requires multi-step authentication (which is very 
+  rare), this method will return a list of auth types permissible for the 
+  next step. Otherwise, in the normal case, an empty list is 
+  returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>password</b></code> -
+         the password to authenticate with
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>event</b></code> -
+         an event to trigger when the authentication attempt is 
+        complete (whether it was successful or not)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=threading.Event)</i>
+      <dd><code><b>fallback</b></code> -
+         <code>True</code> if an attempt at an automated 
+        &quot;interactive&quot; password auth should be made if the 
+        server doesn't support normal password auth
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of auth types permissible for the next stage of 
+        authentication (normally empty)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>BadAuthenticationType</b></code> -
+        if password authentication isn't allowed by the server for 
+        this user (and no event was passed in)
+      <dd><code><b>AuthenticationException</b></code> -
+        if the authentication failed (and no event was passed in)
+      <dd><code><b>SSHException</b></code> -
+        if there was a network error
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="auth_publickey"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">auth_publickey</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>key</span>,
+          <span class=sig-arg>event</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Authenticate to the server using a private key. The key is used to 
+  sign data from the server, so it must include the private part.</p>
+  <p>If an <code>event</code> is passed in, this method will return 
+  immediately, and the event will be triggered once authentication 
+  succeeds or fails. On success, <a 
+  href="paramiko.Transport-class.html#is_authenticated" 
+  class="link"><code>is_authenticated</code></a> will return 
+  <code>True</code>. On failure, you may use <a 
+  href="paramiko.Transport-class.html#get_exception" 
+  class="link"><code>get_exception</code></a> to get more detailed error 
+  information.</p>
+  <p>Since 1.1, if no event is passed, this method will block until the 
+  authentication succeeds or fails. On failure, an exception is raised. 
+  Otherwise, the method simply returns.</p>
+  If the server requires multi-step authentication (which is very 
+  rare), this method will return a list of auth types permissible for the 
+  next step. Otherwise, in the normal case, an empty list is 
+  returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>key</b></code> -
+         the private key to authenticate with
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      <dd><code><b>event</b></code> -
+         an event to trigger when the authentication attempt is 
+        complete (whether it was successful or not)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=threading.Event)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of auth types permissible for the next stage of 
+        authentication (normally empty)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>BadAuthenticationType</b></code> -
+        if public-key authentication isn't allowed by the server for 
+        this user (and no event was passed in)
+      <dd><code><b>AuthenticationException</b></code> -
+        if the authentication failed (and no event was passed in)
+      <dd><code><b>SSHException</b></code> -
+        if there was a network error
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Close this session, and any open channels that are tied to it.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="connect"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">connect</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>hostkey</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>username</span>=<span class=sig-default>''</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>pkey</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Negotiate an SSH2 session, and optionally verify the server's host 
+  key and authenticate using a password or private key. This is a 
+  shortcut for <a href="paramiko.Transport-class.html#start_client" 
+  class="link"><code>start_client</code></a>, <a 
+  href="paramiko.Transport-class.html#get_remote_server_key" 
+  class="link"><code>get_remote_server_key</code></a>, and <a 
+  href="paramiko.Transport-class.html#auth_password" 
+  class="link"><code>Transport.auth_password</code></a> or <a 
+  href="paramiko.Transport-class.html#auth_publickey" 
+  class="link"><code>Transport.auth_publickey</code></a>. Use those 
+  methods if you want more control.</p>
+  You can use this method immediately after creating a Transport to 
+  negotiate encryption with a server. If it fails, an exception will be 
+  thrown. On success, the method will return cleanly, and an encrypted 
+  session exists. You may immediately call <a 
+  href="paramiko.Transport-class.html#open_channel" 
+  class="link"><code>open_channel</code></a> or <a 
+  href="paramiko.Transport-class.html#open_session" 
+  class="link"><code>open_session</code></a> to get a <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> object, which is used for data 
+  transfer.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>hostkey</b></code> -
+         the host key expected from the server, or <code>None</code> if 
+        you don't want to do host key verification.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         a password to use for authentication, if you want to use 
+        password authentication; otherwise <code>None</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>pkey</b></code> -
+         a private key to use for authentication, if you want to use 
+        private key authentication; otherwise <code>None</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the SSH2 negotiation fails, the host key supplied by the 
+        server is incorrect, or authentication fails.
+    </dl>
+<p><b>Note:</b> If you fail to supply a password or private key, this method may 
+succeed, but a subsequent <a 
+href="paramiko.Transport-class.html#open_channel" 
+class="link"><code>open_channel</code></a> or <a 
+href="paramiko.Transport-class.html#open_session" 
+class="link"><code>open_session</code></a> call may fail because you 
+haven't authenticated yet.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_exception"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_exception</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return any exception that happened during the last server request. 
+  This can be used to fetch more specific error information after using 
+  calls like <a href="paramiko.Transport-class.html#start_client" 
+  class="link"><code>start_client</code></a>. The exception (if any) is 
+  cleared after this call.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an exception, or <code>None</code> if there is no stored 
+        exception.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=Exception)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_hexdump"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_hexdump</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return <code>True</code> if the transport is currently logging hex 
+  dumps of protocol traffic.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if hex dumps are being logged
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_log_channel"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_log_channel</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the channel name used for this transport's logging.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        channel name.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_remote_server_key"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_remote_server_key</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the host key of the server (in client mode).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        public key of the remote server
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if no session is currently active.
+    </dl>
+<p><b>Note:</b> Previously this call returned a tuple of (key type, key string). You 
+can get the same effect by calling <a 
+href="../private/paramiko.PKey-class.html#get_name" 
+class="link"><code>PKey.get_name</code></a> for the key type, and 
+<code>str(key)</code> for the key string.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_security_options"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_security_options</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return a <a href="../private/paramiko.SecurityOptions-class.html" 
+  class="link"><code>SecurityOptions</code></a> object which can be used 
+  to tweak the encryption algorithms this transport will permit, and the 
+  order of preference for them.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an object that can be used to change the preferred algorithms 
+        for encryption, digest (hash), public key, and key exchange.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.SecurityOptions-class.html" 
+        class="link"><code>SecurityOptions</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_server_key"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_server_key</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the active host key, in server mode. After negotiating with 
+  the client, this method will return the negotiated host key. If only 
+  one type of host key was set with <a 
+  href="paramiko.Transport-class.html#add_server_key" 
+  class="link"><code>add_server_key</code></a>, that's the only key that 
+  will ever be returned. But in cases where you have set more than one 
+  type of host key (for example, an RSA key and a DSS key), the key type 
+  will be negotiated by the client, and this method will return the key 
+  of the type agreed on. If the host key has not been negotiated yet, 
+  <code>None</code> is returned. In client mode, the behavior is 
+  undefined.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        host key of the type negotiated by the client, or 
+        <code>None</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_username"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_username</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the username this connection is authenticated for. If the 
+  session is not authenticated (or authentication failed), this method 
+  returns <code>None</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        username that was authenticated, or <code>None</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getpeername"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getpeername</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the address of the remote side of this Transport, if 
+  possible. This is effectively a wrapper around 
+  <code>'getpeername'</code> on the underlying socket. If the socket-like 
+  object has no <code>'getpeername'</code> method, then 
+  <code>(&quot;unknown&quot;, 0)</code> is returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the address if the remote host, if known
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple(str, int))</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="global_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">global_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>kind</span>,
+          <span class=sig-arg>data</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>wait</span>=<span class=sig-default>True</span>)</span>
+  </h3>
+  Make a global request to the remote host. These are normally 
+  extensions to the SSH2 protocol.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>kind</b></code> -
+         name of the request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>data</b></code> -
+         an optional tuple containing additional data to attach to the 
+        request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple)</i>
+      <dd><code><b>wait</b></code> -
+         <code>True</code> if this method should not return until a 
+        response is received; <code>False</code> otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a <a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a> containing possible 
+        additional data if the request was successful (or an empty <a 
+        href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a> if <code>wait</code> was 
+        <code>False</code>); <code>None</code> if the request was 
+        denied.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="is_active"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">is_active</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return true if this session is active (open).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        True if the session is still active (open); False if the 
+        session is closed
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="is_authenticated"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">is_authenticated</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return true if this session is active and authenticated.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        True if the session is still open and has been authenticated 
+        successfully; False if authentication failed and/or the session 
+        is closed.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="open_channel"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">open_channel</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>kind</span>,
+          <span class=sig-arg>dest_addr</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>src_addr</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Request a new channel to the server. <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a>s are socket-like objects used for 
+  the actual transfer of data across the session. You may only request a 
+  channel after negotiating encryption (using <a 
+  href="paramiko.Transport-class.html#connect" 
+  class="link"><code>connect</code></a> or <a 
+  href="paramiko.Transport-class.html#start_client" 
+  class="link"><code>start_client</code></a>) and authenticating.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>kind</b></code> -
+         the kind of channel requested (usually 
+        <code>&quot;session&quot;</code>, 
+        <code>&quot;forwarded-tcpip&quot;</code> or 
+        <code>&quot;direct-tcpip&quot;</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>dest_addr</b></code> -
+         the destination address of this port forwarding, if 
+        <code>kind</code> is <code>&quot;forwarded-tcpip&quot;</code> or 
+        <code>&quot;direct-tcpip&quot;</code> (ignored for other channel 
+        types)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=(str, int))</i>
+      <dd><code><b>src_addr</b></code> -
+         the source address of this port forwarding, if 
+        <code>kind</code> is <code>&quot;forwarded-tcpip&quot;</code> or 
+        <code>&quot;direct-tcpip&quot;</code>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=(str, int))</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> on success
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request is rejected or the session ends prematurely
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="open_session"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">open_session</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Request a new channel to the server, of type 
+  <code>&quot;session&quot;</code>. This is just an alias for 
+  <code>open_channel('session')</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request is rejected or the session ends prematurely
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="open_sftp_client"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">open_sftp_client</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Create an SFTP client channel from an open transport. On success, an 
+  SFTP session will be opened with the remote host, and a new SFTPClient 
+  object will be returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a> object, referring to an 
+        sftp session (channel) across this transport
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="renegotiate_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">renegotiate_keys</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Force this session to switch to new keys. Normally this is done 
+  automatically after the session hits a certain number of packets or 
+  bytes sent or received, but this method gives you the option of forcing 
+  new keys whenever you want. Negotiating new keys causes a pause in 
+  traffic both ways as the two sides swap keys and do computations. This 
+  method returns when the session has switched to new keys.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the key renegotiation failed (which causes the session to 
+        end)
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="send_ignore"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">send_ignore</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>bytes</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Send a junk packet across the encrypted link. This is sometimes used 
+  to add &quot;noise&quot; to a connection to confuse would-be attackers. 
+  It can also be used as a keep-alive for long lived connections 
+  traversing firewalls.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>bytes</b></code> -
+         the number of random bytes to send in the payload of the 
+        ignored packet -- defaults to a random number from 10 to 41.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_hexdump"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_hexdump</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>hexdump</span>)</span>
+  </h3>
+  Turn on/off logging a hex dump of protocol traffic at DEBUG level in 
+  the logs. Normally you would want this off (which is the default), but 
+  if you are debugging something, it may be useful.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>hexdump</b></code> -
+         <code>True</code> to log protocol traffix (in hex) to the log; 
+        <code>False</code> otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_keepalive"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_keepalive</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>interval</span>)</span>
+  </h3>
+  Turn on/off keepalive packets (default is off). If this is set, 
+  after <code>interval</code> seconds without sending any data over the 
+  connection, a &quot;keepalive&quot; packet will be sent (and ignored by 
+  the remote host). This can be useful to keep connections alive over a 
+  NAT, for example.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>interval</b></code> -
+         seconds to wait before sending a keepalive packet (or 0 to 
+        disable keepalives).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_log_channel"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_log_channel</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>)</span>
+  </h3>
+  Set the channel for this transport's logging. The default is 
+  <code>&quot;paramiko.transport&quot;</code> but it can be set to 
+  anything you want. (See the <code>logging</code> module for more info.) 
+  SSH Channels will log to a sub-channel of the one specified.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         new channel name for logging
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_subsystem_handler"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_subsystem_handler</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>,
+          <span class=sig-arg>handler</span>,
+          <span class="sig-vararg">*larg</span>,
+          <span class="sig-kwarg">**kwarg</span>)</span>
+  </h3>
+  <p>Set the handler class for a subsystem in server mode. If a request 
+  for this subsystem is made on an open ssh channel later, this handler 
+  will be constructed and called -- see <a 
+  href="paramiko.SubsystemHandler-class.html" 
+  class="link"><code>SubsystemHandler</code></a> for more detailed 
+  documentation.</p>
+  Any extra parameters (including keyword arguments) are saved and 
+  passed to the <a href="paramiko.SubsystemHandler-class.html" 
+  class="link"><code>SubsystemHandler</code></a> constructor later.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         name of the subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>handler</b></code> -
+         subclass of <a href="paramiko.SubsystemHandler-class.html" 
+        class="link"><code>SubsystemHandler</code></a> that handles this 
+        subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=class)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="start_client"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">start_client</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>event</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Negotiate a new SSH2 session as a client. This is the first step 
+  after creating a new <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>. A separate thread is created 
+  for protocol negotiation.</p>
+  <p>If an event is passed in, this method returns immediately. When 
+  negotiation is done (successful or not), the given <code>Event</code> 
+  will be triggered. On failure, <a 
+  href="paramiko.Transport-class.html#is_active" 
+  class="link"><code>is_active</code></a> will return 
+  <code>False</code>.</p>
+  <p>(Since 1.4) If <code>event</code> is <code>None</code>, this method 
+  will not return until negotation is done. On success, the method 
+  returns normally. Otherwise an SSHException is raised.</p>
+  After a successful negotiation, you will usually want to 
+  authenticate, calling <a 
+  href="paramiko.Transport-class.html#auth_password" 
+  class="link"><code>auth_password</code></a> or <a 
+  href="paramiko.Transport-class.html#auth_publickey" 
+  class="link"><code>auth_publickey</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>event</b></code> -
+         an event to trigger when negotiation is complete 
+        (optional)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=threading.Event)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if negotiation fails (and no <code>event</code> was passed 
+        in)
+    </dl>
+<p><b>Notes:</b>
+<ul>
+  <li><a href="paramiko.Transport-class.html#connect" 
+class="link"><code>connect</code></a> is a simpler method for connecting 
+as a client.
+</li>
+  <li>After calling this method (or <a 
+href="paramiko.Transport-class.html#start_server" 
+class="link"><code>start_server</code></a> or <a 
+href="paramiko.Transport-class.html#connect" 
+class="link"><code>connect</code></a>), you should no longer directly 
+read from or write to the original socket object.
+
+  </li>
+</ul></p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="start_server"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">start_server</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>event</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>server</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Negotiate a new SSH2 session as a server. This is the first step 
+  after creating a new <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> and setting up your server host 
+  key(s). A separate thread is created for protocol negotiation.</p>
+  <p>If an event is passed in, this method returns immediately. When 
+  negotiation is done (successful or not), the given <code>Event</code> 
+  will be triggered. On failure, <a 
+  href="paramiko.Transport-class.html#is_active" 
+  class="link"><code>is_active</code></a> will return 
+  <code>False</code>.</p>
+  <p>(Since 1.4) If <code>event</code> is <code>None</code>, this method 
+  will not return until negotation is done. On success, the method 
+  returns normally. Otherwise an SSHException is raised.</p>
+  <p>After a successful negotiation, the client will need to 
+  authenticate. Override the methods <a 
+  href="../private/paramiko.ServerInterface-class.html#get_allowed_auths" 
+  class="link"><code>get_allowed_auths</code></a>, <a 
+  href="../private/paramiko.ServerInterface-class.html#check_auth_none" 
+  class="link"><code>check_auth_none</code></a>, <a 
+  href="../private/paramiko.ServerInterface-class.html#check_auth_password" 
+  class="link"><code>check_auth_password</code></a>, and <a 
+  href="../private/paramiko.ServerInterface-class.html#check_auth_publickey" 
+  class="link"><code>check_auth_publickey</code></a> in the given 
+  <code>server</code> object to control the authentication process.</p>
+  After a successful authentication, the client should request to open 
+  a channel. Override <a 
+  href="../private/paramiko.ServerInterface-class.html#check_channel_request" 
+  class="link"><code>check_channel_request</code></a> in the given 
+  <code>server</code> object to allow channels to be opened.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>event</b></code> -
+         an event to trigger when negotiation is complete.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=threading.Event)</i>
+      <dd><code><b>server</b></code> -
+         an object used to perform authentication and create <a 
+        href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>s.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.ServerInterface-class.html" 
+              class="link"><code>server.ServerInterface</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if negotiation fails (and no <code>event</code> was passed 
+        in)
+    </dl>
+<p><b>Note:</b> After calling this method (or <a 
+href="paramiko.Transport-class.html#start_client" 
+class="link"><code>start_client</code></a> or <a 
+href="paramiko.Transport-class.html#connect" 
+class="link"><code>connect</code></a>), you should no longer directly 
+read from or write to the original socket object.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="use_compression"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">use_compression</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>compress</span>=<span class=sig-default>True</span>)</span>
+  </h3>
+  Turn on/off compression. This will only have an affect before 
+  starting the transport (ie before calling <a 
+  href="paramiko.Transport-class.html#connect" 
+  class="link"><code>connect</code></a>, etc). By default, compression is 
+  off since it negatively affects interactive sessions and is not fully 
+  tested.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>compress</b></code> -
+         <code>True</code> to ask the remote client/server to compress 
+        traffic; <code>False</code> to refuse compression
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.5.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF STATIC METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Static Method Details</th></tr>
+</table>
+
+<a name="load_server_moduli"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">load_server_moduli</span>(<span class=sig-arg>filename</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p><i>(optional)</i> Load a file of prime moduli for use in doing 
+  group-exchange key negotiation in server mode. It's a rather obscure 
+  option and can be safely ignored.</p>
+  In server mode, the remote client may request 
+  &quot;group-exchange&quot; key negotiation, which asks the server to 
+  send a random prime number that fits certain criteria. These primes are 
+  pretty difficult to compute, so they can't be generated on demand. But 
+  many systems contain a file of suitable primes (usually named something 
+  like <code>/etc/ssh/moduli</code>). If you call 
+  <code>load_server_moduli</code> and it returns <code>True</code>, then 
+  this file of primes has been loaded and we will support 
+  &quot;group-exchange&quot; in server mode. Otherwise server mode will 
+  just claim that it doesn't support that method of key negotiation.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         optional path to the moduli file, if you happen to know that 
+        it's not in a standard location.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        True if a moduli file was successfully loaded; False 
+        otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Note:</b> This has no effect when used in client mode.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:02 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

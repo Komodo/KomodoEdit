@@ -1,0 +1,15 @@
+# Things we have to do in haml/ruby mode
+
+family ssl
+
+state IN_SSL_DEFAULT:
+/[\[\{]/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR),  \
+    spush_check(IN_SSL_DEFAULT), => IN_SSL_DEFAULT
+/[\]\}]/: paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
+    spop_check, => IN_SSL_DEFAULT
+    
+# Stay in ruby mode until next line - unfortunately we need a
+# Luddite command to cancel an at_eol directive.
+# /\|$/ : 
+
+

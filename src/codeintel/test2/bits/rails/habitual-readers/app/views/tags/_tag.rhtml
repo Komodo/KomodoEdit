@@ -1,0 +1,6 @@
+<tr>
+    <td class="tag_col"><%= link_to tag.name, tag_url(tag) %></th>
+    <td>
+			<%= render :partial => "tagged_book", :collection => Book.find_tagged_with(tag.name), :spacer_template => "home/slash" %>
+    </td>
+</tr>

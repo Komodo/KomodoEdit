@@ -1,0 +1,42 @@
+
+family ssl
+
+# End ${...} forms
+
+state IN_SSL_DEFAULT:
+'{' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
+     spush_check(IN_SSL_DEFAULT), => IN_SSL_DEFAULT
+'}' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
+     spop_check, => IN_SSL_DEFAULT
+
+# End the unbraketed $<name>[.<name>]* form
+
+state IN_M_PYTHON_UNBRACKETED_EXPN:
+'.' : paint(upto, SSL_IDENTIFIER), paint(include, SSL_OPERATOR)
+/[\W]/: paint(upto, SSL_IDENTIFIER), redo, spop_check => IN_M_DEFAULT
+
+# End the <?python PIs with a ?>
+
+state IN_SSL_DEFAULT:
+'?>' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+state IN_SSL_SSTRING:
+'?>' : paint(upto, SSL_STRING), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+state IN_SSL_DSTRING:
+'?>' : paint(upto, SSL_STRING), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+state IN_SSL_TRIPLE_SSTRING:
+'?>' : paint(upto, SSL_STRING), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+state IN_SSL_TRIPLE_DSTRING:
+'?>' : paint(upto, SSL_STRING), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+state IN_SSL_COMMENT:
+'?>' : paint(upto, SSL_COMMENT), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+# End Python attribute strings
+
+state IN_SSL_DEFAULT:
+delimiter: paint(include, SSL_DEFAULT), => IN_M_STAG_POST_TAGNAME
+

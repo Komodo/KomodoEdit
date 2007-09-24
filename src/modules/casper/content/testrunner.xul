@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. -->
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://casper/skin/casper.css" type="text/css"?>
+<window id="TestRunnerWindow"
+  title="Casper Test Runner"
+  xmlns:html="http://www.w3c.org/1999/xhtml"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  persist="screenX screenY width height"
+  onload="onload();">
+  
+    <script type="application/x-javascript">
+    <![CDATA[
+    var unittest = opener.Casper.UnitTest;
+    function onload()
+    {
+        var dir = document.getElementById('testDir').getAttribute('value');
+        if (!dir) dir = unittest.testDir;
+        document.getElementById('testDir').value = dir;
+        document.getElementById('testDir').setAttribute('value', dir);
+        setTestList();
+    }
+    
+    function _dirDialog()
+    {
+        var nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = Components.classes["@mozilla.org/filepicker;1"]
+                .createInstance(nsIFilePicker);
+        fp.init(window, "Save the Test Class as", nsIFilePicker.modeGetFolder);
+        // fp.displayDirectory ?
+        
+        var res = fp.show();
+        if (res != nsIFilePicker.returnCancel) {
+          return fp.file.path;
+        }
+        return null;
+    }
+    
+    function setDirectory()
+    {
+        var dir = _dirDialog();
+        if (dir) {
+            document.getElementById('testDir').value = dir;
+            document.getElementById('testDir').setAttribute('value', dir);
+            setTestList();
+        }
+    }
+    
+    function runTests()
+    {
+        try {
+        var lb = document.getElementById('testList');
+        var children = lb.getElementsByTagName('listitem');
+        var files = [];
+        for (var i=0; i < children.length; i++) {
+            if (children[i].checked) {
+                files.push(children[i].getAttribute('label'));
+            }
+        }
+        if (files.length < 1) {
+            alert("No test files are selected!");
+            return;
+        }
+        unittest.testRunner.params = files;
+        unittest.testRunner.run();
+        } catch (e) { dump(e+"\n"); }
+    }
+    
+    function setTestList()
+    {
+        try {
+        var lb = document.getElementById('testList');
+        var children = lb.getElementsByTagName('listitem');
+        while (children.length) {
+            lb.removeChild(children[0]);
+        }
+        // get a list of files and fill the listbox with them
+        var files = unittest.getFilesInDir(document.getElementById('testDir').value);
+        for (var i=0; i < files.length; i++) {
+            var item = lb.appendItem ( files[i] , files[i] );
+            item.setAttribute("type","checkbox");
+            item.setAttribute("checked","true");
+            item.setAttribute("crop", "center");
+        }
+        } catch (e) { dump(e+"\n"); }
+    }
+    
+    ]]>
+    </script>
+
+    <toolbox>
+    </toolbox>
+    <tabbox flex="1">
+        <tabs>
+            <tab label="Loader"/>
+            <tab label="Runner"/>
+        </tabs>
+        <tabpanels flex="1" xstyle="padding: 0px; padding-top: 8px;">
+            <tabpanel orient="vertical" style="padding: 0px; margin: 0px;">
+                <toolbar id="load-toolbar">
+                <textbox id="testDir" flex="1"
+                         persist="value"
+                         onkeypress="if (event.keyCode == event.DOM_VK_ENTER ||
+                                         event.keyCode == event.DOM_VK_RETURN) {
+                                         setTestList();
+                                      }"/>
+                <toolbarbutton label="Choose..." onclick="setDirectory()"
+                               class="text-button"/>
+                </toolbar>
+                <listbox id="testList" flex="1">
+                  <listcols>
+                    <listcol flex="1"/>
+                  </listcols>
+                  <listhead>
+                    <listheader label="Test Files"/>
+                  </listhead>
+                </listbox>
+            </tabpanel>
+            <tabpanel orient="vertical" style="padding: 0px;  margin: 0px;">
+                <toolbar id="run-toolbar">
+                <toolbarbutton label="Run Tests" onclick="runTests()"
+                               class="text-button"/>
+                </toolbar>
+                <vbox flex="1">
+                <groupbox>
+                    <caption label="Results"/>
+                  
+                    <grid>
+                        <columns>
+                            <column/>
+                            <column flex="1"/>
+                            <column/>
+                            <column flex="1"/>
+                        </columns>
+                        <rows>
+                            <row>
+                                <label value="Total Test Suites:"/>
+                                <label id="totalSuites"/>
+                                <label value="Total OK:"/>
+                                <label id="totalOK"/>
+                            </row>
+                            <row>
+                                <label value="Total Test Cases:"/>
+                                <label id="totalCases"/>
+                                <label value="Total FAIL:"/>
+                                <label id="totalFAIL"/>
+                            </row>
+                            <row>
+                                <label value="Total Tests:"/>
+                                <label id="totalTests"/>
+                                <label value="Total BREAK:"/>
+                                <label id="totalBREAK"/>
+                            </row>
+                        </rows>
+                    </grid>
+                </groupbox>
+                <hbox flex="1">
+                <groupbox flex="1">    
+                  <caption label="Tests"/>
+                    <tree id="treeResults" onselect="unittest.testRunner.showDetails();" flex="1">
+                        <treecols>
+                            <treecol id="treecolNameComment" label="Name" flex="5" primary="true"/>
+                            <splitter class="tree-splitter"/>
+                            <treecol id="treecolResult" label="Result" flex="2"/>
+                        </treecols>
+                        <treechildren id="treechildrenResults"/>
+                    </tree>
+                </groupbox>
+                    <splitter/>
+                <groupbox flex="1">    
+                  <caption label="Details"/>
+                    <vbox flex="1">
+                    <grid>
+                        <columns>
+                            <column/>
+                            <column/>
+                        </columns>
+                        <rows>
+                            <row>
+                                <label value="Type: "/>
+                                <description id="labelDetailType"/>
+                            </row>
+                            <row>
+                                <label value="Name: "/>
+                                <description id="labelDetailNameComment"/>
+                            </row>
+                            <row>
+                                <label value="Result: "/>
+                                <description id="labelDetailResult"/>
+                            </row>
+                        </rows>
+                    </grid>
+                    <label value="Detail: "/>
+                    <textbox id="labelDetailBreakMessage" multiline="true" flex="1"/>
+                    </vbox>
+                </groupbox>
+                </hbox>
+                </vbox>
+            </tabpanel>
+        </tabpanels>
+    </tabbox>
+</window>

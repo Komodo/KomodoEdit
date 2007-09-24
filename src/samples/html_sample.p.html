@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<!--
+    by JeffG, Copyright (c) 2000-2007 ActiveState Software Inc.
+
+    HTML code features autocomplete based on the doctype declaration you
+    provide at the top of your page. If you don't declare a doctype, Komodo
+    will use your default doctype as set in
+    
+    Preferences / Languages / HTML
+    
+    To preview this page in Komodo or your default web browser, click on
+    the 'Preview' button in the toolbar. Komodo can be configured to use
+    a specific browser in Preferences, under 'Web & Browser'
+-->
+<title>Komodo HTML Sample</title>
+<script type="text/javascript">
+//<![CDATA[
+/*
+    * JavaScript code blocks include syntax highlighting, autocomplete and
+    * calltips
+*/
+
+/* mini js library */
+function $(id) { return document.getElementById(id); }
+function html(id,str) { $(id).innerHTML = str; }
+function add_html(id,str) { $(id).innerHTML += str; }
+function log(str) { add_html('log', str); $('log').scrollTop = $('log').scrollHeight; }
+function clear(id) { html(id,"");}
+function trim(str) { str.replace(/^\s*/, '').replace(/\s*$/, ''); return str; } 
+
+/*
+    * hack(): takes the value of the text field and prints it out
+    * in the output div, increasing the font size for every iteration
+    * I threw in the color change for some extra pizazz.
+*/
+
+function rand_color() {
+    var hex = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
+    var hexstr = "";
+    var i=0; while(i<6) {
+        var tmp = (Math.round((Math.random() * 16))-1);
+        if(tmp<0) { tmp = 0; }
+        if(!hex[tmp]) {alert(tmp);}
+        hexstr += new String(hex[tmp]);
+        i++;
+    }
+    return "#"+hexstr;
+}
+
+function hack() {
+    clear('script-output');
+    var txt = $('name').value;
+    txt = trim(txt);
+    if(txt.length > 0 && txt != ' ') {
+        log('got <span class="val">\'' + txt + '\'</span> from the text field<br/>');
+        var tmp = "";
+        var i=0;
+        while(i<12) {
+            var fsize = String(i+14);
+            tmp = '<p style="font-size:'+fsize+'pt; color: '+rand_color()+'">'+txt+'</p>';
+            add_html('script-output', tmp);
+            i++;
+        }
+    } else {
+        log('<span class="err">Error: got nothing from the text box...</span><br/>');    
+    }
+    return false;
+}
+
+function livehack() {
+    /* un-comment the code below to update the page as you type
+      to un-comment a block in Komodo, select the block and hit Ctrl+SHIFT+3
+    */
+    //hack();
+}
+
+
+function hide(id) {
+    $(id).style.display = "none";
+    $('log-header').innerHTML = '<a href="JavaScript:show(\'log-div\')">Show Log</a>'
+}
+
+function show(id) {
+    $(id).className = ""; $(id).style.display = "block";
+    $('log-header').innerHTML = 'Log';
+}
+
+//]]>
+</script>
+<style type="text/css">
+
+/*
+    * Style blocks in html include syntax highlighting and autocomplete for CSS
+    * declarations
+*/
+
+body {
+    color: #036;
+    /* fill in css declarations in here to test css autocomplete */
+}
+h1,h3 { font: 18pt bold sans-serif; color: #036; }
+h3 { font-size: 14pt; }
+a { color: #036; text-decoration: none; }
+a:hover { text-decoration: underline; }
+#form-items {
+    border: 1px solid #DEDEDE;
+    width: 550px;
+}
+
+#script-output {
+    height: 300px;
+    width: 550px;
+}
+
+#log {
+    overflow: scroll;
+    height: 150px;
+    width: 550px;
+    background-color: #000;
+    color: #EFEFEF;
+    font: 12pt bold monospace;
+}
+
+#script-output {
+    overflow: scroll;
+    border: 1px solid #DEDEDE;
+}
+#script-output p { margin: 0; padding: 0; }
+.val { color: green; font-weight: bold; }
+#name {
+    width: 160px;
+    border: 1px solid #CDCDCD;
+    background-color: #EFEFEF;
+    color: #036;
+}
+#ctrl { border-bottom: 1px solid #EFEFEF; }
+.err { font: bold; color: red; }
+</style>
+</head>
+<body>
+<!--
+    
+-->
+<h1>Komodo HTML Sample</h1>
+<form id="test-form" onsubmit="return hack()">
+<div id="form-items">
+    <label>Type some text:
+        <input type="text" id="name" value="Komodo Rules!" onkeyup="livehack();"/>
+    </label>
+    <input type="submit" value="Click Me" id="sub-button"/>
+</div>
+<h3>Output:</h3>
+<div id="script-output"></div>
+<h3 id="log-header">Log:</h3>
+<div id="log-div">
+<div id="ctrl"><a href="JavaScript:clear('log')">Clear</a>
+&nbsp;<a href="JavaScript:hide('log-div')">Hide</a></div>
+<div id="log"></div>
+</div>
+</form>
+</body>
+</html>

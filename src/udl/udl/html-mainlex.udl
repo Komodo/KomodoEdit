@@ -1,0 +1,10 @@
+include "html2js.udl"
+include "html2css.udl"
+include "css2html.udl"
+include "js2html.udl"
+
+language HTML
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"

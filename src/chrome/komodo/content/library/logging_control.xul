@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % libraryDTD SYSTEM "chrome://komodo/locale/library.dtd">
+  %libraryDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Komodo Logging control panel -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<dialog id="komodo_logging_control"
+        title="&loggingControl.title;"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="Komodo:LoggingControl"
+        class="kodialog"
+        width="600"
+        height="400"
+        orient="vertical"
+        buttons="accept"
+        onload="loggingControl_OnLoad();"
+        onunload="loggingControl_OnUnload();"
+        >
+<script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging_control.js"/>
+
+<menupopup id="set_level_menu">
+    <menuitem id="NOTSET" label="&unset.label;" oncommand="setLevel(this, ko.logging.LOG_NOTSET);"/>
+    <menuitem id="DEBUG" label="&DEBUG10.label;" oncommand="setLevel(this, ko.logging.LOG_DEBUG);"/>
+    <menuitem id="INFO" label="&INFO20.label;" oncommand="setLevel(this, ko.logging.LOG_INFO);"/>
+    <menuitem id="WARN" label="&WARN30.label;" oncommand="setLevel(this, ko.logging.LOG_WARN);"/>
+    <menuitem id="ERROR" label="&ERROR40.label;" oncommand="setLevel(this, ko.logging.LOG_ERROR);"/>
+    <menuitem id="CRITICAL" label="&CRITICAL50.label;" oncommand="setLevel(this, ko.logging.LOG_CRITICAL);"/>
+</menupopup>
+    <tree context="set_level_menu" seltype="single" id="loggers" flex="1">
+        <treecols>
+        <treecol id="logger" label="&logger.label;"
+            flex="1"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"
+            />
+        <splitter class="tree-splitter"/>
+        <treecol id="effectivelevel" label="&effectiveLevel.label;"
+            flex="2"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"
+        />
+        <splitter class="tree-splitter"/>
+        <treecol id="level" label="&setLevel.label;"
+            flex="2"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"
+        />
+        </treecols>
+        <treechildren flex="1" onselect="gLoggerView.selectionChanged();"/>
+    </tree>
+    <splitter>
+        <grippy/>
+    </splitter>
+    <tree id="logs" flex="2">
+        <treecols>
+        <treecol id="logger"
+            label="&logger.label;"
+            flex="1"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="level" label="&level.label;"
+            flex="1"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="message" label="&message.label;"
+            flex="3"
+            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
+        </treecols>
+        <treechildren flex="1" onselect="gLogView.selectionChanged();"/>
+    </tree>
+    <hbox>
+        <button label="&clearLog.label;" oncommand="gLogView.clear();" flex="1"/>
+    </hbox>
+</dialog>

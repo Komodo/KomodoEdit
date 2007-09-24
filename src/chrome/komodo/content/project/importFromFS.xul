@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&importFromFileSystem.title;"
+        orient="vertical"
+        id="dialog-importfromfs"
+        windowtype="komodo_import"
+        persist="width height screenX screenY"
+        buttons="cancel,accept,help"
+        ondialogcancel="return onCancel()"
+        ondialoghelp="ko.help.open('importing_from_a_file_system');"
+        ondialogaccept="return onNext()"
+        onload="onLoad()">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/dialogs/filebrowser/filebrowser.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/project/importFromFS.js"/>
+
+    <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
+        <caption label="&specifyFilesToAddIntoTheCurrentProject.label;" class="kopadded"/>
+        <vbox flex="1">
+            <grid flex="1">
+                <columns>
+                    <column flex="1"/>
+                    <column/>
+                </columns>
+                <rows>
+                    <row>
+                        <label value="Directory to import from:" class="kopadded"/>
+                        <label value="Browse for directory location:" class="kopadded"/>
+                    </row>
+                    <row>
+                        <textbox id="dirname" pref="true" flex="1" />
+                        <hbox align="center">
+                            <button label="&locally.label;" oncommand="ko.filepicker.browseForDir(document.getElementById('dirname'))" />
+                            <button label="&remotely.label;" oncommand="ko.filepicker.browseForRemoteDir(document.getElementById('dirname'));" />
+                        </hbox>
+                    </row>
+                </rows>
+            </grid>
+            <separator class="thin"/>
+            <label value="Files to include: (empty means 'all')"/>
+            <textbox id="inc-filter" pref="true" value=""/>
+            <separator class="thin"/>
+            <label value="Files and directories to exclude: (empty means 'none')"/>
+            <textbox id="ex-filter" pref="true" value=""/>
+            <separator class="thin"/>
+            <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
+                oncommand="updateRecursive()"
+                pref="true" prefstring="import-recursive" />
+            <separator class="thin"/>
+            <hbox pack="start" align="center">
+                <label value="Type of folder structure to create:"/>
+                <menulist id="import-type">
+                    <menupopup>
+                        <menuitem id="dirs" label="&importDirectoryStructure.label;" data="useFolders"/>
+                        <menuitem label="&makeAFolderPerLanguage.label;" data="groupByType"/>
+                        <menuitem id="flat" label="&makeOneFlatList.label;" data="makeFlat"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </vbox>
+    </groupbox>
+</dialog>
+

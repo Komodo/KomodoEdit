@@ -1,0 +1,642 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/otherdialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/encodingmenu.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js" type="application/x-javascript;version=1.7"/>
+
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+var data = {};
+var gEncodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
+                   getService(Components.interfaces.koIEncodingServices);
+
+function OnPreferencePageLoading(prefset) {
+    data.readonly = document.getElementById("readonly");
+    data.encoding = document.getElementById("encoding");
+    data.language = document.getElementById("language");
+    data.lineEndings = document.getElementById("lineEndings");
+    data.bom = document.getElementById("bom");
+    data.preserveLineEndings = document.getElementById("preserveLineEndings");
+    data.mixedLineEndings = document.getElementById("mixedLineEndings");
+    data.resetButton = document.getElementById("btn-reset");
+    data.changedFields = {};
+
+    if (parent.part) {
+        data.file = parent.part.getFile();
+    } else {
+        data.file = parent.view.document.file;
+    }
+    data.prefset = prefset;
+
+    initViewDependentUI();
+    initFileProperties();
+
+    var lang = null;
+    if (parent.view) {
+        lang = _getMarkupLanguage();
+        if (lang) {
+            data.declPrefName = "default"+lang+"Decl";
+            data.nsPrefName = "default"+lang+"Namespace";
+            initDocumentType(prefset);
+        }
+    }
+    if (!lang) {
+        var el = document.getElementById("markupSettings");
+        el.parentNode.removeChild(el);
+    }
+}
+
+function _getMarkupLanguage() {
+    var domLanguages = ["XML", "HTML", "XHTML", "XSLT"];
+    var langSvc = parent.view.document.languageObj;
+    var found = domLanguages.indexOf(langSvc.name) >= 0 ? langSvc.name:null;
+    if (!found) {
+        var languages = langSvc.getSubLanguages(new Object());
+        for (var i=0; i < languages.length; i++) {
+            if (domLanguages.indexOf(languages[i]) >= 0) {
+                found = languages[i];
+                break;
+            }
+        }
+        if (!found) return null;
+    }
+    return found;
+}
+
+function initDocumentType(prefset) {
+    try {
+        var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
+                           getService(Components.interfaces.koIXMLCatalogService);
+        var decl = null;
+        var idlist;
+        if (prefset.hasPrefHere(data.declPrefName)) {
+            decl = prefset.getStringPref(data.declPrefName);
+        }
+        idlist = catSvc.getPublicIDList(new Object());
+        _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
+        
+        decl = null;
+        if (prefset.hasPrefHere(data.nsPrefName)) {
+            decl = prefset.getStringPref(data.nsPrefName);
+        }
+        idlist = catSvc.getNamespaceList(new Object());
+        _initTypePopup(idlist, "namespacePopup", decl, null);
+    } catch(e) {
+        log.exception(e);
+    }
+}
+
+function _initTypePopup(list, popupId, defaultSetting, matchRx) {
+    var popup = document.getElementById(popupId);
+    var selected = popup.firstChild;
+    for (var i =0 ; i < list.length; i++) {
+        if (matchRx && !list[i].match(matchRx)) continue;
+        var el = document.createElement("menuitem");
+        el.setAttribute("label", list[i]);
+        popup.appendChild(el);
+        if (list[i] == defaultSetting) selected = el;
+    }
+    popup.parentNode.selectedItem = selected;
+}
+
+function OnPreferencePageOK(prefset) {
+    try {
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                           getService(Components.interfaces.koILastErrorService);
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                          getService(Components.interfaces.nsIObserverService);
+
+        var field, value;
+        for (field in data.changedFields) {
+            value = data.changedFields[field];
+            log.info("updating changed field '"+field+"' to '"+value+"'\n");
+            switch(field) {
+            case "readonly":
+                if (value != parent.view.document.file.isReadOnly) {
+                    var osSvc = Components.classes["@activestate.com/koOs;1"].
+                                 getService(Components.interfaces.koIOs);
+                    var path = parent.view.document.file.displayPath;
+                    try {
+                        osSvc.setWriteability(path, !value);
+                    } catch(ex) {
+                        ko.dialogs.alert("Error setting read-only mode for '"
+                                     +parent.view.title+"': "+
+                                     lastErrorSvc.getLastErrorMessage());
+                        data.readonly.focus();
+                        return false;
+                    }
+                    observerSvc.notifyObservers(null, "file_status_now",
+                                                parent.view.document.file.URI);
+                }
+                break;
+
+            case "language":
+                if (value == "" || value != parent.view.document.language) {
+                    parent.view.document.language = value;
+                    observerSvc.notifyObservers(parent.view,
+                                                "current_view_language_changed",
+                                                null);
+                }
+                break;
+
+            case "lineEndings":
+                var le;
+                if (value == "EOL_LF") {
+                    le = parent.view.document.EOL_LF;
+                } else if (value == "EOL_CR") {
+                    le = parent.view.document.EOL_CR;
+                } else if (value == "EOL_CRLF") {
+                    le = parent.view.document.EOL_CRLF;
+                }
+                // If we've changed things, save it as a pref.
+                if (parent.view.document.new_line_endings != le) {
+                    var eolpref = '';
+                    switch (le) {
+                        case parent.view.document.EOL_LF: eolpref = 'LF'; break;
+                        case parent.view.document.EOL_CR: eolpref = 'CR'; break;
+                        case parent.view.document.EOL_CRLF: eolpref = 'CRLF'; break;
+                        default:
+                            log.error("unknown line ending: " + le);
+                    }
+                    if (eolpref) {
+                        parent.view.prefs.setStringPref('endOfLine', eolpref);
+                    }
+                }
+                // Make the change even if 'le' is unchanged to allow a
+                // change to "Preserve Line Endings" on EOL_MIXED files to
+                // correct the file.
+                parent.view.document.new_line_endings = le;
+                if (! data.preserveLineEndings.checked) {
+                    // This changes the current document's line endings.
+                    parent.view.document.existing_line_endings = le;
+                }
+                break;
+
+            case "encoding_and_or_bom":
+                var encodingName = data.encoding.selectedItem.getAttribute("data");
+                var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
+                           && data.bom.checked);
+                var ok = applyEncodingAndBOM(encodingName, bom);
+                if (!ok) return false;
+                observerSvc.notifyObservers(parent.view,
+                                            "current_view_encoding_changed",
+                                            null);
+                break;
+
+            default:
+                log.error("Don't know how to update changed field '"+field+"'.");
+            }
+        }
+
+        var popup = document.getElementById("doctypePopup");
+        if (popup) {
+            var decl;
+            if (popup.parentNode.selectedItem != popup.firstChild) {
+                decl = popup.parentNode.selectedItem.getAttribute("label");
+                prefset.setStringPref(data.declPrefName, decl);
+            } else if (prefset.hasPrefHere(data.declPrefName)) {
+                prefset.deletePref(data.declPrefName);
+                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+                    parent.view.prefs.deletePref(data.declPrefName);
+            }
+        }
+        popup = document.getElementById("namespacePopup");
+        if (popup) {
+            if (popup.parentNode.selectedItem != popup.firstChild) {
+                decl = popup.parentNode.selectedItem.getAttribute("label");
+                prefset.setStringPref(data.nsPrefName, decl);
+            } else if (prefset.hasPrefHere(data.nsPrefName)) {
+                prefset.deletePref(data.nsPrefName);
+                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+                    parent.view.prefs.deletePref(data.nsPrefName);
+            }
+        }
+        return true;
+    } catch (ex) {
+        log.exception(ex, "Error OK'ing dialog.");
+    }
+    return false;
+}
+
+function setField(name, value)
+{
+    data.changedFields[name] = value;
+}
+
+// This function handles the disabled/enabled state of UI elements
+// depending on the language (or other view attributes).
+function initViewDependentUI()  {
+    if (!parent.view) {
+        var el = document.getElementById("file-settings");
+        el.parentNode.removeChild(el);
+    } else {
+        initDocumentSettings();
+    }
+}
+
+function initFileProperties()
+{
+    try {
+        var name, dirname, size, ctime, mtime, atime, readonly;
+
+        if (!data.file) {
+            name = parent.view.title;
+            dirname = size = ctime = mtime = atime = "N/A";
+            readonly = null; // means disabled (N/A)
+        } else {
+            name = data.file.baseName;
+
+            dirname = data.file.dirName;
+            size = data.file.fileSize + " bytes";
+
+            // Time info.
+            var timeSvc = Components.classes["@activestate.com/koTime;1"].
+                            getService(Components.interfaces.koITime);
+            var prefSvc = Components.classes['@activestate.com/koPrefService;1'].
+                            getService(Components.interfaces.koIPrefService);
+            var format = data.prefset.getStringPref("defaultDateFormat");
+            var timeTuple;
+            timeTuple = timeSvc.localtime(data.file.createdTime, new Object());
+            ctime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+            timeTuple = timeSvc.localtime(data.file.lastModifiedTime, new Object());
+            mtime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+            timeTuple = timeSvc.localtime(data.file.lastAccessedTime, new Object());
+            atime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+
+            // Determine read-only status.
+            readonly = data.file.isReadOnly;
+        }
+
+        // Update UI with data.
+        document.getElementById("properties-name").value = name;
+        document.getElementById("location").value = dirname;
+        document.getElementById("size").value = size;
+<!-- #if PLATFORM == "win" -->
+        document.getElementById("created").value = ctime;
+<!-- #endif-->
+        document.getElementById("modified").value = mtime;
+        document.getElementById("accessed").value = atime;
+        if (readonly == null) { // i.e. N/A
+            data.readonly.checked = false;
+            data.readonly.setAttribute("tooltiptext", "Not Applicable");
+            data.readonly.setAttribute("disabled", "true");
+        } else {
+            data.readonly.checked = readonly;
+            if (data.readonly.hasAttribute("disabled"))
+                data.readonly.removeAttribute("disabled");
+            if (data.readonly.hasAttribute("tooltiptext"))
+                data.readonly.removeAttribute("tooltiptext");
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating file properties.");
+    }
+}
+
+
+function initDocumentSettings()
+{
+    if (!parent.view) return;
+    try {
+        // Language
+        data.language.selection = parent.view.document.language;
+
+        // Encoding
+        initEncoding();
+
+        // Line endings
+        var nle = parent.view.document.new_line_endings;
+        if (nle == parent.view.document.EOL_LF) {
+            data.lineEndings.value = "EOL_LF";
+        } else if (nle == parent.view.document.EOL_CR) {
+            data.lineEndings.value = "EOL_CR";
+        } else if (nle == parent.view.document.EOL_CRLF) {
+            data.lineEndings.value = "EOL_CRLF";
+        }
+
+        if (parent.view.document.existing_line_endings == parent.view.document.EOL_MIXED) {
+            if (data.mixedLineEndings.hasAttribute("collapsed"))
+                data.mixedLineEndings.removeAttribute("collapsed");
+        } else {
+            data.mixedLineEndings.setAttribute("collapsed", "true");
+        }
+        // Always preserve the current document by default.
+        data.preserveLineEndings.checked = true;
+
+    } catch(ex) {
+        log.exception(ex, "Error updating settings.");
+    }
+}
+
+
+function resetLanguage() {
+    try {
+        var registry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                       getService(Components.interfaces.koILanguageRegistryService);
+        var language = registry.suggestLanguageForFile(parent.view.title);
+        data.language.selection = language;
+        setField("language", "");  // empty string means to reset
+    } catch(ex) {
+        log.exception(ex, "Error resetting language.");
+    }
+}
+
+
+function initEncoding()  {
+    var enc = parent.view.document.encoding;  // koIEncoding object
+    var encIndex = gEncodingSvc.get_encoding_index(enc.python_encoding_name);
+
+    // Build the menupopup.
+    var menupopup = ko.widgets.getEncodingPopup(gEncodingSvc.encoding_hierarchy,
+                                                true,
+                                                'changeEncoding(this)'); // action
+    if (encIndex == -1) {
+        // Current encoding is not in the std encoding list -- prepend it.
+        var menuitem = document.createElementNS(XUL_NS, 'menuitem');
+        menuitem.setAttribute('data', enc.python_encoding_name);
+        menuitem.setAttribute('label', enc.friendly_encoding_name);
+        menuitem.setAttribute('oncommand', 'changeEncoding(this)');
+        menupopup.insertBefore(menuitem, menupopup.childNodes[0]);
+    }
+    data.encoding.appendChild(menupopup);
+
+    // Make sure current is selected.
+    if (encIndex == -1) {
+        data.encoding.selectedIndex = 0;
+    } else {
+        var item = document.getElementsByAttribute('data',
+                    enc.python_encoding_name)[0];
+        data.encoding.selectedItem = item;
+    }
+
+    // Init BOM checkbox.
+    data.bom.checked = enc.use_byte_order_marker;
+    updateBOM(enc.encoding_info);
+}
+
+
+function updateBOM(encodingInfo)
+{
+    if (encodingInfo.byte_order_marker) {
+        if (data.bom.hasAttribute("disabled"))
+            data.bom.removeAttribute("disabled");
+    } else {
+        data.bom.setAttribute('disabled', 'true');
+        data.bom.checked = false;
+    }
+}
+
+
+function changeEncoding(item)
+{
+    data.encoding.selectedItem = item;
+    var encodingName = item.getAttribute("data");
+    updateBOM(gEncodingSvc.get_encoding_info(encodingName));
+    setField("encoding_and_or_bom", encodingName);
+}
+
+
+// Apply the given encoding and BOM changes to the current document.
+//
+// Returns true iff any changes were successfully made.
+//
+function applyEncodingAndBOM(encodingName, bom)
+{
+    // Short-circuit if the encoding name is the same.
+    if (encodingName == parent.view.document.encoding.python_encoding_name) {
+        parent.view.document.encoding.use_byte_order_marker = bom;
+        parent.view.document.isDirty = true;
+        return true;
+    }
+
+    var enc = Components.classes["@activestate.com/koEncoding;1"].
+                     createInstance(Components.interfaces.koIEncoding);
+    enc.python_encoding_name = encodingName;
+    enc.use_byte_order_marker = bom;
+
+    var warning = parent.view.document.languageObj.getEncodingWarning(enc);
+    var question = warning+" Are you sure that you want to change the encoding?";
+    if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
+        try {
+            parent.view.document.encoding = enc;
+            // and reset the linting
+            parent.view.lintBuffer.request();
+        } catch(ex) {
+            var err;
+            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                               getService(Components.interfaces.koILastErrorService);
+            var errno = lastErrorSvc.getLastErrorCode();
+            var errmsg = lastErrorSvc.getLastErrorMessage();
+            if (errno == 0) {
+                // koDocument.set_encoding() says this is an internal error
+                err = "Internal error setting the encoding for '"+
+                          parent.view.document.displayPath+"' to '"+
+                          encodingName+"'."
+                ko.dialogs.internalError(err, err+"\n\n"+errmsg+
+                                          "\n\n\nTRACEBACK:\n"+
+                                          ko.logging.getStack());
+            } else {
+                question = errmsg+"  Komodo can force the conversion by "+
+                           "replacing all unrepresentable "+
+                           "characters with a question mark, '?', or you "+
+                           "may Cancel and select a different encoding.";
+                var choice = ko.dialogs.customButtons(question,
+                                                  ["Force", "Cancel"],
+                                                  "Cancel"); // default
+                if (choice == "Force") {
+                    try {
+                        parent.view.document.forceEncodingFromEncodingName(encodingName);
+                    } catch (ex2) {
+                        err = "Internal error forcing the encoding for '"+
+                                  parent.view.document.baseName+"' to '"+
+                                  encodingName+"'."
+                        ko.dialogs.internalError(err, err+"\n\n"+errmsg+
+                                                  "\n\n\nTRACEBACK:\n"+
+                                                  ko.logging.getStack());
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+]]>
+</script>
+
+    <groupbox orient="vertical">
+        <caption label="&fileProperties.label;"/>
+            <grid flex="1">
+                <columns>
+                    <column style="min-width: 90px;"/>
+                    <!--<column/>-->
+                    <column flex="1"/>
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="Name:"/>
+                        <textbox id="properties-name" readonly="true" flex="1"/>
+                    </row>
+                    <separator style="height: 8px;"/>
+
+                    <separator class="groovy-thin"/>
+
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Location:"/>
+                        <textbox id="location" readonly="true"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Size:"/>
+                        <label id="size"/>
+                    </row>
+                    <separator class="thin"/>
+
+                    <separator class="groovy-thin"/>
+
+<!-- #if PLATFORM == "win" -->
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Created:"/>
+                        <label id="created"/>
+                    </row>
+<!-- #endif -->
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Modified:"/>
+                        <label id="modified"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Accessed:"/>
+                        <label id="accessed"/>
+                    </row>
+                    <separator class="thin"/>
+
+                    <separator class="groovy-thin"/>
+
+                    <separator class="thin"/>
+                    <row align="center">
+                        <!-- Should show Unix-style file mode for linux. -->
+                        <label value="Attributes:"/>
+                        <checkbox id="readonly" style="padding-left: 0px;"
+                                  label="&readOnly.label;" accesskey="&readonly.accesskey;"
+                                  oncommand="setField('readonly', this.checked);"/>
+                    </row>
+                 </rows>
+            </grid>
+
+    </groupbox>
+    <groupbox id="file-settings" orient="vertical">
+       <caption label="&fileSettings.label;"/>
+            <grid flex="1">
+                <columns>
+                    <column style="min-width: 90px;"/>
+                    <!--<column/>-->
+                    <column flex="1"/>
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="Language:" control="language"
+                               accesskey="&L.accesskey;"/>
+                        <hbox align="center" flex="1">
+                            <langlist id="language" flex="1"
+                                      oncommand="setField('language', this.selection);"/>
+                            <button id="btn-reset" label="&reset.label;" accesskey="&btnReset.accesskey;"
+                                    tooltiptext="&resetLanguageToTheDefaultForThisFileType.tooltiptext;"
+                                    oncommand="resetLanguage();"/>
+                        </hbox>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Encoding:" control="encoding"
+                               accesskey="&E.accesskey;"/>
+                        <menulist id="encoding"/>
+                    </row>
+                    <row>
+                        <spacer/>
+                        <checkbox id="bom" accesskey="&bom.accesskey;"
+                                  style="padding-left: 0px;"
+                                  oncommand="setField('encoding_and_or_bom', this.checked);"
+                                  label="&useSignatureBOM.label;"/>
+                    </row>
+                    <separator class="thin"/>
+                    <row align="center">
+                        <label value="Line Endings:" control="lineEndings"
+                               accesskey="&n.accesskey;"/>
+                        <menulist id="lineEndings"
+                                  oncommand="setField('lineEndings', this.value);">
+                            <menupopup>
+                                <menuitem label="&DOSWindowsRN.label;"
+                                          value="EOL_CRLF"/>
+                                <menuitem label="&UNIXN.label;"
+                                          value="EOL_LF"/>
+                                <menuitem label="&macClassicR.label;"
+                                          value="EOL_CR"/>
+                            </menupopup>
+                        </menulist>
+                    </row>
+                    <row align="center">
+                        <spacer/>
+                        <vbox>
+                            <checkbox id="preserveLineEndings" accesskey="&preserveLineEndings.accesskey;"
+                                      style="padding-left: 0px;"
+                                      label="&preserveExistingLineEndings.label;"
+                                      oncommand="setField('lineEndings', document.getElementById('lineEndings').value);"/>
+                            <description id="mixedLineEndings"
+                                         value="(This file has mixed line endings.)"
+                                         style="color: #CC3333; margin-top: 0px; padding-left: 20px;"
+                                         collapsed="true"/>
+                        </vbox>
+                    </row>
+                </rows>
+            </grid>
+    </groupbox>
+    <groupbox orient="vertical" id="markupSettings">
+        <caption label="&documentMarkupSettings.label;"/>
+        <label value="Default DOCTYPE:"/>
+        <menulist id="doctypeList"
+                  flex="1">
+            <menupopup id="doctypePopup">
+                <menuitem label="&determineFromContent.label;"/>
+            </menupopup>
+        </menulist>
+        <label value="Default Namespace:"/>
+        <menulist id="namespaceList"
+                  flex="1">
+            <menupopup id="namespacePopup">
+                <menuitem label="&determineFromContent.label;"/>
+            </menupopup>
+        </menulist>
+    </groupbox>
+
+
+</window>

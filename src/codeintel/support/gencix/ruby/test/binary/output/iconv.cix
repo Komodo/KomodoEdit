@@ -1,0 +1,30 @@
+    <scope ilk="blob" lang="Ruby" name="iconv">
+      <scope ilk="class" name="Iconv" mixinrefs="Kernel" classrefs="Data">
+        <scope ilk="namespace" name="Failure">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="class" name="BrokenLibrary" mixinrefs="Iconv::Failure Kernel" classrefs="RuntimeError">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="class" name="IllegalSequence" mixinrefs="Iconv::Failure Kernel" classrefs="ArgumentError">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="class" name="InvalidCharacter" mixinrefs="Iconv::Failure Kernel" classrefs="ArgumentError">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="class" name="InvalidEncoding" mixinrefs="Iconv::Failure Kernel" classrefs="ArgumentError">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="class" name="OutOfRange" mixinrefs="Iconv::Failure Kernel" classrefs="RuntimeError">
+          <scope ilk="function" name="failed" />
+          <scope ilk="function" name="success" />
+        </scope>
+        <scope ilk="function" name="close" />
+        <scope ilk="function" name="iconv" />
+      </scope>
+    </scope>

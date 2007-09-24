@@ -1,0 +1,358 @@
+<!--
+Wireless Markup Language (WML) Document Type Definition.
+WML is an XML language. Typical usage:
+   <?xml version="1.0"?>
+   <!DOCTYPE wml PUBLIC "-//WAPFORUM//DTD WML 1.3//EN"
+   "http://www.wapforum.org/DTD/wml13.dtd">
+   <wml>
+   ...
+   </wml>
+
+   Terms and conditions of use are available from the Wireless  Application Protocol Forum
+   Ltd. web site at http://www.wapforum.org/docs/copyright.htm.
+
+-->
+
+
+<!ENTITY % length  "CDATA">         <!-- [0-9]+ for pixels or [0-9]+"%" for
+                                        
+percentage length -->
+<!ENTITY % vdata   "CDATA">         <!-- attribute value possibly containing
+                                         variable references -->
+<!ENTITY % HREF    "%vdata;">       <!-- URI, URL or URN designating a hypertext
+                                         node. May contain variable references -->
+<!ENTITY % boolean "(true|false)">
+<!ENTITY % number  "NMTOKEN">       <!-- a number, with format [0-9]+ -->
+<!ENTITY % coreattrs   "id     ID     #IMPLIED
+                        class  CDATA  #IMPLIED">
+<!ENTITY % ContentType "%vdata;">   <!-- media type. May contain variable
+                                         references -->
+
+<!ENTITY % emph     "em | strong |b |i |u |big |small">
+<!ENTITY % layout   "br">
+
+<!ENTITY % text     "#PCDATA | %emph;">
+
+<!-- flow covers "card-level" elements, such as text and images -->
+<!ENTITY % flow     "%text; | %layout; | img | anchor |a |table">
+
+<!-- Task types -->
+<!ENTITY % task "go | prev | noop | refresh">
+
+<!-- Navigation and event elements -->
+<!ENTITY % navelmts "do | onevent">
+
+<!--================ Decks and Cards ================-->
+
+<!ELEMENT wml ( head?, template?, card+ )>
+<!ATTLIST wml
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!-- card intrinsic events -->
+<!ENTITY % cardev
+  "onenterforward  %HREF;      #IMPLIED
+  onenterbackward  %HREF;      #IMPLIED
+  ontimer          %HREF;      #IMPLIED"
+>
+
+<!-- card field types -->
+<!ENTITY % fields "%flow; | input | select | fieldset">
+<!ELEMENT card (onevent*, timer?, (do | p | pre)*)>
+<!ATTLIST card
+  title            %vdata;     #IMPLIED
+  newcontext       %boolean;   "false"
+  ordered          %boolean;   "true"
+  xml:lang         NMTOKEN     #IMPLIED
+  %cardev;
+  %coreattrs;
+>
+
+<!--================ Event Bindings ================-->
+
+<!ELEMENT do (%task;)>
+<!ATTLIST do
+  type             CDATA       #REQUIRED
+  label            %vdata;     #IMPLIED
+  name             NMTOKEN     #IMPLIED
+  optional         %boolean;   "false"
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT onevent (%task;)>
+<!ATTLIST onevent
+  type             CDATA       #REQUIRED
+  %coreattrs;
+>
+
+<!--================ Deck-level declarations ================-->
+
+<!ELEMENT head ( access | meta )+>
+<!ATTLIST head
+  %coreattrs;
+>
+
+<!ELEMENT template (%navelmts;)*>
+<!ATTLIST template
+  %cardev;
+  %coreattrs;
+>
+
+<!ELEMENT access EMPTY>
+<!ATTLIST access
+  domain           CDATA       #IMPLIED
+  path             CDATA       #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT meta EMPTY>
+<!ATTLIST meta
+  http-equiv       CDATA       #IMPLIED
+  name             CDATA       #IMPLIED
+  forua            %boolean;   "false"
+  content          CDATA       #REQUIRED
+  scheme           CDATA       #IMPLIED
+  %coreattrs;
+>
+
+<!--================ Tasks ================-->
+
+<!ENTITY % cache-control "(no-cache)" >
+
+<!ELEMENT go (postfield | setvar)*>
+<!ATTLIST go
+  href             %HREF;          #REQUIRED
+  sendreferer      %boolean;       "false"
+  method           (post|get)      "get"
+  enctype          %ContentType;   "application/x-www-form-urlencoded"
+  cache-control    %cache-control; #IMPLIED
+  accept-charset   CDATA           #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT prev (setvar)*>
+<!ATTLIST prev
+  %coreattrs;
+>
+
+<!ELEMENT refresh (setvar)*>
+<!ATTLIST refresh
+  %coreattrs;
+>
+
+<!ELEMENT noop EMPTY>
+<!ATTLIST noop
+  %coreattrs;
+>
+
+<!--================ postfield ================-->
+
+<!ELEMENT postfield EMPTY>
+<!ATTLIST postfield
+  name             %vdata;     #REQUIRED
+  value            %vdata;     #REQUIRED
+  %coreattrs;
+>
+
+<!--================ variables ================-->
+
+<!ELEMENT setvar EMPTY>
+<!ATTLIST setvar
+  name             %vdata;     #REQUIRED
+  value            %vdata;     #REQUIRED
+  %coreattrs;
+>
+
+<!--================ Card Fields ================-->
+
+<!ELEMENT select (optgroup|option)+>
+<!ATTLIST select
+  title            %vdata;     #IMPLIED
+  name             NMTOKEN     #IMPLIED
+  value            %vdata;     #IMPLIED
+  iname            NMTOKEN     #IMPLIED
+  ivalue           %vdata;     #IMPLIED
+  multiple         %boolean;   "false"
+  tabindex         %number;    #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT optgroup (optgroup|option)+ >
+<!ATTLIST optgroup
+  title            %vdata;     #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT option (#PCDATA | onevent)*>
+<!ATTLIST option
+  value            %vdata;     #IMPLIED
+  title            %vdata;     #IMPLIED
+  onpick           %HREF;      #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT input EMPTY>
+<!ATTLIST input
+  name             NMTOKEN         #REQUIRED
+  type             (text|password) "text"
+  value            %vdata;         #IMPLIED
+  format           CDATA           #IMPLIED
+  emptyok          %boolean;       #IMPLIED
+  size             %number;        #IMPLIED
+  maxlength        %number;        #IMPLIED
+  tabindex         %number;        #IMPLIED
+  title            %vdata;         #IMPLIED
+  accesskey        %vdata;         #IMPLIED
+  xml:lang         NMTOKEN         #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT fieldset (%fields; | do)* >
+<!ATTLIST fieldset
+  title           %vdata;      #IMPLIED
+  xml:lang        NMTOKEN      #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT timer EMPTY>
+<!ATTLIST timer
+  name             NMTOKEN     #IMPLIED
+  value            %vdata;     #REQUIRED
+  %coreattrs;
+>
+
+<!--================ Images ================-->
+
+<!ENTITY % IAlign "(top|middle|bottom)" >
+<!ELEMENT img EMPTY>
+<!ATTLIST img
+  alt              %vdata;     #REQUIRED
+  src              %HREF;      #REQUIRED
+  localsrc         %vdata;     #IMPLIED
+  vspace           %length;    "0"
+  hspace           %length;    "0"
+  align            %IAlign;    "bottom"
+  height           %length;    #IMPLIED
+  width            %length;    #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!--================ Anchor ================-->
+
+<!ELEMENT anchor ( #PCDATA | br | img | go | prev | refresh )*>
+<!ATTLIST anchor
+  title            %vdata;     #IMPLIED
+  accesskey        %vdata;     #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+<!ELEMENT a ( #PCDATA | br | img )*>
+<!ATTLIST a
+  href             %HREF;      #REQUIRED
+  title            %vdata;     #IMPLIED
+  accesskey        %vdata;     #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!--================ Tables ================-->
+
+<!ELEMENT table (tr)+>
+<!ATTLIST table
+  title            %vdata;     #IMPLIED
+  align            CDATA       #IMPLIED
+  columns          %number;    #REQUIRED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT tr (td)+>
+<!ATTLIST tr
+  %coreattrs;
+>
+<!ELEMENT td ( %text; | %layout; | img | anchor |a )*>
+<!ATTLIST td
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!--================ Text layout and line breaks ================-->
+
+<!ELEMENT em (%flow;)*>
+<!ATTLIST em
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT strong (%flow;)*>
+<!ATTLIST strong
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT b (%flow;)*>
+<!ATTLIST b
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT i (%flow;)*>
+<!ATTLIST i
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT u (%flow;)*>
+<!ATTLIST u
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT big (%flow;)*>
+<!ATTLIST big
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT small (%flow;)*>
+<!ATTLIST small
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ENTITY % TAlign    "(left|right|center)">
+<!ENTITY % WrapMode  "(wrap|nowrap)" >
+
+<!ELEMENT p (%fields; | do)*>
+<!ATTLIST p
+  align            %TAlign;    "left"
+  mode             %WrapMode;  #IMPLIED
+  xml:lang         NMTOKEN     #IMPLIED
+  %coreattrs;
+>
+
+<!ELEMENT br EMPTY>
+<!ATTLIST br
+  %coreattrs;
+>
+
+<!ELEMENT pre (#PCDATA | a | anchor | do | u | br | i | b | em | strong |
+               input | select )*>
+<!ATTLIST pre
+  xml:space        CDATA       #FIXED    "preserve"
+  %coreattrs;
+>
+
+<!ENTITY quot "&#34;">       <!-- quotation mark -->
+<!ENTITY amp  "&#38;#38;">   <!-- ampersand -->
+<!ENTITY apos "&#39;">       <!-- apostrophe -->
+<!ENTITY lt   "&#38;#60;">   <!-- less than -->
+<!ENTITY gt   "&#62;">       <!-- greater than -->
+<!ENTITY nbsp "&#160;">      <!-- non-breaking space -->
+<!ENTITY shy  "&#173;">      <!-- soft hyphen (discretionary hyphen) -->

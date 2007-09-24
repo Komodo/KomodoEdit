@@ -1,0 +1,30 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'productType',
+);
+
+$cons->InstallInChrome('startpageDefaultLanding.png');
+$cons->InstallInChrome('project_icon_16x16.png');
+$cons->InstallInChrome('project_icon_16x16.png');
+$cons->InstallInChrome('file_icon_16x16.png');
+$cons->InstallInChrome('as_komodo_small.gif');
+
+$cons->InstallInChrome('config_icon.gif');
+$cons->InstallInChrome('bg.gif');
+$cons->InstallInChrome('help_icon.gif');
+$cons->InstallInChrome('opensample_icon.gif');
+$cons->InstallInChrome('tutorial_icon.gif');
+$cons->InstallInChrome('hollow_arrows_up.gif');
+$cons->InstallInChrome('hollow_arrows_down.gif');
+
+$cons->InstallInChromeAs('banner.png', "banner_$productType.png");
+
+$cons->InstallInChrome('small-x.png');
+$cons->InstallInChrome('small-x_hover.png');
+$cons->InstallInChrome('small-x_disable.png');
+

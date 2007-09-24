@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+
+function OnPreferencePageLoading() {
+    var file;
+    if (parent.part) {
+        file = parent.part.getFile();
+    } else {
+        file = parent.view.document.file;
+    }
+    var extraPaths = document.getElementById("javascriptExtraPaths");
+    extraPaths.init() // must happen after onpageload
+    extraPaths.setCwd(file.dirName)
+}
+
+]]>
+</script>
+
+    <groupbox orient="vertical">
+        <caption label="&javaScriptDirectories.label;"/>
+        <description>
+            Specify any directories that you want Komodo to use for
+            autocomplete and calltips. Komodo will recursively scan these
+            directories for information.
+        </description>
+	<pathlist
+		id="javascriptExtraPaths"
+                flex="1"
+                seltype="multiple"
+                rows="4"
+		pref="true" prefwidget="true"
+                prefstring="javascriptExtraPaths"/>
+    </groupbox>
+</window>
+

@@ -1,0 +1,97 @@
+diff
+
+Part 2 of 2.
+
+Split into two parts because patch.exe on Windows will crash after successfully
+applying the whole patch. Windows then brings up a modal dialog asking if a
+crash report should be sent to microsoft. This hangs an unattended build.
+
+diff -U 6 -r -N view/src/Makefile.in view/src/Makefile.in
+--- view/src/Makefile.in	Thu Feb  3 17:01:53 2005
++++ view/src/Makefile.in	Sun Mar  6 16:50:05 2005
+@@ -52,15 +52,18 @@
+ REQUIRES	= xpcom \
+ 		  string \
+ 		  gfx \
+ 		  widget \
+ 		  dom \
+ 		  pref \
++		  layout \
+ 		  $(NULL)
+ 
+ EXTRA_DSO_LIBS = gkgfx
++
++EXPORTS		= nsView.h
+ 
+ CPPSRCS		= \
+ 		nsView.cpp \
+ 		nsScrollPortView.cpp \
+ 		nsViewManager.cpp \
+ 		$(NULL)
+diff -U 6 -r -N view/src/nsViewManager.cpp view/src/nsViewManager.cpp
+--- view/src/nsViewManager.cpp	Fri Feb 11 10:23:57 2005
++++ view/src/nsViewManager.cpp	Mon Mar  7 09:24:30 2005
+@@ -21,12 +21,13 @@
+  *
+  * Contributor(s):
+  *   Patrick C. Beard <beard@netscape.com>
+  *   Kevin McCluskey  <kmcclusk@netscape.com>
+  *   Robert O'Callahan <roc+@cs.cmu.edu>
+  *   Roland Mainz <roland.mainz@informatik.med.uni-giessen.de>
++ *   Steven Michaud <smichaud@pobox.com>
+  *
+  * Alternatively, the contents of this file may be used under the terms of
+  * either of the GNU General Public License Version 2 or later (the "GPL"),
+  * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+  * in which case the provisions of the GPL or the LGPL are applicable instead
+  * of those above. If you wish to allow use of your version of this file only
+@@ -61,12 +62,16 @@
+ #include "nsRegion.h"
+ #include "nsInt64.h"
+ #include "nsScrollPortView.h"
+ #include "nsHashtable.h"
+ #include "nsCOMArray.h"
+ 
++#if defined(XP_MAC) || defined(XP_MACOSX)
++#include "nsObjectFrameHelper.h"
++#endif
++
+ static NS_DEFINE_IID(kBlenderCID, NS_BLENDER_CID);
+ static NS_DEFINE_IID(kRegionCID, NS_REGION_CID);
+ static NS_DEFINE_IID(kRenderingContextCID, NS_RENDERING_CONTEXT_CID);
+ static NS_DEFINE_CID(kEventQueueServiceCID, NS_EVENTQUEUESERVICE_CID);
+ 
+ #define ARENA_ALLOCATE(var, pool, type) \
+@@ -3132,12 +3137,32 @@
+     for (nsView* childView = view->GetFirstChild(); childView;
+          childView = childView->GetNextSibling()) {
+       if (!childView->GetClientData()) {
+         childView->SetVisibility(aVisible);
+       }
+     }
++
++#if defined(XP_MAC) || defined(XP_MACOSX)
++	// nsDeckFrame::IndexChanged() correctly calls nsDeckFrame::HideBox() on
++	// the "old" box before calling nsDeckFrame::ShowBox() on the "new" one.
++	// But on the Mac the "new" box gets shown synchronously, while the "old"
++	// one only gets hidden asynchronously (when nsPluginInstanceOwner::Notify()
++	// is called on a timer and calls FixUpPluginWindow()) -- which means that,
++	// unless we do something, the order will often be reversed, causing plugin
++	// ghosts to show up in the "wrong" tab when switching tabs.  This problem
++	// is bug 277067.  The call to DispatchEventToPluginOwners() is being made
++	// here (rather than in nsDeckFrame.cpp) so that a "hideplugin" message
++	// will be sent whenever an nsObjectFrame object is hidden (i.e. whenever
++	// nsViewManager::SetViewVisibility() is called with aVisible ==
++	// nsViewVisibility_kHide).
++	if (aVisible == nsViewVisibility_kHide) {
++		nsCOMPtr<nsIViewManager> kungFuDeathGrip(this);
++		nsObjectFrameHelper::DispatchEventToPluginOwners(view, NS_LITERAL_STRING("hideplugin"));
++	}
++#endif
++
+   }
+   return NS_OK;
+ }
+ 
+ void nsViewManager::UpdateWidgetsForView(nsView* aView)
+ {

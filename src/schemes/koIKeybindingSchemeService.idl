@@ -1,0 +1,28 @@
+#include "nsISupports.idl"
+#include "ISciMoz.idl"
+
+interface ISciMoz;
+
+[scriptable, uuid(AFA48604-B0DD-4675-ADAF-97C8D25B7AAA)]
+interface koIKeybindingScheme : nsISupports {
+    attribute boolean writeable;
+    attribute boolean unsaved;
+    attribute wstring name;
+    attribute wstring fname;
+    koIKeybindingScheme clone(in wstring newname);
+    void saveAs(in wstring newname);
+    void save();
+    void revert();
+    void remove();
+    attribute string data;
+};
+
+[scriptable, uuid(74464DF7-BB8D-427D-827F-FEA1B6E708D9)]
+interface koIKeybindingSchemeService : nsISupports {
+    void addScheme(in koIKeybindingScheme scheme);
+    void removeScheme(in koIKeybindingScheme scheme);
+    void getSchemeNames([array, size_is(count)] out wstring schemes,
+                        out unsigned long count);
+    koIKeybindingScheme getScheme(in wstring name);
+};
+

@@ -1,0 +1,16 @@
+Index: browser/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/browser/Makefile.in,v
+retrieving revision 1.6.10.1.2.4
+diff -u -d -u -r1.6.10.1.2.4 Makefile.in
+--- browser/Makefile.in	29 Jun 2004 03:09:08 -0000	1.6.10.1.2.4
++++ browser/Makefile.in	2 Jun 2005 17:43:41 -0000
+@@ -42,7 +42,7 @@
+ 
+ include $(DEPTH)/config/autoconf.mk
+ 
+-DIRS = base components locales extensions themes app
++DIRS = base components locales extensions themes
+ 
+ ifeq ($(OS_ARCH),WINNT)
+ ifdef MOZ_INSTALLER

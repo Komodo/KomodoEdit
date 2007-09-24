@@ -1,0 +1,39 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIFile.idl"
+#include "koIRemoteFileInfo.idl"
+
+// A FTP Connection
+[scriptable, uuid(106899D1-DE1D-4767-B32D-D9A538E6F99A)]
+interface koIFTPConnection : nsISupports {
+    boolean open(in wstring server, in long port, in wstring username, in wstring password, in wstring path);
+    
+    // list caches results.  set refresh to true to force a refresh from the server
+    void list(in wstring path, in boolean refresh, [retval] out koIRemoteFileInfo pathinfo);
+    void close();
+    // refresh removes any cached information for this path and subsequent child paths
+    // and then does a list for this path with refresh set to true.
+    //void refresh(in wstring path);
+    void rename(in wstring oldName, in wstring newName);
+    void removeFile(in wstring name);
+    void removeDirectory(in wstring name);
+    void changeDirectory(in wstring path);
+    void currentDirectory();
+    void createFile(in wstring name, in long permissions);
+    void createDirectory(in wstring name, in long permissions);
+    void getHomeDirectory([retval] out wstring path);
+    void getParentPath(in wstring path, [retval] out wstring parentPath);
+    
+    void readFile(in wstring name, out unsigned long count, [array, size_is(count), retval] out octet text);
+    void writeFile(in wstring name, [array, size_is(count)] in octet text, in unsigned long count);
+    
+    attribute wstring alias;   // Server pref alias for connection
+    readonly attribute wstring protocol;
+    readonly attribute wstring server;
+    readonly attribute long port;
+    readonly attribute wstring username;
+    readonly attribute wstring password;
+    readonly attribute wstring lastError;
+};

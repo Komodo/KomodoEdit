@@ -1,0 +1,6 @@
+include README.txt
+include setup.py
+include luddite.py
+include MANIFEST.in
+recursive-include ludditelib *.py *.in
+recursive-include udl *.udl

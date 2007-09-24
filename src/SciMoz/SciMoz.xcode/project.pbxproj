@@ -1,0 +1,513 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 39;
+	objects = {
+		014CEA3F0018CDD111CA2923 = {
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.h;
+				HEADER_SEARCH_PATHS = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/sdk/xpcom/include /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/caps /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/java /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/js /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/nspr /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/nspr/obsolete /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/oji /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/plugin /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/xpcom /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/xpconnect /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/string /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/dom /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/modules/plugin/tools/sdk/samples/include ../scintilla/include /Developer/Headers/FlatCarbon";
+				LIBRARY_SEARCH_PATHS = "/Users/shanec/main/users/shanec/scintilla/bin /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/lib";
+				MOZ_SRC = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla";
+				OTHER_CFLAGS = "-DSCI_NAMESPACE=1 -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1";
+				OTHER_CPLUSPLUSFLAGS = "-DSCI_NAMESPACE=1 -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1";
+				PRODUCT_NAME = SciMoz;
+				REZ_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = plugin;
+				ZERO_LINK = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014CEA400018CDD111CA2923 = {
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = prefix.h;
+				HEADER_SEARCH_PATHS = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/sdk/xpcom/include /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/caps /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/java /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/js /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/nspr /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/nspr/obsolete /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/oji /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/plugin /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/xpcom /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/xpconnect /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/string /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include/dom /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/include /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/modules/plugin/tools/sdk/samples/include ../scintilla/include /Developer/Headers/FlatCarbon";
+				OTHER_CFLAGS = "-DSCI_NAMESPACE=1 -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1";
+				OTHER_CPLUSPLUSFLAGS = "-DSCI_NAMESPACE=1 -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1";
+				PRODUCT_NAME = SciMoz;
+				REZ_SEARCH_PATHS = /Developer/Headers/FlatCarbon;
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = plugin;
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//080
+//081
+//082
+//083
+//084
+		089C1669FE841209C02AAC07 = {
+			buildSettings = {
+			};
+			buildStyles = (
+				014CEA3F0018CDD111CA2923,
+				014CEA400018CDD111CA2923,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 089C166AFE841209C02AAC07;
+			projectDirPath = "";
+			targets = (
+				8D57630D048677EA00EA77CD,
+			);
+		};
+		089C166AFE841209C02AAC07 = {
+			children = (
+				30BAE0D507F4F51D00E5646C,
+				08FB77AFFE84173DC02AAC07,
+				089C167CFE841241C02AAC07,
+				089C1671FE841209C02AAC07,
+				19C28FB6FE9D52B211CA2CBB,
+			);
+			isa = PBXGroup;
+			name = SciMoz;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 = {
+			children = (
+				304335C407F8E67D00E911DF,
+				304335C507F8E67D00E911DF,
+				304335C607F8E67D00E911DF,
+				304335C707F8E67D00E911DF,
+				30CCE7DE07F8BC25007CE985,
+				30BAE09707F4F1C800E5646C,
+				0AA1909FFE8422F4C02AAC07,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 = {
+			children = (
+				8D576317048677EA00EA77CD,
+				8D5B49A704867FD3000E48DA,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C167EFE841241C02AAC07 = {
+			fileEncoding = 10;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = English;
+			path = English.lproj/InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 = {
+			children = (
+				30BAE0CD07F4F4B800E5646C,
+				30BAE0CE07F4F4B800E5646C,
+				30BAE0AE07F4F30400E5646C,
+				30BAE08707F4F1B700E5646C,
+				30BAE08807F4F1B700E5646C,
+				30BAE08907F4F1B700E5646C,
+				30BAE08A07F4F1B700E5646C,
+				30BAE08B07F4F1B700E5646C,
+				30BAE08C07F4F1B700E5646C,
+				30BAE08D07F4F1B700E5646C,
+				30BAE08E07F4F1B700E5646C,
+			);
+			isa = PBXGroup;
+			name = Source;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//080
+//081
+//082
+//083
+//084
+//0A0
+//0A1
+//0A2
+//0A3
+//0A4
+		0AA1909FFE8422F4C02AAC07 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = CoreFoundation.framework;
+			path = /System/Library/Frameworks/CoreFoundation.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+//0A0
+//0A1
+//0A2
+//0A3
+//0A4
+//190
+//191
+//192
+//193
+//194
+		19C28FB6FE9D52B211CA2CBB = {
+			children = (
+				8D576316048677EA00EA77CD,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//190
+//191
+//192
+//193
+//194
+//300
+//301
+//302
+//303
+//304
+		301145B20804AD4200840E04 = {
+			fileRef = 30BAE0AE07F4F30400E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		304335C407F8E67D00E911DF = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libnspr4.dylib;
+			path = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/lib/libnspr4.dylib";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		304335C507F8E67D00E911DF = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libplc4.dylib;
+			path = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/lib/libplc4.dylib";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		304335C607F8E67D00E911DF = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libplds4.dylib;
+			path = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/lib/libplds4.dylib";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		304335C707F8E67D00E911DF = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libxpcom.dylib;
+			path = "/Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/dist/lib/libxpcom.dylib";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		304335C807F8E67D00E911DF = {
+			fileRef = 304335C407F8E67D00E911DF;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		304335C907F8E67D00E911DF = {
+			fileRef = 304335C507F8E67D00E911DF;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		304335CA07F8E67D00E911DF = {
+			fileRef = 304335C607F8E67D00E911DF;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		304335CB07F8E67D00E911DF = {
+			fileRef = 304335C707F8E67D00E911DF;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE08407F4F17B00E5646C = {
+			buildActionMask = 2147483647;
+			files = (
+				30BAE09407F4F1B700E5646C,
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		30BAE08707F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = nsSciMoz.cxx;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08807F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = nsSciMoz.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08907F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = plugin.cxx;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08A07F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = plugin.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08B07F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = prefix.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08C07F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.rez;
+			path = SciMoz.r;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08D07F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = sendscintilla.cxx;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08E07F4F1B700E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = sendscintilla.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE08F07F4F1B700E5646C = {
+			fileRef = 30BAE08707F4F1B700E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE09107F4F1B700E5646C = {
+			fileRef = 30BAE08907F4F1B700E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE09407F4F1B700E5646C = {
+			fileRef = 30BAE08C07F4F1B700E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE09507F4F1B700E5646C = {
+			fileRef = 30BAE08D07F4F1B700E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE09707F4F1C800E5646C = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = Carbon.framework;
+			path = /System/Library/Frameworks/Carbon.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		30BAE09807F4F1C800E5646C = {
+			fileRef = 30BAE09707F4F1C800E5646C;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		30BAE0AE07F4F30400E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = npmac.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE0CD07F4F4B800E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ISciMoz.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE0CE07F4F4B800E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ISciMozEvents.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30BAE0D507F4F51D00E5646C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = npscimoz_gen.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		30CCE7DE07F8BC25007CE985 = {
+			isa = PBXFileReference;
+			lastKnownFileType = archive.ar;
+			name = libscintilla.a;
+			path = /Users/shanec/main/users/shanec/scintilla/bin/libscintilla.a;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		30CCE7DF07F8BC25007CE985 = {
+			fileRef = 30CCE7DE07F8BC25007CE985;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//300
+//301
+//302
+//303
+//304
+//8D0
+//8D1
+//8D2
+//8D3
+//8D4
+		8D57630D048677EA00EA77CD = {
+			buildPhases = (
+				8D57630F048677EA00EA77CD,
+				8D576311048677EA00EA77CD,
+				8D576313048677EA00EA77CD,
+				30BAE08407F4F17B00E5646C,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = "/Users/shanec/main/users/shanec/scintilla/bin /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/modules/plugin/tools/sdk/samples/common /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/nsprpub/pr/src /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/nsprpub/lib/libc/src /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/nsprpub/lib/ds /Users/shanec/main/Apps/Mozilla-devel/build/moz-1.7.5-ko39-release/mozilla/xpcom/build";
+				PRODUCT_NAME = SciMoz;
+				WRAPPER_EXTENSION = bundle;
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = SciMoz;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = SciMoz;
+			productReference = 8D576316048677EA00EA77CD;
+			productType = "com.apple.product-type.bundle";
+		};
+		8D57630F048677EA00EA77CD = {
+			buildActionMask = 2147483647;
+			files = (
+				8D5B49A804867FD3000E48DA,
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D576311048677EA00EA77CD = {
+			buildActionMask = 2147483647;
+			files = (
+				301145B20804AD4200840E04,
+				30BAE08F07F4F1B700E5646C,
+				30BAE09107F4F1B700E5646C,
+				30BAE09507F4F1B700E5646C,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D576313048677EA00EA77CD = {
+			buildActionMask = 2147483647;
+			files = (
+				8D576314048677EA00EA77CD,
+				30BAE09807F4F1C800E5646C,
+				30CCE7DF07F8BC25007CE985,
+				304335C807F8E67D00E911DF,
+				304335C907F8E67D00E911DF,
+				304335CA07F8E67D00E911DF,
+				304335CB07F8E67D00E911DF,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D576314048677EA00EA77CD = {
+			fileRef = 0AA1909FFE8422F4C02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8D576316048677EA00EA77CD = {
+			explicitFileType = wrapper.cfbundle;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = SciMoz.plugin;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8D576317048677EA00EA77CD = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = Info.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8D5B49A704867FD3000E48DA = {
+			children = (
+				089C167EFE841241C02AAC07,
+			);
+			isa = PBXVariantGroup;
+			name = InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8D5B49A804867FD3000E48DA = {
+			fileRef = 8D5B49A704867FD3000E48DA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 089C1669FE841209C02AAC07;
+}

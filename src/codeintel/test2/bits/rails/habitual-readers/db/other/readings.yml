@@ -1,0 +1,193 @@
+--- 
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "4"
+    notes: Laughed till I dropped
+    reader_id: "1"
+    id: "1"
+    date_read: 2006-08-16 00:00:00
+    book_id: "1"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "12"
+    notes: What a bore!
+    reader_id: "2"
+    id: "2"
+    date_read: 2006-08-10 00:00:00
+    book_id: "2"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "6"
+    notes: Arthur is funny.
+    reader_id: "2"
+    id: "3"
+    date_read: 2006-08-22 00:00:00
+    book_id: "1"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "16"
+    notes: What a tome.
+    reader_id: "3"
+    id: "10"
+    date_read: 2006-07-13 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "10"
+    notes: Decided to read it again.
+    reader_id: "10"
+    id: "11"
+    date_read: 2006-07-15 00:00:00
+    book_id: "7"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "10"
+    notes: n/a
+    reader_id: "10"
+    id: "12"
+    date_read: 2006-07-14 00:00:00
+    book_id: "7"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Never read this kind of stuff before. Interesting.
+    reader_id: "9"
+    id: "13"
+    date_read: 2006-10-13 00:00:00
+    book_id: "8"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Great fantasy. Pity he got his head cut off at the end there.
+    reader_id: "2"
+    id: "14"
+    date_read: 2005-11-13 00:00:00
+    book_id: "8"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: I liked the bit about the wart.
+    reader_id: "3"
+    id: "15"
+    date_read: 2006-01-07 00:00:00
+    book_id: "8"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Just reading this has made me thinner.
+    reader_id: "5"
+    id: "16"
+    date_read: 2006-02-12 00:00:00
+    book_id: "6"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: As good as Harry said it would be.
+    reader_id: "6"
+    id: "17"
+    date_read: 2006-02-14 00:00:00
+    book_id: "6"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "2"
+    notes: Stupid book.
+    reader_id: "7"
+    id: "18"
+    date_read: 2006-02-18 00:00:00
+    book_id: "6"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "1"
+    id: "19"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "2"
+    id: "20"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "3"
+    id: "21"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "4"
+    id: "22"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "5"
+    id: "23"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "6"
+    id: "24"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "7"
+    id: "25"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "8"
+    id: "26"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "9"
+    id: "27"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "3"
+    notes: Book club read-in book.
+    reader_id: "10"
+    id: "28"
+    date_read: 2006-07-10 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "2"
+    notes: I decided to read it again the next day.
+    reader_id: "2"
+    id: "29"
+    date_read: 2006-07-11 00:00:00
+    book_id: "3"
+- !ruby/object:Reading 
+  attributes: 
+    reading_time: "10"
+    notes: Feeling ill
+    reader_id: "11"
+    id: "32"
+    date_read: 2006-08-27 00:00:00
+    book_id: "4"

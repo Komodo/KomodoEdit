@@ -1,0 +1,84 @@
+import HTMLGenerator
+import Lexer
+import Keywords
+from _SilverCity import FindLexerModuleByID, PropertySet, WordList
+from ScintillaConstants import *
+
+class CPPLexer(Lexer.Lexer):
+    def __init__(self, properties = PropertySet()):
+        self._properties = properties
+        self._lexer = FindLexerModuleByID(SCLEX_CPP)
+        self._keyword_lists = [
+
+                               ]
+class CPPHandler:
+    def __init__(self):
+        self.handlers = {
+            SCE_C_DEFAULT : getattr(self, 'handle_c_default', self.handle_other),
+            SCE_C_COMMENT : getattr(self, 'handle_c_comment', self.handle_other),
+            SCE_C_COMMENTLINE : getattr(self, 'handle_c_commentline', self.handle_other),
+            SCE_C_COMMENTDOC : getattr(self, 'handle_c_commentdoc', self.handle_other),
+            SCE_C_NUMBER : getattr(self, 'handle_c_number', self.handle_other),
+            SCE_C_WORD : getattr(self, 'handle_c_word', self.handle_other),
+            SCE_C_STRING : getattr(self, 'handle_c_string', self.handle_other),
+            SCE_C_CHARACTER : getattr(self, 'handle_c_character', self.handle_other),
+            SCE_C_UUID : getattr(self, 'handle_c_uuid', self.handle_other),
+            SCE_C_PREPROCESSOR : getattr(self, 'handle_c_preprocessor', self.handle_other),
+            SCE_C_OPERATOR : getattr(self, 'handle_c_operator', self.handle_other),
+            SCE_C_IDENTIFIER : getattr(self, 'handle_c_identifier', self.handle_other),
+            SCE_C_STRINGEOL : getattr(self, 'handle_c_stringeol', self.handle_other),
+            SCE_C_VERBATIM : getattr(self, 'handle_c_verbatim', self.handle_other),
+            SCE_C_REGEX : getattr(self, 'handle_c_regex', self.handle_other),
+            SCE_C_COMMENTLINEDOC : getattr(self, 'handle_c_commentlinedoc', self.handle_other),
+            SCE_C_WORD2 : getattr(self, 'handle_c_word2', self.handle_other),
+            SCE_C_COMMENTDOCKEYWORD : getattr(self, 'handle_c_commentdockeyword', self.handle_other),
+            SCE_C_COMMENTDOCKEYWORDERROR : getattr(self, 'handle_c_commentdockeyworderror', self.handle_other)
+            }
+        
+        
+    def event_handler(self, style, **kwargs):
+        kwargs.update({'style' : style})
+        self.handlers.get(style, self.handle_other)(**kwargs)
+
+class CPPHTMLGenerator(HTMLGenerator.HTMLGenerator, CPPHandler):
+    css_classes = {
+        SCE_C_DEFAULT : 'c_default',
+        SCE_C_COMMENT : 'c_comment',
+        SCE_C_COMMENTLINE : 'c_commentline',
+        SCE_C_COMMENTDOC : 'c_commentdoc',
+        SCE_C_NUMBER : 'c_number',
+        SCE_C_WORD : 'c_word',
+        SCE_C_STRING : 'c_string',
+        SCE_C_CHARACTER : 'c_character',
+        SCE_C_UUID : 'c_uuid',
+        SCE_C_PREPROCESSOR : 'c_preprocessor',
+        SCE_C_OPERATOR : 'c_operator',
+        SCE_C_IDENTIFIER : 'c_identifier',
+        SCE_C_STRINGEOL : 'c_stringeol',
+        SCE_C_VERBATIM : 'c_verbatim',
+        SCE_C_REGEX : 'c_regex',
+        SCE_C_COMMENTLINEDOC : 'c_commentlinedoc',
+        SCE_C_WORD2 : 'c_word2',
+        SCE_C_COMMENTDOCKEYWORD : 'c_commentdockeyword',
+        SCE_C_COMMENTDOCKEYWORDERROR : 'c_commentdockeyworderror'
+    }
+    
+    def __init__(self):
+        CPPHandler.__init__(self)
+
+    def handle_other(self, style, text, **ignored):
+        css_class = self.css_classes.get(style, '')
+            
+        if css_class:
+            self._file.write('<span class="%s">' % css_class)
+        
+        self._file.write(self.markup(text))
+
+        if css_class:
+            self._file.write('</span>')
+
+    def generate_html(self, file, buffer, lexer = CPPLexer()):
+        self._file = file
+        
+        lexer.lex_to_events(buffer, self.event_handler)
+

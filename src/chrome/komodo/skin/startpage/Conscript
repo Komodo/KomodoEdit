@@ -1,0 +1,16 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'unsiloedPythonExe',
+    'buildFlavour',
+);
+
+$cons->InstallInChrome('startpage.css');

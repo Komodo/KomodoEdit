@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<dialog id="dialog-editpathmap"
+        title="URI to Path Mapping"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        orient="vertical"
+        style="min-width: 35em;"
+        buttons="accept,cancel"
+        ondialogcancel="return onCancel();"
+        ondialogaccept="return onOK();"
+        onload="onLoad();">
+
+<script type="application/x-javascript" src="chrome://komodo/content/library/logging.js"/>
+<script type="application/x-javascript" src="chrome://komodo/content/library/trace.js"/>
+<script type="application/x-javascript" src="chrome://komodo/content/library/filepickers.js"/>
+<script type="application/x-javascript" src="chrome://komodo/content/library/dialogs.js"/>
+<script type="application/x-javascript">
+<![CDATA[
+function onLoad() {
+    // get window arguments and fill in our dialog
+    if (window.arguments[0]) {
+        document.getElementById('uri').value = window.arguments[0].uri;
+        document.getElementById('path').value = window.arguments[0].path;
+    }
+}
+function onOK() {
+    // set the window arguments for results
+    window.arguments[0].uri = document.getElementById('uri').value;
+    window.arguments[0].path = document.getElementById('path').value;
+}
+function onCancel() {
+    // set the window arguments for results so we dont do anything with them
+    window.arguments[0].uri = null;
+    window.arguments[0].path = null;
+}
+
+function browseForDir(elem, remote) {
+    if (!remote) {
+        filepicker_browseForDir(elem);
+    } else {
+        filepicker_browseForRemoteDir(elem);
+    }
+    var path = elem.value;
+    var uri = document.getElementById('uri');
+    if (!uri || uri[uri.length-1] == "/") {
+        if (path[path.length-1] != "/")
+            document.getElementById('path').value = path +"/";
+    }
+}
+]]>
+</script>
+<vbox flex="1">
+    <label value="Add/Edit Path Mapping"
+           style="margin: 5px 1px;"/>
+    <grid>
+        <columns>
+            <column/>
+            <column flex="1"/>
+        </columns>
+        <rows>
+        <row>
+            <label value="URI:" control="varName" class="kopadded"
+                   style="width: 50px;margin: 5px 1px;"/>
+            <textbox id="uri" flex="1"/>
+        </row>
+        <row>
+            <label value="Path:" control="varValue" class="kopadded"
+                   style="width: 50px; margin: 5px 1px;"/>
+            <textbox id="path" flex="1"/>
+        </row>
+        <row>
+            <box/>
+            <hbox align="right">
+                <button label="Local..." oncommand="browseForDir(document.getElementById('path'))" />
+                <button label="Remote..." oncommand="browseForDir(document.getElementById('path'));" />
+            </hbox>
+        </row>
+        </rows>
+    </grid>
+</vbox>
+</dialog>

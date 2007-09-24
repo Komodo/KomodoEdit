@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+    <UI>
+      <Dialog Id="SetupTypeDlg" Width="370" Height="270" Title="[ProductName]">
+        <Control Id="TypicalButton" Type="PushButton" X="40" Y="65" Width="80" Height="17" ToolTip="Typical Installation" Default="yes" Text="&amp;Typical">
+          <Publish Property="InstallMode" Value="Typical">1</Publish>
+          <Publish Event="SetInstallLevel" Value="3">1</Publish>
+          <Publish Event="NewDialog" Value="[WixUI_SetupTypeDlg_NextTypical]">1</Publish>
+        </Control>
+        <Control Id="CustomButton" Type="PushButton" X="40" Y="118" Width="80" Height="17" ToolTip="Custom Installation" Text="C&amp;ustom">
+          <Publish Property="InstallMode" Value="Custom">1</Publish>
+          <Publish Event="NewDialog" Value="[WixUI_SetupTypeDlg_NextCustom]">1</Publish>
+        </Control>
+        <Control Id="CompleteButton" Type="PushButton" X="40" Y="171" Width="80" Height="17" ToolTip="Complete Installation" Text="C&amp;omplete">
+          <Publish Property="InstallMode" Value="Complete">1</Publish>
+          <Publish Event="SetInstallLevel" Value="1000">1</Publish>
+          <Publish Event="NewDialog" Value="[WixUI_SetupTypeDlg_NextComplete]">1</Publish>
+        </Control>
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="&amp;Back">
+          <Publish Event="NewDialog" Value="[WixUI_SetupTypeDlg_Back]">1</Publish>
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Disabled="yes" Text="&amp;Next" />
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="374" Height="44" TabSkip="no" Text="WixUI_Bmp_Banner" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="374" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="374" Height="0" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes">
+          <Text>{\WixUI_Font_Title}Choose Setup Type</Text>
+        </Control>
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes">
+          <Text>Choose the setup type that best suits your needs</Text>
+        </Control>
+        <Control Id="TypicalText" Type="Text" X="60" Y="85" Width="280" Height="20">
+          <Text>Installs the most common program features. Recommended for most users.</Text>
+        </Control>
+        <Control Id="CustomText" Type="Text" X="60" Y="138" Width="280" Height="30">
+          <Text>Allows users to choose which program features will be installed and where they will be installed. Recommended for advanced users.</Text>
+        </Control>
+        <Control Id="CompleteText" Type="Text" X="60" Y="191" Width="280" Height="20">
+          <Text>All program features will be installed. Requires the most disk space.</Text>
+        </Control>
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>

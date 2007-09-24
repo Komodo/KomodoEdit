@@ -1,0 +1,2 @@
+content actionscriptprefs content/ xpcnativewrappers=yes
+overlay chrome://komodo/content/pref/pref.xul chrome://actionscriptprefs/content/prefsOverlay.xul

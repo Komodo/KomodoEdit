@@ -1,0 +1,66 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+interface koIProject;
+interface koIPart;
+
+[scriptable, uuid(1A75CE5D-D15B-11DA-9B14-000D935D3368)]
+interface koIKPFTreeView : nsITreeView {
+    // save tree-specific prefs for the project/toolbox
+    // this happens automatically when adding/removing a project in the tree
+    // or when setting the toolbox attribute.  setting toolbox to null saves
+    // prefs for that toolbox also.  These may be removed later
+    void restorePrefs(in koIProject prj);
+    void savePrefs(in koIProject prj);
+
+    // Specify the sort order.
+    // directions:
+    //  0 = natural
+    //  1 = normal
+    //  -1 = reverse
+    void sortBy(in wstring key, in long direction);
+
+    // specify a filtering string
+    void setFilter(in wstring filterString);
+
+    // If this tree will hold multiple project files, then use
+    // add/removeProject functions.  If it is to hold only one, use the
+    // toolbox attribute.  You cannot mix useage, that will result in an
+    // exception.
+    void addProject(in koIProject prj);
+    void removeProject(in koIProject prj);
+    
+    // set the toolbox project.  if addProject has been used, then
+    // this will throw an exception
+    attribute koIProject toolbox;
+    
+    // get/set the current project for the tree, throws an exception if
+    // the project is not in the tree.  is the same as toolbox if the
+    // toolbox attribute was used
+    attribute koIProject currentProject;
+    
+    // kpf tree's only have one column, Name.  Use addColumnDatapoint to
+    // add additional columns.
+    // name is the displayed column name (on the treecolumn element)
+    // value is a string which should match an attribute on the koIPart, or
+    // the koIFileEx attribute on koIPart. (eg. part.file)
+    void addColumnDatapoint(in wstring name, in wstring value);
+    
+    // refreshes the rows in the tree.  This is not the same as invalidate, it
+    // actually removes rows from the tree and regenerates the row list
+    void refresh(in koIPart part);
+    
+    void getSelectedItems([array, size_is(count)] out koIPart child,
+                          out unsigned long count);
+    koIPart getSelectedItem();
+    long    getIndexByPart(in koIPart part);
+    koIPart getRowItem(in long index);
+    void    selectPart(in koIPart part);
+    
+    // internal api
+    void invalidate();
+};
+

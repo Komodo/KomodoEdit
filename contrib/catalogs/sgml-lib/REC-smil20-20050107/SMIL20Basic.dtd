@@ -1,0 +1,90 @@
+<!-- ======================================================================= -->
+<!-- SMIL 2.0 Basic DTD ==================================================== -->
+<!-- file: SMIL20Basic.dtd
+
+     This is SMIL 2.0 Basic, a proper subset of SMIL 2.0.
+
+     Copyright 1998-2000 World Wide Web Consortium
+        (Massachusetts Institute of Technology, Institut National de
+         Recherche en Informatique et en Automatique, Keio University).
+         All Rights Reserved.
+
+     Permission to use, copy, modify and distribute the SMIL Basic DTD and
+     its accompanying documentation for any purpose and without fee is
+     hereby granted in perpetuity, provided that the above copyright notice
+     and this paragraph appear in all copies.  The copyright holders make
+     no representation about the suitability of the DTD for any purpose.
+
+     It is provided "as is" without expressed or implied warranty.
+
+        Author:     Jacco van Ossenbruggen, Kenichi Kubota
+        Revision:   $Id: smil-DTD.html,v 1.13 2000/09/21 01:39:23 tmichel Exp $
+
+-->
+<!-- This is the driver file for the SMIL Basic DTD.
+
+     Please use this formal public identifier to identify it:
+
+         "-//W3C//DTD SMIL 2.0 Basic//EN"
+-->
+
+<!ENTITY % NS.prefixed "IGNORE" >
+<!ENTITY % SMIL.prefix "" >
+
+<!-- Define the Content Model -->
+<!ENTITY % smil-model.mod
+    PUBLIC "-//W3C//ENTITIES SMIL 2.0 Basic Document Model 1.0//EN"
+           "smilbasic-model-1.mod" >
+
+<!-- Modular Framework Module  ................................... -->
+<!ENTITY % smil-framework.module "INCLUDE" >
+<![%smil-framework.module;[
+<!ENTITY % smil-framework.mod
+     PUBLIC "-//W3C//ENTITIES SMIL 2.0 Modular Framework 1.0//EN"
+            "smil-framework-1.mod" >
+%smil-framework.mod;]]>
+
+<!--    The SMIL 2.0 Basic Profile supports the lightweight multimedia 
+        features defined in SMIL language. This profile includes 
+        the following SMIL modules:
+
+             SMIL 2.0 BasicLayout Module 
+             SMIL 2.0 BasicLinking Module 
+             SMIL 2.0 BasicMedia and MediaClipping Modules 
+             SMIL 2.0 Structure Module 
+             SMIL 2.0 BasicInlinTiming, SyncbaseTiming, EventTiming
+                               and BasicTimeContainers Modules 
+                  (with restrictions of single time container ) 
+             SMIL 2.0 BasicContentControl and SkipContentControl Modules 
+-->
+
+<!ENTITY % layout-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Layout//EN"  
+  "SMIL-layout.mod">
+%layout-mod;
+
+<!ENTITY % link-mod   
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Linking//EN"  
+  "SMIL-link.mod">
+%link-mod;
+<!ENTITY % BasicLinkingModule "INCLUDE">
+
+<!ENTITY % media-mod  
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Media Objects//EN" 
+  "SMIL-media.mod">
+%media-mod;
+
+<!ENTITY % struct-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Document Structure//EN" 
+  "SMIL-struct.mod">
+%struct-mod;
+
+<!ENTITY % timing-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Timing//EN" 
+  "SMIL-timing.mod">
+%timing-mod;
+
+<!ENTITY % control-mod 
+  PUBLIC "-//W3C//ELEMENTS SMIL 2.0 Content//EN" 
+  "SMIL-control.mod">
+%control-mod;

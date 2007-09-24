@@ -1,0 +1,47 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+use Cwd;
+
+Import(
+    "cons",
+    "buildFlavour",
+    "supportDir",
+    "sysdllsDir",
+    "docDir",
+    "platform",
+    "architecture",
+    "libcppVersion",
+    "glibcVersion",
+    "buildType",
+    "komodoDevDir",
+    "mozBin",
+    "productType",
+    "version",
+    "komodoPythonUtilsDir",
+    "ranRegxpcomStateFileName",
+    "komodoPythonUtilsDir",
+);
+
+
+# Install the required system libraries into the install image for MSI
+# builds. This is required as long as we are building with VC6. If we
+# move to VC8, then we may need to redistribute the appropriate C runtime
+# DLLs.
+if ($platform eq "win" && $buildType eq "release") {
+    $cons->Install($sysdllsDir, "win/$buildType/msvcrt.dll");
+    $cons->Install($sysdllsDir, "win/$buildType/msvcirt.dll");
+}
+
+# Hack default user-skins.rdf (see bug 23047).
+# - This is only really required on Linux and, besides, it breaks the
+#   Windows build with this:
+#       cons.pl: error in file "prebuilt\Conscript" (cons.pl: attempt to build install\release\user_withmoz\INSTALLDIR\Mozilla\chrome\user-skins.rdf twice, in different ways!)
+# XXX Trent to see if necessary on darwin
+if ($platform ne "win" && $platform ne "darwin") {
+    $cons->Install("$mozBin/chrome", "all/chrome/user-skins.rdf");
+}
+
+
+

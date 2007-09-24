@@ -1,0 +1,102 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+#include "koIFinder.idl"
+#include "koIFindContext.idl"
+
+
+[scriptable, uuid(19692197-756C-41b9-88A3-331125971FEA)]
+interface koIFindResultsView : nsITreeView {
+    // An tree view for find results data.
+
+    attribute long id; // the unique id of this results view, set by creator
+
+    // Clear the list of find results.
+    void Clear();
+
+    // Add a single find/replace result.
+    void AddFindResult(in wstring url,
+                       in PRUint32 startIndex,
+                       in PRUint32 endIndex,
+                       in wstring value,
+                       in wstring fileName,
+                       in PRUint32 lineNum,
+                       in PRUint32 columnNum,
+                       in wstring context_);
+    void AddReplaceResult(in wstring url,
+                          in PRUint32 startIndex,
+                          in PRUint32 endIndex,
+                          in wstring value,
+                          in wstring replacement,
+                          in wstring fileName,
+                          in PRUint32 lineNum,
+                          in PRUint32 columnNum,
+                          in wstring context_);
+
+    // Optimization: add multiple find results at once.
+    //XXX Used by find in files -- perhaps Find all could use this as well.
+    void AddFindResults(in unsigned long url_count,
+                        [array, size_is(url_count)] in wstring url,
+                        in unsigned long startIndex_count,
+                        [array, size_is(startIndex_count)] in PRUint32 startIndex,
+                        in unsigned long endIndex_count,
+                        [array, size_is(endIndex_count)] in PRUint32 endIndex,
+                        in unsigned long value_count,
+                        [array, size_is(value_count)] in wstring value,
+                        in unsigned long fileName_count,
+                        [array, size_is(fileName_count)] in wstring fileName,
+                        in unsigned long lineNum_count,
+                        [array, size_is(lineNum_count)] in PRUint32 lineNum,
+                        in unsigned long columnNum_count,
+                        [array, size_is(columnNum_count)] in PRUint32 columnNum,
+                        in unsigned long context_count,
+                        [array, size_is(context_count)] in wstring context_);
+
+
+    // Extract part of the find result data at a specific index.
+    wstring GetUrl(in PRUint32 index);
+    PRUint32 GetStartIndex(in PRUint32 index);
+    PRUint32 GetEndIndex(in PRUint32 index);
+    wstring GetValue(in PRUint32 index);
+    wstring GetReplacement(in PRUint32 index);
+    PRUint32 GetLineNum(in PRUint32 index);
+    PRUint32 GetColumnNum(in PRUint32 index);
+
+    // Sort the find result data by a certain key (this key typically matches
+    // the <treecol id=.../>  id's).
+    void Sort(in string sortBy);
+
+    // Some useful queries into the current find results data
+    PRUint32 GetNumUrls();
+};
+
+
+// Implemented in find's JS code. This is too allow find's Python code to
+// work with the Find Results Tab.
+//
+// History: This was added because the "Find in Files" functionality is
+// asynchronous and the Python-level and needed a way to callback (I could
+// have used nsIObserverService instead but chose this). The other
+// koIFindService methods do not use this at this time, but may grow into it.
+[scriptable, uuid(53A53E47-A32E-4BC3-A242-8935D9271CFA)]
+interface koIFindResultsTabManager : nsISupports {
+    attribute koIFindResultsView view;
+    attribute koIFindContext context_;
+    
+    // Set the "Find Results" tab's description label.
+    //
+    // "important" message will be marked in red and will, as well, be
+    // sent to the status bar.
+    void setDescription(in wstring desc, in boolean important);
+    
+    // Methods for the Find back-end to notify the UI of the searching state.
+    void searchStarted();
+    void searchFinished(in boolean success,  // terminated normally
+                        in long numResults,
+                        in long numFiles,
+                        in long numFilesSearched);
+};
+
+

@@ -1,0 +1,90 @@
+#include "nsISupports.idl"
+#include "ISciMoz.idl"
+
+interface ISciMoz;
+
+[scriptable, uuid(E116A318-F894-42C5-A7D5-1F37171832AD)]
+interface koIScintillaScheme : nsISupports {
+    attribute boolean writeable;
+    attribute boolean unsaved;
+    attribute wstring name;
+    attribute wstring fname;
+    attribute boolean preferFixed;
+    attribute boolean caretLineVisible;
+    attribute boolean useSelFore;
+    attribute boolean isDirty;
+    
+    koIScintillaScheme clone(in wstring newname);
+    void saveAs(in wstring newname);
+    void save();
+    void revert();
+    void remove();
+    
+    string getColor(in string colorname);
+    void setColor(in string colorname, in string colorvalue);
+
+    void setFore(in string language, /* null means common styles */
+                 in string styleId,
+                 in string color);
+    void setBack(in string language, /* null means common styles */
+                 in string styleId,
+                 in string color);
+    void setBold(in string language, /* null means common styles */
+                 in string styleId,
+                 in boolean bold);
+    void setItalic(in string language, /* null means common styles */
+                   in string styleId,
+                   in boolean italic);
+    void setFont(in string styleId, in string face); 
+    void setFaceType(in string language, in string styleId, in boolean useFixed); 
+    void setSize(in string language, /* null means common styles */
+                 in string styleId, /* null means default */
+                 in long size);
+
+    string getFore(in string language, /* null means common styles */
+                 in string styleId);
+    string getBack(in string language, /* null means common styles */
+                 in string styleId);
+    boolean getBold(in string language, /* null means common styles */
+                 in string styleId);
+    boolean getItalic(in string language, /* null means common styles */
+                      in string styleId);
+    string getFont(in string styleId); /* encoding_fixed|proportional */
+    boolean getFaceType(in string language, /* null means common styles */
+                        in string styleId); /* null means default */
+    long getSize(in string language, /* null means common styles */
+                 in string styleId); /* null means default */
+
+    void resetStyle(in string language, /* null means common styles */
+                    in string styleId);
+
+    void applyScheme(in ISciMoz scintilla,
+                     in string language,
+                     in string encoding,
+                     in boolean useFixed);
+    string getCommonName(in string language,
+                         in long scimozStyleNo);
+    string getSpecificName(in string language,
+                           in long scimozStyleNo);
+};
+
+[scriptable, uuid(D116A318-F894-42C5-A7D5-1F37171832AC)]
+interface koIScintillaSchemeService : nsISupports {
+    void addScheme(in koIScintillaScheme scheme);
+    void removeScheme(in koIScintillaScheme scheme);
+    void getSchemeNames([array, size_is(count)] out wstring schemes,
+                        out unsigned long count);
+    koIScintillaScheme getScheme(in wstring name);
+    void getCommonStyles([array, size_is(count)] out string styleLabels,
+                         out unsigned long count);
+    void getLanguageStyles(in string language,
+                           [array, size_is(count)] out string styleLabels,
+                           out unsigned long count);
+    void purgeUnsavedSchemes();
+    void convertToHTMLFile(in IScimoz scimoz, in wstring title,
+                           in wstring language, in long style_bits,
+                           in string encoding_name, in wstring fname,
+                           in boolean selectionOnly,
+                           in boolean forceColor);
+};
+

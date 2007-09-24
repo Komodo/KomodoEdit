@@ -1,0 +1,25 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_no_semicolons.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_no_semicolons.js" src="scan_inputs/javascript_no_semicolons.js">
+      <scope ilk="function" line="1" lineend="9" name="get_param" returns="param" signature="get_param(id)">
+        <variable ilk="argument" name="id" />
+        <variable attributes="__local__ private" citdl="Object" line="2" name="param">
+          <variable citdl="String" line="3" name="editid" />
+          <variable citdl="String" line="4" name="areaid" />
+          <variable citdl="String" line="5" name="saveid" />
+          <variable citdl="String" line="6" name="tagid" />
+          <variable citdl="String" line="7" name="textid" />
+        </variable>
+      </scope>
+      <scope ilk="function" line="11" lineend="23" name="test_two" signature="test_two(id)">
+        <variable ilk="argument" name="id" />
+        <variable attributes="__local__ private" line="13" name="y" />
+        <variable attributes="__local__ private" citdl="Number" line="13" name="z" />
+        <variable attributes="__local__ private" citdl="Number" line="13" name="newvar" />
+        <variable attributes="__local__ private" citdl="get_param()" line="16" name="x" />
+        <variable attributes="__local__ private" line="20" name="findme" />
+      </scope>
+      <variable citdl="get_param()" line="25" name="x" />
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,189 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>URL Shortcuts</title>
+</head>
+
+<body>
+  <h1><a name="urls_top" id="urls_top">URL Shortcuts</a></h1>
+
+  <p>URL shortcuts are components within a <a href=
+  "komodo-doc-project.html#project_top">project</a> or the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> that are used
+  to store frequently used URL addresses. These URL shortcuts can
+  be opened in an external browser (as specified in the <a href=
+  "komodo-doc-prefs.html#web">Web and Browser</a> preference) or
+  displayed in a new tab within Komodo.</p>
+
+  <p>Refer to <a href=
+  "komodo-doc-project.html#project_add_comp">Adding Components to
+  Projects</a> or <a href=
+  "komodo-doc-toolbox.html#toolbox_addcomp">Adding Components to
+  the Toolbox</a> for instructions on adding components to projects
+  or the Toolbox. In addition, URL shortcuts can be created by
+  dragging a URL from a browser address bar or from a Komodo tab
+  onto a project or Toolbox. URLs must be preceded by
+  "http://".</p>
+
+  <p>To open a URL, double-click the URL name (which opens the URL
+  in an external browser), use the assigned <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>, or
+  right-click the URL and select <strong>Open URL in
+  browser</strong> or <strong>Open URL in tab</strong>.</p>
+
+  <h2><a name="urls_options" id="urls_options">URL Shortcut
+  Options</a></h2>
+
+  <p>To access options for the selected URL shortcut, do one of the
+  following:</p>
+
+  <ul>
+    <li>
+    <strong>Toolbox|<em>shortcut_name</em>|<em>option</em></strong>
+    or
+    <strong>Project|<em>shortcut_name</em>|<em>option</em></strong>:
+    When a URL shortcut is selected in the Projects tab or Toolbox,
+    use the <strong>Project</strong> or <strong>Toolbox</strong>
+    drop-down menus to access the list of options. The name of the
+    URL shortcut that is currently selected in a project or the
+    Toolbox is displayed on the drop-down menu.</li>
+
+    <li><strong>Context Menu</strong>: Right-click the URL shortcut
+    in a project or the Toolbox and select the desired option.</li>
+  </ul>
+
+  <p>The following options are available:</p>
+
+  <ul>
+    <li><strong>Open URL in browser</strong>: Use this option to
+    launch the default web browser (as specified in the <a href=
+    "komodo-doc-prefs.html#web">Web and Browser</a> preference) and
+    display the stored URL.</li>
+
+    <li><strong>Open URL in tab</strong>: Use this option to
+    display the stored URL in a tab in the Komodo <a href=
+    "komodo-doc-workspace.html#Editor_Pane">Editor Pane</a>.</li>
+
+    <li><strong>Cut/Copy/Paste</strong>: These options are used to
+    remove the URL shortcut from a project or the Toolbox, or to
+    move URL shortcuts between the project and the Toolbox (and
+    vice versa).</li>
+
+    <li><strong>Export as Project File</strong>: When this option
+    is invoked, a new project file is created that contains the URL
+    shortcut from which the option is invoked. You are prompted to
+    provide the name of the new project file and the directory
+    where it will be stored. To open the new project file, select
+    <strong>File|Open|Project</strong>.</li>
+
+    <li><strong>Export Package</strong>: URLs can be archived and
+    distributed among multiple Komodo users via "packages".
+    Packages are compressed archive files that contain the URL
+    shortcut from which the <strong>Export Package</strong> option
+    was invoked. Packages are stored in files with a ".kpz"
+    extension, and can be opened by any archiving utility that
+    supports <code>libz</code> (for example WinZip). The
+    <strong>Export Package</strong> option differs from the
+    <strong>Export as Project File</strong> option in that copies
+    of filesystem-based components (such as files and dialog
+    projects) are included in the archive. Conversely,
+    <strong>Export as Project File</strong> creates a project with
+    a reference to the component's original location and does not
+    create copies of the components. When <strong>Export
+    Package</strong> is invoked, you are prompted for a name and
+    file location for the package. Exported packages can only be
+    imported into "container" objects in Komodo, such as projects,
+    the Toolbox, and folders within projects and the Toolbox. See
+    <a href="komodo-doc-toolbox.html#export_import">Toolbox -
+    Exporting and Importing Toolbox Contents</a>, <a href=
+    "komodo-doc-project.html#project_impexp">Projects - Importing
+    and Exporting Projects via Packages</a>, or <a href=
+    "komodo-doc-folders.html#folders_importpack">Folders - Import
+    Contents from Package</a> for more information.</li>
+
+    <li><strong>Rename</strong>: To change the name of a URL
+    shortcut, select this option and enter a new name.</li>
+
+    <li><strong>Delete</strong>: To remove a URL shortcut from a
+    project or the Toolbox, select this option. The URL shortcut is
+    permanently deleted.</li>
+  </ul>
+
+  <h3><a name="urls_props" id="urls_props">URL Shortcut
+  Properties</a></h3>
+
+  <p>URL shortcut properties are used to alter the address of the
+  URL or to change the URL shortcut's name. The Properties dialog
+  box is also used to assign a custom icon to a URL shortcut or to
+  assign a custom key binding. To access the Properties dialog box,
+  right-click the URL shortcut and select
+  <strong>Properties</strong>.</p>
+
+  <h4><a name="urls_icons" id="urls_icons">Assigning Custom Icons
+  to URL Shortcuts</a></h4>
+
+  <p>The default URL shortcut icon can be replaced with custom
+  icons. Komodo includes more than 600 icons; alternatively, select
+  a custom image stored on a local or network drive (use
+  16x16-pixel images for best results).</p>
+
+  <p>To assign a custom icon to a URL shortcut:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, right-click the desired URL
+    shortcut and select <strong>Properties</strong>. Alternatively,
+    click the URL shortcut in the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, then select
+    <strong>Projects|<em>macro_name</em>|Properties</strong> or
+    <strong>Toolbox|<em>macro_name</em>|Properties</strong>.</li>
+
+    <li>In the Properties dialog box, click <strong>Change
+    Icon</strong>.</li>
+
+    <li>In the Pick an Icon dialog box, select a new icon and click
+    <strong>OK</strong>. Alternatively, click <strong>Choose
+    Other</strong>, and browse to the desired image file.</li>
+
+    <li>In the Properties dialog box for the URL shortcut, click
+    <strong>OK</strong>. The custom icon is displayed next to the
+    URL shortcut.</li>
+  </ol>
+
+  <p>To revert to the default icon for a selected URL shortcut:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, right-click the desired URL
+    shortcut and select <strong>Properties</strong>.</li>
+
+    <li>Click <strong>Reset</strong>, then click
+    <strong>OK</strong>. The default icon is displayed next to the
+    URL shortcut.</li>
+  </ol>
+
+  <h4><a name="urls_keybindings" id="urls_keybindings">URL Shortcut
+  Key Bindings</a></h4>
+
+  <p>Custom key bindings can be assigned to URL shortcuts stored in
+  the <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or
+  in a <a href="komodo-doc-project.html#project_top">Project</a>.
+  Use the <strong>Key Binding</strong> tab in the URL shortcut's
+  Properties to specify the keystrokes that invoke the URL
+  shortcut. See <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">Key Bindings for
+  Custom Components</a> for more information.</p>
+  <hr />
+</body>
+</html>

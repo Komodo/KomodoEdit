@@ -1,0 +1,944 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Source Code Control</title>
+</head>
+
+<body>
+  <h1><a name="scc_top" id="scc_top">Source Code Control</a>
+  <span class="version_alert">Komodo IDE only</span></h1>
+
+  <p>"Source code control" refers to the practice of storing files
+  containing program source code (and other project artifacts) in a
+  common repository. Using source code control (SCC), multiple
+  developers can work on the same project (including the same
+  project file) at the same time. The SCC repository can be queried
+  for a detailed listing of the changes that occurred each time a
+  file was edited. Files under source code control that are open
+  for editing can also be reverted to their previous state.</p>
+
+  <p>Komodo's SCC integration works in conjunction with the
+  <a class="doc" href="http://www.nongnu.org/cvs/">CVS</a>,
+  <a class="doc" href=
+  "http://subversion.tigris.org/">Subversion</a> and <a class="doc"
+  href="http://www.perforce.com/">Perforce</a> source code control
+  systems.</p>
+
+  <p>Depots, repositories, branches, and projects cannot be created
+  or configured from within Komodo. This must be done using the SCC
+  software itself. Komodo's SCC features become available when
+  files are checked out from the source code repository.</p>
+
+  <p>From within Komodo, you can perform the following SCC
+  actions:</p>
+
+  <ul>
+    <li>add files to the repository</li>
+
+    <li>remove files from the repository</li>
+
+    <li>compare files in the editor against their repository
+    versions (a "diff")</li>
+
+    <li>show a revision history for a file</li>
+
+    <li>submit files back to the repository</li>
+
+    <li>revert files to their previous state</li>
+  </ul>
+
+  <p>Additionally, files under Perforce control are recognized by
+  Komodo even when they are not open for edit. They can be opened
+  via the File menu, SCC context menus (locations described below),
+  or the <a class="doc" href=
+  "komodo-doc-workspace.html#Toolbars">SCC toolbar</a>.</p>
+
+  <p>Komodo is intended to work in conjunction with these SCC
+  programs; it does not replace them. <a class="doc" href=
+  "http://www.tortoisecvs.org/">TortoiseCVS</a> and <a class="doc"
+  href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> are useful
+  tools for managing files under source code control from within
+  Windows Explorer. Perforce provides <a class="doc" href=
+  "http://www.perforce.com/perforce/products/p4win.html">P4Win</a>,
+  a graphical client for Windows used to view and manage files in a
+  SCC repository.</p>
+
+  <p>Komodo SCC functions are accessible from the following
+  locations:</p>
+
+  <ul>
+    <li><strong>Toolbox Context Menu</strong>: Right-click a file
+    in the <a class="doc" href=
+    "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> to access the
+    <strong>Source Control</strong> menu options. Source code
+    control functions can also be performed on Folders in the
+    Toolbox; right-click a folder and select <strong>Source Control
+    on Contents</strong> to access the menu.</li>
+
+    <li>
+      <strong>Projects tab context menu</strong>: Right-click a
+      file in the <a class="doc" href=
+      "komodo-doc-project.html#project_top">Project Manager</a> to
+      access the <strong>Source Control</strong> menu options. SCC
+      functions can also be performed on Folders in the Toolbox;
+      right-click a folder and select <strong>Source Control on
+      Contents</strong> to access the menu. Two source code control
+      options are available from the Projects tab and Toolbox
+      context menus:
+
+      <ul>
+        <li><strong>Source Control</strong> applies source code
+        functions to the selected file only.</li>
+
+        <li><strong>Source Control on Contents</strong> applies
+        source code functions to the contents of the selected
+        project or folder.</li>
+      </ul>
+    </li>
+
+    <li><strong>Editor Pane</strong>: Right-click a file in the
+    Editor Pane to access the <strong>Source Control</strong> menu
+    options.</li>
+
+    <li><strong>Filename Tab</strong>: Right-click the filename tab
+    above the Editor Pane to access the <strong>Source
+    Control</strong> menu options.</li>
+
+    <li><strong>File Menu</strong>: Select the <strong>Source
+    Control</strong> option from the <strong>File</strong>
+    menu.</li>
+  </ul>
+
+  <p>The <strong>Source Control</strong> submenu options are the
+  same regardless of which method is used to access the menu.</p>
+
+  <h2><a name="using_scc" id="using_scc">Using Source Code
+  Control</a></h2>
+
+  <h3><a name="toolbar_output" id="toolbar_output">SCC Toolbar,
+  Menus and Output Tab</a></h3>
+
+  <h4><a name="scc_toolbar" id="scc_toolbar">Source Code Control
+  Toolbar</a></h4>
+
+  <p>Access common source code control commands from the <a class=
+  "doc" href="komodo-doc-workspace.html#Toolbars">SCC Toolbar</a>
+  at the top of the Komodo workspace. Refer to the command
+  descriptions below for more information. The toolbar commands
+  only apply to the file currently active in the Editor Pane.</p>
+
+  <h4><a name="scc_menu" id="scc_menu">Source Code Control
+  Menus</a></h4>
+
+  <p>To access source code control functions, select
+  <strong>File|Source Control</strong>.</p>
+
+  <p>Invoke source code control context menus by right-clicking
+  files or folders in the following areas:</p>
+
+  <ul>
+    <li><a class="doc" href=
+    "komodo-doc-project.html#project_top">Projects tab</a></li>
+
+    <li><a class="doc" href=
+    "komodo-doc-toolbox.html#toolbox_top">Toolbox</a></li>
+
+    <li><a class="doc" href=
+    "komodo-doc-workspace.html#Editor_Pane">Editor Pane</a></li>
+  </ul>
+
+  <h4><a name="scc_output_tab" id="scc_output_tab">Source Code
+  Control Output Tab and Status Messages</a></h4>
+
+  <p>The <strong>SCC Output</strong> tab is located in the Bottom
+  Pane of the Komodo workspace. As you execute source code control
+  commands, such as editing or checking in files, details of the
+  commands are displayed on the <strong>SCC Output</strong>
+  tab.</p>
+
+  <p>Error messages and warnings are also displayed on the
+  <strong>SCC Output</strong> tab. Additionally, error messages and
+  warnings are displayed on the status bar in the bottom left
+  corner of the Komodo workspace.</p>
+
+  <h3><a name="scc_commands" id="scc_commands">Source Code Control
+  Commands</a></h3>
+
+  <p>As described above, source code control commands are invoked
+  from the toolbar, the <strong>File</strong> menu and the Source
+  Control context menu. The following commands are available,
+  depending on the context:</p>
+
+  <ul>
+    <li><strong>Add</strong>: Add a file from a designated source
+    code directory on your local drive to the source code
+    repository.</li>
+
+    <li><strong>Edit</strong>: Check out a file from the current
+    source code repository.</li>
+
+    <li><strong>Revert Changes</strong>: Check the file back into
+    the repository, abandoning any changes made since it was
+    checked out.</li>
+
+    <li><strong>Remove</strong>: Delete the file from both the
+    source code repository and the corresponding local
+    directory.</li>
+
+    <li><strong>Update</strong>: When the local version no longer
+    matches the repository version of a file, select this command
+    to update the local version of the file.</li>
+
+    <li><strong>Diff (Compare Files)</strong>: Compare the version
+    of a file open in the Editor Pane with the version in the
+    source code repository. Depending on the setting in <a class=
+    "doc" href="komodo-doc-prefs.html#scc">Preferences</a>, the
+    diff display is shown on another Komodo editor tab or in a
+    separate window. If the display style for diffs
+    (<strong>Edit|Preferences|Source Code Control</strong>) is set
+    to <strong>Create new window</strong>, press 'F9' or select
+    <strong>Jump to Corresponding Line</strong> to open and/or
+    shift focus to the original file in the Editor Pane. If viewing
+    a diff in an editor tab, right-click and select <strong>Jump to
+    Corresponding Line</strong> to shift focus to the editor tab
+    containing the source code. Selecting this option opens the
+    source code tab in the Editor Pane if it is not already
+    open.</li>
+
+    <li><strong>History</strong>: Show the change history for the
+    current file.</li>
+
+    <li><strong>Commit Changes</strong>: Submit the file back to
+    the source code repository.</li>
+  </ul>
+
+  <p>Under Perforce, to open files for edit from within a Komodo
+  project, you must first add files to the project using options on
+  the <strong>Project</strong> menu. To accomplish the same under
+  CVS, use the following procedure:</p>
+
+  <ol>
+    <li>At the command prompt, enter <code>cvs co
+    &lt;projname&gt;</code> to open working copies of the
+    files.</li>
+
+    <li>On the <strong>Projects</strong> tab, right-click the
+    project and select <strong>Import from File
+    System</strong>.</li>
+
+    <li>In the <strong>Import from File System</strong> dialog box,
+    specify the location of the files to be imported and click
+    <strong>Next</strong>.</li>
+
+    <li>Click <strong>OK</strong> to confirm changes to the
+    project.</li>
+  </ol>
+
+  <h3><a name="file_status" id="file_status">File Status
+  Icons</a></h3>
+
+  <p>If Perforce, CVS or Subversion is enabled in Komodo's
+  <a class="doc" href="komodo-doc-prefs.html#scc">Preferences</a>,
+  the status of files in the source code repository is indicated by
+  icons that appear on file tabs in the Editor Pane and next to
+  files and projects on the Projects tab.</p>
+
+  <p>The icons can appear in a variety of combinations, depending
+  on the status of the file and where they are displayed in the
+  Komodo workspace. For example, a green circle next to a padlock
+  on a tab in the Editor Pane indicates that the file is open for
+  edit and that the version of the file in your local directory is
+  in sync with the version in the source code repository.</p>
+
+  <table cellpadding="2">
+    <tr>
+      <td><img border="0" src="img/status_icon_add.png" /></td>
+
+      <td>The file is being added to the source code
+      repository.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src="img/status_icon_delete.png" /></td>
+
+      <td>The file is being deleted from the source code
+      repository.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src="img/status_icon_edit.png" /></td>
+
+      <td>The file is open for edit.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src="img/status_icon_ok.png" /></td>
+
+      <td>The version of the file in your local directory is in
+      sync with the version in the source code repository.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src=
+      "img/status_icon_readonly.png" /></td>
+
+      <td>The file is read-only.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src="img/status_icon_sync.png" /></td>
+
+      <td>The version of the file in your local directory is out of
+      sync with the version in the source code repository.</td>
+    </tr>
+
+    <tr>
+      <td><img border="0" src=
+      "img/status_icon_conflict.png" /></td>
+
+      <td>There is a conflict between the version of the file in
+      your local directory and the source file that cannot be
+      resolved by simply syncing your directory with the source
+      code repository. The discrepancy must be manually
+      resolved.</td>
+    </tr>
+  </table><br />
+
+  <h3><a name="scc_refresh_status" id="scc_refresh_status">Refresh
+  Status</a></h3>
+
+  <p>To refresh the SCC status of the current file do one of the
+  following:</p>
+
+  <ul>
+    <li>Right-click the on file tab or within the editor pane and
+    select <strong>Refresh Status</strong></li>
+
+    <li>Right-click on the file in the Project tab and select
+    <strong>Refresh Status</strong></li>
+
+    <li>Click <strong>Refresh Status</strong> on the
+    <strong>File</strong> menu</li>
+
+    <li>Press <strong>'Ctrl' + 'K', 'R'</strong></li>
+  </ul>
+
+  <p>To refresh the SCC status of an entire folder, do one of the
+  following:</p>
+
+  <ul>
+    <li>Right-click the on the folder and select <strong>Refresh
+    Status</strong></li>
+
+    <li>Select the folder in the Project tab and click
+    <strong>Refresh Status</strong> on the <strong>File</strong>
+    menu</li>
+
+    <li>Select the folder in the Project tab and press
+    <strong>'Ctrl' + 'K', 'R'</strong></li>
+  </ul>
+
+  <h2><a name="config" id="config">Configuring Source Code Control
+  Integration</a></h2>
+
+  <h3><a name="config_cvs" id="config_cvs">Configuring CVS</a></h3>
+
+  <h4><a name="basic_cvs_config" id="basic_cvs_config">Basic CVS
+  Configuration</a></h4>
+
+  <ol>
+    <li>If you have not already done so, install the <a target=
+    "_blank" href="http://www.nongnu.org/cvs/">cvs</a> command-line
+    utility on your system.</li>
+
+    <li>Check out files: Komodo does not have integrated SCC
+    checkout functions. As necessary, run <code>cvs</code> from the
+    command line (e.g. '<code>cvs checkout <em>repository</em>
+    ...</code>').</li>
+
+    <li>Enable CVS support in Komodo: Under <a href=
+    "komodo-doc-prefs.html#prefs_top">Preferences</a>|<a href=
+    "komodo-doc-prefs.html#scc">Source Code Control</a>|<a href=
+    "komodo-doc-prefs.html#CVS">CVS</a> and ensure that the "CVS
+    Integration" option is checked and that the <code>cvs</code>
+    executable is available in your <code>PATH</code> or is
+    specified with a full pathname.</li>
+
+    <li>Open any file under CVS control in Komodo.</li>
+  </ol>
+
+  <p>Komodo should now recognize that the file is under CVS source
+  code control and the SCC menus and status icons should be
+  enabled. If not, click <strong>Refresh Status</strong> on the
+  <strong>File</strong> menu (or Ctrl-K, R) to force it to
+  reset.</p>
+
+  <h4><a name="cvs_over_ssh" id="cvs_over_ssh">CVS Over
+  SSH</a></h4>
+
+  <p>Some CVS repositories (e.g. <a target="_blank" href=
+  "http://sourceforge.net/index.php">SourceForge</a>) will only
+  support CVS access over SSH (secure shell). When accessing these
+  repositories, an SSH client is required. See <strong><a href=
+  "#config_ssh">Configuring SSH Support for CVS and
+  Subversion</a></strong> below for details on configuring SSH
+  support.</p>
+
+  <h3><a name="config_svn" id="config_svn">Configuring
+  Subversion</a></h3>
+
+  <h4><a name="basic_svn_config" id="basic_svn_config">Basic
+  Subversion Configuration</a></h4>
+
+  <ol>
+    <li>If you have not already done so, install <a target="_blank"
+    href="http://subversion.tigris.org/">Subversion</a> on your
+    system.</li>
+
+    <li>Check out files: Komodo does not have integrated SCC
+    checkout functions. As necessary, run <code>svn</code> from the
+    command line (e.g. '<code>svn checkout <em>URL</em>
+    ...</code>').</li>
+
+    <li>Enable Subversion support in Komodo: Under <a href=
+    "komodo-doc-prefs.html#prefs_top">Preferences</a>|<a href=
+    "komodo-doc-prefs.html#scc">Source Code Control</a>|<a href=
+    "komodo-doc-prefs.html#Subversion">Subversion</a> and ensure
+    that the "SVN Integration" option is checked and that the
+    <code>svn</code> executable is available in your
+    <code>PATH</code> or is specified with a full pathname.</li>
+
+    <li>Open any file under Subversion control in Komodo.</li>
+  </ol>
+
+  <p>Komodo should now recognize that the file is under Subversion
+  source code control and the SCC menus and status icons should be
+  enabled. If not, click <strong>Refresh Status</strong> on the
+  <strong>File</strong> menu (or Ctrl-K, R) to force it to
+  reset.</p>
+
+  <h4><a name="svn_over_ssh" id="svn_over_ssh">Subversion Over
+  SSH</a></h4>
+
+  <p>Some Subversion repositories only support Subversion access
+  over SSH (secure shell). When accessing these repositories, an
+  SSH client is required. See <strong><a href=
+  "#config_ssh">Configuring SSH Support for CVS and
+  Subversion</a></strong> below for details on configuring SSH
+  support.</p>
+
+  <h3><a name="config_perforce" id="config_perforce">Configuring
+  Perforce</a></h3>
+
+  <h4><a name="basic_p4_config" id="basic_p4_config">Basic Perforce
+  Configuration</a></h4>
+
+  <ol>
+    <li>If you have not already done so, install <a target="_blank"
+    href="http://perforce.com/">Perforce</a> on your system.</li>
+
+    <li>Check out files: Komodo does not have integrated SCC
+    checkout functions. As necessary, run <code>p4</code> from the
+    command line (e.g. '<code>p4 sync <em>path</em></code>').</li>
+
+    <li>Enable Perforce support in Komodo: Under <a href=
+    "komodo-doc-prefs.html#prefs_top">Preferences</a>|<a href=
+    "komodo-doc-prefs.html#scc">Source Code Control</a>|<a href=
+    "komodo-doc-prefs.html#Perforce">Perforce</a> and ensure that
+    the "Perforce Integration" option is checked and that the
+    <code>p4</code> executable is available in your
+    <code>PATH</code> or is specified with a full pathname.</li>
+
+    <li>Set P4 environment variables: Unless Komodo is always
+    started from a shell with all necessary P4 environment
+    variables set (e.g. P4CLIENT, P4PORT, P4USER), you will need to
+    specify them in Komodo's <a href=
+    "komodo-doc-prefs.html#Environment">Environment</a>
+    preferences.</li>
+
+    <li>Open any file under Perforce control in Komodo.</li>
+  </ol>
+
+  <p>Komodo should now recognize that the file is under Perforce
+  source code control and the SCC menus and status icons should be
+  enabled. If not, click <strong>Refresh Status</strong> on the
+  <strong>File</strong> menu (or Ctrl-K, R) to force it to
+  reset.</p>
+
+  <p>Users of Perforce's P4CONFIG feature may find that Komodo's
+  source code control doesn't work unless Komodo is started from
+  within the client view of the Perforce repository.</p>
+
+  <h3><a name="config_prefs" id="config_prefs">Configuring
+  Preferences</a></h3>
+
+  <p>Use the <strong>Source Code Control</strong> page in Komodo's
+  <a class="doc" href="komodo-doc-prefs.html#scc">Preferences</a>
+  to configure Source Code Control integration. To open the Komodo
+  Preferences dialog box, select
+  <strong>Edit|Preferences</strong>.</p>
+
+  <h2><a name="config_ssh" id="config_ssh">Configuring SSH Support
+  for CVS and Subversion</a></h2>
+
+  <p>Tunneling your CVS or Subversion connections over SSH can
+  provide an added level of security for your repository access.
+  CVS and Subversion use very similar methods for tunneling over an
+  SSH connection. On Windows, download and install Putty or Cygwin
+  to provide SSH support. Linux and OS X distributions typically
+  include SSH support.</p>
+
+  <p>This is a basic guideline for configuring CVS and Subversion
+  to use SSH, however, because server configurations can vary, you
+  should consult the documentation for the control system you are
+  using, or request help from you system administrator.</p>
+
+  <p>The use of Pageant (on Windows) or ssh-agent (OS X and Linux)
+  with Komodo is strongly recommended.</p>
+
+  <h4><a name="config_putty_install" id=
+  "config_putty_install">Installing and Configuring Putty on
+  Windows</a></h4>
+
+  <p>Putty is a free SSH, Telnet and Rlogin client for Windows.</p>
+
+  <p><strong>1. Install Putty</strong></p>
+
+  <p>Download Putty (version 0.52 or greater) and associated
+  programs from:</p><a class="doc" target="_blank" href=
+  "http://www.chiark.greenend.org.uk/~sgtatham/putty/">http://www.chiark.greenend.org.uk/~sgtatham/putty/</a>
+
+  <p>To connect to a server via SSH, the following programs are
+  required:</p>
+
+  <ul>
+    <li><em>putty.exe</em></li>
+
+    <li><em>puttygen.exe</em></li>
+
+    <li><em>pageant.exe</em></li>
+
+    <li><em>pscp.exe</em></li>
+
+    <li><em>plink.exe</em></li>
+  </ul>
+
+  <p>Ensure that the directory where Putty is installed is
+  specified in your system's <code>PATH</code> environment
+  variable.</p>
+
+  <p><strong>2. Generate the Putty Key</strong></p>
+
+  <p>Run the <code>puttygen</code> utility. Configure as
+  follows:</p>
+
+  <ol>
+    <li><strong>Set Parameters</strong>: Select either "SSH2 RSA"
+    or "SSH2 DSA".</li>
+
+    <li><strong>Generate Key Pair</strong>: Click the
+    <strong>Generate</strong> button to generate the key pair.
+    While the key is being generated, move the mouse pointer around
+    the blank space to provide key randomness.</li>
+
+    <li><strong>Enter Key Passphrase</strong>: Enter and confirm a
+    passphrase for the key. Remember the passphrase - it is
+    required later.</li>
+
+    <li><strong>Save Public Key</strong>: Click the "Save public
+    key" button and store the key in a file called
+    <em>public1.key</em>.</li>
+
+    <li><strong>Save Private Key</strong>: Click the <strong>Save
+    private key</strong> button and store the key in a file called
+    <em>private1.key</em>, in the same directory as the public
+    key.<br />
+    <strong>Note</strong>: The extension <em>.ppk</em> will be
+    appended to the name specified (i.e.
+    <em>private1.key.ppk</em>).</li>
+
+    <li><strong>Copy Key Contents</strong>: Copy the contents of
+    the public key field (at the top of the dialog box) to a file
+    named <em>public1-openssh.key</em>. This key is required
+    later.</li>
+
+    <li><strong>Close puttygen</strong></li>
+  </ol>
+
+  <p><strong>3. Load and Configure the Putty Authentication
+  Agent</strong></p>
+
+  <p>Run the <code>pageant</code> program. This loads the Putty
+  Authentication Agent into the Windows System Tray.</p>
+
+  <p>Right-click the Pageant icon in the Windows System Tray.
+  Select <strong>Add Key</strong>. Navigate to the directory where
+  you saved the public and private keys in the previous step, and
+  select the file <em>private1.key.ppk</em>.</p>
+
+  <p><strong>4. Configure Putty To Use Pageant</strong></p>
+
+  <p>Run the <code>putty</code> program. Configure as follows:</p>
+
+  <ol>
+    <li><strong>Specify Server</strong>: On the
+    <strong>Session</strong> page of the Configuration form, enter
+    the host name or IP address of the server.</li>
+
+    <li><strong>Specify Protocol</strong>: On the
+    <strong>Session</strong> page, in the <strong>Protocol</strong>
+    field, select the "SSH" protocol.</li>
+
+    <li><strong>Create Saved Session</strong>: In the <strong>Saved
+    Sessions</strong> field, enter the host name again. Click the
+    <strong>Save</strong> button.</li>
+
+    <li><strong>Configure Connection</strong>: on the
+    <strong>Connection</strong> page of the Configuration form,
+    enter your username for the server in the <strong>Auto-login
+    username</strong> field.</li>
+
+    <li><strong>Configure SSH Protocol</strong>: On the
+    <strong>SSH</strong> page of the Configuration form, specify
+    "2" for the <strong>Preferred SSH protocol
+    version</strong>.</li>
+
+    <li><strong>Enable Agent Forwarding</strong>: On the
+    <strong>Auth</strong> page of the Configuration form, check
+    <strong>Allow agent forwarding</strong>. In the <strong>Private
+    key file for authentication</strong> field, specify the path
+    and filename of the private key created above
+    (<em>private1.key</em>).</li>
+
+    <li><strong>Save Session Information</strong>: On the
+    <strong>Session</strong> page of the Configuration form, click
+    the <strong>Save</strong> button.</li>
+  </ol>
+
+  <p><strong>5. Store the Public Key on the Server</strong></p>
+
+  <p>You must store the public key file generated in step 2
+  (<em>public1-openssh.key</em>) on the CVS or Subversion
+  server.</p>
+
+  <ol>
+    <li><strong>Open Command Prompt Window</strong>: Type
+    <code>cmd</code> in the Windows Run dialog box.</li>
+
+    <li>
+      <strong>Copy Public Key to Server</strong>: At the command
+      prompt, enter:
+      <pre class="code">
+pscp <em>c:\path\to\</em>public1-openssh.key <em>username@server.com</em>:public1-openssh.key
+</pre>
+
+      <p>...where <em>c:\path\to\public1-openssh.key</em> specifies
+      the location of the key file created in step two, and
+      <em>username@server.com</em> specifies your username and URL
+      on the remote server. You are prompted to confirm the
+      legitimacy of the host, and may be prompted to enter your
+      password for the server.</p>
+    </li>
+
+    <li><strong>Connect Using Putty</strong>: If necessary, run the
+    <code>putty</code> program. In the <strong>Saved
+    Sessions</strong> field, double-click the configuration created
+    in Step 4. This establishes a connection to the server.</li>
+
+    <li>
+      <strong>Configure the Key on the Server</strong>: After
+      logging on to the server, enter the following commands to
+      configure the SSH key:
+      <pre class="code">
+mkdir ~/.ssh
+chmod 700 .ssh
+cat ~/public1-openssh.key &gt;&gt; ~/.ssh/authorized_keys
+rm ~/public1-openssh.key
+chmod 600 ~/.ssh/*
+</pre>
+    </li>
+
+    <li><strong>Log Off and Exit Putty</strong>: Enter
+    <code>exit</code> to close the session of the server.</li>
+  </ol>
+
+  <p><strong>6. Test the Configuration</strong></p>
+
+  <p>Restart Putty. In the <strong>Saved Sessions</strong> field,
+  double-click the configuration created in Step 4. You should not
+  be prompted to log in. If you are, the configuration failed.
+  Review the steps above and ensure that they were completed
+  correctly.</p>
+
+  <h4><a name="config_cvs_putty" id="config_cvs_putty">Using CVS
+  with Putty on Windows</a></h4>
+
+  <p>Use the following additional steps if you are using CVS with
+  Komodo.</p>
+
+  <p><strong>7. Check Out a CVS Module</strong></p>
+
+  <ol>
+    <li><strong>Create Local CVS Directory</strong>: Create a
+    directory to store a copy of the CVS repository.</li>
+
+    <li>
+      <strong>Copy Files to Local Directory</strong>: At a command
+      prompt, enter:
+      <pre class="code">
+set CVS_RSH=plink
+set PLINK_PROTOCOL=ssh
+cvs -d :ext:<em>username@cvs.server.com</em>:/<em>repository_name</em> co <em>cvs_module</em>
+</pre>
+
+      <p>...where <em>username@cvs.server.com</em> specifies your
+      username on the CVS server and the URL of the CVS server,
+      <em>repository_name</em> specifies the name of the repository
+      on the server, and <em>cvs_module</em> specifies the name of
+      the module in the chosen working repository.</p>
+
+      <p>Login is handled by SSH. The files are copied to the local
+      system. These environment variables do not interfere with
+      non-SSH repositories.</p>
+    </li>
+  </ol>
+
+  <p>Ensure that these variables are permanently configured in your
+  system environment (for example, by adding them to the
+  <em>autoexec.bat</em> file or configuring them in the system
+  properties).</p>
+
+  <p><strong>8. Using Komodo and CVS</strong></p>
+
+  <p>Before starting Komodo, perform the following steps:</p>
+
+  <ul>
+    <li><strong>Set PLINK_PROTOCOL=ssh</strong>: In the user
+    environment, set the environment variable
+    <code>PLINK_PROTOCOL</code> to "ssh".</li>
+
+    <li><strong>Set CVS_RSH=plink</strong>: In the user
+    environment, set the environment variable <code>CVS_RSH</code>
+    to "plink".</li>
+
+    <li>
+      <strong>Ensure Pageant Is Running</strong>: Run the
+      <code>pageant</code> program to enable the authentication
+      agent. Ensure that the <em>private1.key</em> is loaded.
+
+      <p>You can also execute Pageant and load the key via a batch
+      file. For example:</p>
+      <pre class="code">
+C:\PuTTY\pageant.exe c:\path\to\private.key c:\path\to\private2.key
+</pre>
+    </li>
+  </ul>
+
+  <h4><a name="config_svn_putty" id="config_svn_putty">Using
+  Subversion with Putty on Windows</a></h4>
+
+  <p>Use the following additional steps if you are using Subversion
+  with Komodo.</p>
+
+  <p><strong>7. Check Out a Subversion Repository</strong></p>
+
+  <ol>
+    <li><strong>Create Local Subversion Directory</strong>: Create
+    a directory to store a copy of the Subversion repository.</li>
+
+    <li>
+      <strong>Copy Files to Local Directory</strong>: At a command
+      prompt, enter:
+      <pre class="code">
+svn checkout svn+ssh://<em>svn.server.com</em>/<em>repository_path/module/</em> <em>local_path</em>
+</pre>
+
+      <p>...where <em>svn.server.com</em> specifies the server
+      domain name of the Subversion server,
+      <em>repository_path/module</em> specifies the path of the
+      repository on the server, and <em>local_path</em> specifies
+      the preferred location on your local system for your copy of
+      the repository. The <em>local_path</em> can be ommited, in
+      which case the local path is the last part of the
+      repository_path.</p>
+
+      <p>Login is handled by SSH. The files are copied to the local
+      system.</p>
+    </li>
+  </ol>
+
+  <p>Ensure that these variables are permanently configured in your
+  system environment (for example, by adding them to the
+  <em>autoexec.bat</em> file or configuring them in the system
+  properties).</p>
+
+  <p><strong>8. Using Komodo and Subversion</strong></p>
+
+  <p>Set the following environment variables in <a href=
+  "komodo-doc-prefs.html#Environment">Environment
+  Preferences</a>:</p>
+
+  <ul>
+    <li><code>PLINK_PROTOCOL=ssh</code></li>
+
+    <li><code>SVN_SSH=c:/path/to/plink.exe -batch</code></li>
+  </ul>
+
+  <p>Specify the full path to <code>plink.exe</code> using forward
+  slashes "/" or escaped back slashes "\\". The <code>-batch</code>
+  argument is used to prevent plink from prompting for user input.
+  You can specify a specific private key by adding "<code>-i
+  C:/path/to/private_keyfile</code>". For example:</p>
+  <pre class="code">
+SVN_SSH="c:/path/to/plink.exe" -i "c:/path/to/private_keyfile"
+</pre>
+
+  <p>You can use the Subversion configuration file instead of
+  setting the SVN_SSH environment variable:</p>
+  <pre class="code">
+[tunnels]
+ssh = $SVN_SSH plink.exe
+</pre>
+
+  <p>This permits configuration of different connection types. The
+  <em>config</em> file is located in the Subversion directory,
+  typically inside the Application Data area of the user's profile
+  directory (eg. C:\Documents and Settings\USERNAME\Application
+  Data\Subversion). See the Subversion documentation for more
+  information.</p>
+
+  <p>If you use "plink = $SVN_SSH plink.exe" in the tunnels section
+  of the config file, use "svn+plink" for your checkout url rather
+  than "svn+ssh".</p>
+
+  <p>Run <code>pageant</code> to enable the authentication agent.
+  Ensure that the <em>private1.key</em> is loaded. You can start
+  Pageant and load the key using a batch file. For example:</p>
+  <pre class="code">
+C:\PuTTY\pageant.exe c:\path\to\private.key c:\path\to\private2.key
+</pre>
+
+  <h4><a name="config_cvs_ssh" id="config_cvs_ssh">Configuring CVS
+  with Windows/Cygwin-SSH or Linux/SSH</a></h4>
+
+  <p>To configure CVS to use SSH, refer to <a class="doc" target=
+  "_blank" href=
+  "http://forrest.apache.org/docs_0_70/howto/cvs-ssh/howto-cvs-ssh.html">
+  http://forrest.apache.org/docs_0_70/howto/cvs-ssh/howto-cvs-ssh.html</a>.</p>
+
+  <p>On all platforms, create an environment variable as
+  follows:</p>
+  <pre class="code">
+CVS_RSH=ssh
+</pre>
+
+  <p>CVS determines when to use SSH, depending on how you check out
+  the modules. If you use the "cvs login" method with the "pserver"
+  protocol, CVS does not use SSH, even if CVS_RSH=ssh is set in the
+  environment.</p>
+
+  <p>On Windows, also configure the cygwin SSH Agent as
+  follows:</p>
+
+  <ol>
+    <li>Open a cygwin shell.</li>
+
+    <li>Enter <code>exec ssh-agent bash</code>.</li>
+
+    <li>Enter <code>ssh-add</code>.</li>
+
+    <li>To check out a CVS module, enter:
+      <pre class="code">
+cvs -d :ext:<em>username@cvs.server.com</em>:/<em>repository_name</em> co <em>cvs_module</em>
+</pre>
+
+      <p>...where <em>username@cvs.server.com</em> specifies your
+      username on the CVS server and the URL of the CVS server,
+      <em>repository_name</em> specifies the name of the repository
+      on the server, and <em>cvs_module</em> specifies the name of
+      the module in the chosen working repository.</p>
+    </li>
+
+    <li>Start Komodo within the cygwin shell as follows:
+      <pre class="code">
+<em>/path/to/komodo</em>/bin/komodo
+</pre>
+    </li>
+  </ol>
+
+  <p>After completing the configuration steps above, follow these
+  steps to open Komodo with CVS-SSH enabled:</p>
+
+  <ol>
+    <li>Open a cygwin shell.</li>
+
+    <li>Enter <code>exec ssh-agent bash</code>.</li>
+
+    <li>Enter <code>ssh-add</code>.</li>
+
+    <li>Start Komodo within the cygwin shell as follows:
+      <pre class="code">
+<em>/path/to/</em>komodo/komodo.exe
+</pre>
+    </li>
+  </ol>
+
+  <h4><a name="config_svn_ssh" id="config_svn_ssh">Configuring
+  Subversion with SSH on Linux or Mac OS X</a></h4>
+
+  <p>Subversion determines when to use SSH depending on how you
+  check out the modules. If you use http:// or file:/// URIs,
+  Subversion will not use SSH.</p>
+
+  <p>To use subversion with SSH, do the following <em>before</em>
+  starting Komodo:</p>
+
+  <ol>
+    <li>Open a shell.</li>
+
+    <li>Enter <code>exec ssh-agent bash</code>.</li>
+
+    <li>Enter <code>ssh-add</code>.</li>
+
+    <li>To check out a Subversion module, enter:
+      <pre class="code">
+svn checkout svn+ssh://<em>svn.server.com</em>/<em>repository_path/module/</em> <em>local_path</em>
+</pre>
+
+      <p>...where <em>svn.server.com</em> specifies the server
+      domain name of the Subversion server,
+      <em>repository_path/module</em> specifies the path of the
+      repository on the server, and <em>local_path</em> specifies
+      the preffered location on your local system for your copy of
+      the repository. The <em>local_path</em> can be ommited, in
+      which case the local path is the last part of the
+      repository_path.</p>
+    </li>
+
+    <li>Start Komodo from within the shell. Komodo inherits the
+    environment set in the shell by ssh-agent</li>
+  </ol>
+
+  <p>Refer to <a target="_blank" class="doc" href=
+  "http://svnbook.red-bean.com/en/1.0/ch06s03.html#svn-ch-6-sect-3.3">
+  http://svnbook.red-bean.com/en/1.0/ch06s03.html#svn-ch-6-sect-3.3</a>
+  for more detailed instructions, including information on
+  configuring svn+ssh to be non-interactive (i.e. no password
+  prompt).</p><!-- TODO: add instructions for configuring with...
+<p><a target="_blank" href="http://www.sshkeychain.org/">SSHKeychain</a> is an
+ssh key management application for OS X.</p>
+-->
+  <hr />
+</body>
+</html>

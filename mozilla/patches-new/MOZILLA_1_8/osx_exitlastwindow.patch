@@ -1,0 +1,53 @@
+Index: xpfe/components/startup/src/nsAppStartup.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/components/startup/src/nsAppStartup.cpp,v
+retrieving revision 1.7
+diff -d -u -r1.7 nsAppStartup.cpp
+--- xpfe/components/startup/src/nsAppStartup.cpp	10 Mar 2005 04:38:33 -0000	1.7
++++ xpfe/components/startup/src/nsAppStartup.cpp	22 Aug 2005 23:36:30 -0000
+@@ -400,7 +400,8 @@
+ void
+ nsAppStartup::AttemptingQuit(PRBool aAttempt)
+ {
+-#if defined(XP_MAC) || defined(XP_MACOSX)
++#if 0
++//#if defined(XP_MAC) || defined(XP_MACOSX)
+   if (aAttempt) {
+     // now even the Mac wants to quit when the last window is closed
+     if (!mAttemptingQuit)
+Index: toolkit/xre/nsAppRunner.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsAppRunner.cpp,v
+retrieving revision 1.113.2.1
+diff -d -u -r1.113.2.1 nsAppRunner.cpp
+--- toolkit/xre/nsAppRunner.cpp	19 Aug 2005 19:36:57 -0000	1.113.2.1
++++ toolkit/xre/nsAppRunner.cpp	22 Aug 2005 23:36:30 -0000
+@@ -2301,9 +2301,9 @@
+           gLogConsoleErrors = PR_TRUE;
+         }
+         else {
+-#ifndef XP_MACOSX
++//#ifndef XP_MACOSX
+           appStartup->ExitLastWindowClosingSurvivalArea();
+-#endif
++//#endif
+ 
+ #ifdef MOZ_ENABLE_XREMOTE
+           // if we have X remote support and we have our one window up and
+Index: toolkit/components/startup/src/nsAppStartup.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/startup/src/nsAppStartup.cpp,v
+retrieving revision 1.8
+diff -d -u -r1.8 nsAppStartup.cpp
+--- toolkit/components/startup/src/nsAppStartup.cpp	23 Jun 2005 21:45:06 -0000	1.8
++++ toolkit/components/startup/src/nsAppStartup.cpp	22 Aug 2005 23:36:30 -0000
+@@ -330,7 +330,8 @@
+ void
+ nsAppStartup::AttemptingQuit(PRBool aAttempt)
+ {
+-#if defined(XP_MAC) || defined(XP_MACOSX)
++#if 0
++//#if defined(XP_MAC) || defined(XP_MACOSX)
+   if (aAttempt) {
+     // now even the Mac wants to quit when the last window is closed
+     if (!mAttemptingQuit)

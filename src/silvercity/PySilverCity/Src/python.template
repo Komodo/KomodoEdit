@@ -1,0 +1,74 @@
+import HTMLGenerator
+import Lexer
+import Keywords
+from _SilverCity import FindLexerModuleByID, PropertySet, WordList
+from ScintillaConstants import *
+
+class PythonLexer(Lexer.Lexer):
+    def __init__(self, properties = PropertySet()):
+        self._properties = properties
+        self._lexer = FindLexerModuleByID(SCLEX_PYTHON)
+        self._keyword_lists = [
+
+                               ]
+class PythonHandler:
+    def __init__(self):
+        self.handlers = {
+            SCE_P_DEFAULT : getattr(self, 'handle_p_default', self.handle_other),
+            SCE_P_COMMENTLINE : getattr(self, 'handle_p_commentline', self.handle_other),
+            SCE_P_NUMBER : getattr(self, 'handle_p_number', self.handle_other),
+            SCE_P_STRING : getattr(self, 'handle_p_string', self.handle_other),
+            SCE_P_CHARACTER : getattr(self, 'handle_p_character', self.handle_other),
+            SCE_P_WORD : getattr(self, 'handle_p_word', self.handle_other),
+            SCE_P_TRIPLE : getattr(self, 'handle_p_triple', self.handle_other),
+            SCE_P_TRIPLEDOUBLE : getattr(self, 'handle_p_tripledouble', self.handle_other),
+            SCE_P_CLASSNAME : getattr(self, 'handle_p_classname', self.handle_other),
+            SCE_P_DEFNAME : getattr(self, 'handle_p_defname', self.handle_other),
+            SCE_P_OPERATOR : getattr(self, 'handle_p_operator', self.handle_other),
+            SCE_P_IDENTIFIER : getattr(self, 'handle_p_identifier', self.handle_other),
+            SCE_P_COMMENTBLOCK : getattr(self, 'handle_p_commentblock', self.handle_other),
+            SCE_P_STRINGEOL : getattr(self, 'handle_p_stringeol', self.handle_other)
+            }
+        
+        
+    def event_handler(self, style, **kwargs):
+        kwargs.update({'style' : style})
+        self.handlers.get(style, self.handle_other)(**kwargs)
+
+class PythonHTMLGenerator(HTMLGenerator.HTMLGenerator, PythonHandler):
+    css_classes = {
+        SCE_P_DEFAULT : 'p_default',
+        SCE_P_COMMENTLINE : 'p_commentline',
+        SCE_P_NUMBER : 'p_number',
+        SCE_P_STRING : 'p_string',
+        SCE_P_CHARACTER : 'p_character',
+        SCE_P_WORD : 'p_word',
+        SCE_P_TRIPLE : 'p_triple',
+        SCE_P_TRIPLEDOUBLE : 'p_tripledouble',
+        SCE_P_CLASSNAME : 'p_classname',
+        SCE_P_DEFNAME : 'p_defname',
+        SCE_P_OPERATOR : 'p_operator',
+        SCE_P_IDENTIFIER : 'p_identifier',
+        SCE_P_COMMENTBLOCK : 'p_commentblock',
+        SCE_P_STRINGEOL : 'p_stringeol'
+    }
+    
+    def __init__(self):
+        PythonHandler.__init__(self)
+
+    def handle_other(self, style, text, **ignored):
+        css_class = self.css_classes.get(style, '')
+            
+        if css_class:
+            self._file.write('<span class="%s">' % css_class)
+        
+        self._file.write(self.markup(text))
+
+        if css_class:
+            self._file.write('</span>')
+
+    def generate_html(self, file, buffer, lexer = PythonLexer()):
+        self._file = file
+        
+        lexer.lex_to_events(buffer, self.event_handler)
+

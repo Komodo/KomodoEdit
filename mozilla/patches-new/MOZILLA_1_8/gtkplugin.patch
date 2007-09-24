@@ -1,0 +1,54 @@
+Index: modules/plugin/base/src/ns4xPluginInstance.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/base/src/ns4xPluginInstance.cpp,v
+retrieving revision 1.125
+diff -u -d -r1.125 ns4xPluginInstance.cpp
+--- modules/plugin/base/src/ns4xPluginInstance.cpp	18 Jun 2005 06:06:45 -0000	1.125
++++ modules/plugin/base/src/ns4xPluginInstance.cpp	7 Feb 2006 18:42:42 -0000
+@@ -65,6 +65,8 @@
+ #include <gdk/gdk.h>
+ #include <gdk/gdkx.h>
+ #include "gtkxtbin.h"
++#include "gdksuperwin.h"
++#include "gtkmozarea.h"
+ #endif
+ 
+ #ifdef MOZ_WIDGET_GTK2
+@@ -1145,10 +1147,37 @@
+   gpointer user_data = nsnull;
+   gdk_window_get_user_data(win, &user_data);
+   if (user_data && GTK_IS_WIDGET(user_data)) {
++#if defined (MOZ_WIDGET_GTK)
++    // XXX Komodo
++    GtkWidget* widget = nsnull;
++    if (GDK_IS_SUPERWIN(user_data)) {
++      // find the widget
++      // code duplicated from widget/src/gtk/nsWindow.cpp
++      // nsWindow::GetOwningWidget
++      GdkWindow *parent = GDK_SUPERWIN(user_data)->shell_window;
++      while (parent)
++      {
++        gdk_window_get_user_data (parent, &user_data);
++        if (user_data != nsnull && GTK_IS_MOZAREA (user_data))
++        {
++          break;
++        }
++        parent = gdk_window_get_parent (parent);
++        parent = gdk_window_get_parent (parent);
++      }
++    }
++    if (user_data) {
++      widget = GTK_WIDGET(user_data);
++  
++      if (GTK_IS_SOCKET(widget))
++        isXembed = PR_TRUE;
++    }
++#else
+     GtkWidget* widget = GTK_WIDGET(user_data);
+ 
+     if (GTK_IS_SOCKET(widget))
+       isXembed = PR_TRUE;
++#endif
+   }
+ 
+   // Allocate and fill out the ws_info data

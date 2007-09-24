@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.util</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Module&nbsp;util
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko.util-module.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.util-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF MODULE DESCRIPTION =========== -->
+<h2 class="module">Module paramiko.util</h2>
+
+Useful functions used by the rest of paramiko.
+<hr/>
+
+<!-- =========== START OF CLASSES =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Classes</th></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.util.PFilter-class.html"><code>PFilter</code></a></b></td>
+  <td>&nbsp;</td></tr>
+</table><br />
+
+
+<!-- =========== START OF FUNCTION SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Function Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="bit_length"></a><span class="summary-sig"><span class="summary-sig-name">bit_length</span>(<span class=summary-sig-arg>n</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#deflate_long" class="summary-sig-name"><code>deflate_long</code></a>(<span class=summary-sig-arg>n</span>,
+          <span class=summary-sig-arg>add_sign_padding</span>)</span></code>
+<br />
+turns a long-int into a normalized byte string (adapted from 
+Crypto.Util.number)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="format_binary"></a><span class="summary-sig"><span class="summary-sig-name">format_binary</span>(<span class=summary-sig-arg>data</span>,
+          <span class=summary-sig-arg>prefix</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="format_binary_line"></a><span class="summary-sig"><span class="summary-sig-name">format_binary_line</span>(<span class=summary-sig-arg>data</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="format_binary_weird"></a><span class="summary-sig"><span class="summary-sig-name">format_binary_weird</span>(<span class=summary-sig-arg>data</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        string
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#generate_key_bytes" class="summary-sig-name"><code>generate_key_bytes</code></a>(<span class=summary-sig-arg>hashclass</span>,
+          <span class=summary-sig-arg>salt</span>,
+          <span class=summary-sig-arg>key</span>,
+          <span class=summary-sig-arg>nbytes</span>)</span></code>
+<br />
+Given a password, passphrase, or other human-source key, scramble it 
+through a secure hash into some keyworthy bytes.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="get_logger"></a><span class="summary-sig"><span class="summary-sig-name">get_logger</span>(<span class=summary-sig-arg>name</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="get_thread_id"></a><span class="summary-sig"><span class="summary-sig-name">get_thread_id</span>()</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#hexify" class="summary-sig-name"><code>hexify</code></a>(<span class=summary-sig-arg>s</span>)</span></code>
+<br />
+turn a string into a hex sequence</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#inflate_long" class="summary-sig-name"><code>inflate_long</code></a>(<span class=summary-sig-arg>s</span>,
+          <span class=summary-sig-arg>always_positive</span>)</span></code>
+<br />
+turns a normalized byte string into a long-int (adapted from 
+Crypto.Util.number)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        dict(hostname, dict(keytype, <a 
+        href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>))
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#load_host_keys" class="summary-sig-name"><code>load_host_keys</code></a>(<span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+Read a file of known SSH host keys, in the format used by openssh, and 
+return a compound dict of <code>hostname -&gt; keytype -&gt;</code> <a 
+href="../private/paramiko.PKey-class.html" 
+class="link"><code>PKey</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#log_to_file" class="summary-sig-name"><code>log_to_file</code></a>(<span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>level</span>)</span></code>
+<br />
+send paramiko logs to a logfile, if they're not already going 
+somewhere</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#lookup_ssh_host_config" class="summary-sig-name"><code>lookup_ssh_host_config</code></a>(<span class=summary-sig-arg>hostname</span>,
+          <span class=summary-sig-arg>config</span>)</span></code>
+<br />
+Provided only as a backward-compatible wrapper around <a 
+href="paramiko.SSHConfig-class.html" 
+class="link"><code>SSHConfig</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="mod_inverse"></a><span class="summary-sig"><span class="summary-sig-name">mod_inverse</span>(<span class=summary-sig-arg>x</span>,
+          <span class=summary-sig-arg>m</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#parse_ssh_config" class="summary-sig-name"><code>parse_ssh_config</code></a>(<span class=summary-sig-arg>file_obj</span>)</span></code>
+<br />
+Provided only as a backward-compatible wrapper around <a 
+href="paramiko.SSHConfig-class.html" 
+class="link"><code>SSHConfig</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="safe_string"></a><span class="summary-sig"><span class="summary-sig-name">safe_string</span>(<span class=summary-sig-arg>s</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="tb_strings"></a><span class="summary-sig"><span class="summary-sig-name">tb_strings</span>()</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.util-module.html#unhexify" class="summary-sig-name"><code>unhexify</code></a>(<span class=summary-sig-arg>s</span>)</span></code>
+<br />
+turn a hex sequence back into a string</td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="../private/paramiko.util-module.html#_g_thread_counter"><code>_g_thread_counter</code></a></b> = <span title="0">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>dict</code></font></td>
+<td><b><a href="../private/paramiko.util-module.html#_g_thread_ids"><code>_g_thread_ids</code></a></b> = <span title="{}"><code>{}                                       </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>lock</code></font></td>
+<td><b><a href="../private/paramiko.util-module.html#_g_thread_lock"><code>_g_thread_lock</code></a></b> = <span title="&lt;thread.lock object at 0x3b120&gt;"><code>&lt;thread.lock&nbsp;object&nbsp;at&nbsp;0x3b120&gt;         </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>PFilter</code></font></td>
+<td><b><a href="../private/paramiko.util-module.html#_pfilter"><code>_pfilter</code></a></b> = <span title="&lt;paramiko.util.PFilter object at 0x289750&gt;"><code>&lt;paramiko.util.PFilter&nbsp;object&nbsp;at&nbsp;0x289750&gt;    </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF FUNCTION DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Function Details</th></tr>
+</table>
+
+<a name="deflate_long"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">deflate_long</span>(<span class=sig-arg>n</span>,
+          <span class=sig-arg>add_sign_padding</span>=<span class=sig-default>True</span>)</span>
+  </h3>
+  turns a long-int into a normalized byte string (adapted from 
+  Crypto.Util.number)
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="generate_key_bytes"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">generate_key_bytes</span>(<span class=sig-arg>hashclass</span>,
+          <span class=sig-arg>salt</span>,
+          <span class=sig-arg>key</span>,
+          <span class=sig-arg>nbytes</span>)</span>
+  </h3>
+  Given a password, passphrase, or other human-source key, scramble it 
+  through a secure hash into some keyworthy bytes. This specific 
+  algorithm is used for encrypting/decrypting private key files.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>hashclass</b></code> -
+         class from <code>Crypto.Hash</code> that can be used as a 
+        secure hashing function (like <code>MD5</code> or 
+        <code>SHA</code>).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<code>Crypto.Hash</code>)</i>
+      <dd><code><b>salt</b></code> -
+         data to salt the hash with.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>key</b></code> -
+         human-entered password or passphrase.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      <dd><code><b>nbytes</b></code> -
+         number of bytes to generate.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        key data
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=string)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="hexify"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">hexify</span>(<span class=sig-arg>s</span>)</span>
+  </h3>
+  turn a string into a hex sequence
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="inflate_long"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">inflate_long</span>(<span class=sig-arg>s</span>,
+          <span class=sig-arg>always_positive</span>=<span class=sig-default>False</span>)</span>
+  </h3>
+  turns a normalized byte string into a long-int (adapted from 
+  Crypto.Util.number)
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="load_host_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">load_host_keys</span>(<span class=sig-arg>filename</span>)</span>
+  </h3>
+  <p>Read a file of known SSH host keys, in the format used by openssh, 
+  and return a compound dict of <code>hostname -&gt; keytype -&gt;</code> 
+  <a href="../private/paramiko.PKey-class.html" 
+  class="link"><code>PKey</code></a>. The hostname may be an IP address 
+  or DNS name. The keytype will be either 
+  <code>&quot;ssh-rsa&quot;</code> or 
+  <code>&quot;ssh-dss&quot;</code>.</p>
+  <p>This type of file unfortunately doesn't exist on Windows, but on 
+  posix, it will usually be stored in 
+  <code>os.path.expanduser(&quot;~/.ssh/known_hosts&quot;)</code>.</p>
+  Since 1.5.3, this is just a wrapper around <a 
+  href="paramiko.HostKeys-class.html" 
+  class="link"><code>HostKeys</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to read host keys from
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        dict of host keys, indexed by hostname and then keytype
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=dict(hostname, dict(keytype, <a 
+        href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>)))</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="log_to_file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">log_to_file</span>(<span class=sig-arg>filename</span>,
+          <span class=sig-arg>level</span>=<span class=sig-default>10</span>)</span>
+  </h3>
+  send paramiko logs to a logfile, if they're not already going 
+  somewhere
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="lookup_ssh_host_config"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">lookup_ssh_host_config</span>(<span class=sig-arg>hostname</span>,
+          <span class=sig-arg>config</span>)</span>
+  </h3>
+  Provided only as a backward-compatible wrapper around <a 
+  href="paramiko.SSHConfig-class.html" 
+  class="link"><code>SSHConfig</code></a>.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="parse_ssh_config"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">parse_ssh_config</span>(<span class=sig-arg>file_obj</span>)</span>
+  </h3>
+  Provided only as a backward-compatible wrapper around <a 
+  href="paramiko.SSHConfig-class.html" 
+  class="link"><code>SSHConfig</code></a>.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="unhexify"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">unhexify</span>(<span class=sig-arg>s</span>)</span>
+  </h3>
+  turn a hex sequence back into a string
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_g_thread_counter"></a>
+<h3>_g_thread_counter</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>int</code>
+
+      </dd>
+<span title="0">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_g_thread_ids"></a>
+<h3>_g_thread_ids</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>dict</code>
+
+      </dd>
+<span title="{}">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+{}                                                                     </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_g_thread_lock"></a>
+<h3>_g_thread_lock</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>lock</code>
+
+      </dd>
+<span title="&lt;thread.lock object at 0x3b120&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+&lt;thread.lock object at 0x3b120&gt;                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_pfilter"></a>
+<h3>_pfilter</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>PFilter</code>
+
+      </dd>
+<span title="&lt;paramiko.util.PFilter object at 0x289750&gt;">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+&lt;paramiko.util.PFilter object at 0x289750&gt;                             </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:05 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

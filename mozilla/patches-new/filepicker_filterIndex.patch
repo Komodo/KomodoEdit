@@ -1,0 +1,29 @@
+Index: xpfe/components/filepicker/res/content/filepicker.js
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/components/filepicker/res/content/filepicker.js,v
+retrieving revision 1.86.2.1
+diff -d -u -r1.86.2.1 filepicker.js
+--- xpfe/components/filepicker/res/content/filepicker.js	6 May 2004 03:37:12 -0000	1.86.2.1
++++ xpfe/components/filepicker/res/content/filepicker.js	9 Jun 2004 18:36:34 -0000
+@@ -72,6 +72,9 @@
+     const filterTitles = o.filters.titles;
+     const filterTypes = o.filters.types;
+     const numFilters = filterTitles.length;
++    var filterIndex = 0;
++    if (typeof(o.filterIndex) != 'undefined')
++        filterIndex = o.filterIndex;
+ 
+     window.title = title;
+ 
+@@ -114,9 +117,9 @@
+     var filterBox = document.getElementById("filterBox");
+     filterBox.removeAttribute("hidden");
+ 
+-    filterMenuList.selectedIndex = o.filterIndex;
++    filterMenuList.selectedIndex = filterIndex;
+ 
+-    treeView.setFilter(filterTypes[o.filterIndex]);
++    treeView.setFilter(filterTypes[filterIndex]);
+ 
+   } else if (filePickerMode == nsIFilePicker.modeGetFolder) {
+     treeView.showOnlyDirectories = true;

@@ -1,0 +1,375 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Run Commands</title>
+</head>
+
+<body>
+  <h1><a name="run_top" id="run_top">Run Commands</a></h1>
+
+  <div class="right-float-box">
+    <p><strong>Tutorial</strong></p>
+
+    <ul>
+      <li><a href="tutorial/runcmdtut.html#runcmdtut_top">Run
+      Commands</a></li>
+    </ul>
+
+    <p><strong>Feature Showcase</strong></p>
+
+    <ul>
+      <li><a href=
+      "tutorial/tourlet_googrun.html#googrun_top">Google Run
+      Command</a></li>
+    </ul>
+  </div>
+
+  <p>Run commands are operating system commands run from within
+  Komodo. Use the Run Command dialog box to interact with the
+  system command line or shell while <a href=
+  "komodo-doc-editor.html#editor_top">editing</a> files in
+  Komodo. Besides making it easy to run simple and complex custom
+  commands from within Komodo, the Run Command dialog box can
+  insert the results of shell commands into a document in the
+  <a class="doc" href=
+  "komodo-doc-workspace.html#Editor_Pane">Editor Pane</a>, or pass
+  the contents of a document to the system command line or
+  shell.</p>
+
+  <p>To view examples of run commands, see the "Samples" folder in
+  the <a class="doc" href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>.</p>
+
+  <p>Run commands can be stored for re-use in a <a href=
+  "komodo-doc-project.html#project_top">project</a> or the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, where they can
+  be assigned key bindings.</p>
+
+  <p>Access the last ten commands executed in the Run Command
+  dialog box by selecting <strong>Tools|Recent Commands</strong>.
+  The prefixes [i], [l] and [il] indicate that <strong>Insert
+  output</strong>, <strong>Pass selection as input</strong> or both
+  were selected with the original command.</p>
+
+  <h2><a name="run_create" id="run_create">Creating Run
+  Commands</a></h2>
+
+  <p>To create a run command, select <strong>Tools|Run
+  Command</strong>. The Run Command dialog box is displayed.
+  Alternatively, invoke the Run Command dialog box from the
+  <a href="komodo-doc-project.html#project_top">Projects tab</a> or
+  the <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> by
+  selecting <strong>Add|New Command</strong> from the
+  <strong>Project</strong> or <strong>Toolbox</strong> menu.</p>
+
+  <p>The Run Command dialog box can be toggled between its "simple"
+  or "advanced" form by clicking the <strong>More/Less</strong>
+  button.</p>
+
+  <h3><a name="run_simple" id="run_simple">Simple Run
+  Commands</a></h3>
+
+  <p>This section describes the components of the Run Command
+  dialog box that are displayed when the advanced commands are
+  hidden (via the <strong>More/Less</strong> button. See <a href=
+  "#run_advanced">Advanced Run Commands</a> for information about
+  the advanced fields.</p>
+
+  <ul>
+    <li><strong>Run</strong>: Enter the command to run.</li>
+
+    <li><strong>Interpolation Shortcut</strong>: Click the arrow
+    button to the right of the <strong>Run</strong> field to access
+    a drop-down list of <a class="doc" href=
+    "komodo-doc-shortcuts.html#shortcuts_top">interpolation
+    shortcuts</a>. When an interpolation shortcut is selected, it
+    is inserted at the current cursor position in the
+    <strong>Run</strong> field. Windows users should enclose
+    shortcuts for files and directories in double quotes (e.g.
+    "%F") to ensure that spaces in the file name or file path are
+    interpreted correctly.</li>
+
+    <li><strong>Pass selection as input</strong>: If this check box
+    is selected, the text currently highlighted in the editor is
+    passed to the command in the <strong>Run</strong> field. For
+    example, if the <strong>Run</strong> field contains <code>grep
+    myvar</code>, each line containing "myvar" in the text selected
+    in the editor is returned.</li>
+
+    <li><strong>Insert output</strong>: If this check box is
+    selected, the results of the command are inserted at the cursor
+    position in the current document.</li>
+
+    <li><strong>Add to Toolbox</strong>: If this check box is
+    selected, the command is saved in the <a href=
+    "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>.</li>
+  </ul>
+
+  <h3><a name="run_advanced" id="run_advanced">Advanced Run
+  Commands</a></h3>
+
+  <p>Click the <strong>More</strong> button in the Run Command
+  dialog box to display advanced options. The following options are
+  available:</p>
+
+  <ul>
+    <li><strong>Start in</strong>: Enter the directory where the
+    command should be run, or click the <strong>Browse</strong>
+    button to navigate the filesystem. Click the arrow button to
+    the right of the <strong>Start in</strong> field to select
+    <a href="komodo-doc-shortcuts.html#shortcuts_top">interpolation
+    shortcuts</a> pertinent to the <strong>Start in</strong>
+    setting. Interpolation shortcuts are inserted at the current
+    cursor position in the <strong>Run</strong> field.</li>
+
+    <li>
+      <strong>Run in</strong>: Specify the environment in which the
+      command should be run. The options are:
+
+      <ul>
+        <li><strong>Command Output Tab</strong>: The command is run
+        in Komodo's <a href=
+        "komodo-doc-workspace.html#Output_Pane">Bottom
+        Pane</a>.</li>
+
+        <li><strong>New Console</strong>: The command is run in a
+        new shell or command window.</li>
+
+        <li><strong>No Console (GUI Application)</strong>: The
+        command launches the specified application without
+        displaying output in a shell or on the <strong>Command
+        Output</strong> tab.</li>
+      </ul>
+    </li>
+
+    <li><strong>Do not open output pane</strong>: If this check box
+    is selected, the <a class="doc" href=
+    "komodo-doc-workspace.html#Output_Pane">Bottom Pane</a>
+    containing the <strong>Command Output</strong> tab does not
+    automatically open when the command is run. To manually view
+    the Bottom Pane, select <strong>View|Command Output</strong>.
+    (This option is only accessible if the <strong>Run in</strong>
+    field is set to <strong>Command Output</strong> tab.)</li>
+
+    <li><strong>Parse output with</strong>: If this check box is
+    selected, the field to the right is used to enter a <a href=
+    "komodo-doc-regex-intro.html#regex-intro_top">regular
+    expression</a> that parses the output. See <a href=
+    "tutorial/runcmdtut.html#parse">Parsing Command Output</a> in
+    the Run Command Tutorial for an example. (This option is only
+    accessible if the <strong>Run in</strong> field is set to
+    <strong>Command Output</strong> tab.)</li>
+
+    <li><strong>Show parsed output as list</strong>: If output
+    parsing is configured, select <strong>Show parsed output as
+    list</strong> to display the output in list format on the
+    <strong>Command Output</strong> tab. (This option is only
+    accessible if the <strong>Run in</strong> field is set to
+    <strong>Command Output</strong> tab.)</li>
+
+    <li>
+      <strong>Environment Variables</strong>: Use the
+      <strong>Environment Variables</strong> section of the dialog
+      box to configure new environment variables or change the
+      value of existing environment variables for the duration of
+      the run. To add or alter an environment variable, click
+      <strong>New</strong> and configure the following values:
+
+      <ul>
+        <li><strong>Variable Name</strong>: Enter a name for the
+        variable.</li>
+
+        <li><strong>Variable Value</strong>: Enter a value for the
+        variable.</li>
+
+        <li><strong>Interpolation Shortcut</strong>: Click the
+        arrow button to the right of the <strong>Variable
+        Value</strong> field to insert an <a href=
+        "komodo-doc-shortcuts.html#shortcuts_top">interpolation
+        shortcut</a> pertinent to the <strong>Variable
+        Value</strong> setting. The interpolation shortcut is
+        inserted at the current cursor position in the
+        <strong>Variable Value</strong> field.</li>
+
+        <li><strong>Add Path</strong>: Click this button to insert
+        a directory as the variable value.</li>
+      </ul>
+    </li>
+
+    <li><strong>Save advanced options as defaults</strong>: If this
+    check box is selected, the current settings are stored as the
+    defaults for the Run Command dialog box.</li>
+  </ul>
+
+  <h3><a name="run_outputtab" id="run_outputtab">Command Output
+  Tab</a></h3>
+
+  <p>By default, the commands run in the <strong>Command
+  Output</strong> tab on Komodo's <a href=
+  "komodo-doc-workspace.html#Output_Pane">Bottom Pane</a>. (Use the
+  <strong>Run in</strong> field to run the command in a new shell
+  window, or to run a graphical application without a console.)</p>
+
+  <p>If the command prompts for input, enter it directly on the
+  <strong>Command Output</strong> tab. Output written to "stderr"
+  (standard error output) is displayed in red at the top of the
+  tab. Click the <strong>Close</strong> button at the top right of
+  the <strong>Command Output</strong> tab to terminate a running
+  command. Click the <strong>Toggle Raw/Parsed Output View</strong>
+  button to jump from parsed results to raw output and vice versa.
+  (Parsing is enabled and configured via the <strong>Parse output
+  with</strong> field.)</p>
+
+  <p><strong>Note:</strong> For more information on parsing command
+  output, see the <a href="./tutorial/runcmdtut.html#parse">Parsing
+  Command Output</a> section of the <a href=
+  "./tutorial/runcmdtut.html">Run Command Tutorial</a>.</p>
+
+  <h2><a name="run_projtool" id="run_projtool">Storing Run Commands
+  in a Project or the Toolbox</a></h2>
+
+  <p>To add a run command to the <a href=
+  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, select
+  <strong>Add to Toolbox</strong> in the Run Command dialog box.
+  Run commands can also be added to <a href=
+  "komodo-doc-project.html#project_top">projects</a> or the Toolbox
+  via the methods described in <a href="#run_projtool">Storing Run
+  Commands in a Project or the Toolbox</a>.</p>
+
+  <p>To run a command stored in the Toolbox or in a project,
+  double-click the run command's name, use the assigned <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>, or
+  right-click the run command and select <strong>Run</strong>.</p>
+
+  <p>To access run command options for the selected run command,
+  right-click the run command's name. The options are as
+  follows:</p>
+
+  <ul>
+    <li><strong>Run Command</strong>: Execute the stored run
+    command.</li>
+
+    <li><strong>Cut/Copy/Paste</strong>: These options are used to
+    remove the run command from a project or the Toolbox, or to
+    move a run command between a project and the Toolbox (and vice
+    versa).</li>
+
+    <li><strong>Export as Project File</strong>: When this option
+    is invoked, a new project file is created that contains the run
+    command from which the option is invoked. You are prompted to
+    provide the name of the new project file and the directory
+    where it is stored. To open the new project file, select
+    <strong>File|Open|Project</strong>.</li>
+
+    <li><strong>Export Package</strong>: Run commands can be
+    archived and distributed among multiple Komodo users via
+    "packages". Packages are compressed archive files that contain
+    the run command from which the <strong>Export Package</strong>
+    option was invoked. Packages are stored in files with a ".kpz"
+    extension, and can be opened by any archiving utility that
+    supports <code>libz</code> (for example WinZip). The
+    <strong>Export Package</strong> option differs from the
+    <strong>Export as Project File</strong> option in that copies
+    of filesystem-based components (such as files and dialog
+    projects) are included in the archive. Conversely,
+    <strong>Export as Project File</strong> creates a project with
+    a reference to the component's original location and does not
+    create copies of the components. When <strong>Export
+    Package</strong> is invoked, you are prompted for a name and
+    file location for the package. Exported packages can only be
+    imported into "container" objects in Komodo, such as projects,
+    the Toolbox, and folders within projects and the Toolbox. See
+    <a href="komodo-doc-toolbox.html#export_import">Toolbox -
+    Exporting and Importing Toolbox Contents</a>, <a href=
+    "komodo-doc-project.html#project_impexp">Projects - Importing
+    and Exporting Projects via Packages</a>, or <a href=
+    "komodo-doc-folders.html#folders_importpack">Folders - Import
+    Contents from Package</a> for more information.</li>
+
+    <li><strong>Rename</strong>: To change the name of a run
+    command, select this option and enter a new name.</li>
+
+    <li><strong>Delete</strong>: To remove a run command from a
+    project or the Toolbox, select this option. The run command is
+    permanently deleted.</li>
+  </ul>
+
+  <h3><a name="runcmd_props" id="runcmd_props">Run Command
+  Properties</a></h3>
+
+  <p>To access the properties of a run command stored in a project
+  or the Toolbox, right-click the run command and select
+  <strong>Properties</strong>. The Properties dialog box contains
+  all the elements of the Run Command dialog box, and is therefore
+  used for editing stored run commands. In addition, the Properties
+  dialog box is used to assign a custom icon to the run command,
+  and to assign a custom key binding.</p>
+
+  <h4><a name="run_Cust_Icons" id="run_Cust_Icons">Assigning Custom
+  Icons to Run Commands</a></h4>
+
+  <p>The default run command icon can be replaced with custom
+  icons. Komodo includes more than 600 icons; alternatively, select
+  a custom image stored on a local or network drive (use
+  16x16-pixel images for best results).</p>
+
+  <p>To assign a custom icon to a run command:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, right-click the desired run
+    command and select <strong>Properties</strong>. Alternatively,
+    click the run command in the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, then select
+    <strong>Projects|<em>runcommand_name</em>|Properties</strong>
+    or
+    <strong>Toolbox<em>runcommand_name</em>|Properties</strong>.</li>
+
+    <li>In the Properties dialog box, click <strong>Change
+    Icon</strong>.</li>
+
+    <li>In the Pick an Icon dialog box, select a new icon and click
+    <strong>OK</strong>. Alternatively, click <strong>Choose
+    Other</strong>, and browse to the desired image file.</li>
+
+    <li>In the properties dialog box for the run command, click
+    <strong>OK</strong>. The custom icon is displayed next to the
+    run command.</li>
+  </ol>
+
+  <p>To revert to the default icon for a selected run command:</p>
+
+  <ol>
+    <li>On the <strong>Projects</strong> tab or
+    <strong>Toolbox</strong> tab, right-click the desired run
+    command and select <strong>Properties</strong>.</li>
+
+    <li>Click <strong>Reset</strong>, then click
+    <strong>OK</strong>. The default icon is displayed next to the
+    run command.</li>
+  </ol>
+
+  <h4><a name="run_key_bindings" id="run_key_bindings">Run Command
+  Key Bindings</a></h4>
+
+  <p>Custom key bindings can be assigned to run commands stored in
+  the <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or
+  in a <a href="komodo-doc-project.html#project_top">Project</a>.
+  Use the <strong>Key Binding</strong> tab in the run command's
+  Properties to specify the keystrokes that invoke the run command.
+  See <a href="komodo-doc-prefs.html#Config_Key_Bindings">Key
+  Bindings for Custom Components</a> for more information.</p>
+  <hr />
+</body>
+</html>

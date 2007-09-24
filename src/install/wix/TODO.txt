@@ -1,0 +1,87 @@
+- test on Win9x
+- Ensure that all files (and dirs) get removed on uninstall. Check for
+  non-admin install as well: it might work differently.
+- drop the customaction build stuff: not used anymore
+
+
+# Someday Maybe
+
+- am I breaking "msiexec.exe /a" Admin install functionality that worked
+  before?
+- detect if another Komodo is installed and, if not raise INSTALLLEVEL such
+  that "register as default" is done
+- XXX's in the .wxs file(s)
+- update install notes (if relevant)
+- File associations work: redesign how it works with the installer and
+  registry and Komodo runtime. Strawman:
+      - single registry entry for each file association type
+      - registry search to set one property for each
+      - MSI dialog for setting these
+      - conditional <ProgId> for each
+  Problems with Strawman: one registry/prop for each limits to a hardcoded
+  set: doesn't allow adding adhoc associations from the "Windows Integration"
+  prefs panel. 
+  Perhaps the added reliability and simplicity of this would make up for the
+  difference of not being able to easily add adhoc associations.
+- go through Komodo InstallShield project looking for missed bits
+- validate against ICEs (some I don't consider relevant: mostly errors
+  regarding HKCU and installing things to the user-specific profile area)
+- change the Modify, repair, or remove installation dialog to the nicer one
+  that the WiX Tutorial described
+- Checkbox-based UI for the Desktop Integration stuff
+- Should there be a SOFTWARE\ActiveState\Komodo\X.Y\Path = [INSTALLDIR] or
+  something like that so subsequent install-y bits can find Komodo?
+- large font vs. small font banner thing in installer UI
+- Can message for "another ver of prod. already installed" be improved?
+- Uninstall previous version automatically?
+- make the working dir for the Komodo shortcuts to be the users "home"
+  directory -- which itself is constructed by a custom action: either %HOME%
+  if set, or "My Documents" (or perhaps the HOMEDRIVE\HOMEPATH combo?)
+- a "wix" tool: A tool that encapsulates all the WiX tools. Also adds
+  "addguids", "wax" and "orca" (find and open Orca).
+
+
+# TODO for ActivePython
+
+- In addition to all the Komodo MSI features, ActivePython also has the
+  warning dialog about limitations of a per-user vs. "AllUsers" installation.
+
+
+# For the "Komodo MSI features" spec
+
+This list is here to add to a potential future "MSI features" spec. There are
+some bits from previous versions of this file that should get included.
+
+- Start Menu program group with:
+    - Komodo X.Y
+    - Modify, Repair or Uninstall Komodo
+    - various documentation links
+- Quick Launch shortcut (optional via "quicklaunch" feature selection)
+- Desktop shortcut (optional via "desktop" feature selection)
+- Add komodo.exe to PATH (optional via "register" feature selection, NOT done
+  by default in pre-release builds).
+- Registry "komodo.exe" "App Paths" registry key (in "register" feature)
+- Regarding "install for all users" vs. "install only for me". Some
+  installations present a choice to the user -- and obviously only the latter
+  is available for unprivileged users. Currently the Komodo MSI just ties
+  this decision to whether the user is privileged (i.e. if they *can* install
+  for all users then that what will be done).
+  Pros:
+  - One less dialog in the installation process. (And one less decision that
+    could potentially confuse the user. "What can go wrong if I select option
+    FOO?)
+  - Eliminates the possibility of a conflict of separate users both trying to
+    "install only for me".
+  - Easy for authoring the installer: just set ALLUSERS property to 2.
+  Cons:
+  - Some user *may* want this option. However, having been doing this for two
+    years for ActivePython I've never had a request for that.
+- Red flag: there *isn't* any "All Users" Quick Launch folder. Oh well.
+  The Quick Launch icon is then always just for the installing user.
+  *Could* offer to do so on first run, but that is overkill for now.
+  TOTEST: That uninstalling as a different user than installed it does
+  not choke trying to remove a Quick Launch icon that it cannot access.
+- launch Komodo and User Guide checkboxes at end of install
+- associate the .kpf and .ui file types with Komodo (with appropriate
+  descriptions, verbs and icons)
+

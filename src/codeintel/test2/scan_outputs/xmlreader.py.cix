@@ -1,0 +1,252 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs\xmlreader.py">
+    <scope doc="An XML Reader is the SAX 2 name for an XML parser." ilk="blob" lang="Python" name="xmlreader">
+      <import line="4" module="handler" />
+      <import line="6" module="_exceptions" symbol="SAXNotSupportedException" />
+      <import line="6" module="_exceptions" symbol="SAXNotRecognizedException" />
+      <scope doc="Interface for reading an XML document using callbacks." ilk="class" line="11" lineend="89" name="XMLReader">
+        <scope attributes="__ctor__" ilk="function" line="24" lineend="28" name="__init__" signature="XMLReader()">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+        </scope>
+        <variable attributes="protected __instancevar__" citdl="handler.ContentHandler()" line="25" name="_cont_handler" />
+        <variable attributes="protected __instancevar__" citdl="handler.DTDHandler()" line="26" name="_dtd_handler" />
+        <variable attributes="protected __instancevar__" citdl="handler.EntityResolver()" line="27" name="_ent_handler" />
+        <variable attributes="protected __instancevar__" citdl="handler.ErrorHandler()" line="28" name="_err_handler" />
+        <scope doc="Parse an XML document from a system identifier or an&#xA;InputSource." ilk="function" line="30" lineend="32" name="parse" signature="parse(source)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="source" />
+        </scope>
+        <scope doc="Returns the current ContentHandler." ilk="function" line="34" lineend="36" name="getContentHandler" returns="handler.ContentHandler()" signature="getContentHandler()">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Registers a new object to receive document content events." ilk="function" line="38" lineend="40" name="setContentHandler" signature="setContentHandler(handler)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="handler" />
+        </scope>
+        <scope doc="Returns the current DTD handler." ilk="function" line="42" lineend="44" name="getDTDHandler" returns="handler.DTDHandler()" signature="getDTDHandler()">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Register an object to receive basic DTD-related events." ilk="function" line="46" lineend="48" name="setDTDHandler" signature="setDTDHandler(handler)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="handler" />
+        </scope>
+        <scope doc="Returns the current EntityResolver." ilk="function" line="50" lineend="52" name="getEntityResolver" returns="handler.EntityResolver()" signature="getEntityResolver()">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Register an object to resolve external entities." ilk="function" line="54" lineend="56" name="setEntityResolver" signature="setEntityResolver(resolver)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="resolver" />
+        </scope>
+        <scope doc="Returns the current ErrorHandler." ilk="function" line="58" lineend="60" name="getErrorHandler" returns="handler.ErrorHandler()" signature="getErrorHandler()">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Register an object to receive error-message events." ilk="function" line="62" lineend="64" name="setErrorHandler" signature="setErrorHandler(handler)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="handler" />
+        </scope>
+        <scope doc="Allow an application to set the locale for errors and&#xA;warnings." ilk="function" line="66" lineend="73" name="setLocale" signature="setLocale(locale)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="locale" />
+        </scope>
+        <scope doc="Looks up and returns the state of a SAX2 feature." ilk="function" line="75" lineend="77" name="getFeature" signature="getFeature(name)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope doc="Sets the state of a SAX2 feature." ilk="function" line="79" lineend="81" name="setFeature" signature="setFeature(name, state)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+          <variable ilk="argument" name="state" />
+        </scope>
+        <scope doc="Looks up and returns the value of a SAX2 property." ilk="function" line="83" lineend="85" name="getProperty" signature="getProperty(name)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope doc="Sets the value of a SAX2 property." ilk="function" line="87" lineend="89" name="setProperty" signature="setProperty(name, value)">
+          <variable citdl="XMLReader" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+          <variable ilk="argument" name="value" />
+        </scope>
+      </scope>
+      <scope classrefs="XMLReader" doc="This interface adds three extra methods to the XMLReader&#xA;interface that allow XML parsers to support incremental&#xA;parsing." ilk="class" line="91" lineend="159" name="IncrementalParser">
+        <scope attributes="__ctor__" ilk="function" line="111" lineend="113" name="__init__" signature="IncrementalParser(bufsize=2**16)">
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+          <variable citdl="int" ilk="argument" name="bufsize" />
+        </scope>
+        <variable attributes="protected __instancevar__" citdl="int" line="112" name="_bufsize" />
+        <scope ilk="function" line="115" lineend="125" name="parse" signature="parse(source)">
+          <import line="116" module="saxutils" />
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+          <variable citdl="saxutils.prepare_input_source()" ilk="argument" name="source" />
+          <variable citdl="source.getByteStream()" line="120" name="file" />
+          <variable citdl="file.read()" line="121" name="buffer" />
+        </scope>
+        <scope doc="This method gives the raw XML data in the data parameter to&#xA;the parser and makes it parse the data, emitting the&#xA;corresponding events." ilk="function" line="127" lineend="134" name="feed" signature="feed(data)">
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+          <variable ilk="argument" name="data" />
+        </scope>
+        <scope doc="This method is called by the parse implementation to allow&#xA;the SAX 2.0 driver to prepare itself for parsing." ilk="function" line="136" lineend="139" name="prepareParser" signature="prepareParser(source)">
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+          <variable ilk="argument" name="source" />
+        </scope>
+        <scope doc="This method is called when the entire XML document has been&#xA;passed to the parser through the feed method, to notify the&#xA;parser that there are no more data." ilk="function" line="141" lineend="152" name="close" signature="close()">
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+        </scope>
+        <scope doc="This method is called after close has been called to reset&#xA;the parser so that it is ready to parse new documents." ilk="function" line="154" lineend="159" name="reset" signature="reset()">
+          <variable citdl="IncrementalParser" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope doc="Interface for associating a SAX event with a document&#xA;location." ilk="class" line="163" lineend="183" name="Locator">
+        <scope doc="Return the column number where the current event ends." ilk="function" line="169" lineend="171" name="getColumnNumber" returns="int" signature="getColumnNumber()">
+          <variable citdl="Locator" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Return the line number where the current event ends." ilk="function" line="173" lineend="175" name="getLineNumber" returns="int" signature="getLineNumber()">
+          <variable citdl="Locator" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Return the public identifier for the current event." ilk="function" line="177" lineend="179" name="getPublicId" signature="getPublicId()">
+          <variable citdl="Locator" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Return the system identifier for the current event." ilk="function" line="181" lineend="183" name="getSystemId" signature="getSystemId()">
+          <variable citdl="Locator" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope doc="Encapsulation of the information needed by the XMLReader to&#xA;read entities." ilk="class" line="187" lineend="272" name="InputSource">
+        <scope attributes="__ctor__" ilk="function" line="203" lineend="208" name="__init__" signature="InputSource(system_id=None)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="system_id" />
+        </scope>
+        <variable attributes="private __instancevar__" line="204" name="__system_id" />
+        <variable attributes="private __instancevar__" line="205" name="__public_id" />
+        <variable attributes="private __instancevar__" line="206" name="__encoding" />
+        <variable attributes="private __instancevar__" line="207" name="__bytefile" />
+        <variable attributes="private __instancevar__" line="208" name="__charfile" />
+        <scope doc="Sets the public identifier of this InputSource." ilk="function" line="210" lineend="212" name="setPublicId" signature="setPublicId(public_id)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="public_id" />
+        </scope>
+        <scope doc="Returns the public identifier of this InputSource." ilk="function" line="214" lineend="216" name="getPublicId" signature="getPublicId()">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Sets the system identifier of this InputSource." ilk="function" line="218" lineend="220" name="setSystemId" signature="setSystemId(system_id)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="system_id" />
+        </scope>
+        <scope doc="Returns the system identifier of this InputSource." ilk="function" line="222" lineend="224" name="getSystemId" signature="getSystemId()">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Sets the character encoding of this InputSource." ilk="function" line="226" lineend="234" name="setEncoding" signature="setEncoding(encoding)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="encoding" />
+        </scope>
+        <scope doc="Get the character encoding of this InputSource." ilk="function" line="236" lineend="238" name="getEncoding" signature="getEncoding()">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Set the byte stream (a Python file-like object which does&#xA;not perform byte-to-character conversion) for this input&#xA;source." ilk="function" line="240" lineend="251" name="setByteStream" signature="setByteStream(bytefile)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="bytefile" />
+        </scope>
+        <scope doc="Get the byte stream for this input source." ilk="function" line="253" lineend="258" name="getByteStream" signature="getByteStream()">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+        </scope>
+        <scope doc="Set the character stream for this input source." ilk="function" line="260" lineend="268" name="setCharacterStream" signature="setCharacterStream(charfile)">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+          <variable ilk="argument" name="charfile" />
+        </scope>
+        <scope doc="Get the character stream for this input source." ilk="function" line="270" lineend="272" name="getCharacterStream" signature="getCharacterStream()">
+          <variable citdl="InputSource" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="276" lineend="334" name="AttributesImpl">
+        <scope attributes="__ctor__" doc="Non-NS-aware implementation." ilk="function" line="278" lineend="282" name="__init__" signature="AttributesImpl(attrs)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="attrs" />
+        </scope>
+        <variable attributes="protected __instancevar__" line="282" name="_attrs" />
+        <scope ilk="function" line="284" lineend="285" name="getLength" returns="len()" signature="getLength()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="287" lineend="288" name="getType" returns="str" signature="getType(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="290" lineend="291" name="getValue" signature="getValue(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="293" lineend="294" name="getValueByQName" signature="getValueByQName(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="296" lineend="299" name="getNameByQName" signature="getNameByQName(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="301" lineend="304" name="getQNameByName" signature="getQNameByName(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="306" lineend="307" name="getNames" returns="self._attrs.keys()" signature="getNames()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="309" lineend="310" name="getQNames" returns="self._attrs.keys()" signature="getQNames()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="312" lineend="313" name="__len__" returns="len()" signature="__len__()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="315" lineend="316" name="__getitem__" signature="__getitem__(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="318" lineend="319" name="keys" returns="self._attrs.keys()" signature="keys()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="321" lineend="322" name="has_key" returns="self._attrs.has_key()" signature="has_key(name)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="324" lineend="325" name="get" returns="self._attrs.get()" signature="get(name, alternative=None)">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+          <variable ilk="argument" name="alternative" />
+        </scope>
+        <scope ilk="function" line="327" lineend="328" name="copy" returns="self.__class__()" signature="copy()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="330" lineend="331" name="items" returns="self._attrs.items()" signature="items()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="333" lineend="334" name="values" returns="self._attrs.values()" signature="values()">
+          <variable citdl="AttributesImpl" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope classrefs="AttributesImpl" ilk="class" line="338" lineend="369" name="AttributesNSImpl">
+        <scope attributes="__ctor__" doc="NS-aware implementation." ilk="function" line="340" lineend="346" name="__init__" signature="AttributesNSImpl(attrs, qnames)">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="attrs" />
+          <variable ilk="argument" name="qnames" />
+        </scope>
+        <variable attributes="protected __instancevar__" line="345" name="_attrs" />
+        <variable attributes="protected __instancevar__" line="346" name="_qnames" />
+        <scope ilk="function" line="348" lineend="353" name="getValueByQName" signature="getValueByQName(name)">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="355" lineend="360" name="getNameByQName" returns="nsname" signature="getNameByQName(name)">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="362" lineend="363" name="getQNameByName" signature="getQNameByName(name)">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+          <variable ilk="argument" name="name" />
+        </scope>
+        <scope ilk="function" line="365" lineend="366" name="getQNames" returns="self._qnames.values()" signature="getQNames()">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+        </scope>
+        <scope ilk="function" line="368" lineend="369" name="copy" returns="self.__class__()" signature="copy()">
+          <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope attributes="protected" ilk="function" line="372" lineend="375" name="_test" signature="_test()" />
+    </scope>
+  </file>
+</codeintel>

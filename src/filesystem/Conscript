@@ -1,0 +1,48 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'unsiloedPythonExe',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+    'sdkDir',
+);
+
+# Examples
+#$cons->Preprocess('URIlib.unprocessed.py', 'URIlib.py');
+#$cons->InstallPythonUtility('URIlib.py');
+
+$cons->Install($idlExportDir, 'koIFileNotificationService.idl');
+$cons->BuildAndInstallXpt('koIFileNotificationService.idl');
+$cons->InstallXpcomComponent('koFileNotificationService.py');
+
+$cons->InstallPythonUtility('osFilePollingNotifier.py');
+$cons->InstallPythonUtility('osFileNotificationUtils.py');
+
+if ($platform eq "win") {
+    $cons->InstallPythonUtility('osFileNotifications_win32.py');
+#} elsif ($platform eq "darwin") {
+#    $cons->InstallPythonUtility('osFileNotifications_darwin.py');
+#} elsif (($platform eq "linux") or
+#         ($platform eq "solaris") or
+#         ($platform eq "sunos") or
+#         ($platform eq "aix") or
+#         ($platform eq "hp-ux")) {
+#    $cons->InstallPythonUtility('osFileNotifications_unix.py');
+#} else {
+#    print "UNKNOWN PLATFORM!!! Platform is ";
+#    print $platform;
+#    print "\n";
+}

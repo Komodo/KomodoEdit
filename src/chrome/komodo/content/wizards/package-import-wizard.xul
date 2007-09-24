@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % wizardsDTD SYSTEM "chrome://komodo/locale/wizards.dtd">
+  %wizardsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<wizard id="komodo-window" title="&packageImportWizard.title;"
+        class="color-dialog"
+        onload="onWizardLoad();"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <!-- XXX: strres.js is needed so that wizardManager.js will work -->
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/strres.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardOverlay.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardHandlerSet.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/wizardManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/widgetStateManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+
+<script>
+<![CDATA[
+var item = null;
+var ko.projects.active = null;
+var packageFilename = null;
+var importFolder = null;
+
+function onWizardLoad() {
+    importFolder = item = window.arguments[0].item;
+    ko.projects.active = window.arguments[0].ko.projects.active;
+    packageFilename = window.arguments[0].packageFilename;
+    if (packageFilename) {
+        document.getElementById('packageFile').value = packageFilename;
+    }
+}
+
+function package_validate() {
+    var packageFile = document.getElementById('packageFile').value;
+    var extractLocation = document.getElementById('extractLocation').value;
+    if (packageFile && extractLocation) {
+        var osPath = Components.classes["@activestate.com/koOsPath;1"].getService();
+        if (!osPath.exists(packageFile)) {
+            ko.dialogs.alert("The file '"+packageFile+"' does not exist.");
+            return false;
+        }
+        if (!osPath.exists(extractLocation)) {
+            ko.dialogs.alert("The directory '"+extractLocation+"' does not exist.");
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function package_OnBrowse(id) {
+    var textbox = document.getElementById(id);
+    var dir = textbox.value;
+    dir = ko.filepicker.getFolder(dir)
+    if (dir != null) {
+        textbox.value = dir;
+    }
+}
+
+function package_OnBrowseFile(id) {
+    var textbox = document.getElementById(id);
+    var dir = textbox.value;
+    var filename = ko.filepicker.openFile(
+            null, null, // default dir and filename
+            "Select Package to Import", // title
+            "Komodo Package", // default filter
+            ["Komodo Package", "All"]); // filters
+    if (filename != null) {
+        textbox.value = filename;
+        document.getElementById('extractLocation').value = ko.uriparse.dirName(filename);
+    }
+}
+
+function package_import() {
+    var packageFile = document.getElementById('packageFile').value;
+    var extractLocation = document.getElementById('extractLocation').value;
+
+    var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
+                      .getService(Components.interfaces.koIProjectPackageService);
+
+    // Create a new folder
+    if (!importFolder) {
+        // get the current project
+        var project = ko.projects.active.manager.getCurrentProject();
+        importFolder = project.createPartFromType('folder');
+
+        packager.importPackage(packageFile, extractLocation, importFolder)
+
+        ko.projects.active.sort(false);
+        ko.projects.active.addItem(importFolder);
+    } else {
+        packager.importPackage(packageFile, extractLocation, importFolder)
+    }
+}
+
+function finished_onPageShow() {
+    var donemsg = document.getElementById('finish-msg');
+    while (donemsg.firstChild) {
+        donemsg.removeChild(donemsg.firstChild)
+    }
+    donemsg.appendChild(document.createTextNode('Please wait while the package is imported...'));
+
+    var wizard = document.getElementById("komodo-window");
+    wizard.canAdvance = false;
+    wizard.canRewind = false;
+    try {
+        package_import();
+    } catch(e) {
+        // last errorsvc should have an error for us
+    }
+    wizard.canAdvance = true;
+
+    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                        getService(Components.interfaces.koILastErrorService);
+
+    while (donemsg.firstChild) {
+        donemsg.removeChild(donemsg.firstChild)
+    }
+    donemsg.appendChild(document.createTextNode(lastErrorSvc.getLastErrorMessage()));
+}
+]]>
+</script>
+
+    <wizardpage id="start" description="Name and location of package import."
+                label="&importNameAndLocation.label;"
+                onpageadvanced="return package_validate();">
+        <description>
+            To import a package you must select the package you wish to import,
+            and the location that it can be extracted into.
+        </description>
+        <seperator/>
+        <label value="Select a package to import:"/>
+        <hbox align="center">
+            <textbox id="packageFile" flex="1"/>
+            <button label="&browse.label;"
+                    oncommand="package_OnBrowseFile('packageFile');"/>
+        </hbox>
+        <seperator class="thin"/>
+        <text value="Select the location to extract the files:"/>
+        <hbox align="center">
+            <textbox id="extractLocation" flex="1"/>
+            <button label="&browse.label;"
+                    oncommand="package_OnBrowse('extractLocation');"/>
+        </hbox>
+    </wizardpage>
+
+    <wizardpage id="finished" label="&finishedWithImport.label;"
+                description="Finished with the import process."
+                onpageshow="finished_onPageShow();">
+        <description id="finish-msg" style="font-weight: bold;"/>
+    </wizardpage>
+
+</wizard>

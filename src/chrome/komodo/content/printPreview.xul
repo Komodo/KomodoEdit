@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<window id="print_preview"
+        title="&printPreview.title;"
+        windowtype="Komodo:PrintPreview"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        width="600"
+        height="400"
+        screenX="20"
+        screenY="20"
+        persist="screenX screenY width height"
+        onload="PrintPreviewOnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <!--Mozilla sources-->
+    <!--globalOverlay.js contains application shutdown and controller code-->
+    <script src="chrome://global/content/globalOverlay.js"                type="application/x-javascript;version=1.7"/>
+    <!--nsDragAndDrop/nsTransferable used for Drag&Drop-->
+    <script src="chrome://global/content/nsDragAndDrop.js"                type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/fullScreen.js"                   type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/printing.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://global/content/printUtils.js"  type="application/x-javascript;version=1.7"/>
+
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+    function PrintPreviewOnLoad() {
+      try {
+      var view = window.arguments[0];
+      var preview = window.arguments[1];
+      var tofile = window.arguments[2];
+      var selectionOnly = window.arguments[3];
+      ko.printing.print(view, preview, tofile, selectionOnly);
+      } catch(e) { log.exception(e); }
+    }
+    ]]>
+    </script>
+
+    <deck id="printPreviewDeck" selectedIndex="0" flex="1">
+    <hbox flex="1"/>
+    <vbox flex="1">
+    <browser id="printBrowser" type="content-primary" flex="1"/>
+    </vbox>
+    </deck>
+</window>

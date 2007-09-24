@@ -1,0 +1,626 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Searching</title>
+</head>
+
+<body>
+  <h1><a name="search_top" id="search_top">Searching</a></h1>
+
+  <div class="right-float-box">
+    <p><strong>Feature Showcases</strong></p>
+
+    <ul>
+      <li><a href="tutorial/tourlet_faststr.html#faststr_top">fast
+      string finder</a></li>
+
+      <li><a href=
+      "tutorial/tourlet_incrsrch.html#incrsrch_top">incremental
+      search</a></li>
+
+      <li><a href=
+      "tutorial/tourlet_openfind.html#openfind_top">Open/Find
+      Toolbar</a></li>
+    </ul>
+  </div>
+
+  <p>Komodo provides a variety of methods for searching and
+  replacing text, both within files open in the editor and within
+  files on the filesystem. While Komodo has standard search and
+  replace functionality, it also features unique search mechanisms
+  like searching for the work under the cursor, incremental
+  searching and function search.</p>
+
+  <h2><a name="search_strings" id="search_strings">Searching for
+  Strings</a></h2>
+
+  <h3><a name="Finding_a_word" id="Finding_a_word">Searching Within
+  Open Files: Find Dialog</a></h3>
+
+  <p>The Find dialog box is used to search for words or phrases in
+  the current document. To open the Find dialog box, from the
+  <strong>Edit</strong> menu, select <strong>Find</strong>, or use
+  the associated <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>.</p>
+
+  <p>Enter the text you wish to find in the <strong>Find
+  what</strong> field.</p>
+
+  <p>The following search options can be configured:</p>
+
+  <ul>
+    <li><strong>Match Case</strong>: To find matches of the search
+    string regardless of case, select <strong>No</strong>. To find
+    matches only when the search string matches the case of the
+    occurrence, select <strong>Yes</strong>. To find exact case
+    matches only when the search string contains mixed case, select
+    <strong>Yes, if search string contains capital
+    letters</strong>. For example, if you enter "mystring" in the
+    <strong>Find what</strong> field and select <strong>Yes, if
+    search string contains capital letters</strong>, both
+    "mystring" and "myString" will match. However, if you enter
+    "myString" in the <strong>Find what</strong> field, only
+    "myString" will match.</li>
+
+    <li><strong>Use</strong>: Choose <strong>Plain Text</strong> to
+    exactly match the search string. <strong><a href=
+    "komodo-doc-regex-intro.html#regex-intro_top">Regular
+    Expressions</a></strong> will interpret the search string as a
+    <a href=
+    "komodo-doc-regex-intro.html#python_regex_syntax">Python
+    regular expression</a>, and perform the search accordingly;
+    <strong>Wildcards</strong> will interpret asterisk and question
+    mark characters as glob-style wildcards. The option specified
+    (Plain Text, Regular Expressions (Python), Wildcards) becomes
+    the default search type used for the <a href=
+    "#editor_find_toolbar">Open/Find Toolbar</a>.</li>
+
+    <li><strong>Match whole word</strong>: If this box is checked,
+    matches in the document will only be found if whitespace occurs
+    on either side of the search string. For example, if the search
+    string is "edit" and "Match whole word" is selected, only
+    occurrences of the word "edit" will be found as matches.
+    However, if "Match whole word" is not selected, "editing",
+    "editor", "editorial" and "edited" will also be found as
+    matches.</li>
+
+    <li><strong>Search up</strong>: This performs the search from
+    the cursor position to the top of the file, rather than from
+    the cursor position to the bottom of the file. (The default
+    functionality is to search down from the cursor position.)</li>
+
+    <li><strong>Display results in Find Results 2</strong>: Komodo
+    supports two <strong>Find Results</strong> tabs in the <a href=
+    "komodo-doc-workspace.html#Output_Pane">Bottom Pane</a>. Check
+    this box to display the search results in the second, rather
+    than the first, <strong>Find Results</strong> tab. If this box
+    is not checked, the first <strong>Find Results</strong> tab is
+    used to display the results of the search.</li>
+  </ul>
+
+  <p>The <a href="#editor_find_toolbar">Open/Find</a> toolbar uses
+  the settings from the <a href="#find_in_files">Find in Files</a>
+  and <a href="#Finding_a_word">Find</a> dialog boxes as default
+  search parameters. For example, if you configure the
+  <strong>Find</strong> dialog box to search using wildcards, the
+  <strong>Open/Find</strong> toolbar will also perform wildcard
+  searches.</p>
+
+  <p>Specify where Komodo should search for the text. In the
+  "Search in" section, select one of the following:</p>
+
+  <ul>
+    <li><strong>Current document</strong>: This searches the
+    document that is currently in focus in the editor for
+    occurrences of the search string.</li>
+
+    <li><strong>Selection only</strong>: will only search the
+    highlighted area of the document that is in focus in the
+    editor. (If you search a selected section, the highlighting of
+    the selected section will be temporarily turned off in order to
+    display highlighted results of the Find function.)</li>
+
+    <li><strong>All open documents</strong>: Search for the string
+    in all documents currently open in the editor.</li>
+  </ul>
+
+  <p>Invoke the search by clicking the desired search command
+  button:</p>
+
+  <ul>
+    <li><strong>Find Next</strong>: Finds consecutive occurrences
+    of the search string in your file or selection. As matches are
+    found, the text will be highlighted. The Find dialog box
+    remains in focus. To keep the focus in your file, close the
+    Find dialog box, then use the associated <a href=
+    "komodo-doc-prefs.html#Config_Key_Bindings">key
+    binding</a>.</li>
+
+    <li><strong>Find All</strong>: Locates all occurrences of the
+    search string in your file or selection. The matches will be
+    displayed in the <a href="#Find_Results">Find Results</a> tab
+    in the Bottom Pane.</li>
+
+    <li><strong>Mark All</strong>: Inserts a <a href=
+    "komodo-doc-editor.html#bookmarks">bookmark</a> on each line
+    that contains the search string. To move the editing cursor to
+    a bookmarked line, press <strong>F2</strong>.</li>
+  </ul>
+
+  <p>To display the results of a previous search, click the
+  relevant <strong>Find Results</strong> tab in the Bottom Pane. If
+  the Bottom Pane is not displayed, select <strong>View|Tabs|Find
+  Results</strong>.</p>
+
+  <h3><a name="Searching_and_replacing" id=
+  "Searching_and_replacing">Replacing Within Open Files: Replace
+  Dialog</a></h3>
+
+  <p>The Replace dialog box is used to search for and replace words
+  or phrases in the current document. To open the Replace dialog
+  box, from the <strong>Edit</strong> menu, select
+  <strong>Replace</strong>, or use the associated <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>.</p>
+
+  <p>Enter what to find and replace with:</p>
+
+  <ul>
+    <li><strong>Find what</strong>: Enter the search string you
+    want to find.</li>
+
+    <li><strong>Replace with</strong>: Enter the replacement
+    characters.</li>
+  </ul>
+
+  <p>The following replace options can be configured:</p>
+
+  <ul>
+    <li><strong>Match Case</strong>: To find matches of the search
+    string regardless of case, select <strong>Never</strong>. To
+    find matches only when the search string matches the case of
+    the occurrence, select <strong>Always</strong>. To find exact
+    case matches only when the search string contains upper-case
+    letters, select "If Search String Contains Capital Letters".
+    For example, if you enter "function" in the <strong>Find
+    what</strong> field and select "If Search String Contains
+    Capital Letters", both "function" and "Function" will match.
+    However, if you enter "Function" in the <strong>Find
+    what</strong> field, only "Function" will match.</li>
+
+    <li>
+      <strong>Use</strong>:
+
+      <ul>
+        <li><strong>Plain Text</strong>: Match the exact search
+        string.</li>
+
+        <li><strong>Regular Expressions</strong> Interprets the
+        search string as a Python <a href=
+        "komodo-doc-regex-intro.html">regular expression</a>.
+        Expressions and strings can be enclosed in parentheses to
+        retain the matched substring for use in the <strong>Replace
+        with</strong> field. Use the "\<em>num</em>" syntax to
+        insert the results of the match into the replacement (i.e.
+        "\1" for the first "(...)" group, "\2" for the second
+        group, etc.).</li>
+
+        <li><strong>Wildcards</strong> Interprets the asterisk and
+        question mark characters as wildcards for simple "glob"
+        matching.</li>
+      </ul>
+    </li>
+
+    <li><strong>Match whole word</strong>: If this box is checked,
+    matches in the document will only be found if whitespace occurs
+    on either side of the search string. For example, if the search
+    string is "edit" and "Match whole word" is selected, only
+    occurrences of the word "edit" will be found as matches.
+    However, if "Match whole word" is not selected, "editing",
+    "editor", "editorial" and "edited" will also be found as
+    matches.</li>
+
+    <li><strong>Search up</strong>: Performs the search from the
+    cursor position to the top of the file, rather than from the
+    cursor position to the bottom of the file.</li>
+
+    <li><strong>Show "Replace All" Results</strong>: Displays the
+    number of replacements in the status bar at the bottom left of
+    the Komodo Workspace. Details of each change, complete with the
+    line number, will appear on the <strong><a class="doc" href=
+    "#Find_Results">Find Results</a></strong> tab in the Bottom
+    Pane.</li>
+
+    <li><strong>Display in Find Results 2</strong>: Komodo supports
+    two <strong><a class="doc" href="#Find_Results">Find
+    Results</a></strong> tabs in the Bottom Pane. Check this box to
+    display the search results in the second, rather than the
+    first, <strong>Find Results</strong> tab. If this box is not
+    checked, the first <strong>Find Results</strong> tab is used to
+    display the results of the search.</li>
+  </ul>
+
+  <p>Specify where Komodo should replace the specified text. In the
+  "Replace in" section, select one of the following:</p>
+
+  <ul>
+    <li><strong>Current document</strong>: Searches the document
+    that is currently in focus in the editor for occurrences of the
+    search string.</li>
+
+    <li><strong>Selection only</strong>: Only searches the
+    highlighted area of the document that is in focus in the
+    editor. (If you search a selected section, the highlighting of
+    the selected section will be temporarily turned off in order to
+    display highlighted results of the Find function.)</li>
+
+    <li><strong>All open documents</strong>: Searches for the
+    string in all documents currently open in the editor.</li>
+  </ul>
+
+  <p>Invoke the search by clicking the desired search command
+  button:</p>
+
+  <ul>
+    <li><strong>Find Next</strong>: Finds consecutive occurrences
+    of the search string in your file or selection. As matches are
+    found, the text is highlighted. Click <strong>Replace</strong>
+    to replace the highlighted text with the replacement
+    string.</li>
+
+    <li><strong>Replace</strong>: Highlights the next occurrence of
+    the search string; if you click <strong>Replace</strong> again,
+    the highlighted text will be replaced with the replacement
+    string and the next occurrence of the search string will be
+    highlighted.</li>
+
+    <li><strong>Replace All</strong>: Replaces all occurrences of
+    the search string in the document or selection without
+    prompting for confirmation. All replacements will be displayed
+    on the <a class="doc" href="#Find_Results">Find Results</a> tab
+    of the <a class="doc" href=
+    "komodo-doc-workspace.html#Output_Pane">Bottom Pane</a>.</li>
+  </ul>
+
+  <h3><a name="word_under_cursor" id="word_under_cursor">Searching
+  for the Word Under the Cursor</a></h3>
+
+  <p>When the editing cursor is within (or adjacent to) a word, you
+  can quickly search for other occurrences of the same word within
+  the current document. If you are using the default <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>
+  scheme, press 'Ctrl'+'F3' to select the word; continue pressing
+  'Ctrl'+'F3' to step through each occurrence in the document.
+  ('Meta'+'F3' for Mac OS X users.)</p>
+
+  <h3><a name="incr_search" id="incr_search">Incremental
+  Search</a></h3>
+
+  <p>Incremental search is used to look through the current file in
+  the Editor Pane for a group of incrementing characters. That is,
+  as you continue to type in search characters, Komodo will find
+  the next occurrence of the search string. After all the search
+  characters have been entered, you can move through each
+  occurrence of the search string within the current file.</p>
+
+  <p><strong>To start an incremental search</strong> select
+  <strong>Edit|Incremental Search</strong>, or use the associated
+  <a href="komodo-doc-prefs.html#Config_Key_Bindings">key
+  binding</a>. (If you are using the default key binding scheme,
+  the key binding is 'Ctrl'+'I' on Windows and Linux and 'Meta'+'I'
+  on Mac OS X.) The status bar (in the bottom left corner of the
+  Komodo workspace) will display the text "Incremental Search:".
+  Begin typing the characters you want to find; as you type
+  characters, the editing cursor will move to the first match
+  beneath the current cursor position within the current file, and
+  the search string will be displayed in the status bar.</p>
+
+  <p><strong>To change the search string</strong> based on the
+  characters surrounding the editing cursor, use the associated
+  <a href="komodo-doc-prefs.html#Config_Key_Bindings">key
+  binding</a>. If the default <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>
+  scheme is in effect, the key combination is 'Shift'+'Right Arrow'
+  (to add one or more characters to the right of the editing
+  cursor) or 'Shift'+'Left Arrow' (to remove one or more characters
+  to the left of the editing cursor). On Mac OS X the key bindings
+  are 'Meta'+'Right Arrow' and 'Meta'+'Left Arrow'.</p>
+
+  <p>For example, if you entered "fo" as the search string, and the
+  next occurrence of these characters was in the word "foo", you
+  could use the 'Shift'+'Right Arrow' key combination to extend the
+  search string to "foo". Conversely, you could use the
+  'Shift'+'Left Arrow' key combination to reduce the search string
+  to "f".</p>
+
+  <p><strong>To search through the file for the search
+  string</strong> press 'Ctrl'+'I' to find subsequent occurrences
+  of the search string within the current file (On Mac OS X, press
+  'Meta'+'I'). Continue pressing 'Ctrl'+'I' to cycle through all
+  occurrences. When the search reaches the bottom of the file, it
+  will continue from the top of the file. 'Ctrl'+'Shift'+'I' will
+  search backwards from the current cursor positon (On Mac OS X,
+  press 'Meta'+'Shift'+'I').</p>
+
+  <p><strong>To cancel the incremental search</strong> press any
+  key except the key bindings assigned to the incremental search
+  functions.</p>
+
+  <h3><a name="find_in_files" id="find_in_files">Searching All
+  Files: Find in Files Dialog</a></h3>
+
+  <p>The Find in Files dialog box complements the <a href=
+  "#Finding_a_word">Find</a> dialog box by providing the ability to
+  search for text in files that are not currently opened in Komodo.
+  Select <strong>Edit|Find in Files</strong> (or use the associated
+  <a href="komodo-doc-prefs.html#Config_Key_Bindings">key
+  binding</a>) to open the new dialog box.</p>
+
+  <p>The Find in Files dialog box consists of the following
+  options:</p>
+
+  <ul>
+    <li><strong>Find what</strong>: Enter the search string.</li>
+
+    <li><strong>Match Case</strong>: To find matches of the search
+    string regardless of case, select <strong>No</strong>. To find
+    matches only when the search string matches the case of the
+    occurrence, select <strong>Yes</strong>. To find exact case
+    matches only when the search string contains mixed case, select
+    <strong>Yes, if search string contains capital
+    letters</strong>. For example, if you enter "mystring" in the
+    <strong>Find what</strong> field and select <strong>Yes, if
+    search string contains capital letters</strong>, both
+    "mystring" and "myString" will match. However, if you enter
+    "myString" in the <strong>Find what</strong> field, only
+    "myString" will match.</li>
+
+    <li><strong>Match whole word</strong>: If this box is checked,
+    matches in the document will only be found if whitespace occurs
+    on either side of the search string. For example, if the search
+    string is "edit" and "Match whole word" is selected, only
+    occurrences of the word "edit" will be found as matches.
+    However, if "Match whole word" is not selected, "editing",
+    "editor", "editorial" and "edited" will also be found as
+    matches.</li>
+
+    <li><strong>Use</strong>: Choose <code>Plain Text</code> to
+    exactly match the search string. <strong>Regular
+    Expressions</strong> will interpret the search string as a
+    Python regular expression and perform the search accordingly;
+    <strong>Wildcards</strong> interpret asterisk and question mark
+    characters as wildcards.</li>
+
+    <li><strong>Search in</strong>: By default, the <strong>Search
+    in</strong> field is populated with a period, which indicates
+    that the "current" directory will be searched. (If no file is
+    open, the current directory is the value specified in the
+    <code>HOME</code> environment variable; if the
+    <code>HOME</code> variable is not defined, the current
+    directory is "C:\" on Windows and "/" on OS X and Linux. If one
+    or more files are open, the location of the file that is
+    displayed in the Editor Pane is the current directory.) To
+    search directories other than the current, either specify an
+    absolute path, or specify a relative path from the current
+    directory. For example, if the current directory is
+    <em>/home/fred/tmp/foo</em>, you could search the
+    <em>/home/fred/tmp/bar</em> directory by entering
+    <em>../bar</em>. Manually enter one or more directories;
+    multiple directories are separated by semicolons.
+    Alternatively, click the browse button to the right of the
+    field to display a directory browser dialog box. (Directories
+    already specified in the <strong>Search in</strong> field will
+    be displayed in this dialog box.) Use the directory browser to
+    navigate the filesystem, specify one or more search
+    directories, and/or alter the order in which the directories
+    are searched.</li>
+
+    <li><strong>Search in subfolders</strong>: If this box is
+    checked, subdirectories beneath the directories specified in
+    the <strong>Search in</strong> field are also searched.</li>
+
+    <li><strong>Include</strong>: To specify one or more file types
+    that should be searched, enter the file extensions preceded by
+    a wildcard. For example, to search files with ".pl" and ".tcl"
+    extensions, enter <code>*.pl;*.tcl</code>. (Note that multiple
+    file extensions are separated by any combination of semicolons,
+    spaces, colons, and commas.)</li>
+
+    <li><strong>Exclude</strong>: To specify one or more file types
+    that should be excluded from the search, enter the file
+    extensions preceded by a wildcard. For example, to exclude
+    files with ".exe" and ".doc" extensions, enter
+    <code>*.exe;*.doc</code>. (Note that multiple file extensions
+    are separated by any combination of semicolons, spaces, colons,
+    and commas.) If both the <strong>Include</strong> and
+    <strong>Exclude</strong> fields are blank, all file types are
+    searched.</li>
+
+    <li><strong>Display results in Find Results 2</strong>: Komodo
+    supports two <strong><a class="doc" href="#Find_Results">Find
+    Results</a></strong> tabs in the Bottom Pane. Select this check
+    box to display the search results in the second, rather than
+    the first, <strong>Find Results</strong> tab. If this box is
+    not checked, the first <strong>Find Results</strong> tab is
+    used to display the results of the search.</li>
+  </ul>
+
+  <p>After clicking <strong>Find All</strong>, the <strong>Find
+  Results 1</strong> or <strong>Find Results 2</strong> tab
+  (depending on the setting of the <strong>Display results in Find
+  Results 2</strong> check box) are displayed in Bottom Pane.
+  Depending on the number of files that are being searched, it may
+  take some time to generate results. (The search status is
+  displayed on the top line of the <strong>Find Results</strong>
+  tab. The results include the file in which the search string is
+  found, the line number in the file where the search string
+  occurs, and the context surrounding the search string.
+  Double-click a search result (or click the arrow button at the
+  top right of the pane) to open the file in the editor and place
+  the editing cursor on the selected occurrence.</p>
+
+  <h3><a name="editor_find_toolbar" id="editor_find_toolbar">Fast
+  Search: Open/Find Toolbar</a></h3>
+
+  <p>The <a href="komodo-doc-workspace.html#Toolbars">Open/Find</a>
+  toolbar provides quick access for opening files and finding
+  strings. Find strings in files currently displayed in the editor
+  or in files not currently open in Komodo but located on the
+  filesystem. The toolbar is displayed by default; to close or open
+  the toolbar, select <strong>View|Toolbars|Open/Find</strong>.</p>
+
+  <p>The <strong>Open/Find</strong> toolbar also provides fast
+  access to find functionality. The <strong>Find</strong> and
+  <strong>in</strong> fields are used to perform searches on files
+  in Komodo or elsewhere in the filesystem. Both fields have a list
+  of the most recently entered strings and file specifications. Use
+  the <strong>in</strong> field browse button, located to the right
+  of the <strong>in</strong> field, to populate this field with the
+  directory, folders, or files you want to search.</p>
+
+  <p>Enter the string that you wish to search in the
+  <strong>Find</strong> field. The <strong>Find</strong> toolbar
+  uses the settings from the <a href="#find_in_files">Find in
+  Files</a> and <a href="#Finding_a_word">Find</a> dialog boxes as
+  default search parameters. For example, if you configure the
+  <strong>Find</strong> dialog box to search using wildcards, the
+  <strong>Find</strong> toolbar will also perform wildcard
+  searches.</p>
+
+  <p>Specify the files that should be searched in the
+  <strong>in</strong> field. The <strong>in</strong> field uses the
+  same logic as the <strong>Open</strong> field to determine the
+  current directory. (If no file is open, the current directory is
+  the value specified in the <code>HOME</code> environment
+  variable; if the <code>HOME</code> variable is not defined, the
+  current directory is "C:\" on Windows and "/" on OS X and Linux.
+  If one or more files are open, the location of the file that is
+  displayed in the Editor Pane is the current directory.)</p>
+
+  <p>To search directories other than the current, either specify
+  an absolute path, or specify a relative path from the current
+  directory. For example, if the current directory is
+  <em>/home/fred/tmp/foo</em>, you could search the
+  <em>/home/fred/tmp/bar</em> directory by entering
+  <em>../bar</em>. Alternatively, use the <strong>in</strong> field
+  browse button to locate and populate this field with the
+  directory, folders, or files you want to search.</p>
+
+  <p>The <strong>in</strong> field accepts wildcards; use "*" for a
+  file name segment and "?" for a specific character. Separate
+  multiple directories with semicolons. If nothing is specified in
+  the <strong>in</strong> field, the search will be performed
+  against the file that is currently displayed in the Editor Pane
+  (if applicable), and the next occurrence of the search string is
+  highlighted.</p>
+
+  <p>For example, to search for occurrences of the string "error"
+  in all files located in the directory <em>/tmp/output</em>, enter
+  <strong>error</strong> in the <strong>Find</strong> field and
+  <strong>/tmp/output/*</strong> in the <strong>in</strong>
+  field.</p>
+
+  <p>If files are specified in the <strong>in</strong> field,
+  matches will be displayed in the <a name="find_results" id=
+  "find_results"><strong>Find Results tab</strong></a>.</p>
+
+  <p>At any time, press the <strong>Escape</strong> key to return
+  focus to the Komodo editor. The <strong>Find</strong> field can
+  be accessed via the associated <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>.</p>
+
+  <p>For example, to search for occurrences of the string "debug"
+  in all files located in the directory <em>/tmp/log</em> on a
+  machine running Linux, enter <strong>debug</strong> in the
+  <strong>Find</strong> field. Enter <strong>/tmp/log/*</strong> in
+  the <strong>in</strong> field, or use the "browse" button to
+  locate this directory on your filesystem. For more information on
+  searching using the <strong>Open/Find Toolbar</strong>, see
+  <a class="doc" href="#editor_find_toolbar">Finding
+  Strings</a>.</p>
+
+  <h3><a name="Find_Results" id="Find_Results">Find Results
+  Tabs</a></h3>
+
+  <p>The <strong>Find Results 1</strong> tab (located in the
+  <a href="komodo-doc-workspace.html#Output_Pane">Bottom Pane</a>)
+  displays all matches that result when the <strong>Find
+  All</strong> function in the Find dialog box is used. The Find
+  Results 1 tab displays the line number on which the match
+  occurred and the line that contains the match. Double-click a
+  line in the Find Results tab to display the line in the Editor
+  Pane.</p>
+
+  <p>The <strong>Find All</strong> function in the <a class="doc"
+  href="#Finding_a_word">Find</a> and <a class="doc" href=
+  "#Searching_and_replacing">Replace</a> dialog box, and the
+  <a class="doc" href="#find_in_files">Find in Files</a> dialog box
+  (<strong>Edit|Find in Files</strong>) both make use of the
+  <strong>Find Results</strong> tab, which displays the result of
+  the search on the Command Output tab. Komodo includes a second
+  output tab that can be specified by checking the <strong>Display
+  results in Find Results 2</strong> check box. By using both tabs,
+  search results are not overwritten every time a new search is
+  invoked.</p>
+
+  <h2><a name="functions" id="functions">Finding Functions:
+  Function Search</a></h2>
+
+  <p>The Function Search looks through the current document for the
+  following constructs:</p>
+
+  <ul>
+    <li><strong>Perl programs</strong>: <code>sub</code> and
+    <code>package</code> statements.</li>
+
+    <li><strong>Python programs</strong>: <code>class</code> and
+    <code>def</code> statements.</li>
+
+    <li><strong>PHP programs</strong>: <code>class</code> and
+    <code>function</code> statements.</li>
+
+    <li><strong>Ruby programs</strong>: <code>module</code>,
+    <code>class</code> and <code>def</code> statements.</li>
+
+    <li><strong>Tcl programs</strong>: <code>proc</code>
+    statements.</li>
+  </ul>
+
+  <h3><a name="search_movefunc" id="search_movefunc">Moving Between
+  Functions</a></h3>
+
+  <p>To search forward from the current cursor position, select
+  <strong>Code|Find Next Function</strong>, or use the associated
+  <a href="komodo-doc-prefs.html#Config_Key_Bindings">key
+  binding</a>. To search backwards from the current cursor
+  position, select <strong>Code|Find Previous Function</strong>, or
+  use the associated <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>.</p>
+
+  <h3><a name="search_dispfunc" id="search_dispfunc">Displaying a
+  List of Functions</a></h3>
+
+  <p>To find all instances of functions within the current
+  document, select <strong>Code|Find All Functions</strong>, or use
+  the associated <a href=
+  "komodo-doc-prefs.html#Config_Key_Bindings">key binding</a>. The
+  list of functions in the current document will be displayed on
+  the <strong>Find Results</strong> tab located in the <a href=
+  "komodo-doc-workspace.html#Output_Pane">Bottom Pane</a> of the
+  Komodo Workspace. Double-click a specific construct on the
+  <strong>Find Results</strong> tab to highlight the relevant line
+  in the <a href="komodo-doc-workspace.html#Editor_Pane">Editor
+  Pane</a>.</p>
+  <hr />
+</body>
+</html>

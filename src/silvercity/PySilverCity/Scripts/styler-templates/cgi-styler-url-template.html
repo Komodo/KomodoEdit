@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Source Code Styling Service - URI</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	</head>
+	<body text="#000000" bgcolor="#FFFFFF" link="#0000EF">
+		<h1 id="title">Source Code Styling Service - URI</h1>
+		<div />
+		<p>
+			This form allows you to enter the
+			<acronym title="Universal Resource Identifier">URI</acronym>
+			of a source file and have it converted to syntax-styled HTML.
+		</p>
+		<p>
+			If you want to style a source file on your computer, you can use the 
+			<a href="cgi-styler-form.py?template=cgi-styler-upload-template.html">File Upload Interface</a>.
+			If you want to enter the source to style directly, you can use the 
+			<a href="cgi-styler-form.py?template=cgi-styler-textarea-template.html">
+				Direct Entry Interface</a>.
+		</p>
+		<form method="post" action="cgi-styler-form.py" ID="Form1">
+			<table ID="Table1">
+				<tr>
+					<th align="right">
+						<label title="Address of page to Validate" for="sourceuri">Address of source code:</label>
+					</th>
+					<td colspan="2">
+						<input id="sourceuri" name="sourceuri" size="50" />
+					</td>
+				</tr>
+				<tr>
+					<th align="right">
+						<label title="Address of page to Validate" for="styleuri">Address of stylesheet:</label>
+					</th>
+					<td colspan="2">
+						<input id="styleuri" name="styleuri" size="50" value="http://www.sweetapp.com/default.css" />
+					</td>
+				</tr>
+				<tr>
+					<th align="right">
+						<label for="lexer">Lexer (language):</label></th>
+					<td colspan="2">
+						<select id="lexer" name="lexer">
+							<option value="Auto">(detect automatically)</option>
+							%(generators)s
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th align="right">
+						<label for="encoding">Encoding:</label>
+					</th>
+					<td colspan="2">
+						<select id="encoding" name="encoding">
+							<option value="Auto">(detect automatically)</option>
+							%(encodings)s
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td colspan="2">
+						<label title="Submit URL for styling">
+							<input type="submit" value="Style" ID="submit" NAME="submit" /></label>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>

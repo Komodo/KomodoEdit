@@ -1,0 +1,19 @@
+# XUL UDL definition
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# XUL is markup and JS
+
+language XUL
+
+namespace "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+public_id "-//MOZILLA//DTD XUL V1.0//EN"
+system_id "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+
+include "html2js.udl"
+include "js2html.udl"
+
+include "xml.udl"
+include "jslex.udl"

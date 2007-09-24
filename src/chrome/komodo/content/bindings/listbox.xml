@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings id="koListboxBindingsNew"
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="listbox-editable"
+            extends="chrome://global/content/bindings/listbox.xml#listbox">
+    <handlers>
+      <handler event="keypress" key=" " phase="target">
+        <![CDATA[
+          if (this.currentItem) {
+            if (this.currentItem.getAttribute("type") != "checkbox") {
+              var v = document.getAnonymousNodes(this.currentItem);
+              var isEditable = false;
+              for (var i = 0; i < v.length; i++) {
+                if (v[i].getAttribute("type") == "editable") {
+                  v[i].edit();
+                  isEditable = true;
+                  break;
+                }
+              }
+              if (!isEditable)
+                this.addItemToSelection(this.currentItem);
+            } else if (!this.currentItem.disabled)
+                this.currentItem.checked = !this.currentItem.checked;
+          }
+        ]]>
+      </handler>
+    </handlers>
+    </binding>
+    
+    <binding id="listcell-editable"
+            extends="chrome://global/content/bindings/listbox.xml#listcell">
+        <content>
+            <children>
+            <xul:deck id="editdeck" class="listcell-editable-deck"
+                flex="1" orient="horizontal" pack="center" align="center">
+                <xul:label class="listcell-label"
+                        xbl:inherits="value=label,flex=flexlabel,crop,disabled"
+                        flex="1" crop="right"/>
+                <xul:textbox class="listcell-textbox"
+                        xbl:inherits="value=label,flex=flexlabel,crop,disabled"
+                        flex="1" crop="right"/>
+            </xul:deck>
+            </children>
+        </content>
+
+        <implementation>
+            <field name="_editmode">false</field>
+            <field name="_editdeck">null</field>
+            <field name="_mustedit">false</field>
+            <field name="_listbox">null</field>
+            <field name="_listitem">null</field>
+
+            <constructor>
+            <![CDATA[
+            try {
+                var parent = this.parentNode;
+                while (parent) {
+                    if (parent.localName == "listitem")
+                        this._listitem = parent;
+                    else if (parent.localName == "listbox") {
+                        this._listbox = parent;
+                        break;
+                    }
+                    parent = parent.parentNode;
+                }
+                var v = document.getAnonymousNodes(this);
+                for (var i=0; i < v.length; i++) {
+                    if (v[i].id == "editdeck")
+                        this._editdeck = v[i];
+                }
+            } catch (e) {
+                log.exception(e);
+            }
+            ]]>
+            </constructor>
+
+            <method name="edit">
+            <body>
+            <![CDATA[
+                if (this._editdeck && !this._editmode) {
+                    this._editdeck.lastChild.value = this._editdeck.firstChild.value;
+                    this._editdeck.selectedIndex = 1;
+                    this._editdeck.selectedPanel.focus();
+                    if(this.getAttribute('label').length > 0)
+                        this._editdeck.selectedPanel.select();
+                    this._editmode = true;
+                }
+                this._mustedit = false;
+            ]]>
+            </body>
+            </method>
+
+            <method name="unedit">
+            <body>
+            <![CDATA[
+                if (this._editmode) {
+                    this._editdeck.lastChild.value = this._editdeck.firstChild.value;
+                    this._editdeck.selectedIndex = 0;
+                    this._editmode = false;
+                    this._listbox.focus();
+                }
+            ]]>
+            </body>
+            </method>
+
+        </implementation>
+
+        <handlers>
+
+            <handler event="keypress">
+            <![CDATA[
+                event.cancelBubble = true;
+                if (event.keyCode == event.DOM_VK_ENTER ||
+                    event.keyCode == event.DOM_VK_RETURN ||
+                    event.keyCode == event.DOM_VK_TAB) {
+                    this._editdeck.firstChild.value = this._editdeck.lastChild.value;
+                    this.setAttribute('label',this._editdeck.firstChild.value);
+                    this.parentNode.setAttribute('label',this._editdeck.firstChild.value);
+                    this.unedit();
+                    event.stopPropagation();
+                    event.preventDefault();
+                } else if (event.keyCode == event.DOM_VK_ESCAPE) {
+                    this.unedit();
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            ]]>
+            </handler>
+
+            <handler event="blur" phase="capturing">
+            <![CDATA[
+                this.unedit();
+            ]]>
+            </handler>
+
+            <handler event="mousedown" phase="capturing">
+            <![CDATA[
+            try {
+                if (this.parentNode.getAttribute('selected') == 'true' &&
+                    !this._editmode) {
+                    this._mustedit = true; // will influence 'click' handler
+                }
+            } catch (e) {
+                log.exception(e);
+            }
+            ]]>
+            </handler>
+
+            <handler event="click" phase="capturing">
+            <![CDATA[
+            try {
+                // create a new mouse event to repace this one,
+                // and dispatch it on the listitem.  We must do this
+                // because xul:listrow will not accept mouse events
+                // from anything other than a listitem.  This makes
+                // row selection work properly
+                event.cancelBubble = true;
+
+                var ev = document.createEvent("MouseEvents");
+                ev.initMouseEvent(event.type, //in DOMString typeArg,
+                            true, //in boolean canBubbleArg,
+                            true, //in boolean cancelableArg,
+                            event.view, //in nsIDOMAbstractView viewArg,
+                            event.detail, //in long detailArg,
+                            event.screenX, //in long screenXArg,
+                            event.screenY, //in long screenYArg,
+                            event.clientX, //in long clientXArg,
+                            event.clientY, //in long clientYArg,
+                            event.ctrlKey, //in boolean ctrlKeyArg,
+                            event.altKey, //in boolean altKeyArg,
+                            event.shiftKey, //in boolean shiftKeyArg,
+                            event.metaKey, //in boolean metaKeyArg,
+                            event.button, //in unsigned short buttonArg,
+                            null //in nsIDOMEventTarget relatedTargetArg
+                            );
+
+                this._listitem.dispatchEvent(ev);
+                if (this._mustedit) {
+                    this.edit();
+                }
+
+            } catch (e) {
+                log.exception(e);
+            }
+            ]]>
+            </handler>
+            <handler event="dblclick" phase="capturing">
+            <![CDATA[
+                if (!this._editmode) {
+                    this.edit();
+                }
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+  <binding id="listitem-editable"
+           extends="chrome://global/content/bindings/listbox.xml#listitem">
+    <content>
+      <children>
+        <xul:listcell type="editable" allowevents="true"
+            xbl:inherits="label,image,crop,disabled,flexlabel"/>
+      </children>
+    </content>
+  </binding>
+
+</bindings>

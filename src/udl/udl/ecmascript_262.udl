@@ -1,0 +1,210 @@
+# Main ECMAScript-262 definition
+# 
+# Copyright (C) 2007 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+#
+# Used by JavaScript, ActionScript, and other JS-like languages
+
+# We have to specify the min and max styles we'll be referring to
+
+start_style CSL_DEFAULT
+end_style CSL_REGEX
+
+# If the language has keywords, specify which style needs to be transformed
+
+keyword_style CSL_IDENTIFIER => CSL_WORD
+
+# Some info on the styles we're using here
+
+pattern NMSTART = '$\w\x80-\xff'   # inside cset
+pattern CS = '$NMSTART\d_'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|'
+pattern NAMESEQ = '[$NMSTART][$CS]*'
+
+# We need to do some processing to determine when a / in default state 
+# starts a regex, and when it starts an RE
+# Same with /<\w/ for e4x unquoted xml strings
+# -- in fact, it's the same as for regexes, as both denote an object
+
+initial IN_CSL_DEFAULT
+
+state IN_CSL_DEFAULT:
+
+# Just ignore these things -- they're here for ancient browsers
+
+'<!--' : paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+'-->' : paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+'<![CDATA[' : paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+']]>' : paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+
+'/*' : paint(upto, CSL_DEFAULT), => IN_CSL_COMMENT_1
+
+'//' : paint(upto, CSL_DEFAULT), => IN_CSL_COMMENT_LINE_1
+
+/[$WS]+/  : #stay
+
+# We have to lex numbers in states in case we reach EOF right after the
+# "e" in a floating pt constant, for example
+
+/0[Xx][0-9a-fA-F]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
+/[-+]?[0-9]/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_1
+
+# A "." can start a number only if it doesn't follow a
+# name, many keywords, string, regex, number, or a few 
+# closing operators.
+
+/\.\d/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[-+]\./ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+
+'"' : paint(upto, CSL_DEFAULT), => IN_CSL_DSTRING
+'\'' : paint(upto, CSL_DEFAULT), => IN_CSL_SSTRING
+
+# Conditional check to see if it's preferred
+'/' token_check : paint(upto, CSL_DEFAULT), => IN_CSL_REGEX
+
+# '<' if token_check  : paint(upto, CSL_DEFAULT), => IN_CSL_XML # E4X stuff
+
+/$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+
+# Now a bunch of operators
+# Multi-char operators first
+
+/[$OP]/ : paint(upto, CSL_DEFAULT), redo, => IN_CSL_OP1
+
+################ Comments ################
+
+state IN_CSL_COMMENT_1 : 
+'*/' : paint(include, CSL_COMMENTBLOCK), => IN_CSL_DEFAULT
+
+state IN_CSL_COMMENT_LINE_1:
+/[\r\n]/ : paint(upto, CSL_COMMENT), => IN_CSL_DEFAULT
+
+################ Strings ################
+
+state IN_CSL_DSTRING:
+'"' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\\[\r\n]/ : paint(include, CSL_STRING), => IN_CSL_DSTRING_LINECONT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+'\r' : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+
+# Work around the single-line match limit.
+
+state IN_CSL_DSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_CSL_DSTRING
+'"' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/./ : => IN_CSL_DSTRING
+/^$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT # End empty lines here
+
+state IN_CSL_SSTRING:
+'\'' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\\[\r\n]/ : paint(include, CSL_STRING), => IN_CSL_SSTRING_LINECONT
+/\\./ : #
+/$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT
+'\r' : paint(upto, CSL_STRING), => IN_CSL_DEFAULT # /$/ doesn't match here with pcre
+
+state IN_CSL_SSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_CSL_SSTRING
+"'" : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/./ : => IN_CSL_SSTRING
+/^$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT # End empty lines here
+
+################ Numbers ################
+
+state IN_CSL_NUMBER_1 :
+'.' : => IN_CSL_NUMBER_2
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_CSL_NUMBER_3
+/./ : paint(upto, CSL_NUMBER), redo, => IN_CSL_DEFAULT
+
+state IN_CSL_NUMBER_2:
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_CSL_NUMBER_3
+'.' : paint(upto, CSL_NUMBER), paint(include, CSL_OPERATOR),  => IN_CSL_DEFAULT
+/./ : paint(upto, CSL_NUMBER), redo, => IN_CSL_DEFAULT
+
+state IN_CSL_NUMBER_3:
+/[^\d]/ : paint(upto, CSL_NUMBER), redo, => IN_CSL_DEFAULT
+
+state IN_CSL_REGEX:
+/\\./ : #stay
+/\/[\w]*/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+# JavaScript doesn't do x-type regexes, but here's how we'll do it in Perl:
+#### /#[^\/]*/ : paint(upto, CSL_REGEX), paint(include, CSL_COMMENT) # stay
+#### /[\r\n]/ : #stay
+/[\r\n]/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+# If we're here, we've painted the previous part, and 
+# just need to figure out which operator we have, doing
+# greedy left-to-right matching ('+++' parses as /++/, /+/)
+
+state IN_CSL_OP1:
+# Single-char operator -- all ops work as standalone chars
+
+/[$OP](?:(?![$OP])|$)/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+
+# Otherwise look from longest to smallest
+/>>>?=?/  : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+'>=' : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/!==?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/&&?=?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/<<?=?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/===?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/-[-=>]/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/\.\.\.?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/\^\^?=?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/\|\|?=?/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/[%*+\/>]=/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+'::' : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+'++' : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+# The fallback
+/[$OP]/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+
+################ End States ################
+
+# We might want to generalize this... by allowing named tokens.
+# Currently we just wrap things with a token-check
+
+# How to avoid specifying too much:
+
+# Only reject list: accept all others
+# Only accept list: reject everything else
+# Only skip list: reject everything else, but 
+# having only a set of skip items is redundant, as we'll end up rejecting
+
+# If a style has two of the lists, the missing one is the default
+
+# If a style has all three lists, anything else is rejected
+
+token_check:
+CSL_OPERATOR: reject [")", "++", "--", "]", "}"]
+
+CSL_WORD: reject [class false function null private protected public super
+this true get "include" set]
+
+# All other keywords prefer an RE
+
+CSL_DEFAULT: skip all
+CSL_COMMENT: skip all
+CSL_COMMENTBLOCK: skip all
+
+# Default is to reject / as the start of a regex if it follows
+# an unhandled style
+
+#### CSL_IDENTIFIER: reject all
+#### CSL_NUMBER: reject all
+#### CSL_REGEX: reject all
+#### CSL_STRING: reject all
+
+# Fold info tokens
+
+# Sometimes this should line up, when we're initializing an object.
+# Hard to get this right without doing the same thing we do with
+# Perl's notion of "variable indexer" vs. "operator".
+
+fold "{" CSL_OPERATOR +
+fold "}" CSL_OPERATOR -

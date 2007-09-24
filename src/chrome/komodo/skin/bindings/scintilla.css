@@ -1,0 +1,10 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+scintilla {
+  -moz-user-focus: normal;
+  -moz-binding: url('chrome://komodo/content/bindings/scintilla.xml#scintilla');
+}
+

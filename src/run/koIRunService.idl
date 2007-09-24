@@ -1,0 +1,381 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+#include "domstubs.idl"
+
+interface ISciMoz;
+interface koILanguage;
+
+#include "koIFile.idl"
+#include "koIPrefs.idl"
+
+//XXX build system can't handle recursive dependancies :-(
+//    so may need to add some addition includes.
+
+
+// This represents a question for data to make of the user and, after asked,
+// the user's answer. (Used by koIInterpolationService.)
+[scriptable, uuid(6CBEF397-0919-45db-85C7-6D74624C689E)]
+interface koIInterpolationQuery : nsISupports {
+    // The "id" allows .Interpolate2() to know _where_ to interpolate
+    // the user's answer into raw strings.
+    //
+    // If the code was "%(s:ask:Search for)" then:
+    //    "id" might be "%(__ask1__)
+    //    "code" would be "s"
+    //    "question" would be "Search for"
+    //    "mruName" is the name identifying the preference with which
+    //        an MRU of answers for this question will be stored. This is
+    //        generally very similar to "question". If the mruName is
+    //        empty or null, then no MRU is maintaned.
+    //    "answer" would start out either being null, if there had been no
+    //        selection, or the value of the selection, if there had been one.
+    //        After asking the user it would be whatever the user entered.
+    //    "isPassword" is a boolean indicating if this is a query for a
+    //        password.
+    attribute wstring id;
+    attribute wstring code;
+    attribute wstring question;
+    attribute string mruName;
+    attribute wstring answer;
+    attribute boolean isPassword;
+};
+
+
+// A generic interpolate service to enable parts of Komodo to
+// interpolate the shortcut codes that were born as part of the Run
+// Command system, e.g. %F for the full path to the current file, etc.
+//
+// See interpolate.js for a utility method for calling this service
+// properly from JavaScript.
+//
+// (This was generalized so it can be used for the snippets system too.)
+[scriptable, uuid(F86357E5-0F9D-4416-B196-60D423DBE1BF)]
+interface koIInterpolationService : nsISupports {
+    // Interpolate codes into the given strings.
+    // 
+    // This is a two step process. First, it must be determined if the
+    // Komodo must prompt the user for data (as per the %(X:ask) codes).
+    // Then, with the answers from the user the final interpolated strings
+    // can be made.
+    //
+    //  "strings" is the list of raw strings to interpolate without brackets
+    //  "bracketedStrings" is the list of raw strings to interpolate with brackets
+    //      Bracketting is done with double-square-brackets:
+    //          [[...code...]]
+    //  "filename" is the filename of the current file (null, if N/A)
+    //  "lineNum" is the current line number (0, if N/A)
+    //  "word" is the current word under cursor (null if none)
+    //  "selection" is the current selection (null if none)
+    //
+    //  "i1strings" is the list of strings after the first interpolation
+    //      step.
+    //  "i2strings" is the list of strings after the second
+    //      interpolation step.
+    //
+    // If an error is encountered an exception will be raised and an
+    // error with errno=NS_ERROR_INVALID_ARG will be set on
+    // koILastErrorService.
+    //
+    // An interpolation example:
+    // 1. A run command can interpolate the command and cwd strings:
+    //
+    //     strings:   findstr /s /n /c:"%(w:orask:Search Term)" %(ask:File Pattern:*.*)
+    //                %(ask:Search in:%D)
+    //
+    // 2. First interpolation pass will interpolate non-asking codes and
+    //    will generate KoIInterpolationQuery objects for asking codes. Presume
+    //    for this example that the user has C:\tmp\hello.py open with
+    //    the string "Spam and Eggs" selected. After Interpolate1() you
+    //    will get the following. The "%(__queryN__)" things are markers
+    //    for later interpolation:
+    //
+    //     i1strings: findstr /s /n /c:"%(__query0__)" %(__query1__)
+    //                findstr /s /n /c:"%(__query0__)" %(__query1__)
+    //                %(__query2__)
+    //                %(__query2__)
+    //     queries:   [{'id': '%(__query0__)', 'code': 'w',
+    //                  'question': 'Search Term', answer: 'Spam and Eggs',
+    //                  'isPassword': False},
+    //                 {'id': '%(__query1__)', 'code': 'ask',
+    //                  'question': 'File Pattern', answer: '*.*',
+    //                  'isPassword': False},
+    //                 {'id': '%(__query2__)', 'code': 'ask', 
+    //                  'question': 'Search in', answer: 'C:\\tmp',
+    //                  'isPassword': False}]
+    //    (See NOTE on why strings are doubled below.)
+    //
+    //    Note that if there are no "asking" codes (i.e. the "queries"
+    //    list is empty) then Interpolate2() need not be called (i.e.
+    //    skip steps 3 and 4).
+    //
+    // 3. The user of this service (see interpolate.js) will
+    //    then put up a dialog presenting these queries to the user. For
+    //    this example, let say the user changes the "File Pattern" to
+    //    "*.py" and leaves the other two alone.
+    //
+    // 4. Interpolate2() is called with the modified queries and the marked
+    //    up i1command and i1cwd. The result is the final fully interpreted
+    //    strings:
+    //
+    //     i2strings: findstr /s /n /c:"Spam and Eggs" *.py
+    //                findstr /s /n /c:"Spam and Eggs" *.py
+    //                C:\tmp
+    //                C:\tmp
+    //    (See NOTE on why strings are doubled below.)
+    //
+    // 5. The user of this service can then use those strings to run the
+    //    command.
+    //
+    // NOTE:
+    //  The number of strings returned by Interpolate*() is doubled: the
+    //  first is for *use* and the second for *display*.  The two will
+    //  never be different after Interpolate1() but may be after
+    //  Interpolate2() if one or more queries include asking for a
+    //  password (via the 'askpass' code) which should be obscured for
+    //  display in the UI. 
+    //
+    //  An example using askpass might be:
+    //
+    //     strings:   scp "%F" %(ask:username)@(%askpass:password):/tmp
+    //
+    //     i1strings: scp "/home/trentm/foo.py" %(__query0__)@%(__query1__):/tmp
+    //     queries:   [{'id': '%(__query0__)', 'code': 'ask',
+    //                  'question': 'username', answer: '',
+    //                  'isPassword': False},
+    //                 {'id': '%(__query1__)', 'code': 'askpass', 
+    //                  'question': 'password', answer: '',
+    //                  'isPassword': True}]
+    //
+    //     i2strings: scp "/home/trentm/foo.py" trentm@sekrit:/tmp
+    //                scp "/home/trentm/foo.py" trentm@******:/tmp
+    //
+    void Interpolate1(in PRUint32 scount,
+                      [array, size_is(scount)] in wstring strings,
+                      in PRUint32 bcount,
+                      [array, size_is(bcount)] in wstring bracketedStrings,
+                      in wstring fileName, in long lineNum,
+                      in wstring word, in wstring selection,
+                      in wstring projectFile,
+                      in koIPreferenceSet prefSet,
+                      out PRUint32 qcount,
+                      [array, size_is(qcount)] out KoIInterpolationQuery queries,
+                      out PRUint32 i1count,
+                      [array, size_is(i1count)] out wstring i1strings);
+
+    void Interpolate2(in PRUint32 i1count,
+                      [array, size_is(i1count)] in wstring i1strings,
+                      in PRUint32 qcount,
+                      [array, size_is(qcount)] in KoIInterpolationQuery queries,
+                      out PRUint32 i2count,
+                      [array, size_is(i2count)] out wstring i2strings);
+
+    // Return a list of offsets into the given strings demarking the
+    // interpolation code blocks in that string. There will alway be an
+    // even number of offsets: <start1>, <end1>, <start2>, <end2>, ...
+    void GetBlockOffsets(in wstring s, in boolean bracketed,
+                         out PRUint32 count,
+                         [array, size_is(count)] out long offsets);
+};
+
+[scriptable, uuid(03276c9a-6140-40ea-9906-a0f77a4d8227)]
+interface koITerminalInterrupt : nsISupports{
+    // returns true if the interrupt eats the data.  If false, the terminal handler
+    // will pass the data on to the regular handler.
+    boolean write([array, size_is(count)] in octet text, in unsigned long count);
+    boolean puts(in wstring text); // get around xpconnect limitations
+};
+
+[scriptable, uuid(AA8F8983-8B2B-4B27-80CB-BB04ECF6B915)]
+interface koITerminalHandler : nsISupports{
+    // The scintilla to use must be called once after creation.
+    void setScintilla(in ISciMoz scintilla);
+    void setLanguage(in koILanguage languageObj);
+    readonly attribute boolean active;
+    // You must call "startSession()" to make the output window "active"
+    // and create valid std handlers ("stdin", "stdout", "stderr"). When
+    // the session is complete, call "endSession()" to cleanup.
+    void startSession();
+    // - Std handlers to be passed to child processes. They will proxy
+    //   reading and writing between the child and the terminal window.
+    readonly attribute koIFile stdin;
+    readonly attribute koIFile stdout;
+    readonly attribute koIFile stderr;
+
+    // if this is set, stdin from the terminal will be written here instead
+    // once it is unset, it will return to the regular stdin handler.  if the
+    // write method returns false, then the terminal will still pass the data
+    // to the regular stin file above.
+    attribute koITerminalInterrupt stdinHandler;
+    
+    void endSession();
+
+    // Clear the contents of the terminal window. (Note that
+    // "startSession()" calls this internally as well.)
+    void clear();
+
+    // avoid interleaving ui access by locking and releasing the terminal handler
+    void acquireLock();
+    void releaseLock();
+    
+    // used to tell the terminal handler where to continue with stdout/err
+    attribute long lastWritePosition;
+
+    // koITerminalHandler calls itself via proxy to run the following function
+    // in the UI thread.  This function should not be called otherwise, but it
+    // is necessary to have this interface so Mozilla's proxy will work
+    void proxyAddText(in long length, in wstring data, in wstring io_name);
+};
+
+// One of these is used to interface between the command output window
+// and the process being run in that Windows.
+[scriptable, uuid(786D1791-042F-4CDC-9E46-CDB305010FDC)]
+interface koITreeOutputHandler : koITerminalHandler {
+    // Set the current working directory (for this session) to use to
+    // give any parsed filenames context. Null implies the current
+    // directory.
+    void setCwd(in wstring cwd);
+    // Set the current filename, if any (for this session). (If
+    // filenames are not parsed from command output, then the filename
+    // defaults to the current file.)
+    void setCurrentFile(in wstring filename);
+
+    // Data query methods for tree UI handling.
+    wstring getFile(in PRUint32 index);
+    wstring getLine(in PRUint32 index);   // e.g., "3" or "5-11"
+    wstring getColumn(in PRUint32 index); // e.g., "3" or "5-11"
+
+    // Parse the given line.
+    void parseLine(in wstring line, out wstring file, out string lineNum,
+                   out string columnNum);
+    // Sort the tree data by a certain key (this key typically matches
+    // the <treecol id=.../>  id's).
+    void sort(in string sortBy);
+    
+    // Set the regex to use for parsing command output lines for this
+    // session. If the regular expression is invalid, this will raise an
+    // exception and set the error on the last error service.
+    void setParseRegex(in wstring parseRegex);
+};
+
+// This is implemented in run's JavaScript code.
+[scriptable, uuid(CE58C7CF-DE1F-4f24-87C2-6069B6F856BF)]
+interface koIRunTerminationListener: nsISupports {
+    void onTerminate(in PRInt32 result);
+};
+
+
+[scriptable, uuid(30851CB2-3BAE-4243-9AC2-B8AA7783AD8F)]
+interface koIRunProcess: nsISupports {
+    // This is a "run command" specific wrapper around
+    // process.ProcessProxy to enable passing back a handle to a process
+    // to be able to .kill() and .wait() for it.
+
+    // Terminate the process.
+    //   "exitCode" is what the process return value is set to.
+    void kill(in PRInt32 exitCode);
+    
+    // Wait for the process to terminate and return its exit value.
+    //   "timeout" is a number of seconds to wait for the process to
+    //             terminate. A value of -1 means to never timeout.
+    // Wait will raise an exception if the method times out before the
+    // process has finished executing.
+    PRInt32 wait(in PRInt32 timeout);
+
+    // Equivalent to p.stdout.read() and p.stderr.read(), because
+    // getting p.stdout and p.stderr through PyXPCOM is a real PITA.
+    wstring readStdout();
+    wstring readStderr();
+};
+
+[scriptable, uuid(6D22AC55-BD4F-455e-9A80-A820FD8190EE)]
+interface koIRunService : nsISupports {
+    // Encode/decode a command (and all options) into a string for use
+    // in an "Recent Commands" MRU list.
+    wstring Encode(in wstring command, in wstring cwd, in wstring env,
+                   in boolean insertOutput, in boolean operateOnSelection,
+                   in boolean doNotOpenOutputWindow, in string runIn,
+                   in boolean parseOutput, in wstring parseRegex,
+                   in boolean showParsedOutputList);
+    void Decode(in wstring encoded, out wstring command,
+                out wstring cwd, out wstring env,
+                out boolean insertOutput, out boolean operateOnSelection,
+                out boolean doNotOpenOutputWindow, out string runIn,
+                out boolean parseOutput, out wstring parseRegex,
+                out boolean showParsedOutputList);
+
+    // In all of the following:
+    //  "command" is the command string to run.
+    //  "cwd" is the dir in which to run the command ('' or null to
+    //      inherit from parent).
+    //  "env" is a string representing environment changes to make for
+    //      the child process, these are to be merged in with the parent
+    //      environment. The format is: VAR1=value1\nVAR2=value2\n...
+    //  "terminal" holds the std handlers for redirection of the childs
+    //      std handlers.
+    //  "termListener" is a component that will be notified when the
+    //      process terminates.
+    //  "input" is an optional input string to pass to the child's
+    //      stdin. If this is None/null/NULL then no input is sent to
+    //      the child.
+    //
+    // If there is an error raised in any of the following the an error
+    // is set in the koILastErrorService.
+
+    // Run the given command in the given terminal.
+    koIRunProcess RunInTerminal(in wstring command, in wstring cwd, in
+                                wstring env, in koITreeOutputHandler terminal,
+                                in koIRunTerminationListener termListener,
+                                in wstring input);
+    // Run the given command in a new (console) window.
+    void Run(in wstring command, in wstring cwd, in wstring env,
+             in boolean console, in wstring input);
+    // Capture the output/error/retval from running the given command.
+    PRUint32 RunAndCaptureOutput(in wstring command,
+                                 in wstring cwd, in wstring env,
+                                 in wstring input,
+                                 out wstring output, out wstring error);
+    // Run the given command, returning the process object immediately,
+    // and notify (via nsIObserver) when the process terminates.
+    koIRunProcess RunAndNotify(in wstring command, in wstring cwd,
+                               in wstring env, in wstring input);
+};
+
+
+[scriptable, uuid(3A4CDA03-F58F-436e-87D1-630D14E1A820)] 
+interface koIRunEnvView : nsITreeView {
+    // An tree view for Run Command environment variables.
+    // XXX Should koIEnvironmentView just be used instead?
+
+    void Set(in wstring variable, in wstring value);
+    void Delete(in PRInt32 index);
+    // Return true iff have a datum with the given variable name.
+    // XXX Techinally Have() is redundant given Index().
+    boolean Have(in wstring variable);
+    // Return the index of the given variable name, -1 if there is no
+    // such variable in the view.
+    PRint32 Index(in wstring variable);
+
+    // Sort the find result data by a certain key (this key typically
+    // matches the <treecol id=.../>  id's).
+    void Sort(in string sortBy);
+
+    // Return a specific piece of data at the given index.
+    wstring GetVariable(in PRUint32 index);
+    wstring GetValue(in PRUint32 index);
+    
+    // Return a string with the '\n'-separated environment variables:
+    //    VAR1=value1\nVAR2=value2\n...
+    // This is named after the Win32 API function with similar
+    // funcionality.
+    // XXX Do we have to deal with env vars with newlines?
+    wstring GetEnvironmentStrings();
+    // Set the environment data set from a string encoded as by
+    // GetEnvironmentStrings().
+    void SetEnvironmentStrings(in wstring s);
+};
+
+
+

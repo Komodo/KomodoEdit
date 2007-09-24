@@ -1,0 +1,38 @@
+treechildren::-moz-tree-cell-text(testPasses)
+{
+  color: green;
+}
+treechildren::-moz-tree-cell-text(testFails)
+{
+  color: red;
+}
+treechildren::-moz-tree-cell-text(testBreaks)
+{
+  color: white;
+  background-color: red;
+}
+treechildren::-moz-tree-cell-text(testUnknown)
+{
+  color: orange;
+}
+
+.list-splitter {
+  width: 2px;
+  max-width: 2px;
+  min-width: 0% ! important;
+  min-height: 0% ! important;
+  background: None;
+}
+
+toolbarbutton.text-button
+{
+  margin: 1px;
+  padding: 1px;
+  border: 1px solid threedshadow;
+}
+
+toolbarbutton.text-button:hover
+{
+  background-color: threedshadow;
+}
+

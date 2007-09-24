@@ -1,0 +1,38 @@
+-- .......................................................................... --
+-- File catalog  ............................................................ --
+
+--  XHTML 1.1 Catalog Data File
+
+    Revision:  @(#)xhtml11.cat 1.9 2001/04/04 SMI
+
+    See "Entity Management", SGML Open Technical Resolution 9401 for detailed
+    information on supplying and using catalog data. This document is available
+    from OASIS at URL:
+
+        <http://www.oasis-open.org/html/tr9401.html>
+--
+
+-- .......................................................................... --
+-- SGML declaration associated with XHTML  .................................. --
+
+OVERRIDE YES
+
+SGMLDECL "xml1.dcl"
+
+-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: --
+
+-- XHTML 1.1 DTD modular driver file  ....................................... --
+-- note that this uses the local, flattened version of the DTD. If you want
+   your catalog to use the master version of the XHTML Modules, change the 
+   entry to reference xhtml11.dtd instead of xhtml11-flat.dtd
+--
+
+PUBLIC "-//W3C//DTD XHTML 1.1//EN"                                "xhtml11-flat.dtd"
+
+-- XHTML 1.1 framework modules .............................................. --
+
+PUBLIC "-//W3C//ENTITIES XHTML 1.1 Document Model 1.0//EN"        "xhtml11-model-1.mod"
+
+-- End of catalog data  ..................................................... --
+-- .......................................................................... --
+

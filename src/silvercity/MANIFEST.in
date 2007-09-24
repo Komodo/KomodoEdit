@@ -1,0 +1,12 @@
+recursive-include PySilverCity/Scripts *.py
+recursive-include PySilverCity/Src *.hpp *.h *.py
+recursive-include PySilverCity/Docs *.*
+recursive-include Lib/Src *.hpp *.h *.py
+recursive-include scintilla/src *.hpp *.h *.py
+recursive-include scintilla/include *.hpp *.h *.py *.iface
+recursive-include CSS *.css
+recursive-include Scripts *.py
+recursive-include Scripts/styler-templates *.html
+
+include LICENSE.txt
+include README.txt

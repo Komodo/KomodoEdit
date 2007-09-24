@@ -1,0 +1,17 @@
+# UDL for standalone ActionScript files
+# To build:
+# python luddite.py compile udl/actionscript-mainlex.udl -f --ext=.as --guid GUIDs.txt --skel
+# python luddite.py package actionscript -f
+# Open actionscript_language-1.0.0-ko.xpi in Komodo, install, restart
+
+language ActionScript
+
+include "actionscript_lex.udl"
+
+family markup
+sublanguage HTML
+
+initial IN_M_DEFAULT
+
+state IN_M_DEFAULT:
+/./ : redo, => IN_CSL_DEFAULT

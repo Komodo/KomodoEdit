@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<dialog id="dialog-editenvironvar"
+        title="&environmentVariable.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        orient="vertical"
+        style="min-width: 35em;"
+        buttons="accept,cancel"
+        ondialogaccept="return doOk();"
+        ondialogcancel="return doCancel();"
+        onload="Startup();"
+        onunload="doUnLoad();">
+
+<script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/editenvironvar.js"/>
+
+<vbox flex="1">
+            <label value="Add/Edit Environment Variable"
+                   style="margin: 5px 1px;"/>
+    <grid>
+        <columns>
+            <column/>
+            <column flex="1"/>
+        </columns>
+        <rows>
+        <row>
+            <label value="Name:" control="varName" class="kopadded"
+                   style="width: 50px;margin: 5px 1px;"/>
+            <textbox id="VarName" flex="1"/>
+        </row>
+        <row>
+            <label value="Value:" control="varValue" class="kopadded"
+                   style="width: 50px; margin: 5px 1px;"/>
+            <hbox align="top">
+                <deck id="VarDeck" selectedIndex="0" flex="1">
+                    <textbox id="VarValue" flex="1"/>
+                    <pathlist
+                            id="VarPaths"
+                            collapsed="true"
+                            flex="1"
+                            seltype="multiple"
+                            rows="4"/>
+                </deck>
+                <hbox align="center">
+                <button id="pathButton" class="more-icon button-toolbar-a" style="margin-top: 2px; width: 20px; height: 20px;" tooltiptext="&editPaths.tooltiptext;" oncommand="doPathVar(1);"/>
+                </hbox>
+            </hbox>
+        </row>
+        </rows>
+    </grid>
+</vbox>
+</dialog>

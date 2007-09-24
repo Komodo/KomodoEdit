@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Package&nbsp;paramiko
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko-module.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF PACKAGE DESCRIPTION =========== -->
+<h2 class="package">Package paramiko</h2>
+
+<p><i>Paramiko</i> (a combination of the esperanto words for 
+&quot;paranoid&quot; and &quot;friend&quot;) is a module for python 2.3 
+or greater that implements the SSH2 protocol for secure (encrypted and 
+authenticated) connections to remote machines. Unlike SSL (aka TLS), the 
+SSH2 protocol does not require heirarchical certificates signed by a 
+powerful central authority. You may know SSH2 as the protocol that 
+replaced <code>telnet</code> and <code>rsh</code> for secure access to 
+remote shells, but the protocol also includes the ability to open 
+arbitrary channels to remote services across an encrypted tunnel. (This 
+is how <code>sftp</code> works, for example.)</p>
+<p>The high-level client API starts with creation of an <a 
+href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a> object. For more direct control, 
+pass a socket (or socket-like object) to a <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>, and use <a 
+href="paramiko.Transport-class.html#start_server" 
+class="link"><code>start_server</code></a> or <a 
+href="paramiko.Transport-class.html#start_client" 
+class="link"><code>start_client</code></a> to negoatite with the remote 
+host as either a server or client. As a client, you are responsible for 
+authenticating using a password or private key, and checking the server's 
+host key. <i>(Key signature and verification is done by paramiko, but you 
+will need to provide private keys and check that the content of a public 
+key matches what you expected to see.)</i> As a server, you are 
+responsible for deciding which users, passwords, and keys to allow, and 
+what kind of channels to allow.</p>
+<p>Once you have finished, either side may request flow-controlled <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a>s 
+to the other side, which are python objects that act like sockets, but 
+send and receive data over the encrypted session.</p>
+<p>Paramiko is written entirely in python (no C or platform-dependent 
+code) and is released under the GNU Lesser General Public License 
+(LGPL).</p>
+Website: <a 
+href="http://www.lag.net/paramiko/">http://www.lag.net/paramiko/</a>
+<hr/>
+<p><b>Version:</b> 1.6 (umbreon)
+</p>
+
+<p><b>Author:</b> Robey Pointer
+</p>
+
+<p><b>Contact:</b> robey&#64;lag.net
+</p>
+
+<p><b>License:</b> GNU Lesser General Public License (LGPL)
+</p>
+
+
+<!-- =========== START OF SUBMODULES =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Submodules</th></tr>
+  <tr><td><ul>
+<li> <b><a href="paramiko.util-module.html"><code>util</code></a></b>: <i>Useful functions used by the rest of paramiko.</i>
+  </ul></td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASSES =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Classes</th></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Agent-class.html"><code>Agent</code></a></b></td>
+  <td>Client interface for using private keys from an SSH agent running on 
+the local machine.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AgentKey-class.html"><code>AgentKey</code></a></b></td>
+  <td>Private key held in a local SSH agent.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AutoAddPolicy-class.html"><code>AutoAddPolicy</code></a></b></td>
+  <td>Policy for automatically adding the hostname and new host key to the 
+local <a href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a> object, and saving it.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BufferedFile-class.html"><code>BufferedFile</code></a></b></td>
+  <td>Reusable base class to implement python-style file buffering around a 
+simpler stream.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Channel-class.html"><code>Channel</code></a></b></td>
+  <td>A secure tunnel across an SSH <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.DSSKey-class.html"><code>DSSKey</code></a></b></td>
+  <td>Representation of a DSS key which can be used to sign an verify SSH2 
+data.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.HostKeys-class.html"><code>HostKeys</code></a></b></td>
+  <td>Representation of an openssh-style &quot;known hosts&quot; file.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Message-class.html"><code>Message</code></a></b></td>
+  <td>An SSH2 <i>Message</i> is a stream of bytes that encodes some 
+combination of strings, integers, bools, and infinite-precision integers 
+(known in python as <i>long</i>s).</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.MissingHostKeyPolicy-class.html"><code>MissingHostKeyPolicy</code></a></b></td>
+  <td>Interface for defining the policy that <a 
+href="paramiko.SSHClient-class.html" 
+class="link"><code>SSHClient</code></a> should use when the SSH server's 
+hostname is not in either the system host keys or the application's 
+keys.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.RSAKey-class.html"><code>RSAKey</code></a></b></td>
+  <td>Representation of an RSA key which can be used to sign and verify SSH2 
+data.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTP-class.html"><code>SFTP</code></a></b></td>
+  <td>an alias for <a href="paramiko.SFTPClient-class.html" 
+class="link"><code>SFTPClient</code></a> for backwards compatability</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPAttributes-class.html"><code>SFTPAttributes</code></a></b></td>
+  <td>Representation of the attributes of a file (or proxied file) for SFTP 
+in client or server mode.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPClient-class.html"><code>SFTPClient</code></a></b></td>
+  <td>SFTP client object.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPFile-class.html"><code>SFTPFile</code></a></b></td>
+  <td>Proxy object for a file on the remote server, in client mode SFTP.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPHandle-class.html"><code>SFTPHandle</code></a></b></td>
+  <td>Abstract object representing a handle to an open file (or folder) in 
+an SFTP server implementation.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPServer-class.html"><code>SFTPServer</code></a></b></td>
+  <td>Server-side SFTP subsystem support.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHClient-class.html"><code>SSHClient</code></a></b></td>
+  <td>A high-level representation of a session with an SSH server.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHConfig-class.html"><code>SSHConfig</code></a></b></td>
+  <td>Representation of config information as stored in the format used by 
+OpenSSH.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SubsystemHandler-class.html"><code>SubsystemHandler</code></a></b></td>
+  <td>Handler for a subsytem in server mode.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.Transport-class.html"><code>Transport</code></a></b></td>
+  <td>An SSH Transport attaches to a stream (usually a socket), negotiates 
+an encrypted session, authenticates, and then creates stream tunnels, 
+called <a href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>s, across the session.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF EXCEPTIONS =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Exceptions</th></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AuthenticationException-class.html"><code>AuthenticationException</code></a></b></td>
+  <td>Exception raised when authentication failed for some reason.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BadAuthenticationType-class.html"><code>BadAuthenticationType</code></a></b></td>
+  <td>Exception raised when an authentication type (like password) is used, 
+but the server isn't allowing that type.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.BadHostKeyException-class.html"><code>BadHostKeyException</code></a></b></td>
+  <td>The host key given by the SSH server did not match what we were 
+expecting.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.ChannelException-class.html"><code>ChannelException</code></a></b></td>
+  <td>Exception raised when an attempt to open a new <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a> 
+fails.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.PasswordRequiredException-class.html"><code>PasswordRequiredException</code></a></b></td>
+  <td>Exception raised when a password is needed to unlock a private key 
+file.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SFTPError-class.html"><code>SFTPError</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.SSHException-class.html"><code>SSHException</code></a></b></td>
+  <td>Exception raised by failures in SSH2 protocol negotiation or logic 
+errors.</td></tr>
+<tr><td width="15%">
+  <b><a href="paramiko.AuthenticationException-class.html"><code>x</code></a></b></td>
+  <td>Exception raised when authentication failed for some reason.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:00 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

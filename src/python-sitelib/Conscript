@@ -1,0 +1,63 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'komodoPythonUtilsDir',
+    'ranRegxpcomStateFileName',
+    'platform',
+    'buildType',
+    'mozVersion',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'siloedPythonVersion',
+    'supportDir',
+    'mozVersion',
+);
+
+my $siloedPythonMajor;
+my $siloedPythonMinor;
+if ($siloedPythonVersion =~ /^(\d+)\.(\d+)/) {
+    $siloedPythonMajor = $1;
+    $siloedPythonMinor = $2;
+}
+
+$cons->InstallPythonUtility('uriparse.py');
+# must be 2.2 or less to get our own platform.py
+if ($siloedPythonMajor == 2 && $siloedPythonMinor < 3) {
+    $cons->InstallPythonUtility('platform.py');
+}
+$cons->InstallPythonUtility('HTMLTreeParser.py');
+$cons->InstallPythonUtility('koXMLDatasetInfo.py');
+$cons->InstallPythonUtility('koXMLTreeService.py');
+$cons->InstallPythonUtility('koCatalog.py');
+$cons->InstallPythonUtility('koSimpleLexer.py');
+$cons->InstallPythonUtility('koDTD.py');
+$cons->InstallPythonUtility('kotaclib.py');
+$cons->InstallPythonUtility('koRNGElementTree.py');
+$cons->InstallPythonUtility('koUnicodeEncoding.py');
+$cons->InstallPythonUtility('eollib.py');
+$cons->InstallPythonUtility('strptime.py');
+$cons->InstallPythonUtility('koXMLPrefs.py');
+$cons->InstallPythonUtility('process.py');
+$cons->InstallPythonUtility('koprocessutils.py');
+$cons->InstallPythonUtility('which.py');
+$cons->InstallPythonUtility('timeline.py');
+$cons->InstallPythonUtility('timeline_hook.py');
+$cons->Preprocess('koTreeView.unprocessed.py', 'koTreeView.py');
+$cons->InstallPythonUtility('koTreeView.py');
+$cons->InstallPythonUtility('pyxpcomProfiler.py');
+$cons->InstallPythonUtility('reflow.py');
+$cons->InstallPythonUtility('difflibex.py');
+$cons->InstallPythonUtility('sitepyxpcom.py');
+$cons->InstallPythonUtility('directoryServiceUtils.py');
+$cons->InstallPythonUtility('applib.py');
+
+if ($platform eq "win") {
+    $cons->InstallPythonUtility('wininteg.py');
+}
+
+

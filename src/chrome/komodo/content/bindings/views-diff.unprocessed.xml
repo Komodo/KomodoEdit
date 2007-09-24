@@ -1,0 +1,436 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2003 ActiveState Corporation. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-diff"
+    extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
+    <content orient="vertical">
+        <xul:toolbox orient="horizontal">
+            <xul:toolbar
+                align="stretch"
+                grippyhidden="true"
+                tooltiptext="&diffToolbar.tooltiptext;"
+                flex="1">
+                <xul:toolbarbutton id="previous-diff-button"
+                    tooltiptext="&jumpToPreviousDiff.tooltiptext;"
+                    oncommand="jumpToPreviousDiff()"
+                    align="center"
+                    style="-moz-box-orient: horizontal;"
+                    class="previous-diff-icon"
+                    label="&previous.label;"/>
+                <xul:toolbarbutton id="next-diff-button"
+                    tooltiptext="&jumpToNextDiff.tooltiptext;"
+                    oncommand="jumpToNextDiff()"
+                    align="center"
+                    style="-moz-box-orient: horizontal;"
+                    class="next-diff-icon"
+                    label="&next.label;"/>
+                <xul:toolbarseparator/>
+                <xul:toolbarbutton id="reveal-button"
+                    tooltiptext="&revealPositionInEditor.tooltiptext;"
+                    oncommand="revealPositionInEditor()"
+                    style="-moz-box-orient: horizontal;"
+                    align="center"
+                    class="reveal-in-editor-icon"
+                    label="&reveal.label;"/>
+                <xul:spacer flex="1"/>
+                <xul:hbox id="message-box" align="center" collapsed="true">
+                    <xul:image src="chrome://komodo/skin/images/famfamfam/information.png"/>
+                    <xul:label id="message-label"/>
+                </xul:hbox>
+            </xul:toolbar>
+        </xul:toolbox>
+        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
+                       flex="1"
+                       mozcontext="bufferContextMenu"/>
+    </content>
+    <implementation name="viewdiff" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+
+        <field name="_cwd">null</field>
+        <field name="_strip">0</field>
+
+        <!-- Override 'scintilla' attribute getter because our content differs
+             from view-buffer-base. -->
+        <property name="scintilla">
+            <getter><![CDATA[
+                if (!this._scintilla) {
+                    var nodes = document.getAnonymousNodes(this);
+                    this._scintilla = nodes[nodes.length-1];
+                }
+                return this._scintilla;
+            ]]></getter>
+        </property>
+
+        <property name="message">
+            <getter><![CDATA[
+                var messageLabel = this._getElement("label", "message-label");
+                return messageLabel.value;
+            ]]></getter>
+            <setter><![CDATA[
+                var messageBox = this._getElement("hbox", "message-box");
+                var messageLabel = this._getElement("label", "message-label");
+                if (val) {
+                    messageBox.removeAttribute("collapsed");
+                    messageLabel.value = val;
+                } else {
+                    messageBox.setAttribute("collapsed", "true");
+                    messageLabel.value = "";
+                }
+            ]]></setter>
+        </property>
+
+        <!-- Jump the previous/next "diff".
+             Where "diff" is the next contiguous block of "+|-|?|!|<|>"-prefixed
+             diff lines (which should cover all column-1 diff operators for the
+             various diff formats).
+             
+             Notes:
+             - We don't currently bother supporting RCS-style diffs
+               (e.g. "p4 diff -dn ...") nor Perforce's "summary"-style diffs
+               ("p4 diff -ds ...").
+          -->
+        <method name="jumpToPreviousDiff">
+            <body><![CDATA[
+                try {
+                    var sm = this.scimoz;
+    
+                    if (sm.anchor == 0) {
+                        return;
+                    }
+    
+                    // Start from the 'anchor - 1' (i.e. one char back from the
+                    // start of a selection) and work back line-by-line to the start
+                    // of a diff block.
+                    // - Go back to first diff line (i.e. one that starts with
+                    //   one of the diff control chars.).
+                    var line = sm.lineFromPosition(sm.anchor-1);
+                    //dump("jumpToPreviousDiff: start on line "+line+"\n");
+                    while (!this._isDiffOpLine(sm, line)) {
+                        line -= 1;
+                        if (line < 0) {
+                            return; // There is no previous diff.
+                        }
+                    }
+                    //dump("jumpToPreviousDiff: first diff line: "+line+"\n");
+    
+                    // - Go back from there to first non-diff line.
+                    while (line > 0 && this._isDiffOpLine(sm, line)) {
+                        line -= 1;
+                    }
+                    //dump("jumpToPreviousDiff: first non-diff line: "+line+"\n");
+                    var startLine = line+1;
+                    
+                    // - Go forward from the startLine to the first non-diff line.
+                    line = startLine;
+                    var lineCount = sm.lineCount;
+                    while (line < lineCount && this._isDiffOpLine(sm, line)) {
+                        line += 1;
+                    }
+                    var endLine = line;
+                    //dump("jumpToPreviousDiff: line range "+startLine+"-"+endLine+"\n");
+                    
+                    sm.anchor = sm.positionFromLine(startLine);
+                    sm.currentPos = sm.positionFromLine(endLine);
+
+                    sm.ensureVisible(endLine);
+                    sm.ensureVisibleEnforcePolicy(endLine);
+                    sm.ensureVisible(startLine);
+                    sm.ensureVisibleEnforcePolicy(startLine);
+                } catch(ex) {
+                    this.log.exception(ex);
+                }
+            ]]></body>
+        </method>
+
+        <method name="jumpToNextDiff">
+            <body><![CDATA[
+                try {
+                    var sm = this.scimoz;
+    
+                    // Start from the 'currentPos + 1' and work forward
+                    // line-by-line to the start of a diff block.
+                    // - Go fwd to first diff line (i.e. one that starts with
+                    //   one of the diff control chars.).
+                    var line = sm.lineFromPosition(sm.currentPos+1);
+                    var lineCount = sm.lineCount;
+                    //dump("jumpToNextDiff: start on line "+line+"\n");
+                    while (!this._isDiffOpLine(sm, line)) {
+                        line += 1;
+                        if (line == lineCount) {
+                            return; // There is no next diff.
+                        }
+                    }
+    
+                    // - Go back from there to first non-diff line.
+                    while (line > 0 && this._isDiffOpLine(sm, line)) {
+                        line -= 1;
+                    }
+                    //dump("jumpToNextDiff: first non-diff line: "+line+"\n");
+                    var startLine = line+1;
+                    
+                    // - Go forward from the startLine to the first non-diff
+                    //   line.
+                    line = startLine;
+                    var lineCount = sm.lineCount;
+                    while (line < lineCount && this._isDiffOpLine(sm, line)) {
+                        line += 1;
+                    }
+                    var endLine = line;
+                    //dump("jumpToNextDiff: line range "+startLine+"-"+endLine+"\n");
+                    
+                    sm.anchor = sm.positionFromLine(startLine);
+                    sm.currentPos = sm.positionFromLine(endLine);
+
+                    sm.ensureVisible(endLine);
+                    sm.ensureVisibleEnforcePolicy(endLine);
+                    sm.ensureVisible(startLine);
+                    sm.ensureVisibleEnforcePolicy(startLine);
+                } catch(ex) {
+                    this.log.exception(ex);
+                }
+            ]]></body>
+        </method>
+
+        <!-- Return true if the given line is a diff operator line. -->
+        <method name="_isDiffOpLine">
+            <parameter name="sm"/>      <!-- IScimoz -->
+            <parameter name="line"/>    <!-- 0-based line number -->
+            <body><![CDATA[
+                var pos = sm.positionFromLine(line);
+                var ch = sm.getWCharAt(pos);
+                if (ch == '-') {
+                    // May be '--- ...' or '---\n' non-diff meta line.
+                    var text = sm.getTextRange(pos, pos+4);
+                    if (text.replace(/\s*$/, '') == '---') { // rstrip
+                        return false;
+                    }
+                    return true;
+                } else if (ch == '+') {
+                    // May be '+++ ...' non-diff meta line.
+                    var text = sm.getTextRange(pos, pos+4);
+                    if (text.replace(/\s*$/, '') == '+++') { // rstrip
+                        return false;
+                    }
+                    return true;
+                } else if (ch == '?' || ch == '!' || ch == '<' || ch == '>') {
+                    return true;
+                }
+                return false;
+            ]]></body>
+        </method>
+
+        <method name="revealPositionInEditor">
+            <body><![CDATA[
+                try {
+                    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                            getService(Components.interfaces.koILastErrorService);
+                    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                            getService(Components.interfaces.nsIObserverService);
+                    var pathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                            getService(Components.interfaces.koIOsPath);
+
+                    var sm = this.scimoz;
+                    var diff = Components.classes['@activestate.com/koDiff;1']
+                                  .createInstance(Components.interfaces.koIDiff);
+                    diff.initWithDiffContent(sm.text);
+
+                    var currentPosLine = sm.lineFromPosition(sm.currentPos);
+                    var currentPosCol = sm.currentPos
+                                        - sm.positionFromLine(currentPosLine);
+                    var filePathObj = new Object();
+                    var fileLineObj = new Object();
+                    var fileColObj = new Object();
+                    try {
+                        diff.filePosFromDiffPos(currentPosLine, currentPosCol,
+                                                filePathObj, fileLineObj,
+                                                fileColObj);
+                    } catch (ex) {
+                        ko.dialogs.alert("Could not reveal position in editor: "
+                                     + lastErrorSvc.getLastErrorMessage()
+                                     + ".");
+                        return;
+                    }
+                    var currentPosFilePath = filePathObj.value;
+                    var currentPosFileLine = fileLineObj.value;
+                    var currentPosFileCol = fileColObj.value;
+                    
+                    // Ensure can use that file path (normalized, not relative,
+                    // etc.)
+                    var resolvedFilePath = pathSvc.normpath(currentPosFilePath);
+                    if (! pathSvc.exists(currentPosFilePath)) {
+                        resolvedFilePath = this._resolvePath(diff,
+                            currentPosFilePath);
+                        if (resolvedFilePath == null) {
+                            return;
+                        }
+                    }
+
+                    var openFileArg = "";
+                    if (sm.anchor == sm.currentPos) {
+                        openFileArg = resolvedFilePath + "\t"
+                                      + (currentPosFileLine+1) + ","
+                                      + (currentPosFileCol+1);
+                    } else {
+                        var anchorLine = sm.lineFromPosition(sm.anchor);
+                        var anchorCol = sm.anchor - sm.positionFromLine(anchorLine);
+                        try {
+                            diff.filePosFromDiffPos(anchorLine, anchorCol,
+                                                    filePathObj, fileLineObj,
+                                                    fileColObj);
+                        } catch (ex) {
+                            ko.dialogs.alert("Could not reveal position in editor: "
+                                         + lastErrorSvc.getLastErrorMessage()
+                                         + ".");
+                            return;
+                        }
+                        var anchorFilePath = filePathObj.value;
+                        var anchorFileLine = fileLineObj.value;
+                        var anchorFileCol = fileColObj.value;
+
+                        if (anchorFilePath != currentPosFilePath) {
+                            ko.dialogs.alert("Could not reveal position in editor: "
+                                         +"the selection spans files.");
+                            // Note: Alternatively could fall back to just
+                            // currentPos position and put warning in statusbar.
+                            return;
+                        }
+                        
+                        openFileArg = resolvedFilePath + "\t"
+                                      + (anchorFileLine+1) + ","
+                                      + (anchorFileCol+1) + "-"
+                                      + (currentPosFileLine+1) + ","
+                                      + (currentPosFileCol+1);
+                    }
+
+                    // Open the file at this position.
+                    observerSvc.notifyObservers(null, 'open_file', openFileArg);
+                } catch(ex) {
+                    this.log.exception(ex);
+                }
+            ]]></body>
+        </method>
+
+
+        <!-- Return a resolved absolute and existing path for the given
+             file path indicated in a diff. This may ask the user to
+             browse to it. Returns null if it could not be found. -->
+        <method name="_resolvePath">
+            <parameter name="diff"/> <!-- koIDiff -->
+            <!-- starting path, possibly relative, possibly non-existant -->
+            <parameter name="path"/>
+            <body><![CDATA[
+                var osSvc = Components.classes["@activestate.com/koOs;1"].
+                        getService(Components.interfaces.koIOs);
+                var pathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                        getService(Components.interfaces.koIOsPath);
+                var resolvedPath;
+                var strippedPath = path;
+                if (this._strip) {
+                    strippedPath = pathSvc.lstrippath(path, this._strip);
+                }
+
+                // If we already have cached cwd and strip values, try with
+                // those.
+                if (this._cwd) {
+                    resolvedPath = pathSvc.join(this._cwd, strippedPath);
+                    if (pathSvc.exists(resolvedPath)) {
+                        return resolvedPath;
+                    }
+                }
+                
+                // Try the current Komodo process' CWD.
+                resolvedPath = pathSvc.abspath(strippedPath);
+                if (pathSvc.exists(resolvedPath)) {
+                    return resolvedPath;
+                }
+                
+                // Ask the user to browse to the path.
+                var response = ko.dialogs.customButtons(
+                        "Could not determine the local path corresponding to '"
+                            + path + "'. Please browse to it.",
+                        ["Browse...", "Cancel"], // buttons
+                        "Browse...", // default response
+                        null, // text
+                        "Cannot find '" + ko.uriparse.baseName(path) + "'"); // title
+                if (response == "Cancel") {
+                    return null;
+                }
+                resolvedPath = ko.filepicker.openFile(
+                    this._cwd || osSvc.getcwd(), // default dir
+                    null, // default filename
+                    "Browse to '" + ko.uriparse.baseName(path) + "'", // title
+                    "All", // default filter name
+                    ["All"]); // filters
+                if (resolvedPath == null) {
+                    return null;
+                }
+                
+                // Try to infer _cwd and _strip from user's selected path.
+                var cwdObj = new Object();
+                var stripObj = new Object();
+                var cwd;
+                try {
+                    diff.inferCwdAndStripFromPath(path, resolvedPath,
+                                                  cwdObj, stripObj);
+                    cwd = cwdObj.value;
+                    strip = stripObj.value;
+                } catch(ex) {
+                    cwd = null;
+                    strip = null;
+                }
+                if (cwd != null) {
+                    this._cwd = cwd;
+                    this._strip = strip;
+                    this.message = "cwd: '" + cwd + "', strip: " + strip;
+                }
+                
+                return resolvedPath;
+            ]]></body>
+        </method>
+
+
+        <!-- A helper to get elements in our content because getElementById
+             doesn't work in XBL. (Copied from partviewer.xml.) -->
+        <method name="_getElement">
+            <parameter name="type"/>
+            <parameter name="id"/>
+            <body><![CDATA[
+                //dump("looking for element "+type+" "+id+"\n");
+                var v = document.getAnonymousNodes(this);
+                for (var i = 0; i < v.length; i++) {
+                    try {
+                        var l = v[i].getElementsByTagNameNS(
+                            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                            type);
+                        //dump("found "+l.length+" elements\n");
+                        for (var j = 0; j < l.length; j++) {
+                            if (l[j].getAttribute("id") == id) {
+                                //dump("found element "+id+" at index "+j+"\n");
+                                return l[j];
+                            }
+                        }
+                    } catch (ex) {
+                        /* do nothing */
+                    }
+                }
+                //dump("ERROR, could not find element!\n");
+                return null;
+            ]]></body>
+        </method>
+
+    </implementation>
+</binding>
+
+</bindings>
+

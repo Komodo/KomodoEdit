@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The components for Komodo "docs" MSI feature. -->
+
+<?include config.wxi ?>
+<?include guids.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+
+    <FeatureRef Id="docs">
+      <!-- See "BUG" note in komodo.wxs:
+        <ComponentRef Id="KomodoDocsManifest" /> -->
+<?if $(var.WithDocJarring) = "no" ?>
+      <ComponentRef Id="RegistryHelp" />
+      <ComponentRef Id="component22" />
+      <ComponentRef Id="component555" />
+      <ComponentRef Id="component556" />
+      <ComponentRef Id="component557" />
+      <ComponentRef Id="component603" />
+<?endif ?>
+    </FeatureRef>
+
+
+    <DirectoryRef Id="ChromeDir">
+      <Component Id="KomodoDocsManifest" DiskId="1" Guid="$(autowix.guid)">
+        <File Id="file1473" Name="KOMODO_1.MAN" LongName="komododoc.manifest" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc.manifest"/>
+<?if $(var.WithDocJarring) = "yes" ?>
+        <File Id="file255" Name="KOMODO_0.JAR" LongName="komododoc.jar" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc.jar"/>
+<?endif ?>
+      </Component>
+
+<?if $(var.WithDocJarring) = "no" ?>
+      <Directory Id="directory595" Name="KOMODO_1" LongName="komododoc">
+        <Directory Id="directory24" Name="content">
+          <Component Id="component22" DiskId="1" Guid="$(autowix.guid)">
+            <File Id="file276" Name="HELPOV_0.XUL" LongName="helpOverlay.xul" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\content\helpOverlay.xul"/>
+          </Component>
+        </Directory> <!-- lib\mozilla\chrome\komododoc\content -->
+        <Directory Id="directory596" Name="LOCALE_0" LongName="locale">
+          <Directory Id="directory597" Name="ENUS_2" LongName="en-US">
+            <Component Id="RegistryHelp" Guid="$(autowix.guid)">
+              <Registry Id="RegKomodoIdHelp" Action="write"
+                  Root="HKMU" Key="Software\ActiveState\Komodo\$(var.KomodoRegistryId)\Help"
+                  Type="string" Value="$(var.KomodoHelpFile)"/>
+            </Component>
+            <Component Id="component555" DiskId="1" Guid="$(autowix.guid)">
+              <!-- It might be preferable to see if we can setup a shortcut to
+                   launch the help browser XUL from the start menu. -->
+              <File Id="file4391" Name="KOMOD_82.HTM" LongName="komodo-doc-top.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-top.html">
+                <Shortcut Id="StartMenuUserGuideShortcut" Directory="StartMenuDir"
+                    Name="KOMOD_82.HTM" LongName="User Guide" />
+              </File>
+              <File Id="file2" Name="README_0.HTM" LongName="readme.html"
+                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\readme.html">
+                <Shortcut Id="StartMenuInstallGuideShortcut" Directory="StartMenuDir"
+                    Name="README_0.HTM" LongName="Install Guide" />
+              </File>
+              <File Id="file3" Name="RELNOT_0.HTM" LongName="relnotes.html"
+                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\relnotes.html">
+                <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
+                    Name="RELNOT_0.HTM" LongName="Release Notes" />
+              </File>
+              <File Id="file9" Name="KOMODO_0.HTM" LongName="komodo-doc-feedback.html"
+                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-feedback.html">
+                <Shortcut Id="StartMenuFeedbackShortcut" Directory="StartMenuDir"
+                    Name="KOMODO_0.HTM" LongName="Sending Feedback" />
+              </File>
+              <File Id="file243" LongName="komodo-doc-whatsnew.html" Name="KOMODO_3.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-whatsnew.html" />
+              <File Id="file245" LongName="komodo-doc-starting.html" Name="KOMODO_4.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-starting.html" />
+              <File Id="file247" LongName="komodo-doc-workspace.html" Name="KOMODO_5.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-workspace.html" />
+              <File Id="file249" LongName="komodo-doc-getstarted.html" Name="KOMODO_6.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-getstarted.html" />
+              <File Id="file2181" Name="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aspn.css"/>
+              <File Id="file1387" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\api.css" />
+              <File Id="file235" Name="top.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\top.css"/>
+              <File Id="file2334" Name="favicon.ico" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\favicon.ico"/>
+              <File Id="file2335" Name="HELPTO_0.RDF" LongName="help-toc.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help-toc.rdf"/>
+              <File Id="file2336" Name="HELP_H_0.XHT" LongName="help_help.xhtml" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help_help.xhtml"/>
+              <File Id="file2337" Name="KOMOD_44.HTM" LongName="komodo-doc-codeintel.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-codeintel.html"/>
+              <File Id="file2338" Name="KOMOD_45.HTM" LongName="komodo-doc-commandid.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-commandid.html"/>
+              <File Id="file2339" Name="KOMOD_46.HTM" LongName="komodo-doc-custtbi.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-custtbi.html"/>
+              <File Id="file2340" Name="KOMOD_47.HTM" LongName="komodo-doc-debugger.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugger.html"/>
+              <File Id="file2341" Name="KOMOD_48.HTM" LongName="komodo-doc-debugjs.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugjs.html"/>
+              <File Id="file2342" Name="KOMOD_49.HTM" LongName="komodo-doc-debugperl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugperl.html"/>
+              <File Id="file2343" Name="KOMOD_50.HTM" LongName="komodo-doc-debugphp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugphp.html"/>
+              <File Id="file2344" Name="KOMOD_51.HTM" LongName="komodo-doc-debugpython.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugpython.html"/>
+              <File Id="file2345" Name="KOMOD_52.HTM" LongName="komodo-doc-debugruby.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugruby.html"/>
+              <File Id="file2346" Name="KOMOD_53.HTM" LongName="komodo-doc-debugtcl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugtcl.html"/>
+              <File Id="file2347" Name="KOMOD_54.HTM" LongName="komodo-doc-debugxslt.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugxslt.html"/>
+              <File Id="file2348" Name="KOMOD_55.HTM" LongName="komodo-doc-defkeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-defkeybind.html"/>
+              <File Id="file153" Name="KOMODO_1.HTM" LongName="komodo-doc-dom.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-dom.html"/>
+              <File Id="file2349" Name="KOMOD_56.HTM" LongName="komodo-doc-editor.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-editor.html"/>
+              <File Id="file2350" Name="KOMOD_57.HTM" LongName="komodo-doc-emacskeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-emacskeybind.html"/>
+              <File Id="file2352" Name="KOMOD_59.HTM" LongName="komodo-doc-files.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-files.html"/>
+              <File Id="file2353" Name="KOMOD_60.HTM" LongName="komodo-doc-folders.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-folders.html"/>
+              <File Id="file3899" Name="KOMOD_62.HTM" LongName="komodo-doc-http-insp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-http-insp.html"/>
+              <File Id="file4372" Name="KOMOD_63.HTM" LongName="komodo-doc-intshell.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-intshell.html"/>
+              <File Id="file4373" Name="KOMOD_64.HTM" LongName="komodo-doc-keybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-keybind.html"/>
+              <File Id="file4374" Name="KOMOD_65.HTM" LongName="komodo-doc-luddite.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-luddite.html"/>
+              <File Id="file201" LongName="komodo-doc-catalogs.html" Name="KOMODO_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-catalogs.html" />
+              <File Id="file4375" Name="KOMOD_66.HTM" LongName="komodo-doc-macroapi.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-macroapi.html"/>
+              <File Id="file4376" Name="KOMOD_67.HTM" LongName="komodo-doc-macros.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-macros.html"/>
+              <File Id="file4377" Name="KOMOD_68.HTM" LongName="komodo-doc-openshort.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-openshort.html"/>
+              <File Id="file4378" Name="KOMOD_69.HTM" LongName="komodo-doc-osxkeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-osxkeybind.html"/>
+              <File Id="file4379" Name="KOMOD_70.HTM" LongName="komodo-doc-pdk.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-pdk.html"/>
+              <File Id="file4380" Name="KOMOD_71.HTM" LongName="komodo-doc-prefs.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-prefs.html"/>
+              <File Id="file4381" Name="KOMOD_72.HTM" LongName="komodo-doc-project.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-project.html"/>
+              <File Id="file4382" Name="KOMOD_73.HTM" LongName="komodo-doc-regex-intro.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-regex-intro.html"/>
+              <File Id="file4383" Name="KOMOD_74.HTM" LongName="komodo-doc-regex.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-regex.html"/>
+              <File Id="file4384" Name="KOMOD_75.HTM" LongName="komodo-doc-run.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-run.html"/>
+              <File Id="file4385" Name="KOMOD_76.HTM" LongName="komodo-doc-scc.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-scc.html"/>
+              <File Id="file4386" Name="KOMOD_77.HTM" LongName="komodo-doc-search.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-search.html"/>
+              <File Id="file4387" Name="KOMOD_78.HTM" LongName="komodo-doc-shortcuts.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-shortcuts.html"/>
+              <File Id="file4388" Name="KOMOD_79.HTM" LongName="komodo-doc-snippets.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-snippets.html"/>
+              <File Id="file4389" Name="KOMOD_80.HTM" LongName="komodo-doc-templates.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-templates.html"/>
+              <File Id="file4390" Name="KOMOD_81.HTM" LongName="komodo-doc-toolbox.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-toolbox.html"/>
+              <File Id="file4392" Name="KOMOD_83.HTM" LongName="komodo-doc-trouble.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-trouble.html"/>
+              <File Id="file4393" Name="KOMOD_84.HTM" LongName="komodo-doc-tut-intro.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-tut-intro.html"/>
+              <File Id="file4394" Name="KOMOD_85.HTM" LongName="komodo-doc-udl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-udl.html"/>
+              <File Id="file4395" Name="KOMOD_86.HTM" LongName="komodo-doc-urls.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-urls.html"/>
+              <File Id="file4396" Name="KOMOD_87.HTM" LongName="komodo-doc-vikeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-vikeybind.html"/>
+              <File Id="file1388" Name="KOMODO_7.HTM" LongName="komodo-js-api.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-js-api.html" />
+              <File Id="file4397" Name="KOMODO_0.RDF" LongName="komodohelp.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodohelp.rdf"/>
+              <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
+              <File Id="file4398" Name="LIC_CO_1.HTM" LongName="lic_copy.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\lic_copy.html"/>
+              <File Id="file214" LongName="tortoisesvn_icon_license.html" Name="TORTOI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tortoisesvn_icon_license.html" />
+              <File Id="file4401" Name="REVISI_1.HTM" LongName="revisions.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\revisions.html"/>
+            </Component>
+            <Directory Id="directory598" Name="IMG_0" LongName="img">
+              <Component Id="component556" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file4403" Name="AS_LOG_1.GIF" LongName="as_logo_onwhite.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\as_logo_onwhite.gif"/>
+                <File Id="file1391" LongName="greysmallbullet.png" Name="GREYSM_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\greysmallbullet.png" />
+                <File Id="file1393" LongName="cc_attr_noncom_sharealike.png" Name="CC_ATT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\cc_attr_noncom_sharealike.png" />
+                <File Id="file4404" Name="BOTTOM_1.GIF" LongName="bottom_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\bottom_pane.gif"/>
+                <File Id="file4405" Name="button.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button.gif"/>
+                <File Id="file4406" Name="BUTTON_4.GIF" LongName="button_comp_props.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button_comp_props.gif"/>
+                <File Id="file4407" Name="BUTTON_5.GIF" LongName="button_showhide_TOC.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button_showhide_TOC.gif"/>
+                <File Id="file4408" Name="BUTTON_6.GIF" LongName="button_sync_TOC.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button_sync_TOC.gif"/>
+                <File Id="file4409" Name="canvas.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\canvas.gif"/>
+                <File Id="file4410" Name="CHECKB_1.GIF" LongName="checkbutton.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\checkbutton.gif"/>
+                <File Id="file4411" Name="CODEIN_3.GIF" LongName="codeintel_code_browser.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_code_browser.gif"/>
+                <File Id="file4412" Name="CODEI_20.GIF" LongName="codeintel_code_browser2.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_code_browser2.gif"/>
+                <File Id="file4413" Name="CODEI_21.GIF" LongName="codeintel_code_browser_context.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_code_browser_context.gif"/>
+                <File Id="file4414" Name="CODEI_22.GIF" LongName="codeintel_description_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_description_pane.gif"/>
+                <File Id="file4415" Name="CODEI_23.GIF" LongName="codeintel_filter.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_filter.gif"/>
+                <File Id="file4416" Name="CODEI_24.GIF" LongName="codeintel_object_browser.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_object_browser.gif"/>
+                <File Id="file4417" Name="CODEI_25.GIF" LongName="codeintel_object_browser_enter.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_object_browser_enter.gif"/>
+                <File Id="file4418" Name="CODEI_26.GIF" LongName="codeintel_object_browser_module.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_object_browser_module.gif"/>
+                <File Id="file4419" Name="CODEI_27.GIF" LongName="codeintel_object_browser_symbol.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_object_browser_symbol.gif"/>
+                <File Id="file4420" Name="CODEI_28.GIF" LongName="codeintel_scope.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_scope.gif"/>
+                <File Id="file4421" Name="CODEI_29.GIF" LongName="codeintel_show_hide.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_show_hide.gif"/>
+                <File Id="file4422" Name="CODEI_30.GIF" LongName="codeintel_sort.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_sort.gif"/>
+                <File Id="file4692" Name="code_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\code_tab.gif"/>
+                <File Id="file302" Name="dom_tab.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\dom_tab.png" />
+                <File Id="file4693" Name="delete.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\delete.gif"/>
+                <File Id="file4694" Name="DIALOG_1.GIF" LongName="dialog_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\dialog_tab.gif"/>
+                <File Id="file4695" Name="edit.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\edit.gif"/>
+                <File Id="file4696" Name="EDITOR_4.GIF" LongName="editor_autocomp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_autocomp.gif"/>
+                <File Id="file4697" Name="EDITOR_5.GIF" LongName="editor_calltips.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_calltips.gif"/>
+                <File Id="file4698" Name="EDITOR_6.GIF" LongName="editor_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_pane.gif"/>
+                <File Id="file4699" Name="EDITOR_7.GIF" LongName="editor_syncol.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_syncol.gif"/>
+                <File Id="file4700" Name="entry.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\entry.gif"/>
+                <File Id="file4701" Name="FINDNE_1.GIF" LongName="FindNextResult.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\FindNextResult.gif"/>
+                <File Id="file4702" Name="frame.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\frame.gif"/>
+                <File Id="file4703" Name="IGNORE_1.GIF" LongName="ignore_case.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\ignore_case.gif"/>
+                <File Id="file4704" Name="INTSHE_6.GIF" LongName="intshell_edit_variable.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_edit_variable.gif"/>
+                <File Id="file4705" Name="INTSHE_7.GIF" LongName="intshell_hidden_variables.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_hidden_variables.gif"/>
+                <File Id="file4706" Name="INTSHE_8.GIF" LongName="intshell_interact.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_interact.gif"/>
+                <File Id="file4707" Name="INTSHE_9.GIF" LongName="intshell_new_variable.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_new_variable.gif"/>
+                <File Id="file4708" Name="INTSH_10.GIF" LongName="intshell_remove_watch.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_remove_watch.gif"/>
+                <File Id="file4709" Name="INTSH_11.GIF" LongName="intshell_stdin_input.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_stdin_input.gif"/>
+                <File Id="file4710" Name="KOMODO_3.GIF" LongName="komodo_graphic_onwhite.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\komodo_graphic_onwhite.gif"/>
+                <File Id="file4711" Name="label.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\label.gif"/>
+                <File Id="file4712" Name="leaf.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\leaf.gif"/>
+                <File Id="file229" LongName="icon_check_error.png" Name="ICON_C_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\icon_check_error.png" />
+                <File Id="file230" LongName="icon_check_inprogress.png" Name="ICON_C_6.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\icon_check_inprogress.png" />
+                <File Id="file231" LongName="icon_check_ok.png" Name="ICON_C_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\icon_check_ok.png" />
+                <File Id="file4716" Name="listbox.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\listbox.gif"/>
+                <File Id="file4717" Name="main.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\main.gif"/>
+                <File Id="file266" LongName="main_menu.png" Name="MAIN_M_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\main_menu.png" />
+                <File Id="file4719" Name="MENUBU_1.GIF" LongName="menubutton.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\menubutton.gif"/>
+                <File Id="file4720" Name="menu_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\menu_tab.gif"/>
+                <File Id="file4721" Name="message.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\message.gif"/>
+                <File Id="file4722" Name="minus.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\minus.gif"/>
+                <File Id="file4723" Name="MULTIP_1.GIF" LongName="multiple_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multiple_line.gif"/>
+                <File Id="file4724" Name="MULTI__1.GIF" LongName="multi_single.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multi_single.gif"/>
+                <File Id="file4725" Name="NAV_UN_2.GIF" LongName="nav_unsel_left_.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\nav_unsel_left_.gif"/>
+                <File Id="file4726" Name="NAV_UN_3.GIF" LongName="nav_unsel_right_.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\nav_unsel_right_.gif"/>
+                <File Id="file4727" Name="overview.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\overview.gif"/>
+                <File Id="file4728" Name="pdf.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\pdf.gif"/>
+                <File Id="file4729" Name="plus.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\plus.gif"/>
+                <File Id="file4730" Name="PM_COL_2.GIF" LongName="pm_column.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\pm_column.gif"/>
+                <File Id="file4731" Name="PROJEC_2.GIF" LongName="project_new_project.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\project_new_project.gif"/>
+                <File Id="file4732" Name="PROJEC_3.GIF" LongName="project_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\project_tab.gif"/>
+                <File Id="file4733" Name="PROJTB_1.GIF" LongName="projtb_add_butt.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.gif"/>
+                <File Id="file4734" Name="RADIOB_1.GIF" LongName="radiobutton.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\radiobutton.gif"/>
+                <File Id="file4735" Name="run.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\run.gif"/>
+                <File Id="file4736" Name="RUNCO_15.GIF" LongName="runcommand_adv.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_adv.gif"/>
+                <File Id="file4737" Name="RUNCO_16.GIF" LongName="runcommand_ask1.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask1.gif"/>
+                <File Id="file4738" Name="RUNCO_17.GIF" LongName="runcommand_ask2.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask2.gif"/>
+                <File Id="file4739" Name="RUNCO_18.GIF" LongName="runcommand_findinfiles.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_findinfiles.gif"/>
+                <File Id="file4740" Name="RUNCO_19.GIF" LongName="runcommand_icon.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_icon.gif"/>
+                <File Id="file4741" Name="RUNCO_20.GIF" LongName="runcommand_outputwin.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_outputwin.gif"/>
+                <File Id="file4742" Name="RUNCO_21.GIF" LongName="runcommand_parsedoutput.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_parsedoutput.gif"/>
+                <File Id="file4743" Name="RUNCO_22.GIF" LongName="runcommand_parsedviewbutton.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_parsedviewbutton.gif"/>
+                <File Id="file4744" Name="RUNCO_23.GIF" LongName="runcommand_project.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_project.gif"/>
+                <File Id="file4745" Name="RUNCO_24.GIF" LongName="runcommand_properties.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_properties.gif"/>
+                <File Id="file4746" Name="RUNCO_25.GIF" LongName="runcommand_recent.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_recent.gif"/>
+                <File Id="file4747" Name="RUNCO_26.GIF" LongName="runcommand_shortcuts.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_shortcuts.gif"/>
+                <File Id="file4748" Name="RUNCO_27.GIF" LongName="runcommand_simple.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_simple.gif"/>
+                <File Id="file4749" Name="RUNCO_28.GIF" LongName="runcommand_terminatebutton.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_terminatebutton.gif"/>
+                <File Id="file4750" Name="RUNCO_29.GIF" LongName="runcommand_toolbox.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_toolbox.gif"/>
+                <File Id="file277" LongName="rx_button.png" Name="RX_BUT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_button.png" />
+                <File Id="file4752" Name="rx_match.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_match.gif"/>
+                <File Id="file4753" Name="RX_MAT_1.GIF" LongName="rx_matches.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_matches.gif"/>
+                <File Id="file4754" Name="scale.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\scale.gif"/>
+                <File Id="file4755" Name="SCROLL_1.GIF" LongName="scrollbar.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\scrollbar.gif"/>
+                <File Id="file4756" Name="SHARED_1.GIF" LongName="shared_toolbox_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\shared_toolbox_tab.gif"/>
+                <File Id="file4757" Name="shim.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\shim.gif"/>
+                <File Id="file4758" Name="SINGLE_1.GIF" LongName="single_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\single_line.gif"/>
+                <File Id="file303" LongName="start_page.png" Name="START__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\start_page.png" />
+                <File Id="file4760" Name="STATUS_8.GIF" LongName="status_bar.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_bar.gif"/>
+                <File Id="file4761" Name="STATUS_9.PNG" LongName="status_icon_add.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_add.png"/>
+                <File Id="file4762" Name="STATU_10.PNG" LongName="status_icon_conflict.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_conflict.png"/>
+                <File Id="file4763" Name="STATU_11.PNG" LongName="status_icon_delete.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_delete.png"/>
+                <File Id="file4764" Name="STATU_12.PNG" LongName="status_icon_edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_edit.png"/>
+                <File Id="file4765" Name="STATU_13.PNG" LongName="status_icon_ok.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_ok.png"/>
+                <File Id="file4766" Name="STATU_14.PNG" LongName="status_icon_readonly.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_readonly.png"/>
+                <File Id="file4767" Name="STATU_15.PNG" LongName="status_icon_sync.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_sync.png"/>
+                <File Id="file4768" Name="TAB_CN_1.GIF" LongName="tab_cntxt_menu.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tab_cntxt_menu.gif"/>
+                <File Id="file4774" Name="TCL_LO_1.GIF" LongName="tcl_logo_docs.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tcl_logo_docs.gif"/>
+                <File Id="file4775" Name="text.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\text.gif"/>
+                <File Id="file4776" Name="TITLE__1.GIF" LongName="title_bar.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\title_bar.gif"/>
+                <File Id="file4777" Name="toolbar.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar.gif"/>
+                <File Id="file4778" Name="TOOLB_20.GIF" LongName="toolbar_bold_ital.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_bold_ital.gif"/>
+                <File Id="file4779" Name="TOOLB_21.GIF" LongName="toolbar_cell_align.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_cell_align.gif"/>
+                <File Id="file4780" Name="TOOLB_22.GIF" LongName="toolbar_color.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_color.gif"/>
+                <File Id="file232" LongName="toolbar_debug.png" Name="TOOLBA_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_debug.png" />
+                <File Id="file4783" Name="TOOLB_25.GIF" LongName="toolbar_del.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_del.gif"/>
+                <File Id="file258" LongName="toolbar_macro.png" Name="TOOLBA_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_macro.png" />
+                <File Id="file261" LongName="toolbar_open_find.png" Name="TOOLBA_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_open_find.png" />
+                <File Id="file4786" Name="TOOLB_28.GIF" LongName="toolbar_orient.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_orient.gif"/>
+                <File Id="file267" LongName="toolbar_pdk.png" Name="TOOLBA_8.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_pdk.png" />
+                <File Id="file4788" Name="TOOLB_30.GIF" LongName="toolbar_relief_border.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_relief_border.gif"/>
+                <File Id="file4789" Name="TOOLB_31.GIF" LongName="toolbar_run_stop.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_run_stop.gif"/>
+                <File Id="file4790" Name="TOOLB_32.GIF" LongName="toolbar_save.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_save.gif"/>
+                <File Id="file262" LongName="toolbar_scc.png" Name="TOOLBA_4.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_scc.png" />
+                <File Id="file263" LongName="toolbar_std.png" Name="TOOLBA_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_std.png" />
+                <File Id="file4793" Name="TOOLB_35.GIF" LongName="toolbar_text.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_text.gif"/>
+                <File Id="file4794" Name="TOOLB_36.GIF" LongName="toolbar_text_align.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_text_align.gif"/>
+                <File Id="file4795" Name="TOOLB_37.GIF" LongName="toolbar_text_size.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_text_size.gif"/>
+                <File Id="file264" LongName="toolbar_tools.png" Name="TOOLBA_6.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_tools.png" />
+                <File Id="file265" LongName="toolbar_wkspc.png" Name="TOOLBA_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_wkspc.png" />
+                <File Id="file268" LongName="FilterBuilder-16-16-8.png" Name="FILTE_13.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\FilterBuilder-16-16-8.png" />
+                <File Id="file269" LongName="PerlApp-16-16-8.gif" Name="PERLAP_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlApp-16-16-8.gif" />
+                <File Id="file270" LongName="PerlCov-16-16-8.png" Name="PERLCO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlCov-16-16-8.png" />
+                <File Id="file271" LongName="PerlCtrl-16-16-8.gif" Name="PERLCT_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlCtrl-16-16-8.gif" />
+                <File Id="file272" LongName="PerlNET-16-16-8.png" Name="PERLNE_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlNET-16-16-8.png" />
+                <File Id="file273" LongName="PerlSvc-16-16-8.gif" Name="PERLSV_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlSvc-16-16-8.gif" />
+                <File Id="file274" LongName="PerlTray-16-16-8.gif" Name="PERLTR_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlTray-16-16-8.gif" />
+                <File Id="file275" LongName="VBSPerl-16-16-8.png" Name="VBSPER_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\VBSPerl-16-16-8.png" />
+                <File Id="file4798" Name="TOOLBO_1.GIF" LongName="toolbox_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbox_tab.gif"/>
+                <File Id="file4799" Name="TOURL_72.GIF" LongName="tourlet_arrow.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_arrow.gif"/>
+                <File Id="file297" LongName="tourlet_codecomp_addsnip.png" Name="TOURLE_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_codecomp_addsnip.png" />
+                <File Id="file4801" Name="TOURL_74.GIF" LongName="tourlet_codecomp_inssnip.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_codecomp_inssnip.gif"/>
+                <File Id="file4802" Name="TOURL_75.GIF" LongName="tourlet_codecomp_snipconfig.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_codecomp_snipconfig.gif"/>
+                <File Id="file4809" Name="TOUR_108.GIF" LongName="tourlet_condbreak_config.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_condbreak_config.gif"/>
+                <File Id="file4810" Name="TOUR_109.GIF" LongName="tourlet_condbreak_debug.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_condbreak_debug.gif"/>
+                <File Id="file4811" Name="TOUR_110.GIF" LongName="tourlet_condbreak_dial.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_condbreak_dial.gif"/>
+                <File Id="file4812" Name="TOUR_111.GIF" LongName="tourlet_condbreak_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_condbreak_tab.gif"/>
+                <File Id="file4813" Name="TOUR_112.GIF" LongName="tourlet_custtoolbar_final.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_custtoolbar_final.gif"/>
+                <File Id="file4814" Name="TOUR_113.GIF" LongName="tourlet_custtoolbar_icon.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_custtoolbar_icon.gif"/>
+                <File Id="file4815" Name="TOUR_114.GIF" LongName="tourlet_custtoolbar_items.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_custtoolbar_items.gif"/>
+                <File Id="file4816" Name="TOUR_115.GIF" LongName="tourlet_custtoolbar_newtoolbar.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_custtoolbar_newtoolbar.gif"/>
+                <File Id="file4817" Name="TOUR_116.GIF" LongName="tourlet_custtoolbar_props.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_custtoolbar_props.gif"/>
+                <File Id="file4818" Name="TOUR_117.GIF" LongName="tourlet_debug_xslt_birds.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_debug_xslt_birds.gif"/>
+                <File Id="file4819" Name="TOUR_118.GIF" LongName="tourlet_debug_xslt_htmlout.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_debug_xslt_htmlout.gif"/>
+                <File Id="file4820" Name="TOUR_119.GIF" LongName="tourlet_debug_xslt_split.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_debug_xslt_split.gif"/>
+                <File Id="file4821" Name="TOUR_120.GIF" LongName="tourlet_debug_xslt_step.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_debug_xslt_step.gif"/>
+                <File Id="file4822" Name="TOUR_121.GIF" LongName="tourlet_dirshortcut_add.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_dirshortcut_add.gif"/>
+                <File Id="file4823" Name="TOUR_122.GIF" LongName="tourlet_dirshortcut_open.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_dirshortcut_open.gif"/>
+                <File Id="file4824" Name="TOUR_123.GIF" LongName="tourlet_dirshortcut_select.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_dirshortcut_select.gif"/>
+                <File Id="file4825" Name="TOUR_124.GIF" LongName="tourlet_expimppkg_exp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_exp.gif"/>
+                <File Id="file4826" Name="TOUR_125.GIF" LongName="tourlet_expimppkg_files.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_files.gif"/>
+                <File Id="file4827" Name="TOUR_126.GIF" LongName="tourlet_expimppkg_folder.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_folder.gif"/>
+                <File Id="file4828" Name="TOUR_127.GIF" LongName="tourlet_expimppkg_foldername.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_foldername.gif"/>
+                <File Id="file4829" Name="TOUR_128.GIF" LongName="tourlet_expimppkg_imp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_imp.gif"/>
+                <File Id="file4830" Name="TOUR_129.GIF" LongName="tourlet_expimppkg_location.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_location.gif"/>
+                <File Id="file4831" Name="TOUR_130.GIF" LongName="tourlet_expimppkg_name.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_name.gif"/>
+                <File Id="file4832" Name="TOUR_131.GIF" LongName="tourlet_expimppkg_wiz.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_wiz.gif"/>
+                <File Id="file4833" Name="TOUR_132.GIF" LongName="tourlet_faststr_find.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_faststr_find.gif"/>
+                <File Id="file4834" Name="TOUR_133.GIF" LongName="tourlet_faststr_findin.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_faststr_findin.gif"/>
+                <File Id="file4835" Name="TOUR_134.GIF" LongName="tourlet_faststr_findres.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_faststr_findres.gif"/>
+                <File Id="file4836" Name="TOUR_135.GIF" LongName="tourlet_faststr_search.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_faststr_search.gif"/>
+                <File Id="file4837" Name="TOUR_136.GIF" LongName="tourlet_faststr_string.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_faststr_string.gif"/>
+                <File Id="file4838" Name="TOUR_137.GIF" LongName="tourlet_filesys_import.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_filesys_import.gif"/>
+                <File Id="file4839" Name="TOUR_138.GIF" LongName="tourlet_filesys_menu.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_filesys_menu.gif"/>
+                <File Id="file4840" Name="TOUR_139.GIF" LongName="tourlet_filesys_struct.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_filesys_struct.gif"/>
+                <File Id="file4841" Name="TOUR_140.GIF" LongName="tourlet_googrun_googres.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_googrun_googres.gif"/>
+                <File Id="file4842" Name="TOUR_141.GIF" LongName="tourlet_googrun_runcmd.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_googrun_runcmd.gif"/>
+                <File Id="file4843" Name="TOUR_142.GIF" LongName="tourlet_googrun_srchterm.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_googrun_srchterm.gif"/>
+                <File Id="file4844" Name="TOUR_143.GIF" LongName="tourlet_googrun_toolbox.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_googrun_toolbox.gif"/>
+                <File Id="file4845" Name="TOUR_144.GIF" LongName="tourlet_incrsrch_invoke.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_incrsrch_invoke.gif"/>
+                <File Id="file4846" Name="TOUR_145.GIF" LongName="tourlet_incrsrch_next.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_incrsrch_next.gif"/>
+                <File Id="file4847" Name="TOUR_146.GIF" LongName="tourlet_incrsrch_nextfile.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_incrsrch_nextfile.gif"/>
+                <File Id="file4848" Name="TOUR_147.GIF" LongName="tourlet_incrsrch_selstr.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_incrsrch_selstr.gif"/>
+                <File Id="file4849" Name="TOUR_148.GIF" LongName="tourlet_intshell_editor.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_editor.gif"/>
+                <File Id="file4850" Name="TOUR_149.GIF" LongName="tourlet_intshell_editor2.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_editor2.gif"/>
+                <File Id="file4851" Name="TOUR_150.GIF" LongName="tourlet_intshell_help.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_help.gif"/>
+                <File Id="file4852" Name="TOUR_151.GIF" LongName="tourlet_intshell_help2.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_help2.gif"/>
+                <File Id="file4853" Name="TOUR_152.GIF" LongName="tourlet_intshell_import.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_import.gif"/>
+                <File Id="file4854" Name="TOUR_153.GIF" LongName="tourlet_intshell_openshell.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_intshell_openshell.gif"/>
+                <File Id="file4855" Name="TOUR_154.GIF" LongName="tourlet_keybinding_add.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_add.gif"/>
+                <File Id="file4856" Name="TOUR_155.GIF" LongName="tourlet_keybinding_props.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_props.gif"/>
+                <File Id="file4857" Name="TOUR_156.GIF" LongName="tourlet_keybinding_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_tab.gif"/>
+                <File Id="file4865" Name="TOUR_164.GIF" LongName="tourlet_openfind_arrows.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_arrows.gif"/>
+                <File Id="file4866" Name="TOUR_165.GIF" LongName="tourlet_openfind_findfile.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_findfile.gif"/>
+                <File Id="file4867" Name="TOUR_166.GIF" LongName="tourlet_openfind_frontslash.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_frontslash.gif"/>
+                <File Id="file4868" Name="TOUR_167.GIF" LongName="tourlet_openfind_poscursor.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_poscursor.gif"/>
+                <File Id="file4869" Name="TOUR_168.GIF" LongName="tourlet_openfind_reducedisp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_reducedisp.gif"/>
+                <File Id="file4870" Name="TOUR_169.GIF" LongName="tourlet_openfind_subdir.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_subdir.gif"/>
+                <File Id="file292" LongName="tourlet_reuse_drop.png" Name="TOURLE_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_reuse_drop.png" />
+                <File Id="file293" LongName="tourlet_reuse_select.png" Name="TOURLE_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_reuse_select.png" />
+                <File Id="file4873" Name="TOUR_172.GIF" LongName="tourlet_rx_button.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_button.gif"/>
+                <File Id="file4874" Name="TOUR_173.GIF" LongName="tourlet_rx_dialog.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_dialog.gif"/>
+                <File Id="file4875" Name="TOUR_174.GIF" LongName="tourlet_rx_editrx.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_editrx.gif"/>
+                <File Id="file4876" Name="TOUR_175.GIF" LongName="tourlet_rx_results.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_results.gif"/>
+                <File Id="file4877" Name="TOUR_176.GIF" LongName="tourlet_rx_selectrx.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_selectrx.gif"/>
+                <File Id="file294" LongName="tourlet_snipinput_config.png" Name="TOURLE_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_config.png" />
+                <File Id="file295" LongName="tourlet_snipinput_insert.png" Name="TOURLE_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_insert.png" />
+                <File Id="file296" LongName="tourlet_snipinput_prompt.png" Name="TOURLE_4.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_prompt.png" />
+                <File Id="file4889" Name="TOUR_188.GIF" LongName="tourlet_tempproj_addtoolbox.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_tempproj_addtoolbox.gif"/>
+                <File Id="file4890" Name="TOUR_189.GIF" LongName="tourlet_tempproj_file.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_tempproj_file.gif"/>
+                <File Id="file4891" Name="TOUR_190.GIF" LongName="tourlet_tempproj_project.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_tempproj_project.gif"/>
+                <File Id="file4892" Name="TOUR_191.GIF" LongName="tourlet_tempproj_save.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_tempproj_save.gif"/>
+                <File Id="file4893" Name="TOUR_192.GIF" LongName="tourlet_viewcss_chngcss.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_viewcss_chngcss.gif"/>
+                <File Id="file4894" Name="TOUR_193.GIF" LongName="tourlet_viewcss_sethtml.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_viewcss_sethtml.gif"/>
+                <File Id="file4895" Name="TOUR_194.GIF" LongName="tourlet_viewcss_setpref.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_viewcss_setpref.gif"/>
+                <File Id="file4896" Name="TOUR_195.GIF" LongName="tourlet_viewcss_viewout.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_viewcss_viewout.gif"/>
+                <File Id="file4897" Name="verbose.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\verbose.gif"/>
+                <File Id="file4898" Name="VIEWGR_1.GIF" LongName="viewgraphic.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\viewgraphic.gif"/>
+                <File Id="file4899" Name="widget.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\widget.gif"/>
+                <File Id="file4900" Name="WIDGET_1.GIF" LongName="widget_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\widget_tab.gif"/>
+                <File Id="file4901" Name="WORKSP_1.GIF" LongName="workspace.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\workspace.gif"/>
+                <File Id="file4902" Name="x.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\x.gif"/>
+                <File Id="file29" Name="PROJE_15.PNG" LongName="project_new_project.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\project_new_project.png"/>
+                <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
+                <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
+                <File Id="file252" LongName="break_response.png" Name="BREAK__1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_response.png" />
+              </Component>
+              <Directory Id="directory658" Name="top">
+                <Component Id="component603" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file236" Name="ASLOGO_0.PNG" LongName="as-logo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\as-logo.png"/>
+                  <File Id="file237" Name="BOXFEA_0.PNG" LongName="box-features-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-features-bg.png"/>
+                  <File Id="file238" Name="BOXLEF_0.PNG" LongName="box-left-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-left-bg.png"/>
+                  <File Id="file239" Name="BOXRIG_0.PNG" LongName="box-right-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-right-bg.png"/>
+                  <File Id="file278" Name="BOXSAM_0.PNG" LongName="box-sample-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-sample-bg.png"/>
+                  <File Id="file279" Name="BOXTUT_0.PNG" LongName="box-tutorials-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-tutorials-bg.png"/>
+                  <File Id="file280" Name="DOCSTO_0.PNG" LongName="docs-top-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\docs-top-bg.png"/>
+                  <File Id="file283" Name="KOMODO_3.PNG" LongName="komodo-is.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\komodo-is.png"/>
+                  <File Id="file1401" LongName="bug-icon.png" Name="BUGICO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\bug-icon.png" />
+                  <File Id="file1402" LongName="community-icon.png" Name="COMMUN_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\community-icon.png" />
+                  <File Id="file1403" LongName="forums-icon.png" Name="FORUMS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\forums-icon.png" />
+                </Component>
+              </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img\top -->
+            </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img -->
+            <Directory Id="directory599" Name="tutorial">
+              <Component Id="component557" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file4903" Name="PERLTU_1.HTM" LongName="perltut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\perltut.html"/>
+                <File Id="file4904" Name="PHPTUT_1.HTM" LongName="phptut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\phptut.html"/>
+                <File Id="file4905" Name="PYTHON_1.HTM" LongName="pythontut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\pythontut.html"/>
+                <File Id="file4906" Name="RUBYTU_1.HTM" LongName="rubytut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\rubytut.html"/>
+                <File Id="file4907" Name="RUNCMD_1.HTM" LongName="runcmdtut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\runcmdtut.html"/>
+                <File Id="file4909" Name="TOURL_16.HTM" LongName="tourlet_codecomp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_codecomp.html"/>
+                <File Id="file4911" Name="TOURL_24.HTM" LongName="tourlet_condbreak.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_condbreak.html"/>
+                <File Id="file4912" Name="TOURL_25.HTM" LongName="tourlet_custtoolbar.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_custtoolbar.html"/>
+                <File Id="file4913" Name="TOURL_26.HTM" LongName="tourlet_debug_xslt.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_debug_xslt.html"/>
+                <File Id="file4914" Name="TOURL_27.HTM" LongName="tourlet_dirshortcut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_dirshortcut.html"/>
+                <File Id="file4915" Name="TOURL_28.HTM" LongName="tourlet_expimppkg.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_expimppkg.html"/>
+                <File Id="file4916" Name="TOURL_29.HTM" LongName="tourlet_faststr.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_faststr.html"/>
+                <File Id="file4917" Name="TOURL_30.HTM" LongName="tourlet_filesys.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_filesys.html"/>
+                <File Id="file4918" Name="TOURL_31.HTM" LongName="tourlet_googrun.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_googrun.html"/>
+                <File Id="file4919" Name="TOURL_32.HTM" LongName="tourlet_incrsrch.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_incrsrch.html"/>
+                <File Id="file4920" Name="TOURL_33.HTM" LongName="tourlet_intshell.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_intshell.html"/>
+                <File Id="file4921" Name="TOURL_34.HTM" LongName="tourlet_keybinding.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_keybinding.html"/>
+                <File Id="file4923" Name="TOURL_36.HTM" LongName="tourlet_openfind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_openfind.html"/>
+                <File Id="file4924" Name="TOURL_37.HTM" LongName="tourlet_over.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_over.html"/>
+                <File Id="file4925" Name="TOURL_38.HTM" LongName="tourlet_reuse.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_reuse.html"/>
+                <File Id="file4926" Name="TOURL_39.HTM" LongName="tourlet_rx.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_rx.html"/>
+                <File Id="file4928" Name="TOURL_41.HTM" LongName="tourlet_snipinput.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_snipinput.html"/>
+                <File Id="file4929" Name="TOURL_42.HTM" LongName="tourlet_tempproj.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_tempproj.html"/>
+                <File Id="file4930" Name="TOURL_43.HTM" LongName="tourlet_viewcss.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_viewcss.html"/>
+                <File Id="file4931" Name="XSLTTU_1.HTM" LongName="xslttut.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\xslttut.html"/>
+                <File Id="file414" LongName="jstut.html" Name="JSTUT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\jstut.html" />
+                <File Id="file1390" LongName="railstut.html" Name="RAILST_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\railstut.html" />
+              </Component>
+            </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\tutorial -->
+          </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US -->
+        </Directory> <!-- lib\mozilla\chrome\komododoc\locale -->
+      </Directory> <!-- lib\mozilla\chrome\komododoc -->
+<?endif ?>
+    </DirectoryRef> <!-- ChromeDir -->
+
+  </Fragment>
+</Wix>
+

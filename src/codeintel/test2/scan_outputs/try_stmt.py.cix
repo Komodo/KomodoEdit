@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs\try_stmt.py">
+    <scope ilk="blob" lang="Python" name="try_stmt">
+      <import line="1" module="__future__" symbol="with_statement" />
+      <scope ilk="function" line="3" lineend="20" name="one" signature="one()" />
+      <scope ilk="function" line="22" lineend="35" name="two" signature="two()" />
+      <scope ilk="function" line="37" lineend="41" name="three" signature="three()" />
+      <scope ilk="function" line="43" lineend="47" name="four" signature="four()" />
+      <scope ilk="function" line="49" lineend="55" name="five" signature="five()" />
+      <scope ilk="function" line="62" lineend="68" name="seven" signature="seven()" />
+    </scope>
+  </file>
+</codeintel>

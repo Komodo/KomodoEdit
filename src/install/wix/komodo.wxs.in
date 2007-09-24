@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<?include config.wxi ?>
+<?include guids.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Product Name="$(var.ProductName)" Id="$(var.ProductCode)"
+    Language="1033" Codepage="1252" Version="$(var.KomodoVersion)"
+    Manufacturer="ActiveState Software Inc."
+    UpgradeCode="$(var.UpgradeCode)">
+
+    <Package Id="????????-????-????-????-????????????" Keywords="Installer"
+      Description="$(var.ProductName)"
+      Comments="Komodo is a registered trademark of ActiveState Software Inc."
+      Manufacturer="ActiveState Software Inc."
+      InstallerVersion="200" Languages="1033" Compressed="yes"
+      SummaryCodepage="1252" />
+
+    <Media Id="1" Cabinet="media.cab" EmbedCab="yes" DiskPrompt="XXX" />
+
+    <!-- Properties:
+      - ALLUSERS=2 implies that we install to "All Users" profile dirs if
+        installing with admin privs and to user-specific folders if not.
+      -->
+    <Property Id="ALLUSERS" Value="2" />
+    <Property Id="DiskPrompt" Value="CDROM #1" /> <!-- XXX necessary? -->
+    <Property Id="LAUNCHPRODUCT" Value="1" />
+    <Property Id="OPENDOCS" Value="1" />
+    <Property Id="ARPCOMMENTS">$(var.ProductTagLine)</Property>
+    <Property Id="ARPCONTACT">Customer Support</Property>
+    <Property Id="ARPHELPLINK">http://www.ActiveState.com/Support/</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.ActiveState.com/</Property>
+    <Property Id="ARPURLUPDATEINFO">$(var.ProductURL)</Property>
+    <Property Id="ARPHELPTELEPHONE">1.866.866.2802</Property>
+    <Property Id="ARPPRODUCTICON">$(var.KomodoId).exe</Property>
+
+    <!-- Main directory structure:
+          INSTALLDIR        Main (configurable) product install dir under
+                            "C:\Program Files\..."
+          StartMenuDir      The Komodo group in the "Start | Programs" tree
+          DesktopFolder     Location for optional desktop shortcut
+          QuickLaunchFolder Location for optional quick launch shortcut
+      -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFILES">
+        <Directory Id="INSTALLDIR" Name="$(var.KomodoId)" LongName="$(var.InstallName)">
+          <Component DiskId="1" Guid="$(autowix.guid)" Id="component4">
+            <RemoveFile Id="removefile15" Name="pod2htmd.tmp" On="uninstall" />
+            <RemoveFile Id="removefile16" Name="pod2htmi.tmp" On="uninstall" />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="PMENU" LongName="Programs">
+        <Directory Id="StartMenuDir" Name="$(var.KomodoId)" LongName="$(var.InstallName)" />
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="DESKTOP" />
+
+      <Directory Id="AppDataFolder" Name="APPDATA">
+        <Directory Id="directory0" Name="MS" LongName="Microsoft">
+          <Directory Id="directory1" Name="IE" LongName="Internet Explorer">
+            <Directory Id="QuickLaunchFolder" Name="QuickDir" LongName="Quick Launch">
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="SystemFolder" Name="SYSDIR" />
+    </Directory>
+
+    <!--  FEATURE TREE            FEATURE LEVEL 
+          ============            =============
+          core                    1
+              env                 1
+                  desktop         1
+                  quicklaunch     1
+                  register        1000
+              docs                1
+    
+      Install level (i.e. INSTALLLEVEL property):
+      - Complete:     1000 (i.e. all features have a Level <= 1000)
+      - Non-release:   500 (alpha/beta builds, 'register' feature not installed)
+
+      Note: Feature ComponentRef's are typically in the associated
+      feature-<name>.wxs file.
+      -->
+    <Property Id="INSTALLLEVEL" Value="$(var.InstallLevel)" />
+    <Feature Id="core" Title="Komodo" Description="The Komodo core"
+        Level="1" ConfigurableDirectory="INSTALLDIR"
+        Display="expand" AllowAdvertise="no" Absent="disallow"
+        InstallDefault="local" TypicalDefault="install">
+
+      <!-- A BUG in Wix or MSI seems to require that at least one ComponentRef
+           be here where the feature tree is defined. Otherwise I get a dialog
+           before the feature tree installer dialog asking user to wait until
+           the "Installer calculates disk requirements". -->
+      <ComponentRef Id="KomodoConsoleExe" />
+      <ComponentRef Id="component4" />
+
+      <Feature Id="env" Title="Desktop Integration"
+          Description="Changes such as Desktop and Quick Launch shortcuts, PATH changes and file associations."
+          Level="1" Display="expand" AllowAdvertise="no"
+          InstallDefault="followParent">
+
+        <Feature Id="desktop" Title="Desktop Shortcut"
+            Description="Add a Desktop shortcut for Komodo."
+            Level="1" AllowAdvertise="no">
+          <ComponentRef Id="Desktop" /> <!-- Same BUG as above. -->
+        </Feature>
+
+        <Feature Id="quicklaunch" Title="Quick Launch Shortcut"
+            Description="Add a Quick Launch shortcut for Komodo."
+            Level="1" AllowAdvertise="no">
+          <ComponentRef Id="QuickLaunch" /> <!-- Same BUG as above. -->
+        </Feature>
+
+        <Feature Id="register" Title="Register as Default"
+            Description="Register as the default Komodo on your system. (Disabled by default in pre-release builds to not conflict with another Komodo install.)"
+            Level="1000" AllowAdvertise="no">
+          <ComponentRef Id="EnvPrivileged" /> <!-- Same BUG as above. -->
+        </Feature>
+
+      </Feature>
+
+<?if $(var.IsMSIDebugBuild) = "no" ?>
+      <Feature Id="docs" Title="Documentation" Description="Komodo documentation (currently must be installed)"
+          Level="1" AllowAdvertise="no" Absent="disallow"
+          InstallDefault="followParent">
+        <ComponentRef Id="KomodoDocsManifest"/> <!-- Same BUG as above. -->
+      </Feature>
+<?endif ?>
+    </Feature>
+
+    <!-- Custom Actions -->
+    <CustomAction Id="LaunchProduct" FileKey="KomodoExe"
+        ExeCommand="" Return="asyncNoWait" />
+    <CustomAction Id="OpenDocs" BinaryKey="startw.exe"
+        ExeCommand='"[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-top.html"' Return="asyncNoWait" />
+    <!-- XXX CustomAction to set ARPINSTALLLOCATION? -->
+
+    <!-- Quote INSTALLDIR because it likely contains spaces. Add '.' suffix
+         because it ends with '\': which would escape the close quote. -->
+    <CustomAction Id="RemoveInstallDir" BinaryKey="rmtreew.exe"
+        ExeCommand='"[INSTALLDIR]."' Return="ignore" Execute="commit" />
+    <InstallExecuteSequence>
+      <Custom Action="RemoveInstallDir" After="RemoveFiles">REMOVE="ALL"</Custom>
+    </InstallExecuteSequence>
+
+
+    <UIRef Id="WixUI" />
+
+    <!-- Embedded binary bits -->
+    <Icon Id="$(var.KomodoId).exe" src="feature-core\INSTALLDIR\komodo.exe" />
+    <Binary Id="startw.exe" src="startw.exe" />
+    <Binary Id="rmtreew.exe" src="rmtreew.exe" />
+  </Product>
+</Wix>
+

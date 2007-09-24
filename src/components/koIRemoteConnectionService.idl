@@ -1,0 +1,69 @@
+// A service to maintain a cache of remote connections and connection information.
+//
+// Usage:
+//  - XPCOM methods should use getConnection() to make a remote connection.
+//          - This may be an already opened (cached) connection object
+//  - User code can use saveSessionInfo() to cached a connection username/password
+//  - User code can query getSessionInfo() to find a cached username/password
+//
+
+#include "nsISupports.idl"
+#include "koIRemoteFileInfo.idl"
+#include "koIFTP.idl"
+
+[scriptable, uuid(D99E7A30-C5F3-43A7-8029-144097D41904)]
+interface koIRemoteConnectionService : nsISupports {
+
+    // Return true if the given url has the prefix that is supported by the
+    // remote connection service. I.e. starts with "ftp://", "scp://" etc...
+    boolean isSupportedRemoteUrl(in wstring url);
+
+    // Return a list of protocols the remote connection service can support
+    void getSupportedProtocolNames(out unsigned long count,
+                                   [array, size_is(count), retval] out wstring protocols);
+
+    // Return url for given connection and koRemoteFileInfo object
+    wstring getUriForConnectionAndRfInfo(in koIFTPConnection connection,
+                                         in koIRemoteFileInfo rfinfo);
+
+    // Get a connection object given the connection parameters.
+    //  "protocol" is the connection protocol used, i.e. "ftp", "sftp"
+    //  "server" is the remote host name/ip address for the connection.
+    //  "port" is remote port number.
+    //  "username" is the username used when trying to log in.
+    //  "password" is the password used when trying to log in.
+    //  "path" is the path we want to open or go to (only used for display purposes)
+    void getConnection(in wstring protocol, in wstring server, in long port,
+                       in wstring username, in wstring password, in wstring path,
+                       [retval] out koIFTPConnection connection);
+
+    // Return the connection object for the given URI, all the connection
+    // details should be included in the supplied URI
+    // ex: ftp://test:tesuser@somesite.com:21/web/info.php
+    void getConnectionUsingUri(in wstring uri,
+                               [retval] out koIFTPConnection connection);
+
+    // Return the server preferences for the given server alias, array list
+    // 0-protocol, 1-hostname, 2-port, 3-path, 4-username, 5-password
+    void getServerPrefSettings(in wstring server_alias, out unsigned long count,
+                               [array, size_is(count)] out wstring data);
+
+    // Functions to cache username/passwords for a connection, so we don't keep
+    // prompting the user when they have already entered this information
+    void saveSessionInfo(in wstring key, [array, size_is(count)]
+                         in wstring text, in unsigned long count);
+    void getSessionInfo(in wstring key, out unsigned long count,
+                        [array, size_is(count)] out wstring data);
+
+    // Functions to cache remote file information for a connection, so we don't
+    // keep requesting the same information from the server over and over
+    //   cache_key: key for connection, usually "%s:%s" % (hostname, username)
+    //   path:      remote path on the server
+    //   rfinfo:    Information on the path (size, mode, child nodes etc...)
+    void setCachedRFInfo(in wstring cache_key, in wstring path,
+                         in koIRemoteFileInfo rfinfo);
+    void getCachedRFInfo(in wstring cache_key, in wstring path,
+                         [retval] out koIRemoteFileInfo rfinfo);
+    //   removeChildPaths: whether to remove cached files that start with this path
+    void removeCachedRFInfo(in wstring cache_key, in wstring path, in long removeChildPaths);
+};

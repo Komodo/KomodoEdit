@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % templatesDTD SYSTEM "chrome://komodo/locale/templates.dtd">
+  %templatesDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Komodo's New File dialog -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+
+<dialog id="dialog-newtemplate"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        onunload="OnUnload()"
+        orient="vertical"
+        style="min-width: 45em; max-width: 45em;"
+        flex="1"
+        title="&newFile.title;"
+        screenX="10" screenY="10" persist="screenX screenY"
+        buttons="accept,extra1,cancel,help"
+        ondialogaccept="return Open();"
+        ondialogextra1="return OpenTemplateFolder();"
+        ondialoghelp="ko.help.open('creating_files');"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/mru.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/templates/new.js"   type="application/x-javascript;version=1.7"/>
+
+    <popupset>
+        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    </popupset>
+
+    <hbox flex="1">
+        <!-- Categories -->
+        <vbox flex="1">
+            <label value="Categories" accesskey="&g.accesskey;" control="categories"/>
+            <tree id="categories" flex="1" style="min-height: 140px;"
+                  hidecolumnpicker="true" seltype="single"
+                  onselect="CategoriesOnSelectionChange();">
+                <!-- id="..."'s are necessary for mouse selection to work! -->
+                <treecols>
+                    <treecol id="category-name" flex="1" primary="true"
+                             crop="middle" hideheader="true"/>
+                </treecols>
+                <treechildren id="categories-children" flex="1"/>
+            </tree>
+        </vbox>
+
+        <!-- Templates -->
+        <vbox flex="1">
+            <label value="Templates" accesskey="&m.accesskey;" control="templates"/>
+            <tree id="templates" flex="1" style="min-height: 140px;"
+                  hidecolumnpicker="true" seltype="single"
+                  onselect="TemplatesOnSelectionChange();"
+                  onclick="TemplatesOnClick(event);">
+                <!-- id="..."'s are necessary for mouse selection to work! -->
+                <treecols>
+                    <treecol id="template-name" flex="1" hideheader="true"
+                             crop="middle"/>
+                </treecols>
+                <treechildren id="templates-children" flex="1"/>
+            </tree>
+        </vbox>
+    </hbox>
+
+    <grid id="filepicker" flex="1" style="margin-top: 10px;">
+        <columns>
+            <column/>
+            <column flex="1"/>
+        </columns>
+        <rows>
+            <row align="center">
+                <label value="Filename:" control="filename" accesskey="&n.accesskey;"/>
+                <textbox id="filename"
+                         type="autocomplete"
+                         maxrows="10"
+                         autocompletesearch="mru"
+                         autocompletesearchparam="mru: new-filenameMru; maxmru: 5"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         enablehistory="true"
+                         completeselectedindex="true"
+                         onfocus="this.setSelectionRange(0,this.value.length);"
+                         oninput="resetAddToProject();"/>
+            </row>
+            <row align="center">
+                <label value="Directory:" control="dirname" accesskey="&D.accesskey;"/>
+                <hbox align="center">
+                    <textbox id="dirname" flex="1" onchange="updateAccept()"
+                             type="autocomplete"
+                             maxrows="10"
+                             autocompletesearch="mru_and_dirpath"
+                             autocompletesearchparam="mru: new-dirnameMru; maxmru: 5"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             onfocus="this.setSelectionRange(0,this.value.length);"
+                             oninput="updateAccept();"/>
+                    <button id="localFileDir" label="&local.label;" accesskey="&localFileDir.accesskey;"
+                            oncommand="ko.filepicker.browseForDir(document.getElementById('dirname'));updateAccept()" />
+                    <button id="remoteFileDir" label="&remote.label;" accesskey="&remoteFileDir.accesskey;"
+                            oncommand="ko.filepicker.browseForRemoteDir(document.getElementById('dirname'));updateAccept()" />
+                </hbox>
+            </row>
+        </rows>
+    </grid>
+
+    <vbox id="add-to" flex="1">
+    <checkbox id="add-to-project" label="&addToCurrentProject.label;"
+              accesskey="&addToProject.accesskey;" style="padding-left: 0px;"
+              tooltiptext="&addTheNewFileToYourCurrentProject.tooltiptext;"/>
+    </vbox>
+    <separator class="thin"/>
+
+</dialog>
+

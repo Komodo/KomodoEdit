@@ -1,0 +1,162 @@
+
+# Makefile for the test_popen suite of apps.
+
+all: talkers
+
+CL=cl /nologo
+LINK=link /nologo
+CFLAGS=/W3 /DWIN32 /Ox /DNDEBUG /D_NDEBUG /MD 
+LDFLAGS=kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib
+RM=del
+
+talkers: ask.exe askw.exe ask_then_talk.exe ask_then_talklots.exe ask_then_talk_flushing.exe ask_then_talklots_flushing.exe talk.exe talklots.exe talk_flushing.exe talklots_flushing.exe ask_then_talkw.exe ask_then_talklotsw.exe ask_then_talk_flushingw.exe ask_then_talklots_flushingw.exe talkw.exe talklotsw.exe talk_flushingw.exe talklots_flushingw.exe quiet.exe quietw.exe hang.exe hangw.exe printcwd.exe printcwdw.exe printenv.exe printenvw.exe ask_setvbuf.exe askw_setvbuf.exe ask_then_talk_setvbuf.exe ask_then_talklots_setvbuf.exe ask_then_talk_flushing_setvbuf.exe ask_then_talklots_flushing_setvbuf.exe talk_setvbuf.exe talklots_setvbuf.exe talk_flushing_setvbuf.exe talklots_flushing_setvbuf.exe ask_then_talkw_setvbuf.exe ask_then_talklotsw_setvbuf.exe ask_then_talk_flushingw_setvbuf.exe ask_then_talklots_flushingw_setvbuf.exe talkw_setvbuf.exe talklotsw_setvbuf.exe talk_flushingw_setvbuf.exe talklots_flushingw_setvbuf.exe quiet_setvbuf.exe quietw_setvbuf.exe hang_setvbuf.exe hangw_setvbuf.exe printcwd_setvbuf.exe printcwdw_setvbuf.exe printenv_setvbuf.exe printenvw_setvbuf.exe hello10.exe hello10noeol.exe log.exe "log space.exe"
+
+log.exe "log space.exe": talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DLOG /Folog.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:log.exe log.obj
+    copy /y log.exe "log space.exe"
+
+hello10.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DHELLO10  /Fohello10.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:hello10.exe hello10.obj
+
+hello10noeol.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DHELLO10NOEOL  /Fohello10noeol.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:hello10noeol.exe hello10noeol.obj
+
+ask.exe askw.exe ask_setvbuf.exe askw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DASK  /Foask.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask.exe ask.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DASK  /Foaskw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:askw.exe askw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DASK  /Foask_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_setvbuf.exe ask_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DASK  /Foaskw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:askw_setvbuf.exe askw_setvbuf.obj
+
+ask_then_talk.exe ask_then_talkw.exe ask_then_talk_setvbuf.exe ask_then_talkw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DASK /DTALK  /Foask_then_talk.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talk.exe ask_then_talk.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DASK /DTALK  /Foask_then_talkw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talkw.exe ask_then_talkw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DASK /DTALK  /Foask_then_talk_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talk_setvbuf.exe ask_then_talk_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DASK /DTALK  /Foask_then_talkw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talkw_setvbuf.exe ask_then_talkw_setvbuf.obj
+
+ask_then_talklots.exe ask_then_talklotsw.exe ask_then_talklots_setvbuf.exe ask_then_talklotsw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DASK /DTALKLOTS  /Foask_then_talklots.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talklots.exe ask_then_talklots.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DASK /DTALKLOTS  /Foask_then_talklotsw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talklotsw.exe ask_then_talklotsw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DASK /DTALKLOTS  /Foask_then_talklots_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talklots_setvbuf.exe ask_then_talklots_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DASK /DTALKLOTS  /Foask_then_talklotsw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talklotsw_setvbuf.exe ask_then_talklotsw_setvbuf.obj
+
+ask_then_talk_flushing.exe ask_then_talk_flushingw.exe ask_then_talk_flushing_setvbuf.exe ask_then_talk_flushingw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DASK /DTALK /DFLUSH  /Foask_then_talk_flushing.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talk_flushing.exe ask_then_talk_flushing.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DASK /DTALK /DFLUSH  /Foask_then_talk_flushingw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talk_flushingw.exe ask_then_talk_flushingw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DASK /DTALK /DFLUSH  /Foask_then_talk_flushing_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talk_flushing_setvbuf.exe ask_then_talk_flushing_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DASK /DTALK /DFLUSH  /Foask_then_talk_flushingw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talk_flushingw_setvbuf.exe ask_then_talk_flushingw_setvbuf.obj
+
+ask_then_talklots_flushing.exe ask_then_talklots_flushingw.exe ask_then_talklots_flushing_setvbuf.exe ask_then_talklots_flushingw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DASK /DTALKLOTS /DFLUSH  /Foask_then_talklots_flushing.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talklots_flushing.exe ask_then_talklots_flushing.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DASK /DTALKLOTS /DFLUSH  /Foask_then_talklots_flushingw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talklots_flushingw.exe ask_then_talklots_flushingw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DASK /DTALKLOTS /DFLUSH  /Foask_then_talklots_flushing_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:ask_then_talklots_flushing_setvbuf.exe ask_then_talklots_flushing_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DASK /DTALKLOTS /DFLUSH  /Foask_then_talklots_flushingw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:ask_then_talklots_flushingw_setvbuf.exe ask_then_talklots_flushingw_setvbuf.obj
+
+talk.exe talkw.exe talk_setvbuf.exe talkw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DTALK  /Fotalk.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talk.exe talk.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DTALK  /Fotalkw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talkw.exe talkw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DTALK  /Fotalk_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talk_setvbuf.exe talk_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DTALK  /Fotalkw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talkw_setvbuf.exe talkw_setvbuf.obj
+
+talklots.exe talklotsw.exe talklots_setvbuf.exe talklotsw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DTALKLOTS  /Fotalklots.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talklots.exe talklots.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DTALKLOTS  /Fotalklotsw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talklotsw.exe talklotsw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DTALKLOTS  /Fotalklots_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talklots_setvbuf.exe talklots_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DTALKLOTS  /Fotalklotsw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talklotsw_setvbuf.exe talklotsw_setvbuf.obj
+
+talk_flushing.exe talk_flushingw.exe talk_flushing_setvbuf.exe talk_flushingw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DTALK /DFLUSH  /Fotalk_flushing.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talk_flushing.exe talk_flushing.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DTALK /DFLUSH  /Fotalk_flushingw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talk_flushingw.exe talk_flushingw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DTALK /DFLUSH  /Fotalk_flushing_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talk_flushing_setvbuf.exe talk_flushing_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DTALK /DFLUSH  /Fotalk_flushingw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talk_flushingw_setvbuf.exe talk_flushingw_setvbuf.obj
+
+talklots_flushing.exe talklots_flushingw.exe talklots_flushing_setvbuf.exe talklots_flushingw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DTALKLOTS /DFLUSH  /Fotalklots_flushing.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talklots_flushing.exe talklots_flushing.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DTALKLOTS /DFLUSH  /Fotalklots_flushingw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talklots_flushingw.exe talklots_flushingw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DTALKLOTS /DFLUSH  /Fotalklots_flushing_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:talklots_flushing_setvbuf.exe talklots_flushing_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DTALKLOTS /DFLUSH  /Fotalklots_flushingw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:talklots_flushingw_setvbuf.exe talklots_flushingw_setvbuf.obj
+
+quiet.exe quietw.exe quiet_setvbuf.exe quietw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS    /Foquiet.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:quiet.exe quiet.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS            /Foquietw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:quietw.exe quietw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF   /Foquiet_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:quiet_setvbuf.exe quiet_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF   /Foquietw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:quietw_setvbuf.exe quietw_setvbuf.obj
+
+hang.exe hangw.exe hang_setvbuf.exe hangw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DHANG  /Fohang.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:hang.exe hang.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DHANG  /Fohangw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:hangw.exe hangw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DHANG  /Fohang_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:hang_setvbuf.exe hang_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DHANG  /Fohangw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:hangw_setvbuf.exe hangw_setvbuf.obj
+
+printcwd.exe printcwdw.exe printcwd_setvbuf.exe printcwdw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DCWD  /Foprintcwd.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:printcwd.exe printcwd.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DCWD  /Foprintcwdw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:printcwdw.exe printcwdw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DCWD  /Foprintcwd_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:printcwd_setvbuf.exe printcwd_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DCWD  /Foprintcwdw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:printcwdw_setvbuf.exe printcwdw_setvbuf.obj
+
+printenv.exe printenvw.exe printenv_setvbuf.exe printenvw_setvbuf.exe: talk.cpp
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DENV  /Foprintenv.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:printenv.exe printenv.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DENV  /Foprintenvw.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:printenvw.exe printenvw.obj
+    $(CL) $(CFLAGS)    /D_CONSOLE /D_MBCS  /DSETVBUF /DENV  /Foprintenv_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:console  /out:printenv_setvbuf.exe printenv_setvbuf.obj
+    $(CL) $(CFLAGS)    /D_WINDOWS          /DSETVBUF /DENV  /Foprintenvw_setvbuf.obj /c talk.cpp
+    $(LINK) $(LDFLAGS) /subsystem:windows  /out:printenvw_setvbuf.exe printenvw_setvbuf.obj
+
+
+
+clean:
+    if exist *.obj; $(RM) *.obj
+    if exist *.exe; $(RM) *.exe
+

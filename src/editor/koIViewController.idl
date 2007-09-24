@@ -1,0 +1,13 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// forward declarations
+interface koIView;
+
+[scriptable, uuid(23D7C59E-FF49-49DE-860B-D02D5DFEED75)]
+interface koIViewController : nsISupports
+{
+    attribute koIView view;
+};

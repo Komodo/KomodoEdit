@@ -1,0 +1,17 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Komodo Commandment system service
+// (See commandments-spec.txt.)
+
+[scriptable, uuid(9E1E3FED-A914-4F54-A540-A4197259D9AE)]
+interface koICommandmentService: nsISupports {
+    void initialize();
+    void finalize();
+    // For testing only: this will die when the commandment system
+    // allows synchronous commandment calls.
+    void handleCommandment(in wstring commandment);
+};
+

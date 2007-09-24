@@ -1,0 +1,20 @@
+# Describe a lexer for RHTML files
+
+language RHTML
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2ruby.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+
+include "ruby2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "rubylex.udl"

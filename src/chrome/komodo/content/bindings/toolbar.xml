@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings id="koToolbarReflowBindings"
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="toolbox-reflow-row" extends="chrome://global/content/bindings/scrollbox.xml#scrollbox-base">
+        <content orient="horizontal">
+            <xul:scrollbox xbl:inherits="orient,align,pack,dir" flex="1">
+                <children/>
+            </xul:scrollbox>
+        </content>
+        <implementation>
+            <property name="scrollbox" readonly="true"
+                onget="return document.getAnonymousNodes(this)[0];"/>
+
+            <property name="scrollBoxObject" readonly="true"
+                onget="return this.scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
+
+            <property name="scrollboxChildNodes" readonly="true"
+                onget="return document.getAnonymousNodes(this)[0].childNodes;"/>
+        </implementation>
+    </binding>
+
+    <binding id="toolbox" extends="chrome://global/content/bindings/toolbar.xml#toolbox">
+        <content orient="vertical">
+            <xul:vbox flex="1" xclass="toolbar-internal-box">
+                <children/>
+            </xul:vbox>
+            <xul:hbox tbattr="collapsed-tray-holder" class="collapsed-tray-holder" moz-collapsed="true">
+            <xul:hbox tbattr="collapsed-tray" class="collapsed-tray"/>
+                <xul:spacer flex="1" class="collapsed-tray-spacer"/>
+            </xul:hbox>
+        </content>
+        <implementation>
+            <field name="allowReflow">false</field>
+            <field name="_lastWidth">0</field>
+
+            <method name="init">
+            <body>
+            <![CDATA[
+            // xul crash hack, see http://bugs.activestate.com/show_bug.cgi?id=30774
+            // we do not allow toolbox reflow during startup, thus avoiding
+            // strange mouse over crashes we experience.  init is called in
+            // komodo.js.  this is called at the complete end of startup, in a
+            // timeout, so we force an update at that time to be sure all our
+            // toolbars are visible
+                this.allowReflow=true;
+                this.update(true);
+                var me = this;
+                window.addEventListener("resize", function() { me.update(); }, false);
+            ]]>
+            </body>
+            </method>
+
+            <method name="update">
+                <parameter name="force"/>
+            <body>
+            <![CDATA[
+            if (!this.allowReflow) return;
+            try {
+                if (typeof(force) == 'undefined') force = false;
+                if (force || this._lastWidth >= this.boxObject.width) {
+                    // the box width has increased, we need to see if
+                    // we have underflow then move our toolbars around
+                    for (var i=0; i < this.childNodes.length; ++i) {
+                        if (this.childNodes[i].tagName == 'toolboxrow') {
+                            while (this.overflow(this.childNodes[i])) {}
+                        }
+                    }
+                } else
+                if (force || this._lastWidth < this.boxObject.width) {
+                    // the box width has increased, we need to see if
+                    // we have underflow then move our toolbars around
+                    for (var i=0; i < this.childNodes.length; ++i) {
+                        if (this.childNodes[i].tagName == 'toolboxrow') {
+                            while (this.underflow(this.childNodes[i])) {}
+                        }
+                    }
+                }
+                this._lastWidth = this.boxObject.width;
+            } catch(e) {
+                log.exception(e);
+            }
+            ]]>
+            </body>
+            </method>
+
+            <method name="overflow">
+            <parameter name="toolboxrow"/>
+            <body>
+            <![CDATA[
+            if (!this.allowReflow) return false;
+            try {
+                if (toolboxrow.childNodes.length > 1) {
+                    var tr = toolboxrow.nextSibling;
+                    while (tr && tr.tagName != "toolboxrow") {
+                        tr = tr.nextSibling;
+                    }
+
+                    // get the length of the last child, and see if it
+                    // can fit inside this toolboxrow
+                    var usableWidth = toolboxrow.scrollBoxObject.width;
+                    var childrenWidth = 0;
+                    for (var i=0; i < toolboxrow.childNodes.length; ++i) {
+                        childrenWidth += toolboxrow.childNodes[i].boxObject.width;
+                    }
+                    usableWidth -= childrenWidth;
+                    if (usableWidth > 0) return false;
+
+                    if (tr && tr.tagName == 'toolboxrow') {
+                        tr.insertBefore(toolboxrow.lastChild, tr.firstChild);
+                    } else {
+                        // create a new toolboxrow and move the last child to it
+                        tr = document.createElement('toolboxrow');
+                        tr.setAttribute('flex','1');
+                        this.appendChild(tr);
+                        tr.appendChild(toolboxrow.lastChild);
+                    }
+                    return true;
+                }
+            } catch(e) {
+                log.exception(e);
+            }
+            return false;
+            ]]>
+            </body>
+            </method>
+
+            <method name="underflow">
+            <parameter name="toolboxrow"/>
+            <body>
+            <![CDATA[
+            if (!this.allowReflow) return false;
+            try {
+                var tr = toolboxrow.nextSibling;
+                while (tr && tr.tagName != "toolboxrow") {
+                    tr = tr.nextSibling;
+                }
+                if (tr && tr.firstChild && tr.tagName == 'toolboxrow') {
+                    // get the length of the last child, and see if it
+                    // can fit inside this toolboxrow
+                    var usableWidth = toolboxrow.scrollBoxObject.width;
+                    var childrenWidth = 0;
+                    for (var i=0; i < toolboxrow.childNodes.length; ++i) {
+                        childrenWidth += toolboxrow.childNodes[i].boxObject.width;
+                    }
+                    usableWidth -= childrenWidth;
+
+                    if (usableWidth > tr.firstChild.boxObject.width) {
+                        toolboxrow.appendChild(tr.firstChild);
+                        if (tr.childNodes.length < 1) {
+                            // remove the row from the toolbox
+                            this.removeChild(tr);
+                        }
+                        return true;
+                    } else if (usableWidth <= 0) {
+                        this.overflow(toolboxrow);
+                    }
+                }
+            } catch(e) {
+                log.exception(e);
+            }
+            return false;
+            ]]>
+            </body>
+            </method>
+
+            <method name="appendToolbar">
+            <parameter name="toolbar"/>
+            <body>
+            <![CDATA[
+                // add it to the last toolbar
+                var tr = this.lastChild;
+                while (tr && tr.tagName != 'toolboxrow') {
+                    tr = tr.previousSibling;
+                }
+                tr.appendChild(toolbar);
+            ]]>
+            </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="overflow">
+            <![CDATA[
+                if (event.target.tagName == "toolboxrow") {
+                    this.overflow(event.target);
+                }
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+</bindings>

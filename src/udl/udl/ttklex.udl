@@ -1,0 +1,139 @@
+# Lexer for Template-Toolkit -- a perl-based (sort of) template language
+
+family tpl
+sublanguage TemplateToolkit
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+keyword_style TPL_IDENTIFIER => TPL_WORD
+
+#{{
+keywords [
+AND
+BLOCK
+BREAK
+CALL
+CASE
+CATCH
+CLEAR
+DEFAULT
+DIV
+ELSE
+ELSIF
+END
+FILTER
+FINAL
+FOR
+FOREACH
+GET
+IF
+IN
+INCLUDE
+INSERT
+LAST
+MACRO
+META
+MOD
+NEXT
+NOT
+OR
+PERL
+PLUGIN
+PROCESS
+RAWPERL
+RETURN
+SET
+STEP
+STOP
+SWITCH
+THROW
+TO
+TRY
+UNLESS
+USE
+WHILE
+WRAPPER
+]
+#}}
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern CS = '$NMSTART\d'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '~!%#^&*()-=+\[\]\{\}\\\|;:,<.>\/\?' # Perl ops
+
+initial IN_TPL_DEFAULT
+
+state IN_TPL_DEFAULT:
+'#' : paint(upto, TPL_DEFAULT), => IN_TPL_COMMENT
+/[$WS]+/  : #stay
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+
+# Go process a number, try to do it in regexes
+# octal and hex first
+/0[Xx][0-9a-fA-F]+/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[-+]?0[0-7]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[1-9]/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_1
+/\.\d+/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2
+/\.(?=[$NMSTART])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+=> IN_TPL_DEFAULT_OR_IDENTIFIER_1
+'.' : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2b
+
+/\b(?:RAW)?PERL\b/ : paint(upto, TPL_DEFAULT), paint(include, TPL_WORD), => IN_TPL_TRANSITION_TO_PERL_1
+/[$NMSTART][$CS]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+/[$OP]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) #stay
+
+state IN_TPL_TRANSITION_TO_PERL_1:
+/[$WS]/ : #stay
+# The reason why we don't need to pop the state-stack here is because nothing
+# gets pushed on it when we transition from SSL_DEFAULT when matching /%\s*END/.
+# The state finally gets popped when the END block hits %]
+/-?%\]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_SSL_DEFAULT
+'#' : paint(upto, TPL_DEFAULT), => IN_TPL_COMMENT_TRANSITION_TO_PERL_1
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_COMMENT:
+/-?%]/ : paint(upto, TPL_COMMENT), redo, => IN_TPL_DEFAULT
+/\r?$/ : paint(upto, TPL_COMMENT), => IN_TPL_DEFAULT
+
+state IN_TPL_COMMENT_TRANSITION_TO_PERL_1:
+/-?%\]/ : paint(upto, TPL_COMMENT), redo, => IN_TPL_TRANSITION_TO_PERL_1
+/$/ : paint(upto, TPL_COMMENT), => IN_TPL_TRANSITION_TO_PERL_1
+
+################# Post-dot identifiers
+
+# This always matches because we arrive here via lookahead.
+state IN_TPL_DEFAULT_OR_IDENTIFIER_1:
+/./ : no_keyword, paint(include, TPL_IDENTIFIER), => IN_TPL_DEFAULT_OR_IDENTIFIER_2
+
+state IN_TPL_DEFAULT_OR_IDENTIFIER_2:
+/[$CS]/ : #stay
+/[^$CS]/ : paint(upto, TPL_IDENTIFIER), redo, no_keyword, => IN_TPL_DEFAULT
+
+################ Strings ################
+
+# We need counting to handle ${...} expressions, like in Ruby
+
+state IN_TPL_DSTRING:
+'"' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+
+state IN_TPL_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+
+################ Numbers ################
+
+include "tpl_number.udl"
+
+################ Folding Directives ################
+
+# Don't bother doing folding because FOREACH and IF can appear
+# as a trailing modifer that doesn't take a following END-block
+#### fold "BLOCK" TPL_WORD +
+#### fold "FOREACH" TPL_WORD +  # Breaks on [% COMMAND FOREACH object ]
+#### fold "IF" TPL_WORD +       # Breaks on [% COMMAND IF test ]
+#### 
+#### fold "END" TPL_WORD -
+

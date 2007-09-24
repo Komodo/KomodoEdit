@@ -1,0 +1,20 @@
+#include "nsISupports.idl"
+
+// An xpcom class used for storing vi command details.
+// This is used for the commands that have not yet been implemented, and will
+// be used through macro's to access the details of the command being run.
+
+[scriptable, uuid(7777B17F-7EA2-47B9-8BFC-CD65FC8786A7)]
+interface koIViCommandDetail : nsISupports {
+    attribute long startLine;         // Start line (current line when unset)
+    attribute long endLine;           // End line (current line when unset)
+    attribute boolean forced;         // Command name ended with a "!"
+    attribute wstring commandName;    // Command name being run
+    attribute wstring leftover;       // Everything after the command
+    attribute wstring rawCommandString; // Raw command string as typed in
+    void getArguments(out unsigned long count,
+                      [array, size_is(count), retval] out wstring args);
+    void setArguments(in unsigned long count,
+                      [array, size_is(count)] in wstring args);
+    void clear();
+};

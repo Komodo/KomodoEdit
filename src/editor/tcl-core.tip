@@ -1,0 +1,430 @@
+version TclTip-1.0
+#################################################################
+## Tcl Core method tip/completion definitions
+##
+## Any stripped line not starting with a wordchar is ignored
+##
+## Arguments in <>s are considered variable args.
+## Arguments in ??s are considered optional args.
+##
+## Variable and optional args are part of the method tips,
+## while the base method info is part of method completion.
+##
+#################################################################
+
+after ms
+after ms ?script script script ...?
+after cancel <id>
+after cancel <script> <script> ...
+after idle ?script script script ...?
+after info ?id?
+
+append <varName> ?value value value ...?
+
+array anymore <arrayName> <searchId>
+array donesearch <arrayName> <searchId>
+array exists <arrayName>
+array get <arrayName> ?pattern?
+array names <arrayName> ?mode? ?pattern?
+array nextelement <arrayName> <searchId>
+array set <arrayName> <list>
+array size <arrayName>
+array startsearch <arrayName>
+array statistics <arrayName>
+array unset <arrayName> ?pattern?
+
+auto_execok <cmd>
+auto_import <pattern>
+auto_load <cmd>
+auto_mkindex <dir> <pattern> <pattern> ...
+auto_mkindex_old <dir> <pattern> <pattern> ...
+auto_qualify <command> <namespace>
+auto_reset
+tcl_findLibrary <basename> <version> <patch> <initScript> <enVarName> <varName>
+parray <arrayName>
+tcl_endOfWord <str> <start>
+tcl_startOfNextWord <str> <start>
+tcl_startOfPreviousWord <str> <start>
+tcl_wordBreakAfter <str> <start>
+tcl_wordBreakBefore <str> <start>
+
+bgerror <message>
+
+binary format <formatString> ?arg arg ...?
+binary scan <string> <formatString> ?<varName> <varName> ...?
+
+break
+
+catch <script> ?<varName>?
+
+cd ?dirName?
+
+clock format <clockValue> ?-format string? ?-gmt boolean?
+clock scan <dateString> ?-base clockVal? ?-gmt boolean?
+clock seconds
+clock clicks ?-milliseconds?
+
+close <channelId>
+
+concat ?arg arg ...?
+
+continue
+
+dde servername ?topic?
+dde execute <service> <topic> <data>
+dde poke <service> <topic> <item> <data>
+dde request <service> <topic> <item>
+dde services <service> <topic>
+dde eval <topic> <cmd> ?arg arg ...?
+
+encoding convertfrom ?encoding? <data>
+encoding convertto ?encoding? <string>
+encoding names
+encoding system ?encoding?
+
+eof <channelId>
+
+error <message> ?info? ?code?
+
+eval <script> ?script ...?
+
+exec ?-keepnewline? ?--? <arg> ?arg ...?
+
+exit ?returnCode?
+
+expr <arg> ?arg arg ...?
+
+fblocked <channelId>
+
+fconfigure <channelId> ?name ?value ?name value ...???
+
+fcopy <inchan> <outchan> ?-size size? ?-command callback?
+
+file atime <name> ?time?
+file attributes <name>
+file channels ?pattern?
+file copy ?-force? ?--? <source> <target>
+file delete ?-force? ?--? pathname ?pathname ... ?
+file dirname <name>
+file executable <name>
+file exists <name>
+file extension <name>
+file isdirectory <name>
+file isfile <name>
+file join <name> ?name ...?
+file lstat <name> <varName>
+file mkdir <dir> ?dir ...?
+file mtime <name> ?time?
+file nativename <name>
+file owned <name>
+file pathtype <name>
+file readable <name>
+file readlink <name>
+file rename ?-force? ?--? <source> <target>
+file rename ?-force? ?--? <source> ?source ...? <targetDir>
+file rootname <name>
+file size <name>
+file split <name>
+file stat <name> <varName>
+file tail <name>
+file type <name>
+file volumes
+file writable <name>
+
+fileevent <channelId> readable|writable ?script?
+
+flush <channelId>
+
+for <start> <test> <next> <body>
+
+foreach <varname> <list> <body>
+foreach <varlist1> <list1> ?varlist2 list2 ...? <body>
+
+format <formatString> ?arg arg ...?
+
+gets <channelId> ?<varName>?
+
+glob ?-directory directory? ?-join? ?-nocomplain? ?-path pathPrefix? ?-types typeList? ?--? pattern ?pattern ...?
+
+global <varname> ?varname ...?
+
+history
+history add <command> ?exec?
+history change <newValue> ?event?
+history clear
+history event ?event?
+history info ?count?
+history keep ?count?
+history nextid
+history redo ?event?
+
+if <expr1> ?then? <body1> elseif <expr2> ?then? <body2> elseif ... ?else? ?bodyN?
+
+incr <varName> ?increment?
+
+info args <procname>
+info body <procname>
+info cmdcount
+info commands ?pattern?
+info complete <command>
+info default <procname> <arg> <varname>
+info exists <varName>
+info globals ?pattern?
+info hostname
+info level ?number?
+info library
+info loaded ?interp?
+info locals ?pattern?
+info nameofexecutable
+info patchlevel
+info procs ?pattern?
+info script ?filename?
+info sharedlibextension
+info tclversion
+info vars ?pattern?
+
+interp alias <srcPath> <srcCmd>
+interp alias <srcPath> <srcCmd> {}
+interp alias <srcPath> <srcCmd> <targetPath> <targetCmd> ?arg arg ...?
+interp aliases ?path?
+interp create ?-safe? ?--? ?path?
+interp delete ?path ...?
+interp eval <path> <arg> ?arg ...?
+interp exists <path>
+interp expose <path> <hiddenName> ?exposedCmdName?
+interp hide <path> <exposedCmdName> ?hiddenCmdName?
+interp hidden <path>
+interp invokehidden <path> ?-global? <hiddenCmdName> ?arg ...?
+interp issafe ?path?
+interp marktrusted <path>
+interp share <srcPath> <channelId> <destPath>
+interp slaves ?path?
+interp target <path> <alias>
+interp transfer <srcPath> <channelId> <destPath>
+
+join <list> ?joinString?
+
+lappend <varName> ?value value value ...?
+
+lindex <list> <index>
+
+linsert <list> <index> <element> ?element element ...?
+
+list ?arg arg ...?
+
+llength <list>
+
+load <fileName> ?packageName ?interp??
+
+lrange <list> <first> <last>
+
+lreplace <list> <first> <last> ?element element ...?
+
+lsearch ?options? <list> <pattern>
+
+lsort ?options? <list>
+
+memory info
+memory trace on
+memory trace off
+memory validate on
+memory validate off
+memory trace_on_at_malloc <count>
+memory break_on_malloc <count>
+memory display <file>
+
+msgcat::mc <srcString> ?arg arg ...?
+msgcat::mclocale ?newLocale?
+msgcat::mcpreferences
+msgcat::mcload <dirname>
+msgcat::mcset <locale> <srcString> ?translate-string?
+msgcat::mcunknown <locale> <srcString>
+
+namespace children ?namespace? ?pattern?
+namespace code <script>
+namespace current
+namespace delete ?namespace namespace ...?
+namespace eval <namespace> <arg> ?arg ...?
+namespace exists <namespace>
+namespace export ?-clear? ?pattern pattern ...?
+namespace forget ?pattern pattern ...?
+namespace import ?-force? ?pattern pattern ...?
+namespace inscope <namespace> <arg> ?arg ...?
+namespace origin <command>
+namespace parent ?namespace?
+namespace qualifiers <string>
+namespace tail <string>
+namespace which ?-command? ?-variable? <name>
+
+open <fileName> ?access ?permissions??
+
+package forget <package>
+package ifneeded <package> <version> ?script?
+package names
+package present ?-exact? <package> ?version?
+package provide <package> ?version?
+package require ?-exact? <package> ?version?
+package unknown ?command?
+package vcompare <version1> <version2>
+package versions <package>
+package vsatisfies <version1> <version2>
+
+pid ?fileId?
+
+pkg::create -name <packageName> -version <packageVersion> ?-load filespec? ?-source filespec? ...
+
+pkg_mkIndex ?-lazy? ?-load pkgPat? ?-verbose? <dir> ?pattern pattern ...?
+
+proc <name> <args> <body>
+
+puts ?-nonewline? ?channelId? <string>
+
+pwd
+
+read ?-nonewline? <channelId>
+read <channelId> <numChars>
+
+regexp ?switches? exp <string> ?matchVar? ?subMatchVar subMatchVar ...?
+
+registry delete <keyName> ?valueName?
+registry get <keyName> <valueName>
+registry keys <keyName> ?pattern?
+registry set <keyName> ?valueName data ?type??
+registry type <keyName> <valueName>
+registry values <keyName> ?pattern?
+
+regsub ?switches? <exp> <string> <subSpec> <varName>
+
+rename <oldName> <newName>
+
+resource close <rsrcRef>
+resource delete ?-id resourceId? ?-name resourceName? ?-file resourceRef? <resourceType>
+resource files ?resourceRef?
+resource list <resourceType> ?resourceRef?
+resource open <fileName> ?access?
+resource read <resourceType> <resourceId> ?resourceRef?
+resource types ?resourceRef?
+resource write ?-id resourceId? ?-name resourceName? ?-file resourceRef? ?-force? <resourceType> <data>
+
+return ?-code code? ?-errorinfo info? ?-errorcode code? ?string?
+
+scan <string> <format> ?<varName> <varName> ...?
+
+seek <channelId> <offset> ?start|current|end?
+
+set <varName> ?value?
+
+socket ?options? <host> <port>
+socket -server <command> ?options? <port>
+
+source <fileName>
+source -rsrc <resourceName> ?fileName?
+source -rsrcid <resourceId> ?fileName?
+
+split <string> ?splitChars?
+
+string bytelength <string>
+string compare ?-nocase? ?-length int? <string1> <string2>
+string equal ?-nocase? ?-length int? <string1> <string2>
+string first <string1> <string2> ?startIndex?
+string index <string> <charIndex>
+string is alnum ?-strict? ?-failindex varname? <string>
+string is alpha ?-strict? ?-failindex varname? <string>
+string is ascii ?-strict? ?-failindex varname? <string>
+string is boolean ?-strict? ?-failindex varname? <string>
+string is control ?-strict? ?-failindex varname? <string>
+string is digit ?-strict? ?-failindex varname? <string>
+string is double ?-strict? ?-failindex varname? <string>
+string is false ?-strict? ?-failindex varname? <string>
+string is graph ?-strict? ?-failindex varname? <string>
+string is integer ?-strict? ?-failindex varname? <string>
+string is lower ?-strict? ?-failindex varname? <string>
+string is print ?-strict? ?-failindex varname? <string>
+string is punct ?-strict? ?-failindex varname? <string>
+string is space ?-strict? ?-failindex varname? <string>
+string is true ?-strict? ?-failindex varname? <string>
+string is upper ?-strict? ?-failindex varname? <string>
+string is wordchar ?-strict? ?-failindex varname? <string>
+string is xdigit ?-strict? ?-failindex varname? <string>
+string last <string1> <string2> ?startIndex?
+string length <string>
+string map ?-nocase? <charMap> <string>
+string match ?-nocase? <pattern> <string>
+string range <string> <first> <last>
+string repeat <string> <count>
+string replace <string> <first> <last> ?newstring?
+string tolower <string> ?first? ?last?
+string totitle <string> ?first? ?last?
+string toupper <string> ?first? ?last?
+string trim <string> ?chars?
+string trimleft <string> ?chars?
+string trimright <string> ?chars?
+string wordend <string> <charIndex>
+string wordstart <string> <charIndex>
+
+subst ?-nobackslashes? ?-nocommands? ?-novariables? <string>
+
+switch ?options? <string> <pattern> <body> ?pattern body ...?
+switch ?options? <string> {pattern body ?pattern body ...?}
+
+tell <channelId>
+
+time <script> ?count?
+
+trace variable <name> rwu <command>
+trace vdelete <name> rwu <command>
+trace vinfo <name>
+
+unknown <cmdName> ?arg arg ...?
+
+unset ?--? ?-nocomplain? ?name name name ...?
+
+update ?idletasks?
+
+uplevel ?level? arg ?arg ...?
+
+upvar ?level? <otherVar> <myVar> ?otherVar myVar ...?
+
+variable ?name value...? <name> ?value?
+
+vwait <varName>
+
+while <test> <body>
+
+tcltest::test <name> <desc> ?constraint? <script> <expectedAnswer>
+tcltest::cleanupTests ?runningMultipleTests?
+tcltest::getMatchingTestFiles
+tcltest::loadTestedCommands
+tcltest::makeFile <contents> <name>
+tcltest::removeFile <name>
+tcltest::makeDirectory <name>
+tcltest::removeDirectory <name>
+tcltest::viewFile <name>
+tcltest::normalizeMsg <msg>
+tcltest::bytestring <string>
+tcltest::saveState
+tcltest::restoreState
+tcltest::threadReap
+
+safe::interpCreate ?slave? ?options...?
+safe::interpInit <slave> ?options...?
+safe::interpConfigure <slave> ?options...?
+safe::interpDelete <slave>
+safe::interpAddToAccessPath <slave> <directory>
+safe::interpFindInAccessPath <slave> <directory>
+safe::setLogCmd ?cmd arg...?
+
+http::config ?-accept mimetypes? ?-proxyhost hostname? ?-proxyport number? ?-proxyfilter command? ?-useragent string?
+http::geturl <url> ?options?
+http::formatQuery <key> <value> ?key value ...?
+http::reset <token> ?why?
+http::wait <token>
+http::data <token>
+http::error <token>
+http::status <token>
+http::code <token>
+http::ncode <token>
+http::size <token>
+http::cleanup <token>
+http::register <proto> <port> <command>
+http::unregister <proto>

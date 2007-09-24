@@ -1,0 +1,60 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/* browser buttons */
+
+.browser-toolbar {
+  list-style-image: url("chrome://komodo/skin/images/browser_buttons.gif");
+}
+/* rect(top,right,bottom,left) */
+#browser-back-button {
+  -moz-image-region: rect(0px 16px 16px 0px);
+}
+
+#browser-back-button:hover,
+#browser-back-button:hover:active {
+  -moz-image-region: rect(16px 16px 32px 0px);
+}
+
+#browser-back-button[disabled="true"] {
+  -moz-image-region: rect(32px 16px 48px 0px) !important;
+}
+
+#browser-forward-button {
+  -moz-image-region: rect(0px 32px 16px 16px);
+}
+
+#browser-forward-button:hover,
+#browser-forward-button:hover:active {
+  -moz-image-region: rect(16px 32px 32px 16px);
+}
+
+#browser-forward-button[disabled="true"] {
+  -moz-image-region: rect(32px 32px 48px 16px) !important;
+}
+
+#browser-reload-button {
+  -moz-image-region: rect(0px 47px 16px 32px);
+}
+
+#browser-reload-button:hover,
+#browser-reload-button:hover:active {
+  -moz-image-region: rect(16px 47px 32px 32px);
+}
+
+#browser-reload-button[disabled="true"] {
+  -moz-image-region: rect(32px 47px 48px 32px) !important;
+}
+
+#browser-stop-button {
+  -moz-image-region: rect(0px 58px 16px 47px);
+}
+
+#browser-stop-button:hover,
+#browser-stop-button:hover:active {
+  -moz-image-region: rect(16px 58px 32px 47px);
+}
+
+#browser-stop-button[disabled="true"] {
+  -moz-image-region: rect(32px 58px 48px 47px) !important;
+}

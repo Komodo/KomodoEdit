@@ -1,0 +1,14 @@
+1. In jsdICallHook::onCall(jsdIStackFrame frame, type)
+
+frame sometimes contains garbage -- in particular sometimes
+the PC contains garbage values (which seem to be taken from
+a small set of possible values), and trying to get the line #
+from the PC triggers an access violation.
+
+
+2. When jsdIScriptHook::onScriptCreated(jsdIScript script)
+
+We can't always get the source for the script, particularly if
+the script was loaded by using the 
+("@mozilla.org/moz/jssubscript-loader;1", mozIJSSubScriptLoader).loadSubScript
+method.

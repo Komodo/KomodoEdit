@@ -1,0 +1,50 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+
+/* a menupopup that can be used in a menu or menulist */
+langlist  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#lang-list');
+}
+
+/* a listbox that manages a list of paths */
+pathlist  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#listbox-patheditor');
+}
+
+/* a listbox that manages path/uri mappings */
+mappededitor {
+  -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#tree-mappededitor");
+}
+
+
+
+/* a listbox that manages a list of checkbox elements */
+checklistbox  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#listbox-checklist');
+}
+
+/* styling for the langlist menupopup */
+menu.menulist-subLevel {
+  padding: 1px;
+  margin: 1px;
+  list-style-image: none;
+  -moz-box-align: start;
+}
+
+menu.menulist-subLevel > .menu-text,
+menu.menulist-subLevel > menupopup  > menuitem > .menu-text {
+    margin-left: 2px !important;
+  padding: 1px;
+  margin: 1px;
+}
+
+menu.menulist-subLevel > menupopup  > menuitem {
+  border: 1px solid transparent;
+  padding: 1px;
+  margin: 1px;
+  max-width: none;
+  list-style-image: none;
+}

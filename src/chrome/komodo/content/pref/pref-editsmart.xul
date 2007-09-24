@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="editsmart_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
+
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+    
+    function editsmart_OnLoad() {
+        try {
+        var gMainWindow = ko.windowManager.getMainWindow();
+        // get a keybinding and set the text correctly
+        var text = "Use tab character to complete words like __KEY__ ";
+        var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_completeWord');
+        text = text.replace('__KEY__', keylabel);
+        document.getElementById('editTabCompletes').setAttribute('label', text);
+        
+        _pref_lint_dialog = {};
+        _pref_lint_dialog.lintDelay = document.getElementById("lintDelay");
+        _pref_lint_dialog.editUseLinting = document.getElementById("editUseLinting");
+        
+        parent.hPrefWindow.onpageload();
+        
+        pref_lint_doEnabling();
+
+        parent.initPanel();
+        }catch(e) {dump(e+'\n');}
+    }
+    
+    var _pref_lint_log = ko.logging.getLogger("pref-lint");
+    var _pref_lint_dialog = null;
+    
+    function _pref_lint_setElementEnabledState(elt, enabled) {
+        if (enabled) {
+            if (elt.hasAttribute('disabled')) {
+                elt.removeAttribute('disabled');
+            }
+        } else {
+            elt.setAttribute('disabled', true);
+        }
+    }
+
+    function pref_lint_doEnabling() {
+        var enabled = _pref_lint_dialog.editUseLinting.checked;
+        _pref_lint_setElementEnabledState(_pref_lint_dialog.lintDelay, enabled);
+    }
+
+    ]]>
+    </script>
+    
+    <groupbox orient="vertical">
+        <caption label="&smartEditing.label;"/>
+        <hbox align="center">
+            <checkbox id="editUseLinting"
+                      label="&enableBackgroundSyntaxCheckingAfter.label;"
+                      pref="true"
+                      prefstring="editUseLinting"
+                      prefattribute="checked"
+                      oncommand="pref_lint_doEnabling();"/>
+            <textbox id="lintDelay" size="4" pref="true"/>
+            <label value="msecs"/> 
+        </hbox>
+        <checkbox id="editTabCompletes"
+                  label="&useTabCharacterToCompleteWordsLikeCtrlSpace.label;"
+                  pref="true"/>
+        <hbox align="center">
+            <label value="Wrap long lines by:"/>
+            <menulist pref="true"
+                      id="editWrapType"
+                      prefattribute="data"
+                      prefstring="editWrapType">
+                <menupopup>
+                    <menuitem data="0" label="&none.label;"/>
+                    <menuitem data="1" label="&word.label;"/>
+                    <menuitem data="2" label="&character.label;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+        <hbox align="center">
+            <label value="Word wrap markers:"/>
+            <menulist pref="true"
+                      id="editWordWrapMarker"
+                      prefattribute="data"
+                      prefstring="editWordWrapMarker">
+                <menupopup>
+                    <menuitem data="0" label="&none.label;"/>
+                    <menuitem data="1" label="&endOfLine.label;"/>
+                    <menuitem data="2" label="&startOfLine.label;"/>
+                    <menuitem data="3" label="&both.label;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+
+        <separator class="thin"/>
+        <checkbox id="editUseEdge"
+                  label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
+                  pref="true"/>
+        <hbox align="center">
+            <textbox id="editAutoWrapColumn" size="3" pref="true"/>
+            <text value="Edge line column"/>
+        </hbox>
+        
+        <separator class="thin"/>
+        <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
+                prefstring="editSmartSoftCharacters" prefattribute="checked"/>
+        <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>        
+    </groupbox>
+    <groupbox orient="vertical">
+        <caption label="&folding.label;"/>
+      <hbox align="center">
+        <label value="Fold mark style:"/>
+        <menulist id="editFoldStyle" pref="true" prefattribute="data">
+            <menupopup>
+                <menuitem data="none" label="&donTShowFoldMarks.label;"/>
+                <menuitem data="squaretree" label="&squareTrees.label;"/>
+                <menuitem data="curvytree" label="&curvyTrees.label;"/>
+                <menuitem data="plusminus" label="&signs.label;"/>
+                <menuitem data="arrows" label="&arrows.label;"/>
+            </menupopup>
+        </menulist>
+      </hbox>
+      <checkbox id="editFoldLines" label="&useHorizontalLineOnFolds.label;" pref="true"
+                prefstring="editFoldLines" prefattribute="checked"/>
+      <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
+                prefstring="editRestoreFoldPoints" prefattribute="checked"/>
+    </groupbox>
+
+</window>
+

@@ -1,0 +1,125 @@
+# Lexer description for Python
+
+family ssl
+
+sublanguage Python
+
+pattern CS = '\w_'               # inside cset
+pattern WS = '\s\t\r\n'            # inside cset
+pattern NMCHAR = '$CS'
+pattern NMSTART = 'a-zA-Z_'
+pattern OP = '~!@%^&*()-=+[\]{}\\|;:,.<>/?'
+
+keywords  ['and', 'assert', 'break', 'class', 'continue', 'def', 'del',
+'elif', 'else', 'except', 'exec', 'finally', 'for', 'from', 'global',
+'if', 'import', 'in', 'is', 'lambda', 'not', 'or', 'pass', 'print',
+'raise', 'return', 'try', 'while', 'yield']
+
+keyword_style SSL_IDENTIFIER => SSL_WORD
+
+initial IN_SSL_DEFAULT
+
+state IN_SSL_DEFAULT:
+'#' : paint(upto, SSL_DEFAULT), => IN_SSL_COMMENT
+
+/[$NMSTART]/ : paint(upto, SSL_DEFAULT), => IN_SSL_IDENTIFIER_1
+
+# Allow an 'r' before the string, but don't do anything special
+# with it in the string.  Backslashes are still sometimes
+# escape characters in raw strings as well, so it never hurts
+# to handle them there.
+
+# Remember to match long sequences before prefixes of them.
+# If we try matching /'/ before attempting /'''/, we'll
+# always use the first hit.
+
+/[rRuU]*'''/ : paint(upto, SSL_DEFAULT), => IN_SSL_TRIPLE_SSTRING
+/[rRuU]*"""/ : paint(upto, SSL_DEFAULT), => IN_SSL_TRIPLE_DSTRING
+/[rRuU]*'/ : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+/[rRuU]*"/ : paint(upto, SSL_DEFAULT), => IN_SSL_DSTRING
+
+/0[Xx][0-9a-fA-F]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)
+/0[0-7]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)
+/\d/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_1
+/\.\d/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_2
+
+/[$WS]+/  : #stay
+/[$OP]/  : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR)
+################ Numeric Literals ################
+
+# Digits, before seeing a '.' or exponent-start
+state IN_SSL_NUMBER_1:
+'.'   : => IN_SSL_NUMBER_2
+/[Ll]/: paint(include, SSL_NUMBER), => IN_SSL_DEFAULT
+/[Ee][-\+]?/: => IN_SSL_NUMBER_3
+/\D/: paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+# In the fractional part
+state IN_SSL_NUMBER_2:
+/[Ee][-\+]?/: => IN_SSL_NUMBER_3
+/\D/: paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+state IN_SSL_NUMBER_3:
+/\D/: paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+################ Identifiers ################
+
+state IN_SSL_IDENTIFIER_1:
+'.' : paint(upto, SSL_IDENTIFIER), paint(include, SSL_OPERATOR)
+/[^$NMCHAR]/ : paint(upto, SSL_IDENTIFIER), redo, => IN_SSL_DEFAULT
+
+################ Comments ################
+
+state IN_SSL_COMMENT:
+/$/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT
+
+################ Strings ################
+
+# In triple-quoted strings we only need to handle escapes
+
+state IN_SSL_TRIPLE_SSTRING
+"\\'" : # ""
+"'''" : paint(upto, SSL_STRING), => IN_SSL_DEFAULT
+
+state IN_SSL_TRIPLE_DSTRING
+'\\"' : # ""
+'"""' : paint(upto, SSL_STRING), => IN_SSL_DEFAULT
+
+# Single-quoted strings are more subtle
+
+state IN_SSL_SSTRING
+/\\[\r\n]/ : => IN_SSL_SSTRING_LINECONT
+/\\./ : # ""
+/$/ : paint(upto, SSL_STRING), => IN_SSL_DEFAULT  # No EOLString in UDL
+"'" : paint(upto, SSL_STRING), => IN_SSL_DEFAULT
+
+state IN_SSL_DSTRING
+/\\[\r\n]/ : => IN_SSL_DSTRING_LINECONT
+/\\./ : # ""
+/$/ : paint(upto, SSL_STRING), => IN_SSL_DEFAULT  # No EOLString in UDL
+'"' : paint(upto, SSL_STRING), => IN_SSL_DEFAULT
+
+# Work around the single-line match limit.
+
+state IN_SSL_SSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_SSL_SSTRING
+"'" : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/./ : => IN_SSL_SSTRING
+/^$/ : paint(upto, SSL_STRING), => IN_SSL_DEFAULT # End empty lines here
+
+state IN_SSL_DSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_SSL_DSTRING
+'"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/./ : => IN_SSL_DSTRING
+/^$/ : paint(upto, SSL_STRING), => IN_SSL_DEFAULT # End empty lines here
+
+################ Fold info ################
+
+fold "{" SSL_OPERATOR +
+fold "}" SSL_OPERATOR -
+fold "[" SSL_OPERATOR +
+fold "]" SSL_OPERATOR -
+fold "(" SSL_OPERATOR +
+fold ")" SSL_OPERATOR -

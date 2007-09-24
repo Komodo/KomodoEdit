@@ -1,0 +1,45 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIPrefs.idl"
+
+/* A preference containing ordered subelements, addressable
+   by an integer index.
+   i.e. an array preference. */
+
+[scriptable, uuid(03ba6768-1907-405d-99a3-15b1e44c5be6)]
+interface koIOrderedPreference : koIPreference {
+  // Append a preference to the end of the collection.
+  void appendPref(in koIPreference pref);
+  void appendStringPref(in wstring pref);
+  void appendLongPref(in long pref);
+  void appendDoublePref(in double pref);
+  void appendBooleanPref(in boolean pref);
+
+  // Insert a preference at a particular index in the collection,
+  // pushing elements to "the right" as necessary.
+  void insertPref(in long index, in koIPreference pref);
+  void insertStringPref(in long index, in wstring pref);
+  void insertLongPref(in long index, in long pref);
+  void insertDoublePref(in long index, in double pref);
+  void insertBooleanPref(in long index, in boolean pref);
+  
+  // Retrieve a particular preference from the preference set.
+  // It is an error to "get" a preference which does not exist or is of the
+  // wrong type. Use "has*Pref" to ensure the pref exists.
+  string getPrefType(in long index);
+  koIPreference getPref(in long index);
+  wstring getStringPref(in long index);
+  long getLongPref(in long index);
+  double getDoublePref(in long index);
+  boolean getBooleanPref(in long index);
+ 
+  // The number of preferences contained in the ordered collection.
+  readonly attribute long length;
+
+  // Remove a preference from the collection.
+  void deletePref(in long index);
+  // Reset to an empty preference collection.
+  void reset();
+};

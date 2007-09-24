@@ -1,0 +1,355 @@
+<?xml version="1.0"?>
+<!-- 
+	Copyright (c) 2001 Jonathan Borden <jonathan@openhealth.org>
+	This schema may be freely used as long as this copyright notice is included in this or 
+	derivative works and you agree that the author accepts no liability nor responsibility 
+	for any use of this document.
+	
+	This is a regular tree expression language schema for RDF 1.0.
+	
+	This grammar closely follows the intended grammar in RDF 1.0 M&S 
+	http://www.w3.org/TR/REC-rdf-syntax/ with a few clarifications namely:
+	- about etc attributes must be prefixed
+	- xml:lang attribute accepted on li literals
+	- does not constrain _n attributes to require n to be an integer 
+	(this is not possible in this or other common schema languages)
+        
+        http://www.openhealth.org/RDF/RDFSurfaceSyntax.html
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/0.9"
+         ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<!-- start with either RDF or something else -->
+<start>
+ <choice>
+   <ref name="RDF"/>
+   <element>
+		<not>
+		  <choice>
+			<nsName ns=""/>
+		  </choice>
+		</not>
+ 	<zeroOrMore>
+		<ref name="obj"/>
+	</zeroOrMore>
+   </element>
+ </choice>
+</start>
+<define name="RDF">
+ <element name="RDF">
+	<zeroOrMore>
+		<ref name="obj"/>
+	</zeroOrMore>
+ </element>
+</define>
+<define name="obj">
+	<choice>
+		<ref name="description"/>
+		<ref name="container"/>
+	</choice>
+</define>
+<define name="description">
+	<choice>
+		<element name="Description">
+			<optional>
+				<ref name="idAboutAttr"/>
+			</optional>
+			<optional>
+				<ref name="bagIdAttr"/>
+			</optional>
+			<zeroOrMore>
+				<ref name="propAttr"/>
+			</zeroOrMore>
+			<zeroOrMore>
+				<ref name="propertyElt"/>
+			</zeroOrMore>
+		</element>
+		<ref name="typedNode"/>
+	</choice>
+</define>
+<define name="container">
+	<choice>
+		<ref name="sequence"/>
+		<ref name="bag"/>
+		<ref name="alternative"/>
+	</choice>
+</define>
+<define name="idAboutAttr">
+	<choice>
+		<ref name="idAttr"/>
+		<ref name="aboutAttr"/>
+	</choice>
+</define>
+<define name="idAttr">
+	<attribute name="ID">
+		<data type="ID"/>
+	</attribute>
+</define>
+<define name="aboutAttr">
+	<attribute name="about">
+		<data type="anyURI"/>
+	</attribute>
+</define>
+<define name="propAttr">
+ <choice>
+    <ref name="typeAttr"/>
+	<attribute>
+			<not>
+			  <choice>
+				<nsName/>
+				<nsName ns=""/>
+			  </choice>
+			</not>
+	</attribute>
+ </choice>
+</define>
+<define name="typeAttr">
+ <attribute name="type">
+ 	<data type="anyURI"/>
+ </attribute>
+</define>
+
+<define name="propertyElt">
+	<choice>
+		<element>
+			<not>
+				<nsName ns=""/>
+			</not>
+			<optional>
+				<ref name="idAttr"/>
+			</optional>
+			<ref name="value"/>
+		</element>
+		<element>
+			<not>
+				<nsName ns=""/>
+			</not>
+			<optional>
+				<ref name="idAttr"/>
+			</optional>
+			<ref name="parseLiteral"/>
+			<ref name="literal"/>
+		</element>
+		<element>
+			<not>
+				<nsName ns=""/>
+			</not>
+			<optional>
+				<ref name="idAttr"/>
+			</optional>
+			<ref name="parseResource"/>
+			<zeroOrMore>
+				<ref name="propertyElt"/>
+			</zeroOrMore>
+		</element>
+		<element>
+			<not>
+				<nsName ns=""/>
+			</not>
+			<optional>
+				<ref name="idRefAttr"/>
+			</optional>
+			<optional>
+				<ref name="bagIdAttr"/>
+			</optional>
+			<zeroOrMore>
+				<ref name="propAttr"/>
+			</zeroOrMore>
+		</element>
+	</choice>
+</define>
+<define name="typedNode">
+	<element>
+	  <not>
+		<nsName ns=""/>
+	  </not>
+	   <optional>
+	     <ref name="idAboutAttr"/>
+	   </optional>
+	   <optional>
+	     <ref name="bagIdAttr"/>
+	   </optional>
+	  <zeroOrMore>
+		<ref name="propAttr"/>
+	  </zeroOrMore>
+	  <zeroOrMore>
+	  	<ref name="propertyElt"/>
+	  </zeroOrMore>
+	</element>
+</define>
+<!--<define name="propName">
+ <element>
+	<not>
+		<nsName ns=""/>
+	</not>
+ </element>
+</define>
+-->
+<define name="idRefAttr">
+	<choice>
+		<ref name="idAttr"/>
+		<ref name="resourceAttr"/>
+	</choice>
+</define>
+<define name="value">
+	<choice>
+		<ref name="obj"/>
+		<text/>
+	</choice>
+</define>
+<define name="sequence">
+	<element name="Seq">
+		<optional>
+			<ref name="idAttr"/>
+		</optional>
+		<choice>
+			<zeroOrMore>
+				<ref name="member"/>
+			</zeroOrMore>
+			<zeroOrMore>
+				<ref name="memberAttr"/>
+			</zeroOrMore>
+		</choice>
+	</element>
+</define>
+<define name="bag">
+	<element name="Bag">
+		<optional>
+			<ref name="idAttr"/>
+		</optional>
+		<choice>
+			<zeroOrMore>
+				<ref name="member"/>
+			</zeroOrMore>
+			<zeroOrMore>
+				<ref name="memberAttr"/>
+			</zeroOrMore>
+		</choice>
+	</element>
+</define>
+<!-- check with EBNF here -->
+<define name="alternative">
+	<element name="Alt">
+		<optional>
+			<ref name="idAttr"/>
+		</optional>
+		<choice>
+			<zeroOrMore>
+				<ref name="member"/>
+			</zeroOrMore>
+			<zeroOrMore>
+				<ref name="memberAttr"/>
+			</zeroOrMore>
+		</choice>
+	</element>
+</define>
+<define name="member">
+	<choice>
+		<ref name="referencedItem"/>
+		<ref name="inlineItem"/>
+	</choice>
+</define>
+<define name="referencedItem">
+	<element name="li">
+		<ref name="resourceAttr"/>
+	</element>
+</define>
+<define name="inlineItem">
+	<choice>
+	<element name="li">
+		<optional>
+			<ref name="xmlLangAttr"/>
+		</optional>
+		<ref name="value"/>
+	</element>
+	<element name="li">
+		<optional>
+			<ref name="xmlLangAttr"/>
+		</optional>
+		<ref name="parseLiteral"/>
+		<ref name="literal"/>
+	</element>
+	<element name="li">
+		<ref name="parseResource"/>
+		<zeroOrMore>
+		<ref name="propertyElt"/>
+		</zeroOrMore>
+	</element>
+	</choice>
+</define>
+<define name="parseLiteral">
+	<attribute name="parseType">
+		<value>Literal</value>
+	</attribute>
+</define>
+<define name="parseResource">
+	<attribute name="parseType">
+		<value>Resource</value>
+	</attribute>
+</define>
+<define name="literal">
+ <mixed>
+	<zeroOrMore>
+		<ref name="any"/>
+	</zeroOrMore>
+ </mixed>
+</define>
+<define name="memberAttr">
+	<attribute>
+		<nsName/>
+		<data type="string"/>
+	</attribute>
+</define>
+<define name="bagIdAttr">
+	<attribute name="bagId">
+		<data type="ID"/>
+	</attribute>
+</define>
+<define name="resourceAttr">
+	<attribute name="resource">
+		<data type="anyURI"/>
+	</attribute>
+</define>
+<!-- allow any XML content -->
+<define name="any">
+    <element>
+      <anyName/>
+      <zeroOrMore>
+        <choice>
+	      <attribute>
+            <anyName/>
+          </attribute>
+          <text/>
+          <ref name="any"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+ <!-- XML namespace -->
+<define name="xmlSpaceAttr">
+	<attribute name="xml:space">
+		<choice>
+			<value>preserve</value>
+			<value>default</value>
+		</choice>
+	</attribute>
+</define>
+<define name="xmlLangAttr">
+	<attribute name="xml:lang">
+		<data type="NMTOKEN"/>
+	</attribute>
+</define>
+<define name="xmlBaseAttr">
+	<attribute name="xml:base">
+		<data type="anyURI"/>
+	</attribute>
+</define>
+<define name="xmlAttrs">
+	<choice>
+		<ref name="xmlSpaceAttr"/>
+		<ref name="xmlLangAttr"/>
+		<ref name="xmlBaseAttr"/>
+	</choice>
+</define>
+</grammar>

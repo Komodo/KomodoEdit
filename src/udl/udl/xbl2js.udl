@@ -1,0 +1,7 @@
+
+family markup
+
+state IN_M_STAG_EXP_TNAME:
+/(?:xbl:)?(?:body|handler|getter|setter|field|constructor|destructor)\b/i : paint(upto, M_STAGO), paint(include, M_TAGNAME) => IN_H2CSL_STAG_POST_TAGNAME
+
+include "xml_common2js.udl"

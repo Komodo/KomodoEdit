@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The components for Komodo "env" MSI feature. -->
+
+<?include config.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+
+    <FeatureRef Id="desktop">
+      <!-- See "BUG" note in komodo.wxs:
+        <ComponentRef Id="Desktop" /> -->
+    </FeatureRef>
+
+    <FeatureRef Id="quicklaunch">
+      <!-- See "BUG" note in komodo.wxs:
+        <ComponentRef Id="QuickLaunch" /> -->
+    </FeatureRef>
+
+    <FeatureRef Id="register">
+      <!-- See "BUG" note in komodo.wxs:
+        <ComponentRef Id="EnvPrivileged" /> -->
+        <ComponentRef Id="EnvNotPrivileged" />
+        <ComponentRef Id="EnvPrivilegedWin9x" />
+        <ComponentRef Id="EnvNotPrivilegedWin9x" />
+        <ComponentRef Id="RegistryAppPaths" />
+        <ComponentRef Id="FileTypes" />
+    </FeatureRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="Desktop" Guid="$(autowix.guid)">
+        <CreateFolder Directory="DesktopFolder" />
+        <!-- This generates an ICE38 error, but until MS provides a *reason*
+             for this particular ICE, I'm ignoring it. -->
+        <Shortcut Id="DesktopKomodoShortcut" Directory="DesktopFolder"
+            Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+            Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
+            Icon="$(var.KomodoId).exe" IconIndex="0" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="QuickLaunchFolder">
+      <Component Id="QuickLaunch" Guid="$(autowix.guid)">
+        <CreateFolder Directory="QuickLaunchFolder" />
+        <!-- This generates an ICE38 error, but until MS provides a *reason*
+             for this particular ICE, I'm ignoring it. -->
+        <Shortcut Id="QuickLaunchKomodoShortcut" Directory="QuickLaunchFolder"
+            Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+            Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
+            Icon="$(var.KomodoId).exe" IconIndex="0" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="EnvPrivileged" Guid="$(autowix.guid)">
+        <Condition>Privileged AND NOT Version9X</Condition>
+        <CreateFolder Directory="INSTALLDIR" />
+        <Environment Id="EnvPATHSystem" Name="PATH" 
+            Action="set" Part="first" Value="[INSTALLDIR]" System="yes"/>
+      </Component>
+
+      <Component Id="EnvNotPrivileged" Guid="$(autowix.guid)">
+        <Condition>NOT Privileged AND NOT Version9X</Condition>
+        <CreateFolder Directory="INSTALLDIR" />
+        <Environment Id="EnvPATHUser" Name="PATH" 
+            Action="set" Part="first" Value="[INSTALLDIR]" System="no"/>
+      </Component>
+
+      <Component Id="EnvPrivilegedWin9x" Guid="$(autowix.guid)">
+        <Condition>Privileged AND Version9X</Condition>
+        <CreateFolder Directory="INSTALLDIR" />
+        <Environment Id="EnvPATHSystemWin9x" Name="PATH" 
+            Action="set" Part="first" Value='"[INSTALLDIR]"' System="yes"/>
+      </Component>
+
+      <Component Id="EnvNotPrivilegedWin9x" Guid="$(autowix.guid)">
+        <Condition>NOT Privileged AND Version9X</Condition>
+        <CreateFolder Directory="INSTALLDIR" />
+        <Environment Id="EnvPATHUserWin9x" Name="PATH" 
+            Action="set" Part="first" Value='"[INSTALLDIR]"' System="no"/>
+      </Component>
+
+      <!-- Only bother installing the "App Paths" registry entry if we have the
+           privilege to do so in HKLM. Adding a similar one in HKCU (if
+           unprivileged) doesn't accomplish anything: start.exe does not use
+           that registry area. -->
+      <Component Id="RegistryAppPaths" Guid="$(autowix.guid)">
+        <Condition>Privileged</Condition>
+        <Registry Id="RegAppPathsKomodo" Action="createKeyAndRemoveKeyOnUninstall"
+            Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\komodo.exe" />
+        <Registry Id="RegAppPathsKomodoDefault" Action="write"
+            Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\komodo.exe"
+            Type="string" Value="[INSTALLDIR]lib\mozilla\komodo.exe" />
+        <Registry Id="RegAppPathsKomodoPath" Action="write"
+            Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\komodo.exe"
+            Type="string" Name="Path" Value="[INSTALLDIR]lib\mozilla" />
+      </Component>
+
+      <Component Id="FileTypes" Guid="$(autowix.guid)">
+        <ProgId Id="Komodo.Project" Description="Komodo Project File"
+            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+          <Extension Id="kpf">
+            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+          </Extension>
+        </ProgId>
+        <ProgId Id="Komodo.Package" Description="Komodo Package"
+            Advertise="no" Icon="[!KomodoExe]" IconIndex="2">
+          <Extension Id="kpz">
+            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+          </Extension>
+        </ProgId>
+      </Component>
+    </DirectoryRef>
+
+  </Fragment>
+</Wix>
+

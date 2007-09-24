@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift File.dirname(__FILE__) + '/../../../lib'
+require 'rubygems'
+require 'drb/drb'
+require 'rbconfig'
+require 'spec'
+
+module Spec
+  module Runner
+    class RailsSpecServer
+      def run(args, stderr, stdout)
+puts "HALLO"
+puts self
+        Dispatcher.reset_application!
+    
+        $context_runner = OptionParser.create_context_runner(args, false, stderr, stdout)
+        args.each do |file_or_dir|
+          if File.directory?(file_or_dir)
+            Dir["#{file_or_dir}/**/*.rb"].each do |file| 
+              load file
+            end
+          else
+            load file_or_dir
+          end
+        end
+        $context_runner.run(false) unless args.empty?
+      end
+    end
+  end
+end
+puts "Loading Rails environment"
+
+ENV["RAILS_ENV"] = "test"
+require File.dirname(__FILE__) + '/../config/environment'
+Dependencies.mechanism = :load
+
+def restart_test_server
+  puts "restarting"
+  config       = ::Config::CONFIG
+  ruby         = File::join(config['bindir'], config['ruby_install_name']) + config['EXEEXT']
+  command_line = [ruby, $0, ARGV].flatten.join(' ')
+  exec(command_line)
+end  
+
+trap("USR2") { restart_test_server }
+puts "Ready"
+DRb.start_service("druby://localhost:8989", Spec::Runner::RailsSpecServer.new)
+DRb.thread.join

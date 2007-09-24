@@ -1,0 +1,166 @@
+/* Copyright (c) 2003-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information.
+   
+   Authors: David Ascher, Shane Caraveo
+   
+*/
+
+#include "nsISupports.idl"
+
+#include "koIFileEx.idl"
+#include "koIDocument.idl"
+
+#include "ISciMoz.idl"
+
+#include "koIPrefs.idl"
+
+/*
+
+See specs/tech/views.txt for the motivation.
+
+The following interfaces are defined:
+ - koIView
+ - koIViewList
+
+Unresolved issues:
+
+ -- Interactions with the GUI Builder service (or with other similar
+    external 'file' managers.
+
+*/
+
+// forward declarations
+interface koIView;
+
+/*
+  koIViewList is a list of koIViewList's.  It manages the notion
+  of a current view in a list, and allows iteration and traversal
+  over all of the viewlists (or views) in a koIViewList.
+*/
+[scriptable, uuid(86259E00-5910-42E3-9C39-C7828A563046)]
+interface koIViewList : nsISupports
+{
+    koIView createViewFromDocument(in koIDocument document, in wstring type);
+    koIView findViewForDocument(in koIDocument document);
+
+    attribute koIView topView;
+
+    attribute koIView currentView;
+    void makeNextViewCurrent();
+    void makePreviousViewCurrent();
+    // Note: The "URI" will *not* be translated by the mapped URI functionality.
+    koIView newViewFromURI(in wstring URI, in string type);
+
+    // Getting views. The following methods return a list of views matching
+    // given criteria. By default only the viewlist's immediate views will
+    // be returned.
+    //
+    //      "recursive" is a boolean indicating if the child views of this
+    //          viewlist's views should be included. This is only meaningful
+    //          for viewlists that hold viewlists. For example, Komodo's
+    //          gViewMgr.topView is a "multiview" viewlist that holds two
+    //          "tabbed" viewlists that themselves hold views.
+    //      "type" is a string indicating the view type, e.g. "editor",
+    //          "tabbed". Leaving this blank (or null) means to include all
+    //          view types.
+    //      "uri" is a string indicating the URI of the document for the view.
+    //
+    // Note: Viewlists are currently implemented in JS. Return lists through
+    //       XPCOM from JS painful (must use list and count objects and
+    //       assign to their .value attr, cannot use return semantics),
+    //       therefore each of the following methods is appended with an 'X'
+    //       (for XPCOM or cross-language or whatever). There are non-X
+    //       versions for simplified calling from JavaScript code.
+    void getViewsX(in boolean recursive,
+                   [array, size_is(count)] out koIView views,
+                   out PRUint32 count);
+    void getViewsByTypeX(in boolean recursive,
+                         in wstring type,
+                         [array, size_is(count)] out koIView views,
+                         out PRUint32 count);
+    void getViewsByTypeAndURIX(in boolean recursive,
+                               in wstring type,
+                               in wstring uri,
+                               [array, size_is(count)] out koIView views,
+                               out PRUint32 count);
+};
+
+/*
+  koIView is the representation of a view on a particular
+  koIDocument.  There may be multiple views of a given document. 
+*/
+[scriptable, uuid(CFA83607-094F-4FF8-937E-2BE52E338EB9)]
+interface koIView : koIViewList
+{
+    attribute koIDocument document;
+    attribute koIViewList parentView;
+    void makeCurrent(in boolean doNotGrabFocus);
+    readonly attribute boolean isCurrent;
+    void setFocus();
+    void close(); // this will decrease the refcount on the document
+    void saveAs(in wstring URI); // XXX review signature
+    void gotoLine(in long lineNo);
+    void printView(); // 'print' is a python keyword :(
+    attribute koIPreferenceSet prefs;
+    attribute koILanguage languageObj;
+};
+
+interface koIScintillaScheme;
+
+[scriptable, uuid(C7166644-0E65-41DF-9CB5-C317ECFA33AF)]
+interface koIScintillaView : koIView
+{
+    attribute wstring selection;
+    attribute long transientMark;
+    void rotateTransientMarkRing();
+    attribute string encoding;
+    attribute boolean alternateFaceType;
+    attribute ISciMoz scimoz;
+    attribute koIScintillaScheme scheme;
+    void setFoldStyle(in long whichMargin, in wstring foldStyle);
+};
+
+[scriptable, uuid(D10DFEB9-D312-49B9-A180-20A89EF47DE6)]
+interface koIBrowserView : koIView
+{
+
+};
+
+[scriptable, uuid(EB87167B-163A-4F34-8605-C134B07FA586)]
+interface koIXULView : koIView
+{
+
+};
+
+[scriptable, uuid(139B47D9-014C-463b-826C-DEC33F7E157A)]
+interface koIStartPageView : koIView
+{
+
+};
+
+[scriptable, uuid(4F4EFA9D-DE1C-472C-B067-67B9B81F8720)]
+interface koIBookmarkableView : nsISupports
+{
+    void addBookmark(in long lineNo);
+    void removeBookmark(in long lineNo);
+    void removeAllBookmarks();
+    void hasBookmark(in long lineNo);
+};
+
+
+[scriptable, uuid(CB7148A2-F1EA-4533-9C5A-3285246A7441)]
+interface koIBreakpointableView : nsISupports
+{
+    void addBreakpoint(in long lineNo);
+    void removeBreakpoint(in long lineNo);
+    void hasBreakpoint(in long lineNo);
+};
+
+[scriptable, uuid(72511F7E-D0FF-4DA8-902F-7224A4B82309)]
+interface koIFoldableView : nsISupports
+{
+    void fold(in long lineNo);
+    void unfold(in long lineNo);
+    void getFoldState(in long lineNo);
+};
+

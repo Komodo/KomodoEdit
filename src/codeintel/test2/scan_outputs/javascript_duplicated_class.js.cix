@@ -1,0 +1,16 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_duplicated_class.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_duplicated_class.js" src="scan_inputs/javascript_duplicated_class.js">
+      <scope classrefs="Casper.UnitTest.TestCaseSerialClass" ilk="class" line="4" lineend="12" name="test_keybindings_bindings">
+        <scope attributes="__ctor__" ilk="function" line="4" lineend="6" name="test_keybindings_bindings" signature="test_keybindings_bindings()">
+          <variable citdl="test_keybindings_bindings" name="this" />
+        </scope>
+        <scope ilk="function" line="9" lineend="12" name="setup" signature="setup()">
+          <variable citdl="test_keybindings_bindings" name="this" />
+          <variable attributes="__local__ private" citdl="this" line="11" name="self" />
+        </scope>
+        <variable citdl="gKeybindingMgr.evalCommand" line="10" name="_evalCommand" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

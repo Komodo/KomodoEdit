@@ -1,0 +1,787 @@
+Index: layout/generic/nsObjectFrame.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/layout/generic/nsObjectFrame.cpp,v
+retrieving revision 1.506
+diff -d -u -r1.506 nsObjectFrame.cpp
+--- layout/generic/nsObjectFrame.cpp	8 Jun 2005 23:42:10 -0000	1.506
++++ layout/generic/nsObjectFrame.cpp	30 Jun 2005 01:41:10 -0000
+@@ -863,8 +863,15 @@
+   return NS_OK;
+ }
+ 
+-#define EMBED_DEF_WIDTH 240
+-#define EMBED_DEF_HEIGHT 200
++/*
++XXX ActiveState
++    these settings prevent scintilla from getting any smaller
++    than this.
++ #define EMBED_DEF_WIDTH 240
++ #define EMBED_DEF_HEIGHT 200
++*/
++#define EMBED_DEF_WIDTH 20
++#define EMBED_DEF_HEIGHT 20
+ 
+ void
+ nsObjectFrame::GetDesiredSize(nsPresContext* aPresContext,
+@@ -3464,12 +3593,13 @@
+ 
+ nsresult nsPluginInstanceOwner::DispatchFocusToPlugin(nsIDOMEvent* aFocusEvent)
+ {
+-#if !(defined(XP_MAC) || defined(XP_MACOSX))
++// ACTIVESTATE this fixes mousedown focus problems (bug 41310)
++//#if !(defined(XP_MAC) || defined(XP_MACOSX))
+   if (!mPluginWindow || nsPluginWindowType_Window == mPluginWindow->type) {
+     // continue only for cases without child window
+     return aFocusEvent->PreventDefault(); // consume event
+   }
+-#endif
++//#endif
+ 
+   nsCOMPtr<nsIPrivateDOMEvent> privateEvent(do_QueryInterface(aFocusEvent));
+   if (privateEvent) {
+@@ -3599,16 +3606,23 @@
+ /*=============== nsIKeyListener ======================*/
+ nsresult nsPluginInstanceOwner::KeyDown(nsIDOMEvent* aKeyEvent)
+ {
+-  return DispatchKeyToPlugin(aKeyEvent);
++  return NS_OK;
++  // ActiveState: Hacks for plugin focus issues
++  //return DispatchKeyToPlugin(aKeyEvent);
+ }
+ 
+ nsresult nsPluginInstanceOwner::KeyUp(nsIDOMEvent* aKeyEvent)
+ {
+-  return DispatchKeyToPlugin(aKeyEvent);
++  return NS_OK;
++  // ActiveState: Hacks for plugin focus issues
++  //return DispatchKeyToPlugin(aKeyEvent);
+ }
+ 
+ nsresult nsPluginInstanceOwner::KeyPress(nsIDOMEvent* aKeyEvent)
+ {
++  // ActiveState: Hacks for plugin focus issues
++  return NS_OK;
++  /*
+ #if defined(XP_MAC) || defined(XP_MACOSX) // send KeyPress events only on Mac
+ 
+   // KeyPress events are really synthesized keyDown events.
+@@ -3652,12 +3666,14 @@
+   }
+   return NS_OK;
+ #endif
++  */
+ }
+ 
+ nsresult nsPluginInstanceOwner::DispatchKeyToPlugin(nsIDOMEvent* aKeyEvent)
+ {
+ #if !(defined(XP_MAC) || defined(XP_MACOSX))
+-  if (!mPluginWindow || nsPluginWindowType_Window == mPluginWindow->type)
++// ACTIVESTATE - we want this event, even though we *are* nsPluginWindowType_Window
++  if (!mPluginWindow /*|| nsPluginWindowType_Window == mPluginWindow->type*/)
+     return aKeyEvent->PreventDefault(); // consume event
+   // continue only for cases without child window
+ #endif
+@@ -3693,7 +3709,8 @@
+ nsPluginInstanceOwner::MouseMove(nsIDOMEvent* aMouseEvent)
+ {
+ #if !(defined(XP_MAC) || defined(XP_MACOSX))
+-  if (!mPluginWindow || nsPluginWindowType_Window == mPluginWindow->type)
++// ACTIVESTATE - we want this event, even though we *are* nsPluginWindowType_Window
++  if (!mPluginWindow /* || nsPluginWindowType_Window == mPluginWindow->type */)
+     return aMouseEvent->PreventDefault(); // consume event
+   // continue only for cases without child window
+ #endif
+@@ -3725,8 +3742,9 @@
+ nsPluginInstanceOwner::MouseDown(nsIDOMEvent* aMouseEvent)
+ {
+ #if !(defined(XP_MAC) || defined(XP_MACOSX))
+-  if (!mPluginWindow || nsPluginWindowType_Window == mPluginWindow->type)
+-    return aMouseEvent->PreventDefault(); // consume event
++// ACTIVESTATE - we want this event, even though we *are* nsPluginWindowType_Window
++  if (!mPluginWindow /* || nsPluginWindowType_Window == mPluginWindow->type */)
++    return aMouseEvent->PreventDefault(); // consume event
+   // continue only for cases without child window
+ #endif
+ 
+@@ -3796,11 +3814,14 @@
+ nsresult nsPluginInstanceOwner::DispatchMouseToPlugin(nsIDOMEvent* aMouseEvent)
+ {
+ #if !(defined(XP_MAC) || defined(XP_MACOSX))
+-  if (!mPluginWindow || nsPluginWindowType_Window == mPluginWindow->type)
++// ACTIVESTATE - we want this event, even though we *are* nsPluginWindowType_Window
++  if (!mPluginWindow /* || nsPluginWindowType_Window == mPluginWindow->type */)
+     return aMouseEvent->PreventDefault(); // consume event
+   // continue only for cases without child window
+ #endif
+ 
++#if !defined(XP_UNIX) || defined(XP_MACOSX)
++
+   // don't send mouse events if we are hiddden
+   if (!mWidgetVisible)
+     return NS_OK;
+@@ -3824,7 +3845,7 @@
+     else NS_ASSERTION(PR_FALSE, "nsPluginInstanceOwner::DispatchMouseToPlugin failed, mouseEvent null");   
+   }
+   else NS_ASSERTION(PR_FALSE, "nsPluginInstanceOwner::DispatchMouseToPlugin failed, privateEvent null");   
+-  
++#endif
+   return NS_OK;
+ }
+ 
+Index: widget/src/gtk/nsGtkEventHandler.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk/nsGtkEventHandler.cpp,v
+retrieving revision 1.190
+diff -d -u -r1.190 nsGtkEventHandler.cpp
+--- widget/src/gtk/nsGtkEventHandler.cpp	28 Apr 2005 23:48:14 -0000	1.190
++++ widget/src/gtk/nsGtkEventHandler.cpp	30 Jun 2005 01:41:10 -0000
+@@ -64,7 +64,7 @@
+ //#define DEBUG_MOVE
+ 
+ static void
+-dispatch_superwin_event(GdkEvent *event, nsWindow *window);
++dispatch_superwin_event(GdkEvent *event, nsWindow *window, PRBool grabok = PR_TRUE);
+ 
+ static PRBool
+ gdk_window_child_of_gdk_window(GdkWindow *window, GdkWindow *ancestor);
+@@ -726,6 +726,13 @@
+       rewriteEvent = PR_TRUE;
+     }
+ 
++    PRBool grabok = PR_TRUE;
++    if (event->type > 30) {
++    //  printf("handle_gdk_event, event from plugin\n");
++      (int)event->type -= 30;
++      rewriteEvent = PR_FALSE;
++      grabok = PR_FALSE;
++    }
+ 
+     // There are a lot of events that are always dispatched to our
+     // internal handler, no matter if there is a grab or not.
+@@ -768,7 +775,7 @@
+ 
+         // Otherwise, just send it to our event handler
+         if (GTK_WIDGET_IS_SENSITIVE(owningWidget))
+-          dispatch_superwin_event(event, window);
++          dispatch_superwin_event(event, window, grabok);
+         break;
+ 
+       case GDK_MOTION_NOTIFY:
+@@ -785,7 +792,7 @@
+         }
+ 
+         if (GTK_WIDGET_IS_SENSITIVE(owningWidget))
+-          dispatch_superwin_event(event, window);
++          dispatch_superwin_event(event, window, grabok);
+         break;
+ 
+       case GDK_ENTER_NOTIFY:
+@@ -854,6 +861,34 @@
+           goto end;
+         }
+       }
++    } else {
++      GtkWidget *grabWidget = gtk_grab_get_current();
++      if (grabWidget)
++        switch (event->type) {
++        case GDK_MOTION_NOTIFY:
++        case GDK_BUTTON_RELEASE:
++        case GDK_PROXIMITY_IN:
++        case GDK_PROXIMITY_OUT:
++          {
++            gdk_window_unref(event->any.window);
++            event->any.window = grabWidget->window;
++            gdk_window_ref(event->any.window);
++            //          gtk_propagate_event(grabWidget, event)
++
++            gpointer data = NULL;
++            gdk_window_get_user_data(event->any.window, &data);
++
++            if (data && GTK_IS_OBJECT(data)) {
++              gpointer nswin = NULL;
++              nswin = gtk_object_get_data(GTK_OBJECT(data), "nsWindow");
++              if (nswin)
++                dispatch_superwin_event(event, (nsWindow*)nswin);
++            }
++          }
++          break;
++        default:
++          break;
++        }
+     }
+ 
+     gtk_main_do_event(event);
+@@ -881,7 +916,7 @@
+ }
+ 
+ void
+-dispatch_superwin_event(GdkEvent *event, nsWindow *window)
++dispatch_superwin_event(GdkEvent *event, nsWindow *window, PRBool grabok)
+ {
+   if (event->type == GDK_KEY_PRESS || event->type == GDK_KEY_RELEASE)
+   {
+@@ -910,7 +945,7 @@
+     handle_key_release_event (NULL, &event->key, window);
+     break;
+   default:
+-    window->HandleGDKEvent (event);
++    window->HandleGDKEvent (event, grabok);
+     break;
+   }
+ }
+Index: widget/src/gtk/nsWidget.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk/nsWidget.cpp,v
+retrieving revision 1.311
+diff -d -u -r1.311 nsWidget.cpp
+--- widget/src/gtk/nsWidget.cpp	28 Apr 2005 23:48:14 -0000	1.311
++++ widget/src/gtk/nsWidget.cpp	30 Jun 2005 01:41:10 -0000
+@@ -194,8 +194,8 @@
+ {
+   if (sButtonMotionTarget) {
+     GtkWidget *owningWidget = sButtonMotionTarget->GetOwningWidget();
+-    if (owningWidget)
+-      gtk_grab_remove(owningWidget);
++    //if (owningWidget)
++    //  gtk_grab_remove(owningWidget);
+ 
+     sButtonMotionTarget = nsnull;
+   }
+@@ -246,6 +246,7 @@
+     // It is most convenient for us to intercept our events after
+     // they have been converted to GDK, but before GTK+ gets them
+     gdk_event_handler_set (handle_gdk_event, NULL, NULL);
++    gtk_mozbox_event_handler_set(handle_gdk_event);
+   }
+   if (sTimeCBSet == PR_FALSE) {
+     sTimeCBSet = PR_TRUE;
+@@ -1875,7 +1876,7 @@
+ 
+ //////////////////////////////////////////////////////////////////////
+ /* virtual */ void
+-nsWidget::OnButtonPressSignal(GdkEventButton * aGdkButtonEvent)
++nsWidget::OnButtonPressSignal(GdkEventButton * aGdkButtonEvent, PRBool grabok)
+ {
+   nsMouseScrollEvent scrollEvent(PR_TRUE, NS_MOUSE_SCROLL, this);
+   PRUint32 eventType = 0;
+@@ -1966,10 +1967,12 @@
+ 
+   // Make sure to add this widget to the gtk grab list so that events
+   // are rewritten to this window.
+-  GtkWidget *owningWidget;
+-  owningWidget = GetOwningWidget();
+-  if (owningWidget)
+-    gtk_grab_add(owningWidget);
++  if (grabok) {
++    GtkWidget *owningWidget;
++    owningWidget = GetOwningWidget();
++    // if (owningWidget)
++    //  gtk_grab_add(owningWidget);
++  }
+ 
+   sButtonMotionRootX = (gint) aGdkButtonEvent->x_root;
+   sButtonMotionRootY = (gint) aGdkButtonEvent->y_root;
+@@ -1995,7 +1998,7 @@
+ }
+ //////////////////////////////////////////////////////////////////////
+ /* virtual */ void
+-nsWidget::OnButtonReleaseSignal(GdkEventButton * aGdkButtonEvent)
++nsWidget::OnButtonReleaseSignal(GdkEventButton * aGdkButtonEvent, PRBool grabok)
+ {
+   PRUint32 eventType = 0;
+ 
+@@ -2045,7 +2048,10 @@
+ 
+   // Drop the motion target before dispatching the event so that we
+   // don't get events that we shouldn't.
+-  DropMotionTarget();
++  if (grabok)
++    DropMotionTarget();
++  else
++    sButtonMotionTarget = nsnull;
+ 
+   // event.widget can get set to null when calling DispatchMouseEvent,
+   // so to release it we must make a copy
+@@ -2055,6 +2061,18 @@
+   theWidget->DispatchMouseEvent(event);
+   NS_IF_RELEASE(theWidget);
+ 
++#if 0
++  /* hack */
++  GtkWidget *grab_widget = gtk_grab_get_current();
++  if (grab_widget) {
++    /* dispatch this event back to the plugin so that it can release its grab */
++    gdk_window_unref(aGdkButtonEvent->window);
++    aGdkButtonEvent->window = grab_widget->window;
++    gdk_window_ref(aGdkButtonEvent->window);
++
++    gtk_propagate_event(grab_widget, (GdkEvent*)aGdkButtonEvent);
++  }
++#endif
+ }
+ //////////////////////////////////////////////////////////////////////
+ /* virtual */ void
+Index: widget/src/gtk/nsWidget.h
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk/nsWidget.h,v
+retrieving revision 1.137
+diff -d -u -r1.137 nsWidget.h
+--- widget/src/gtk/nsWidget.h	7 Apr 2005 04:19:03 -0000	1.137
++++ widget/src/gtk/nsWidget.h	30 Jun 2005 01:41:10 -0000
+@@ -301,8 +301,8 @@
+   virtual void OnMotionNotifySignal(GdkEventMotion * aGdkMotionEvent);
+   virtual void OnEnterNotifySignal(GdkEventCrossing * aGdkCrossingEvent);
+   virtual void OnLeaveNotifySignal(GdkEventCrossing * aGdkCrossingEvent);
+-  virtual void OnButtonPressSignal(GdkEventButton * aGdkButtonEvent);
+-  virtual void OnButtonReleaseSignal(GdkEventButton * aGdkButtonEvent);
++  virtual void OnButtonPressSignal(GdkEventButton * aGdkButtonEvent, PRBool grabok = PR_TRUE);
++  virtual void OnButtonReleaseSignal(GdkEventButton * aGdkButtonEvent, PRBool grabok = PR_TRUE);
+   virtual void OnFocusInSignal(GdkEventFocus * aGdkFocusEvent);
+   virtual void OnFocusOutSignal(GdkEventFocus * aGdkFocusEvent);
+   virtual void OnRealize(GtkWidget *aWidget);
+Index: widget/src/gtk/nsWindow.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk/nsWindow.cpp,v
+retrieving revision 1.448
+diff -d -u -r1.448 nsWindow.cpp
+--- widget/src/gtk/nsWindow.cpp	16 Jun 2005 02:52:56 -0000	1.448
++++ widget/src/gtk/nsWindow.cpp	30 Jun 2005 01:41:10 -0000
+@@ -1642,29 +1642,35 @@
+ 
+ //////////////////////////////////////////////////////////////////////
+ /* virtual */ void
+-nsWindow::OnButtonPressSignal(GdkEventButton *aGdkButtonEvent)
++nsWindow::OnButtonPressSignal(GdkEventButton *aGdkButtonEvent, PRBool grabok)
+ {
+   // This widget has gotten a button press event.  If there's a rollup
+   // widget and we're not inside of a popup window we should pop up
+   // the rollup widget.  Also, if the event is our event but it
+   // happens outside of the bounds of the window we should roll up as
+   // well.
+-  if (gRollupWidget && ((GetOwningWindowType() != eWindowType_popup) ||
+-                        (mSuperWin->bin_window == aGdkButtonEvent->window &&
+-                         !ButtonEventInsideWindow(aGdkButtonEvent->window,
+-                                                  aGdkButtonEvent)))) {
++  nsWindowType type = GetOwningWindowType();
++
++  if (gRollupWidget && 
++      ((type != eWindowType_popup ||
++       (mSuperWin->bin_window == aGdkButtonEvent->window &&
++        !ButtonEventInsideWindow(aGdkButtonEvent->window, aGdkButtonEvent)))
++       ||
++       (type == eWindowType_popup &&
++        mSuperWin->bin_window != aGdkButtonEvent->window))) {
++
+     gRollupListener->Rollup();
+     gRollupWidget = nsnull;
+     gRollupListener = nsnull;
+     return;
+   }
+ 
+-  nsWidget::OnButtonPressSignal(aGdkButtonEvent);
++  nsWidget::OnButtonPressSignal(aGdkButtonEvent, grabok);
+ }
+ 
+ //////////////////////////////////////////////////////////////////////
+ /* virtual */ void
+-nsWindow::OnButtonReleaseSignal(GdkEventButton *aGdkButtonEvent)
++nsWindow::OnButtonReleaseSignal(GdkEventButton *aGdkButtonEvent, PRBool grabok)
+ {
+   // we only dispatch this event if there's a button motion target or
+   // if it's happening inside of a popup window while there is a
+@@ -1673,7 +1679,7 @@
+       (gRollupWidget && GetOwningWindowType() != eWindowType_popup)) {
+     return;
+   }
+-  nsWidget::OnButtonReleaseSignal(aGdkButtonEvent);
++  nsWidget::OnButtonReleaseSignal(aGdkButtonEvent, grabok);
+ }
+ 
+ //////////////////////////////////////////////////////////////////////
+@@ -1739,7 +1745,7 @@
+ 
+ 
+ void 
+-nsWindow::HandleGDKEvent(GdkEvent *event)
++nsWindow::HandleGDKEvent(GdkEvent *event, PRBool grabok)
+ {
+   if (mIsDestroying)
+     return;
+@@ -1755,10 +1761,10 @@
+   case GDK_BUTTON_PRESS:
+   case GDK_2BUTTON_PRESS:
+   case GDK_3BUTTON_PRESS:
+-    OnButtonPressSignal (&event->button);
++    OnButtonPressSignal (&event->button, grabok);
+     break;
+   case GDK_BUTTON_RELEASE:
+-    OnButtonReleaseSignal (&event->button);
++    OnButtonReleaseSignal (&event->button, grabok);
+     break;
+   case GDK_ENTER_NOTIFY:
+     if(is_parent_ungrab_enter(&event->crossing))
+@@ -2123,7 +2129,8 @@
+                            GDK_ENTER_NOTIFY_MASK |
+                            GDK_LEAVE_NOTIFY_MASK |
+                            GDK_STRUCTURE_MASK | 
+-                           GDK_FOCUS_CHANGE_MASK );
++                            GDK_FOCUS_CHANGE_MASK);
++
+     gdk_window_set_events(mMozArea->window, 
+                           mask);
+     gtk_signal_connect(GTK_OBJECT(mMozArea),
+@@ -3149,6 +3156,28 @@
+   return window->OnDragMotionSignal(aWidget, aDragContext, aX, aY, aTime, aData);
+ }
+ 
++static nsWindow *
++GetFirstnsWindowParent (XID window)
++{
++  GdkWindow *tmpWindow;
++  /* look for a parent GtkWindow in the heirarchy */
++  tmpWindow = gdk_window_lookup(window);
++  while (tmpWindow) {
++    gpointer data = NULL;
++    gdk_window_get_user_data(tmpWindow, &data);
++
++    if (data && GTK_IS_OBJECT(data)) {
++      gpointer nswin = NULL;
++      nswin = gtk_object_get_data(GTK_OBJECT(data), "nsWindow");
++      if (nswin)
++        return (nsWindow*)nswin;
++    }
++
++    tmpWindow = gdk_window_get_parent(tmpWindow);
++  }
++  return NULL;
++}
++
+ gint nsWindow::OnDragMotionSignal      (GtkWidget *      aWidget,
+                                         GdkDragContext   *aDragContext,
+                                         gint             aX,
+@@ -3182,8 +3211,11 @@
+   nsWindow *innerMostWidget = NULL;
+   innerMostWidget = GetnsWindowFromXWindow(returnWindow);
+ 
+-  if (!innerMostWidget)
+-    innerMostWidget = this;
++  if (!innerMostWidget) {
++    innerMostWidget = GetFirstnsWindowParent(returnWindow);
++    if (!innerMostWidget)
++      innerMostWidget = this;
++  }
+ 
+   // check to see if there was a drag motion window already in place
+   if (mLastDragMotionWindow) {
+@@ -3317,8 +3349,11 @@
+   // set this now before any of the drag enter or leave events happen
+   dragSessionGTK->TargetSetLastContext(aWidget, aDragContext, aTime);
+ 
+-  if (!innerMostWidget)
+-    innerMostWidget = this;
++  if (!innerMostWidget) {
++    innerMostWidget = GetFirstnsWindowParent(returnWindow);
++    if (!innerMostWidget)
++      innerMostWidget = this;
++  }
+ 
+   // check to see if there was a drag motion window already in place
+   if (mLastDragMotionWindow) {
+Index: widget/src/gtk/nsWindow.h
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk/nsWindow.h,v
+retrieving revision 1.143
+diff -d -u -r1.143 nsWindow.h
+--- widget/src/gtk/nsWindow.h	16 Jun 2005 02:53:00 -0000	1.143
++++ widget/src/gtk/nsWindow.h	30 Jun 2005 01:41:10 -0000
+@@ -141,13 +141,13 @@
+   virtual void         OnMotionNotifySignal(GdkEventMotion *aGdkMotionEvent);
+   virtual void         OnEnterNotifySignal(GdkEventCrossing *aGdkCrossingEvent);
+   virtual void         OnLeaveNotifySignal(GdkEventCrossing *aGdkCrossingEvent);
+-  virtual void         OnButtonPressSignal(GdkEventButton *aGdkButtonEvent);
+-  virtual void         OnButtonReleaseSignal(GdkEventButton *aGdkButtonEvent);
++  virtual void         OnButtonPressSignal(GdkEventButton *aGdkButtonEvent, PRBool grabok = PR_TRUE);
++  virtual void         OnButtonReleaseSignal(GdkEventButton *aGdkButtonEvent, PRBool grabok = PR_TRUE);
+   virtual void         OnFocusInSignal(GdkEventFocus * aGdkFocusEvent);
+   virtual void         OnFocusOutSignal(GdkEventFocus * aGdkFocusEvent);
+   virtual void         InstallFocusInSignal(GtkWidget * aWidget);
+   virtual void         InstallFocusOutSignal(GtkWidget * aWidget);
+-  void                 HandleGDKEvent(GdkEvent *event);
++  void                 HandleGDKEvent(GdkEvent *event, PRBool grabok = PR_TRUE);
+ 
+   gint                 ConvertBorderStyles(nsBorderStyle bs);
+ 
+Index: widget/src/gtksuperwin/gtkmozbox.c
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtksuperwin/gtkmozbox.c,v
+retrieving revision 1.4
+diff -d -u -r1.4 gtkmozbox.c
+--- widget/src/gtksuperwin/gtkmozbox.c	18 Apr 2004 22:00:17 -0000	1.4
++++ widget/src/gtksuperwin/gtkmozbox.c	30 Jun 2005 01:41:10 -0000
+@@ -41,17 +41,41 @@
+ #include <gtk/gtkmain.h>
+ #include <X11/Xlib.h>
+ 
+-static void            gtk_mozbox_class_init      (GtkMozBoxClass *klass);
+-static void            gtk_mozbox_init            (GtkMozBox      *mozbox);
+-static void            gtk_mozbox_realize         (GtkWidget      *widget);
+-static void            gtk_mozbox_set_focus       (GtkWindow      *window,
+-                                                   GtkWidget      *focus);
+-static gint            gtk_mozbox_key_press_event (GtkWidget   *widget,
+-                                                   GdkEventKey *event);
+-static GdkFilterReturn gtk_mozbox_filter          (GdkXEvent      *xevent,
+-                                                   GdkEvent       *event,
+-                                                   gpointer        data);
+-static GtkWindow *     gtk_mozbox_get_parent_gtkwindow (GtkMozBox *mozbox);
++#include "gdksuperwin.h"
++
++static void            gtk_mozbox_class_init          (GtkMozBoxClass *klass);
++static void            gtk_mozbox_init                (GtkMozBox      *mozbox);
++static void            gtk_mozbox_realize             (GtkWidget      *widget);
++static void            gtk_mozbox_set_focus           (GtkWindow      *window,
++                                                       GtkWidget      *focus);
++
++static gint            gtk_mozbox_key_press_event     (GtkWidget   *widget,
++                                                       GdkEventKey *event);
++static gint            gtk_mozbox_key_release_event   (GtkWidget   *widget,
++                                                       GdkEventKey *event);
++static gint            gtk_mozbox_button_events       (GtkWidget      *widget,
++                                                       GdkEventButton *event);
++static gint            gtk_mozbox_motion_notify_event (GtkWidget      *widget,
++                                                       GdkEventMotion *event);
++static gint            gtk_mozbox_notify_events       (GtkWidget      *widget,
++                                                       GdkEventCrossing *event);
++static gint            gtk_mozbox_focus_events        (GtkWidget      *widget,
++                                                       GdkEventFocus  *event);
++
++static GdkFilterReturn gtk_mozbox_filter              (GdkXEvent      *xevent,
++                                                       GdkEvent       *event,
++                                                       gpointer        data);
++static GtkWindow *     gtk_mozbox_get_parent_gtkwindow(GtkMozBox *mozbox);
++static GtkObject *     gtk_mozbox_get_parent_nswindow (GtkMozBox *mozbox);
++
++static GdkEventFunc app_event_func = NULL;
++
++void
++gtk_mozbox_event_handler_set (GdkEventFunc func) 
++{
++  app_event_func = func;
++}
++
+ 
+ void (*parent_class_set_focus)(GtkWindow *, GtkWidget *);
+ 
+@@ -89,8 +113,17 @@
+   widget_class = GTK_WIDGET_CLASS (klass);
+   window_class = GTK_WINDOW_CLASS (klass);
+ 
+-  widget_class->realize         = gtk_mozbox_realize;
+-  widget_class->key_press_event = gtk_mozbox_key_press_event;
++  widget_class->realize             = gtk_mozbox_realize;
++  widget_class->key_press_event     = gtk_mozbox_key_press_event;
++  widget_class->key_release_event   = gtk_mozbox_key_release_event;
++
++  widget_class->button_press_event  = gtk_mozbox_button_events;
++  widget_class->button_release_event= gtk_mozbox_button_events;
++  widget_class->motion_notify_event = gtk_mozbox_motion_notify_event;
++  widget_class->enter_notify_event = gtk_mozbox_notify_events;
++  widget_class->leave_notify_event = gtk_mozbox_notify_events;
++  widget_class->focus_in_event = gtk_mozbox_focus_events;
++  widget_class->focus_out_event = gtk_mozbox_focus_events;
+ 
+   /* save the parent class' set_focus method */
+   parent_class_set_focus = window_class->set_focus;
+@@ -131,12 +164,14 @@
+   attributes.visual = gtk_widget_get_visual (widget);
+   attributes.colormap = gtk_widget_get_colormap (widget);
+   attributes.event_mask = gtk_widget_get_events (widget);
+-  attributes.event_mask |= GDK_EXPOSURE_MASK;
++  attributes.event_mask |= GDK_EXPOSURE_MASK | GDK_VISIBILITY_NOTIFY_MASK;
+   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
+ 
+   widget->window = gdk_window_new (mozbox->parent_window,
+ 				   &attributes, attributes_mask);
+ 
++  gdk_window_set_title(widget->window, "mozbox");
++
+   /* set the back pixmap to None so that you don't end up with the gtk
+      default which is BlackPixel */
+   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+@@ -174,36 +209,106 @@
+ 
+ }
+ 
+-static gint
+-gtk_mozbox_key_press_event (GtkWidget   *widget,
+-                            GdkEventKey *event)
++extern void handle_gdk_event (GdkEvent *event, gpointer data);
++
++static void
++gtk_mozbox_send_event_to_parent (GtkWidget   *widget,
++                                  GdkEvent    *event)
+ {
+-  GtkWindow *window;
+   GtkMozBox *mozbox;
+-  GtkWindow *parentWindow;
+-  gboolean   handled = FALSE;
+-
+-  window = GTK_WINDOW (widget);
++  GtkObject *target;
++  GdkSuperWin *superwin;
++  
+   mozbox = GTK_MOZBOX (widget);
+ 
+-  parentWindow = gtk_mozbox_get_parent_gtkwindow(mozbox);
++  target = gtk_mozbox_get_parent_nswindow(mozbox);
++  if (!target)
++    return;
++
++  superwin = GDK_SUPERWIN(target);
++
++  gdk_window_unref(event->any.window);
++  event->any.window = superwin->bin_window;
++  gdk_window_ref(event->any.window);
+ 
+   /* give the focus window the chance to handle the event first. */
+-  if (parentWindow && parentWindow->focus_widget) {
+-    handled = gtk_widget_event (parentWindow->focus_widget, (GdkEvent*) event);
++  switch(event->type) {
++    /*
++  case GDK_MOTION_NOTIFY:
++  case GDK_BUTTON_RELEASE:
++    {
++      GtkWidget *grab_widget = gtk_grab_get_current();
++      if (grab_widget) {
++          gtk_propagate_event(grab_widget, event);
++          break;
++      }
++    }
++    */
++  default:
++    /*  gdk_event_put(event); */
++    event->type += 30;
++    (*app_event_func)(event, NULL);
++    break;
+   }
+ 
+-  /* pass it off to the parent widget */
+-  if (!handled) {
+-    gdk_window_unref(event->window);
+-    event->window = mozbox->parent_window;
+-    gdk_window_ref(event->window);
+-    gdk_event_put((GdkEvent *)event);
+-  }
++}
++
++
++
++static gint
++gtk_mozbox_key_press_event (GtkWidget   *widget,
++                            GdkEventKey *event)
++{
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
++  return TRUE;
++}
++
++static gint
++gtk_mozbox_key_release_event (GtkWidget   *widget,
++                            GdkEventKey *event)
++{
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
++  return TRUE;
++}
++
++static gint
++gtk_mozbox_button_events(GtkWidget      *widget,
++                         GdkEventButton *event)
++{
++  //if (event->type == GDK_BUTTON_RELEASE)
++  //  printf("mzobox_button_release\n");
++  //else
++  //  printf("mzobox_button_press\n");
++
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
++  return TRUE;
++}
++
++static gint
++gtk_mozbox_motion_notify_event (GtkWidget      *widget,
++                                GdkEventMotion *event)
++{
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
++  return TRUE;
++}
++
++static gint
++gtk_mozbox_notify_events       (GtkWidget      *widget,
++                                GdkEventCrossing *event)
++{
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
++  return TRUE;
++}
+ 
++static gint
++gtk_mozbox_focus_events        (GtkWidget      *widget,
++                                GdkEventFocus  *event)
++{
++  gtk_mozbox_send_event_to_parent(widget, (GdkEvent*)event);
+   return TRUE;
+ }
+ 
++
+ static GdkFilterReturn 
+ gtk_mozbox_filter (GdkXEvent *xevent,
+ 		   GdkEvent *event,
+@@ -222,6 +327,8 @@
+       event->configure.width = xev->xconfigure.width;
+       event->configure.height = xev->xconfigure.height;
+       return GDK_FILTER_TRANSLATE;
++    case VisibilityNotify:
++      gtk_widget_queue_draw(data);
+     default:
+       return GDK_FILTER_CONTINUE;
+     }
+@@ -244,6 +351,28 @@
+   return NULL;
+ }
+ 
++static GtkObject *
++gtk_mozbox_get_parent_nswindow (GtkMozBox *mozbox)
++{
++  GdkWindow *tmpWindow;
++  /* look for a parent GtkWindow in the heirarchy */
++  tmpWindow = mozbox->parent_window;
++  while (tmpWindow) {
++    gpointer data = NULL;
++    gdk_window_get_user_data(tmpWindow, &data);
++
++    if (data && GTK_IS_OBJECT(data)) {
++      gpointer nswin = NULL;
++      nswin = gtk_object_get_data(GTK_OBJECT(data), "nsWindow");
++      if (nswin)
++        return GTK_OBJECT(data);
++    }
++
++    tmpWindow = gdk_window_get_parent(tmpWindow);
++  }
++  return NULL;
++}
++
+ GtkWidget*
+ gtk_mozbox_new (GdkWindow *parent_window)
+ {
+Index: widget/src/gtksuperwin/gtkmozbox.h
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtksuperwin/gtkmozbox.h,v
+retrieving revision 1.3
+diff -d -u -r1.3 gtkmozbox.h
+--- widget/src/gtksuperwin/gtkmozbox.h	15 Dec 2004 05:52:42 -0000	1.3
++++ widget/src/gtksuperwin/gtkmozbox.h	30 Jun 2005 01:41:10 -0000
+@@ -74,6 +74,7 @@
+ GTKSUPERWIN_API(void)       gtk_mozbox_set_position (GtkMozBox *mozbox,
+                                                      gint       x,
+                                                      gint       y);
++GTKSUPERWIN_API(void)       gtk_mozbox_event_handler_set (GdkEventFunc func);
+ 
+ #ifdef __cplusplus
+ }

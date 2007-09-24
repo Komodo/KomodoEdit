@@ -1,0 +1,156 @@
+ElementTree
+$Id: /work/modules/celementtree/README 1128 2005-12-16T21:57:13.668520Z Fredrik  $
+
+Release 1.0.5 (December 16, 2005)
+
+====================================================================
+The cElementTree module, release 1.0.5
+====================================================================
+
+--------------------------------------------------------------------
+Introduction
+
+The cElementTree module is a C implementation of the ElementTree API.
+On typical documents, it's 15-20 times faster than the Python version
+of ElementTree, and uses 2-5 times less memory.
+
+Here are some benchmark results, using a number of popular XML tool-
+kits to parse a 3405k source file from disk to memory, on my develop-
+ment machine:
+
+    library                     memory  time
+    ------------------------------------------------------------
+    minidom (python 2.1)        80000k  6.3s
+    minidom (python 2.4)        53000k  1.4s
+    ElementTree 1.3             14500k  1.1s
+    cDomlette                   20500k  0.54s
+    pyRXPU                      10850k  0.175s
+    libxml2                     16000k  0.098s
+    cElementTree 1.0             4900k  0.047s
+    ------------------------------------------------------------
+    readlines (read as utf-8)    8850k  0.093s
+    readlines (read as ascii)    5050k  0.032s
+    ------------------------------------------------------------
+
+For more information on this module, see:
+
+    http://effbot.org/zone/celementtree.htm
+
+and 
+
+    http://effbot.org/zone/element-index.htm
+
+For detailed information about changes/fixes in this release, see the
+CHANGES document.
+
+The current version is designed to work with Python 2.1 and newer,
+with the exception of the 'iterparse' mechanism, which only works
+under Python 2.2 and later.  Earlier Python versions are not supported
+(let me know if you need support for 2.0 or 1.5.2).  For best per-
+formance, use Python 2.4 or later.
+
+Enjoy /F
+
+fredrik@pythonware.com
+http://www.pythonware.com
+
+--------------------------------------------------------------------
+Installation
+
+The cElementTree module is shipped as a distutils package.  To install
+the library, unpack the distribution archive, and issue the following
+command:
+
+    $ python setup.py install
+
+If you're using Windows, you can usually get prebuilt installers from
+the effbot.org downloads site:
+
+    http://effbot.org/downloads#celementtree
+
+The current version depends on certain support functions and classes
+from the ElementTree and ElementPath modules, so you must install the
+standard elementtree package before you can use this library.  You can
+get the elementtree distribution from:
+
+    http://effbot.org/downloads#elementtree
+
+--------------------------------------------------------------------
+Usage
+
+The cElementTree module is designed to replace the ElementTree module
+from the standard elementtree package.  In theory, you should be able
+to simply change:
+
+    from elementtree import ElementTree
+
+to
+
+    import cElementTree as ElementTree
+
+in existing code, and run your programs without any problems (note
+that cElementTree replaces the elementtree.ElementTree module, not the
+elementtree package).  Some ElementTree 1.2 features may not be fully
+supported by this release.  (Let me know if you find that something
+you rely on doesn't work as expected.)
+
+For more information on the elementtree package, see:
+
+    http://effbot.org/zone/element.htm
+
+--------------------------------------------------------------------
+ElementTree Software License
+
+The ElementTree package and the cElementTree accelerator are
+
+Copyright (c) 1999-2005 by Secret Labs AB
+Copyright (c) 1999-2005 by Fredrik Lundh
+
+By obtaining, using, and/or copying this software and/or its
+associated documentation, you agree that you have read, understood,
+and will comply with the following terms and conditions:
+
+Permission to use, copy, modify, and distribute this software and its
+associated documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appears in all
+copies, and that both that copyright notice and this permission notice
+appear in supporting documentation, and that the name of Secret Labs
+AB or the author not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.
+
+SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO
+THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+--------------------------------------------------------------------
+Expat Software License
+
+Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
+                               and Clark Cooper
+Copyright (c) 2001, 2002, 2003 Expat maintainers.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+--------------------------------------------------------------------

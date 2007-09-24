@@ -1,0 +1,169 @@
+=============================
+The sgmlop accelerator module
+=============================
+
+The sgmlop module provides an optimized SGML/XML parser, designed as
+an add-on to the sgmllib/htmllib and xmllib modules shipped with
+Python 1.5 and later.
+
+This driver is typically 5-10 times faster than the original xmllib
+implementation.  When using sgmlop's native interface, it can be more
+than 50 times faster.
+
+However, sgmlop is (by design) a very tolerant parser.  It will parse
+virtually anything into a stream of start tags, entities, end tags,
+and text sections.  If you need careful well-formedness checking, use
+expat instead.
+
+Enjoy /F
+
+fredrik@pythonware.com
+http://www.pythonware.com
+
+--------------------------------------------------------------------
+
+The sgmlop parser and associated modules and documentation are:
+
+Copyright (c) 1998-2003 by Secret Labs AB
+Copyright (c) 1998-2003 by Fredrik Lundh
+
+By obtaining, using, and/or copying this software and/or its
+associated documentation, you agree that you have read, understood,
+and will comply with the following terms and conditions:
+
+Permission to use, copy, modify, and distribute this software and its
+associated documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appears in all
+copies, and that both that copyright notice and this permission notice
+appear in supporting documentation, and that the name of Secret Labs
+AB or the author not be used in advertising or publicity pertaining to
+distribution of the software without specific, written prior
+permission.
+
+SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO
+THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+--------------------------------------------------------------------
+
+release info
+------------
+
+This is release 1.1.1 of the SGMLOP parser.  For a list of changes
+since 1.0, see the 'changes' section below.
+
+contents
+--------
+
+README          This file
+
+sgmlop.c        Accelerator source code
+
+setup.py        Build file (use "python setup.py install" to build
+                and install).
+
+*.html          Documentation
+
+sgmllib.py      Replacements for the corresponding Python modules,
+xmllib.py       modified to use sgmlop if available.  Note that these
+                modules are somewhat outdated (they're based on 1.5.1
+                sources).
+
+selftest.py     Self-test scripts
+doctest.py
+
+--------------------------------------------------------------------
+
+changes from 1.0 (latest first)
+-------------------------------
+
+(The following list may be somewhat incomplete)
+
+- Inside attribute values, character references larger than 255
+  are now passed to resolve_entityref (as '#nnnn').
+
+- Fixed segmentation violation when parsing non-ASCII character
+  entities in attribute values (reported and fixed by Jeff Chan).
+
+(1.1 released)
+
+- Fixed potential segmentation violation when parsing non-ASCII
+  character entities.
+
+(1.1 beta 2 released)
+
+- Fixed garbage support for Python 2.2 and later.  (Thanks to Neal
+  Schemenauer for pointing out the problems with the approach used
+  in 1.1 beta 1, and providing improved compatibility macros).
+
+- Fixed parsing of target-only PI's (reported by Walter Dörwald).
+
+(1.1 beta 1 released)
+
+- Added support for garbage collection, under Python 2.0 and
+  later.  Under 1.5.2, you must still make sure to call the
+  close method on all parser instances.
+
+- Changed behaviour for character references that doesn't fit
+  in an 8-bit character.  Basically, you must define a charref
+  handler (handle_charref) if you're interested in such data.
+
+(1.1 alpha 3 released)
+
+- Repaired parsing of <empty/> tags that didn't have a white-
+  space between the tag name and the slash; the non-ASCII change
+  in alpha 1 broke this, and the test suite didn't catch the bug.
+  (reported by Matthew King)
+
+(1.1 alpha 2 released)
+
+- Entities in attributes are now properly resolved.  Standard
+  entities (amp, apos, gt, lt, quot) and character entities always
+  work; other entities are mapped through the resolve_entityref
+  callback (see below).
+
+- Added brief documentation (module-sgmlop.html, sgmlop.css)
+
+(1.1 alpha 1 released)
+
+- A new callback, resolve_entityref, has been added.  This handler
+  is called for named entities if the handle_entityref callback
+  isn't defined.  This callback will also be used to resolve
+  entities in attributes.
+
+  If neither resolve_entityref or handle_entityref are defined,
+  but handle_data is defined, sgmlop generates character data for
+  the standard entities (amp, apos, gt, lt, quot).
+
+- Hexadecimal character references are now supported.
+
+- Malformed character references (&#nnn;) are treated as ordinary
+  entities, if handle_charref isn't defined.
+
+- The XML tag and entity parsers now treats all characters above
+  chr(128) as letters, independent of the current locale.  This
+  should make it easier to use sgmlop with non-ASCII characters
+  in tags.
+
+- sgmlop now resolves standard entities (apos, quot, gt, lt, amp)
+  by itself, if handle_entityref isn't defined.
+
+- SGML files containing text only wasn't properly handled.  the parser
+  never consumed the last character, not even if the 'close' method
+  was called (reported by Walter Dörwald)
+
+- Unicode strings (under 1.6) were treated as binary buffers.  In this
+  release, the parser can properly parse 16-bit strings, but the
+  callbacks get 8-bit UTF-8 strings, not true Unicode strings.  This
+  will be fixed in a future release.
+
+- The 'close' method no longer accepts an optional argument.  Use a
+  separate call to 'feed' instead.
+
+- Recursive calls to 'feed' or 'close' (from within a callback) could
+  lead to all sorts of weird problems.  This version checks for this
+  condition, and raises an AssertionError instead.

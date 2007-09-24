@@ -1,0 +1,20 @@
+# MXML UDL definition
+# 
+# Copyright (C) 2007 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# No ssl or css families here, just markup and csl
+
+language MXML
+
+namespace "http://www.macromedia.com/2003/mxml"
+# public_id "????"
+system_id "http://www.macromedia.com/2003/mxml"
+
+include "mxml/mxml2as.udl"
+
+include "mxml/as2mxml.udl"
+
+include "xml.udl"
+include "actionscript_lex.udl"

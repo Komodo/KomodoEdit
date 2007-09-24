@@ -1,0 +1,184 @@
+    <scope ilk="blob" lang="Ruby" name="zlib">
+      <scope ilk="namespace" name="Zlib">
+        <scope ilk="class" name="BufError" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="DataError" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="Deflate" mixinrefs="Kernel" classrefs="Zlib::ZStream">
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="deflate" />
+          <scope ilk="function" name="flush" />
+          <scope ilk="function" name="params" />
+          <scope ilk="function" name="set_dictionary" />
+        </scope>
+        <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+        <scope ilk="class" name="GzipFile" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="class" name="CRCError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="Zlib::Error">
+          </scope>
+          <scope ilk="class" name="LengthError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="NoFooter" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="function" name="close" />
+          <scope ilk="function" name="closed?" />
+          <scope ilk="function" name="comment" />
+          <scope ilk="function" name="crc" />
+          <scope ilk="function" name="finish" />
+          <scope ilk="function" name="level" />
+          <scope ilk="function" name="mtime" />
+          <scope ilk="function" name="orig_name" />
+          <scope ilk="function" name="os_code" />
+          <scope ilk="function" name="sync" />
+          <scope ilk="function" name="sync=" />
+          <scope ilk="function" name="to_io" />
+        </scope>
+        <scope ilk="class" name="GzipReader" mixinrefs="Enumerable Kernel" classrefs="Zlib::GzipFile">
+          <scope ilk="class" name="CRCError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="Zlib::Error">
+          </scope>
+          <scope ilk="class" name="LengthError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="NoFooter" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="function" name="all?" />
+          <scope ilk="function" name="any?" />
+          <scope ilk="function" name="collect" />
+          <scope ilk="function" name="detect" />
+          <scope ilk="function" name="each" />
+          <scope ilk="function" name="each_byte" />
+          <scope ilk="function" name="each_with_index" />
+          <scope ilk="function" name="entries" />
+          <scope ilk="function" name="eof" />
+          <scope ilk="function" name="eof?" />
+          <scope ilk="function" name="find" />
+          <scope ilk="function" name="find_all" />
+          <scope ilk="function" name="getc" />
+          <scope ilk="function" name="gets" />
+          <scope ilk="function" name="grep" />
+          <scope ilk="function" name="inject" />
+          <scope ilk="function" name="lineno" />
+          <scope ilk="function" name="lineno=" />
+          <scope ilk="function" name="map" />
+          <scope ilk="function" name="max" />
+          <scope ilk="function" name="member?" />
+          <scope ilk="function" name="min" />
+          <scope ilk="function" name="partition" />
+          <scope ilk="function" name="pos" />
+          <scope ilk="function" name="read" />
+          <scope ilk="function" name="readchar" />
+          <scope ilk="function" name="readline" />
+          <scope ilk="function" name="readlines" />
+          <scope ilk="function" name="reject" />
+          <scope ilk="function" name="rewind" />
+          <scope ilk="function" name="select" />
+          <scope ilk="function" name="sort" />
+          <scope ilk="function" name="sort_by" />
+          <scope ilk="function" name="tell" />
+          <scope ilk="function" name="ungetc" />
+          <scope ilk="function" name="unused" />
+          <scope ilk="function" name="zip" />
+        </scope>
+        <scope ilk="class" name="GzipWriter" mixinrefs="Kernel" classrefs="Zlib::GzipFile">
+          <scope ilk="class" name="CRCError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="Zlib::Error">
+          </scope>
+          <scope ilk="class" name="LengthError" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="class" name="NoFooter" mixinrefs="Kernel" classrefs="Zlib::GzipFile::Error">
+          </scope>
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="comment=" />
+          <scope ilk="function" name="flush" />
+          <scope ilk="function" name="mtime=" />
+          <scope ilk="function" name="orig_name=" />
+          <scope ilk="function" name="pos" />
+          <scope ilk="function" name="print" />
+          <scope ilk="function" name="printf" />
+          <scope ilk="function" name="putc" />
+          <scope ilk="function" name="puts" />
+          <scope ilk="function" name="tell" />
+          <scope ilk="function" name="write" />
+        </scope>
+        <scope ilk="class" name="Inflate" mixinrefs="Kernel" classrefs="Zlib::ZStream">
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="inflate" />
+          <scope ilk="function" name="set_dictionary" />
+          <scope ilk="function" name="sync" />
+          <scope ilk="function" name="sync_point?" />
+        </scope>
+        <scope ilk="class" name="MemError" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="NeedDict" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="StreamEnd" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="StreamError" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="VersionError" mixinrefs="Kernel" classrefs="Zlib::Error">
+        </scope>
+        <scope ilk="class" name="ZStream" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="adler" />
+          <scope ilk="function" name="avail_in" />
+          <scope ilk="function" name="avail_out" />
+          <scope ilk="function" name="avail_out=" />
+          <scope ilk="function" name="close" />
+          <scope ilk="function" name="closed?" />
+          <scope ilk="function" name="data_type" />
+          <scope ilk="function" name="end" />
+          <scope ilk="function" name="ended?" />
+          <scope ilk="function" name="finish" />
+          <scope ilk="function" name="finished?" />
+          <scope ilk="function" name="flush_next_in" />
+          <scope ilk="function" name="flush_next_out" />
+          <scope ilk="function" name="reset" />
+          <scope ilk="function" name="stream_end?" />
+          <scope ilk="function" name="total_in" />
+          <scope ilk="function" name="total_out" />
+        </scope>
+        <scope ilk="function" name="adler32" />
+        <scope ilk="function" name="crc32" />
+        <scope ilk="function" name="crc_table" />
+        <scope ilk="function" name="version" />
+        <scope ilk="function" name="zlib_version" />
+        <variable name="ASCII" attributes="__const__" citdl="Fixnum"/>
+        <variable name="BEST_COMPRESSION" attributes="__const__" citdl="Fixnum"/>
+        <variable name="BEST_SPEED" attributes="__const__" citdl="Fixnum"/>
+        <variable name="BINARY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="DEF_MEM_LEVEL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="DEFAULT_COMPRESSION" attributes="__const__" citdl="Fixnum"/>
+        <variable name="DEFAULT_STRATEGY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="FILTERED" attributes="__const__" citdl="Fixnum"/>
+        <variable name="FINISH" attributes="__const__" citdl="Fixnum"/>
+        <variable name="FULL_FLUSH" attributes="__const__" citdl="Fixnum"/>
+        <variable name="HUFFMAN_ONLY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="MAX_MEM_LEVEL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="MAX_WBITS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="NO_COMPRESSION" attributes="__const__" citdl="Fixnum"/>
+        <variable name="NO_FLUSH" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_AMIGA" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_ATARI" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_CODE" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_CPM" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_MACOS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_MSDOS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_OS2" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_QDOS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_RISCOS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_TOPS20" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_UNIX" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_UNKNOWN" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_VMCMS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_VMS" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_WIN32" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OS_ZSYSTEM" attributes="__const__" citdl="Fixnum"/>
+        <variable name="SYNC_FLUSH" attributes="__const__" citdl="Fixnum"/>
+        <variable name="UNKNOWN" attributes="__const__" citdl="Fixnum"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+        <variable name="ZLIB_VERSION" attributes="__const__" citdl="String"/>
+      </scope>
+    </scope>

@@ -1,0 +1,30 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'mozVersion',
+);
+
+$cons->Preprocess('scrolltabs.unprocessed.css', 'scrolltabs.css');
+$cons->InstallInChrome('scrolltabs.css');
+$cons->InstallInChrome('buttons.css');
+$cons->InstallInChrome('colorpicker.css');
+$cons->InstallInChrome('listbox.css');
+$cons->InstallInChrome('scintilla.css');
+$cons->InstallInChrome('widgets.css');
+$cons->InstallInChrome('prefwidgets.css');
+$cons->InstallInChrome('views.css');
+$cons->Preprocess('partviewer.unprocessed.css', 'partviewer.css');
+$cons->InstallInChrome('partviewer.css');
+$cons->InstallInChrome('keybinding.css');
+$cons->InstallInChrome('toolbar.css');

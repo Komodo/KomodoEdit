@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE window> 
+
+<window 
+  id="jslib-live" 
+  title="jsliblive"
+  style="background-color: #cccccc; width: 100px; height: 100px;" 
+  xmlns:html="http://www.w3.org/1999/xhtml" 
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+
+<script type="application/x-javascript">
+<![CDATA[
+function init ()
+{
+ jslib.init(this);
+
+  if (typeof(JS_LIB_LOADED)=='boolean')
+    alert(JS_LIB_HELP);
+  else
+    alert("jslib failed to initialize");
+}
+]]>
+</script>
+
+<vbox flex="1" pack="center"> 
+  <spacer flex="1" /> 
+  <button label="test" oncommand="init();" /> 
+  <spacer flex="1" /> 
+</vbox> 
+
+</window>
+

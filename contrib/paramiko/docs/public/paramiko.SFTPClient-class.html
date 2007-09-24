@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SFTPClient</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SFTPClient
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko.SFTPClient-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SFTPClient-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SFTPClient</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+    
+         |    
+  <a href="../private/paramiko.BaseSFTP-class.html"><code>BaseSFTP</code></a> --+
+             |
+            <b>SFTPClient</b>
+</pre><br />
+
+<dl><dt><b>Known Subclasses:</b></dt>
+<dd>
+    <a href="paramiko.SFTP-class.html"><code>SFTP</code></a></dd></dl>
+
+<hr/>
+
+SFTP client object. <code>SFTPClient</code> is used to open an sftp 
+session across an open ssh <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> and do remote file 
+operations.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>sock</span>)</span></code>
+<br />
+Create an SFTP client from an existing <a 
+href="paramiko.Channel-class.html" 
+class="link"><code>Channel</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chdir" class="summary-sig-name"><code>chdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Change the &quot;current directory&quot; of this SFTP session.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chmod" class="summary-sig-name"><code>chmod</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+<br />
+Change the mode (permissions) of a file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#chown" class="summary-sig-name"><code>chown</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>uid</span>,
+          <span class=summary-sig-arg>gid</span>)</span></code>
+<br />
+Change the owner (<code>uid</code>) and group (<code>gid</code>) of a 
+file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close the SFTP session and its underlying channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPFile
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#file" class="summary-sig-name"><code>file</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>mode</span>,
+          <span class=summary-sig-arg>bufsize</span>)</span></code>
+<br />
+Open a file on the remote server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#from_transport" class="summary-sig-name"><code>from_transport</code></a>(<span class=summary-sig-arg>cls</span>,
+          <span class=summary-sig-arg>t</span>)</span></code>
+<br />
+Create an SFTP client channel from an open <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.    <i>(Class method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#get" class="summary-sig-name"><code>get</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>remotepath</span>,
+          <span class=summary-sig-arg>localpath</span>)</span></code>
+<br />
+Copy a remote file (<code>remotepath</code>) from the SFTP server to 
+the local host as <code>localpath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#getcwd" class="summary-sig-name"><code>getcwd</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the &quot;current working directory&quot; for this SFTP 
+session, as emulated by paramiko.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list of str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#listdir" class="summary-sig-name"><code>listdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return a list containing the names of the entries in the given 
+<code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        list of <a href="paramiko.SFTPAttributes-class.html" 
+        class="link"><code>SFTPAttributes</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#listdir_attr" class="summary-sig-name"><code>listdir_attr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return a list containing <a href="paramiko.SFTPAttributes-class.html" 
+class="link"><code>SFTPAttributes</code></a> objects corresponding to 
+files in the given <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPAttributes
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#lstat" class="summary-sig-name"><code>lstat</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Retrieve information about a file on the remote system, without 
+following symbolic links (shortcuts).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#mkdir" class="summary-sig-name"><code>mkdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>mode</span>)</span></code>
+<br />
+Create a folder (directory) named <code>path</code> with numeric mode 
+<code>mode</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#normalize" class="summary-sig-name"><code>normalize</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return the normalized path (on the server) of a given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPFile
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#file" class="summary-sig-name"><code>open</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>mode</span>,
+          <span class=summary-sig-arg>bufsize</span>)</span></code>
+<br />
+Open a file on the remote server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#put" class="summary-sig-name"><code>put</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>localpath</span>,
+          <span class=summary-sig-arg>remotepath</span>)</span></code>
+<br />
+Copy a local file (<code>localpath</code>) to the SFTP server as 
+<code>remotepath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#readlink" class="summary-sig-name"><code>readlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Return the target of a symbolic link (shortcut).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#remove" class="summary-sig-name"><code>remove</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the file at the given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#rename" class="summary-sig-name"><code>rename</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>oldpath</span>,
+          <span class=summary-sig-arg>newpath</span>)</span></code>
+<br />
+Rename a file or folder from <code>oldpath</code> to 
+<code>newpath</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#rmdir" class="summary-sig-name"><code>rmdir</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the folder named <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        SFTPAttributes
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#stat" class="summary-sig-name"><code>stat</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Retrieve information about a file on the remote system.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#symlink" class="summary-sig-name"><code>symlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>source</span>,
+          <span class=summary-sig-arg>dest</span>)</span></code>
+<br />
+Create a symbolic link (shortcut) of the <code>source</code> path at 
+<code>destination</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#truncate" class="summary-sig-name"><code>truncate</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>size</span>)</span></code>
+<br />
+Change the size of the file specified by <code>path</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#remove" class="summary-sig-name"><code>unlink</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>)</span></code>
+<br />
+Remove the file at the given path.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPClient-class.html#utime" class="summary-sig-name"><code>utime</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>path</span>,
+          <span class=summary-sig-arg>times</span>)</span></code>
+<br />
+Set the access and modified times of the file specified by 
+<code>path</code>.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF INSTANCE METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Instance Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>sock</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  <p>Create an SFTP client from an existing <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a>. The channel should already have 
+  requested the <code>&quot;sftp&quot;</code> subsystem.</p>
+  An alternate way to create an SFTP client context is by using <a 
+  href="paramiko.SFTPClient-class.html#from_transport" 
+  class="link"><code>from_transport</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>sock</b></code> -
+         an open <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> using the 
+        <code>&quot;sftp&quot;</code> subsystem
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="../private/paramiko.BaseSFTP-class.html#__init__"><code>paramiko.BaseSFTP.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="chdir"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chdir</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Change the &quot;current directory&quot; of this SFTP session. Since 
+  SFTP doesn't really have the concept of a current working directory, 
+  this is emulated by paramiko. Once you use this method to set a working 
+  directory, all operations on this SFTPClient object will be relative to 
+  that path.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         new current working directory
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the requested path doesn't exist on the server
+    </dl>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="chmod"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chmod</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>,
+          <span class=sig-arg>mode</span>)</span>
+  </h3>
+  Change the mode (permissions) of a file. The permissions are 
+  unix-style and identical to those used by python's 
+  <code>os.chmod</code> function.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path of the file to change the permissions of
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>mode</b></code> -
+         new permissions
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="chown"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chown</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>,
+          <span class=sig-arg>uid</span>,
+          <span class=sig-arg>gid</span>)</span>
+  </h3>
+  Change the owner (<code>uid</code>) and group (<code>gid</code>) of 
+  a file. As with python's <code>os.chown</code> function, you must pass 
+  both arguments, so if you only want to change one, use <a 
+  href="paramiko.SFTPClient-class.html#stat" 
+  class="link"><code>stat</code></a> first to retrieve the current owner 
+  and group.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path of the file to change the owner and group of
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>uid</b></code> -
+         new owner's uid
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>gid</b></code> -
+         new group id
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Close the SFTP session and its underlying channel.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">file</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>mode</span>=<span class=sig-default>'r'</span>,
+          <span class=sig-arg>bufsize</span>=<span class=sig-default>-1</span>)</span>
+  </h3>
+  <p>Open a file on the remote server. The arguments are the same as for 
+  python's built-in <code>file</code> (aka <code>open</code>). A 
+  file-like object is returned, which closely mimics the behavior of a 
+  normal python file object.</p>
+  <p>The mode indicates how the file is to be opened: <code>'r'</code> 
+  for reading, <code>'w'</code> for writing (truncating an existing 
+  file), <code>'a'</code> for appending, <code>'r+'</code> for 
+  reading/writing, <code>'w+'</code> for reading/writing (truncating an 
+  existing file), <code>'a+'</code> for reading/appending. The python 
+  <code>'b'</code> flag is ignored, since SSH treats all files as binary. 
+  The <code>'U'</code> flag is supported in a compatible way.</p>
+  <p>Since 1.5.2, an <code>'x'</code> flag indicates that the operation 
+  should only succeed if the file was created and did not previously 
+  exist. This has no direct mapping to python's file flags, but is 
+  commonly known as the <code>O_EXCL</code> flag in posix.</p>
+  The file will be buffered in standard python style by default, but 
+  can be altered with the <code>bufsize</code> parameter. <code>0</code> 
+  turns off buffering, <code>1</code> uses line buffering, and any number 
+  greater than 1 (<code>&gt;1</code>) uses that specific buffer size.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to open
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>mode</b></code> -
+         mode (python-style) to open in
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>bufsize</b></code> -
+         desired buffering (-1 = default buffer size)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a file object representing the open file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=SFTPFile)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the file could not be opened.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>remotepath</span>,
+          <span class=sig-arg>localpath</span>)</span>
+  </h3>
+  Copy a remote file (<code>remotepath</code>) from the SFTP server to 
+  the local host as <code>localpath</code>. Any exception raised by 
+  operations will be passed through. This method is primarily provided as 
+  a convenience.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>remotepath</b></code> -
+         the remote file to copy
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>localpath</b></code> -
+         the destination path on the local host
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="getcwd"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getcwd</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the &quot;current working directory&quot; for this SFTP 
+  session, as emulated by paramiko. If no directory has been set with <a 
+  href="paramiko.SFTPClient-class.html#chdir" 
+  class="link"><code>chdir</code></a>, this method will return 
+  <code>None</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the current working directory on the server, or 
+        <code>None</code>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="listdir"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">listdir</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>=<span class=sig-default>'.'</span>)</span>
+  </h3>
+  Return a list containing the names of the entries in the given 
+  <code>path</code>. The list is in arbitrary order. It does not include 
+  the special entries <code>'.'</code> and <code>'..'</code> even if they 
+  are present in the folder. This method is meant to mirror 
+  <code>os.listdir</code> as closely as possible. For a list of full <a 
+  href="paramiko.SFTPAttributes-class.html" 
+  class="link"><code>SFTPAttributes</code></a> objects, see <a 
+  href="paramiko.SFTPClient-class.html#listdir_attr" 
+  class="link"><code>listdir_attr</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path to list (defaults to <code>'.'</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of filenames
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list of str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="listdir_attr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">listdir_attr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>=<span class=sig-default>'.'</span>)</span>
+  </h3>
+  Return a list containing <a 
+  href="paramiko.SFTPAttributes-class.html" 
+  class="link"><code>SFTPAttributes</code></a> objects corresponding to 
+  files in the given <code>path</code>. The list is in arbitrary order. 
+  It does not include the special entries <code>'.'</code> and 
+  <code>'..'</code> even if they are present in the folder.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path to list (defaults to <code>'.'</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        list of attributes
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list of <a href="paramiko.SFTPAttributes-class.html" 
+        class="link"><code>SFTPAttributes</code></a>)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="lstat"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">lstat</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Retrieve information about a file on the remote system, without 
+  following symbolic links (shortcuts). This otherwise behaves exactly 
+  the same as <a href="paramiko.SFTPClient-class.html#stat" 
+  class="link"><code>stat</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         the filename to stat
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an object containing attributes about the given file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=SFTPAttributes)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="mkdir"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">mkdir</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>,
+          <span class=sig-arg>mode</span>=<span class=sig-default>511</span>)</span>
+  </h3>
+  Create a folder (directory) named <code>path</code> with numeric 
+  mode <code>mode</code>. The default mode is 0777 (octal). On some 
+  systems, mode is ignored. Where it is used, the current umask value is 
+  first masked out.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         name of the folder to create
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>mode</b></code> -
+         permissions (posix-style) for the newly-created folder
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="normalize"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">normalize</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Return the normalized path (on the server) of a given path. This can 
+  be used to quickly resolve symbolic links or determine what the server 
+  is considering to be the &quot;current folder&quot; (by passing 
+  <code>'.'</code> as <code>path</code>).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path to be normalized
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        normalized form of the given path
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the path can't be resolved on the server
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">open</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>mode</span>=<span class=sig-default>'r'</span>,
+          <span class=sig-arg>bufsize</span>=<span class=sig-default>-1</span>)</span>
+  </h3>
+  <p>Open a file on the remote server. The arguments are the same as for 
+  python's built-in <code>file</code> (aka <code>open</code>). A 
+  file-like object is returned, which closely mimics the behavior of a 
+  normal python file object.</p>
+  <p>The mode indicates how the file is to be opened: <code>'r'</code> 
+  for reading, <code>'w'</code> for writing (truncating an existing 
+  file), <code>'a'</code> for appending, <code>'r+'</code> for 
+  reading/writing, <code>'w+'</code> for reading/writing (truncating an 
+  existing file), <code>'a+'</code> for reading/appending. The python 
+  <code>'b'</code> flag is ignored, since SSH treats all files as binary. 
+  The <code>'U'</code> flag is supported in a compatible way.</p>
+  <p>Since 1.5.2, an <code>'x'</code> flag indicates that the operation 
+  should only succeed if the file was created and did not previously 
+  exist. This has no direct mapping to python's file flags, but is 
+  commonly known as the <code>O_EXCL</code> flag in posix.</p>
+  The file will be buffered in standard python style by default, but 
+  can be altered with the <code>bufsize</code> parameter. <code>0</code> 
+  turns off buffering, <code>1</code> uses line buffering, and any number 
+  greater than 1 (<code>&gt;1</code>) uses that specific buffer size.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to open
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>mode</b></code> -
+         mode (python-style) to open in
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>bufsize</b></code> -
+         desired buffering (-1 = default buffer size)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a file object representing the open file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=SFTPFile)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the file could not be opened.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="put"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">put</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>localpath</span>,
+          <span class=sig-arg>remotepath</span>)</span>
+  </h3>
+  <p>Copy a local file (<code>localpath</code>) to the SFTP server as 
+  <code>remotepath</code>. Any exception raised by operations will be 
+  passed through. This method is primarily provided as a convenience.</p>
+  The SFTP operations use pipelining for speed.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>localpath</b></code> -
+         the local file to copy
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>remotepath</b></code> -
+         the destination path on the SFTP server
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.4
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="readlink"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">readlink</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Return the target of a symbolic link (shortcut). You can use <a 
+  href="paramiko.SFTPClient-class.html#symlink" 
+  class="link"><code>symlink</code></a> to create these. The result may 
+  be either an absolute or relative pathname.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path of the symbolic link file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        target path
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="remove"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">remove</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Remove the file at the given path. This only works on files; for 
+  removing folders (directories), use <a 
+  href="paramiko.SFTPClient-class.html#rmdir" 
+  class="link"><code>rmdir</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path (absolute or relative) of the file to remove
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the path refers to a folder (directory)
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="rename"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">rename</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>oldpath</span>,
+          <span class=sig-arg>newpath</span>)</span>
+  </h3>
+  Rename a file or folder from <code>oldpath</code> to 
+  <code>newpath</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>oldpath</b></code> -
+         existing name of the file or folder
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>newpath</b></code> -
+         new name for the file or folder
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if <code>newpath</code> is a folder, or something else goes 
+        wrong
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="rmdir"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">rmdir</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Remove the folder named <code>path</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         name of the folder to remove
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="stat"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">stat</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  <p>Retrieve information about a file on the remote system. The return 
+  value is an object whose attributes correspond to the attributes of 
+  python's <code>stat</code> structure as returned by 
+  <code>os.stat</code>, except that it contains fewer fields. An SFTP 
+  server may return as much or as little info as it wants, so the results 
+  may vary from server to server.</p>
+  <p>Unlike a python <code>stat</code> object, the result may not be 
+  accessed as a tuple. This is mostly due to the author's slack 
+  factor.</p>
+  The fields supported are: <code>st_mode</code>, 
+  <code>st_size</code>, <code>st_uid</code>, <code>st_gid</code>, 
+  <code>st_atime</code>, and <code>st_mtime</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         the filename to stat
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an object containing attributes about the given file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=SFTPAttributes)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="symlink"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">symlink</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>source</span>,
+          <span class=sig-arg>dest</span>)</span>
+  </h3>
+  Create a symbolic link (shortcut) of the <code>source</code> path at 
+  <code>destination</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>source</b></code> -
+         path of the original file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>dest</b></code> -
+         path of the newly created symlink
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="truncate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">truncate</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>,
+          <span class=sig-arg>size</span>)</span>
+  </h3>
+  Change the size of the file specified by <code>path</code>. This 
+  usually extends or shrinks the size of the file, just like the 
+  <code>truncate()</code> method on python file objects.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path of the file to modify
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>size</b></code> -
+         the new size of the file
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="remove"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">unlink</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>)</span>
+  </h3>
+  Remove the file at the given path. This only works on files; for 
+  removing folders (directories), use <a 
+  href="paramiko.SFTPClient-class.html#rmdir" 
+  class="link"><code>rmdir</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path (absolute or relative) of the file to remove
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the path refers to a folder (directory)
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="utime"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">utime</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>path</span>,
+          <span class=sig-arg>times</span>)</span>
+  </h3>
+  Set the access and modified times of the file specified by 
+  <code>path</code>. If <code>times</code> is <code>None</code>, then the 
+  file's access and modified times are set to the current time. 
+  Otherwise, <code>times</code> must be a 2-tuple of numbers, of the form 
+  <code>(atime, mtime)</code>, which is used to set the access and 
+  modified times, respectively. This bizarre API is mimicked from python 
+  for the sake of consistency -- I apologize.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>path</b></code> -
+         path of the file to modify
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>times</b></code> -
+         <code>None</code> or a tuple of (access time, modified time) 
+        in standard internet epoch time (seconds since 01 January 1970 
+        GMT)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple(int))</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Method Details</th></tr>
+</table>
+
+<a name="from_transport"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">from_transport</span>(<span class=sig-arg>cls</span>,
+          <span class=sig-arg>t</span>)</span>
+  </h3>
+  Create an SFTP client channel from an open <a 
+  href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>t</b></code> -
+         an open <a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a> which is already 
+        authenticated
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Transport-class.html" 
+              class="link"><code>Transport</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a> object, referring to an 
+        sftp session (channel) across the transport
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:04 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

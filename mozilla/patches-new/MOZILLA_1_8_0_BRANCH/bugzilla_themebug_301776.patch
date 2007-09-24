@@ -1,0 +1,159 @@
+Index: toolkit/themes/qute/global/listbox.css
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/themes/qute/global/listbox.css,v
+retrieving revision 1.5
+diff -u -8 -p -r1.5 listbox.css
+--- toolkit/themes/qute/global/listbox.css	25 Jul 2005 18:32:15 -0000	1.5
++++ toolkit/themes/qute/global/listbox.css	15 Sep 2005 07:08:02 -0000
+@@ -62,22 +62,22 @@ listbox[disabled="true"] {
+ 
+ /* ::::: listitem ::::: */
+ 
+ listitem {
+   border: 1px solid transparent;
+ }
+ 
+ listbox:focus > listitem[selected="true"][current="true"] {
+-  outline: 2px dotted #F3D982;
++  outline: 1px dotted #F3D982;
+ }
+ 
+ listbox:focus > listitem[current="true"] {
+-  outline: 2px dotted Highlight;
+-  -moz-outline-offset: -2px;
++  outline: 1px dotted Highlight;
++  -moz-outline-offset: -1px;
+ }
+ 
+ listitem[selected="true"] {
+   background-color: -moz-Dialog;
+   color: -moz-DialogText;
+ }
+ 
+ listbox:focus > listitem[selected="true"] {
+Index: toolkit/themes/qute/global/tree.css
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/themes/qute/global/tree.css,v
+retrieving revision 1.6
+diff -u -8 -p -r1.6 tree.css
+--- toolkit/themes/qute/global/tree.css	25 Jul 2005 18:32:15 -0000	1.6
++++ toolkit/themes/qute/global/tree.css	15 Sep 2005 07:01:51 -0000
+@@ -65,36 +65,36 @@ tree {
+ 
+ .focusring:focus > .tree-rows > .tree-bodybox {
+   border: 1px solid #000000;
+ }
+ 
+ /* ::::: tree rows ::::: */
+ 
+ treechildren::-moz-tree-row {
+-  border: 2px solid transparent;
++  border: 1px solid transparent;
+   background-color: transparent;
+   min-height: 18px;
+   height: 1.3em;
+ }
+ 
+ treechildren::-moz-tree-row(selected) {
+   background-color: -moz-Dialog;
+ }
+ 
+ treechildren::-moz-tree-row(selected, focus) {
+   background-color: Highlight;
+ }
+ 
+ treechildren::-moz-tree-row(current, focus) {
+-  border: 2px dotted Highlight;
++  border: 1px dotted Highlight;
+ }
+ 
+ treechildren::-moz-tree-row(selected, current, focus) {
+-  border: 2px dotted #C0C0C0;
++  border: 1px dotted #C0C0C0;
+ }
+ 
+ tree[selstyle="primary"] > treechildren::-moz-tree-row {
+   border: none;
+   background-color: transparent;
+ }
+ 
+ /* ::::: tree cells ::::: */
+Index: toolkit/themes/winstripe/global/listbox.css
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/themes/winstripe/global/listbox.css,v
+retrieving revision 1.8
+diff -u -8 -p -r1.8 listbox.css
+--- toolkit/themes/winstripe/global/listbox.css	25 Jul 2005 18:32:15 -0000	1.8
++++ toolkit/themes/winstripe/global/listbox.css	15 Sep 2005 07:08:03 -0000
+@@ -62,22 +62,22 @@ listbox[disabled="true"] {
+ 
+ /* ::::: listitem ::::: */
+ 
+ listitem {
+   border: 1px solid transparent;
+ }
+ 
+ listbox:focus > listitem[selected="true"][current="true"] {
+-  outline: 2px dotted #F3D982;
++  outline: 1px dotted #F3D982;
+ }
+ 
+ listbox:focus > listitem[current="true"] {
+-  outline: 2px dotted Highlight;
+-  -moz-outline-offset: -2px;
++  outline: 1px dotted Highlight;
++  -moz-outline-offset: -1px;
+ }
+ 
+ listitem[selected="true"] {
+   background-color: -moz-Dialog;
+   color: -moz-DialogText;
+ }
+ 
+ listbox:focus > listitem[selected="true"] {
+Index: toolkit/themes/winstripe/global/tree.css
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/themes/winstripe/global/tree.css,v
+retrieving revision 1.8
+diff -u -8 -p -r1.8 tree.css
+--- toolkit/themes/winstripe/global/tree.css	25 Jul 2005 18:32:15 -0000	1.8
++++ toolkit/themes/winstripe/global/tree.css	15 Sep 2005 07:02:41 -0000
+@@ -65,35 +65,35 @@ tree {
+ .focusring:focus > .tree-rows > .tree-bodybox {
+   border: 1px solid #000000;
+ }
+ 
+ 
+ /* ::::: tree rows ::::: */
+ 
+ treechildren::-moz-tree-row {
+-  border: 2px solid transparent;
++  border: 1px solid transparent;
+   min-height: 18px;
+   height: 1.3em;
+ }
+ 
+ treechildren::-moz-tree-row(selected) {
+   background-color: -moz-Dialog;
+ }
+ 
+ treechildren::-moz-tree-row(selected, focus) {
+   background-color: Highlight;
+ }
+ 
+ treechildren::-moz-tree-row(current, focus) {
+-  border: 2px dotted Highlight;
++  border: 1px dotted Highlight;
+ }
+ 
+ treechildren::-moz-tree-row(selected, current, focus) {
+-  border: 2px dotted #F3D982;
++  border: 1px dotted #F3D982;
+ }
+ 
+ /* ::::: tree cells ::::: */
+ 
+ treechildren::-moz-tree-cell {
+   padding: 0px 2px 0px 2px;
+ }
+ 

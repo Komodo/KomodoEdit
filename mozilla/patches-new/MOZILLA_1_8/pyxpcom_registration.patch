@@ -1,0 +1,66 @@
+Index: extensions/python/xpcom/server/loader.py
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/server/loader.py,v
+retrieving revision 1.12.20.1
+diff -d -u -r1.12.20.1 loader.py
+--- extensions/python/xpcom/server/loader.py	31 Aug 2005 13:18:32 -0000	1.12.20.1
++++ extensions/python/xpcom/server/loader.py	10 Apr 2006 23:28:26 -0000
+@@ -140,29 +140,38 @@
+         # ToDo - work out the right thing here
+         # eg - do we recurse?
+         # - do we support packages?
+-        entries = directory.directoryEntries
+-        while entries.HasMoreElements():
+-            entry = entries.GetNext(components.interfaces.nsIFile)
++        
++        # we must first get all the .py files from the directory enumerator
++        # before registering them.  This is necessary because if you are
++        # re-registering a changed python component, the .pyo file is deleted
++        # and recreated, but the directory enumerator has a pointer to the
++        # old .pyo file.  When that happens, subsequent registrations fail.
++        dirEntries = directory.directoryEntries
++        entries = []
++        while dirEntries.HasMoreElements():
++            entry = dirEntries.GetNext(components.interfaces.nsIFile)
+             if os.path.splitext(entry.path)[1]==".py":
+-                try:
+-                    self.autoRegisterComponent(when, entry)
+-                # Handle some common user errors
+-                except xpcom.COMException, details:
+-                    from xpcom import nsError
+-                    # If the interface name does not exist, suppress the traceback
+-                    if details.errno==nsError.NS_ERROR_NO_INTERFACE:
+-                        print "** Registration of '%s' failed\n %s" % (entry.leafName,details.message,)
+-                    else:
+-                        print "** Registration of '%s' failed!" % (entry.leafName,)
+-                        traceback.print_exc()
+-                except SyntaxError, details:
+-                    # Syntax error in source file - no useful traceback here either.
+-                    print "** Registration of '%s' failed!" % (entry.leafName,)
+-                    traceback.print_exception(SyntaxError, details, None)
+-                except:
+-                    # All other exceptions get the full traceback.
++                entries.append(entry)
++        for entry in entries:
++            try:
++                self.autoRegisterComponent(when, entry)
++            # Handle some common user errors
++            except xpcom.COMException, details:
++                from xpcom import nsError
++                # If the interface name does not exist, suppress the traceback
++                if details.errno==nsError.NS_ERROR_NO_INTERFACE:
++                    print "** Registration of '%s' failed\n %s" % (entry.leafName,details.message,)
++                else:
+                     print "** Registration of '%s' failed!" % (entry.leafName,)
+                     traceback.print_exc()
++            except SyntaxError, details:
++                # Syntax error in source file - no useful traceback here either.
++                print "** Registration of '%s' failed!" % (entry.leafName,)
++                traceback.print_exception(SyntaxError, details, None)
++            except:
++                # All other exceptions get the full traceback.
++                print "** Registration of '%s' failed!" % (entry.leafName,)
++                traceback.print_exc()
+ 
+     def autoRegisterComponent (self, when, componentFile):
+         # bool return

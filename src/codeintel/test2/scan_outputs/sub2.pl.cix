@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\sub2.pl">
+    <scope ilk="blob" lang="Perl" name="sub2">
+      <scope ilk="function" line="1" lineend="1" name="FOO" signature="FOO()" />
+    </scope>
+  </file>
+</codeintel>

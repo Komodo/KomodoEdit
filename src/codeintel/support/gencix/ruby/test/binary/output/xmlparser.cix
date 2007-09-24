@@ -1,0 +1,102 @@
+    <scope ilk="blob" lang="Ruby" name="xmlparser">
+      <scope ilk="namespace" name="XML">
+        <scope ilk="class" name="Encoding" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="convert" />
+          <scope ilk="function" name="map" />
+        </scope>
+        <scope ilk="class" name="Parser" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="StandardError">
+          </scope>
+          <scope ilk="function" name="byteCount" />
+          <scope ilk="function" name="byteIndex" />
+          <scope ilk="function" name="column" />
+          <scope ilk="function" name="defaultCurrent" />
+          <scope ilk="function" name="done" />
+          <scope ilk="function" name="getBase" />
+          <scope ilk="function" name="getIdAttribute" />
+          <scope ilk="function" name="getInputContext" />
+          <scope ilk="function" name="getSpecifiedAttributes" />
+          <scope ilk="function" name="line" />
+          <scope ilk="function" name="parse" />
+          <scope ilk="function" name="reset" />
+          <scope ilk="function" name="setBase" />
+          <scope ilk="function" name="setParamEntityParsing" />
+          <scope ilk="function" name="setReturnNSTriplet" />
+          <scope ilk="function" name="useForeignDTD" />
+          <variable name="ATTLIST_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="CDATA" attributes="__const__" citdl="Symbol"/>
+          <variable name="COMMENT" attributes="__const__" citdl="Symbol"/>
+          <variable name="DEFAULT" attributes="__const__" citdl="Symbol"/>
+          <variable name="ELEMENT_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="END_CDATA" attributes="__const__" citdl="Symbol"/>
+          <variable name="END_DOCTYPE_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="END_ELEM" attributes="__const__" citdl="Symbol"/>
+          <variable name="END_NAMESPACE_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="ENTITY_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="EXTERNAL_ENTITY_REF" attributes="__const__" citdl="Symbol"/>
+          <variable name="NOTATION_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="PARAM_ENTITY_PARSING_ALWAYS" attributes="__const__" citdl="TrueClass"/>
+          <variable name="PARAM_ENTITY_PARSING_NEVER" attributes="__const__" citdl="FalseClass"/>
+          <variable name="PARAM_ENTITY_PARSING_UNLESS_STANDALONE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PI" attributes="__const__" citdl="Symbol"/>
+          <variable name="SKIPPED_ENTITY" attributes="__const__" citdl="Symbol"/>
+          <variable name="START_CDATA" attributes="__const__" citdl="Symbol"/>
+          <variable name="START_DOCTYPE_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="START_ELEM" attributes="__const__" citdl="Symbol"/>
+          <variable name="START_NAMESPACE_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="UNPARSED_ENTITY_DECL" attributes="__const__" citdl="Symbol"/>
+          <variable name="XML_DECL" attributes="__const__" citdl="Symbol"/>
+        </scope>
+        <scope ilk="class" name="ParserError" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+      </scope>
+      <scope ilk="class" name="XMLEncoding" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="convert" />
+        <scope ilk="function" name="map" />
+      </scope>
+      <scope ilk="class" name="XMLParser" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+        <scope ilk="function" name="byteCount" />
+        <scope ilk="function" name="byteIndex" />
+        <scope ilk="function" name="column" />
+        <scope ilk="function" name="defaultCurrent" />
+        <scope ilk="function" name="done" />
+        <scope ilk="function" name="getBase" />
+        <scope ilk="function" name="getIdAttribute" />
+        <scope ilk="function" name="getInputContext" />
+        <scope ilk="function" name="getSpecifiedAttributes" />
+        <scope ilk="function" name="line" />
+        <scope ilk="function" name="parse" />
+        <scope ilk="function" name="reset" />
+        <scope ilk="function" name="setBase" />
+        <scope ilk="function" name="setParamEntityParsing" />
+        <scope ilk="function" name="setReturnNSTriplet" />
+        <scope ilk="function" name="useForeignDTD" />
+        <variable name="ATTLIST_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="CDATA" attributes="__const__" citdl="Symbol"/>
+        <variable name="COMMENT" attributes="__const__" citdl="Symbol"/>
+        <variable name="DEFAULT" attributes="__const__" citdl="Symbol"/>
+        <variable name="ELEMENT_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="END_CDATA" attributes="__const__" citdl="Symbol"/>
+        <variable name="END_DOCTYPE_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="END_ELEM" attributes="__const__" citdl="Symbol"/>
+        <variable name="END_NAMESPACE_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="ENTITY_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="EXTERNAL_ENTITY_REF" attributes="__const__" citdl="Symbol"/>
+        <variable name="NOTATION_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="PARAM_ENTITY_PARSING_ALWAYS" attributes="__const__" citdl="TrueClass"/>
+        <variable name="PARAM_ENTITY_PARSING_NEVER" attributes="__const__" citdl="FalseClass"/>
+        <variable name="PARAM_ENTITY_PARSING_UNLESS_STANDALONE" attributes="__const__" citdl="Fixnum"/>
+        <variable name="PI" attributes="__const__" citdl="Symbol"/>
+        <variable name="SKIPPED_ENTITY" attributes="__const__" citdl="Symbol"/>
+        <variable name="START_CDATA" attributes="__const__" citdl="Symbol"/>
+        <variable name="START_DOCTYPE_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="START_ELEM" attributes="__const__" citdl="Symbol"/>
+        <variable name="START_NAMESPACE_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="UNPARSED_ENTITY_DECL" attributes="__const__" citdl="Symbol"/>
+        <variable name="XML_DECL" attributes="__const__" citdl="Symbol"/>
+      </scope>
+      <scope ilk="class" name="XMLParserError" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+    </scope>

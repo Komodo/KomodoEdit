@@ -1,0 +1,107 @@
+navkeys = help|home|delete|end|pageup/down|arrows
+
+F12 keycode = 123
+F13 keycode = 44
+F14 keycode = 145
+F15 keycode = 19
+F16 charcode = 16
+clear keycode = 12
+VK_LEFT/VK_RIGHT keycodes need to be verified, but looks like they work
+
+Alt+[letters]                   produces unicode characters
+Alt+[F1-F13]                    normal
+Alt+[F14-15]                    system bindings
+Alt+[F16]                       alt appears in keydown/up only
+Alt+[numpad]                    normal
+Alt+[navkeys]                   normal
+Alt+= (numpad)                  alt appears in keydown/up only
+Alt+Space                       alt appears in keydown/up only
+Alt+Tab                         normal
+Alt+Return                      keycode 13
+Alt+Enter                       Keycode 13
+
+Alt+Shift+[letters]             produces unicode characters
+Alt+Shift+[F1-F15]              normal (no VK_ label for F12,F13)
+Alt+Shift+[F16]                 alt appears in keydown/up only
+Alt+Shift+[numpad]              normal
+Alt+Shift+[navkeys]             normal
+
+Ctrl+[letters]                  normal
+Ctrl+[F16]                      keypress charcode 112, keyup/dwn keycode 80
+Ctrl+[F8-F15]                   normal
+Ctrl+[F5-F7]                    only keyup
+Ctrl+[f1-F4]                    used by system
+Ctrl+[navkeys]                  normal
+Ctrl+[numpad]                   normal
+Ctrl+Return                     keycode 77 (and in combo with alt/meta)
+Ctrl+Enter                      Keycode 67 (and in combo with alt/meta)
+
+Ctrl+Shift+[letters]            uppercase charcode
+Ctrl+[F16]                      keypress charcode 80, keyup/dwn keycode 80
+Ctrl+Shift+[F8-F15]             normal
+Ctrl+Shift+[F5-F7]              only keyup
+Ctrl+Shift+[f1-F4]              used by system
+Ctrl+Shift+[numpad]             normal
+Ctrl+Shift+[navkeys]            normal
+
+Ctrl+Alt+[letters]              normal
+Ctrl+Alt+[F16]                  keypress charcode 112, keyup/dwn keycode 80
+Ctrl+Alt+[F1-F15]               normal
+Ctrl+Alt+[numpad]               normal
+Ctrl+Alt+[navkeys]              normal
+
+Ctrl+Alt+Shift+[letters]        uppercase charcode
+Ctrl+Alt+Shift+[F16]            keypress charcode 80, keyup/dwn keycode 80
+Ctrl+Alt+Shift+[F1-F15]         normal
+Ctrl+Alt+Shift+[numpad]         normal
+Ctrl+Alt+Shift+[navkeys]        normal
+
+Meta+[letters]                  normal
+Meta+Shift+[letters]            uppercase charcode
+Meta+[F1-F5,F7-F16]             normal
+Meta+F6                         no keyup event
+Meta+Space                      only get keyup
+Meta+[navkeys]                  normal
+Meta+[numpad]                   normal
+Meta+.                          exits dialogs (system hits cancel button)
+Meta+Return                     keycode 13
+Meta+Enter                      Keycode 13
+
+Meta+Alt+[letters]              charcode from Alt+[any key]
+Meta+Alt+[F1-F16]               normal
+Meta+Alt+[numpad]               normal, except * does not register at all
+Meta+Alt+[navkeys]              normal
+
+Meta+Alt+Shift+[letters]        uppercase charcode from Alt+Shift+[any key]
+Meta+Alt+Shift+[F1-F16]         normal
+Meta+Alt+Shift+[numpad]         normal
+Meta+Alt+Shift+[navkeys]        normal
+
+Meta+Ctrl+[letters]             normal
+Meta+Ctrl+[F16]                 keypress charcode 112
+Meta+Ctrl+[F7-F15]              normal
+Meta+Ctrl+[F6]                  changes to first focusable element in dialog
+Meta+Ctrl+[F1-F5]               normal
+Meta+Ctrl+[numpad]              normal
+Meta+Ctrl+[navkeys]             normal
+
+Meta+Ctrl+Shift+[letters]       uppercase charcode
+Meta+Ctrl+Shift+[F16]           keypress charcode 80
+Meta+Ctrl+Shift+[F7-F15]        normal
+Meta+Ctrl+Shift+[F6]            changes to first focusable element in dialog
+Meta+Ctrl+Shift+[F1-F5]         normal
+Meta+Ctrl+Shift+[numpad]        normal
+Meta+Ctrl+Shift+[navkeys]       normal
+
+Meta+Alt+Ctrl+[letters]         normal
+Meta+Alt+Ctrl+[F16]             keypress charcode 112, keydown/up charcode 80
+Meta+Alt+Ctrl+[F1-F15]          normal
+Meta+Alt+Ctrl+[numpad]          normal
+Meta+Alt+Ctrl+[navkeys]         normal (* is system key)
+
+Meta+Alt+Ctrl+Shift+[letters]   normal
+Meta+Alt+Ctrl+Shift+[F16]       keypress charcode 112, keydown/up charcode 80
+Meta+Alt+Ctrl+Shift+[F1-F15]    normal
+Meta+Alt+Ctrl+Shift+[numpad]    normal
+Meta+Alt+Ctrl+Shift+[navkeys]   normal
+

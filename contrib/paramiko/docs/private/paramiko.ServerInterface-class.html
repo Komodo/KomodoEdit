@@ -1,0 +1,898 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.ServerInterface</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;ServerInterface
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<b>show&nbsp;private</b>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="../private/paramiko.ServerInterface-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type ServerInterface</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+
+         |
+        <b>ServerInterface</b>
+</pre><br />
+
+<hr/>
+
+<p>This class defines an interface for controlling the behavior of 
+paramiko in server mode.</p>
+Methods on this class are called from paramiko's primary thread, so 
+you shouldn't do too much work in them. (Certainly nothing that blocks or 
+sleeps.)
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int or <a 
+        href="../private/paramiko.server.InteractiveQuery-class.html" 
+        class="link"><code>InteractiveQuery</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_auth_interactive" class="summary-sig-name"><code>check_auth_interactive</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>submethods</span>)</span></code>
+<br />
+Begin an interactive authentication challenge, if supported.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int or <a 
+        href="../private/paramiko.server.InteractiveQuery-class.html" 
+        class="link"><code>InteractiveQuery</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_auth_interactive_response" class="summary-sig-name"><code>check_auth_interactive_response</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>responses</span>)</span></code>
+<br />
+Continue or finish an interactive authentication challenge, if 
+supported.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_auth_none" class="summary-sig-name"><code>check_auth_none</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>)</span></code>
+<br />
+Determine if a client may open channels with no (further) 
+authentication.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_auth_password" class="summary-sig-name"><code>check_auth_password</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>password</span>)</span></code>
+<br />
+Determine if a given username and password supplied by the client is 
+acceptable for use in authentication.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_auth_publickey" class="summary-sig-name"><code>check_auth_publickey</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>key</span>)</span></code>
+<br />
+Determine if a given key supplied by the client is acceptable for use 
+in authentication.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_exec_request" class="summary-sig-name"><code>check_channel_exec_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>command</span>)</span></code>
+<br />
+Determine if a shell command will be executed for the client.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_pty_request" class="summary-sig-name"><code>check_channel_pty_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>term</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>,
+          <span class=summary-sig-arg>pixelwidth</span>,
+          <span class=summary-sig-arg>pixelheight</span>,
+          <span class=summary-sig-arg>modes</span>)</span></code>
+<br />
+Determine if a pseudo-terminal of the given dimensions (usually 
+requested for shell access) can be provided on the given channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_request" class="summary-sig-name"><code>check_channel_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>kind</span>,
+          <span class=summary-sig-arg>chanid</span>)</span></code>
+<br />
+Determine if a channel request of a given type will be granted, and 
+return <code>OPEN_SUCCEEDED</code> or an error code.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_shell_request" class="summary-sig-name"><code>check_channel_shell_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>)</span></code>
+<br />
+Determine if a shell will be provided to the client on the given 
+channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_subsystem_request" class="summary-sig-name"><code>check_channel_subsystem_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+<br />
+Determine if a requested subsystem will be provided to the client on 
+the given channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_channel_window_change_request" class="summary-sig-name"><code>check_channel_window_change_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>channel</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>,
+          <span class=summary-sig-arg>pixelwidth</span>,
+          <span class=summary-sig-arg>pixelheight</span>)</span></code>
+<br />
+Determine if the pseudo-terminal on the given channel can be 
+resized.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#check_global_request" class="summary-sig-name"><code>check_global_request</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>kind</span>,
+          <span class=summary-sig-arg>msg</span>)</span></code>
+<br />
+Handle a global request of the given <code>kind</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.ServerInterface-class.html#get_allowed_auths" class="summary-sig-name"><code>get_allowed_auths</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>)</span></code>
+<br />
+Return a list of authentication methods supported by the server.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__init__(...) initializes x; see x.__class__.__doc__ for 
+signature</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="check_auth_interactive"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_auth_interactive</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>submethods</span>)</span>
+  </h3>
+  <p>Begin an interactive authentication challenge, if supported. You 
+  should override this method in server mode if you want to support the 
+  <code>&quot;keyboard-interactive&quot;</code> auth type, which requires 
+  you to send a series of questions for the client to answer.</p>
+  <p>Return <a href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a> if this auth method isn't 
+  supported. Otherwise, you should return an <a 
+  href="../private/paramiko.server.InteractiveQuery-class.html" 
+  class="link"><code>InteractiveQuery</code></a> object containing the 
+  prompts and instructions for the user. The response will be sent via a 
+  call to <a 
+  href="../private/paramiko.ServerInterface-class.html#check_auth_interactive_response" 
+  class="link"><code>check_auth_interactive_response</code></a>.</p>
+  The default implementation always returns <a 
+  href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username of the authenticating client
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>submethods</b></code> -
+         a comma-separated list of methods preferred by the client 
+        (usually empty)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko-module.html#AUTH_FAILED" 
+        class="link"><code>AUTH_FAILED</code></a> if this auth method 
+        isn't supported; otherwise an object containing queries for the 
+        user
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or <a 
+        href="../private/paramiko.server.InteractiveQuery-class.html" 
+        class="link"><code>InteractiveQuery</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_auth_interactive_response"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_auth_interactive_response</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>responses</span>)</span>
+  </h3>
+  <p>Continue or finish an interactive authentication challenge, if 
+  supported. You should override this method in server mode if you want 
+  to support the <code>&quot;keyboard-interactive&quot;</code> auth 
+  type.</p>
+  <p>Return <a href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a> if the responses are not 
+  accepted, <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+  class="link"><code>AUTH_SUCCESSFUL</code></a> if the responses are 
+  accepted and complete the authentication, or <a 
+  href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+  class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if your 
+  authentication is stateful, and this set of responses is accepted for 
+  authentication, but more authentication is required. (In this latter 
+  case, <a 
+  href="../private/paramiko.ServerInterface-class.html#get_allowed_auths" 
+  class="link"><code>get_allowed_auths</code></a> will be called to 
+  report to the client what options it has for continuing the 
+  authentication.)</p>
+  <p>If you wish to continue interactive authentication with more 
+  questions, you may return an <a 
+  href="../private/paramiko.server.InteractiveQuery-class.html" 
+  class="link"><code>InteractiveQuery</code></a> object, which should 
+  cause the client to respond with more answers, calling this method 
+  again. This cycle can continue indefinitely.</p>
+  The default implementation always returns <a 
+  href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>responses</b></code> -
+         list of responses from the client
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=list(str))</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko-module.html#AUTH_FAILED" 
+        class="link"><code>AUTH_FAILED</code></a> if the authentication 
+        fails; <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+        class="link"><code>AUTH_SUCCESSFUL</code></a> if it succeeds; <a 
+        href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+        class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if the 
+        interactive auth is successful, but authentication must continue; 
+        otherwise an object containing queries for the user
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or <a 
+        href="../private/paramiko.server.InteractiveQuery-class.html" 
+        class="link"><code>InteractiveQuery</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_auth_none"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_auth_none</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>)</span>
+  </h3>
+  <p>Determine if a client may open channels with no (further) 
+  authentication.</p>
+  <p>Return <a href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a> if the client must 
+  authenticate, or <a 
+  href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+  class="link"><code>AUTH_SUCCESSFUL</code></a> if it's okay for the 
+  client to not authenticate.</p>
+  The default implementation always returns <a 
+  href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username of the client.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko-module.html#AUTH_FAILED" 
+        class="link"><code>AUTH_FAILED</code></a> if the authentication 
+        fails; <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+        class="link"><code>AUTH_SUCCESSFUL</code></a> if it succeeds.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_auth_password"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_auth_password</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>password</span>)</span>
+  </h3>
+  <p>Determine if a given username and password supplied by the client is 
+  acceptable for use in authentication.</p>
+  <p>Return <a href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a> if the password is not 
+  accepted, <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+  class="link"><code>AUTH_SUCCESSFUL</code></a> if the password is 
+  accepted and completes the authentication, or <a 
+  href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+  class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if your 
+  authentication is stateful, and this key is accepted for 
+  authentication, but more authentication is required. (In this latter 
+  case, <a 
+  href="../private/paramiko.ServerInterface-class.html#get_allowed_auths" 
+  class="link"><code>get_allowed_auths</code></a> will be called to 
+  report to the client what options it has for continuing the 
+  authentication.)</p>
+  The default implementation always returns <a 
+  href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username of the authenticating client.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         the password given by the client.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko-module.html#AUTH_FAILED" 
+        class="link"><code>AUTH_FAILED</code></a> if the authentication 
+        fails; <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+        class="link"><code>AUTH_SUCCESSFUL</code></a> if it succeeds; <a 
+        href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+        class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if the 
+        password auth is successful, but authentication must 
+        continue.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_auth_publickey"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_auth_publickey</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>key</span>)</span>
+  </h3>
+  <p>Determine if a given key supplied by the client is acceptable for 
+  use in authentication. You should override this method in server mode 
+  to check the username and key and decide if you would accept a 
+  signature made using this key.</p>
+  <p>Return <a href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a> if the key is not accepted, 
+  <a href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+  class="link"><code>AUTH_SUCCESSFUL</code></a> if the key is accepted 
+  and completes the authentication, or <a 
+  href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+  class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if your 
+  authentication is stateful, and this password is accepted for 
+  authentication, but more authentication is required. (In this latter 
+  case, <a 
+  href="../private/paramiko.ServerInterface-class.html#get_allowed_auths" 
+  class="link"><code>get_allowed_auths</code></a> will be called to 
+  report to the client what options it has for continuing the 
+  authentication.)</p>
+  <p>Note that you don't have to actually verify any key signtature here. 
+  If you're willing to accept the key, paramiko will do the work of 
+  verifying the client's signature.</p>
+  The default implementation always returns <a 
+  href="../private/paramiko-module.html#AUTH_FAILED" 
+  class="link"><code>AUTH_FAILED</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username of the authenticating client
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>key</b></code> -
+         the key object provided by the client
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <a href="../private/paramiko-module.html#AUTH_FAILED" 
+        class="link"><code>AUTH_FAILED</code></a> if the client can't 
+        authenticate with this key; <a 
+        href="../private/paramiko-module.html#AUTH_SUCCESSFUL" 
+        class="link"><code>AUTH_SUCCESSFUL</code></a> if it can; <a 
+        href="../private/paramiko-module.html#AUTH_PARTIALLY_SUCCESSFUL" 
+        class="link"><code>AUTH_PARTIALLY_SUCCESSFUL</code></a> if it can 
+        authenticate with this key but must continue with 
+        authentication
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_exec_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_exec_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>command</span>)</span>
+  </h3>
+  <p>Determine if a shell command will be executed for the client. If 
+  this method returns <code>True</code>, the channel should be connected 
+  to the stdin, stdout, and stderr of the shell command.</p>
+  The default implementation always returns <code>False</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> the request arrived on.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>command</b></code> -
+         the command to execute.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if this channel is now hooked up to the 
+        stdin, stdout, and stderr of the executing command; 
+        <code>False</code> if the command will not be executed.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_pty_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_pty_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>term</span>,
+          <span class=sig-arg>width</span>,
+          <span class=sig-arg>height</span>,
+          <span class=sig-arg>pixelwidth</span>,
+          <span class=sig-arg>pixelheight</span>,
+          <span class=sig-arg>modes</span>)</span>
+  </h3>
+  <p>Determine if a pseudo-terminal of the given dimensions (usually 
+  requested for shell access) can be provided on the given channel.</p>
+  The default implementation always returns <code>False</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> the pty request arrived 
+        on.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>term</b></code> -
+         type of terminal requested (for example, 
+        <code>&quot;vt100&quot;</code>).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>width</b></code> -
+         width of screen in characters.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>height</b></code> -
+         height of screen in characters.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>pixelwidth</b></code> -
+         width of screen in pixels, if known (may be <code>0</code> if 
+        unknown).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>pixelheight</b></code> -
+         height of screen in pixels, if known (may be <code>0</code> if 
+        unknown).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if the psuedo-terminal has been allocated; 
+        <code>False</code> otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>kind</span>,
+          <span class=sig-arg>chanid</span>)</span>
+  </h3>
+  <p>Determine if a channel request of a given type will be granted, and 
+  return <code>OPEN_SUCCEEDED</code> or an error code. This method is 
+  called in server mode when the client requests a channel, after 
+  authentication is complete.</p>
+  If you allow channel requests (and an ssh server that didn't would 
+  be useless), you should also override some of the channel request 
+  methods below, which are used to determine which services will be 
+  allowed on a given channel:
+  <ul>
+    <li>
+      <a 
+      href="../private/paramiko.ServerInterface-class.html#check_channel_pty_request" 
+      class="link"><code>check_channel_pty_request</code></a>
+    </li>
+    <li>
+      <a 
+      href="../private/paramiko.ServerInterface-class.html#check_channel_shell_request" 
+      class="link"><code>check_channel_shell_request</code></a>
+    </li>
+    <li>
+      <a 
+      href="../private/paramiko.ServerInterface-class.html#check_channel_subsystem_request" 
+      class="link"><code>check_channel_subsystem_request</code></a>
+    </li>
+    <li>
+      <a 
+      href="../private/paramiko.ServerInterface-class.html#check_channel_window_change_request" 
+      class="link"><code>check_channel_window_change_request</code></a>
+    </li>
+  </ul>
+  <p>The <code>chanid</code> parameter is a small number that uniquely 
+  identifies the channel within a <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>. A <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> object is not created unless this 
+  method returns <code>OPEN_SUCCEEDED</code> -- once a <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> object is created, you can call 
+  <a href="paramiko.Channel-class.html#get_id" 
+  class="link"><code>Channel.get_id</code></a> to retrieve the channel 
+  ID.</p>
+  The return value should either be <code>OPEN_SUCCEEDED</code> (or 
+  <code>0</code>) to allow the channel request, or one of the following 
+  error codes to reject it:
+  <ul>
+    <li>
+      <code>OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED</code>
+    </li>
+    <li>
+      <code>OPEN_FAILED_CONNECT_FAILED</code>
+    </li>
+    <li>
+      <code>OPEN_FAILED_UNKNOWN_CHANNEL_TYPE</code>
+    </li>
+    <li>
+      <code>OPEN_FAILED_RESOURCE_SHORTAGE</code>
+    </li>
+  </ul>
+  The default implementation always returns 
+  <code>OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>kind</b></code> -
+         the kind of channel the client would like to open (usually 
+        <code>&quot;session&quot;</code>).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>chanid</b></code> -
+         ID of the channel
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a success or failure code (listed above)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_shell_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_shell_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>)</span>
+  </h3>
+  <p>Determine if a shell will be provided to the client on the given 
+  channel. If this method returns <code>True</code>, the channel should 
+  be connected to the stdin/stdout of a shell (or something that acts 
+  like a shell).</p>
+  The default implementation always returns <code>False</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> the request arrived on.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if this channel is now hooked up to a shell; 
+        <code>False</code> if a shell can't or won't be provided.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_subsystem_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_subsystem_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>name</span>)</span>
+  </h3>
+  <p>Determine if a requested subsystem will be provided to the client on 
+  the given channel. If this method returns <code>True</code>, all future 
+  I/O through this channel will be assumed to be connected to the 
+  requested subsystem. An example of a subsystem is 
+  <code>sftp</code>.</p>
+  The default implementation checks for a subsystem handler assigned 
+  via <a href="paramiko.Transport-class.html#set_subsystem_handler" 
+  class="link"><code>Transport.set_subsystem_handler</code></a>. If one 
+  has been set, the handler is invoked and this method returns 
+  <code>True</code>. Otherwise it returns <code>False</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> the pty request arrived 
+        on.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>name</b></code> -
+         name of the requested subsystem.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if this channel is now hooked up to the 
+        requested subsystem; <code>False</code> if that subsystem can't 
+        or won't be provided.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Note:</b> Because the default implementation uses the <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> to identify valid subsystems, you 
+probably won't need to override this method.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_channel_window_change_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_channel_window_change_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>channel</span>,
+          <span class=sig-arg>width</span>,
+          <span class=sig-arg>height</span>,
+          <span class=sig-arg>pixelwidth</span>,
+          <span class=sig-arg>pixelheight</span>)</span>
+  </h3>
+  <p>Determine if the pseudo-terminal on the given channel can be 
+  resized. This only makes sense if a pty was previously allocated on 
+  it.</p>
+  The default implementation always returns <code>False</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>channel</b></code> -
+         the <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a> the pty request arrived 
+        on.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+              class="link"><code>Channel</code></a>)</i>
+      <dd><code><b>width</b></code> -
+         width of screen in characters.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>height</b></code> -
+         height of screen in characters.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>pixelwidth</b></code> -
+         width of screen in pixels, if known (may be <code>0</code> if 
+        unknown).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>pixelheight</b></code> -
+         height of screen in pixels, if known (may be <code>0</code> if 
+        unknown).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if the terminal was resized; 
+        <code>False</code> if not.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="check_global_request"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">check_global_request</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>kind</span>,
+          <span class=sig-arg>msg</span>)</span>
+  </h3>
+  <p>Handle a global request of the given <code>kind</code>. This method 
+  is called in server mode and client mode, whenever the remote host 
+  makes a global request. If there are any arguments to the request, they 
+  will be in <code>msg</code>.</p>
+  <p>There aren't any useful global requests defined, aside from port 
+  forwarding, so usually this type of request is an extension to the 
+  protocol.</p>
+  <p>If the request was successful and you would like to return 
+  contextual data to the remote host, return a tuple. Items in the tuple 
+  will be sent back with the successful result. (Note that the items in 
+  the tuple can only be strings, ints, longs, or bools.)</p>
+  The default implementation always returns <code>False</code>, 
+  indicating that it does not support any global requests.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>kind</b></code> -
+         the kind of global request being made.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>msg</b></code> -
+         any extra arguments to the request.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Message-class.html" 
+              class="link"><code>Message</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> or a tuple of data if the request was 
+        granted; <code>False</code> otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_allowed_auths"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_allowed_auths</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>)</span>
+  </h3>
+  <p>Return a list of authentication methods supported by the server. 
+  This list is sent to clients attempting to authenticate, to inform them 
+  of authentication methods that might be successful.</p>
+  <p>The &quot;list&quot; is actually a string of comma-separated names 
+  of types of authentication. Possible values are 
+  <code>&quot;password&quot;</code>, <code>&quot;publickey&quot;</code>, 
+  and <code>&quot;none&quot;</code>.</p>
+  The default implementation always returns 
+  <code>&quot;password&quot;</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>username</b></code> -
+         the username requesting authentication.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a comma-separated list of authentication types
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:05 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

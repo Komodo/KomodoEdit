@@ -1,0 +1,63 @@
+	-- SGML catalog for the W3C Markup Validation Service --
+	-- $Id: sgml.soc,v 1.18 2005/07/26 03:22:32 ot Exp $ --
+
+OVERRIDE YES	-- prefer public identifiers to system identifiers --
+SGMLDECL sgml.dcl
+
+	-- ISO latin 1 entity set for HTML --
+PUBLIC  "ISO 8879-1986//ENTITIES Added Latin 1//EN//HTML" IETF/ISOlat1.ent
+PUBLIC  "ISO 8879-1986//ENTITIES Added Latin 1//EN"       IETF/ISOlat1.ent
+
+        -- HTML 2 --
+	-- Ways to refer to Level 2: most general to most specific --
+PUBLIC  "HTML"                                  IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML//EN"                 IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML//EN//2.0"            IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0//EN"             IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML Level 2//EN"         IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML Level 2//EN//2.0"    IETF/HTML-2_0.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0 Level 2//EN"     IETF/HTML-2_0.dtd
+        -- Ways to refer to Level 1: most general to most specific --
+PUBLIC  "-//IETF//DTD HTML Level 1//EN"         IETF/HTML-2_0-Level_1.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0 Level 1//EN"     IETF/HTML-2_0-Level_1.dtd
+        -- Ways to refer to Strict Level 2: most general to most specific --
+PUBLIC  "-//IETF//DTD HTML Strict//EN"          IETF/HTML-2_0-Strict.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0 Strict//EN"      IETF/HTML-2_0-Strict.dtd
+PUBLIC  "-//IETF//DTD HTML Strict Level 2//EN"  IETF/HTML-2_0-Strict.dtd 
+PUBLIC  "-//IETF//DTD HTML 2.0 Strict Level 2//EN"      IETF/HTML-2_0-Strict.dtd
+        -- Ways to refer to Strict Level 1: most general to most specific --
+PUBLIC  "-//IETF//DTD HTML Strict Level 1//EN"          IETF/HTML-2_0-Strict-Level_1.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0 Strict Level 1//EN"      IETF/HTML-2_0-Strict-Level_1.dtd
+
+
+	-- HTML 3.2 --
+PUBLIC "-//W3C//DTD HTML 3.2//EN"		REC-html32-19970114/HTML32.dtd
+PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"		REC-html32-19970114/HTML32.dtd
+PUBLIC "-//W3C//DTD HTML 3.2 Draft//EN"		REC-html32-19970114/HTML32.dtd
+
+	-- HTML 4.0 --
+PUBLIC "-//W3C//DTD HTML 4.0//EN"		REC-html40-19980424/strict.dtd
+PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"	REC-html40-19980424/loose.dtd
+PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN"	REC-html40-19980424/frameset.dtd
+
+	-- HTML 4.01 --
+PUBLIC "-//W3C//DTD HTML 4.01//EN"		REC-html401-19991224/strict.dtd
+PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"	REC-html401-19991224/loose.dtd
+PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"	REC-html401-19991224/frameset.dtd
+PUBLIC "-//W3C//ENTITIES Latin 1//EN//HTML"	REC-html401-19991224/HTMLlat1.ent
+PUBLIC "-//W3C//ENTITIES Latin1//EN//HTML"	REC-html401-19991224/HTMLlat1.ent
+PUBLIC "-//W3C//ENTITIES Special//EN//HTML"	REC-html401-19991224/HTMLspecial.ent
+PUBLIC "-//W3C//ENTITIES Symbols//EN//HTML"	REC-html401-19991224/HTMLsymbol.ent
+
+	-- ISO-HTML --
+PUBLIC "ISO/IEC 15445:2000//DTD HyperText Markup Language//EN"	ISO-HTML/15445.dtd
+PUBLIC "ISO/IEC 15445:2000//DTD HTML//EN"	ISO-HTML/15445.dtd
+PUBLIC "-//W3C//ENTITIES Full Latin 1//EN//HTML"	REC-html401-19991224/HTMLlat1.ent
+PUBLIC "-//W3C//ENTITIES Symbolic//EN//HTML"	REC-html401-19991224/HTMLsymbol.ent
+
+
+        -- Do not prefer document type name over a SYSTEM Identifier. --
+OVERRIDE NO
+
+	-- Fallback for HTML documents if no FPI is given. --
+DOCTYPE html sgml.dtd

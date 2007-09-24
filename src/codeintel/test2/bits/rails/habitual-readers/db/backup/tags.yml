@@ -1,0 +1,13 @@
+--- 
+- !ruby/object:Tag 
+  attributes: 
+    name: sci-fi
+    id: "1"
+- !ruby/object:Tag 
+  attributes: 
+    name: humour
+    id: "2"
+- !ruby/object:Tag 
+  attributes: 
+    name: satire
+    id: "3"

@@ -1,0 +1,15 @@
+/* Copyright (c) 2003-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// Scintilla/SciMoz utilities for Komodo.
+
+#include "nsISupports.idl"
+#include "ISciMoz.idl"
+
+
+[scriptable, uuid(0A5C0897-4DCD-483E-8E41-CEF98F9513B3)]
+interface koISciUtils : nsISupports {
+    wstring styleNameFromNum(in wstring language, in long styleNum);
+    
+    void test_scimoz(in ISciMoz scimoz);
+};

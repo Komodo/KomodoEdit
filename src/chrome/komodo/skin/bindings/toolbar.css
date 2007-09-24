@@ -1,0 +1,14 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/******** toolbar widget **********/
+
+
+toolbox[type="reflow"] {
+  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox");
+}
+
+toolboxrow {
+  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox-reflow-row");
+}
+

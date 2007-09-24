@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+First-time install dialog sequence:      Maintenance dialog sequence:
+ - WixUI_WelcomeDlg                     - WixUI_MaintenanceWelcomeDlg
+ - WixUI_LicenseAgreementDlg            - WixUI_MaintenanceTypeDlg
+ - WixUI_SetupTypeDlg                     - WixUI_CustomizeDlg
+   - WixUI_VerifyReadyDlg                 - WixUI_VerifyRepairDlg
+   - WixUI_CustomizeDlg                   - WixUI_VerifyRemoveDlg
+     - WixUI_DiskCostDlg
+     - WixUI_BrowseDlg
+-->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+    <UI Id="WixUI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Wizard_Name" Value="WiX Setup Wizard" />
+      <Property Id="WixUI_Mode" Value="Mondo" />
+
+      <DialogRef Id="LicenseAgreementDlg" />
+      <DialogRef Id="SetupTypeDlg" />
+      <DialogRef Id="VerifyReadyDlg" />
+      <DialogRef Id="CustomizeDlg" />
+      <DialogRef Id="MaintenanceTypeDlg" />
+      <DialogRef Id="VerifyRepairDlg" />
+      <DialogRef Id="VerifyRemoveDlg" />
+
+      <Property Id="WixUI_WelcomeDlg_Next" Value="LicenseAgreementDlg" />
+
+      <Property Id="WixUI_LicenseAgreementDlg_Back" Value="WelcomeDlg" />
+      <Property Id="WixUI_LicenseAgreementDlg_Next" Value="SetupTypeDlg" />
+
+      <Property Id="WixUI_SetupTypeDlg_NextTypical" Value="VerifyReadyDlg" />
+      <Property Id="WixUI_SetupTypeDlg_NextCustom" Value="CustomizeDlg" />
+      <Property Id="WixUI_SetupTypeDlg_NextComplete" Value="VerifyReadyDlg" />
+      <Property Id="WixUI_SetupTypeDlg_Back" Value="LicenseAgreementDlg" />
+
+      <Property Id="WixUI_CustomizeDlg_BackChange" Value="MaintenanceTypeDlg" />
+      <Property Id="WixUI_CustomizeDlg_BackCustom" Value="SetupTypeDlg" />
+      <Property Id="WixUI_CustomizeDlg_BackFeatureTree" Value="**shouldnt_happen**" />
+      <Property Id="WixUI_CustomizeDlg_Next" Value="VerifyReadyDlg" />
+
+      <Property Id="WixUI_VerifyReadyDlg_BackCustom" Value="CustomizeDlg" />
+      <Property Id="WixUI_VerifyReadyDlg_BackChange" Value="CustomizeDlg" />
+      <Property Id="WixUI_VerifyReadyDlg_BackRepair" Value="MaintenanceTypeDlg" />
+      <Property Id="WixUI_VerifyReadyDlg_BackTypical" Value="SetupTypeDlg" />
+      <Property Id="WixUI_VerifyReadyDlg_BackComplete" Value="SetupTypeDlg" />
+
+      <Property Id="WixUI_MaintenanceWelcomeDlg_Next" Value="MaintenanceTypeDlg" />
+
+      <Property Id="WixUI_MaintenanceTypeDlg_Change" Value="CustomizeDlg" />
+      <Property Id="WixUI_MaintenanceTypeDlg_Repair" Value="VerifyRepairDlg" />
+      <Property Id="WixUI_MaintenanceTypeDlg_Remove" Value="VerifyRemoveDlg" />
+      <Property Id="WixUI_MaintenanceTypeDlg_Back" Value="MaintenanceWelcomeDlg" />
+
+      <Property Id="WixUI_VerifyRemoveDlg_Back" Value="MaintenanceTypeDlg" />
+      <Property Id="WixUI_VerifyRepairDlg_Back" Value="MaintenanceTypeDlg" />
+
+      <InstallUISequence>
+        <Show Dialog="WelcomeDlg" After="MigrateFeatureStates">NOT Installed</Show>
+        <Show Dialog="ResumeDlg" After="WelcomeDlg">Installed AND (RESUME OR Preselected)</Show>
+        <Show Dialog="MaintenanceWelcomeDlg" After="ResumeDlg">Installed AND NOT RESUME AND NOT Preselected</Show>
+        <Show Dialog="ProgressDlg" After="MaintenanceWelcomeDlg" />
+        <Show Dialog="PrepareDlg" After="LaunchConditions" />
+      </InstallUISequence>
+    </UI>
+
+    <FragmentRef Id="WixUI_Common" />
+  </Fragment>
+</Wix>

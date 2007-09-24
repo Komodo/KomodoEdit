@@ -1,0 +1,8 @@
+<h3><%= @tag.name %> Books</h3>
+
+<table>
+	<%= column_headings ["Book", "#reads", "Last read by", "When"],  @show_actions %>
+	<tbody>
+		<%= render :partial => "book", :collection => @books %>
+	</tbody>
+</table>

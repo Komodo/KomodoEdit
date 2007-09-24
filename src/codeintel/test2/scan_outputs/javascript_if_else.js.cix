@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_if_else.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_if_else.js" src="scan_inputs/javascript_if_else.js">
+      <variable citdl="Number" line="1" name="x" />
+      <variable citdl="Number" line="3" name="y" />
+      <variable citdl="Number" line="5" name="z" />
+    </scope>
+  </file>
+</codeintel>

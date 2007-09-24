@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/bug_48808b.rb">
+    <scope ilk="blob" lang="Ruby" name="bug_48808b">
+      <variable attributes="__local__" citdl="String" line="2" name="s1" />
+      <variable attributes="__local__" citdl="String" line="3" name="s2" />
+      <variable attributes="__local__" citdl="String" line="4" name="s3" />
+      <variable attributes="__local__" citdl="String" line="5" name="s4" />
+      <variable attributes="__local__" citdl="String" line="6" name="s5" />
+      <variable attributes="__local__" citdl="String" line="9" name="s6" />
+      <variable attributes="__local__" citdl="String" line="10" name="s7" />
+    </scope>
+  </file>
+</codeintel>

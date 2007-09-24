@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    title="&renameItem.title;"
+    orient="vertical"
+    buttons="cancel,accept"
+    ondialogcancel="return onCancel()"
+    ondialogaccept="return onOk()"
+    onload="onLoad()"
+    width="350"
+    height="260">
+
+    <keyset id="dialogKeys" />
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script>
+    <![CDATA[
+        var partName, partValue;
+
+        function onLoad() {
+            partName = document.getElementById('partName');
+            partValue = document.getElementById('partValue');
+            if (window.arguments && window.arguments[0]) {
+                partName.value = window.arguments[0].name;
+                partValue.value = window.arguments[0].value;
+            }
+            partName.focus();
+            partName.select();
+            var dialog = document.documentElement;
+            dialog.centerWindowOnScreen();
+        };
+
+        function onOk()  {
+            if (window.arguments && window.arguments[0]) {
+                window.arguments[0].name=partName.value;
+                window.arguments[0].value=partValue.value;
+                window.arguments[0].res = true;
+            }
+            return true;
+        };
+
+        function onCancel()  {
+            window.arguments[0].res= false;
+            return true;
+        };
+
+    ]]>
+    </script>
+
+    <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+    <label value="Item Name"/>
+    <textbox id="partName" pref="true" value=""/>
+    <separator class="thin"/>
+    <label value="Item Value"/>
+    <textbox id="partValue" pref="true" readonly="true" multiline="true" value="" flex="1"/>
+</dialog>

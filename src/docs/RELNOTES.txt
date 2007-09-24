@@ -1,0 +1,245 @@
+
+Release Notes
+
+   The Open Komodo Project is a code base for building IDEs. Komodo
+   Snapdragon is an IDE for Open Web technologies built on Open Komodo.
+   This document accompanies Komodo Snapdragon 1.0 Alpha 1.
+     * New In This Release
+     * Bug Fixes
+     * Known Issues
+
+New in Komodo Snapdragon:
+
+Bug Fixes
+
+Known Issues
+
+   To view the status of outstanding Komodo Snapdragon issues, including
+   those that have been fixed in this release, or to add comments or
+   additional issues, please visit the Komodo Bug Database. Komodo
+   Snapdragon inherits the following known issues from Komodo Edit.
+
+Installation & Upgrade
+
+     * When upgrading to a version of Komodo with a new application data
+       directory (i.e. 4.0.1 to 4.0.3 or 4.0.3 to 4.1), the usernames and
+       passwords for Remote Accounts are not imported. These must be
+       re-entered for each Server in the Server Preferences panel after
+       the upgrade.
+     * Windows Vista will prompt you to either 'Allow' or 'Deny' the
+       installation. Click on 'Allow' and Komodo will install normally.
+     * The Komodo installer requires up to 230 MB in your TMP directory
+       (as indicated by the value of your 'TMP' environment variable)
+       during installation, even if you plan to install Komodo to another
+       drive. If you do not have the required space on this drive,
+       manually set the 'TMP' environment variable to another directory
+       with sufficient space. Ensure that you have enough space,
+       temporarily, for installation. (Bug 7057)
+     * If you try to install Komodo on Windows and the MSI install fails
+       with error 2355, your MSI file is corrupt. Please download Komodo
+       again and re-run the MSI install. (Bug 7405)
+
+Startup
+
+     * The first time Komodo is run after installation, it must register
+       a number of components with the operating system. This causes the
+       first launch to be considerably slower than subsequent launches.
+
+Editing
+
+     * SuSE 10.2 users without Gnome installed may encounter a bug which
+       prevents text from being entered in editor tabs and other
+       scintilla text boxes. As a work-around, installing Gnome (even if
+       it is not used as the desktop environment) seems to solve this
+       problem. (Bug 70812)
+     * The line and column cursor coordinates in the status bar are not
+       updated while the cursor is moving.
+     * The macro recorder will record events that it cannot handle, such
+       as the opening of dialogs. The only dialog that can be opened via
+       a macro is the Find dialog; other dialogs will cause the macro to
+       stop.
+     * Languages that are read right to left and Asian languages are not
+       supported. All Latin and Cyrillic languages are fully supported.
+       (Bug 29702)
+     * On slow networks, users may notice performance degradation when
+       editing files on network machines. Performance can be improved by
+       disabling the Komodo function that checks if files on disk have
+       changed. Use the Editor Preferences to disable this feature. (Bug
+       18297)
+     * Interpolation shortcuts in snippets are not executed when the
+       snippet is inserted in the Editor Pane via dragging and dropping.
+     * On Linux, GTK2 hard codes 'Ctrl'+'Shift' to use international
+       input. Therefore, all key bindings involving 'Ctrl'+'Shift'+ (any
+       valid hexadecimal character} do not work in Komodo. A workaround
+       is to start Komodo with the command: export GTK_IM_MODULE=xim;
+       ./komodo'. Otherwise, key bindings of this kind must be changed.
+       (Bug 38205)
+     * When copying text that does not have Windows line endings into
+       another application, which expects Windows line endings, the text
+       may not retain the desired formatting. The text is often pasted as
+       a single line. (Bug 36791)
+     * Code snippets that are 8-bit-encoded and contain high-bit
+       characters may have the wrong encoding (or no encoding) when
+       inserted from the Toolbox into a UTF-8 encoded file in the Editor
+       Pane. (Bug 36769)
+     * When editing a code comment in Komodo you may use <Shift+Enter> to
+       start a new line within the comment -- the comment prefix is added
+       automatically. Komodo may fail to properly add the comment prefix
+       if many new lines are added quickly with repeated <Shift+Enter>
+       presses. (Bug 38658)
+
+Mac OS X
+
+     * If you have two drives with the same name, and you use the file
+       open dialog in a mozilla application, the directory menu (top
+       middle of dialog) may crash when clicked. To avoid this, rename
+       one of the hard drives.
+     * New Custom Menus created in a Project or in the Toolbox will not
+       appear until Komodo has been restared.
+     * Throughout the Komodo documentation there are references to key
+       bindings that use the 'Meta' key. This key may be better known to
+       OS X users as the 'Command' key. (Bug 41959)
+     * Komodo will shut down and restart itself the first time it is run
+       after installation. (Bug 40143)
+     * Display of text during editing ("painting") may sometimes be slow
+       or pause momentarily.
+     * Certain UI elements stop working after changing key bindings.
+       Restarting Komodo fixes this. (Bug 38683)
+     * When saving a file, Komodo does not set file information (type and
+       creator) for the OS X Finder to know that Komodo created the file.
+       (Bug 38745)
+     * Komodo is sometimes recognized as a web browser by some
+       applications on OS X (e.g. Safari's "Default Web Browser"
+       setting). Using Komodo as the default web browser is not
+       recommended.
+     * Application menu items that have multi-key key bindings will not
+       show their key bindings in a pop-up tool tip on OS X. This is a
+       limitation in OS X.
+     * Context menus may not display unless you hold down the mouse
+       button for a period of time. This is because the Komodo editor is
+       implemented in Mozilla as a plugin, and it does not access the
+       apropriate context menu event to handle this behaviour properly
+       without interfering with other mouse events (for example, drag and
+       drop). (Bug 41216)
+     * Due to a limitation in the Mozilla code base, key bindings for the
+       Next File and Previous File options on the Window menu are not
+       displayed next to the menu items. The key bindings are
+       'Meta'+'PageDown' to view the next file and 'Meta'+'PageUp' to
+       view the previous file. (Bug 40716)
+
+Linux
+
+     * When closing any Komodo window that contains an editor component,
+       a GLIB error entry will appear in the log files (or terminal if
+       Komodo was started from one). This error can be safely ignored. A
+       patch was submitted by the Mozilla group to the Gnome group that
+       handles this error, and should be available in GTK 2.4 or higher.
+       The patch can be viewed at
+       http://bugzilla.gnome.org/show_bug.cgi?id=128546
+       (Bug 33817)
+     * The Fonts and Colors pane in the Preferences dialog box displays
+       the same list of fonts in both the Fixed and Proportional lists.
+       There is no programmatic way to identify whether a font is
+       proportional or not on GTK; therefore, users must know the
+       properties of the individual fonts when modifying these values.
+       (Bug 27206)
+     * If the GTK theme is changed while Komodo is running, Komodo will
+       not change the menu/toolbar font colors, causing usability
+       problems in extreme cases. (Bug 34508)
+     * Install Komodo into a directory path that only includes
+       alphanumeric characters. Komodo is known to have trouble with
+       paths that include spaces and some non-alphanumeric characters.
+     * Filenames or paths containing non-ASCII characters cannot be
+       opened remotely.
+     * Key bindings defined in the window manager (such as KDE) take
+       precedence over Komodo key bindings. In the case of conflicts, you
+       must either change the Komodo key bindings or the window manager
+       key bindings. (Bug 30926)
+     * You cannot move an existing Komodo installation to a new
+       directory. You must uninstall Komodo from the existing location
+       and reinstall it in the new location. (Bug 19478)
+     * Red Hat Linux 9.0 is known to have threading library bugs in its
+       glibc that may cause Komodo to hang in certain situations. The
+       recommended solution is to upgrade to the latest glibc for Red Hat
+       Linux 9.0. (Bug 24340)
+     * Komodo may not start up correctly on some Linux systems if C++
+       compatibility libraries have not been installed. On Fedora and Red
+       Hat systems, install the "compat-libstdc++" package. On SuSE,
+       install the "compat" package. On Gentoo, as root, run emerge
+       lib-compat. This is not thought to be a problem on Debian systems.
+       (Bug 36244)
+     * Komodo will work on Debian/Ubuntu AMD64 with some manual
+       configuration (some libraries were not properly ported to support
+       32-bit applications). (Bug 41368) Run Komodo from a shell script
+       which sets certain environment variables:
+#!/bin/sh
+export GTK_PATH=/usr/lib32/gtk-2.0/
+export PANGO_RC_FILE=/etc/pango32/pangorc
+komodo
+       The pangorc file should contain the following:
+[Pango]
+ModuleFiles=/etc/pango32/pango.modules
+[PangoX]
+AliasFiles=/etc/pango/pangox.aliases
+       More information on running 32 bit Mozilla applications on AMD64
+       can be found here.
+
+Other
+
+     * A limitation in the parser used by the DOM Viewer causes HTML
+       elements embedded in JavaScript strings to appear as element nodes
+       of the current document. Placing the JavaScript in a CDATA section
+       or a comment avoids this problem.
+     * Komodo inherits a Mozilla bug whereby certain video drivers on
+       Windows cause Komodo to crash. If you experience this behavior,
+       upgrade your video driver to the latest version. If the problem
+       persists, reduce the color definition assigned to the driver
+       (Control Panel|Display|Settings). (Bug 32746)
+     * Komodo inherits a Mozilla bug regarding display on dual-monitor
+       systems where the secondary monitor is to the left of the primary
+       monitor (causing negative coordinate results). The Komodo display
+       occasionally fails to refresh; Komodo must be stopped and
+       restarted to fix the display (Bug 26852)
+     * When using Komodo's Preview in Browser feature, users running
+       Mozilla on Windows XP Pro, Windows 2000 Pro and Windows 98 may
+       find that they cannot exit Komodo if Mozilla is still open. If
+       this should occur, close all open browser windows before exiting
+       Komodo. (Bug 26431)
+     * The Palm Desktop for Windows software makes exclusive use of the
+       'Ctrl'+'Shift'+'T' key combination, thus making this combination
+       unavailable in Komodo. (Bug 27851)
+     * On Windows NT, some interactive commands may not work properly
+       when run from the Command Output tab of the Output Pane. You must
+       run these commands in a separate shell. (Bug 23176)
+     * In file picker dialogs that display a list of files, when "All
+       files" is specified, files that begin with a period are not
+       displayed (Bug 18712)
+     * The Output tab cuts off lines at 250 characters. (Bug 20711)
+     * Macros will not record certain commands, including (but possibly
+       not limited to) 'Ctrl'+'Shift'+'B'|'R'|'E'|'D' (toggle toolbars or
+       button text), 'Ctrl'+'Shift'+'N' (new default file), and View as
+       Language menu items.
+     * Users of the Japanese version of Windows XP may experience
+       difficulties in starting Komodo.
+     * The Open field in the Open/Find Toolbar does not automatically
+       display a drop-down list of directories when an UNC path is typed.
+       Currently, the list is only displayed when a the path includes a
+       subdirectory. (Bug 29011)
+     * When adding new key bindings via the Preferences dialog box,
+       Komodo displays a message indicating that the key bindings will
+       not take effect until Komodo is restarted. However, some changes
+       do take effect immediately.(Bug 36710)
+     * "Find" macros do not work because incorrect code is recorded. (Bug
+       36332)
+     * If you rename a folder that was added to a custom menu, the name
+       is changed in Komodo's Toolbox but not on the menu itself. A
+       workaround is to move the renamed folder out and then back into
+       the associated custom menu icon in the Toolbox. (Bug 36679)
+     * The Mozilla code base currently does not support the Windows
+       Unicode binary. As a result, Komodo for Windows is unable to open
+       files or paths that contain character sets that are not in the
+       systems locale. (Bug 33304)
+     * A newly created custom menu is added to the Toolbox but is not
+       immediately displayed alongside existing toolbars. Restarting
+       Komodo causes the new toolbar to display. (Bug 40078)
+     _________________________________________________________________

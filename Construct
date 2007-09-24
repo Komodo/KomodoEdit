@@ -1,0 +1,1165 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+# Construct file for Komodo
+#
+# XXX cons -r does not get everything (.pyc files in the components dir, does
+#     not unregister chrome, ...)
+
+use File::Find;
+use File::Basename;
+use File::Spec::Functions;
+use Cwd;
+
+use bkconfig;   # Komodo configuration Perl module created by "bk configure"
+
+#---- all the variables that the Komodo Conscripts need to know about
+my @toExport = (
+    'cons',
+    'platform',                 # the platform on which Komodo is built
+    'architecture', 'libcppVersion', 'glibcVersion',
+    'build', 'install', 'export', 'packages',
+    'installAbsDir', 'buildAbsDir',
+
+    'withSymbols',              # should include debug syms for C/C++ comps
+    'withCrypto',               # should build include crypto code
+    'withCasper',
+    'withJSLib',
+    'withDocJarring',
+    'withKomodoCix',
+    'xulrunner', # xulrunner based builds
+    'universal', # universal binary builds for osx
+
+    'ludditeVersion',
+    'isGTK2Siloed',             # boolean: are the GTK2 libs siloed in this build?
+    'komodoDevDir',
+    'buildFlavour',
+    'komodoLicensingType',
+    'ranRegxpcomStateFileName', # junk output file for the target which
+                                #runs 'regxpcom' as necessary
+    'buildType',
+
+    'supportDir',
+    'sdkDir',
+    'stubDir',
+    'docChromeDir',
+    'docDir',
+    'readmeDir',
+    'sysdllsDir',
+    'installSupportDir',
+
+    'compiler',
+    'idlExportDir',
+    'mozSrc',
+    'mozObjDir',
+    'mozResourcesDir',
+    'mozBin', 'mozDevelBin',
+    'mozDist', 'mozDevelDist',
+    'mozApp',
+    'mozExe',
+    'mozVersion', 'mozMajorVersion', 'mozMinorVersion', 'mozVersionNumber',
+    'mozComponentsDir',
+    'mozChromeDir',
+    'mozPluginsDir',
+    'mozExtensionDir',
+    'mozIncludePath',
+    'mozIdlIncludePath',
+    'mozLibPath',
+    'mozSrc',
+    'nsprIncludePath',
+    'nsprPrivateIncludePath',
+    'scintillaBuildDir',        # for the SciMoz build
+    'siloedPythonVersion',        # e.g. "2.4.1"
+    'siloedPyVer',                # e.g. "2.4"
+    'siloedPython',               # e.g. /full/path/to/siloed/bin/python
+    'siloedDistutilsLibDirName',  # e.g. "lib.win32-2.4"
+    'unsiloedPythonExe',
+    # for building PyDBGP binary bits for all supported Python's
+    'pythonInstallDir',
+    'unsiloedPerlExe',
+    'perlVersion',
+    'komodoPythonUtilsDir',
+    'komodoDefaultUserInstallDir',
+
+    # Komodo version forms
+    'komodoVersion',                    # 3.10.0-alpha1
+    'productType',                      # ide
+    'prettyProductType',                # IDE
+    'productTagLine',
+    'buildNum',                         # 123456
+    'komodoShortVersion',               # 3.10
+    'komodoMarketingVersion',           # 3.X-alpha1
+    'komodoMarketingShortVersion',      # 3.X
+    'komodoPrettyVersion',              # 3.X Alpha 1
+    'komodoFullPrettyVersion',          # Komodo IDE 3.X Alpha 1 (Build 123456)
+    'komodoTitleBarName',               # ActiveState Komodo IDE 3.X
+    'komodoAppDataDirName',             # KomodoIDE or komodoide (plat-dep)
+    'version',  # alias for 'komodoVersion' for compatibility
+    'msiProductName',                   # ActiveState Komodo IDE 3.X Alpha 1
+    'msiInstallName',                   # ActiveState Komodo 3.X
+    'msiKomodoVersion',                 # 3.10.0
+    'msiKomodoId',
+    'msiRegistryId',
+    'msiKomodoPrettyId',
+    'komodoUpdateManualURL',
+
+    'macKomodoAppName',
+
+    'gnomeDesktopName',
+    'gnomeDesktopGenericName',
+    'gnomeDesktopCategories',
+    'gnomeDesktopShortcutName',
+
+    'jarring',   # TODO rename to "withJarring"
+
+    'buildTime',
+    'buildASCTime',
+    'buildPlatform',
+
+    'platformPathSep',
+);
+if ($platform eq "linux") {
+    push(@toExport, (
+        "linuxDistro",
+    ));
+}
+Export( @toExport );
+
+
+
+
+#--- print any build system message of the day
+print <<HERE if 0;
+*** KOMODO MESSAGE OF THE DAY ***
+*** END OF MESSAGE ***
+
+HERE
+
+
+#---- directory layout
+$export = $exportRelDir_ForCons;
+$build = $buildRelDir_ForCons;
+$contribBuild = $contribBuildRelDir_ForCons;
+$install = $installRelDir_ForCons;
+$packages = "#".$packagesRelDir;
+# export directory structure
+$idlExportDir = $idlExportRelDir_ForCons;
+# mozilla directories
+$mozSrc = $ENV{'MOZ_SRC'};
+$mozSrc or die "There was a problem determining MOZ_SRC. Please run 'ko configure'\n";
+$mozBin or die "There was a problem determining the Mozilla bin directory. Please ".
+    "run 'ko configure'\n";
+$mozDevelBin or die "There was a problem determining the Mozilla devel bin directory. Please ".
+    "run 'ko configure'\n";
+$mozDevelDist or die "There was a problem determining the Mozilla devel dist directory. Please ".
+    "run 'ko configure'\n";
+
+if ($platform eq "win") {
+    $platformPathSep = ";";
+} else {
+    $platformPathSep = ":";
+}
+
+
+# HACK Cons and g++ get confused if a directory with the same name as a 
+# #included file comes before the file in the include search path.
+# Mozilla has some headers in include/string, which conflicts with the
+# standard C++ header, <string>.
+#
+# Unfortunately, the behaviors of Cons differ on Windows and Linux
+# the Linux fix breaks cons on Windows, and the Windows fix breaks
+# gcc on Linux.  We need to understand what's going on, but we
+# also need builds working urgently, so special case it for now.
+
+
+$mozIncludeDir = "$mozDevelDist/include";
+$mozIncludePath = join($platformPathSep, 
+                       ("$mozIncludeDir",
+                        "$mozIncludeDir/xulapp",
+                        "$mozIncludeDir/dom",
+                        "$mozIncludeDir/nspr",
+                        "$mozIncludeDir/plugin",
+                        "$mozIncludeDir/widget",
+                        "$mozIncludeDir/xpcom"));
+
+
+if ($platform eq "win") {
+    # HACK $mozIncludeDir/string should be added to $mozIncludePath, but
+    # there is a bug in cons, such that directories with the same base
+    # name as #included files cause cons to stop with the error message:
+    #
+    # cons.pl: you have attempted to use path "d:\depot\main\Apps\Mozilla\moz.02oct.for_ko_12.winnt.debug\mozilla\dist\include\string" both as a file and as a directory!
+    #
+    # This fires because several files in Rx #include <string>.  We can
+    # work around this by adding $mozIncludeDir/string to the INCLUDE
+    # environment variable instead.
+    # XXX This hack might no longer be necessary now that the old Rx has
+    #     been removed.
+    $ENV{INCLUDE} = join($platformPathSep, ($ENV{INCLUDE}, 
+					    "$mozIncludeDir/string"));
+} elsif ($platform eq "darwin") {
+   # not an issue on osx
+    $mozIncludePath = join($platformPathSep, 
+			   ("$mozIncludePath",
+        		    "$mozIncludeDir/string"));
+} else {
+    # We can work around the problem by explicitly placing the standard C++
+    # headers ahead of the mozilla headers in the search path.
+    #
+    # This is not a general solution on Linux, because gcc might be
+    # installed under, e.g. /usr/local.  However, this hardcoded
+    # location does work on swatter, pliers, and screwdriver.  We need
+    # to figure out what Mozilla is doing.
+
+    #XXX should decide based on gcc version, not RH version
+    #    This is probably the source of the Rx compilation problem on
+    #    RedHat 9.x. and 8.x
+    my $cppHeaderDir = "";
+    if (-d "/usr/include/c++/3.2.2") {
+        # "string" and other headers seem to be here on RH9.0
+        $cppHeaderDir = "/usr/include/c++/3.2.2";
+    } elsif (-d "/usr/include/c++/3.2") {
+        # "string" and other headers seem to be here on RH8.0
+        $cppHeaderDir = "/usr/include/c++/3.2";
+    } elsif (-d "/usr/include/c++/3.3.2") {
+        # "string" and other headers are here on Fedora core 1
+        $cppHeaderDir = "/usr/include/c++/3.3.2";
+    } elsif (-d "/usr/include/g++-3") {
+        $cppHeaderDir = "/usr/include/g++-3";
+    } elsif (-d "/usr/include/g++-2") {
+        $cppHeaderDir = "/usr/include/g++-2";
+    } elsif (-d "/usr/include/g++") {
+	# SuSE 8.2
+        $cppHeaderDir = "/usr/include/g++";
+    } elsif (-d "/usr/local/include/c++/3.3") {
+        $cppHeaderDir = "/usr/local/include/c++/3.3";
+    } else {
+        print "XXX WARN: could not find an appropriate C++ include dir for the 'mozIncludePath' Cons variable. This may have been a problem for the old Rx.\n"
+    }
+
+    $mozIncludePath = join($platformPathSep, 
+			   ("$cppHeaderDir",
+			    "$mozIncludePath",
+        		    "$mozIncludeDir/string"));
+}
+
+$mozLibPath = "$mozDevelDist/lib";
+$mozIdlIncludePath = "$mozDevelDist/idl"; 
+$nsprIncludePath="$mozSrc/mozilla/nsprpub/pr/include";
+$nsprPrivateIncludePath="$mozSrc/mozilla/nsprpub/pr/include/private";
+
+# other stuff
+$ranRegxpcomStateFileName = "$build/ranregxpcom.consjunk";
+$komodoPythonUtilsDir or die "There was a problem determining the Komodo Python ".
+    "utils directory. Please run 'ko configure'\n";
+
+
+#---- print information about what will be done
+print "Building Komodo with the following configuration:\n";
+print "\tplatform: $platform\n";
+print "\tbuild type: $buildType\n";
+print "\tbuild flavour: $buildFlavour\n";
+print "\tlocation of Mozilla source: $mozSrc\n";
+print "\tlocation of supportDir: $supportDir\n";
+print "\tlocation of sdkDir: $sdkDir\n";
+
+
+#---- Setup construction environment
+my %environ = (
+    'PATH' => $ENV{PATH},
+    'INCLUDE' => $ENV{INCLUDE},  #XXX should be Win only
+    'LIB' => $ENV{LIB},  #XXX should be WIn only
+    'TEMP' => $ENV{TEMP},
+    'TMP' => $ENV{TMP} || $ENV{TEMP} || "/tmp",
+    'MOZ_SRC' => $ENV{MOZ_SRC},   #XXX required for perldbglistener, goes away when that makefile goes. (but now I am scared too --TM :)
+    'PYTHONPATH' => $ENV{PYTHONPATH},           # needed for 'regxpcom' 
+    'LD_LIBRARY_PATH' => $ENV{LD_LIBRARY_PATH}, # needed for 'regxpcom' on Linux
+    'DYLD_LIBRARY_PATH' => $ENV{DYLD_LIBRARY_PATH}, # needed for 'regxpcom' on MacOSX
+    'MOZILLA_FIVE_HOME' => $ENV{MOZILLA_FIVE_HOME}, # needed for 'regxpcom' on Linux
+    # Needed for when XPCOM stuff is invoked, so our patched Mozilla
+    # appdata dir determination code can use it.
+    'KOMODO_HOSTNAME' => $ENV{KOMODO_HOSTNAME},
+    'HOME' => $ENV{HOME},
+    'PKG_CONFIG_PATH' => $ENV{PKG_CONFIG_PATH},
+    'PROCESSOR_ARCHITECTURE' => $ENV{PROCESSOR_ARCHITECTURE},
+);
+# Needed for p4 calls in processes kicked off by Cons.
+foreach my $envvar (keys %ENV) {
+    if ($envvar =~ /^P4/) {
+        $environ{$envvar} = $ENV{$envvar};
+    }
+}
+
+
+$cons = new cons(
+    'ENV' => \%environ,
+);
+
+
+# cons defaults to using cc and c++ on Unix systems, but these are not
+# always available.
+if ($platform ne "win") {
+  my %cons = $cons->copy();
+  $cons{'CC'} = "gcc";
+  $cons{'CXX'} = "g++";
+  $cons = new cons(%cons);
+}
+
+
+#---- what to build
+
+Default(
+    ".",
+    "$mozSrc/mozilla",
+);
+
+Link $build => 'src';
+Link $contribBuild => 'contrib';
+
+# these items are in ALL BUILDS
+Build(
+    "$build/Conscript",
+    "$build/chrome/xtk/Conscript",
+    
+    "$build/chrome/komodo/locale/en-US/Conscript",
+    "$build/chrome/komodo/content/Conscript",
+    "$build/chrome/komodo/content/bindings/Conscript",
+    "$build/chrome/komodo/content/codeintel/Conscript",
+    "$build/chrome/komodo/content/dialogs/Conscript",
+    "$build/chrome/komodo/content/dialogs/filebrowser/Conscript",
+    "$build/chrome/komodo/content/extmgr/Conscript",
+    "$build/chrome/komodo/content/library/Conscript",
+    "$build/chrome/komodo/content/lint/Conscript",
+    "$build/chrome/komodo/content/keybindings/Conscript",
+    "$build/chrome/komodo/content/find/Conscript",
+    "$build/chrome/komodo/content/pref/Conscript",
+    "$build/chrome/komodo/content/project/Conscript",
+    "$build/chrome/komodo/content/startpage/Conscript",
+    "$build/chrome/komodo/content/startpage/disconnected/Conscript",
+    "$build/chrome/komodo/content/tail/Conscript",
+    "$build/chrome/komodo/content/templates/Conscript",
+    "$build/chrome/komodo/content/update/Conscript",
+    "$build/chrome/komodo/skin/Conscript",
+    "$build/chrome/komodo/skin/bindings/Conscript",
+    "$build/chrome/komodo/skin/global/Conscript",
+    "$build/chrome/komodo/skin/global/images/Conscript",
+    "$build/chrome/komodo/skin/images/Conscript",
+    "$build/chrome/komodo/skin/startpage/Conscript",
+    "$build/chrome/komodo/skin/startpage/images/Conscript",
+    "$build/chrome/komodo/content/run/Conscript",
+    "$build/chrome/komodo/content/wizards/Conscript",
+
+    "$build/commandments/Conscript",
+
+    "$build/docs/Conscript",
+    "$build/docs/img/Conscript",
+    "$build/docs/tutorial/Conscript",
+    "$build/docs/license/Conscript",
+
+    "$build/codeintel/Conscript",
+    "$build/editor/Conscript",
+    "$build/editor/catalogs/Conscript",
+    "$build/find/Conscript",
+    "$build/images/Conscript",
+    "$build/install/Conscript",
+    "$build/languages/Conscript",
+    "$build/lint/Conscript",
+    "$build/lint/CSS/Conscript",
+    "$build/main/Conscript",
+    "$build/components/Conscript",
+    "$build/filesystem/Conscript",
+    "$build/projects/Conscript",
+    "$build/python-sitelib/Conscript",
+    "$build/run/Conscript",
+    "$build/samples/Conscript",
+    "$build/schemes/Conscript",
+    "$build/SciMoz/Conscript",
+    "$build/silvercity/Conscript",
+    "$build/udl/Conscript",
+    "$build/prefs/Conscript",
+    "$build/templates/Conscript",
+    "$build/views/Conscript",
+    "prebuilt/Conscript",
+      
+    "$build/modules/spellcheck/Conscript",
+
+    # 3rd-party contributed code in contrib/...
+    "$contribBuild/Conscript",
+
+    "test/pyxpcom/Conscript",
+);
+
+
+if ($withCasper) {
+    Build(
+        "$build/modules/casper/Conscript",
+        "$build/modules/casper/components/Conscript",
+        "$build/modules/casper/skin/Conscript",
+        "$build/modules/casper/content/Conscript",
+        "$build/modules/casper/content/test/Conscript",
+    );
+}
+
+if ($buildFlavour ne "full") {
+    # for now these will only be in dev builds
+    Build(
+        "$build/chrome/komodo/content/test/Conscript",
+        "$build/chrome/komodo/content/test/jsdb/Conscript",
+    );
+}
+
+if ($platform eq "win") {
+    Build(
+        "$build/scintilla/win32/Conscript",
+    );
+} elsif ($platform eq "linux") {
+    Build(
+        "$build/scintilla/gtk/Conscript",
+    );
+} elsif ($platform eq "solaris") {
+    Build(
+        "$build/scintilla/gtk/Conscript",
+    );
+} elsif ($platform eq "darwin") {
+    Build(
+        "$build/scintilla/macosx/Conscript",
+    );
+} else {
+    die "Unexpected platform '$platform'.\n"
+}
+
+#---- Cons method extensions
+
+sub cons::Preprocess {
+    # Runs the given file through Komodo's preprocessor (currently
+    # preprocess.py) using the second argument as the output file name.
+    #
+    # NOTES FOR "bk build quick":
+    #   - Komodo quick build mechanism will reproduce preprocessing done
+    #     here, so any changes to the default set of defines MUST also
+    #     be carried over to Blackfile.py::QuickBuild().
+    #   - Komodo's quick build preprocessing cannot pick up 'subsref'
+    #     usage so be very careful when using this feature. If you do,
+    #     you might want to add something like the following:
+    #        # #ifndef MY_SUBS_VARIABLE
+    #        # #error "this file cannot be preprocessed by 'bk build quick'"
+    #        # #endif
+    my ($env, $srcFile, $dstFile, $subsref, $doNotKeepLines) = @_;
+    my $substStr = "";
+    if (%$subsref) {
+        $substStr .= "-s";
+        foreach my $subkey (keys %$subsref) {
+            my $value = $$subsref{$subkey};
+            # Quote arguments with spaces or shell meta chars.
+            if ($value =~ /[ ;]/) {
+                $value = "\"$value\"";
+            }
+            $substStr .= " -D $subkey=$value";
+        }
+    }
+    # die if required elements are not defined
+    defined($platform) or
+        die "*** 'platform' is not defined for " .
+        "Preprocess(). You need to 'Import' it.\n";
+    $substStr .= " -D PLATFORM=$platform";
+    
+    defined($productType) or
+        die "*** 'productType' is not defined for " .
+        "Preprocess(). You need to 'Import' it.\n";
+    $substStr .= " -D PRODUCT_TYPE=$productType";
+    
+    defined($buildFlavour) or
+        die "*** 'buildFlavour' is not defined for " .
+        "Preprocess(). You need to 'Import' it.\n";
+    $substStr .= " -D BUILD_FLAVOUR=$buildFlavour";
+
+    defined($unsiloedPythonExe) or
+        die "*** 'unsiloedPythonExe' is not defined. for " .
+        "Preprocess(). You need to 'Import' it.\n";
+    $substStr .= " -D UNSILOED_PYTHON=$unsiloedPythonExe";
+    
+    defined($mozVersion) or
+        die "*** 'mozVersion' is not defined for " .
+        "Preprocess(). You need to 'Import' it.\n";
+    $substStr .= " -D MOZILLA_VERSION=$mozVersion";
+    
+    #XXX Would prefer that each of these grow the checking that the other
+    #    vars have to _require_ that they be defined. This will avoid
+    #    accidentally forgetting to Import one of these in a needed
+    #    Conscript.
+    $substStr .= " -D WITH_CRYPTO=$withCrypto" if defined($withCrypto);
+    $substStr .= " -D WITH_CASPER=$withCasper" if defined($withCasper);
+    $substStr .= " -D WITH_JSLIB=$withJSLib" if defined($withJSLib);
+
+    # Run the file through the preprocessor.
+    my $opts = "";
+    if (! $doNotKeepLines) {
+        $opts .= " -k"
+    }
+    $cons->Command($dstFile, $srcFile, qq(
+        $unsiloedPythonExe util/preprocess.py $opts -o %0 -f $substStr %1
+        ));
+}
+
+
+
+# Preprocess the given $src file (to $src.preprocessed) and then install the
+# preprocessed file to the $dstDir.
+sub cons::PreprocessAndInstall {
+    my ($env, $dstDir, $src, $ppdata) = @_;
+    
+    $env->Preprocess($src, "$src.preprocessed", $ppdata);
+    $env->InstallAs("$dstDir/".basename($src), "$src.preprocessed");
+}
+
+sub cons::PreprocessAndInstallAs {
+    my ($env, $dstPath, $src, $ppdata) = @_;
+    
+    $env->Preprocess($src, "$src.preprocessed", $ppdata);
+    $env->InstallAs("$dstPath", "$src.preprocessed");
+}
+
+
+sub cons::BuildXpt {
+    # use xpidl (on path) to build .xpt from .idl, and
+    # install it in Mozilla components directory.
+    my ($env, $idlFileName) = @_;
+    # die if required elements are not defined
+    defined($mozComponentsDir) or
+        die "*** mozComponentsDir is not defined for $idlFileName\n";
+    defined($mozIdlIncludePath) or
+        die "*** mozIdlIncludePath is not defined for $idlFileName\n";
+    defined($idlExportDir) or
+        die "*** idlExportDir is not defined for $idlFileName\n";
+    defined($ranRegxpcomStateFileName) or
+        die "*** ranRegxpcomStateFileName is not ".
+        "defined for $idlFileName\n";
+    # die if the mozIdlIncludePath does not exist
+    -d $mozIdlIncludePath or die "*** The Mozilla idl include directory ".
+        "($mozIdlIncludePath) does not exist. Is your MOZ_SRC correct?\n";
+    # construct the typelib filename
+    my $xptFileName = $idlFileName;
+    $xptFileName =~ s/\.idl$/\.xpt/;
+    my $xptBaseName = basename($xptFileName);
+    my $xBaseName = FilePath($idlFileName);
+    $xBaseName =~ s/\.idl$//;
+    my $xIdlExportDir = DirPath($idlExportDir);
+    # scan for included .idl files and add dependency for each
+    # I presume that QuickScan should be used like this:
+    #    $env->QuickScan(sub { /^#include\s+\"(\S+?)\"/g; if ($1) { my $retval = $1; return $retval;}},
+    #        $idlFileName, "$myidlExportDir");
+    # to generate these dependencies but it seems that QuickScan does
+    # not result in normal deps but instead make deps that must be satisfied
+    # at Conscript-scan time, rather than build time. As well, scanning occurs
+    # in alphabetical order so we get the situation where .idl includes
+    # of alphabetically lower file work but don't for greater files: Cons bug.
+    # Solution: Do my own scanning and make real deps of the results.
+    my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir, $mozIdlIncludePath);
+    # compile the .idl file to a typelib
+    # XXX handling of mozIdlIncludePath is not robust (breaks if more than one element)
+    $env->Command($xptFileName, $idlFileName, @idlDeps,
+        "xpidl -I$mozIdlIncludePath -I$xIdlExportDir -o $xBaseName -m typelib %1");
+    return $xptFileName;
+}
+
+sub cons::BuildAndInstallXpt {
+    my ($env, $idlFileName) = @_;
+
+    # Die if required elements are not defined.
+    defined($sdkDir) or die "*** sdkDir is not defined for $idlFileName\n";
+
+    # install the .xpt file
+    my $xptFileName = $env->BuildXpt($idlFileName);
+    defined($xptFileName) or
+        die "*** BuildXpt failed for $idlFileName\n";
+    my $xptBaseName = basename($xptFileName);
+    $env->Install($mozComponentsDir, $xptFileName);
+
+    $env->Install("$sdkDir/idl", $idlFileName);
+
+    # make the typelib dependent on registration with the XPCOM registry
+    # - this is necessary because the components require the typelib for
+    #   registration
+    # - XXX I don't know if this will cause reregistration if the typelibs
+    #   change but the implementations do not, nor if this is even required
+    #   or useful
+    $env->Depends($ranRegxpcomStateFileName, "$mozComponentsDir/$xptBaseName");
+}
+
+
+sub cons::GenerateIdlDependencies {
+    # return a list of .idl files upon which the given .idl file depends
+    # NOTE: this does not recursively search deps (in fact, I don't know
+    #       how it generally could because who knows where the included .idl
+    #       file exist before they are exported to the idl include dir)
+    # HACK: This does hacky processing to prefix the deps with the Komodo
+    #       idl include directory.
+    my ($env, $idlName, $preferedIdlIncludeDir, @otherIdlIncludeDirs) = @_;
+
+    # Die if required elements are not defined.
+    defined($build) or die "*** build is not defined for $idlName\n";
+
+    # Skip out if the idl file name does not exist, it might be generated.
+    # We *do* try the common unprocessed-names.
+    my $idlPathInSrc = catfile( DirPath(dirname($idlName)), basename($idlName) );
+    my $xBuildDir = DirPath($build);
+    $xBuildDir =~ s/\\/\\\\/;
+    $idlPathInSrc =~ s/^$xBuildDir/src/;
+    my $idlPathInSrc_p = $idlPathInSrc;
+    $idlPathInSrc_p =~ s/\.idl$/.p.idl/;
+    my $idlPathInSrc_unprocessed = $idlPathInSrc;
+    $idlPathInSrc_unprocessed =~ s/\.idl$/.unprocessed.idl/;
+    if (-f $idlPathInSrc) {
+    } elsif (-f $idlPathInSrc_p) {
+        $idlPathInSrc = $idlPathInSrc_p;
+    } elsif (-f $idlPathInSrc_unprocessed) {
+        $idlPathInSrc = $idlPathInSrc_unprocessed;
+    } else {
+        use Carp;
+        # Skip the warning for some well-known IDL files where there is no
+        # harm.
+        if ($idlName ne "ISciMoz.idl") {
+            carp("warning: not generating IDL depenencies for '$idlName': none "
+                 . "of the following exist: $idlPathInSrc, $idlPathInSrc_p, "
+                 . "$idlPathInSrc_unprocessed\n");
+        }
+        return ();
+    }
+    
+    # Process the .idl path in the source area (can't rely on it having been
+    # copied to the build area yet).
+    my %idlDeps;
+    my @includes;
+    open(FIN, $idlPathInSrc) or die "cannot open $idlPathInSrc\n";
+    while (<FIN>) {
+        if (/^#include\s+\"(\S+?)\"/g) {
+            # If the include is not found in the "otherIdlIncludeDirs" then
+            # prefix the Komodo idl include dir and register it as a dep.
+            my $foundIt = 0;
+            foreach $incDir (@otherIdlIncludeDirs) {
+                if (-f "$incDir/$1") {
+                    $foundIt = 1;
+                    last;
+                }
+            }
+            if (! $foundIt) {
+                my $dep = "$preferedIdlIncludeDir/$1";
+                $dep =~ s/\\/\//;
+                push(@includes, $dep);
+            } 
+        }
+    }
+    return @includes;
+}
+
+
+sub cons::BuildHeaderFromIdl {
+    # use xpidl (on path) to build .h from .idl
+    my ($env, $idlFileName) = @_;
+    # die if required elements are not defined
+    defined($mozIdlIncludePath) or
+        die "*** mozIdlIncludePath is not defined for $idlFileName\n";
+    defined($idlExportDir) or
+        die "*** idlExportDir is not defined for $idlFileName\n";
+    # construct the header filename
+    my $headerFileName = $idlFileName;
+    $headerFileName =~ s/\.idl$/\.h/;
+    my $xBaseName = FilePath($idlFileName);
+    $xBaseName =~ s/\.idl$//;
+    my $xIdlExportDir = DirPath($idlExportDir);
+    # scan for included .idl files and add dependency for each
+    my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir,
+        $mozIdlIncludePath);
+    # compile the .idl file to a C header
+    #  XXX handling of mozIdlIncludePath is not robust (breaks if
+    #  XXX more than one element)
+    $env->Command($headerFileName, $idlFileName, @idlDeps,
+        "xpidl -I$mozIdlIncludePath -I$xIdlExportDir -o $xBaseName -m header %1");
+}
+
+
+sub cons::ChromePath {
+    # return the chrome relative path to the given fileName in Komodo's build/src directory
+    my ($env, $fileName) = @_;
+    my $projRootedFileName = FilePath($fileName);
+    my @chromePathDirs = File::Spec->splitdir($projRootedFileName);
+    $_ = ''; 
+    $_ = shift @chromePathDirs while $_ ne 'chrome'; # drop dir up to 'chrome'
+    my $chromePath = File::Spec->catdir(@chromePathDirs);
+    return $chromePath;
+}
+
+
+sub cons::InstallWriteable {
+    my ($env, $dstDir, $src) = @_;
+    my $dst;
+    if ($^O eq "MSWin32") {
+        $dst = "$dstDir\\" . basename($src);
+        $env->Command($dst,
+                      $src,
+                      qq(
+                        copy /y %1 %0
+                        attrib -R %0
+                      ));
+    } else {
+        $dst = "$dstDir/" . basename($src);
+        $env->Command($dst,
+                      $src,
+                      qq(
+                        cp -f  %1 %0
+                        chmod +w %0
+                      ));
+    }
+}
+
+# JSCheck needs these variables.
+$build::install::mozDevelBin = $mozDevelBin;
+$build::install::mozDevelDist = $mozDevelDist;
+$build::install::mozBin = $mozBin;
+$build::install::platform = $platform;
+$build::install::architecture = $architecture;
+
+sub build::install::JSCheck {
+    my ($self, $fileName) = @_;
+    #print "JSCheck: debug: fileName=$fileName\n";
+    my $escaped_sep = ($^O eq "MSWin32" ? '\\\\' : '\/');
+    if ($fileName =~ /\.js$/
+        and ($fileName =~ /chrome${escaped_sep}komodo/
+             or $fileName =~ /components/))
+    {
+        my $mozDevelBin = $build::install::mozDevelBin;
+        my $mozDevelDist = $build::install::mozDevelDist;
+        my $mozBin = $build::install::mozBin;
+        my $platform = $build::install::platform;
+        my $architecture = $build::install::architecture;
+        if ($fileName eq '' or $mozBin eq '') {
+            print "JSCheck: error: no fileName or mozBin!\n";
+            return;
+        }
+        my %ldLibPathPrefixMap = (
+            "win" => "",
+            "darwin" => "DYLD_LIBRARY_PATH=$mozDevelBin",
+            "linux" => "LD_LIBRARY_PATH=$mozDevelBin",
+            "solaris" => "LD_LIBRARY_PATH=$mozDevelBin",
+        );
+        my $ldLibPathPrefix = $ldLibPathPrefixMap{$platform};
+        my $ff = script::FilePath($fileName);
+        my $jsexec;
+        if ($platform eq "win") {
+            $jsexec = "$mozDevelBin\\js";
+        } else {
+            $jsexec = "$mozDevelBin/js";
+        }
+        my $cmd = "$ldLibPathPrefix $jsexec -C -w -s \"$fileName\" 2>&1";
+        print "JSCheck: debug: running '$cmd'\n";
+        my $output = `$cmd`;
+        my $retval = ($?>>8) if $?;
+        if ($output ne '' or $retval != 0) {
+            my $banner1 = "=" x 75;
+            my $banner2 = "-" x 75;
+            die <<HERE;
+$banner1
+Syntax checking FAILED:
+    $fileName
+$banner2
+$output$banner1
+HERE
+        }
+    }
+}
+
+sub build::install::action {
+    my($self, $tgt) = @_;
+    my($src) = $tgt->{sources}[0];
+    main::showcom("Install ${\$src->rpath} as ${\$tgt->path}")
+	if ($param::install && !$param::quiet);
+    return unless $param::build;
+    # syntax check javascript files and fail if bad
+    $self->JSCheck($src->rpath);
+    futil::install($src->rpath, $tgt);
+    return 1;
+}
+
+sub cons::InstallInChrome {
+    # Does the proper figuring for which directory in chrome.
+    # relying on the mimicking of chrome in the Komodo tree.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** mozChromeDir is not defined for $fileName\n";
+    # get the relative path of the $fileName in chrome
+    my $chromePath = dirname($env->ChromePath($fileName));
+    # install in the appropriate subdir in chrome
+    $env->Install("$mozChromeDir/$chromePath", $fileName);
+}
+
+
+sub cons::InstallInChromeAs {
+    # Does the proper figuring for which directory in chrome.
+    # relying on the mimicking of chrome in the Komodo tree.
+    my ($env, $dstFileName, $srcFileName) = @_;
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** mozChromeDir is not defined for $fileName\n";
+    my $chromePath = dirname($env->ChromePath($srcFileName));
+    # install in the appropriate subdir in chrome
+    $env->InstallAs("$mozChromeDir/$chromePath/$dstFileName", $srcFileName);
+}
+
+
+sub cons::PlatformInstallInChrome {
+    # This method is used to install a platform specific file in chrome.
+    # This works with a special directory structure. Files in the
+    # src/chrome/... directory tree that are platform specific should go
+    # in a directory like this:
+    #       __platforms__/<target-plat-name>/...
+    # For example, if you want to install foo.xul in the chrome/komodo/content
+    # directory on a mac only then place the file in
+    #       src/chrome/komodo/content/__platforms__/mac/foo.xul
+    # and add this line to the Conscript:
+    #       $cons->PlatformInstallInChrome("foo.xul");
+    #
+    # This method does the proper figuring to:
+    #   (1) Make sure this is only called from within a __platforms__
+    #       directory structure;
+    #   (2) Determine if this file should be installed for the current
+    #       target platform; and
+    #   (3) Determine the proper dir in chrome in which to install
+    #       relying on the mimicking of chrome in the Komodo tree.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** 'mozChromeDir' is not defined for $fileName. ".
+        "You must import this variable in your Conscript.\n";
+    defined($platform) or
+        die "*** 'platform' is not defined for $fileName. ".
+        "You must import this variable in your Conscript.\n";
+    # get the relative path of the $fileName in chrome
+    my $chromePath = dirname($env->ChromePath($fileName));
+    # ensure the chrome path ends in "__platforms__/<platform-name>"
+    my $secondLastDir = basename(dirname($chromePath));
+    if ($secondLastDir != "__platforms__") {
+        die "PlatformInstallInChrome() was incorrectly used in a Conscript ".
+            "not contained in a __platform__/<platform-name> subdirectory.\n";
+    }
+    my $lastDir = basename($chromePath);
+    my @knownPlatforms = ("win", "unix", "mac");
+    my %knownPlatforms = map {$_=>1} @knownPlatforms;
+    if (! $knownPlatforms{$lastDir}) {
+        die "The directory name '$lastDir' under the '__platforms__' dir ".
+            "from which PlatformInstallInChrome() was called is not a ".
+            "recognized platform name. The recognized platform names are '".
+            join(",", @knownPlatforms), "'\n";
+    }
+    # determine if the $lastDir indicates the current build target platform
+    my $shouldInstall = 0;
+    if ($platform eq "win") {
+        $shouldInstall = 1 if ($lastDir eq "win");
+    } elsif ($platform eq "linux" || $platform eq "solaris") {
+        $shouldInstall = 1 if ($lastDir eq "unix");
+    } elsif ($platform eq "mac") {
+        $shouldInstall = 1 if ($lastDir eq "mac");
+    } else {
+        die "The platform build platform '$platform' is unrecognized.\n";
+    }
+    # install in the appropriate subdir in chrome
+    #   lop of the __platform__/<platform-name>
+    if ($shouldInstall) {
+        $env->Install("$mozChromeDir/" . dirname(dirname($chromePath)), $fileName);
+    }
+}
+
+
+sub cons::InstallPythonUtility {
+    # install the given Komodo Python utility script in the
+    # appropriate directory
+    #XXX need to add a subdir here and use it below
+    my ($env, $fileName, $subDir) = @_;
+    if (! $subDir) {
+        $subDir = ".";
+    }
+    # die if required elements are not defined
+    defined($komodoPythonUtilsDir) or
+        die "*** komodoPythonUtilsDir is not defined for $fileName\n";
+    defined($ranRegxpcomStateFileName) or
+        die "*** ranRegxpcomStateFileName is not defined for $fileName\n";
+    # install in the designated directory (that we make sure is one the PythonPath
+    $env->Install("$komodoPythonUtilsDir/$subDir", $fileName);
+    # presumably any of the Python Utils have PyXPCOM component dependents,
+    # therefore they must be installed before 'regxpcom' is run.
+    $env->Depends($ranRegxpcomStateFileName,
+                  "$komodoPythonUtilsDir/$subDir/" . basename($fileName));
+}
+
+sub cons::InstallPythonUtilityPackage {
+    # install the given Komodo Python utility script in the
+    # appropriate package directory
+    my ($env, $fileName, $packageName) = @_;
+    # die if required elements are not defined
+    defined($komodoPythonUtilsDir) or
+        die "*** komodoPythonUtilsDir is not defined for $fileName\n";
+    defined($ranRegxpcomStateFileName) or
+        die "*** ranRegxpcomStateFileName is not defined for $fileName\n";
+    # install in the designated directory (that we make sure is one the PythonPath
+    
+    # XXX - $packageName should have "." replaced with "/" - however,
+    # current usage only has single depth packages, so not yet a problem.
+    $env->Install("$komodoPythonUtilsDir/$packageName", $fileName);
+    # presumably any of the Python Utils have PyXPCOM component dependents,
+    # therefore they must be installed before 'regxpcom' is run.
+    $env->Depends($ranRegxpcomStateFileName, "$komodoPythonUtilsDir/$packageName/$fileName");
+}
+
+sub cons::ChromeDependsOnRegxpcom {
+    # make XPCOM registration dependent on this file (or vice versa):
+    #   The point is that XPCOM registration must be rerun when this file
+    #   changes.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** mozChromeDir is not defined for $fileName\n";
+    defined($ranRegxpcomStateFileName) or
+        die "*** ranRegxpcomStateFileName is not defined for $fileName\n";
+    # get the relative path of the $fileName in chrome
+    my $chromePath = dirname($env->ChromePath($fileName));
+    # setup dependency
+    $env->Depends($ranRegxpcomStateFileName, "$mozChromeDir/$chromePath/$fileName");
+}
+
+
+sub cons::DependsOnRegxpcom {
+    # make XPCOM registration dependent on this file (or vice versa):
+    #   The point is that XPCOM registration must be rerun when this file
+    #   changes.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($ranRegxpcomStateFileName) or
+        die "*** ranRegxpcomStateFileName is not defined for $fileName\n";
+    # setup dependency
+    $env->Depends($ranRegxpcomStateFileName, $fileName);
+}
+
+
+sub cons::InstallXpcomComponent {
+    # Install the component in the proper components directory and register it.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($mozComponentsDir) or
+        die "*** mozComponentsDir is not defined for $fileName\n";
+    # install in the Mozilla XPCOM components dir
+    $env->Install($mozComponentsDir, $fileName);
+    # make the component dependent on registration with the XPCOM registry
+    $env->DependsOnRegxpcom("$mozComponentsDir/" . basename($fileName));
+}
+
+
+#XXX Not used, I don't think.
+sub cons::IsRegisteredInChrome {
+    my ($env, $chromeElementName) = @_;
+    # die if required elements are not defined
+    $mozChromeDir or
+        die "*** mozChromeDir is not defined for IsRegisteredInChrome($chromeElementName)\n";
+    #XXX should really use some Mozilla API for asking this question
+    # for now, just search the chrome registry .rdf files
+    $xMozChromeDir = DirPath($mozChromeDir);
+    $registryFile = '';
+    if ($chromeElementName =~ /urn:mozilla:package/) {
+        $registryFile = "$xMozChromeDir/all-packages.rdf";
+    }
+    elsif ($chromeElementName =~ /urn:mozilla:locale/) {
+        $registryFile = "$xMozChromeDir/all-locales.rdf";
+    }
+    elsif ($chromeElementName =~ /urn:mozilla:skin/) {
+        $registryFile = "$xMozChromeDir/all-skins.rdf";
+    }
+    else {
+        die "*** Don't know how to find chrome registry .rdf file for $chromeElementName";
+    }
+    open(REGISTRYFILE, $registryFile);
+    for $line (<REGISTRYFILE>) {
+        $line =~ /$chromeElementName/ and return "yes";
+    }
+    return "no";  # if got here then chrome element is *not* registered
+}
+
+sub cons::RegisterChrome {
+    # register the given chrome manifest
+    # - install the contents.rdf
+    # - touch the installed-chrome.txt entry (in case
+    #   register-komodo-chrome.py does not do so)
+    # - run register-komodo-chrome (adds entry to installed-chrome.txt and
+    #   runs 'regchrome')
+    my ($env, $contentsRdfFileName, $chromeElementName) = @_;
+
+    # die if required elements are not defined
+    defined($mozChromeDir) or die "*** mozChromeDir is not defined for " .
+        "RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+    defined($jarring) or die "*** 'jarring' is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+    defined($mozBin) or die "*** 'mozBin' is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+    defined($platform) or die "*** 'platform' is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+
+    $contentsRdfChromeDir = dirname($env->ChromePath($contentsRdfFileName));
+    $xMozChromeDir = DirPath($mozChromeDir);
+    my $chromePath = dirname($env->ChromePath($contentsRdfFileName));
+    my %ldLibPathPrefixMap = (
+        "win" => "",
+        "darwin" => "DYLD_LIBRARY_PATH=$mozBin",
+        "linux" => "LD_LIBRARY_PATH=$mozBin",
+        "solaris" => "LD_LIBRARY_PATH=$mozBin",
+    );
+    my $ldLibPathPrefix = $ldLibPathPrefixMap{$platform};
+    $cons->Command("$mozChromeDir/$chromePath/$contentsRdfFileName",
+                   "$contentsRdfFileName",
+                   cwd()."/bin/register-komodo-chrome.py",
+                   qq(
+                       $unsiloedPythonExe -c "import shutil; shutil.copy(r'%1', r'%0')"
+                       $unsiloedPythonExe -c "import os; os.utime(r'$xMozChromeDir/installed-chrome.txt', None)"
+                       $ldLibPathPrefix $unsiloedPythonExe bin/register-komodo-chrome.py $chromeElementName $contentsRdfChromeDir $xMozChromeDir $jarring
+                   ));
+}
+
+sub cons::RegisterChromeAs {
+    # Does the proper figuring for which directory in chrome.
+    # relying on the mimicking of chrome in the Komodo tree.
+    my ($env, $chromePath, $contentsRdfFileName, $chromeElementName) = @_;
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** mozChromeDir is not defined for $contentsRdfFileName\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+    defined($jarring) or die "*** 'jarring' is not defined " .
+        "for RegisterChrome($chromeElementName). You need to 'Import' it.\n";
+
+    $xMozChromeDir = DirPath($mozChromeDir);
+    $cons->Command("$mozChromeDir/$chromePath/$contentsRdfFileName",
+                   "$contentsRdfFileName",
+                   cwd()."/bin/register-komodo-chrome.py",
+                   qq(
+                       $unsiloedPythonExe -c "import shutil; shutil.copy(r'%1', r'%0')"
+                       $unsiloedPythonExe -c "import os; os.utime(r'$xMozChromeDir/installed-chrome.txt', None)"
+                       $unsiloedPythonExe bin/register-komodo-chrome.py $chromeElementName $chromePath $xMozChromeDir $jarring
+                   ));
+}
+
+
+sub cons::InstallRecursiveInChrome {
+    # Install all the files under the named source chrome directory into
+    # the equivalent mozilla chrome directory
+    my ($env, $dirName, @toSkip) = @_;
+    #print "InstallRecursiveInChrome: $dirName (skipping ",
+    #    join(',', @toSkip), ")\n";
+    # die if required elements are not defined
+    defined($mozChromeDir) or
+        die "*** mozChromeDir is not defined for ".
+        "InstallRecursiveInChrome($dirName)\n";
+    # install the directory recursively
+    $chromePath = $env->ChromePath($dirName);
+    $srcDir = SourcePath($dirName);
+    $env->InstallRecursive("$mozChromeDir/$chromePath", cwd()."/$srcDir", $toSkip);
+}
+
+
+sub cons::InstallRecursive {
+    # Install all the files under the $input directory in the $output directory
+    # NOTE: $input has to be an absolute path to work (don't really know why)
+    my ($env, $output, $input, @toSkip) = @_;
+    #print "InstallRecursive: $input -> $output  (skipping: ",
+    #    join(',', @toSkip), ")\n";
+
+    # find all the files to install
+    @files = ();
+    my $wanted = sub {
+        if (-d $_) {
+            # prune any directory matching any of the toSkip regexes
+            foreach my $ts (@toSkip) {
+                if (basename($File::Find::name) =~ /^$ts$/) {
+                    $File::Find::prune = 1;
+                }
+            }
+        } else {
+            # skip any file matching any of the toSkip regexes
+            foreach my $ts (@toSkip) {
+                if (basename($File::Find::name) =~ /^$ts$/) {
+                    return;
+                }
+            }
+            push @files, $File::Find::name;
+        }
+    };
+    find($wanted, $input);
+
+    $escapedInput = $input;
+    $escapedInput =~ s/\\/\\\\/g;
+    foreach $src (@files) {
+        my $target = $src;
+        $target =~ s/$escapedInput/$output/;
+        #print "install $src -> $target (output='$output')\n" if $output =~ /bin$/;
+        $env->InstallAs($target, $src);
+    }
+}
+
+
+sub cons::DependsRecursive {
+    # Like Cons' standard Depends method except this allows:
+    #   (1) directories to be specified to setup a dep on *every* file in that
+    #       dir; and
+    #   (2) array references, containing a list of dependency files and/or
+    #       directories to be specified
+    # NOTE: The "$dep" element should be relative to the directory
+    #       with the Conscript rather than the root of the project.
+    my ($env, $target, $dep, @toSkip) = @_;
+    #print "DependsRecursive: '$target' depends on '$dep' (skipping: [",
+    #      join(', ', @toSkip), "])\n";
+    if (ref($target) eq "ARRAY") {
+        foreach my $targ (@$target) {
+            $env->DependsRecursive($targ, $dep, @toSkip);
+        }
+    } else {
+        my $baseDirName = dirname(SourcePath("Conscript"));
+        my $depPath = (file_name_is_absolute($dep) ? 
+                       $dep : "$baseDirName/$dep");
+        if (ref($dep) eq "ARRAY") {
+            foreach my $d (@$dep) {
+                $env->DependsRecursive($target, $d, @toSkip);
+            }
+        } elsif (-d $depPath) {
+            my @files = ();
+            my $just_the_files = sub {
+                if (-d $_) {
+                    # prune any directory matching any of the toSkip regexes
+                    foreach my $ts (@toSkip) {
+                        if (basename($File::Find::name) =~ /^$ts$/) {
+                            $File::Find::prune = 1;
+                        }
+                    }
+                } else {
+                    # skip any file matching any of the toSkip regexes
+                    foreach my $ts (@toSkip) {
+                        if (basename($File::Find::name) =~ /^$ts$/) {
+                            return;
+                        }
+                    }
+                    push @files, $File::Find::name;
+                }
+            };
+
+            # get list of all files under the $dep directory
+            my $oldDir = getcwd();
+            chdir $baseDirName;
+            find($just_the_files, $dep);
+            chdir $oldDir;
+
+            foreach my $file (@files) {
+                $env->Depends($target, $file);
+            }
+        } else {
+            $env->Depends($target, $dep);
+        }
+    }
+}

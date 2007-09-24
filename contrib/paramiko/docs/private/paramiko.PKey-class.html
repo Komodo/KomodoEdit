@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.PKey</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;PKey
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<b>show&nbsp;private</b>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="../private/paramiko.PKey-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type PKey</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+
+         |
+        <b>PKey</b>
+</pre><br />
+
+<dl><dt><b>Known Subclasses:</b></dt>
+<dd>
+    <a href="paramiko.AgentKey-class.html"><code>AgentKey</code></a>,
+    <a href="paramiko.DSSKey-class.html"><code>DSSKey</code></a>,
+    <a href="paramiko.RSAKey-class.html"><code>RSAKey</code></a></dd></dl>
+
+<hr/>
+
+Base class for public keys.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>msg</span>,
+          <span class=summary-sig-arg>data</span>)</span></code>
+<br />
+Create a new instance of this public key type.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#__cmp__" class="summary-sig-name"><code>__cmp__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>other</span>)</span></code>
+<br />
+Compare this key to another.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return a string of an SSH <a href="paramiko.Message-class.html" 
+class="link"><code>Message</code></a> made up of the public part(s) of 
+this key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#_read_private_key_file" class="summary-sig-name"><code>_read_private_key_file</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>tag</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>password</span>)</span></code>
+<br />
+Read an SSH2-format private key file, looking for a string of the type 
+<code>&quot;BEGIN xxx PRIVATE KEY&quot;</code> for some <code>xxx</code>, 
+base64-decode the text we find, and return it as a string.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#_write_private_key_file" class="summary-sig-name"><code>_write_private_key_file</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>tag</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>data</span>,
+          <span class=summary-sig-arg>password</span>)</span></code>
+<br />
+Write an SSH2-format private key file in a form that can be read by 
+paramiko or openssh.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#can_sign" class="summary-sig-name"><code>can_sign</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return <code>True</code> if this key has the private part necessary 
+for signing data.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#from_private_key_file" class="summary-sig-name"><code>from_private_key_file</code></a>(<span class=summary-sig-arg>cls</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>password</span>)</span></code>
+<br />
+Create a key object by reading a private key file.    <i>(Class method)</i>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#get_base64" class="summary-sig-name"><code>get_base64</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return a base64 string containing the public part of this key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#get_bits" class="summary-sig-name"><code>get_bits</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the number of significant bits in this key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#get_fingerprint" class="summary-sig-name"><code>get_fingerprint</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return an MD5 fingerprint of the public part of this key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#get_name" class="summary-sig-name"><code>get_name</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the name of this private key implementation.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#sign_ssh_data" class="summary-sig-name"><code>sign_ssh_data</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>randpool</span>,
+          <span class=summary-sig-arg>data</span>)</span></code>
+<br />
+Sign a blob of data with this private key, and return a <a 
+href="paramiko.Message-class.html" class="link"><code>Message</code></a> 
+representing an SSH signature message.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        boolean
+</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#verify_ssh_sig" class="summary-sig-name"><code>verify_ssh_sig</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>data</span>,
+          <span class=summary-sig-arg>msg</span>)</span></code>
+<br />
+Given a blob of data, and an SSH message representing a signature of 
+that data, verify that it was signed with this key.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.PKey-class.html#write_private_key_file" class="summary-sig-name"><code>write_private_key_file</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>,
+          <span class=summary-sig-arg>password</span>)</span></code>
+<br />
+Write private key contents into a file.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>dict</code></font></td>
+<td><b><a href="../private/paramiko.PKey-class.html#_CIPHER_TABLE"><code>_CIPHER_TABLE</code></a></b> = <span title="{'DES-EDE3-CBC': {'blocksize': 8, 'cipher': &lt;module 'Crypto.Cipher.DES3' from '/System/Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/Crypto/Cipher/DES3.so'&gt;, 'keysize': 24, 'mode': 2}}"><code>{'DES-EDE3-CBC':&nbsp;{'blocksize':&nbsp;8,&nbsp;'ciphe<span class="variable-ellipsis">...</span></code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF INSTANCE METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Instance Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>msg</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>data</span>=<span class=sig-default>None</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  Create a new instance of this public key type. If <code>msg</code> 
+  is given, the key's public part(s) will be filled in from the message. 
+  If <code>data</code> is given, the key's public part(s) will be filled 
+  in from the string.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>msg</b></code> -
+         an optional SSH <a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a> containing a public key of 
+        this type.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Message-class.html" 
+              class="link"><code>Message</code></a>)</i>
+      <dd><code><b>data</b></code> -
+         an optional string containing a public key of this type
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if a key cannot be created from the <code>data</code> or 
+        <code>msg</code> given, or no key was passed in.
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.object-class.html#__init__"><code>__builtin__.object.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="__cmp__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__cmp__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>other</span>)</span>
+    <br /><i>(Comparison operator)</i>
+  </h3>
+  Compare this key to another. Returns 0 if this key is equivalent to 
+  the given key, or non-0 if they are different. Only the public parts of 
+  the key are compared, so a public key will compare equal to its 
+  corresponding private key.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>other</b></code> -
+         key to compare to.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        0 if the two keys are equivalent, non-0 otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="__str__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__str__</span>(<span class=sig-arg>self</span>)</span>
+    <br /><i>(Informal representation operator)</i>
+  </h3>
+  Return a string of an SSH <a href="paramiko.Message-class.html" 
+  class="link"><code>Message</code></a> made up of the public part(s) of 
+  this key. This string is suitable for passing to <a 
+  href="../private/paramiko.PKey-class.html#__init__" 
+  class="link"><code>__init__</code></a> to re-create the key object 
+  later.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        string representation of an SSH key message.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.object-class.html#__str__"><code>__builtin__.object.__str__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_read_private_key_file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_read_private_key_file</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>tag</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Read an SSH2-format private key file, looking for a string of the 
+  type <code>&quot;BEGIN xxx PRIVATE KEY&quot;</code> for some 
+  <code>xxx</code>, base64-decode the text we find, and return it as a 
+  string. If the private key is encrypted and <code>password</code> is 
+  not <code>None</code>, the given password will be used to decrypt the 
+  key (otherwise <a href="paramiko.PasswordRequiredException-class.html" 
+  class="link"><code>PasswordRequiredException</code></a> is thrown).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>tag</b></code> -
+         <code>&quot;RSA&quot;</code> or <code>&quot;DSA&quot;</code>, 
+        the tag used to mark the data block.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>filename</b></code> -
+         name of the file to read.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         an optional password to use to decrypt the key file, if it's 
+        encrypted.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        data blob that makes up the private key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if there was an error reading the file.
+      <dd><code><b>PasswordRequiredException</b></code> -
+        if the private key file is encrypted, and 
+        <code>password</code> is <code>None</code>.
+      <dd><code><b>SSHException</b></code> -
+        if the key file is invalid.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_write_private_key_file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_write_private_key_file</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>tag</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>data</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Write an SSH2-format private key file in a form that can be read by 
+  paramiko or openssh. If no password is given, the key is written in a 
+  trivially-encoded format (base64) which is completely insecure. If a 
+  password is given, DES-EDE3-CBC is used.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>tag</b></code> -
+         <code>&quot;RSA&quot;</code> or <code>&quot;DSA&quot;</code>, 
+        the tag used to mark the data block.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>filename</b></code> -
+         name of the file to write.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>data</b></code> -
+         data blob that makes up the private key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         an optional password to use to encrypt the file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if there was an error writing the file.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="can_sign"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">can_sign</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return <code>True</code> if this key has the private part necessary 
+  for signing data.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if this is a private key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_base64"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_base64</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return a base64 string containing the public part of this key. 
+  Nothing secret is revealed. This format is compatible with that used to 
+  store public key files or recognized host keys.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a base64 string containing the public part of the key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_bits"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_bits</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the number of significant bits in this key. This is useful 
+  for judging the relative security of a key.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        bits in the key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_fingerprint"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_fingerprint</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return an MD5 fingerprint of the public part of this key. Nothing 
+  secret is revealed.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a 16-byte string (binary) of the MD5 fingerprint, in SSH 
+        format.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_name"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_name</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the name of this private key implementation.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        name of this private key type, in SSH terminology (for 
+        example, <code>&quot;ssh-rsa&quot;</code>).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="sign_ssh_data"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">sign_ssh_data</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>randpool</span>,
+          <span class=sig-arg>data</span>)</span>
+  </h3>
+  Sign a blob of data with this private key, and return a <a 
+  href="paramiko.Message-class.html" 
+  class="link"><code>Message</code></a> representing an SSH signature 
+  message.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>randpool</b></code> -
+         a secure random number generator.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<code>Crypto.Util.randpool.RandomPool</code>)</i>
+      <dd><code><b>data</b></code> -
+         the data to sign.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an SSH signature message.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Message-class.html" 
+        class="link"><code>Message</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="verify_ssh_sig"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">verify_ssh_sig</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>data</span>,
+          <span class=sig-arg>msg</span>)</span>
+  </h3>
+  Given a blob of data, and an SSH message representing a signature of 
+  that data, verify that it was signed with this key.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>data</b></code> -
+         the data that was signed.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>msg</b></code> -
+         an SSH signature message
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Message-class.html" 
+              class="link"><code>Message</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if the signature verifies correctly; 
+        <code>False</code> otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=boolean)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="write_private_key_file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">write_private_key_file</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Write private key contents into a file. If the password is not 
+  <code>None</code>, the key is encrypted before writing.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to write.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         an optional password to use to encrypt the key file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if there was an error writing the file.
+      <dd><code><b>SSHException</b></code> -
+        if the key is invalid.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Method Details</th></tr>
+</table>
+
+<a name="from_private_key_file"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">from_private_key_file</span>(<span class=sig-arg>cls</span>,
+          <span class=sig-arg>filename</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  Create a key object by reading a private key file. If the private 
+  key is encrypted and <code>password</code> is not <code>None</code>, 
+  the given password will be used to decrypt the key (otherwise <a 
+  href="paramiko.PasswordRequiredException-class.html" 
+  class="link"><code>PasswordRequiredException</code></a> is thrown). 
+  Through the magic of python, this factory method will exist in all 
+  subclasses of PKey (such as <a href="paramiko.RSAKey-class.html" 
+  class="link"><code>RSAKey</code></a> or <a 
+  href="paramiko.DSSKey-class.html" 
+  class="link"><code>DSSKey</code></a>), but is useless on the abstract 
+  PKey class.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         name of the file to read.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         an optional password to use to decrypt the key file, if it's 
+        encrypted
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new key object based on the given private key.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+        class="link"><code>PKey</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if there was an error reading the file.
+      <dd><code><b>PasswordRequiredException</b></code> -
+        if the private key file is encrypted, and 
+        <code>password</code> is <code>None</code>.
+      <dd><code><b>SSHException</b></code> -
+        if the key file is invalid.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="_CIPHER_TABLE"></a>
+<h3>_CIPHER_TABLE</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>dict</code>
+
+      </dd>
+<span title="{'DES-EDE3-CBC': {'blocksize': 8, 'cipher': &lt;module 'Crypto.Cipher.DES3' from '/System/Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/Crypto/Cipher/DES3.so'&gt;, 'keysize': 24, 'mode': 2}}">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+{'DES-EDE3-CBC': {'blocksize': 8,
+                  'cipher': &lt;module 'Crypto.Cipher.DES3' from '/System<span class="variable-linewrap">\</span>
+/Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-p<span class="variable-linewrap">\</span>
+ackages/Crypto/Cipher/DES3.so'&gt;,
+                  'keysize': 24,
+                  'mode': 2}}                                          </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:02 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,19 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import('cons', 'mozChromeDir');
+
+$cons->InstallInChrome('run.js');
+$cons->InstallInChrome('run.xul');
+$cons->InstallInChrome('run_functions.js');
+$cons->InstallInChrome('interpolate.js');
+$cons->InstallInChrome('runOutputWindow.js');
+$cons->InstallInChrome('commandproperties.js');
+$cons->InstallInChrome('commandproperties.xul');
+$cons->InstallInChrome('waitfortermination.js');
+$cons->InstallInChrome('waitfortermination.xul');
+$cons->InstallInChrome('interpolationquery.js');
+$cons->InstallInChrome('interpolationquery.xul');
+

@@ -1,0 +1,975 @@
+    <scope ilk="blob" lang="Ruby" name="openssl">
+      <scope ilk="namespace" name="Buffering" mixinrefs="Enumerable">
+        <scope ilk="function" name="&lt;&lt;" />
+        <scope ilk="function" name="all?" />
+        <scope ilk="function" name="any?" />
+        <scope ilk="function" name="close" />
+        <scope ilk="function" name="collect" />
+        <scope ilk="function" name="detect" />
+        <scope ilk="function" name="each" />
+        <scope ilk="function" name="each_byte" />
+        <scope ilk="function" name="each_line" />
+        <scope ilk="function" name="each_with_index" />
+        <scope ilk="function" name="entries" />
+        <scope ilk="function" name="eof" />
+        <scope ilk="function" name="eof?" />
+        <scope ilk="function" name="find" />
+        <scope ilk="function" name="find_all" />
+        <scope ilk="function" name="flush" />
+        <scope ilk="function" name="getc" />
+        <scope ilk="function" name="gets" />
+        <scope ilk="function" name="grep" />
+        <scope ilk="function" name="inject" />
+        <scope ilk="function" name="map" />
+        <scope ilk="function" name="max" />
+        <scope ilk="function" name="member?" />
+        <scope ilk="function" name="min" />
+        <scope ilk="function" name="partition" />
+        <scope ilk="function" name="print" />
+        <scope ilk="function" name="printf" />
+        <scope ilk="function" name="puts" />
+        <scope ilk="function" name="read" />
+        <scope ilk="function" name="readchar" />
+        <scope ilk="function" name="readline" />
+        <scope ilk="function" name="readlines" />
+        <scope ilk="function" name="readpartial" />
+        <scope ilk="function" name="reject" />
+        <scope ilk="function" name="select" />
+        <scope ilk="function" name="sort" />
+        <scope ilk="function" name="sort_by" />
+        <scope ilk="function" name="sync" />
+        <scope ilk="function" name="sync=" />
+        <scope ilk="function" name="ungetc" />
+        <scope ilk="function" name="write" />
+        <scope ilk="function" name="zip" />
+        <variable name="BLOCK_SIZE" attributes="__const__" citdl="Fixnum"/>
+      </scope>
+      <scope ilk="namespace" name="Fcntl">
+        <variable name="F_SETFL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_ACCMODE" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_APPEND" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_CREAT" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_EXCL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_NONBLOCK" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_RDONLY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_RDWR" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_TRUNC" attributes="__const__" citdl="Fixnum"/>
+        <variable name="O_WRONLY" attributes="__const__" citdl="Fixnum"/>
+      </scope>
+      <scope ilk="namespace" name="OpenSSL">
+        <scope ilk="namespace" name="ASN1">
+          <scope ilk="class" name="ASN1Data" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="tag" />
+            <scope ilk="function" name="tag=" />
+            <scope ilk="function" name="tag_class" />
+            <scope ilk="function" name="tag_class=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="value" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="class" name="ASN1Error" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="BitString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+            <scope ilk="function" name="unused_bits" />
+            <scope ilk="function" name="unused_bits=" />
+          </scope>
+          <scope ilk="class" name="BMPString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Boolean" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Constructive" mixinrefs="Enumerable Kernel" classrefs="OpenSSL::ASN1::ASN1Data">
+            <scope ilk="function" name="all?" />
+            <scope ilk="function" name="any?" />
+            <scope ilk="function" name="collect" />
+            <scope ilk="function" name="detect" />
+            <scope ilk="function" name="each" />
+            <scope ilk="function" name="each_with_index" />
+            <scope ilk="function" name="entries" />
+            <scope ilk="function" name="find" />
+            <scope ilk="function" name="find_all" />
+            <scope ilk="function" name="grep" />
+            <scope ilk="function" name="inject" />
+            <scope ilk="function" name="map" />
+            <scope ilk="function" name="max" />
+            <scope ilk="function" name="member?" />
+            <scope ilk="function" name="min" />
+            <scope ilk="function" name="partition" />
+            <scope ilk="function" name="reject" />
+            <scope ilk="function" name="select" />
+            <scope ilk="function" name="sort" />
+            <scope ilk="function" name="sort_by" />
+            <scope ilk="function" name="tagging" />
+            <scope ilk="function" name="tagging=" />
+            <scope ilk="function" name="zip" />
+          </scope>
+          <scope ilk="class" name="Enumerated" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="GeneralizedTime" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="GeneralString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="GraphicString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="IA5String" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Integer" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="ISO64String" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Null" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="NumericString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="ObjectId" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+            <scope ilk="function" name="ln" />
+            <scope ilk="function" name="long_name" />
+            <scope ilk="function" name="oid" />
+            <scope ilk="function" name="short_name" />
+            <scope ilk="function" name="sn" />
+          </scope>
+          <scope ilk="class" name="OctetString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Primitive" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::ASN1Data">
+            <scope ilk="function" name="tagging" />
+            <scope ilk="function" name="tagging=" />
+          </scope>
+          <scope ilk="class" name="PrintableString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="Sequence" mixinrefs="Enumerable Kernel" classrefs="OpenSSL::ASN1::Constructive">
+          </scope>
+          <scope ilk="class" name="Set" mixinrefs="Enumerable Kernel" classrefs="OpenSSL::ASN1::Constructive">
+          </scope>
+          <scope ilk="class" name="T61String" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="UniversalString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="UTCTime" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="UTF8String" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="class" name="VideotexString" mixinrefs="Kernel" classrefs="OpenSSL::ASN1::Primitive">
+          </scope>
+          <scope ilk="function" name="BitString" />
+          <scope ilk="function" name="BMPString" />
+          <scope ilk="function" name="Boolean" />
+          <scope ilk="function" name="decode" />
+          <scope ilk="function" name="decode_all" />
+          <scope ilk="function" name="Enumerated" />
+          <scope ilk="function" name="GeneralizedTime" />
+          <scope ilk="function" name="GeneralString" />
+          <scope ilk="function" name="GraphicString" />
+          <scope ilk="function" name="IA5String" />
+          <scope ilk="function" name="Integer" />
+          <scope ilk="function" name="ISO64String" />
+          <scope ilk="function" name="Null" />
+          <scope ilk="function" name="NumericString" />
+          <scope ilk="function" name="ObjectId" />
+          <scope ilk="function" name="OctetString" />
+          <scope ilk="function" name="PrintableString" />
+          <scope ilk="function" name="Sequence" />
+          <scope ilk="function" name="Set" />
+          <scope ilk="function" name="T61String" />
+          <scope ilk="function" name="traverse" />
+          <scope ilk="function" name="UniversalString" />
+          <scope ilk="function" name="UTCTime" />
+          <scope ilk="function" name="UTF8String" />
+          <scope ilk="function" name="VideotexString" />
+          <variable name="BIT_STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="BMPSTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="BOOLEAN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="CHARACTER_STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="EMBEDDED_PDV" attributes="__const__" citdl="Fixnum"/>
+          <variable name="ENUMERATED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="EOC" attributes="__const__" citdl="Fixnum"/>
+          <variable name="EXTERNAL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="GENERALIZEDTIME" attributes="__const__" citdl="Fixnum"/>
+          <variable name="GENERALSTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="GRAPHICSTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="IA5STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="INTEGER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="ISO64STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NULL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NUMERICSTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OBJECT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OBJECT_DESCRIPTOR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OCTET_STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PRINTABLESTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REAL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RELATIVE_OID" attributes="__const__" citdl="Fixnum"/>
+          <variable name="SEQUENCE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="SET" attributes="__const__" citdl="Fixnum"/>
+          <variable name="T61STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="UNIVERSAL_TAG_NAME" attributes="__const__" citdl="Array"/>
+          <variable name="UNIVERSALSTRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="UTCTIME" attributes="__const__" citdl="Fixnum"/>
+          <variable name="UTF8STRING" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VIDEOTEXSTRING" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="namespace" name="Cipher">
+          <scope ilk="class" name="AES" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="BF" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="CAST5" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="DES" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="IDEA" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="RC2" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="RC4" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+          <scope ilk="class" name="RC5" mixinrefs="Kernel" classrefs="OpenSSL::Cipher::Cipher">
+          </scope>
+        </scope>
+        <scope ilk="namespace" name="Digest">
+          <scope ilk="class" name="DigestError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="DSS" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="DSS1" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="MD2" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="MD4" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="MD5" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="MDC2" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="RIPEMD160" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="SHA" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+          <scope ilk="class" name="SHA1" mixinrefs="Kernel" classrefs="OpenSSL::Digest::Digest">
+          </scope>
+        </scope>
+        <scope ilk="namespace" name="Netscape">
+          <scope ilk="class" name="SPKI" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="challenge" />
+            <scope ilk="function" name="challenge=" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="public_key=" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+            <scope ilk="function" name="verify" />
+          </scope>
+          <scope ilk="class" name="SPKIError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+        </scope>
+        <scope ilk="namespace" name="OCSP">
+          <scope ilk="class" name="BasicResponse" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_nonce" />
+            <scope ilk="function" name="add_status" />
+            <scope ilk="function" name="copy_nonce" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="status" />
+            <scope ilk="function" name="verify" />
+          </scope>
+          <scope ilk="class" name="CertificateId" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="cmp" />
+            <scope ilk="function" name="cmp_issuer" />
+            <scope ilk="function" name="serial" />
+          </scope>
+          <scope ilk="class" name="OCSPError" mixinrefs="Kernel" classrefs="Object">
+          </scope>
+          <scope ilk="class" name="Request" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_certid" />
+            <scope ilk="function" name="add_nonce" />
+            <scope ilk="function" name="certid" />
+            <scope ilk="function" name="check_nonce" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="verify" />
+          </scope>
+          <scope ilk="class" name="Response" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="basic" />
+            <scope ilk="function" name="status" />
+            <scope ilk="function" name="status_string" />
+            <scope ilk="function" name="to_der" />
+          </scope>
+          <variable name="NOCASIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOCERTS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOCHAIN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOCHECKS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NODELEGATED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOEXPLICIT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOINTERN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOSIGS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOTIME" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOVERIFY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPID_KEY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_INTERNALERROR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_MALFORMEDREQUEST" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_SIGREQUIRED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_SUCCESSFUL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_TRYLATER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="RESPONSE_STATUS_UNAUTHORIZED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_AFFILIATIONCHANGED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_CACOMPROMISE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_CERTIFICATEHOLD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_CESSATIONOFOPERATION" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_KEYCOMPROMISE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_NOSTATUS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_REMOVEFROMCRL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_SUPERSEDED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="REVOKED_STATUS_UNSPECIFIED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUSTOTHER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_CERTSTATUS_GOOD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_CERTSTATUS_REVOKED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_CERTSTATUS_UNKNOWN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_RESPID_KEY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_RESPID_NAME" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="namespace" name="PKCS12">
+          <scope ilk="class" name="PKCS12" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="ca_certs" />
+            <scope ilk="function" name="certificate" />
+            <scope ilk="function" name="key" />
+            <scope ilk="function" name="to_der" />
+          </scope>
+          <scope ilk="class" name="PKCS12Error" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="function" name="create" />
+        </scope>
+        <scope ilk="namespace" name="PKCS7">
+          <scope ilk="class" name="PKCS7Error" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="RecipientInfo" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="enc_key" />
+            <scope ilk="function" name="issuer" />
+            <scope ilk="function" name="serial" />
+          </scope>
+          <scope ilk="class" name="Signer" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="issuer" />
+            <scope ilk="function" name="name" />
+            <scope ilk="function" name="serial" />
+            <scope ilk="function" name="signed_time" />
+          </scope>
+          <scope ilk="class" name="SignerInfo" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="issuer" />
+            <scope ilk="function" name="name" />
+            <scope ilk="function" name="serial" />
+            <scope ilk="function" name="signed_time" />
+          </scope>
+          <scope ilk="function" name="encrypt" />
+          <scope ilk="function" name="read_smime" />
+          <scope ilk="function" name="sign" />
+          <scope ilk="function" name="write_smime" />
+          <variable name="BINARY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="DETACHED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOATTR" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOCERTS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOCHAIN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOINTERN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOSIGS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOSMIMECAP" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NOVERIFY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TEXT" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="namespace" name="PKey">
+          <scope ilk="class" name="DH" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKey">
+            <scope ilk="function" name="compute_key" />
+            <scope ilk="function" name="export" />
+            <scope ilk="function" name="g" />
+            <scope ilk="function" name="g=" />
+            <scope ilk="function" name="generate_key!" />
+            <scope ilk="function" name="p" />
+            <scope ilk="function" name="p=" />
+            <scope ilk="function" name="params" />
+            <scope ilk="function" name="params_ok?" />
+            <scope ilk="function" name="priv_key" />
+            <scope ilk="function" name="priv_key=" />
+            <scope ilk="function" name="private?" />
+            <scope ilk="function" name="pub_key" />
+            <scope ilk="function" name="pub_key=" />
+            <scope ilk="function" name="public?" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+          </scope>
+          <scope ilk="class" name="DHError" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKeyError">
+          </scope>
+          <scope ilk="class" name="DSA" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKey">
+            <scope ilk="function" name="export" />
+            <scope ilk="function" name="g" />
+            <scope ilk="function" name="g=" />
+            <scope ilk="function" name="p" />
+            <scope ilk="function" name="p=" />
+            <scope ilk="function" name="params" />
+            <scope ilk="function" name="priv_key" />
+            <scope ilk="function" name="priv_key=" />
+            <scope ilk="function" name="private?" />
+            <scope ilk="function" name="pub_key" />
+            <scope ilk="function" name="pub_key=" />
+            <scope ilk="function" name="public?" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="q" />
+            <scope ilk="function" name="q=" />
+            <scope ilk="function" name="syssign" />
+            <scope ilk="function" name="sysverify" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+          </scope>
+          <scope ilk="class" name="DSAError" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKeyError">
+          </scope>
+          <scope ilk="class" name="PKeyError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="RSA" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKey">
+            <scope ilk="function" name="d" />
+            <scope ilk="function" name="d=" />
+            <scope ilk="function" name="dmp1" />
+            <scope ilk="function" name="dmp1=" />
+            <scope ilk="function" name="dmq1" />
+            <scope ilk="function" name="dmq1=" />
+            <scope ilk="function" name="e" />
+            <scope ilk="function" name="e=" />
+            <scope ilk="function" name="export" />
+            <scope ilk="function" name="iqmp" />
+            <scope ilk="function" name="iqmp=" />
+            <scope ilk="function" name="n" />
+            <scope ilk="function" name="n=" />
+            <scope ilk="function" name="p" />
+            <scope ilk="function" name="p=" />
+            <scope ilk="function" name="params" />
+            <scope ilk="function" name="private?" />
+            <scope ilk="function" name="private_decrypt" />
+            <scope ilk="function" name="private_encrypt" />
+            <scope ilk="function" name="public?" />
+            <scope ilk="function" name="public_decrypt" />
+            <scope ilk="function" name="public_encrypt" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="q" />
+            <scope ilk="function" name="q=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+            <variable name="NO_PADDING" attributes="__const__" citdl="Fixnum"/>
+            <variable name="PKCS1_OAEP_PADDING" attributes="__const__" citdl="Fixnum"/>
+            <variable name="PKCS1_PADDING" attributes="__const__" citdl="Fixnum"/>
+            <variable name="SSLV23_PADDING" attributes="__const__" citdl="Fixnum"/>
+          </scope>
+          <scope ilk="class" name="RSAError" mixinrefs="Kernel" classrefs="OpenSSL::PKey::PKeyError">
+          </scope>
+        </scope>
+        <scope ilk="namespace" name="Random">
+          <scope ilk="class" name="RandomError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="function" name="egd" />
+          <scope ilk="function" name="egd_bytes" />
+          <scope ilk="function" name="load_random_file" />
+          <scope ilk="function" name="pseudo_bytes" />
+          <scope ilk="function" name="random_bytes" />
+          <scope ilk="function" name="seed" />
+          <scope ilk="function" name="write_random_file" />
+        </scope>
+        <scope ilk="namespace" name="SSL">
+          <scope ilk="namespace" name="Nonblock">
+          </scope>
+          <scope ilk="namespace" name="SocketForwarder">
+            <scope ilk="function" name="addr" />
+            <scope ilk="function" name="closed?" />
+            <scope ilk="function" name="do_not_reverse_lookup=" />
+            <scope ilk="function" name="fcntl" />
+            <scope ilk="function" name="getsockopt" />
+            <scope ilk="function" name="peeraddr" />
+            <scope ilk="function" name="setsockopt" />
+          </scope>
+          <scope ilk="class" name="SSLContext" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="ca_file" />
+            <scope ilk="function" name="ca_file=" />
+            <scope ilk="function" name="ca_path" />
+            <scope ilk="function" name="ca_path=" />
+            <scope ilk="function" name="cert" />
+            <scope ilk="function" name="cert=" />
+            <scope ilk="function" name="cert_store" />
+            <scope ilk="function" name="cert_store=" />
+            <scope ilk="function" name="ciphers" />
+            <scope ilk="function" name="ciphers=" />
+            <scope ilk="function" name="client_ca" />
+            <scope ilk="function" name="client_ca=" />
+            <scope ilk="function" name="client_cert_cb" />
+            <scope ilk="function" name="client_cert_cb=" />
+            <scope ilk="function" name="extra_chain_cert" />
+            <scope ilk="function" name="extra_chain_cert=" />
+            <scope ilk="function" name="key" />
+            <scope ilk="function" name="key=" />
+            <scope ilk="function" name="options" />
+            <scope ilk="function" name="options=" />
+            <scope ilk="function" name="session_id_context" />
+            <scope ilk="function" name="session_id_context=" />
+            <scope ilk="function" name="timeout" />
+            <scope ilk="function" name="timeout=" />
+            <scope ilk="function" name="tmp_dh_callback" />
+            <scope ilk="function" name="tmp_dh_callback=" />
+            <scope ilk="function" name="verify_callback" />
+            <scope ilk="function" name="verify_callback=" />
+            <scope ilk="function" name="verify_depth" />
+            <scope ilk="function" name="verify_depth=" />
+            <scope ilk="function" name="verify_mode" />
+            <scope ilk="function" name="verify_mode=" />
+          </scope>
+          <scope ilk="class" name="SSLError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="SSLServer" mixinrefs="Kernel OpenSSL::SSL::SocketForwarder" classrefs="Object">
+            <scope ilk="function" name="accept" />
+            <scope ilk="function" name="addr" />
+            <scope ilk="function" name="close" />
+            <scope ilk="function" name="closed?" />
+            <scope ilk="function" name="do_not_reverse_lookup=" />
+            <scope ilk="function" name="fcntl" />
+            <scope ilk="function" name="getsockopt" />
+            <scope ilk="function" name="listen" />
+            <scope ilk="function" name="peeraddr" />
+            <scope ilk="function" name="setsockopt" />
+            <scope ilk="function" name="start_immediately" />
+            <scope ilk="function" name="start_immediately=" />
+            <scope ilk="function" name="to_io" />
+          </scope>
+          <scope ilk="class" name="SSLSocket" mixinrefs="Buffering Enumerable Kernel OpenSSL::SSL::Nonblock OpenSSL::SSL::SocketForwarder" classrefs="Object">
+            <scope ilk="function" name="&lt;&lt;" />
+            <scope ilk="function" name="accept" />
+            <scope ilk="function" name="addr" />
+            <scope ilk="function" name="all?" />
+            <scope ilk="function" name="any?" />
+            <scope ilk="function" name="cert" />
+            <scope ilk="function" name="cipher" />
+            <scope ilk="function" name="close" />
+            <scope ilk="function" name="closed?" />
+            <scope ilk="function" name="collect" />
+            <scope ilk="function" name="connect" />
+            <scope ilk="function" name="context" />
+            <scope ilk="function" name="detect" />
+            <scope ilk="function" name="do_not_reverse_lookup=" />
+            <scope ilk="function" name="each" />
+            <scope ilk="function" name="each_byte" />
+            <scope ilk="function" name="each_line" />
+            <scope ilk="function" name="each_with_index" />
+            <scope ilk="function" name="entries" />
+            <scope ilk="function" name="eof" />
+            <scope ilk="function" name="eof?" />
+            <scope ilk="function" name="fcntl" />
+            <scope ilk="function" name="find" />
+            <scope ilk="function" name="find_all" />
+            <scope ilk="function" name="flush" />
+            <scope ilk="function" name="getc" />
+            <scope ilk="function" name="gets" />
+            <scope ilk="function" name="getsockopt" />
+            <scope ilk="function" name="grep" />
+            <scope ilk="function" name="inject" />
+            <scope ilk="function" name="io" />
+            <scope ilk="function" name="map" />
+            <scope ilk="function" name="max" />
+            <scope ilk="function" name="member?" />
+            <scope ilk="function" name="min" />
+            <scope ilk="function" name="partition" />
+            <scope ilk="function" name="peer_cert" />
+            <scope ilk="function" name="peer_cert_chain" />
+            <scope ilk="function" name="peeraddr" />
+            <scope ilk="function" name="pending" />
+            <scope ilk="function" name="post_connection_check" />
+            <scope ilk="function" name="print" />
+            <scope ilk="function" name="printf" />
+            <scope ilk="function" name="puts" />
+            <scope ilk="function" name="read" />
+            <scope ilk="function" name="readchar" />
+            <scope ilk="function" name="readline" />
+            <scope ilk="function" name="readlines" />
+            <scope ilk="function" name="readpartial" />
+            <scope ilk="function" name="reject" />
+            <scope ilk="function" name="select" />
+            <scope ilk="function" name="setsockopt" />
+            <scope ilk="function" name="sort" />
+            <scope ilk="function" name="sort_by" />
+            <scope ilk="function" name="state" />
+            <scope ilk="function" name="sync" />
+            <scope ilk="function" name="sync=" />
+            <scope ilk="function" name="sync_close" />
+            <scope ilk="function" name="sync_close=" />
+            <scope ilk="function" name="sysclose" />
+            <scope ilk="function" name="sysread" />
+            <scope ilk="function" name="syswrite" />
+            <scope ilk="function" name="to_io" />
+            <scope ilk="function" name="ungetc" />
+            <scope ilk="function" name="write" />
+            <scope ilk="function" name="zip" />
+            <variable name="BLOCK_SIZE" attributes="__const__" citdl="Fixnum"/>
+          </scope>
+          <variable name="OP_ALL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_CIPHER_SERVER_PREFERENCE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_EPHEMERAL_RSA" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NETSCAPE_CA_DN_BUG" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NO_SSLv2" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NO_SSLv3" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_NO_TLSv1" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_PKCS1_CHECK_1" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_PKCS1_CHECK_2" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_SINGLE_DH_USE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="OP_TLS_ROLLBACK_BUG" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VERIFY_CLIENT_ONCE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VERIFY_FAIL_IF_NO_PEER_CERT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VERIFY_NONE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="VERIFY_PEER" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="namespace" name="X509">
+          <scope ilk="class" name="Attribute" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="oid" />
+            <scope ilk="function" name="oid=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="value" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="class" name="AttributeError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="Certificate" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_extension" />
+            <scope ilk="function" name="check_private_key" />
+            <scope ilk="function" name="extensions" />
+            <scope ilk="function" name="extensions=" />
+            <scope ilk="function" name="issuer" />
+            <scope ilk="function" name="issuer=" />
+            <scope ilk="function" name="not_after" />
+            <scope ilk="function" name="not_after=" />
+            <scope ilk="function" name="not_before" />
+            <scope ilk="function" name="not_before=" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="public_key=" />
+            <scope ilk="function" name="serial" />
+            <scope ilk="function" name="serial=" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="signature_algorithm" />
+            <scope ilk="function" name="subject" />
+            <scope ilk="function" name="subject=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+            <scope ilk="function" name="verify" />
+            <scope ilk="function" name="version" />
+            <scope ilk="function" name="version=" />
+          </scope>
+          <scope ilk="class" name="CertificateError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="CRL" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_extension" />
+            <scope ilk="function" name="add_revoked" />
+            <scope ilk="function" name="extensions" />
+            <scope ilk="function" name="extensions=" />
+            <scope ilk="function" name="issuer" />
+            <scope ilk="function" name="issuer=" />
+            <scope ilk="function" name="last_update" />
+            <scope ilk="function" name="last_update=" />
+            <scope ilk="function" name="next_update" />
+            <scope ilk="function" name="next_update=" />
+            <scope ilk="function" name="revoked" />
+            <scope ilk="function" name="revoked=" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="signature_algorithm" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+            <scope ilk="function" name="verify" />
+            <scope ilk="function" name="version" />
+            <scope ilk="function" name="version=" />
+          </scope>
+          <scope ilk="class" name="CRLError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="Extension" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="critical=" />
+            <scope ilk="function" name="critical?" />
+            <scope ilk="function" name="oid" />
+            <scope ilk="function" name="oid=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_h" />
+            <scope ilk="function" name="value" />
+            <scope ilk="function" name="value=" />
+          </scope>
+          <scope ilk="class" name="ExtensionError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="ExtensionFactory" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="config" />
+            <scope ilk="function" name="config=" />
+            <scope ilk="function" name="create_ext" />
+            <scope ilk="function" name="create_ext_from_array" />
+            <scope ilk="function" name="create_ext_from_hash" />
+            <scope ilk="function" name="create_ext_from_string" />
+            <scope ilk="function" name="create_extension" />
+            <scope ilk="function" name="crl" />
+            <scope ilk="function" name="crl=" />
+            <scope ilk="function" name="issuer_certificate" />
+            <scope ilk="function" name="issuer_certificate=" />
+            <scope ilk="function" name="subject_certificate" />
+            <scope ilk="function" name="subject_certificate=" />
+            <scope ilk="function" name="subject_request" />
+            <scope ilk="function" name="subject_request=" />
+          </scope>
+          <scope ilk="class" name="Name" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="namespace" name="RFC2253DN">
+              <scope ilk="function" name="expand_hexstring" />
+              <scope ilk="function" name="expand_pair" />
+              <scope ilk="function" name="expand_value" />
+              <scope ilk="function" name="scan" />
+              <variable name="AttributeType" attributes="__const__" citdl="Regexp"/>
+              <variable name="AttributeValue" attributes="__const__" citdl="Regexp"/>
+              <variable name="HexChar" attributes="__const__" citdl="Regexp"/>
+              <variable name="HexPair" attributes="__const__" citdl="Regexp"/>
+              <variable name="HexString" attributes="__const__" citdl="Regexp"/>
+              <variable name="Pair" attributes="__const__" citdl="Regexp"/>
+              <variable name="QuoteChar" attributes="__const__" citdl="Regexp"/>
+              <variable name="Special" attributes="__const__" citdl="String"/>
+              <variable name="StringChar" attributes="__const__" citdl="Regexp"/>
+              <variable name="TypeAndValue" attributes="__const__" citdl="Regexp"/>
+            </scope>
+            <scope ilk="function" name="&lt;=&gt;" />
+            <scope ilk="function" name="add_entry" />
+            <scope ilk="function" name="cmp" />
+            <scope ilk="function" name="to_der" />
+            <variable name="COMPAT" attributes="__const__" citdl="Fixnum"/>
+            <variable name="DEFAULT_OBJECT_TYPE" attributes="__const__" citdl="Fixnum"/>
+            <variable name="MULTILINE" attributes="__const__" citdl="Fixnum"/>
+            <variable name="OBJECT_TYPE_TEMPLATE" attributes="__const__" citdl="Hash"/>
+            <variable name="ONELINE" attributes="__const__" citdl="Fixnum"/>
+            <variable name="RFC2253" attributes="__const__" citdl="Fixnum"/>
+          </scope>
+          <scope ilk="class" name="NameError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="Request" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_attribute" />
+            <scope ilk="function" name="attributes" />
+            <scope ilk="function" name="attributes=" />
+            <scope ilk="function" name="public_key" />
+            <scope ilk="function" name="public_key=" />
+            <scope ilk="function" name="sign" />
+            <scope ilk="function" name="signature_algorithm" />
+            <scope ilk="function" name="subject" />
+            <scope ilk="function" name="subject=" />
+            <scope ilk="function" name="to_der" />
+            <scope ilk="function" name="to_pem" />
+            <scope ilk="function" name="to_text" />
+            <scope ilk="function" name="verify" />
+            <scope ilk="function" name="version" />
+            <scope ilk="function" name="version=" />
+          </scope>
+          <scope ilk="class" name="RequestError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="Revoked" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_extension" />
+            <scope ilk="function" name="extensions" />
+            <scope ilk="function" name="extensions=" />
+            <scope ilk="function" name="serial" />
+            <scope ilk="function" name="serial=" />
+            <scope ilk="function" name="time" />
+            <scope ilk="function" name="time=" />
+          </scope>
+          <scope ilk="class" name="RevokedError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="class" name="Store" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="add_cert" />
+            <scope ilk="function" name="add_crl" />
+            <scope ilk="function" name="add_file" />
+            <scope ilk="function" name="add_path" />
+            <scope ilk="function" name="chain" />
+            <scope ilk="function" name="error" />
+            <scope ilk="function" name="error_string" />
+            <scope ilk="function" name="flags=" />
+            <scope ilk="function" name="purpose=" />
+            <scope ilk="function" name="set_default_paths" />
+            <scope ilk="function" name="time=" />
+            <scope ilk="function" name="trust=" />
+            <scope ilk="function" name="verify" />
+            <scope ilk="function" name="verify_callback" />
+            <scope ilk="function" name="verify_callback=" />
+          </scope>
+          <scope ilk="class" name="StoreContext" mixinrefs="Kernel" classrefs="Object">
+            <scope ilk="function" name="chain" />
+            <scope ilk="function" name="cleanup" />
+            <scope ilk="function" name="current_cert" />
+            <scope ilk="function" name="current_crl" />
+            <scope ilk="function" name="error" />
+            <scope ilk="function" name="error=" />
+            <scope ilk="function" name="error_depth" />
+            <scope ilk="function" name="error_string" />
+            <scope ilk="function" name="flags=" />
+            <scope ilk="function" name="purpose=" />
+            <scope ilk="function" name="time=" />
+            <scope ilk="function" name="trust=" />
+            <scope ilk="function" name="verify" />
+          </scope>
+          <scope ilk="class" name="StoreError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <variable name="DEFAULT_CERT_AREA" attributes="__const__" citdl="String"/>
+          <variable name="DEFAULT_CERT_DIR" attributes="__const__" citdl="String"/>
+          <variable name="DEFAULT_CERT_DIR_ENV" attributes="__const__" citdl="String"/>
+          <variable name="DEFAULT_CERT_FILE" attributes="__const__" citdl="String"/>
+          <variable name="DEFAULT_CERT_FILE_ENV" attributes="__const__" citdl="String"/>
+          <variable name="DEFAULT_PRIVATE_DIR" attributes="__const__" citdl="String"/>
+          <variable name="PURPOSE_ANY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_CRL_SIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_NS_SSL_SERVER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_OCSP_HELPER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_SMIME_ENCRYPT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_SMIME_SIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_SSL_CLIENT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PURPOSE_SSL_SERVER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_COMPAT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_EMAIL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_OBJECT_SIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_OCSP_REQUEST" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_OCSP_SIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_SSL_CLIENT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TRUST_SSL_SERVER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_AKID_ISSUER_SERIAL_MISMATCH" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_AKID_SKID_MISMATCH" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_APPLICATION_VERIFICATION" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_CHAIN_TOO_LONG" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_HAS_EXPIRED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_NOT_YET_VALID" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_REJECTED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_REVOKED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_SIGNATURE_FAILURE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CERT_UNTRUSTED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CRL_HAS_EXPIRED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CRL_NOT_YET_VALID" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_CRL_SIGNATURE_FAILURE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_INVALID_CA" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_INVALID_PURPOSE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_KEYUSAGE_NO_CERTSIGN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_OUT_OF_MEM" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_PATH_LENGTH_EXCEEDED" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_SELF_SIGNED_CERT_IN_CHAIN" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_SUBJECT_ISSUER_MISMATCH" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_GET_CRL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_GET_ISSUER_CERT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_FLAG_CRL_CHECK" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_FLAG_CRL_CHECK_ALL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="V_OK" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="class" name="BN" mixinrefs="Comparable Kernel" classrefs="Object">
+          <scope ilk="function" name="%" />
+          <scope ilk="function" name="*" />
+          <scope ilk="function" name="**" />
+          <scope ilk="function" name="+" />
+          <scope ilk="function" name="-" />
+          <scope ilk="function" name="/" />
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="&gt;&gt;" />
+          <scope ilk="function" name="between?" />
+          <scope ilk="function" name="bit_set?" />
+          <scope ilk="function" name="clear_bit!" />
+          <scope ilk="function" name="cmp" />
+          <scope ilk="function" name="coerce" />
+          <scope ilk="function" name="copy" />
+          <scope ilk="function" name="gcd" />
+          <scope ilk="function" name="mask_bits!" />
+          <scope ilk="function" name="mod_add" />
+          <scope ilk="function" name="mod_exp" />
+          <scope ilk="function" name="mod_inverse" />
+          <scope ilk="function" name="mod_mul" />
+          <scope ilk="function" name="mod_sqr" />
+          <scope ilk="function" name="mod_sub" />
+          <scope ilk="function" name="num_bits" />
+          <scope ilk="function" name="num_bytes" />
+          <scope ilk="function" name="odd?" />
+          <scope ilk="function" name="one?" />
+          <scope ilk="function" name="prime?" />
+          <scope ilk="function" name="prime_fasttest?" />
+          <scope ilk="function" name="set_bit!" />
+          <scope ilk="function" name="sqr" />
+          <scope ilk="function" name="to_bn" />
+          <scope ilk="function" name="to_i" />
+          <scope ilk="function" name="to_int" />
+          <scope ilk="function" name="ucmp" />
+          <scope ilk="function" name="zero?" />
+        </scope>
+        <scope ilk="class" name="BNError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+        </scope>
+        <scope ilk="class" name="CipherError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+        </scope>
+        <scope ilk="class" name="Config" mixinrefs="Enumerable Kernel" classrefs="Object">
+          <scope ilk="function" name="[]" />
+          <scope ilk="function" name="[]=" />
+          <scope ilk="function" name="add_value" />
+          <scope ilk="function" name="all?" />
+          <scope ilk="function" name="any?" />
+          <scope ilk="function" name="collect" />
+          <scope ilk="function" name="detect" />
+          <scope ilk="function" name="each" />
+          <scope ilk="function" name="each_with_index" />
+          <scope ilk="function" name="entries" />
+          <scope ilk="function" name="find" />
+          <scope ilk="function" name="find_all" />
+          <scope ilk="function" name="get_value" />
+          <scope ilk="function" name="grep" />
+          <scope ilk="function" name="inject" />
+          <scope ilk="function" name="map" />
+          <scope ilk="function" name="max" />
+          <scope ilk="function" name="member?" />
+          <scope ilk="function" name="min" />
+          <scope ilk="function" name="partition" />
+          <scope ilk="function" name="reject" />
+          <scope ilk="function" name="section" />
+          <scope ilk="function" name="sections" />
+          <scope ilk="function" name="select" />
+          <scope ilk="function" name="sort" />
+          <scope ilk="function" name="sort_by" />
+          <scope ilk="function" name="value" />
+          <scope ilk="function" name="zip" />
+          <variable name="DEFAULT_CONFIG_FILE" attributes="__const__" citdl="String"/>
+        </scope>
+        <scope ilk="class" name="ConfigError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+        </scope>
+        <scope ilk="class" name="Engine" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="class" name="EngineError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+          </scope>
+          <scope ilk="function" name="cipher" />
+          <scope ilk="function" name="cmds" />
+          <scope ilk="function" name="ctrl_cmd" />
+          <scope ilk="function" name="digest" />
+          <scope ilk="function" name="finish" />
+          <scope ilk="function" name="load_private_key" />
+          <scope ilk="function" name="load_public_key" />
+          <scope ilk="function" name="name" />
+          <scope ilk="function" name="set_default" />
+          <variable name="METHOD_ALL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_CIPHERS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_DH" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_DIGESTS" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_DSA" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_NONE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_RAND" attributes="__const__" citdl="Fixnum"/>
+          <variable name="METHOD_RSA" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="class" name="HMAC" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="digest" />
+          <scope ilk="function" name="hexdigest" />
+          <scope ilk="function" name="update" />
+        </scope>
+        <scope ilk="class" name="HMACError" mixinrefs="Kernel" classrefs="OpenSSL::OpenSSLError">
+        </scope>
+        <scope ilk="class" name="OpenSSLError" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+        <scope ilk="function" name="debug" />
+        <scope ilk="function" name="debug=" />
+        <scope ilk="function" name="errors" />
+        <variable name="OPENSSL_VERSION_NUMBER" attributes="__const__" citdl="Fixnum"/>
+        <variable name="OPENSSL_VERSION" attributes="__const__" citdl="String"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+      </scope>
+    </scope>

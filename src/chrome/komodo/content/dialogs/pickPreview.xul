@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Select a preview file for the given URL. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog id="dialog-pickpreview"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 35em; max-width: 40em;"
+        flex="1"
+        buttons="accept,cancel"
+        ondialogaccept="return Preview();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/mru.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/pickPreview.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image class="question-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <description id="prompt" flex="1"/>
+            <description flex="1">
+                Typically a file is used to preview itself but sometimes it is
+                useful to preview another file that includes your file, e.g.
+                using an HTML file to preview a CSS file.
+            </description>
+            <vbox style="padding-left: 10px;">
+                <radiogroup id="use-which-file" flex="1"
+                            oncommand="UpdateAnotherGroup();">
+                    <radio id="use-this-file"    value="use-this"    accesskey="&useThisFile.accesskey;"
+                           label="&previewWithThisFile.label;"/>
+                    <radio id="use-another-file" value="use-another" accesskey="&useAnotherFile.accesskey;"
+                           label="&previewWithAnotherFileOrURL.label;"/>
+                </radiogroup>
+                <hbox align="center" style="padding-left: 25px;">
+                    <textbox id="other-file" flex="1"
+                             onkeyup="UpdateOtherFileTextbox();"/>
+                    <button id="browse-button" label="&browse.label;" accesskey="&browseButton.accesskey;"
+                            oncommand="Browse();"/>
+                </hbox>
+            </vbox>
+
+            <separator flex="1" style="min-height: 10px;"/>
+            <checkbox id="remember" checked="false"
+                      label="&rememberThisSelectionForThisFile.label;"
+                      style="padding-left: 0px;"
+                      accesskey="&remember.accesskey;"/>
+        </vbox>
+    </hbox>
+
+</dialog>

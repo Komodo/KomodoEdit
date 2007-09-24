@@ -1,0 +1,836 @@
+<?xml version="1.0"?>
+<!-- Komodo Preferences File - DO NOT EDIT -->
+<!-- This is a direct transcription of prefdefs.py
+      there are some redundant and obsolete definitions
+      that should be deleted from here.
+-->
+<preference-set id="default">
+  <boolean id="startupMaximized">0</boolean>
+  <boolean id="startupFullScreen">0</boolean>
+  <long id="tabWidth">8</long>
+  <long id="indentWidth" validate="value > 0">4</long>
+  <boolean id="useTabs">0</boolean>
+  <boolean id="useSmartTabs">1</boolean>
+  <boolean id="showWhitespace">0</boolean>
+  <boolean id="showEOL">0</boolean>
+<!-- #if PLATFORM == "win" -->
+  <string id="endOfLine">CRLF</string>
+<!-- #else -->
+  <string id="endOfLine">LF</string>
+<!-- #endif -->
+  <string id="browser"></string> <!-- no default value -->
+  <!-- browser_preview_method - where to open browser previews for files
+        "in-tab-other-group": Preview in Komodo tab, other tab group
+        "in-tab-same-group":  Preview in Komodo tab, same tab group
+        "external":           Preview in external browser
+    -->
+  <string id="browser_preview_method">in-tab-other-group</string>
+  <string id="preview_path"/>
+  <boolean id="showIndentationGuides">1</boolean>
+  <boolean id="showLineNumbers">0</boolean>
+  <boolean id="scrollEndAtLastLine">0</boolean>
+  <long id="caretStyle">1</long>
+  <long id="caretWidth">1</long>
+  <long id="screenX">100</long>
+  <long id="screenY">100</long>
+  <long id="outerHeight">680</long>
+  <long id="outerWidth">820</long>
+  <boolean id="showStartupDialog">1</boolean>  <!-- cruft? -->
+  <long id="upperBoxHeight">100</long>
+  <long id="lowerBoxHeight">100</long>
+
+  <string id="mappedPaths"></string>
+
+  <long id="rxScreenX">100</long>
+  <long id="rxScreenY">100</long>
+  <long id="rxOuterHeight">460</long>
+  <long id="rxOuterWidth">600</long>
+  <long id="rxRegexAreaHeight">100</long>
+  <long id="rxMatchVarsAreaHeight">100</long>
+  <boolean id="rxMatchVarsAreaCollapsed">0</boolean>
+  <boolean id="rxModG">0</boolean>
+  <boolean id="rxModM">0</boolean>
+  <boolean id="rxModI">0</boolean>
+  <boolean id="rxModS">0</boolean>
+  <boolean id="rxModX">0</boolean>
+  <string id="rx-default-regex">(.*)(\d+)</string>
+  <string id="rx-default-teststring">testing123</string>
+
+  <!-- The new new Rx (aka Rxx) preferences:
+    rxx_*_{width|height}: Rx window pane dimensions in pixels, if defined
+        rxx_pattern_row_height, rxx_text_row_height, rxx_search_column_width,
+        rxx_replace_column_width, rxx_match_results_area_height
+    rxx_regex_area_height: if defined, the height in pixels
+    rxx_search_text_area_height: if defined, the height in pixels
+    rxx_regex_area_width: if defined, the width in pixels
+    rxx_replacement_area_width: if defined, the width in pixels
+    rxx_match_results_area_height: if defined, the height in pixels
+    rxx_mode: one of "match", "search", "find-all", "replace" defining
+        the mode of usage of the user's regular expression in Rxx.
+    rxx_language: one of the supported Rxx languages, e.g. "python", "perl"
+    rxx_search_text: the save search text
+    rxx_regex: the saved regular expression
+    rxx_replacement: the saved replacement pattern
+    rxx_modifier_?: one boolean pref for each regular expression modifier:
+        i: ignore-case
+        m: multiline
+        s: dotall
+        x: verbose
+        u: unicode
+        l: locale
+  -->
+  <string id="rxx_mode">match-all</string> <!-- probably the mode most commonly wanted -->
+  <string id="rxx_language">python</string> <!-- XXX want to change to "perl" when that is supported -->
+  <boolean id="rxx_modifier_i">0</boolean>
+  <boolean id="rxx_modifier_m">0</boolean>
+  <boolean id="rxx_modifier_s">0</boolean>
+  <boolean id="rxx_modifier_x">0</boolean>
+  <boolean id="rxx_modifier_u">0</boolean>
+  <boolean id="rxx_modifier_l">0</boolean>
+
+  <!-- 'show_start_page' indicates whether to show the Start Page at startup. -->
+  <boolean id="show_start_page">1</boolean>
+  <boolean id="start_page_tutorials_box_closed">0</boolean>
+  <boolean id="start_page_quick_links_box_closed">0</boolean>
+  <boolean id="start_page_tip_box_closed">1</boolean>
+  <boolean id="start_page_landing_box_closed">0</boolean>
+<!-- # if PRODUCT_TYPE == "edit" -->
+  <string id="start_page_landing_box_url">http://www.activestate.com/products/komodo_edit/start/</string>
+<!-- #endif -->
+<!-- # if PRODUCT_TYPE == "ide" -->
+  <string id="start_page_landing_box_url">http://www.activestate.com/products/komodo_ide/start/</string>
+<!-- #endif -->
+
+  <boolean id="uiRxSeparateWindow">0</boolean>
+
+  <long id="mruProjectSize">5</long>
+  <long id="mruFileSize">10</long>
+  <long id="mruTemplateSize">5</long>
+  <string id="mruDirectory">.</string>
+
+  <!--For optimization purposes, we don't restore fold points by default - it's-->
+  <!--a very slow process.  Users who care can turn it on.-->
+  <boolean id="editRestoreFoldPoints">0</boolean>
+  <boolean id="editUseLinting">1</boolean>
+  <boolean id="editUseAlternateFaceType">0</boolean>
+  <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
+  <string id="editFoldStyle">squaretree</string>
+
+  <!-- editFoldLines: whether to show horizontal lines on fold marks -->
+  <boolean id="editFoldLines">1</boolean>
+
+  <!-- strip extra whitespace on file save -->
+  <boolean id="cleanLineEnds">0</boolean>
+  <!-- ensure file ends with a newline on file save -->
+  <boolean id="ensureFinalEOL">0</boolean>
+
+
+  <string id="userEnvironmentStartupOverride"/>
+  <string id="userEnvironment"/>
+
+  <ordered-preference id="deploymentServerList"/>
+  <string id="xmlCatalogPaths"/>
+  <string id="perlDefaultInterpreter"/>
+  <string id="pythonDefaultInterpreter"/>
+  <string id="xsltDefaultInterpreter"/>
+  <string id="phpDefaultInterpreter"/>
+  <string id="phpConfigFile"/>
+  <string id="phpCommentStyle">//,#</string>
+
+  <!-- Additional  directories for Python, Perl, etc. These are
+       stored as pathsep-separated local paths. -->
+  <string id="javascriptExtraPaths"></string>
+  <string id="phpExtraPaths"></string>
+  <string id="pythonExtraPaths"></string>
+  <string id="perlExtraPaths"></string>
+
+<!-- ruby start -->
+  <!-- Ruby strings -->
+  <string id="rubyExtraPaths"></string>
+  <string id="rubyDefaultInterpreter"/>
+  <string id="ruby_lintOption">cwT</string>
+<!-- ruby end -->
+
+<!-- Remote files -->
+  <long id="remotefiles_defaultConnectionTimeout">30</long>
+
+<!-- HTTP Inspector start -->
+  <boolean id="httpInspector_enabledAtStartup">0</boolean>
+  <long id="httpInspector_listenPort">8080</long>
+  <boolean id="httpInspector_acceptLocalConnectionsOnly">1</boolean>
+  <boolean id="httpInspector_breakOnRequest">0</boolean>
+  <boolean id="httpInspector_breakOnResponse">0</boolean>
+  <boolean id="httpInspector_viewImageInline">0</boolean>
+  <boolean id="httpInspector_proxyForwardingEnabled">0</boolean>
+  <string id="httpInspector_proxyForwardingAddress">127.0.0.1:8080</string>
+  <ordered-preference id="httpInspector_ruleset"/>
+<!-- HTTP Inspector end -->
+
+  <string id="perl_lintOption">cw</string>
+
+  <!-- File associations are (roughly) determined by starting with this set
+       (factoryFileAssociations, which should only exist at the factory level)
+       and applying changes at the user (or site) level via the
+       'fileAssociationDiffs' pref.
+    -->
+  <string id="factoryFileAssociations">{'*.ada': 'Ada',
+ '*.ant': 'Bullant',
+ '*.asm': 'Assembler',
+ '*.aux': 'LaTeX',
+ '*.ave': 'Avenue',
+ '*.bat': 'Batch',
+ '*.bbl': 'LaTeX',
+ '*.bc': 'Baan',
+ '*.c': 'C++',
+ '*.c++': 'C++',
+ '*.cgi': 'Perl',
+ '*.cix': 'XML',
+ '*.cln': 'Baan',
+ '*.cls': 'LaTeX',
+ '*.clw': 'CLW',
+ '*.cmd': 'Batch',
+ '*.conf': 'Apache',
+ '*.cpp': 'C++',
+ '*.cron': 'nnCrontab',
+ '*.cs': 'C#',
+ '*.css': 'CSS',
+ '*.cxx': 'C++',
+ '*.diff': 'Diff',
+ '*.e': 'Eiffel',
+ '*.el': 'Lisp',
+ '*.em': 'EScript',
+ '*.erl': 'Erlang',
+ '*.f': 'Fortran 77',
+ '*.f90': 'Fortran',
+ '*.f95': 'Fortran',
+ '*.for': 'Fortran 77',
+ '*.forth': 'Forth',
+ '*.gc': 'Gui4Cli',
+ '*.h': 'C++',
+ '*.h++': 'C++',
+ '*.hpp': 'C++',
+ '*.htm': 'HTML',
+ '*.html': 'HTML',
+ '*.hxx': 'C++',
+ '*.idl': 'IDL',
+ '*.inc': 'PHP',
+ '*.java': 'Java',
+ '*.js': 'JavaScript',
+ '*.kix': 'Kix',
+ '*.kpf': 'XML',
+ '*.lis': 'Lisp',
+ '*.lof': 'LaTeX',
+ '*.lot': 'Lot',
+ '*.lsp': 'Lisp',
+ '*.lt': 'Lout',
+ '*.ltx': 'LaTeX',
+ '*.lua': 'Lua',
+ '*.m': 'Matlab',
+ '*.mac': 'APDL',
+ '*.mak': 'Makefile',
+ '*.mixal': 'MMIXAL',
+ '*.module': 'PHP',
+ '*.mp': 'Metapost',
+ '*.nsi': 'Nsis',
+ '*.pas': 'Pascal',
+ '*.patch': 'Diff',
+ '*.pb': 'PowerBasic',
+ '*.php': 'PHP',
+ '*.pl': 'Perl',
+ '*.plex': 'Perl',
+ '*.plx': 'Perl',
+ '*.pm': 'Perl',
+ '*.pov': 'POVRay',
+ '*.ps': 'PostScript',
+ '*.py': 'Python',
+ '*.pyw': 'Python',
+ '*.rb': 'Ruby',
+ '*.rjs': 'Ruby',
+ '*.rxml': 'Ruby',
+ '*.sh': 'Bash',
+ '*.sol': 'Scriptol',
+ '*.spf': 'nnCrontab',
+ '*.sql': 'SQL',
+ '*.sty': 'LaTeX',
+ '*.t': 'Perl',
+ '*.tab': 'nnCrontab',
+ '*.tcl': 'Tcl',
+ '*.tex': 'LaTeX',
+ '*.toc': 'LaTeX',
+ '*.txt': 'Text',
+ '*.v': 'Verilog',
+ '*.vb': 'VisualBasic',
+ '*.vbs': 'VBScript',
+ '*.vh': 'Verilog',
+ '*.xml': 'XML',
+ '*.xs': 'C++',
+ '*.xsl': 'XSLT',
+ '*.xslt': 'XSLT',
+ '*.yaml': 'YAML',
+ '*.yml': 'YAML',
+ 'Conscript': 'Perl',
+ 'Construct': 'Perl',
+ 'Makefile': 'Makefile',
+ 'Makefile.*': 'Makefile',
+ 'makefile': 'Makefile',
+ 'makefile.*': 'Makefile'}</string>
+
+  <string id="fileDefaultNew">Text</string>
+  <long id="gui_port">11010</long> <!-- port to be used in socket communication -->
+  <string id="defaultSelectedPref">editorItem</string>
+  <string id="encodingDefault">iso8859-1</string>
+  <boolean id="encodingEnvironment">1</boolean>
+  <boolean id="encodingAutoDetect">1</boolean>
+  <boolean id="encodingXMLDec">1</boolean>
+  <boolean id="encodingHTML">0</boolean>
+  <boolean id="encodingModeline">1</boolean>
+
+  <long id="find-patternType">0</long>
+  <long id="find-caseSensitivity">0</long>
+  <long id="find-preferredContextType">0</long> <!-- 0 == current document -->
+  <boolean id="find-matchWord">0</boolean>
+  <boolean id="find-searchBackward">0</boolean>
+  <boolean id="find-displayInFindResults2">0</boolean>
+  <ordered-preference id="find-folders"/>
+  <boolean id="find-searchInSubfolders">1</boolean>
+  <ordered-preference id="find-includeFiletypes"/>
+  <ordered-preference id="find-excludeFiletypes"/>
+
+  <long id="editWrapType">0</long>
+  <long id="editWordWrapMarker">0</long>
+  <boolean id="editUseEdge">1</boolean>
+  <!-- editAutoIndentStyle:
+     'smart': adjust auto-indent after newline _in brace languages_
+     'plain': auto-indent to first column of previous line that contains non-whitespace after newline, nothing after }
+     'none': no auto-indent
+  -->
+  <string id="editAutoIndentStyle">smart</string>
+  <!-- editElectricBrace:
+     if true, adjust position of closing brace to indenf of matching brace line
+  -->
+  <boolean id="editElectricBrace">1</boolean>
+  <long id="editAutoWrapColumn">80</long>
+  <boolean id="editSmartSoftCharacters">1</boolean>
+  <long id="autoSaveMinutes">10</long>
+  <boolean id="checkDiskFile">1</boolean>
+
+  <!-- Language Preferences -->
+  <preference-set id="languages">
+    <!-- NOTE: the parent pref set for each language is the main global set
+           When getting/setting, ensure the names correspond -->
+    <preference-set id="languages/Ada">
+      <string id="Ada/newEncoding">Default Encoding</string>
+      <boolean id="Ada/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Apache">
+      <string id="Apache/newEncoding">Default Encoding</string>
+      <boolean id="Apache/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Baan">
+      <string id="Baan/newEncoding">Default Encoding</string>
+      <boolean id="Baan/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Batch">
+      <string id="Batch/newEncoding">Default Encoding</string>
+      <boolean id="Batch/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Bullant">
+      <string id="Bullant/newEncoding">Default Encoding</string>
+      <boolean id="Bullant/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/C#">
+      <string id="C#/newEncoding">Default Encoding</string>
+      <boolean id="C#/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/C++">
+      <string id="C++/newEncoding">Default Encoding</string>
+      <boolean id="C++/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/CSS">
+      <string id="CSS/newEncoding">Default Encoding</string>
+      <boolean id="CSS/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Diff">
+      <string id="Diff/newEncoding">Default Encoding</string>
+      <boolean id="Diff/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Eiffel">
+      <string id="Eiffel/newEncoding">Default Encoding</string>
+      <boolean id="Eiffel/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Errors">
+      <string id="C++/newEncoding">Default Encoding</string>
+      <boolean id="C++/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Fortran">
+      <string id="Fortran/newEncoding">Default Encoding</string>
+      <boolean id="Fortran/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Fortran 77">
+      <string id="Fortran 77/newEncoding">Default Encoding</string>
+      <boolean id="Fortran 77/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/HTML">
+      <string id="HTML/newEncoding">Default Encoding</string>
+      <boolean id="HTML/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/IDL">
+      <string id="IDL/newEncoding">Default Encoding</string>
+      <boolean id="IDL/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Java">
+      <string id="Java/newEncoding">Default Encoding</string>
+      <boolean id="Java/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/JavaScript">
+      <string id="JavaScript/newEncoding">Default Encoding</string>
+      <boolean id="JavaScript/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/LaTeX">
+      <string id="LaTeX/newEncoding">Default Encoding</string>
+      <boolean id="LaTeX/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Lisp">
+      <string id="Lisp/newEncoding">Default Encoding</string>
+      <boolean id="Lisp/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Lua">
+      <string id="Lua/newEncoding">Default Encoding</string>
+      <boolean id="Lua/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Makefile">
+      <string id="Makefile/newEncoding">Default Encoding</string>
+      <boolean id="Makefile/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Matlab">
+      <string id="Matlab/newEncoding">Default Encoding</string>
+      <boolean id="Matlab/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/PHP">
+      <string id="PHP/newEncoding">Default Encoding</string>
+      <boolean id="PHP/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Pascal">
+      <string id="Pascal/newEncoding">Default Encoding</string>
+      <boolean id="Pascal/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Perl">
+      <string id="Perl/newEncoding">Default Encoding</string>
+      <boolean id="Perl/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Python">
+      <string id="Python/newEncoding">Default Encoding</string>
+      <boolean id="Python/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Ruby">
+      <string id="Ruby/newEncoding">Default Encoding</string>
+      <boolean id="Ruby/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/SQL">
+      <string id="SQL/newEncoding">Default Encoding</string>
+      <boolean id="SQL/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Tcl">
+      <string id="Tcl/newEncoding">Default Encoding</string>
+      <boolean id="Tcl/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Text">
+      <string id="Text/newEncoding">Default Encoding</string>
+      <boolean id="Text/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/VisualBasic">
+      <string id="VisualBasic/newEncoding">utf-8</string>
+      <boolean id="VisualBasic/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/XML">
+      <string id="XML/newEncoding">utf-8</string>
+      <boolean id="XML/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/XSLT">
+      <string id="XSLT/newEncoding">utf-8</string>
+      <boolean id="XSLT/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/nnCrontab">
+      <string id="nnCrontab/newEncoding">Default Encoding</string>
+      <boolean id="nnCrontab/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/CSS">
+      <string id="CSS/newEncoding">Default Encoding</string>
+      <boolean id="CSS/newBOM">0</boolean>
+    </preference-set>
+  </preference-set>
+
+  <!-- Allow XML declaration tags to override file settings, except
+       in the case of HTML and XSLT. -->
+  <boolean id="xmlDeclDetection">1</boolean>
+  <string id="defaultHTMLDecl">-//W3C//DTD HTML 4.01//EN</string>
+  <!-- Allow #! lines to override filename associations. -->
+  <boolean id="shebangDetection">1</boolean>
+  <!-- Allow emacs local variables in file content to override file type
+       association. -->
+  <boolean id="emacsLocalModeVariableDetection">1</boolean>
+
+  <boolean id="cvsEnabled">1</boolean>
+  <boolean id="cvsBackgroundCheck">1</boolean>
+  <boolean id="cvsRecursive">0</boolean>
+  <long id="cvsBackgroundMinutes">15</long>
+  <string id="cvsDiffOptions">-u</string>
+  <string id="cvsExecutable"></string>
+  <boolean id="donotask_cvs_ssh_setup_warning">0</boolean>
+
+  <boolean id="svnEnabled">1</boolean>
+  <boolean id="svnBackgroundCheck">1</boolean>
+  <boolean id="svnRecursive">0</boolean>
+  <long id="svnBackgroundMinutes">15</long>
+  <string id="svnDiffOptions"></string>
+  <string id="svnExecutable"></string>
+  <boolean id="donotask_svn_ssh_setup_warning">0</boolean>
+
+  <boolean id="p4Enabled">1</boolean>
+  <boolean id="p4BackgroundCheck">0</boolean>
+  <boolean id="p4Recursive">0</boolean>
+  <long id="p4BackgroundMinutes">15</long>
+  <string id="p4DiffOptions">u</string>
+  <string id="p4Executable"></string>
+  <string id="diffDisplayStyle">diffwin</string>
+  <boolean id="diskStatusEnabled">1</boolean>
+  <boolean id="diskBackgroundCheck">1</boolean>
+  <long id="diskBackgroundMinutes">15</long>
+  <boolean id="fileNotificationServiceEnabled">1</boolean>
+  <!-- Tip of the Day preferences:
+    "tipShowAtStartup" specifies whether to launch the Tip o' the day dialog.
+    "tipNumber" indicates the tip to display next. -->
+  <boolean id="tipShowAtStartup">0</boolean>
+  <long id="tipNumber">0</long>
+
+  <!-- Run Command preferences:
+    "runShowMoreOptions" specifies whether to show the "More Options" part of
+        the Run Command dialog.
+    "runCwd" is a directory in which to start the child process.
+    "runRunIn" is a string indicating in what window the command should be
+        started.
+    "runDoNotOpenOutWin" specifies that the output pane should not be openned
+        to show the command run.
+    "runParseOutput" is a boolean indicating whether to parse output lines.
+    "runParseRegex" specifies a regex to use to parse output lines.
+    "runShowParsedOutputList" is a boolean indicating whether parse output
+        should be shown initially as a list (i.e. in an tree).
+    "runEnv" is a string encoding the environment settings
+    -->
+  <boolean id="runShowMoreOptions">0</boolean>
+  <string id="runCwd"></string>
+  <string id="runRunIn"></string>
+  <boolean id="runDoNotOpenOutWin">0</boolean>
+  <string id="runEnv"></string>
+  <boolean id="runParseOutput">0</boolean>
+  <string id="runParseRegex"></string>
+  <boolean id="runShowParsedOutputList">0</boolean>
+  <!-- preload the parse regex MRU with a demonstrative value -->
+  <ordered-preference id="run-parseRegexMru">
+    <string>^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$</string>
+  </ordered-preference>
+
+
+  <!-- The commands that are run to lookup information on a per language basis -->
+<!-- #if PLATFORM == "darwin" -->
+  <string id="PerlHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Aperldoc.perl.org+%W</string>
+  <string id="PythonHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Adocs.python.org+%W</string>
+  <string id="PHPHelpCommand">open http://www.php.net/manual-lookup.php?pattern=%W</string>
+  <string id="RubyHelpCommand">open http://www.ruby-doc.org/find/pickaxe?search=%W</string>
+  <string id="TclHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Awww.tcl.tk+%W</string>
+  <string id="XSLTHelpCommand">open http://www.google.com/search?q=%W+XSLT+reference</string>
+  <string id="TextHelpCommand">open http://www.answers.com/%W</string>
+  <string id="DefaultHelpCommand">open http://www.google.com/search?q=%W</string>
+  <string id="OtherHelpCommand">open http://www.google.com/search?q=%W</string>
+<!-- #else -->
+  <string id="PerlHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Aperldoc.perl.org+%W</string>
+  <string id="PythonHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Adocs.python.org+%W</string>
+  <string id="PHPHelpCommand">%(browser) http://www.php.net/manual-lookup.php?pattern=%W</string>
+  <string id="RubyHelpCommand">%(browser) http://www.ruby-doc.org/find/pickaxe?search=%W</string>
+  <string id="TclHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Awww.tcl.tk+%W</string>
+  <string id="XSLTHelpCommand">%(browser) http://www.google.com/search?q=%W+XSLT+reference</string>
+  <string id="TextHelpCommand">%(browser) http://www.answers.com/%W</string>
+  <string id="DefaultHelpCommand">%(browser) http://www.google.com/search?q=%W</string>
+  <string id="OtherHelpCommand">%(browser) http://www.google.com/search?q=%W</string>
+<!-- #endif -->
+
+  <!-- Cursor Color prefs and the like -->
+  <string id="cursorColor">#000000</string>
+  <string id="edgeColor">#C0DCC0</string>
+  <string id="currentLineColor">#F5F5F5</string>
+  <boolean id="useCurrentLineColor">0</boolean>
+  <boolean id="useSelectFore">0</boolean>
+  <string id="selectFore">#333333</string>
+  <string id="selectBack">#c0c0c0</string>
+
+  <!-- number of lines to keep above and below cursor - see scintilla setYCaretPolicy -->
+  <long id="ySlop">5</long>
+
+  <!-- horizontal scrollbar width (in pixels) -->
+  <long id="scrollWidth">2000</long>
+
+  <!-- Keybinding configurations -->
+  <string id="keybinding-scheme">Default</string>
+  <boolean id="keybindingDisableAccesskeys">0</boolean>
+  <string id="default-keybinding-scheme">Default</string>
+  <boolean id="print_showLineNos">1</boolean>
+  <boolean id="print_useColor">0</boolean>
+  <double id="print_scalingRatio">1.5</double>
+  <long id="print_lineLength">132</long>
+  <string id="isearchType">0</string> <!-- plain text search -->
+  <string id="isearchCaseSensitivity">2</string> <!-- case sensitive if patterns contains uppercase char -->
+
+  <string id="import_include_matches"></string>
+<!-- #if PLATFORM == "win" -->
+  <!-- Note: _svn may be used on windows with subversion instead of .svn -->
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;_svn;*%*;tmp*.html;.DS_Store</string>
+<!-- #else -->
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store</string>
+<!-- #endif -->
+  <boolean id="import_recursive">1</boolean>
+  <string id="import_type">useFolders</string>
+  <string id="import_dirname"></string>
+  <boolean id="import_live">1</boolean>
+
+
+  <!-- save_before_perlapp
+    - "All": Save all dirty files when starting pdk
+    - "None": Save no dirty files when starting pdk
+    - "": Ask me what to do
+  -->
+  <boolean id="donotask_save_before_perlapp">0</boolean>
+  <string id="donotask_action_save_before_perlapp"></string>
+
+  <!-- If false, ask before automatically reloading files that have changed
+       outside of Komodo. -->
+  <boolean id="donotask_reload_changes_files">0</boolean>
+
+  <!-- If false, ask before automatically reloading projects that have changed
+       outside of Komodo. -->
+  <boolean id="donotask_reload_changes_projects">0</boolean>
+
+  <!-- Don't alert when dirty buffer conflicts with file on disk. -->
+  <boolean id="donotask_buffer_conflicts_with_file_on_disk">0</boolean>
+
+  <!-- open_recent_files_on_project_open
+    - if boolean pref is true, then:
+        - string pref == "Yes": Open recent files when opening project
+        - string pref == "No":  Do nothing when opening project
+    -->
+  <boolean id="donotask_open_recent_files_on_project_open">0</boolean>
+  <string id="donotask_action_open_recent_files_on_project_open"></string>
+
+  <!-- close_all_files_on_project_close
+    - if boolean pref is true, then:
+        - string pref == "Yes": Close all open files in project when project is closed
+        - string pref == "No":  Close no files when project is closed
+    -->
+  <boolean id="donotask_close_all_files_on_project_close">0</boolean>
+  <string id="donotask_action_close_all_files_on_project_close"></string>
+
+  <!-- close_deleted_files
+    - if boolean pref is true, then:
+        - string pref == "All": Close all deleted files when komodo gains focus
+        - string pref == "None":  Close no deleted files when komodo gains focus
+    -->
+  <boolean id="donotask_close_deleted_files">0</boolean>
+  <string id="donotask_action_close_deleted_files"></string>
+
+  <!-- reload_changed_files
+    - if boolean pref is true, then:
+        - string pref == "All": Reload all changed files when komodo gains focus
+        - string pref == "None":  Reload no changed files when komodo gains focus
+    -->
+  <boolean id="donotask_reload_changed_files">0</boolean>
+  <string id="donotask_action_reload_changed_files"></string>
+
+  <!-- p4_diff_type and externaldiff: what type of diff tool to use w/ Perforce
+    - 'komododiff': use the 'standard' - run p4 diff, parse output, and either put up a new window
+      or a new tab depending on the value of the "diffDisplayStyle" pref.
+    - 'externaldiffchoice': set P4DIFF to the value of the "externaldiff" pref.
+  -->
+  <string id="p4_diff_type">komododiff</string>
+  <string id="externaldiff">p4diff</string>
+
+  <!-- restore_workspace
+    - if boolean pref is true, then:
+        - string pref == "Yes": Restore desktop at startup
+        - string pref == "No":  Do nothing at startup
+  -->
+  <boolean id="donotask_restore_workspace">0</boolean>
+  <string id="donotask_action_restore_workspace"></string>
+
+  <!-- Whether to show the error dialog of reopening file failures at startup. -->
+  <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
+
+  <!-- The default format used to generate a date string. -->
+  <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
+
+  <!-- Don't ask to readjust snippet selection positions automatically so that
+       they are valid positions. -->
+  <boolean id="donotask_readjust_snippet_selection">0</boolean>
+
+  <!-- Maximum size of viewstate MRU - no UI provided as of yet -->
+  <long id="viewStateMRUSize">300</long>
+  <long id="docStateMRUSize">300</long>
+
+<!-- #if BUILD_FLAVOUR == "dev" -->
+  <!-- Prefs for the test.js::test_dialog_*() methods. -->
+  <boolean id="donotask_test">0</boolean>
+  <string id="donotask_action_test"></string>
+<!-- #endif -->
+
+  <!-- Whether to ask and, if not, whether to append an appropriate extension
+       to filenames chosen with filepicker_saveFile. -->
+  <boolean id="donotask_ensure_filename_has_ext">0</boolean>
+  <string id="donotask_action_ensure_filename_has_ext"></string>
+
+  <!-- Whether to ask and, if not, whether to append an appropriate extension
+       to filenames entered in the "New File" dialog. -->
+  <boolean id="donotask_ensure_new_filename_has_ext">0</boolean>
+  <string id="donotask_action_ensure_new_filename_has_ext"></string>
+
+  <!-- Whether to add new files (created via File -> New -> File) to the
+       current project, if any. -->
+  <boolean id="new_file_add_to_project">1</boolean>
+
+  <!-- show_scc_tab
+    - if boolean pref is true, then:
+        - string pref == "Yes": Force showing of bottom pane on SCC action completion
+        - string pref == "No":  Do no force show of bottom pane on SCC action completion
+    -->
+  <boolean id="donotask_show_scc_tab">0</boolean>
+  <string id="donotask_action_show_scc_tab"></string>
+
+  <string id="editor-scheme">Default</string>
+
+  <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
+  <string id="donotask_action_dragdrop_mapped_uri"></string>
+
+  <!-- p4_edit_on_save
+    - if boolean pref is true, then:
+        - string pref == "Yes": Automatically 'p4 edit', as appropriate, on save.
+        - string pref == "No":  Do not 'p4 edit' automatically, ever, on save.
+    -->
+  <boolean id="donotask_p4_edit_on_save">0</boolean>
+  <string id="donotask_action_p4_edit_on_save"></string>
+  <boolean id="donotask_force_save_on_error">0</boolean>
+  <string id="donotask_action_force_save_on_error"></string>
+
+  <!-- Persistence of data for the "New File"/template dialog. -->
+  <string id="templates_selected_category">Common</string>
+  <string id="templates_selected_template_by_category">{'Common': 'Text'}</string>
+  <string id="templates_open_categories"></string>
+  <!-- Persistence of data for the "New Project"/template dialog. -->
+  <string id="project-templates_selected_category">Common</string>
+  <string id="project-templates_selected_template_by_category">{'Common': 'Live Project'}</string>
+  <string id="project-templates_open_categories"></string>
+
+  <boolean id="editBackspaceDedents">1</boolean>
+
+  <!-- Pref which determines whether tab after a word characted does the same
+       thing as ctrl+space -->
+  <boolean id="editTabCompletes">0</boolean>
+
+  <!-- Do not warn about templates with old codes -->
+  <boolean id="donotask_old_template_codes">1</boolean>
+
+  <!-- Warning about closing a Find Results tab while its search is still
+       in progress. -->
+  <boolean id="donotask_stop_search_before_closing_tab">0</boolean>
+  <string id="donotask_action_stop_search_before_closing_tab"></string>
+
+  <!-- Ask the user what to do when there is contention for a Find Results
+       tab. -->
+  <boolean id="donotask_which_find_results_tab_to_use_when_requested_tab_busy">0</boolean>
+  <string id="donotask_action_which_find_results_tab_to_use_when_requested_tab_busy"></string>
+  <boolean id="donotask_which_find_results_tab_to_use_when_all_tabs_busy">0</boolean>
+  <string id="donotask_action_which_find_results_tab_to_use_when_all_tabs_busy"></string>
+
+  <!-- Ask the user to confirm deletion of breakpoints. -->
+  <boolean id="donotask_confirm_delete_breakpoint">0</boolean>
+
+  <boolean id="useSharedToolbox">0</boolean>
+
+  <!-- Common Data Dir:
+       - Normally the Common Data Dir is an OS-specific value determined
+         by koIDirs.
+       - "commonDataDirMethod" and "customCommonDataDir" allow the _user_ to
+         override these. "commonDataDirMethod" is one of "default" or "custom",
+         Iff "custom", then the value is that of the "customCommonDataDir"
+         pref. Iff "default", then the above points determine.
+    -->
+  <string id="commonDataDirMethod">default</string>
+  <string id="customCommonDataDir"></string>
+
+  <string id="tidy_configpath"/>
+  <string id="tidy_errorlevel">warnings</string>
+  <string id="tidy_accessibility">1</string>
+
+  <!-- Code Intelligence system preferences:
+        "codeintel_enabled" is the master pref indicating if the Code Intel
+            system is running at all. It should NOT be set on a per file or
+            per project level.
+        "codeintel_sort_codebrowser_by" is the sort-order to use in the
+            Code Browser.
+        "codeintel_completion_languages" is a space-separated list of
+            languages for which Komodo considers providing CodeIntel-based
+            autocomplete and calltips. This should not be overridden: this is
+            basically a convenient location to hard code this data.
+        "codeintel_completion_triggering_enabled"
+            This indicates if completion triggers should fire automatically
+            while editing. <Ctrl+J> to manually open these UIs is still
+            available.
+        "codeintel_rescan_while_typing_enabled" indicates if scan requests
+            should be issued for the current file while it is being edited.
+        "codeintel_scanning_imports_enabled" indicates whether the CodeIntel
+            system should schedule (re)scans of imported modules.
+        "codeintel_completion_fillups_enabled" indicates whether the fill-up
+            functionality of AutoComplete is enabled. "Fill-up" is where
+            typing a certain char (like '(' or '.') during an AutoComplete
+            session will trigger insertion of the current completion *and*
+            that char. This is separate from the usual insertion via <Tab>
+            or <Enter>. Each language has its own appropriate set of
+            completion fillups.
+        "codeintel_have_preloaded_database" is a boolean indicating if
+            the codeintel database has been pre-loaded for this version.
+        "codeintel_selected_catalogs" is a string-repr of a list of codeintel
+            catalog selections.
+        "codeintel_max_recursive_dir_depth" is an integer indicating the
+            maximum number of sub-directories deep the system will look
+            under configured PHP and JavaScript import dirs.
+    -->
+  <boolean id="codeintel_enabled">1</boolean>
+  <string id="codeintel_sort_codebrowser_by">file-order</string>
+  <boolean id="codeintel_completion_triggering_enabled">1</boolean>
+  <boolean id="codeintel_rescan_while_typing_enabled">1</boolean>
+  <boolean id="codeintel_scanning_imports_enabled">1</boolean>
+  <boolean id="codeintel_browser_show_projects">0</boolean>
+  <boolean id="codeintel_browser_show_all_projects">0</boolean>
+  <boolean id="codeintel_completion_fillups_enabled">0</boolean>
+  <boolean id="codeintel_have_preloaded_database">0</boolean>
+<!-- #if PLATFORM == "win" -->
+  <string id="codeintel_selected_catalogs">["pywin32", "yui"]</string>
+<!-- #else -->
+  <string id="codeintel_selected_catalogs">["yui"]</string>
+<!-- #endif -->
+  <long id="codeintel_max_recursive_dir_depth">10</long>
+
+  <!-- Enable triggering of macros by Komodo events (turn off for troubleshooting) -->
+  <boolean id="triggering_macros_enabled">1</boolean>
+
+  <!-- Environment-related preferences:
+        "environ_userShell" (only used on non-Windows platforms) is a full path
+            to the system shell from which to get the user's startup
+            environment for restoring when running external commands.
+    -->
+<!-- #if PLATFORM == "win" -->
+<!-- #else -->
+  <string id="environ_userShell">/bin/bash</string>
+<!-- #endif -->
+  <long id="lintDelay">1000</long>
+
+  <!-- Vi emulation customizable settings -->
+  <preference-set id="viCustomSettings"/>
+
+</preference-set>

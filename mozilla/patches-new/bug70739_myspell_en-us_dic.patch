@@ -1,0 +1,24 @@
+Index: extensions/spellcheck/locales/en-US/myspell/en-US.dic
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/spellcheck/locales/en-US/myspell/en-US.dic,v
+retrieving revision 1.1.2.1
+diff -u -r1.1.2.1 en-US.dic
+--- extensions/spellcheck/locales/en-US/myspell/en-US.dic	1 Aug 2006 16:15:59 -0000	1.1.2.1
++++ extensions/spellcheck/locales/en-US/myspell/en-US.dic	28 Jun 2007 22:07:48 -0000
+@@ -501,6 +501,7 @@
+ actively/I
+ activeness/MS
+ actives
++ActiveState/M
+ activism/MS
+ activist/MS
+ activities/A
+@@ -31000,6 +31001,8 @@
+ kola/SM
+ Kolyma/M
+ Kommunizma/M
++Komodo/M
++komodo/M
+ Kong/M
+ Kongo/M
+ Konrad/M

@@ -1,0 +1,22 @@
+Index: extensions/inspector/install.rdf
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/inspector/install.rdf,v
+retrieving revision 1.3.2.3
+diff -u -r1.3.2.3 extensions/inspector/install.rdf
+--- extensions/inspector/install.rdf	13 May 2006 14:28:10 -0000	1.3.2.3
++++ extensions/inspector/install.rdf	15 May 2006 17:44:32 -0000
+@@ -9,6 +9,14 @@
+     <em:version>@EXTENSION_VERSION@</em:version>
+ 
+     <em:targetApplication>
++      <!-- Komodo -->
++      <Description>
++        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
++        <em:minVersion>3.5</em:minVersion>
++        <em:maxVersion>4.11</em:maxVersion>
++      </Description>
++    </em:targetApplication>
++    <em:targetApplication>
+       <!-- Firefox -->
+       <Description>
+         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>

@@ -1,0 +1,96 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+view[type='startpage']  {
+  -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#view-startpage');
+}
+
+box[type='startpage']  {
+  -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#startpage-box');
+}
+
+box[type='startpage-bullet']  {
+  -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#startpage-bullet');
+}
+
+
+/* MRU list styles */
+
+label.sp-mru-empty-row {
+    color: #737373;
+    /* HACK to get empty row first column width to match filled row first
+       column with 3/1 flex ratio. */
+    /*padding-right: 100px;*/
+}
+hbox.sp-mru-empty-row {
+    background-color: #F7F3EF;
+    margin-bottom: 1px;
+}
+hbox.sp-mru-row {
+    background-color: #F7F3EF;
+    margin-bottom: 1px;
+}
+hbox.sp-not-right-column {
+    margin-right: 1px;
+}
+button.sp-mru-row {
+    cursor: pointer;
+}
+
+
+/* Button styles */
+
+.clear-icon {
+    list-style-image : url("chrome://komodo/skin/startpage/images/small-x.png");
+    padding: 1px 3px 1px 3px;
+    margin: 1px;
+}
+
+.clear-icon:hover {
+    list-style-image : url("chrome://komodo/skin/startpage/images/small-x_hover.png");
+}
+
+.clear-icon[disabled="true"],
+.clear-icon[disabled="true"]:hover,
+.clear-icon[disabled="true"]:hover:active
+{
+    list-style-image : url("chrome://komodo/skin/startpage/images/small-x_disable.png");
+}
+
+
+.openbox-icon {
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
+    padding: 1px 3px 1px 3px;
+    margin: 1px;
+}
+
+.openbox-icon:hover {
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
+}
+
+.openbox-icon[disabled="true"],
+.openbox-icon[disabled="true"]:hover,
+.openbox-icon[disabled="true"]:hover:active
+{
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
+}
+
+.closebox-icon {
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
+    padding: 1px 3px 1px 3px;
+    margin: 1px;
+}
+
+.closebox-icon:hover {
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
+}
+
+.closebox-icon[disabled="true"],
+.closebox-icon[disabled="true"]:hover,
+.closebox-icon[disabled="true"]:hover:active
+{
+    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
+}
+

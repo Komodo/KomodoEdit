@@ -1,0 +1,66 @@
+# haml udl -- no indentation-based processing yet
+
+sublanguage HTML
+
+family markup
+
+pattern CS = '\w\d_\x80-\xff' # Add - when safe
+pattern WS = '\s\t\r\n'
+pattern LWS = '^[ \t]*'
+pattern NMCHAR = '\w'
+pattern NMSTART = '[a-zA-Z_]'
+pattern NAME = '$NMSTART$NMCHAR*'
+
+initial IN_M_DEFAULT
+
+state IN_M_DEFAULT:
+/$LWS(?=[$CS])/ : paint(include, M_DEFAULT) => IN_M_DEFAULT_LINE
+/$LWS(?=\/)/ : paint(include, M_DEFAULT) => IN_M_COMMENT_LINE
+'%' : paint(upto, M_DEFAULT), paint(include, M_OPERATOR), => IN_M_AFTER_TAG_PERCENT
+/[\.#]/ : paint(upto, M_DEFAULT), paint(include, M_OPERATOR), => IN_M_AFTER_TAG_OP
+/\\/ : paint(upto, M_DEFAULT), paint(include, M_OPERATOR), => IN_M_DEFAULT_LINE
+'/' : paint(upto, M_DEFAULT), paint(include, M_OPERATOR), => IN_M_COMMENT_LINE
+'!!!' : paint(upto, M_DEFAULT), paint(include, M_PI), => IN_M_DECLN_1
+
+/[=\~\-]/ : paint(upto, M_TAGSPACE), at_eol(IN_M_DEFAULT) => IN_SSL_DEFAULT
+/[$CS]/ : paint(upto, M_DEFAULT), redo => IN_M_DEFAULT_LINE
+
+
+state IN_M_AFTER_TAG_PERCENT:
+/$NAME/ : paint(upto, M_TAGSPACE), paint(include, M_TAGNAME), => IN_M_TAG
+
+state IN_M_AFTER_TAG_OP:
+/$NAME/ : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), => IN_M_TAG
+
+# Also see haml2ruby
+state IN_M_TAG:
+/[\.#]/ : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR), => IN_M_AFTER_TAG_OP
+'%' : paint(upto, M_DEFAULT), paint(include, M_OPERATOR), => IN_M_AFTER_TAG_PERCENT
+/[\{\[]/ : paint(upto, M_TAGSPACE), paint(include, SSL_OPERATOR), \
+    spush_check(IN_M_TAG) => IN_SSL_DEFAULT
+/[=\~\-]/ : paint(upto, M_TAGSPACE), at_eol(IN_M_DEFAULT) => IN_SSL_DEFAULT
+/\/(?=[$WS]*)$/ : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR), => IN_M_DEFAULT
+/[$CS]/ : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT_LINE
+/$/ : paint(include, M_TAGSPACE) => IN_M_DEFAULT
+
+state IN_M_DEFAULT_LINE:
+/\|$/ : => IN_M_DEFAULT_LINE_GET_NEXT_LINE
+/$/ : paint(include, M_DEFAULT) => IN_M_DEFAULT
+
+state IN_M_DEFAULT_LINE_GET_NEXT_LINE:
+/\|$/ : #stay
+/$/ : paint(include, M_DEFAULT) => IN_M_DEFAULT
+/./ : paint(upto, M_DEFAULT), redo => IN_M_DEFAULT_LINE
+
+state IN_M_COMMENT_LINE:
+/\|$/ : => IN_M_COMMENT_LINE_GET_NEXT_LINE
+/$/ : paint(include, M_COMMENT) => IN_M_DEFAULT
+
+state IN_M_COMMENT_LINE_GET_NEXT_LINE:
+/\|$/ : #stay
+/$/ : paint(include, M_COMMENT) => IN_M_DEFAULT
+/./ : paint(upto, M_COMMENT), redo => IN_M_COMMENT_LINE
+
+state IN_M_DECLN_1:
+/$/ : paint(include, M_DEFAULT) => IN_M_DEFAULT
+/\S+/ : paint(upto, M_DEFAULT), paint(include, M_PI)

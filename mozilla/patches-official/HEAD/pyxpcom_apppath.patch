@@ -1,0 +1,78 @@
+Index: extensions/python/xpcom/src/dllmain.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/dllmain.cpp,v
+retrieving revision 1.19
+diff -d -u -r1.19 dllmain.cpp
+--- extensions/python/xpcom/src/dllmain.cpp	5 Oct 2006 10:44:03 -0000	1.19
++++ extensions/python/xpcom/src/dllmain.cpp	28 Mar 2007 18:13:50 -0000
+@@ -96,30 +96,15 @@
+ 	PR_Unlock(g_lockMain);
+ }
+ 
+-// Ensure that any paths guaranteed by this package exist on sys.path
+-// Only called once as we are first loaded into the process.
+-void AddStandardPaths()
++bool AddSitePath(nsIFile *aFile)
+ {
+-	// Put {bin}\Python on the path if it exists.
+-	nsresult rv;
+-	nsCOMPtr<nsIFile> aFile;
+-	// XXX - this needs more thought for XULRunner - we want to stick the global
+-	// 'python' dir on sys.path (for xpcom etc), but also want to support a way
+-	// of adding a local application directory (in the case of xulrunner) too.
+-	// NS_XPCOM_CURRENT_PROCESS_DIR is the XULRunner app dir (ie, where application.ini lives)
+-	// NS_GRE_DIR is the 'bin' dir for XULRunner itself.
+-	rv = NS_GetSpecialDirectory(NS_GRE_DIR, getter_AddRefs(aFile));
+-	if (NS_FAILED(rv)) {
+-		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'bin' directory");
+-		return;
+-	}
+ 	aFile->Append(NS_LITERAL_STRING("python"));
+ 	nsAutoString pathBuf;
+ 	aFile->GetPath(pathBuf);
+ 	PyObject *obPath = PySys_GetObject("path");
+ 	if (!obPath) {
+ 		PyXPCOM_LogError("The Python XPCOM loader could not get the Python sys.path variable");
+-		return;
++		return false;
+ 	}
+ 	// XXX - this should use the file-system encoding...
+ 	NS_LossyConvertUTF16toASCII pathCBuf(pathBuf);
+@@ -138,7 +123,37 @@
+ 	if (0 != PyRun_SimpleString((char *)cmdBuf.get())) {
+ 		PyXPCOM_LogError("The directory '%s' could not be added as a site directory", pathCBuf.get());
+ 		PyErr_Clear();
++		return false;
+ 	}
++	return true;
++}
++
++// Ensure that any paths guaranteed by this package exist on sys.path
++// Only called once as we are first loaded into the process.
++void AddStandardPaths()
++{
++	// Put {bin}\Python on the path if it exists.
++	nsresult rv;
++	nsCOMPtr<nsIFile> aFile;
++	// XXX - this needs more thought for XULRunner - we want to stick the global
++	// 'python' dir on sys.path (for xpcom etc), but also want to support a way
++	// of adding a local application directory (in the case of xulrunner) too.
++	// NS_XPCOM_CURRENT_PROCESS_DIR is the XULRunner app dir (ie, where application.ini lives)
++	// NS_GRE_DIR is the 'bin' dir for XULRunner itself.
++	rv = NS_GetSpecialDirectory(NS_GRE_DIR, getter_AddRefs(aFile));
++	if (NS_FAILED(rv)) {
++		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'bin' directory");
++		return;
++	}
++	if (!AddSitePath(aFile)) return;
++
++	rv = NS_GetSpecialDirectory(NS_XPCOM_CURRENT_PROCESS_DIR, getter_AddRefs(aFile));
++	if (NS_FAILED(rv)) {
++		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'current process' directory");
++		return;
++	}
++	if (!AddSitePath(aFile)) return;
++	
+ 	// and somewhat like Python itself (site, citecustomize), we attempt 
+ 	// to import "sitepyxpcom" ignoring ImportError
+ 	PyObject *mod = PyImport_ImportModule("sitepyxpcom");

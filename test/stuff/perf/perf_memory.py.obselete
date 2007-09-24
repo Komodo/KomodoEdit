@@ -1,0 +1,203 @@
+"""Test how long it takes to load XPCOM components."""
+
+import os
+import sys
+import unittest
+import tempfile
+import time
+
+import win32api
+import win32com.client
+
+from logging import *
+# need the memutils stuff from python-sitelib
+sys.path.insert(0, '../src/python-sitelib')
+sys.path.insert(0, '../src/commandments')
+
+
+from memutils import process_memory, memoryrepr, kill
+from perfsupport import startKomodo
+from smokelib import addTest
+log = getLogger('perf')
+import kocommandments
+
+#---- test cases
+def _thisdir():
+    return os.path.join(os.getcwd(), os.path.dirname(sys.modules[__name__].__file__))
+
+class MemoryLoad(unittest.TestCase):
+
+    def test_memory(self):
+        self.thisdir = _thisdir()
+        print "thisdir = ", self.thisdir
+        # convert from e.g. 'professional-2.1.0-devel-51692' to '2.1'
+        self.komodoVersion = '.'.join(os.environ['KOMODO_VERSION'].split('-',2)[1].split('.')[:2])
+        startTime = time.time()
+        log.info("Starting Komodo")
+        self.pid = startKomodo()
+        log.info("Komodo Started")
+        log.info("Getting Memory Load")
+        mem = process_memory(self.pid)
+        addTest('perf', 'startup_memory', mem, description='Memory (kb) after just startup')
+        log.info("startup_memory: %s" % memoryrepr(mem))
+        self._startupMem = mem
+        
+        fnames = ['babel_news.py',
+                    'birds.xml',
+                    'Conscript',
+                    'javascript_sample.js',
+                    'perl_sample.pl',
+                    'php_sample.php',
+                    'python_sample.py',
+                    'remote-perl-setup.bat',
+                    'remote-perl-setup.sh',
+                    'reversephonelookup.pm',
+                    'rx_sample.pl',
+                    'sample_project.kpf',
+                    'tcl_sample.tcl',
+                    'test.pl',
+                    'test.py',
+                    'webservices.kpf',
+                    'xslt_sample.xsl']
+        for fname in fnames:
+            fullname = os.path.join(self.thisdir, 'sampledocs', fname)
+            log.info("Opening: %s" % fullname)
+            kocommandments.issue("open", [fullname], self.komodoVersion)
+        # look for the line of the type: 
+        #   INFO: status: KomodoOnLoad_Done 1038345120424
+        # that is _BEFORE_ the marker we place there (indirectly)
+        #XXX This hiding of _getStatusLogFileName in commandments.py was
+        #    evil and has been dropped. This likely breaks this test but
+        #    it is probably broken now anyway without status.log (if
+        #    status.log isn't gone yet then it should be). See change
+        #    52414 that added all this stuff.
+        statuslog = kocommandments._getStatusLogFileName(self.komodoVersion)
+        if os.path.exists(statuslog):
+            loglines = open(statuslog).readlines()
+            loglines.reverse()        
+            for line in loglines:
+                level, logger, message = line.split(': ', 2)
+                if message.startswith("KomodoOnLoad_Done"):
+                    endTime = long(message.split(' ', 1)[1])/1000.0
+                    load_time = endTime - startTime
+                    log.info("GOT message " + message)
+                    log.info("GOT endTime " + message.split(' ', 1)[1])
+                    log.info("GOT numeric endTime " + str(endTime))
+                    log.info("GOT startTime " + str(startTime))
+                    log.info("GOT load_time " + str(load_time))
+                    addTest('perf', 'startup_time', load_time, description="Startup time (s)")
+                    break
+            else:
+                log.warn("Couldn't find out startup time!")
+        else:
+            log.warn("Couldn't find out startup time!")
+        log.info("sample_files_memory: %s" % memoryrepr(mem))
+
+        log.info("Sleeping for 20 seconds")
+        time.sleep(20)
+        mem = process_memory(self.pid) - self._startupMem
+        addTest('perf', 'sample_files_memory', mem, description='Memory (kb) used by loading 16 files and one project')
+        
+        # compute typing speed
+        fullname = os.path.join(self.thisdir, 'sampledocs', 'babel_news.py')
+        typing_speed = self._measure_typing_speed(fullname, os.path.splitext(fullname)[1])
+        log.info("Typing speed for " + os.path.basename(fullname) + ":" + str(typing_speed))
+        addTest('perf', 'typing_speed_python', typing_speed, description='Typing speed (cps) for ' + os.path.basename(fullname))
+        
+        commandments.issue('quit', [], self.komodoVersion)
+        time.sleep(10)
+        try:
+            process_memory(self.pid)
+            kill(self.pid)
+        except:
+            pass
+            # it's ok, it means the quit commandment worked
+
+    def _measure_typing_speed(self, testFile, extension):
+        if not os.path.isfile(testFile):
+            out.write("ERROR: '%s' does not exist" % testFile)
+            return
+        tmpdir = "c:\\temp"
+        markerfile = os.path.join(tmpdir, "foo" + extension)
+        print "MARKERFILE", markerfile
+        open(markerfile, 'w') # create an empty file
+        commandments.issue("open", [markerfile], self.komodoVersion)
+        
+        # - get a WScript handle on it, for SendKeys playing
+        komodo = win32com.client.Dispatch("WScript.Shell")
+        komodo.AppActivate("[%s" % markerfile) # find the Komodo window
+        win32api.Sleep(100) # wait 0.1 secs for it to "wake up"
+        
+        f = open(testFile)
+        keys = f.read()
+        f.close()
+        
+        # Randomly edit the file (to muck with linting), measuring the
+        # memory.
+        try:
+            startTime = time.clock()
+            for ch in keys:
+                try:
+                    if ch == '\r':
+                        continue
+                    if ch == '\n':
+                        komodo.SendKeys("{ENTER}")
+                        # defeat komodo's autoindent
+                        komodo.SendKeys("{HOME}")
+                        komodo.SendKeys("{HOME}")
+                    elif ch == '\t':
+                        komodo.SendKeys("{TAB}")
+                    elif ch in ["(",")","{","}","[","]","+","^","%","~"]:
+                        ch = "{%s}"%(ch)
+                        komodo.SendKeys(ch)
+                    else:
+                        komodo.SendKeys(ch)
+                except:
+                    print "unable to send ",repr(ch)
+                    win32api.Sleep(1)
+                
+                # emulate some kind of delay in typing
+                win32api.Sleep(1)
+        
+        finally:
+            endTime = time.clock()
+            # close the buffer
+            komodo.SendKeys("^{F4}")   # Ctrl-F4
+            win32api.Sleep(100)
+            komodo.SendKeys("n")  # no, don't want to save it.
+            duration = endTime - startTime
+            log.info("DURATION = " + str(duration))
+            typingspeed = float(len(keys))/duration
+            log.info("Typing speed = " + str(typingspeed))
+        os.unlink(markerfile)
+        return typingspeed
+
+
+#---- mainline
+
+
+
+
+
+
+# utility function
+
+from random import choice
+import string
+def make_random_string(length=8, chars=string.letters+string.digits):
+    return ''.join([choice(chars) for i in range(length)])
+
+
+#---- mainline
+
+def suite():
+    """Return a unittest.TestSuite to be used by test.py."""
+    suites = []
+    suites.append( unittest.makeSuite(MemoryLoad) )
+    return unittest.TestSuite(suites)
+
+if __name__ == "__main__":
+    # Run this particular test directly.
+    runner = unittest.TextTestRunner(sys.stdout, verbosity=2)
+    result = runner.run(suite())
+

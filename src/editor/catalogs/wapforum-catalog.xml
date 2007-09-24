@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+    <!-- wapforum has no master catalog, this is used by Komodo for those wapforum
+        dtd's that we want to ship with Komodo -->
+
+<!--
+
+PUBLIC "-//WAPFORUM//DTD WML 1.3//EN" "wml13.dtd"
+PUBLIC "-//WAPFORUM//DTD WML 1.2//EN" "wml12.dtd"
+PUBLIC "-//WAPFORUM//DTD WML 1.1//EN" "wml_1.1.xml"
+PUBLIC "-//WAPFORUM//DTD WML 1.0//EN" "wml.xml"
+
+-->
+    <public publicId="-//WAPFORUM//DTD WML 1.3//EN"
+            uri="wml13.dtd"/>
+    <public publicId="-//WAPFORUM//DTD WML 1.2//EN"
+            uri="wml12.dtd"/>
+    <public publicId="-//WAPFORUM//DTD WML 1.1//EN"
+            uri="wml_1.1.xml"/>
+    <public publicId="-//WAPFORUM//DTD WML 1.0//EN"
+            uri="wml.xml"/>
+
+</catalog>

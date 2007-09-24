@@ -1,0 +1,18 @@
+--- jslib/install.p.rdf.original	Mon Mar 13 15:33:12 2006
++++ jslib/install.p.rdf	Mon Mar 13 15:36:03 2006
+@@ -9,6 +9,15 @@
+     
+     <!-- Target Application this extension can install into, 
+         with minimum and maximum supported versions. -->
++    <!-- Komodo -->
++    <em:targetApplication>
++      <Description>
++        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
++        <em:minVersion>3.5</em:minVersion>
++        <em:maxVersion>KOMODO_SHORT_VERSION</em:maxVersion>
++      </Description>
++    </em:targetApplication>
++    
+     <!-- Firefox -->
+     <em:targetApplication>
+       <Description>

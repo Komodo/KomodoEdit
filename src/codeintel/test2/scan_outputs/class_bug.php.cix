@@ -1,0 +1,8 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/class_bug.php">
+    <scope ilk="blob" lang="PHP" name="class_bug.php" src="scan_inputs/class_bug.php">
+      <variable citdl="array" line="4" name="class" />
+      <variable attributes="__not_yet_defined__" line="5" name="variable" />
+    </scope>
+  </file>
+</codeintel>

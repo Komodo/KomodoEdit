@@ -1,0 +1,128 @@
+$Id: /work/modules/celementtree/CHANGES 1128 2005-12-16T21:57:13.668520Z Fredrik  $
+
+(1.0.5 released)
+
++ Added support for non-standard encodings.  If an unknown encoding
+  is reported by expat, cElementTree uses Python's Unicode system to
+  generate a decoding table.
+
+(1.0.4 released)
+
++ Added support for linking against the "pyexpat" library in Python
+  2.5.  Define USE_PYEXPAT_CAPI to enable this feature.
+
++ Minor optimizations.
+
+(1.0.3 released)
+
++ Use runtime test for figure out if copy workaround is needed.
+
++ Don't crash in 'parse' if the file object's 'read' method raises
+  an unexpected exception (reported by Martin Pool).
+
++ Added comment and processing instruction support to the XMLParser
+  type.  The parser now calls 'comment' and 'pi' methods on the target
+  object, if available.
+
++ Make 'iterparse' available under Python 2.1 (requires ElementTree
+  1.2.5 or newer).
+
++ Report unknown events passed to 'iterparse', rather than ignoring
+  them.  (Under 2.1, this only works if ElementTree's iterparse does
+  this)
+
++ Added 'Comment' and 'PI'/'ProcessingInstruction' output helpers.
+
+(1.0.2 released)
+
++ Let Expat use Python's memory allocator.
+
++ Added missing 'iselement' function (reported by Ken Rimey).
+
++ Fixed attribute dictionary aliasing bug in 'makeelement' method
+  (reported by Ken Rimey).
+
+(1.0.1 released)
+
++ Added missing 'remove' method (based on code by Michael Droettboom).
+
+(1.0 released)
+
++ Added a VERSION attribute to the cElementTree module (also available
+  as __version__).
+
+(0.9.8 released)
+
++ Changed the 'iterparse' interface slightly.  The context object
+  is no longer included in the sequence, and by default, the parser
+  only returns "end" events (for completed elements):
+
+	for event, elem in iterparse(source):
+	    ...
+
+  To get other events, use the "events" option to pass in a tuple
+  containing the events you want:
+
+	for event, elem in iterparse(source, events=(...)):
+	    ...
+
+  The event tuple can contain one or more of:
+
+  "start"
+    generated for start tags, after the element has been created
+    (but before the current element has been fully populated)
+  "end"
+    generated for end tags, after all element children has been
+    created.
+  "start-ns"
+    generated when a new namespace scope is opened.  for this event,
+    the elem value is a (prefix, url) tuple.
+  "end-ns"
+    generated when the current namespace scope is closed.  elem
+    is None.
+
+  Events arrive asynchronously; the tree is usually more complete
+  than the events indicate, but this is nothing you can rely on.
+
+  The iterable itself contains context information.  In the current
+  release, the only public context attribute is "root", which is set
+  to the root element when parsing is finished.  To access the con-
+  text, assign the iterable to a variable before looping over it:
+
+	context = iterparse(source)
+	for event, elem in context:
+	    ...
+	root = context.root
+
+(0.9.3 released)
+
++ Added 'iterparse' function.  This is similar to 'parse', but returns
+  a stream of events while it builds the tree.  Usage:
+
+	for context, action, elem in iterparse(source):
+	    ...
+
+  - The context object is a dummy object in the current release.  The
+    action object is either "start" (for start tags) or "end" (for end
+    tags).  The elem object is the current element; for "start" events,
+    the element itself has been created (including attributes), but its
+    contents may not be complete; for "end" events, all child elements
+    has been processed as well.  You can use "start" tags to count
+    elements, check attributes, and check if certain tags are present
+    in a tree.  For all other purposes, use "end" handlers instead.
+
+  - For incremental parsing, call 'elem.clear()' in the "end" handler,
+    when you're done processing a given element.
+
+  - When the loop finishes, the last elem object will be the tree's
+    root note.  You can terminate the loop at any time (but doing that
+    will of course leave the tree in an unknown, unfinished state).
+
++ Fixed getchildren crash.  Note that getchildren is deprecated; use
+  'elem' or 'list(elem)' instead of 'elem.getchildren()' (elements are
+  sequences; only use 'list(elem)' if you need a real list object).
+
++ Removed the addobserver/removeobserver API from the TreeBuilder class.
+  Use 'iterparse' instead.
+
+(0.9.2 released)

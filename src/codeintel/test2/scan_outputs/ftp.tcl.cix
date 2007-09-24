@@ -1,0 +1,281 @@
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="42" path="scan_inputs\ftp.tcl">
+    <scope ilk="blob" lang="Tcl" name="ftp">
+      <import line="54" module="log" symbol="*" />
+      <variable line="61" name="serial" />
+      <variable line="62" name="VERBOSE" />
+      <variable line="63" name="DEBUG" />
+      <scope doc="tcllib/log, general logging facility." ilk="namespace" line="56" lineend="64" name="ftp" />
+      <scope doc="DisplayMsg --" ilk="function" line="83" lineend="109" name="::ftp::DisplayMsg" signature="::ftp::DisplayMsg {s msg {state &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="msg" />
+        <variable ilk="argument" name="state" />
+      </scope>
+      <scope doc="Timeout --" ilk="function" line="120" lineend="129" name="::ftp::Timeout" signature="::ftp::Timeout {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="124" name="ftp" />
+      </scope>
+      <scope doc="WaitOrTimeout --" ilk="function" line="146" lineend="166" name="::ftp::WaitOrTimeout" signature="::ftp::WaitOrTimeout {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="149" name="retvar" />
+        <variable attributes="__local__" line="153" name="ftp" />
+        <variable attributes="__local__" line="160" name="errmsg" />
+      </scope>
+      <scope doc="WaitComplete --" ilk="function" line="181" lineend="195" name="::ftp::WaitComplete" signature="::ftp::WaitComplete {s value}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="value" />
+        <variable attributes="__local__" line="185" name="ftp" />
+      </scope>
+      <scope doc="PutsCtrlSocket --" ilk="function" line="208" lineend="219" name="::ftp::PutsCtrlSock" signature="::ftp::PutsCtrlSock {s {command &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="command" />
+      </scope>
+      <scope doc="StateHandler --" ilk="function" line="234" lineend="1048" name="::ftp::StateHandler" signature="::ftp::StateHandler {s {sock &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable attributes="__local__" line="244" name="rc" />
+        <variable attributes="__local__" line="245" name="msgtext" />
+        <variable attributes="__local__" line="249" name="number" />
+        <variable attributes="__local__" line="256" name="errmsg" />
+        <variable attributes="__local__" line="262" name="buffer" />
+        <variable attributes="__local__" line="283" name="ftp" />
+        <variable attributes="__local__" line="301" name="nextState" />
+        <variable attributes="__local__" line="321" name="complete_with" />
+        <variable attributes="__local__" line="997" name="returnData" />
+      </scope>
+      <scope doc="Type --" ilk="function" line="1063" lineend="1096" name="::ftp::Type" signature="::ftp::Type {s {type &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="type" />
+        <variable attributes="__local__" line="1081" name="old_type" />
+        <variable attributes="__local__" line="1083" name="ftp" />
+        <variable attributes="__local__" line="1088" name="rc" />
+      </scope>
+      <scope doc="NList --" ilk="function" line="1117" lineend="1166" name="::ftp::NList" signature="::ftp::NList {s { dir &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="dir" />
+        <variable attributes="__local__" line="1129" name="ftp" />
+        <variable attributes="__local__" line="1137" name="old_type" />
+        <variable attributes="__local__" line="1152" name="rc" />
+      </scope>
+      <scope doc="List --" ilk="function" line="1187" lineend="1240" name="::ftp::List" signature="::ftp::List {s {dir &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="dir" />
+        <variable attributes="__local__" line="1200" name="ftp" />
+        <variable attributes="__local__" line="1209" name="old_type" />
+        <variable attributes="__local__" line="1225" name="rc" />
+      </scope>
+      <scope ilk="function" line="1242" lineend="1260" name="::ftp::ListPostProcess" signature="::ftp::ListPostProcess {l}">
+        <variable ilk="argument" name="l" />
+        <variable attributes="__local__" line="1246" name="l" />
+        <variable attributes="__local__" line="1247" name="index" />
+      </scope>
+      <scope doc="FileSize --" ilk="function" line="1277" lineend="1311" name="::ftp::FileSize" signature="::ftp::FileSize {s {filename &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="filename" />
+        <variable attributes="__local__" line="1293" name="ftp" />
+        <variable attributes="__local__" line="1300" name="rc" />
+      </scope>
+      <scope doc="ModTime --" ilk="function" line="1332" lineend="1369" name="::ftp::ModTime" signature="::ftp::ModTime {s {filename &quot;&quot;} {datetime &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="filename" />
+        <variable ilk="argument" name="datetime" />
+        <variable attributes="__local__" line="1348" name="ftp" />
+        <variable attributes="__local__" line="1351" name="datetime" />
+        <variable attributes="__local__" line="1359" name="rc" />
+      </scope>
+      <scope ilk="function" line="1371" lineend="1387" name="::ftp::ModTimePostProcess" signature="::ftp::ModTimePostProcess {clock}">
+        <variable ilk="argument" name="clock" />
+        <variable attributes="__local__" line="1379" name="year" />
+        <variable attributes="__local__" line="1385" name="clock" />
+      </scope>
+      <scope doc="Pwd --" ilk="function" line="1402" lineend="1427" name="::ftp::Pwd" signature="::ftp::Pwd {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="1414" name="ftp" />
+        <variable attributes="__local__" line="1420" name="rc" />
+      </scope>
+      <scope doc="Cd --" ilk="function" line="1443" lineend="1476" name="::ftp::Cd" signature="::ftp::Cd {s {dir &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="dir" />
+        <variable attributes="__local__" line="1456" name="ftp" />
+        <variable attributes="__local__" line="1465" name="rc" />
+      </scope>
+      <scope doc="MkDir --" ilk="function" line="1494" lineend="1519" name="::ftp::MkDir" signature="::ftp::MkDir {s dir}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="dir" />
+        <variable attributes="__local__" line="1502" name="ftp" />
+        <variable attributes="__local__" line="1508" name="rc" />
+      </scope>
+      <scope doc="RmDir --" ilk="function" line="1537" lineend="1562" name="::ftp::RmDir" signature="::ftp::RmDir {s dir}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="dir" />
+        <variable attributes="__local__" line="1545" name="ftp" />
+        <variable attributes="__local__" line="1551" name="rc" />
+      </scope>
+      <scope doc="Delete --" ilk="function" line="1579" lineend="1604" name="::ftp::Delete" signature="::ftp::Delete {s file}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="file" />
+        <variable attributes="__local__" line="1587" name="ftp" />
+        <variable attributes="__local__" line="1593" name="rc" />
+      </scope>
+      <scope doc="Rename --" ilk="function" line="1623" lineend="1651" name="::ftp::Rename" signature="::ftp::Rename {s from to}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="from" />
+        <variable ilk="argument" name="to" />
+        <variable attributes="__local__" line="1631" name="ftp" />
+        <variable attributes="__local__" line="1639" name="rc" />
+      </scope>
+      <scope doc="ElapsedTime --" ilk="function" line="1662" lineend="1675" name="::ftp::ElapsedTime" signature="::ftp::ElapsedTime {s stop_time}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="stop_time" />
+        <variable attributes="__local__" line="1666" name="elapsed" />
+        <variable attributes="__local__" line="1670" name="persec" />
+      </scope>
+      <scope doc="PUT --" ilk="function" line="1696" lineend="1790" name="::ftp::Put" signature="::ftp::Put {s args}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="1709" name="ftp" />
+        <variable attributes="__local__" line="1710" name="flags" />
+        <variable attributes="__local__" line="1711" name="source" />
+        <variable attributes="__local__" line="1712" name="dest" />
+        <variable attributes="__local__" line="1780" name="rc" />
+      </scope>
+      <scope doc="APPEND --" ilk="function" line="1811" lineend="1907" name="::ftp::Append" signature="::ftp::Append {s args}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="1824" name="ftp" />
+        <variable attributes="__local__" line="1825" name="flags" />
+        <variable attributes="__local__" line="1826" name="source" />
+        <variable attributes="__local__" line="1827" name="dest" />
+        <variable attributes="__local__" line="1897" name="rc" />
+      </scope>
+      <scope doc="Get --" ilk="function" line="1926" lineend="2030" name="::ftp::Get" signature="::ftp::Get {s args}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="1939" name="ftp" />
+        <variable attributes="__local__" line="1940" name="flags" />
+        <variable attributes="__local__" line="1941" name="source" />
+        <variable attributes="__local__" line="1942" name="dest" />
+        <variable attributes="__local__" line="1943" name="varname" />
+        <variable attributes="__local__" line="2001" name="rc" />
+        <variable attributes="__local__" line="2016" name="returnData" />
+      </scope>
+      <scope doc="Reget --" ilk="function" line="2049" lineend="2115" name="::ftp::Reget" signature="::ftp::Reget {s source {dest &quot;&quot;} {from_bytes 0} {till_bytes -1}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="source" />
+        <variable ilk="argument" name="dest" />
+        <variable ilk="argument" name="from_bytes" />
+        <variable ilk="argument" name="till_bytes" />
+        <variable attributes="__local__" line="2058" name="dest" />
+        <variable attributes="__local__" line="2065" name="ftp" />
+        <variable attributes="__local__" line="2105" name="rc" />
+      </scope>
+      <scope doc="Newer --" ilk="function" line="2136" lineend="2181" name="::ftp::Newer" signature="::ftp::Newer {s source {dest &quot;&quot;}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="source" />
+        <variable ilk="argument" name="dest" />
+        <variable attributes="__local__" line="2149" name="dest" />
+        <variable attributes="__local__" line="2155" name="ftp" />
+        <variable attributes="__local__" line="2159" name="rmt" />
+        <variable attributes="__local__" line="2166" name="lmt" />
+        <variable attributes="__local__" line="2178" name="rc" />
+      </scope>
+      <scope doc="Quote --" ilk="function" line="2196" lineend="2220" name="::ftp::Quote" signature="::ftp::Quote {s args}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="2204" name="ftp" />
+        <variable attributes="__local__" line="2211" name="rc" />
+      </scope>
+      <scope doc="Abort --" ilk="function" line="2262" lineend="2286" name="::ftp::Close" signature="::ftp::Close {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="2277" name="ftp" />
+      </scope>
+      <scope ilk="function" line="2288" lineend="2302" name="::ftp::LazyClose" signature="::ftp::LazyClose {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="2298" name="connections" />
+      </scope>
+      <scope doc="Open --" ilk="function" line="2336" lineend="2437" name="::ftp::Open" signature="::ftp::Open {server user passwd args}">
+        <variable ilk="argument" name="server" />
+        <variable ilk="argument" name="user" />
+        <variable ilk="argument" name="passwd" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="2342" name="s" />
+        <variable line="2352" name="DEBUG" />
+        <variable line="2357" name="VERBOSE" />
+        <variable attributes="__local__" line="2364" name="ftp" />
+        <variable attributes="__local__" line="2386" name="options" />
+        <variable attributes="__local__" line="2393" name="option" />
+        <variable attributes="__local__" line="2424" name="connections" />
+      </scope>
+      <scope doc="CopyNext --" ilk="function" line="2448" lineend="2518" name="::ftp::CopyNext" signature="::ftp::CopyNext {s bytes {error {}}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="bytes" />
+        <variable ilk="argument" name="error" />
+        <variable attributes="__local__" line="2460" name="ftp" />
+        <variable attributes="__local__" line="2463" name="blocksize" />
+      </scope>
+      <scope doc="HandleData --" ilk="function" line="2529" lineend="2601" name="::ftp::HandleData" signature="::ftp::HandleData {s sock}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable attributes="__local__" line="2545" name="ftp" />
+        <variable attributes="__local__" line="2546" name="rc" />
+        <variable line="2587" name="Blocksize" />
+      </scope>
+      <scope doc="HandleList --" ilk="function" line="2612" lineend="2629" name="::ftp::HandleList" signature="::ftp::HandleList {s sock}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable attributes="__local__" line="2617" name="buffer" />
+        <variable attributes="__local__" line="2619" name="ftp" />
+      </scope>
+      <scope doc="HandleVar --" ilk="function" line="2641" lineend="2663" name="::ftp::HandleVar" signature="::ftp::HandleVar {s sock}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable attributes="__local__" line="2646" name="ftp" />
+        <variable attributes="__local__" line="2650" name="buffer" />
+      </scope>
+      <scope doc="HandleOutput --" ilk="function" line="2675" lineend="2704" name="::ftp::HandleOutput" signature="::ftp::HandleOutput {s sock}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable attributes="__local__" line="2680" name="ftp" />
+        <variable attributes="__local__" line="2684" name="substr" />
+      </scope>
+      <scope doc="CloseDataConn --" ilk="function" line="2718" lineend="2736" name="::ftp::CloseDataConn" signature="::ftp::CloseDataConn {s}">
+        <variable ilk="argument" name="s" />
+      </scope>
+      <scope doc="InitDataConn --" ilk="function" line="2752" lineend="2814" name="::ftp::InitDataConn" signature="::ftp::InitDataConn {s sock addr port}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="sock" />
+        <variable ilk="argument" name="addr" />
+        <variable ilk="argument" name="port" />
+        <variable attributes="__local__" line="2760" name="ftp" />
+        <variable attributes="__local__" line="2764" name="blocking" />
+      </scope>
+      <scope doc="OpenActiveConn --" ilk="function" line="2829" lineend="2852" name="::ftp::OpenActiveConn" signature="::ftp::OpenActiveConn {s}">
+        <variable ilk="argument" name="s" />
+        <variable attributes="__local__" line="2836" name="rc" />
+        <variable attributes="__local__" line="2845" name="p" />
+        <variable attributes="__local__" line="2849" name="ftp" />
+      </scope>
+      <scope doc="OpenPassiveConn --" ilk="function" line="2867" lineend="2887" name="::ftp::OpenPassiveConn" signature="::ftp::OpenPassiveConn {s buffer}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="buffer" />
+        <variable attributes="__local__" line="2871" name="ftp" />
+        <variable attributes="__local__" line="2876" name="rc" />
+      </scope>
+      <scope doc="OpenControlConn --" ilk="function" line="2903" lineend="2941" name="::ftp::OpenControlConn" signature="::ftp::OpenControlConn {s {block 1}}">
+        <variable ilk="argument" name="s" />
+        <variable ilk="argument" name="block" />
+        <variable attributes="__local__" line="2910" name="rc" />
+        <variable attributes="__local__" line="2930" name="ftp" />
+        <variable attributes="__local__" line="2935" name="peer" />
+      </scope>
+      <scope doc="::ftp::Command --" ilk="function" line="2955" lineend="2959" name="::ftp::Command" signature="::ftp::Command {cb msg args}">
+        <variable ilk="argument" name="cb" />
+        <variable ilk="argument" name="msg" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope doc="new ftp::List proc makes the output more readable" ilk="function" line="2969" lineend="2973" name="::ftp::__ftp_ls" signature="::ftp::__ftp_ls {args}">
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

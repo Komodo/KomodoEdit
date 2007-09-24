@@ -1,0 +1,26 @@
+Index: nsAppRunner.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsAppRunner.cpp,v
+retrieving revision 1.113.2.19
+diff -u -r1.113.2.19 nsAppRunner.cpp
+--- toolkit/xre/nsAppRunner.cpp	8 Feb 2007 02:31:56 -0000	1.113.2.19
++++ toolkit/xre/nsAppRunner.cpp	29 Jun 2007 23:53:12 -0000
+@@ -2364,6 +2385,16 @@
+   if (NS_FAILED(rv)) {
+     // This must not be a XULRunner app
+     appDir = greDir;
++
++    // ActiveState Komodo change: top-level dir is two up.
++    // TODO: may want to move up one dir on Mac OS X (to "Contents").
++#ifndef XP_MACOSX
++    nsCOMPtr<nsIFile> dummy;
++    rv = appDir->GetParent(getter_AddRefs(dummy));
++    NS_ENSURE_SUCCESS(rv, rv);
++    rv = dummy->GetParent(getter_AddRefs(appDir));
++    NS_ENSURE_SUCCESS(rv, rv);
++#endif
+   }
+ 
+   // Check for and process any available updates
+
+

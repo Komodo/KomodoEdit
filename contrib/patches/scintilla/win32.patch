@@ -1,0 +1,343 @@
+diff -u -r1.156 win32/ScintillaWin.cxx
+--- win32/ScintillaWin.cxx	12 May 2007 00:30:55 -0000	1.156
++++ win32/ScintillaWin.cxx	23 May 2007 21:27:33 -0000
+@@ -94,6 +94,8 @@
+  */
+ #define TOTAL_CONTROL
+ 
++#define DISABLE_DRAG_DROP // KOMODO
++
+ // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
+ 
+ const TCHAR scintillaClassName[] = TEXT("Scintilla");
+@@ -113,6 +115,7 @@
+ 	FormatEnumerator(int pos_, CLIPFORMAT formats_[], int formatsLen_);
+ };
+ 
++#ifndef DISABLE_DRAG_DROP
+ /**
+  */
+ class DropSource {
+@@ -139,6 +142,7 @@
+ 	ScintillaWin *sci;
+ 	DropTarget();
+ };
++#endif
+ 
+ /**
+  */
+@@ -159,10 +163,11 @@
+ 	CLIPFORMAT cfColumnSelect;
+ 
+ 	HRESULT hrOle;
++#ifndef DISABLE_DRAG_DROP
+ 	DropSource ds;
+ 	DataObject dob;
+ 	DropTarget dt;
+-
++#endif
+ 	static HINSTANCE hInstance;
+ 
+ 	ScintillaWin(HWND hwnd);
+@@ -237,6 +242,7 @@
+ 	// Public for benefit of Scintilla_DirectFunction
+ 	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+ 
++#ifndef DISABLE_DRAG_DROP
+ 	/// Implement IUnknown
+ 	STDMETHODIMP QueryInterface(REFIID riid, PVOID *ppv);
+ 	STDMETHODIMP_(ULONG)AddRef();
+@@ -252,7 +258,7 @@
+ 
+ 	/// Implement important part of IDataObject
+ 	STDMETHODIMP GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM);
+-
++#endif
+ 	// External Lexers
+ #ifdef SCI_LEXER
+ 	void SetLexerLanguage(const char *languageName);
+@@ -261,14 +267,14 @@
+ 
+ 	static bool Register(HINSTANCE hInstance_);
+ 	static bool Unregister();
+-
++#ifndef DISABLE_DRAG_DROP
+ 	friend class DropSource;
+ 	friend class DataObject;
+ 	friend class DropTarget;
+ 	bool DragIsRectangularOK(CLIPFORMAT fmt) {
+ 		return drag.rectangular && (fmt == cfColumnSelect);
+ 	}
+-
++#endif
+ private:
+ 	// For use in creating a system caret
+ 	bool HasCaretSizeChanged();
+@@ -301,11 +307,11 @@
+ 	hrOle = E_FAIL;
+ 
+ 	wMain = hwnd;
+-
++#ifndef DISABLE_DRAG_DROP
+ 	dob.sci = this;
+ 	ds.sci = this;
+ 	dt.sci = this;
+-
++#endif
+ 	sysCaretBitmap = 0;
+ 	sysCaretWidth = 0;
+ 	sysCaretHeight = 0;
+@@ -345,6 +351,7 @@
+ }
+ 
+ void ScintillaWin::StartDrag() {
++#ifndef DISABLE_DRAG_DROP
+ 	inDragDrop = ddDragging;
+ 	DWORD dwEffect = 0;
+ 	dropWentOutside = true;
+@@ -364,6 +371,7 @@
+ 	}
+ 	inDragDrop = ddNone;
+ 	SetDragPosition(invalidPosition);
++#endif
+ }
+ 
+ // Avoid warnings everywhere for old style casts by concentrating them here
+@@ -562,7 +570,9 @@
+ 		ctrlID = ::GetDlgCtrlID(reinterpret_cast<HWND>(wMain.GetID()));
+ 		// Get Intellimouse scroll line parameters
+ 		GetIntelliMouseParameters();
++#ifndef DISABLE_DRAG_DROP
+ 		::RegisterDragDrop(MainHWND(), reinterpret_cast<IDropTarget *>(&dt));
++#endif
+ 		break;
+ 
+ 	case WM_COMMAND:
+@@ -690,7 +700,11 @@
+ 			(wParam & MK_SHIFT) != 0,
+ 			(wParam & MK_CONTROL) != 0,
+ 			Platform::IsKeyDown(VK_MENU));
++#if 0
++/* when embeding in mozilla, this causes a focus on the main mozilla window
++    this is generaly bad because we do a lot of stuff there, see komodo.xul onfocus */
+ 		::SetFocus(MainHWND());
++#endif
+ 		}
+ 		break;
+ 
+@@ -1280,11 +1294,19 @@
+ 			char *convertedString = Document::TransformLineEnds(&len, text, len, pdoc->eolMode);
+ 			if (pdoc->InsertString(currentPos, convertedString, len)) {
+ 				SetEmptySelection(currentPos + len);
++                                // XXX ActiveState bug 33804
++                                if (ac.Active()) {
++                                        AutoCompleteMoveToCurrentWord();
++                                }
+ 			}
+ 			delete []convertedString;
+ 		} else {
+ 			if (pdoc->InsertString(currentPos, text, len)) {
+ 				SetEmptySelection(currentPos + len);
++                                // XXX ActiveState bug 33804
++                                if (ac.Active()) {
++                                        AutoCompleteMoveToCurrentWord();
++                                }
+ 			}
+ 		}
+ 	}
+@@ -1437,6 +1459,7 @@
+ 
+ #endif
+ 
++#ifndef DISABLE_DRAG_DROP
+ /// Implement IUnknown
+ 
+ STDMETHODIMP_(ULONG)FormatEnumerator_AddRef(FormatEnumerator *fe);
+@@ -1711,6 +1734,7 @@
+ 	vtbl = vtDropTarget;
+ 	sci = 0;
+ }
++#endif
+ 
+ /**
+  * DBCS: support Input Method Editor (IME).
+@@ -1905,6 +1929,15 @@
+ 		break;
+ 	case SB_LINEDOWN:	// May move past the logical end
+ 		xPos += 20;
++                // ACTIVESTATE 
++		if (xPos > scrollWidth - rcText.Width()) {
++			// we are at the end according to the scroll bar.  We'll
++			// go faster since this is not really a 'scroll left by a bit'
++			// request but more a 'grow my scrollbar' request
++			xPos += 20;
++			scrollWidth = xPos + rcText.Width();
++			SetScrollBars();
++		}
+ 		break;
+ 	case SB_PAGEUP:
+ 		xPos -= pageWidth;
+@@ -2002,6 +2035,7 @@
+ 	return dwEffect;
+ }
+ 
++#ifndef DISABLE_DRAG_DROP
+ /// Implement IUnknown
+ STDMETHODIMP ScintillaWin::QueryInterface(REFIID riid, PVOID *ppv) {
+ 	*ppv = NULL;
+@@ -2185,6 +2219,7 @@
+ 	pSTM->pUnkForRelease = 0;
+ 	return S_OK;
+ }
++#endif
+ 
+ bool ScintillaWin::Register(HINSTANCE hInstance_) {
+ 
+diff -r -du win32/makefile win32/makefile
+--- win32/makefile	2005-07-07 21:16:16.000000000 -0700
++++ win32/makefile	2007-05-01 17:00:17.000000000 -0700
+@@ -59,8 +59,9 @@
+ LexMetapost.o LexMMIXAL.o LexMPT.o LexMSSQL.o LexNsis.o LexOpal.o LexOthers.o \
+ LexPascal.o LexPB.o LexPerl.o LexPLM.o LexPOV.o LexProgress.o LexPS.o \
+ LexPython.o LexRebol.o LexRuby.o LexScriptol.o LexSmalltalk.o LexSpecman.o \
+-LexSpice.o LexSQL.o LexTADS3.o LexTCL.o LexTeX.o LexVB.o LexVerilog.o \
+-LexVHDL.o LexYAML.o
++LexSpice.o LexSQL.o LexTADS3.o LexTeX.o LexVB.o LexVerilog.o \
++LexVHDL.o LexYAML.o \
++LexUDL.o LexXSLT.o LexTcl.o 
+ #--Autogenerated -- end of automatically generated section
+ 
+ SOBJS	= ScintillaWin.o ScintillaBase.o Editor.o CharClassify.o Decoration.o \
+diff -r -du win32/scintilla.mak win32/scintilla.mak
+--- win32/scintilla.mak	2005-05-27 04:29:46.000000000 -0700
++++ win32/scintilla.mak	2007-05-01 17:00:17.000000000 -0700
+@@ -31,9 +31,9 @@
+ 
+ !IF "$(VENDOR)"=="MICROSOFT"
+ 
+-CC=cl
++CC=cl /nologo
+ RC=rc
+-LD=link
++LD=link /nologo
+ 
+ CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1
+ # For something scary:-Wp64
+@@ -168,12 +168,14 @@
+ 	$(DIR_O)\LexSpice.obj \
+ 	$(DIR_O)\LexSQL.obj \
+ 	$(DIR_O)\LexTADS3.obj \
+-	$(DIR_O)\LexTCL.obj \
+ 	$(DIR_O)\LexTeX.obj \
+ 	$(DIR_O)\LexVB.obj \
+ 	$(DIR_O)\LexVerilog.obj \
+ 	$(DIR_O)\LexVHDL.obj \
+ 	$(DIR_O)\LexYAML.obj \
++	$(DIR_O)\LexTcl.obj \
++	$(DIR_O)\LexUDL.obj \
++	$(DIR_O)\LexXSLT.obj \
+ 
+ #--Autogenerated -- end of automatically generated section
+ 
+@@ -244,6 +246,14 @@
+ $(DIR_O)\ScintillaWinS.obj: ScintillaWin.cxx
+ 	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ ScintillaWin.cxx
+ 
++# Generate header files from Scintilla.iface
++..\include\Scintilla_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
++	cd ..\include && python HFacer.py
++..\include\SciLexer_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
++	cd ..\include && python HFacer.py
++..\include\Scintilla.h: ..\include\Scintilla_gen.h
++..\include\SciLexer.h: ..\include\SciLexer_gen.h
++
+ # Dependencies
+ 
+ # All lexers depend on this set of headers
+@@ -408,8 +418,6 @@
+ 
+ $(DIR_O)\LexTADS3.obj: ..\src\LexTADS3.cxx $(LEX_HEADERS)
+ 
+-$(DIR_O)\LexTCL.obj: ..\src\LexTCL.cxx $(LEX_HEADERS)
+-
+ $(DIR_O)\LexTeX.obj: ..\src\LexTeX.cxx $(LEX_HEADERS)
+ 
+ $(DIR_O)\LexVB.obj: ..\src\LexVB.cxx $(LEX_HEADERS)
+@@ -420,6 +428,12 @@
+ 
+ $(DIR_O)\LexYAML.obj: ..\src\LexYAML.cxx $(LEX_HEADERS)
+ 
++$(DIR_O)\LexTcl.obj: ..\src\LexTcl.cxx $(LEX_HEADERS)
++
++$(DIR_O)\LexUDL.obj: ..\src\LexUDL.cxx $(LEX_HEADERS)
++
++$(DIR_O)\LexXSLT.obj: ..\src\LexXSLT.cxx $(LEX_HEADERS)
++
+ 
+ #--Autogenerated -- end of automatically generated section
+ 
+diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
+--- win32/scintilla_vc6.mak	2005-05-27 04:29:46.000000000 -0700
++++ win32/scintilla_vc6.mak	2007-05-01 17:00:17.000000000 -0700
+@@ -44,7 +44,7 @@
+ # If you have problems with lexers being linked, try removing -OPT:REF and replacing with -OPT:NOREF
+ LDFLAGS=-OPT:NOWIN98 -OPT:REF
+ LDDEBUG=
+-LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB
++LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB libpcre.lib
+ NOLOGO=-nologo
+ 
+ !ELSE
+@@ -170,12 +170,14 @@
+ 	$(DIR_O)\LexSpice.obj \
+ 	$(DIR_O)\LexSQL.obj \
+ 	$(DIR_O)\LexTADS3.obj \
+-	$(DIR_O)\LexTCL.obj \
+ 	$(DIR_O)\LexTeX.obj \
+ 	$(DIR_O)\LexVB.obj \
+ 	$(DIR_O)\LexVerilog.obj \
+ 	$(DIR_O)\LexVHDL.obj \
+ 	$(DIR_O)\LexYAML.obj \
++	$(DIR_O)\LexTcl.obj \
++	$(DIR_O)\LexUDL.obj \
++	$(DIR_O)\LexXSLT.obj \
+ 
+ #--Autogenerated -- end of automatically generated section
+ 
+@@ -246,6 +248,14 @@
+ $(DIR_O)\ScintillaWinS.obj: ScintillaWin.cxx
+ 	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ ScintillaWin.cxx
+ 
++# Generate header files from Scintilla.iface
++..\include\Scintilla_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
++	cd ..\include && python HFacer.py
++..\include\SciLexer_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
++	cd ..\include && python HFacer.py
++..\include\Scintilla.h: ..\include\Scintilla_gen.h
++..\include\SciLexer.h: ..\include\SciLexer_gen.h
++
+ # Dependencies
+ 
+ # All lexers depend on this set of headers
+@@ -410,8 +420,6 @@
+ 
+ $(DIR_O)\LexTADS3.obj: ..\src\LexTADS3.cxx $(LEX_HEADERS)
+ 
+-$(DIR_O)\LexTCL.obj: ..\src\LexTCL.cxx $(LEX_HEADERS)
+-
+ $(DIR_O)\LexTeX.obj: ..\src\LexTeX.cxx $(LEX_HEADERS)
+ 
+ $(DIR_O)\LexVB.obj: ..\src\LexVB.cxx $(LEX_HEADERS)
+@@ -422,6 +430,12 @@
+ 
+ $(DIR_O)\LexYAML.obj: ..\src\LexYAML.cxx $(LEX_HEADERS)
+ 
++$(DIR_O)\LexTcl.obj: ..\src\LexTcl.cxx $(LEX_HEADERS)
++
++$(DIR_O)\LexUDL.obj: ..\src\LexUDL.cxx $(LEX_HEADERS)
++
++$(DIR_O)\LexXSLT.obj: ..\src\LexXSLT.cxx $(LEX_HEADERS)
++
+ 
+ #--Autogenerated -- end of automatically generated section
+ 

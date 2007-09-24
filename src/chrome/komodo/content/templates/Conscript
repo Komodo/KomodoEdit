@@ -1,0 +1,20 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'unsiloedPythonExe',
+    'productType',
+    'jarring',
+    'buildFlavour',
+    'mozVersion',
+);
+
+$cons->Preprocess('new.unprocessed.js', 'new.js');
+$cons->InstallInChrome('new.js');
+$cons->InstallInChrome('new.xul');
+

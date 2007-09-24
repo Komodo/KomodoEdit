@@ -1,0 +1,42 @@
+diff
+
+Patch for the new MozillaBuild system on Windows (i.e. NOT using cygwin).
+I'm not positive that the 'sed' transformation is required with the
+msys tools -- but I suspect it is.
+
+FIXME this should be part of pyxpcom_build.patch and not seperate
+
+--- configure.in.original	Thu Mar 22 10:39:50 2007
++++ configure.in	Thu Mar 22 18:24:26 2007
+@@ -6770,7 +6786,14 @@
+     fi
+     if test "$OS_ARCH" = "WINNT"; then
+         dnl Convert to cygwin style "mixed" (ie, "c:/path/file.exe")
+-        PYTHON=`cygpath -t mixed $PYTHON`
++        case "$host_os" in
++        mingw*)
++            PYTHON=`echo $PYTHON | sed -e 's/\\\/\//g'`
++            ;;
++        cygwin*|msvc*|mks*)
++            PYTHON=`cygpath -t mixed $PYTHON`
++            ;;
++        esac
+     fi
+     if test ! -x "$PYTHON"; then
+         AC_MSG_ERROR([Could not find Python - please adjust your PATH, or set PYTHON.])
+@@ -6783,7 +6806,14 @@
+     MOZ_PYTHON_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
+     dnl Setup the include and library directories.
+     if test "$OS_ARCH" = "WINNT"; then
+-        MOZ_PYTHON_PREFIX=`cygpath -t mixed $MOZ_PYTHON_PREFIX`
++        case "$host_os" in
++        mingw*)
++            MOZ_PYTHON_PREFIX=`echo $MOZ_PYTHON_PREFIX | sed -e 's/\\\/\//g'`
++            ;;
++        cygwin*|msvc*|mks*)
++            MOZ_PYTHON_PREFIX=`cygpath -t mixed $MOZ_PYTHON_PREFIX`
++            ;;
++        esac
+         dnl Source trees have "include" and "PC" for .h, and "PCbuild" for .lib
+         dnl Binary trees have "include" for .h, and "libs" for .lib
+         dnl We add 'em both - along with quotes, to handle spaces.

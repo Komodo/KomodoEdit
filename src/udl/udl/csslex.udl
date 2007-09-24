@@ -1,0 +1,359 @@
+# Lexer description for CSS
+
+# Ignore duplicate defines, complain about redefines
+
+family css
+
+sublanguage CSS
+
+pattern CS = '-\w\d._\x80-\xff'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern NONASCII = '[^\x00-\x7f]'
+pattern UNICODE = '\\[0-9a-f]{1,6}'
+pattern ESCAPE = '$UNICODE|\\[ -~\x80-\xff]'
+pattern NMCHAR = '[a-zA-Z0-9-]|$NONASCII|$ESCAPE'
+pattern NMSTART = '[a-zA-Z]|$NONASCII|$ESCAPE'
+
+# Most of these need to be quoted because of the "-"
+
+keywords  [
+"active",
+"after",
+"ascent",
+"azimuth",
+"background",
+"background-attachment",
+"background-color",
+"background-image",
+"background-position",
+"background-repeat",
+"baseline",
+"baseline centerline",
+"bbox",
+"before",
+"border",
+"border-bottom",
+"border-bottom-color",
+"border-bottom-style",
+"border-bottom-width",
+"border-collapse",
+"border-color",
+"border-left",
+"border-left-color",
+"border-left-style",
+"border-left-width",
+"border-right",
+"border-right-color",
+"border-right-style",
+"border-right-width",
+"border-spacing",
+"border-style",
+"border-top",
+"border-top-color",
+"border-top-style",
+"border-top-width",
+"border-width",
+"bottom",
+"cap-height",
+"caption-side",
+"centerline",
+"clear",
+"clip",
+"color",
+"content",
+"counter-increment",
+"counter-reset",
+"cue",
+"cue-after",
+"cue-before",
+"cursor",
+"definition-src",
+"descent",
+"direction",
+"direction unicode-bidi",
+"display",
+"elevation",
+"empty-cells",
+"first",
+"first-child",
+"first-letter",
+"first-line",
+"float",
+"focus",
+"font",
+"font-family",
+"font-size",
+"font-size-adjust",
+"font-stretch",
+"font-style",
+"font-variant",
+"font-weight",
+"height",
+"hover",
+"lang",
+"left",
+"letter-spacing",
+"line-height",
+"link",
+"list-style",
+"list-style-image",
+"list-style-position",
+"list-style-type",
+"margin",
+"margin-bottom",
+"margin-left",
+"margin-right",
+"margin-top",
+"marker-offset",
+"marks",
+"mathline",
+"max-height",
+"max-width",
+"min-height",
+"min-width",
+"orphans",
+"outline",
+"outline-color",
+"outline-style",
+"outline-width",
+"overflow",
+"overflow clip",
+"padding",
+"padding border-top-width",
+"padding-bottom",
+"padding-left",
+"padding-right",
+"padding-top",
+"page",
+"page orphans",
+"page-break-after",
+"page-break-before",
+"page-break-inside",
+"panose-1",
+"pause",
+"pause-after",
+"pause-before",
+"pitch",
+"pitch-range",
+"play-during",
+"position",
+"quotes",
+"richness",
+"right",
+"size",
+"slope",
+"speak",
+"speak-header",
+"speak-numeral",
+"speak-punctuation",
+"speech-rate",
+"src",
+"stemh",
+"stemv",
+"stress",
+"table-layout",
+"text-align",
+"text-decoration",
+"text-indent",
+"text-shadow",
+"text-transform",
+"top",
+"top right",
+"topline",
+"unicode-bidi",
+"unicode-range",
+"units-per-em",
+"url",
+"vertical-align",
+"visibility",
+"visibility content",
+"visited",
+"voice-family",
+"volume",
+"white-space",
+"widows",
+"width",
+"widths",
+"word-spacing",
+"x-height",
+"z-index",
+    ]
+keyword_style CSS_IDENTIFIER => CSS_WORD
+
+initial IN_CSS_DEFAULT
+
+state IN_CSS_DEFAULT:
+# Just ignore these things -- they're here for ancient browsers
+
+'<!--' : paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
+'-->' : paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
+'<![CDATA[' : paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
+']]>' : paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
+
+# CSS does only /*...*/ Comments
+'/*' : paint(upto, CSS_DEFAULT), => IN_CSS_COMMENT_1
+
+/[$WS]+/  : #stay
+
+# Go process a number
+'-' : paint(upto, CSS_DEFAULT), => IN_CSS_NEG_OR_NUMBER_1
+'+' : paint(upto, CSS_DEFAULT), => IN_CSS_NEG_OR_NUMBER_1
+/[0-9]/ : paint(upto, CSS_DEFAULT), => IN_CSS_NUMBER_1
+/\\./ : paint(upto, CSS_DEFAULT), => IN_SEL_OR_NUMBER_1
+
+# We have one special keyword, which we need to handle specially
+# because it takes a form of unquoted string
+
+/url/ : paint(upto, CSS_DEFAULT), paint(include, CSS_WORD), => IN_URL_1
+
+# identifiers
+/$NMSTART/ : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_2
+
+# @ things
+'@' : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_OR_OP
+
+# ! things
+'!' : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_OR_OP
+
+# . things
+'.' : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_OR_OP
+
+# #-things
+'#' : paint(upto, CSS_DEFAULT), => IN_HASH_NAME_OR_OP
+
+'"' : paint(upto, CSS_DEFAULT), => IN_CSS_DSTRING
+'\'' : paint(upto, CSS_DEFAULT), => IN_CSS_SSTRING
+
+# Operator characters
+
+/[`~\$%^\&\*()=\[\];:,<>\/\?{}]/ : paint(upto, CSS_DEFAULT), paint(include, CSS_OPERATOR)
+
+
+################ End default state ################
+
+# This is a stripped down variant of everything else to get
+# code-completion inside HTML strings.
+
+state IN_CSS_STAG_ATTR_DEFAULT:
+delimiter: paint(upto, CSS_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_TAGNAME
+'/*' : paint(upto, CSS_DEFAULT) =>  IN_CSS_STAG_ATTR_COMMENT
+/\/\*.*?\*\//: paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
+/[$WS]+/  : #stay
+/[\-+]?\d+(?:\.\d*)?(?:[Ee][\-+]?\d+)?/: paint(upto, CSS_DEFAULT), paint(include, CSS_NUMBER)
+/(?:$NMSTART)(?:$NMCHAR)*/ : paint(upto, CSS_DEFAULT), paint(include, CSS_IDENTIFIER)
+/[`~\$%^\&\*()=\[\];:,<>\/\?{}@!\.\#]/: paint(upto, CSS_DEFAULT), paint(include, CSS_OPERATOR)
+
+state IN_CSS_STAG_ATTR_COMMENT:
+'*/' : paint(include, CSS_COMMENT), => IN_CSS_STAG_ATTR_DEFAULT
+
+# Numbers: (\d+(\.\d*)?)|(\.\d+)
+
+state IN_CSS_NEG_OR_NUMBER_1:
+/[0-9]/  : => IN_CSS_NUMBER_1
+/\./  : => IN_CSS_NUMBER_2
+# Match nothing doesn't advance
+// : paint(upto, CSS_OPERATOR), => IN_CSS_DEFAULT
+/\z/ : paint(upto, CSS_OPERATOR)
+
+state IN_CSS_NUMBER_1 : 
+/%/ : paint(include, CSS_NUMBER), => IN_CSS_DEFAULT
+/\./  : => IN_CSS_NUMBER_2
+/$NMSTART/ : paint(upto, CSS_NUMBER), => IN_CSS_IDENT_2
+/[^0-9]/  : paint(upto, CSS_NUMBER), redo, => IN_CSS_DEFAULT
+/\z/ : paint(upto, CSS_NUMBER)
+
+# Saw the decimal pt
+state IN_CSS_NUMBER_2:
+/%/ : paint(include, CSS_NUMBER), => IN_CSS_DEFAULT
+/$NMSTART/ : paint(upto, CSS_NUMBER), => IN_CSS_IDENT_2
+/[^0-9]/  : paint(upto, CSS_NUMBER), redo, => IN_CSS_DEFAULT
+
+state IN_SEL_OR_NUMBER_1:
+/[0-9]/  : => IN_CSS_NUMBER_2
+// : paint(upto, CSS_OPERATOR), => IN_CSS_DEFAULT
+
+################ Names and Identifiers ################
+
+state IN_CSS_IDENT_OR_OP :
+/$NMSTART/ : paint(upto, CSS_OPERATOR), => IN_CSS_IDENT_2
+/./ : paint(upto, CSS_OPERATOR), redo, => IN_CSS_DEFAULT  # A stray '@'
+/\z/ : paint(upto, CSS_OPERATOR)
+
+state IN_CSS_IDENT_2 :
+'\r' : paint(upto, CSS_IDENTIFIER), => IN_CSS_DEFAULT
+/$NMCHAR/ : # stay
+# Match nothing ... an else clause
+// : paint(upto, CSS_IDENTIFIER), => IN_CSS_DEFAULT
+# Verify we create a \z color for this one
+
+state IN_HASH_NAME_OR_OP :
+/$NMCHAR/ : paint(upto, CSS_OPERATOR), => IN_CSS_NAME
+/./ : paint(upto, CSS_OPERATOR), redo, => IN_CSS_DEFAULT  # A stray '#'
+/\z/ : paint(upto, CSS_OPERATOR)
+
+state IN_CSS_NAME : 
+/$NMCHAR/ : # stay
+# Match nothing ... an else clause
+// : paint(upto, CSS_IDENTIFIER), => IN_CSS_DEFAULT
+# Verify we create a \z color for this one
+
+################ Comments ################
+
+state IN_CSS_COMMENT_1 : 
+'*/' : paint(include, CSS_COMMENT), => IN_CSS_DEFAULT
+
+################ Strings ################
+
+state IN_CSS_DSTRING:
+'"' : paint(include, CSS_STRING), => IN_CSS_DEFAULT
+/\\[\r\n]/ : paint(include, CSL_STRING), => IN_CSS_DSTRING_LINECONT
+/\\./ : #stay, don't miscount backslash at end
+/$/ : paint(upto, CSS_STRING), => IN_CSS_DEFAULT
+'\r' : paint(upto, CSS_STRING), => IN_CSS_DEFAULT
+# Verify we create a \z
+
+# Work around the single-line match limit.
+
+state IN_CSS_DSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_CSS_DSTRING
+'"' : paint(include, CSS_STRING), => IN_CSS_DEFAULT
+/./ : => IN_CSS_DSTRING
+/^$/ : paint(upto, CSS_STRING), => IN_CSS_DEFAULT # End empty lines here
+
+state IN_CSS_SSTRING:
+'\'' : paint(include, CSS_STRING), => IN_CSS_DEFAULT
+/\\[\r\n]/ : paint(include, CSS_STRING), => IN_CSS_SSTRING_LINECONT
+/\\./ : # Don't miscount backslash at end
+/$/ : paint(upto, CSS_STRING), => IN_CSS_DEFAULT
+'\r' : paint(upto, CSS_STRING), => IN_CSS_DEFAULT # /$/ doesn't match here with pcre
+
+state IN_CSS_SSTRING_LINECONT:
+/\\[\r\n]/ : #stay
+/\\./ : => IN_CSS_SSTRING
+'\'' : paint(include, CSS_STRING), => IN_CSS_DEFAULT
+/./ : => IN_CSS_SSTRING
+/^$/ : paint(upto, CSS_STRING), => IN_CSS_DEFAULT # End empty lines here
+
+state IN_CSS_USTRING:
+')' : paint(upto, CSS_STRING), paint(include, CSS_OPERATOR), => IN_CSS_DEFAULT
+/[$WS]/ : paint(upto, CSS_STRING), paint(include, CSS_DEFAULT), => IN_CSS_DEFAULT
+
+################ url keyword allows for unquoted strings ################
+
+state IN_URL_1:
+'(' : paint(include, CSS_OPERATOR), => IN_URL_2
+// : => IN_CSS_DEFAULT
+
+state IN_URL_2:
+'"' : paint(upto, CSS_DEFAULT), => IN_CSS_DSTRING
+'\'' : paint(upto, CSS_DEFAULT), => IN_CSS_SSTRING
+/[-a-zA-Z!\#\$%&\*~]|$NONASCII|$ESCAPE/ paint(upto, CSS_DEFAULT), => IN_CSS_USTRING
+/[$WS]/ : #stay
+// : => IN_CSS_DEFAULT
+
+
+fold "{" CSS_OPERATOR +
+fold "}" CSS_OPERATOR -
+
+# lineup /\/\*/ CSS_COMMENT

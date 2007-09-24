@@ -1,0 +1,186 @@
+# Makefile.vc6 - for tidy - HTML parser and pretty printer
+# For use with Microsoft's Visual C++ 6 nmake tool
+#
+#  CVS Info :
+#
+#     $Author: creitzel $
+#     $Date: 2003/04/17 15:47:21 $
+#     $Revision: 1.5 $
+#
+#  Copyright (c) 1998-2003 World Wide Web Consortium
+#  (Massachusetts Institute of Technology, European Research 
+#  Consortium for Informatics and Mathematics, Keio University).
+#  All Rights Reserved.
+#
+#  Contributing Author(s):
+#
+#     Dave Raggett    <dsr@w3.org>
+#     Terry Teague    <terry_teague@users.sourceforge.net>
+#     Mark Hale       <m.j.hale@durham.ac.uk>
+#     Philippe Lhoste <PhiLho@GMX.net>
+#
+#  The contributing author(s) would like to thank all those who
+#  helped with testing, bug fixes, and patience.  This wouldn't
+#  have been possible without all of you.
+#
+#  COPYRIGHT NOTICE:
+#
+#  This software and documentation is provided "as is," and
+#  the copyright holders and contributing author(s) make no
+#  representations or warranties, express or implied, including
+#  but not limited to, warranties of merchantability or fitness
+#  for any particular purpose or that the use of the software or
+#  documentation will not infringe any third party patents,
+#  copyrights, trademarks or other rights.
+#
+#  The copyright holders and contributing author(s) will not be
+#  liable for any direct, indirect, special or consequential damages
+#  arising out of any use of the software or documentation, even if
+#  advised of the possibility of such damage.
+#
+#  Permission is hereby granted to use, copy, modify, and distribute
+#  this source code, or portions hereof, documentation and executables,
+#  for any purpose, without fee, subject to the following restrictions:
+#
+#  1. The origin of this source code must not be misrepresented.
+#  2. Altered versions must be plainly marked as such and must
+#     not be misrepresented as being the original source.
+#  3. This Copyright notice may not be removed or altered from any
+#     source or altered source distribution.
+#
+#  The copyright holders and contributing author(s) specifically
+#  permit, without fee, and encourage the use of this source code
+#  as a component for supporting the Hypertext Markup Language in
+#  commercial products. If you use this source code in a product,
+#  acknowledgment is not required but would be appreciated.
+#
+# Usage:
+#     nmake -f Makefile.vc6
+# or
+#     nmake -f Makefile.vc6 DEBUG=1
+
+CC=cl
+RC=rc
+LD=link
+
+TOPDIR=..\..
+BINDIR=$(TOPDIR)\bin
+INCLDIR=$(TOPDIR)\include\  
+SRCDIR=$(TOPDIR)\src\  
+APPDIR=$(TOPDIR)\console\  
+TIDYEXT=/D SUPPORT_ACCESSIBILITY_CHECKS=1 /D SUPPORT_UTF16_ENCODINGS=1 /D SUPPORT_ASIAN_ENCODINGS=1
+
+## General flags for compilation
+# /W4	Sets warning level 4 (max)
+# /Za	Disables Microsoft extensions (aka ANSI)
+# /FD	Generate file dependencies
+# /c	Compiles without linking
+# In the following, replace /D "_CONSOLE" by /D "_WINDOWS" for Windows programs
+
+CFLAGS=/nologo /TC /W4 /Za /FD /c /D "WIN32" /D "_CONSOLE" /D "_MBCS" $(TIDYEXT) /I $(INCLDIR)
+
+## Additional flags for debug compilation
+# /Gm	Enables minimal rebuild
+# /GZ	Catch release-build errors in debug build
+# /Zi	Generates complete debugging information
+# /Od	Disables optimization
+# /MTd	Uses debug version of statically linked, multi-threaded CRT.
+# /MDd	Uses debug version of multi-threaded CRT DLL.
+
+CDEBUG=/Gm /GZ /Zi /Od /MTd /D "DEBUG" /D "_DEBUG"
+
+## Additional flags for release compilation
+# /O1	Creates small code
+# /O2	Creates fast code
+# /Ox	Uses maximum optimization (/Ob1gity /Gs)
+# /MT	Use statically linked, multi-threaded C runtime library
+# /MD 	Uses multi-threaded CRT DLL.
+
+CNDEBUG=/Ox /MT /D "NDEBUG"
+
+
+NAMEFLAG=/Fo
+## General flags for link
+# In the following, replace /subsystem:console by /subsystem:windows for Windows programs
+LDFLAGS= /nologo /subsystem:console /machine:I386 /libpath:"."
+LIBFLAGS= -lib
+
+## Additional flags for debug link
+LDDEBUG=/debug /pdbtype:sept /nodefaultlib:LIBC
+
+## Additional flags for release link
+LDNDEBUG=/opt:nowin98 /opt:ref /pdb:none
+
+#LIBS=KERNEL32.lib USER32.lib GDI32.lib COMDLG32.lib COMCTL32.lib ADVAPI32.lib IMM32.lib SHELL32.LIB OLE32.LIB
+LIBS=
+DEBUGLIBS=
+
+!IFDEF DEBUG
+CFLAGS=$(CFLAGS) $(CDEBUG)
+LDFLAGS=$(LDFLAGS) $(LDDEBUG)
+OBJDIR= .\debug
+!ELSE
+CFLAGS=$(CFLAGS) $(CNDEBUG)
+LDFLAGS=$(LDFLAGS) $(LDNDEBUG)
+OBJDIR= .\release
+!ENDIF
+
+
+OBJFILES=$(OBJDIR)\access.obj   $(OBJDIR)\attrs.obj    $(OBJDIR)\istack.obj\
+        $(OBJDIR)\parser.obj    $(OBJDIR)\tags.obj     $(OBJDIR)\entities.obj\
+        $(OBJDIR)\lexer.obj     $(OBJDIR)\pprint.obj   $(OBJDIR)\clean.obj\
+	$(OBJDIR)\localize.obj  $(OBJDIR)\config.obj   $(OBJDIR)\alloc.obj\
+        $(OBJDIR)\attrask.obj   $(OBJDIR)\attrget.obj  $(OBJDIR)\buffio.obj\
+        $(OBJDIR)\tagask.obj    $(OBJDIR)\fileio.obj   $(OBJDIR)\streamio.obj\
+        $(OBJDIR)\tmbstr.obj    $(OBJDIR)\utf8.obj     $(OBJDIR)\tidylib.obj\
+	$(OBJDIR)\attrdict.obj
+
+CFILES=	$(SRCDIR)access.c       $(SRCDIR)attrs.c        $(SRCDIR)istack.c \
+        $(SRCDIR)parser.c       $(SRCDIR)tags.c         $(SRCDIR)entities.c \
+        $(SRCDIR)lexer.c        $(SRCDIR)pprint.c       $(SRCDIR)clean.c \
+	$(SRCDIR)localize.c     $(SRCDIR)config.c       $(SRCDIR)alloc.c \
+        $(SRCDIR)attrask.c      $(SRCDIR)attrget.c      $(SRCDIR)buffio.c \
+        $(SRCDIR)tagask.c       $(SRCDIR)fileio.c       $(SRCDIR)streamio.c\
+        $(SRCDIR)tmbstr.c       $(SRCDIR)utf8.c         $(SRCDIR)tidylib.c\
+	$(SRCDIR)\attrdict.c
+
+HFILES=	$(INCLDIR)platform.h $(INCLDIR)buffio.h \
+        $(INCLDIR)fileio.h $(INCLDIR)tidy.h $(INCLDIR)tidyenum.h
+
+LIBHFILES= \
+        $(SRCDIR)access.h \
+        $(SRCDIR)attrs.h        $(SRCDIR)attrdict.h     $(SRCDIR)clean.h \
+        $(SRCDIR)config.h       $(SRCDIR)entities.h     \
+        $(SRCDIR)forward.h      $(SRCDIR)lexer.h        $(SRCDIR)message.h \
+        $(SRCDIR)parser.h       $(SRCDIR)pprint.h       $(SRCDIR)streamio.h \
+        $(SRCDIR)tags.h \
+        $(SRCDIR)tmbstr.h       $(SRCDIR)utf8.h         $(SRCDIR)tidy-int.h
+
+all:	$(OBJDIR)\libtidy.lib $(BINDIR)\tidy.exe $(BINDIR)\tab2space.exe
+
+$(OBJDIR) :
+		if not exist $(OBJDIR) mkdir $(OBJDIR)
+
+$(BINDIR) :
+		if not exist $(BINDIR) mkdir $(BINDIR)
+
+$(OBJDIR)\libtidy.lib:	$(OBJFILES)
+		$(LD) $(LIBFLAGS) $(OBJFILES) /OUT:$(OBJDIR)\libtidy.lib
+
+$(BINDIR)\tidy.exe: $(APPDIR)tidy.c $(HFILES) $(OBJDIR)\libtidy.lib $(BINDIR)
+		$(CC) $(CFLAGS) $(APPDIR)tidy.c $(NAMEFLAG)$(OBJDIR)\  
+		$(LD) $(LDFLAGS) $(OBJDIR)\tidy.obj $(LIBS) $(OBJDIR)\libtidy.lib /OUT:$(BINDIR)\tidy.exe
+
+$(OBJFILES):	$(HFILES) $(LIBHFILES) $(CFILES) Makefile.vc6 $(OBJDIR)
+		$(CC) $(CFLAGS) $(CFILES) $(NAMEFLAG)$(OBJDIR)\   
+
+$(BINDIR)\tab2space.exe:	$(APPDIR)tab2space.c $(BINDIR)
+		$(CC) $(CFLAGS) $(APPDIR)tab2space.c $(NAMEFLAG)$(OBJDIR)\   
+		$(LD) $(LDFLAGS) $(OBJDIR)\tab2space.obj $(LIBS) /OUT:$(BINDIR)\tab2space.exe
+
+clean:
+	-del $(OBJFILES) $(OBJDIR)\tab2space.obj $(OBJDIR)\tidy.obj $(OBJDIR)\libtidy.lib $(BINDIR)\tidy.exe $(BINDIR)\tab2space.exe
+	-rd $(OBJDIR)
+	-rd $(BINDIR)
+
+

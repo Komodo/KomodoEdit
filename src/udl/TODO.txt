@@ -1,0 +1,56 @@
+- how to handle generation/maintenance of ludditelib/constants.py?
+
+- update the KD with New UDL features:
+ - at_eol_postpone -- for things like Haml's | at EOL
+ - at_eol_cancel
+ - next_line -- again, for handling things like line-continuations
+              next_line() follows at_eol's directive
+   - maybe call this at_eol_continue
+   - Test : next_line inside a line leaves the text unstyled
+
+- fold_by_indent -- on a per-family basis
+
+- inner_indent, useful for Haml, with this kind of code:
+<pre>
+find /$LWS\/$WS$/:  push_indent, comment, => IN_COMMENT_BLOCK
+
+state IN_COMMENT_BLOCK:
+inner_indent : => IN_CONTINUE_COMMENT_BLOCK
+/./ : pop_indent, redo => DEFAULT
+
+state IN_CONTINUE_COMMENT_BLOCK:
+/$/ : paint(upto, comment) => IN_COMMENT_BLOCK
+
+</pre>
+
+- Combine states in some places:
+<pre>
+state IN_DEFAULT, IN_NESTED:
+# common tests
+
+state IN_DEFAULT:
+# specific to default...
+</pre>
+
+
+- Fix GetFoldChange:
+<pre>
+if (IsOperator(...)) {
+for (j = 0 ; j < slen; j++) {
+ for (i = 0 ; i < flipper_count; i++) {
+   if (flip[i]->Match(s, style, &dir, )) {
+     full_dir += dir;
+     j += flip[i]->length - 1;
+     break;
+   }
+ }
+}
+return full_dir;
+</pre>
+
+  - Also consider breaking each line into a set of tokens, and looking
+    for prefixes for all of them.  Chances are the isOperator thing will
+    fall out ...  we'll simply look for prefixes in each style, in the
+    order they're specified.
+
+    Simpler, hopefully the buffer overruns can be avoided this time. 

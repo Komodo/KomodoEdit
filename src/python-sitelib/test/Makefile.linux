@@ -1,0 +1,110 @@
+
+# Makefile for the test_popen suite of apps.
+
+all: talkers
+
+CC=g++
+LINK=g++
+CFLAGS=
+LDFLAGS=
+RM=rm -f
+
+talkers: ask ask_then_talk ask_then_talklots ask_then_talk_flushing ask_then_talklots_flushing talk talklots talk_flushing talklots_flushing quiet hang printcwd printenv ask_setvbuf  ask_then_talk_setvbuf ask_then_talklots_setvbuf ask_then_talk_flushing_setvbuf ask_then_talklots_flushing_setvbuf talk_setvbuf talklots_setvbuf talk_flushing_setvbuf talklots_flushing_setvbuf         quiet_setvbuf  hang_setvbuf  printcwd_setvbuf  printenv_setvbuf hello10 hello10noeol log "log space"
+
+
+log "log space": talk.cpp
+	$(CC) $(CFLAGS)    -DLOG -o log.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o log log.o
+	cp -f log "log space"
+
+hello10: talk.cpp
+	$(CC) $(CFLAGS)    -DHELLO10  -o hello10.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o hello10 hello10.o
+
+hello10noeol: talk.cpp
+	$(CC) $(CFLAGS)    -DHELLO10NOEOL  -o hello10noeol.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o hello10noeol hello10noeol.o
+
+ask ask_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DASK  -o ask.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask ask.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DASK  -o ask_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_setvbuf ask_setvbuf.o
+
+ask_then_talk ask_then_talk_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DASK -DTALK  -o ask_then_talk.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talk ask_then_talk.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DASK -DTALK  -o ask_then_talk_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talk_setvbuf ask_then_talk_setvbuf.o
+
+ask_then_talklots ask_then_talklots_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DASK -DTALKLOTS  -o ask_then_talklots.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talklots ask_then_talklots.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DASK -DTALKLOTS  -o ask_then_talklots_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talklots_setvbuf ask_then_talklots_setvbuf.o
+
+ask_then_talk_flushing ask_then_talk_flushing_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DASK -DTALK -DFLUSH  -o ask_then_talk_flushing.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talk_flushing ask_then_talk_flushing.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DASK -DTALK -DFLUSH  -o ask_then_talk_flushing_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talk_flushing_setvbuf ask_then_talk_flushing_setvbuf.o
+
+ask_then_talklots_flushing ask_then_talklots_flushing_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DASK -DTALKLOTS -DFLUSH  -o ask_then_talklots_flushing.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talklots_flushing ask_then_talklots_flushing.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DASK -DTALKLOTS -DFLUSH  -o ask_then_talklots_flushing_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o ask_then_talklots_flushing_setvbuf ask_then_talklots_flushing_setvbuf.o
+
+talk talk_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DTALK  -o talk.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talk talk.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DTALK  -o talk_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talk_setvbuf talk_setvbuf.o
+
+talklots talklots_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DTALKLOTS  -o talklots.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talklots talklots.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DTALKLOTS  -o talklots_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talklots_setvbuf talklots_setvbuf.o
+
+talk_flushing talk_flushing_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DTALK -DFLUSH  -o talk_flushing.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talk_flushing talk_flushing.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DTALK -DFLUSH  -o talk_flushing_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talk_flushing_setvbuf talk_flushing_setvbuf.o
+
+talklots_flushing talklots_flushing_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DTALKLOTS -DFLUSH  -o talklots_flushing.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talklots_flushing talklots_flushing.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DTALKLOTS -DFLUSH  -o talklots_flushing_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o talklots_flushing_setvbuf talklots_flushing_setvbuf.o
+
+quiet quiet_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -o quiet.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o quiet quiet.o
+	$(CC) $(CFLAGS)    -DSETVBUF   -o quiet_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o quiet_setvbuf quiet_setvbuf.o
+
+hang hang_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DHANG  -o hang.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o hang hang.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DHANG  -o hang_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o hang_setvbuf hang_setvbuf.o
+
+printcwd printcwd_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DCWD  -o printcwd.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o printcwd printcwd.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DCWD  -o printcwd_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o printcwd_setvbuf printcwd_setvbuf.o
+
+printenv printenv_setvbuf : talk.cpp
+	$(CC) $(CFLAGS)    -DENV  -o printenv.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o printenv printenv.o
+	$(CC) $(CFLAGS)    -DSETVBUF -DENV  -o printenv_setvbuf.o -c talk.cpp
+	$(LINK) $(LDFLAGS) -o printenv_setvbuf printenv_setvbuf.o
+
+
+
+clean:
+	rm -rf *.o
+

@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Habitual Readers | <%= params[:controller] %> | <%= params[:action] %></title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="description goes here" />
+<meta name="keywords" content="keywords,goes,here" />
+<%= stylesheet_link_tag "andreas07" %>
+<!--[if IE 6]>
+	<%= stylesheet_link_tag "fix" %>
+<![endif]-->
+<%= stylesheet_link_tag "custom" %>
+</head>
+
+<body>
+<div id="sidebar">
+<h1>Habitual Readers</h1>
+<h2>What are you reading, toady?</h2>
+
+
+<div id="menu">
+	<%= link_to_controller "home" %>
+	<%= link_to_controller "tags" %>
+	<%= link_to_controller "books" %>
+	<%= link_to_controller "readers" %>
+	<%= (link_to_controller "admin", :with_label => "Login") if !session[:reader] %>
+	<%= (link_to "Logout", {:controller => "admin", :action => "signout" } ) if session[:reader] %>
+</div>
+
+<h3>Version info:</h3>
+<p>v1.0 - December 2006</p>
+</div>
+
+<div id="content">
+	<%= image_tag 'red_logo.jpg' %>
+	<%= yield %>
+	<div id="site_info">
+		Copyright &copy; 2006 Ben Askins and Alan Green. Based on a design by <a href="http://andreasviklund.com">Andreas Viklund</a>.
+	</div>
+</div>
+</body>
+</html>

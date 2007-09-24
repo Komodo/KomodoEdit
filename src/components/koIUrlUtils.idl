@@ -1,0 +1,9 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(5966fb5e-502f-482b-b56e-660d793387da)]
+interface koIUrlUtils : nsISupports {
+    boolean sameURL(in wstring uri1, in wstring uri2);
+};

@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<!--
+TODO:
+look at mozilla\xpfe\global\resources\content\bindings\button.xml
+and see if we really need *ANY* of this stuff.  I think we can
+use moz bindings with CSS to acheive everything we have here.
+-->
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- include our css, but inherit from mozilla's button base
+         which includes access controls -->
+    <binding id="button-base" extends="chrome://global/content/bindings/button.xml#button-base">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/buttons.css"/>
+        </resources>
+    </binding>
+
+  <!-- XUL <button>s -->
+  <!-- used for button menus in several places
+    style class: rightarrow-button -->
+  <binding id="rightarrow-button" display="xul:menu"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+      <xul:box class="button-internal-box" align="center" pack="center" flex="1">
+        <xul:image class="button-icon" xbl:inherits="src=image"/>
+      </xul:box>
+      <children includes="menupopup"/>
+    </content>
+  </binding>
+
+  <!-- USED! style: button-toolbar-a,button-toolbar-rx -->
+  <binding id="button-toolbar-a" display="xul:button"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+      <xul:vbox class="button-internal-box" align="center" pack="center" flex="1">
+        <xul:image class="button-icon" xbl:inherits="src=image"/>
+      </xul:vbox>
+    </content>
+  </binding>
+
+  <!-- USED! style: button-toolbar-b,c,d; button-link; button-link-a -->
+  <binding id="button-toolbar-b" display="xul:button"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+    <xul:vbox class="button-internal-box" align="center" pack="center" flex="1">
+        <xul:image class="button-icon" xbl:inherits="src=image"/>
+        <xul:vbox class="button-text-container" align="center" pack="center" flex="1">
+          <xul:label class="button-text" xbl:inherits="value=label,accesskey,crop,dragover-top"/>
+        </xul:vbox>
+      </xul:vbox>
+    </content>
+  </binding>
+
+  <!-- USED! style: button-link-b
+     gettingstarted page -->
+  <binding id="button-link-b" display="xul:button"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+    <xul:hbox class="button-internal-box" xbl:inherits="align=valign"
+              pack="center" flex="1">
+        <xul:image class="button-icon" xbl:inherits="src=image"/>
+        <xul:vbox class="button-text-container" xbl:inherits="align=halign"
+                  pack="center" flex="1">
+          <xul:label class="button-text" xbl:inherits="value=label,accesskey,crop,dragover-top"/>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+  </binding>
+
+    <binding id="menuitem-iconic-wide" extends="chrome://global/content/bindings/menu.xml#menuitem">
+      <content>
+        <xul:hbox class="menu-iconic-left" align="center" pack="center"
+                  style="width: 22px"
+                  xbl:inherits="selected,_moz-menuactive,disabled,checked">
+          <xul:image xbl:inherits="src=image,validate,src"/>
+        </xul:hbox>
+        <xul:label class="menu-iconic-text" flex="1" xbl:inherits="value=label,accesskey,crop" crop="right"/>
+        <xul:label class="menu-iconic-accel" xbl:inherits="value=acceltext"/>
+      </content>
+    </binding>
+
+    <binding id="menu-iconic-wide" extends="chrome://global/content/bindings/menu.xml#menuitem-base">
+        <content>
+          <xul:hbox class="menu-iconic-left" style="width: 22px"
+                    align="center" pack="center">
+            <xul:image
+                       xbl:inherits="src=image"/>
+          </xul:hbox>
+          <xul:label class="menu-iconic-text" flex="1" xbl:inherits="value=label,accesskey,crop" crop="right"/>
+          <xul:hbox anonid="accel">
+            <xul:label class="menu-iconic-accel" xbl:inherits="value=acceltext"/>
+          </xul:hbox>
+          <xul:hbox class="menu-right" xbl:inherits="_moz-menuactive,disabled" align="center" pack="center">
+            <xul:image/>
+          </xul:hbox>
+          <children includes="menupopup|template"/>
+        </content>
+    </binding>
+
+  <binding id="button-menu-a" display="xul:menu"
+           extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+      <children includes="observes|template|menupopup|tooltip"/>
+      <xul:hbox class="button-internal-box box-inherit button-box" xbl:inherits="align,dir,pack,orient"
+                align="center" pack="center" flex="1">
+        <children>
+          <xul:image class="button-icon" xbl:inherits="src=image"/>
+          <xul:dropmarker class="button-menu-dropmarker" xbl:inherits="open,disabled"/>
+        </children>
+      </xul:hbox>
+    </content>
+  </binding>
+
+  <binding id="menuitem-iconic" extends="chrome://global/content/bindings/menu.xml#menuitem">
+    <content>
+      <xul:hbox xclass="menulist-icon" align="center" pack="center"
+                xbl:inherits="selected,disabled,checked">
+        <xul:image class="menulist-icon" xbl:inherits="src=image,validate,src"/>
+      </xul:hbox>
+      <xul:label class="menulist-label" flex="1" xbl:inherits="value=label,accesskey,crop" crop="right"/>
+    </content>
+  </binding>
+
+</bindings>

@@ -1,0 +1,20 @@
+/* Copyright (c) 2004-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Service to help other Komodo services finalize at Komodo shutdown.
+//
+// This is similar in spirit to komodo.js's KomodoRegisterOnUnloadHandler().
+//
+//XXX Perhaps a "canFinalize"-type mechanism would be useful?
+
+[scriptable, uuid(C81EF80E-2A55-4FA6-B858-555334602899)]
+interface koIFinalizeService: nsISupports {
+    // Register an XPCOM components/services to have its .finalize()
+    // method called when Komodo is shutting down.
+    void registerFinalizer(in nsISupports finalizer);
+
+    // This should be called when Komodo is shutting down.
+    void finalize();
+};

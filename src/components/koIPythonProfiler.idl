@@ -1,0 +1,20 @@
+#include "nsISupports.idl"
+
+[scriptable, uuid(12111cd2-b6f4-42bc-9222-5b1dc9dee53a)]
+interface koIPythonProfiler : nsISupports
+{
+  // Add a contract to the list of profiled classes.
+  void install();
+  void uninstall();
+  // addClassescan accept class names, or class.method style names.
+  void addClasses( in string names );
+  void addAllClasses();
+  void resetStats();
+  void dump(in string sortby );
+  void dumpFile(in wstring filename );
+  void dumpToFile(in wstring filename, in string sortby );
+  // howMany < 1 - assumes %age - eg, 0.2 == 20%
+  // howMany >= 1 - assumes number of lines - eg, 2.0 == 2 lines.
+  void dumpSome(in string sortby, in double howMany );
+  attribute boolean collecting; // am I collecting stats at the moment?
+};

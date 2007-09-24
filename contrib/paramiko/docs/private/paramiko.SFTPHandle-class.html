@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SFTPHandle</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SFTPHandle
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko.SFTPHandle-class.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SFTPHandle-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SFTPHandle</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+
+         |
+        <b>SFTPHandle</b>
+</pre><br />
+
+<hr/>
+
+<p>Abstract object representing a handle to an open file (or folder) in 
+an SFTP server implementation. Each handle has a string representation 
+used by the client to refer to the underlying file.</p>
+Server implementations can (and should) subclass SFTPHandle to 
+implement features of a file handle, like <a 
+href="paramiko.SFTPHandle-class.html#stat" 
+class="link"><code>stat</code></a> or <a 
+href="paramiko.SFTPHandle-class.html#chattr" 
+class="link"><code>chattr</code></a>.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__init__"></a><span class="summary-sig"><span class="summary-sig-name">__init__</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPHandle-class.html#chattr" class="summary-sig-name"><code>chattr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>attr</span>)</span></code>
+<br />
+Change the attributes of this file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPHandle-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+When a client closes a file, this method is called on the handle.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPHandle-class.html#read" class="summary-sig-name"><code>read</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>offset</span>,
+          <span class=summary-sig-arg>length</span>)</span></code>
+<br />
+Read up to <code>length</code> bytes from this file, starting at 
+position <code>offset</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.SFTPAttributes-class.html" 
+        class="link"><code>SFTPAttributes</code></a> <i>or error 
+        code</i>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPHandle-class.html#stat" class="summary-sig-name"><code>stat</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return an <a href="paramiko.SFTPAttributes-class.html" 
+class="link"><code>SFTPAttributes</code></a> object referring to this 
+open file, or an error code.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SFTPHandle-class.html#write" class="summary-sig-name"><code>write</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>offset</span>,
+          <span class=summary-sig-arg>data</span>)</span></code>
+<br />
+Write <code>data</code> into this file at position 
+<code>offset</code>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="_get_name"></a><span class="summary-sig"><span class="summary-sig-name">_get_name</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPHandle-class.html#_get_next_files" class="summary-sig-name"><code>_get_next_files</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Used by the SFTP server code to retreive a cached directory 
+listing.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SFTPHandle-class.html#_set_files" class="summary-sig-name"><code>_set_files</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>files</span>)</span></code>
+<br />
+Used by the SFTP server code to cache a directory listing.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="_set_name"></a><span class="summary-sig"><span class="summary-sig-name">_set_name</span>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="chattr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">chattr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>attr</span>)</span>
+  </h3>
+  Change the attributes of this file. The <code>attr</code> object 
+  will contain only those fields provided by the client in its request, 
+  so you should check for the presence of fields before using them.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>attr</b></code> -
+         the attributes to change on this file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPAttributes-class.html" 
+              class="link"><code>SFTPAttributes</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an error code like <a 
+        href="../private/paramiko-module.html#SFTP_OK" 
+        class="link"><code>SFTP_OK</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  <p>When a client closes a file, this method is called on the handle. 
+  Normally you would use this method to close the underlying OS level 
+  file object(s).</p>
+  The default implementation checks for attributes on 
+  <code>self</code> named <code>readfile</code> and/or 
+  <code>writefile</code>, and if either or both are present, their 
+  <code>close()</code> methods are called. This means that if you are 
+  using the default implementations of <a 
+  href="paramiko.SFTPHandle-class.html#read" 
+  class="link"><code>read</code></a> and <a 
+  href="paramiko.SFTPHandle-class.html#write" 
+  class="link"><code>write</code></a>, this method's default 
+  implementation should be fine also.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="read"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">read</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>offset</span>,
+          <span class=sig-arg>length</span>)</span>
+  </h3>
+  <p>Read up to <code>length</code> bytes from this file, starting at 
+  position <code>offset</code>. The offset may be a python long, since 
+  SFTP allows it to be 64 bits.</p>
+  <p>If the end of the file has been reached, this method may return an 
+  empty string to signify EOF, or it may also return <a 
+  href="../private/paramiko-module.html#SFTP_EOF" 
+  class="link"><code>SFTP_EOF</code></a>.</p>
+  The default implementation checks for an attribute on 
+  <code>self</code> named <code>readfile</code>, and if present, performs 
+  the read operation on the python file-like object found there. (This is 
+  meant as a time saver for the common case where you are wrapping a 
+  python file object.)
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>offset</b></code> -
+         position in the file to start reading from.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      <dd><code><b>length</b></code> -
+         number of bytes to attempt to read.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        data read from the file, or an SFTP error code.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="stat"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">stat</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return an <a href="paramiko.SFTPAttributes-class.html" 
+  class="link"><code>SFTPAttributes</code></a> object referring to this 
+  open file, or an error code. This is equivalent to <a 
+  href="../private/paramiko.SFTPServerInterface-class.html#stat" 
+  class="link"><code>SFTPServerInterface.stat</code></a>, except it's 
+  called on an open file instead of a path.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an attributes object for the given file, or an SFTP error code 
+        (like <a 
+        href="../private/paramiko-module.html#SFTP_PERMISSION_DENIED" 
+        class="link"><code>SFTP_PERMISSION_DENIED</code></a>).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPAttributes-class.html" 
+        class="link"><code>SFTPAttributes</code></a> <i>or error 
+        code</i>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="write"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">write</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>offset</span>,
+          <span class=sig-arg>data</span>)</span>
+  </h3>
+  <p>Write <code>data</code> into this file at position 
+  <code>offset</code>. Extending the file past its original end is 
+  expected. Unlike python's normal <code>write()</code> methods, this 
+  method cannot do a partial write: it must write all of 
+  <code>data</code> or else return an error.</p>
+  The default implementation checks for an attribute on 
+  <code>self</code> named <code>writefile</code>, and if present, 
+  performs the write operation on the python file-like object found 
+  there. The attribute is named differently from <code>readfile</code> to 
+  make it easy to implement read-only (or write-only) files, but if both 
+  attributes are present, they should refer to the same file.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>offset</b></code> -
+         position in the file to start reading from.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int or long)</i>
+      <dd><code><b>data</b></code> -
+         data to write into the file.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an SFTP error code like <a 
+        href="../private/paramiko-module.html#SFTP_OK" 
+        class="link"><code>SFTP_OK</code></a>.
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_get_next_files"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_get_next_files</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Used by the SFTP server code to retreive a cached directory 
+  listing.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_set_files"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_set_files</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>files</span>)</span>
+  </h3>
+  Used by the SFTP server code to cache a directory listing. (In the 
+  SFTP protocol, listing a directory is a multi-stage process requiring a 
+  temporary handle.)
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:04 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<html>
+<body>
+<p>
+Template-toolkit cile test #1
+[%PERL%]
+use LWP::UserAgent;
+
+sub foo {
+    my ($a, $b) = @_;
+    my $c = LWP::UserAgent->new;
+    $d = $c->request('GET', $a, $b);
+    return $d->content;
+}
+
+my $d1 = foo('yob', 'bow');
+[% END %]
+and more continues...

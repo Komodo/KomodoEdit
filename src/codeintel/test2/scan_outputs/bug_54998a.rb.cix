@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/bug_54998a.rb">
+    <scope ilk="blob" lang="Ruby" name="bug_54998a">
+      <scope classrefs="Object" ilk="class" line="1" lineend="6" name="C">
+        <scope attributes="__classmethod__" ilk="function" line="2" name="cls_met" signature="C.cls_met" />
+        <scope attributes="__ctor__" ilk="function" line="3" lineend="4" name="initialize" signature="initialize">
+          <variable attributes="__local__" citdl="C" line="3" name="self" />
+        </scope>
+        <scope ilk="function" line="5" name="inst_met" signature="inst_met">
+          <variable attributes="__local__" citdl="C" line="5" name="self" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

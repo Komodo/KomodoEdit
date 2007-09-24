@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+
+<window id="prefProjectsWindow"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&folderPropertiesAndSettings.title;"
+        windowtype="komodo_projectprefs"
+        orient="vertical"
+        class="dialog"
+        style="width: 56em; height: 54em; min-width: 52em;"
+        persist="screenX screenY width height"
+        onload="Onload();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/baseTreeView.js"   type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/browse.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://global/content/nsWidgetStateManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefWindow.js"/>
+
+    <script><![CDATA[
+    var hPrefWindow = null;
+    var prefPanelTree = null;
+    var part = null;
+    var view = null;
+    var isfolder = false;
+    var changedFields = {};
+    var file = null;
+
+    function removeTreeNodes(nodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            var el = document.getElementById(nodes[i]);
+            if (el)
+                el.parentNode.removeChild(el);
+        }
+    }
+    
+    function Onload()
+    {
+    try {
+        // get the project prefs passed in via the window arguments, otherwise
+        // get the current project preferences
+        var prefset = null;
+        if (window.arguments && window.arguments[0] != null) {
+            part = window.arguments[0].part;
+            view = window.arguments[0].view;
+            document.title = window.arguments[0].title;
+            isfolder = window.arguments[0].folder;
+            if (part) {
+                file = part.getFile();
+            } else {
+                file = view.document.file;
+            }
+        } else {
+            // XXX TODO get the main komodo window instead
+            part = opener.ko.projects.manager.getCurrentProject();
+            file = part.getFile();
+            isfolder = true;
+        }
+        
+        // figure out what nodes we want to remove based on what kind of
+        // item we're view prefs for
+        var isProject = part && part.type == "project";
+        var nodes = [];
+        if (!view) {
+            // XXX until prefs are more worked out, don't do editor prefs
+            // on project parts
+            nodes = nodes.concat(["editorProperties",
+                                  "previewProperties"]);
+        }
+        if (!isfolder) {
+            // stuff that should only show up on folders
+            nodes = nodes.concat(["folderImport"]);
+        }
+        if (!isProject) {
+            // stuff that should ONLY show up on project prefs
+            nodes = nodes.concat(["mappedURIsItem", "newFilesItem",
+                                  "environItem", "languagesItem",
+                                  "debugProperties"]);
+            if (isfolder) {
+                // stuff that should NOT show up on non-project folders
+                nodes = nodes.concat(["fileProperties",
+                                      "sccProperties",
+                                      "editorProperties"]);
+            }        
+        }
+        removeTreeNodes(nodes);
+        
+        //dump("part "+part+" name "+part.name+"\n");
+        //part.prefset.dump(0);
+        if (view) {
+            prefset = view.prefs;
+        } else {
+            prefset = part.prefset;
+        }
+        hPrefWindow = new koPrefWindow('panelFrame', prefset);
+        prefPanelTree = document.getElementById( "prefsTree" );
+
+        if (!hPrefWindow) {
+            throw "failed to create prefwindow";
+        }
+
+        var selectedItem;
+        var firstChild = document.getElementById( "panelChildren" ).firstChild;
+        selectedItem = firstChild.getAttribute('id');
+        switchToPanel(selectedItem);
+    }catch(e) { dump(e+"\n");}
+    }
+
+    function setField(name, value)
+    {
+        changedFields[name] = value;
+    }
+
+    function switchToPanel(selectedItem) {
+        hPrefWindow.helper.selectRowById(selectedItem);
+        prefPanelTree.focus();
+    }
+
+    function doOk() {
+        if (!hPrefWindow.onOK())
+            return false;
+        if (window.arguments && window.arguments[0] != null) {
+            window.arguments[0].res = "ok";
+        }
+        return true;
+    }
+
+    function doCancel() {
+        if (!hPrefWindow.onCancel())
+            return false;
+        return true;
+    }
+
+    function getHelpTag() {
+        var selectedRow = hPrefWindow.helper.getSelectedRow();
+        return selectedRow.firstChild.getAttribute("helptag");
+    }
+    
+    function canHelp() {
+        // enable or disable the help button based on whether a tag exists
+        var helpTag = getHelpTag();
+        // help_tag2page located in launch.js
+        if (helpTag) {
+            document.getElementById('prefs_help_button').removeAttribute('disabled');
+        } else {
+            document.getElementById('prefs_help_button').setAttribute('disabled','true');
+        }
+    }
+    
+    function doHelp() {
+        ko.windowManager.getMainWindow().ko.help.open(getHelpTag());
+    }
+    ]]></script>
+
+    <keyset id="prefKeys">
+        <key keycode="VK_ESCAPE" modifiers="" oncommand="doCancel();"/>
+        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
+        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
+    </keyset>
+
+    <hbox flex="1" >
+        <!-- tree sidebar -->
+        <tree id="prefsTree" style="min-width: 14em;"
+              class="inset"
+              persist="width"
+              hidecolumnpicker="true" seltype="single"
+              onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
+
+            <treecols>
+                <treecol id="category" primary="true"
+                         class="treecell-header outset" url="__header"
+                         label="&category.label;" flex="1"/>
+            </treecols>
+
+            <treechildren id="panelChildren" flex="1">
+                <treeitem container="false" id="fileProperties">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/file-properties.xul"
+                                  label="&properties.label;"/>
+                    </treerow>
+                </treeitem>
+
+                <treeitem container="false" id="folderImport">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-folderImport.xul"
+                                  label="&directoryImport.label;"
+                                  helptag="directory_import"/>
+                    </treerow>
+                </treeitem>
+
+                <treeitem container="true" id="editorProperties">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/editing-properties.xul"
+                                  label="&editor.label;"
+                                  helptag="editor"/>
+                    </treerow>
+                    <treechildren id="editingChildren">
+                        <treeitem container="false" id="indentationProperties">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/indent-properties.xul"
+                                          label="&indentation.label;"
+                                          helptag="indentation"/>
+                            </treerow>
+                        </treeitem>
+                    </treechildren>
+                </treeitem>
+<!--
+                <treeitem container="false" id="environItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-environ.xul"
+                                  label="Environment"/>
+                    </treerow>
+                </treeitem>
+-->
+                <treeitem container="false" id="previewProperties">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/preview-properties.xul"
+                                  label="&browserPreview.label;"/>
+                    </treerow>
+                </treeitem>
+
+                <treeitem container="true" id="languagesItem" persist="open">
+                    <treerow>
+                        <treecell class="treecell-indent" label="&languages.label;"
+                                  url="chrome://komodo/content/pref/pref-languages.xul"
+                                  helptag="language_configuration_preferences"/>
+                    </treerow>
+                    <treechildren id="languagesChildren">
+                        <treeitem container="false" id="javascriptItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-project-javascript.xul"
+                                          label="&javaScript.label;"
+                                          helptag="javascript_configuration"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="perlItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-project-perl.xul"
+                                          label="&perl.label;"
+                                          helptag="perl_configuration"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="phpItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-project-php.xul"
+                                          label="&PHP.label;"
+                                          helptag="php_configuration"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="pythonItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-project-python.xul"
+                                          label="&python.label;"
+                                          helptag="python_configuration"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="rubyItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-project-ruby.xul"
+                                          label="&ruby.label;"
+                                          helptag="ruby_configuration"/>
+                            </treerow>
+                        </treeitem>
+                      </treechildren>
+                </treeitem>
+
+                <treeitem container="false" id="mappedURIsItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-mappeduri.xul"
+                                  label="&mappedURIs.label;"
+                                  helptag="mapped_uris"/>
+                    </treerow>
+                </treeitem>
+<!--
+                <treeitem container="false" id="newFilesItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-newfiles.xul"
+                                  label="New Files"/>
+                    </treerow>
+                </treeitem>
+-->
+            </treechildren>
+        </tree>
+        <splitter orient="horizontal"
+                  style="margin: 0px; padding: 0px; border: none;"/>
+        <!-- Main prefs panel -->
+        <vbox flex="1" style="min-width: 30em;">
+            <deck id="panelFrame" name="panelFrame" style="width:0px"
+                    flex="1"/>
+            <separator/>
+
+            <hbox>
+                <separator flex="1"/>
+                <button label="&OK.label;" default="true" oncommand="doOk();"/>
+                <button label="&cancel.label;" oncommand="doCancel();"/>
+                <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
+            </hbox>
+        </vbox>
+    </hbox>
+
+</window>

@@ -1,0 +1,43 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// npscimoz.rc
+// Scintilla plugin for Mozilla
+// Implemented by Neil Hodgson
+
+/////////////////////////////////////////////////////////////////////////////
+// Version stamp for this .dll
+
+#include "winver.h"
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION       0,9,1,0 // major, minor, release (alpha), build #
+  PRODUCTVERSION 0,9,1,0
+  FILEFLAGSMASK     VS_FFI_FILEFLAGSMASK
+  FILEFLAGS         (VS_FF_PRERELEASE | VS_FF_DEBUG)
+  FILEOS            VOS_DOS_WINDOWS32
+  FILETYPE          VFT_DLL
+  FILESUBTYPE       VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4" // Lang=US English, CharSet=Windows Multilingual
+        BEGIN
+            VALUE "CompanyName", "ActiveState\0"
+            VALUE "FileDescription", "Scintilla Mozilla plugin\0"
+            VALUE "FileExtents", "cpp\0"
+            VALUE "FileOpenName", "SciMoz Plugin\0"
+            VALUE "FileVersion", "0, 9, 1, 0\0"
+            VALUE "InternalName", "npscimoz\0"
+            VALUE "LegalCopyright", "Copyright © 2000-2006 ActiveState Software Inc\0"
+            VALUE "MIMEType", "application/x-scimoz-plugin\0"
+            VALUE "OriginalFilename", "npscimoz.dll\0"
+            VALUE "ProductName", "ActiveState SciMoz\0"
+            VALUE "ProductVersion", "0, 9, 1, 0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

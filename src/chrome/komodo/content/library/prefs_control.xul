@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % libraryDTD SYSTEM "chrome://komodo/locale/library.dtd">
+  %libraryDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Komodo Prefs control panel -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<window id="komodo_prefs_control"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="Komodo:PrefsControl"
+        class="kodialog"
+        width="600"
+        height="400"
+        persist="width height screenX screenY"
+        orient="vertical"
+        onload="prefsControl_OnLoad();"
+        onunload="prefsControl_OnUnload();"
+        >
+
+<script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/prefs.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/prefs_control.js"/>
+
+    <popup id="configContext" onpopupshowing="return updateContextMenu(this);">
+      <!--<menuitem label="&copyName.label;" accesskey="&copyName.accesskey;" oncommand="copyName();"/>-->
+      <!--<menuitem label="&copyValue.label;" accesskey="&copyValue.accesskey;" oncommand="copyValue();"/>-->
+      <!--<menu label="&new.label;" accesskey="&new.accesskey;">-->
+      <!--  <menupopup>-->
+      <!--    <menuitem label="&string.label;" accesskey="&string.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_STRING);"/>-->
+      <!--    <menuitem label="&integer.label;" accesskey="&integer.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_INT);"/>-->
+      <!--    <menuitem label="&boolean.label;" accesskey="&boolean.accesskey;" oncommand="NewPref(nsIPrefBranch.PREF_BOOL);"/>-->
+      <!--  </menupopup>-->
+      <!--</menu>-->
+      <!--<menuitem label="&modify.label;" accesskey="&modify.accesskey;" oncommand="ModifySelected();"/>-->
+      <menuitem label="&deleteUnset.label;" oncommand="UnsetSelected();"/>
+    </popup>
+    <tree id="configTree" flex="1" seltype="single"
+          enableColumnDrag="true" context="configContext">
+          <!--class="plain" -->
+        <treecols>
+            <treecol id="prefName" label="&name.label;" flex="7"
+                class="treecell-header outset sortDirectionIndicator"
+                ignoreincolumnpicker="true"
+                persist="hidden width ordinal sortDirection"/>
+            <splitter class="tree-splitter" />
+            <treecol id="prefStatus" label="&status.label;" flex="1"
+                class="sortDirectionIndicator"
+                persist="hidden width ordinal sortDirection"/>
+            <splitter class="tree-splitter" />
+            <treecol id="prefType" label="&type.label;" flex="1"
+                class="sortDirectionIndicator"
+                persist="hidden width ordinal sortDirection"/>
+            <splitter class="tree-splitter" />
+            <treecol id="prefValue" label="&value.label;" flex="10"
+                class="sortDirectionIndicator"
+                persist="hidden width ordinal sortDirection"/>
+        </treecols>
+
+        <treechildren
+            container="true" id="configTreeBody"
+            ondblclick="if (event.button == 0) ModifySelected();"/>
+    </tree>
+</window>

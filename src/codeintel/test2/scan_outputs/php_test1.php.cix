@@ -1,0 +1,14 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php_test1.php">
+    <scope ilk="blob" lang="PHP" name="php_test1.php" src="scan_inputs/php_test1.php">
+      <scope ilk="class" line="2" lineend="14" name="A">
+        <scope ilk="function" line="4" lineend="13" name="foo" signature="foo()" />
+      </scope>
+      <scope ilk="class" line="16" lineend="22" name="B">
+        <scope ilk="function" line="18" lineend="21" name="bar" signature="bar()" />
+      </scope>
+      <variable citdl="A" line="24" name="a" />
+      <variable citdl="B" line="27" name="b" />
+    </scope>
+  </file>
+</codeintel>

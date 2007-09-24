@@ -1,0 +1,13 @@
+<h3><%= @reader.fullname %></h3>
+
+<%= (image_tag @reader.reader_image.as_thumb, :class => "reader_picture") if @reader.reader_image %>
+
+<p>Full name: <strong><%= @reader.fullname %></strong><br />
+
+Total recorded reads: <strong><%= @reader.books.length %></strong></p>
+
+<p class="bio">
+	<%= @reader.bio %>
+</p>
+
+<%= render :partial => 'readings/list', :locals => { :key_field =>  "Book" } %>

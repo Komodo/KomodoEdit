@@ -1,0 +1,45 @@
+family markup
+
+pattern PYHTMLDOLLARSTART = '(?:^|(?<=[^\w_\$]))\$(?=[a-zA-Z_])'
+
+state IN_M_DEFAULT:
+/<\?python\b/ : paint(include, TPL_OPERATOR), => IN_SSL_DEFAULT
+
+# Handle the unbracketed dollar part
+
+state IN_M_STAG_ATTR_DSTRING:
+'$$' : #stay here, this is an escape sequence
+'${' : paint(upto, M_STRING), paint(include, SSL_OPERATOR), \
+      spush_check(IN_M_STAG_ATTR_DSTRING) => IN_SSL_DEFAULT
+/$PYHTMLDOLLARSTART/ : paint(upto, M_STRING), \
+   paint(include, SSL_OPERATOR), spush_check(IN_M_STAG_ATTR_DSTRING), \
+	 => IN_M_PYTHON_UNBRACKETED_EXPN
+
+state IN_M_STAG_ATTR_SSTRING:
+'$$' : #stay here, this is an escape sequence
+'${' : paint(upto, M_STRING), paint(include, SSL_OPERATOR), \
+      spush_check(IN_M_STAG_ATTR_SSTRING) => IN_SSL_DEFAULT
+/$PYHTMLDOLLARSTART/ : paint(upto, M_STRING), \
+   paint(include, SSL_OPERATOR), spush_check(IN_M_STAG_ATTR_SSTRING), \
+	 => IN_M_PYTHON_UNBRACKETED_EXPN
+
+state IN_M_DEFAULT:
+'$$' : #stay here, this is an escape sequence
+'${' : paint(upto, M_DEFAULT), paint(include, SSL_OPERATOR), \
+      spush_check(IN_M_DEFAULT) => IN_SSL_DEFAULT
+/$PYHTMLDOLLARSTART/ : paint(upto, M_DEFAULT), \
+   paint(include, SSL_OPERATOR), => IN_M_PYTHON_UNBRACKETED_EXPN
+
+# Python attribute values
+state IN_M_STAG_POST_TAGNAME:
+/py:[$CS]+/ : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), \
+    => IN_M_KID_PYATTR_1
+
+state IN_M_KID_PYATTR_1:
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_M_KID_PYATTR_2
+/[$WS]/ : #stay
+/[^'"]/ : paint(upto, M_TAGSPACE), => IN_M_DEFAULT
+
+state IN_M_KID_PYATTR_2:
+/(['"])/ : paint(upto, M_TAGSPACE), paint(include, M_STRING), \
+    set_delimiter(1), => IN_SSL_DEFAULT

@@ -1,0 +1,190 @@
+# This file is intended to cover everything that is common
+# among the markup languages XML and HTML (pre-XHTML)
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+family markup
+
+pattern CS = '-\w\d._\x80-\xff'
+pattern WS = '\s\t\r\n'
+
+# \z in a pattern means end-of-buffer
+# currently patterns with '\z' may contain only \z
+
+initial IN_M_DEFAULT
+
+# Unrecognized state names (starting with "IN_") are interned as
+# small state numbers, and have nothing to do with colors.
+
+state IN_M_DEFAULT:
+'<?' : paint(upto, M_DEFAULT), => IN_M_PI_1
+'<![CDATA[' : paint(upto, M_DEFAULT), => IN_M_CDATA
+
+# Handle "downlevel" conditional comments with hidden HTML
+# Ref (as of 2007-04-11):
+# http://msdn.microsoft.com/library/default.asp?url=/workshop/author/dhtml/overview/ccomment_ovw.asp
+/<!--\[if\s[^\[\]]+\]>/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
+/<!\[endif\s*\]\s*-->/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
+
+# And regular comments go here
+'<!--' : paint(upto, M_DEFAULT), => IN_M_COMMENT
+
+# These are more complicated, because if they aren't followed
+# by a character we want to leave them as text.
+
+'</' : paint(upto, M_DEFAULT), paint(include, M_ETAGO), => IN_M_ETAG_1
+'&#' : paint(upto, M_DEFAULT), => IN_M_ENT_CREF_1
+'&' : paint(upto, M_DEFAULT), => IN_M_ENT_REF_1
+'<' : paint(upto, M_DEFAULT), => IN_M_STAG_EXP_TNAME
+
+# This state is a placeholder for transition modules,
+# like html2php, to hook on
+
+state IN_M_PI_1:
+/[$CS][:$CS]*/ : paint(include, M_PI), => IN_M_PI_2
+/./ : paint(upto, M_PI), redo, => IN_M_PI_2
+
+# Color instances of <name>=<value> as
+# SCE_UDL_M_ATTRNAME, M_OPERATOR, M_STRING
+# Color whitespace as M_TAGSPACE
+# Color the "?>" as M_PI
+# Color everything else as M_PI
+
+state IN_M_PI_2:
+'?>' : paint(include, M_PI) => IN_M_DEFAULT
+/[$WS]+/ : #stay
+/[$CS][:$CS]*/ : paint(upto, M_PI), => IN_M_PI_IN_ATTRNAME_1
+/\z/ : paint(include, M_PI) 
+
+# /[$CS][:$CS]*(?=[$WS]*=)/ : paint(upto, M_PI), paint(include, M_ATTRNAME), => IN_M_PI_POST_ATTRNAME_1
+# Watch out for names at the end of a line
+# /[$CS][:$CS]*(?=\r?$)/ : paint(upto, M_PI), paint(include, M_ATTRNAME), => IN_M_PI_IN_ATTRNAME_1
+
+# 
+state IN_M_PI_IN_ATTRNAME_1:
+/[$WS]*(?==)/ : paint(upto, M_ATTRNAME), => IN_M_PI_POST_ATTRNAME_1
+# Concession: color name at the end of a line as an attrname even if it
+# isn't eventually followed by an '='
+/\r?\n?$/ : paint(upto, M_ATTRNAME), => IN_M_PI_POST_ATTRNAME_1
+/./ : paint(upto, M_PI), redo => IN_M_PI_2
+
+# This state allows for [name]=... to span multiple lines
+state IN_M_PI_POST_ATTRNAME_1:
+/[$WS]+/ : #stay
+# Make sure the '=' is followed by something
+/=(?=[^\r\n])/ : paint(upto, M_PI), paint(include, M_OPERATOR) => IN_M_PI_POST_ATTRNAME_2
+/./ : paint(upto, M_PI), redo => IN_M_PI_2
+/\z/ : paint(include, M_PI) 
+
+state IN_M_PI_POST_ATTRNAME_2:
+'?>' : paint(include, M_PI) => IN_M_DEFAULT
+'\"' : paint(upto, M_PI), => IN_M_PI_ATTR_DSTRING
+'\'' : paint(upto, M_PI), => IN_M_PI_ATTR_SSTRING
+/[^$WS]/ : paint(upto, M_PI), => IN_M_PI_ATTR_USTRING
+
+state IN_M_PI_ATTR_DSTRING:
+'?>' : paint(upto, M_STRING), paint(include, M_PI) => IN_M_DEFAULT
+'"' : paint(include, M_STRING), => IN_M_PI_2
+/\z/ : paint(upto, M_STRING)
+
+state IN_M_PI_ATTR_SSTRING:
+'?>' : paint(upto, M_STRING), paint(include, M_PI) => IN_M_DEFAULT
+"'" : paint(include, M_STRING), => IN_M_PI_2
+/\z/ : paint(upto, M_STRING)
+
+state IN_M_PI_ATTR_USTRING:
+'?>' : paint(upto, M_STRING), paint(include, M_PI) => IN_M_DEFAULT
+/[$WS]+/ : paint(upto, M_STRING), => IN_M_PI_2
+/\z/ : paint(upto, M_STRING)
+
+state IN_M_CDATA:
+']]>' : paint(include, M_CDATA) => IN_M_DEFAULT
+
+state IN_M_COMMENT:
+'-->' : paint(include, M_COMMENT) => IN_M_DEFAULT
+
+state IN_M_STAG_EXP_TNAME:
+/[$CS]/ : paint(upto, M_STAGO), => IN_M_STAG_IN_TAGNAME_1
+/./  : paint(upto, M_DEFAULT), redo => IN_M_DEFAULT  # </ not followed by a tagname
+/\z/ : paint(upto, M_DEFAULT)
+
+state IN_M_STAG_IN_TAGNAME_1:
+':' : => IN_M_STAG_IN_TAGNAME_2
+/[^$CS]/ : paint(upto, M_TAGNAME), redo, => IN_M_STAG_POST_TAGNAME
+
+state IN_M_STAG_IN_TAGNAME_2:
+':' : => IN_M_STAG_IN_TAGNAME_2
+/[^$CS]/ : paint(upto, M_TAGNAME), redo, => IN_M_STAG_POST_TAGNAME
+
+state IN_M_STAG_POST_TAGNAME:
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_M_DEFAULT
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
+'<' : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+/[$CS]/ :    paint(upto, M_TAGSPACE) => IN_M_STAG_IN_ATTRNAME
+
+state IN_M_STAG_IN_ATTRNAME
+':' : #stay
+/[^$CS]/ :  paint(upto, M_ATTRNAME), redo, => IN_M_STAG_POST_ATTRNAME_1
+
+state IN_M_STAG_POST_ATTRNAME_1
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_M_STAG_POST_ATTRNAME_2
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo => IN_M_STAG_POST_TAGNAME
+
+#****************************************************************
+# NOTE:
+# 
+# Clients that use this file have to specify what to do in
+# IN_M_STAG_POST_ATTRNAME_2 when an unquoted attribute value
+# is detected.
+#****************************************************************
+
+state IN_M_STAG_POST_ATTRNAME_2
+'\"' : paint(upto, M_TAGSPACE), => IN_M_STAG_ATTR_DSTRING
+'\'' : paint(upto, M_TAGSPACE), => IN_M_STAG_ATTR_SSTRING
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC), => IN_M_DEFAULT
+'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC), => IN_M_DEFAULT
+
+state IN_M_STAG_ATTR_DSTRING:
+'"' : paint(include, M_STRING), => IN_M_STAG_POST_TAGNAME
+# Assume a < means we're way out of sync
+'<'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
+
+state IN_M_STAG_ATTR_SSTRING:
+'\'' : paint(include, M_STRING), => IN_M_STAG_POST_TAGNAME
+# Assume a < means we're way out of sync
+'<'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
+
+state IN_M_ETAG_1:
+':' : #stay
+/[^$CS]/ : paint(upto, M_TAGNAME), redo, => IN_M_ETAG_3
+
+state IN_M_ETAG_3:
+/[$WS]+/ : #stay
+'>' : paint(upto, M_TAGSPACE), paint(include, M_ETAGC) => IN_M_DEFAULT
+/./ : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+state IN_M_ENT_CREF_1:
+'x' : => IN_M_ENT_CREF_HEX_1
+';'  : paint(include, M_ENTITY), => IN_M_DEFAULT
+/\z/   : paint(upto, M_DEFAULT)
+/[^0-9;x]/ : paint(upto, M_ENTITY), redo, => IN_M_DEFAULT # Give up
+
+state IN_M_ENT_CREF_HEX_1:
+';'  : paint(include, M_ENTITY), => IN_M_DEFAULT
+/[^0-9a-fA-F]/ : paint(upto, M_ENTITY), redo,  => IN_M_DEFAULT
+
+state IN_M_ENT_REF_1:
+';'  : paint(include, M_ENTITY), => IN_M_DEFAULT
+/[^$CS]/ : paint(upto, M_ENTITY), redo, => IN_M_DEFAULT
+
+################ Fold info
+
+# Markup -- look at the end of the tag to determine fold levels
+
+fold ">" M_STAGC +
+fold ">" M_ETAGC -
+
+# lineup * M_TAGNAME 
+

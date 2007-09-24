@@ -1,0 +1,232 @@
+.TH PCREGREP 1
+.SH NAME
+pcregrep - a grep with Perl-compatible regular expressions.
+.SH SYNOPSIS
+.B pcregrep [options] [long options] [pattern] [file1 file2 ...]
+.
+.SH DESCRIPTION
+.rs
+.sp
+\fBpcregrep\fP searches files for character patterns, in the same way as other
+grep commands do, but it uses the PCRE regular expression library to support
+patterns that are compatible with the regular expressions of Perl 5. See
+.\" HREF
+\fBpcrepattern\fP
+.\"
+for a full description of syntax and semantics of the regular expressions that
+PCRE supports.
+.P
+A pattern must be specified on the command line unless the \fB-f\fP option is
+used (see below).
+.P
+If no files are specified, \fBpcregrep\fP reads the standard input. The
+standard input can also be referenced by a name consisting of a single hyphen.
+For example:
+.sp
+  pcregrep some-pattern /file1 - /file3
+.sp
+By default, each line that matches the pattern is copied to the standard
+output, and if there is more than one file, the file name is printed before
+each line of output. However, there are options that can change how
+\fBpcregrep\fP behaves. In particular, the \fB-M\fP option makes it possible to
+search for patterns that span line boundaries.
+.P
+Patterns are limited to 8K or BUFSIZ characters, whichever is the greater.
+BUFSIZ is defined in \fB<stdio.h>\fP.
+.
+.SH OPTIONS
+.rs
+.TP 10
+\fB--\fP
+This terminate the list of options. It is useful if the next item on the
+command line starts with a hyphen, but is not an option.
+.TP
+\fB-A\fP \fInumber\fP
+Print \fInumber\fP lines of context after each matching line. If file names
+and/or line numbers are being printed, a hyphen separator is used instead of a
+colon for the context lines. A line containing "--" is printed between each
+group of lines, unless they are in fact contiguous in the input file. The value
+of \fInumber\fP is expected to be relatively small. However, \fBpcregrep\fP
+guarantees to have up to 8K of following text available for context printing.
+.TP
+\fB-B\fP \fInumber\fP
+Print \fInumber\fP lines of context before each matching line. If file names
+and/or line numbers are being printed, a hyphen separator is used instead of a
+colon for the context lines. A line containing "--" is printed between each
+group of lines, unless they are in fact contiguous in the input file. The value
+of \fInumber\fP is expected to be relatively small. However, \fBpcregrep\fP
+guarantees to have up to 8K of preceding text available for context printing.
+.TP
+\fB-C\fP \fInumber\fP
+Print \fInumber\fP lines of context both before and after each matching line.
+This is equivalent to setting both \fB-A\fP and \fB-B\fP to the same value.
+.TP
+\fB-c\fP
+Do not print individual lines; instead just print a count of the number of
+lines that would otherwise have been printed. If several files are given, a
+count is printed for each of them.
+.TP
+\fB--exclude\fP=\fIpattern\fP
+When \fBpcregrep\fP is searching the files in a directory as a consequence of
+the \fB-r\fP (recursive search) option, any files whose names match the pattern
+are excluded. The pattern is a PCRE regular expression. If a file name matches
+both \fB--include\fP and \fB--exclude\fP, it is excluded. There is no short
+form for this option.
+.TP
+\fB-f\fP\fIfilename\fP
+Read a number of patterns from the file, one per line, and match all of them
+against each line of input. A line is output if any of the patterns match it.
+When \fB-f\fP is used, no pattern is taken from the command line; all arguments
+are treated as file names. There is a maximum of 100 patterns. Trailing white
+space is removed, and blank lines are ignored. An empty file contains no
+patterns and therefore matches nothing.
+.TP
+\fB-h\fP
+Suppress printing of filenames when searching multiple files.
+.TP
+\fB-i\fP
+Ignore upper/lower case distinctions during comparisons.
+.TP
+\fB--include\fP=\fIpattern\fP
+When \fBpcregrep\fP is searching the files in a directory as a consequence of
+the \fB-r\fP (recursive search) option, only files whose names match the
+pattern are included. The pattern is a PCRE regular expression. If a file name
+matches both \fB--include\fP and \fB--exclude\fP, it is excluded. There is no
+short form for this option.
+.TP
+\fB-L\fP
+Instead of printing lines from the files, just print the names of the files
+that do not contain any lines that would have been printed. Each file name is
+printed once, on a separate line.
+.TP
+\fB-l\fP
+Instead of printing lines from the files, just print the names of the files
+containing lines that would have been printed. Each file name is printed
+once, on a separate line.
+.TP
+\fB--label\fP=\fIname\fP
+This option supplies a name to be used for the standard input when file names
+are being printed. If not supplied, "(standard input)" is used. There is no
+short form for this option.
+.TP
+\fB-M\fP
+Allow patterns to match more than one line. When this option is given, patterns
+may usefully contain literal newline characters and internal occurrences of ^
+and $ characters. The output for any one match may consist of more than one
+line. When this option is set, the PCRE library is called in "multiline" mode.
+There is a limit to the number of lines that can be matched, imposed by the way
+that \fBpcregrep\fP buffers the input file as it scans it. However,
+\fBpcregrep\fP ensures that at least 8K characters or the rest of the document
+(whichever is the shorter) are available for forward matching, and similarly
+the previous 8K characters (or all the previous characters, if fewer than 8K)
+are guaranteed to be available for lookbehind assertions.
+.TP
+\fB-n\fP
+Precede each line by its line number in the file.
+.TP
+\fB-q\fP
+Work quietly, that is, display nothing except error messages.
+The exit status indicates whether or not any matches were found.
+.TP
+\fB-r\fP
+If any given path is a directory, recursively scan the files it contains,
+taking note of any \fB--include\fP and \fB--exclude\fP settings. Without
+\fB-r\fP a directory is scanned as a normal file.
+.TP
+\fB-s\fP
+Suppress error messages about non-existent or unreadable files. Such files are
+quietly skipped. However, the return code is still 2, even if matches were
+found in other files.
+.TP
+\fB-u\fP
+Operate in UTF-8 mode. This option is available only if PCRE has been compiled
+with UTF-8 support. Both the pattern and each subject line must be valid
+strings of UTF-8 characters.
+.TP
+\fB-V\fP
+Write the version numbers of \fBpcregrep\fP and the PCRE library that is being
+used to the standard error stream.
+.TP
+\fB-v\fP
+Invert the sense of the match, so that lines which do \fInot\fP match the
+pattern are the ones that are found.
+.TP
+\fB-w\fP
+Force the pattern to match only whole words. This is equivalent to having \eb
+at the start and end of the pattern.
+.TP
+\fB-x\fP
+Force the pattern to be anchored (it must start matching at the beginning of
+the line) and in addition, require it to match the entire line. This is
+equivalent to having ^ and $ characters at the start and end of each
+alternative branch in the regular expression.
+.
+.SH "LONG OPTIONS"
+.rs
+.sp
+Long forms of all the options are available, as in GNU grep. They are shown in
+the following table:
+.sp
+  -A   --after-context
+  -B   --before-context
+  -C   --context
+  -c   --count
+       --exclude (no short form)
+  -f   --file
+  -h   --no-filename
+       --help (no short form)
+  -i   --ignore-case
+       --include (no short form)
+  -L   --files-without-match
+  -l   --files-with-matches
+       --label (no short form)
+  -n   --line-number
+  -r   --recursive
+  -q   --quiet
+  -s   --no-messages
+  -u   --utf-8
+  -V   --version
+  -v   --invert-match
+  -x   --line-regex
+  -x   --line-regexp
+.
+.SH "OPTIONS WITH DATA"
+.rs
+.sp
+There are four different ways in which an option with data can be specified.
+If a short form option is used, the data may follow immediately, or in the next
+command line item. For example:
+.sp
+  -f/some/file
+  -f /some/file
+.sp
+If a long form option is used, the data may appear in the same command line
+item, separated by an = character, or it may appear in the next command line
+item. For example:
+.sp
+  --file=/some/file
+  --file /some/file
+.sp
+.
+.SH DIAGNOSTICS
+.rs
+.sp
+Exit status is 0 if any matches were found, 1 if no matches were found, and 2
+for syntax errors and non-existent or inacessible files (even if matches were
+found in other files). Using the \fB-s\fP option to suppress error messages
+about inaccessble files does not affect the return code.
+.
+.
+.SH AUTHOR
+.rs
+.sp
+Philip Hazel
+.br
+University Computing Service
+.br
+Cambridge CB2 3QG, England.
+.P
+.in 0
+Last updated: 16 May 2005
+.br
+Copyright (c) 1997-2005 University of Cambridge.

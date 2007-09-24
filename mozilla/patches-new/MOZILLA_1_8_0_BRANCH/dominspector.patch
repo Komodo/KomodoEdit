@@ -1,0 +1,22 @@
+Index: extensions/inspector/install.rdf
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/inspector/install.rdf,v
+retrieving revision 1.3
+diff -u -r1.3 install.rdf
+--- extensions/inspector/install.rdf	20 Jul 2005 19:21:43 -0000	1.3
++++ extensions/inspector/install.rdf	6 Feb 2006 19:35:26 -0000
+@@ -26,6 +26,14 @@
+       </Description>
+     </em:targetApplication>
+     
++    <em:targetApplication>
++      <!-- Komodo -->
++      <Description>
++        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
++        <em:minVersion>3.5</em:minVersion>
++        <em:maxVersion>4.11</em:maxVersion>
++      </Description>
++    </em:targetApplication>
+     <!-- EXTENSION AUTHORS!
+          DO NOT COPY THIS PROPERTY INTO YOUR INSTALL RDF FILES
+          It will cause users not to be informed of incompatibilities 

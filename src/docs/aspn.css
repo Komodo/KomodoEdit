@@ -1,0 +1,860 @@
+/* standard elements */
+body
+    {
+    background: #FFFFFF;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-size: small;
+    }
+body.toc
+   {
+   background-color: #D9D5CE;
+   background-image: url('images/watermark_AS.gif');
+   background-repeat: no-repeat;
+   color: #333333;
+   }
+td
+    {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    font-size: small;
+    }
+p
+    {
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+blockquote
+    {
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    margin-left: 15px;
+    }
+dl
+    {
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+
+dt
+    {
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    }
+
+ul
+    {
+    list-style-image: url('img/greysmallbullet.png');
+    }
+
+ol
+    {
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+
+h1
+    {
+    color: #222222;
+    font-weight: bold;
+    font-size: large;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-variant: small-caps;
+    }
+    h1 a:hover
+        {
+        color: #222222;
+        text-decoration: none;
+        }
+h2
+    {
+    color: #000000;
+    font-weight: bold;
+    font-size: 110%;
+    background-color: #EEEEEE;
+    padding: 2px;
+    }
+    h2 a:hover
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+h3
+    {
+    color: #8C8A85;
+    font-weight: bold;
+    font-size: 110%;
+    padding: 2px;
+    border-bottom: 1px solid #8C8A85;
+    }
+    h3 a:hover
+        {
+        color: #8C8A85;
+        text-decoration: none;
+        }
+h4
+    {
+    color: #222222;
+    font-weight: bold;
+    font-size: 100%;
+    padding: 2px;
+    border-bottom: 1px dashed #222222;
+/*    margin-right: 40%; */
+    }
+    h4 a:hover
+        {
+        color: #222222;
+        text-decoration: none;
+        }
+pre
+    {
+    overflow: auto;
+    }
+pre.literal-block
+    {
+    margin-left: 5em;
+    }
+pre.code {
+    font-family: Courier,monospace;
+    background-color:#F1F1F1;
+    border:1px solid #CCCCCC;
+    margin:0.5em 8em 0.5em 3em;
+    padding:0.75em;
+    color: #000000;
+    }
+span.cursor {
+    font-size: large;
+    vertical-align: baseline;
+    color: grey;
+    font-weight: bold;
+    }
+tt
+    {
+    font-size: large;
+    }
+code
+    {
+    font-size: 120%;
+    }
+kbd
+    {
+    font-size: large;
+    }
+/* custom elements */
+.tourlet
+    {
+    color: #B82619;
+    }
+.new
+    {
+    color: #B82619;
+    }
+
+li.lisearch
+  {
+  margin-left: -15%;
+  }
+td.top
+  {
+  background-color: #B82619;
+  }
+table.greyback
+  {
+  background-color: #EEEEEE;
+  }
+
+/* inline icons */
+img.icon
+  {
+  position: relative;
+  top: 5px;
+  }
+
+/* icon bullet lists */
+
+.icon-list {
+  list-style-type: none;
+  }
+.icon-list li {
+  padding-left: 25px;
+  padding-bottom: 8px;
+  list-style-image: none;
+  }
+  
+/* box for feature showcases and tutorials */
+div.right-float-box {
+  float: right;
+  width: 25%;
+  background-color: #EEEEEE;
+  border:1px solid #CCCCCC;
+  padding: 0 1em 0 1em;
+  margin: 0 1em 1em 1em;
+}
+
+/* default links */
+a:link
+	{
+	color: #0066CC;
+	text-decoration: none;
+	}
+a:visited
+	{
+	color: #0066CC;
+	text-decoration: none;
+	}
+a:hover
+	{
+	color: #0066CC;
+	text-decoration: underline;
+	}
+
+/* documentation link formatting */
+a.doc:link
+	{
+	color: #0066CC;
+	text-decoration: none;
+	}
+a.doc:visited
+	{
+	color: #0066CC;
+	text-decoration: none;
+	}
+a.doc:hover
+	{
+	color: #0066CC;
+	text-decoration: underline;
+	}
+
+a.toc:link
+   {
+   color: #000000;
+   text-decoration: none;
+   }
+a.toc:visited
+   {
+   color: #000000;
+   text-decoration: none;
+   }
+a.toc:hover
+   {
+   color: #000000;
+   text-decoration: underline;
+   }
+
+a.topText:link
+	{
+	color: #A68C53;
+	text-decoration: none;
+	font-weight: bold;
+	}
+a.topText:visited
+	{
+	color: #A68C53;
+	text-decoration: none;
+	font-weight: bold;
+	}
+a.topText:hover
+	{
+	color: #B82619;
+	text-decoration: underline;
+	font-weight: bold;
+	}
+
+/* general styles */
+.heading
+	{
+	color: #222222;
+	font-weight: bold;
+	font-size: larger;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+   font-variant: small-caps;
+	}
+.headingwhite
+	{
+	color: #FFFFFF;
+	font-weight: bold;
+	font-size: larger;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+   font-variant: small-caps;
+	}
+
+.subheading
+	{
+	color: #000000;
+	font-weight: bold;
+	font-size: large;
+   padding: 2px;
+	}
+.subheadingsmall
+	{
+	color: #222222;
+	font-weight: bold;
+	font-size: 100%;
+   padding: 2px;
+   border-bottom: 1px solid #222222;
+	}
+.subheadingblack
+	{
+	color: #000000;
+	font-weight: bold;
+	font-size: large;
+   padding: 2px;
+	}
+.subheadingwhite
+	{
+	color: #FFFFFF;
+	font-weight: bold;
+	font-size: large;
+   padding: 2px;
+	}
+
+.docsubheading
+	{
+	color: #000000;
+	font-weight: bold;
+	font-size: large;
+   background-color: #EEEEEE;
+   padding: 2px;
+	}
+.docsubheadinggrey
+	{
+	color: #8C8A85;
+	font-weight: bold;
+	font-size: large;
+   padding: 2px;
+   border-bottom: 1px solid #8C8A85;
+	}
+.doccodecomment
+	{
+	color: #b82619;
+	}
+.doccmddeprecated
+	{
+	color: #888888;
+  font-style: italic;
+	}
+.error
+    {
+    color: #B82619;
+    }
+.err
+    {
+    color: #B82619;
+    }
+
+/* deco */
+.lineColour
+    {
+    background: #999999;
+    }
+.lineColourLight
+     {
+     background-color: #BDBDBD;
+     }
+/* unordered list without bullets */
+ul.sans
+	{
+	list-style-type: none;
+	}
+        
+.version_alert {
+    font-size: small;
+    vertical-align: middle;
+    margin-left: 2em;
+    color: #777;
+}
+
+
+/* user options */
+td.userOptions
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-decoration: none;
+    }
+    td.userOptions a:link
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+    td.userOptions a:visited
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+
+/* primary navigation selected */
+td.navSel
+    {
+    background: #EAE2BB;
+    font-size: large;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    }
+    td.navSel a:link
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+    td.navSel a:hover
+        {
+        color: #B82619;
+        text-decoration: none;
+        }
+    td.navSel a:active
+        {
+        color: #B82619;
+        text-decoration: none;
+        }
+    td.navSel a:visited
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+
+/* primary navigation not selected */
+td.navunSel
+    {
+    background: #B82619;
+    font-size: large;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-decoration: none;
+    }
+    td.navunSel a:link
+        {
+        color: #FFFFFF;
+        text-decoration: none;
+        }
+    td.navunSel a:hover
+        {
+        color: #FFFFFF;
+        text-decoration: none;
+        }
+    td.navunSel a:active
+        {
+        color: #FFFFFF;
+        text-decoration: none;
+        }
+    td.navunSel a:visited
+        {
+        color: #FFFFFF;
+        text-decoration: none;
+        }
+
+/* secondary nav */
+td.navSecondary
+    {
+    background: #EAE2BB;
+    color: #000000;
+    font-size: 110%;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    }
+    td.navSecondary a:link
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+    td.navSecondary a:hover
+        {
+        color: #B82619;
+        text-decoration: none;
+        }
+    td.navSecondary a:active
+        {
+        color: #B82619;
+        text-decoration: none;
+        }
+    td.navSecondary a:visited
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+
+/* categories */
+p.cat
+    {
+    line-height : 80%;
+    }
+p.cat a:link
+        {
+        color: #B82619;
+        }
+p.cat a:hover
+        {
+        color: #000000;
+        }
+p.cat a:active
+        {
+        color: #B82619;
+        }
+p.cat a:visited
+        {
+        color: #B82619;
+        }
+
+/* not currently used
+a.cat1
+    {
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+    a.cat1:link
+        {
+        color: #B82619;
+        }
+    a.cat1:hover
+        {
+        color: #000000;
+        }
+    a.cat1:active
+        {
+        color: #B82619;
+        }
+    a.cat1:visited
+        {
+        color: #80764F;
+        }
+
+a.cat2
+    {
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    text-indent: 5px;
+    }
+    a.cat2:link
+        {
+        color: #B82619;
+        }
+    a.cat2:hover
+        {
+        color: #000000;
+        }
+    a.cat2:active
+        {
+        color: #B82619;
+        }
+    a.cat2:visited
+        {
+        color: #80764F;
+        }
+*/
+
+/*  path  */
+td.path
+    {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: small;
+    font-weight: normal;
+    color: #000000;
+    text-decoration: none;
+    }
+
+/*  footer  */
+td.footer
+	{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: #000000;
+	text-decoration: none;
+	}
+td.formRequired
+    {
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    }
+
+/* search */
+td.searchResults
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    text-decoration: none;
+    }
+td.previousNext
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+td.previousNextRef
+    {
+    background: #EEEEEE;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+td.treeRefMain
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+    td.treeRefMain a:link
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+    td.treeRefMain a:visited
+        {
+        color: #666666;
+        text-decoration: none;
+        }
+    td.treeRefMain a:hover
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+    td.treeRefMain a:active
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+td.treeRef
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+    td.treeRef a:link
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+    td.treeRef a:visited
+        {
+        color: #666666;
+        text-decoration: none;
+        }
+    td.treeRef a:hover
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+    td.treeRef a:active
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+
+td.downloads
+    {
+    background: #FFFFFF;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+    td.downloads a:link
+        {
+        color: #B82619;
+        }
+    td.downloads a:visited
+        {
+        color: #B82619;
+        }
+td.downloadsBeta
+    {
+    background: #EEEEEE;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    }
+    td.downloadsBeta a:link
+        {
+        color: #B82619;
+        }
+    td.downloadsBeta a:visited
+        {
+        color: #B82619;
+        }
+p.downloadsMain
+    {
+    background: #FFFFFF;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    }
+    p.downloadsMain a:link
+        {
+        font-weight: normal;
+        }
+    p.downloadsMain a:hover
+        {
+        font-weight: normal;
+        }
+    p.downloadsMain a:active
+        {
+        font-weight: normal;
+        }
+    p.downloadsMain a:visited
+        {
+        color: #B82619;
+        font-weight: normal;
+        }
+
+    p.downloadsMain a.downloadName:link
+        {
+        color: #000000;
+        font-weight: bold;
+        }
+    p.downloadsMain a.downloadName:hover
+        {
+        color: #000000;
+        font-weight: bold;
+        }
+    p.downloadsMain a.downloadName:active
+        {
+        color: #000000;
+        font-weight: bold;
+        }
+    p.downloadsMain a.downloadName:visited
+        {
+        color: #000000;
+        font-weight: bold;
+        }
+td.quote
+    {
+    color: #666666;
+    font-size: small;
+    }
+
+/* stuff for cookbook coloring */
+.syntaxstring { color:  #23238e; }
+.syntaxtext { color:  #000000; }
+.syntaxcomment { color:  #696969; }
+.syntaxname { color:  #000000; }
+.syntaxerror { color:  #e63c3c; }
+.syntaxkeyword { color:  #871f78; }
+.syntaxactiveblue { color: #0032FF; }
+.syntaxdarkblue { color: #00008B; }
+.syntaxdarkgreen { color: #006400; }
+.syntaxdarkcyan { color: #008B8B; }
+.syntaxfirebrick { color: #B22222; }
+.syntaxactiveorange { color: #C86400; }
+
+/* end stuff */
+
+/* shopping cart */
+td.SCheader
+{
+	background: #C2B266;
+	font-size: small;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight : bold;
+	text-align : center;
+}
+
+td.SCshade
+{
+	background: #EAE2BB;
+    font-size: small;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+/* used on popup */
+a.windowClose:link
+	{
+	font-weight: bold;
+	color: 		#FFFFFF;
+	}
+a.windowClose:visited
+	{
+	font-weight: bold;
+	color: 		#FFFFFF;
+	}
+a.windowClose:hover
+	{
+	font-weight: bold;
+	color: 		#FFFFFF;
+	}
+a.windowClose:active
+	{
+	font-weight: bold;
+	color: 		#FFFFFF;
+	}
+
+/* used by mailarchive */
+a.arc:link
+        {
+        color: #000000;
+        text-decoration: none;
+        }
+a.arc:visited
+        {
+        color: #666666;
+        text-decoration: none;
+        }
+a.arc:hover
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+a.arc:active
+        {
+        color: #B82619;
+        text-decoration: underline;
+        }
+
+/* used to highlight search terms */
+.highlight1 { background: #EAE2BB; }
+.highlight2 { background: #BBBBBB; }
+.highlight3 { background: #CFBF7F; }
+.highlight4 { background: #DDDDDD; }
+.highlight5 { background: #CCC8B8; }
+.mail_quotation { color: #80764F; }
+
+/* documentation table data */
+td.doc
+	{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 100%;
+	color: #000000;
+	}
+
+.startupBox
+	{
+   background-color: #EEEEEE;
+   border-top: 3px double #BBBBBB;
+	border-right: 3px double #BBBBBB;
+	border-bottom: 3px double #BBBBBB;
+	border-left: 3px double #BBBBBB;
+	}
+
+
+/* buttons */
+
+.buttonSyncTOC
+{
+float: right;
+width: 51px;
+height: 12px;
+background-image: url('img/button_sync_TOC.gif');
+margin: 2px;
+}
+
+.buttonShowHideTOC
+{
+float: right;
+width: 80px;
+height: 12px;
+background-image: url('img/button_showhide_TOC.gif');
+margin: 2px;
+}
+
+

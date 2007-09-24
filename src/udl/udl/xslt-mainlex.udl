@@ -1,0 +1,12 @@
+# XML UDL definition
+# 
+# Copyright (C) ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+language XSLT
+
+namespace "http://www.w3.org/1999/XSL/Transform"
+system_id "http://www.w3.org/1999/XSL/Transform"
+
+include "xml.udl"

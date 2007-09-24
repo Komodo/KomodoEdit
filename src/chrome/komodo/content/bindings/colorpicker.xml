@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings id="colorpickerBindings"
+    xmlns       = "http://www.mozilla.org/xbl"
+    xmlns:xbl   = "http://www.mozilla.org/xbl"
+    xmlns:html  = "http://www.w3.org/1999/xhtml"
+    xmlns:xul   = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="kocolorpicker-base">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/colorpicker.css"/>
+        </resources>
+    </binding>
+
+    <binding id="colorpicker-dbl-button" xbl:inherits="disabled"
+                    extends="chrome://komodo/content/bindings/colorpicker.xml#kocolorpicker-base">
+        <content>
+            <xul:stack id="ColorButtons" autostretch="never">
+                <xul:colorpicker
+                    class="back"
+                    xbl:inherits="palettename"
+                    type="button-flat" allowevents="true"
+                    onchange="this.parentNode.parentNode.pickerChange();"/>
+                <xul:colorpicker
+                    class="fore"
+                    xbl:inherits="palettename"
+                    type="button-flat" allowevents="true"
+                    onchange="this.parentNode.parentNode.pickerChange();"/>
+            </xul:stack>
+        </content>
+        <implementation>
+            <constructor>
+                <![CDATA[
+                    this.initialize();
+                ]]>
+            </constructor>
+
+            <destructor>
+                <![CDATA[
+
+                ]]>
+            </destructor>
+
+            <method name="initialize">
+                <body>
+                    <![CDATA[
+                        var change = this.getAttribute("onchange");
+                        if (change) {
+                          try {
+                            this.onchange = new Function("event", change);
+                          } catch (ex) {
+                            // watch out for syntax errors in the function code
+                          }
+                        }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="pickerChange">
+                <body>
+                    <![CDATA[
+                        if (this.onchange)
+                            this.onchange();
+                    ]]>
+                </body>
+            </method>
+
+            <property name="fore"
+                onget="return document.getAnonymousNodes(this)[0].lastChild.color;"
+                onset="document.getAnonymousNodes(this)[0].lastChild.color = val;"/>
+
+            <property name="back"
+                onget="return document.getAnonymousNodes(this)[0].firstChild.color;"
+                onset="document.getAnonymousNodes(this)[0].firstChild.color = val;"/>
+
+        </implementation>
+    </binding>
+
+</bindings>

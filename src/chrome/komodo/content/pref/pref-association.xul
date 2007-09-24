@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<window id="associationPrefWindow"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_associationPrefs"
+        orient="vertical"
+        onload="PrefAssociation_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/pref-association.js" type="application/x-javascript;version=1.7"/>
+
+    <keyset id="assKeys">
+        <key id="key_ass_delete" keycode="VK_DELETE" oncommand="onRemoveAssociation()"/>
+    </keyset>
+
+    <groupbox orient="vertical">
+        <caption label="&viewAndEditAssociations.label;" />
+
+        <description>
+            File Associations determine editor defaults, such as language
+            element colorization. Click pattern to view associated language.
+        </description>
+        <grid flex="1">
+            <columns>
+                <column flex="1"/>
+            </columns>
+            <rows>
+                <row>
+                    <listbox id="associationList" flex="1"
+                        onselect="selectAssociation(event)"
+                        style="height: 100px;"
+                        hidecolumnpicker="true" seltype="single">
+                        <listhead>
+                            <listheader label="&patterns.label;" flex="1" class="treecell-header outset"/>
+                        </listhead>
+                        <listcols>
+                            <listcol flex="1"/>
+                        </listcols>
+                    </listbox>
+                </row>
+
+                <separator />
+
+                <row>
+                    <hbox align="center">
+                        <label id="languageLabel" control="languageList"
+                               value="Language"/>
+                        <langlist id="languageList" 
+                                  style="min-height: 2.0em;"
+                                  oncommand="updateAssociation()"/>
+                    </hbox>
+                    <spacer flex="1" />
+                    <button id="removeButton" label="&remove.label;"
+                            oncommand="onRemoveAssociation();"/>
+                </row>
+            </rows>
+        </grid>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&newAssociation.label;"/>
+        <hbox align="center" flex="1">
+            <label class="label" control="addPatternTextfield" value="Pattern"/>
+            <textbox flex="1"
+                   id="addPatternTextfield"
+                   oninput="updateButtonStates()"/>
+            <label class="label" control="addLanguageList" value="Language"/>
+            <langlist id="addLanguageList"/>
+        </hbox>
+        <separator/>
+        <hbox align="right">
+            <button id="addButton" label="&add.label;"
+                    oncommand="onAddAssociation()"
+                    disabled="true"/>
+        </hbox>
+    </groupbox>
+
+    <groupbox>
+        <caption label="&useFileContentToDetermineLanguage.label;"/>
+        <checkbox id="xmlDeclDetection"
+                  label="Use XML declarations (&lt;?xml ...&gt;, &lt;!DOCTYPE ...&gt;)"
+                  pref="true" prefattribute="checked"/>
+        <checkbox id="shebangDetection"
+                  label="&useShebangLine.label;"
+                  pref="true" prefattribute="checked"/>
+        <checkbox id="emacsLocalModeVariableDetection"
+                  label="&useEmacsStyleLocalModeVariableModeLocalVariables.label;"
+                  pref="true" prefattribute="checked"/>
+   </groupbox>
+</window>
+

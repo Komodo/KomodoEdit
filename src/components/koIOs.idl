@@ -1,0 +1,119 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// some useful functions from Python's os module for use by more
+// crippled languages
+[scriptable, uuid(c29fd1e9-bc5b-49ee-a9b1-a323244e5d0a)]
+interface koIOsPath : nsISupports {
+    wstring basename(in wstring path);
+    wstring dirname(in wstring path);
+    wstring join(in wstring path1, in wstring path2);
+    wstring joinlist(in PRUint32 count,
+                     [array, size_is(count)] in wstring paths);
+    wstring getExtension(in wstring path);
+    wstring withoutExtension(in wstring path);
+    boolean exists(in wstring path);
+    boolean isfile(in wstring path);
+    boolean isdir(in wstring path);
+    boolean isabs(in wstring path);
+    wstring normpath(in wstring path);
+    wstring realpath(in wstring path);
+    wstring expanduser(in wstring path);
+    wstring abspath(in wstring path);
+
+    //---- the following methods are more than Python's standard os.path funcs.
+    wstring commonprefix(in wstring path1, in wstring path2);
+    wstring relpath(in wstring path, in wstring relativeTo);
+    // Strip 'n' dir elements from the start of the given path.
+    wstring lstrippath(in wstring path, in PRUint32 n);
+};
+
+[scriptable, uuid(5cba6779-d4a4-4b1a-86be-5bebc7163de2)]
+interface koIOs : nsISupports {
+    readonly attribute wstring sep;
+    readonly attribute wstring pathsep;
+    readonly attribute koIOsPath path;
+  
+    void chdir(in wstring directory);
+    void chmod(in wstring directory, in long mode);
+    wstring getenv(in wstring key);
+    wstring getcwd();
+    wstring readfile(in wstring path);
+    void writefile(in wstring path, in wstring data);
+  
+    // Uses the lastErrorSvc to report errors.
+    void listdir(in wstring dir,
+                 out PRUint32 count,
+                 [retval, array, size_is(count)] out wstring contents);
+    
+    PRUint32 system(in wstring command);
+    void startfile(in wstring command);
+    void mkdir(in wstring path); /* uses lastErrorSvc to report errors */
+    void rename(in wstring from, in wstring to);
+  
+    // Stat the given file. (Uses koILastErrorService to report errors.)
+    void stat(in wstring filename,
+              out PRUint32 st_mode,
+              out PRUint32 st_ino,
+              out PRUint32 st_dev,
+              out PRUint32 st_nlink,
+              out PRUint32 st_uid,
+              out PRUint32 st_gid,
+              out PRUint32 st_size,
+              out PRUint32 st_atime,
+              out PRUint32 st_mtime,
+              out PRUint32 st_ctime);
+
+    boolean access(in wstring path, in long mode);
+    const long F_OK = 0;
+    const long X_OK = 1;
+    const long W_OK = 2;
+    const long R_OK = 4;  
+
+    // Open the given file path with the given flags and return
+    // a file descriptor for the opened file.
+    //
+    //  "flags" is generally constructed from the O_* flags defined below.
+    //
+    // If this fails a ServerException is raised and the error message
+    // and errno is set on koILastErrorService.
+    //
+    // Notes:
+    // - This is a low-level open() method that is generally not preferred
+    //   for file I/O. It is included here because it is useful as a good
+    //   test for whether the current user has write access with:
+    //      open(path, O_WRONLY)
+    // - I haven't bothered including Python's optional 'mode' argument
+    //   to os.open() here because it is not currently necessary.
+    long open(in wstring path, in long flags);
+    readonly attribute long O_RDONLY;
+    readonly attribute long O_WRONLY;
+    readonly attribute long O_RDWR;
+    readonly attribute long O_APPEND;
+    readonly attribute long O_CREAT;
+    readonly attribute long O_EXCL;
+    readonly attribute long O_TRUNC;
+  
+    // The following are from the stat module and used to interpret the 
+    // result of the stat call above.
+    const long S_IREAD = 256;
+    const long S_IWRITE = 128;
+    const long S_IEXEC = 64;
+    
+    long getmod(in wstring path); // return the chmod-relevant part of the mode
+    
+    // access on windows returns the same data that can be obtained by mode, even though
+    // in 99% of cases the user _can_ change the mode.  So this function returns true on windows,
+    // and os.access on non-Windows
+    boolean saneAccess(in wstring path, in long mode);
+    
+    // as above, but finds the first existing parent and returns
+    // the access for that.  This is usefull if we'll later make
+    // all the directories in the path we're considering
+    boolean saneAccessParent(in wstring path, in long mode);
+    
+    // Raises an exception and sets error on koILastErrorService on failure.
+    void setWriteability(in wstring path, in boolean writeable);
+};

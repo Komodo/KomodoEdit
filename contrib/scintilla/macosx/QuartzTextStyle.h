@@ -1,0 +1,105 @@
+/*
+ *  QuartzTextStyle.h
+ *  wtf
+ *
+ *  Created by Evan Jones on Wed Oct 02 2002.
+ *  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+ *
+ */
+
+#include <Carbon/Carbon.h>
+
+#ifndef _QUARTZ_TEXT_STYLE_H
+#define _QUARTZ_TEXT_STYLE_H
+
+#include "QuartzTextStyleAttribute.h"
+
+class QuartzTextStyle
+{
+public:
+    QuartzTextStyle()
+    {
+        OSStatus err;
+        err = ATSUCreateStyle( &style );
+        assert( err == noErr );
+    }
+
+    ~QuartzTextStyle()
+    {
+        assert( style != NULL );
+        ATSUDisposeStyle( style );
+        style = NULL;
+    }
+
+    void setAttribute( ATSUAttributeTag tag, ByteCount size, ATSUAttributeValuePtr value )
+    {
+        OSStatus err;
+        err = ATSUSetAttributes( style, 1, &tag, &size, &value );
+        assert( err == noErr );
+    }
+
+    void setAttribute( QuartzTextStyleAttribute& attribute )
+    {
+        setAttribute( attribute.getTag(), attribute.getSize(), attribute.getValuePtr() );
+    }
+
+    void getAttribute( ATSUAttributeTag tag, ByteCount size, ATSUAttributeValuePtr value, ByteCount* actualSize )
+    {
+        OSStatus err; err = ATSUGetAttribute( style, tag, size, value, actualSize );
+        assert( err == noErr );
+    }
+
+    template <class T>
+    T getAttribute( ATSUAttributeTag tag )
+    {
+        T value;
+        ByteCount actualSize;
+        OSStatus err;
+        err = ATSUGetAttribute( style, tag, sizeof( T ), &value, &actualSize );
+        assert( (err == noErr || err == kATSUNotSetErr) && actualSize == sizeof( T ) );
+        return value;
+    }
+
+    // TODO: Is calling this actually faster than calling setAttribute multiple times?
+    void setAttributes( QuartzTextStyleAttribute* attributes[], int number )
+    {
+        // Create the parallel arrays and initialize them properly
+        ATSUAttributeTag* tags = new ATSUAttributeTag[ number ];
+        ByteCount* sizes = new ByteCount[ number ];
+        ATSUAttributeValuePtr* values = new ATSUAttributeValuePtr[ number ];
+
+        for ( int i = 0; i < number; ++ i )
+        {
+            tags[i] = attributes[i]->getTag();
+            sizes[i] = attributes[i]->getSize();
+            values[i] = attributes[i]->getValuePtr();
+        }
+        
+        OSStatus err;
+        err = ATSUSetAttributes( style, number, tags, sizes, values );
+        //assert( err == noErr );
+
+        // Free the arrays that were allocated
+        delete[] tags;
+        delete[] sizes;
+        delete[] values;
+    }
+
+    void setFontFeature( ATSUFontFeatureType featureType, ATSUFontFeatureSelector selector )
+    {
+        OSStatus err;
+        err = ATSUSetFontFeatures( style, 1, &featureType, &selector );
+        assert( err == noErr );
+    }
+
+    const ATSUStyle& getATSUStyle() const
+    {
+        return style;
+    }
+
+private:
+    ATSUStyle style;
+};
+
+#endif
+

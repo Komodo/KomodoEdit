@@ -1,0 +1,63 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+// ISciMozEvents.idl
+// Event interface from the Scintilla Mozilla plugin.
+// Author: Neil Hodgson
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(1b7577c0-ba94-42b6-879d-c4783b9e3c78)]
+interface ISciMozEvents : nsISupports {
+    // XXX several events are commented out because we don't
+    // actually use them in komodo.  If we end up needing to
+    // use them, we will need to split into two or more
+    // ISci*Events interfaces.  Note that usage of these items
+    // is also commented out in nsSciMoz.cxx
+    
+    // const long SME_STYLENEEDED      = 0x0001;
+    const long SME_CHARADDED        = 0x0002;
+    const long SME_SAVEPOINTREACHED = 0x0004;
+    const long SME_SAVEPOINTLEFT    = 0x0008;
+    // const long SME_MODIFYATTEMPTRO  = 0x0010;
+    // const long SME_KEY              = 0x0020;
+    const long SME_DWELLSTART       = 0x0010;
+    const long SME_DWELLEND         = 0x0020;
+    const long SME_DOUBLECLICK      = 0x0040;
+    const long SME_UPDATEUI         = 0x0080;
+    const long SME_MODIFIED         = 0x0100;
+    // const long SME_MACRORECORD      = 0x0200;
+    const long SME_MARGINCLICK      = 0x0400;
+    // const long SME_NEEDSHOWN        = 0x0800;
+    const long SME_POSCHANGED       = 0x1000;
+    // const long SME_PAINTED          = 0x2000;
+    const long SME_ZOOM             = 0x4000;
+    const long SME_HOTSPOTDOUBLECLICK     = 0x8000;
+
+    const long SME_ALL              = 0xFFFF;
+
+    // void onStyleNeeded(in long position);
+    void onCharAdded(in long ch);
+    void onSavePointReached();
+    void onSavePointLeft();
+    // void onModifyAttemptRO();
+    // onKey is specific to the GTK+ version
+    // void onKey(in long ch, in long modifiers);
+    void onDoubleClick();
+    void onUpdateUI();
+    //XXX Would like the 'text' argument to be wstring, but we cannot.
+    //    See comment at nsSciMoz.cxx:418 for details.
+    void onModified(in long position, in long modificationType,
+                    [size_is(length)] in string text, in PRUint32 length,
+                    in long linesAdded, in long line,
+                    in long foldLevelNow, in long foldLevelPrev);
+    // void onMacroRecord(in long message, in long wParam, in long lParam);
+    void onMarginClick(in long modifiers, in long position, in long margin);
+    // void onNeedShown(in long position, in long length);
+    void onPosChanged(in long position);
+    void onZoom();
+    void onHotSpotDoubleClick(in long position, in long modifiers);
+    // void onPainted();
+    void onDwellStart(in long position, in long x, in long y);
+    void onDwellEnd(in long position, in long x, in long y);
+};

@@ -1,0 +1,56 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+// Remote file information/stats
+[scriptable, uuid(BFC74D98-589A-4AAC-963A-44371976D65E)]
+interface koIRemoteFileInfo : nsISupports {
+
+    // Note: Changed the size, uid and gid to be strings
+    // Why:  This is so we can support sizes > 4GB (bigger than a C long int)
+    // Reasoning:
+    // - paramiko/openSSH returns error code of -1 for uid/gid for cygwin SSH server
+    // - mixed usage of signed/unsigned int for data results in MAX_INT values
+    // - potential limitation with (Py)XPCOM dealing with an unsigned long
+    // - decided to use strings because resolving these issues would only fix
+    //   the problem for gid/uid, not for size
+    void initFromStats(in wstring dirname, in wstring filename, in wstring size,
+                       in wstring uid, in wstring gid, in long mode, in long mtime);
+    // returns false if initialization fails
+    boolean initFromDirectoryListing(in wstring dirname, in wstring line);
+
+    // checker methods
+    boolean isFile();
+    boolean isDirectory();
+    boolean isSymlink();
+    boolean isReadable();
+    boolean isWriteable();
+    boolean isExecutable();
+    boolean isHidden();
+    boolean needsDirectoryListing();
+
+    // getter methods
+    wstring getFilepath();
+    wstring getEncoding();
+    wstring getFilename();
+    wstring getDirname();
+    wstring getLinkTarget();
+    wstring getFileSize();
+    long getModifiedTime();
+    long getTimeRefreshed();
+    void getChildren(out unsigned long count, [array, size_is(count), retval] out koIRemoteFileInfo children);
+
+    // setter methods
+    void setLinkTarget(in wstring link_target);
+    void setChildren(in unsigned long count, [array, size_is(count)] in koIRemoteFileInfo children);
+    void setMode(in long mode);
+
+    // readonly attributes
+    readonly attribute wstring size;
+    readonly attribute long mode;
+    readonly attribute wstring uid;
+    readonly attribute wstring gid;
+    readonly attribute long mtime;
+    attribute wstring encoding;
+};

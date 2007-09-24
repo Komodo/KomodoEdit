@@ -1,0 +1,437 @@
+Patch is used to enable building on Fedora Core 4, 5 machines, where mozilla sets
+the default visibility of symbols to be hidden. This patch exposes the needed
+plugin symbols by explicitly setting the visibility to default (visible).
+Index: modules/plugin/base/public/npupp.h
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/base/public/npupp.h,v
+retrieving revision 3.20
+diff -d -u -r3.20 npupp.h
+--- modules/plugin/base/public/npupp.h	18 Jun 2005 06:06:45 -0000	3.20
++++ modules/plugin/base/public/npupp.h	2 May 2006 20:11:21 -0000
+@@ -57,6 +57,8 @@
+ #include "npapi.h"
+ #endif
+ 
++#include "nscore.h"
++
+ #include "npruntime.h"
+ 
+ #include "jri.h"
+@@ -1849,13 +1851,15 @@
+ 
+ #endif
+ 
+-NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs);
++/* These plugin symbols need to be defined NS_VISIBILITY_DEFAULT, as    */
++/* mozilla will use a default visibility of hidden with some compilers. */
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs);
+ 
+-NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs);
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs);
+ 
+-NPError OSCALL NP_Shutdown();
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Shutdown();
+ 
+-char*	NP_GetMIMEDescription();
++NS_VISIBILITY_DEFAULT char*	NP_GetMIMEDescription();
+ 
+ #ifdef __cplusplus
+ }
+@@ -1875,10 +1879,12 @@
+ 
+ /* plugin meta member functions */
+ 
+-char*	NP_GetMIMEDescription(void);
+-NPError	NP_Initialize(NPNetscapeFuncs*, NPPluginFuncs*);
+-NPError	NP_Shutdown(void);
+-NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue);
++/* These plugin symbols need to be defined NS_VISIBILITY_DEFAULT, as    */
++/* mozilla will use a default visibility of hidden with some compilers. */
++NS_VISIBILITY_DEFAULT char*	NP_GetMIMEDescription(void);
++NS_VISIBILITY_DEFAULT NPError	NP_Initialize(NPNetscapeFuncs*, NPPluginFuncs*);
++NS_VISIBILITY_DEFAULT NPError	NP_Shutdown(void);
++NS_VISIBILITY_DEFAULT NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue);
+ 
+ #ifdef __cplusplus
+ }
+Index: modules/plugin/samples/4x-scriptable/np_entry.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/4x-scriptable/np_entry.cpp,v
+retrieving revision 1.6
+diff -d -u -r1.6 np_entry.cpp
+--- modules/plugin/samples/4x-scriptable/np_entry.cpp	18 Apr 2004 22:01:01 -0000	1.6
++++ modules/plugin/samples/4x-scriptable/np_entry.cpp	2 May 2006 20:11:24 -0000
+@@ -46,7 +46,7 @@
+ 
+ #ifdef XP_WIN
+ 
+-NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+ {
+   if(pFuncs == NULL)
+     return NPERR_INVALID_FUNCTABLE_ERROR;
+@@ -75,7 +75,7 @@
+ 
+ #endif /* XP_WIN */
+ 
+-NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs)
+ {
+   if(pFuncs == NULL)
+     return NPERR_INVALID_FUNCTABLE_ERROR;
+@@ -113,7 +113,7 @@
+   return NPERR_NO_ERROR;
+ }
+ 
+-NPError OSCALL NP_Shutdown()
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Shutdown()
+ {
+   return NPERR_NO_ERROR;
+ }
+Index: modules/plugin/samples/default/os2/npos2.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/default/os2/npos2.cpp,v
+retrieving revision 1.6
+diff -d -u -r1.6 npos2.cpp
+--- modules/plugin/samples/default/os2/npos2.cpp	18 Apr 2004 22:01:02 -0000	1.6
++++ modules/plugin/samples/default/os2/npos2.cpp	2 May 2006 20:11:30 -0000
+@@ -91,7 +91,7 @@
+ //  plugin DLL.  Note that these entry points ensure that DS is loaded
+ //  by using the NP_LOADDS macro, when compiling for Win16
+ //
+-NPError OSCALL NP_EXPORT
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_EXPORT
+ NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+ {
+     // trap a NULL ptr 
+@@ -124,7 +124,7 @@
+ //
+ //	called immediately after the plugin DLL is loaded
+ //
+-NPError OSCALL NP_EXPORT 
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_EXPORT 
+ NP_Initialize(NPNetscapeFuncs* pFuncs)
+ {
+     // trap a NULL ptr 
+@@ -161,7 +161,7 @@
+ //	This functio shuold check for some ref count on the dll to see if it is
+ //	unloadable or it needs to stay in memory. 
+ //
+-NPError OSCALL NP_EXPORT 
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_EXPORT 
+ NP_Shutdown()
+ {
+     NPP_Shutdown();
+Index: modules/plugin/samples/default/unix/npunix.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/default/unix/npunix.c,v
+retrieving revision 1.9.44.1
+diff -d -u -r1.9.44.1 npunix.c
+--- modules/plugin/samples/default/unix/npunix.c	13 Sep 2005 13:32:33 -0000	1.9.44.1
++++ modules/plugin/samples/default/unix/npunix.c	2 May 2006 20:11:31 -0000
+@@ -379,7 +379,7 @@
+  *  - Netscape uses the return value to identify when an object instance
+  *    of this plugin should be created.
+  */
+-char *
++NS_VISIBILITY_DEFAULT char *
+ NP_GetMIMEDescription(void)
+ {
+     return NPP_GetMIMEDescription();
+@@ -391,7 +391,7 @@
+  *  - Interfaces with plugin to get values for predefined variables
+  *    that the navigator needs.
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_GetValue(void* future, NPPVariable variable, void *value)
+ {
+     return NPP_GetValue(future, variable, value);
+@@ -414,7 +414,7 @@
+  *        library will use this function table to call the plugin.
+  *
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_Initialize(NPNetscapeFuncs* nsTable, NPPluginFuncs* pluginFuncs)
+ {
+     NPError err = NPERR_NO_ERROR;
+@@ -512,7 +512,7 @@
+  *    the last object of this kind has been destroyed.
+  *
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_Shutdown(void)
+ {
+     PLUGINDEBUGSTR("NP_Shutdown");
+Index: modules/plugin/samples/default/windows/npwin.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/default/windows/npwin.cpp,v
+retrieving revision 1.7
+diff -d -u -r1.7 npwin.cpp
+--- modules/plugin/samples/default/windows/npwin.cpp	18 Apr 2004 22:01:02 -0000	1.7
++++ modules/plugin/samples/default/windows/npwin.cpp	2 May 2006 20:11:35 -0000
+@@ -91,7 +91,7 @@
+ //  plugin DLL.  Note that these entry points ensure that DS is loaded
+ //  by using the NP_LOADDS macro, when compiling for Win16
+ //
+-NPError WINAPI NP_EXPORT
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_EXPORT
+ NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+ {
+     // trap a NULL ptr 
+@@ -124,7 +124,7 @@
+ //
+ //	called immediately after the plugin DLL is loaded
+ //
+-NPError WINAPI NP_EXPORT 
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_EXPORT 
+ NP_Initialize(NPNetscapeFuncs* pFuncs)
+ {
+     // trap a NULL ptr 
+@@ -161,7 +161,7 @@
+ //	This functio shuold check for some ref count on the dll to see if it is
+ //	unloadable or it needs to stay in memory. 
+ //
+-NPError WINAPI NP_EXPORT 
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_EXPORT 
+ NP_Shutdown()
+ {
+     NPP_Shutdown();
+@@ -169,7 +169,7 @@
+     return NPERR_NO_ERROR;
+ }
+ 
+-char * NP_GetMIMEDescription()
++NS_VISIBILITY_DEFAULT char * NP_GetMIMEDescription()
+ {
+   static char mimetype[] = NS_PLUGIN_DEFAULT_MIME_DESCRIPTION;
+   return mimetype;
+Index: modules/plugin/samples/npthread/windows/np_entry.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/npthread/windows/np_entry.cpp,v
+retrieving revision 1.3
+diff -d -u -r1.3 np_entry.cpp
+--- modules/plugin/samples/npthread/windows/np_entry.cpp	18 Apr 2004 22:01:03 -0000	1.3
++++ modules/plugin/samples/npthread/windows/np_entry.cpp	2 May 2006 20:11:35 -0000
+@@ -41,7 +41,7 @@
+ 
+ NPNetscapeFuncs NPNFuncs;
+ 
+-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* aPluginFuncs)
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* aPluginFuncs)
+ {
+   dbgOut1("wrapper: NP_GetEntryPoints");
+ 
+@@ -70,7 +70,7 @@
+   return NPERR_NO_ERROR;
+ }
+ 
+-NPError WINAPI NP_Initialize(NPNetscapeFuncs* aNetscapeFuncs)
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_Initialize(NPNetscapeFuncs* aNetscapeFuncs)
+ {
+   dbgOut1("wrapper: NP_Initalize");
+ 
+@@ -110,7 +110,7 @@
+   return NPERR_NO_ERROR;
+ }
+ 
+-NPError WINAPI NP_Shutdown()
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_Shutdown()
+ {
+   dbgOut1("wrapper:NP_Shutdown");
+ 
+Index: modules/plugin/samples/unixprinting/npunix.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/samples/unixprinting/npunix.c,v
+retrieving revision 1.1.28.1
+diff -d -u -r1.1.28.1 npunix.c
+--- modules/plugin/samples/unixprinting/npunix.c	13 Sep 2005 13:32:34 -0000	1.1.28.1
++++ modules/plugin/samples/unixprinting/npunix.c	2 May 2006 20:11:39 -0000
+@@ -379,7 +379,7 @@
+  *  - Netscape uses the return value to identify when an object instance
+  *    of this plugin should be created.
+  */
+-char *
++NS_VISIBILITY_DEFAULT char *
+ NP_GetMIMEDescription(void)
+ {
+     return NPP_GetMIMEDescription();
+@@ -391,7 +391,7 @@
+  *  - Interfaces with plugin to get values for predefined variables
+  *    that the navigator needs.
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_GetValue(void* future, NPPVariable variable, void *value)
+ {
+     return NPP_GetValue(future, variable, value);
+@@ -414,7 +414,7 @@
+  *        library will use this function table to call the plugin.
+  *
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_Initialize(NPNetscapeFuncs* nsTable, NPPluginFuncs* pluginFuncs)
+ {
+     NPError err = NPERR_NO_ERROR;
+@@ -512,7 +512,7 @@
+  *    the last object of this kind has been destroyed.
+  *
+  */
+-NPError
++NS_VISIBILITY_DEFAULT NPError
+ NP_Shutdown(void)
+ {
+     PLUGINDEBUGSTR("NP_Shutdown");
+Index: modules/plugin/tools/sdk/samples/common/np_entry.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/tools/sdk/samples/common/np_entry.cpp,v
+retrieving revision 1.6
+diff -d -u -r1.6 np_entry.cpp
+--- modules/plugin/tools/sdk/samples/common/np_entry.cpp	18 Apr 2004 22:01:13 -0000	1.6
++++ modules/plugin/tools/sdk/samples/common/np_entry.cpp	2 May 2006 20:11:45 -0000
+@@ -45,7 +45,7 @@
+ 
+ NPNetscapeFuncs NPNFuncs;
+ 
+-NPError OSCALL NP_Shutdown()
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Shutdown()
+ {
+   NS_PluginShutdown();
+   return NPERR_NO_ERROR;
+@@ -148,7 +148,7 @@
+ /**************************************************/
+ #ifdef XP_WIN
+ 
+-NPError OSCALL NP_Initialize(NPNetscapeFuncs* aNPNFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Initialize(NPNetscapeFuncs* aNPNFuncs)
+ {
+   NPError rv = fillNetscapeFunctionTable(aNPNFuncs);
+   if(rv != NPERR_NO_ERROR)
+@@ -157,7 +157,7 @@
+   return NS_PluginInitialize();
+ }
+ 
+-NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* aNPPFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* aNPPFuncs)
+ {
+   return fillPluginFunctionTable(aNPPFuncs);
+ }
+@@ -171,7 +171,7 @@
+ /**************************************************/
+ #ifdef XP_UNIX
+ 
+-NPError NP_Initialize(NPNetscapeFuncs* aNPNFuncs, NPPluginFuncs* aNPPFuncs)
++NS_VISIBILITY_DEFAULT NPError NP_Initialize(NPNetscapeFuncs* aNPNFuncs, NPPluginFuncs* aNPPFuncs)
+ {
+   NPError rv = fillNetscapeFunctionTable(aNPNFuncs);
+   if(rv != NPERR_NO_ERROR)
+@@ -184,12 +184,12 @@
+   return NS_PluginInitialize();
+ }
+ 
+-char * NP_GetMIMEDescription(void)
++NS_VISIBILITY_DEFAULT char * NP_GetMIMEDescription(void)
+ {
+   return NPP_GetMIMEDescription();
+ }
+ 
+-NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue)
++NS_VISIBILITY_DEFAULT NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue)
+ {
+   return NS_PluginGetValue(aVariable, aValue);
+ }
+Index: modules/plugin/tools/spy/common/np_entry.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/tools/spy/common/np_entry.cpp,v
+retrieving revision 1.5
+diff -d -u -r1.5 np_entry.cpp
+--- modules/plugin/tools/spy/common/np_entry.cpp	18 Apr 2004 22:01:15 -0000	1.5
++++ modules/plugin/tools/spy/common/np_entry.cpp	2 May 2006 20:11:50 -0000
+@@ -51,7 +51,7 @@
+ 
+ NPNetscapeFuncs NPNFuncs;
+ 
+-NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* pFuncs)
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+ {
+   // create the logger
+   if(!logger)
+@@ -92,7 +92,7 @@
+   return NPERR_NO_ERROR;
+ }
+ 
+-NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs)
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_Initialize(NPNetscapeFuncs* pFuncs)
+ {
+   // create the logger
+   if(!logger)
+@@ -149,7 +149,7 @@
+   return NPERR_NO_ERROR;
+ }
+ 
+-NPError WINAPI NP_Shutdown()
++NS_VISIBILITY_DEFAULT NPError WINAPI NP_Shutdown()
+ {
+   // should be safe because if they've already been called shutdown procs must be NULL
+   if(epManager)
+Index: modules/plugin/tools/tester/common/np_entry.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/tools/tester/common/np_entry.cpp,v
+retrieving revision 1.5
+diff -d -u -r1.5 np_entry.cpp
+--- modules/plugin/tools/tester/common/np_entry.cpp	18 Apr 2004 22:01:15 -0000	1.5
++++ modules/plugin/tools/tester/common/np_entry.cpp	2 May 2006 20:11:52 -0000
+@@ -49,7 +49,7 @@
+ 
+ NPNetscapeFuncs NPNFuncs;
+ 
+-NPError OSCALL NP_Shutdown()
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Shutdown()
+ {
+   if (pLogger) {
+     delete pLogger;
+@@ -151,7 +151,7 @@
+ /**************************************************/
+ #if defined(XP_WIN) || defined(XP_OS2)
+ 
+-NPError OSCALL NP_Initialize(NPNetscapeFuncs* aNPNFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_Initialize(NPNetscapeFuncs* aNPNFuncs)
+ {
+   NPError rv = fillNetscapeFunctionTable(aNPNFuncs);
+ 
+@@ -165,7 +165,7 @@
+   return rv;
+ }
+ 
+-NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* aNPPFuncs)
++NS_VISIBILITY_DEFAULT NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* aNPPFuncs)
+ {
+   return fillPluginFunctionTable(aNPPFuncs);
+ }
+@@ -179,7 +179,7 @@
+ /**************************************************/
+ #ifdef XP_UNIX
+ 
+-NPError NP_Initialize(NPNetscapeFuncs* aNPNFuncs, NPPluginFuncs* aNPPFuncs)
++NS_VISIBILITY_DEFAULT NPError NP_Initialize(NPNetscapeFuncs* aNPNFuncs, NPPluginFuncs* aNPPFuncs)
+ {
+   NPError rv = fillNetscapeFunctionTable(aNPNFuncs);
+   if(rv != NPERR_NO_ERROR)
+@@ -198,12 +198,12 @@
+   }
+ }
+ 
+-char * NP_GetMIMEDescription(void)
++NS_VISIBILITY_DEFAULT char * NP_GetMIMEDescription(void)
+ {
+   return NPP_GetMIMEDescription();
+ }
+ 
+-NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue)
++NS_VISIBILITY_DEFAULT NPError NP_GetValue(void *future, NPPVariable aVariable, void *aValue)
+ {
+   return NPP_GetValue((NPP_t *)future, aVariable, aValue);
+ }

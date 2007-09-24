@@ -1,0 +1,183 @@
+#!/usr/local/bin/perl
+# Conscript for building the scintilla dll (with lexer)
+#   Neil Hodgson provides a makefile to build this so we are no going to
+#   duplicate that, however, to ensure rebuilding as necessary the
+#   Command that call the makefile should have the proper dependencies
+#   (i.e. inputs). In fact, to work with the build->src link they *must* all
+#   be listed (this is a good thing). These will have to be kept in sync.
+
+Import(
+    'cons',
+    'buildType',
+    'mozBin',
+    'unsiloedPythonExe',
+);
+
+# this is what we want from the scintilla build process
+$pluginName = '../bin/SciLexer.dll';
+
+# build scintilla
+my $makeFlags = "/DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
+if ($buildType eq 'debug') {
+    $makeFlags .= " /DDEBUG=1";
+}
+
+$cons->Command(
+    ["../include/Scintilla_gen.h","../include/SciLexer_gen.h"],
+    # files needed to do the generation
+    "../include/Face.py",
+    "../include/HFacer.py",
+    "../bin/empty.txt",   # as for scintilla dist, only there to create bin dir
+    qq(
+        $unsiloedPythonExe bin/run-in-dir.py %1:d python HFacer.py
+    )
+);
+
+$cons->Command(
+    [$pluginName],
+    "scintilla_vc6.mak",
+    "../include/Accessor.h",
+    "../include/Face.py",
+    "../include/HFacer.py",
+    "../include/KeyWords.h",
+    "../include/Platform.h",
+    "../include/PropSet.h",
+    "../include/SciLexer.h",
+    "../include/Scintilla.h",
+    "../include/Scintilla.iface",
+    "../include/ScintillaWidget.h",
+    "../include/SString.h",
+    "../include/WindowAccessor.h",
+    "../src/AutoComplete.cxx",
+    "../src/AutoComplete.h",
+    "../src/CallTip.cxx",
+    "../src/CallTip.h",
+    "../src/CellBuffer.cxx",
+    "../src/CellBuffer.h",
+    "../src/CharacterSet.h",
+    "../src/CharClassify.cxx",
+    "../src/CharClassify.h",
+    "../src/ContractionState.cxx",
+    "../src/ContractionState.h",
+    "../src/Decoration.cxx",
+    "../src/Decoration.h",
+    "../src/Document.cxx",
+    "../src/Document.h",
+    "../src/DocumentAccessor.cxx",
+    "../src/DocumentAccessor.h",
+    "../src/Editor.cxx",
+    "../src/Editor.h",
+    "../src/ExternalLexer.cxx",
+    "../src/ExternalLexer.h",
+    "../src/Indicator.cxx",
+    "../src/Indicator.h",
+    "../src/KeyMap.cxx",
+    "../src/KeyMap.h",
+    "../src/KeyWords.cxx",
+    "../src/LexADA.cxx",
+    "../src/LexAPDL.cxx",
+    "../src/LexAsm.cxx",
+    "../src/LexAsn1.cxx",
+    "../src/LexAU3.cxx",
+    "../src/LexAVE.cxx",
+    "../src/LexBaan.cxx",
+    "../src/LexBash.cxx",
+    "../src/LexBasic.cxx",
+    "../src/LexBullant.cxx",
+    "../src/LexCaml.cxx",
+    "../src/LexCLW.cxx",
+    "../src/LexCmake.cxx",
+    "../src/LexConf.cxx",
+    "../src/LexCPP.cxx",
+    "../src/LexCrontab.cxx",
+    "../src/LexCsound.cxx",
+    "../src/LexCSS.cxx",
+    "../src/LexD.cxx",
+    "../src/LexEiffel.cxx",
+    "../src/LexErlang.cxx",
+    "../src/LexEScript.cxx",
+    "../src/LexFlagship.cxx",
+    "../src/LexForth.cxx",
+    "../src/LexFortran.cxx",
+    "../src/LexGAP.cxx",
+    "../src/LexGen.py",
+    "../src/LexGui4Cli.cxx",
+    "../src/LexHaskell.cxx",
+    "../src/LexHTML.cxx",
+    "../src/LexInno.cxx",
+    "../src/LexKix.cxx",
+    "../src/LexLisp.cxx",
+    "../src/LexLout.cxx",
+    "../src/LexLua.cxx",
+    "../src/LexMatlab.cxx",
+    "../src/LexMetapost.cxx",
+    "../src/LexMMIXAL.cxx",
+    "../src/LexMPT.cxx",
+    "../src/LexMSSQL.cxx",
+    "../src/LexNsis.cxx",
+    "../src/LexOpal.cxx",
+    "../src/LexOthers.cxx",
+    "../src/LexPascal.cxx",
+    "../src/LexPB.cxx",
+    "../src/LexPerl.cxx",
+    "../src/LexPLM.cxx",
+    "../src/LexPOV.cxx",
+    "../src/LexProgress.cxx",
+    "../src/LexPS.cxx",
+    "../src/LexPython.cxx",
+    "../src/LexRebol.cxx",
+    "../src/LexRuby.cxx",
+    "../src/LexScriptol.cxx",
+    "../src/LexSmalltalk.cxx",
+    "../src/LexSpecman.cxx",
+    "../src/LexSpice.cxx",
+    "../src/LexSQL.cxx",
+    "../src/LexTADS3.cxx",
+    "../src/LexTcl.cxx",
+    "../src/LexTeX.cxx",
+    "../src/LexUDL.cxx",
+    "../src/LexVB.cxx",
+    "../src/LexVerilog.cxx",
+    "../src/LexVHDL.cxx",
+    "../src/LexXSLT.cxx",
+    "../src/LexYAML.cxx",
+    "../src/LineMarker.cxx",
+    "../src/LineMarker.h",
+    "../src/Partitioning.h",
+    "../src/PositionCache.cxx",
+    "../src/PositionCache.h",
+    "../src/PropSet.cxx",
+    "../src/RESearch.cxx",
+    "../src/RESearch.h",
+    "../src/RunStyles.cxx",
+    "../src/RunStyles.h",
+    "../src/ScintillaBase.cxx",
+    "../src/ScintillaBase.h",
+    "../src/SplitVector.h",
+    "../src/Style.cxx",
+    "../src/Style.h",
+    "../src/StyleContext.cxx",
+    "../src/StyleContext.h",
+    "../src/SVector.h",
+    "../src/UniConversion.cxx",
+    "../src/UniConversion.h",
+    "../src/ViewStyle.cxx",
+    "../src/ViewStyle.h",
+    "../src/WindowAccessor.cxx",
+    "../src/XPM.cxx",
+    "../src/XPM.h",
+    "Margin.cur",
+    "PlatformRes.h",
+    "PlatWin.cxx",
+    "Scintilla.def",
+    "ScintillaWin.cxx",
+    "ScintRes.rc",
+    "../bin/empty.txt",   # as for scintilla dist, only there to create bin dir
+
+    "libpcre.lib", # built and installed from contrib/pcre
+    "../include/pcre.h", # installed from contrib/pcre
+
+    "set FLAGS=\"$makeFlags\" && $unsiloedPythonExe bin/run-in-dir.py %1:d nmake /nologo QUIET=0 $pluginName -f %1:f");
+
+# install it
+$cons->Install($mozBin, $pluginName);

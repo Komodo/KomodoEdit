@@ -1,0 +1,9 @@
+<tr>
+    <td class="name_col">
+			<%= link_to reading.reader.fullname, reader_url(reading.reader) %>
+		</td>
+    <td>
+			<%= link_to reading.book.title, book_url(reading.book) %>
+		</td>
+    <td class="date_col"><%= reading.date_read.strftime("%d %b %Y") %></td>
+</tr>

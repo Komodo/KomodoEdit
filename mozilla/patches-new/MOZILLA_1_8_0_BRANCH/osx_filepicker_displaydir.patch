@@ -1,0 +1,24 @@
+Index: widget/src/mac/nsFilePicker.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/mac/nsFilePicker.cpp,v
+retrieving revision 1.56.38.2
+diff -u -r1.56.38.2 nsFilePicker.cpp
+--- widget/src/mac/nsFilePicker.cpp	30 Sep 2004 22:58:38 -0000	1.56.38.2
++++ widget/src/mac/nsFilePicker.cpp	20 Jul 2005 19:09:01 -0000
+@@ -244,6 +244,16 @@
+       menuItem.menuCreator = self->mSelectedType + self->mTypeOffset;
+       menuItem.menuItemName[0] = 0;
+       (void)::NavCustomControl(cbRec->context, kNavCtlSelectCustomType, &menuItem);
++      
++      if (self->mDisplayDirectory) {
++	AEDesc location;
++        FSRef fsRef;
++	nsCOMPtr<nsILocalFileMac> macLocalFile = do_QueryInterface(self->mDisplayDirectory);
++        macLocalFile->GetFSRef(&fsRef);
++        AECreateDesc(typeFSRef, &fsRef, sizeof(FSRef), &location);
++	(void)::NavCustomControl(cbRec->context, kNavCtlSetLocation, &location);
++        AEDisposeDesc(&location);
++      }
+     }
+     break;
+     

@@ -1,0 +1,399 @@
+/* Copyright (c) 2004-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+#include "nsIDOMWindowInternal.idl"
+#include "nsIDOMDocument.idl"
+
+interface ISciMoz;
+interface koIDocument;
+interface nsIDOMElement;
+interface koIShowsProgress;
+interface koIPreference;
+interface koICodeIntelBuffer;
+interface koICodeIntelService;
+
+[scriptable, uuid(8BFCA31B-3781-4F96-A7D2-60D6D6294889)]
+interface koICodeIntelCatalogsTreeView : nsITreeView {
+    void init(in koICodeIntelService ciSvc,
+              in koIPreference prefSet,
+              in wstring prefName);
+    void save();
+
+    // Note: Here "select" means the state of the "selected" column
+    // rather than a UI row selection.
+    void toggleSelection(in PRInt32 row_idx);
+
+    // Note: Here "select" means the UI-selection of rows.
+    boolean areUISelectedRowsRemovable();
+
+    koIShowsProgress addPaths(
+        in PRUint32 count,
+        [array, size_is(count)] in wstring cix_paths);
+    void post_add(
+        in PRUint32 count,
+        [array, size_is(count)] in wstring added_cix_paths);
+
+    koIShowsProgress removeUISelectedPaths();
+    void post_remove(
+        in PRUint32 count,
+        [array, size_is(count)] in wstring removed_cix_paths);
+
+    readonly attribute wstring sortColId;
+    readonly attribute wstring sortDirection;
+};
+
+
+[scriptable, uuid(C5B1B0AE-9374-488B-93E5-65A4A15322A8)]
+interface koICodeIntelDefinition: nsISupports {
+    readonly attribute wstring lang;       // e.g. "Python", "JavaScript"
+    readonly attribute wstring path;       // file it's defined in
+    readonly attribute wstring name;       // last piece of the ctdl_expr
+    readonly attribute long line;          // line number in file
+    readonly attribute wstring ilk;        // function, scope, class...
+    readonly attribute wstring citdl;      // variable type
+    readonly attribute wstring doc;        // Doc string
+    readonly attribute wstring signature;  // If it's a function
+    readonly attribute wstring attributes; // Any attributes, eg "local"
+    readonly attribute wstring returns;    // Function return type
+};
+
+// JS-implemented component to provide scintilla autocomplete/calltip UI
+// handling for a view.
+[scriptable, uuid(03B1DED3-9E65-4E7E-BC73-B21142F8DBDF)]
+interface koICodeIntelCompletionUIHandler : nsISupports {
+    // AIID: AutoComplete Image IDs
+    // Notes:
+    // - Not bothering with symbol attributes (private, protected, etc.) for
+    //   now.
+    // - Not sure if we need bother with Perl typeglobs, file handles, etc.
+    const long ACIID_CLASS = 0;
+    const long ACIID_FUNCTION = 1;
+    const long ACIID_MODULE = 2;  // David, could use cb_import.png for this. --TM
+    const long ACIID_VARIABLE = 3;           // the blue triangle
+    const long ACIID_VARIABLE_SCALAR = 4;    // ...with Perl's '$'
+    const long ACIID_VARIABLE_ARRAY = 5;     // ...with Perl's '@'
+    const long ACIID_VARIABLE_HASH = 6;      // ...with Perl's '%'
+    const long ACIID_INTERFACE = 7;
+    const long ACIID_NAMESPACE = 8;
+    const long ACIID_DIRECTORY = 9;
+    const long ACIID_XML_ELEMENT = 10;
+    const long ACIID_XML_ATTRIBUTE = 11;
+    
+    // Called by a koICodeIntelCompletionLanguageService (see
+    // src/languages/ko*Language.py) to provide data for these UIs.
+    //
+    //  "completions" is a 'completionSeparator'-separated list of
+    //      completion strings (sorted).
+    //  "calltip" is a string to display at the given trigger position.
+    //  "triggerPos" is the buffer position at which the autocomplete was
+    //      triggered.
+    //
+    void setAutoCompleteInfo(in wstring completions,
+                             in long triggerPos);
+    void setCallTipInfo(in wstring calltip,
+                        in long triggerPos,
+                        in boolean explicit);
+    void setDefinitionsInfo(in PRUint32 count,
+                            [array, size_is(count)] in koICodeIntelDefinition defns,
+                            in long triggerPos);
+    void setStatusMessage(in wstring msg, in boolean highlight);
+
+    // If there is an active calltip, then update it as necessary (i.e.,
+    // the highlighted arg may need to change, perhaps it should be
+    // canceled).
+    void updateCallTip();
+
+    // Synchronously find and trigger the preceding autocomplete or calltip
+    // trigger point. This searching should stop and the beginning of the
+    // current statement.
+    void triggerPrecedingCompletion(in wstring path);
+};
+
+// JS-implemented component to provide visual feedback on batch update
+// progress.
+[scriptable, uuid(59132D74-DB82-4B5F-96C0-BBDF44F853F8)]
+interface koICodeIntelBatchUpdateProgressUIHandler : nsISupports {
+    void setStatusMessage(in wstring message);
+    void setProgressMeterValue(in long percent);
+    // -1 indicates that the "remaining files" label should be removed
+    void setRemainingFiles(in long remaining);
+    void setETA(in wstring eta);
+    void completed();
+    void cancelled();
+    void erroredout(in wstring errstr);
+};
+
+[scriptable, uuid(21F9CD93-5132-4A9A-A35F-E58BA47D3BA7)]
+interface koICodeIntelBatchUpdater : nsISupports {
+    // Must be set on the JavaScript-side before the controller is
+    // passed to Manager.batch_update().
+    //XXX attribute koICodeIntelBatchUpdateProgressUIHandler progress_ui_handler;
+    void set_progress_ui_handler(
+            in koICodeIntelBatchUpdateProgressUIHandler progress_ui_handler);
+
+    //  "type" is one of:
+    //      language    scan a language installation
+    //      cix         import a CIX file
+    //      directory   scan a source directory
+    //      upgrade     upgrade a CIDB file to the current version
+    //  "path", depending on "type" is the full path to:
+    //      language    a language installation
+    //      cix         a CIX file
+    //      directory   a source directory
+    //      upgrade     a CIDB file
+    //  "language", depending on "type" is:
+    //      language    the language of the language installation
+    //      cix         (not relevant, should be null)
+    //      directory   the language of the source directory
+    //      upgrade     (not relevant, should be null)
+    //  "extra" is an optional (null if not used) extra value depending
+    //      on the type, path and/or language of the request that may be
+    //      request for processing it. For example, a PHP language batch
+    //      update request uses the "extra" field to specify the
+    //      "php.ini"-config-file path. The "upgrade" type uses this to
+    //      specify an error handling mode: "recover" (the default if null)
+    //      to recover the old database or "replace" to create a new empty
+    //      on failure.
+    void add_request(in string type, in wstring path,
+                     in string language, in wstring extra);
+
+    void join();
+    void abort();
+    boolean isAlive();
+    // Return a list of error logs, if any.
+    void get_error_log(
+        out PRUint32 count,
+        [retval, array, size_is(count)] out wstring errors);
+};
+
+[scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
+interface koICodeIntelTrigger: nsISupports {
+    //XXX Should add the TRG_FORM_* constants.
+
+    readonly attribute wstring lang;    // e.g. "Python", "CSS"
+    readonly attribute long form;       // TRG_FORM_CPLN or TRG_FORM_CALLTIP
+    readonly attribute wstring type;    // e.g. "object-members"
+    readonly attribute long pos;
+    readonly attribute boolean implicit;
+    readonly attribute long length;     // num chars of the trigger token
+
+    readonly attribute wstring name;
+    boolean is_same(in koICodeIntelTrigger trg);
+};
+
+[scriptable, uuid(5B6F1D4D-FB32-4462-A3A7-E6FA2B9FE128)]
+interface koICodeIntelEvalController: nsISupports {
+    void set_ui_handler(in koICodeIntelCompletionUIHandler ui_handler);
+    void start(in koICodeIntelBuffer buf,
+               in koICodeIntelTrigger trg);
+
+    boolean is_done();
+    void abort();
+
+    //XXX May need special handling for "None" timeout. Say 0?
+    void wait(in long timeout);
+};
+
+[scriptable, uuid(AA6B3D1B-BB61-4FFF-A0B0-98320C3C3EE6)]
+interface koICodeIntelBuffer: nsISupports {
+    readonly attribute wstring path;
+    readonly attribute wstring lang;
+
+    readonly attribute wstring cpln_fillup_chars;
+    readonly attribute wstring cpln_stop_chars;
+    readonly attribute wstring scintilla_cpln_sep;
+    readonly attribute long scintilla_cpln_sep_ord;
+    
+    koICodeIntelTrigger trg_from_pos(in long pos, in boolean implicit);
+    koICodeIntelTrigger preceding_trg_from_pos(in long pos, in long curr_pos);
+    void async_eval_at_trg(in koICodeIntelTrigger trg,
+                           in koICodeIntelEvalController ctlr);
+
+    koICodeIntelTrigger defn_trg_from_pos(in long trg_pos);
+
+    void curr_calltip_arg_range(in long trg_pos,
+                                in wstring calltip,
+                                in long curr_pos,
+                                out long start,
+                                out long end);
+};
+
+
+[scriptable, uuid(2FDAB19C-B243-49C8-916C-BEAD369FCF97)]
+interface koICodeIntelService: nsISupports {
+    // Handling upgrades of the CIDB.
+    // Whenever the CodeIntel system is activated these should be used to
+    // upgrade if necessary.
+    boolean needToUpgradeDB();
+    void upgradeDB();
+    void resetDB();
+
+    readonly attribute boolean isBackEndActive;
+    // An error is set on koILastErrorService if backend activation fails.
+    void activateBackEnd();
+    void deactivate();
+
+    // The manager from which we can get a DB connection. Not in the XPCOM,
+    // but used by the koICodeIntelObjectBrowserTreeView implementation.
+    //readonly attribute manager;
+
+    // Notify the Code Intel backend of an event in the IDE that it should
+    // or might want to react to.
+    //
+    //  "name" is the event name
+    //  "sdata" is event-specific string data, if any. Often this is a URL.
+    //  "odata" is event-specific XPCOM component data, if any. Often this
+    //      is a koIDocument or koIProject.
+    //
+    // The following are the supported/expected events (* means this event
+    // has not been hooked into Komodo yet):
+    //
+    //  opened_document: sent whenever a new editor view is opened.
+    //      sdata: document URL
+    //      odata: associated koIDocument instance
+    //  closing_document: sent when the last editor view on a document is
+    //      being closed
+    //      sdata: null
+    //      odata: associated koIDocument instance
+    //  opened_project: sent when a new project is opened
+    //      sdata: project URL
+    //      odata: associated koIProject instance
+    //  closing_project: sent when a project is being closed
+    //      sdata: null
+    //      odata: associated koIProject instance
+    //  added_file_to_project: sent when a file gets added to a project or
+    //      toolbox
+    //      sdata: file URL
+    //      odata: null
+    //  removed_file_from_project: sent when a file is removed from a project
+    //      or toolbox
+    //      sdata: file URL
+    //      odata: null
+    //  switched_current_document: sent whenever a new editor view in the
+    //      Editor Pane is set as the current
+    //      sdata: null
+    //      odata: associated koIDocument instance
+    //  switched_current_language: should be sent whenever the current editor
+    //      view's language is changed.
+    //      sdata: null
+    //      odata: associated koIDocument instance
+    //  changed_document: sent when a document in Komodo changes (either by
+    //      some action in Komodo or by outside of Komodo)
+    //      sdata: document URL
+    //      odata: associated koIDocument instance
+    //  opened_project: sent when a new project is opened
+    //      sdata: project URL
+    //      odata: associated koIProject instance
+    //
+    void ideEvent(in string name, in wstring sdata, in nsISupports odata);
+    // Special API for edited current document to allow for some extra
+    // data for optimization.
+    //  edited_current_document: sent when the current editor view content
+    //      should be re-scanned. (This event is a little different for the
+    //      others in that it is a _command_ instead of an _event_. This is
+    //      because preference handling is being done under the hood to
+    //      control whether re-scans are done for every edit.)
+    //      sdata: document URL
+    //      odata: associated koIDocument instance
+    void ideEvent_EditedCurrentDocument(in koIDocument document,
+                                        in ISciMoz scimoz,
+                                        in long linesAdded,
+                                        in boolean rescan);
+
+    void batch_update(in boolean join,
+                      in koICodeIntelBatchUpdater updater);
+
+    koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
+
+    boolean is_registered_lang(in wstring lang);
+    boolean is_cpln_lang(in wstring lang);
+    void get_cpln_langs(out PRUint32 count,
+                        [array, size_is(count)] out wstring langs);
+    boolean is_citadel_lang(in wstring lang);
+    void get_citadel_langs(out PRUint32 count,
+                           [array, size_is(count)] out wstring langs);
+    boolean is_xml_lang(in wstring lang);
+
+    // Return the likely scope for the current file and line number.
+    //  "path" is a full (absolute) path to the file.
+    //  "line" is a 1-based line number.
+    //
+    // The first one is a rawer interface than the latter -- which is
+    // intended for providing information for display in a UI.
+    void getScopeForFileAndLine(in wstring path, in long line,
+                                out string table, out long row);
+    void getScopeInfoForFileAndLine(in wstring path, in long line,
+                                    in string language,
+                                    out string typeName,
+                                    out wstring symbolName,
+                                    out wstring imageURL,
+                                    out wstring desc);
+
+    // Versions of the getScope* methods above that apply heuristics to
+    // try to adjust for recent edits -- where "recent" means since the last
+    // scan.
+    void getAdjustedCurrentScope(in ISciMoz scimoz,
+                                 in long position,
+                                 out long file_id,
+                                 out string table,
+                                 out long row);
+    void getAdjustedCurrentScopeInfo(in ISciMoz scimoz,
+                                     in long position,
+                                     out string typeName,
+                                     out wstring symbolName,
+                                     out wstring imageURL,
+                                     out wstring desc);
+
+    // Return a list of likely members/calltips for the given expression
+    // and scope.
+    //
+    //  "language" is a language name (e.g., "Python", "Perl") of the
+    //      working file. This can be relevant for some things, e.g.
+    //      import semantics.
+    //  "path" and "line" together indicate the scope from which to
+    //      interpret the expression. (However, see "scopeTable" and
+    //      "scopeRow" below.)
+    //  "citdl" is a CITDL expression identifying the object/symbol/type
+    //      for which to return members.
+    //  "explicit" is a boolean indicating if the user explicitly requesting
+    //      this data. This affect how errors are handled.
+    //  "scopeTable" and "scopeRow" (optional) can be passed it to express
+    //      the scope more accurately (see getAdjustedCurrentScope()). Use
+    //      NULL and 0 to mean that these are not being expressed.
+    //  "content" (optional) is the file content. This may be used, if
+    //      passed in, for fallback "dumb" completion handling.
+    //
+    void getMembers(in wstring language, in wstring path, in long line,
+                    in wstring citdl, in boolean explicit,
+                    in long scopeFileId, in string scopeTable, in long scopeRow,
+                    in wstring content,
+                    out PRUint32 count,
+                    [array, size_is(count)] out wstring types,
+                    [array, size_is(count)] out wstring members);
+    void getCallTips(in wstring language, in wstring path, in long line,
+                     in wstring citdl, in boolean explicit,
+                     in long scopeFileId, in string scopeTable, in long scopeRow,
+                     in wstring content,
+                     out PRUint32 count,
+                     [retval, array, size_is(count)] out wstring members);
+    
+    // Return a list of available modules to import under the given module
+    // prefix.
+    //
+    //  "language" is a language name (e.g., "Python", "Perl") of the
+    //      working file. This can be relevant for some things, e.g.
+    //      import semantics.
+    //  "module" is the current module prefix.
+    //  "cwd" is the current working directory. This is sometimes required
+    //      to resolve relative import paths.
+    //
+    void getSubimports(in wstring language,
+                       in wstring module_,
+                       in wstring cwd,
+                       in boolean explicit,
+                       out PRUint32 count,
+                       [retval, array, size_is(count)] out wstring subimports);
+
+};

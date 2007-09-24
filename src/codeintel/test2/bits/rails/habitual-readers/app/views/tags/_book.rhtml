@@ -1,0 +1,16 @@
+<tr>
+		<% if @show_actions %>
+			<td>
+				<%= link_to "Edit", edit_book_url(book) %>
+				<br/>
+				<%= link_to "Delete", book_url(book), :method => "delete" %>
+				<br/>
+				<%= link_to "Read", new_reading_url(book) %>
+			</td>
+		<% end %>
+		<td><%= link_to book.title, book_url(book) %></td>
+
+    <td class="num_col"><%= book.readings.count %></td>
+    <td class="name_col"><%= (link_to book.readings.last.reader.fullname, reader_url(book.readings.last.reader)) if book.readings.last %></td>
+    <td class="date_col"><%= (book.readings.last.date_read_for_display) if book.readings.last %></td>
+</tr>

@@ -1,0 +1,171 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+interface ISciMoz;
+interface koIFindSession; // forward decl.
+interface koIFindResultsTabManager; // forward decl.
+interface koIFindResultsView; // forward decl.
+
+[scriptable, uuid(94366D2F-6C10-455b-90B7-EC077161CDA2)]
+interface koIFindResult : nsISupports {
+    // The id for a searchable view.
+    //XXX Should change the name to viewId (or similar) at some point.
+    attribute wstring url;
+    // zero-based indeces into the search text demarking the find result
+    attribute PRUint32 start;
+    attribute PRUint32 end;
+    // the string found (not sure if this is really necessary, but should
+    // be useful for debugging)
+    readonly attribute wstring value;
+
+    // Some data that can be filled in lazily. This data is not guaranteed to
+    // be set.
+    attribute PRUint32 line;
+    attribute PRUint32 column;
+    attribute wstring context_;
+};
+
+
+[scriptable, uuid(2EE0CACF-D3BF-44a8-BCAC-952D6418B1C6)]
+interface koIReplaceResult : koIFindResult {
+    // the string with which to replace the value
+    readonly attribute wstring replacement;
+};
+
+
+[scriptable, uuid(BB453BC9-FCF7-4625-A3FB-590418F48BF5)]
+interface koIFindOptions: nsISupports {
+    // pattern types
+    attribute PRUint32 patternType;
+    const long FOT_SIMPLE = 0;       // search for a simple string
+    const long FOT_WILDCARD = 1;     // use shell-like filename matching of the search pattern
+    const long FOT_REGEX_PYTHON = 2; // the search pattern is a regex (Python syntax)
+
+    attribute boolean matchWord;    // whether to match whole words
+    attribute boolean searchBackward;
+
+    // case sensitivity options
+    attribute PRUint32 caseSensitivity;
+    const long FOC_INSENSITIVE = 0;  // case insensitive searching
+    const long FOC_SENSITIVE = 1;    // case sensitive
+    const long FOC_SMART = 2;        // case sensitive iff pattern includes any uppercase letters
+
+    // The name of the context type that is preferred. See the FCT_*
+    // constants in the koIFindContext interface.
+    attribute long preferredContextType; 
+
+    attribute boolean displayInFindResults2;
+
+    // Find in Files stuff:
+    // - The folders in which to search
+    //   This is a _list_ of folders but this list is often represented in
+    //   the UI as a string encoded by joining the folders with the
+    //   native path separator. E.g. on Windows: "D:\trentm;D:\tmp". It is
+    //   easier with XPCOM to just pass around the encoded string.
+    attribute wstring encodedFolders;
+    void getFolders(out PRUint32 count,
+                    [retval, array, size_is(count)] out wstring folders);
+    // - Whether to search in subfolders
+    attribute boolean searchInSubfolders;
+    // - The filetype to search (see 'encoding' note with folders)
+    attribute wstring encodedIncludeFiletypes;
+    void getIncludeFiletypes(out PRUint32 count,
+                             [retval, array, size_is(count)] out wstring filetypes);
+    attribute wstring encodedExcludeFiletypes;
+    void getExcludeFiletypes(out PRUint32 count,
+                             [retval, array, size_is(count)] out wstring filetypes);
+};
+
+
+[scriptable, uuid(19A373A9-77EC-4c96-B86F-1928018AB924)]
+interface koIFindService : nsISupports {
+    // Error notes:
+    //  If an exception is raise in any of the Find service's methods
+    //  then details of the error are set on the koILastErrorService.
+    //  Only an error *message* is set, not an error number.
+
+    // Return the result of searching for the first "pattern" in "text".
+    koIFindResult find(in wstring url,
+                       in wstring text,
+                       in wstring pattern,
+                       in long startOffset);
+
+    // Return all the results of searching for "pattern" in "text".
+    // DEPRECATED: use findallex()
+    void findall(in wstring url,
+                 in wstring text,
+                 in wstring pattern,
+                 out PRUint32 count,
+                 [retval, array, size_is(count)] out koIFindResult rv);
+
+    // Return a result indicating how to replace the first "pattern" in
+    // "text" with "replacement".
+    koIReplaceResult replace(in wstring url,
+                             in wstring text,
+                             in wstring pattern,
+                             in wstring replacement,
+                             in long startOffset);
+
+    // Return all the results indicating how to replace "pattern" in
+    // "text" with "replacement".
+    // DEPRECATED: use replaceallex()
+    void replaceall(in wstring url,
+                    in wstring text,
+                    in wstring pattern,
+                    in wstring replacement,
+                    out PRUint32 count,
+                    [retval, array, size_is(count)] out koIReplaceResult rv);
+
+    // A faster alternative to findall() specific to Komodo usage.
+    // See the implementation for more docs.
+    void findallex(in wstring url,
+                   in wstring text,
+                   in wstring pattern,
+                   in koIFindResultsView resultsView,
+                   in PRUint32 contextOffset,
+                   in ISciMoz scimoz);
+
+    // Find all lines on which the given pattern is found.
+    // Returns a list of lines (0-based).
+    void findalllines(in wstring url,
+                      in wstring text,
+                      in wstring pattern,
+                      in PRUint32 contextOffset,
+                      in ISciMoz scimoz,
+                      out PRUint32 count,
+                      [retval, array, size_is(count)] out PRUint32 lines);
+    
+    // A faster alternative to replaceall() specific to Komodo usage.
+    // See the implementation for more docs.
+    wstring replaceallex(in wstring url,
+                         in wstring text,
+                         in wstring pattern,
+                         in wstring replacement,
+                         in koIFindSession session,
+                         in koIFindResultsView resultsView,
+                         in PRUint32 contextOffset,
+                         in ISciMoz scimoz,
+                         out PRUint32 count); // number of replacements
+
+    // Asynchronously find all occurences of "pattern" and load those into
+    // the "resultsView". Note: the information on which files to search are
+    // in the "options" attribute.
+    //XXX Need to add a .finalize() to the find service to .stop() and
+    //    .join() any findallinfiles thread.
+    void findallinfiles(in long id, // session id
+                        in wstring pattern,
+                        in koIFindResultsTabManager resultsMgr,
+                        //XXX Drop this and put it in koIFindResultsTab eventually.
+                        in koIFindResultsView resultsView);
+    // Abort a running findallinfiles session.
+    void stopfindallinfiles(in long id);
+
+
+    wstring regex_escape_string(in wstring s);
+
+    // persistent find options
+    attribute koIFindOptions options;
+};
+

@@ -1,0 +1,47 @@
+# Default file types understood by "preprocess.py".
+#
+# Format is an extension of 'mime.types' file syntax.
+#   - '#' indicates a comment to the end of the line.
+#   - a line is:
+#       <filetype> [<pattern>...]
+#     where,
+#       <filetype>'s are equivalent in spirit to the names used in the Windows
+#           registry in HKCR, but some of those names suck or are inconsistent;
+#           and
+#       <pattern> is a suffix (pattern starts with a '.'), a regular expression
+#           (pattern is enclosed in '/' characters), a full filename (anything
+#           else).
+#
+# Notes on case-sensitivity:
+#
+# A suffix pattern is case-insensitive on Windows and case-sensitive
+# elsewhere.  A filename pattern is case-sensitive everywhere. A regex
+# pattern's case-sensitivity is defined by the regex. This means it is by
+# default case-sensitive, but this can be changed using Python's inline
+# regex option syntax. E.g.:
+#         Makefile            /^(?i)makefile.*$/   # case-INsensitive regex
+
+Python              .py
+Perl                .pl
+Tcl                 .tcl
+XML                 .xml
+XML                 .kpf
+XML                 .xul
+HTML                .htm
+HTML                .html
+Makefile            /^[Mm]akefile.*$/
+JavaScript          .js
+CSS                 .css
+C++                 .c       # C++ because then we can use //-style comments
+C++                 .cpp
+C++                 .cxx
+C++                 .cc
+C++                 .h
+C++                 .hpp
+C++                 .hxx
+C++                 .hh
+IDL                 .idl
+Text                .ppatch
+XML                 .plist
+Text                .txt
+Text                .in

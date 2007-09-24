@@ -1,0 +1,22 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/include01.rb">
+    <scope ilk="blob" lang="Ruby" name="include01">
+      <import line="1" module="outer" symbol="*" />
+      <import line="2" symbol="Outer" />
+      <scope ilk="namespace" line="4" lineend="16" name="M1">
+        <import line="5" module="mod1" symbol="*" />
+        <import line="6" symbol="Mod1" />
+        <scope classrefs="Object" ilk="class" line="8" lineend="15" name="C1">
+          <import line="9" module="thing/mod2" symbol="*" />
+          <import line="10" symbol="Mod2a" />
+          <scope ilk="function" line="12" lineend="14" name="foo" signature="foo(a,b)">
+            <variable ilk="argument" name="a" />
+            <variable ilk="argument" name="b" />
+            <import line="13" symbol="Mod2b" />
+            <variable attributes="__local__" citdl="C1" line="12" name="self" />
+          </scope>
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

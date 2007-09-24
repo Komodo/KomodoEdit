@@ -1,0 +1,138 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(681a24e8-7361-4e5c-a342-77806ef98d30)]
+interface ISciDoc : nsISupports {
+    readonly attribute long document;
+
+    attribute PRInt32 stylingBits;
+    attribute PRInt32 stylingBitsMask;
+
+    attribute PRInt32 eolMode;
+    /// Can also be SC_CP_UTF8 to enable UTF-8 mode
+    attribute PRInt32 dbcsCodePage;
+    attribute PRInt32 tabInChars;
+    attribute PRInt32 indentInChars;
+    attribute PRInt32 actualIndentInChars;
+    attribute boolean useTabs;
+    attribute boolean tabIndents;
+    attribute boolean backspaceUnindents;
+
+    /*
+    DecorationList decorations;
+    */
+
+    PRInt32 LineFromPosition(in PRInt32 pos);
+    PRInt32 ClampPositionIntoDocument(in PRInt32 pos);
+    boolean IsCrLf(in PRInt32 pos);
+    PRInt32 LenChar(in PRInt32 pos);
+    PRInt32 MovePositionOutsideChar(in PRInt32 pos, in PRInt32 moveDir, in boolean checkLineEnd);
+
+    // ACTIVESTATE    
+    PRInt32 GetBytePositionForCharOffset(in PRInt32 bytePos, in PRInt32 charOffset, in boolean checkLineEnd);
+
+    // Gateways to modifying document
+    void ModifiedAt(in PRInt32 pos);
+    boolean DeleteChars(in PRInt32 pos, in PRInt32 len);
+    boolean InsertString(in PRInt32 position, in wstring s);
+    PRInt32 Undo();
+    PRInt32 Redo();
+    boolean CanUndo();
+    boolean CanRedo();
+    void DeleteUndoHistory();
+    boolean SetUndoCollection(in boolean collectUndo);
+    boolean IsCollectingUndo();
+    void BeginUndoAction();
+    void EndUndoAction();
+    void SetSavePoint();
+    boolean IsSavePoint();
+
+    PRInt32 GetLineIndentation(in PRInt32 line);
+    void SetLineIndentation(in PRInt32 line, in PRInt32 indent);
+    PRInt32 GetLineIndentPosition(in PRInt32 line);
+    PRInt32 GetColumn(in PRInt32 position);
+    PRInt32 FindColumn(in PRInt32 line, in PRInt32 column);
+    void Indent(in boolean forwards, in PRInt32 lineBottom, in PRInt32 lineTop);
+    /*void Indent(in boolean forwards);*/
+    wstring TransformLineEnds(in wstring s, in PRInt32 eolMode);
+    void ConvertLineEnds(in PRInt32 eolModeSet);
+    void SetReadOnly(in boolean set);
+    boolean IsReadOnly();
+
+    boolean InsertChar(in PRInt32 pos, in wchar ch);
+    /* InsertString handles this fine:
+      boolean InsertCString(in PRInt32 position, in wstring s); */
+    void ChangeChar(in PRInt32 pos, in wchar ch);
+    void DelChar(in PRInt32 pos);
+    void DelCharBack(in PRInt32 pos);
+
+    wchar CharAt(in PRInt32 position);
+    wstring GetCharRange(in PRInt32 position, in PRInt32 lengthRetrieve);
+    wchar StyleAt(in PRInt32 position);
+    PRInt32 GetMark(in PRInt32 line);
+    PRInt32 AddMark(in PRInt32 line, in PRInt32 markerNum);
+    void AddMarkSet(in PRInt32 line, in PRInt32 valueSet);
+    void DeleteMark(in PRInt32 line, in PRInt32 markerNum);
+    void DeleteMarkFromHandle(in PRInt32 markerHandle);
+    void DeleteAllMarks(in PRInt32 markerNum);
+    PRInt32 LineFromHandle(in PRInt32 markerHandle);
+    PRInt32 LineStart(in PRInt32 line);
+    PRInt32 LineEnd(in PRInt32 line);
+    PRInt32 LineEndPosition(in PRInt32 position);
+    PRInt32 VCHomePosition(in PRInt32 position);
+
+    PRInt32 SetLevel(in PRInt32 line, in PRInt32 level);
+    PRInt32 GetLevel(in PRInt32 line);
+    void ClearLevels();
+    PRInt32 GetLastChild(in PRInt32 lineParent, in PRInt32 level);
+    PRInt32 GetFoldParent(in PRInt32 line);
+
+    PRInt32 ExtendWordSelect(in PRInt32 pos, in PRInt32 delta, in boolean onlyWordCharacters);
+    PRInt32 NextWordStart(in PRInt32 pos, in PRInt32 delta);
+    PRInt32 NextWordEnd(in PRInt32 pos, in PRInt32 delta);
+    PRInt32 Length();
+    void Allocate(in PRInt32 newSize);
+    long FindText(in PRInt32 minPos, in PRInt32 maxPos, in wstring s,
+                  in boolean caseSensitive, in boolean word, in boolean wordStart,
+                  in boolean regExp, in boolean posix);
+    wstring SubstituteByPosition(in wstring text);
+    PRInt32 LinesTotal();
+
+    void ChangeCase(in PRInt32 start, in PRInt32 end, in boolean makeUpperCase);
+
+    void SetDefaultCharClasses(in boolean includeWordClass);
+    /* void SetCharClasses(in wstring chars, CharClassify::cc newCharClass); */
+    /* void SetStylingBits(in PRInt32 bits); */
+    void StartStyling(in PRInt32 position, in wchar mask);
+    boolean SetStyleFor(in PRInt32 length, in wchar style);
+    boolean SetStyles(in PRInt32 length, in string styles);
+    PRInt32 GetEndStyled();
+    void EnsureStyledTo(in PRInt32 pos);
+    PRInt32 GetStyleClock();
+    void IncrementStyleClock();
+    void DecorationFillRange(in PRInt32 position, in PRInt32 value, in PRInt32 fillLength);
+
+    PRInt32 SetLineState(in PRInt32 line, in PRInt32 state);
+    PRInt32 GetLineState(in PRInt32 line);
+    PRInt32 GetMaxLineState();
+
+/*
+    boolean AddWatcher(DocWatcher *watcher, void *userData);
+    boolean RemoveWatcher(DocWatcher *watcher, void *userData);
+    const WatcherWithUserData *GetWatchers() const { return watchers; }
+    PRInt32 GetLenWatchers() const { return lenWatchers; }
+*/
+
+    boolean IsWordPartSeparator(in wchar ch);
+    PRInt32 WordPartLeft(in PRInt32 pos);
+    PRInt32 WordPartRight(in PRInt32 pos);
+    PRInt32 ExtendStyleRange(in PRInt32 pos, in PRInt32 delta, in boolean singleLine);
+    boolean IsWhiteLine(in PRInt32 line);
+    PRInt32 ParaUp(in PRInt32 pos);
+    PRInt32 ParaDown(in PRInt32 pos);
+    PRInt32 IndentSize();
+    PRInt32 BraceMatch(in PRInt32 position, in PRInt32 maxReStyle);
+    
+};

@@ -1,0 +1,41 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_this.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_this.js" src="scan_inputs/javascript_this.js">
+      <variable citdl="Object" line="4" lineend="4" name="ko">
+        <variable citdl="Object" line="7" lineend="16" name="o1">
+          <variable citdl="Number" line="8" name="arg1" />
+          <variable citdl="Number" line="9" name="arg2" />
+          <scope ilk="function" line="10" lineend="12" name="makeArgsEqual" signature="makeArgsEqual()">
+            <variable citdl="o1" name="this" />
+          </scope>
+          <scope ilk="function" line="13" lineend="15" name="showThis" signature="showThis()">
+            <variable citdl="o1" name="this" />
+          </scope>
+        </variable>
+        <variable citdl="Object" line="18" lineend="18" name="o2">
+          <variable citdl="Number" line="19" name="arg1" />
+          <variable citdl="Number" line="20" name="arg2" />
+          <scope ilk="function" line="21" lineend="23" name="makeArgsEqual" signature="makeArgsEqual()">
+            <variable citdl="o2" name="this" />
+          </scope>
+          <scope ilk="function" line="24" lineend="26" name="showThis" signature="showThis()">
+            <variable citdl="o2" name="this" />
+          </scope>
+        </variable>
+        <scope ilk="class" line="28" lineend="34" name="f1">
+          <scope attributes="__ctor__" ilk="function" line="28" lineend="31" name="f1" signature="f1()">
+            <variable citdl="f1" name="this" />
+          </scope>
+          <variable citdl="Number" line="29" name="arg1" />
+          <variable citdl="Number" line="30" name="arg2" />
+          <scope ilk="function" line="32" lineend="34" name="makeArgsEqual" signature="makeArgsEqual()">
+            <variable citdl="f1" name="this" />
+          </scope>
+          <scope ilk="function" line="35" lineend="37" name="showThis" signature="showThis()">
+            <variable citdl="f1" name="this" />
+          </scope>
+        </scope>
+      </variable>
+    </scope>
+  </file>
+</codeintel>

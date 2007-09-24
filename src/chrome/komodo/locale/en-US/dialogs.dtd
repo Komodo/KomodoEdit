@@ -1,0 +1,68 @@
+<!ENTITY DDirectoryPathOfFile.label "[[&#37;D]] : directory path of file">
+<!ENTITY FFilePath.label "[[&#37;F]] : file path">
+<!ENTITY LCurrentLineNumber.label "[[&#37;L]] : current line number">
+<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
+<!ENTITY SURLEscapedSelection.label "[[&#37;S]] : URL-escaped selection">
+<!ENTITY U.accesskey "U">
+<!ENTITY URIToPathMapping.title "URI to Path Mapping">
+<!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]] : URL-escaped selection or word under cursor">
+<!ENTITY addEditPathMapping.label "Add/Edit Path Mapping">
+<!ENTITY addPath.accesskey "A">
+<!ENTITY addPath.label "Add Path...">
+<!ENTITY anonymous.accesskey "A">
+<!ENTITY askAskForUserInput.label "[[&#37;ask]] : ask for user input">
+<!ENTITY askpassAskForPassword.label "[[&#37;askpass]] : ask for password">
+<!ENTITY bFileBaseNameWithoutExtension.label "[[&#37;b]]: file base name without extension">
+<!ENTITY browse.label "Browse...">
+<!ENTITY browseButton.accesskey "B">
+<!ENTITY browserConfiguredBrowser.label "[[&#37;browser]] : Configured browser">
+<!ENTITY clearAll.accesskey "l">
+<!ENTITY clearAll.label "Clear All">
+<!ENTITY configurePHP.tooltiptext "Configure PHP">
+<!ENTITY configurePerl.tooltiptext "Configure Perl">
+<!ENTITY configurePython.tooltiptext "Configure Python">
+<!ENTITY configureRuby.tooltiptext "Configure Ruby">
+<!ENTITY copy.label "Copy">
+<!ENTITY currentProjectPreferences.label "Current Project Preferences">
+<!ENTITY dDirectoryBaseNameOfFile.label "[[&#37;d]] : directory base name of file">
+<!ENTITY doNotAskCheckbox.accesskey "d">
+<!ENTITY donTAskMeAgain.label "Don't ask me again.">
+<!ENTITY donTShowMeThisAgain.label "Don't show me this again.">
+<!ENTITY escapedPercentSign.label "[[&#37;&#37;]] : escaped percent sign">
+<!ENTITY fFileBaseName.label "[[&#37;f]] : file base name">
+<!ENTITY famFamFamSilkIcons.label "FamFamFam Silk Icons">
+<!ENTITY featureControlPanel.title "Feature Control Panel">
+<!ENTITY globalPreferences.label "Global Preferences">
+<!ENTITY helpOnBackgroundSyntaxChecking.tooltiptext "Help on Background Syntax Checking">
+<!ENTITY helpOnShortcuts.label "Help on Shortcuts...">
+<!ENTITY internalKomodoError.title "Internal Komodo Error">
+<!ENTITY local.label "Local...">
+<!ENTITY loginAnonymously.label "Login Anonymously">
+<!ENTITY nextDiff.label "Next Diff">
+<!ENTITY openOfficeIcons.label "Open Office Icons">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
+<!ENTITY passwordLabel.accesskey "P">
+<!ENTITY perlConfiguredPerlInterpreter.label "[[&#37;perl]] : Configured Perl Interpreter">
+<!ENTITY phpConfiguredPHPInterpreter.label "[[&#37;php]] : Configured PHP Interpreter">
+<!ENTITY pickAnIcon.title "Pick an icon">
+<!ENTITY previewWithAnotherFileOrURL.label "Preview with another file or URL:">
+<!ENTITY previewWithThisFile.label "Preview with this file.">
+<!ENTITY previousDiff.label "Previous Diff">
+<!ENTITY pythonConfiguredPythonInterpreter.label "[[&#37;python]] : Configured Python Interpreter">
+<!ENTITY remember.accesskey "R">
+<!ENTITY rememberThisSelectionForThisFile.label "Remember this selection for this file">
+<!ENTITY remote.label "Remote...">
+<!ENTITY revealPositionInEditor.label "Reveal Position in Editor">
+<!ENTITY sSelection.label "[[&#37;s]] : selection">
+<!ENTITY saveMappingTo.label "Save mapping to:">
+<!ENTITY selectAll.accesskey "a">
+<!ENTITY selectAll.label "Select All">
+<!ENTITY shortcuts.tooltiptext "Shortcuts">
+<!ENTITY useAnotherFile.accesskey "a">
+<!ENTITY useThisFile.accesskey "t">
+<!ENTITY viewEOLMarkers.label "View EOL Markers">
+<!ENTITY viewIndentationGuides.label "View Indentation Guides">
+<!ENTITY viewLineNumbers.label "View Line Numbers">
+<!ENTITY viewWhitespace.label "View Whitespace">
+<!ENTITY wSelectionOrWordUnderCursor.label "[[&#37;w]] : selection or word under cursor">
+<!ENTITY wordWrap.label "Word Wrap">

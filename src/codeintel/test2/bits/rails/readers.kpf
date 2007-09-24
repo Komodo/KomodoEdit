@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="ed42fa3e-e88b-4e08-8932-9b807f754ee6" name="readers.kpf" kpf_version="3">
+<file url="file:///C:/apps/apache-1-3-33/Apache/htdocs/bz65680/index.html" idref="ed42fa3e-e88b-4e08-8932-9b807f754ee6" id="43ae108b-7ce5-45b5-8c7c-3f066ec83114" name="index.html">
+</file>
+<preference-set idref="ed42fa3e-e88b-4e08-8932-9b807f754ee6">
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;_svn;*%*</string>
+  <boolean id="import_recursive">1</boolean>
+  <boolean id="import_live">1</boolean>
+  <string id="import_type">useFolders</string>
+  <string id="mappedPaths"></string>
+  <string id="import_include_matches"></string>
+  <string id="javascriptExtraPaths"></string>
+</preference-set>
+</project>

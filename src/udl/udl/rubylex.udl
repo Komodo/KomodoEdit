@@ -1,0 +1,275 @@
+# Lexer description for Ruby
+
+family ssl # server-side language
+
+sublanguage Ruby
+
+start_style SSL_DEFAULT
+end_style SSL_VARIABLE
+
+# If the language has keywords, specify which style needs to be transformed
+
+keyword_style SSL_IDENTIFIER => SSL_WORD
+
+keywords ["__FILE__", "__LINE__",
+                 "BEGIN", "class", "ensure", "nil", "self", "when",
+                 "END", "def", "false", "not", "super", "while",
+                 "alias", "defined", "for", "or", "then", "yield",
+                 "and", "do", "if", "redo", "true",
+                 "begin", "function", "else", "in", "rescue", "undef",
+                 "break", "elsif", "module", "retry", "unless",
+                 "case", "end", "next", "return", "until"
+		 ]
+
+# Some info on the styles we're using here
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern NMCHAR = '$NMSTART\d'   # inside cset
+pattern CS = '\w\d_\x80-\xff'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|'
+
+initial IN_SSL_DEFAULT
+
+state IN_SSL_DEFAULT:
+
+/#.*/ : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_1
+
+/(?:@@?|\$)[$NMSTART][$CS]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_VARIABLE)
+
+#XXX Handle the #-constants
+
+/[$WS]+/  : #stay
+
+'"' : paint(upto, SSL_DEFAULT), => IN_SSL_DSTRING
+'\'' : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+'`' : paint(upto, SSL_DEFAULT), => IN_SSL_XSTRING
+
+'}' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), spop_check, => IN_SSL_DEFAULT
+
+# Go process a number, try to do it in regexes
+# octal and hex first
+/0x[0-9a-fA-F_]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)
+/0b[01_]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)
+/0[0-7_]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)
+/[0-9]/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_1
+/\.(?=\d)/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_2
+/\.(?=[$NMSTART])/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
+=> IN_SSL_NON_KEYWORD_IDENTIFIER_1
+
+'?' : paint(upto, SSL_DEFAULT), => IN_SSL_QNUMBER_1
+
+/::(?=[$NMSTART])/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR) => IN_SSL_NON_KEYWORD_IDENTIFIER_1
+
+':' : paint(upto, SSL_DEFAULT), => IN_SSL_SYMBOL_1
+
+'/' token_check : paint(upto, SSL_DEFAULT), => IN_SSL_REGEX
+/%r([\{\[\(\<])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_REGEX1_TARGET_NESTED
+/%r([^\w\d])/ : paint(upto, SSL_DEFAULT), set_delimiter(1), => IN_SSL_REGEX1_TARGET
+/%[%qQwWx]([\{\[\(\<])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_QSTRING_NESTED
+/%[%qQwWx]([^\w\d])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_QSTRING
+
+/[$NMSTART]/ : paint(upto, SSL_DEFAULT), => IN_SSL_IDENTIFIER_1
+
+/[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
+
+/\z/ : paint(include, SSL_DEFAULT)
+
+################ Comments ################
+
+state IN_SSL_COMMENT_1 : 
+/\r/ : paint(include, SSL_COMMENT) => IN_SSL_DEFAULT
+/$/ : paint(include, SSL_COMMENT), => IN_SSL_DEFAULT
+
+################ Strings ################
+
+# Use spush_test and spop_test to handle <<#{...}>> in strings
+#XXX Add quoted delimiters, including a rules block, for ruby and perl
+
+state IN_SSL_DSTRING:
+'#{' : paint(include, SSL_STRING), spush_check(IN_SSL_DSTRING), => IN_SSL_DEFAULT
+'"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+
+state IN_SSL_SSTRING:
+'\'' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : # escaped thing
+
+state IN_SSL_XSTRING:
+'`' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #backslash-escape
+
+state IN_SSL_QSTRING:
+delimiter: paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #stay
+/\z/ : paint(include, SSL_STRING)
+
+state IN_SSL_QSTRING_NESTED:
+delimiter: paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #stay
+/[\[\{\(\<]/ : paint(upto, SSL_STRING), spush_check(IN_SSL_QSTRING_NESTED), => IN_SSL_QSTRING_NESTED2
+/\z/ : paint(include, SSL_STRING)
+
+state IN_SSL_QSTRING_NESTED2:
+/\\./ : #stay
+/[\[\{\(\<]/ : spush_check(IN_SSL_QSTRING_NESTED2), => IN_SSL_QSTRING_NESTED2
+/[\]\}\)\>]/ : spop_check, => IN_SSL_QSTRING_NESTED
+/\z/ : paint(include, SSL_STRING)
+
+################ Numbers ################
+
+state IN_SSL_NUMBER_1 :
+/$/ : paint(upto, SSL_NUMBER), => IN_SSL_DEFAULT
+'.' : => IN_SSL_NUMBER_2
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_SSL_NUMBER_3
+/./ : paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+state IN_SSL_NUMBER_2:
+/$/ : paint(upto, SSL_NUMBER), => IN_SSL_DEFAULT
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_SSL_NUMBER_3
+'.' : paint(upto, SSL_NUMBER), paint(include, SSL_OPERATOR),  => IN_SSL_DEFAULT
+/./ : paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+state IN_SSL_NUMBER_3:
+/$/ : paint(upto, SSL_NUMBER), => IN_SSL_DEFAULT
+/[^\d]/ : paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
+
+state IN_SSL_QNUMBER_1:
+/\\[CM]-/ : #stay
+/[$WS]/ : paint(upto, SSL_OPERATOR), => IN_SSL_DEFAULT
+/./ : paint(include, SSL_NUMBER), => IN_SSL_DEFAULT
+
+# Don't bother trying to paint string-like symbols, like <<:"abc">>
+# But color symbols like strings, as they're sort of like
+# interned, single-instance strings
+
+state IN_SSL_SYMBOL_1:
+/[$NMCHAR]+/ : paint(include, SSL_STRING), => IN_SSL_DEFAULT # Restricted choice
+/./ : paint(upto, SSL_OPERATOR), redo => IN_SSL_DEFAULT
+/\z/ : paint(include, SSL_OPERATOR)
+
+################ Names ################
+
+state IN_SSL_IDENTIFIER_1:
+/[$NMCHAR]+/ : #stay, check for one of those ruby prefix things
+/[\?=!]/ : paint(include, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+// : paint(include, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+
+################ Non-keyword identifiers ################
+
+state IN_SSL_NON_KEYWORD_IDENTIFIER_1:
+/./ : no_keyword, paint(include, SSL_IDENTIFIER), => IN_SSL_NON_KEYWORD_IDENTIFIER_2
+
+state IN_SSL_NON_KEYWORD_IDENTIFIER_2:
+/[\?=!]/ : paint(include, SSL_IDENTIFIER), no_keyword, => IN_SSL_DEFAULT
+/[$CS]/ : #stay
+/[^$CS]/ : paint(upto, SSL_IDENTIFIER), redo, no_keyword, => IN_SSL_DEFAULT
+
+################ Regexes ################
+
+#XXX Ruby will need to handle s/.../.../
+
+state IN_SSL_REGEX:
+/\\./ : #stay
+/\/[\w]*/ : paint(include, SSL_REGEX), => IN_SSL_DEFAULT
+# x-type regexes, but here's how we'll do it in Perl:
+/#[^\/]*/ : paint(upto, SSL_REGEX), paint(include, SSL_COMMENT) # stay
+/[\r\n]/ : #stay
+
+state IN_SSL_REGEX1_TARGET:
+delimiter: paint(include, SSL_REGEX), => IN_SSL_DEFAULT
+/\\./ : #stay
+
+state IN_SSL_REGEX1_TARGET_NESTED:
+delimiter: paint(include, SSL_REGEX), => IN_SSL_DEFAULT
+/\\./ : #stay
+/[\[\{\(\<]/ : paint(upto, SSL_REGEX), spush_check(IN_SSL_REGEX1_TARGET_NESTED), \
+=> IN_SSL_REGEX1_TARGET_NESTED2
+
+
+state IN_SSL_REGEX1_TARGET_NESTED2:
+/\\./ : #stay
+/[\[\{\(\<]/ : spush_check(IN_SSL_REGEX1_TARGET_NESTED2), => IN_SSL_REGEX1_TARGET_NESTED2
+/[\]\}\)\>]/ : spop_check, => IN_SSL_REGEX1_TARGET_NESTED
+/\z/ : paint(include, SSL_REGEX)
+
+
+################ Operators ################
+# Borrowed from JS to get going
+
+state IN_SSL_OP1:
+# Single-char operator -- all ops work as standalone chars
+
+'{' : paint(include, SSL_OPERATOR), spush_check(IN_SSL_DEFAULT) => IN_SSL_DEFAULT
+
+/[$OP](?:(?![$OP])|$)/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+
+# Otherwise look from longest to smallest
+/>>>?=?/  : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+'>=' : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/!==?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/&&?=?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/<<?=?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/===?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/-[-=>]/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/\.\.\.?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/\^\^?=?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/\|\|?=?/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+/[%*+\/>]=/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+'::' : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+'++' : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+# The fallback
+/[$OP]/ : paint(include, SSL_OPERATOR), => IN_SSL_DEFAULT
+
+
+################ End States ################
+
+################ Prefer-RE Token Check block ################
+
+token_check:
+SSL_OPERATOR: reject [")", "++", "--", "]", "}"]
+
+SSL_WORD: reject [BEGIN class ensure nil self when END def false super
+while alias defined for 'redo' true undef break module end next ]
+
+# All other keywords prefer an RE
+
+SSL_DEFAULT: skip all
+SSL_COMMENT: skip all
+
+# Default is to reject / as the start of a regex if it follows
+# an unhandled style
+
+#### SSL_IDENTIFIER: reject all
+#### SSL_NUMBER: reject all
+#### SSL_REGEX: reject all
+#### SSL_STRING: reject all
+
+################ Fold Info ################
+
+fold "{" SSL_OPERATOR +
+fold "}" SSL_OPERATOR -
+fold "[" SSL_OPERATOR +
+fold "]" SSL_OPERATOR -
+fold "(" SSL_OPERATOR +
+fold ")" SSL_OPERATOR -
+
+# And the keywords -- this won't work for modifiers, like 
+# <<print "blah" if condition
+
+fold "if" SSL_WORD +
+fold "for" SSL_WORD +
+fold "while" SSL_WORD +
+fold "unless" SSL_WORD +
+fold "case" SSL_WORD +
+fold "module" SSL_WORD +
+fold "class" SSL_WORD +
+fold "def" SSL_WORD +
+fold "end" SSL_WORD -
+
+
+
+
+# See comments in jslex.txt for how specifying a token-check block works

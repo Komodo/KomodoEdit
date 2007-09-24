@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+
+    <public publicId="-//MOZILLA//DTD XBL V1.0//EN"
+            uri="xbl.dtd"/>
+    <system systemId="http://www.mozilla.org/xbl"
+            uri="xbl.dtd"/>
+    <uri name="http://www.mozilla.org/xbl"
+         uri="xbl.dtd"/>
+    
+    <public publicId="-//MOZILLA//DTD XUL V1.0//EN"
+            uri="xul.dtd"/>
+    <system systemId="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            uri="xul.dtd"/>
+    <uri name="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         uri="xul.dtd"/>
+
+</catalog>

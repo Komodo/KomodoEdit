@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.SSHClient</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;SSHClient
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[show&nbsp;private&nbsp;|&nbsp;<a href="../public/paramiko.SSHClient-class.html">hide&nbsp;private</a>]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.SSHClient-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type SSHClient</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+
+         |
+        <b>SSHClient</b>
+</pre><br />
+
+<hr/>
+
+A high-level representation of a session with an SSH server. This 
+class wraps <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>, <a 
+href="paramiko.Channel-class.html" class="link"><code>Channel</code></a>, 
+and <a href="paramiko.SFTPClient-class.html" 
+class="link"><code>SFTPClient</code></a> to take care of most aspects of 
+authenticating and opening channels. A typical use case is:
+<pre class="literalblock">
+   client = SSHClient()
+   client.load_system_host_keys()
+   client.connect('ssh.example.com')
+   stdin, stdout, stderr = client.exec_command('ls -l')
+</pre>
+You may pass in explicit overrides for authentication and server host 
+key checking. The default mechanism is to try to use local key files or 
+an SSH agent (if one is running).
+<hr/>
+
+<p><b>Since:</b> 1.6
+</p>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Create a new SSHClient.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close this SSHClient and its underlying <a 
+href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#connect" class="summary-sig-name"><code>connect</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>hostname</span>,
+          <span class=summary-sig-arg>port</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>password</span>,
+          <span class=summary-sig-arg>pkey</span>,
+          <span class=summary-sig-arg>key_filename</span>)</span></code>
+<br />
+Connect to an SSH server and authenticate to it.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        tuple(<a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>, <a 
+        href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>, <a 
+        href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>)
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#exec_command" class="summary-sig-name"><code>exec_command</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>command</span>)</span></code>
+<br />
+Execute a command on the SSH server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.HostKeys-class.html" 
+        class="link"><code>HostKeys</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#get_host_keys" class="summary-sig-name"><code>get_host_keys</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Get the local <a href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a> object.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#invoke_shell" class="summary-sig-name"><code>invoke_shell</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>term</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>)</span></code>
+<br />
+Start an interactive shell session on the SSH server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#load_host_keys" class="summary-sig-name"><code>load_host_keys</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+Load host keys from a local host-key file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#load_system_host_keys" class="summary-sig-name"><code>load_system_host_keys</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+Load host keys from a system (read-only) file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#open_sftp" class="summary-sig-name"><code>open_sftp</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Open an SFTP session on the SSH server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#save_host_keys" class="summary-sig-name"><code>save_host_keys</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+Save the host keys back to a file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#set_log_channel" class="summary-sig-name"><code>set_log_channel</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+<br />
+Set the channel for logging.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.SSHClient-class.html#set_missing_host_key_policy" class="summary-sig-name"><code>set_missing_host_key_policy</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>policy</span>)</span></code>
+<br />
+Set the policy to use when connecting to a server that doesn't have a 
+host key in either the system or local <a 
+href="paramiko.HostKeys-class.html" 
+class="link"><code>HostKeys</code></a> objects.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="../private/paramiko.SSHClient-class.html#_auth" class="summary-sig-name"><code>_auth</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>username</span>,
+          <span class=summary-sig-arg>password</span>,
+          <span class=summary-sig-arg>pkey</span>,
+          <span class=summary-sig-arg>key_filename</span>)</span></code>
+<br />
+Try, in order:</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="_log"></a><span class="summary-sig"><span class="summary-sig-name">_log</span>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>level</span>,
+          <span class=summary-sig-arg>msg</span>)</span></code>
+</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  Create a new SSHClient.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.object-class.html#__init__"><code>__builtin__.object.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Close this SSHClient and its underlying <a 
+  href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a>.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="connect"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">connect</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>hostname</span>,
+          <span class=sig-arg>port</span>=<span class=sig-default>22</span>,
+          <span class=sig-arg>username</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>password</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>pkey</span>=<span class=sig-default>None</span>,
+          <span class=sig-arg>key_filename</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Connect to an SSH server and authenticate to it. The server's host 
+  key is checked against the system host keys (see <a 
+  href="paramiko.SSHClient-class.html#load_system_host_keys" 
+  class="link"><code>load_system_host_keys</code></a>) and any local host 
+  keys (<a href="paramiko.SSHClient-class.html#load_host_keys" 
+  class="link"><code>load_host_keys</code></a>). If the server's hostname 
+  is not found in either set of host keys, the missing host key policy is 
+  used (see <a 
+  href="paramiko.SSHClient-class.html#set_missing_host_key_policy" 
+  class="link"><code>set_missing_host_key_policy</code></a>). The default 
+  policy is to reject the key and raise an <a 
+  href="paramiko.SSHException-class.html" 
+  class="link"><code>SSHException</code></a>.</p>
+  Authentication is attempted in the following order of priority:
+  <ul>
+    <li>
+      The <code>pkey</code> or <code>key_filename</code> passed in (if 
+      any)
+    </li>
+    <li>
+      Any key we can find through an SSH agent
+    </li>
+    <li>
+      Any &quot;id_rsa&quot; or &quot;id_dsa&quot; key discoverable in 
+      <code>~/.ssh/</code>
+    </li>
+    <li>
+      Plain username/password auth, if a password was given
+    </li>
+  </ul>
+  If a private key requires a password to unlock it, and a password is 
+  passed in, that password will be used to attempt to unlock the key.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>hostname</b></code> -
+         the server to connect to
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>port</b></code> -
+         the server port to connect to
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>username</b></code> -
+         the username to authenticate as (defaults to the current local 
+        username)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>password</b></code> -
+         a password to use for authentication or for unlocking a 
+        private key
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>pkey</b></code> -
+         an optional private key to use for authentication
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.PKey-class.html" 
+              class="link"><code>PKey</code></a>)</i>
+      <dd><code><b>key_filename</b></code> -
+         the filename of an optional private key to use for 
+        authentication
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>BadHostKeyException</b></code> -
+        if the server's host key could not be verified
+      <dd><code><b>AuthenticationException</b></code> -
+        if authentication failed
+      <dd><code><b>SSHException</b></code> -
+        if there was any other error connecting or establishing an SSH 
+        session
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="exec_command"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">exec_command</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>command</span>)</span>
+  </h3>
+  Execute a command on the SSH server. A new <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> is opened and the requested 
+  command is executed. The command's input and output streams are 
+  returned as python <code>file</code>-like objects representing stdin, 
+  stdout, and stderr.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>command</b></code> -
+         the command to execute
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the stdin, stdout, and stderr of the executing command
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple(<a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>, <a 
+        href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>, <a 
+        href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>))</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the server fails to execute the command
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_host_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_host_keys</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Get the local <a href="paramiko.HostKeys-class.html" 
+  class="link"><code>HostKeys</code></a> object. This can be used to 
+  examine the local host keys or change them.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the local host keys
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.HostKeys-class.html" 
+        class="link"><code>HostKeys</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="invoke_shell"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">invoke_shell</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>term</span>=<span class=sig-default>'vt100'</span>,
+          <span class=sig-arg>width</span>=<span class=sig-default>80</span>,
+          <span class=sig-arg>height</span>=<span class=sig-default>24</span>)</span>
+  </h3>
+  Start an interactive shell session on the SSH server. A new <a 
+  href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a> is opened and connected to a 
+  pseudo-terminal using the requested terminal type and size.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>term</b></code> -
+         the terminal type to emulate (for example, 
+        <code>&quot;vt100&quot;</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>width</b></code> -
+         the width (in characters) of the terminal window
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>height</b></code> -
+         the height (in characters) of the terminal window
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new channel connected to the remote shell
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Channel-class.html" 
+        class="link"><code>Channel</code></a>)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the server fails to invoke a shell
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="load_host_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">load_host_keys</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>)</span>
+  </h3>
+  <p>Load host keys from a local host-key file. Host keys read with this 
+  method will be checked <i>after</i> keys loaded via <a 
+  href="paramiko.SSHClient-class.html#load_system_host_keys" 
+  class="link"><code>load_system_host_keys</code></a>, but will be saved 
+  back by <a href="paramiko.SSHClient-class.html#save_host_keys" 
+  class="link"><code>save_host_keys</code></a> (so they can be modified). 
+  The missing host key policy <a href="paramiko.AutoAddPolicy-class.html" 
+  class="link"><code>AutoAddPolicy</code></a> adds keys to this set and 
+  saves them, when connecting to a previously-unknown server.</p>
+  This method can be called multiple times. Each new set of host keys 
+  will be merged with the existing set (new replacing old if there are 
+  conflicts). When automatically saving, the last hostname is used.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         the filename to read
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the filename could not be read
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="load_system_host_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">load_system_host_keys</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>=<span class=sig-default>None</span>)</span>
+  </h3>
+  <p>Load host keys from a system (read-only) file. Host keys read with 
+  this method will not be saved back by <a 
+  href="paramiko.SSHClient-class.html#save_host_keys" 
+  class="link"><code>save_host_keys</code></a>.</p>
+  <p>This method can be called multiple times. Each new set of host keys 
+  will be merged with the existing set (new replacing old if there are 
+  conflicts).</p>
+  If <code>filename</code> is left as <code>None</code>, an attempt 
+  will be made to read keys from the user's local &quot;known hosts&quot; 
+  file, as used by OpenSSH, and no exception will be raised if the file 
+  can't be read. This is probably only useful on posix.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         the filename to read, or <code>None</code>
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if a filename was provided and the file could not be read
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="open_sftp"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">open_sftp</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Open an SFTP session on the SSH server.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        a new SFTP session object
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.SFTPClient-class.html" 
+        class="link"><code>SFTPClient</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="save_host_keys"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">save_host_keys</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>filename</span>)</span>
+  </h3>
+  Save the host keys back to a file. Only the host keys loaded with <a 
+  href="paramiko.SSHClient-class.html#load_host_keys" 
+  class="link"><code>load_host_keys</code></a> (plus any added directly) 
+  will be saved -- not any host keys loaded with <a 
+  href="paramiko.SSHClient-class.html#load_system_host_keys" 
+  class="link"><code>load_system_host_keys</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>filename</b></code> -
+         the filename to save to
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>IOError</b></code> -
+        if the file could not be written
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_log_channel"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_log_channel</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>)</span>
+  </h3>
+  Set the channel for logging. The default is 
+  <code>&quot;paramiko.transport&quot;</code> but it can be set to 
+  anything you want.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         new channel name for logging
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_missing_host_key_policy"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_missing_host_key_policy</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>policy</span>)</span>
+  </h3>
+  Set the policy to use when connecting to a server that doesn't have 
+  a host key in either the system or local <a 
+  href="paramiko.HostKeys-class.html" 
+  class="link"><code>HostKeys</code></a> objects. The default policy is 
+  to reject all unknown servers (using <a 
+  href="../private/paramiko.RejectPolicy-class.html" 
+  class="link"><code>RejectPolicy</code></a>). You may substitute <a 
+  href="paramiko.AutoAddPolicy-class.html" 
+  class="link"><code>AutoAddPolicy</code></a> or write your own policy 
+  class.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>policy</b></code> -
+         the policy to use when receiving a host key from a 
+        previously-unknown server
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.MissingHostKeyPolicy-class.html" 
+              class="link"><code>MissingHostKeyPolicy</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="_auth"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">_auth</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>username</span>,
+          <span class=sig-arg>password</span>,
+          <span class=sig-arg>pkey</span>,
+          <span class=sig-arg>key_filename</span>)</span>
+  </h3>
+  Try, in order:
+  <ul>
+    <li>
+      The key passed in, if one was passed in.
+    </li>
+    <li>
+      Any key we can find through an SSH agent.
+    </li>
+    <li>
+      Any &quot;id_rsa&quot; or &quot;id_dsa&quot; key discoverable in 
+      ~/.ssh/.
+    </li>
+    <li>
+      Plain username/password auth, if a password was given.
+    </li>
+  </ul>
+  (The password might be needed to unlock a private key.)
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:41:59 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

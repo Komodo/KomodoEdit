@@ -1,0 +1,31 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'supportDir',
+    'unsiloedPythonExe',
+    'productType',
+    'buildFlavour',
+    'mozVersion',
+);
+
+$cons->InstallRecursive("$supportDir/catalogs/mozilla",
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/src/editor/catalogs/mozilla");
+
+$cons->InstallAs("$supportDir/catalogs/w3c/catalog.xml", 'w3c-catalog.xml');
+$cons->InstallAs("$supportDir/catalogs/oasis/catalog.xml", 'oasis-catalog.xml');
+$cons->InstallAs("$supportDir/catalogs/wapforum/catalog.xml", 'wapforum-catalog.xml');
+$cons->Install("$supportDir/catalogs", 'catalog.xml');
+
+

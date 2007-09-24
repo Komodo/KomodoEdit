@@ -1,0 +1,38 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\Buffer1.pm">
+    <scope ilk="blob" lang="Perl" name="Buffer1">
+      <import line="12" module="LWP::UserAgent" symbol="*" />
+      <variable line="9" name="$var1" />
+      <variable attributes="__local__" line="10" name="$var2" />
+      <variable citdl="LWP::UserAgent" line="14" name="$var3" />
+      <variable line="16" name="var4" />
+      <variable line="16" name="var5" />
+      <variable attributes="__local__" line="34" name="$a" />
+      <variable attributes="__local__" line="34" name="$closure" />
+      <scope ilk="class" line="37" lineend="45" name="Buffer1">
+        <import line="39" module="Digest::MD5" symbol="md5" />
+        <import line="39" module="Digest::MD5" symbol="md5_hex" />
+        <import line="39" module="Digest::MD5" symbol="md5_base64" />
+        <scope ilk="function" line="41" lineend="45" name="sub2" signature="sub2($text)">
+          <variable ilk="argument" name="$text" />
+          <variable attributes="__local__" line="43" name="$digest" />
+        </scope>
+      </scope>
+      <scope ilk="class" line="48" lineend="56" name="Buffer2::Part2::Part3">
+        <scope ilk="function" line="50" lineend="51" name="sub3" signature="sub3()" />
+        <scope ilk="function" line="53" lineend="54" name="Other::Package::sub4" signature="Other::Package::sub4()" />
+      </scope>
+      <scope ilk="class" line="57" lineend="61" name="Buffer1::InnerPart1">
+        <scope ilk="function" line="58" lineend="60" name="sub4" signature="sub4()" />
+      </scope>
+      <scope ilk="class" line="69" lineend="73" name="Buffer1::InnerPart2">
+        <scope ilk="function" line="70" lineend="72" name="sub6" signature="sub6()" />
+      </scope>
+      <scope ilk="function" line="20" lineend="21" name="sub1" signature="sub1()" />
+      <scope ilk="function" line="25" lineend="28" name="f" signature="f($code)">
+        <variable ilk="argument" name="$code" />
+      </scope>
+      <scope ilk="function" line="65" lineend="66" name="sub5" signature="sub5()" />
+    </scope>
+  </file>
+</codeintel>

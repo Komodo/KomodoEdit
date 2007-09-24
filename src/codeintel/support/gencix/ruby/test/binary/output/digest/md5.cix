@@ -1,0 +1,12 @@
+    <scope ilk="blob" lang="Ruby" name="digest/md5">
+      <scope ilk="namespace" name="Digest">
+        <scope ilk="class" name="Base" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="&lt;&lt;" />
+          <scope ilk="function" name="digest" />
+          <scope ilk="function" name="hexdigest" />
+          <scope ilk="function" name="update" />
+        </scope>
+        <scope ilk="class" name="MD5" mixinrefs="Kernel" classrefs="Digest::Base">
+        </scope>
+      </scope>
+    </scope>

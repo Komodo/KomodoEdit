@@ -1,0 +1,51 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs\doc_processing.py">
+    <scope doc="This is the summary line for this module. So is this." ilk="blob" lang="Python" name="doc_processing">
+      <scope doc="Read s characters, or the rest of the string" ilk="function" line="14" lineend="16" name="read" signature="read([s])">
+        <variable ilk="argument" name="s" />
+      </scope>
+      <scope doc="Encode a string using quoted-printable encoding." ilk="function" line="18" lineend="25" name="b2a_qp" signature="b2a_qp(data, quotetabs=0, istext=1, header=0) -&gt; s;">
+        <variable ilk="argument" name="data" />
+        <variable citdl="int" ilk="argument" name="quotetabs" />
+        <variable citdl="int" ilk="argument" name="istext" />
+        <variable citdl="int" ilk="argument" name="header" />
+      </scope>
+      <scope doc="Create a new module. Do not enter it in sys.modules." ilk="function" line="27" name="new_module" signature="new_module(name) -&gt; module">
+        <variable ilk="argument" name="name" />
+      </scope>
+      <scope doc="-&gt; list of (family, socktype, proto, canonname, sockaddr)" ilk="function" line="33" name="getaddrinfo" signature="getaddrinfo(host, port [, family, socktype, proto, flags])">
+        <variable ilk="argument" name="host" />
+        <variable ilk="argument" name="port" />
+        <variable ilk="argument" name="family" />
+        <variable ilk="argument" name="socktype" />
+        <variable ilk="argument" name="proto" />
+        <variable ilk="argument" name="flags" />
+      </scope>
+      <scope doc="call Windows MessageBeep(x). x defaults to MB_OK." ilk="function" line="41" name="MessageBeep" signature="MessageBeep(x)">
+        <variable ilk="argument" name="x" />
+      </scope>
+      <scope doc="Create a log-reader for the timing information file." ilk="function" line="44" lineend="47" name="logreader" signature="logreader(filename) --&gt; log-iterator">
+        <variable ilk="argument" name="filename" />
+      </scope>
+      <scope ilk="function" line="49" lineend="51" name="resolution" signature="resolution() -&gt; (performance-counter-ticks, update-frequency)" />
+      <scope doc="Return the IP address (a string of the form&#xA;&apos;255.255.255.255&apos;) for a host." ilk="function" line="53" lineend="58" name="gethostbyname" signature="gethostbyname(host) -&gt; address">
+        <variable ilk="argument" name="host" />
+      </scope>
+      <scope doc="Return a copy of string str with all occurrences of&#xA;substring old replaced by new." ilk="function" line="60" lineend="67" name="replace" signature="replace (str, old, new[, maxsplit]) -&gt; string">
+        <variable ilk="argument" name="str" />
+        <variable ilk="argument" name="old" />
+        <variable ilk="argument" name="new" />
+        <variable ilk="argument" name="maxsplit" />
+      </scope>
+      <scope doc="Return a string composed of the words in list, with&#xA;intervening occurrences of sep." ilk="function" line="69" name="joinfields" signature="join(list [,sep]) -&gt; string&#xA;joinfields(list [,sep]) -&gt; string">
+        <variable ilk="argument" name="list" />
+        <variable ilk="argument" name="sep" />
+      </scope>
+      <variable citdl="joinfields" line="80" name="join" />
+      <scope doc="Retrieves the type and data for a specified value name&#xA;associated with an open registry key." ilk="function" line="82" lineend="88" name="QueryValueEx" signature="QueryValueEx(key, value_name) -&gt; value,type_id">
+        <variable ilk="argument" name="key" />
+        <variable ilk="argument" name="value_name" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

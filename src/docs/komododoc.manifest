@@ -1,0 +1,4 @@
+overlay chrome://help/content/help.xul chrome://komododoc/content/helpOverlay.xul
+content komododoc komododoc/content/ xpcnativewrappers=yes
+locale komododoc en-US komododoc/locale/en-US/
+skin komododoc classic/1.0 komododoc/skin/

@@ -1,0 +1,147 @@
+
+/* CSS Document */
+
+*  {
+	margin: 0;
+	padding: 0;
+	}
+	
+body {
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	background: url(chrome://komodo/content/startpage/komodo-ide-start-bg-middle.png) top left repeat-x #f7f3ef;
+	}
+	
+#main-container {
+	height: 200px;
+	background: url(chrome://komodo/content/startpage/komodo-ide-start-bg-right.png) top right no-repeat;
+	min-width: 575px;
+	}
+
+
+#main-container #left-bg {
+	width: 12px;
+	height: 200px;
+	background: url(chrome://komodo/content/startpage/komodo-ide-start-bg-left.png) top left no-repeat;
+	float: left;
+	}
+
+#content {
+	padding: 10px 12px 0 0 ;
+	}
+
+#title {
+	margin-bottom: 15px;
+	border-bottom: solid 1px #cfcfcf;
+	padding-bottom: 5px;
+	}
+
+#community-icon-column {
+	background: url(chrome://komodo/content/startpage/community-icon.png) top no-repeat;
+	height: 150px;
+	width: 82px;
+	float: left;
+	}
+
+.column {
+	width: 47%;
+	float: left;
+	padding-right: 1%;
+	}
+
+
+ul {
+	list-style-type: none;
+	
+	}
+
+ul.connect {
+	background: url(chrome://komodo/content/startpage/line.png) repeat-y;
+	}
+
+
+li {
+	margin-bottom: 10px;
+	padding-left: 37px;
+	}
+	
+
+li.mail {
+	background: url(chrome://komodo/content/startpage/mail-icon.png) no-repeat 0 2px;
+	}
+
+li.connect {
+	background: url(chrome://komodo/content/startpage/connector.png) no-repeat 0 2px;
+	}
+
+
+li.connect-last {
+	background: url(chrome://komodo/content/startpage/connector-last.png) no-repeat 0 2px;
+	}
+
+
+li.faq {
+	background: url(chrome://komodo/content/startpage/faq-icon.png) no-repeat 0 2px;
+
+	}
+
+li.bug {
+	background: url(chrome://komodo/content/startpage/bug-icon.png) no-repeat 0 2px;
+	}
+
+li.community {
+	background: url(chrome://komodo/content/startpage/community-icon.png) no-repeat 0 0px;
+	}
+
+h1 {
+	font-size: 14px;
+	}
+	
+h2 {
+	font-size: 11px;
+	}
+
+a {
+	color: #0063a2;
+	}
+
+
+#komodo-ide {
+	/*margin-top: 20px;*/
+	margin-left: 5px;
+	}
+	
+#komodo-ide img{
+	position: relative;
+	margin-right: 12px;
+		}
+	
+p {
+	margin-bottom: 7px;
+	}	
+	
+p.icons {
+	margin-top: 15px;
+	}
+	
+p.icons img {
+	margin-right: 30px;
+	border: 0;
+	}
+		
+#announcement {
+	height: 55px;
+	position: relative;
+	top: -5px;
+
+	padding-bottom: 6px;
+	margin: 0 15px 10px 25px;
+	border-bottom: dashed 1px #c2c2c2;
+	}
+	
+#announcement p {
+	position: relative;
+	top: 12px;
+	left: 20px;
+	}

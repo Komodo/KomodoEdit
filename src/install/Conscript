@@ -1,0 +1,114 @@
+#!/usr/local/bin/perl -w
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+use Cwd;
+
+Import(
+    "cons",
+    "platform",
+    "build",
+    "jarring",
+    "installSupportDir",
+    "buildFlavour",
+    "unsiloedPythonExe",
+    "komodoDefaultUserInstallDir",
+    "komodoDevDir",
+    "buildAbsDir",
+    "ranRegxpcomStateFileName",
+    "supportDir",
+    "productType",
+    "productTagLine",
+    "komodoVersion",
+    "komodoMarketingShortVersion",
+    "msiRegistryId",
+    "msiProductName",
+    "msiInstallName",
+    "msiKomodoId",
+    "msiKomodoVersion",
+    "msiKomodoPrettyId",
+    "mozVersion",
+    "withCrypto",
+    "withCasper",
+    "withJSLib",
+    "withDocJarring",
+    "komodoTitleBarName",
+    "gnomeDesktopName",
+    "gnomeDesktopGenericName",
+    "gnomeDesktopCategories",
+    "gnomeDesktopShortcutName",
+);
+
+# Build installer-support files.
+if ($buildFlavour eq "full") {
+    if ($platform eq "win") {
+        my $isPreReleaseVersion = ($komodoVersion =~ /-/ ? "yes" : "no");
+        my $msiWithCrypto = ($withCrypto ? "yes" : "no");
+        $cons->Preprocess(
+            "wix/config.p.wxi",
+            "wix/config.wxi",
+            {
+                #"PRODUCT_TYPE" => $productType, # included by default in Preprocess()
+                "PP_PRODUCT_TAG_LINE" => $productTagLine,
+                "PP_MSI_REGISTRY_ID" => $msiRegistryId,
+                "PP_MSI_IS_PRE_RELEASE_VERSION" => $isPreReleaseVersion,
+                "PP_MSI_PRODUCT_NAME" => $msiProductName,
+                "PP_MSI_INSTALL_NAME" => $msiInstallName,
+                "PP_MSI_KOMODO_ID" => $msiKomodoId,
+                "PP_MSI_KOMODO_PRETTY_ID" => $msiKomodoPrettyId,
+                "PP_MSI_KOMODO_VERSION" => $msiKomodoVersion,
+
+                # Using "AVEC" instead of "WITH" to not collide with the
+                # standard "WITH_*" defines for Komodo's preprocessing
+                # (see the Construct).  This is HACK workaround until
+                # preprocess.py does better explicit marking of
+                # substitutions.
+                "PP_MSI_AVEC_DOC_JARRING" => ($withDocJarring ? "yes" : "no"),
+                "PP_MSI_AVEC_CRYPTO" => ($withCrypto ? "yes" : "no"),
+                "PP_MSI_AVEC_CASPER" => ($withCasper ? "yes" : "no"),
+                "PP_MSI_AVEC_JSLIB" => ($withJSLib ? "yes" : "no"),
+            }
+        );
+        $cons->Preprocess("wix/guids.p.wxi", "wix/guids.wxi");
+        $cons->Command("wix/cons-coddle",
+            "wix/Makefile",
+            "wix/komodo.wxs.in",
+            "wix/feature-core.wxs.in",
+            "wix/feature-docs.wxs.in",
+            "wix/feature-env.wxs.in",
+            "wix/config.wxi",
+            "wix/guids.wxi",
+            qq(
+                echo copying over WiX Project files... > %0
+            )
+        );
+        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/aswixui");
+        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/bin");
+    }
+    elsif ($platform eq 'darwin') {
+      # no install scripts necessary for darwin
+    }
+    else {
+        $cons->Preprocess(
+            "_install.p.py",
+            "_install.py",
+            {
+                "__MAIN_INSTALL_SCRIPT__" => "install.sh",
+                "__KOMODO_MAJOR_MINOR__" => $komodoMarketingShortVersion,
+                "__DEFAULT_INSTALLDIR__" => $komodoDefaultUserInstallDir,
+                "__PRODUCT_TAG_LINE__" => $productTagLine,
+                "__GNOME_DESKTOP_NAME__" => $gnomeDesktopName,
+                "__GNOME_DESKTOP_GENERIC_NAME__" => $gnomeDesktopGenericName,
+                "__GNOME_DESKTOP_CATEGORIES__" => $gnomeDesktopCategories,
+                "__GNOME_DESKTOP_SHORTCUT_NAME__" => $gnomeDesktopShortcutName,
+            }
+        );
+        $cons->Install($installSupportDir, "install.sh");
+        $cons->Install("$installSupportDir/support", "_install.py");
+        $cons->Install("$installSupportDir/support", "sh2.py");
+        $cons->Install("$installSupportDir/support", "selinuxlib.py");
+        $cons->Install("$installSupportDir/support",
+                       "../python-sitelib/which.py");
+    }
+}
+

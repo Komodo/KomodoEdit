@@ -1,0 +1,51 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'mozChromeDir',
+    'mozBin',
+    'unsiloedPythonExe',
+    'productType',
+    'jarring',
+    'buildFlavour',
+    'komodoTitleBarName',
+    'mozVersion',
+    'mozMajorVersion',
+    'mozMinorVersion',
+);
+
+$cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
+                  {'WITH_JARRING' => $jarring}, 1);
+
+$cons->Preprocess('commandsOverlay.unprocessed.xul', 'commandsOverlay.xul');
+$cons->InstallInChrome('commandsOverlay.xul');
+$cons->Preprocess('komodo.p.xul', 'komodo.xul',
+                  {'PP_KO_TITLE_BAR_NAME' => "$komodoTitleBarName"});
+$cons->InstallInChrome('komodo.xul');
+$cons->Preprocess('komodo.p.js', 'komodo.js');
+$cons->InstallInChrome('komodo.js');
+$cons->InstallInChrome('browse.js');
+$cons->Preprocess('launch.unprocessed.js', 'launch.js');
+$cons->InstallInChrome('launch.js');
+$cons->Preprocess('views.unprocessed.js', 'views.js');
+$cons->InstallInChrome('views.js');
+$cons->Preprocess('statusbar.unprocessed.js', 'statusbar.js');
+$cons->InstallInChrome('statusbar.js');
+$cons->InstallInChrome('editor.js');
+$cons->InstallInChrome('markers.js');
+# $cons->Depends('komodo.unprocessed.xul', 'testmenu.xul');
+
+$cons->InstallInChrome("about.xul");
+$cons->InstallInChrome("about.js");
+$cons->Preprocess('testkeys.unprocessed.xul', 'testkeys.xul');
+$cons->InstallInChrome("testkeys.xul");
+$cons->Preprocess('testkeys.p.js', 'testkeys.js');
+$cons->InstallInChrome("testkeys.js");
+$cons->InstallInChrome("testscintilla.xul");
+$cons->InstallInChrome("printPreview.xul");
+$cons->InstallInChrome("hiddenWindow.xul");
+

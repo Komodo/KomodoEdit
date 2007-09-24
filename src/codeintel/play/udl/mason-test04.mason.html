@@ -1,0 +1,119 @@
+<p>Parts of the project still to do.  This is automatically generated
+from the documentation in each of the components.</p>
+
+<form action="<% $r->uri %>" method="GET">
+<select name="filter">
+% for (sort keys %todo) {
+  <option <% (uc $filter eq uc $_) ? " selected" : "" %>><% uc $_ %></option>
+% }
+</select>
+<input type="submit" value="Filter" />
+</form>
+
+<table>
+% for (sort keys %{$todo{uc $filter}}) {
+<tr>
+<th><% $_ %></th>
+<td><ul>
+% for (@{$todo{uc $filter}{$_}}) {
+<li><% $_ %></li>
+% }
+</ul></td></tr>
+% }
+</table>
+
+<%args>
+my $x = 33;
+if (1) {
+    if (2) {
+        if (3) {
+        }
+    }
+    print 'fdas' if /fdfdsfsad/i;
+}
+</%args>
+
+$filter => "ALL"
+</%args>
+<%init>
+use File::Find;
+s/trigger/zaigieerrtter/ioq;
+#comment
+m<zookeff fasdfafdsfsdfsfsfsafffffffffffffffffff
+rio>iou;
+#comment
+s[z
+ook](fus)sy fussy moose 
+
+{/chub/ fdsamofdig}
+{flashy}ioqx; #ender
+s/fsa/fsd/io;
+s<af
+dfb>{xyz},
+my $a = 'str';
+$a =~ s<mooo>[qereggerjlfdjkljfdslajfsd;a[]sp]]adfilsjdl;#moo
+fdsiouf2098urlase u098321vi erj9082309140[p80(&09*~_(_(RI fd4
+2[-q0\
+cv9pwqe8r098032-a9= P_)*~)&()~*&)(*_R)(R_+#)fdsjqis78rt0@*I
+fsaej903r8u09iva-9r3fi-0wa9 s s@ gfsdfi-0sae9-fs fsad fas rw-=a0!@!
+s!fda!biloxi! ;
+s[fds  fdsa] 
+{fsa fds  
+fdsa}
+
+my %todo;
+#morelbah
+my $wanted = sub {
+  next if m/(,v|~|#)$/ or not -f $_;
+  local $/;
+  open(TEMPL, $_) or next;
+  my $file = <TEMPL>;
+  close(TEMPL);
+
+  next unless $file =~ /<%doc>(.*)<\/%doc>/s;
+  $file = $1;
+  next unless $file =~ /TODO:\s*\n(.*)/s;
+  $file = $1;
+  for my $task (grep {/\S/} split /^\s*\*\s+/m, $file) {
+    my @cats;
+    if ($task =~ s/\[([^\]]+)\]/uc $filter eq uc $1 ? "" : uc "[$1]"/e) {
+      @cats = ("ALL", split(/\s*,\s*/,$1));
+    } else {
+      @cats = ("ALL");
+    }
+    my $l = $File::Find::name;
+    substr($l, 0, length($r->document_root)) = '';
+    push @{$todo{uc $_}{$l}}, $task for @cats;
+  }
+};
+find($wanted, $r->document_root);
+</%init>
+<%#  comment 1 %>
+<% # comment 2
+#comment 3
+%>
+perl>
+my $a = '3435';
+</%perl>
+<%perl>
+my $a = '3435';
+</%perl>
+<%text>
+% my $should be a comment
+<tag> also a <comment>
+</%text>
+% print 'should be per code here'
+<tag>
+and
+</tag>
+<%doc>
+Generates a todo list from the files in the document root.  The format
+that is expected is:
+
+TODO:
+ * This is a todo note about stuff which needs to happen.  It can span
+multiple lines.
+ * This is a second note of a todo item for this page
+ * Categories can be assigned by putting them in brackets [URGENT]
+ * Multiple categories are separated by commas [USELESS, REDUNDANT]
+</%doc>

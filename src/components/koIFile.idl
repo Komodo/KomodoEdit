@@ -1,0 +1,56 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIURI.idl"
+#include "nsIFile.idl"
+
+// Avoid including IDL for interfaces where internal knowledge of
+// the structure is not required.  This avoids having to change
+// every IDL file that includes us to get around our recusive
+// dependancy problem.
+interface koIFTPNodeFile;
+interface koIRemoteFileInfo;
+   
+// A simple file.
+[scriptable, uuid(BA0E1CF0-F56D-4679-B609-AA4B02C53CE8)]
+interface koIFile : nsISupports {
+  void init(in wstring fileName, in string mode);
+  void read(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
+  void write([array, size_is(count)] in octet text, in unsigned long count);
+  void puts(in wstring text); // get around xpconnect limitations
+  void readline(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
+  void flush();
+  void close();
+  readonly attribute nsIFile file;
+};
+
+// A file addressed by URI.
+[scriptable, uuid(332BE465-8120-43a8-8C32-02FD9F24F7B0)]
+interface koIURIFile : koIFile {
+  // just like the parent 'init' function, but accepting a URI object instead of string.
+  void initURI(in nsIURI uri, in string mode);
+};
+
+// A local file.
+[scriptable, uuid(9C1A72FB-002F-43de-9E45-BD8C23C07076)]
+interface koILocalFile : koIFile {
+};
+
+// A FTP file.
+[scriptable, uuid(6130195E-4B6C-4214-BF2C-B04C6264440F)]
+interface koIFTPFile : koIFile {
+    void initServer(in wstring fileName, in string mode, in wstring server_alias);
+    void refreshStats();
+    readonly attribute boolean isWritable;
+    readonly attribute boolean isReadable;
+    readonly attribute koIRemoteFileInfo rfinfo;
+};
+
+// A temp-file factory.
+[scriptable, uuid(783a25f1-f23c-4773-97cc-832fcae944f6)]
+interface koITempFileFactory : nsISupports {
+    wstring MakeTempName(in wstring suffix);
+    koIFile MakeTempFile(in wstring suffix, in string mode);
+    koIFile MakeTempFileInDir(in wstring dir, in wstring suffix, in string mode);
+};

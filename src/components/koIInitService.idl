@@ -1,0 +1,26 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(B57F002D-2775-40c4-9598-BE2445E1E19C)]
+interface koIInitService : nsISupports {
+    void setPlatformErrorMode();
+    void setEncoding();
+
+    // Get the startup/system locale info.
+    wstring getStartupLanguageCode();  // e.g. en_US
+    wstring getStartupEncoding();   // e.g. iso8859-1
+
+    void initProcessUtils();
+    void upgradeUserSettings();
+    void initExtensions();
+    
+    // Install starter samples in user data directory, if not there. If "force"
+    // is true then the samples directory will be deleted an re-generated.
+    void installSamples(in boolean force);
+
+    // Used to indicate that has (pretty much) fully initialized and any
+    // final bits can be done now.
+    void finishInitialization();
+};

@@ -1,0 +1,618 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings SYSTEM "http://www.mozilla.org/xbl" [
+  <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings.dtd">
+  %keybindingsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="editkeybinding" extends="xul:vbox">
+        <content>
+        <xul:vbox flex="1">
+            <xul:label class="label"
+                       value="Current Key Sequence"
+                       accesskey="&K.accesskey;"
+                       control="currentlist"
+                       style="width: 110px;"
+                       align="right"
+                       flex="1"/>
+            <xul:hbox flex="1">
+                <xul:menulist flex="1" style="width: 110px;" id="currentlist" collapsed="true">
+                    <xul:menupopup id="currentpopup"/>
+                </xul:menulist>
+                <xul:textbox flex="1" id="currentkey" readonly="true"/>
+                <xul:button id="clear" oncommand="parentNode.parentNode.parentNode._clear1()"
+                    label="&clear.label;"/>
+                <xul:button id="clearall" oncommand="parentNode.parentNode.parentNode._clearAll()"
+                    label="&clearAll.label;"/>
+            </xul:hbox>
+            <xul:label class="label" value="New Key Sequence"
+                style="width: 110px;" align="right"/>
+            <xul:hbox>
+                <xul:textbox flex="1" id="newkey"
+                    onkeypress="parentNode.parentNode.parentNode.onKeyDown(event)"/>
+                <xul:button id="change"
+                    oncommand="parentNode.parentNode.parentNode._change()"
+                    label="&change.label;" disabled="true"/>
+                <xul:button id="add"
+                    oncommand="parentNode.parentNode.parentNode._add()"
+                    label="&add.label;" disabled="true"/>
+            </xul:hbox>
+            <xul:vbox align="center">
+                <xul:label flex="1" id="notAvailable" class="label"
+                value="This key combination is not available." collapsed="true"
+                style="color: darkred;" align="right"/>
+            </xul:vbox>
+            <xul:label value="Key Sequence Currently Used By"/>
+            <xul:listbox id="usedby" rows="4">
+            </xul:listbox>
+        </xul:vbox>
+        </content>
+        <implementation>
+        <property name="gKeybindingMgr"/>
+        <property name="prefsdialog"/>
+        <property name="applycb"/>
+        <field name="part"/>
+        <property name="commandId"
+                  onget="return this.getAttribute('commandId');"
+                  onset="this.setAttribute('commandId',val);"/>
+        <property name="commandParam"
+                  onget="return this.getAttribute('commandParam');"
+                  onset="this.setAttribute('commandParam',val);"/>
+        <constructor>
+            <![CDATA[
+                this.part = null; // If set, then changes to the bindings will
+                                           // be sent to this object for serialization.
+                                           // Otherwise, the keybinding mgr is expected
+                                           // to serialize it as a keyboard configuration
+                this.newkey = this.getElement('textbox', 'newkey');
+                this.log = ko.logging.getLogger('keybindings.xml');
+                // this.log.setLevel(ko.logging.LOG_DEBUG);
+                this.currentkey = this.getElement('textbox', 'currentkey');
+                this.commandParam = null;
+                this.clear = this.getElement('button', 'clear');
+                this.clearall = this.getElement('button', 'clearall');
+                this.change = this.getElement('button', 'change');
+                this.add = this.getElement('button', 'add');
+                this.usedby = this.getElement('listbox', 'usedby');
+                this.currentpopup = this.getElement('menupopup', 'currentpopup');
+                this.currentlist = this.getElement('menulist', 'currentlist');
+                this.notAvailable = this.getElement('label', 'notAvailable');
+                this.keyname = '';
+                this._halfwaydone = false;  // this is true if there's a keybinding entered but not 'add'ed or 'change'd
+                                            // yet -- the Apply() code will ask the user whether they really want to throw it away.
+                                            // XXX there's an easier way to do this -- just check this.newkey.value on apply... =(
+                this.keylabels = [];
+                if (this.hasAttribute('commandId')) {
+                    this.commandId = this.getAttribute('commandId');
+                }
+                this.prefsdialog = false;
+                if (this.hasAttribute('prefsdialog')) {
+                    this.prefsdialog = true;
+                }
+                if (this.hasAttribute('commandParam')) {
+                    this.commandParam = this.getAttribute('commandParam');
+                }
+            ]]>
+            </constructor>
+            <destructor>
+                <![CDATA[
+                    // Refer to http://www.mozilla.org/projects/xbl/xbl.html#binding-detached
+                ]]>
+            </destructor>
+            <method name="init">
+                <body>
+                <![CDATA[
+                    this.myshortdesc = this.gKeybindingMgr.commandId2shortdesc(this.commandId, this.commandParam);
+                ]]>
+                </body>
+            </method>
+            <method name="updateButtons">
+                <body>
+                <![CDATA[
+                try {
+                    if (this.newkey.value) {
+                        if (this.keylabels && this.keylabels.length != 0) {
+                            this.change.removeAttribute('disabled');
+                        } else {
+                            this.change.setAttribute('disabled', true);
+                        }
+                        this.add.removeAttribute('disabled');
+                    } else {
+                        this.change.setAttribute('disabled', true);
+                        this.add.setAttribute('disabled', true);
+                    }
+                    if (this.keylabels && this.keylabels.length > 0) {
+                        this.clear.removeAttribute('disabled');
+                        if (this.keylabels.length > 1) {
+                            this.clearall.removeAttribute('disabled');
+                        } else {
+                            this.clearall.setAttribute('disabled', 'true');
+                        }
+                    } else {
+                        this.clear.setAttribute('disabled', 'true');
+                        this.clearall.setAttribute('disabled', 'true');
+                    }
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="_updateUI">
+                <body>
+                    <![CDATA[
+                    try {
+                        this.newkey.value = '';
+                        this._updateKeylabels();
+                        var expr = this.getAttribute('applycb');
+                        if (expr) {
+                            eval(expr);
+                        }
+                        this._halfwaydone = this.newkey.value != '';
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="_change">
+                <body>
+                    <!--Called when the Add button is pressed.-->
+                    <!--Should replace the currently selected key with
+                        the 'new' key. -->
+                    <![CDATA[
+                    try {
+                        if (!this.prefsdialog) {
+                            // We find the label being changed
+                            for (i in this.keylabels) {
+                                if (this.keylabels[i] == this.currentlabel) {
+                                    this.keylabels[i] = this.keyname;
+                                    break;
+                                }
+                            }
+                            this._updateUI();
+                        } else {
+                            if (! this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                var success = newConfiguration();
+                                if (!success) return;
+                            }
+                            this.assignKey(true);
+                            this.gKeybindingMgr.makeDirty();
+                        }
+                        this.log.debug("in _change, clearing this.keyname");
+                        this.keyname = '';
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="_add">
+                <body>
+                    <!--Called when the Add button is pressed.-->
+                    <!--Should add the 'new' key to the list of keys for-->
+                    <!--the current binding.-->
+                    <![CDATA[
+                    try {
+                        if (!this.prefsdialog) {
+                            this.keylabels = [this.newkey.value].concat(this.keylabels);
+                            this.newkey.value = '';
+                            this._updateUI();
+                        } else {
+                            if (! this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                var success = newConfiguration();
+                                if (!success) return;
+                            }
+                            this.assignKey(false);
+                            this.gKeybindingMgr.makeDirty();
+                        }
+                        this.log.debug("in _add, clearing this.keyname");
+                        this.keyname = '';
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="_clear1">
+                <!--Called when the "Clear" button is pressed.-->
+                <body>
+                    <![CDATA[
+                    try {
+                        if (!this.prefsdialog) {
+                            if (this.currentkey.hasAttribute('collapsed')){
+                                currentkey = this.currentlist.label;
+                            } else {
+                                currentkey = this.currentkey.value;
+                            }
+
+                            // We find the label being changed
+                            for (i = this.keylabels.length-1; i >= 0; i--) {
+                                if (this.keylabels[i] == currentkey) {
+                                    this.keylabels = this.keylabels.slice(0, i).concat(this.keylabels.slice(i+1,this.keylabels.length));
+                                    break;
+                                }
+                            }
+                            this.newkey.value = '';
+                            this._updateUI();
+                        } else {
+                            if (! this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                var success = newConfiguration();
+                                if (!success) return;
+                            }
+                            if (this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                this.newkey.value = '';
+                                var currentlabel;
+                                if (this.currentkey.hasAttribute('collapsed')) {
+                                    currentlabel = this.currentlist.label;
+                                } else {
+                                    currentlabel = this.currentkey.value;
+                                }
+                                this.gKeybindingMgr.clearSequence(this.commandId, currentlabel, !this.prefsdialog);
+                                this.updateCurrentKey();
+                                this.updateUsedBys();
+                            }
+                            this.gKeybindingMgr.makeDirty();
+                        }
+                        this.log.debug("in _clear1, clearing this.keyname");
+                        this.keyname = '';
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+            <method name="_clearAll">
+                <!--Called when the "Clear all" button is pressed.-->
+                <body>
+                    <![CDATA[
+                    try {
+                        if (!this.prefsdialog) {
+                            this.keylabels = [];
+                            this._updateUI();
+                        } else {
+                            if (! this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                var success = newConfiguration();
+                                if (!success) return;
+                            }
+                            if (this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
+                                this.newkey.value = '';
+                                this.gKeybindingMgr.clearBinding(this.commandId, null, false);
+                                this.updateCurrentKey();
+                                this.updateUsedBys();
+                            }
+                            this.gKeybindingMgr.makeDirty();
+                        }
+                        this.log.debug("in _clearAll, clearing this.keyname");
+                        this.keyname = '';
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="apply">
+                <body>
+                    <![CDATA[
+                    try {
+                        var i;
+                        if (!this.prefsdialog) {
+                            if (this._halfwaydone) {
+                                var question = "The keybinding in the \"New Key Sequence\" field will not take effect until you press Add or Change.  Discard it?";
+                                if (ko.dialogs.yesNo(question) != "Yes") {
+                                    return false;
+                                }
+                            }
+                            // We need to check if we are overriding another toolbox or project item.
+
+                            var overridens = [];
+                            var keyname, usedbys, usedby;
+                            for (i in this.keylabels) {
+                                keyname = this.keylabels[i];
+                                usedbys = this.gKeybindingMgr.usedBy(keyname.split(', '));
+                                for (i = 0; i < usedbys.length; i++) {
+                                    usedby = usedbys[i];
+                                    // Update myshortdesc
+                                    var oldshortdesc = this.myshortdesc;
+                                    this.myshortdesc = this.gKeybindingMgr.commandId2shortdesc(this.commandId,
+                                                        this.commandParam);
+                                    // We don't worry about overriding things with "our" name
+                                    // or with the name that we had before (it may be different in
+                                    // the case of a rename.
+                                    // Note that all this complexity should go away when we finally
+                                    // refer to parts by IDs only, and not by name.
+                                    if (usedby.shortdesc &&
+                                        usedby.shortdesc != this.myshortdesc &&
+                                        usedby.shortdesc != oldshortdesc) {
+                                        overridens.push(usedby.shortdesc);
+                                    }
+                                }
+                            }
+                            if (overridens.length > 0) {
+                                var txt = overridens.join(', ');
+                                var question = "Applying the selected keybindings will disable the keybindings from: "+txt+".";
+                                if (ko.dialogs.okCancel(question) != "OK") {
+                                    return false;
+                                }
+                                // Now need to clear said overridens
+                            }
+                            // Unapply the old keybindings
+                            this.gKeybindingMgr.clearBinding(this.commandId, this.commandParam, true);
+                            // Go through all the key labels and apply them
+                            try {
+                                for (i = 0 ; i < this.keylabels.length ; i++) {
+                                    this.gKeybindingMgr.assignKey(this.commandId, this.keylabels[i].split(', '), this.commandParam)
+                                    this.gKeybindingMgr.makeKeyActive(this.commandId, this.keylabels[i].split(', '));
+                                }
+                            } catch (e) { this.log.exception(e); }
+                            if (this.part) {
+                                this.gKeybindingMgr.stashIn(this.part, this.keylabels.join('###'));
+                            }
+                        }
+                        return true;
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    return false;
+                    ]]>
+                </body>
+            </method>
+            <method name="dumpState">
+                <body>
+                    <![CDATA[
+                    dump("this.currentkey = " + this.currentkey.value + '\n');
+                    dump("this.keyname = " + this.keyname+ '\n');
+                    logging_dumpDOM(this.currentkey);
+                    ]]>
+                </body>
+            </method>
+
+            <method name="assignKey">
+                <parameter name="replace"/>
+                <!-- do we want to replace the current assignment or add a new one -->
+                <body>
+                <![CDATA[
+                try {
+                    var oldkey;
+                    this.log.debug("keybindings.xml: assignKey");
+                    if (this.currentkey.hasAttribute('collapsed')){
+                        oldkey = this.currentlist.label;
+                    } else {
+                        oldkey = this.currentkey.value;
+                    }
+                    this.log.debug("keybindings.xml: keyname = " + this.keyname);
+                    var keysequence = this.keyname.split(', ');
+                    this.log.debug("keybindings.xml: keysqueence = " + keysequence);
+                    //logging_dumpObject(keysequence);
+                    this.gKeybindingMgr.clearUsedBys(this.commandId, keysequence)
+                    if (replace) {
+                        this.gKeybindingMgr.clearSequence(this.commandId, oldkey, !this.prefsdialog);
+                    }
+                    this.gKeybindingMgr.assignKey(this.commandId, keysequence, this.commandParam)
+                    this.gKeybindingMgr.makeKeyActive(this.commandId, this.newkey.value.split(', '));
+                    this.log.debug("in assignKey, clearing this.keyname");
+                    this.keyname = '';
+                    this.newkey.value = '';
+                    this.updateCurrentKey();
+                    this.updateUsedBys();
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="makeKeyActive">
+                <body>
+                <![CDATA[
+                try {
+                    var currentlabel;
+                    if (this.currentkey.hasAttribute('collapsed')) {
+                        currentlabel = this.currentlist.label;
+                    } else {
+                        currentlabel = this.currentkey.value;
+                    }
+                    if (currentlabel) {
+                        if (currentlabel == "None") {
+                            // XXX
+                            if (this.part) {
+                                this.gKeybindingMgr.stashIn(this.part, '');
+                                }
+                        } else {
+                            this.gKeybindingMgr.makeKeyActive(this.commandId, currentlabel);
+                            if (this.part) {
+                                this.gKeybindingMgr.stashIn(this.part, currentlabel);
+                            }
+                        }
+                    } else {
+                        // make sure there is no binding to this command.
+                    }
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="onKeyDown">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                try {
+                    var keyname = this.gKeybindingMgr.event2keylabel(event);
+                    // dump("this.keyname: " + this.keyname + "\n");
+                    // dump("keyname: " + keyname + "\n");
+                    this.log.debug("Assigning '" + keyname + "' to keyname");
+                    if (keyname == '') return;
+                    this.usedby.label = '';
+                    event.cancelBubble = true;
+                    event.preventDefault();
+                    // XXX Tab and Escape still do their thing...  don't know why.
+
+                    var vi_enabled = false;
+                    if (this.gKeybindingMgr.vimController.enabled) {
+                        vi_enabled = true;
+                        // dump("Vi is enabled...\n");
+                        // Really, the event2keylabel should do this, but it is
+                        // filtering out any events that are not destined to a
+                        // scintilla widget... and we are not.
+                        if (event.charCode && !(event.ctrlKey || event.altKey || event.metaKey)) {
+                            // Vi needs lowercase/uppercase differentiation
+                            keyname = String.fromCharCode(event.charCode);
+                        }
+                    }
+
+                    if (keyname != 'Backspace' && ((this.keyname && keyname) ||
+                            (this.keyname == '' && (vi_enabled || keyname.length > 1)))) {
+                        // first char can't be single char -- has to be modified.
+                        //this.change.removeAttribute('disabled');
+                        this.notAvailable.setAttribute('collapsed', 'true');
+                        if (this.keyname) {
+                            this.keyname += ', ' + keyname;
+                        } else {
+                            this.keyname = keyname;
+                        }
+                    } else {
+                        if (keyname != 'Backspace') {
+                            this.notAvailable.removeAttribute('collapsed');
+                        }
+                        this.keyname = '';
+                        //this.change.setAttribute('disabled', 'true');
+                    }
+                    this.log.debug("At this point, this.keyname = '" + this.keyname + "'");
+                    this.newkey.value = this.keyname;
+                    this.updateUsedBys();
+                    this.updateButtons();
+                    this._halfwaydone = this.newkey.value != '';
+                } catch (e) {
+                    log.error(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="updateUsedBys">
+                <body>
+                <![CDATA[
+                try {
+                    var startwith = '';
+                    while (this.usedby.hasChildNodes()) {
+                        this.usedby.removeChild(this.usedby.firstChild);
+                    }
+                    if (this.keyname) {
+                        if (this.usedby.hasAttribute('disabled')) {
+                            this.usedby.removeAttribute('disabled');
+                        }
+                        var usedbys = this.gKeybindingMgr.usedBy(this.keyname.split(', '));
+                        var commandname, listitem;
+                        for (var i in usedbys) {
+                            commandname = usedbys[i].command;
+                            listitem = document.createElement('listitem');
+                            listitem.setAttribute('label', usedbys[i].desc);
+                            this.usedby.appendChild(listitem);
+                            if (i == 0) startwith = usedbys[i].desc;
+                        }
+                    } else {
+                        this.usedby.setAttribute('disabled', 'true');
+                    }
+                    this.usedby.label = startwith;
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="_updateKeylabels">
+                <body>
+                    <![CDATA[
+                    try {
+                        var numlabels = this.keylabels.length;
+                        var usePopup = numlabels>1;
+                        if (numlabels < 2) {
+                            if (numlabels == 0) {
+                                this.currentkey.value = 'None';
+                                this.currentlabel = '';
+                            } else {
+                                this.currentkey.value = this.keylabels[0];
+                                this.currentlabel = this.keylabels[0]
+                            }
+                            this.currentkey.removeAttribute('collapsed');
+                            this.currentlist.setAttribute('collapsed', 'true');
+                        } else {
+                            this.currentlist.removeAttribute('collapsed');
+                            this.currentkey.setAttribute('collapsed', 'true');
+                            // multiple key sequences for one command
+                            while (this.currentpopup.hasChildNodes()) {
+                                this.currentpopup.removeChild(this.currentpopup.firstChild);
+                            }
+                            for (var i in this.keylabels) {
+                                var keylabel = this.keylabels[i];
+                                var menuitem = document.createElement('menuitem');
+                                menuitem.setAttribute('label', keylabel);
+                                this.currentpopup.appendChild(menuitem);
+                            }
+                            this.currentlist.selectedIndex = 0;
+                            this.currentlabel = this.keylabels[0]
+                        }
+                        this.updateButtons();
+                    } catch (e) {
+                        this.log.exception(e);
+                    }
+                    ]]>
+                </body>
+            </method>
+
+            <method name="updateCurrentKey">
+                <body>
+                <![CDATA[
+                try {
+                    this.log.debug("in updateCurrentKey, clearing this.keyname\n");
+                    this.newkey.value = this.keyname = '';
+                    if (! this.gKeybindingMgr || typeof(this.gKeybindingMgr) == 'undefined') return;
+                    this.keylabels = this.gKeybindingMgr.command2keysequences(this.commandId, this.commandParam);
+                    this._updateKeylabels();
+                } catch (e) {
+                    this.log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    var v = document.getAnonymousNodes(this);
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("id") == id) {
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    log.error("Could not find element: " + id +'\n');
+                    return null;
+                ]]>
+                </body>
+            </method>
+
+            <property name="currentkeyid"/>
+
+        </implementation>
+    </binding>
+</bindings>

@@ -1,0 +1,41 @@
+                                Sending Feedback
+
+We welcome your feedback, suggestions, feature requests and bug reports.
+
+Comments and Feature Requests
+
+If you tried Komodo and you would like to see a certain feature, or you would
+like to tell us how Komodo met or didn't meet your coding needs, send us an
+email at Komodo-feedback@ActiveState.com
+
+ActiveState Community site
+
+Ask questions, get (or give) advice and share code with other Komodo
+users here:
+
+ http://community.activestate.com/products/Komodo
+
+Reporting Bugs
+
+If you have found a bug, we'd like to know about it. First, view our on-line bug
+database and see if your bug has already been reported. If you can't find your
+issue, you can submit a bug report.
+
+To view our bug database and submit a bug report:
+
+ 1. Go to our on-line bug database at http://bugs.ActiveState.com/Komodo
+    or
+    From the Komodo Workspace, go to the Help menu and select Komodo Bug
+    Database.
+ 2. Click View Bugs. You can apply filters and then sort the result by column.
+ 3. If necessary, click Search and enter a keyword for your bug.
+ 4. If you can't see your bug, click Submit a bug.
+ 5. Complete the on-line form with as much detail as possible. This helps us
+    identify the problem.
+ 6. Click Submit Bug Report.
+    If you make a mistake, click Reset.
+
+Your bug will be assigned an ID and you can monitor the progress of your bug on
+this Web site. We will email you when your bug is resolved.
+
+  ----------------------------------------------------------------------------

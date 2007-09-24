@@ -1,0 +1,21 @@
+family css
+
+state IN_CSS_DSTRING:
+'$$' : #escape, stay
+'${' : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSS_DSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_SSTRING:
+'$$' : #escape, stay
+'${' : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSS_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_DEFAULT:
+'$$' : #escape, stay
+'${' : paint(upto, CSS_DEFAULT), paint(include, SSL_OPERATOR), \
+    spush_check(IN_CSS_DEFAULT) => IN_SSL_DEFAULT
+
+state IN_URL_2:
+'$$' : #escape, stay
+'${' : paint(upto, CSS_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_URL_2) => IN_SSL_DEFAULT

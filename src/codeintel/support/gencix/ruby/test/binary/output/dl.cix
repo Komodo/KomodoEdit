@@ -1,0 +1,76 @@
+    <scope ilk="blob" lang="Ruby" name="dl">
+      <scope ilk="namespace" name="DL">
+        <scope ilk="namespace" name="MemorySpace">
+          <scope ilk="function" name="each" />
+          <variable name="MemoryTable" attributes="__const__" citdl="Hash"/>
+        </scope>
+        <scope ilk="class" name="DLError" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+        <scope ilk="class" name="DLTypeError" mixinrefs="Kernel" classrefs="DL::DLError">
+        </scope>
+        <scope ilk="class" name="Handle" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="[]" />
+          <scope ilk="function" name="close" />
+          <scope ilk="function" name="disable_close" />
+          <scope ilk="function" name="enable_close" />
+          <scope ilk="function" name="sym" />
+          <scope ilk="function" name="to_i" />
+          <scope ilk="function" name="to_ptr" />
+        </scope>
+        <scope ilk="class" name="PtrData" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="+" />
+          <scope ilk="function" name="+@" />
+          <scope ilk="function" name="-" />
+          <scope ilk="function" name="-@" />
+          <scope ilk="function" name="&lt;=&gt;" />
+          <scope ilk="function" name="[]" />
+          <scope ilk="function" name="[]=" />
+          <scope ilk="function" name="data_type" />
+          <scope ilk="function" name="define_data_type" />
+          <scope ilk="function" name="free" />
+          <scope ilk="function" name="free=" />
+          <scope ilk="function" name="null?" />
+          <scope ilk="function" name="ptr" />
+          <scope ilk="function" name="ref" />
+          <scope ilk="function" name="size" />
+          <scope ilk="function" name="size=" />
+          <scope ilk="function" name="struct!" />
+          <scope ilk="function" name="to_i" />
+          <scope ilk="function" name="to_str" />
+          <scope ilk="function" name="union!" />
+        </scope>
+        <scope ilk="class" name="Symbol" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="function" name="[]" />
+          <scope ilk="function" name="call" />
+          <scope ilk="function" name="cproto" />
+          <scope ilk="function" name="name" />
+          <scope ilk="function" name="proto" />
+          <scope ilk="function" name="to_i" />
+          <scope ilk="function" name="to_ptr" />
+        </scope>
+        <scope ilk="function" name="callback" />
+        <scope ilk="function" name="define_callback" />
+        <scope ilk="function" name="dlopen" />
+        <scope ilk="function" name="last_error" />
+        <scope ilk="function" name="last_error=" />
+        <scope ilk="function" name="malloc" />
+        <scope ilk="function" name="remove_callback" />
+        <scope ilk="function" name="sizeof" />
+        <scope ilk="function" name="strdup" />
+        <scope ilk="function" name="win32_last_error" />
+        <scope ilk="function" name="win32_last_error=" />
+        <variable name="ALIGN_DOUBLE" attributes="__const__" citdl="Fixnum"/>
+        <variable name="ALIGN_FLOAT" attributes="__const__" citdl="Fixnum"/>
+        <variable name="ALIGN_INT" attributes="__const__" citdl="Fixnum"/>
+        <variable name="ALIGN_LONG" attributes="__const__" citdl="Fixnum"/>
+        <variable name="ALIGN_SHORT" attributes="__const__" citdl="Fixnum"/>
+        <variable name="ALIGN_VOIDP" attributes="__const__" citdl="Fixnum"/>
+        <variable name="DLSTACK" attributes="__const__" citdl="String"/>
+        <variable name="FREE" attributes="__const__" citdl="DL::Symbol"/>
+        <variable name="FuncTable" attributes="__const__" citdl="Hash"/>
+        <variable name="MAX_ARG" attributes="__const__" citdl="Fixnum"/>
+        <variable name="RTLD_GLOBAL" attributes="__const__" citdl="Fixnum"/>
+        <variable name="RTLD_LAZY" attributes="__const__" citdl="Fixnum"/>
+        <variable name="RTLD_NOW" attributes="__const__" citdl="Fixnum"/>
+      </scope>
+    </scope>

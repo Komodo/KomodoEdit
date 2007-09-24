@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{12D5BE11-463B-4172-A1D3-C7278FDBCF36}") = "xmlspec", "xmlspec.xsltproj", "{60426F54-39C5-482E-90B0-E834BFD82F1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{60426F54-39C5-482E-90B0-E834BFD82F1E}.Debug.ActiveCfg = Debug|Win32
+		{60426F54-39C5-482E-90B0-E834BFD82F1E}.Release.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project kpf_version="2" name="userProject">
+<preference-set id="Unnamed Project 1">
+</preference-set>
+<URL name="http://slashdot.org/">
+http://slashdot.org/</URL>
+<snippet anchor="58" anchor_col="0" anchor_line="0" currentPos="58" currentPos_col="115" currentPos_line="2" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
+/* Copyright (c) 2000-2002 Your Name Here Corporation. */\n</snippet>
+<!-- #if PLATFORM == "win" -->
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Start Internet Explorer" operateOnSelection="0" runIn="no-console">
+start iexplore.exe</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+attrib -R %F</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for modules)" operateOnSelection="0" runIn="command-output-window">
+%(perl) -e print &amp;&amp; perldoc -u %w | pod2html &gt; &quot;c:\temp\pod.html&quot; &amp;&amp; %(browser) c:\temp\pod.html</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for builtin functions)" operateOnSelection="0" runIn="command-output-window">
+%(perl) -e print &amp;&amp; perldoc -u -f %w | pod2html &gt; &quot;c:\temp\pod.html&quot; &amp;&amp; %(browser) c:\temp\pod.html</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="pod2html current file" operateOnSelection="0" runIn="command-output-window">
+%(perl) -e print &amp;&amp; pod2html &quot;%F&quot; &gt; &quot;c:\temp\pod.html&quot; &amp;&amp; %(browser) c:\temp\pod.html</command>
+<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+findstr /s /n /c:&quot;%(w:orask:Search Term)&quot; %(ask:File Pattern:*.*)</command>
+<!-- #endif -->
+<!-- #if PLATFORM == "linux" -->
+<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+find . -name &quot;%(ask:File Pattern:*)&quot; | xargs -l grep -nH &quot;%(w:orask:Search Term)&quot;</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+chmod +w %F</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" insertOutput="0" keyboard_shortcut="" name="Count words in selection using &quot;wc&quot;" operateOnSelection="1" runIn="command-output-window">
+wc -c</command>
+<!-- #endif -->
+</project>

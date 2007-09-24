@@ -1,0 +1,10 @@
+use SOAP::Lite;
+use Cwd;
+use HTML::Parse qw(parse_html);
+use HTTP::Negotiate ();
+use YAML qw(:all :Storable);
+require MyModule;
+require 'MyOtherModule.pm';
+require "YetAnotherModuleOfMine.pm";
+my $stillAnother = "StillAnotherModule.pm";
+require $stillAnother;

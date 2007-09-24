@@ -1,0 +1,86 @@
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="42" path="scan_inputs\dialog.tcl">
+    <scope ilk="blob" lang="Tcl" name="dialog">
+      <scope doc="dialog.tcl This file is part of Unifix BWidget Toolkit $Id:&#xA;dialog.tcl,v 1.15 2004/09/24 23:56:59 hobbs Exp $ ----------&#xA;------------------------------------------------------------&#xA;------ Index of commands:" ilk="namespace" line="24" lineend="53" name="Dialog" />
+      <scope doc="Command Dialog::create" ilk="function" line="59" lineend="125" name="Dialog::create" signature="Dialog::create {path args}">
+        <variable ilk="argument" name="path" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="67" name="dialogClass" />
+        <variable attributes="__local__" line="74" name="re" />
+        <variable attributes="__local__" line="75" name="bd" />
+        <variable attributes="__local__" line="88" name="parent" />
+        <variable attributes="__local__" line="97" name="side" />
+        <variable attributes="__local__" line="99" name="orient" />
+        <variable attributes="__local__" line="104" name="bbox" />
+        <variable attributes="__local__" line="106" name="frame" />
+        <variable attributes="__local__" line="107" name="bg" />
+        <variable attributes="__local__" line="110" name="bitmap" />
+        <variable attributes="__local__" line="111" name="label" />
+        <variable attributes="__local__" line="118" name="_widget" />
+      </scope>
+      <scope doc="Command Dialog::configure" ilk="function" line="131" lineend="146" name="Dialog::configure" signature="Dialog::configure {path args}">
+        <variable ilk="argument" name="path" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="132" name="res" />
+      </scope>
+      <scope doc="Command Dialog::cget" ilk="function" line="152" lineend="154" name="Dialog::cget" signature="Dialog::cget {path option}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="option" />
+      </scope>
+      <scope doc="Command Dialog::getframe" ilk="function" line="160" lineend="162" name="Dialog::getframe" signature="Dialog::getframe {path}">
+        <variable ilk="argument" name="path" />
+      </scope>
+      <scope doc="Command Dialog::add" ilk="function" line="168" lineend="182" name="Dialog::add" signature="Dialog::add {path args}">
+        <variable ilk="argument" name="path" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="__local__" line="173" name="width" />
+        <variable attributes="__local__" line="177" name="cmd" />
+        <variable attributes="__local__" line="179" name="res" />
+      </scope>
+      <scope doc="Command Dialog::itemconfigure" ilk="function" line="188" lineend="190" name="Dialog::itemconfigure" signature="Dialog::itemconfigure {path index args}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="index" />
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope doc="Command Dialog::itemcget" ilk="function" line="196" lineend="198" name="Dialog::itemcget" signature="Dialog::itemcget {path index option}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="index" />
+        <variable ilk="argument" name="option" />
+      </scope>
+      <scope doc="Command Dialog::invoke" ilk="function" line="204" lineend="206" name="Dialog::invoke" signature="Dialog::invoke {path index}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="index" />
+      </scope>
+      <scope doc="Command Dialog::setfocus" ilk="function" line="212" lineend="214" name="Dialog::setfocus" signature="Dialog::setfocus {path index}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="index" />
+      </scope>
+      <scope doc="Command Dialog::enddialog" ilk="function" line="220" lineend="224" name="Dialog::enddialog" signature="Dialog::enddialog {path result}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="result" />
+        <variable attributes="__local__" line="223" name="_widget" />
+      </scope>
+      <scope doc="Command Dialog::draw" ilk="function" line="230" lineend="313" name="Dialog::draw" signature="Dialog::draw {path {focus &quot;&quot;} {overrideredirect 0} {geometry &quot;&quot;}}">
+        <variable ilk="argument" name="path" />
+        <variable ilk="argument" name="focus" />
+        <variable ilk="argument" name="overrideredirect" />
+        <variable ilk="argument" name="geometry" />
+        <variable attributes="__local__" line="233" name="parent" />
+        <variable attributes="__local__" line="235" name="_widget" />
+        <variable attributes="__local__" line="237" name="side" />
+        <variable attributes="__local__" line="239" name="pad" />
+        <variable attributes="__local__" line="240" name="fill" />
+        <variable attributes="__local__" line="257" name="geom" />
+        <variable attributes="__local__" line="263" name="place" />
+        <variable attributes="__local__" line="297" name="grab" />
+        <variable attributes="__local__" line="304" name="res" />
+      </scope>
+      <scope doc="Command Dialog::withdraw" ilk="function" line="319" lineend="325" name="Dialog::withdraw" signature="Dialog::withdraw {path}">
+        <variable ilk="argument" name="path" />
+      </scope>
+      <scope doc="Command Dialog::_destroy" ilk="function" line="331" lineend="345" name="Dialog::_destroy" signature="Dialog::_destroy {path}">
+        <variable ilk="argument" name="path" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

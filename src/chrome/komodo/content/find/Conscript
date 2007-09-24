@@ -1,0 +1,53 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'mozVersion',
+);
+
+$cons->InstallInChrome('find_functions.js');
+$cons->InstallInChrome('findResultsTab.js');
+$cons->Preprocess('find.p.js', 'find.js');
+$cons->InstallInChrome('find.js');
+$cons->Preprocess('find.p.xul', 'find.xul');
+$cons->InstallInChrome('find.xul');
+$cons->Preprocess('findInFiles.p.js', 'findInFiles.js');
+$cons->InstallInChrome('findInFiles.js');
+
+if (0) {
+    $cons->Preprocess('find2.p.js', 'find2.js');
+    $cons->InstallInChrome('find2.js');
+    $cons->Preprocess('find2.p.xul', 'find2.xul');
+    $cons->InstallInChrome('find2.xul');
+}
+
+
+$pathsep = ':';
+# if the version is 5.003, we can check $^O
+if ($] <  5.003) {
+	eval("require Win32");
+	$iswin32 = (!$@);
+} else {
+	$iswin32 = ($^O eq "MSWin32") ? 1 : 0;
+}
+if ($iswin32) {
+	$_WIN32 = 1;
+	$pathsep = ';';
+}
+$cons->Preprocess('findInFiles.p.xul', 'findInFiles.xul',
+                  {'__PATHSEP__' => $pathsep});
+$cons->InstallInChrome('findInFiles.xul');
+
+$cons->InstallInChrome('browseForDirs.xul');
+$cons->Preprocess('browseForDirs.p.js', 'browseForDirs.js');
+$cons->InstallInChrome('browseForDirs.js');
+$cons->InstallInChrome('findtoolbar.js');
+

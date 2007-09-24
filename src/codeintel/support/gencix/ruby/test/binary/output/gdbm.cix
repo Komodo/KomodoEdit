@@ -1,0 +1,73 @@
+    <scope ilk="blob" lang="Ruby" name="gdbm">
+      <scope ilk="class" name="GDBM" mixinrefs="Enumerable Kernel" classrefs="Object">
+        <scope ilk="function" name="[]" />
+        <scope ilk="function" name="[]=" />
+        <scope ilk="function" name="all?" />
+        <scope ilk="function" name="any?" />
+        <scope ilk="function" name="cachesize=" />
+        <scope ilk="function" name="clear" />
+        <scope ilk="function" name="close" />
+        <scope ilk="function" name="closed?" />
+        <scope ilk="function" name="collect" />
+        <scope ilk="function" name="delete" />
+        <scope ilk="function" name="delete_if" />
+        <scope ilk="function" name="detect" />
+        <scope ilk="function" name="each" />
+        <scope ilk="function" name="each_key" />
+        <scope ilk="function" name="each_pair" />
+        <scope ilk="function" name="each_value" />
+        <scope ilk="function" name="each_with_index" />
+        <scope ilk="function" name="empty?" />
+        <scope ilk="function" name="entries" />
+        <scope ilk="function" name="fastmode=" />
+        <scope ilk="function" name="fetch" />
+        <scope ilk="function" name="find" />
+        <scope ilk="function" name="find_all" />
+        <scope ilk="function" name="grep" />
+        <scope ilk="function" name="has_key?" />
+        <scope ilk="function" name="has_value?" />
+        <scope ilk="function" name="index" />
+        <scope ilk="function" name="indexes" />
+        <scope ilk="function" name="indices" />
+        <scope ilk="function" name="inject" />
+        <scope ilk="function" name="invert" />
+        <scope ilk="function" name="key?" />
+        <scope ilk="function" name="keys" />
+        <scope ilk="function" name="length" />
+        <scope ilk="function" name="map" />
+        <scope ilk="function" name="max" />
+        <scope ilk="function" name="member?" />
+        <scope ilk="function" name="min" />
+        <scope ilk="function" name="partition" />
+        <scope ilk="function" name="reject" />
+        <scope ilk="function" name="reject!" />
+        <scope ilk="function" name="reorganize" />
+        <scope ilk="function" name="replace" />
+        <scope ilk="function" name="select" />
+        <scope ilk="function" name="shift" />
+        <scope ilk="function" name="size" />
+        <scope ilk="function" name="sort" />
+        <scope ilk="function" name="sort_by" />
+        <scope ilk="function" name="store" />
+        <scope ilk="function" name="sync" />
+        <scope ilk="function" name="syncmode=" />
+        <scope ilk="function" name="to_hash" />
+        <scope ilk="function" name="update" />
+        <scope ilk="function" name="value?" />
+        <scope ilk="function" name="values" />
+        <scope ilk="function" name="values_at" />
+        <scope ilk="function" name="zip" />
+        <variable name="FAST" attributes="__const__" citdl="Fixnum"/>
+        <variable name="NEWDB" attributes="__const__" citdl="Fixnum"/>
+        <variable name="NOLOCK" attributes="__const__" citdl="Fixnum"/>
+        <variable name="READER" attributes="__const__" citdl="Fixnum"/>
+        <variable name="SYNC" attributes="__const__" citdl="Fixnum"/>
+        <variable name="VERSION" attributes="__const__" citdl="String"/>
+        <variable name="WRCREAT" attributes="__const__" citdl="Fixnum"/>
+        <variable name="WRITER" attributes="__const__" citdl="Fixnum"/>
+      </scope>
+      <scope ilk="class" name="GDBMError" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+      <scope ilk="class" name="GDBMFatalError" mixinrefs="Kernel" classrefs="Exception">
+      </scope>
+    </scope>

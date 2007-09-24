@@ -1,0 +1,31 @@
+<!ENTITY URI.label "URI">
+<!ENTITY add.tooltiptext "Add...">
+<!ENTITY addEntry.tooltiptext "Add Entry...">
+<!ENTITY back.tooltiptext "Back">
+<!ENTITY copy.label "Copy">
+<!ENTITY cut.label "Cut">
+<!ENTITY delete.tooltiptext "Delete...">
+<!ENTITY deleteEntries.tooltiptext "Delete Entries...">
+<!ENTITY diffToolbar.tooltiptext "Diff Toolbar">
+<!ENTITY doubleClickToChangeOrientation.tooltiptext "Double-click to change orientation">
+<!ENTITY filterItems.tooltiptext "Filter Items">
+<!ENTITY forward.tooltiptext "Forward">
+<!ENTITY jumpToNextDiff.tooltiptext "Jump to Next Diff">
+<!ENTITY jumpToPreviousDiff.tooltiptext "Jump to Previous Diff">
+<!ENTITY localPath.label "Local Path">
+<!ENTITY moveDown.tooltiptext "Move Down">
+<!ENTITY moveUp.tooltiptext "Move Up">
+<!ENTITY name.label "Name">
+<!ENTITY next.label " Next">
+<!ENTITY paste.label "Paste">
+<!ENTITY previous.label " Previous">
+<!ENTITY reload.tooltiptext "Reload">
+<!ENTITY reveal.label " Reveal">
+<!ENTITY revealPositionInEditor.tooltiptext "Reveal Position in Editor">
+<!ENTITY selectAll.label "Select All">
+<!ENTITY showHideEOLMarkers.label "Show/Hide EOL Markers">
+<!ENTITY showHideIndentationGuides.label "Show/Hide Indentation Guides">
+<!ENTITY showHideLineNumbers.label "Show/Hide Line Numbers">
+<!ENTITY showHideWhitespace.label "Show/Hide Whitespace">
+<!ENTITY stop.tooltiptext "Stop">
+<!ENTITY wordWrap.label "Word Wrap">

@@ -1,0 +1,18 @@
+<!ENTITY CRITICAL50.label "CRITICAL (50)">
+<!ENTITY DEBUG10.label "DEBUG (10)">
+<!ENTITY ERROR40.label "ERROR (40)">
+<!ENTITY INFO20.label "INFO (20)">
+<!ENTITY WARN30.label "WARN (30)">
+<!ENTITY clearLog.label "Clear Log">
+<!ENTITY deleteUnset.label "Delete/Unset">
+<!ENTITY effectiveLevel.label "Effective Level">
+<!ENTITY level.label "Level">
+<!ENTITY logger.label "Logger">
+<!ENTITY loggingControl.title "Logging Control">
+<!ENTITY message.label "Message">
+<!ENTITY name.label "Name">
+<!ENTITY setLevel.label "Set Level">
+<!ENTITY status.label "Status">
+<!ENTITY type.label "Type">
+<!ENTITY unset.label "unset">
+<!ENTITY value.label "Value">

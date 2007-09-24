@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "libpcre.vcproj", "{4584CA44-A93E-4BC0-AABD-FEEBA963ED07}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 1
+		SccProjectUniqueName0 = libpcre.vcproj
+		SccProjectName0 = Perforce\u0020Project
+		SccLocalPath0 = ..
+		SccProvider0 = MSSCCI:Perforce\u0020SCM
+		SccProjectFilePathRelativizedFromConnection0 = Win32\\
+	EndGlobalSection
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{4584CA44-A93E-4BC0-AABD-FEEBA963ED07}.Debug.ActiveCfg = Debug|Win32
+		{4584CA44-A93E-4BC0-AABD-FEEBA963ED07}.Debug.Build.0 = Debug|Win32
+		{4584CA44-A93E-4BC0-AABD-FEEBA963ED07}.Release.ActiveCfg = Release|Win32
+		{4584CA44-A93E-4BC0-AABD-FEEBA963ED07}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

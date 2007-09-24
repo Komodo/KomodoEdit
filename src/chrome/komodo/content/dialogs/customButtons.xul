@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Generic dialog with customizable buttons. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<dialog id="dialog-custombuttons"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 40em; max-width: 55em;"
+        flex="1"
+        buttons="accept,extra1,extra2,cancel"
+        ondialogaccept="return Accept();"
+        ondialogextra1="return Extra1();"
+        ondialogextra2="return Extra2();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/customButtons.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox flex="1">
+        <hbox align="start">
+            <image id="dialog-icon" class="question-icon spaced"/>
+        </hbox>
+        <separator orient="vertical" class="thin"/>
+        <vbox flex="1">
+            <description id="prompt" flex="1"/>
+            <textbox id="text" multiline="true" flex="1"
+                     style="min-width: 40em; min-height: 8em;"
+                     readonly="true" collapsed="true"/>
+        </vbox>
+    </hbox>
+    <separator class="thin"/>
+    <checkbox id="doNotAsk-checkbox" checked="false" collapsed="true"
+              label="&donTAskMeAgain.label;" accesskey="&doNotAskCheckbox.accesskey;"/>
+
+</dialog>
+

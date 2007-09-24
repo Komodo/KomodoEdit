@@ -1,0 +1,15 @@
+<h3>All Readers</h3>
+<% if session[:reader] %>
+	<p>
+		Hi <%= @logged_in_reader.fullname %>, would you like to <%= link_to "Add a new reader", new_reader_url %>
+	</p>
+<% end %>
+
+<table>
+	<%= column_headings %w(Who Read Last Date),  @show_actions %>
+	<tbody>
+			<%= render :partial => "reader", :collection => @readers %>
+	</tbody>
+</table>
+
+<%= next_previous_links_for @reader_paginator %>

@@ -1,0 +1,17 @@
+# A Makefile to do this: startw.cpp -> startw.exe
+
+APPNAME=startw
+
+CL=cl /nologo
+LINK=link /nologo
+CFLAGS=/W3 /DWIN32 /Ox /DNDEBUG /D_NDEBUG /MD 
+LDFLAGS=kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib shell32.lib
+RM=del
+
+$(APPNAME).exe: startw.cpp
+	$(CL) $(CFLAGS)    /D_WINDOWS          /Fostartw.obj /c startw.cpp
+	$(LINK) $(LDFLAGS) /subsystem:windows  /out:$(APPNAME).exe startw.obj
+
+clean:
+	if exist startw.obj; $(RM) startw.obj
+    if exist $(APPNAME).exe; $(RM) $(APPNAME).exe

@@ -1,0 +1,13 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIEnumerator.idl"
+
+[scriptable, uuid(D755D089-F77C-4c2e-BF46-F615ABBA83CC)]
+interface koIAutoComplete : nsISupports
+{
+  wstring AutoComplete(in long pos, 
+		      in wstring source_line);
+  void Exec(in wstring source_line);
+};

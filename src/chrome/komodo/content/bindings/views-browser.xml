@@ -1,0 +1,405 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-browser" display="xul:box"
+    extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/browser.css"/>
+    </resources>
+    <content>
+        <xul:vbox flex="1">
+            <xul:toolbox xbl:inherits="collapsed=collapsenavbar" collapsed="false">
+                <xul:toolbar id="nav-bar" grippyhidden="true">
+                    <xul:toolbarbutton id="browser-back-button" class="browser-toolbar" crop="right" onclick="this.parentNode.parentNode.parentNode.parentNode.back()" tooltiptext="&back.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-forward-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="this.parentNode.parentNode.parentNode.parentNode.forward()" tooltiptext="&forward.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-reload-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="this.parentNode.parentNode.parentNode.parentNode.reload()" tooltiptext="&reload.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="this.parentNode.parentNode.parentNode.parentNode.stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
+                    <xul:textbox autocomplete="true" timeout="300" flex="1"
+                                    searchSessionType="urlbar" id="urlbar"
+                                onkeypress="if( event.keyCode == 13 ) { this.parentNode.parentNode.parentNode.parentNode.open(this.value); }"/>
+                </xul:toolbar>
+            </xul:toolbox>
+
+            <xul:browser context="context" type="content" id="content" src="about:blank" flex="1"/>
+        </xul:vbox>
+    </content>
+    <implementation name="viewbrowser" implements="koIBrowserView">
+        <property name="_backButton"
+            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[0];"/>
+        <property name="_forwardButton"
+            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[1];"/>
+        <property name="_reloadButton"
+            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[2];"/>
+        <property name="_stopButton"
+            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[3];"/>
+
+        <field name="_browser">null</field>
+        <property name="browser" readonly="true">
+        <getter>
+        <![CDATA[
+            if (!this._browser) {
+                this._browser = document.getAnonymousNodes(this)[0].lastChild;
+            }
+            return this._browser;
+        ]]>
+        </getter>
+        </property>
+        <field name="_urlBar">null</field>
+        <property name="urlBar" readonly="true">
+        <getter>
+        <![CDATA[
+            if (!this._urlBar) {
+                this._urlBar = document.getAnonymousNodes(this)[0].firstChild.firstChild.lastChild;
+            }
+            return this._urlBar;
+        ]]>
+        </getter>
+        </property>
+
+        <field name="mURIFixup" readonly="true">
+            Components.classes["@mozilla.org/docshell/urifixup;1"]
+                    .getService(Components.interfaces.nsIURIFixup);
+        </field>
+
+        <property name="title" readonly="true">
+        <getter>
+        <![CDATA[
+            var title = this.browser.contentTitle;
+            if (!title) {
+              if (this.browser.currentURI && this.browser.currentURI.spec) {
+                try {
+                  title = this.mURIFixup.createExposableURI(this.browser.currentURI).spec;
+                }
+                catch(ex) {
+                  title = this.browser.currentURI.spec;
+                }
+              }
+
+              if (title && title != "about:blank") {
+                // At this point, we now have a URI.
+                // Let's try to unescape it using a character set
+                // in case the URI is not ASCII.
+                try {
+                  var characterSet = Components.lookupMethod(this.browser.contentDocument, 'characterSet')
+                                               .call(this.browser.contentDocument);
+                  const textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
+                                                 .getService(Components.interfaces.nsITextToSubURI);
+                  title = textToSubURI.unEscapeNonAsciiURI(characterSet, title);
+                  basename = ko.uriparse.baseName(title);
+                  if (basename)
+                    title = basename;
+                }
+                catch(ex) {
+                  // Do nothing.
+                }
+              } else if (this.document && !this.document.isUntitled) {
+                title = this.document.baseName;
+              } else // Still no title?  Fall back to our untitled string.
+                title = '(untitled)';
+            }
+            return title;
+        ]]>
+        </getter>
+        </property>
+
+        <method name="getURI">
+        <body>
+        <![CDATA[
+            if (this.document && !this.document.isUntitled)
+                return this.document.file.URI;
+            return null;
+        ]]>
+        </body>
+        </method>
+
+        <method name="resetArrowButtons">
+        <body>
+        <![CDATA[
+            if (this.browser.canGoBack)
+                this._backButton.removeAttribute('disabled');
+            else
+                this._backButton.setAttribute('disabled','true');
+
+            if (this.browser.canGoForward)
+                this._forwardButton.removeAttribute('disabled');
+            else
+                this._forwardButton.setAttribute('disabled','true');
+        ]]>
+        </body>
+        </method>
+
+        <method name="setBusy">
+        <parameter name="busy"/>
+        <body>
+        <![CDATA[
+            if (busy) {
+                this._stopButton.removeAttribute('disabled');
+                this._reloadButton.setAttribute('disabled','true');
+            } else {
+                this._stopButton.setAttribute('disabled','true');
+                this._reloadButton.removeAttribute('disabled');
+            }
+        ]]>
+        </body>
+        </method>
+
+        <field name="progressFilter">null</field>
+        <method name="init">
+        <body>
+        <![CDATA[
+            if (this.parentView) {
+                this.parentView.setContext(this, "tabContextMenu");
+            }
+
+            this._progressListener = this._getProgressListener();
+
+            this.progressFilter = Components.classes["@mozilla.org/appshell/component/browser-status-filter;1"]
+                                     .createInstance(Components.interfaces.nsIWebProgress);
+            this.progressFilter.addProgressListener(this._progressListener, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+            this.browser.webProgress.addProgressListener(this.progressFilter, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+
+            this.browser.addEventListener("DOMTitleChanged", this.onTitleChanged, false);
+        ]]>
+        </body>
+        </method>
+
+        <method name="setFocus">
+        <body>
+        <![CDATA[
+            this.browser.focus();
+        ]]>
+        </body>
+        </method>
+
+        <method name="_getProgressListener">
+        <body>
+        <![CDATA[
+            // refer to mozilla/embeding/browser/chrome/content/mini-nav.js
+            var listener = {
+              view: null,
+              get docSvc() {
+                    return Components.classes['@activestate.com/koDocumentService;1']
+                            .getService(Components.interfaces.koIDocumentService);
+              },
+              QueryInterface : function(aIID)
+              {
+                if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
+                    aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+                    aIID.equals(Components.interfaces.nsISupports))
+                {
+                  return this;
+                }
+                throw Components.results.NS_NOINTERFACE;
+              },
+              init : function() {},
+              destroy : function() {},
+              onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus) {
+                if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
+                    this.view.parentView.updateLeafName(this.view);
+                    this.view.setBusy(false);
+                    this.view.resetArrowButtons();
+                }
+              },
+              onProgressChange : function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
+              onLocationChange : function(aWebProgress, aRequest, aLocation)
+              {
+                var domWindow = aWebProgress.DOMWindow;
+                // Update urlbar only if there was a load on the root docshell
+                if (domWindow == domWindow.top) {
+                  this.view.parentView.updateLeafName(this.view);
+                  this.view.urlBar.value = aLocation.spec;
+                  if (this.view.document && this.view.document.file.URI != aLocation.spec) {
+                    this.view.document = this.docSvc.createDocumentFromURI(aLocation.spec);
+                  }
+                }
+              },
+              onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage) {},
+              onSecurityChange : function(aWebProgress, aRequest, aState) {}
+            };
+            listener.view = this;
+            return listener;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onTitleChanged">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            if (this.parentView)
+                this.parentView.updateLeafName(this);
+        ]]>
+        </body>
+        </method>
+
+        <method name="open">
+        <parameter name="URI"/>
+        <parameter name="notify"/>
+        <body>
+        <![CDATA[
+            var doc = this.__docsvc.createDocumentFromURI(URI);
+            this.initWithDocument(doc, notify);
+        ]]>
+        </body>
+        </method>
+
+        <method name="close">
+        <body>
+        <![CDATA[
+            if (this.sourceView) {
+                this.sourceView.preview = null;
+                this.sourceView = null;
+            }
+            try {
+                if (this.progressFilter) {
+                    if (this._progressListener) {
+                        this.progressFilter.removeProgressListener(this._progressListener);
+                    }
+                    this.browser.removeProgressListener(this.progressFilter);
+                }
+            } catch(e) {}
+            this._progressListener = null;
+            try {
+                this.browser.removeEventListener("DOMTitleChanged", this.onTitleChanged, false);
+            } catch(e) {}
+            /////// copied from view-base.close due to xbl inheritance issues //////
+            try {
+                this.__observersvc.notifyObservers(this, 'view_closed', '');
+            } catch(e) {
+                // no one is listening
+            }
+            try {
+                if (this.parentView)
+                    this.parentView.removeView(this);
+            } catch (e) {
+                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
+            }
+            return true;
+            ////////////////////////////////////////////////////////////////////////
+        ]]>
+        </body>
+        </method>
+
+        <method name="initWithDocument">
+        <parameter name="doc"/>
+        <parameter name="notify"/>
+        <body>
+        <![CDATA[
+            if (typeof(notify) == 'undefined') notify = true;
+            this.document = doc;
+            var docCharset = this.browser.docShell.QueryInterface(
+                                Components.interfaces.nsIDocCharset);
+            docCharset.charset = this.document.encoding.python_encoding_name;
+            if (!doc.isUntitled) {
+                // XXX bug (28969) unc paths
+                try {
+                    this.browser.loadURI(doc.file.URI, null);
+                } catch(e) {
+                    this.browser.loadURI(doc.file.path, null);
+                }
+            }
+            this.setBusy(true);
+            this.resetArrowButtons();
+
+            if (this.parentView)
+                this.parentView.updateLeafName(this);
+            try {
+                if (notify)
+                    this.__observersvc.notifyObservers(this, 'current_view_changed', '');
+            } catch (e) {
+                // nobody home
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="back">
+        <parameter name="URI"/>
+        <body>
+        <![CDATA[
+            if (this.browser.canGoBack)
+                this.browser.goBack();
+            this.resetArrowButtons();
+        ]]>
+        </body>
+        </method>
+
+        <method name="forward">
+        <parameter name="URI"/>
+        <body>
+        <![CDATA[
+            if (this.browser.canGoForward)
+                this.browser.goForward();
+            this.resetArrowButtons();
+        ]]>
+        </body>
+        </method>
+
+        <method name="stop">
+        <parameter name="URI"/>
+        <body>
+        <![CDATA[
+            this.browser.stop();
+        ]]>
+        </body>
+        </method>
+
+        <method name="reload">
+        <body>
+        <![CDATA[
+            this.browser.reload();
+            this.setBusy(true);
+        ]]>
+        </body>
+        </method>
+
+        <method name="getState">
+        <body>
+        <![CDATA[
+            return null;
+            /*
+            XXX bug # 26803
+            we'll have to refactor some of the workspace stuff to make
+            restoring browser preview panes work correctly, so for now
+            we take the easy route and do not restore browser preview.
+
+            if (this.document.isUntitled ||
+                this.title.indexOf('about:')==0) { return null; }
+            var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            myState.setStringPref('viewtype', 'browser');
+            myState.setStringPref('URI', this.document.file.URI);
+            return myState;
+            */
+        ]]>
+        </body>
+        </method>
+
+        <field name="sourceView">null</field>
+        <method name="viewSource">
+        <body>
+        <![CDATA[
+            if (this.sourceView) {
+                this.sourceView.makeCurrent();
+            } else {
+                throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+            }
+        ]]>
+        </body>
+        </method>
+
+    </implementation>
+</binding>
+
+</bindings>

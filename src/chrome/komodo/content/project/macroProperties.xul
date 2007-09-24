@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!--
+
+  Arguments are stored in window.arguments[0], which has the following properties:
+     - an 'item' item (wrapped part)
+     - a 'task' which should be 'new' for New Macros and 'edit' for Macro Properties.
+
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+
+<!--For the keybinding tab-->
+<?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_macroproperties"
+        id="dialog-macroproperties"
+        orient="vertical"
+        onload="onLoad()"
+        persist="width height screenX screenY"
+        style="min-width: 420px; min-height: 600px;"
+        buttons="accept,extra1,cancel,help"
+        ondialogaccept="return OK(event)"
+        ondialogextra1="return Apply()"
+        ondialoghelp="ko.help.open('macro_options');"
+        ondialogcancel="return Cancel()">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <!--nsDragAndDrop/nsTransferable used for Drag and Drop-->
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/trace.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://global/content/nsDragAndDrop.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/color_functions.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/controller.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/commands.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/uriparse.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/dialogs.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/filepickers.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/project/macroProperties.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/markers.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/open.js"/>
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/library/timers.js"/>
+
+    <hbox id="scintillaOverlayXul"/>
+    <tabbox id="macroProperties" orient="vertical" flex="1">
+        <tabs id="tabs" orient="horizontal">
+            <tab id="macro_tab" label="&macro.label;"/>
+            <tab id="shortcut_tab" label="&keyBinding.label;"
+                 onfocus="macronamelabel.value=macroname.value;"/>
+            <tab id="trigger_tab" label="&triggers.label;"
+                 onfocus="macronamelabel2.value=macroname.value;"/>
+        </tabs>
+        <tabpanels flex="1">
+            <vbox id="macro_tabpanel" flex="1">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image style="max-width: 22px; max-height:16px"
+                                   id="propertiestab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                             onkeyup="UpdateField('name');"/>
+                    <spacer width="10"/>
+                    <vbox _style="padding: 5px 5px 0px 5px;">
+                        <spring flex="1"/>
+                        <button accesskey="&changeIcon.accesskey;" label="&changeIcon.label;" oncommand="pick_icon()"/>
+                    </vbox>
+                    <vbox _style="padding: 5px 5px 0px 5px;">
+                        <button id="reseticon" accesskey="&reseticon.accesskey;" label="&reset.label;" oncommand="pick_icon(true)"/>
+                        <spring flex="1"/>
+                    </vbox>
+                </hbox>
+                <spacer height="12"/>
+                <separator class="groovy-thin"/>
+                <spacer height="10"/>
+                <hbox align="center">
+                    <label value="Language: "/>
+                    <radiogroup id="language"
+                                orient="horizontal">
+                        <radio id="Python"
+                               label="&python.label;"
+                               accesskey="&python.accesskey;"
+                               oncommand="SwitchLanguage('Python');"/>
+                        <radio id="JavaScript"
+                               label="&javaScript.label;"
+                               accesskey="&javaScript.accesskey;"
+                               oncommand="SwitchLanguage('JavaScript');"/>
+                    </radiogroup>
+                </hbox>
+                <separator class="thin"/>
+                <view id="macrocontents" flex="1" type="buffer"/>
+                <separator class="thin"/>
+                <checkbox id="async"
+                          accesskey="&async.accesskey;"
+                          oncommand="UpdateField('background')"
+                          label="&runInBackground.label;"/>
+            </vbox>
+            <vbox id="shortcut_tabpanel">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image style="max-width: 22px; max-height:16px"
+                                   id="keybindingtab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <label id="partnamelabel" style="height:25px; padding-left: 2px; padding-top: 4px;"
+                           value="" flex="1"/>
+                </hbox>
+                <spacer height="15"/>
+                <separator class="groovy-thin"/>
+                <spacer height="10"/>
+                <editkeybinding id="keybindings" applycb="makeAppliable()" commandId="cmd_callPart"/>
+            </vbox>
+            <vbox id="triggers_tabpanel">
+                <!-- header -->
+                <spacer height="5"/>
+                <hbox style="height:27px;">
+                    <spacer width="5"/>
+                    <hbox style="width: 22px;">
+                        <vbox>
+                            <spring flex="1"/>
+                            <image style="max-width: 22px; max-height:16px"
+                                   id="triggertab_icon"/>
+                            <spring flex="1"/>
+                        </vbox>
+                    </hbox>
+                    <spacer width="5"/>
+                    <label id="partnamelabel2" style="height:25px; padding-left: 2px; padding-top: 4px;"
+                           value="" flex="1"/>
+                </hbox>
+                <spacer height="15"/>
+                <separator class="groovy-thin"/>
+                <groupbox id="trigger_group">
+                    <caption>
+                        <checkbox id="trigger_checkbox"
+                                  label="&macroShouldTriggerOnAKomodoEvent.label;"
+                                  oncommand="UpdateField('do_trigger')"/>
+                    </caption>
+
+                    <radiogroup id="trigger_type">
+                        <radio id="trigger_startup"
+                               accesskey="&triggerStartup.accesskey;"
+                               checked="true"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&onStartup.label;"/>
+                        <radio id="trigger_postopen"
+                               accesskey="&triggerPostopen.accesskey;"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&afterFileOpen.label;"/>
+                        <hbox align="center">
+                            <radio id="trigger_presave"
+                                   accesskey="&triggerPresave.accesskey;"
+                                   oncommand="UpdateField('trigger_type')"
+                                   label="&beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label;"/>
+                        </hbox>
+                        <radio id="trigger_postsave"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&afterFileSave.label;"/>
+                        <hbox align="center">
+                            <radio id="trigger_preclose"
+                                   accesskey="&triggerPreclose.accesskey;"
+                                   oncommand="UpdateField('trigger_type')"
+                                   label="&beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label;"/>
+                        </hbox>
+                        <radio id="trigger_postclose"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&afterFileClose.label;"/>
+                        <hbox align="center">
+                            <radio id="trigger_quit"
+                               accesskey="&triggerQuit.accesskey;"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&onShutdownTheMacroCanReturnTrueToPreventShutdown.label;"/>
+                        </hbox>
+                    </radiogroup>
+                    <spacer height="10"/>
+                    <hbox align="center">
+                        <label value="Rank:"
+                               accesskey="&k.accesskey;"
+                               control="rank"/>
+                        <textbox id="rank"
+                                 value=""/>
+                    </hbox>
+                </groupbox>
+            </vbox>
+        </tabpanels>
+        <separator class="thin"/>
+    </tabbox>
+</dialog>
+

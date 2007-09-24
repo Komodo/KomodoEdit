@@ -1,0 +1,94 @@
+#!/usr/local/bin/perl -w
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    "cons",
+    "platform",
+    "supportDir",
+    "build"
+);
+
+local $build = substr($build, 1, length($build)); # drop the leading '#'
+my ($exeName, $make, $makefile);
+if ($platform eq "win") {
+    $exeName = "bin\\tidy.exe";
+    $make = "nmake";
+    $makefile = "Makefile.vc6";
+    $tidyDir = "$build\\tidy\\build\\msvc\\";
+} else {
+    $exeName = "bin/tidy";
+    if ($platform eq "darwin") {
+      $make = "RANLIB=ranlib make";
+    } else {
+      $make = "make";
+    }
+    $makefile = "Makefile";
+    $tidyDir = "$build/tidy/build/gmake";
+}
+
+
+%consLocal = $cons->copy();
+$consLocal{CPPPATH} = "include";
+$consLocal{LIBPATH} = "obj";
+$consLocal = new cons(%consLocal);
+
+$consLocal->Command($exeName, 
+                    "build/gmake/Makefile",
+                    "build/msvc/Makefile.vc6",
+                    "console/tab2space.c",
+                    "console/tidy.c",
+                    "include/buffio.h",
+                    "include/fileio.h",
+                    "include/platform.h",
+                    "include/tidy.h",
+                    "include/tidyenum.h",
+                    "src/access.c",
+                    "src/access.h",
+                    "src/alloc.c",
+                    "src/attrask.c",
+                    "src/attrdict.c",
+                    "src/attrdict.h",
+                    "src/attrget.c",
+                    "src/attrs.c",
+                    "src/attrs.h",
+                    "src/buffio.c",
+                    "src/charsets.c",
+                    "src/charsets.h",
+                    "src/clean.c",
+                    "src/clean.h",
+                    "src/config.c",
+                    "src/config.h",
+                    "src/entities.c",
+                    "src/entities.h",
+                    "src/fileio.c",
+                    "src/forward.h",
+                    "src/iconvtc.c",
+                    "src/iconvtc.h",
+                    "src/istack.c",
+                    "src/lexer.c",
+                    "src/lexer.h",
+                    "src/localize.c",
+                    "src/message.h",
+                    "src/parser.c",
+                    "src/parser.h",
+                    "src/pprint.c",
+                    "src/pprint.h",
+                    "src/streamio.c",
+                    "src/streamio.h",
+                    "src/tagask.c",
+                    "src/tags.c",
+                    "src/tags.h",
+                    "src/tidy-int.h",
+                    "src/tidylib.c",
+                    "src/tmbstr.c",
+                    "src/tmbstr.h",
+                    "src/utf8.c",
+                    "src/utf8.h",
+                    "src/win32tc.c",
+                    "src/win32tc.h",
+                    "obj/empty.txt",
+                    qq{cd $tidyDir && $make -f $makefile}
+                   );
+$consLocal->Install("$supportDir/html", $exeName);
+

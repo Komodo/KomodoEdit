@@ -1,0 +1,5 @@
+#!/bin/sh
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+perl `which cons.pl` $*

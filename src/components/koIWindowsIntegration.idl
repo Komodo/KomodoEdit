@@ -1,0 +1,48 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+
+// An outliner view for the extension lists in the "Windows Integration"
+// preferences panel.
+[scriptable, uuid(3E38EFE9-8DC9-41e9-9F91-DA5DF086AC05)]
+interface koIExtensionsView: nsITreeView {
+    // Add the given ext. Silently do nothing if already have this ext.
+    void Add(in string extension);
+    // Remove the given ext. Silently do nothing if don't have this ext.
+    void Remove(in string extension);
+    // Remove the ext at the given index. Raise an error if don't have
+    // this index.
+    void RemoveIndex(in PRInt32 index);
+    string Get(in PRUint32 index);
+
+    // Sort the find result data by a certain key (this key typically
+    // matches the <outlinercol id=.../> id's).
+    void Sort(in string sortBy);
+
+    // Get/Set the list of extensions as a ';'-separated list.
+    void SetExtensions(in string extensions); // Set initial state.
+    string GetExtensions();
+};
+
+
+// A service to integrate Komodo into Microsoft Windows.
+[scriptable, uuid(EC1EA3D5-60B8-4b7b-AF97-5EA0D9A3ABE6)]
+interface koIWindowsIntegrationService: nsISupports {
+    // All methods will raise an exception and set the error on
+    // koILastErrorService in case of failure.
+
+    // Set and retrieve the "Edit" and "Edit with Komodo" associations.
+    void setEditAssociations(in string encodedAssocs);
+    string getEditAssociations(); // return ';'-separated list of extensions
+    void setEditWithAssociations(in string encodedAssocs);
+    string getEditWithAssociations(); // return ';'-separated list of exts
+    
+    // Check if the current "Edit" and "Edit with Komodo" associations
+    // are set properly in the registry. If they *are* then return null.
+    // Otherwise return a text description of what is not set.
+    wstring checkAssociations();
+};
+

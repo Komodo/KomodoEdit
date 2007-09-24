@@ -1,0 +1,55 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'platform',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozChromeDir',
+    'mozIdlIncludePath',
+    'mozVersion',
+    'idlExportDir',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+);
+
+$cons->Preprocess('projectManager.unprocessed.js', 'projectManager.js');
+$cons->InstallInChrome('projectManager.js');
+
+$cons->InstallInChrome('partutils.js');
+
+$cons->Preprocess('projectExtensionManager.p.js', 'projectExtensionManager.js');
+$cons->InstallInChrome('projectExtensionManager.js');
+$cons->InstallInChrome('importFromFS.xul');
+$cons->InstallInChrome('importFromFS.js');
+$cons->InstallInChrome('baseManager.js');
+$cons->Preprocess('toolboxManager.p.js', 'toolboxManager.js');
+$cons->InstallInChrome('toolboxManager.js');
+$cons->InstallInChrome('renamePart.xul');
+$cons->InstallInChrome('macroProperties.xul');
+$cons->InstallInChrome('macroProperties.js');
+$cons->Preprocess('fileProperties.unprocessed.xul', 'fileProperties.xul');
+$cons->InstallInChrome('fileProperties.xul');
+$cons->Preprocess('fileProperties.unprocessed.js', 'fileProperties.js');
+$cons->InstallInChrome('fileProperties.js');
+$cons->InstallInChrome('snippetProperties.js');
+$cons->InstallInChrome('snippetProperties.xul');
+$cons->InstallInChrome('simplePartProperties.xul');
+$cons->InstallInChrome('simplePartProperties.js');
+$cons->InstallInChrome('customMenuProperties.xul');
+$cons->InstallInChrome('customMenuProperties.js');
+
+$cons->Preprocess('peFile.unprocessed.js', 'peFile.js');
+$cons->InstallInChrome('peFile.js');
+$cons->InstallInChrome('peFolder.js');
+$cons->InstallInChrome('peSnippet.js');
+$cons->InstallInChrome('peTemplate.js');
+$cons->InstallInChrome('peCommand.js');
+$cons->InstallInChrome('peURL.js');
+$cons->InstallInChrome('peMacro.js');
+$cons->InstallInChrome('peMenu.js');

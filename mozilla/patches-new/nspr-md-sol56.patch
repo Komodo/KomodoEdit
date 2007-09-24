@@ -1,0 +1,31 @@
+diff
+
+Should be able to drop: don't support Solaris 2.6 anymore.
+
+Index: nsprpub/pr/src/md/unix/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/nsprpub/pr/src/md/unix/Makefile.in,v
+retrieving revision 1.21.2.3
+diff -u -r1.21.2.3 Makefile.in
+--- nsprpub/pr/src/md/unix/Makefile.in	Mon Jan 20 08:32:06 2003
++++ nsprpub/pr/src/md/unix/Makefile.in	Wed Mar  5 13:01:55 2003
+@@ -81,6 +81,10 @@
+ 		endif
+ 		endif
+ 	endif
++	#LDVER_TEST=$(firstword $(sort 5.7 $(OS_RELEASE)))
++	#ifeq (5.7, $(LDVER_TEST))
++	#	LDFLAGSX = "-z endfiltee"
++	#endif
+ endif
+ 
+ INCLUDES = -I$(dist_includedir) -I$(topsrcdir)/pr/include -I$(topsrcdir)/pr/include/private
+@@ -100,7 +104,7 @@
+ 	/usr/ccs/bin/as -o $@ -K PIC -P -D_ASM -D__STDC__=0 -xarch=v9 $<
+ else
+ $(SHARED_LIBRARY): $(ULTRASPARC_ASOBJS)
+-	$(LD) -G -z text -z endfiltee -o $@ $(ULTRASPARC_ASOBJS)
++	$(LD) -G -z text $(LDFLAGSX) -o $@ $(ULTRASPARC_ASOBJS)
+ 	$(INSTALL) -m 444 $@ $(dist_libdir)/cpu/sparcv8plus
+ 	$(INSTALL) -m 444 $@ $(dist_bindir)/cpu/sparcv8plus
+ #

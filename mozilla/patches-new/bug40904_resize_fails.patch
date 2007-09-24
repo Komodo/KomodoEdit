@@ -1,0 +1,17 @@
+Index: embedding/components/windowwatcher/src/nsWindowWatcher.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/embedding/components/windowwatcher/src/nsWindowWatcher.cpp,v
+retrieving revision 1.100.2.2
+diff -d -u -d -u -r1.100.2.2 nsWindowWatcher.cpp
+--- embedding/components/windowwatcher/src/nsWindowWatcher.cpp	16 Aug 2005 21:03:12 -0000	1.100.2.2
++++ embedding/components/windowwatcher/src/nsWindowWatcher.cpp	23 Sep 2005 00:33:39 -0000
+@@ -1274,7 +1274,8 @@
+   PRBool presenceFlag = PR_FALSE;
+ 
+   chromeFlags = nsIWebBrowserChrome::CHROME_WINDOW_BORDERS;
+-  if (aDialog && WinHasOption(aFeatures, "all", 0, &presenceFlag))
++  // ACTIVESTATE bug 40904 
++  if (/*aDialog && */ WinHasOption(aFeatures, "all", 0, &presenceFlag))
+     chromeFlags = nsIWebBrowserChrome::CHROME_ALL;
+ 
+   /* Next, allow explicitly named options to override the initial settings */

@@ -1,0 +1,52 @@
+    <scope ilk="blob" lang="Ruby" name="strscan">
+      <scope ilk="class" name="ScanError" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+      <scope ilk="class" name="StringScanner" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="class" name="Error" mixinrefs="Kernel" classrefs="StandardError">
+        </scope>
+        <scope ilk="function" name="&lt;&lt;" />
+        <scope ilk="function" name="[]" />
+        <scope ilk="function" name="beginning_of_line?" />
+        <scope ilk="function" name="bol?" />
+        <scope ilk="function" name="check" />
+        <scope ilk="function" name="check_until" />
+        <scope ilk="function" name="clear" />
+        <scope ilk="function" name="concat" />
+        <scope ilk="function" name="empty?" />
+        <scope ilk="function" name="eos?" />
+        <scope ilk="function" name="exist?" />
+        <scope ilk="function" name="get_byte" />
+        <scope ilk="function" name="getbyte" />
+        <scope ilk="function" name="getch" />
+        <scope ilk="function" name="match?" />
+        <scope ilk="function" name="matched" />
+        <scope ilk="function" name="matched?" />
+        <scope ilk="function" name="matched_size" />
+        <scope ilk="function" name="matchedsize" />
+        <scope ilk="function" name="peek" />
+        <scope ilk="function" name="peep" />
+        <scope ilk="function" name="pointer" />
+        <scope ilk="function" name="pointer=" />
+        <scope ilk="function" name="pos" />
+        <scope ilk="function" name="pos=" />
+        <scope ilk="function" name="post_match" />
+        <scope ilk="function" name="pre_match" />
+        <scope ilk="function" name="reset" />
+        <scope ilk="function" name="rest" />
+        <scope ilk="function" name="rest?" />
+        <scope ilk="function" name="rest_size" />
+        <scope ilk="function" name="restsize" />
+        <scope ilk="function" name="scan" />
+        <scope ilk="function" name="scan_full" />
+        <scope ilk="function" name="scan_until" />
+        <scope ilk="function" name="search_full" />
+        <scope ilk="function" name="skip" />
+        <scope ilk="function" name="skip_until" />
+        <scope ilk="function" name="string" />
+        <scope ilk="function" name="string=" />
+        <scope ilk="function" name="terminate" />
+        <scope ilk="function" name="unscan" />
+        <variable name="Id" attributes="__const__" citdl="String"/>
+        <variable name="Version" attributes="__const__" citdl="String"/>
+      </scope>
+    </scope>

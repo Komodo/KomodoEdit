@@ -1,0 +1,145 @@
+    <scope ilk="blob" lang="Ruby" name="tkutil">
+      <scope ilk="namespace" name="TclTkLib">
+        <scope ilk="namespace" name="EventFlag">
+          <variable name="ALL" attributes="__const__" citdl="Fixnum"/>
+          <variable name="DONT_WAIT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="FILE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="IDLE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NONE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="TIMER" attributes="__const__" citdl="Fixnum"/>
+          <variable name="WINDOW" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="namespace" name="VarAccessFlag">
+          <variable name="APPEND_VALUE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="GLOBAL_ONLY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="LEAVE_ERR_MSG" attributes="__const__" citdl="Fixnum"/>
+          <variable name="LIST_ELEMENT" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NAMESPACE_ONLY" attributes="__const__" citdl="Fixnum"/>
+          <variable name="NONE" attributes="__const__" citdl="Fixnum"/>
+          <variable name="PARSE_VARNAME" attributes="__const__" citdl="Fixnum"/>
+        </scope>
+        <scope ilk="function" name="_conv_listelement" />
+        <scope ilk="function" name="_fromUTF8" />
+        <scope ilk="function" name="_merge_tklist" />
+        <scope ilk="function" name="_split_tklist" />
+        <scope ilk="function" name="_subst_Tcl_backslash" />
+        <scope ilk="function" name="_subst_UTF_backslash" />
+        <scope ilk="function" name="_toUTF8" />
+        <scope ilk="function" name="do_one_event" />
+        <scope ilk="function" name="do_thread_callback" />
+        <scope ilk="function" name="encoding" />
+        <scope ilk="function" name="encoding=" />
+        <scope ilk="function" name="encoding_system" />
+        <scope ilk="function" name="encoding_system=" />
+        <scope ilk="function" name="get_eventloop_tick" />
+        <scope ilk="function" name="get_eventloop_weight" />
+        <scope ilk="function" name="get_no_event_wait" />
+        <scope ilk="function" name="mainloop" />
+        <scope ilk="function" name="mainloop_abort_on_exception" />
+        <scope ilk="function" name="mainloop_abort_on_exception=" />
+        <scope ilk="function" name="mainloop_thread?" />
+        <scope ilk="function" name="mainloop_watchdog" />
+        <scope ilk="function" name="num_of_mainwindows" />
+        <scope ilk="function" name="set_eventloop_tick" />
+        <scope ilk="function" name="set_eventloop_weight" />
+        <scope ilk="function" name="set_max_block_time" />
+        <scope ilk="function" name="set_no_event_wait" />
+        <variable name="COMPILE_INFO" attributes="__const__" citdl="String"/>
+        <variable name="FINALIZE_PROC_NAME" attributes="__const__" citdl="String"/>
+        <variable name="RELEASE_DATE" attributes="__const__" citdl="String"/>
+      </scope>
+      <scope ilk="namespace" name="TkUtil">
+        <scope ilk="class" name="CallbackSubst" mixinrefs="Kernel" classrefs="Object">
+          <scope ilk="class" name="Info" mixinrefs="Kernel" classrefs="Object">
+          </scope>
+          <variable name="SUBST_INFO" attributes="__const__" citdl="TkUtil::CallbackSubst::Info"/>
+        </scope>
+        <scope ilk="function" name="_conv_args" />
+        <scope ilk="function" name="_fromUTF8" />
+        <scope ilk="function" name="_get_eval_enc_str" />
+        <scope ilk="function" name="_get_eval_string" />
+        <scope ilk="function" name="_symbolkey2str" />
+        <scope ilk="function" name="_toUTF8" />
+        <scope ilk="function" name="bool" />
+        <scope ilk="function" name="callback" />
+        <scope ilk="function" name="eval_cmd" />
+        <scope ilk="function" name="hash_kv" />
+        <scope ilk="function" name="install_cmd" />
+        <scope ilk="function" name="num_or_str" />
+        <scope ilk="function" name="number" />
+        <scope ilk="function" name="string" />
+        <scope ilk="function" name="uninstall_cmd" />
+        <variable name="None" attributes="__const__" citdl="Object"/>
+        <variable name="RELEASE_DATE" attributes="__const__" citdl="String"/>
+      </scope>
+      <scope ilk="class" name="TclTkIp" mixinrefs="Kernel" classrefs="Object">
+        <scope ilk="function" name="_conv_listelement" />
+        <scope ilk="function" name="_create_console" />
+        <scope ilk="function" name="_eval" />
+        <scope ilk="function" name="_fromUTF8" />
+        <scope ilk="function" name="_get_global_var" />
+        <scope ilk="function" name="_get_global_var2" />
+        <scope ilk="function" name="_get_variable" />
+        <scope ilk="function" name="_get_variable2" />
+        <scope ilk="function" name="_immediate_invoke" />
+        <scope ilk="function" name="_invoke" />
+        <scope ilk="function" name="_merge_tklist" />
+        <scope ilk="function" name="_return_value" />
+        <scope ilk="function" name="_set_global_var" />
+        <scope ilk="function" name="_set_global_var2" />
+        <scope ilk="function" name="_set_variable" />
+        <scope ilk="function" name="_set_variable2" />
+        <scope ilk="function" name="_split_tklist" />
+        <scope ilk="function" name="_thread_tkwait" />
+        <scope ilk="function" name="_thread_vwait" />
+        <scope ilk="function" name="_toUTF8" />
+        <scope ilk="function" name="_unset_global_var" />
+        <scope ilk="function" name="_unset_global_var2" />
+        <scope ilk="function" name="_unset_variable" />
+        <scope ilk="function" name="_unset_variable2" />
+        <scope ilk="function" name="allow_ruby_exit=" />
+        <scope ilk="function" name="allow_ruby_exit?" />
+        <scope ilk="function" name="create_slave" />
+        <scope ilk="function" name="delete" />
+        <scope ilk="function" name="deleted?" />
+        <scope ilk="function" name="do_one_event" />
+        <scope ilk="function" name="get_eventloop_tick" />
+        <scope ilk="function" name="get_eventloop_weight" />
+        <scope ilk="function" name="get_no_event_wait" />
+        <scope ilk="function" name="has_mainwindow?" />
+        <scope ilk="function" name="invalid_namespace?" />
+        <scope ilk="function" name="mainloop" />
+        <scope ilk="function" name="mainloop_abort_on_exception" />
+        <scope ilk="function" name="mainloop_abort_on_exception=" />
+        <scope ilk="function" name="mainloop_watchdog" />
+        <scope ilk="function" name="make_safe" />
+        <scope ilk="function" name="restart" />
+        <scope ilk="function" name="safe?" />
+        <scope ilk="function" name="set_eventloop_tick" />
+        <scope ilk="function" name="set_eventloop_weight" />
+        <scope ilk="function" name="set_max_block_time" />
+        <scope ilk="function" name="set_no_event_wait" />
+        <scope ilk="function" name="slave_of?" />
+      </scope>
+      <scope ilk="class" name="TkCallbackBreak" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+      <scope ilk="class" name="TkCallbackContinue" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+      <scope ilk="class" name="TkCallbackEntry" mixinrefs="Kernel" classrefs="TkKernel">
+      </scope>
+      <scope ilk="class" name="TkCallbackRedo" mixinrefs="Kernel" classrefs="TkLocalJumpError">
+      </scope>
+      <scope ilk="class" name="TkCallbackRetry" mixinrefs="Kernel" classrefs="TkLocalJumpError">
+      </scope>
+      <scope ilk="class" name="TkCallbackReturn" mixinrefs="Kernel" classrefs="StandardError">
+      </scope>
+      <scope ilk="class" name="TkCallbackThrow" mixinrefs="Kernel" classrefs="TkLocalJumpError">
+      </scope>
+      <scope ilk="class" name="TkKernel" mixinrefs="Kernel" classrefs="Object">
+      </scope>
+      <scope ilk="class" name="TkLocalJumpError" mixinrefs="Kernel" classrefs="LocalJumpError">
+      </scope>
+      <scope ilk="class" name="TkObject" mixinrefs="Kernel" classrefs="TkKernel">
+        <scope ilk="function" name="path" />
+      </scope>
+    </scope>

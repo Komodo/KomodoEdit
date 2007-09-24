@@ -1,0 +1,17 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2004-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    "mozChromeDir",
+    "platform",
+    "productType",
+    "buildFlavour",
+    "unsiloedPythonExe",
+);
+$cons->InstallInChrome("test_scimoz.xul");
+$cons->InstallInChrome("test_scimoz.js");
+$cons->InstallInChrome("test_firefoxAutoComplete.xul");
+$cons->InstallInChrome("test_firefoxAutoComplete.js");

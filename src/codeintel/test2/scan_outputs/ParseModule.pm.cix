@@ -1,0 +1,192 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\ParseModule.pm">
+    <scope ilk="blob" lang="Perl" name="ParseModule">
+      <scope ilk="class" line="5" lineend="867" name="ParseModule">
+        <import line="9" module="Tokenizer" symbol="*" />
+        <import line="10" module="ActiveState::Indenter" symbol="*" />
+        <variable attributes="__local__" line="15" name="%packageNameParts" />
+        <variable attributes="__local__" line="19" name="%builtinVars" />
+        <variable attributes="__local__" citdl="ActiveState::Indenter" line="24" name="$indenter" />
+        <variable attributes="__local__" line="27" name="$tkzr" />
+        <variable attributes="__local__" line="27" name="$ttype" />
+        <variable attributes="__local__" line="27" name="$tval" />
+        <variable attributes="__local__" line="28" name="$showWarnings" />
+        <variable attributes="__local__" line="31" name="%moduleInfo" />
+        <variable attributes="__local__" line="32" name="$thisNS" />
+        <variable attributes="__local__" line="33" name="$thisParent" />
+        <variable attributes="__local__" line="34" name="$thisFunction" />
+        <variable attributes="__local__" line="35" name="$thisVar" />
+        <variable attributes="__local__" line="36" name="$thisArg" />
+        <variable attributes="__local__" line="597" name="%opHash" />
+        <scope ilk="function" line="80" lineend="84" name="isKeyword" signature="isKeyword($ttype, $tval, $target)">
+          <variable ilk="argument" name="$ttype" />
+          <variable ilk="argument" name="$tval" />
+          <variable ilk="argument" name="$target" />
+        </scope>
+        <scope ilk="function" line="86" lineend="88" name="isNameToken" signature="isNameToken()" />
+        <scope ilk="function" line="90" lineend="99" name="isStmtEndOp" signature="isStmtEndOp($ttype, $tval)">
+          <variable ilk="argument" name="$ttype" />
+          <variable ilk="argument" name="$tval" />
+        </scope>
+        <scope ilk="function" line="101" lineend="107" name="warnAbout" signature="warnAbout($msg)">
+          <variable ilk="argument" name="$msg" />
+        </scope>
+        <scope ilk="function" line="111" lineend="131" name="doStartNS" signature="doStartNS(%attrInfo)">
+          <variable ilk="argument" name="%attrInfo" />
+          <variable attributes="__local__" line="116" name="$name" />
+        </scope>
+        <scope ilk="function" line="133" lineend="146" name="doEndNS" signature="doEndNS()">
+          <variable attributes="__local__" line="136" name="$modules" />
+          <variable attributes="__local__" line="137" name="$nsName" />
+          <variable attributes="__local__" line="138" name="$oldNSInfo" />
+        </scope>
+        <scope ilk="function" line="148" lineend="153" name="doSetParent" signature="doSetParent(%attrInfo)">
+          <variable ilk="argument" name="%attrInfo" />
+        </scope>
+        <scope ilk="function" line="155" lineend="164" name="doStartFn" signature="doStartFn(%attrInfo)">
+          <variable ilk="argument" name="%attrInfo" />
+        </scope>
+        <scope ilk="function" line="166" lineend="169" name="doEndFn" signature="doEndFn()" />
+        <scope ilk="function" line="172" lineend="189" name="doSetVar" signature="doSetVar(%attrInfo)">
+          <variable ilk="argument" name="%attrInfo" />
+          <variable attributes="__local__" line="179" name="$field" />
+        </scope>
+        <scope ilk="function" line="193" lineend="205" name="addImportedModule" signature="addImportedModule($moduleName)">
+          <variable ilk="argument" name="$moduleName" />
+          <variable attributes="__local__" line="195" name="$tlineNo" />
+        </scope>
+        <scope ilk="function" line="208" lineend="244" name="collectMultipleArgs" signature="collectMultipleArgs($origLineNo)">
+          <variable ilk="argument" name="$origLineNo" />
+          <variable attributes="__local__" line="212" name="@nameList" />
+          <variable attributes="__local__" line="238" name="$varInfo" />
+        </scope>
+        <scope ilk="function" line="247" lineend="263" name="collectSingleArg" signature="collectSingleArg($varName, $origLineNo)">
+          <variable ilk="argument" name="$varName" />
+          <variable ilk="argument" name="$origLineNo" />
+          <variable attributes="__local__" line="250" name="$column" />
+        </scope>
+        <scope ilk="function" line="266" lineend="283" name="getFQName" signature="getFQName()">
+          <variable attributes="__local__" line="267" name="$fqName" />
+          <variable attributes="__local__" line="268" name="$startingLineNo" />
+        </scope>
+        <scope ilk="function" line="286" lineend="294" name="getParentNamespaces" signature="getParentNamespaces()">
+          <variable attributes="__local__" line="290" name="@parentNamespaces" />
+          <variable attributes="__local__" line="291" name="$parentInfo" />
+        </scope>
+        <scope ilk="function" line="296" lineend="321" name="getListOfStrings" signature="getListOfStrings()">
+          <variable attributes="__local__" line="297" name="@resArray" />
+          <variable attributes="__local__" line="303" name="@newArray" />
+        </scope>
+        <scope ilk="function" line="324" lineend="339" name="getListOfVarNames" signature="getListOfVarNames()">
+          <variable attributes="__local__" line="325" name="@resArray" />
+        </scope>
+        <scope ilk="function" line="342" lineend="364" name="getStringArray" signature="getStringArray($res, $ttype, $tval)">
+          <variable ilk="argument" name="$res" />
+          <variable ilk="argument" name="$ttype" />
+          <variable ilk="argument" name="$tval" />
+          <variable attributes="__local__" line="344" name="$column" />
+          <variable attributes="__local__" line="356" name="$startPart" />
+          <variable attributes="__local__" line="357" name="@tmp" />
+          <variable attributes="__local__" line="358" name="$lineNo" />
+          <variable attributes="__local__" line="359" name="$a" />
+        </scope>
+        <scope ilk="function" line="367" lineend="386" name="getOurVars" signature="getOurVars()">
+          <variable attributes="__local__" line="368" name="@varNames" />
+          <variable attributes="__local__" line="381" name="$varInfo" />
+        </scope>
+        <scope ilk="function" line="388" lineend="401" name="getUsedVars" signature="getUsedVars()">
+          <variable attributes="__local__" line="390" name="@varNames" />
+          <variable attributes="__local__" line="396" name="$varInfo" />
+        </scope>
+        <scope ilk="function" line="403" lineend="417" name="processModule" signature="processModule($moduleName)">
+          <variable ilk="argument" name="$moduleName" />
+          <variable attributes="__local__" line="405" name="$tOrigLineNo" />
+        </scope>
+        <scope ilk="function" line="423" lineend="507" name="processPackageInnerContents" signature="processPackageInnerContents($doingTopLevel)">
+          <variable ilk="argument" name="$doingTopLevel" />
+          <variable attributes="__local__" line="425" name="$currPackage" />
+          <variable attributes="__local__" line="426" name="$popNS" />
+          <variable attributes="__local__" line="433" name="$packageName" />
+          <variable attributes="__local__" line="448" name="$startLineNo" />
+          <variable attributes="__local__" line="451" name="$fnName" />
+        </scope>
+        <scope ilk="function" line="509" lineend="592" name="processSubContents" signature="processSubContents()">
+          <variable attributes="__local__" line="512" name="$braceCount" />
+          <variable attributes="__local__" line="513" name="$parenCount" />
+          <variable attributes="__local__" line="552" name="$tlineNo" />
+          <variable attributes="__local__" line="571" name="$subclass" />
+        </scope>
+        <scope ilk="function" line="604" lineend="610" name="skipAnonSubContents" signature="skipAnonSubContents()" />
+        <scope ilk="function" line="613" lineend="641" name="skipToEndOfStmt" signature="skipToEndOfStmt()">
+          <variable attributes="__local__" line="614" name="$nestedCount" />
+          <variable attributes="__local__" line="622" name="$vals" />
+        </scope>
+        <scope ilk="function" line="645" lineend="661" name="printDocInfo" signature="printDocInfo($modInfo)">
+          <variable ilk="argument" name="$modInfo" />
+          <variable attributes="__local__" line="649" name="@adocs" />
+          <variable attributes="__local__" line="650" name="$docCountSub1" />
+          <variable attributes="__local__" line="651" name="$i" />
+        </scope>
+        <scope ilk="function" line="663" lineend="673" name="printClassParents" signature="printClassParents($modInfo)">
+          <variable ilk="argument" name="$modInfo" />
+          <variable attributes="__local__" line="666" name="$info" />
+        </scope>
+        <scope ilk="function" line="675" lineend="681" name="printImports" signature="printImports($modInfo)">
+          <variable ilk="argument" name="$modInfo" />
+          <variable attributes="__local__" line="678" name="$import" />
+        </scope>
+        <scope ilk="function" line="683" lineend="693" name="printVariables" signature="printVariables($modInfo)">
+          <variable ilk="argument" name="$modInfo" />
+          <variable attributes="__local__" line="686" name="$varInfo" />
+        </scope>
+        <scope ilk="function" line="695" lineend="724" name="printFunctions" signature="printFunctions($modInfo)">
+          <variable ilk="argument" name="$modInfo" />
+          <variable attributes="__local__" line="698" name="@functions" />
+          <variable attributes="__local__" line="699" name="$funcInfo" />
+          <variable attributes="__local__" line="707" name="$argInfo" />
+          <variable attributes="__local__" line="709" name="$line" />
+        </scope>
+        <scope ilk="function" line="726" lineend="778" name="printContents" signature="printContents($moduleName)">
+          <variable ilk="argument" name="$moduleName" />
+          <import line="731" module="File::Basename" />
+          <variable attributes="__local__" line="729" name="$root" />
+          <variable attributes="__local__" line="741" name="$mainInfo" />
+          <variable attributes="__local__" line="749" name="@packages" />
+          <variable attributes="__local__" line="750" name="$innerModules" />
+          <variable attributes="__local__" line="751" name="$amod" />
+          <variable attributes="__local__" line="752" name="$bmod" />
+          <variable attributes="__local__" line="759" name="$k" />
+          <variable attributes="__local__" line="761" name="$modInfo" />
+        </scope>
+        <scope ilk="function" line="780" lineend="812" name="printHeader" signature="printHeader($moduleName)">
+          <variable ilk="argument" name="$moduleName" />
+          <import line="788" module="File::Basename" symbol="fileparse" />
+          <import line="794" module="Digest::MD5" symbol="*" />
+          <variable attributes="__local__" line="786" name="$modulePath" />
+          <variable attributes="__local__" line="789" name="$bname" />
+          <variable attributes="__local__" line="792" name="$md5" />
+          <variable attributes="__local__" citdl="Digest::MD5" line="795" name="$ctx" />
+          <variable attributes="__local__" line="796" name="$fh" />
+        </scope>
+        <scope ilk="function" line="814" lineend="819" name="printTrailer" signature="printTrailer()" />
+        <scope attributes="__ctor__" ilk="function" line="823" lineend="843" name="new" signature="new($invocant, %options)">
+          <variable ilk="argument" name="$invocant" />
+          <variable ilk="argument" name="%options" />
+          <import line="836" module="File::Basename" symbol="*" />
+          <variable attributes="__local__" line="825" name="$class" />
+          <variable attributes="__local__" line="827" name="$outFH" />
+          <variable attributes="__local__" line="830" name="$self" />
+          <variable attributes="__local__" line="837" name="$dirname" />
+        </scope>
+        <scope ilk="function" line="845" lineend="858" name="initTokenizer" signature="initTokenizer($self)">
+          <variable ilk="argument" name="$self" />
+          <variable attributes="__local__" line="847" name="$moduleName" />
+          <variable attributes="__local__" line="853" name="$tkzr" />
+        </scope>
+        <scope ilk="function" line="860" lineend="865" name="parse" signature="parse($self)">
+          <variable ilk="argument" name="$self" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

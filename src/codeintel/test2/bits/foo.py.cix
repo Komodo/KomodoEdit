@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeintel version="0.1">
+    <file path="bits/foo.py" mtime="1153327415" generator="Python" language="Python" md5="2b1a68225384481efff3d292c868a548">
+
+        <module name="foo">
+            <import line="2" module="sys"/>
+            <import line="3" module="os"/>
+            <import line="4" module="bar"/>
+            <variable line="6" name="b">
+                <type score="1" type="bar.Bar"/>
+            </variable>
+            <class line="9" lineend="14" name="Foo">
+                <doc><![CDATA[blather]]></doc>
+                <function attributes="__ctor__" line="11" lineend="12" name="__init__">
+                    <signature><![CDATA[Foo(yada)]]></signature>
+                    <argument name="self">
+                        <type score="1" type="Foo"/>
+                    </argument>
+                    <argument name="yada"/>
+                </function>
+                <function line="13" lineend="14" name="bar">
+                    <signature><![CDATA[bar()]]></signature>
+                    <argument name="self">
+                        <type score="1" type="Foo"/>
+                    </argument>
+                </function>
+            </class>
+            <variable line="17" name="f">
+                <type score="1" type="Foo"/>
+            </variable>
+        </module>
+
+    </file>
+</codeintel>

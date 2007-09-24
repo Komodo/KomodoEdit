@@ -1,0 +1,48 @@
+diff
+
+XXX Is this still relevant for us? This was dropped for patches1.9/...
+
+--- xpfe/bootstrap/splash.rc.orig	Thu Feb 13 10:04:31 2003
++++ xpfe/bootstrap/splash.rc	Thu Feb 13 10:06:27 2003
+@@ -43,7 +43,7 @@
+ 
+ // Program icon.
+ IDI_APPLICATION ICON
+-	"mozilla.ico"
++	"komodo.ico"
+ 
+ // Splash screen dialog.
+ IDD_SPLASH DIALOGEX
+@@ -59,6 +59,9 @@
+ 			"Static",
+ 			SS_BITMAP,
+ 			0,0,0,0
++		CONTROL
++			"",200,"msctls_progress32",WS_BORDER,12,2136,270,8,
++			WS_EX_CLIENTEDGE
+ 	END
+ 
+ // Splash screen bitmap.
+@@ -67,6 +70,6 @@
+ 
+ STRINGTABLE DISCARDABLE
+ BEGIN
+-	ID_DDE_APPLICATION_NAME,            "@MOZ_APP_DISPLAYNAME@"
+-	IDS_STARTMENU_APPNAME,              "@MOZ_APP_DISPLAYNAME@"
++	ID_DDE_APPLICATION_NAME,            "Komodo-PT_CONFIG_komodoVersion"
++	IDS_STARTMENU_APPNAME,              "Komodo-PT_CONFIG_komodoVersion"
+ END
+--- xpfe/bootstrap/nsNativeAppSupportWin.cpp	2001/09/19 01:51:15	1.41
++++ xpfe/bootstrap/nsNativeAppSupportWin.cpp	2001/09/29 15:12:47
+@@ -917,6 +1023,10 @@
+         return NS_OK;
+     }
+ 
++// debug builds having different DDE names than release is handy for dogfood
++#ifdef DEBUG 
++    strncat(nameBuffer, "Debug", sizeof nameBuffer - strlen(nameBuffer));
++#endif
+     // Build mutex name from app name.
+     char mutexName[128];
+     ::_snprintf( mutexName, sizeof mutexName, "%s%s", nameBuffer, MOZ_STARTUP_MUTEX_NAME );
+

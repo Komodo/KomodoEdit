@@ -1,0 +1,406 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+ 
+.toolbox-top {
+    border: none;
+    margin: 0px;
+    margin-bottom: 1px;
+    padding: 0px;
+}
+
+.toolbar-overflow {
+    -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#toolbar-overflow");
+}
+
+toolbar {
+    border-right: 1px outset ThreeDHighlight;
+/* #if PLATFORM != "darwin" */
+    border-left: 1px outset ThreeDHighlight;
+/* #endif */
+}
+  
+toolbarbutton {
+    -moz-box-orient: vertical;
+}
+
+.toolbarbutton-text[buttonstyle="pictures"],
+.toolbarbutton-icon[buttonstyle="text"] {
+    display: none;
+}
+
+/* Bug 45096: These are evil. It is the reason why, for example, rxx.xul puts
+ * bogus spaces around toolbarbutton labels to get some spacing. This should be
+ * removed once the impact on other bits is understood. */
+.toolbarbutton-text {
+    margin: 0px;
+    padding: 0px;
+}
+.toolbarbutton-icon {
+    -moz-margin-end: 0px;
+}
+    
+#buttonBrowserPreview
+{
+  list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");
+}
+
+#buttonBrowserPreview:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/preview_in_browser_hover.png");
+}
+#buttonBrowserPreview[disabled="true"],
+#buttonBrowserPreview[disabled="true"]:hover,
+#buttonBrowserPreview[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/preview_in_browser_disable.png");
+}
+
+.rx-icon {
+  list-style-image : url("chrome://komodo/skin/images/rx.png");
+}
+.rx-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/rx_hover.png");
+}
+.rx-icon[disabled="true"],
+.rx-icon[disabled="true"]:hover,
+.rx-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/rx_disable.png");
+}
+
+#objectBrowser
+{
+  list-style-image : url("chrome://komodo/skin/images/cb_objectbrowser.png");
+}
+
+#objectBrowser:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/cb_objectbrowser_hover.png");
+}
+
+#buttondbgRestart
+{
+  list-style-image : url("chrome://komodo/skin/images/debug_restart.png");
+}
+
+#buttondbgRestart[disabled="true"],
+#buttondbgRestart[disabled="true"]:hover,
+#buttondbgRestart[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/debug_restart_disable.png");
+}
+
+#buttondbgRestart:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/debug_restart_hover.png");
+}
+
+#bufferCloseButton
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x.png");
+}
+
+#bufferCloseButton[disabled="true"],
+#bufferCloseButton[disabled="true"]:hover,
+#bufferCloseButton[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
+}
+
+#bufferCloseButton:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
+}
+
+#newButton
+{
+  list-style-image : url("chrome://komodo/skin/images/newText.png");
+}
+
+#newButton[disabled="true"],
+#newButton[disabled="true"]:hover,
+#newButton[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/newText_disabled.png");
+}
+
+#newButton:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/newText_hover.png");
+}
+
+/* the newProjectButton is never disabled, so don't bother for now */
+
+.save-all-buffers-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/saveAll.png");
+}
+
+.save-all-buffers-icon[disabled="true"],
+.save-all-buffers-icon[disabled="true"]:hover,
+.save-all-buffers-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/saveAll_disabled.png");
+}
+
+.save-all-buffers-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/saveAll_hover.png");
+}
+
+.cut-button
+{
+  list-style-image : url("chrome://komodo/skin/images/cut.png");
+}
+
+.cut-button[disabled="true"],
+.cut-button[disabled="true"]:hover,
+.cut-button[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/cut_disabled.png");
+}
+
+.cut-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/cut_hover.png");
+}
+
+.copy-button
+{
+  list-style-image : url("chrome://komodo/skin/images/copy.png");
+}
+
+.copy-button[disabled="true"],
+.copy-button[disabled="true"]:hover,
+.copy-button[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/copy_disabled.png");
+}
+
+.copy-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/copy_hover.png");
+}
+
+.paste-button
+{
+  list-style-image : url("chrome://komodo/skin/images/paste.png");
+}
+
+.paste-button[disabled="true"],
+.paste-button[disabled="true"]:hover,
+.paste-button[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/paste_disabled.png");
+}
+
+.paste-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/paste_hover.png");
+}
+
+#undoButton
+{
+  list-style-image : url("chrome://komodo/skin/images/undo.png");
+}
+
+#undoButton[disabled="true"],
+#undoButton[disabled="true"]:hover,
+#undoButton[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
+}
+
+#undoButton:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/undo_hover.png");
+}
+
+#redoButton
+{
+  list-style-image : url("chrome://komodo/skin/images/redo.png");
+}
+
+#redoButton[disabled="true"],
+#redoButton[disabled="true"]:hover,
+#redoButton[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/redo_disabled.png");
+}
+
+#redoButton:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/redo_hover.png");
+}
+
+.print-button
+{
+  list-style-image : url("chrome://komodo/skin/images/print_button.png");
+}
+
+.print-button[disabled="true"],
+.print-button[disabled="true"]:hover,
+.print-button[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/print_button_disabled.png");
+}
+
+.print-button:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/print_button_hover.png");
+}
+
+
+/* remove grippies on menubar and toolbars */
+#kombo-menubar > toolbargrippy,
+#editorToolbar > toolbargrippy,
+#debuggerToolbar > toolbargrippy,
+#findToolbar > toolbargrippy,
+#findToolbar > toolbargrippy,
+#fileOpenToolbar > toolbargrippy {
+	visibility: collapse;
+}
+
+.komodo-button-community
+{
+  list-style-image : url("chrome://komodo/skin/images/icon-community.png");
+}
+.komodo-button-maillist
+{
+  list-style-image : url("chrome://komodo/skin/images/icon-mailing-list.png");
+}
+.komodo-button-bugs
+{
+  list-style-image : url("chrome://komodo/skin/images/icon-bugs.png");
+}
+
+#tabs-closebutton
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x.png");
+}
+
+
+#toggleLeftPane {
+  list-style-image : url("chrome://komodo/skin/images/show_left_pane.png");
+}
+#toggleLeftPane:hover {
+  list-style-image : url("chrome://komodo/skin/images/show_left_pane_hover.png");
+}
+#toggleLeftPane[checked="true"] {
+  list-style-image : url("chrome://komodo/skin/images/hide_left_pane.png");
+}
+#toggleLeftPane[checked="true"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/hide_left_pane_hover.png");
+}
+
+
+#toggleRightPane {
+  list-style-image : url("chrome://komodo/skin/images/show_right_pane.png");
+}
+#toggleRightPane:hover {
+  list-style-image : url("chrome://komodo/skin/images/show_right_pane_hover.png");
+}
+#toggleRightPane[checked="true"] {
+  list-style-image : url("chrome://komodo/skin/images/hide_right_pane.png");
+}
+#toggleRightPane[checked="true"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/hide_right_pane_hover.png");
+}
+
+
+#toggleBottomPane {
+  list-style-image : url("chrome://komodo/skin/images/show_bottom_pane.png");
+}
+#toggleBottomPane:hover {
+  list-style-image : url("chrome://komodo/skin/images/show_bottom_pane_hover.png");
+}
+#toggleBottomPane[checked="true"] {
+  list-style-image : url("chrome://komodo/skin/images/hide_bottom_pane.png");
+}
+#toggleBottomPane[checked="true"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/hide_bottom_pane_hover.png");
+}
+
+
+.tabPicker-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/tab_picker.png");
+}
+
+.tabPicker-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/tab_picker_hover.png");
+}
+
+#findButton.find
+{
+  list-style-image : url("chrome://komodo/skin/images/find.png");
+}
+
+#findButton.findInFiles {
+  list-style-image : url("chrome://komodo/skin/images/find_in_files.png");
+}
+
+/* Interactive Shell icons */
+.ishell-icon {
+  list-style-image : url("chrome://komodo/skin/images/ishell.png");
+}
+.ishell-icon:hover {
+  list-style-image : url("chrome://komodo/skin/images/ishell_hover.png");
+}
+.ishell-icon[disabled="true"],
+.ishell-icon[disabled="true"]:hover,
+.ishell-icon[disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/ishell_disable.png");
+}
+
+.ishell-icon[language="Python"] {
+  list-style-image : url("chrome://komodo/skin/images/ishell_python.png");
+}
+.ishell-icon[language="Python"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/ishell_python_hover.png");
+}
+.ishell-icon[language="Python"][disabled="true"],
+.ishell-icon[language="Python"][disabled="true"]:hover,
+.ishell-icon[language="Python"][disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/ishell_python_disable.png");
+}
+
+.ishell-icon[language="Tcl"] {
+  list-style-image : url("chrome://komodo/skin/images/ishell_tcl.png");
+}
+.ishell-icon[language="Tcl"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/ishell_tcl_hover.png");
+}
+.ishell-icon[language="Tcl"][disabled="true"],
+.ishell-icon[language="Tcl"][disabled="true"]:hover,
+.ishell-icon[language="Tcl"][disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/ishell_tcl_disable.png");
+}
+
+.ishell-icon[language="Perl"] {
+  list-style-image : url("chrome://komodo/skin/images/ishell_perl.png");
+}
+.ishell-icon[language="Perl"]:hover {
+  list-style-image : url("chrome://komodo/skin/images/ishell_perl_hover.png");
+}
+.ishell-icon[language="Perl"][disabled="true"],
+.ishell-icon[language="Perl"][disabled="true"]:hover,
+.ishell-icon[language="Perl"][disabled="true"]:hover:active {
+  list-style-image : url("chrome://komodo/skin/images/ishell_perl_disable.png");
+}
+
+
+/* Images for the Diff Toolbar  */
+.previous-diff-icon {
+  list-style-image : url("chrome://komodo/skin/images/famfamfam/arrow_up.png");
+}
+.next-diff-icon {
+  list-style-image : url("chrome://komodo/skin/images/famfamfam/arrow_down.png");
+}
+.reveal-in-editor-icon {
+  list-style-image : url("chrome://komodo/skin/images/famfamfam/page_white_go.png");
+}
+
+
+

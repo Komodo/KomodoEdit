@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Generic OK/Cancel dialog from which the user can select from a list of
+     items. See "selectedFromList" documentation. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<dialog id="dialog_selectFromList"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="OnLoad()"
+        orient="vertical"
+        style="min-width: 40em; max-width: 55em;"
+        flex="1"
+        screenX="20"
+        screenY="20"
+        width="400"
+        height="350"
+        persist="screenX screenY width height"
+        buttons="accept,extra1,cancel"
+        ondialogaccept="return Accept();"
+        ondialogextra1="return No();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/dialogs/selectFromList.js" type="application/x-javascript;version=1.7"/>
+
+    <description id="prompt"/>
+    <!-- XXX <listbox> seems very buggy in current Mozilla, esp. with
+             seltype="multiple". With many items (such that you have to scroll)
+             selection is buggy. We will fallback to using a <tree> for now.
+      -->
+    <tree id="items" flex="1" style="min-height: 100px;"
+          hidecolumnpicker="true"
+          onclick="OnClick(event);"
+          onselect="OnSelectionChange();">
+        <!-- id="..."'s are necessary for mouse selection to work! -->
+        <treecols>
+            <treecol id="items-column-name" flex="1" crop="center"
+                      hideheader="true"/>
+        </treecols>
+        <treechildren id="items-children" flex="1"/>
+    </tree>
+
+    <separator class="thin"/>
+    <hbox pack="end">
+        <checkbox id="doNotAsk-checkbox" checked="false" collapsed="true"
+              label="&donTAskMeAgain.label;" accesskey="&doNotAskCheckbox.accesskey;"/>
+        <separator flex="1"/>
+        <button id="select-all" label="&selectAll.label;"
+                oncommand="SelectAll();"
+                accesskey="&selectAll.accesskey;"/>
+        <button id="clear-all" label="&clearAll.label;"
+                oncommand="ClearAll();"
+                accesskey="&clearAll.accesskey;"/> <!-- 'c' used by cancel button -->
+    </hbox>
+    <separator class="thin"/>
+
+</dialog>
+

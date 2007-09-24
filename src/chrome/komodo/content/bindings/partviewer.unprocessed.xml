@@ -1,0 +1,692 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="partviewer" extends="xul:hbox">
+        <content>
+            <xul:vbox flex="1" style="margin: 0px; padding: 0px;">
+                <xul:hbox align="center" style="margin: 0px 2px;">
+                    <children includes="toolbarbutton"/>
+                    <xul:toolbarseparator style="min-width:10px;" flex="1"/>
+                    <xul:image id="partviewer-filter-icon"
+                           tooltiptext="&filterItems.tooltiptext;"
+                           class="codeintel-search"/>
+                    <xul:textbox id="partviewer-filter-textbox"
+                             style="min-width:40px; max-width:200px; margin-right:0px;"
+                             flex="1"
+                             type="timed"
+                             timeout="500"
+                             onfocus="window.updateCommands('undo')"
+                             onblur="window.updateCommands('undo')"
+                             onkeypress="this.parentNode.parentNode.parentNode.onFilterKeypress(event)"
+                             oncommand="this.parentNode.parentNode.parentNode.updateFilter()"
+                             tooltiptext="&filterItems.tooltiptext;"/>
+                </xul:hbox>
+                <xul:tree id="project-tree" flex="1" enableColumnDrag='true'
+                    onmousedown="return this.parentNode.parentNode.onClick(event);"
+                    onselect="return this.parentNode.parentNode.onSelect(event);"
+                    style="margin: 0px; padding: 0px;"
+                    xbl:inherits="hidecolumnpicker">
+                    <xul:treecols>
+                        <xul:treecol primary="true" id="name" flex="1"
+                            crop="center" label="&name.label;"
+                            xbl:inherits="label=treecollabel"
+                            class="treecol-header treecol-inset-header sortDirectionIndicator"
+                            persist="width"/>
+                    </xul:treecols>
+                    <xul:treechildren id="tree" flex="1"
+                        xbl:inherits="context=viewcontext"
+                        context='projectContext'
+                        ondraggesture="nsDragAndDrop.startDrag(event,this.parentNode.parentNode.parentNode);"
+                        ondragover="nsDragAndDrop.dragOver(event,this.parentNode.parentNode.parentNode);"
+                        ondragdrop="this.parentNode.parentNode.parentNode.doDragDropEvent(event);"
+                        ondblclick="this.parentNode.parentNode.parentNode.onDblClick(event);"
+                        onmouseout="this.parentNode.parentNode.parentNode.doMouseOut(event);"
+                        class="projectTree"/>
+                </xul:tree>
+            </xul:vbox>
+        </content>
+        <implementation implements="nsIObserver">
+            <field name="view">null</field>
+            <field name="editable">false</field>
+            <field name="lasthoverrow">-1</field>
+            <field name="popupshowing">false</field>
+            <field name="datapoints">{}</field>
+            <field name="manager"/>
+            <field name="_filterTimer">null</field>
+            <field name="_currentProject">null</field>
+
+            <constructor>
+                <![CDATA[
+                    //this.view = new projectTreeView();
+                ]]>
+            </constructor>
+
+            <destructor>
+                <![CDATA[
+                    // Refer to http://www.mozilla.org/projects/xbl/xbl.html#binding-detached
+                ]]>
+            </destructor>
+
+            <property name="tree">
+                <getter>
+                <![CDATA[
+                    var tree = null;
+                    var v = document.getAnonymousNodes(this);
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "tree");
+                            if (l.length > 0) {
+                                tree = l[0];
+                                break; // I think this is giving us a JS error...
+                            }
+                        } catch (e) {log.exception(e);}
+                    }
+                    return tree;
+                ]]>
+                </getter>
+            </property>
+
+            <method name="observe">
+                <parameter name="subject"/>
+                <parameter name="topic"/>
+                <parameter name="data"/>
+                <body>
+                <![CDATA[
+                if (subject == this.view && topic == "kpf_tree_filter_status") {
+                // XXX FIXME, need a better UI notification than this
+                    var iconEl = this.getElement('image','partviewer-filter-icon');
+                    if (data == "searching") {
+                        iconEl.setAttribute('disabled', 'true');
+                    } else {
+                        iconEl.removeAttribute('disabled');
+                    }
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="onLoad">
+                <parameter name="manager"/>
+                <body>
+                <![CDATA[
+                    this.manager = manager;
+                    this.view = Components.classes["@activestate.com/koKPFTreeView;1"]
+                                        .createInstance(Components.interfaces.koIKPFTreeView);
+                    this.tree.treeBoxObject
+                                  .QueryInterface(Components.interfaces.nsITreeBoxObject)
+                                  .view = this.view;
+                    this.editable = this.getAttribute("editable")
+                    var obsvc = Components.classes['@mozilla.org/observer-service;1'].
+                            getService(Components.interfaces.nsIObserverService);
+                    obsvc.addObserver(this, "kpf_tree_filter_status",false);
+                    this.initSortIndicators();
+                ]]>
+                </body>
+            </method>
+
+            <method name="addColumns">
+                <parameter name="columns"/>
+                <body>
+                <![CDATA[
+                    // XXX need to examine splitter changes for trees
+                    this.datapoints = columns;
+                    for (var name in columns) {
+                        var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",'splitter');
+                        var c = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 'treecol');
+                        c.setAttribute('id',name);
+                        c.setAttribute('label',name);
+
+                        // XXX need prefs for columns
+                        c.setAttribute('hidden',true);
+                        c.setAttribute('class',"treecol-header treecol-inset-header sortDirectionIndicator");
+                        c.setAttribute('persist','width');
+
+                        s.setAttribute('class','tree-splitter');
+                        this.tree.firstChild.appendChild(s);
+                        this.tree.firstChild.appendChild(c);
+                        this.view.addColumnDatapoint(name, columns[name]);
+                    }
+                ]]>
+                </body>
+            </method>
+
+            <method name="getElement">
+                <parameter name="type"/>
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    //dump("looking for element "+type+" "+id+"\n");
+                    var v = document.getAnonymousNodes(this);
+                    var tree = null;
+                    for (var i = 0; i < v.length; i++) {
+                        try {
+                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
+                            //dump("found "+l.length+" elements\n");
+                            for (var j = 0; j < l.length; j++) {
+                                if (l[j].getAttribute("id") == id) {
+                                    //dump("found element "+id+" at index "+j+"\n");
+                                    return l[j];
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    //dump("ERROR, could not find element!\n");
+                    return null;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onFilterKeypress">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                try {
+                    if (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey) {
+                        event.cancelBubble = true;
+                        event.stopPropagation();
+                        event.preventDefault();
+                        this.tree.focus();
+                        return;
+                    } else if (event.keyCode == event.DOM_VK_ESCAPE) {
+                        var filterTextbox = this.getElement('textbox','partviewer-filter-textbox');
+                        if (filterTextbox.value != '') {
+                            filterTextbox.value = '';
+                            this.updateFilter();
+                            event.cancelBubble = true;
+                            event.stopPropagation();
+                            event.preventDefault();
+                        }
+                        return;
+                    }
+                } catch (e) {
+                    log.exception(e);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="updateFilter">
+                <body>
+                <![CDATA[
+                try {
+                    var filterTextbox = this.getElement('textbox','partviewer-filter-textbox');
+                    this.view.setFilter(filterTextbox.value);
+                } catch(ex) {
+                    log.exception(ex);
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="getSelectedItems">
+                <body>
+                <![CDATA[
+                    var items = {};
+                    this.view.getSelectedItems(items, new Object());
+                    return items.value;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getSelectedItem">
+                <body>
+                <![CDATA[
+                    return this.view.getSelectedItem();
+                ]]>
+                </body>
+            </method>
+
+            <method name="getIndexByPart">
+                <parameter name="part"/>
+                <body>
+                <![CDATA[
+                    return this.view.getIndexByPart(part);
+                ]]>
+                </body>
+            </method>
+
+            <method name="getEntryByCoord">
+                <parameter name="x"/>
+                <parameter name="y"/>
+                <body>
+                <![CDATA[
+                    var select = new Object();
+                    select.row = {};
+                    select.col = {};
+                    select.obj = {};
+                    select.cell = {};
+                    select.cell.x = {};
+                    select.cell.y = {};
+                    select.cell.h = {};
+                    select.cell.w = {};
+
+                    var columnheight = this.getElement('treecol','name').boxObject.height;
+                    var treeWidget = this.tree;
+                    var boxObject = treeWidget.treeBoxObject.
+                                QueryInterface(Components.interfaces.nsITreeBoxObject)
+                    boxObject.getCellAt(x, y, select.row, select.col, select.obj);
+                    try {
+                        if (select.col.value == null ||
+                            select.row.value < 0 || select.row.value >= this.view.rowCount) {
+                            // XXX this.newVar();
+                            return null;
+                        } else {
+                            boxObject.getCoordsForCellItem(select.row.value, select.col.value, 'text', select.cell.x, select.cell.y, select.cell.w, select.cell.h);
+                            select.cell.x.value += boxObject.x;
+                            select.cell.y.value += (boxObject.y + columnheight -1);
+                        }
+                    } catch (e) {
+                        return null;
+                    }
+                    return select;
+                ]]>
+                </body>
+            </method>
+
+            <method name="doMouseOut">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    ko.statusBar.AddMessage('','project_tree_file',0,0);
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDblClick">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    var t = event.originalTarget;
+                    if (event.button != 2 && t.localName == "treechildren") {
+                        event.cancelBubble = true;
+                        var select = this.getEntryByCoord(event.clientX, event.clientY);
+                        if (select && select.obj.value != "twisty") {
+                            var rowItem = this.view.getRowItem(select.row.value);
+                            ko.projects.extensionManager.callHandler(rowItem,'ondblclick',event);
+                        }
+                    }
+                ]]>
+                </body>
+            </method>
+
+            <method name="onSelect">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    // dump('in onSelect ------------------\n');
+                    this._updateCommandTimer = new objectTimer(this,
+                                                               this._updateCommands,
+                                                               []);
+                    this._updateCommandTimer.startTimeout(1);
+                    return true;
+                ]]>
+                </body>
+            </method>
+            <method name="_updateCommands">
+                <body>
+                <![CDATA[
+                    try {
+                        var prj = this.manager.getSelectedProject();
+                        if (prj != this._lastProject) {
+                            window.updateCommands("selected_project_changed");
+                            this._lastProject = prj;
+                        }
+                        ko.projects.extensionManager.updateMenu(this.getSelectedItems(), this);
+                        if (this._updateCommandTimer) {
+                            this._updateCommandTimer.free();
+                            this._updateCommandTimer = null;
+                        }
+                    } catch (e) {
+                        log.exception(e);
+                    }
+                ]]>
+                </body>
+            </method>
+
+            <method name="initSortIndicators">
+                <body>
+                <![CDATA[
+                    var id = this.getAttribute('id');
+                    if (!id) return;
+
+                    var sortDir = 0;
+                    var sortBy = null;
+                    var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                            getService(Components.interfaces.koIPrefService).prefs;
+                    if (prefs.hasPref("treeSortDir_"+id)) {
+                        sortDir = prefs.getLongPref("treeSortDir_"+id)
+                    }
+                    if (prefs.hasPref("treeSortBy_"+id)) {
+                        sortBy = prefs.getStringPref("treeSortBy_"+id)
+                    }
+                    if (!sortBy) return;
+
+                    // set the sort indicator on the column we are sorted by
+                    var sortedColumn = this.tree.firstChild.firstChild;
+                    while (sortedColumn) {
+                        if (sortedColumn.localName == "treecol" &&
+                           sortedColumn.getAttribute('id') == sortBy) break;
+                        sortedColumn = sortedColumn.nextSibling;
+                    }
+                    if (sortedColumn && sortedColumn.getAttribute('id') == sortBy) {
+                        switch(sortDir) {
+                        case -1:
+                            sortedColumn.setAttribute("sortDirection", "descending");
+                            break;
+                        case 1:
+                            sortedColumn.setAttribute("sortDirection", "ascending");
+                            break;
+                        default:
+                            sortedColumn.removeAttribute("sortDirection");
+                            break;
+                        }
+                    }
+                    this.view.sortBy(sortBy, sortDir);
+                ]]>
+                </body>
+            </method>
+
+            <method name="updateSortIndicators">
+                <parameter name="sortBy"/>
+                <body>
+                <![CDATA[
+                    var currCol = this.tree.firstChild.firstChild;
+                    var sortedColumn = currCol;
+                    var sortDir = 0;
+                    // set the sort indicator on the column we are sorted by
+                    if (sortBy) {
+                        while (sortedColumn) {
+                            if (sortedColumn.localName == "treecol" &&
+                               sortedColumn.getAttribute('id') == sortBy) break;
+                            sortedColumn = sortedColumn.nextSibling;
+                        }
+                        if (sortedColumn && sortedColumn.getAttribute('id') == sortBy) {
+                            var sortDirection = sortedColumn.getAttribute("sortDirection");
+                            if (!sortDirection) {
+                                sortDir = 1;
+                                sortedColumn.setAttribute("sortDirection", "ascending");
+                            } else
+                            if (sortDirection == "ascending") {
+                                sortDir = -1;
+                                sortedColumn.setAttribute("sortDirection", "descending");
+                            } else {
+                                sortedColumn.removeAttribute("sortDirection");
+                            }
+                        }
+                    }
+                    
+                    var id = this.getAttribute('id');
+                    if (id) {
+                        var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                                                getService(Components.interfaces.koIPrefService).prefs;
+                        prefs.setLongPref("treeSortDir_"+id, sortDir);
+                        prefs.setStringPref("treeSortBy_"+id, sortBy)
+                    }
+                    // remove the sort indicator from all the columns
+                    // except the one we are sorted by
+                    while (currCol) {
+                        while (currCol && currCol.localName != "treecol") {
+                            currCol = currCol.nextSibling;
+                        }
+                        if (currCol && (currCol != sortedColumn)) {
+                            currCol.removeAttribute("sortDirection");
+                        }
+                        if (currCol) {
+                            currCol = currCol.nextSibling;
+                        }
+                    }
+                    this.view.sortBy(sortBy, sortDir);
+                    return sortDir;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onClick">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    var t = event.originalTarget;
+                    // single-click on a column
+                    if (t.localName == "treecol") {
+                        this.updateSortIndicators(t.id);
+                        event.cancelBubble = true;
+                    } else if (t.localName == "treechildren") {
+                        event.cancelBubble = true;
+                        var select = this.getEntryByCoord(event.clientX, event.clientY);
+                        if (select && select.obj.value != "twisty") {
+                            var rowItem = this.view.getRowItem(select.row.value);
+                            ko.projects.extensionManager.callHandler(rowItem,'onclick',event);
+                        } else if (!select) {
+                            // deselect everything if click in empty space
+                            this.view.selection.currentIndex = -1;
+                            this.view.selection.select(-1);
+                        }
+                    }
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getDragData">
+                <parameter name="part"/>
+                <body>
+                <![CDATA[
+                // if the part is not dragable, don't drag it
+                if (part.hasAttribute('dragable') && !part.getBooleanAttribute('dragable')) return null;
+
+                var flavors = new Object();
+                part.getDragFlavors(flavors, new Object());
+                var data = part.getDragData();
+                var transferData = new TransferData();
+                for (var i = 0; i < flavors.value.length; i++) {
+                    transferData.addDataForFlavour(flavors.value[i],data);
+                }
+                return transferData;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragStart">
+                <parameter name="event"/>
+                <parameter name="transferData"/>
+                <parameter name="action"/>
+                <body>
+                <![CDATA[
+                    var items = this.getSelectedItems();
+
+                    var haveDragData = items.length > 0;
+
+                    if (!haveDragData) {
+                        return false;
+                    }
+
+                    transferData.data = new TransferDataSet();
+                    var data;
+                    for (var i = 0; i < items.length; i++) {
+                        data = this.getDragData(items[i]);
+                        if (data)
+                            transferData.data.push(data);
+                    }
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getSupportedFlavours">
+                <body>
+                <![CDATA[
+                    var flavours = new FlavourSet();
+                    flavours.appendFlavour("text/unicode");
+                    flavours.appendFlavour("application/x-komodo-part");
+// #if PLATFORM != "win"
+                    flavours.appendFlavour("TEXT");
+// #endif
+                    flavours.appendFlavour("text/x-moz-url");
+                    flavours.appendFlavour("application/x-moz-file", "nsIFile");
+                    return flavours;
+                ]]>
+                </body>
+            </method>
+
+            <method name="canDrop">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    session.canDrop = true;
+                    return session.canDrop;
+                ]]>
+                </body>
+            </method>
+
+            <method name="doDragDropEvent">
+                <parameter name="event"/>
+            <body>
+            <![CDATA[
+                // This handles the dragdrop, normally we would call
+                // nsDragAndDrop.drop(), but that function does not allow
+                // sourceNode and target to be the same.  In this instance
+                // they can be the same, so we do a bit of the work ourselves.
+                if (!nsDragAndDrop.mDragSession)
+                    nsDragAndDrop.mDragSession = nsDragAndDrop.mDragService.getCurrentSession();
+                var flavourSet = this.getSupportedFlavours();
+                var transferData = nsTransferable.get(flavourSet, nsDragAndDrop.getDragData, true);
+                this.onDrop(event, transferData, nsDragAndDrop.mDragSession);
+                event.stopPropagation();
+            ]]>
+            </body>
+            </method>
+
+            <!--// canHandleMultipleItems used by toolkit nsDragDrop.js-->
+            <field name="canHandleMultipleItems">true</field>
+            <method name="onDrop">
+                <parameter name="event"/>
+                <parameter name="transferData"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    // unless onDrop returns false, we will cancel the event bubble
+                    var result = false;
+                    var select = false;
+                    try {
+                        select = this.getEntryByCoord(event.clientX, event.clientY);
+                    } catch(e) { }
+                    try {
+                        result = this.manager.onDrop(event, transferData, session, select?select.row.value:-1);
+                    } catch(e) { }
+                    event.cancelBubble = result;
+                    return result;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragOver">
+                <parameter name="event"/>
+                <parameter name="flavour"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    session.canDrop = true;
+                    return session.canDrop;
+                ]]>
+                </body>
+            </method>
+
+
+        </implementation>
+        <handlers>
+            <!--We handle blur and focus events so that extensions can know which project view is the currently focused one -->
+           <handler event="focus" phase="capturing">
+            <![CDATA[
+                ko.projects.active = this;
+            ]]>
+            </handler>
+
+            <handler event="contextmenu" phase="capturing">
+            <![CDATA[
+                // We don't want to show a context menu if we have no
+                // default interface and if we're not _on_ anything.
+                var t = event.originalTarget;
+                // single-click on tree body
+                this.focus();
+                ko.projects.active = this;
+                if (t.localName == "treechildren") {
+                    var select = this.getEntryByCoord(event.clientX, event.clientY);
+                    if (!select) {
+                        return false;
+                    }
+                    // if the entry at the coordinate is not selected, then
+                    // select it now
+                    if (!this.view.selection.isSelected(select.row.value))
+                        this.view.selection.select(select.row.value);
+                    if (this._updateCommandTimer != null) {
+                        this._updateCommandTimer.stopTimeout();
+                        this._updateCommands();
+                    }
+                }
+                return true;
+            ]]>
+            </handler>
+
+            <handler event="keypress">
+            <![CDATA[
+                // Here we do the same thing that is done in onDblClick (more or less
+                if (event.keyCode == event.DOM_VK_RETURN &&
+                    !event.shiftKey && !event.ctrlKey && !event.altKey) {
+                    var t = event.originalTarget;
+                    if (t.localName == "treechildren" || t.localName == 'tree') {
+                        event.cancelBubble = true;
+                        var items = this.getSelectedItems();
+                        for (var i=0; i<items.length; i++) {
+                            ko.projects.extensionManager.callHandler(items[i],'ondblclick',event);
+                        }
+                        event.cancelBubble = true;
+                        event.preventDefault();
+                    }
+                }
+                if (event.keyCode == event.DOM_VK_UP ||
+                    event.keyCode == event.DOM_VK_DOWN ||
+                    event.keyCode == event.DOM_VK_LEFT ||
+                    event.keyCode == event.DOM_VK_RIGHT) {
+                    var t = event.originalTarget;
+                    if (t.localName == "treechildren" || t.localName == 'tree') {
+                        event.cancelBubble = true;
+                        event.preventDefault();
+                    }
+                }
+                else
+                if (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey) {
+                    event.cancelBubble = true;
+                    event.stopPropagation();
+                    event.preventDefault();
+                    var filterTextbox = this.getElement('textbox','partviewer-filter-textbox');
+                    filterTextbox.focus();
+                    return;
+                }
+
+                // sometimes the partviewer is focused and target, when we
+                // need the tree to be focused and target, so retarget the event
+                // this is kind of hacky, but works for mozland
+                if (event.originalTarget == this) {
+                    this.tree.focus();
+                    this.tree.dispatchEvent(event);
+                }
+             ]]>
+            </handler>
+
+       </handlers>
+    </binding>
+
+</bindings>

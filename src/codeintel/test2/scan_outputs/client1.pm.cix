@@ -1,0 +1,23 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs\client1.pm">
+    <scope ilk="blob" lang="Perl" name="client1">
+      <import line="4" module="File::Basename" symbol="*" />
+      <import line="7" module="utf8" symbol="*" />
+      <import line="8" module="modules::Settings" symbol="*" />
+      <import line="10" module="modules::if" />
+      <import line="11" module="bigrat::smallcow" symbol="*" />
+      <import line="12" module="constant" />
+      <variable attributes="__exportable__" line="14" name="$Keep" />
+      <variable attributes="__exportable__" line="14" name="$Maxlen" />
+      <variable attributes="__exportable__" line="14" name="$Verbose" />
+      <variable line="14" name="$VERSION" />
+      <variable line="14" name="@EXPORT" />
+      <variable line="14" name="@EXPORT_OK" />
+      <variable line="14" name="@ISA" />
+      <variable attributes="__exportable__" line="15" name="$CheckForAutoloader" />
+      <variable attributes="__exportable__" line="15" name="$CheckModTime" />
+      <variable attributes="__local__" citdl="modules::Settings" line="21" name="$x" />
+      <scope ilk="function" line="23" lineend="28" name="hereForTesting" signature="hereForTesting()" />
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,30 @@
+Index: xpfe/global/resources/content/bindings/listbox.xml
+===================================================================
+RCS file: /cvsroot/mozilla/xpfe/global/resources/content/bindings/listbox.xml,v
+retrieving revision 1.25.2.1
+diff -d -u -r1.25.2.1 listbox.xml
+--- xpfe/global/resources/content/bindings/listbox.xml	13 Aug 2005 13:42:03 -0000	1.25.2.1
++++ xpfe/global/resources/content/bindings/listbox.xml	22 Aug 2005 21:21:35 -0000
+@@ -579,9 +579,19 @@
+       <handler event="keypress" key=" " phase="target">
+       <![CDATA[
+         if (this.currentItem) {
+-          if (this.currentItem.getAttribute("type") != "checkbox")
+-            this.addItemToSelection(this.currentItem);
+-          else if (!this.currentItem.disabled)
++          if (this.currentItem.getAttribute("type") != "checkbox") {
++            var v = document.getAnonymousNodes(this.currentItem);
++            var isEditable = false;
++            for (var i = 0; i < v.length; i++) {
++              if (v[i].getAttribute("type") == "editable") {
++                v[i].edit();
++                isEditable = true;
++                break;
++              }
++            }
++            if (!isEditable)
++              this.addItemToSelection(this.currentItem);
++          } else if (!this.currentItem.disabled)
+             this.currentItem.checked = !this.currentItem.checked;
+         }
+       ]]>

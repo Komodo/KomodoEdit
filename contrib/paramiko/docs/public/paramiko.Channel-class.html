@@ -1,0 +1,1239 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.Channel</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Class&nbsp;Channel
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="../private/paramiko.Channel-class.html">show&nbsp;private</a>&nbsp;|&nbsp;hide&nbsp;private]</font></td></tr>
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="paramiko.Channel-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type Channel</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+
+         |
+        <b>Channel</b>
+</pre><br />
+
+<hr/>
+
+<p>A secure tunnel across an SSH <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a>. A Channel is meant to behave 
+like a socket, and has an API that should be indistinguishable from the 
+python socket API.</p>
+Because SSH2 has a windowing kind of flow control, if you stop reading 
+data from a Channel and its buffer fills up, the server will be unable to 
+send you any more data until you read some of it. (This won't affect 
+other channels on the same transport -- all channels on a single 
+transport are flow-controlled independently.) Similarly, if the server 
+isn't reading data you send, calls to <a 
+href="paramiko.Channel-class.html#send" 
+class="link"><code>send</code></a> may block, unless you set a timeout. 
+This is exactly like a normal network socket, so it shouldn't be too 
+surprising.
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#__init__" class="summary-sig-name"><code>__init__</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>chanid</span>)</span></code>
+<br />
+Create a new channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__del__"></a><span class="summary-sig"><span class="summary-sig-name">__del__</span>(<span class=summary-sig-arg>self</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return a string representation of this object, for debugging.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#close" class="summary-sig-name"><code>close</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Close the channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#exec_command" class="summary-sig-name"><code>exec_command</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>command</span>)</span></code>
+<br />
+Execute a command on the server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#fileno" class="summary-sig-name"><code>fileno</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns an OS-level file descriptor which can be used for polling, but 
+but <i>not</i> for reading or writing).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#get_id" class="summary-sig-name"><code>get_id</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the ID # for this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#get_name" class="summary-sig-name"><code>get_name</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Get the name of this channel that was previously set by <a 
+href="paramiko.Channel-class.html#set_name" 
+class="link"><code>set_name</code></a>.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#get_pty" class="summary-sig-name"><code>get_pty</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>term</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>)</span></code>
+<br />
+Request a pseudo-terminal from the server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#get_transport" class="summary-sig-name"><code>get_transport</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the <a href="paramiko.Transport-class.html" 
+class="link"><code>Transport</code></a> associated with this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        tuple(str, int)
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#getpeername" class="summary-sig-name"><code>getpeername</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the address of the remote side of this Channel, if 
+possible.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        float
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#gettimeout" class="summary-sig-name"><code>gettimeout</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns the timeout in seconds (as a float) associated with socket 
+operations, or <code>None</code> if no timeout is set.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#invoke_shell" class="summary-sig-name"><code>invoke_shell</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Request an interactive shell session on this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#invoke_subsystem" class="summary-sig-name"><code>invoke_subsystem</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>subsystem</span>)</span></code>
+<br />
+Request a subsystem on the server (for example, 
+<code>sftp</code>).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#makefile" class="summary-sig-name"><code>makefile</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class="summary-sig-vararg">*params</span>)</span></code>
+<br />
+Return a file-like object associated with this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        <a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#makefile_stderr" class="summary-sig-name"><code>makefile_stderr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class="summary-sig-vararg">*params</span>)</span></code>
+<br />
+Return a file-like object associated with this channel's stderr 
+stream.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#recv" class="summary-sig-name"><code>recv</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>nbytes</span>)</span></code>
+<br />
+Receive data from the channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#recv_exit_status" class="summary-sig-name"><code>recv_exit_status</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Return the exit status from the process on the server.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        boolean
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#recv_ready" class="summary-sig-name"><code>recv_ready</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns true if data is buffered and ready to be read from this 
+channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        str
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#recv_stderr" class="summary-sig-name"><code>recv_stderr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>nbytes</span>)</span></code>
+<br />
+Receive data from the channel's stderr stream.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        boolean
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#recv_stderr_ready" class="summary-sig-name"><code>recv_stderr_ready</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Returns true if data is buffered and ready to be read from this 
+channel's stderr stream.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#resize_pty" class="summary-sig-name"><code>resize_pty</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>)</span></code>
+<br />
+Resize the pseudo-terminal.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#send" class="summary-sig-name"><code>send</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>s</span>)</span></code>
+<br />
+Send data to the channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#send_exit_status" class="summary-sig-name"><code>send_exit_status</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>status</span>)</span></code>
+<br />
+Send the exit status of an executed command to the client.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        int
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#send_stderr" class="summary-sig-name"><code>send_stderr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>s</span>)</span></code>
+<br />
+Send data to the channel on the &quot;stderr&quot; stream.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#sendall" class="summary-sig-name"><code>sendall</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>s</span>)</span></code>
+<br />
+Send data to the channel, without allowing partial results.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#sendall_stderr" class="summary-sig-name"><code>sendall_stderr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>s</span>)</span></code>
+<br />
+Send data to the channel's &quot;stderr&quot; stream, without allowing 
+partial results.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">        bool
+</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#set_combine_stderr" class="summary-sig-name"><code>set_combine_stderr</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>combine</span>)</span></code>
+<br />
+Set whether stderr should be combined into stdout on this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#set_name" class="summary-sig-name"><code>set_name</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>name</span>)</span></code>
+<br />
+Set a name for this channel.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#setblocking" class="summary-sig-name"><code>setblocking</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>blocking</span>)</span></code>
+<br />
+Set blocking or non-blocking mode of the channel: if 
+<code>blocking</code> is 0, the channel is set to non-blocking mode; 
+otherwise it's set to blocking mode.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#settimeout" class="summary-sig-name"><code>settimeout</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>timeout</span>)</span></code>
+<br />
+Set a timeout on blocking read/write operations.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#shutdown" class="summary-sig-name"><code>shutdown</code></a>(<span class=summary-sig-arg>self</span>,
+          <span class=summary-sig-arg>how</span>)</span></code>
+<br />
+Shut down one or both halves of the connection.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#shutdown_read" class="summary-sig-name"><code>shutdown_read</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Shutdown the receiving side of this socket, closing the stream in the 
+incoming direction.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="paramiko.Channel-class.html#shutdown_write" class="summary-sig-name"><code>shutdown_write</code></a>(<span class=summary-sig-arg>self</span>)</span></code>
+<br />
+Shutdown the sending side of this socket, closing the stream in the 
+outgoing direction.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="paramiko.Channel-class.html#MIN_PACKET_SIZE"><code>MIN_PACKET_SIZE</code></a></b> = <span title="1024">1024&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="__init__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__init__</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>chanid</span>)</span>
+    <br /><i>(Constructor)</i>
+  </h3>
+  Create a new channel. The channel is not associated with any 
+  particular session or <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> until the Transport attaches 
+  it. Normally you would only call this method from the constructor of a 
+  subclass of <a href="paramiko.Channel-class.html" 
+  class="link"><code>Channel</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>chanid</b></code> -
+         the ID of this channel, as passed by an existing <a 
+        href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.object-class.html#__init__"><code>__builtin__.object.__init__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="__repr__"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">__repr__</span>(<span class=sig-arg>self</span>)</span>
+    <br /><i>(Representation operator)</i>
+  </h3>
+  Return a string representation of this object, for debugging.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        str
+      </dd>
+    </dl>
+    <dl><dt><b>Overrides:</b></dt>
+      <dd><a href="__builtin__.object-class.html#__repr__"><code>__builtin__.object.__repr__</code></a></dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="close"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">close</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Close the channel. All future read/write operations on the channel 
+  will fail. The remote end will receive no more data (after queued data 
+  is flushed). Channels are automatically closed when their <a 
+  href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> is closed or when they are 
+  garbage collected.
+  <dl><dt></dt><dd>
+  </dd></dl>
+</td></tr></table>
+
+<a name="exec_command"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">exec_command</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>command</span>)</span>
+  </h3>
+  <p>Execute a command on the server. If the server allows it, the 
+  channel will then be directly connected to the stdin, stdout, and 
+  stderr of the command being executed.</p>
+  When the command finishes executing, the channel will be closed and 
+  can't be reused. You must open a new channel if you wish to execute 
+  another command.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>command</b></code> -
+         a shell command to execute.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request was rejected or the channel was closed
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="fileno"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">fileno</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  <p>Returns an OS-level file descriptor which can be used for polling, 
+  but but <i>not</i> for reading or writing). This is primaily to allow 
+  python's <code>select</code> module to work.</p>
+  The first time <code>fileno</code> is called on a channel, a pipe is 
+  created to simulate real OS-level file descriptor (FD) behavior. 
+  Because of this, two OS-level FDs are created, which will use up FDs 
+  faster than normal. You won't notice this effect unless you open 
+  hundreds or thousands of channels simultaneously, but it's still 
+  notable.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        an OS-level file descriptor
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+<p><b>Warning:</b> This method causes channel reads to be slightly less efficient.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_id"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_id</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the ID # for this channel. The channel ID is unique across a 
+  <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> and usually a small number. 
+  It's also the number passed to <a 
+  href="../private/paramiko.ServerInterface-class.html#check_channel_request" 
+  class="link"><code>ServerInterface.check_channel_request</code></a> 
+  when determining whether to accept a channel request in server 
+  mode.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the ID of this channel.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_name"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_name</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Get the name of this channel that was previously set by <a 
+  href="paramiko.Channel-class.html#set_name" 
+  class="link"><code>set_name</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the name of this channel.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_pty"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_pty</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>term</span>=<span class=sig-default>'vt100'</span>,
+          <span class=sig-arg>width</span>=<span class=sig-default>80</span>,
+          <span class=sig-arg>height</span>=<span class=sig-default>24</span>)</span>
+  </h3>
+  Request a pseudo-terminal from the server. This is usually used 
+  right after creating a client channel, to ask the server to provide 
+  some basic terminal semantics for a shell invoked with <a 
+  href="paramiko.Channel-class.html#invoke_shell" 
+  class="link"><code>invoke_shell</code></a>. It isn't necessary (or 
+  desirable) to call this method if you're going to exectue a single 
+  command with <a href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>term</b></code> -
+         the terminal type to emulate (for example, 
+        <code>'vt100'</code>)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      <dd><code><b>width</b></code> -
+         width (in characters) of the terminal screen
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>height</b></code> -
+         height (in characters) of the terminal screen
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request was rejected or the channel was closed
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="get_transport"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">get_transport</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the <a href="paramiko.Transport-class.html" 
+  class="link"><code>Transport</code></a> associated with this 
+  channel.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the <a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a> that was used to create 
+        this channel.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="paramiko.Transport-class.html" 
+        class="link"><code>Transport</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getpeername"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getpeername</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the address of the remote side of this Channel, if possible. 
+  This is just a wrapper around <code>'getpeername'</code> on the 
+  Transport, used to provide enough of a socket-like interface to allow 
+  asyncore to work. (asyncore likes to call 
+  <code>'getpeername'</code>.)
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the address if the remote host, if known
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=tuple(str, int))</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="gettimeout"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">gettimeout</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Returns the timeout in seconds (as a float) associated with socket 
+  operations, or <code>None</code> if no timeout is set. This reflects 
+  the last call to <a href="paramiko.Channel-class.html#setblocking" 
+  class="link"><code>setblocking</code></a> or <a 
+  href="paramiko.Channel-class.html#settimeout" 
+  class="link"><code>settimeout</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        timeout in seconds, or <code>None</code>.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=float)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="invoke_shell"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">invoke_shell</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  <p>Request an interactive shell session on this channel. If the server 
+  allows it, the channel will then be directly connected to the stdin, 
+  stdout, and stderr of the shell.</p>
+  <p>Normally you would call <a 
+  href="paramiko.Channel-class.html#get_pty" 
+  class="link"><code>get_pty</code></a> before this, in which case the 
+  shell will operate through the pty, and the channel will be connected 
+  to the stdin and stdout of the pty.</p>
+  When the shell exits, the channel will be closed and can't be 
+  reused. You must open a new channel if you wish to open another 
+  shell.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request was rejected or the channel was closed
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="invoke_subsystem"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">invoke_subsystem</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>subsystem</span>)</span>
+  </h3>
+  <p>Request a subsystem on the server (for example, <code>sftp</code>). 
+  If the server allows it, the channel will then be directly connected to 
+  the requested subsystem.</p>
+  When the subsystem finishes, the channel will be closed and can't be 
+  reused.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>subsystem</b></code> -
+         name of the subsystem being requested.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request was rejected or the channel was closed
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="makefile"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">makefile</span>(<span class=sig-arg>self</span>,
+          <span class="sig-vararg">*params</span>)</span>
+  </h3>
+  Return a file-like object associated with this channel. The optional 
+  <code>mode</code> and <code>bufsize</code> arguments are interpreted 
+  the same way as by the built-in <code>file()</code> function in 
+  python.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        object which can be used for python file I/O.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="makefile_stderr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">makefile_stderr</span>(<span class=sig-arg>self</span>,
+          <span class="sig-vararg">*params</span>)</span>
+  </h3>
+  <p>Return a file-like object associated with this channel's stderr 
+  stream. Only channels using <a 
+  href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a> or <a 
+  href="paramiko.Channel-class.html#invoke_shell" 
+  class="link"><code>invoke_shell</code></a> without a pty will ever have 
+  data on the stderr stream.</p>
+  The optional <code>mode</code> and <code>bufsize</code> arguments 
+  are interpreted the same way as by the built-in <code>file()</code> 
+  function in python. For a client, it only makes sense to open this file 
+  for reading. For a server, it only makes sense to open this file for 
+  writing.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        object which can be used for python file I/O.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=<a href="../private/paramiko.ChannelFile-class.html" 
+        class="link"><code>ChannelFile</code></a>)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="recv"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">recv</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>nbytes</span>)</span>
+  </h3>
+  Receive data from the channel. The return value is a string 
+  representing the data received. The maximum amount of data to be 
+  received at once is specified by <code>nbytes</code>. If a string of 
+  length zero is returned, the channel stream has closed.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>nbytes</b></code> -
+         maximum number of bytes to read.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        data.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if no data is ready before the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="recv_exit_status"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">recv_exit_status</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Return the exit status from the process on the server. This is 
+  mostly useful for retrieving the reults of an <a 
+  href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a>. If the command hasn't 
+  finished yet, this method will wait until it does, or until the channel 
+  is closed. If no exit status is provided by the server, -1 is 
+  returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        the exit code of the process on the server.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="recv_ready"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">recv_ready</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Returns true if data is buffered and ready to be read from this 
+  channel. A <code>False</code> result does not mean that the channel has 
+  closed; it means you may need to wait before more data arrives.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if a <a 
+        href="paramiko.Channel-class.html#recv" 
+        class="link"><code>recv</code></a> call on this channel would 
+        immediately return at least one byte; <code>False</code> 
+        otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=boolean)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="recv_stderr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">recv_stderr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>nbytes</span>)</span>
+  </h3>
+  Receive data from the channel's stderr stream. Only channels using 
+  <a href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a> or <a 
+  href="paramiko.Channel-class.html#invoke_shell" 
+  class="link"><code>invoke_shell</code></a> without a pty will ever have 
+  data on the stderr stream. The return value is a string representing 
+  the data received. The maximum amount of data to be received at once is 
+  specified by <code>nbytes</code>. If a string of length zero is 
+  returned, the channel stream has closed.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>nbytes</b></code> -
+         maximum number of bytes to read.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        data.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if no data is ready before the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="recv_stderr_ready"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">recv_stderr_ready</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Returns true if data is buffered and ready to be read from this 
+  channel's stderr stream. Only channels using <a 
+  href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a> or <a 
+  href="paramiko.Channel-class.html#invoke_shell" 
+  class="link"><code>invoke_shell</code></a> without a pty will ever have 
+  data on the stderr stream.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        <code>True</code> if a <a 
+        href="paramiko.Channel-class.html#recv_stderr" 
+        class="link"><code>recv_stderr</code></a> call on this channel 
+        would immediately return at least one byte; <code>False</code> 
+        otherwise.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=boolean)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="resize_pty"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">resize_pty</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>width</span>=<span class=sig-default>80</span>,
+          <span class=sig-arg>height</span>=<span class=sig-default>24</span>)</span>
+  </h3>
+  Resize the pseudo-terminal. This can be used to change the width and 
+  height of the terminal emulation created in a previous <a 
+  href="paramiko.Channel-class.html#get_pty" 
+  class="link"><code>get_pty</code></a> call.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>width</b></code> -
+         new width (in characters) of the terminal screen
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>height</b></code> -
+         new height (in characters) of the terminal screen
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>SSHException</b></code> -
+        if the request was rejected or the channel was closed
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="send"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">send</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>s</span>)</span>
+  </h3>
+  Send data to the channel. Returns the number of bytes sent, or 0 if 
+  the channel stream is closed. Applications are responsible for checking 
+  that all data has been sent: if only some of the data was transmitted, 
+  the application needs to attempt delivery of the remaining data.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>s</b></code> -
+         data to send.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        number of bytes actually sent.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if no data could be sent before the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="send_exit_status"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">send_exit_status</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>status</span>)</span>
+  </h3>
+  Send the exit status of an executed command to the client. (This 
+  really only makes sense in server mode.) Many clients expect to get 
+  some sort of status code back from an executed command after it 
+  completes.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>status</b></code> -
+         the exit code of the process
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="send_stderr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">send_stderr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>s</span>)</span>
+  </h3>
+  Send data to the channel on the &quot;stderr&quot; stream. This is 
+  normally only used by servers to send output from shell commands -- 
+  clients won't use this. Returns the number of bytes sent, or 0 if the 
+  channel stream is closed. Applications are responsible for checking 
+  that all data has been sent: if only some of the data was transmitted, 
+  the application needs to attempt delivery of the remaining data.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>s</b></code> -
+         data to send.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        number of bytes actually sent.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if no data could be sent before the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="sendall"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">sendall</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>s</span>)</span>
+  </h3>
+  Send data to the channel, without allowing partial results. Unlike 
+  <a href="paramiko.Channel-class.html#send" 
+  class="link"><code>send</code></a>, this method continues to send data 
+  from the given string until either all data has been sent or an error 
+  occurs. Nothing is returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>s</b></code> -
+         data to send.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if sending stalled for longer than the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+      <dd><code><b>socket.error</b></code> -
+        if an error occured before the entire string was sent.
+    </dl>
+<p><b>Note:</b> If the channel is closed while only part of the data hase been sent, 
+there is no way to determine how much data (if any) was sent. This is 
+irritating, but identically follows python's API.
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="sendall_stderr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">sendall_stderr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>s</span>)</span>
+  </h3>
+  Send data to the channel's &quot;stderr&quot; stream, without 
+  allowing partial results. Unlike <a 
+  href="paramiko.Channel-class.html#send_stderr" 
+  class="link"><code>send_stderr</code></a>, this method continues to 
+  send data from the given string until all data has been sent or an 
+  error occurs. Nothing is returned.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>s</b></code> -
+         data to send to the client as &quot;stderr&quot; output.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Raises:</b></dt>
+      <dd><code><b>socket.timeout</b></code> -
+        if sending stalled for longer than the timeout set by <a 
+        href="paramiko.Channel-class.html#settimeout" 
+        class="link"><code>settimeout</code></a>.
+      <dd><code><b>socket.error</b></code> -
+        if an error occured before the entire string was sent.
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_combine_stderr"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_combine_stderr</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>combine</span>)</span>
+  </h3>
+  <p>Set whether stderr should be combined into stdout on this channel. 
+  The default is <code>False</code>, but in some cases it may be 
+  convenient to have both streams combined.</p>
+  <p>If this is <code>False</code>, and <a 
+  href="paramiko.Channel-class.html#exec_command" 
+  class="link"><code>exec_command</code></a> is called (or 
+  <code>invoke_shell</code> with no pty), output to stderr will not show 
+  up through the <a href="paramiko.Channel-class.html#recv" 
+  class="link"><code>recv</code></a> and <a 
+  href="paramiko.Channel-class.html#recv_ready" 
+  class="link"><code>recv_ready</code></a> calls. You will have to use <a 
+  href="paramiko.Channel-class.html#recv_stderr" 
+  class="link"><code>recv_stderr</code></a> and <a 
+  href="paramiko.Channel-class.html#recv_stderr_ready" 
+  class="link"><code>recv_stderr_ready</code></a> to get stderr 
+  output.</p>
+  If this is <code>True</code>, data will never show up via <a 
+  href="paramiko.Channel-class.html#recv_stderr" 
+  class="link"><code>recv_stderr</code></a> or <a 
+  href="paramiko.Channel-class.html#recv_stderr_ready" 
+  class="link"><code>recv_stderr_ready</code></a>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>combine</b></code> -
+         <code>True</code> if stderr output should be combined into 
+        stdout on this channel.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+        previous setting.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=bool)</i>
+      </dd>
+    </dl>
+<p><b>Since:</b> 1.1
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="set_name"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">set_name</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>name</span>)</span>
+  </h3>
+  Set a name for this channel. Currently it's only used to set the 
+  name of the log level used for debugging. The name can be fetched with 
+  the <a href="paramiko.Channel-class.html#get_name" 
+  class="link"><code>get_name</code></a> method.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>name</b></code> -
+         new channel name.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=str)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setblocking"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setblocking</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>blocking</span>)</span>
+  </h3>
+  <p>Set blocking or non-blocking mode of the channel: if 
+  <code>blocking</code> is 0, the channel is set to non-blocking mode; 
+  otherwise it's set to blocking mode. Initially all channels are in 
+  blocking mode.</p>
+  <p>In non-blocking mode, if a <a 
+  href="paramiko.Channel-class.html#recv" 
+  class="link"><code>recv</code></a> call doesn't find any data, or if a 
+  <a href="paramiko.Channel-class.html#send" 
+  class="link"><code>send</code></a> call can't immediately dispose of 
+  the data, an error exception is raised. In blocking mode, the calls 
+  block until they can proceed.</p>
+  <code>chan.setblocking(0)</code> is equivalent to 
+  <code>chan.settimeout(0)</code>; <code>chan.setblocking(1)</code> is 
+  equivalent to <code>chan.settimeout(None)</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>blocking</b></code> -
+         0 to set non-blocking mode; non-0 to set blocking mode.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="settimeout"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">settimeout</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>timeout</span>)</span>
+  </h3>
+  <p>Set a timeout on blocking read/write operations. The 
+  <code>timeout</code> argument can be a nonnegative float expressing 
+  seconds, or <code>None</code>. If a float is given, subsequent channel 
+  read/write operations will raise a timeout exception if the timeout 
+  period value has elapsed before the operation has completed. Setting a 
+  timeout of <code>None</code> disables timeouts on socket 
+  operations.</p>
+  <code>chan.settimeout(0.0)</code> is equivalent to 
+  <code>chan.setblocking(0)</code>; <code>chan.settimeout(None)</code> is 
+  equivalent to <code>chan.setblocking(1)</code>.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>timeout</b></code> -
+         seconds to wait for a pending read/write operation before 
+        raising <code>socket.timeout</code>, or <code>None</code> for no 
+        timeout.
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=float)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="shutdown"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">shutdown</span>(<span class=sig-arg>self</span>,
+          <span class=sig-arg>how</span>)</span>
+  </h3>
+  Shut down one or both halves of the connection. If <code>how</code> 
+  is 0, further receives are disallowed. If <code>how</code> is 1, 
+  further sends are disallowed. If <code>how</code> is 2, further sends 
+  and receives are disallowed. This closes the stream in one or both 
+  directions.
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>how</b></code> -
+         0 (stop receiving), 1 (stop sending), or 2 (stop receiving and 
+        sending).
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="shutdown_read"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">shutdown_read</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Shutdown the receiving side of this socket, closing the stream in 
+  the incoming direction. After this call, future reads on this channel 
+  will fail instantly. This is a convenience method, equivalent to 
+  <code>shutdown(0)</code>, for people who don't make it a habit to 
+  memorize unix constants from the 1970s.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+
+<a name="shutdown_write"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">shutdown_write</span>(<span class=sig-arg>self</span>)</span>
+  </h3>
+  Shutdown the sending side of this socket, closing the stream in the 
+  outgoing direction. After this call, future writes on this channel will 
+  fail instantly. This is a convenience method, equivalent to 
+  <code>shutdown(1)</code>, for people who don't make it a habit to 
+  memorize unix constants from the 1970s.
+  <dl><dt></dt><dd>
+<p><b>Since:</b> 1.2
+</p>
+
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="MIN_PACKET_SIZE"></a>
+<h3>MIN_PACKET_SIZE</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>int</code>
+
+      </dd>
+<span title="1024">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+1024&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Wed May 10 18:42:01 2006</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

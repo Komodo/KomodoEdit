@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % spellcheckDTD SYSTEM "chrome://komodospellchecker/locale/spellcheck.dtd">
+  %spellcheckDTD;
+]>
+
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+Based on MPL-licensed code from Mozilla:
+thunderbird/comm/content/editor/EdSpellCheck.xul
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<!-- dialog containing a control requiring initial setup -->
+<dialog buttons="cancel" title="&checkSpelling.title;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    persist="screenX screenY"
+    onload = "spellchecker_Startup()"
+    ondialogaccept="return ko.extensions.spellchecker.doDefault();"
+    ondialogcancel="return ko.extensions.spellchecker.CancelSpellCheck();">
+    
+  <script src="chrome://komodo/content/library/trace.js"    type="application/x-javascript" />
+  <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript" />
+
+  <script type="application/x-javascript" src="chrome://komodospellchecker/content/EdDialogCommon.js"/>
+  <script type="application/x-javascript" src="chrome://komodospellchecker/content/koSpellCheck.js"/>
+  <script type="application/x-javascript" src="chrome://komodospellchecker/content/EdDialogCommon.js"/>
+  <script type="application/x-javascript" src="chrome://komodospellchecker/content/editorUtilities.js"/>
+
+  <grid>
+    <columns>
+      <column class="spell-check"/>
+      <column class="spell-check" flex="1"/>
+      <column class="spell-check"/>
+    </columns>
+    <rows>
+      <row align="center">
+        <label id="MisspelledWordLabel" value="Misspelled word:"/>
+        <label class="bold" id="MisspelledWord"/>
+        <button class="spell-check" label="&recheckPage.label;" oncommand="ko.extensions.spellchecker.Recheck();"
+                accesskey="&recheckPage.accesskey;"/>
+      </row>
+      <row align="center">
+        <label id="ReplaceWordLabel" value="Replace with:"
+               control="ReplaceWordInput"
+               accesskey="&replaceWordLabel.accesskey;"/>
+        <textbox id="ReplaceWordInput" oninput="ko.extensions.spellchecker.ChangeReplaceWord()" flex="1"/>
+        <button id="CheckWord" oncommand="ko.extensions.spellchecker.CheckWord()" label="&checkWord.label;"
+                accesskey="&checkWord.accesskey;"/>
+      </row>
+    </rows>
+  </grid>
+  <label id="SuggestedListLabel" value="Suggestions:"
+         control="SuggestedList"
+         accesskey="&suggestedListLabel.accesskey;"/>
+  <grid>
+    <columns><column/><column/></columns>
+    <rows>
+      <row flex="1">
+        <!-- BUG! setting class="MinWidth20em" on tree doesn't work (width=0) -->
+        <listbox  rows="6" id="SuggestedList" onselect="ko.extensions.spellchecker.SelectSuggestedWord()"
+                  ondblclick="if (ko.extensions.spellchecker.allowSelectWord()) ko.extensions.spellchecker.Replace(event.target.getAttribute('label'));"/>
+        <vbox>
+          <grid flex="1">
+            <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>
+            <rows>
+              <row>
+                <button id="Replace" label="&replace.label;"
+                        oncommand="ko.extensions.spellchecker.Replace(gDialog.ReplaceWordInput.value);"
+                        accesskey="&replace.accesskey;"/>
+                <button id="Ignore"  oncommand="ko.extensions.spellchecker.Ignore();" label="&ignore.label;"
+                        accesskey="&ignore.accesskey;"/>
+              </row>
+              <row>
+                <button id="ReplaceAll" oncommand="ko.extensions.spellchecker.ReplaceAll();" label="&replaceAll.label;"
+                        accesskey="&replaceAll.accesskey;"/>
+                <button id="IgnoreAll"  oncommand="ko.extensions.spellchecker.IgnoreAll();" label="&ignoreAll.label;"
+                        accesskey="&ignoreAll.accesskey;"/>
+              </row>
+            </rows> 
+          </grid>
+          <spacer flex="1"/>
+          <label value="Personal Dictionary:"/>
+          <hbox flex="1" align="start">
+            <button class="spell-check" id="AddToDictionary" oncommand="ko.extensions.spellchecker.AddToDictionary()" label="&addWord.label;"
+                    accesskey="&addToDictionary.accesskey;"/>
+            <button class="spell-check" id="EditDictionary"  oncommand="ko.extensions.spellchecker.EditDictionary()" label="&edit.label;"
+                    accesskey="&editDictionary.accesskey;"/>
+          </hbox>
+        </vbox>
+      </row>
+      <label value ="Language:"
+             control="LanguageMenulist"
+             accesskey="&L.accesskey;"/>
+      <row>
+        <menulist id="LanguageMenulist" oncommand="ko.extensions.spellchecker.SelectLanguage()">
+          <menupopup>
+            <!-- dynamic content populated by JS -->
+          </menupopup>
+        </menulist>
+        <hbox flex="1">
+          <button class="spell-check" dlgtype="cancel" id="Stop" label="&stop.label;" oncommand="ko.extensions.spellchecker.CancelSpellCheck();"
+                  accesskey="&stop.accesskey;"/>
+          <spacer flex="1"/>
+          <button class="spell-check" id="Close" label="&close.label;" oncommand="ko.extensions.spellchecker.onClose();"
+                  accesskey="&close.accesskey;"/>
+          <button class="spell-check" id="Send" label="&send.label;" oncommand="ko.extensions.spellchecker.onClose();"
+                  accesskey="&send.accesskey;" hidden="true"/>
+        </hbox>
+      </row>
+    </rows>
+  </grid>
+</dialog>

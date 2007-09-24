@@ -1,0 +1,6 @@
+# And back
+
+family tpl
+
+state IN_TPL_DEFAULT:
+'}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT

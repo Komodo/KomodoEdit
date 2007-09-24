@@ -1,0 +1,14 @@
+Metadata-Version: 1.0
+Name: cElementTree
+Version: 1.0.5-20051216
+Summary: A fast C implementation of the ElementTree API.
+Home-page: http://www.effbot.org/zone/celementtree.htm
+Author: Fredrik Lundh
+Author-email: fredrik@pythonware.com
+License: Python (MIT style)
+Download-URL: http://effbot.org/downloads#celementtree
+Description: A fast C implementation of the ElementTree API.
+Platform: Python 2.1 and later.
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Text Processing :: Markup :: XML

@@ -1,0 +1,352 @@
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+<head>
+<title>SciMoz Example</title>
+<style>
+input {
+	font-size:9pt;
+}
+body {
+	margin-width: 0;
+	background-color: #CCCCCC;
+}
+</style>
+<script>
+function RGB(r,g,b) {
+	return r + g * 256 + b * 256 * 256;
+}
+function mambo(col, line) {
+//alert("mambo");
+//	document.forms["frm"].posit.value = "Ln " + line + ", Col " + col;
+return 1;
+}
+function langchanger() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var x = parseInt(document.forms["frm"].lang.value);
+	var scin = document.scin.ISciMoz;
+	var lexer = parseInt(x) + 1;
+	if (x == 1) {
+		scin.lexer = scin.SCLEX_PYTHON;
+		scin.setKeyWords(0, "if class def elif else");
+		scin.styleSetFont(scin.STYLE_DEFAULT, "Courier New");
+		scin.styleSetFont(scin.SCE_P_DEFAULT, "Courier New");
+		scin.styleSetFore(scin.SCE_P_COMMENTLINE, RGB(0xff, 0, 0));
+		scin.styleSetBack(scin.SCE_P_COMMENTLINE, RGB(0xff, 0xf0, 0xde));
+		scin.styleSetItalic(scin.SCE_P_COMMENTLINE, 0);
+		scin.styleSetBold(scin.SCE_P_COMMENTLINE, 0);
+		scin.styleSetEOLFilled(scin.SCE_P_DEFAULT, 0);
+	
+	} else if (x == 2) {
+		scin.lexer = scin.SCLEX_CPP;
+		scin.setKeyWords(0, "if else void");
+		scin.styleSetFont(scin.STYLE_DEFAULT, "Verdana");
+		scin.styleSetFont(scin.SCE_C_DEFAULT, "Verdana");
+		scin.styleSetFore(scin.SCE_C_COMMENT, RGB(0, 0, 0xff));
+		scin.styleSetBack(scin.SCE_C_COMMENT, RGB(0xf0, 0xde, 0xff));
+		scin.styleSetItalic(scin.SCE_C_COMMENT, 1);
+		scin.styleSetBold(scin.SCE_C_COMMENT, 1);
+		scin.styleSetBack(scin.SCE_C_DEFAULT, RGB(0xf0, 0xde, 0xff));
+		scin.styleSetEOLFilled(scin.SCE_C_DEFAULT, 1);
+		
+	} else if (x == 2) {
+		scin.lexer = scin.SCLEX_HTML;
+		scin.styleSetFont(scin.STYLE_DEFAULT, "Georgia");
+		scin.styleSetFont(scin.SCE_H_DEFAULT, "Georgia");
+		scin.styleSetFore(scin.SCE_H_TAG, RGB(0, 0, 0));
+		scin.styleSetBack(scin.SCE_H_TAG, RGB(0xf0, 0xde, 0xff));
+		scin.styleSetItalic(scin.SCE_H_TAG, 0);
+		scin.styleSetBold(scin.SCE_H_TAG, 0);
+		scin.styleSetEOLFilled(scin.SCE_H_DEFAULT, 0);
+		
+	} else {
+		scin.lexer = scin.SCLEX_CONTAINER;
+	
+	}
+	scin.startStyling(0, 0x1f);
+	scin.setStyling(scin.length, 0);
+	scin.colourise(0, scin.length);
+}
+function changer() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var x = document.forms["frm"].colour.value;
+	var scin = document.scin.ISciMoz;
+	if (x == 1)
+		scin.styleSetFore(scin.SCE_C_IDENTIFIER, RGB(0xaf, 0, 0));
+	else if (x == 2)
+		scin.styleSetFore(scin.SCE_C_IDENTIFIER, RGB(0, 0x7f, 0));
+	else if (x == 3)
+		scin.styleSetFore(scin.SCE_C_IDENTIFIER, RGB(0, 0x7f, 0x7f));
+	else if (x == 4)
+		scin.styleSetFore(scin.SCE_C_IDENTIFIER, RGB(0, 0, 0xaf));
+	else
+		scin.styleSetFore(scin.SCE_C_IDENTIFIER, RGB(0, 0, 0));
+}
+
+function AddString(s) {
+	var scin = document.scin.ISciMoz;
+	var length = scin.length;
+	scin.gotoPos(length);
+	scin.anchor = length;
+	scin.addText(s.length, s);
+}
+
+function DoStuff() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var scin = document.scin.ISciMoz;
+	scin.clearAll();
+	var origLength = scin.length;
+	scin.addText(12, "H\001llo World ");
+	var newLength = scin.length;
+	var ch = scin.getCharAt(0)
+	var lenMsg = " -> length changed from " + origLength + " to " + newLength + 
+		"char[0]=" + ch + ":" + String.fromCharCode(ch) + "\n";
+	scin.addText(lenMsg.length, lenMsg);
+	scin.insertText(6, "Planet ");	
+	// Caret and anchor should be at 63.
+	var caret = scin.currentPos;
+	var anchor = scin.anchor;
+	scin.lexer = scin.SCLEX_CPP;
+	AddString("Caret at " + caret + " and anchor at " + anchor + ".\n");
+	// Turn off lexing so can add styled text manually
+	scin.lexer = scin.SCLEX_CONTAINER;
+	var startMultiStyled = scin.anchor;
+	scin.addStyledText(24, 
+		"X\000X\001X\002X\003X\004X\005X\006X\007X\010X\011X\012X\013X\014\n");
+	AddString("Styles ");
+	for (var n=0; n<10; n++) {
+		AddString("" + scin.getStyleAt(startMultiStyled+n) + ":");
+	}
+	AddString("\n");
+	scin.selectAll();
+	scin.undo();
+	if (scin.canRedo())
+		scin.redo();
+	else 
+		alert("Failed - cannot redo");
+	scin.setMargins(scin.EC_LEFTMARGIN | scin.EC_RIGHTMARGIN, 30 << 16 | 10);
+}
+var step = 1;
+function MarkerStuff() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var scin = document.scin.ISciMoz;
+	step++;
+	scin.markerDeleteAll(1);
+	scin.markerDefine(1,0);
+	scin.markerSetFore(1,RGB(0x8f,0,0));
+	scin.markerSetBack(1,RGB(0xff,0xff,0));
+	scin.markerDefine(2,2);
+	scin.markerSetFore(2,RGB(0,0,0x8f));
+	scin.markerSetBack(2,RGB(0,0,0xff));
+	scin.markerAdd(0+step, 1);
+	scin.markerAdd(2+step, 1);
+	scin.markerAdd(2+step, 2);
+	scin.markerDelete(2+step, 1);
+	if (scin.markerGet(2+step) != 4)	// Bit 2 = b0100 = 4
+		alert("Failed - marker unexpected " + scin.markerGet(2+step));
+	if (scin.markerNext(0, 2) != (0+step))
+		alert("Failed - marker unexpected line " + scin.markerNext(0, 2));
+	
+	if (scin.markerPrevious(0, 2) != -1)
+		alert("Failed - marker unexpected line " + scin.markerPrevious(0, 2));
+}
+function ComplexStuff() {
+
+	// Scintilla methods that take pointer to struct parameters are accessed
+	// through creating strings with the fields of the structs.
+	// To make inout parameters work in Javascript, java objects with a 'value'
+	// attribute are used.
+	
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var scin = document.scin.ISciMoz;
+	scin.clearAll();
+	AddString("In The Eyes Of The World");
+	var text = scin.text;
+	var selection = scin.selectionStart + " " + scin.selectionEnd;
+	scin.selectionStart = 2;
+	scin.selectionEnd = 3;
+
+	var selText = scin.selText;
+	AddString("selected text = [" + selText + "]\n");
+	
+	AddString("\n");
+	AddString("text = " + text + "\n");
+	AddString("selection = " + selection + "\n");
+	
+	var x = new Object();
+	var y = new Object();
+	scin.posFromChar(1, x, y);
+	y.value += 30;
+	var charPos = scin.charFromPos(x.value, y.value);
+	var lineOfCharPos = scin.lineFromChar(charPos);
+	AddString("pos of " + x.value + " " + y.value + " = " + charPos + " line = " + lineOfCharPos + "\n");
+	
+	scin.anchor = charPos;
+	scin.currentPos = charPos+1;
+
+	var lineText = new Object();
+	var len = scin.getLine(2, lineText);
+	AddString("line 2 has length " + len + " and contents are [" + lineText.value.substr(0,len) + "]\n");
+
+	scin.anchor = 20;
+	scin.currentPos = 40;
+
+	var clText = new Object();
+	var cl = scin.getCurLine(clText);
+	AddString("current line position " + cl + " contents are [" + clText.value + "]\n");
+	
+	var left = new Object();
+	var top = new Object();
+	var right = new Object();
+	var bottom = new Object();
+	scin.getRect(left, top, right, bottom);
+	var rect = new Object();
+	AddString("rectangle is " + left.value + "," + top.value + "," + right.value + "," + bottom.value + "\n");
+	scin.getMargins(left, right)
+	AddString("margins are " + left.value + "," + right.value + "\n");
+
+	var r = scin.getTextRange(7, 11);
+	AddString("range 7..11 is " + r + "\n");
+
+	var r2 = scin.getStyledText(7,11, {});
+	var s = "";
+	for (var ii=0;ii<r2.length;ii++) {
+		if (r2[ii] < 32)
+			s += "\\" + r2[ii].toString(8);
+		else
+			s += String.fromCharCode(r2[ii]);
+	}
+	AddString("range 7..11 is styled " + r2.length + " = " + s + "\n");
+
+	// Define the style of indicator 0
+	scin.indicSetStyle(0,scin.INDIC_SQUIGGLE);
+	scin.indicSetFore(0,RGB(0xff,0,0));
+	
+	// Apply indicator 0 over the first 11 characters
+	scin.startStyling(0, scin.INDIC0_MASK)
+	scin.setStyling(11, scin.INDIC0_MASK)
+}
+function ToggleWS() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var scin = document.scin.ISciMoz;
+	scin.viewWS = !scin.viewWS;
+	//scin.autoCShow(0, "David Eric Mark Neil");
+	
+	// Due to a portability bug in Scintilla, this doesn't work
+	//var ctrlMod = scin.LEFT_CTRL_PRESSED
+	var ctrlMod = 8;
+	
+	if (scin.viewWS) {
+		// Assign Select All to Ctrl+B
+		scin.assignCmdKey('B'.charCodeAt(0), ctrlMod, 2013);
+	} else {
+		scin.clearCmdKey('B'.charCodeAt(0), ctrlMod);
+	}
+
+	// To check for margin click
+	//scin.setMarginSensitiveN(1, 1);
+	
+	// To check for onModifyAttemptRO
+	//scin.setReadOnly(1);	
+	
+	// To check for macro recording messages
+	//if (scin.viewWS)
+	//	scin.startRecord();
+	//else
+	//	scin.stopRecord();
+}
+function eventist() {}
+eventist.prototype = {
+	onStyleNeeded: function(position) {window.status="onStyleNeeded " + position;},
+	onCharAdded: function(ch) { window.status="onCharAdded " + ch; },
+	onSavePointReached: function() { window.status="onSavePointReached"; },
+	onSavePointLeft: function() { window.status="onSavePointLeft"; },
+	onModifyAttemptRO: function() { window.status="onModifyAttemptRO"; },
+	onKey: function(ch, modifiers) { window.status="onKey " + ch + ":" + modifiers; },
+	onDoubleClick: function() { window.status="onDoubleClick"; },
+	//onUpdateUI: function() { window.status="onUpdateUI"; },
+	onModified: function(position, modificationType, text, 
+		length, linesAdded, line, foldLevelNow, foldLevelPrev) {
+		window.status="onModified " + position + ":" + modificationType;},
+	onMacroRecord: function(message, wParam, lparam) { 
+		window.status="onMacroRecord " + message + ":" + wParam + ":" + lparam; },
+	onMarginClick: function(modifiers, position, margin) {
+		window.status="onMarginClick " + modifiers + ":" + position + ":" + margin; },
+	onNeedShown: function(position, length) {
+		window.status="onNeedShown " + position + ":" + length; },
+	// nsISupports interface
+	QueryInterface: function(iid) {
+		netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		var ISCIMOZEVENTS_IID = 
+			Components.ID("{1b7577c0-ba94-42b6-879d-c4783b9e3c76}");
+		if (!iid.equals(Components.interfaces.nsISupports) &&
+			!iid.equals(ISCIMOZEVENTS_IID))
+		    throw Components.results.NS_ERROR_NO_INTERFACE;
+		return this;
+    },
+}
+
+function connectEvents() {
+	netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+	var scin = document.scin.ISciMoz;
+	scin.hookEvents(new eventist());
+	scin.setMarginTypeN(0, scin.SC_MARGIN_NUMBER); 
+	scin.setMarginWidthN(0, 35); 
+	scin.setMarginSensitiveN(0, 0);
+	scin.setMarginMaskN(0, 0);
+	scin.setMarginTypeN(1, scin.SC_MARGIN_SYMBOL); 
+	scin.setMarginWidthN(1, 16); 
+	scin.setMarginSensitiveN(1, 1);
+	mask = 1 << scin.SC_MARKNUM_FOLDER | 1 << scin.SC_MARKNUM_FOLDEROPEN;
+	mask = mask | 0xff;
+	scin.setMarginMaskN(1, mask);
+	scin.styleSetBack(scin.STYLE_LINENUMBER, RGB(0xf0, 0xde, 0xff));
+
+	AddString("use strict\n");
+	AddString("\n");
+	AddString("sub f1 {\n");
+	AddString("    f2(@_);\n");
+	AddString('    print "howdy boys\\n";\n');
+	AddString("}\n");
+	AddString("\n");
+	AddString("sub f2 {\n");
+	AddString("    my ($a1, $v1, $c1)= @_;\n");
+	AddString("\n");
+	AddString("\n");
+	AddString("\n");
+	AddString("\n");
+	AddString("\n");
+	AddString("\n");
+	
+	window.status="connectEvents ";
+}
+</script>
+</head>
+<body onLoad="connectEvents();">
+<embed frameborder="1" type="application/x-scimoz-plugin"
+	width="95%" height="84%" name="scin"><br />
+<form name="frm" height="a">
+<select name="colour" size="1" onchange="changer();">
+<option value="1">red
+<option value="2" selected>green
+<option value="3">cyan
+<option value="4">blue
+<option value="5">black
+</select>
+<select name="lang" size="1" onchange="langchanger();">
+<option value="1">Python
+<option value="2" selected>C++
+<option value="3">HTML
+<option value="4">None
+</select>
+<input name="posit" type="text" value="" size=15>
+<input type=button value="Do Stuff" onclick='DoStuff()'>
+<input type=button value="Marker Stuff" onclick='MarkerStuff()'>
+<input type=button value="Complex Stuff" onclick='ComplexStuff()'>
+<input type=button value="View White Space" onclick='ToggleWS()'>
+<input type=button value="Connect Events" onclick='connectEvents()'>
+</form>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="PrefRuby_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/pref-ruby.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+
+    <groupbox orient="vertical">
+        <caption label="&defaultRubyInterpreter.label;"/>
+        <vbox id="no-avail-interps-message" collapsed="true" flex="1" align="center">
+            <description style="font-weight: bold;">
+                No Ruby interpreter was found on your system. If you would
+                like to debug and run Ruby programs in Komodo you will need
+                to install Ruby. You can get Ruby from the Ruby home page at
+            </description>
+            <button label="&httpWwwRubyLangOrg.label;"
+                    class="button-link-a" style="cursor:pointer;"
+                    oncommand="alert('Note: Komodo must be restarted for it to recognize new Ruby installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+        </vbox>
+        <vbox id="invalid-version-message" collapsed="true" flex="1" align="center">
+            <description style="font-weight: bold;">
+                The Ruby debugger extension does not work with the version of
+                Ruby selected or that is on your path. You need to use Ruby
+                version 1.8.2 or later.  You can get Ruby from the Ruby home page at
+            </description>
+            <button label="&httpWwwRubyLangOrg.label;"
+                    class="button-link-a" style="cursor:pointer;"
+                    oncommand="alert('Note: Komodo must be restarted for it to recognize new Ruby installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+        </vbox>
+        <text value="Use this interpreter" style="padding: 2px 6px 2px 6px"/>
+        <hbox align="center">
+            <menulist id="rubyDefaultInterpreter"
+                flex="1"
+                pref="true"
+                prefstring="rubyDefaultInterpreter"
+                oncommand="PrefRuby_checkVersion();">
+                <menupopup id="avail-interp-list"/>
+            </menulist>
+            <button label="&browse.label;" oncommand="loadRubyExecutable();"/>
+        </hbox>
+    </groupbox>
+    <separator class="thin"/>
+    <groupbox orient="vertical">
+        <caption label="&backgroundSyntaxChecking.label;"/>
+        <description>
+            You can configure the level of strictness that is used when doing background syntax checks.
+        </description>
+        <hbox align="center">
+            <menulist id="ruby_lintOption"
+		      flex="1" pref="true" prefattribute="data">
+                <menupopup>
+                    <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
+                    <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
+                    <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
+                    <menuitem data="c" label="&errorsOnlyC.label;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+    </groupbox>
+
+    <separator class="thin"/>
+
+    <groupbox orient="vertical">
+        <caption label="&additionalRubyImportDirectories.label;"/>
+        <description>
+            Specify any additional directories that you want Komodo to
+            add to the Ruby path when debugging, syntax checking or
+            in the interactive shell.
+        </description>
+	<pathlist
+                id="rubyExtraPaths"
+                flex="1"
+                seltype="multiple"
+                rows="4"
+		pref="true" prefwidget="true"
+                prefstring="rubyExtraPaths"/>
+    </groupbox>
+
+</window>
+

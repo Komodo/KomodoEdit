@@ -1,0 +1,4 @@
+content xtk xtk/content/ xpcnativewrappers=yes
+locale xtk en-US xtk/locale/en-US/
+skin xtk classic/1.0 xtk/skin/
+

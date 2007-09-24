@@ -1,0 +1,56 @@
+
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'komodoTitleBarName',
+    'unsiloedPythonExe',
+    'mozVersion',
+);
+
+$cons->InstallInChrome('timers.js');
+$cons->Preprocess('trace.unprocessed.js', 'trace.js');
+$cons->InstallInChrome('trace.js');
+$cons->InstallInChrome('test.js');
+$cons->InstallInChrome('logging.js');
+$cons->Preprocess('windowManager.p.js', 'windowManager.js');
+$cons->InstallInChrome('windowManager.js');
+$cons->Preprocess('DragDrop.unprocessed.js', 'DragDrop.js');
+$cons->InstallInChrome('DragDrop.js');
+$cons->Preprocess('uilayout.unprocessed.js', 'uilayout.js',
+                  {'PP_KO_TITLE_BAR_NAME' => "$komodoTitleBarName"});
+$cons->InstallInChrome('uilayout.js');
+$cons->InstallInChrome('dialogs.js');
+$cons->InstallInChrome('otherdialogs.js');
+$cons->InstallInChrome('mru.js');
+$cons->InstallInChrome('color_functions.js');
+$cons->InstallInChrome('printing.js');
+$cons->InstallInChrome('stringutils.js');
+$cons->InstallInChrome('uriparse.js');
+$cons->InstallInChrome('commands.js');
+$cons->InstallInChrome('controller.js');
+$cons->InstallInChrome('logging_control.xul');
+$cons->Preprocess('logging_control.unprocessed.js', 'logging_control.js');
+$cons->InstallInChrome('logging_control.js');
+$cons->InstallInChrome('isearch.js');
+$cons->InstallInChrome('macros.js');
+$cons->InstallInChrome('prefs_control.xul');
+$cons->Preprocess('prefs_control.unprocessed.js', 'prefs_control.js');
+$cons->InstallInChrome('prefs_control.js');
+$cons->InstallInChrome('encodingmenu.js');
+$cons->Preprocess('filepickers.unprocessed.js', 'filepickers.js');
+$cons->InstallInChrome('filepickers.js');
+$cons->Preprocess('open.unprocessed.js', 'open.js');
+$cons->InstallInChrome('open.js');
+$cons->Preprocess('viewhistory.unprocessed.js', 'viewhistory.js');
+$cons->InstallInChrome('viewhistory.js');
+$cons->InstallInChrome('eggs.js');
+
+

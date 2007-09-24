@@ -1,0 +1,38 @@
+--- toolkit/xre/nsXREDirProvider.cpp.original	Mon Jul 25 13:53:10 2005
++++ toolkit/xre/nsXREDirProvider.cpp	Mon Jul 25 14:25:37 2005
+@@ -41,6 +41,8 @@
+ #include "nsAppRunner.h"
+ #include "nsXREDirProvider.h"
+ 
++#include "prenv.h"
++
+ #include "jsapi.h"
+ 
+ #include "nsIJSContextStack.h"
+@@ -524,6 +526,17 @@
+   nsresult rv;
+   nsCOMPtr<nsILocalFile> localDir;
+ 
++  // ActiveState Komodo patch:
++  // Allow the _XRE_USERAPPDATADIR environment variable to override.
++  const char* envvar;
++  envvar = PR_GetEnv("_XRE_USERAPPDATADIR");
++  if (envvar && *envvar) {
++    rv = NS_NewNativeLocalFile(nsDependentCString(envvar), PR_TRUE,
++                               getter_AddRefs(localDir));
++    NS_ENSURE_SUCCESS(rv, rv);
++  }
++  else {
++
+ #if defined(XP_MACOSX)
+    FSRef fsRef;
+ #ifdef MOZ_THUNDERBIRD 
+@@ -663,6 +676,8 @@
+ #else
+ #error dont_know_how_to_get_product_dir_on_your_platform
+ #endif
++
++  } /* if $_XRE_USERAPPDATADIR */
+ 
+   rv = EnsureDirectoryExists(localDir);
+   NS_ENSURE_SUCCESS(rv, rv);

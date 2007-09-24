@@ -1,0 +1,358 @@
+Index: widget/public/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/widget/public/Makefile.in,v
+retrieving revision 1.100.6.1
+diff -u -r1.100.6.1 widget/public/Makefile.in
+--- widget/public/Makefile.in	2 Nov 2005 20:42:23 -0000	1.100.6.1
++++ widget/public/Makefile.in	28 Jun 2007 01:13:53 -0000
+@@ -80,6 +80,7 @@
+ 
+ XPIDLSRCS	= \
+ 		nsIAppShell.idl \
++                nsIAppShutdown.idl \
+ 		nsIFilePicker.idl \
+ 		nsIToolkit.idl \
+ 		nsISound.idl \
+Index: widget/public/nsIAppShutdown.idl
+===================================================================
+RCS file: widget/public/nsIAppShutdown.idl
+diff -N widget/public/nsIAppShutdown.idl
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ widget/public/nsIAppShutdown.idl	8 Jun 2007 15:00:15 -0000
+@@ -0,0 +1,70 @@
++/* -*- Mode: IDL; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is Mozilla Communicator client code, copied from
++ * toolkit/components/startup/public/nsIAppStartup.idl, which was copied from
++ * xpfe/appshell/public/nsIAppShellService.idl
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1999
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Benjamin Smedberg <benjamin@smedbergs.us>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#include "nsISupports.idl"
++
++[scriptable, uuid(958dc143-46bf-403c-914d-ae4e0544b173)]
++interface nsIAppShutdown : nsISupports
++{
++    /**
++     * The following flags may be passed as the aMode parameter to the quit
++     * method.  One and only one of the "Quit" flags must be specified.
++     * Additional bitflags may be accepted by particular implementations.
++     */
++
++    /**
++     * Try to close all windows, then quit if successful.
++     */
++    const PRUint32 eAttemptQuit = 0x02;
++
++    /**
++     * Quit, damnit!
++     */
++    const PRUint32 eForceQuit = 0x03;
++
++    /**
++     * Exit the event loop, and shut down the app.
++     *
++     * @param aMode
++     *        This parameter modifies how the app is shutdown, and it is
++     *        constructed from the constants defined above.
++     */
++    void quit(in PRUint32 aMode);
++};
+Index: widget/public/nsWidgetsCID.h
+===================================================================
+RCS file: /cvsroot/mozilla/widget/public/nsWidgetsCID.h,v
+retrieving revision 3.50
+diff -u -8 -p -d -r3.50 nsWidgetsCID.h
+--- widget/public/nsWidgetsCID.h	2 May 2007 07:46:50 -0000	3.50
++++ widget/public/nsWidgetsCID.h	8 Jun 2007 15:00:16 -0000
+@@ -31,16 +31,18 @@
+  * use your version of this file under the terms of the MPL, indicate your
+  * decision by deleting the provisions above and replace them with the notice
+  * and other provisions required by the GPL or the LGPL. If you do not delete
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
++#define NS_APPSHUTDOWN_CONTRACTID "@mozilla.org/widget/app-shutdown;1"
++
+ /* 2d96b3d0-c051-11d1-a827-0040959a28c9 */
+ #define NS_WINDOW_CID \
+ { 0x2d96b3d0, 0xc051, 0x11d1, \
+     {0xa8, 0x27, 0x00, 0x40, 0x95, 0x9a, 0x28, 0xc9}}
+ 
+ /* 2d96b3d1-c051-11d1-a827-0040959a28c9 */
+ #define NS_CHILD_CID \
+ { 0x2d96b3d1, 0xc051, 0x11d1, \
+Index: widget/src/windows/nsWindow.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/windows/nsWindow.cpp,v
+retrieving revision 3.569.2.45
+diff -d -u -r3.569.2.45 nsWindow.cpp
+--- widget/src/windows/nsWindow.cpp	25 Jan 2007 02:22:26 -0000	3.569.2.45
++++ widget/src/windows/nsWindow.cpp	12 Jul 2007 01:19:42 -0000
+@@ -48,6 +48,13 @@
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
++
++#include "nsIAppShutdown.h"
++#include "nsCOMPtr.h"
++#include "nsXPCOM.h"
++#include "nsISupportsPrimitives.h"
++#include "nsServiceManagerUtils.h"
++
+ #if defined(DEBUG_ftang)
+ //#define KE_DEBUG
+ //#define DEBUG_IME
+@@ -5502,6 +5509,40 @@
+     nsMemory::HeapMinimize(PR_TRUE);
+     break;
+ #endif
++  case WM_QUERYENDSESSION:
++    {
++      nsCOMPtr<nsIObserverService> obsServ =
++        do_GetService("@mozilla.org/observer-service;1");
++      nsCOMPtr<nsISupportsPRBool> cancelQuit =
++        do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++      cancelQuit->SetData(PR_FALSE);
++      obsServ->NotifyObservers(cancelQuit, "quit-application-requested", nsnull);
++
++      PRBool abortQuit;
++      cancelQuit->GetData(&abortQuit);
++      result = TRUE;
++      *aRetValue = !abortQuit;
++    }
++    break;
++  case WM_ENDSESSION:
++    {
++      result = TRUE;
++      if (wParam == FALSE) 
++        break;
++      *aRetValue = result;
++
++      nsCOMPtr<nsIObserverService> obsServ =
++        do_GetService("@mozilla.org/observer-service;1");
++      nsCOMPtr<nsIAppShutdown> appService
++        (do_GetService(NS_APPSHUTDOWN_CONTRACTID));
++
++      if (obsServ)
++        obsServ->NotifyObservers(nsnull, "quit-application-granted", nsnull);
++
++      if (appService)
++        appService->Quit(nsIAppShutdown::eForceQuit);
++    }
++    break;
+     default:
+     {
+       // Handle both flavors of mouse wheel events.
+
+Index: toolkit/components/build/nsToolkitCompsModule.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/build/nsToolkitCompsModule.cpp,v
+retrieving revision 1.19.2.10
+diff -u -r1.19.2.10 toolkit/components/build/nsToolkitCompsModule.cpp
+--- toolkit/components/build/nsToolkitCompsModule.cpp	15 Jun 2006 18:12:14 -0000	1.19.2.10
++++ toolkit/components/build/nsToolkitCompsModule.cpp	28 Jun 2007 01:20:49 -0000
+@@ -40,6 +40,7 @@
+ #include "nsUserInfo.h"
+ #include "nsXPFEComponentsCID.h"
+ #include "nsToolkitCompsCID.h"
++#include "nsWidgetsCID.h"
+ #ifdef ALERTS_SERVICE
+ #include "nsAlertsService.h"
+ #endif
+@@ -140,6 +141,11 @@
+     NS_APPSTARTUP_CONTRACTID,
+     nsAppStartupConstructor },
+ 
++  { "App Startup Service",
++    NS_TOOLKIT_APPSTARTUP_CID,
++    NS_APPSHUTDOWN_CONTRACTID,
++    nsAppStartupConstructor },
++
+   { "User Info Service",
+     NS_USERINFO_CID,
+     NS_USERINFO_CONTRACTID,
+Index: toolkit/components/startup/public/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/startup/public/Makefile.in,v
+retrieving revision 1.2
+diff -u -8 -p -d -r1.2 Makefile.in
+--- toolkit/components/startup/public/Makefile.in	17 Jan 2005 18:50:15 -0000	1.2
++++ toolkit/components/startup/public/Makefile.in	8 Jun 2007 15:00:21 -0000
+@@ -47,9 +47,11 @@ MODULE       = appcomps
+ XPIDL_MODULE = appstartup
+ 
+ XPIDLSRCS = \
+   nsIAppStartup.idl \
+   nsICloseAllWindows.idl \
+   nsIUserInfo.idl \
+   $(NULL)
+ 
++REQUIRES = widget
++
+ include $(topsrcdir)/config/rules.mk
+Index: toolkit/components/startup/public/nsIAppStartup.idl
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/startup/public/nsIAppStartup.idl,v
+retrieving revision 1.3
+diff -u -r1.3 toolkit/components/startup/public/nsIAppStartup.idl
+--- toolkit/components/startup/public/nsIAppStartup.idl	20 Jun 2005 23:17:59 -0000	1.3
++++ toolkit/components/startup/public/nsIAppStartup.idl	28 Jun 2007 01:22:55 -0000
+@@ -37,12 +37,10 @@
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+-#include "nsISupports.idl"
++#include "nsIAppShutdown.idl"
+ 
+-interface nsICmdLineService;
+-
+-[scriptable, uuid(e9b0f89b-0529-4d96-98a8-eb5b2b9a8383)]
+-interface nsIAppStartup : nsISupports
++[scriptable, uuid(b3554f29-087f-4490-8f9b-4e2756ce314e)]
++interface nsIAppStartup : nsIAppShutdown
+ {
+     /**
+      * Create the hidden window.
+@@ -71,41 +69,11 @@
+     void exitLastWindowClosingSurvivalArea();
+ 
+     /**
+-     * The following flags may be passed as the aMode parameter to the quit
+-     * method.  One and only one of the "Quit" flags must be specified.  The
+-     * eRestart flag may be bit-wise combined with one of the "Quit" flags to
+-     * cause the application to restart after it quits.
+-     */
+-
+-    /**
+-     * Attempt to quit if all windows are closed.
+-     */
+-    const PRUint32 eConsiderQuit = 0x01;
+-
+-    /**
+-     * Try to close all windows, then quit if successful.
+-     */
+-    const PRUint32 eAttemptQuit = 0x02;
+-
+-    /**
+-     * Quit, damnit!
+-     */
+-    const PRUint32 eForceQuit = 0x03;
+-
+-    /**
+      * Restart the application after quitting.  The application will be
+      * restarted with the same profile and an empty command line.
+      */
+     const PRUint32 eRestart = 0x10; 
+ 
+-    /**
+-     * Exit the event loop, and shut down the app.
+-     *
+-     * @param aMode
+-     *        This parameter modifies how the app is shutdown, and it is
+-     *        constructed from the constants defined above.
+-     */
+-    void quit(in PRUint32 aMode);
+ };
+ 
+ %{C++
+Index: toolkit/components/startup/src/nsAppStartup.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/startup/src/nsAppStartup.cpp,v
+retrieving revision 1.15
+diff -u -8 -p -d -r1.15 nsAppStartup.cpp
+--- toolkit/components/startup/src/nsAppStartup.cpp	25 May 2007 21:14:42 -0000	1.15
++++ toolkit/components/startup/src/nsAppStartup.cpp	8 Jun 2007 15:00:22 -0000
+@@ -119,8 +119,9 @@
+ // nsAppStartup->nsISupports
+ //
+ 
+-NS_IMPL_THREADSAFE_ISUPPORTS5(nsAppStartup,
++NS_IMPL_THREADSAFE_ISUPPORTS6(nsAppStartup,
+                               nsIAppStartup,
++                              nsIAppShutdown,
+                               nsIWindowCreator,
+                               nsIWindowCreator2,
+                               nsIObserver,
+@@ -156,6 +157,7 @@
+   return mRestart ? NS_SUCCESS_RESTART_APP : NS_OK;
+ }
+ 
++static const PRUint32 eConsiderQuit = 0x1;
+ 
+ NS_IMETHODIMP
+ nsAppStartup::Quit(PRUint32 aMode)
+Index: toolkit/components/startup/src/nsAppStartup.h
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/startup/src/nsAppStartup.h,v
+retrieving revision 1.5
+diff -u -8 -p -d -r1.5 nsAppStartup.h
+--- toolkit/components/startup/src/nsAppStartup.h	10 May 2006 17:29:58 -0000	1.5
++++ toolkit/components/startup/src/nsAppStartup.h	8 Jun 2007 15:00:22 -0000
+@@ -57,16 +57,17 @@ struct PLEvent;
+ 
+ class nsAppStartup : public nsIAppStartup,
+                      public nsIWindowCreator2,
+                      public nsIObserver,
+                      public nsSupportsWeakReference
+ {
+ public:
+   NS_DECL_ISUPPORTS
++  NS_DECL_NSIAPPSHUTDOWN
+   NS_DECL_NSIAPPSTARTUP
+   NS_DECL_NSIWINDOWCREATOR
+   NS_DECL_NSIWINDOWCREATOR2
+   NS_DECL_NSIOBSERVER
+ 
+   nsAppStartup();
+   nsresult Init();
+ 
+Index: extensions/pref/autoconfig/src/Makefile.in
+===================================================================
+RCS file: extensions/pref/autoconfig/src/Makefile.in,v
+retrieving revision 1.12.8.1
+diff -u -r1.12.8.1 Makefile.in
+--- extensions/pref/autoconfig/src/Makefile.in	3 Feb 2006 14:41:09 -0000	1.12.8.1
++++ extensions/pref/autoconfig/src/Makefile.in	12 Jul 2007 22:37:02 -0000
+@@ -68,6 +68,7 @@
+                    appcomps \
+                    embedcomponents \
+                    windowwatcher \
++                   widget \
+                    $(NULL)
+ 
+ include $(topsrcdir)/config/config.mk

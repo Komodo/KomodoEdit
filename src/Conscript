@@ -1,0 +1,98 @@
+
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'platform',
+    'buildFlavour',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozBin',
+    'mozSrc',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'mozVersionNumber',
+    'sdkDir',
+    'mozDevelDist',
+    'compiler',
+);
+
+# We use this "state" file as a HACK-around Cons' requirement to have
+# physical output for an command. Komodo build steps depending on regxpcom
+# having been run should depend on this state file. Komodo build steps
+# that need to happen before regxpcom is run should setup this state file
+# to depend on them.
+$cons->Command($ranRegxpcomStateFileName, qq(
+    regxpcom
+    @ echo yes> %0
+    ));
+
+# We put our PyXPCOM site-lib stuff in a "komodo" subdir of the actual
+# dir that PyXPCOM puts in sys.path (this is the "python" subdir in the
+# directory containing the main komodo/mozilla binary). We do this for
+# cleanliness. To get that subdir on sys.path we need to install a .pth
+# file pointing to that dir.
+$cons->Command("$komodoPythonUtilsDir.pth", "echo komodo> %0");
+
+
+# We put an indicator file in the mozBin dir to indicate that this is a
+# development tree layout. This is used by koDirs.py to properly find
+# certain support files in the Komodo tree: the install layout is
+# different for an install.
+my $isDevTree = "$mozBin/is_dev_tree.txt";
+$cons->Command($isDevTree, "echo This is a Komodo dev tree > %0");
+
+
+# Copy over extra parts of the Komodo SDK.
+# Notes:
+# - The Komodo idl files are handled by each $cons->BuildAndInstallXpt().
+# - To support C++ XPCOM components we'll also need the "include" and "lib"
+#   Mozilla SDK dirs.
+# - Not sure we need $mozDevelDist/sdk/bin/regxpcom.exe.
+# - We use the much smaller set of Mozilla IDL files in dist/sdk/idl (~100
+#   files) rather than the full set in dist/idl (~1000 files). We suspect the
+#   smaller set are those with a frozen API -- but don't know that. Notable
+#   IDLs missing from the smaller set are the nsITree-related IDL files.
+#   We'll start by just distributing the smaller set, and can re-evaluate
+#   later if there is a need.
+# - Add as many of the xpidl.exe dependencies as we are able (some of them
+#   are GPL'd). For some case we'll just have prerequisites (e.g. MacPorts
+#   on OSX and certain packages on Linux).
+
+$cons->InstallRecursive($sdkDir, cwd()."/src/sdk", # must be abs, bug in InstallRecursive
+                        ('bin', '.*\.pyc'));
+if ($platform eq "win") {
+    $cons->InstallAs("$mozBin/komodo-config.py", "sdk/bin/komodo-config.py");
+    $cons->InstallAs("$sdkDir/bin/koext.py", "sdk/bin/koext.py");
+    $cons->InstallAs("$sdkDir/bin/codeintel.py", "sdk/bin/codeintel.py");
+} else {
+    $cons->InstallAs("$mozBin/komodo-config", "sdk/bin/komodo-config.py");
+    $cons->InstallAs("$sdkDir/bin/koext", "sdk/bin/koext.py");
+    $cons->InstallAs("$sdkDir/bin/codeintel", "sdk/bin/codeintel.py");
+}
+
+$cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl");
+$cons->InstallRecursive("$sdkDir/bin", "$mozDevelDist/sdk/bin");
+
+if ($platform eq "win") {
+    my $mozillaBuildDir = $ENV{MOZILLABUILD} || "C:\\mozilla-build";
+    if (! -d $mozillaBuildDir) {
+        die "MozillaBuild dir could not be found: '$mozillaBuildDir' does not exist";
+    }
+    if ($compiler ne "vc6") {
+        die "Compiler is not vc6: need to adjust which xpidl dependencies.";
+    }
+    $cons->Install("$sdkDir/bin",
+                   "$mozillaBuildDir/moztools-180compat/bin/libIDL-0.6.dll");
+    $cons->Install("$sdkDir/bin",
+                   "$mozillaBuildDir/moztools-180compat/bin/glib-1.2.dll");
+    $cons->Install("$sdkDir/bin", "$mozillaBuildDir/info-zip/zip.exe");
+} else {
+    # On Linux and Mac OS X we just require the user to have libIDL and
+    # glib install from <insert-package-manager> and MacPorts, respectively.
+    # Need to document how to get those.
+}
+

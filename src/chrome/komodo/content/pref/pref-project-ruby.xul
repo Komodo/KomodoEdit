@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/pref-ruby.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+
+
+<script type="application/x-javascript;version=1.7">
+<![CDATA[
+
+function OnPreferencePageLoading() {
+    var file;
+    if (parent.part) {
+        file = parent.part.getFile();
+    } else {
+        file = parent.view.document.file;
+    }
+    var extraPaths = document.getElementById("rubyExtraPaths");
+    extraPaths.init() // must happen after onpageload
+    extraPaths.setCwd(file.dirName)
+}
+
+]]>
+</script>
+
+    <groupbox orient="vertical">
+        <caption label="&additionalRubyImportDirectories.label;"/>
+        <description>
+            Specify any additional directories that you want Komodo to
+            add to the Ruby path when debugging, syntax checking or
+            in the interactive shell.  Komodo will also scan
+            these directories for Autocompletion and Calltips information.
+        </description>
+	<pathlist
+                id="rubyExtraPaths"
+                flex="1"
+                seltype="multiple"
+                rows="4"
+		pref="true" prefwidget="true"
+                prefstring="rubyExtraPaths"/>
+    </groupbox>
+
+</window>
+

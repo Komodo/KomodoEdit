@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+
+  <groupbox orient="vertical">
+      <caption label="&printingStyle.label;"/>
+            <checkbox id="print_showLineNos" label="&printLineNumbers.label;"
+                pref="true" prefstring="print_showLineNos"
+                prefattribute="checked"/>
+
+            <checkbox id="print_useColor" label="&printInColorAlwaysTrueWhenPrintingToFile.label;"
+                pref="true" prefstring="print_useColor"
+                prefattribute="checked"/>
+
+            <hbox align="center">
+                <label value="Wrap long lines at"/>
+                <textbox id="print_lineLength" size="5" pref="true"/>
+                <label value="characters (0 for no wrapping)"/>
+            </hbox>
+
+            <hbox align="center">
+                <label value="Scale font sizes from screen to print by"/>
+                <textbox id="print_scalingRatio" size="5" pref="true"/>
+                <button label="&reset.label;"
+                        oncommand="document.getElementById('print_scalingRatio').value = '1.5';"
+                        tooltiptext="&resetToStandardValueOf15.tooltiptext;"/>
+            </hbox>
+  </groupbox>
+
+</window>

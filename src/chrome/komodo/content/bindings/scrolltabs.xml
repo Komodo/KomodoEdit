@@ -1,0 +1,662 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="scrolltabsbase">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
+        </resources>
+    </binding>
+
+    <binding id="file-status-tab" display="xul:button"
+            extends="chrome://global/content/bindings/tabbox.xml#tab">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
+        </resources>
+        <content>
+            <xul:hbox class="tab-image-left" xbl:inherits="selected"/>
+            <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected">
+            <xul:hbox flex="0" class="tab-icons" align="center" pack="center">
+            <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=action,tooltiptext=actiontip"/>
+            <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=status,tooltiptext=statustip"/>
+            <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=status2,tooltiptext=status2tip"/>
+            <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=readonly,tooltiptext=locktip"/>
+            <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=image,tooltiptext=icontip"/>
+            </xul:hbox>
+            <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled" flex="1"
+                    style="margin-right: 0px; padding-right:2px;" crop="right"/>
+            <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled" collapsed="true" value="*"
+                       style="margin-left: 0px; padding-left:0px; padding-right:1px"/>
+            </xul:hbox>
+            <xul:hbox class="tab-image-right" xbl:inherits="selected"/>
+        </content>
+        <implementation>
+            <method name="getTabController">
+                <parameter name="tab"/>
+                <body>
+                <![CDATA[
+                    var parent = this.parentNode.parentNode;
+                    while (parent) {
+                      if (parent.localName == "tabbox")
+                        return parent;
+                      parent = parent.parentNode;
+                    }
+                    return null;
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="draggesture" phase="capturing">
+            <![CDATA[
+                try {
+                if (event.target.localName == 'tab')
+                    nsDragAndDrop.startDrag(event,this.getTabController());
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragdrop" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.drop(event,this.getTabController());
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragenter" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragEnter(event,this.getTabController());
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragexit" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragExit(event,this.getTabController());
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragover" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragOver(event,this.getTabController());
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+    <binding id="tabs-scrollable" xbl:inherits="orient"
+            extends="chrome://global/content/bindings/tabbox.xml#tabs">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/buttons.css"/>
+            <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
+        </resources>
+        <content>
+            <xul:box style="min-width: 4px" class="tabs-left" flex="0"/>
+            <xul:scrollbox xbl:inherits="orient,align,pack,dir"
+                class="tabstrip-box" flex="1">
+                <children includes="tab"/>
+            </xul:scrollbox>
+            <xul:box xbl:inherits="orient,align,pack,dir" align="center" pack="center"
+                     class="tabstrip-box" style="min-width: 4px; padding: 1px;">
+                <children/>
+                <xul:box xbl:inherits="collapsable" class="tabstrip-box" flex="1">
+                <xul:button
+                    disabled="true"
+                    class="scroll-arrow-left-icon button-toolbar-a"
+                    onmousedown="this.parentNode.parentNode.parentNode.startButtonRepeater(0);"
+                    onmouseup="this.parentNode.parentNode.parentNode.stopButtonRepeater();"
+                    onmouseout="this.parentNode.parentNode.parentNode.stopButtonRepeater();"/>
+                <xul:button
+                    disabled="true"
+                    class="scroll-arrow-right-icon button-toolbar-a"
+                    onmousedown="this.parentNode.parentNode.parentNode.startButtonRepeater(1);"
+                    onmouseup="this.parentNode.parentNode.parentNode.stopButtonRepeater();"
+                    onmouseout="this.parentNode.parentNode.parentNode.stopButtonRepeater();"/>
+                </xul:box>
+                <xul:button class="scroll-minimize-left-icon button-toolbar-a" collapsed="true"
+                            xbl:inherits="onclick=onminimize, collapsed=minimizeleftcollapsed,
+                                          disabled=minimizeleftdisabled"/>
+                <xul:button class="scroll-minimize-right-icon button-toolbar-a" collapsed="true"
+                            xbl:inherits="onclick=onminimize, collapsed=minimizerightcollapsed,
+                                          disabled=minimizerightdisabled"/>
+                <xul:button class="scroll-minimize-down-icon button-toolbar-a" collapsed="true"
+                            xbl:inherits="onclick=onminimize, collapsed=minimizedowncollapsed,
+                                          disabled=minimizedowndisabled"/>
+                <xul:button class="scroll-x-icon button-toolbar-a" collapsed="true"
+                            xbl:inherits="onclick=onclosetab, collapsed=closecollapsed,
+                                          disabled=closedisabled"/>
+            </xul:box>
+        </content>
+
+        <implementation>
+            <field name="_repeater">null</field>
+            <field name="_scrollbox">null</field>
+
+            <property name="scrollbox" readonly="true"
+                onget="return document.getAnonymousNodes(this)[1];"/>
+
+            <property name="scrollBoxObject" readonly="true"
+                onget="return this.scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
+
+            <constructor>
+                <![CDATA[
+                    var v = document.getAnonymousNodes(this)[2].firstChild;
+                    if (v.getAttribute('collapsable')=='true') {
+                        v.setAttribute('collapsed','true');
+                    }
+                ]]>
+            </constructor>
+
+            <method name="advanceSelectedTab">
+                <parameter name="aDir"/>
+                <body>
+                <![CDATA[
+                // XXX copied from mozilla's tabbox.xml and modified to make
+                // sure that non-tab children are not selected on ctrl-tab
+                var startTab = this.selectedItem;
+                var next = startTab[aDir == -1 ? "previousSibling" : "nextSibling"];
+
+                while (next != startTab && (!next || (next.getAttribute("hidden") || next.localName != 'tab'))) {
+                  if (next && (next.getAttribute("hidden") || next.localName != 'tab'))
+                    next = next[aDir == -1 ? "previousSibling" : "nextSibling"];
+                  if (!next)
+                    next = aDir == 1 ? this.childNodes[0] : this.childNodes[this.childNodes.length - 1];
+                }
+
+                if (next && next != startTab) {
+                  this.selectedItem = next;
+                  if (this.getAttribute("setfocus") != "false") {
+                    next.focus();
+                    document.commandDispatcher.advanceFocusIntoSubtree(next);
+                  }
+                }
+                ]]>
+                </body>
+            </method>
+
+            <method name="startButtonRepeater">
+                <parameter name="dir"/>
+                <body>
+                <![CDATA[
+                    this.doRepeater(dir);
+                    this.stopButtonRepeater();
+                    this._repeater = new objectTimer(this,this.doButtonRepeater,[dir]);
+                    this._repeater.startTimeout(500);
+                ]]>
+                </body>
+            </method>
+
+            <method name="doButtonRepeater">
+                <parameter name="dir"/>
+                <body>
+                <![CDATA[
+                    this.doRepeater(dir);
+                    this.stopButtonRepeater();
+                    this._repeater = new objectTimer(this,this.doRepeater,[dir]);
+                    this._repeater.startInterval(100);
+                ]]>
+                </body>
+            </method>
+
+            <method name="stopButtonRepeater">
+                <body>
+                <![CDATA[
+                    if (!this._repeater) return;
+                    this._repeater.stop();
+                    this._repeater.free();
+                    this._repeater = null;
+                ]]>
+                </body>
+            </method>
+
+            <method name="doRepeater">
+                <parameter name="dir"/>
+                <body>
+                <![CDATA[
+                    if (dir)
+                        this.scrollRight();
+                    else
+                        this.scrollLeft();
+                ]]>
+                </body>
+            </method>
+
+            <method name="scrollLeft">
+                <body>
+                <![CDATA[
+                    var dx = -this.scrollBoxObject.width;
+                    var ox = {};
+                    var oy = {};
+                    var ddx = dx/12.0;
+                    this.scrollBoxObject.getPosition(ox, oy);
+                    this.scrollBoxObject.scrollTo(ox.value+ddx, 0);
+                ]]>
+                </body>
+            </method>
+
+            <method name="scrollRight">
+                <body>
+                <![CDATA[
+                    var dx = this.scrollBoxObject.width;
+                    var ox = {};
+                    var oy = {};
+                    var ddx = dx/12.0;
+                    this.scrollBoxObject.getPosition(ox, oy);
+                    this.scrollBoxObject.scrollTo(ox.value+ddx, 0);
+                ]]>
+                </body>
+            </method>
+
+            <method name="scrollRefresh">
+                <body>
+                <![CDATA[
+                    this.scrollBoxObject.scrollTo(0, 0)
+                ]]>
+                </body>
+            </method>
+
+            <method name="scrollToTabIndex">
+                <parameter name="index"/>
+                <body>
+                <![CDATA[
+                    if (index >= 0 && index < this.childNodes.length) {
+                        this.scrollBoxObject.ensureElementIsVisible(this.childNodes[index]);
+                    }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="underflow" phase="capturing">
+            <![CDATA[
+                var v = document.getAnonymousNodes(this)[2];
+                v.setAttribute('class', 'scrolltabbox-buttons-disabled');
+                if (v.firstChild.getAttribute('collapsable')=='true') {
+                    v.firstChild.setAttribute('collapsed','true');
+                }
+                v.firstChild.childNodes[0].setAttribute('disabled', 'true');
+                v.firstChild.childNodes[1].setAttribute('disabled', 'true');
+                this.scrollRefresh();
+            ]]>
+            </handler>
+
+            <handler event="overflow" phase="capturing">
+            <![CDATA[
+                var v = document.getAnonymousNodes(this)[2];
+                v.setAttribute('class', 'scrolltabbox-buttons');
+                v.firstChild.removeAttribute('collapsed');
+                v.firstChild.childNodes[0].removeAttribute('disabled');
+                v.firstChild.childNodes[1].removeAttribute('disabled');
+            ]]>
+            </handler>
+
+            <handler event="select" phase="capturing">
+            <![CDATA[
+                this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
+            ]]>
+            </handler>
+            <handler event="mousedown" phase="capturing">
+            <![CDATA[
+                // force a tab switch on mousedown so we always focus the
+                // tabpanel, and cause a select event for the tab
+                if (event.button != 1 && event.originalTarget.localName == 'tab') {
+                    // force the select event to happen again
+                    event.originalTarget.selected = false;
+                    // set the selected item.  If the currently selected item
+                    // is also the originalTarget, we'll 'selected' will be
+                    // reset to true, and a select event will be issued.
+                    this.selectedItem = event.originalTarget;
+                }
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+    <!-- Used clues from tabBindings.xul -->
+    <binding id="tabbox-draggable" xbl:inherits="orient"
+        extends="chrome://global/content/bindings/tabbox.xml#tabbox">
+        <content>
+            <children/>
+        </content>
+        <implementation>
+            <field name="_lastTarget">-1</field>
+
+            <method name="getTabIndexById">
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    for(var i = 0; i < this._tabs.childNodes.length; i++) {
+                        if(this._tabs.childNodes[i].getAttribute('id') == id) {
+                            return i;
+                        }
+                    }
+                    return -1;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getTabById">
+                <parameter name="id"/>
+                <body>
+                <![CDATA[
+                    for (var i = 0; i < this._tabs.childNodes.length; i++) {
+                        if (this._tabs.childNodes[i].getAttribute('id') == id)
+                            return this._tabs.childNodes[i];
+                    }
+                    return null;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getTabIdByIndex">
+                <parameter name="index"/>
+                <body>
+                <![CDATA[
+                    if(index >= 0 && index < this._tabs.childNodes.length) {
+                        return this._tabs.childNodes[index].getAttribute('id');
+                    }
+                    return "";
+                ]]>
+                </body>
+            </method>
+
+            <method name="advanceSelectedTab">
+                <parameter name="dir"/>
+                <body>
+                    <![CDATA[
+                    this._tabs.advanceSelectedTab(dir, true);
+                    ]]>
+                </body>
+            </method>
+            
+            <method name="getTabController">
+                <parameter name="tab"/>
+                <body>
+                <![CDATA[
+                    var parent = tab.parentNode;
+                    while (parent) {
+                      if (parent.localName == "tabbox")
+                        return parent;
+                      parent = parent.parentNode;
+                    }
+                    return null;
+                ]]>
+                </body>
+            </method>
+
+            <method name="moveTab">
+                <parameter name="tab"/>
+                <parameter name="target"/>
+                <body>
+                <![CDATA[
+                    if (!target) {
+                        this._tabs.appendChild(tab);
+                    } else {
+                        this._tabs.insertBefore(tab, target);
+                    }
+                    // XXX fixup some attributes
+                    var o = this._tabs.childNodes;
+                    for (var c = 0; c < o.length; ++c) {
+                        o[c].removeAttribute('first-tab');
+                        o[c].removeAttribute('last-tab');
+                    }
+                    o[0].setAttribute('first-tab','true');
+                    o[o.length-1].setAttribute('last-tab','true');
+                ]]>
+                </body>
+            </method>
+
+            <field name="getDragData">null</field>
+            <method name="onDragStart">
+                <parameter name="event"/>
+                <parameter name="transferData"/>
+                <parameter name="action"/>
+                <body>
+                <![CDATA[
+                    var tabid = event.target.getAttribute('id');
+                    var draggedIndex = this.getTabIndexById(tabid);
+                    var tabpanel = document.getElementById(event.target.linkedPanel);
+                    transferData.data=new TransferData();
+                    if ('getURI' in tabpanel.firstChild) {
+                        var uri = tabpanel.firstChild.getURI();
+                        if (uri) {
+                            var title = null;
+                            var moz_url = uri;
+                            if ('title' in tabpanel.firstChild) {
+                                title = tabpanel.firstChild.title;
+                            }
+                            if (title &&
+                                uri.indexOf(title) < 0 &&
+                                title != '(untitled)') {
+                                moz_url = uri + '\n' + title;
+                            }
+                            transferData.data.addDataForFlavour("text/x-moz-url",moz_url);
+                            transferData.data.addDataForFlavour("text/unicode",uri);
+                        }
+                    }
+                    transferData.data.addDataForFlavour("text/x-tabid",tabid);
+                ]]>
+                </body>
+            </method>
+
+            <method name="getSupportedFlavours">
+                <body>
+                <![CDATA[
+                    var flavours = new FlavourSet();
+                    flavours.appendFlavour("text/x-tabid");
+                    return flavours;
+                ]]>
+                </body>
+            </method>
+
+            <method name="canDrop">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    if (!session.sourceNode ||
+                        session.sourceNode.localName != 'tab') return false;
+                    var el = session.sourceNode;
+                    while (el && el != this) {
+                        if (el.localName == 'tabs') return true;
+                        el = el.parentNode;
+                    }
+                    return false;
+                ]]>
+                </body>
+            </method>
+
+            <field name="_dropTimeout">null</field>
+            <method name="onDrop">
+                <parameter name="event"/>
+                <parameter name="dropData"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    if (session.canDrop && session.sourceNode.localName == 'tab') {
+
+                        /* for now, do not allow drag/drop between tabboxes */
+                        var sourceTabbox = this.getTabController(session.sourceNode);
+                        if (sourceTabbox != this) {
+                            ko.commands.doCommandAsync('cmd_movetab');
+                            return false;
+                        }
+
+                        if (session.sourceNode.id == event.target.id) {
+                            return true;
+                        }
+
+                        /* prepare an object to pass to the timout */
+                        var drop = {};
+                        if (event.originalTarget.localName == 'tab')
+                            drop.targetNode = event.originalTarget;
+                        else
+                            drop.targetNode = event.target;
+
+                        drop.sourceNode = session.sourceNode;
+                        this._dropTimeout = new objectTimer(this,this.doDrop,[drop]);
+                        this._dropTimeout.startTimeout(1);
+                        event.cancelBubble = true;
+                        return true;
+                    }
+                    return false;
+                ]]>
+                </body>
+            </method>
+
+            <method name="doDrop">
+                <parameter name="dropData"/>
+                <body>
+                <![CDATA[
+                    var result = false;
+
+                    var sourceNode = dropData.sourceNode;
+                    var targetNode = dropData.targetNode;
+                    var targetIndex = this.getTabIndexById(targetNode.id);
+                    var sourceIndex = this.getTabIndexById(sourceNode.id);
+                    var index;
+                    if (targetNode.localName == 'tab') {
+                        // figure out what we are inserting in front of
+                        index = this.getTabIndexById(targetNode.id);
+                        var targetTab = this._tabs.childNodes[index];
+                        this.moveTab(sourceNode,targetTab);
+                    } else {
+                        // append the tab to the end
+                        this.moveTab(sourceNode,null);
+                    }
+                    // select what we just dragged
+                    index = this.getTabIndexById(sourceNode.id);
+                    this._tabs.selectedIndex = index;
+
+                    // scroll the tabbox while we're dragging
+                    if (this._tabs.getAttribute('type')=='scrollable') {
+                        if (targetIndex < 0 || targetIndex > sourceIndex) {
+                            this._tabs.scrollToTabIndex(index+1);
+                        } else if (targetIndex < sourceIndex) {
+                            this._tabs.scrollToTabIndex(index-1);
+                        }
+                        this._tabs.scrollBoxObject.ensureElementIsVisible(this._tabs.selectedItem);
+                    }
+                    this._lastTarget = -1;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragEnter">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    if (event.target.localName=='tab' &&
+                        session.sourceNode &&
+                        session.sourceNode.localName=='tab' &&
+                        event.target != session.sourceNode) {
+                        event.target.setAttribute('dragtarget','true');
+                        var targetIndex = this.getTabIndexById(event.target.id);
+                        if (this._lastTarget < 0) this._lastTarget = targetIndex;
+                        if (this._tabs.getAttribute('type')=='scrollable') {
+                            var targetTab = this._tabs.childNodes[targetIndex];
+                            if (targetIndex < this._tabs.childNodes.length-1 && targetIndex > this._lastTarget) {
+                                this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab.nextSibling);
+                            } else if (targetIndex > 0 && targetIndex < this._lastTarget) {
+                                this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab.previousSibling);
+                            }
+                            this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab);
+                        }
+                        // if esc is pressed while dragging, we do not
+                        // get a dragexit call.  this timer will unset
+                        // the target style in that situation
+                        event.target._repeater = new objectTimer(event.target,event.target.removeAttribute,['dragtarget']);
+                        event.target._repeater.startTimeout(1000);
+                    }
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragOver">
+                <parameter name="event"/>
+                <parameter name="flavour"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+            <method name="onDragExit">
+                <parameter name="event"/>
+                <parameter name="session"/>
+                <body>
+                <![CDATA[
+                    if (event.target.localName=='tab') {
+                        this._lastTarget = this.getTabIndexById(event.target.id);
+                        event.target.removeAttribute('dragtarget');
+                    }
+                    return true;
+                ]]>
+                </body>
+            </method>
+
+        </implementation>
+        <handlers>
+            <handler event="draggesture" phase="capturing">
+            <![CDATA[
+                try {
+                if (event.target.localName == 'tab' &&
+                        event.target.parentNode.parentNode == this)
+                    nsDragAndDrop.startDrag(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragdrop" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.drop(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragenter" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragEnter(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragexit" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragExit(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+            <handler event="dragover" phase="capturing">
+            <![CDATA[
+                try {
+                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
+                    nsDragAndDrop.dragOver(event,this);
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+</bindings>
