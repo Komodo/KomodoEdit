@@ -245,7 +245,6 @@ def _getChangeNum():
     # "svnversion --help" for details.
     up_one_dir = dirname(dirname(abspath(__file__)))
     changestr = _capture_output('svnversion "%s"' % up_one_dir).strip()
-    changestr = _capture_output('svnversion /home/trentm/tm/tmconf').strip()
 
     if changestr == "exported":
         changestr = 0  # fallback
