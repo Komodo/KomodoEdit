@@ -25,7 +25,6 @@ below (especially the "prerequisites" sections).
 
 Build steps on Windows:
 
-    hg clone http://hg.openkomodo.com/openkomodo
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
@@ -39,25 +38,8 @@ Build steps on Windows:
     REM ---- Run Komodo
     bk run
 
-Build steps on Mac OS X:
+Build steps on Linux and Mac OS X:
 
-    hg clone http://hg.openkomodo.com/openkomodo
-    #---- Build Mozilla
-    cd openkomodo/mozilla
-    python build.py configure -k 1.0 --moz-src=cvs:1.8 --release \
-        --no-strip --shared --tools
-    python build.py distclean all
-    cd ..
-    #---- Build Komodo
-    export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure
-    bk build
-    #---- Run Komodo
-    bk run
-
-Build steps on Linux:
-
-    hg clone http://hg.openkomodo.com/openkomodo
     #---- Build Mozilla
     cd openkomodo/mozilla
     python build.py configure -k 1.0 --moz-src=cvs:1.8 --release \
@@ -77,14 +59,14 @@ Getting the Source
 ==================
 
 If you are reading this, you probably already have it, but for the record:
-The Open Komodo sources are kept in a Mercurial (hg) repository hosted
-at the openkomodo.com site:
+The Open Komodo sources are kept in a Subversion repository hosted
+at the openkomodo.com site. Read-only public access is available via:
 
-    hg clone http://hg.openkomodo.com/openkomodo
+    svn co http://svn.openkomodo.com/repos/openkomodo/trunk openkomodo
 
-Read more about Mercurial at the main Mercurial site
-(http://www.selenic.com/mercurial/wiki/) and especially take a look at
-the hgbook (http://hgbook.red-bean.com/) for getting started.
+Read/write developer access is available via:
+
+    svn co https://svn.openkomodo.com/repos/openkomodo/trunk openkomodo
 
 
 
