@@ -94,7 +94,7 @@
 # - break this out into a separate project
 # - add a test suite
 
-__version_info__ = (0, 2, 0)
+__version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -137,7 +137,7 @@ class Error(Exception):
 
 
 log = logging.getLogger("patchtree")
-
+log.setLevel(logging.DEBUG)
 
 
 #---- internal support stuff
@@ -206,6 +206,11 @@ def _shouldBeApplied((base, actions, config), dirname, names):
     log.debug("process patch dir '%s'", dirname)
     patchinfo = _getPatchInfo(dirname)
     if patchinfo: log.debug("    patchinfo: %r", patchinfo)
+    
+    # Always skip SCC control dirs.
+    for exclude_dir in (".svn", ".hg", "CVS"):
+        if exclude_dir in names and isdir(join(dirname, exclude_dir)):
+            names.remove(exclude_dir)
     
     # Skip this dir if patchinfo says it should not be applied.
     if patchinfo and hasattr(patchinfo, "applicable") and\
@@ -644,6 +649,9 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
             actions.append( ("apply", os.path.dirname(patchSpec),
                              os.path.basename(patchSpec)) )
         elif os.path.isdir(patchSpec):
+            # Always skip SCC control dirs.
+            if basename(patchSpec) in ("CVS", ".svn", ".hg"):
+                continue
             os.path.walk(patchSpec, _shouldBeApplied,
                          (patchSpec, actions, config))
         else:
@@ -686,6 +694,9 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
                         subpath = (dirpath == src
                                    and os.curdir
                                    or dirpath[len(src)+1:])
+                        for exclude_dir in (".svn", "CVS", ".hg"):
+                            if exclude_dir in dirnames:
+                                dirnames.remove(exclude_dir)
                         for filename in filenames:
                             s = join(dirpath, filename)
                             preprocess_me, new_filename \
