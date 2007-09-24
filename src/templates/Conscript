@@ -33,16 +33,19 @@ $cons->BuildAndInstallXpt('koITemplateService.idl');
 
 $cons->InstallRecursive("$supportDir/default-templates",
                         #XXX must be absolute path (bug in InstallRecursive)
-                        cwd()."/src/templates/default-templates");
+                        cwd()."/src/templates/default-templates",
+                        (".svn"));
 if (-d "src/templates/default-project-templates") {
     $cons->InstallRecursive("$supportDir/default-project-templates",
                             #XXX must be absolute path (bug in InstallRecursive)
-                            cwd()."/src/templates/default-project-templates");
+                            cwd()."/src/templates/default-project-templates",
+                            (".svn"));
 }
 if ($buildFlavour eq "dev") {
     $cons->InstallRecursive("$supportDir/default-templates",
                             #XXX must be absolute path (bug in InstallRecursive)
-                            cwd()."/src/templates/dev-templates");
+                            cwd()."/src/templates/dev-templates",
+                            (".svn"));
 }
 
 
