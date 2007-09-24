@@ -2355,6 +2355,39 @@ class BuildNum(black.configure.Datum):
                 "you do not currently have direct Perforce access. See the "\
                 "--komodo-buildnum configure option to override.\n" % self.desc)
 
+    def _get_hg_changeset(self):
+        changeset_re = re.compile("changeset:\s+(\d+):")
+        cmd = "hg tip"
+        o = os.popen(cmd)
+        stdout = o.read()
+        retval = o.close()
+        if retval:
+            raise black.configure.ConfigureError(
+                "error running '%s'" % cmd)
+        rev_str = changeset_re.search(stdout).group(1)
+        return int(rev_str)
+
+    def _get_simplified_svn_version(self):
+        # Note that this can be a fairly complex string (perhaps not
+        # suitable for inclusion in a filename if ':' is in it). See
+        # "svnversion --help" for details.
+        this_dir = dirname(__file__)
+        changestr = _capture_stdout(["svnversion", this_dir]).strip()
+
+        # Simplify the possibly-complex svnversion.
+        if changestr == "exported":
+            changestr = 0  # fallback
+        try:
+            changenum = int(changestr)
+        except ValueError, ex:
+            # pull off front number (good enough for our purposes)
+            changenum = int(re.match("(\d+)", changestr).group(1))
+            sys.stderr.write("configure: simplifying complex changenum "
+                             "from 'svnversion': %s -> %s "
+                             "(see `svnversion --help` for details)\n"
+                             % (changestr, changenum))
+        return changenum
+
     def _Determine_Do(self):
         self.applicable = 1
         for opt, optarg in self.chosenOptions:
@@ -2362,16 +2395,7 @@ class BuildNum(black.configure.Datum):
                 self.value = int(optarg)
                 break
         else:
-            changeset_re = re.compile("changeset:\s+(\d+):")
-            cmd = "hg tip"
-            o = os.popen(cmd)
-            stdout = o.read()
-            retval = o.close()
-            if retval:
-                raise black.configure.ConfigureError(
-                    "error running '%s'" % cmd)
-            rev_str = changeset_re.search(stdout).group(1)
-            self.value = int(rev_str)
+            self.value = self._get_simplified_svn_version()
         self.determined = 1
 
 
