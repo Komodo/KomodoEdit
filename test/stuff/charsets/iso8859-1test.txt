@@ -1,0 +1,195 @@
+
+  iso8859-1 table
+
+Description                               Code            Entity name   
+===================================       ============    ==============
+quotation mark                            &#34;  --> "    &quot;   --> "
+ampersand                                 &#38;  --> &    &amp;    --> &
+less-than sign                            &#60;  --> <    &lt;     --> <
+greater-than sign                         &#62;  --> >    &gt;     --> >
+
+Description                          Char Code            Entity name   
+===================================  ==== ============    ==============
+non-breaking space                        &#160; -->      &nbsp;   -->  
+inverted exclamation                 ¡    &#161; --> ¡    &iexcl;  --> ¡
+cent sign                            ¢    &#162; --> ¢    &cent;   --> ¢
+pound sterling                       £    &#163; --> £    &pound;  --> £
+general currency sign                ¤    &#164; --> ¤    &curren; --> ¤
+yen sign                             ¥    &#165; --> ¥    &yen;    --> ¥
+broken vertical bar                  ¦    &#166; --> ¦    &brvbar; --> ¦
+                                                          &brkbar; --> &brkbar;
+section sign                         §    &#167; --> §    &sect;   --> §
+umlaut (dieresis)                    ¨    &#168; --> ¨    &uml;    --> ¨
+                                                          &die;    --> &die;
+copyright                            ©    &#169; --> ©    &copy;   --> ©
+feminine ordinal                     ª    &#170; --> ª    &ordf;   --> ª
+left angle quote, guillemotleft      «    &#171; --> «    &laquo;  --> «
+not sign                             ¬    &#172; --> ¬    &not;    --> ¬
+soft hyphen                          ­    &#173; --> ­    &shy;    --> ­
+registered trademark                 ®    &#174; --> ®    &reg;    --> ®
+macron accent                        ¯    &#175; --> ¯    &macr;   --> ¯
+                                                          &hibar;  --> &hibar;
+degree sign                          °    &#176; --> °    &deg;    --> °
+plus or minus                        ±    &#177; --> ±    &plusmn; --> ±
+superscript two                      ²    &#178; --> ²    &sup2;   --> ²
+superscript three                    ³    &#179; --> ³    &sup3;   --> ³
+acute accent                         ´    &#180; --> ´    &acute;  --> ´
+micro sign                           µ    &#181; --> µ    &micro;  --> µ
+paragraph sign                       ¶    &#182; --> ¶    &para;   --> ¶
+middle dot                           ·    &#183; --> ·    &middot; --> ·
+cedilla                              ¸    &#184; --> ¸    &cedil;  --> ¸
+superscript one                      ¹    &#185; --> ¹    &sup1;   --> ¹
+masculine ordinal                    º    &#186; --> º    &ordm;   --> º
+right angle quote, guillemotright    »    &#187; --> »    &raquo;  --> »
+fraction one-fourth                  ¼    &#188; --> ¼    &frac14; --> ¼
+fraction one-half                    ½    &#189; --> ½    &frac12; --> ½
+fraction three-fourths               ¾    &#190; --> ¾    &frac34; --> ¾
+inverted question mark               ¿    &#191; --> ¿    &iquest; --> ¿
+capital A, grave accent              À    &#192; --> À    &Agrave; --> À
+capital A, acute accent              Á    &#193; --> Á    &Aacute; --> Á
+capital A, circumflex accent         Â    &#194; --> Â    &Acirc;  --> Â
+capital A, tilde                     Ã    &#195; --> Ã    &Atilde; --> Ã
+capital A, dieresis or umlaut mark   Ä    &#196; --> Ä    &Auml;   --> Ä
+capital A, ring                      Å    &#197; --> Å    &Aring;  --> Å
+capital AE diphthong (ligature)      Æ    &#198; --> Æ    &AElig;  --> Æ
+capital C, cedilla                   Ç    &#199; --> Ç    &Ccedil; --> Ç
+capital E, grave accent              È    &#200; --> È    &Egrave; --> È
+capital E, acute accent              É    &#201; --> É    &Eacute; --> É
+capital E, circumflex accent         Ê    &#202; --> Ê    &Ecirc;  --> Ê
+capital E, dieresis or umlaut mark   Ë    &#203; --> Ë    &Euml;   --> Ë
+capital I, grave accent              Ì    &#204; --> Ì    &Igrave; --> Ì
+capital I, acute accent              Í    &#205; --> Í    &Iacute; --> Í
+capital I, circumflex accent         Î    &#206; --> Î    &Icirc;  --> Î
+capital I, dieresis or umlaut mark   Ï    &#207; --> Ï    &Iuml;   --> Ï
+capital Eth, Icelandic               Ð    &#208; --> Ð    &ETH;    --> Ð
+                                                          &Dstrok; --> &Dstrok;
+capital N, tilde                     Ñ    &#209; --> Ñ    &Ntilde; --> Ñ
+capital O, grave accent              Ò    &#210; --> Ò    &Ograve; --> Ò
+capital O, acute accent              Ó    &#211; --> Ó    &Oacute; --> Ó
+capital O, circumflex accent         Ô    &#212; --> Ô    &Ocirc;  --> Ô
+capital O, tilde                     Õ    &#213; --> Õ    &Otilde; --> Õ
+capital O, dieresis or umlaut mark   Ö    &#214; --> Ö    &Ouml;   --> Ö
+multiply sign                        ×    &#215; --> ×    &times;  --> ×
+capital O, slash                     Ø    &#216; --> Ø    &Oslash; --> Ø
+capital U, grave accent              Ù    &#217; --> Ù    &Ugrave; --> Ù
+capital U, acute accent              Ú    &#218; --> Ú    &Uacute; --> Ú
+capital U, circumflex accent         Û    &#219; --> Û    &Ucirc;  --> Û
+capital U, dieresis or umlaut mark   Ü    &#220; --> Ü    &Uuml;   --> Ü
+capital Y, acute accent              Ý    &#221; --> Ý    &Yacute; --> Ý
+capital THORN, Icelandic             Þ    &#222; --> Þ    &THORN;  --> Þ
+small sharp s, German (sz ligature)  ß    &#223; --> ß    &szlig;  --> ß
+small a, grave accent                à    &#224; --> à    &agrave; --> à
+small a, acute accent                á    &#225; --> á    &aacute; --> á
+small a, circumflex accent           â    &#226; --> â    &acirc;  --> â
+small a, tilde                       ã    &#227; --> ã    &atilde; --> ã
+small a, dieresis or umlaut mark     ä    &#228; --> ä    &auml;   --> ä
+small a, ring                        å    &#229; --> å    &aring;  --> å
+small ae diphthong (ligature)        æ    &#230; --> æ    &aelig;  --> æ
+small c, cedilla                     ç    &#231; --> ç    &ccedil; --> ç
+small e, grave accent                è    &#232; --> è    &egrave; --> è
+small e, acute accent                é    &#233; --> é    &eacute; --> é
+small e, circumflex accent           ê    &#234; --> ê    &ecirc;  --> ê
+small e, dieresis or umlaut mark     ë    &#235; --> ë    &euml;   --> ë
+small i, grave accent                ì    &#236; --> ì    &igrave; --> ì
+small i, acute accent                í    &#237; --> í    &iacute; --> í
+small i, circumflex accent           î    &#238; --> î    &icirc;  --> î
+small i, dieresis or umlaut mark     ï    &#239; --> ï    &iuml;   --> ï
+small eth, Icelandic                 ð    &#240; --> ð    &eth;    --> ð
+small n, tilde                       ñ    &#241; --> ñ    &ntilde; --> ñ
+small o, grave accent                ò    &#242; --> ò    &ograve; --> ò
+small o, acute accent                ó    &#243; --> ó    &oacute; --> ó
+small o, circumflex accent           ô    &#244; --> ô    &ocirc;  --> ô
+small o, tilde                       õ    &#245; --> õ    &otilde; --> õ
+small o, dieresis or umlaut mark     ö    &#246; --> ö    &ouml;   --> ö
+division sign                        ÷    &#247; --> ÷    &divide; --> ÷
+small o, slash                       ø    &#248; --> ø    &oslash; --> ø
+small u, grave accent                ù    &#249; --> ù    &ugrave; --> ù
+small u, acute accent                ú    &#250; --> ú    &uacute; --> ú
+small u, circumflex accent           û    &#251; --> û    &ucirc;  --> û
+small u, dieresis or umlaut mark     ü    &#252; --> ü    &uuml;   --> ü
+small y, acute accent                ý    &#253; --> ý    &yacute; --> ý
+small thorn, Icelandic               þ    &#254; --> þ    &thorn;  --> þ
+small y, dieresis or umlaut mark     ÿ    &#255; --> ÿ    &yuml;   --> ÿ
+
+------------------------------------------------------------------------
+*How to read* this table. The columns are
+
+1st:
+textual /description/ of the character 2nd:
+character inserted directly into the HTML page as /one byte/ 3rd:
+    character written as /numeric HTML entity/, in the format:
+"how it looks literally" |-->| "what your browser does with it" 4th:
+    character written as /symbolic HTML entity/, in the format:
+"how it looks literally" |-->| "what your browser does with it"
+
+So for example, if you see something like "|&divide; --> &divide;|" in
+the 4th column, this means your browser doesn't know about the entity
+name "divide" and just puts it literally.
+
+*This table* grew out of an overview of the "ISO Latin-1 Character Set"
+overview related to the Hyper-G Text Format (HTF
+<http://www.hyperwave.de/HTFdoc>). The entity names |&brkbar;| and
+|&Dstrok;| seem to be unique to HTF. The entity name |&hibar;| has been
+supported by X Mosaic but seems to be replaced with |&macr;|. The entity
+names |&uml;| and |&die;| should be equivalent.
+
+*The standards stuff:* The HTML 2.0 Standard
+<http://www.w3.org/hypertext/WWW/MarkUp/html-spec/> includes a section
+on Character Entity Sets
+<http://www.w3.org/hypertext/WWW/MarkUp/html-spec/html-spec_9.html#SEC99>
+and an overview on the HTML Coded Character Set
+<http://www.w3.org/hypertext/WWW/MarkUp/html-spec/html-spec_13.html#SEC106>
+(The entity names are derived from ISO 8879
+<http://www.ucc.ie/info/net/isolat1.html>).
+Or have a look at the Latin-1 Character Entities
+<http://www.w3.org/hypertext/WWW/MarkUp/html3/latin1.html> as listed in
+an draft for the HTML 3.0 specification
+<http://www.w3.org/hypertext/WWW/MarkUp/html3/CoverPage.html>.
+The Appendix II
+<http://www.w3.org/hypertext/WWW/MarkUp/HTMLPlus/htmlplus_59.html> of
+CERN's HTML+ Discussion Document
+<http://www.w3.org/hypertext/WWW/MarkUp/HTMLPlus/htmlplus_1.html>
+contains a table
+<http://www.w3.org/hypertext/WWW/MarkUp/HTMLPlus/htmlplus_table.ps> (in
+PostScript format) of the proposed character entities for HTML+ and
+their corresponding character codes for Unicode and the Adobe Latin-1 &
+Symbol character sets.
+
+*Please note* that there is nothing wrong with using characters of ISO
+Latin-1 above 127: the normal transmission protocol for the WWW,
+HTTP/1.0 <http://www.w3.org/pub/WWW/Protocols/rfc1945/rfc1945>, uses the
+8bit ISO latin-1 as default encoding. (Thanks to Roman Czyborra for
+pointing this out!)
+
+*Other information:*
+
+    * *Kevin J. Brewer* has done two very good pages on the subject:
+          o ASCII - ISO 8859-1 (Latin-1) with HTML 3.0 Entities Table
+            <http://www.bbsinc.com/iso8859.html> and
+          o ISO 8879 Entities Gopher Menu
+      <http://www.bbsinc.com/iso8879.html>
+    * The excellent overview on the series of ISO 8859 character sets
+      <http://czyborra.com/charsets/iso8859.html> compiled by Roman
+      Czyborra.
+    * Also have a look on Alan Flavell's page of pointers to information
+      about ISO8859
+      <http://ppewww.ph.gla.ac.uk/%7Eflavell/iso8859/iso8859-pointers.html>.
+      It's written very well!
+    * Maybe also of interest to you is the ISO 8859-1 FAQ
+      <ftp://ftp.vlsivie.tuwien.ac.at/pub/8bit/FAQ-ISO-8859-1> by
+      Michael Gschwind (mike@vlsivie.tuwien.ac.at
+      <mailto:mike@vlsivie.tuwien.ac.at>), part of his page on
+      Internationalization
+      <http://www.vlsivie.tuwien.ac.at/mike/i18n.html>.
+    * For users of X11R5 on SunOS systems: the table over the compose
+      combinations <Compose.txt> (also coded with entities
+      <Compose.html> where possible). It's taken from the MIT X sources
+      in |server/ddx/sun/Compose.list|.
+    * Finally you could have a look at RFC 1345: Character Mnemonics &
+      Character Sets <ftp://ds.internic.net/rfc/rfc1345.txt> by K.
+Simonsen (06/11/92, 103 pages, approx. 240 kbyte).
+
+------------------------------------------------------------------------
+Martin Ramsch <http://ramsch.home.pages.de/>, 16.02.1994, 07.01.1996,
+01.07.1996, 1998-10-09, 2000-05-15
+

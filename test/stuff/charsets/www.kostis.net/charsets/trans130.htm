@@ -1,0 +1,1537 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>trans130: Introduction</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1><font face="Arial,Geneva,Helvetica">trans130 Introduction</font></h1>
+
+<hr>
+
+<p align="right">Copyright (c) 1993-2000 by Kostis
+Netzwerkberatung<br>
+Talstr. 25, D-63322 Rödermark, Tel. +49 6074 881056, FAX 881058<br>
+<a href="mailto:kosta@kostis.net">kosta@kostis.net</a> (Kosta
+Kostis), <a href="http://www.kostis.net/">http://www.kostis.net/</a></p>
+
+<p align="right">This information may be used free of charge at
+your own risk.</p>
+
+<hr>
+
+<h2><font face="Arial,Geneva,Helvetica">trans Character Encoding Converter
+Generator Package</font></h2>
+
+<p><font color="#FF0000" size="6"><strong>This is a snapshot of a
+work in progress. Things may change, other things may be added/removed.
+Please wait for the release. Sorry, no date scheduled, yet.</strong></font></p>
+
+<p>You may use this package free of charge at your own risk but
+you may not sell this package.</p>
+
+<p>Should you be interested in using any component of this
+package in a commercial package you must contact me first to find
+terms. Don't worry, it won't cost you a leg and an arm, I just
+want to make sure that if there is money made out of this it
+doesn't pass me by completely. ;)</p>
+
+<p>Currently there are 80 different Character Encoding
+Description Files supplied with this package, not counting the
+following files:</p>
+
+<blockquote>
+    <p><font size="2" face="Courier New">iso6429</font>,<font
+    size="2" face="Courier New"> iso646</font> (which are
+    included by many other files)<br>
+    <font size="2" face="Courier New">iso10646</font>,<font
+    size="2" face="Courier New"> iso10646.mes </font><font
+    size="3">(these are here for reference purposes)</font></p>
+</blockquote>
+
+<p><font size="2" face="Courier New">trans</font> covers 7-bit
+encodings such as ISO 646, 8-bit encodings such as many MS-DOS
+Codepages (also for IBM OS/2), Microsoft Windows Codepages, ISO
+8859, HP, Adobe, Apple Macintosh, Atari, NeXTSTEP Character
+Encodings, some EBCDIC Encodings, koi8-r and a few more...</p>
+
+<p>Should your favourite Character Encoding be missing, please
+contribute!</p>
+
+<h2><font face="Arial,Geneva,Helvetica">Where to get updates</font></h2>
+
+<p>The latest version of this package should be available at:</p>
+
+<blockquote>
+    <p><a href="http://www.kostis.net/freeware/"><font size="2"
+    face="Courier New">http://www.kostis.net/freeware/</font></a></p>
+</blockquote>
+
+<h2><font face="Arial,Geneva,Helvetica">How to create a Character Encoding
+Converter</font></h2>
+
+<p>To create translators, use<font size="2" face="Courier New">
+make</font> to compile, link and install all<font size="2"
+face="Courier New"> trans</font> tools, first. Installing means
+moving the executables into a directory included in your command
+search path. In order to do that, check<font size="2"
+face="Courier New"> Makefile</font> which uses &quot;<font
+size="2" face="Courier New">/usr/local/bin</font>&quot; as the
+default directory for installing binaries which you probably want
+to change. </p>
+
+<h3><font face="Arial,Geneva,Helvetica">Example: U*IX (e. g. Linux)</font></h3>
+
+<blockquote>
+    <p><font size="2" face="Courier New">#<br>
+    # use gcc<br>
+    #<br>
+    make # compile trans executables</font></p>
+</blockquote>
+
+<p>Makefile offers a couple of options which you may want to use:</p>
+
+<blockquote>
+    <p><font size="2" face="Courier New">make install # this
+    copies executables to /usr/local/bin<br>
+    make clean # this deletes objects and executables - never
+    mind warnings</font></p>
+    <p><font size="2" face="Courier New">make check # check cedf
+    files (create error.log)</font></p>
+    <p><font size="2" face="Courier New">make html # create HTML
+    tables from cedf files (check destination in Makefile)<br>
+    make list # create list of cedf files (create encoding.lis)</font></p>
+    <p><font size="2" face="Courier New">make date # for my
+    personal use only ;)<br>
+    make pack # for my personal use only ;) <br>
+    make uni # for my personal use only :) (unierror.lis)</font></p>
+</blockquote>
+
+<p>SunOS using<font size="2" face="Courier New"> gcc</font> seems
+to require</p>
+
+<blockquote>
+    <p><font size="2" face="Courier New">make COPTS='-DFILENAME_MAX=200
+    -DNO_STRUPR -O6'</font></p>
+</blockquote>
+
+<p>After that, please change your working directory to the &quot;<font
+size="2" face="Courier New">bin</font>&quot; directory.</p>
+
+<p>Please set an enviroment variable<font size="2"
+face="Courier New"> TRANS</font> that points to the directory
+where this package resides on your computer *including* the
+trailing directory separator character</p>
+
+<blockquote>
+    <p>e. g.:<font size="2" face="Courier New"> TRANS=&quot;/usr/local/src/charsets/trans130/&quot;</font></p>
+</blockquote>
+
+<p>All Character Encoding Description Files reside in the<font
+size="2" face="Courier New"> cedf</font> subdir.</p>
+
+<p>If you don't set a variable<font size="2" face="Courier New">
+TRANS</font> the default location &quot;<font size="2"
+face="Courier New">/usr/local/lib/trans/</font>&quot; will be
+assumed (see file &quot;<font size="2" face="Courier New">tab.h</font>&quot;,
+<font size="2" face="Courier New">DIR_TRANS</font>).</p>
+
+<p>To test the translator generator after have done at least
+&quot;<font size="2" face="Courier New">make</font>&quot; and
+&quot;<font size="2" face="Courier New">make install</font>&quot;,
+type</p>
+
+<blockquote>
+    <p><font size="2" face="Courier New">cd &quot;$TRANS&quot;bin<br>
+    one</font></p>
+</blockquote>
+
+<p>This should generate two translators between ISO 8859-1 and MS-DOS
+Codepage 850. Each translator consists of three files (e.g.):</p>
+
+<blockquote>
+    <table border="0">
+        <tr>
+            <td><font size="2" face="Courier New">isox850.c</font></td>
+            <td>&nbsp;</td>
+            <td>the main program</td>
+        </tr>
+        <tr>
+            <td><font size="2" face="Courier New">isox850.h</font></td>
+            <td>&nbsp;</td>
+            <td>the header file</td>
+        </tr>
+        <tr>
+            <td><font size="2" face="Courier New">isox850.tab</font></td>
+            <td>&nbsp;</td>
+            <td>the translation table file</td>
+        </tr>
+    </table>
+</blockquote>
+
+<p>Each translator will<font size="2" face="Courier New"> #include</font>
+the files</p>
+
+<blockquote>
+    <table border="0">
+        <tr>
+            <td><font size="2" face="Courier New">trans.c</font></td>
+            <td>&nbsp;</td>
+            <td>the main invariant program</td>
+        </tr>
+        <tr>
+            <td><font size="2" face="Courier New">trans.h</font></td>
+            <td>&nbsp;</td>
+            <td>the main invariant header file</td>
+        </tr>
+    </table>
+</blockquote>
+
+<p>You should be able to compile and link<font size="2"
+face="Courier New"> isox850.c</font> and<font size="2"
+face="Courier New"> 850xiso.c</font> easily. Read<font size="2"
+face="Courier New"> transtab.man</font> to learn more about the
+syntax for<font size="2" face="Courier New"> transtab</font>.</p>
+
+<p>Have a look at<font size="2" face="Courier New"> maketabs</font>
+respectively to get an inspiration for program names.</p>
+
+<p>This package is written in ANSI-C using the two non-ANSI
+functions<font size="2" face="Courier New"> strdup ()</font> and<font
+size="2" face="Courier New"> strupr ()</font>. Sources for these
+functions are supplied should your compiler/library not contain
+them. Should you encounter any problems while trying to compile
+this package, your compiler is very likely not ANSI-C compliant.
+Should your compiler be ANSI-C compliant and still report
+warnings and/or errors, please let me know. I'll need the
+following data in order to to help you:</p>
+
+<blockquote>
+    <ul type="disc">
+        <li>Version of this package (e. g. V1.30)</li>
+        <li>Operating System and Version</li>
+        <li>Compiler name and Version</li>
+        <li>Compiler options used (if any)</li>
+    </ul>
+</blockquote>
+
+<h2><font face="Arial,Geneva,Helvetica">Directory tree for this package</font></h2>
+
+<p>The directory tree for this utility should look like this:</p>
+
+<table border="0">
+    <tr>
+        <td><font size="3" face="Arial,Geneva,Helvetica"><strong>directory</strong></font></td>
+        <td>&nbsp;</td>
+        <td><font size="3" face="Arial,Geneva,Helvetica"><strong>file</strong></font></td>
+        <td>&nbsp;</td>
+        <td><font face="Arial,Geneva,Helvetica"><strong>description</strong></font></td>
+    </tr>
+    <tr>
+        <td><font size="2" face="Courier New">./</font></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains the complete package </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>index.htm</td>
+        <td>&nbsp;</td>
+        <td>this file</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Makefile</td>
+        <td>&nbsp;</td>
+        <td>sample makefile for U*IX using gcc</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>encoding.lis</td>
+        <td>&nbsp;</td>
+        <td>list of Character Encoding Description Files</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>error.log</td>
+        <td>&nbsp;</td>
+        <td>output created by checkall</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>unierror.log</td>
+        <td>&nbsp;</td>
+        <td>diffs between cedf and selected Unicode files</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><font size="2" face="Courier New">src/</font></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains the translation table generator source</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>Makefile</td>
+        <td>&nbsp;</td>
+        <td>makefile for gcc (eg. Linux)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>comptran.c</td>
+        <td>&nbsp;</td>
+        <td>compute translation table and output</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>comptran.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        comptran.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>datatype.h</td>
+        <td>&nbsp;</td>
+        <td>handy data types</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>gettrans.c</td>
+        <td>&nbsp;</td>
+        <td>get TRANS directory</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>gettrans.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        gettrans.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>head_c.h</td>
+        <td>&nbsp;</td>
+        <td>generic translator main program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>head_h.h</td>
+        <td>&nbsp;</td>
+        <td>generic translator header file</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>head_tab.h</td>
+        <td>&nbsp;</td>
+        <td>generic translator table file header</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>head_u.h</td>
+        <td>&nbsp;</td>
+        <td>generic translator Unicode FormatA file header</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>loadtab.c</td>
+        <td>&nbsp;</td>
+        <td>read xlt binary table and Unicode FormatA</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>loadtab.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        loadtab.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>os-stuff.h</td>
+        <td>&nbsp;</td>
+        <td>OS/compiler dependent definitions</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>readtab.c</td>
+        <td>&nbsp;</td>
+        <td>read character encoding description file</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>readtab.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        readtab.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>scanflag.c</td>
+        <td>&nbsp;</td>
+        <td>parse program parameters and flags</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>scanflag.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        scanflag.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>strdup.c</td>
+        <td>&nbsp;</td>
+        <td>in case your compiler doesn't have it</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>strdup.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        strdup.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>strupr.c</td>
+        <td>&nbsp;</td>
+        <td>in case your compiler doesn't have it</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>strupr.h</td>
+        <td>&nbsp;</td>
+        <td>header file for<font size="2" face="Courier New">
+        strupr.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>tab.h</td>
+        <td>&nbsp;</td>
+        <td>table constants</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>taberr.h</td>
+        <td>&nbsp;</td>
+        <td><font size="2" face="Courier New">trans</font> error
+        codes and messages</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkiso.c</td>
+        <td>&nbsp;</td>
+        <td>checks character encoding description names</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkiso.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkiso.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkuni.c</td>
+        <td>&nbsp;</td>
+        <td>compares cedf file with Unicode Format A table</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkuni.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkuni.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program - for internal use</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transiso.c</td>
+        <td>&nbsp;</td>
+        <td>translator generator to ISO 10646 main program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transiso.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transiso.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transtab.c</td>
+        <td>&nbsp;</td>
+        <td>translator generator main program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transtab.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transtab.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transce8.c</td>
+        <td>&nbsp;</td>
+        <td>translator program (8-bit) main program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transce8.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transce8.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transhtm.c</td>
+        <td>&nbsp;</td>
+        <td>program that displays HTML tables</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transhtm.h</td>
+        <td>&nbsp;</td>
+        <td>header file for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>transhtm.man</td>
+        <td>&nbsp;</td>
+        <td>man page for above program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>checkall</td>
+        <td>&nbsp;</td>
+        <td>check all tables</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>chkuni</td>
+        <td>&nbsp;</td>
+        <td>for internal use only</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>mklist</td>
+        <td>&nbsp;</td>
+        <td>create list of all tables</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>mkhtml</td>
+        <td>&nbsp;</td>
+        <td>create HTML table (<font size="2" face="Courier New">mkxlt</font>
+        may be required before running this one)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>mkxlt</td>
+        <td>&nbsp;</td>
+        <td>create XLT files (binary translation files)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><font size="2" face="Courier New">bin/</font></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains the translator main program (invariant part)
+        and a few scripts to create translators</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>compile</td>
+        <td>&nbsp;</td>
+        <td>compile one program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>makeall</td>
+        <td>&nbsp;</td>
+        <td>compile all programs</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>maketabs</td>
+        <td>&nbsp;</td>
+        <td>create many translator sources</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>one</td>
+        <td>&nbsp;</td>
+        <td>create one translator</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>trans.c</td>
+        <td>&nbsp;</td>
+        <td>invariant main translator program</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>trans.h</td>
+        <td>&nbsp;</td>
+        <td>invariant main translator header file</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>utf.c</td>
+        <td>&nbsp;</td>
+        <td>convert from/to plain 16-bit Unicode/UTF</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>utf.h</td>
+        <td>&nbsp;</td>
+        <td>header for<font size="2" face="Courier New"> utf.c</font></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>utimbuf.h</td>
+        <td>&nbsp;</td>
+        <td>helps to keep file date stamps</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><a href="trans130/"><font size="2" face="Courier New">htm/</font></a></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains information in HTML format about the
+        description files and other more general information</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><font size="2" face="Courier New">cedf/</font></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains Character Encoding Description Files</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>adobeiso</td>
+        <td>&nbsp;</td>
+        <td>Adobe ISOLatin1Encoding Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>adobestd</td>
+        <td>&nbsp;</td>
+        <td>Adobe StandardEncoding Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>adobesym</td>
+        <td>&nbsp;</td>
+        <td>Adobe Symbol Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>applecro</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Croatian</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>applegk2</td>
+        <td>&nbsp;</td>
+        <td>Apple ][ Greek extended for Macintosh</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>applegrk</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Greek</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>appleice</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Icelandic</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>applerom</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Roman</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>applerum</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Romanian</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>appletur</td>
+        <td>&nbsp;</td>
+        <td>Apple Macintosh Turkish</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>atarist</td>
+        <td>&nbsp;</td>
+        <td>Atari ST/TT</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1250</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1250 (EE)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1251</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1251 (Cyrl)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1252</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1252 (ANSI)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1253</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1253 (Greek)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1254</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1254 (Turk)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1255</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1255 (Hebr)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1256</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1256 (Arab)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1257</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1256 (BaltRim)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp1258</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Codepage 1256 (Viet)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>mslinedr</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows MS LineDraw</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>symbol </td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Symbol Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>wingding</td>
+        <td>&nbsp;</td>
+        <td>Microsoft Windows Wingdings Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp437</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 437 (US)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp737</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 737 (Greek defacto Standard)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp775</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 775 (BaltRim)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp850</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 850 (Multilingual Latin 1)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp851</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 851 (Greece) - obsolete</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp852</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 852 (Multilingual Latin 2)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp853</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 853 (Multilingual Latin 3)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp855</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 855 (Russia) - obsolete</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp857</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 857 (Multilingual Latin 5)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp860</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 860 (Portugal)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp861</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 861 (Iceland)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp862</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 862 (Israel)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp863</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 863 (Canada (French))</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp864</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 864 (Arabic)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp865</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 865 (Norway)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp866</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 866 (Russia)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp869</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 869 (Greece)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp874</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 874 (Thai)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>cp895</td>
+        <td>&nbsp;</td>
+        <td>IBM Codepage 895 (Czech Kamenicky)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>decmcs</td>
+        <td>&nbsp;</td>
+        <td>DEC Multinational Character Set (DEC MCS)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>ebc037</td>
+        <td>&nbsp;</td>
+        <td>EBCDIC Codepage 037</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>ebc500</td>
+        <td>&nbsp;</td>
+        <td>EBCDIC Codepage 500</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>ebc875</td>
+        <td>&nbsp;</td>
+        <td>EBCDIC Codepage 875 (Greek)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>ebc1026</td>
+        <td>&nbsp;</td>
+        <td>EBCDIC Codepage 1026 (Turkish)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>ebc1047</td>
+        <td>&nbsp;</td>
+        <td>EBCDIC Codepage 1047</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>hp48</td>
+        <td>&nbsp;</td>
+        <td>HP 48 Character Set</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>hproman8</td>
+        <td>&nbsp;</td>
+        <td>HP Roman-8</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso10646</td>
+        <td>&nbsp;</td>
+        <td>ISO 10646 (sorted by name, 16-bit)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso10646.mes</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso6429</td>
+        <td>&nbsp;</td>
+        <td>ISO 6429 Control Characters (00-1F, 7F)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (common character base)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.ca</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (French Canadian)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.ch</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Swiss)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.de</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (German)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.es</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Spanish)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.fi</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Finnish)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.fr</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (French)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.gb</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (United Kingdom)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.irv</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (International Reference Version)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.it</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Italian)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.nl</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Dutch)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.no</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Norwegian/Danish)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.pt</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Portuguese)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso646.se</td>
+        <td>&nbsp;</td>
+        <td>ISO 646 (Swedish)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.1</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-1 (Latin 1)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.2</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-2 (Latin 2)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.3</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-3 (Latin 3)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.4</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-4 (Latin 4)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.5</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-5 (Latin/Cyrillic)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.6</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-6 (Latin/Arabic)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.7</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-7 (Latin/Greek)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.8</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-8 (Latin/Hebrew)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.9</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-9 (Latin 5)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.10</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-10 (Latin 6)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.13</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-13 (Latin 7 - Baltic Rim)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.14</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-14 (Latin 8 - Celtic)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>iso8859.15</td>
+        <td>&nbsp;</td>
+        <td>ISO 8859-15 (Latin 9)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>koi8-r</td>
+        <td>&nbsp;</td>
+        <td>Cyrillic encoding as defined in RFC-1489</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>nextstep</td>
+        <td>&nbsp;</td>
+        <td>NeXTSTEP Encoding Vector</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>tex-dcr.in</td>
+        <td>&nbsp;</td>
+        <td>TeX dcr input (contains non-ISO 10646 names)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>tex-dcr.out</td>
+        <td>&nbsp;</td>
+        <td>TeX dcr output (contains non-ISO 10646 names)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><font size="2" face="Courier New">xlt/</font></td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>contains binary conversion tables (default is little
+        endian)</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>all files listed in<font size="2" face="Courier New">
+        cedf/</font> should be here, except for<font size="2"
+        face="Courier New"> iso6429, iso646, iso10646, iso10646.mes</font><p>Should
+        you not have a &quot;little endian&quot; CPU (Intel i386,
+        i486, Pentium and many other brands), please do a &quot;<font
+        size="2" face="Courier New">make bintab</font>&quot; to
+        create the very same tables using your native byte order.
+        This will most likely only work on U*IX (like) systems.</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

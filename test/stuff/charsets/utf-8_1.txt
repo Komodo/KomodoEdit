@@ -1,0 +1,237 @@
+[General <http://www.unics.uni-hannover.de/nhtcapri/>]  [Arabic
+<http://www.unics.uni-hannover.de/nhtcapri/arabic.html>] 
+[Central European
+<http://www.unics.uni-hannover.de/nhtcapri/central_european.html>] 
+[Cyrillic <http://www.unics.uni-hannover.de/nhtcapri/cyrillic.html>] 
+[Greek <http://www.unics.uni-hannover.de/nhtcapri/greek.html>]  [Hebrew
+<http://www.unics.uni-hannover.de/nhtcapri/hebrew.html>] 
+[Roman modified <http://www.unics.uni-hannover.de/nhtcapri/roman.html>]
+
+
+    Multilingual Macintosh Resources: Unicode Test
+    <http://www.unics.uni-hannover.de/nhtcapri/multilingual2.html>
+
+You can use this document to check if your browser and your installed
+fonts display multilingual HTML documents in Unicode (UTF-8)
+<http://www.unicode.org/unicode/faq/utf_bom.html> correctly.
+
+------------------------------------------------------------------------
+
+
+      Latin extended
+
+Letters with *acute*
+    AÁ aá CĆ cć EÉ eé IÍ ií LĹ lĺ NŃ nń OÓ oó RŔ rŕ SŚ sś UÚ uú YÝ yý 
+    ZŹ zź
+
+Letters with *apostrophe*
+    dď LĽ lľ tť
+
+Letters with *breve*
+    AĂ aă GĞ gğ UŬ uŭ
+
+Letters with *caron (hacek)*
+    CČ cč DĎ EĚ eě NŇ nň RŘ rř SŠ sš TŤ ZŽ zž
+
+Letters with *cedilla (comma)*
+    CÇ cç GĢ gģ KĶ kķ LĻ lļ NŅ nņ RŖ rŗ SŞ sş TŢ tţ
+
+Letters with *circumflex*
+    AÂ aâ CĈ cĉ EÊ eê GĜ gĝ HĤ hĥ IÎ iî JĴ jĵ OÔ oô SŜ sŝ UÛ uû WŴ wŵ 
+    YŶ yŷ
+
+Letters with *diaeresis (umlaut)*
+    AÄ aä EË eë IÏ iï OÖ oö UÜ uü YŸ yÿ
+
+Letters with/without *dot above*
+    CĊ cċ EĖ eė GĠ gġ Iİ iı ZŻ zż
+
+Letters with *double acute*
+    OŐ oő UŰ uű
+
+Letters with *grave*
+    AÀ aà EÈ eè IÌ iì OÒ oò UÙ uù
+
+Letters with *horn*
+    OƠ oơ UƯ uư
+
+Letters with *macron*
+    AĀ aā EĒ eē IĪ iī OŌ oō UŪ uū
+
+Letters with *ogonek*
+    AĄ aą EĘ eę IĮ iį UŲ uų
+
+Letters with *ring above*
+    AÅ aå UŮ uů
+
+Letters with *stroke*
+    DĐ dđ HĦ hħ LŁ lł OØ oø
+
+Letters with *tilde*
+    AÃ aã NÑ nñ OÕ oõ
+
+*Ligatures*
+    AEÆ aeæ OEŒ oeœ
+
+*Eth* & *Thorn*
+    DÐ dð THÞ thþ
+
+German *sharp s* & *long s*
+    ß ſ
+
+------------------------------------------------------------------------
+
+
+      Greek
+
+*Capital* letters
+    Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ Ω+
+
+*Capital* letters with *tonos*
+    Ά Έ Ή Ί Ό Ύ Ώ
+
+*Capital* letters with *dialytika*
+    Ϊ Ϋ
+
+*Small* letters
+    α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σς τ υ φ χ ψ ω
+
+*Small* letters with *tonos*
+    ά έ ή ί ό ύ ώ
+
+*Small* letters with *dialytika*
+    ϊ ϋ
+
+*Small* letters with *dialytika and tonos*
+    ΐ ΰ
+
+------------------------------------------------------------------------
+
+
+      Cyrillic
+
+*Belarussian* alphabet
+    А Б В Г Д Е Ё Ж З І Й К Л М Н О П Р С Т У Ў Ф Х Ц Ч Ш Ы Ь Э Ю Я
+    а б в г д е ё ж з і й к л м н о п р с т у ў ф х ц ч ш ы ь э ю я
+
+*Bulgarian* alphabet
+    А Б В Г Д Е Ж З И Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ъ Ь Ю Я
+    а б в г д е ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ь ю я
+
+*Macedonian* alphabet
+    А Б В Г Д Ѓ Е Ж З Ѕ И Ј К Л Љ М Н Њ О П Р С Т Ќ У Ф Х Ц Ч Џ Ш
+    а б в г д ѓ е ж з ѕ и ј к л љ м н њ о п р с т ќ у ф х ц ч џ ш
+
+*Russian* alphabet
+    А Б В Г Д Е Ё Ж З И Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ъ Ы Ь Э Ю Я
+    а б в г д е ё ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я
+
+*Serbian* alphabet
+    А Б В Г Д Ђ Е Ж З И Ј К Л Љ М Н Њ О П Р С Т Ћ У Ф Х Ц Ч Џ Ш
+    а б в г д ђ е ж з и ј к л љ м н њ о п р с т ћ у ф х ц ч џ ш
+
+*Ukrainian* alphabet
+    А Б В Г Ґ Д Е Є Ж З И І Ї Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ь Ю Я
+    а б в г ґ д е є ж з и і ї й к л м н о п р с т у ф х ц ч ш щ ь ю я
+
+------------------------------------------------------------------------
+
+
+      Hebrew
+
+*Hebrew* alphabet
+    א ב ג ד ה ו ז ח ט י כך ל מם נן ס ע פף צץ ק ר ש ת
+
+*Yiddish* digraphs
+    וו וי יי
+    װ ױ ײ
+
+------------------------------------------------------------------------
+
+
+      Arabic
+
+Ideally, the Arabic and Persian alphabets should be displayed in
+different typefaces.
+
+*Arabic* alphabet
+    ا ـا   ب بـبـب   ت تـتـت   ث ثـثـث   ج جـجـج   ح حـحـح   خ خـخـخ  
+    د ـد   ذ ـذ   ر ـر   ز ـز   س سـسـس   ش شـشـش   ص صـصـص   ض ضـضـض  
+    ط طـطـط   ظ ظـظـظ   ع عـعـع   غ غـغـغ   ف فـفـف   ق قـقـق   ك كـكـك
+    ل لـلـل   م مـمـم   ن نـنـن   ه هـهـه   ة ـة   و ـو   ي يـيـي   ى ـى
+
+Letters with *hamza*
+    ء   إ ـإ   أ ـأ   ؤ ـؤ   ئ ئـئـئ 
+
+*Persian* alphabet
+    ا ـا   ب بـبـب   پ پـپـپ   ت تـتـت   ث ثـثـث   ج جـجـج   چ چـچـچ  
+    ح حـحـح   خ خـخـخ   د ـد   ذ ـذ   ر ـر   ز ـز   ژ ـژ   س سـسـس  
+    ش شـشـش   ص صـصـص   ض ضـضـض   ط طـطـط   ظ ظـظـظ   ع عـعـع   غ غـغـغ
+    ف فـفـف   ق قـقـق   ك كـكـك   گ گـگـگ   ل لـلـل   م مـمـم  
+    ن نـنـن   و ـو   ه هـهـه   ي يـيـي   ى ـى 
+
+Additional *Urdu* letters
+    ٹ ٹـٹـٹ   ڈ ـڈ   ڑ ـڑ   ں ـں   ے ـے 
+
+Arabic-Indic *digits*
+    0 1 2 3 4 5 6 7 8 9 10
+    ٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ١٠
+    ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹ ۱۰
+
+------------------------------------------------------------------------
+
+
+      Symbols
+
+، Arabic comma
+٫ Arabic decimal separator
+٪ Arabic percent sign
+؟ Arabic question mark
+؛ Arabic semicolon
+• bullet
+¢ cent sign
+© copyright sign
+¤ currency sign
+† dagger
+° degree sign
+÷ division sign
+« double angle quotation mark (guillemet) <<
+» double angle quotation mark (guillemet) >>
+“ double quotation mark 66
+” double quotation mark 99
+„ double quotation mark low-99
+… ellipsis
+— em dash
+– en dash
+€ euro sign
+― horizontal bar (quotation dash)
+· middle dot (centered period)
+· middle dot (centered period, Greek ano teleia)
+µ micro sign
+× multiplication sign
+¬ not sign
+№ numero sign
+‰ per mille (per thousand) sign
+¶ pilcrow (paragraph) sign
+± plus-minus sign
+£ pound sterling sign
+® registered sign
+§ section sign
+₪ sheqel sign
+‹ single angle quotation mark (guillemet) <
+› single angle quotation mark (guillemet) >
+‘ single quotation mark 6
+’ single quotation mark 9 (apostrophe
+<http://www.cl.cam.ac.uk/%7Emgk25/ucs/apostrophe.html>)
+¹ superscript 1
+² superscript 2
+³ superscript 3
+™ trademark sign
+¥ yen sign
+
+------------------------------------------------------------------------
+
+
+      Mathematical symbols
+      <http://www.unics.uni-hannover.de/nhtcapri/mathematics.html>
+

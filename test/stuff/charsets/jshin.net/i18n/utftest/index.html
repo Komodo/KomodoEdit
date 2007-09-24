@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+<title>UTF-16 and UTF-32</title>
+</head>
+
+<p>
+Listed below are 24 pages encoded in various forms of UTF-16 and
+UTF-32 with or without BOM. They're put up to test browser support
+of UTF-16 and UTF-32. UTF-8 version is available 
+<a href="utf8.html">here</a>. 24 combinations come from the following
+four criteria:
+
+<ul>
+<li>With or without BOM(byte order mark)
+<li>Big Endian or Little Endian
+<li>UTF-16 or UTF-32
+<li>MIME charset parameter emitted by the server, no tag, UTF-(16|32)
+or UTF-(16|32)(BE|LE).
+The server running at this site
+ is configured to emit MIME charset parameter depending on the file suffix.
+</ul>
+
+<p>The content of these pages was just taken from an old test page
+I put up a long time ago for Korean testing and it's not at all
+comprehensive. Especially, it doesn't have any characters beyond
+BMP. I may add them later.
+
+<table border=1>
+<tr><td>file<td>BOM<td>BE/LE<td>UTF-16/32<td>MIME charset in HTTP header
+<tr><td><a href="bom.utf16be.html">bom.utf16be.html</html>
+    <td>Y<td>BE<td>16<td>UTF-16BE
+<tr><td><a href="bom_utf16be.html">bom_utf16be.html</html>
+    <td>Y<td>BE<td>16<td>None
+<tr><td><a href="bom_utf16be.utf16.html">bom_utf16be.utf16.html</html>
+    <td>Y<td>BE<td>16<td>UTF-16
+<tr><td><a href="bom.utf32be.html">bom.utf32be.html</html>
+    <td>Y<td>BE<td>32<td>UTF-32BE
+<tr><td><a href="bom_utf32be.html">bom_utf32be.html</html>
+    <td>Y<td>BE<td>32<td>None
+<tr><td><a href="bom_utf32be.utf32.html">bom_utf32be.utf32.html</html>
+    <td>Y<td>BE<td>32<td>UTF-32
+<tr><td><a href="bom.utf16le.html">bom.utf16le.html</html>
+    <td>Y<td>LE<td>16<td>UTF-16LE
+<tr><td><a href="bom_utf16le.html">bom_utf16le.html</html>
+    <td>Y<td>LE<td>16<td>None
+<tr><td><a href="bom_utf16le.utf16.html">bom_utf16le.utf16.html</html>
+    <td>Y<td>LE<td>16<td>UTF-16
+<tr><td><a href="bom.utf32le.html">bom.utf32le.html</html>
+    <td>Y<td>LE<td>32<td>UTF-32LE
+<tr><td><a href="bom_utf32le.html">bom_utf32le.html</html>
+    <td>Y<td>LE<td>32<td>None
+<tr><td><a href="bom_utf32le.utf32.html">bom_utf32le.utf32.html</html>
+    <td>Y<td>LE<td>32<td>UTF-32
+<tr><td><a href="nobom.utf16be.html">nobom.utf16be.html</html>
+    <td>N<td>BE<td>16<td>UTF-16BE
+<tr><td><a href="nobom_utf16be.html">nobom_utf16be.html</html>
+    <td>N<td>BE<td>16<td>None
+<tr><td><a href="nobom_utf16be.utf16.html">nobom_utf16be.utf16.html</html>
+    <td>N<td>BE<td>16<td>UTF-16
+<tr><td><a href="nobom.utf32be.html">nobom.utf32be.html</html>
+    <td>N<td>BE<td>32<td>UTF-32BE
+<tr><td><a href="nobom_utf32be.html">nobom_utf32be.html</html>
+    <td>N<td>BE<td>32<td>None
+<tr><td><a href="nobom_utf32be.utf32.html">nobom_utf32be.utf32.html</html>
+    <td>N<td>BE<td>32<td>UTF-32
+<tr><td><a href="nobom.utf16le.html">nobom.utf16le.html</html>
+    <td>N<td>LE<td>16<td>UTF-16LE
+<tr><td><a href="nobom_utf16le.html">nobom_utf16le.html</html>
+    <td>N<td>LE<td>16<td>None 
+<tr><td><a href="nobom_utf16le.utf16.html">nobom_utf16le.utf16.html</html>
+    <td>N<td>LE<td>16<td>UTF-16
+<tr><td><a href="nobom.utf32le.html">nobom.utf32le.html</html>
+    <td>N<td>LE<td>32<td>UTF-32LE
+<tr><td><a href="nobom_utf32le.html">nobom_utf32le.html</html>
+    <td>N<td>LE<td>32<td>None 
+<tr><td><a href="nobom_utf32le.utf32.html">nobom_utf32le.utf32.html</html>
+    <td>N<td>LE<td>32<td>UTF-32
+</table>
+</body>
+</html>
+

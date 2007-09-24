@@ -1,0 +1,296 @@
+		ISO-8859-7 (ISO Greek) Greek character set
+			(ELOT 928 in Greece)
+
+	Author: Manolis Lourakis <lourakis@csd.uch.gr>
+		Computer Science Department,
+	  	University of Crete, GREECE
+
+octal	hex	PostScript	HTML entity	character
+----------------------------------------------------------------------
+000	0x00	non-printable
+001	0x01	non-printable
+002	0x02	non-printable
+003	0x03	non-printable
+004	0x04	non-printable
+005	0x05	non-printable
+006	0x06	non-printable
+007	0x07	non-printable
+
+010	0x08	non-printable
+011	0x09	non-printable
+012	0x0a	non-printable
+013	0x0b	non-printable
+014	0x0c	non-printable
+015	0x0d	non-printable
+016	0x0e	non-printable
+017	0x0f	non-printable
+
+020	0x10	non-printable
+021	0x11	non-printable
+022	0x12	non-printable
+023	0x13	non-printable
+024	0x14	non-printable
+025	0x15	non-printable
+026	0x16	non-printable
+027	0x17	non-printable
+
+030	0x18	non-printable
+031	0x19	non-printable
+032	0x1a	non-printable
+033	0x1b	non-printable
+034	0x1c	non-printable
+035	0x1d	non-printable
+036	0x1e	non-printable
+037	0x1f	non-printable
+
+040	0x20	/space				 
+041	0x21	/exclam				!
+042	0x22	/quotedbl	&quot;		"
+043	0x23	/numbersign			#
+044	0x24	/dollar				$
+045	0x25	/percent			%
+046	0x26	/ampersand	&amp;		&
+047	0x27	/quoteright			'
+
+050	0x28	/parenleft			(
+051	0x29	/parenright			)
+052	0x2a	/asterisk			*
+053	0x2b	/plus				+
+054	0x2c	/comma				,
+055	0x2d	/hyphen				-
+056	0x2e	/period				.
+057	0x2f	/slash				/
+
+060	0x30	/zero				0
+061	0x31	/one				1
+062	0x32	/two				2
+063	0x33	/three				3
+064	0x34	/four				4
+065	0x35	/five				5
+066	0x36	/six				6
+067	0x37	/seven				7
+
+070	0x38	/eight				8
+071	0x39	/nine				9
+072	0x3a	/colon				:
+073	0x3b	/semicolon			;
+074	0x3c	/less		&lt;		<
+075	0x3d	/equal				=
+076	0x3e	/greater	&gt;		>
+077	0x3f	/question			?
+
+0100	0x40	/at				@
+0101	0x41	/A				A
+0102	0x42	/B				B
+0103	0x43	/C				C
+0104	0x44	/D				D
+0105	0x45	/E				E
+0106	0x46	/F				F
+0107	0x47	/G				G
+
+0110	0x48	/H				H
+0111	0x49	/I				I
+0112	0x4a	/J				J
+0113	0x4b	/K				K
+0114	0x4c	/L				L
+0115	0x4d	/M				M
+0116	0x4e	/N				N
+0117	0x4f	/O				O
+
+0120	0x50	/P				P
+0121	0x51	/Q				Q
+0122	0x52	/R				R
+0123	0x53	/S				S
+0124	0x54	/T				T
+0125	0x55	/U				U
+0126	0x56	/V				V
+0127	0x57	/W				W
+
+0130	0x58	/X				X
+0131	0x59	/Y				Y
+0132	0x5a	/Z				Z
+0133	0x5b	/bracketleft			[
+0134	0x5c	/backslash			\
+0135	0x5d	/bracketright			]
+0136	0x5e	/asciicircum			^
+0137	0x5f	/underscore			_
+
+0140	0x60	/quoteleft			`
+0141	0x61	/a				a
+0142	0x62	/b				b
+0143	0x63	/c				c
+0144	0x64	/d				d
+0145	0x65	/e				e
+0146	0x66	/f				f
+0147	0x67	/g				g
+
+0150	0x68	/h				h
+0151	0x69	/i				i
+0152	0x6a	/j				j
+0153	0x6b	/k				k
+0154	0x6c	/l				l
+0155	0x6d	/m				m
+0156	0x6e	/n				n
+0157	0x6f	/o				o
+
+0160	0x70	/p				p
+0161	0x71	/q				q
+0162	0x72	/r				r
+0163	0x73	/s				s
+0164	0x74	/t				t
+0165	0x75	/u				u
+0166	0x76	/v				v
+0167	0x77	/w				w
+
+0170	0x78	/x				x
+0171	0x79	/y				y
+0172	0x7a	/z				z
+0173	0x7b	/braceleft			{
+0174	0x7c	/bar				|
+0175	0x7d	/braceright			}
+0176	0x7e	/tilde				~
+0177	0x7f	non-printable
+
+0200	0x80	non-printable
+0201	0x81	non-printable
+0202	0x82	non-printable
+0203	0x83	non-printable
+0204	0x84	non-printable
+0205	0x85	non-printable
+0206	0x86	non-printable
+0207	0x87	non-printable
+
+0210	0x88	non-printable
+0211	0x89	non-printable
+0212	0x8a	non-printable
+0213	0x8b	non-printable
+0214	0x8c	non-printable
+0215	0x8d	non-printable
+0216	0x8e	non-printable
+0217	0x8f	non-printable
+
+0220	0x90	non-printable
+0221	0x91	non-printable
+0222	0x92	non-printable
+0223	0x93	non-printable
+0224	0x94	non-printable
+0225	0x95	non-printable
+0226	0x96	non-printable
+0227	0x97	non-printable
+
+0230	0x98	non-printable
+0231	0x99	non-printable
+0232	0x9a	non-printable
+0233	0x9b	non-printable
+0234	0x9c	non-printable
+0235	0x9d	non-printable
+0236	0x9e	non-printable
+0237	0x9f	non-printable
+
+0240	0xa0	/space				 
+0241	0xa1	/quoteleft			`
+0242	0xa2	/quoteright			'
+0243	0xa3	/sterling			£
+0244	0xa4	non-printable
+0245	0xa5	non-printable
+0246	0xa6	/brokenbar			¦
+0247	0xa7	/section			§
+
+0250	0xa8	/dieresis			¨
+0251	0xa9	/copyright			©
+0252	0xaa	non-printable
+0253	0xab	/guillemotleft			«
+0254	0xac	/logicalnot			¬
+0255	0xad	/hyphen				­
+0256	0xae	non-printable
+0257	0xaf	/endash				¯
+
+0260	0xb0	/degree				°
+0261	0xb1	/plusminus			±
+0262	0xb2	/twosuperior			²
+0263	0xb3	/threesuperior			³
+0264	0xb4	/acute				´
+0265	0xb5	/dieresisacute			µ
+0266	0xb6	/afii9936			¶
+0267	0xb7	/periodcentered			·
+
+0270	0xb8	/afii9937			¸
+0271	0xb9	/afii9938			¹
+0272	0xba	/afii9939			º
+0273	0xbb	/guillemotright			»
+0274	0xbc	/afii9940			¼
+0275	0xbd	/onehalf			½
+0276	0xbe	/afii9941			¾
+0277	0xbf	/afii9942			¿
+
+0300	0xc0	/afii9977			À
+0301	0xc1	/afii9793			Á
+0302	0xc2	/afii9794			Â
+0303	0xc3	/afii9796			Ã
+0304	0xc4	/afii9797			Ä
+0305	0xc5	/afii9798			Å
+0306	0xc6	/afii9801			Æ
+0307	0xc7	/afii9802			Ç
+
+0310	0xc8	/afii9803			È
+0311	0xc9	/afii9804			É
+0312	0xca	/afii9805			Ê
+0313	0xcb	/afii9806			Ë
+0314	0xcc	/afii9807			Ì
+0315	0xcd	/afii9808			Í
+0316	0xce	/afii9809			Î
+0317	0xcf	/afii9810			Ï
+
+0320	0xd0	/afii9811			Ð
+0321	0xd1	/afii9813			Ñ
+0322	0xd2	non-printable
+0323	0xd3	/afii9814			Ó
+0324	0xd4	/afii9816			Ô
+0325	0xd5	/afii9817			Õ
+0326	0xd6	/afii9818			Ö
+0327	0xd7	/afii9819			×
+
+0330	0xd8	/afii9820			Ø
+0331	0xd9	/afii9821			Ù
+0332	0xda	/afii9943			Ú
+0333	0xdb	/afii9944			Û
+0334	0xdc	/afii9968			Ü
+0335	0xdd	/afii9969			Ý
+0336	0xde	/afii9970			Þ
+0337	0xdf	/afii9971			ß
+
+0340	0xe0	/afii9978			à
+0341	0xe1	/afii9825			á
+0342	0xe2	/afii9826			â
+0343	0xe3	/afii9828			ã
+0344	0xe4	/afii9829			ä
+0345	0xe5	/afii9830			å
+0346	0xe6	/afii9833			æ
+0347	0xe7	/afii9834			ç
+
+0350	0xe8	/afii9835			è
+0351	0xe9	/afii9836			é
+0352	0xea	/afii9837			ê
+0353	0xeb	/afii9838			ë
+0354	0xec	/afii9839			ì
+0355	0xed	/afii9840			í
+0356	0xee	/afii9841			î
+0357	0xef	/afii9842			ï
+
+0360	0xf0	/afii9843			ð
+0361	0xf1	/afii9845			ñ
+0362	0xf2	/afii9847			ò
+0363	0xf3	/afii9846			ó
+0364	0xf4	/afii9848			ô
+0365	0xf5	/afii9849			õ
+0366	0xf6	/afii9850			ö
+0367	0xf7	/afii9851			÷
+
+0370	0xf8	/afii9852
+0371	0xf9	/afii9853			ù
+0372	0xfa	/afii9975			ú
+0373	0xfb	/afii9976			û
+0374	0xfc	/afii9972			ü
+0375	0xfd	/afii9973			ý
+0376	0xfe	/afii9974			þ
+0377	0xff	non-printable
