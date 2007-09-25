@@ -9,6 +9,10 @@ if (typeof(Casper.Logging) == 'undefined') {
 }
 
 Casper.Logging._logs = {};
+/**
+ * Return an existing|new logger with the supplied name.
+ * @returns {Casper.Logging.Logger}
+ */
 Casper.Logging.getLogger = function(name) {
     if (typeof(Casper.Logging._logs[name]) == 'undefined') {
         Casper.Logging._logs[name] = new Casper.Logging.Logger(name);
