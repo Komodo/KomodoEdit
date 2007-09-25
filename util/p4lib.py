@@ -675,7 +675,6 @@ class P4:
 
         desc = {}
         lines = output.splitlines(1)
-        lines = [line for line in lines if not line.strip().startswith("#")]
         changeRe = re.compile('^Change (?P<change>\d+) by (?P<user>[^\s@]+)@'\
                               '(?P<client>[^\s@]+) on (?P<date>[\d/ :]+)$')
         desc = changeRe.match(lines[0]).groupdict()
