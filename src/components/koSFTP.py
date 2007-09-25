@@ -27,8 +27,38 @@ import paramiko
 log = logging.getLogger('koSFTPConnection')
 #log.setLevel(logging.DEBUG)
 
+
+# URI handler
+class SFTPURI:
+    _com_interfaces_ = components.interfaces.nsIProtocolHandler
+    _reg_contractid_ = '@mozilla.org/network/protocol;1?name=sftp'
+    _reg_clsid_ = '{b7b16573-c158-4546-91be-f4324de9dcfb}'
+    _reg_desc_ = "SFTP handler"
+
+    scheme = "sftp"
+    defaultPort = 22
+    protocolFlags = components.interfaces.nsIProtocolHandler.URI_STD
+
+    def __init__(self):
+        pass
+
+    def newURI(self, aSpec, aOriginCharset, aBaseURI):
+        url = components.classes["@mozilla.org/network/standard-url;1"].\
+                 createInstance(components.interfaces.nsIStandardURL)
+        url.init(components.interfaces.nsIStandardURL.URLTYPE_AUTHORITY,
+                 self.defaultPort, aSpec, aOriginCharset, aBaseURI)
+        return url.QueryInterface(components.interfaces.nsIURI)
+
+    def newChannel(self, aURI):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+
+    def allowPort(self, port, scheme):
+        return True
+
+
+# Connection handler
 class koSFTPConnection(remotefilelib.koRemoteSSH):
-    _com_interfaces_ = [components.interfaces.koIFTPConnection]
+    _com_interfaces_ = [components.interfaces.koISSHConnection]
     _reg_desc_ = "Komodo SFTP Connection"
     _reg_contractid_ = "@activestate.com/koSFTPConnection;1"
     _reg_clsid_ = "{0a29b026-b0cb-4316-a0ea-23f890c7e8be}"

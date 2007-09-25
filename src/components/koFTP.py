@@ -33,6 +33,8 @@ log_koFTPS = logging.getLogger('koFTPSConnection')
 log_FTPFile = logging.getLogger('FTPFile')
 #log_FTPFile.setLevel(logging.DEBUG)
 
+
+# Connection handler
 class koFTP(ftplib.FTP):
 
     #
@@ -530,6 +532,34 @@ class koFTPConnection(remotefilelib.koRFConnection):
 #        result = self.voidresp()
 #        print "Voidresp: %r" % (result)
 #        return result
+
+
+# URI handler
+class FTPSURI:
+    _com_interfaces_ = components.interfaces.nsIProtocolHandler
+    _reg_contractid_ = '@mozilla.org/network/protocol;1?name=ftps'
+    _reg_clsid_ = '{64f2ef13-5873-40dc-bcd2-b29978ed32df}'
+    _reg_desc_ = "FTPS handler"
+
+    scheme = "ftps"
+    defaultPort = 21
+    protocolFlags = components.interfaces.nsIProtocolHandler.URI_STD
+
+    def __init__(self):
+        pass
+
+    def newURI(self, aSpec, aOriginCharset, aBaseURI):
+        url = components.classes["@mozilla.org/network/standard-url;1"].\
+                 createInstance(components.interfaces.nsIStandardURL)
+        url.init(components.interfaces.nsIStandardURL.URLTYPE_AUTHORITY,
+                 self.defaultPort, aSpec, aOriginCharset, aBaseURI)
+        return url.QueryInterface(components.interfaces.nsIURI)
+
+    def newChannel(self, aURI):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+
+    def allowPort(self, port, scheme):
+        return True
 
 
 #

@@ -31,8 +31,38 @@ log = logging.getLogger('koSCPConnection')
 
 MAX_BLOCK_SIZE = 8192
 
+
+# URI handler
+class SCPURI:
+    _com_interfaces_ = components.interfaces.nsIProtocolHandler
+    _reg_contractid_ = '@mozilla.org/network/protocol;1?name=scp'
+    _reg_clsid_ = '{40843031-307c-4fb1-8557-ebb0a72d0441}'
+    _reg_desc_ = "SCP handler"
+
+    scheme = "scp"
+    defaultPort = 22
+    protocolFlags = components.interfaces.nsIProtocolHandler.URI_STD
+
+    def __init__(self):
+        pass
+
+    def newURI(self, aSpec, aOriginCharset, aBaseURI):
+        url = components.classes["@mozilla.org/network/standard-url;1"].\
+                 createInstance(components.interfaces.nsIStandardURL)
+        url.init(components.interfaces.nsIStandardURL.URLTYPE_AUTHORITY,
+                 self.defaultPort, aSpec, aOriginCharset, aBaseURI)
+        return url.QueryInterface(components.interfaces.nsIURI)
+
+    def newChannel(self, aURI):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+
+    def allowPort(self, port, scheme):
+        return True
+
+
+# Connection handler
 class koSCPConnection(remotefilelib.koRemoteSSH):
-    _com_interfaces_ = [components.interfaces.koIFTPConnection]
+    _com_interfaces_ = [components.interfaces.koISSHConnection]
     _reg_desc_ = "Komodo Remote SCP"
     _reg_contractid_ = "@activestate.com/koSCPConnection;1"
     _reg_clsid_ = "{73836747-2f55-405e-a96b-fcb212403cd4}"

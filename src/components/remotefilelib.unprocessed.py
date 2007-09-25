@@ -14,6 +14,7 @@ import stat
 import threading
 import logging
 import socket   # For catching underlying socket errors
+import select
 
 from xpcom import components, ServerException, nsError
 
@@ -600,6 +601,8 @@ class koRFConnection:
 # SSH support using paramiko, http://www.lag.net/paramiko/
 import paramiko
 
+MAX_BLOCK_SIZE = 8192
+
 # Import remotefileagent, which adds putty/pageant key support, but
 # only do this for windows platforms.
 if sys.platform.startswith("win"):
@@ -759,6 +762,51 @@ class koRemoteSSH(koRFConnection):
         if not self._connection or not self._connection.is_active():
             self.log.info("Re-opening the SSH connection because it was closed")
             self.open(self.server, self.port, self.username, self.password, "")
+
+    def runCommand(self, command, combineStdoutAndStderr):
+        channel = self._connection.open_session()
+        channel.settimeout(self._socket_timeout)
+        channel.set_combine_stderr(combineStdoutAndStderr)
+        status = -1
+        stdout_segments = []
+        stderr_segments = []
+        try:
+            try:
+                # This was causing problems on different platforms, so just grab the
+                # response to the command.
+                channel.exec_command(command)
+                channels = [channel]
+                while 1:
+                    # XXX - Paramiko needs to support stderr select
+                    i, o, e = select.select(channels, [], channels, None)
+                    if e:
+                        break
+                    data = ''
+                    if channel.recv_ready():
+                        data = channel.recv(8192)
+                        if not data:
+                            break
+                        stdout_segments.append(data)
+                    #if channel.recv_stderr_ready():
+                    #    data = channel.recv_stderr(8192)
+                    #    if not data:
+                    #        break
+                    #    stderr_segments.append(data)
+                    if not data:
+                        break
+                status = channel.recv_exit_status()
+            finally:
+                channel.close()
+        except Exception, e:
+            self.log.exception(e)
+        stdout = ''.join(stdout_segments)
+        stderr = ''.join(stderr_segments)
+        #print "runCommand: status: %r" % (status, )
+        #if stdout:
+        #    print "runCommand: stdout\n%s" % (stdout, )
+        #if stderr:
+        #    print "runCommand: stderr\n%s" % (stderr, )
+        return status, stdout, stderr
 
 # #endif
 

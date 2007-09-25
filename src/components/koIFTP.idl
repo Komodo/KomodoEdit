@@ -37,3 +37,18 @@ interface koIFTPConnection : nsISupports {
     readonly attribute wstring password;
     readonly attribute wstring lastError;
 };
+
+[scriptable, uuid(eebc454e-7700-4406-9da1-66b711c5f3ae)]
+interface koISSHConnection : koIFTPConnection {
+    // Run the specified command remotely and return the process retval.
+    //   command - command string to be run
+    //   combineStdoutAndStderr - whether the stderr is combined with stdout,
+    //                            when true, the stdout result contains both
+    //                            the outputs from stdout and stderr.
+    //   stdout - normal output from the command
+    //   stderr - error output from the command
+    //            XXX - currently stderr will always be an empty string
+    //                  due to it being unsupported by paramiko.
+    long runCommand(in wstring command, in boolean combineStdoutAndStderr,
+                    out wstring stdout, out wstring stderr);
+};
