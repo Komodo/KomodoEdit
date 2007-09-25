@@ -163,7 +163,8 @@ def make_src_silvercity(maker, log):
 
         for dirname, dirs, files in os.walk("src/SilverCity"):
             for file in files:
-                eol.convert_path_eol_type(join(dirname, file), eol.NATIVE, log)
+                eol.convert_path_eol(join(dirname, file), eol.NATIVE,
+                                     log=log)
 
         # Patch it.
         #XXX Use my patchtool thing.
