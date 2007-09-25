@@ -101,6 +101,7 @@ class Shell(cmdln.Cmdln):
         ${cmd_usage}
         ${cmd_option_list}
         """
+        extra_lang_module_dirs = []
         if koextlib.is_ext_dir() and exists("pylib"):
             sys.path.append(abspath("pylib"))
             extra_lang_module_dirs = [sys.path[-1]]
@@ -162,6 +163,7 @@ class Shell(cmdln.Cmdln):
         the appropriate completions and calltips at a given trigger
         point).
         """
+        extra_lang_module_dirs = []
         if koextlib.is_ext_dir() and exists("pylib"):
             sys.path.append(abspath("pylib"))
             extra_lang_module_dirs = [sys.path[-1]]
