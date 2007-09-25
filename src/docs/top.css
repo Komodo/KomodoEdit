@@ -16,13 +16,6 @@ body {
 	color: #656565;
 	}
 	
-#main-container {
-	
-	min-width: 520px;
-	position: relative;
-	margin-bottom: 2em;
-	}
-
 #content {
 	position: relative;
 	padding: 10px 0 0 0;
@@ -36,13 +29,6 @@ body {
 	padding-bottom: 15px;
 	}
 
-
-#content #title img{
-	position: absolute;
-	left: 0;	
-}
-
-
 #content #left-column {
 	padding-top: 10px;
 	width: 52%;
@@ -50,9 +36,7 @@ body {
 
 #content #right-column{
 	float: right;
-	/*border: solid 1px blue;*/
 	padding-top: 10px;
-
 	width: 43%;
 	}
 
