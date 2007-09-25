@@ -27,6 +27,7 @@ import textwrap
 import optparse
 import tempfile
 import re
+import fnmatch
 import subprocess
 import shutil
 from ConfigParser import SafeConfigParser
@@ -68,15 +69,50 @@ class P4Branch(Branch):
         return "%r branch at '%s' (p4)" % (self.name, self.base_dir)
     
     def integrate(self, changenum, dst_branch, interactive,
-                  exclude_outside_paths):
+                  exclude_outside_paths, excludes=[]):
         import p4lib
         p4 = p4lib.P4()
 
+        # Gather some info about the change to integrate.
         change = p4.describe(change=changenum, diffFormat='u')
+        outside_paths = []
+        inside_paths = []
+        indeces_to_del = []
+        for i, f in enumerate(change["files"]):
+            path = p4.fstat(f["depotFile"])[0]["path"]
+            rel_path = path[len(self.base_dir)+1:]
+            matching_excludes = [e for e in excludes
+                                 if fnmatch.fnmatch(rel_path, e)]
+            if matching_excludes:
+                log.info("skipping `%s' (matches excludes: '%s')",
+                         rel_path, "', '".join(matching_excludes))
+                indeces_to_del.append(i)
+                continue
+            if not normcase(path).startswith(normcase(self.base_dir)):
+                outside_paths.append(path)
+            else:
+                inside_paths.append(path)
+            # Side-effect: tweak the data structure for convenience later.
+            change["files"][i]["path"] = path
+            change["files"][i]["rel_path"] = rel_path
+            if change["files"][i]["action"] == "edit":
+                #TODO: Not sure i corresponds to i here. It definitely
+                #      does not!
+                change["files"][i]["diff"] = change["diff"][i]["text"]
+        for i in reversed(indeces_to_del): # drop excluded files
+            del change["files"][i]
+        rel_paths = [p[len(self.base_dir)+1:] for p in inside_paths]
+        dst_paths = [join(dst_branch.base_dir, p) for p in rel_paths]
+
         print "  change: %s" % changenum
         print "    desc: %s" % _one_line_summary_from_text(change["description"], 60)
         print "      by: %s" % change["user"]
         print "      to: %s" % dst_branch.base_dir
+        if len(rel_paths) > 7:
+            print "   files: %s" % _indent(' '.join(rel_paths[:7] + ['...']),
+                                           10, True)
+        else:
+            print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
         if interactive:
             answer = _query_yes_no("Continue integrating this change?")
             if answer != "yes":
@@ -84,21 +120,6 @@ class P4Branch(Branch):
 
         # Check if there are files in the change outside of the source
         # branch area.
-        outside_paths = []
-        inside_paths = []
-        for i, f in enumerate(change["files"]):
-            path = p4.fstat(f["depotFile"])[0]["path"]
-            if not normcase(path).startswith(normcase(self.base_dir)):
-                outside_paths.append(path)
-            else:
-                inside_paths.append(path)
-
-            # Side-effect: tweak the data structure for convenience later.
-            change["files"][i]["path"] = path
-            if change["files"][i]["action"] == "edit":
-                #TODO: Not sure i corresponds to i here.
-                change["files"][i]["diff"] = change["diff"][i]["text"]
-
         if outside_paths:
             if interactive:
                 answer = _query_yes_no(textwrap.dedent("""
@@ -118,8 +139,6 @@ class P4Branch(Branch):
             return False
 
         # Ensure that none of the target files are modified/opened.
-        dst_paths = [join(dst_branch.base_dir, p[len(self.base_dir)+1:])
-                     for p in inside_paths]
         modified_paths = [p for p in dst_paths if
                           dst_branch.is_modified_or_open(p)]
         if modified_paths:
@@ -145,11 +164,10 @@ class P4Branch(Branch):
             for i, f in enumerate(change["files"]):
                 patch_path = join(tmp_dir, "%d.patch" % i)
                 fout = open(patch_path, 'w')
-                rel_path = f["path"][len(self.base_dir)+len(os.sep):].replace(os.sep, '/')
-                f["rel_path"] = rel_path
-                fout.write("Index: %s\n" % rel_path)
-                fout.write("--- %s\n" % rel_path)
-                fout.write("+++ %s\n" % rel_path)
+                norm_rel_path = f["rel_path"].replace(os.sep, '/')
+                fout.write("Index: %s\n" % norm_rel_path)
+                fout.write("--- %s\n" % norm_rel_path)
+                fout.write("+++ %s\n" % norm_rel_path)
                 fout.write(f["diff"])
                 if not f["diff"].endswith("\n"):
                     fout.write("\n")  #TODO: not sure about this part
@@ -240,18 +258,21 @@ class SVNBranch(Branch):
                         interactive):
         import svnlib, which
 
+        rel_paths = [p[len(self.base_dir)+1:] for p in paths]
+        msg = "Integrate change %d by %s from %r branch:\n%s" \
+              % (changenum, user, src_branch.name, desc.rstrip())
+        print "\nReady to commit:"
+        print _indent(msg, 2)
+
         auto_commit = True
         if interactive:
-            answer = _query_yes_no("\nReady to commit. Would you like "
+            answer = _query_yes_no("\nWould you like "
                                    "this script to automatically \n"
                                    "commit this integration?",
                                    default=None)
             if answer != "yes":
                 auto_commit = False
         
-        rel_paths = [p[len(self.base_dir)+1:] for p in paths]
-        msg = "Integrate change %d by %s from %r branch:\n%s" \
-              % (changenum, user, src_branch.name, desc.rstrip())
         if auto_commit:
             svn = which.which("svn")
             argv = [which.which("svn"), "commit", "-m", msg] + rel_paths
@@ -262,14 +283,15 @@ class SVNBranch(Branch):
                             % (retval, _indent(stderr)))
         else:
             print textwrap.dedent("""
+                ***
                 You can manually commit the integration with the following
                 commands:
                     cd %s
                     svn ci %s
                 
-                An appropriate checkin message is:
-                %s
-                """) % (self.base_dir, ' '.join(rel_paths), _indent(msg))
+                Please use the above commit message.
+                ***""") \
+                % (self.base_dir, ' '.join(rel_paths))
         
 
 
@@ -307,7 +329,7 @@ cfg = Configuration()
 #---- main functionality
 
 def kointegrate(changenum, dst_branch_name, interactive=True,
-                exclude_outside_paths=False):
+                exclude_outside_paths=False, excludes=None):
     """Returns True if successfully setup the integration."""
     try:
         dst_branch = cfg.branches[dst_branch_name]
@@ -349,29 +371,8 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
              changenum, src_branch.name, dst_branch.name)
     return src_branch.integrate(
         changenum, dst_branch, interactive=interactive,
-        exclude_outside_paths=exclude_outside_paths)
-
-
-def outofway():
-        
-        # Create a changelist with the changes.
-        who = "%(user)s" % changeToIntegrate
-        desc = changeToIntegrate['description']
-        change = p4.change(dstDepotFiles,
-                           "Integrate change %d by %s from %s to %s:\n%s"
-                           % (changenum, who, basename(srcBranch[1]),
-                              ' and '.join(basename(b[1]) for b in dstBranches),
-                              desc))
-        
-        print """\
-    Created change %d integrating change %d to %s.
-    Use 'p4 submit -c %d' to submit this integration.
-    PLEASE LOOK AT IT BEFORE YOU DO:
-        p4 describe %d | less
-        px diff -du -c %d | less"""\
-        % (change["change"], changenum,
-           ' and '.join(basename(b[1]) for b in dstBranches),
-           change["change"], change["change"], change["change"])
+        exclude_outside_paths=exclude_outside_paths,
+        excludes=excludes)
 
 
 #---- internal support stuff
@@ -675,8 +676,13 @@ def main(argv=sys.argv):
     parser.add_option("-X", "--exclude-outside-paths", action="store_true",
                       help="exclude (ignore) paths in the changeset "
                            "outside of the branch")
+    parser.add_option("-x", "--exclude", dest="excludes", action="append",
+                      metavar="PATTERN",
+                      help="Exclude files in the change matching the "
+                           "given glob pattern. This is matched against "
+                           "the file relative path.")
     parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
-                        interactive=True)
+                        interactive=True, excludes=[])
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
 
@@ -694,7 +700,8 @@ def main(argv=sys.argv):
 
     integrated = kointegrate(
         changenum, dst_branch_name, interactive=opts.interactive,
-        exclude_outside_paths=opts.exclude_outside_paths)
+        exclude_outside_paths=opts.exclude_outside_paths,
+        excludes=opts.excludes)
     if integrated:
         return 0
     else:
