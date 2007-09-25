@@ -100,8 +100,27 @@ class koRemoteConnectionService:
             # COMException passes out of the Python run-time.
             raise ServerException(ex.errno, str(ex))
 
+    # Return the server prefs for the given server alias
     # We have the lock already
-    def _getConnectionUsingUri(self, uri):
+    def _getServerPrefSettings(self, server_alias):
+        passwordmanager = components.classes["@mozilla.org/passwordmanager;1"].getService(components.interfaces.nsIPasswordManager);
+        e = passwordmanager.enumerator
+        while e.hasMoreElements():
+            # server is nsIPassword, which has host, user and password members
+            server = e.getNext().QueryInterface(components.interfaces.nsIPassword)
+            #print "    %s [%s,%s] " % (server.host, server.user, server.password)
+            info = server.host.split(':')
+            if server_alias == info[1]:
+                # we found our server, return the info
+                #protocol = info[0]
+                #aliasname = info[1]
+                #hostname = info[2]
+                #port     = info[3]
+                #path     = info[4]
+                return info[:4] + [server.user, server.password] + info[4:]
+        return None
+
+    def _getServerDetailsFromUri(self, uri):
         server_alias = ''
         protocol = ''
         hostname = ''
@@ -117,30 +136,46 @@ class koRemoteConnectionService:
                                 .getService(components.interfaces.koILastErrorService)
             lastErrorSvc.setLastError(0, self._lasterror)
             raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
-
-        if uriparse.server:
-            # Check if the given server is actually a server alias (in prefs).
-            server_prefs = self._getServerPrefSettings(uriparse.server)
-            if server_prefs:
-                server_alias = uriparse.server
-                # get the connection info from prefs
-                log.debug("prefs info: %s", server_prefs)
-                protocol = server_prefs[0]
-                aliasname = server_prefs[1]
-                hostname = server_prefs[2]
-                port     = server_prefs[3]
-                path     = server_prefs[4]
-                username = server_prefs[5]
-                password = server_prefs[6]
-            else:
-                log.debug("uri host info: %s", uriparse.server)
-                serveruri = URIlib.URIServerParser(uriparse.server)
-                if serveruri.username:  username   = serveruri.username
-                if serveruri.password:  password   = serveruri.password
-                if serveruri.hostname:  hostname   = serveruri.hostname
-                if serveruri.port:      port       = serveruri.port
-
         protocol = uriparse.scheme
+
+        if not uriparse.server:
+            self._lasterror = "No server information for uri: %s" % (uri)
+            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+                                .getService(components.interfaces.koILastErrorService)
+            lastErrorSvc.setLastError(0, self._lasterror)
+            raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
+
+        # Check if the given server is actually a server alias (in prefs).
+        server_prefs = self._getServerPrefSettings(uriparse.server)
+        if server_prefs:
+            server_alias = uriparse.server
+            # get the connection info from prefs
+            log.debug("prefs info: %s", server_prefs)
+            protocol = server_prefs[0]
+            aliasname = server_prefs[1]
+            hostname = server_prefs[2]
+            port     = server_prefs[3]
+            username = server_prefs[4]
+            password = server_prefs[5]
+            path     = server_prefs[6]
+        else:
+            log.debug("uri host info: %s", uriparse.server)
+            serveruri = URIlib.URIServerParser(uriparse.server)
+            if serveruri.username:  username   = serveruri.username
+            if serveruri.password:  password   = serveruri.password
+            if serveruri.hostname:  hostname   = serveruri.hostname
+            if serveruri.port:      port       = serveruri.port
+
+        # Use the URI path if one was supplied
+        if uriparse.path:
+            path = uriparse.path
+
+        return [ protocol, server_alias, hostname, str(port), username, password, path ]
+
+    # We have the lock already
+    def _getConnectionUsingUri(self, uri):
+        protocol, server_alias, hostname, port, username, password, path = \
+                self._getServerDetailsFromUri(uri)
         # We want the port as an integer
         try:
             if not port: port = 0
@@ -149,10 +184,6 @@ class koRemoteConnectionService:
             log.debug("Invalid port number: %s", port)
             port = 0
 
-        # Use the URI path
-        if uriparse.path:
-            path = uriparse.path
-
         # Now we have all the info, lets go make the connection
         connection = self._getConnection(protocol, hostname, port, username,
                                          password, path);
@@ -160,21 +191,6 @@ class koRemoteConnectionService:
             # Set the alias used to get the connection (if there was one)
             connection.alias = server_alias;
         return connection
-
-    # Return the server prefs for the given server alias
-    # We have the lock already
-    def _getServerPrefSettings(self, server_alias):
-        passwordmanager = components.classes["@mozilla.org/passwordmanager;1"].getService(components.interfaces.nsIPasswordManager);
-        e = passwordmanager.enumerator
-        while e.hasMoreElements():
-            # server is nsIPassword, which has host, user and password members
-            server = e.getNext().QueryInterface(components.interfaces.nsIPassword)
-            #print "    %s [%s,%s] " % (server.host, server.user, server.password)
-            info = server.host.split(':')
-            if server_alias == info[1]:
-                # we found our server, return the info
-                return info + [server.user, server.password]
-        return None
 
     # We have the lock already
     def _saveSessionInfo(self, key, data):
@@ -279,6 +295,14 @@ class koRemoteConnectionService:
         finally:
             self._lock.release()
 
+    # Return the server prefs for the given server alias
+    def getServerPrefSettings(self, server_alias):
+        return self._getServerPrefSettings(server_alias)
+
+    # Return the server details for the given URI
+    def getServerDetailsFromUri(self, uri):
+        return self._getServerDetailsFromUri(uri)
+
     # Return the connection object for the given URI, all the connection
     # details should be included in the URI
     #   URI ex: ftp://test:tesuser@somesite.com:22/web/info.php
@@ -287,14 +311,6 @@ class koRemoteConnectionService:
         self._lock.acquire()
         try:
             return self._getConnectionUsingUri(uri)
-        finally:
-            self._lock.release()
-
-    # Return the server prefs for the given server alias
-    def getServerPrefSettings(self, server_alias):
-        self._lock.acquire()
-        try:
-            return self._getServerPrefSettings(server_alias)
         finally:
             self._lock.release()
 

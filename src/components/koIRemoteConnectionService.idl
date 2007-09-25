@@ -43,8 +43,15 @@ interface koIRemoteConnectionService : nsISupports {
     void getConnectionUsingUri(in wstring uri,
                                [retval] out koIFTPConnection connection);
 
+    // Return the server details for the given URI, array list
+    //   0-protocol, 1-server alias, 2-hostname, 3-port,
+    //   4-username, 5-password, 6-path
+    void getServerDetailsFromUri(in wstring uri, out unsigned long count,
+                                 [array, size_is(count)] out wstring data);
+
     // Return the server preferences for the given server alias, array list
-    // 0-protocol, 1-hostname, 2-port, 3-path, 4-username, 5-password
+    //   0-protocol, 1-server alias, 2-hostname, 3-port,
+    //   4-username, 5-password, 6-path
     void getServerPrefSettings(in wstring server_alias, out unsigned long count,
                                [array, size_is(count)] out wstring data);
 
