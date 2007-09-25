@@ -4,6 +4,7 @@
 # Then put into skel/ on Fri Jul  6 14:28:38 PDT 2007
 
 import logging
+from xpcom import components
 from koXMLLanguageBase import koHTMLLanguageBase
 
 
@@ -28,6 +29,12 @@ class KoDjangoLanguage(koHTMLLanguageBase):
     def __init__(self):
         koHTMLLanguageBase.__init__(self)
         self.matchingSoftChars["%"] = ("%", self.accept_matching_percent)
+        self._style_info.update(
+            _indent_styles = [components.interfaces.ISciMoz.SCE_UDL_TPL_OPERATOR]
+            )
+        self._indent_chars = u'{}'
+        self._indent_open_chars = u'{'
+        self._indent_close_chars = u'}'
 
     def accept_matching_percent(self, scimoz, pos, style_info, candidate):
         return self.softchar_accept_styled_chars(
