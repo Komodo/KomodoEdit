@@ -446,9 +446,11 @@ class SVNBranch(Branch):
                 shutil.rmtree(tmp_dir)
 
     def is_modified_or_open(self, path):
-        import svnlib, which
-        svn = svnlib.SVN(which.which("svn"))
-        return svn.status(path) and True or False
+        stdout, stderr, retval = _patchRun(["svn", "status", path])
+        if stdout:
+            return True
+        else:
+            return False
 
     def setup_to_commit(self, changenum, user, desc, src_branch, paths,
                         interactive):
