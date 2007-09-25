@@ -10,7 +10,6 @@ Easily integrate a change from its branch or tree to other active
 Komodo branches. This will perform the necessary "p4|svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
 
-TODO: detect if the integration was already done (into svn)
 TODO: integrating *from* an svn repo
 """
 
@@ -135,8 +134,6 @@ class P4Branch(Branch):
                 % "\n    ".join(modified_paths)
             return False
 
-        #pprint(change) #XXX
-
         # Do the integration, as best as possible.
         if dst_branch.scc_type == "p4":
             raise Error("reinstate the old kointegrate 'p4 integrate' "
@@ -145,27 +142,40 @@ class P4Branch(Branch):
         # - write out patches for all the edited files
         tmp_dir = tempfile.mkdtemp()
         try:
-            patch_paths = []
             for i, f in enumerate(change["files"]):
                 patch_path = join(tmp_dir, "%d.patch" % i)
-                patch_paths.append(patch_path)
                 fout = open(patch_path, 'w')
                 rel_path = f["path"][len(self.base_dir)+len(os.sep):].replace(os.sep, '/')
+                f["rel_path"] = rel_path
+                fout.write("Index: %s\n" % rel_path)
                 fout.write("--- %s\n" % rel_path)
                 fout.write("+++ %s\n" % rel_path)
-                fout.write(f["diff"].lstrip())
+                fout.write(f["diff"])
+                if not f["diff"].endswith("\n"):
+                    fout.write("\n")  #TODO: not sure about this part
+                fout.write("End of Patch.\n\n")
                 fout.close()
+                f["patch_path"] = patch_path
     
             # - do a dry-run attempt to patch (abort if any fail)
             patch_exe = _getPatchExe()
-            for patch_path in patch_paths:
-                _assertCanApplyPatch(patch_exe, patch_path,
+            for f in change["files"]:
+                if "patch_path" not in f:
+                    continue
+                _assertCanApplyPatch(patch_exe, f["patch_path"],
                                      dst_branch.base_dir)
     
             # - apply the edits
-            for patch_path in patch_paths:
-                _applyPatch(patch_exe, dirname(patch_path), basename(patch_path),
-                            dst_branch.base_dir)
+            changes_made = []
+            for f in change["files"]:
+                if "patch_path" not in f:
+                    continue
+                patch_path = f["patch_path"]
+                applied = _applyPatch(patch_exe, dirname(patch_path),
+                                      basename(patch_path),
+                                      dst_branch.base_dir)
+                if applied:
+                    changes_made.append("patched `%s'" % f["rel_path"])
             
             # - do deletes and adds
             for i, f in enumerate(change["files"]):
@@ -173,7 +183,15 @@ class P4Branch(Branch):
                     print "TODO: handle '%s' of '%s' from change %s" \
                           % (f["action"], f["path"], changenum)
                     TODO
-            
+                    #TODO: update changes_made appropriately
+
+            # Abort if no actual changes made.
+            if not changes_made:
+                print textwrap.dedent("""
+                    No changes were necessary to integrate this change.
+                    Perhaps it has already been integrated?""")
+                return False
+
             # Setup to commit the integration: i.e. create a pending
             # changelist (p4), provide a good checkin message.
             dst_branch.setup_to_commit(changenum, change["user"],
@@ -461,6 +479,9 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
             everything but the actual patching should be done.
         "patchArgs" (optional) is a list of patch executable arguments to
             include in invocations.
+    
+    Returns True if applied, False if skipped (already applied) and
+    raised an error if could not apply.
     """
     inReverse = (reverse and " in reverse" or "")
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
@@ -473,9 +494,9 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
         argv.append("-R")
     stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
     if not retval: # i.e. reverse patch would apply
-        log.info("skip application of '%s'%s: already applied", patchRelPath,
+        log.debug("skip application of '%s'%s: already applied", patchRelPath,
                  inReverse)
-        return
+        return False
 
     # Apply the patch.
     if dryRun:
@@ -493,6 +514,7 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     if retval:
         raise Error("error applying patch '%s'%s: argv=%r, cwd=%r, retval=%r"
                     % (patchFile, inReverse, argv, sourceDir, retval))
+    return True
 
 # Recipe: indent (0.2.1)
 def _indent(s, width=4, skip_first_line=False):
