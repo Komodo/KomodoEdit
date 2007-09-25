@@ -355,6 +355,7 @@ class SVNBranch(Branch):
             answer = _query_yes_no("Continue integrating this change?")
             if answer != "yes":
                 return False
+        print
 
         # Ensure that none of the target files are modified/opened.
         modified_paths = [p for p in dst_paths if
@@ -575,8 +576,8 @@ def _capture_stdout(argv, cwd=None, ignore_status=False):
     p = subprocess.Popen(argv, cwd=cwd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-    stderr = p.stderr.read()
     stdout = p.stdout.read()
+    stderr = p.stderr.read()
     status = p.wait()  # raise if non-zero status?
     if status and not ignore_status:
         raise OSError("running '%s' failed: %d: %s"
