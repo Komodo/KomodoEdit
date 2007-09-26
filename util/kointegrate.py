@@ -70,12 +70,29 @@ class P4Branch(Branch):
         return "%r branch at '%s' (p4)" % (self.name, self.base_dir)
 
     def edit(self, path):
+        log.info("p4 edit %s", path)
         import p4lib
         p4 = p4lib.P4()
         if not isabs(path):
             path = join(self.base_dir, path)
         v = p4.edit(path)
         assert v, "`p4 edit %s` failed" % path
+    def add(self, path):
+        log.info("p4 add %s", path)
+        import p4lib
+        p4 = p4lib.P4()
+        if not isabs(path):
+            path = join(self.base_dir, path)
+        v = p4.add(path)
+        assert v, "`p4 add %s` failed" % path
+    def delete(self, path):
+        log.info("p4 delete %s", path)
+        import p4lib
+        p4 = p4lib.P4()
+        if not isabs(path):
+            path = join(self.base_dir, path)
+        v = p4.delete(path)
+        assert v, "`p4 delete %s` failed" % path
     
     def integrate(self, changenum, dst_branch, interactive,
                   exclude_outside_paths, excludes=[]):
@@ -217,6 +234,20 @@ class P4Branch(Branch):
             
             # - do deletes and adds
             for f in change["files"]:
+                action = f["action"]
+                rel_path = f["rel_path"]
+                if action == "delete":
+                    dst_branch.delete(rel_path)
+                    changes_made.append("delete `%s'" % rel_path)
+                elif action == "add":
+                    dst_branch.add(rel_path)
+                    changes_made.append("add `%s'" % rel_path)
+                elif action == "edit":
+                    pass # already handled above
+                else:
+                    raise Error("don't know how to handle integrating "
+                                "'%s' action" % action)
+
                 if f["action"] != "edit":
                     print "TODO: handle '%s' of '%s' from change %s" \
                           % (f["action"], f["path"], changenum)
@@ -319,6 +350,16 @@ class SVNBranch(Branch):
 
     def edit(self, path):
         pass
+    def add(self, path):
+        log.info("svn add %s", path)
+        if not isabs(path):
+            path = join(self.base_dir, path)
+        _patchRun([self._svn_exe, "add", path])
+    def delete(self, path):
+        log.info("svn delete %s", path)
+        if not isabs(path):
+            path = join(self.base_dir, path)
+        _patchRun([self._svn_exe, "delete", path])
 
     def integrate(self, changenum, dst_branch, interactive,
                   exclude_outside_paths, excludes=[]):
@@ -423,11 +464,19 @@ class SVNBranch(Branch):
             
             # - do deletes and adds
             for f in change["files"]:
-                if f["action"] != "M":
-                    print "TODO: handle '%s' action on '%s' from change %s" \
-                          % (f["action"], f["rel_path"], changenum)
-                    TODO
-                    #TODO: update changes_made appropriately
+                action = f["action"]
+                rel_path = f["rel_path"]
+                if action == "D":
+                    dst_branch.delete(rel_path)
+                    changes_made.append("delete `%s'" % rel_path)
+                elif action == "A":
+                    dst_branch.add(rel_path)
+                    changes_made.append("add `%s'" % rel_path)
+                elif action == "M":
+                    pass # already handled above
+                else:
+                    raise Error("don't know how to handle integrating "
+                                "'%s' action" % action)
 
             # Abort if no actual changes made.
             if not changes_made:
