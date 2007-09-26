@@ -557,14 +557,15 @@ class Configuration(SafeConfigParser):
     def _load(self):
         self.read(self.cfg_path)
         self.branches = {}
-        for name, base_dir in self.items("active-branches"):
-            if not exists(base_dir):
-                self.branches[name] = NonExistantBranch(name, base_dir)
-            elif isdir(join(base_dir, ".svn")):
-                self.branches[name] = SVNBranch(name, base_dir)
-            else:
-                # Presumably a P4 branch.
-                self.branches[name] = P4Branch(name, base_dir)
+        if self.has_section("active-branches"):
+            for name, base_dir in self.items("active-branches"):
+                if not exists(base_dir):
+                    self.branches[name] = NonExistantBranch(name, base_dir)
+                elif isdir(join(base_dir, ".svn")):
+                    self.branches[name] = SVNBranch(name, base_dir)
+                else:
+                    # Presumably a P4 branch.
+                    self.branches[name] = P4Branch(name, base_dir)
 
 
 cfg = Configuration()
@@ -913,7 +914,7 @@ def main(argv=sys.argv):
             [b for (n,b) in sorted(cfg.branches.items())]))
     desc += "\n"
     desc += textwrap.dedent("""
-        Configure active branches in `%s'. For example:
+        Configure your active branches in `%s'. For example:
         
             [active-branches]
             ok    = /home/me/play/openkomodo
