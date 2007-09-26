@@ -1,0 +1,86 @@
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux (vers 1 September 2005), see www.w3.org" />
+  <link rel="stylesheet" type="text/css" href="aspn.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type=
+  "image/x-icon" />
+
+  <title>Tab Stops</title>
+</head>
+
+<body>
+  <h1><a name="tabstops_top" id="tabstops_top">Tab Stops</a></h1>
+    
+  <p>Tab Stop/Replace markers ("&laquo;&raquo;") are used in <a href=
+  "komodo-doc-snippets.html#snippets_top">snippets</a> and <a href=
+  "komodo-doc-templates.html#templates_top">templates</a> as placeholders for
+  inserting content. They change the behavior of the Tab key when they are
+  present.</p>
+  
+  <p>The markers have the following format in a snippet or template:</p>
+  
+  <pre class="code">
+[[%tabstop:<em>name</em>]]
+</pre>
+
+  <p>When the snippet is used or a new file is created from the
+  template, the marker looks like this:</p>
+  <pre class="code">
+&laquo;<em>name</em>&raquo;
+</pre>
+
+  <p>The "<em>name</em>" between the chevron characters ("&laquo;" and
+  "&raquo;") is the default value of the marker. It can be set to any
+  string (see examples below).</p>
+
+  <p>After the snippet is inserted, "Tab" will jump to and select
+  the first marker it finds. The marker can be replaced with text
+  at this point, or left as the default value. Hitting "Tab" again
+  replaces the marker and all subsequent markers with the same
+  value with the replacement text or default value.</p>
+
+  <p>Here's an example of a "blank" PHP function snippet that uses
+  Tab Stop/Replace markers:</p>
+  <pre class="code">
+/*
+    * function &laquo;name&raquo;
+    * @param $&laquo;arg&raquo;
+*/
+
+function &laquo;name&raquo;($&laquo;arg&raquo;) {
+  &laquo;&raquo;
+}
+</pre>
+
+  <p>The &laquo;name&raquo; marker is the first place "Tab" will stop. It gets
+  replaced with the function name which is propagated through the
+  rest of the snippet when "Tab" is hit again. The &laquo;arg&raquo; marker is
+  the next place "Tab" stops, and is treated the same way.</p>
+
+  <p>It is useful to leave the cursor in the snippet window
+  immediately before the first Tab Stop/Replace marker and select
+  <strong>Maintain selected text or cursor position after
+  insertion</strong>. If the cursor is left at the end of the
+  snippet, "Tab" will not encounter the markers.</p>
+
+  <p>Here's another example of a short snippet for HTML:</p>
+  <pre class="code">
+&lt;&laquo;div&raquo;&gt;[[%s]]&lt;/&laquo;div&raquo;&gt;
+</pre>
+
+  <p>The current selection is wrapped in an element (a "div" by
+  default). Hitting "Tab" after insertion will select the first
+  "div" for replacement. If it is replaced, the closing tag will be
+  changed when "Tab" is hit again. If it is not replaced, "div"
+  will be used as the element type.</p>
+  
+    <hr />
+</body>
+</html>

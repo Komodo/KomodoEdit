@@ -233,6 +233,8 @@
   </node>
 </node>
 
+<node name="Tab Stops" link="komodo-doc-tabstops.html#tabstops_top"/>
+
 <node name="Macros" link="komodo-doc-macros.html#macros_top">
   <node name="Creating Macros" link="komodo-doc-macros.html#creating_macros">
     <node name="Recording Macros" link="komodo-doc-macros.html#macros_adding"/>
@@ -324,7 +326,7 @@
   <node name="Custom Menu and Toolbar Properties" link="komodo-doc-custtbi.html#custtbi_props"/>
 </node>
 
-<node name="Interpolation Shortcuts and Tab Stops" link="komodo-doc-shortcuts.html#shortcuts_top">
+<node name="Interpolation Shortcuts" link="komodo-doc-shortcuts.html#shortcuts_top">
   <node name="Interpolation Shortcut List" link="komodo-doc-shortcuts.html#shortcuts_all_codes"/>
   <node name="Interpolation Shortcut Syntax" link="komodo-doc-shortcuts.html#basic">
     <node name="Non-Bracketed Syntax" link="komodo-doc-shortcuts.html#shortcuts_nonbrack"/>
@@ -337,7 +339,6 @@
   <node name="%(debugger)" link="komodo-doc-shortcuts.html#shortcuts_debugcode"/>
   <node name="%(pref)" link="komodo-doc-shortcuts.html#shortcuts_prefscode"/>
   <node name="Back-References" link="komodo-doc-shortcuts.html#back_references"/>
-  <node name="Tab Stops" link="komodo-doc-shortcuts.html#tab_stops"/>
 </node>
 
 <node name="Preferences" link="komodo-doc-prefs.html#prefs_top">
