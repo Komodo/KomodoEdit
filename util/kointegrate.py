@@ -267,7 +267,7 @@ class P4Branch(Branch):
                                        change["description"], self,
                                        dst_paths, interactive)
         finally:
-            if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
+            if exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
                 shutil.rmtree(tmp_dir)
 
     def is_modified_or_open(self, path):
