@@ -211,6 +211,17 @@ def _html_ci_elem(opts, elem, lang=None):
         _prettify(tree)
         return tree
 
+    def remove_private_elements(elem):
+        """Remove all the private cix elements."""
+        parent_map = dict((c, p) for p in elem.getiterator() for c in p)
+        for node in list(elem.getiterator()):
+            attributes = node.get("attributes", "").split(" ")
+            if "private" in attributes or "__hidden__" in attributes:
+                # Remove it
+                parentnode = parent_map.get(node)
+                if parentnode is not None:
+                    parentnode.remove(node)
+
     # Set the css reference file
     if not opts.css_reference_files:
         opts.css_reference_files = ["aspn.css", "api.css"]
@@ -224,6 +235,8 @@ def _html_ci_elem(opts, elem, lang=None):
     body_div = SubElement(body, "div", {"id": "body"})
 
     namespace_elements = []
+    # Remove any private cix elements, as they are not externally visible.
+    remove_private_elements(elem)
     if elem.tag == "file":
         for child in elem:
             for subchild in child:

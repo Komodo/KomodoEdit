@@ -282,14 +282,26 @@ def komodo_to_cix(output_path, p4_edit=False):
         #    # This is just a compressed up version of multiple files
         #    continue
         log.info("scanning `%s'" % path)
-        jscile.scan_puretext(file(path).read(), updateAllScopeNames=False)
+        try:
+            # Slight hack to ensure the current filename stays correct for
+            # cile logging.
+            jscile.cile.name = path
+            jscile.scan_puretext(file(path).read(), updateAllScopeNames=False)
+        except Exception, e:
+            # Report the file that had problems scanning.
+            print "komodo_to_cix:: failed, exception scanning: %r" % (path)
+            raise
+    # Restore the filename before converting to CIX.
+    jscile.cile.name = "komodo"
     jscile.cile.updateAllScopeNames()
     jscile.convertToElementTreeFile(cix_komodo, "JavaScript")
 
     #mergeElementTreeScopes(cix_yui_module)
     #remove_cix_line_numbers_from_tree(cix_komodo)
     _remove_non_ko_namespace(cix_komodo)
-    _remove_private_elements(cix_komodo)
+    # Don't remove the private elements, they are needed for codeintel. See:
+    #   http://bugs.activestate.com/show_bug.cgi?id=72562
+    #_remove_private_elements(cix_komodo)
 
     # Write out the tree
     _update_cix_file(output_path, get_cix_string(cix_komodo), p4_edit)
