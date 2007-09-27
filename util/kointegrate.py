@@ -18,7 +18,7 @@ import os
 import sys
 import getopt
 from os.path import basename, dirname, join, exists, isdir, normpath, \
-                    normcase, isabs, abspath
+                    normcase, isabs, abspath, expanduser
 from pprint import pprint, pformat
 import logging
 import textwrap
@@ -559,6 +559,7 @@ class Configuration(SafeConfigParser):
         self.branches = {}
         if self.has_section("active-branches"):
             for name, base_dir in self.items("active-branches"):
+                base_dir = expanduser(base_dir)
                 if not exists(base_dir):
                     self.branches[name] = NonExistantBranch(name, base_dir)
                 elif isdir(join(base_dir, ".svn")):
