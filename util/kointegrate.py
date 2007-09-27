@@ -519,8 +519,7 @@ class SVNBranch(Branch):
                 auto_commit = False
         
         if auto_commit:
-            svn = which.which("svn")
-            argv = [which.which("svn"), "commit", "-m", msg] + rel_paths
+            argv = [self._svn_exe, "commit", "-m", msg] + rel_paths
             stdout, stderr, retval = _patchRun(argv, self.base_dir)
             sys.stdout.write(stdout)
             if stderr or retval:
