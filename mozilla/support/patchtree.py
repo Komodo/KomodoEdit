@@ -137,7 +137,6 @@ class Error(Exception):
 
 
 log = logging.getLogger("patchtree")
-log.setLevel(logging.DEBUG)
 
 
 #---- internal support stuff
