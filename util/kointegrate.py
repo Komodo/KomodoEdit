@@ -121,10 +121,6 @@ class P4Branch(Branch):
             # Side-effect: tweak the data structure for convenience later.
             change["files"][i]["path"] = path
             change["files"][i]["rel_path"] = rel_path
-            if change["files"][i]["action"] == "edit":
-                #TODO: Not sure i corresponds to i here. It definitely
-                #      does not!
-                change["files"][i]["diff"] = change["diff"][i]["text"]
         for i in reversed(indeces_to_del): # drop excluded files
             del change["files"][i]
         rel_paths = [p[len(self.base_dir)+1:] for p in inside_paths]
@@ -188,6 +184,14 @@ class P4Branch(Branch):
                         "logic for this p4->p4 integration")
 
         # - write out patches for all the edited files
+        def _diff_for_file(change, file):
+            depotFile = file["depotFile"]
+            for diff in change["diff"]:
+                if diff["depotFile"] == depotFile:
+                    return diff["text"]
+            raise RuntimeError("no diff for `%s' in change %s"
+                               % (file["rel_path"], change["change"]))
+        
         tmp_dir = tempfile.mkdtemp()
         try:
             for i, f in enumerate(change["files"]):
@@ -197,8 +201,9 @@ class P4Branch(Branch):
                 fout.write("Index: %s\n" % norm_rel_path)
                 fout.write("--- %s\n" % norm_rel_path)
                 fout.write("+++ %s\n" % norm_rel_path)
-                fout.write(f["diff"])
-                if not f["diff"].endswith("\n"):
+                diff = _diff_for_file(change, f)
+                fout.write(diff)
+                if not diff.endswith("\n"):
                     fout.write("\n")  #TODO: not sure about this part
                 fout.write("End of Patch.\n\n")
                 fout.close()
@@ -240,21 +245,15 @@ class P4Branch(Branch):
                 if action == "delete":
                     dst_branch.delete(rel_path)
                     changes_made.append("delete `%s'" % rel_path)
-                elif action == "add":
+                elif action == ("add", "branch"):
                     raise "TODO: really add the file"
                     dst_branch.add(rel_path)
                     changes_made.append("add `%s'" % rel_path)
-                elif action == "edit":
+                elif action in ("edit", "integrate"):
                     pass # already handled above
                 else:
                     raise Error("don't know how to handle integrating "
                                 "'%s' action" % action)
-
-                if f["action"] != "edit":
-                    print "TODO: handle '%s' of '%s' from change %s" \
-                          % (f["action"], f["path"], changenum)
-                    TODO
-                    #TODO: update changes_made appropriately
 
             # Abort if no actual changes made.
             if not changes_made:
