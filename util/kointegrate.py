@@ -218,6 +218,7 @@ class P4Branch(Branch):
                 if "patch_path" not in f:
                     continue
                 patch_path = f["patch_path"]
+                dst_path = join(dst_branch.base_dir, f["rel_path"])
                 dst_branch.edit(dst_path)
                 eol_before = eol.eol_info_from_path(dst_path)[0]
                 applied = _applyPatch(patch_exe, dirname(patch_path),
