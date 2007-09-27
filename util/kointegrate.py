@@ -601,9 +601,10 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
                 devel = /home/me/wrk/Komodo-devel
                 4.2   = /home/me/wrk/Komodo-4.2
             """ % cfg.cfg_path))
-    cwd = os.getcwd()
+    norm_cwd_plus_sep = normcase(os.getcwd()) + os.sep
     for branch in cfg.branches.values():
-        if normcase(cwd).startswith(normcase(branch.base_dir)):
+        norm_branch_dir_plus_sep = normcase(branch.base_dir) + os.sep
+        if norm_cwd_plus_sep.startswith(norm_branch_dir_plus_sep):
             src_branch = branch
             break
     else:
@@ -671,16 +672,18 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
     patchContent = open(patchFile, 'r').read()
 
-    # Skip out if the patch has already been applied.
-    argv = baseArgv + ["--dry-run"]
-    if not reverse:
-        argv.append("-R")
-    log.debug("    see if already applied%s: run %s in '%s'", inReverse,
-              argv, sourceDir)
-    stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    if not retval: # i.e. reverse patch would apply
-        log.debug("    patch already applied%s: skipping", inReverse)
-        return
+    # Avoid this check for now because it can result in false positives
+    # (thinking the patch has already been applied when it has not).
+    ## Skip out if the patch has already been applied.
+    #argv = baseArgv + ["--dry-run"]
+    #if not reverse:
+    #    argv.append("-R")
+    #log.debug("    see if already applied%s: run %s in '%s'", inReverse,
+    #          argv, sourceDir)
+    #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+    #if not retval: # i.e. reverse patch would apply
+    #    log.debug("    patch already applied%s: skipping", inReverse)
+    #    return
 
     # Fail if the patch would not apply cleanly.
     argv = baseArgv + ["--dry-run"]
@@ -749,15 +752,17 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     patchFile = os.path.join(baseDir, patchRelPath)
     patchContent = open(patchFile, 'r').read()
 
-    # Skip out if the patch has already been applied.
-    argv = baseArgv + ["--dry-run"]
-    if not reverse:
-        argv.append("-R")
-    stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    if not retval: # i.e. reverse patch would apply
-        log.debug("skip application of '%s'%s: already applied", patchRelPath,
-                 inReverse)
-        return False
+    # Avoid this check for now because it can result in false positives
+    # (thinking the patch has already been applied when it has not).
+    ## Skip out if the patch has already been applied.
+    #argv = baseArgv + ["--dry-run"]
+    #if not reverse:
+    #    argv.append("-R")
+    #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+    #if not retval: # i.e. reverse patch would apply
+    #    log.debug("skip application of '%s'%s: already applied", patchRelPath,
+    #             inReverse)
+    #    return False
 
     # Apply the patch.
     if dryRun:
@@ -913,15 +918,7 @@ def main(argv=sys.argv):
     else:
         desc += "\n    ".join(map(str,
             [b for (n,b) in sorted(cfg.branches.items())]))
-    desc += "\n"
-    desc += textwrap.dedent("""
-        Configure your active branches in `%s'. For example:
-        
-            [active-branches]
-            ok    = /home/me/play/openkomodo
-            devel = /home/me/wrk/Komodo-devel
-            4.2   = /home/me/wrk/Komodo-4.2
-    """ % cfg.cfg_path)
+    desc += "\n\nConfigure your active branches in `%s'.\n" % cfg.cfg_path
 
     parser = optparse.OptionParser(prog="kointegrate", usage="",
         version=version, description=desc,
