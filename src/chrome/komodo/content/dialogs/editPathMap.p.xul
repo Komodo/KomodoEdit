@@ -109,12 +109,12 @@ function browseForDir(elem, remote) {
         <row>
             <label value="URI:" control="varName" class="kopadded"
                    style="width: 50px;margin: 5px 1px;"/>
-            <textbox id="uri" flex="1" onchange="updateAccept()"/>
+            <textbox id="uri" flex="1" oninput="updateAccept()"/>
         </row>
         <row>
             <label value="Path:" control="varValue" class="kopadded"
                    style="width: 50px; margin: 5px 1px;"/>
-            <textbox id="path" flex="1" onchange="updateAccept()"/>
+            <textbox id="path" flex="1" oninput="updateAccept()"/>
         </row>
         <row>
             <hbox/>
