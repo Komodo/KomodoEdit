@@ -55,6 +55,7 @@ $cons->PreprocessAndInstall($docDir, 'komodo-doc-search.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-editor.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-folders.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-snippets.html', \%ppData);
+$cons->PreprocessAndInstall($docDir, 'komodo-doc-tabstops.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-macros.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-macroapi.html', \%ppData);
 $cons->PreprocessAndInstall($docDir, 'komodo-doc-commandid.html', \%ppData);
