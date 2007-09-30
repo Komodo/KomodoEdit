@@ -2022,8 +2022,6 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
 
 function _view_checkDiskFiles(event) {
     // checks open files and projects for dirtiness
-    var fileSvc = Components.classes["@activestate.com/koFileService;1"].
-                    getService();
     var obSvc = Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
     try {
