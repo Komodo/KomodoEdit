@@ -1907,7 +1907,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
