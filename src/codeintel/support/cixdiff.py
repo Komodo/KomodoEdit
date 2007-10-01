@@ -41,6 +41,17 @@ def report_attribute_differences(elem1, elem2, names):
         print "  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name))
 
 def diffElements(opts, lpath, e1, e2):
+    # Ignore elements with these set attributes.
+    # Note: this is the elem.attrib["attributes"] field!
+    if opts.ignore_with_attributes:
+        for attr in opts.ignore_with_attributes:
+            e1_attributes = e1.get("attributes")
+            e2_attributes = e2.get("attributes")
+            if (e1_attributes and attr in e1_attributes.split()) or \
+               (e2_attributes and attr in e2_attributes.split()):
+                # Not diffing this item
+                return
+
     e1_names = set(e1.names.keys())
     e2_names = set(e2.names.keys())
     names_in_e1_only = e1_names.difference(e2_names)
@@ -49,6 +60,7 @@ def diffElements(opts, lpath, e1, e2):
     attrs_in_e1_only = []
     attrs_in_e2_only = []
     attrs_that_differ = []
+
     if opts.diff_attributes:
         e1_attrs = set(e1.attrib.keys())
         e2_attrs = set(e2.attrib.keys())
@@ -75,22 +87,48 @@ def diffElements(opts, lpath, e1, e2):
             diffElements(opts, lpath + [name], e1.names[name], e2.names[name])
 
 def diffCixFiles(opts, filename1, filename2):
-    e1 = parse(filename1).getroot()
-    e2 = parse(filename2).getroot()
-    diffElements(opts, [], e1.getchildren()[0], e2.getchildren()[0])
+    e1 = parse(filename1).getroot().getchildren()[0]
+    e2 = parse(filename2).getroot().getchildren()[0]
+    elems1 = []
+    elems2 = []
+    if opts.lpath:
+        for lpath in opts.lpath:
+            elem1 = e1
+            elem2 = e2
+            for name in lpath.split("."):
+                try:
+                    elem1 = elem1.names[name]
+                    elem2 = elem2.names[name]
+                except KeyError:
+                    print "lpath not found in both cix files: %r" % (lpath, )
+                    return
+            elems1.append(elem1)
+            elems2.append(elem2)
+    else:
+        elems1 = [e1]
+        elems2 = [e2]
+    for e1, e2 in zip(elems1, elems2):
+        print "Diffing elements: %r, %r" % (e1, e2)
+        diffElements(opts, [], e1, e2)
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     usage = "usage: %prog [options] arg1 arg2"
     parser = OptionParser(usage=usage)
+    parser.add_option("-a", "--diff-attributes", dest="diff_attributes",
+                      action="store_true",
+                      help="Include the attribute changes of elements.")
     parser.add_option("-d", "--max-depth", dest="max_depth",
                       type="int", help="Maximum recursion depth into the tree")
     #parser.add_option("-i", "--ignore-case", dest="ignore_case",
     #                  action="store_true", help="Case insensitve searching")
-    parser.add_option("-a", "--diff-attributes", dest="diff_attributes",
-                      action="store_true",
-                      help="Include the attribute changes of elements.")
+    parser.add_option("-l", "--lpath", dest="lpath",
+                      action="append",
+                      help="Diff from this lpath onwards.")
+    parser.add_option("-n", "--ignore-with-attribute", dest="ignore_with_attributes",
+                      action="append",
+                      help="Ignore element differences that use this attribute.")
     (opts, args) = parser.parse_args()
     if len(args) != 2:
         parser.print_usage()
