@@ -2002,7 +2002,7 @@ class PHPParser:
                     varname = self._removeDollarSymbolFromVariableName(text[pos])
                     if pos + 3 < len(styles) and text[pos+1] == "=":
                         # It's an optional argument
-                        valueType = self._getVariableType(styles, text, pos+1)
+                        valueType, p = self._getVariableType(styles, text, pos+1)
                         if valueType:
                             valueType = valueType[0]
                         if valueType == "array" and text[pos+3] == "(":
@@ -2074,8 +2074,9 @@ class PHPParser:
             if styles[p] == self.PHP_WORD:
                 # Keyword
                 keyword = text[p]
+                p += 1
                 if keyword == "new":
-                    typeNames, p = self._getIdentifiersFromPos(styles, text, p+1)
+                    typeNames, p = self._getIdentifiersFromPos(styles, text, p)
                     #if not typeNames:
                     #    typeNames = ["object"]
                 elif keyword in ("true", "false"):
@@ -2083,8 +2084,10 @@ class PHPParser:
                 elif keyword == "array":
                     typeNames = ["array"];
             elif styles[p] in self.PHP_STRINGS:
+                p += 1
                 typeNames = ["string"]
             elif styles[p] == self.PHP_NUMBER:
+                p += 1
                 typeNames = ["int"]
             elif styles[p] == self.PHP_IDENTIFIER:
                 typeNames, p = self._getIdentifiersFromPos(styles, text, p)
@@ -2116,7 +2119,7 @@ class PHPParser:
                                 p = self._skipPastParenArguments(styles, text, p+1)
                                 log.debug("_skipPastParenArguments:: p: %d, text left: %r", p, text[p:])
                     
-        return typeNames
+        return typeNames, p
 
     def _getKeywordArguments(self, styles, text, p, keywordName):
         arguments = None
@@ -2178,8 +2181,7 @@ class PHPParser:
             p += 1
         return None
 
-    def _addAllVariables(self, styles, text):
-        p = 0
+    def _addAllVariables(self, styles, text, p):
         while p < len(styles):
             if styles[p] == self.PHP_VARIABLE:
                 namelist, p = self._getIdentifiersFromPos(styles, text, p, self.PHP_VARIABLE)
@@ -2191,7 +2193,7 @@ class PHPParser:
                         if p+3 < len(styles) and "".join(text[p:p+2]) in ("->", "::"):
                             # Get the variable the code is accessing
                             namelist, p = self._getIdentifiersFromPos(styles, text, p+2)
-                            typeNames = self._getVariableType(styles, text, p)
+                            typeNames, p = self._getVariableType(styles, text, p)
                             if len(namelist) == 1 and typeNames:
                                 log.debug("Assignment through %r for variable: %r", name, namelist)
                                 self.addClassMember(namelist[0],
@@ -2207,6 +2209,71 @@ class PHPParser:
                             attributes = "__not_yet_defined__"
                         self.addVariable(name, attributes=attributes)
             p += 1
+
+    def _variableHandler(self, styles, text, p, attributes, doc=None):
+        log.debug("_variableHandler:: text: %r, attributes: %r", text[p:],
+                  attributes)
+        classVar = False
+        if attributes:
+            classVar = True
+            if "var" in attributes:
+                attributes.remove("var")  # Don't want this in cile output
+        looped = False
+        while p < len(styles):
+            if looped:
+                if text[p] != ",":  # Variables need to be comma delimited.
+                    p += 1
+                    continue
+                p += 1
+            else:
+                looped = True
+            namelist, p = self._getIdentifiersFromPos(styles, text, p,
+                                                      self.PHP_VARIABLE)
+            if not namelist:
+                break
+            log.debug("namelist:%r, p:%d", namelist, p)
+            # Remove the dollar sign
+            name = self._removeDollarSymbolFromVariableName(namelist[0])
+            # Parse special internal variable names
+            if name == "parent":
+                continue
+            if name in ("this", "self", ):
+                classVar = True
+                if p+3 < len(styles) and text[p:p+2] in (["-", ">"], [":", ":"]):
+                    namelist, p = self._getIdentifiersFromPos(styles, text, p+2,
+                                                              self.PHP_IDENTIFIER)
+                    log.debug("namelist:%r, p:%d", namelist, p)
+                    if not namelist:
+                        continue
+                    name = namelist[0]
+                else:
+                    continue
+            if len(namelist) != 1:
+                log.info("warn: invalid variable namelist (ignoring): "
+                         "%r, line: %d in file: %r", namelist,
+                         self.lineno, self.filename)
+                continue
+
+            assignChar = text[p]
+            typeNames = []
+            if p+1 < len(styles) and styles[p] == self.PHP_OPERATOR and \
+                                         assignChar in "=":
+                # Assignment to the variable
+                typeNames, p = self._getVariableType(styles, text, p, assignChar)
+                # Skip over paren arguments from class, function calls.
+                if typeNames and p < len(styles) and \
+                   styles[p] == self.PHP_OPERATOR and text[p] == "(":
+                    p = self._skipPastParenArguments(styles, text, p+1)
+            if p < len(styles) and styles[p] == self.PHP_OPERATOR and \
+                                         text[p] in ",;":
+                log.debug("Line %d, variable definition: %r",
+                         self.lineno, namelist)
+                if classVar and self.currentClass is not None:
+                    self.addClassMember(name, ".".join(typeNames),
+                                        attributes=attributes, doc=self.comment)
+                else:
+                    self.addVariable(name, ".".join(typeNames),
+                                     attributes=attributes, doc=self.comment)
 
     def _addCodePiece(self, newstate=S_DEFAULT, varnames=None):
         styles = self.styles
@@ -2228,8 +2295,8 @@ class PHPParser:
         try:
             # Eat special attribute keywords
             while firstStyle == self.PHP_WORD and \
-                  text[pos] in ("public", "protected", "private", "final",
-                                "static", "const", "abstract"):
+                  text[pos] in ("var", "public", "protected", "private",
+                                "final", "static", "const", "abstract"):
                 attributes.append(text[pos])
                 pos += 1
                 firstStyle = styles[pos]
@@ -2303,88 +2370,24 @@ class PHPParser:
                             return
                         extends = self._getExtendsArgument(styles, text, p)
                         self.addInterface(namelist[0], extends, doc=self.comment)
-                elif keyword == "var":
-                    # Declaring a class variable (PHP 4):
-                    # class Blah {
-                    #   var $x;
-                    namelist, p = self._getIdentifiersFromPos(styles, text, pos, self.PHP_VARIABLE)
-                    log.debug("namelist:%r, p:%d", namelist, p)
-                    if len(namelist) != 1:
-                        log.info("warn: invalid variable name (ignoring): %r, "
-                                 "line: %d in file: %r", namelist,
-                                 self.lineno, self.filename)
-                    else:
-                        name = self._removeDollarSymbolFromVariableName(namelist[0])
-                        typeNames = self._getVariableType(styles, text, p)
-                        if len(typeNames) > 1:
-                            log.info("warn: too many typeNames for variable "
-                                     "(ignoring var): %r, line: %d in file: %r",
-                                     typeNames, self.lineno, self.filename)
-                            return
-                        log.debug("Line %d, class variable assignment: %r, type=%r",
-                                 self.lineno, name, typeNames)
-                        self.addClassMember(name, ".".join(typeNames), doc=self.comment)
                 elif keyword == "return":
                     # Returning value for a function call
                     #   return 123;
                     #   return $x;
-                    typeNames = self._getVariableType(styles, text, pos, assignmentChar=None)
+                    typeNames, p = self._getVariableType(styles, text, pos, assignmentChar=None)
                     log.debug("typeNames:%r", typeNames)
                     if typeNames:
                         self.addReturnType(".".join(typeNames))
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
-                    self._addAllVariables(styles, text)
+                    self._addAllVariables(styles, text, pos)
     
             elif firstStyle == self.PHP_IDENTIFIER:
                 log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:
                 # Defining scope for action
-                namelist, p = self._getIdentifiersFromPos(styles, text, pos, self.PHP_VARIABLE)
-                log.debug("namelist:%r, p:%d", namelist, p)
-                assignChar = text[p]
-                if p+1 < len(styles) and styles[p] == self.PHP_OPERATOR and \
-                                             assignChar in "=":
-                    # Assignment to the variable
-                    if len(namelist) > 1:
-                        log.info("warn: invalid variable namelist (ignoring): "
-                                 "%r, line: %d in file: %r", namelist,
-                                 self.lineno, self.filename)
-                    else:
-                        # Remove the dollar sign
-                        name = self._removeDollarSymbolFromVariableName(namelist[0])
-                        typeNames = self._getVariableType(styles, text, p)
-                        log.debug("Line %d, variable assignment: %r, type=%r",
-                                 self.lineno, name, typeNames)
-                        if attributes and self.currentClass is not None:
-                            self.addClassMember(name, ".".join(typeNames),
-                                                attributes, doc=self.comment)
-                        else:
-                            self.addVariable(name, ".".join(typeNames),
-                                             attributes=attributes,
-                                             doc=self.comment)
-                elif p < len(styles) and styles[p] == self.PHP_OPERATOR and \
-                                             assignChar == ";":
-                    log.debug("Line %d, variable definition: %r",
-                             self.lineno, namelist)
-                    if len(namelist) != 1:
-                        log.info("warn: invalid variable namelist (ignoring): "
-                                 "%r, line: %d in file: %r", namelist,
-                                 self.lineno, self.filename)
-                        return
-                    # Remove the dollar sign
-                    name = self._removeDollarSymbolFromVariableName(namelist[0])
-                    if attributes and self.currentClass is not None:
-                        self.addClassMember(name, [], attributes=attributes,
-                                            doc=self.comment)
-                    else:
-                        self.addVariable(name, attributes=attributes,
-                                         doc=self.comment)
-                else:
-                    # Ensure we get the variable definition
-                    log.debug("Line %d, accessing scoped variable: %r",
-                             self.lineno, namelist)
-                    self._addAllVariables(styles, text)
+                self._variableHandler(styles, text, pos, attributes,
+                                      doc=self.comment)
             else:
                 log.debug("Unhandled first style:%d", firstStyle)
         finally:

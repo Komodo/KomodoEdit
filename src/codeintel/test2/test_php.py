@@ -1894,12 +1894,17 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
                     $this-><1>xxx;
                 }
             }
-            $mine_1 = new multi_var_test();
+            $mine_1 = new multi_var_test(), $other_1 = new multi_var_test();
             $mine_1-><2>xxx;
+            $other_1-><3>xxx;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "priv1"), ("variable", "priv2"), 
              ("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
+             ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
+             ("function", "mine"), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
