@@ -82,8 +82,8 @@ if ($buildFlavour eq "full") {
                 echo copying over WiX Project files... > %0
             )
         );
-        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/aswixui");
-        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/bin");
+        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/aswixui", ('\.svn'));
+        $cons->DependsRecursive("wix/komodo.wxs.in", "wix/bin", ('\.svn'));
     }
     elsif ($platform eq 'darwin') {
       # no install scripts necessary for darwin

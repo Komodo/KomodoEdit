@@ -158,12 +158,15 @@ $cons->Command(
     )
 );
 $cons->DependsRecursive($ciElementTreeExt, "support",
-                        ('\.consign', '.*\.pyc', 'gencix', 'cix2html\.py'));
-$cons->DependsRecursive($ciElementTreeExt, "src/patches");
+                        ('\.consign', '.*\.pyc', 'gencix', 'cix2html\.py',
+                         '\.svn'));
+$cons->DependsRecursive($ciElementTreeExt, "src/patches", ('\.svn'));
 #TODO: Should have the following 2 deps but they cause ciElementTree.so
 #      to *always* get rebuilt.
-#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/elementtree");
-#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/cElementTree");
+#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/elementtree",
+#                        ('\.svn'));
+#$cons->DependsRecursive($ciElementTreeExt, "$komodoDevDir/contrib/cElementTree",
+#                        ('\.svn'));
 
 $cons->InstallPythonUtility($ciElementTreeExt);
 
@@ -200,9 +203,9 @@ if ($withKomodoCix) {
     #      necessary set of files -- to minimize running the expensive
     #      komodo_to_cix.py.
     $cons->DependsRecursive($komodoCix, "lib/codeintel2",
-                            (".consign", '.*\.cix', '.*\.pyc'));
+                            (".consign", '.*\.cix', '.*\.pyc', '\.svn'));
     $cons->DependsRecursive($komodoCix, "../chrome/komodo/content",
                             (".consign", "test", '.*\.png', '.*\.xul',
-                             '.*\.css'));
+                             '.*\.css', '\.svn'));
 }
 

@@ -161,7 +161,7 @@ foreach my $info (@lexers) {
                 cd %1:d && python %1:f compile $udl_path
                 cd %1:d && python %1:f package -f -c "$creator" -V $version "$language_name"
             ));
-        $cons->DependsRecursive($xpi_path, $info->{skel});
+        $cons->DependsRecursive($xpi_path, $info->{skel}, ('\.svn'));
     } else {
         $cons->Command(
             $xpi_path,
@@ -174,9 +174,9 @@ foreach my $info (@lexers) {
             ));
     }
     $cons->DependsRecursive($xpi_path, "udl",
-                            ($info->{udl_path}, "\.consign"));
+                            ($info->{udl_path}, '\.consign', '\.svn'));
     $cons->DependsRecursive($xpi_path, "ludditelib",
-                            ("\.consign", ".*\.pyc"));
+                            ('\.consign', '.*\.pyc', '\.svn'));
 
     my $landmark = "$mozExtensionDir/$codename\@ActiveState.com/install.rdf";
     $cons->Command(

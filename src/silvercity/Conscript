@@ -57,7 +57,7 @@ if ($platform eq "win") {
 } else {
     $cons->Depends($landmark, "$scintillaBuildDir/bin/scintilla.a");
 }
-$cons->DependsRecursive($landmark, "PySilverCity");
-$cons->DependsRecursive($landmark, "Lib");
-$cons->DependsRecursive($landmark, "CSS");
+$cons->DependsRecursive($landmark, "PySilverCity", ('\.svn'));
+$cons->DependsRecursive($landmark, "Lib", ('\.svn'));
+$cons->DependsRecursive($landmark, "CSS", ('\.svn'));
 

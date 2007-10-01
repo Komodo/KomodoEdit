@@ -35,7 +35,7 @@ $cons->Command($landmark,
                qq(
                 cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
                ));
-$cons->DependsRecursive($landmark, "elementtree", ("build"));
+$cons->DependsRecursive($landmark, "elementtree", ("build", '\.svn'));
 # cElementTree
 my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
 my $landmark = "$komodoPythonUtilsDir/cElementTree$pydExt";
@@ -44,7 +44,7 @@ $cons->Command($landmark,
                qq(
                 cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
                ));
-$cons->DependsRecursive($landmark, "cElementTree", ("build"));
+$cons->DependsRecursive($landmark, "cElementTree", ("build", '\.svn'));
 
 
 #---- sgmlop (used for HTML parsing for HTML autocomplete)
@@ -55,7 +55,7 @@ $cons->Command($landmark,
                qq(
                 cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
                ));
-$cons->DependsRecursive($landmark, "sgmlop", ("build"));
+$cons->DependsRecursive($landmark, "sgmlop", ("build", '\.svn'));
 
 
 #---- Stock XML catalogs
@@ -73,7 +73,7 @@ if ($withCrypto) {
                    qq(
                     cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "pycrypto", ("build"));
+    $cons->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
     
     # paramiko (http://www.lag.net/paramiko/)
     $landmark = "$komodoPythonUtilsDir/paramiko/__init__.py";
@@ -83,7 +83,7 @@ if ($withCrypto) {
                     cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
                    ));
     $cons->DependsRecursive($landmark, "paramiko",
-                            ("build", "paramiko.egg-info", "docs", "demos"));
+                            ("build", "paramiko.egg-info", "docs", "demos", '\.svn'));
 }
 
 
@@ -144,7 +144,7 @@ if ($withJSLib or $buildFlavour eq "dev") {
         qq(
             $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r %0:f "*" -x install.p.rdf .consign chrome/.consign chrome/jsliblive/.consign components/.consign META-INF/.consign
         ));
-    $cons->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign"));
+    $cons->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign", '\.svn'));
     $cons->Install("$supportDir/modules", 'jslib/jslib.xpi');
 }
 
@@ -204,7 +204,7 @@ if ($platform eq "win") {
                         copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
                        ));
     }
-    $cons->DependsRecursive($landmark, "pcre");    
+    $cons->DependsRecursive($landmark, "pcre", ('\.svn'));    
 } else {
     my $scintilla_dir_for_cons = "$build/scintilla";
     my $scintilla_dir = "$buildAbsDir/scintilla";
@@ -241,7 +241,7 @@ if ($platform eq "win") {
                     cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
                     ranlib $silvercity_dir/libpcre.a
                    ));
-    $cons->DependsRecursive($landmark, "pcre");    
+    $cons->DependsRecursive($landmark, "pcre", ('\.svn'));
 }
 
 #---- pywin: Komodo uses wnd (named "pywin" in contrib source) to replace pythonwin
