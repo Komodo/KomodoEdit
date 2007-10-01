@@ -95,7 +95,7 @@ class P4Branch(Branch):
         assert v, "`p4 delete %s` failed" % path
     
     def integrate(self, changenum, dst_branch, interactive,
-                  exclude_outside_paths, excludes=[]):
+                  exclude_outside_paths, excludes=[], force=False):
         import p4lib
         p4 = p4lib.P4()
 
@@ -214,8 +214,14 @@ class P4Branch(Branch):
             for f in change["files"]:
                 if "patch_path" not in f:
                     continue
-                _assertCanApplyPatch(patch_exe, f["patch_path"],
-                                     dst_branch.base_dir)
+                try:
+                    _assertCanApplyPatch(patch_exe, f["patch_path"],
+                                         dst_branch.base_dir)
+                except Error, ex:
+                    if force:
+                        log.warn(str(ex))
+                    else:
+                        raise
     
             # - apply the edits
             changes_made = []
@@ -226,9 +232,16 @@ class P4Branch(Branch):
                 dst_path = join(dst_branch.base_dir, f["rel_path"])
                 dst_branch.edit(dst_path)
                 eol_before = eol.eol_info_from_path(dst_path)[0]
-                applied = _applyPatch(patch_exe, dirname(patch_path),
-                                      basename(patch_path),
-                                      dst_branch.base_dir)
+                try:
+                    applied = _applyPatch(patch_exe, dirname(patch_path),
+                                          basename(patch_path),
+                                          dst_branch.base_dir)
+                except Error, ex:
+                    if force:
+                        log.warn(str(ex))
+                        applied = True
+                    else:
+                        raise
                 eol_after = eol.eol_info_from_path(dst_path)[0]
                 if eol_after != eol_before:
                     assert eol_before != None
@@ -363,17 +376,19 @@ class SVNBranch(Branch):
         _patchRun([self._svn_exe, "delete", path])
 
     def integrate(self, changenum, dst_branch, interactive,
-                  exclude_outside_paths, excludes=[]):
+                  exclude_outside_paths, excludes=[], force=False):
         # Gather some info about the change to integrate.
         change = self._svn_log_rev(changenum)
+        indeces_to_del = []
         for i, f in enumerate(change["files"][:]):
             matching_excludes = [e for e in excludes
                                  if fnmatch.fnmatch(f["rel_path"], e)]
             if matching_excludes:
                 log.info("skipping `%s' (matches excludes: '%s')",
                          f["rel_path"], "', '".join(matching_excludes))
-                del change["files"][i]
-                continue
+                indeces_to_del.append(i)
+        for i in reversed(indeces_to_del):
+            del change["files"][i]
         rel_paths = [f["rel_path"] for f in change["files"]]
         dst_paths = [join(dst_branch.base_dir, p) for p in rel_paths]
 
@@ -439,8 +454,14 @@ class SVNBranch(Branch):
             for f in change["files"]:
                 if "patch_path" not in f:
                     continue
-                _assertCanApplyPatch(patch_exe, f["patch_path"],
-                                     dst_branch.base_dir)
+                try:
+                    _assertCanApplyPatch(patch_exe, f["patch_path"],
+                                         dst_branch.base_dir)
+                except Error, ex:
+                    if force:
+                        log.warn(str(ex))
+                    else:
+                        raise
     
             # - apply the edits
             changes_made = []
@@ -451,9 +472,16 @@ class SVNBranch(Branch):
                 dst_path = join(dst_branch.base_dir, f["rel_path"])
                 dst_branch.edit(dst_path)
                 eol_before = eol.eol_info_from_path(dst_path)[0]
-                applied = _applyPatch(patch_exe, dirname(patch_path),
-                                      basename(patch_path),
-                                      dst_branch.base_dir)
+                try:
+                    applied = _applyPatch(patch_exe, dirname(patch_path),
+                                          basename(patch_path),
+                                          dst_branch.base_dir)
+                except Error, ex:
+                    if force:
+                        log.warn(str(ex))
+                        applied = True
+                    else:
+                        raise
                 eol_after = eol.eol_info_from_path(dst_path)[0]
                 if eol_after != eol_before:
                     assert eol_before != None
@@ -585,7 +613,8 @@ cfg = Configuration()
 #---- main functionality
 
 def kointegrate(changenum, dst_branch_name, interactive=True,
-                exclude_outside_paths=False, excludes=None):
+                exclude_outside_paths=False, excludes=None,
+                force=False):
     """Returns True if successfully setup the integration."""
     try:
         dst_branch = cfg.branches[dst_branch_name]
@@ -629,7 +658,7 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
     return src_branch.integrate(
         changenum, dst_branch, interactive=interactive,
         exclude_outside_paths=exclude_outside_paths,
-        excludes=excludes)
+        excludes=excludes, force=force)
 
 
 
@@ -702,18 +731,19 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
               argv, sourceDir)
     stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
     if retval:
-        raise Error("""\
-patch '%s' will not apply cleanly%s:
-   patch source: %s
-   argv:         %s
-   stdin:        %s
-   cwd:          %s
-   stdout:
-%s
-   stderr:
-%s
-""" % (patchFile, inReverse, patchSrcFile or patchFile,
-       argv, patchFile, sourceDir, stdout, stderr))
+        errmsg = textwrap.dedent("""\
+            patch '%s' will not apply cleanly%s:
+              patch source: %s
+              argv:         %s
+              stdin:        %s
+              cwd:          %s
+            """) % (patchFile, inReverse, patchSrcFile or patchFile,
+                    argv, patchFile, sourceDir)
+        if stdout.strip():
+            errmsg += "  stdout:\n%s" % _indent(stdout)
+        if stderr.strip():
+            errmsg += "  stderr:\n%s" % _indent(stderr)
+        raise Error(errmsg)
 
 # Adapted from patchtree.py.
 def _getPatchExe(patchExe=None):
@@ -936,9 +966,13 @@ def main(argv=sys.argv):
                       action="store_const", const=logging.DEBUG,
                       help="more verbose output")
     parser.add_option("-i", "--interactive", action="store_true",
-                      help="interactively verify steps of integration")
-    parser.add_option("-f", "--force", action="store_false",
+                      help="interactively verify steps of integration "
+                           "(default)")
+    parser.add_option("--non-interactive", action="store_false",
                       dest="interactive", help="no interaction")
+    parser.add_option("-f", "--force", action="store_true",
+                      help="force application of patches that won't "
+                           "apply cleanly")
     parser.add_option("-X", "--exclude-outside-paths", action="store_true",
                       help="exclude (ignore) paths in the changeset "
                            "outside of the branch")
@@ -948,7 +982,7 @@ def main(argv=sys.argv):
                            "given glob pattern. This is matched against "
                            "the file relative path.")
     parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
-                        interactive=True, excludes=[])
+                        interactive=True, excludes=[], force=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
 
@@ -967,7 +1001,7 @@ def main(argv=sys.argv):
     integrated = kointegrate(
         changenum, dst_branch_name, interactive=opts.interactive,
         exclude_outside_paths=opts.exclude_outside_paths,
-        excludes=opts.excludes)
+        excludes=opts.excludes, force=opts.force)
     if integrated:
         return 0
     else:
