@@ -1883,6 +1883,29 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("function", "mcMyClassOne"), ("function", "bcMethodOne"),
              ("function", "bcMethodTwo")])
 
+    @tag("bug72096")
+    def test_multi_var_declaration(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class multi_var_test {
+                private $priv1, $priv2;
+                var $foo, $bar, $baz;
+                var $x1 = 2, $y1 = 3, $z1 = 4;
+                function mine($foo) {
+                    $this-><1>xxx;
+                }
+            }
+            $mine_1 = new multi_var_test();
+            $mine_1-><2>xxx;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "priv1"), ("variable", "priv2"), 
+             ("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
+             ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
+             ("function", "mine"), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
+             ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
+             ("function", "mine"), ])
 
 
 class DefnTestCase(CodeIntelTestCase):
