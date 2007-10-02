@@ -2082,7 +2082,7 @@ class PHPParser:
                 elif keyword in ("true", "false"):
                     typeNames = ["boolean"];
                 elif keyword == "array":
-                    typeNames = ["array"];
+                    typeNames = ["array()"];
             elif styles[p] in self.PHP_STRINGS:
                 p += 1
                 typeNames = ["string"]
