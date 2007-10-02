@@ -2120,11 +2120,7 @@ class KoLanguageBase:
         return scimozindent.makeIndentFromWidth(scimoz,
                                          len(self._getIndentForLine(scimoz, lineNo, scimoz.currentPos).expandtabs(scimoz.tabWidth)))
 
-    def _getIndentWidthForLine(self, scimoz, lineNo, upto=None):
-        indent = self._getIndentForLine(scimoz, lineNo, upto)
-        return len(indent.expandtabs(scimoz.tabWidth))
-
-    def _getIndentForLine(self, scimoz, lineNo, upto=None):
+    def _getRawIndentForLine(self, scimoz, lineNo, upto=None):
         lineStart = scimoz.positionFromLine(lineNo)
         if upto:
             lineEnd = min(upto, scimoz.getLineEndPosition(lineNo))
@@ -2132,7 +2128,14 @@ class KoLanguageBase:
             lineEnd = scimoz.getLineEndPosition(lineNo)
         line = scimoz.getTextRange(lineStart, lineEnd)
         indentLength = len(line)-len(line.lstrip())
-        indent = line[:indentLength]
+        return line[:indentLength]
+
+    def _getIndentWidthForLine(self, scimoz, lineNo, upto=None):
+        indent = self._getIndentForLine(scimoz, lineNo, upto)
+        return len(indent.expandtabs(scimoz.tabWidth))
+
+    def _getIndentForLine(self, scimoz, lineNo, upto=None):
+        indent = self._getRawIndentForLine(scimoz, lineNo, upto)
         return scimozindent.makeIndentFromWidth(scimoz,
                                          len(indent.expandtabs(scimoz.tabWidth)))
 
@@ -2309,6 +2312,132 @@ class KoLanguageBase:
         if matchingCharInfo[1] is None:
             return matchingCharInfo[0]
         return (matchingCharInfo[1])(scimoz, charPos, style_info, matchingCharInfo[0])
+
+    #protected
+    def setupIndentCheckSoftChar(self):
+        try:
+            tuple = self.matchingSoftChars["{"]
+            if tuple[1] is None:
+                self.matchingSoftChars["{"] = (tuple[0],
+                                               self._acceptUnlessNextLineIsIndented)
+        except KeyError, ex:
+            log.exception(ex)
+
+    def _acceptUnlessNextLineIsIndented(self, scimoz, charPos, style_info, candidate):
+        """
+        Check to see if we have this condition:
+        .... | .... |if (condition) <|>{
+        .... | .... | .... single_statement;
+        .... | .... |more code...
+        
+        The idea is when the user types a "{" at the caret, we check to see if
+        we want to put a line containing an indented "}" under the following line.
+        
+        These are the following conditions for inserting a new line containing an
+        indented close-brace.
+        
+        Terminology:
+        * Current line: line containing the cursor and "{"
+        * Next line: line under the current line
+        * Brace-match line: line containing the "}" the *would* match the "{"
+        
+        1. We're at end of buffer, so insert a soft "}" immediately
+        2. The next line isn't indented under the current line: emit a soft "}"
+        3. If there is no current matching close-brace:
+           3.1. The next line is at the end of the buffer, so wrap it
+           3.2. If the line after the next line is indented w.r.t. the current line, do nothing
+                Otherwise wrap the next line.
+        4. The brace-match is *before* the current character: shouldn't happen, so do nothing
+        5. The matching close-brace is on the next line: do nothing, as this is unusual coding style
+        6. The matching close-brace's line isn't intended outside the current block, following usual style,
+           so do nothing
+        7. Either the line after the next line is the brace-match line, or the line after the
+           brace-match line is indented outside the current block.  If so, we'll wrap the block.
+           If not, we'll do nothing.  There is room for improvement here by walking back from
+           the brace-match-line checking indentation levels and ignoring white-space/comment lines,
+           but I think this is still hard to get correct 100%.  This approach gets the common use-case
+           correct: converting an unbraced single-line statement to a braced, multi-line statement. 
+        """
+        currLineNo = scimoz.lineFromPosition(charPos)
+        log.debug("_acceptUnlessNextLineIsIndented: Called at pos %d, scimoz.currentPos = %d, line %d",
+                  charPos, scimoz.currentPos, currLineNo)
+        if scimoz.getLineEndPosition(currLineNo) == scimoz.textLength:
+            log.debug("There are no further lines, do a soft match")
+            return candidate # case 1
+        currIndentLen = self._getIndentWidthForLine(scimoz, currLineNo)
+        nextLineNo = currLineNo + 1
+        nextIndentLen = self._getIndentWidthForLine(scimoz, nextLineNo)
+        log.debug("curr line indent(%r) = %d, next line indent(%d) = %r", currLineNo, currIndentLen,
+                  nextLineNo, nextIndentLen)
+        if nextIndentLen <= currIndentLen:
+            log.debug("**** Add a soft char?")
+            return candidate
+    
+        log.debug("**** reject, but maybe we should insert the close brace")
+        if 0:
+            pass
+            # but check to see if we insert a close-brace and a line below
+            # Here are the conditions where we insert EOL + ind(A) + "}" at end of line B:
+            # We have three lines:
+            # A. .... if (test) {
+            # B. .... .... statement;
+            # ...
+            # C.  ???? } ????
+            #
+            # 1. There is no close-brace: do insert
+            # 2. "}" is on line B: bail out -- this is non-standard
+            # 3. "}" is not the first non-white-space char on the line: non-standard, bail out
+            # 4. normalized(indent(line C)) <= normalized(indent(line A)) - curr indent-width
+            #    and normalized(indent(line C - 1)) > normalized(indent(line A)): do insert
+        
+        braceMatchPos = scimoz.braceMatch(charPos)
+        log.debug("braceMatch(%d) = %d, braceMatch(%d) = %d",
+                  charPos, braceMatchPos, scimoz.currentPos, scimoz.braceMatch(scimoz.currentPos))
+        if braceMatchPos == -1:
+            if scimoz.getLineEndPosition(nextLineNo) == scimoz.textLength:
+                # The next line is the only line left in the buffer, so wrap it
+                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 3.1.
+                return None
+            targetLineNo = nextLineNo + 1
+            targetIndentLen = self._getIndentWidthForLine(scimoz, targetLineNo)
+            if targetIndentLen > currIndentLen:
+                log.debug("Looks like there is more than one line to wrap, so do it manually")
+                # Don't wrap more than one line, but don't insert a soft char either - case 3.2-true
+                pass
+            else:
+                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 3.2-false.
+            return None
+        elif braceMatchPos <= charPos: # case 4
+            # Shouldn't happen?
+            assert False and "braceMatch('{') moved backwards"
+            return None
+        braceMatchLineNo = scimoz.lineFromPosition(braceMatchPos)
+        if braceMatchLineNo <= nextLineNo:
+            # Forget it, looks like there's a close brace already in place - # case 5.
+            return None
+        braceMatchIndentLen = self._getIndentWidthForLine(scimoz, braceMatchLineNo)
+        log.debug("braceMatchLineNo = %d, braceMatchIndentLen = %d", braceMatchLineNo, braceMatchIndentLen)
+        if braceMatchIndentLen >= currIndentLen:
+            # Forget it, looks like the outer closing brace is too deeply indented - case 6.
+            return None
+        if braceMatchLineNo == nextLineNo + 1 \
+            or self._getIndentWidthForLine(scimoz, nextLineNo + 1) <= currIndentLen:
+            # Both conditions indicate that there's exactly one line to wrap 
+            self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 7
+    
+    def _insertCloseBraceAfterLine(self, scimoz, useIndentOfThisLineNo, insertTextAtEndOfLineNo):
+        # If the indent of the line before that is >= the nextLine, insert it there
+        textToInsert = (eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
+                        + self._getRawIndentForLine(scimoz, useIndentOfThisLineNo)
+                        + "}")
+        scimoz.beginUndoAction()
+        try:
+            pos = scimoz.currentPos
+            # No Unicode text here
+            scimoz.insertText(scimoz.getLineEndPosition(insertTextAtEndOfLineNo), textToInsert)
+            scimoz.gotoPos(pos)
+        finally:
+            scimoz.endUndoAction()
 
     def test_scimoz_(self, scimoz):
         raise NotImplementedError("No tests for UDL languages defined")
