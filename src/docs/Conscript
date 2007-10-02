@@ -130,7 +130,3 @@ $cons->PreprocessAndInstall($readmeDir, 'README.txt', \%ppData);
 $cons->PreprocessAndInstall($readmeDir, 'RELNOTES.txt', \%ppData);
 $cons->PreprocessAndInstall($readmeDir, 'FEEDBACK.txt', \%ppData);
 
-
-# The in-chrome Tip of the Day needs some pieces.
-my $tipDir = "$mozChromeDir/komodo/content/tipoftheday";
-$cons->Install($tipDir, 'aspn.css');

@@ -216,16 +216,3 @@ $cons->Install("$docDir/img/top", "top/bug-icon.png");
 $cons->Install("$docDir/img/top", "top/community-icon.png");
 $cons->Install("$docDir/img/top", "top/forums-icon.png");
 
-
-
-# The in-chrome Tip of the Day needs some of these images.
-# This cross-dependency comes back from when the Komodo docs were in
-# chrome.
-my $tipImgDir = "$mozChromeDir/komodo/content/tipoftheday/img";
-$cons->Install($tipImgDir, 'komodo_graphic_onwhite.gif');
-$cons->Install($tipImgDir, 'pm_column.gif');
-$cons->Install($tipImgDir, 'button_comp_props.gif');
-$cons->Install($tipImgDir, 'icon_check_error.png');
-
-
-
