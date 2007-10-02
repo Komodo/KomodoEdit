@@ -61,7 +61,7 @@ class koJavaScriptLanguage(KoLanguageBase):
                                      sci_constants.SCE_C_COMMENTDOCKEYWORDERROR],
             _variable_styles = [components.interfaces.ISciMoz.SCE_C_IDENTIFIER]
             )
-        self.setupIndentCheckSoftChar()
+        self._setupIndentCheckSoftChar()
         
     def getVariableStyles(self):
         return self._style_info._variable_styles

@@ -2313,8 +2313,7 @@ class KoLanguageBase:
             return matchingCharInfo[0]
         return (matchingCharInfo[1])(scimoz, charPos, style_info, matchingCharInfo[0])
 
-    #protected
-    def setupIndentCheckSoftChar(self):
+    def _setupIndentCheckSoftChar(self):
         try:
             tuple = self.matchingSoftChars["{"]
             if tuple[1] is None:
@@ -2359,40 +2358,23 @@ class KoLanguageBase:
            correct: converting an unbraced single-line statement to a braced, multi-line statement. 
         """
         currLineNo = scimoz.lineFromPosition(charPos)
-        log.debug("_acceptUnlessNextLineIsIndented: Called at pos %d, scimoz.currentPos = %d, line %d",
-                  charPos, scimoz.currentPos, currLineNo)
+        #log.debug("_acceptUnlessNextLineIsIndented: Called at pos %d, scimoz.currentPos = %d, line %d",
+        #          charPos, scimoz.currentPos, currLineNo)
         if scimoz.getLineEndPosition(currLineNo) == scimoz.textLength:
-            log.debug("There are no further lines, do a soft match")
+            #log.debug("There are no further lines, do a soft match")
             return candidate # case 1
         currIndentLen = self._getIndentWidthForLine(scimoz, currLineNo)
         nextLineNo = currLineNo + 1
         nextIndentLen = self._getIndentWidthForLine(scimoz, nextLineNo)
-        log.debug("curr line indent(%r) = %d, next line indent(%d) = %r", currLineNo, currIndentLen,
-                  nextLineNo, nextIndentLen)
+        #log.debug("curr line indent(%r) = %d, next line indent(%d) = %r", currLineNo, currIndentLen,
+        #          nextLineNo, nextIndentLen)
         if nextIndentLen <= currIndentLen:
-            log.debug("**** Add a soft char?")
+            #log.debug("**** Add a soft char?")
             return candidate
     
-        log.debug("**** reject, but maybe we should insert the close brace")
-        if 0:
-            pass
-            # but check to see if we insert a close-brace and a line below
-            # Here are the conditions where we insert EOL + ind(A) + "}" at end of line B:
-            # We have three lines:
-            # A. .... if (test) {
-            # B. .... .... statement;
-            # ...
-            # C.  ???? } ????
-            #
-            # 1. There is no close-brace: do insert
-            # 2. "}" is on line B: bail out -- this is non-standard
-            # 3. "}" is not the first non-white-space char on the line: non-standard, bail out
-            # 4. normalized(indent(line C)) <= normalized(indent(line A)) - curr indent-width
-            #    and normalized(indent(line C - 1)) > normalized(indent(line A)): do insert
-        
         braceMatchPos = scimoz.braceMatch(charPos)
-        log.debug("braceMatch(%d) = %d, braceMatch(%d) = %d",
-                  charPos, braceMatchPos, scimoz.currentPos, scimoz.braceMatch(scimoz.currentPos))
+        #log.debug("braceMatch(%d) = %d, braceMatch(%d) = %d",
+        #          charPos, braceMatchPos, scimoz.currentPos, scimoz.braceMatch(scimoz.currentPos))
         if braceMatchPos == -1:
             if scimoz.getLineEndPosition(nextLineNo) == scimoz.textLength:
                 # The next line is the only line left in the buffer, so wrap it
@@ -2401,7 +2383,7 @@ class KoLanguageBase:
             targetLineNo = nextLineNo + 1
             targetIndentLen = self._getIndentWidthForLine(scimoz, targetLineNo)
             if targetIndentLen > currIndentLen:
-                log.debug("Looks like there is more than one line to wrap, so do it manually")
+                #log.debug("Looks like there is more than one line to wrap, so do it manually")
                 # Don't wrap more than one line, but don't insert a soft char either - case 3.2-true
                 pass
             else:
@@ -2416,7 +2398,7 @@ class KoLanguageBase:
             # Forget it, looks like there's a close brace already in place - # case 5.
             return None
         braceMatchIndentLen = self._getIndentWidthForLine(scimoz, braceMatchLineNo)
-        log.debug("braceMatchLineNo = %d, braceMatchIndentLen = %d", braceMatchLineNo, braceMatchIndentLen)
+        #log.debug("braceMatchLineNo = %d, braceMatchIndentLen = %d", braceMatchLineNo, braceMatchIndentLen)
         if braceMatchIndentLen >= currIndentLen:
             # Forget it, looks like the outer closing brace is too deeply indented - case 6.
             return None

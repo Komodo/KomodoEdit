@@ -87,7 +87,7 @@ echo $foo1->mul()."";
         self._observer = xpcom.server.WrapObject(self,
                                       components.interfaces.nsIObserver)
         self.__prefs.prefObserverService.addObserver(self._observer, "phpCommentStyle", 0)
-        self.setupIndentCheckSoftChar()
+        self._setupIndentCheckSoftChar()
     
     def observe(self, subject, topic, data):
         if topic == "phpCommentStyle":
