@@ -63,7 +63,7 @@ $cons->Command($isDevTree, "echo This is a Komodo dev tree > %0");
 #   on OSX and certain packages on Linux).
 
 $cons->InstallRecursive($sdkDir, cwd()."/src/sdk", # must be abs, bug in InstallRecursive
-                        ('bin', '.*\.pyc'));
+                        ('bin', '.*\.pyc', '\.svn'));
 if ($platform eq "win") {
     $cons->InstallAs("$mozBin/komodo-config.py", "sdk/bin/komodo-config.py");
     $cons->InstallAs("$sdkDir/bin/koext.py", "sdk/bin/koext.py");
@@ -74,8 +74,8 @@ if ($platform eq "win") {
     $cons->InstallAs("$sdkDir/bin/codeintel", "sdk/bin/codeintel.py");
 }
 
-$cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl");
-$cons->InstallRecursive("$sdkDir/bin", "$mozDevelDist/sdk/bin");
+$cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl", ('\.svn'));
+$cons->InstallRecursive("$sdkDir/bin", "$mozDevelDist/sdk/bin", ('\.svn'));
 
 if ($platform eq "win") {
     my $mozillaBuildDir = $ENV{MOZILLABUILD} || "C:\\mozilla-build";

@@ -21,7 +21,8 @@ Import(
 
 $cons->InstallRecursive("$supportDir/catalogs/mozilla",
                         #XXX must be absolute path (bug in InstallRecursive)
-                        cwd()."/src/editor/catalogs/mozilla");
+                        cwd()."/src/editor/catalogs/mozilla",
+                        ('\.svn'));
 
 $cons->InstallAs("$supportDir/catalogs/w3c/catalog.xml", 'w3c-catalog.xml');
 $cons->InstallAs("$supportDir/catalogs/oasis/catalog.xml", 'oasis-catalog.xml');

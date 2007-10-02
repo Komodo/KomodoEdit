@@ -25,13 +25,16 @@ if ($jarring) {
 }
 
 $cons->InstallRecursive("$mozChromeDir/xtk/content/",
-                        cwd()."/src/chrome/xtk/content/");
+                        cwd()."/src/chrome/xtk/content/",
+                        ('\.svn'));
 if (-d "src/chrome/xtk/locale") {
     $cons->InstallRecursive("$mozChromeDir/xtk/locale/",
-                            cwd()."/src/chrome/xtk/locale/");
+                            cwd()."/src/chrome/xtk/locale/",
+                            ('\.svn'));
 }
 if (-d "src/chrome/xtk/skin") {
     $cons->InstallRecursive("$mozChromeDir/xtk/skin/",
-                            cwd()."/src/chrome/xtk/skin/");
+                            cwd()."/src/chrome/xtk/skin/",
+                            ('\.svn'));
 }
 

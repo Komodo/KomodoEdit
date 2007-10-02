@@ -278,7 +278,7 @@ chmod a+rX $mozPluginsDir/$pluginName
 #		(qq($unsiloedPythonExe bin/run-in-dir.py %1:d xcodebuild -buildstyle Deployment))
 #	       );
 
-#    $cons->InstallRecursive("$mozBin/plugins/$pluginName", cwd()."/build/release/SciMoz/$pluginName");
+#    $cons->InstallRecursive("$mozBin/plugins/$pluginName", cwd()."/build/release/SciMoz/$pluginName", ('\.svn'));
 
 } 
 else {
