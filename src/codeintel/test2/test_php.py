@@ -88,14 +88,16 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name=name, pos=10)
         self.assertTriggerMatches(php_markup("$this-><|>myfunc();"),
                                   name=name, pos=13)
+        self.assertTriggerMatches(php_markup("$foo->bar-><|>foobar;"),
+                                  name=name, pos=17)
+        # Test using the scope resolution operator "::"
+        name = "php-complete-static-members"
         self.assertTriggerMatches(php_markup("myclass::<|>myfunc();"),
                                   name=name, pos=15)
         self.assertTriggerMatches(php_markup("self::<|>myfunc();"),
                                   name=name, pos=12)
         self.assertTriggerMatches(php_markup("parent::<|>myfunc();"),
                                   name=name, pos=14)
-        self.assertTriggerMatches(php_markup("$foo->bar-><|>foobar;"),
-                                  name=name, pos=17)
         # No trigger before or after the correct position
         #self.assertNoTrigger(php_markup("$a->myfunc();"))
         self.assertNoTrigger(php_markup("$a-<|>>myfunc();"))
@@ -574,7 +576,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "foo"), ("variable", "bar")])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
-            [("function", "foo"), ("variable", "bar")])
+            [("function", "foo")])
 
     def test_complete_classes_for_local_file_using_new(self):
         name = "php-complete-classes"
@@ -615,11 +617,11 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "x"), ("function", "foo")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "x"), ("function", "foo")])
+            [("function", "foo")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("variable", "y"), ("function", "foo"), ("function", "bar")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-            [("variable", "y"), ("function", "foo"), ("function", "bar")])
+            [("function", "foo"), ("function", "bar")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
             [("function", "foo")])
 
@@ -984,15 +986,17 @@ EOD;
 
             class ext_one extends <1>one {
                 function __construct($foo) {
-                    self::<2>mine();
-                    parent::<3>
+                    $this-><2>xxx;
+                    self::<3>mine();
+                    parent::<4>
                 }
             }
 
-            class ext_two extends <4>two {
+            class ext_two extends <5>two {
                 function __construct($foo) {
-                    self::<5>yours();
-                    parent::<6>
+                    $this-><6>xxx;
+                    self::<7>yours();
+                    parent::<8>
                 }
             }
         """)))
@@ -1011,39 +1015,45 @@ EOD;
         self.assertCompletionsInclude2(buf, test_positions[2],
             [("variable", "x"), ("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[3],
-            [("variable", "x"), ("function", "mine"), ("function", "__construct")])
+            [("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[4],
-            [("class", "one"), ("class", "two")])
+            [("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[5],
-            [("variable", "y"), ("function", "yours"), ("function", "__construct")])
+            [("class", "one"), ("class", "two")])
         self.assertCompletionsInclude2(buf, test_positions[6],
             [("variable", "y"), ("function", "yours"), ("function", "__construct")])
+        self.assertCompletionsInclude2(buf, test_positions[7],
+            [("function", "yours"), ("function", "__construct")])
+        self.assertCompletionsInclude2(buf, test_positions[8],
+            [("function", "yours"), ("function", "__construct")])
 
     def test_completion_with_import_inside_import(self):
-        test_dir = join(self.test_dir, "test_bug57887_completion_with_multiple_imports")
+        test_dir = join(self.test_dir, "test_completion_with_import_inside_import")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             require_once("import_3.php");
 
             class local_one extends <1>ext_three {
                 function __construct($foo) {
-                    self::<2>mine();
-                    parent::<3>
+                    $this-><2>xxx;
+                    self::<3>mine();
+                    parent::<4>
                 }
             }
 
-            class local_two extends <4>ext_four {
+            class local_two extends <5>ext_four {
                 var $local_y;
                 function __construct($foo) {
-                    self::<5>yours();
-                    parent::<6>
+                    $this-><6>xxx;
+                    self::<7>yours();
+                    parent::<8>
                 }
             }
 
-            $obj_one = new <7>one();
-            $obj_one-><8>xyz;
+            $obj_one = new <9>one();
+            $obj_one-><10>xyz;
 
             $obj_two = new local_two();
-            $obj_two-><9>xyz;
+            $obj_two-><11>xyz;
         """)))
         manifest = [
             ("test.php", test_content),
@@ -1076,25 +1086,31 @@ EOD;
             [("variable", "x"), ("function", "mine"),
              ("function", "__construct"), ("function", "func_in_three")])
         self.assertCompletionsInclude2(buf, test_positions[3],
-            [("variable", "x"), ("function", "mine"),
+            [("function", "mine"),
              ("function", "__construct"), ("function", "func_in_three")])
         self.assertCompletionsInclude2(buf, test_positions[4],
+            [("function", "mine"),
+             ("function", "__construct"), ("function", "func_in_three")])
+        self.assertCompletionsInclude2(buf, test_positions[5],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"), ])
-        self.assertCompletionsInclude2(buf, test_positions[5],
+        self.assertCompletionsInclude2(buf, test_positions[6],
             [("variable", "y"), ("variable", "local_y"), ("function", "yours"),
              ("function", "__construct"), ("function", "func_in_four")])
-        self.assertCompletionsInclude2(buf, test_positions[6],
-            [("variable", "y"), ("function", "yours"),
-             ("function", "__construct"), ("function", "func_in_four")])
         self.assertCompletionsInclude2(buf, test_positions[7],
+            [("function", "yours"),
+             ("function", "__construct"), ("function", "func_in_four")])
+        self.assertCompletionsInclude2(buf, test_positions[8],
+            [("function", "yours"),
+             ("function", "__construct"), ("function", "func_in_four")])
+        self.assertCompletionsInclude2(buf, test_positions[9],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"),
              ("class", "local_one"), ("class", "local_two"), ])
-        self.assertCompletionsInclude2(buf, test_positions[8],
+        self.assertCompletionsInclude2(buf, test_positions[10],
             [("variable", "x"), ("function", "mine"),
              ("function", "__construct"), ])
-        self.assertCompletionsInclude2(buf, test_positions[9],
+        self.assertCompletionsInclude2(buf, test_positions[11],
             [("variable", "y"), ("variable", "local_y"), ("function", "yours"),
              ("function", "__construct"), ("function", "func_in_four")])
 
@@ -1182,7 +1198,7 @@ EOD;
             [("function", "foo"), ("variable", "bar")])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
-            [("function", "foo"), ("variable", "bar")])
+            [("function", "foo")])
 
         # Test "<?=" tags
         content, positions = unmark_text(dedent("""\
@@ -1677,15 +1693,17 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
 
             class ext_one extends <1>one {
                 function __construct($foo) {
-                    self::<2>mine();
-                    parent::<3>
+                    $this-><2>xxx;
+                    self::<3>mine();
+                    parent::<4>
                 }
             }
 
-            class ext_two extends <4>two {
+            class ext_two extends <5>two {
                 function __construct($foo) {
-                    self::<5>yours();
-                    parent::<6>
+                    $this-><6>xxx;
+                    self::<7>yours();
+                    parent::<8>
                 }
             }
         """)))
@@ -1704,39 +1722,45 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, test_positions[2],
             [("variable", "x"), ("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[3],
-            [("variable", "x"), ("function", "mine"), ("function", "__construct")])
+            [("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[4],
-            [("class", "one"), ("class", "two")])
+            [("function", "mine"), ("function", "__construct")])
         self.assertCompletionsInclude2(buf, test_positions[5],
-            [("variable", "y"), ("function", "yours"), ("function", "__construct")])
+            [("class", "one"), ("class", "two")])
         self.assertCompletionsInclude2(buf, test_positions[6],
             [("variable", "y"), ("function", "yours"), ("function", "__construct")])
+        self.assertCompletionsInclude2(buf, test_positions[7],
+            [("function", "yours"), ("function", "__construct")])
+        self.assertCompletionsInclude2(buf, test_positions[8],
+            [("function", "yours"), ("function", "__construct")])
 
     def test_completion_with_import_inside_import(self):
-        test_dir = join(self.test_dir, "test_bug57887_completion_with_multiple_imports")
+        test_dir = join(self.test_dir, "test_completion_with_import_inside_import")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             // require_once("import_3.php");
 
             class local_one extends <1>ext_three {
                 function __construct($foo) {
-                    self::<2>mine();
-                    parent::<3>
+                    $this-><2>xxx;
+                    self::<3>mine();
+                    parent::<4>
                 }
             }
 
-            class local_two extends <4>ext_four {
+            class local_two extends <5>ext_four {
                 var $local_y;
                 function __construct($foo) {
-                    self::<5>yours();
-                    parent::<6>
+                    $this-><6>xxx;
+                    self::<7>yours();
+                    parent::<8>
                 }
             }
 
-            $obj_one = new <7>one();
-            $obj_one-><8>xyz;
+            $obj_one = new <9>one();
+            $obj_one-><10>xyz;
 
             $obj_two = new local_two();
-            $obj_two-><9>xyz;
+            $obj_two-><11>xyz;
         """)))
         manifest = [
             ("test.php", test_content),
@@ -1769,25 +1793,31 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("variable", "x"), ("function", "mine"),
              ("function", "__construct"), ("function", "func_in_three")])
         self.assertCompletionsInclude2(buf, test_positions[3],
-            [("variable", "x"), ("function", "mine"),
+            [("function", "mine"),
              ("function", "__construct"), ("function", "func_in_three")])
         self.assertCompletionsInclude2(buf, test_positions[4],
+            [("function", "mine"),
+             ("function", "__construct"), ("function", "func_in_three")])
+        self.assertCompletionsInclude2(buf, test_positions[5],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"), ])
-        self.assertCompletionsInclude2(buf, test_positions[5],
+        self.assertCompletionsInclude2(buf, test_positions[6],
             [("variable", "y"), ("variable", "local_y"), ("function", "yours"),
              ("function", "__construct"), ("function", "func_in_four")])
-        self.assertCompletionsInclude2(buf, test_positions[6],
-            [("variable", "y"), ("function", "yours"),
-             ("function", "__construct"), ("function", "func_in_four")])
         self.assertCompletionsInclude2(buf, test_positions[7],
+            [("function", "yours"),
+             ("function", "__construct"), ("function", "func_in_four")])
+        self.assertCompletionsInclude2(buf, test_positions[8],
+            [("function", "yours"),
+             ("function", "__construct"), ("function", "func_in_four")])
+        self.assertCompletionsInclude2(buf, test_positions[9],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"),
              ("class", "local_one"), ("class", "local_two"), ])
-        self.assertCompletionsInclude2(buf, test_positions[8],
+        self.assertCompletionsInclude2(buf, test_positions[10],
             [("variable", "x"), ("function", "mine"),
              ("function", "__construct"), ])
-        self.assertCompletionsInclude2(buf, test_positions[9],
+        self.assertCompletionsInclude2(buf, test_positions[11],
             [("variable", "y"), ("variable", "local_y"), ("function", "yours"),
              ("function", "__construct"), ("function", "func_in_four")])
 
@@ -2047,15 +2077,17 @@ class DefnTestCase(CodeIntelTestCase):
     def test_class_scope_restrictions(self):
         content, positions = unmark_text(php_markup(dedent("""\
             class MyScopeClass {
+                static $s1 = "";
                 private $x = 1;
                 protected $y = "";
                 public $z = 0;
                 function foo() {
                     $this-><1>xxx == 10;
-                    self::<2>x = 1;
+                    $xxx = self::<2>x;
                 }
             }
             class MySecondScopeClass extends MyScopeClass {
+                static $s2 = 0;
                 private $x2 = 1;
                 protected $y2 = "";
                 public $z2 = 0;
@@ -2068,32 +2100,38 @@ class DefnTestCase(CodeIntelTestCase):
 
             $scopetest = new MySecondScopeClass();
             $scopetest-><6>xxx;
+            MySecondScopeClass::<7>xxx;
        """)))
         # Single base class
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("function", "foo"),
              ("variable", "x"), ("variable", "y"), ("variable", "z")])
+        # Using class scope resolution "self::"
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
-            [("function", "foo"),
-             ("variable", "x"), ("variable", "y"), ("variable", "z")])
-        # Inheriting class
+            [("variable", "$s1"),
+             ("function", "foo")])
+        # Inheriting class, no base class private members seen.
         self.assertCompletionsAre(markup_text(content, pos=positions[3]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "x2"),
              ("variable", "y"), ("variable", "y2"),
              ("variable", "z"), ("variable", "z2")])
+        # Using class scope resolution "self::"
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),
-            [("function", "bar"), ("function", "foo"),
-             ("variable", "x2"),
-             ("variable", "y"), ("variable", "y2"),
-             ("variable", "z"), ("variable", "z2")])
+            [("variable", "$s1"), ("variable", "$s2"),
+             ("function", "bar"), ("function", "foo")])
+        # Using class scope resolution "parent::"
         self.assertCompletionsAre(markup_text(content, pos=positions[5]),
-            [("function", "foo"),
-             ("variable", "y"), ("variable", "z")])
-        # Global scope
+            [("variable", "$s1"),
+             ("function", "foo")])
+        # Global scope, no protected or private members seen.
         self.assertCompletionsAre(markup_text(content, pos=positions[6]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "z"), ("variable", "z2")])
+        # Static class scope resolution, functions and static members only.
+        self.assertCompletionsAre(markup_text(content, pos=positions[7]),
+            [("variable", "$s1"), ("variable", "$s2"),
+             ("function", "bar"), ("function", "foo")])
 
 
 

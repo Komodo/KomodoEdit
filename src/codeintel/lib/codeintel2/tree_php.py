@@ -244,7 +244,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 self.log("_calltip_from_class:: no ctor in class %r", name)
                 return "%s()" % (name)
 
-    def _members_from_elem(self, elem):
+    def _members_from_elem(self, elem, name_prefix=''):
         """Return the appropriate set of autocomplete completions for
         the given element. Typically this is just one, but can be more for
         '*'-imports
@@ -268,7 +268,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                 cpln_name = alias or module_name.split('.', 1)[0]
                 members.add( ("module", cpln_name) )
         else:
-            members.add( (elem.get("ilk") or elem.tag, elem.get("name")) )
+            members.add( (elem.get("ilk") or elem.tag,
+                          name_prefix + elem.get("name")) )
         return members
 
     def _isElemInsideScoperef(self, elem, scoperef):
@@ -291,7 +292,9 @@ class PHPTreeEvaluator(TreeEvaluator):
         elem, scoperef = hit
         members = set()
         elem_name = elem.get("name")
+        static_cplns = (self.trg.type == "static-members")
         for child in elem:
+            name_prefix = ''   # Used to add "$" for static variable names.
             attributes = None
             if not allowProtected:
                 attributes = child.get("attributes", "").split()
@@ -321,8 +324,17 @@ class PHPTreeEvaluator(TreeEvaluator):
                         self.log("hit '%s.%s' is private, not including",
                                  elem_name, child.get("name"))
                         continue
+            if child.tag == "variable":
+                if attributes is None:
+                    attributes = child.get("attributes", "").split()
+                if static_cplns:
+                    if "static" not in attributes:
+                        continue
+                    name_prefix = '$'
+                elif "static" in attributes:
+                    continue
             # add the element, we've already checked private|protected scopes
-            members.update(self._members_from_elem(child))
+            members.update(self._members_from_elem(child, name_prefix))
         if elem.get("ilk") == "class":
             for classref in elem.get("classrefs", "").split():
                 self.debug("_members_from_hit: Getting members for inherited class: %r", classref)

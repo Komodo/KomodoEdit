@@ -461,7 +461,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                             ac.dump()
                         if text not in ("parent", "self"):
                             return None
-                    return Trigger(lang, TRG_FORM_CPLN, "object-members",
+                    return Trigger(lang, TRG_FORM_CPLN, "static-members",
                                    pos, implicit)
                 elif last_char == ">":
                     if prev_char == "-":
