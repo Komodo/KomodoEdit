@@ -61,7 +61,8 @@ $cons->DependsRecursive($landmark, "sgmlop", ("build", '\.svn'));
 #---- Stock XML catalogs
 $cons->InstallRecursive("$supportDir/catalogs",
                         #XXX must be absolute path (bug in InstallRecursive)
-                        cwd()."/contrib/catalogs");
+                        cwd()."/contrib/catalogs",
+                        ('\.svn'));
 
 
 #----  Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto.
@@ -124,7 +125,7 @@ if ($withJSLib or $buildFlavour eq "dev") {
             $baseDir,
             #XXX must be absolute path (bug in InstallRecursive)
             cwd()."/build/release/contrib/jslib",
-            (".consign", "install.p.rdf", "jslib.xpi"));
+            (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
 
         # install into firefox
         # XXX FIXME The following installrecursive does not work.  why?
@@ -135,7 +136,7 @@ if ($withJSLib or $buildFlavour eq "dev") {
         $cons->Install($baseDir, "jslib/install.rdf");
         $cons->InstallRecursive($baseDir,
                                 cwd()."/build/release/contrib/jslib/",
-                                (".consign", "install.p.rdf", "jslib.xpi"));
+                                (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
     }
 
     $cons->Command(
