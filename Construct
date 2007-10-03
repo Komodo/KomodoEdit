@@ -255,16 +255,6 @@ $komodoPythonUtilsDir or die "There was a problem determining the Komodo Python 
     "utils directory. Please run 'ko configure'\n";
 
 
-#---- print information about what will be done
-print "Building Komodo with the following configuration:\n";
-print "\tplatform: $platform\n";
-print "\tbuild type: $buildType\n";
-print "\tbuild flavour: $buildFlavour\n";
-print "\tlocation of Mozilla source: $mozSrc\n";
-print "\tlocation of supportDir: $supportDir\n";
-print "\tlocation of sdkDir: $sdkDir\n";
-
-
 #---- Setup construction environment
 my %environ = (
     'PATH' => $ENV{PATH},
