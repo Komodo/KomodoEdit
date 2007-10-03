@@ -489,24 +489,9 @@ def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
 
 
 
-#---- ensure have the necessary version of Black
-
-_minBlackVersion = (0, 4, 1)
-if black.GetVersionTuple() < _minBlackVersion:
-    raise black.BlackError("Insufficient version of Black. The current "
-        "version is '%s' but version '%s' or greater is required. The "
-        "version in 'util/black' should be sufficient -- add that dir "
-        "to your PATH."
-        % (black.GetPrettyVersion(),
-           ".".join([str(i) for i in _minBlackVersion])))
-
-
 #---- define the Komodo configuration items
 
 configuration = {
-    "name": "Komodo-open", #TODO: remove if not used, use "branch" instead
-    "branch": "Komodo-open",
-
     "PATH": SetPath(), 
     "systemDirs": black.configure.std.SystemDirs(), 
     "path": black.configure.std.Path(), 
