@@ -233,7 +233,10 @@
   </node>
 </node>
 
-<node name="Tab Stops" link="komodo-doc-tabstops.html#tabstops_top"/>
+<node name="Tab Stops" link="komodo-doc-tabstops.html#tabstops_top">
+  <node name="Tab Stop Usage" link="komodo-doc-tabstops.html#tabstop_usage"/>
+  <node name="Tab Stop Examples" link="komodo-doc-tabstops.html#tabstop_examples"/>
+</node>
 
 <node name="Macros" link="komodo-doc-macros.html#macros_top">
   <node name="Creating Macros" link="komodo-doc-macros.html#creating_macros">
