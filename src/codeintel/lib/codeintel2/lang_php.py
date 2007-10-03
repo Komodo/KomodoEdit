@@ -549,6 +549,18 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                         elif DEBUG:
                             print "identifier preceeded by an invalid style: " \
                                   "%r, p: %r" % (style, p, )
+
+                    elif last_char == '_' and prev_char == '_' and \
+                         style == self.whitespace_style:
+                        # XXX - Check the php version, magic methods only
+                        #       appeared in php 5.
+                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.ignore_styles)
+                        if style == self.keyword_style and \
+                           ac.getTextBackWithStyle(style, max_text_len=9)[1] == "function":
+                            if DEBUG:
+                                print "triggered:: complete magic-methods"
+                            return Trigger(lang, TRG_FORM_CPLN, "magic-methods",
+                                           prev_pos, implicit)
             elif DEBUG:
                 print "trg_from_pos: no handle for style: %d" % last_style
         except IndexError:
@@ -834,19 +846,20 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
         if trg.form == TRG_FORM_CPLN:
             # "->" or "::"
             if trg.type in ("classes"):
-                i = trg.pos
+                i = trg.pos + 1
             elif trg.type in ("functions"):
-                i = trg.pos + 2 # skip ahead of the trigger char
+                i = trg.pos + 3   # 3-char trigger, skip over it
             elif trg.type in ("variables"):
-                i = trg.pos
+                i = trg.pos + 1   # triggered on the $, skip over it
             else:
-                i = trg.pos - 3 # skip past the trigger char
+                i = trg.pos - 2 # skip past the trigger char
+            return self._citdl_expr_from_pos(buf, i, trg.implicit, DEBUG=DEBUG)
         elif trg.form == TRG_FORM_DEFN:
             return self.citdl_expr_under_pos(buf, trg.pos, DEBUG)
         else:   # trg.form == TRG_FORM_CALLTIP:
-            # "->" or "::"
-            i = trg.pos - 2 # skip past the trigger char
-        return self._citdl_expr_from_pos(buf, i+1, trg.implicit, DEBUG=DEBUG)
+            # (<|>
+            return self._citdl_expr_from_pos(buf, trg.pos-1, trg.implicit,
+                                             DEBUG=DEBUG)
 
     def citdl_expr_under_pos(self, buf, pos, DEBUG=False):
         """Return a PHP CITDL expression around the given pos.

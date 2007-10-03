@@ -8,6 +8,60 @@ from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
 from codeintel2.util import make_short_name_dict, banner
 
+
+php_magic_global_method_data = {
+    "__autoload"  : "__autoload(string $className)\n"
+                    "This function is automatically called when a class\n"
+                    "is being called, but which hasn't been defined yet.",
+}
+php_magic_class_method_data = {
+    "__construct" : "__construct([mixed $args [, $...]])\n"
+                    "Initializes a newly created class instance.\n"
+                    "Note: parent constructors will need to be implictly\n"
+                    "called.",
+    "__destruct"  : "__destruct()\n"
+                    "This function is called when all references to this\n"
+                    "particular class instance are removed or when the\n"
+                    "object is explicitly destroyed.\n"
+                    "Note: parent destructors will need to be implictly\n"
+                    "called.",
+    "__call"      : "__call(string $name, array $arguments) -> mixed\n"
+                    "Is triggered when your class instance (and inherited\n"
+                    "classes) does not contain the method name.",
+    "__get"       : "__get(string $name) -> mixed\n"
+                    "Is triggered when your class instance (and inherited\n"
+                    "classes) does not contain the member or method name.",
+    "__set"       : "__set(string $name, mixed $value)\n"
+                    "Is triggered when your class instance (and inherited\n"
+                    "classes) does not contain the member or method name.",
+    "__isset"     : "__isset(string $name) -> bool\n"
+                    "Overload the isset function for the class instance.",
+    "__unset"     : "__unset(string $name)\n"
+                    "Overload the unset function for the class instance.",
+    "__sleep"     : "__sleep() -> array\n"
+                    "Called through serialize in order to generate a\n"
+                    "storable representation of a class instance. Returns\n"
+                    "an array of the variable names that need to\n"
+                    "be stored.",
+    "__wakeup"    : "__wakeup()\n"
+                    "Called through unserialize after restoring a\n"
+                    "a class instance with it's serialized values.",
+    "__toString"  : "__toString() -> string\n"
+                    "Returns a string representation of the class instance.",
+    "__set_state" : "__set_state(array $properties)\n"
+                    "Static method that is called to restore a class\n"
+                    "instance's state that was previously exported\n"
+                    "using the var_export() function. Properties are\n"
+                    "in the form array('property' => value, ...).",
+    "__clone"     : "__clone()\n"
+                    "When the class instance is cloned using the\n"
+                    "clone($object) function call, a new class instance\n"
+                    "is created with shallow copies of all $object's\n"
+                    "values. This function is then called after to allow\n"
+                    "the new instance to update any of these values.",
+}
+
+
 class PHPTreeEvaluator(TreeEvaluator):
     """
     scoperef: (<blob>, <lpath>) where <lpath> is list of names
@@ -22,6 +76,13 @@ class PHPTreeEvaluator(TreeEvaluator):
                                        "while",
                                        "switch",
                                       )
+
+    php_magic_global_method_cplns = [ ("function", name) for name in
+                sorted(php_magic_global_method_data.keys()) ]
+    # Classes can use both global and class specific functions.
+    php_magic_class_method_cplns = [ ("function", name) for name in
+                sorted(php_magic_global_method_data.keys() +
+                       php_magic_class_method_data.keys()) ]
 
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
@@ -55,6 +116,19 @@ class PHPTreeEvaluator(TreeEvaluator):
             return self._classes_from_scope(self.expr, start_scope)
         elif trg.type == "interfaces":
             return self._interfaces_from_scope(self.expr, start_scope)
+        elif trg.type == "magic-methods":
+            elem = self._elem_from_scoperef(start_scope)
+            if elem.get("ilk") == "function":
+                # Use the parent for our check.
+                blob, lpath = start_scope
+                if len(lpath) > 1:
+                    elem = self._elem_from_scoperef((blob, lpath[:-1]))
+            if elem.get("ilk") == "class":
+                # All looks good, return the magic class methods.
+                return self.php_magic_class_method_cplns
+            else:
+                # Return global magic methods.
+                return self.php_magic_global_method_cplns
         else:
             hit = self._hit_from_citdl(self.expr, start_scope)
             if hit[0] is not None:
@@ -75,9 +149,24 @@ class PHPTreeEvaluator(TreeEvaluator):
         start_scope = self.get_start_scoperef()
         # Ignore doing a lookup on certain expressions
         # XXX - TODO: Might be better to do this in trg_from_pos.
-        if self.expr in self.php_ignored_calltip_expressions:
+        expr = self.expr
+        if expr in self.php_ignored_calltip_expressions:
             return None
-        hit = self._hit_from_citdl(self.expr, start_scope)
+        # XXX - Check the php version, magic methods only appeared in php 5.
+        elif expr in php_magic_class_method_data:
+            elem = self._elem_from_scoperef(start_scope)
+            if elem.get("ilk") == "function":
+                # Use the parent for our check.
+                blob, lpath = start_scope
+                if len(lpath) > 1:
+                    elem = self._elem_from_scoperef((blob, lpath[:-1]))
+            if elem.get("ilk") == "class":
+                # Use the class magic methods.
+                return [ php_magic_class_method_data[expr] ]
+            # Else, let the tree work it out.
+        elif expr in php_magic_global_method_data:
+            return [ php_magic_global_method_data[expr] ]
+        hit = self._hit_from_citdl(expr, start_scope)
         return self._calltips_from_hit(hit)
 
     def eval_defns(self):

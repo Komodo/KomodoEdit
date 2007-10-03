@@ -17,6 +17,8 @@ import which
 from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 from codeintel2.environment import SimplePrefsEnvironment
+from codeintel2.tree_php import (php_magic_global_method_data,
+                                 php_magic_class_method_data)
 
 from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
@@ -200,6 +202,18 @@ class TriggerTestCase(CodeIntelTestCase):
         # No trigger before or after the correct position
         self.assertNoTrigger(php_markup("class MyException implements IArrayObject,<|> IException {}"))
         self.assertNoTrigger(php_markup("class MyException implements IArrayObject, IE<|>xception {}"))
+
+    def test_trigger_complete_magic_methods(self):
+        # Triggers after $ and one character
+        #
+        #    Samples:
+        #        function __<|>
+        name = "php-complete-magic-methods"
+        self.assertTriggerMatches(php_markup("function __<|>"),
+                                  name=name, pos=15)
+        # No trigger before or after the correct position
+        self.assertNoTrigger(php_markup("function _<|>_"))
+        self.assertNoTrigger(php_markup("function __a<|>"))
 
     def test_trigger_calltip_call_signature(self):
         # Triggers after open bracket:
@@ -1505,6 +1519,34 @@ EOD;
             markup_text(content, pos=positions[1]),
             [("function", "__construct"),
              ("variable", "class")])
+
+    @tag("bug69758")
+    def test_complete_magic_methods(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=69758
+
+        class_magic_methods = sorted(php_magic_class_method_data.keys())
+        global_magic_methods = sorted(php_magic_global_method_data.keys())
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            class MyNewTestClass {
+                function __<1>xxx($class) { }
+            }
+            function __<2>xxx() { }
+            class MySecondTestClass {
+                function __construct(<3>) { }
+            }
+        """)))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", name) for name in class_magic_methods])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("function", name) for name in global_magic_methods])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+                [("function", name) for name in class_magic_methods
+                                    if name not in global_magic_methods])
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+                             php_magic_class_method_data.get("__construct"))
 
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
