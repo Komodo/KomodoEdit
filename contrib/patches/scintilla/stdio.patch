@@ -42,12 +42,11 @@ diff -u -r1.73 LexCPP.cxx
  				if (lastWordWasUUID) {
  					sc.SetState(SCE_C_UUID);
  					lastWordWasUUID = false;
-diff -u -r1.46 src/LexPython.cxx
 --- src/LexPython.cxx	23 Apr 2007 01:19:47 -0000	1.46
-+++ src/LexPython.cxx	23 May 2007 21:10:53 -0000
-@@ -20,6 +20,38 @@
- #include "Scintilla.h"
- #include "SciLexer.h"
++++ src/LexPython.cxx	2 Oct 2007  17:16:35 -0000
+@@ -24,6 +24,38 @@
+ using namespace Scintilla;
+ #endif
  
 +// Should be used in the non-komodo-specific code as well.
 +
@@ -70,7 +69,7 @@ diff -u -r1.46 src/LexPython.cxx
 +	if (lineStart == 0) return false;
 +	// Move to the previous line
 +	int pos = lineStart - 1;
-+	while (pos > 0) {
++	for (; pos > 0; --pos) {
 +		char ch = styler.SafeGetCharAt(pos);
 +		if (ch == '\n' || ch == '\r') {
 +			break;
@@ -84,7 +83,7 @@ diff -u -r1.46 src/LexPython.cxx
  enum kwType { kwOther, kwClass, kwDef, kwImport };
  static const int indicatorWhitespace = 1;
  
-@@ -99,7 +131,11 @@
+@@ -103,7 +135,11 @@
  	// Backtrack to previous line in case need to fix its tab whinging
  	int lineCurrent = styler.GetLine(startPos);
  	if (startPos > 0) {
@@ -97,7 +96,7 @@ diff -u -r1.46 src/LexPython.cxx
  			lineCurrent--;
  			startPos = styler.LineStart(lineCurrent);
  			if (startPos == 0)
-@@ -129,7 +165,33 @@
+@@ -133,7 +169,35 @@
  	bool indentGood = true;
  	int startIndicator = sc.currentPos;
  
@@ -126,12 +125,14 @@ diff -u -r1.46 src/LexPython.cxx
 +			sc.SetState(nextStyle);
 +			continue;
 +		} else if (IsIOStyle(sc.state)) {
-+			sc.SetState(SCE_P_DEFAULT);
++			if (sc.atLineEnd) {
++				sc.SetState(SCE_P_DEFAULT);
++			}
 +		}
  
  		if (sc.atLineStart) {
  			styler.IndentAmount(lineCurrent, &spaceFlags, IsPyComment);
-@@ -291,6 +353,14 @@
+@@ -293,6 +357,14 @@
  			}
  		}
  	}
