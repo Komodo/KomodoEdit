@@ -1453,8 +1453,8 @@ def GrokKomodo(cfg, argv):
     escaped_search_terms = [escape(a) for a in argv[1:]]
     search_term = ' '.join(escaped_search_terms)
 
-    url = "http://plow.activestate.com/source/search?q=%s&path=%s"\
-          % (quote(search_term), quote("/depot/main/Apps/"+cfg.branch))
+    url = "http://grok.openkomodo.com/source/search?q=%s&path=%s"\
+          % (quote(search_term), quote("/openkomodo/trunk/"))
     desktop.open(url)
 
 
