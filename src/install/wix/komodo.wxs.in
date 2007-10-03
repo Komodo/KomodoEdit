@@ -136,7 +136,7 @@
     <CustomAction Id="LaunchProduct" FileKey="KomodoExe"
         ExeCommand="" Return="asyncNoWait" />
     <CustomAction Id="OpenDocs" BinaryKey="startw.exe"
-        ExeCommand='"[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-top.html"' Return="asyncNoWait" />
+        ExeCommand='"[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\top.html"' Return="asyncNoWait" />
     <!-- XXX CustomAction to set ARPINSTALLLOCATION? -->
 
     <!-- Quote INSTALLDIR because it likely contains spaces. Add '.' suffix

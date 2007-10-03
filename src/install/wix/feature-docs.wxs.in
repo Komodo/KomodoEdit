@@ -46,7 +46,7 @@
             <Component Id="component555" DiskId="1" Guid="$(autowix.guid)">
               <!-- It might be preferable to see if we can setup a shortcut to
                    launch the help browser XUL from the start menu. -->
-              <File Id="file4391" Name="KOMOD_82.HTM" LongName="komodo-doc-top.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-top.html">
+              <File Id="file290" LongName="top.html" Name="TOP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\top.html" >
                 <Shortcut Id="StartMenuUserGuideShortcut" Directory="StartMenuDir"
                     Name="KOMOD_82.HTM" LongName="User Guide" />
               </File>
@@ -60,64 +60,63 @@
                 <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
                     Name="RELNOT_0.HTM" LongName="Release Notes" />
               </File>
-              <File Id="file9" Name="KOMODO_0.HTM" LongName="komodo-doc-feedback.html"
-                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-feedback.html">
+              <File Id="file291" LongName="feedback.html" Name="FEEDBA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\feedback.html" >
                 <Shortcut Id="StartMenuFeedbackShortcut" Directory="StartMenuDir"
                     Name="KOMODO_0.HTM" LongName="Sending Feedback" />
               </File>
-              <File Id="file243" LongName="komodo-doc-whatsnew.html" Name="KOMODO_3.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-whatsnew.html" />
-              <File Id="file245" LongName="komodo-doc-starting.html" Name="KOMODO_4.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-starting.html" />
-              <File Id="file247" LongName="komodo-doc-workspace.html" Name="KOMODO_5.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-workspace.html" />
-              <File Id="file249" LongName="komodo-doc-getstarted.html" Name="KOMODO_6.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-getstarted.html" />
+              <File Id="file301" LongName="whatsnew.html" Name="WHATSN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\whatsnew.html" />
+              <File Id="file304" LongName="starting.html" Name="STARTI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\starting.html" />
+              <File Id="file305" LongName="workspace.html" Name="WORKSP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\workspace.html" />
+              <File Id="file306" LongName="getstarted.html" Name="GETSTA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\getstarted.html" />
               <File Id="file2181" Name="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aspn.css"/>
               <File Id="file1387" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\api.css" />
               <File Id="file235" Name="top.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\top.css"/>
               <File Id="file2334" Name="favicon.ico" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\favicon.ico"/>
               <File Id="file2335" Name="HELPTO_0.RDF" LongName="help-toc.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help-toc.rdf"/>
               <File Id="file2336" Name="HELP_H_0.XHT" LongName="help_help.xhtml" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help_help.xhtml"/>
-              <File Id="file2337" Name="KOMOD_44.HTM" LongName="komodo-doc-codeintel.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-codeintel.html"/>
-              <File Id="file2338" Name="KOMOD_45.HTM" LongName="komodo-doc-commandid.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-commandid.html"/>
-              <File Id="file2339" Name="KOMOD_46.HTM" LongName="komodo-doc-custtbi.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-custtbi.html"/>
-              <File Id="file2340" Name="KOMOD_47.HTM" LongName="komodo-doc-debugger.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugger.html"/>
-              <File Id="file2341" Name="KOMOD_48.HTM" LongName="komodo-doc-debugjs.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugjs.html"/>
-              <File Id="file2342" Name="KOMOD_49.HTM" LongName="komodo-doc-debugperl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugperl.html"/>
-              <File Id="file2343" Name="KOMOD_50.HTM" LongName="komodo-doc-debugphp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugphp.html"/>
-              <File Id="file2344" Name="KOMOD_51.HTM" LongName="komodo-doc-debugpython.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugpython.html"/>
-              <File Id="file2345" Name="KOMOD_52.HTM" LongName="komodo-doc-debugruby.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugruby.html"/>
-              <File Id="file2346" Name="KOMOD_53.HTM" LongName="komodo-doc-debugtcl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugtcl.html"/>
-              <File Id="file2347" Name="KOMOD_54.HTM" LongName="komodo-doc-debugxslt.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-debugxslt.html"/>
-              <File Id="file2348" Name="KOMOD_55.HTM" LongName="komodo-doc-defkeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-defkeybind.html"/>
-              <File Id="file153" Name="KOMODO_1.HTM" LongName="komodo-doc-dom.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-dom.html"/>
-              <File Id="file2349" Name="KOMOD_56.HTM" LongName="komodo-doc-editor.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-editor.html"/>
-              <File Id="file2350" Name="KOMOD_57.HTM" LongName="komodo-doc-emacskeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-emacskeybind.html"/>
-              <File Id="file2352" Name="KOMOD_59.HTM" LongName="komodo-doc-files.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-files.html"/>
-              <File Id="file2353" Name="KOMOD_60.HTM" LongName="komodo-doc-folders.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-folders.html"/>
-              <File Id="file3899" Name="KOMOD_62.HTM" LongName="komodo-doc-http-insp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-http-insp.html"/>
-              <File Id="file4372" Name="KOMOD_63.HTM" LongName="komodo-doc-intshell.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-intshell.html"/>
-              <File Id="file4373" Name="KOMOD_64.HTM" LongName="komodo-doc-keybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-keybind.html"/>
-              <File Id="file4374" Name="KOMOD_65.HTM" LongName="komodo-doc-luddite.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-luddite.html"/>
-              <File Id="file201" LongName="komodo-doc-catalogs.html" Name="KOMODO_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-catalogs.html" />
-              <File Id="file4375" Name="KOMOD_66.HTM" LongName="komodo-doc-macroapi.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-macroapi.html"/>
-              <File Id="file4376" Name="KOMOD_67.HTM" LongName="komodo-doc-macros.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-macros.html"/>
-              <File Id="file4377" Name="KOMOD_68.HTM" LongName="komodo-doc-openshort.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-openshort.html"/>
-              <File Id="file4378" Name="KOMOD_69.HTM" LongName="komodo-doc-osxkeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-osxkeybind.html"/>
-              <File Id="file4379" Name="KOMOD_70.HTM" LongName="komodo-doc-pdk.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-pdk.html"/>
-              <File Id="file4380" Name="KOMOD_71.HTM" LongName="komodo-doc-prefs.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-prefs.html"/>
-              <File Id="file4381" Name="KOMOD_72.HTM" LongName="komodo-doc-project.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-project.html"/>
-              <File Id="file4382" Name="KOMOD_73.HTM" LongName="komodo-doc-regex-intro.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-regex-intro.html"/>
-              <File Id="file4383" Name="KOMOD_74.HTM" LongName="komodo-doc-regex.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-regex.html"/>
-              <File Id="file4384" Name="KOMOD_75.HTM" LongName="komodo-doc-run.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-run.html"/>
-              <File Id="file4385" Name="KOMOD_76.HTM" LongName="komodo-doc-scc.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-scc.html"/>
-              <File Id="file4386" Name="KOMOD_77.HTM" LongName="komodo-doc-search.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-search.html"/>
-              <File Id="file4387" Name="KOMOD_78.HTM" LongName="komodo-doc-shortcuts.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-shortcuts.html"/>
-              <File Id="file4388" Name="KOMOD_79.HTM" LongName="komodo-doc-snippets.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-snippets.html"/>
-              <File Id="file4389" Name="KOMOD_80.HTM" LongName="komodo-doc-templates.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-templates.html"/>
-              <File Id="file4390" Name="KOMOD_81.HTM" LongName="komodo-doc-toolbox.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-toolbox.html"/>
-              <File Id="file4392" Name="KOMOD_83.HTM" LongName="komodo-doc-trouble.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-trouble.html"/>
-              <File Id="file4393" Name="KOMOD_84.HTM" LongName="komodo-doc-tut-intro.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-tut-intro.html"/>
-              <File Id="file4394" Name="KOMOD_85.HTM" LongName="komodo-doc-udl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-udl.html"/>
-              <File Id="file4395" Name="KOMOD_86.HTM" LongName="komodo-doc-urls.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-urls.html"/>
-              <File Id="file4396" Name="KOMOD_87.HTM" LongName="komodo-doc-vikeybind.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-doc-vikeybind.html"/>
+              <File Id="file307" LongName="codeintel.html" Name="CODEIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\codeintel.html" />
+              <File Id="file363" LongName="commandid.html" Name="COMMAN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\commandid.html" />
+              <File Id="file368" LongName="custtbi.html" Name="CUSTTB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\custtbi.html" />
+              <File Id="file369" LongName="debugger.html" Name="DEBUGG_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugger.html" />
+              <File Id="file370" LongName="debugjs.html" Name="DEBUGJ_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugjs.html" />
+              <File Id="file371" LongName="debugperl.html" Name="DEBUGP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugperl.html" />
+              <File Id="file372" LongName="debugphp.html" Name="DEBUGP_1.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugphp.html" />
+              <File Id="file373" LongName="debugpython.html" Name="DEBUGP_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugpython.html" />
+              <File Id="file374" LongName="debugruby.html" Name="DEBUGR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugruby.html" />
+              <File Id="file375" LongName="debugtcl.html" Name="DEBUGT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugtcl.html" />
+              <File Id="file376" LongName="debugxslt.html" Name="DEBUGX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugxslt.html" />
+              <File Id="file377" LongName="defkeybind.html" Name="DEFKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\defkeybind.html" />
+              <File Id="file378" LongName="dom.html" Name="DOM_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\dom.html" />
+              <File Id="file379" LongName="editor.html" Name="EDITOR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\editor.html" />
+              <File Id="file380" LongName="emacskeybind.html" Name="EMACSK_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\emacskeybind.html" />
+              <File Id="file381" LongName="files.html" Name="FILES_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\files.html" />
+              <File Id="file382" LongName="folders.html" Name="FOLDER_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\folders.html" />
+              <File Id="file383" LongName="http-insp.html" Name="HTTPIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\http-insp.html" />
+              <File Id="file384" LongName="intshell.html" Name="INTSHE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\intshell.html" />
+              <File Id="file385" LongName="keybind.html" Name="KEYBIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\keybind.html" />
+              <File Id="file386" LongName="luddite.html" Name="LUDDIT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\luddite.html" />
+              <File Id="file387" LongName="catalogs.html" Name="CATALO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\catalogs.html" />
+              <File Id="file388" LongName="macroapi.html" Name="MACROA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macroapi.html" />
+              <File Id="file389" LongName="macros.html" Name="MACROS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macros.html" />
+              <File Id="file390" LongName="openshort.html" Name="OPENSH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\openshort.html" />
+              <File Id="file391" LongName="osxkeybind.html" Name="OSXKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\osxkeybind.html" />
+              <File Id="file392" LongName="pdk.html" Name="PDK_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\pdk.html" />
+              <File Id="file393" LongName="prefs.html" Name="PREFS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\prefs.html" />
+              <File Id="file394" LongName="project.html" Name="PROJEC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\project.html" />
+              <File Id="file395" LongName="regex-intro.html" Name="REGEXI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex-intro.html" />
+              <File Id="file396" LongName="regex.html" Name="REGEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex.html" />
+              <File Id="file397" LongName="run.html" Name="RUN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\run.html" />
+              <File Id="file413" LongName="scc.html" Name="SCC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\scc.html" />
+              <File Id="file438" LongName="search.html" Name="SEARCH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\search.html" />
+              <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
+              <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
+              <File Id="file443" LongName="templates.html" Name="TEMPLA_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\templates.html" />
+              <File Id="file444" LongName="toolbox.html" Name="TOOLBO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\toolbox.html" />
+              <File Id="file445" LongName="trouble.html" Name="TROUBL_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\trouble.html" />
+              <File Id="file446" LongName="tut-intro.html" Name="TUTINT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tut-intro.html" />
+              <File Id="file447" LongName="udl.html" Name="UDL_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\udl.html" />
+              <File Id="file448" LongName="urls.html" Name="URLS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\urls.html" />
+              <File Id="file449" LongName="vikeybind.html" Name="VIKEYB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\vikeybind.html" />
               <File Id="file1388" Name="KOMODO_7.HTM" LongName="komodo-js-api.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-js-api.html" />
               <File Id="file4397" Name="KOMODO_0.RDF" LongName="komodohelp.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodohelp.rdf"/>
               <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
@@ -402,4 +401,3 @@
 
   </Fragment>
 </Wix>
-
