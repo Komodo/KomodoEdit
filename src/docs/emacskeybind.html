@@ -12,18 +12,17 @@
   <link rel="shortcut icon" href="favicon.ico" type=
   "image/x-icon" />
 
-  <title>OS X Key Bindings (Default)</title>
+  <title>Emacs Key Bindings (Default)</title>
 </head>
 
 <body>
-  <h1><a name="defkeybind_top" id="defkeybind_top">OS X Key
+  <h1><a name="defkeybind_top" id="defkeybind_top">Emacs Key
   Bindings (Default)</a></h1>
 
-  <p>This page lists the default key bindings on Mac OS X. There
-  are also pages that list the default key bindings on <a href=
-  "komodo-doc-defkeybind.html">Windows/Linux</a>. On any platform,
-  you can also choose to use <a href=
-  "komodo-doc-emacskeybind.html">Emacs</a> key bindings. As any of
+  <p>This page lists the default Emacs key bindings. There are also
+  pages that list the default key bindings on the <a href=
+  "defkeybind.html">Windows/Linux</a> and <a href=
+  "osxkeybind.html">Mac OS X</a> platforms. As any of
   these key bindings schemes can be customized, these pages stand
   as references to the defaults. To view the current list of key
   bindings for your Komodo installation (including any custom key
@@ -31,28 +30,24 @@
   different key binding schemes are either set according to the
   platform on which you installed Komodo, or they are selected in
   <a href=
-  "komodo-doc-prefs.html#Config_Key_Bindings">Edit|Preferences|Editor|Keybindings</a>.</p>
+  "prefs.html#Config_Key_Bindings">Edit|Preferences|Editor|Keybindings</a>.</p>
 
-  <p><strong>Note</strong>: The "Meta" key referred to in the
-  following list may be better known to Mac OS X users as the
-  "Command" key.</p>
-
-  <h2><a name="osxkeybind_emacs" id="osxkeybind_emacs">OS X
+  <h2><a name="defkeybind_emacs" id="defkeybind_emacs">Emacs
   Scheme</a></h2>
 
   <h3>Code Browser</h3>
 
-  <table width="100%">
+  <table width="100%%">
     <tr bgcolor="#EEEEEE">
-      <td width="50%">
+      <td width="50%%">
         <p>Locate current scope...</p>
       </td>
 
-      <td width="50%">
+      <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+L</p>
+              <p>Ctrl+C, Ctrl+L</p>
             </td>
           </tr>
         </table>
@@ -72,7 +67,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+F</p>
+              <p>Ctrl+C, Ctrl+F</p>
             </td>
           </tr>
         </table>
@@ -92,7 +87,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+\</p>
+              <p>Ctrl+F9</p>
             </td>
           </tr>
         </table>
@@ -108,7 +103,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+\</p>
+              <p>F9</p>
             </td>
           </tr>
         </table>
@@ -117,14 +112,14 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>New Session</p>
+        <p>Listen for Debugger Connections</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+Y</p>
+              <p>Ctrl+Shift+F7</p>
             </td>
           </tr>
         </table>
@@ -140,7 +135,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+R</p>
+              <p>F7</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+F7</p>
             </td>
           </tr>
         </table>
@@ -156,7 +157,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+I</p>
+              <p>Shift+F10</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Shift+F10</p>
             </td>
           </tr>
         </table>
@@ -172,7 +179,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+C</p>
+              <p>Alt+*</p>
             </td>
           </tr>
         </table>
@@ -188,13 +195,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+.</p>
+              <p>F5</p>
             </td>
           </tr>
 
           <tr>
             <td>
-              <p>Meta+&gt;</p>
+              <p>Ctrl+F5</p>
             </td>
           </tr>
         </table>
@@ -202,22 +209,6 @@
     </tr>
 
     <tr>
-      <td width="50%%">
-        <p>Start/Find/Hide Default Interactive Shell</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Escape</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Step In</p>
       </td>
@@ -226,23 +217,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+I</p>
+              <p>F11</p>
             </td>
           </tr>
-        </table>
-      </td>
-    </tr>
 
-    <tr>
-      <td width="50%%">
-        <p>Step Out</p>
-      </td>
-
-      <td width="50%%">
-        <table>
           <tr>
             <td>
-              <p>Meta+Shift+T</p>
+              <p>Ctrl+F11</p>
             </td>
           </tr>
         </table>
@@ -251,14 +232,20 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>Step Over</p>
+        <p>Step Out</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+O</p>
+              <p>Shift+F11</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Shift+F11</p>
             </td>
           </tr>
         </table>
@@ -267,6 +254,28 @@
 
     <tr>
       <td width="50%%">
+        <p>Step Over</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>F10</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+F10</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr bgcolor="#EEEEEE">
+      <td width="50%%">
         <p>Stop</p>
       </td>
 
@@ -274,7 +283,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+P</p>
+              <p>Shift+F5</p>
             </td>
           </tr>
         </table>
@@ -326,12 +335,6 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Left</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
               <p>Home</p>
             </td>
           </tr>
@@ -341,14 +344,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Cancel autocomplete</p>
+        <p>Cancel AutoComplete</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Escape</p>
+              <p>Ctrl+G</p>
             </td>
           </tr>
         </table>
@@ -364,7 +367,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+C</p>
+              <p>Alt+W</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Insert</p>
             </td>
           </tr>
         </table>
@@ -380,7 +389,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+X</p>
+              <p>Shift+Delete</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Shift+X</p>
             </td>
           </tr>
         </table>
@@ -389,6 +404,22 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
+        <p>Cut Region</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+W</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="50%%">
         <p>Cut rest of line</p>
       </td>
 
@@ -396,13 +427,23 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+Backspace</p>
+              <p>Ctrl+K</p>
             </td>
           </tr>
+        </table>
+      </td>
+    </tr>
 
+    <tr bgcolor="#EEEEEE">
+      <td width="50%%">
+        <p>Decrease Line Indent</p>
+      </td>
+
+      <td width="50%%">
+        <table>
           <tr>
             <td>
-              <p>Ctrl+Delete</p>
+              <p>Ctrl+C, &lt;&lt;/p&gt;</p>
             </td>
           </tr>
         </table>
@@ -416,6 +457,24 @@
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Alt+D</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Delete</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+D</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Delete</p>
@@ -434,7 +493,19 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Backspace</p>
+              <p>Alt+Delete</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Alt+Backspace</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Backspace</p>
             </td>
           </tr>
         </table>
@@ -443,14 +514,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Delete Word Right</p>
+        <p>End of Line</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Delete</p>
+              <p>End</p>
             </td>
           </tr>
         </table>
@@ -459,20 +530,14 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>End of Line</p>
+        <p>Exchange Current Point and Mark</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Right</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>End</p>
+              <p>Ctrl+X, Ctrl+X</p>
             </td>
           </tr>
         </table>
@@ -488,13 +553,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Down</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Meta+End</p>
+              <p>Ctrl+End</p>
             </td>
           </tr>
         </table>
@@ -510,7 +569,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+E</p>
+              <p>Ctrl+E</p>
             </td>
           </tr>
         </table>
@@ -526,7 +585,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+L</p>
+              <p>Alt+L</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Alt+G</p>
             </td>
           </tr>
         </table>
@@ -556,6 +621,12 @@
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Ctrl+N</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Down</p>
@@ -590,6 +661,12 @@
         <table>
           <tr>
             <td>
+              <p>Ctrl+P</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
               <p>Up</p>
             </td>
           </tr>
@@ -606,13 +683,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Up</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Meta+Home</p>
+              <p>Ctrl+Home</p>
             </td>
           </tr>
         </table>
@@ -620,6 +691,22 @@
     </tr>
 
     <tr>
+      <td width="50%%">
+        <p>Increase Line Indent</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+C, &gt;</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Insert Newline</p>
       </td>
@@ -635,7 +722,7 @@
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Insert Newline (align with current line)</p>
       </td>
@@ -644,14 +731,14 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+Return</p>
+              <p>Ctrl+Shift+Return</p>
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Insert Newline (continue comments)</p>
       </td>
@@ -667,7 +754,7 @@
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Insert Newline (no favors)</p>
       </td>
@@ -676,23 +763,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Return</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Insert Next Key as Literal Character</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+M</p>
+              <p>Ctrl+Return</p>
             </td>
           </tr>
         </table>
@@ -708,7 +779,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+J</p>
+              <p>Ctrl+J</p>
             </td>
           </tr>
         </table>
@@ -724,7 +795,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Alt+Right</p>
+              <p>Alt+Right</p>
             </td>
           </tr>
         </table>
@@ -740,7 +811,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Alt+Left</p>
+              <p>Alt+Left</p>
             </td>
           </tr>
         </table>
@@ -754,6 +825,12 @@
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Ctrl+B</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Left</p>
@@ -772,6 +849,12 @@
         <table>
           <tr>
             <td>
+              <p>Ctrl+F</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
               <p>Right</p>
             </td>
           </tr>
@@ -788,7 +871,7 @@
         <table>
           <tr>
             <td>
-              <p>Alt+Left</p>
+              <p>Ctrl+Left</p>
             </td>
           </tr>
         </table>
@@ -804,7 +887,7 @@
         <table>
           <tr>
             <td>
-              <p>Alt+Right</p>
+              <p>Ctrl+Right</p>
             </td>
           </tr>
         </table>
@@ -813,11 +896,33 @@
 
     <tr>
       <td width="50%%">
+        <p>Move to previous mark in mark ring</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+U, Ctrl+Space</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr bgcolor="#EEEEEE">
+      <td width="50%%">
         <p>Page Down</p>
       </td>
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Ctrl+V</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Page_Down</p>
@@ -827,13 +932,19 @@
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Page Up</p>
       </td>
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Alt+V</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Page_Up</p>
@@ -843,7 +954,7 @@
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Paste</p>
       </td>
@@ -852,23 +963,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+V</p>
+              <p>Ctrl+Y</p>
             </td>
           </tr>
-        </table>
-      </td>
-    </tr>
 
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Paste and Select</p>
-      </td>
-
-      <td width="50%%">
-        <table>
           <tr>
             <td>
-              <p>Meta+Shift+V</p>
+              <p>Shift+Insert</p>
             </td>
           </tr>
         </table>
@@ -877,14 +978,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Redo</p>
+        <p>Paste and Select</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+Z</p>
+              <p>Ctrl+Shift+V</p>
             </td>
           </tr>
         </table>
@@ -900,7 +1001,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+Q</p>
+              <p>Escape, Q</p>
             </td>
           </tr>
         </table>
@@ -916,7 +1017,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+F2</p>
+              <p>Ctrl+Shift+F2</p>
             </td>
           </tr>
         </table>
@@ -932,7 +1033,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+U</p>
+              <p>Ctrl+U</p>
             </td>
           </tr>
         </table>
@@ -948,7 +1049,19 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Alt+Down</p>
+              <p>Alt+Z</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Escape, Z</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Down</p>
             </td>
           </tr>
         </table>
@@ -964,7 +1077,45 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Alt+Up</p>
+              <p>Ctrl+Z</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Up</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="50%%">
+        <p>Scroll current line to center of screen</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+L</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr bgcolor="#EEEEEE">
+      <td width="50%%">
+        <p>Scroll current line to top of screen</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+X, !</p>
             </td>
           </tr>
         </table>
@@ -980,7 +1131,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+A</p>
+              <p>Ctrl+A</p>
             </td>
           </tr>
         </table>
@@ -1005,7 +1156,7 @@
 
     <tr>
       <td width="50%%">
-        <p>Select Next Word</p>
+        <p>Select Next Part of Word</p>
       </td>
 
       <td width="50%%">
@@ -1021,71 +1172,7 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>Select Page Down</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Shift+Page_Down</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Select Page Up</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Shift+Page_Up</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Select Previous Character</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Shift+Left</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Select Previous Word</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Alt+Shift+Left</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Select Rectangular Next Character</p>
+        <p>Select Next Word</p>
       </td>
 
       <td width="50%%">
@@ -1101,14 +1188,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Select Rectangular Page Down</p>
+        <p>Select Page Down</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Ctrl+Shift+Page_Down</p>
+              <p>Shift+Page_Down</p>
             </td>
           </tr>
         </table>
@@ -1117,14 +1204,14 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>Select Rectangular Page Up</p>
+        <p>Select Page Up</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Ctrl+Shift+Page_Up</p>
+              <p>Shift+Page_Up</p>
             </td>
           </tr>
         </table>
@@ -1133,7 +1220,39 @@
 
     <tr>
       <td width="50%%">
-        <p>Select Rectangular Previous Character</p>
+        <p>Select Previous Character</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Shift+Left</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr bgcolor="#EEEEEE">
+      <td width="50%%">
+        <p>Select Previous Part of Word</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Alt+Shift+Left</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="50%%">
+        <p>Select Previous Word</p>
       </td>
 
       <td width="50%%">
@@ -1141,71 +1260,6 @@
           <tr>
             <td>
               <p>Ctrl+Shift+Left</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Select Rectangular to Beginning of Line (first
-        char/first column)</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Ctrl+Shift+Home</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Select Rectangular to End of Line</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Ctrl+Shift+End</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Select Rectangular to Next Line</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Ctrl+Shift+Down</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Select Rectangular to Previous Line</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Ctrl+Shift+Up</p>
             </td>
           </tr>
         </table>
@@ -1225,17 +1279,27 @@
               <p>Shift+Home</p>
             </td>
           </tr>
+        </table>
+      </td>
+    </tr>
 
+    <tr>
+      <td width="50%%">
+        <p>Select to Beginning of word</p>
+      </td>
+
+      <td width="50%%">
+        <table>
           <tr>
             <td>
-              <p>Meta+Shift+Left</p>
+              <p>Ctrl+Shift+W</p>
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Select to End of Document</p>
       </td>
@@ -1244,14 +1308,14 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+Down</p>
+              <p>Ctrl+Shift+End</p>
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Select to End of Line</p>
       </td>
@@ -1263,17 +1327,11 @@
               <p>Shift+End</p>
             </td>
           </tr>
-
-          <tr>
-            <td>
-              <p>Meta+Shift+Right</p>
-            </td>
-          </tr>
         </table>
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Select to Next Line</p>
       </td>
@@ -1289,7 +1347,7 @@
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Select to Previous Line</p>
       </td>
@@ -1305,7 +1363,7 @@
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Select to Top of Document</p>
       </td>
@@ -1314,7 +1372,23 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+Up</p>
+              <p>Ctrl+Shift+Home</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="50%%">
+        <p>Set Mark</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+Space</p>
             </td>
           </tr>
         </table>
@@ -1330,7 +1404,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+F2</p>
+              <p>Ctrl+F2</p>
             </td>
           </tr>
         </table>
@@ -1362,7 +1436,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+T</p>
+              <p>Ctrl+T</p>
             </td>
           </tr>
         </table>
@@ -1371,14 +1445,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Trigger preceding autocomplete list or calltip</p>
+        <p>Transpose Current and Previous Lines</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+J</p>
+              <p>Ctrl+L</p>
             </td>
           </tr>
         </table>
@@ -1394,7 +1468,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Z</p>
+              <p>Ctrl+/</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+X, U</p>
             </td>
           </tr>
         </table>
@@ -1410,7 +1490,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+-</p>
+              <p>Ctrl+Shift+-</p>
             </td>
           </tr>
         </table>
@@ -1426,7 +1506,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+=</p>
+              <p>Ctrl+Shift+=</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+Shift++</p>
             </td>
           </tr>
         </table>
@@ -1446,7 +1532,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+G</p>
+              <p>F3</p>
             </td>
           </tr>
         </table>
@@ -1462,7 +1548,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+F3</p>
+              <p>Ctrl+Shift+F3</p>
             </td>
           </tr>
         </table>
@@ -1478,7 +1564,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+F3</p>
+              <p>Ctrl+F3</p>
             </td>
           </tr>
         </table>
@@ -1494,7 +1580,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+G</p>
+              <p>Shift+F3</p>
             </td>
           </tr>
         </table>
@@ -1510,7 +1596,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+F</p>
+              <p>Ctrl+Shift+F</p>
             </td>
           </tr>
         </table>
@@ -1518,22 +1604,6 @@
     </tr>
 
     <tr>
-      <td width="50%%">
-        <p>Find...</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+F</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Incremental Search</p>
       </td>
@@ -1542,23 +1612,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+I</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Incremental Search Backwards</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Shift+I</p>
+              <p>Ctrl+S</p>
             </td>
           </tr>
         </table>
@@ -1567,6 +1621,22 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
+        <p>Incremental Search Backwards</p>
+      </td>
+
+      <td width="50%%">
+        <table>
+          <tr>
+            <td>
+              <p>Ctrl+R</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td width="50%%">
         <p>Replace...</p>
       </td>
 
@@ -1574,7 +1644,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+=</p>
+              <p>Ctrl+H</p>
             </td>
           </tr>
         </table>
@@ -1587,38 +1657,6 @@
   <table width="100%%">
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>Close All Windows</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Ctrl+W</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Close Project</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Ctrl+W</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
         <p>Close Window</p>
       </td>
 
@@ -1626,7 +1664,13 @@
         <table>
           <tr>
             <td>
-              <p>Meta+W</p>
+              <p>Ctrl+X, K</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+F4</p>
             </td>
           </tr>
         </table>
@@ -1658,7 +1702,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+F6</p>
+              <p>Ctrl+Shift+F6</p>
             </td>
           </tr>
         </table>
@@ -1674,7 +1718,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+F6</p>
+              <p>Ctrl+F6</p>
             </td>
           </tr>
         </table>
@@ -1690,39 +1734,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+N</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>New File...</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Ctrl+N</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>New Project...</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Shift+N</p>
+              <p>Ctrl+Shift+N</p>
             </td>
           </tr>
         </table>
@@ -1738,7 +1750,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Page_Down</p>
+              <p>Ctrl+Page_Down</p>
             </td>
           </tr>
         </table>
@@ -1754,7 +1766,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+O</p>
+              <p>Ctrl+X, Ctrl+F</p>
             </td>
           </tr>
         </table>
@@ -1770,7 +1782,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+O</p>
+              <p>Ctrl+Shift+J</p>
             </td>
           </tr>
         </table>
@@ -1778,22 +1790,6 @@
     </tr>
 
     <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Preferences...</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+,</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
       <td width="50%%">
         <p>Previous File</p>
       </td>
@@ -1802,23 +1798,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Page_Up</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Quit</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Q</p>
+              <p>Ctrl+Page_Up</p>
             </td>
           </tr>
         </table>
@@ -1827,14 +1807,14 @@
 
     <tr>
       <td width="50%%">
-        <p>Refresh Status</p>
+        <p>Quit</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, R</p>
+              <p>Ctrl+X, Ctrl+C</p>
             </td>
           </tr>
         </table>
@@ -1843,14 +1823,14 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>Revert</p>
+        <p>Refresh Status</p>
       </td>
 
       <td width="50%%">
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+U</p>
+              <p>Ctrl+C, R</p>
             </td>
           </tr>
         </table>
@@ -1866,7 +1846,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+S</p>
+              <p>Ctrl+X, Ctrl+S</p>
             </td>
           </tr>
         </table>
@@ -1882,23 +1862,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Ctrl+S</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Save As...</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Shift+S</p>
+              <p>Ctrl+Shift+S</p>
             </td>
           </tr>
         </table>
@@ -1918,7 +1882,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+/</p>
+              <p>Ctrl+F1</p>
             </td>
           </tr>
         </table>
@@ -1934,13 +1898,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+/</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Meta+?</p>
+              <p>F1</p>
             </td>
           </tr>
         </table>
@@ -1956,7 +1914,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+/</p>
+              <p>Shift+F1</p>
             </td>
           </tr>
         </table>
@@ -1976,7 +1934,13 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, )</p>
+              <p>Ctrl+X, )</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+X, )</p>
             </td>
           </tr>
         </table>
@@ -1992,7 +1956,13 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, _</p>
+              <p>Ctrl+X, M</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+X, m</p>
             </td>
           </tr>
         </table>
@@ -2008,7 +1978,13 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, (</p>
+              <p>Ctrl+X, (</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+X, (</p>
             </td>
           </tr>
         </table>
@@ -2028,6 +2004,18 @@
         <table>
           <tr>
             <td>
+              <p>Ctrl+C, #</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <p>Ctrl+C, c</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
               <p>Ctrl+3</p>
             </td>
           </tr>
@@ -2037,28 +2025,6 @@
 
     <tr>
       <td width="50%%">
-        <p>Complete Word</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>F5</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Alt+Escape</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr bgcolor="#EEEEEE">
-      <td width="50%%">
         <p>Complete Word (backwards)</p>
       </td>
 
@@ -2066,29 +2032,7 @@
         <table>
           <tr>
             <td>
-              <p>Shift+F5</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Alt+Shift+Escape</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Convert Selection to Lower Case</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Shift+U</p>
+              <p>Ctrl+Shift+Space</p>
             </td>
           </tr>
         </table>
@@ -2096,22 +2040,6 @@
     </tr>
 
     <tr bgcolor="#EEEEEE">
-      <td width="50%%">
-        <p>Convert Selection to Upper Case</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+U</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
       <td width="50%%">
         <p>Find All Functions</p>
       </td>
@@ -2120,14 +2048,14 @@
         <table>
           <tr>
             <td>
-              <p>Meta+F8</p>
+              <p>Ctrl+F8</p>
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Find Next Function</p>
       </td>
@@ -2143,7 +2071,7 @@
       </td>
     </tr>
 
-    <tr>
+    <tr bgcolor="#EEEEEE">
       <td width="50%%">
         <p>Find Previous Function</p>
       </td>
@@ -2159,7 +2087,7 @@
       </td>
     </tr>
 
-    <tr bgcolor="#EEEEEE">
+    <tr>
       <td width="50%%">
         <p>Jump to Matching Brace</p>
       </td>
@@ -2168,23 +2096,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+]</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-
-    <tr>
-      <td width="50%%">
-        <p>Select Block</p>
-      </td>
-
-      <td width="50%%">
-        <table>
-          <tr>
-            <td>
-              <p>Meta+Ctrl+L</p>
+              <p>Ctrl+]</p>
             </td>
           </tr>
         </table>
@@ -2200,7 +2112,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+]</p>
+              <p>Ctrl+M</p>
             </td>
           </tr>
         </table>
@@ -2214,6 +2126,12 @@
 
       <td width="50%%">
         <table>
+          <tr>
+            <td>
+              <p>Ctrl+C, u</p>
+            </td>
+          </tr>
+
           <tr>
             <td>
               <p>Ctrl+Shift+3</p>
@@ -2236,7 +2154,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, A</p>
+              <p>Ctrl+C, A</p>
             </td>
           </tr>
         </table>
@@ -2252,7 +2170,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Shift+A</p>
+              <p>Ctrl+C, Shift+A</p>
             </td>
           </tr>
         </table>
@@ -2268,7 +2186,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, C</p>
+              <p>Ctrl+C, C</p>
             </td>
           </tr>
         </table>
@@ -2284,7 +2202,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Shift+C</p>
+              <p>Ctrl+C, Shift+C</p>
             </td>
           </tr>
         </table>
@@ -2300,7 +2218,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, D</p>
+              <p>Ctrl+C, D</p>
             </td>
           </tr>
         </table>
@@ -2316,7 +2234,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Shift+D</p>
+              <p>Ctrl+C, Shift+D</p>
             </td>
           </tr>
         </table>
@@ -2332,7 +2250,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, E</p>
+              <p>Ctrl+C, E</p>
             </td>
           </tr>
         </table>
@@ -2348,7 +2266,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, O</p>
+              <p>Ctrl+C, O</p>
             </td>
           </tr>
         </table>
@@ -2364,7 +2282,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, V</p>
+              <p>Ctrl+C, V</p>
             </td>
           </tr>
         </table>
@@ -2380,7 +2298,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Shift+V</p>
+              <p>Ctrl+C, Shift+V</p>
             </td>
           </tr>
         </table>
@@ -2396,7 +2314,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, U</p>
+              <p>Ctrl+C, U</p>
             </td>
           </tr>
         </table>
@@ -2412,7 +2330,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Shift+U</p>
+              <p>Ctrl+C, Shift+U</p>
             </td>
           </tr>
         </table>
@@ -2432,7 +2350,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+R</p>
+              <p>Ctrl+R</p>
             </td>
           </tr>
         </table>
@@ -2452,7 +2370,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+V</p>
+              <p>Ctrl+C, Ctrl+V</p>
             </td>
           </tr>
         </table>
@@ -2500,7 +2418,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+7</p>
+              <p>Ctrl+Shift+7</p>
             </td>
           </tr>
         </table>
@@ -2548,7 +2466,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+B</p>
+              <p>Ctrl+Shift+B</p>
             </td>
           </tr>
         </table>
@@ -2580,7 +2498,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+8</p>
+              <p>Ctrl+Shift+8</p>
             </td>
           </tr>
         </table>
@@ -2596,13 +2514,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+'</p>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <p>Meta+"</p>
+              <p>Ctrl+X, 5, 2</p>
             </td>
           </tr>
         </table>
@@ -2618,7 +2530,7 @@
         <table>
           <tr>
             <td>
-              <p>Ctrl+K, Ctrl+S</p>
+              <p>Ctrl+C, Ctrl+S</p>
             </td>
           </tr>
         </table>
@@ -2634,7 +2546,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+5</p>
+              <p>Ctrl+Shift+5</p>
             </td>
           </tr>
         </table>
@@ -2650,7 +2562,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+4</p>
+              <p>Ctrl+Shift+4</p>
             </td>
           </tr>
         </table>
@@ -2666,7 +2578,7 @@
         <table>
           <tr>
             <td>
-              <p>Meta+Shift+9</p>
+              <p>Ctrl+Shift+9</p>
             </td>
           </tr>
         </table>
@@ -2759,7 +2671,7 @@
 
     <tr>
       <td width="50%%">
-        <p>&lt;h3&gt; Header 2</p>
+        <p>&lt;h2&gt; Header 2</p>
       </td>
 
       <td width="50%%">
@@ -2967,7 +2879,7 @@
 
     <tr bgcolor="#EEEEEE">
       <td width="50%%">
-        <p>&lt;pre&gt; Preformatted Text</p>
+        <p>&lt;pre&gt; Preformated Text</p>
       </td>
 
       <td width="50%%">

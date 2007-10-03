@@ -22,12 +22,12 @@
   <p>Komodo provides a variety of methods for accessing and editing
   files. While files can be opened and edited individually, they
   can also be stored in <a href=
-  "komodo-doc-project.html#project_top">projects</a> or the
-  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a> as
+  "project.html#project_top">projects</a> or the
+  <a href="toolbox.html#toolbox_top">Toolbox</a> as
   components.</p>
 
   <p>If Komodo is configured to integrate with a <a href=
-  "komodo-doc-scc.html#scc_top">source code control</a> system
+  "scc.html#scc_top">source code control</a> system
   (SCC), status icons beside the filenames indicate the file's
   current SCC status, and SCC options are available from the
   <strong>File</strong> menu and the right-click context menus.
@@ -41,7 +41,7 @@
 
   <p>This document describes file functionality, such as opening,
   printing, and saving files. See the <a href=
-  "komodo-doc-editor.html#editor_top">Editing</a> page for
+  "editor.html#editor_top">Editing</a> page for
   information about editing files.</p>
 
   <h2><a name="Creating_a_New_File" id=
@@ -52,7 +52,7 @@
   <strong>View|Toolbars|Standard</strong>.) A new file with the
   default file extension for the file type is created and opened in
   the Komodo editor. Use the <a class="doc" href=
-  "komodo-doc-prefs.html#new_files">New Files</a> page in Komodo's
+  "prefs.html#new_files">New Files</a> page in Komodo's
   Preferences to specify the default file extension for new
   files.</p>
 
@@ -61,7 +61,7 @@
 
   <p>New files can be created based on pre-defined templates that
   contain default content for specific file types. See the <a href=
-  "komodo-doc-templates.html#templates_top">Templates</a>
+  "templates.html#templates_top">Templates</a>
   documentation for information about configuring custom
   templates.</p>
 
@@ -77,11 +77,11 @@
   <p>The <strong>File|New|File</strong> menu displays a list of the
   most recently accessed templates. To alter the number of template
   files displayed, refer to the <a class="doc" href=
-  "komodo-doc-prefs.html#new_files">New Files</a> page in Komodo's
+  "prefs.html#new_files">New Files</a> page in Komodo's
   Preferences.</p>
 
   <p>To add a template to the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> for quick
+  "toolbox.html#toolbox_top">Toolbox</a> for quick
   access, select the desired template and click <strong>Add to
   Toolbox</strong>.</p>
 
@@ -89,9 +89,9 @@
   within a Project or the Toolbox</a></h2>
 
   <p>Files can be stored in a <a href=
-  "komodo-doc-project.html#project_top">project</a>, in the
-  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, or
-  within <a href="komodo-doc-folders.html#folders_top">folders</a>
+  "project.html#project_top">project</a>, in the
+  <a href="toolbox.html#toolbox_top">Toolbox</a>, or
+  within <a href="folders.html#folders_top">folders</a>
   in a project or the Toolbox. Storing a file within a project or
   the Toolbox creates a reference to the actual file located on the
   disk; it does not affect the file itself. Therefore, the same
@@ -111,18 +111,18 @@
   <h3><a name="files_openshort" id="files_openshort">Creating an
   Open Shortcut to the Current File Location</a></h3>
 
-  <p><a href="komodo-doc-openshort.html#openshort_top">Open...
+  <p><a href="openshort.html#openshort_top">Open...
   shortcuts</a>, stored within a <a href=
-  "komodo-doc-project.html#project_top">project</a> or the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, are references
+  "project.html#project_top">project</a> or the <a href=
+  "toolbox.html#toolbox_top">Toolbox</a>, are references
   to filesystem directories. When an open shortcut is invoked, the
   standard Open File dialog box is displayed with the contents of
   the directory.</p>
 
   <p>Open shortcuts can be created using a specific file as the
   context. Right-click a file in a <a href=
-  "komodo-doc-project.html#project_top">project</a> or the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> and select
+  "project.html#project_top">project</a> or the <a href=
+  "toolbox.html#toolbox_top">Toolbox</a> and select
   <strong>Make "Open..." Shortcut</strong>. This creates an open
   shortcut to the directory where the file is stored.</p>
 
@@ -133,8 +133,8 @@
   create a new project file containing the file from which the
   option was invoked. To access this option, the file must be
   stored in a <a href=
-  "komodo-doc-project.html#project_top">project</a> or the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>. Right-click
+  "project.html#project_top">project</a> or the <a href=
+  "toolbox.html#toolbox_top">Toolbox</a>. Right-click
   the desired file name and select <strong>Export as Project
   File</strong>. You are prompted to provide the name of the new
   project file and the directory where it will be stored.</p>
@@ -163,11 +163,11 @@
   <p>Exported packages can only be imported into "container"
   objects in Komodo, such as projects, the Toolbox, and folders
   within projects and the Toolbox. See <a href=
-  "komodo-doc-toolbox.html#export_import">Toolbox - Exporting and
+  "toolbox.html#export_import">Toolbox - Exporting and
   Importing Toolbox Contents</a>, <a href=
-  "komodo-doc-project.html#project_impexp">Projects - Importing and
+  "project.html#project_impexp">Projects - Importing and
   Exporting Projects via Packages</a>, or <a href=
-  "komodo-doc-folders.html#folders_importpack">Folders - Import
+  "folders.html#folders_importpack">Folders - Import
   Contents from Package</a> for more information.</p>
 
   <h2><a name="Opening_a_File" id="Opening_a_File">Opening
@@ -180,9 +180,9 @@
     <li><strong>Command-Line Argument</strong>: When Komodo is
     invoked from the command line, files can be specified as open
     arguments. See <a href=
-    "komodo-doc-top.html#Windows_Start">Starting on Windows</a>,
-    <a href="komodo-doc-top.html#OSX_Start">Starting on OSX</a>, or
-    <a href="komodo-doc-top.html#Linux_Start">Starting on Linux</a>
+    "top.html#Windows_Start">Starting on Windows</a>,
+    <a href="top.html#OSX_Start">Starting on OSX</a>, or
+    <a href="top.html#Linux_Start">Starting on Linux</a>
     for more information.</li>
 
     <li><strong>File|Open</strong>: Use the <strong><a href=
@@ -191,11 +191,11 @@
     <li><strong>Projects tab or Toolbox</strong>: Double-click,
     drag and drop, or use the file's right-click context menu to
     open a file contained in a <a href=
-    "komodo-doc-project.html#project_top">project</a> or the
-    <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a>.</li>
+    "project.html#project_top">project</a> or the
+    <a href="toolbox.html#toolbox_top">Toolbox</a>.</li>
 
     <li><strong>Open/Find Toolbar</strong>: Use the <a href=
-    "komodo-doc-search.html#editor_find_toolbar">Open/Find
+    "search.html#editor_find_toolbar">Open/Find
     Toolbar</a>. To display the Open/Find Toolbar, select
     <strong>View|Toolbars|Open/Find</strong>.</li>
 
@@ -204,7 +204,7 @@
     also accessible from the <strong>File|Recent Files</strong>
     menu. The number of files in the most recently used list is
     determined by the <a href=
-    "komodo-doc-prefs.html#UI_Configuration">Appearance</a>
+    "prefs.html#UI_Configuration">Appearance</a>
     preference.</li>
 
     <li><strong>Drag and Drop</strong>: Drag and drop one or more
@@ -217,7 +217,7 @@
   Toolbar</a></h3>
 
   <p>The <a href=
-  "komodo-doc-search.html#editor_find_toolbar">Open/Find
+  "search.html#editor_find_toolbar">Open/Find
   Toolbar</a> provides quick access for opening files and finding
   strings. The toolbar is displayed in Komodo by default. To hide
   or show the toolbar, select
@@ -292,7 +292,7 @@
   that the remote machine is configured for FTP, SFTP, or SCP
   access. To quickly access frequently used servers, create an
   entry in the <a class="doc" href=
-  "komodo-doc-prefs.html#Servers">Server Preferences</a>
+  "prefs.html#Servers">Server Preferences</a>
   (<strong>Edit|Preferences|Servers</strong>).</p>
 
   <p>To open a file located on a remote server, select
@@ -304,7 +304,7 @@
   <ul>
     <li><strong>Pre-Configured Server Connection</strong>: If
     remote servers have been configured in Komodo's <a class="doc"
-    href="komodo-doc-prefs.html#Servers">Preferences</a>, select
+    href="prefs.html#Servers">Preferences</a>, select
     the name of the configuration from the <strong>Server</strong>
     drop-down list. Access the Server Configuration dialog box by
     clicking the <strong>Accounts</strong> button to the right of
@@ -362,16 +362,16 @@
 
   <p>After closing and re-opening Komodo, the authentication
   information stored in the <a href=
-  "komodo-doc-prefs.html#Servers">Servers</a> preference is checked
+  "prefs.html#Servers">Servers</a> preference is checked
   again. Thus, changes to the user name or password stored in the
   server configuration do not take effect until Komodo is closed
   and re-opened. If no authentication information is stored in the
   server configuration, you are prompted to supply it when you open
   the file.</p>
 
-  <p>See <a href="komodo-doc-project.html#project_add_comp">Adding
+  <p>See <a href="project.html#project_add_comp">Adding
   Components to Projects</a> or <a href=
-  "komodo-doc-toolbox.html#toolbox_addcomp">Adding Components to
+  "toolbox.html#toolbox_addcomp">Adding Components to
   the Toolbox</a> for instructions on adding remote files to the
   Toolbox or to projects.</p>
 
@@ -382,7 +382,7 @@
   <h3><a name="Open_Mapped_URI" id="Open_Mapped_URI">Opening Mapped
   URIs</a></h3>
 
-  <p><a href="komodo-doc-prefs.html#mapped_uris">Mapped URIs</a>
+  <p><a href="prefs.html#mapped_uris">Mapped URIs</a>
   can be opened by dragging a mapped link from a browser into
   Komodo. For example, if you mapped the URL
   <em>http://www.example.org/</em> to the local directory
@@ -394,7 +394,7 @@
   <p>This feature also works with URIs mapped to remote filesystems
   (via FTP, SFTP or SCP), which in turn can be configured for
   automatic authentication under <strong><a href=
-  "komodo-doc-prefs.html#Servers">Edit|Preferences|Servers</a></strong>.</p>
+  "prefs.html#Servers">Edit|Preferences|Servers</a></strong>.</p>
 
   <h2><a name="Switching_Between_Files" id=
   "Switching_Between_Files">Switching Between Files</a></h2>
@@ -403,7 +403,7 @@
 
   <ul>
     <li><strong>Key Binding</strong>: Use the associated <a href=
-    "komodo-doc-prefs.html#Config_Key_Bindings">key
+    "prefs.html#Config_Key_Bindings">key
     binding</a>.</li>
 
     <li><strong>Editor Tabs</strong>: Click the tab with the
@@ -428,7 +428,7 @@
   tabs into the desired positions.</p>
 
   <p>For more information about working with the editor tabs, see
-  <a href="komodo-doc-editor.html#editor_tabs">Editor Tab
+  <a href="editor.html#editor_tabs">Editor Tab
   Display</a> in the editor documentation.</p>
 
   <h2><a name="Comparing_Files" id="Comparing_Files">Comparing
@@ -452,8 +452,8 @@
   </ol>
 
   <p>If the file is stored in a <a href=
-  "komodo-doc-project.html#project_top">project</a> or the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>, this function
+  "project.html#project_top">project</a> or the <a href=
+  "toolbox.html#toolbox_top">Toolbox</a>, this function
   can also be invoked by right-clicking the file and selecting
   <strong>Compare File With</strong>.</p>
 
@@ -463,7 +463,7 @@
   default). To configure custom colors for the "diff" window, alter
   the <strong>Language-Specific Coloring</strong> setting for the
   <strong>Other|Diff</strong> language in the <a class="doc" href=
-  "komodo-doc-prefs.html#lang_specific">Fonts and Colors</a>
+  "prefs.html#lang_specific">Fonts and Colors</a>
   preference.</p>
 
   <p>The following key bindings are available in the "diff"
@@ -496,12 +496,12 @@
   read/write disk status for the component. If the file is of a
   language for which "code intelligence" is supported and enabled
   (as configured in the <a href=
-  "komodo-doc-prefs.html#code_intel">Code Intelligence
+  "prefs.html#code_intel">Code Intelligence
   Preferences</a>), <strong>Refresh Status</strong> also updates
   the code intelligence database with the contents of the file.</p>
 
   <p>If the component is stored in a <a href=
-  "komodo-doc-scc.html#scc_top">source code control</a> system,
+  "scc.html#scc_top">source code control</a> system,
   <strong>Refresh Status</strong> also checks the repository status
   of the file. Komodo determines whether a file is contained in an
   SCC repository by the following methods:</p>
@@ -518,8 +518,8 @@
   the file tab or right-click within the editor and select
   <strong>Refresh Status</strong>. The same option is available on
   the right-click context menu of files in <a href=
-  "komodo-doc-project.html#project_top">projects</a> or within the
-  <a href="komodo-doc-toolbox.html#toolbox_top">Toolbox</a>.</p>
+  "project.html#project_top">projects</a> or within the
+  <a href="toolbox.html#toolbox_top">Toolbox</a>.</p>
 
   <h2><a name="files_scc" id="files_scc">Source Code
   Control</a></h2>
@@ -528,7 +528,7 @@
   in CVS or Perforce repositories. Source code control support
   (including SCC configuration, status icons and specific commands)
   is described in detail in the <a href=
-  "komodo-doc-scc.html#scc_top">Source Code Control</a> section of
+  "scc.html#scc_top">Source Code Control</a> section of
   the documentation. To access source code control commands:</p>
 
   <ul>
@@ -541,14 +541,14 @@
 
     <li><strong>Toolbox or Project Context Menu</strong>:
     Right-click a file in the <a class="doc" href=
-    "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or <a href=
-    "komodo-doc-project.html#project_top">Projects tab</a> and
+    "toolbox.html#toolbox_top">Toolbox</a> or <a href=
+    "project.html#project_top">Projects tab</a> and
     select <strong>Source Control</strong>.</li>
 
     <li><strong>Toolbox or Project Menu</strong>: If a file is
     currently selected in the <a href=
-    "komodo-doc-toolbox.html#toolbox_top">Toolbox</a> or <a href=
-    "komodo-doc-project.html#project_top">Projects tab</a>, use the
+    "toolbox.html#toolbox_top">Toolbox</a> or <a href=
+    "project.html#project_top">Projects tab</a>, use the
     menu to access source code control commands for the selected
     file.</li>
   </ul>
@@ -557,7 +557,7 @@
   and Settings</a></h2>
 
   <p>In addition to the Komodo's global <a href=
-  "komodo-doc-prefs.html#prefs_top">Preferences</a>, some
+  "prefs.html#prefs_top">Preferences</a>, some
   preferences can also be configured on a per-file basis. These
   settings override the global and project level preferences. To
   access the Properties and Settings dialog box for a file:</p>
@@ -594,12 +594,12 @@
     change the language association, select another language from
     the drop-down list. To set the language association to the
     Komodo default (as configured in the <a href=
-    "komodo-doc-prefs.html#File_Associations">File Association
+    "prefs.html#File_Associations">File Association
     Preference</a>, click <strong>Reset</strong>.</li>
 
     <li><strong>Encoding</strong>: Use this field to set the
     <a href=
-    "komodo-doc-prefs.html#Internationalization">International
+    "prefs.html#Internationalization">International
     Encoding</a> for the current file. Select <strong>Use signature
     (BOM)</strong> to use the byte order mark (a Unicode character
     at the top of the file which indicates the encoding) if
@@ -609,7 +609,7 @@
     desired line endings for the current file. By default, Komodo
     preserves the line endings contained in a file when the file is
     opened. (Default line endings for new files are configured in
-    the <a class="doc" href="komodo-doc-prefs.html#new_files">New
+    the <a class="doc" href="prefs.html#new_files">New
     Files</a> preference.) If you select <strong>Preserve existing
     line endings</strong>, new lines are assigned the end-of-line
     character selected in the drop-down list, but existing lines
@@ -633,7 +633,7 @@
   Source Control Settings</a></h3>
 
   <p>If Komodo is configured to work in conjunction with a <a href=
-  "komodo-doc-scc.html#scc_top">Source Code Control</a> system, the
+  "scc.html#scc_top">Source Code Control</a> system, the
   <strong>Source Code Control</strong> category displays the
   current SCC status and settings.</p>
 
@@ -641,8 +641,8 @@
   "files_settings_editing">File Editor Settings</a></h3>
 
   <p>The options on this tab are a subset of the <a href=
-  "komodo-doc-prefs.html#prefs_editor">General Editor</a> and
-  <a href="komodo-doc-prefs.html#smart_editing">Smart Editing</a>
+  "prefs.html#prefs_editor">General Editor</a> and
+  <a href="prefs.html#smart_editing">Smart Editing</a>
   preferences. Refer to those sections of the Preferences
   documentation for information about individual options.</p>
 
@@ -650,7 +650,7 @@
   "files_settings_indent">Indentation Tab</a></h3>
 
   <p>The options on this tab are a subset of the <a class="doc"
-  href="komodo-doc-prefs.html#Indentation_Features">Indentation
+  href="prefs.html#Indentation_Features">Indentation
   Preferences</a>. Refer to that section of the Preferences
   documentation for information about individual options.</p>
 
@@ -658,7 +658,7 @@
   Preview</a></h3>
 
   <p>This option configures the behavior of the <a href=
-  "komodo-doc-editor.html#browser_preview">Preview in Browser</a>
+  "editor.html#browser_preview">Preview in Browser</a>
   function. When the Preview in Browser function is invoked, you
   are prompted to specify the file or URL used to preview the
   current file. (For example, when previewing a CSS file, specify
@@ -688,7 +688,7 @@
 
   <p>Printing style is configured on the Printing page in Komodo's
   <a class="doc" href=
-  "komodo-doc-prefs.html#printing">Preferences</a>. Alternatively,
+  "prefs.html#printing">Preferences</a>. Alternatively,
   select <strong>File|Print|Print Settings</strong> to display the
   Printing preferences page.</p>
 
@@ -778,7 +778,7 @@
   sets the file back to read-only). In addition, Komodo can be
   configured to automatically save a backup copy of files open in
   the editor. To configure Komodo's save functionality, use the
-  <a href="komodo-doc-prefs.html#Save_Options">Save Options</a>
+  <a href="prefs.html#Save_Options">Save Options</a>
   preference page.</p>
 
   <p>To save a file with its current name, do one of the
@@ -786,7 +786,7 @@
 
   <ul>
     <li><strong>Key Binding</strong>: Use the associated <a href=
-    "komodo-doc-prefs.html#Config_Key_Bindings">key
+    "prefs.html#Config_Key_Bindings">key
     binding</a>.</li>
 
     <li><strong>File|Save</strong>: Use the
@@ -812,8 +812,8 @@
   "#Opening_Remote_Files">Remote File</a> dialog box is displayed.
   When editing files located on a remote server (including remote
   files stored in a <a href=
-  "komodo-doc-project.html#project_top">project</a> or the <a href=
-  "komodo-doc-toolbox.html#toolbox_top">Toolbox</a>), saving the
+  "project.html#project_top">project</a> or the <a href=
+  "toolbox.html#toolbox_top">Toolbox</a>), saving the
   file automatically saves it to the remote location.</p>
 
   <h3><a name="files_showunsaved" id="files_showunsaved">Show
@@ -833,7 +833,7 @@
   default). To configure custom colors for the "diff" window, alter
   the <strong>Language-Specific Coloring</strong> setting for the
   <strong>Other|Diff</strong> language in the <a class="doc" href=
-  "komodo-doc-prefs.html#lang_specific">Fonts and Colors</a>
+  "prefs.html#lang_specific">Fonts and Colors</a>
   preference.</p>
 
   <h2><a name="Revert_File" id="Revert_File">Reverting
@@ -856,7 +856,7 @@
     All</strong>.</li>
 
     <li><strong>Key Binding</strong>: Use the associated <a href=
-    "komodo-doc-prefs.html#Config_Key_Bindings">key
+    "prefs.html#Config_Key_Bindings">key
     binding</a>.</li>
 
     <li><strong>File Tab Context Menu</strong>: Right-click the

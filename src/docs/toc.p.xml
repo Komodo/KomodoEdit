@@ -7,11 +7,11 @@
      (which is generated from this). Some of those id's are used as anchors for
      context sensitive help in Komodo (see 'help_tag2page' in launch.js.) -->
 
-<node name="Welcome to Komodo" link="komodo-doc-top.html">
-  <node name="Starting Komodo" link="komodo-doc-starting.html#starting_top">
-    <node name="Starting on Windows" link="komodo-doc-starting.html#Windows_Start"/>
-    <node name="Starting on Mac OS X" link="komodo-doc-starting.html#OSX_Start"/>
-    <node name="Starting on Linux" link="komodo-doc-starting.html#Linux_Start"/>
+<node name="Welcome to Komodo" link="top.html">
+  <node name="Starting Komodo" link="starting.html#starting_top">
+    <node name="Starting on Windows" link="starting.html#Windows_Start"/>
+    <node name="Starting on Mac OS X" link="starting.html#OSX_Start"/>
+    <node name="Starting on Linux" link="starting.html#Linux_Start"/>
   </node>
   <node name="Installation Guide" link="readme.html#readme_top">
     <node name="Installing on Windows" link="readme.html#Windows">
@@ -40,21 +40,21 @@
       <node name="Uninstalling Komodo on Linux" link="readme.html#Uninstalling_Komodo_Lin"/>
     </node>
   </node>
-  <node name="The Komodo Workspace" link="komodo-doc-workspace.html#workspace_top">
-    <node name="Start Page" link="komodo-doc-workspace.html#Get_Started_Page"/>
-    <node name="Menus" link="komodo-doc-workspace.html#Menus"/>
-    <node name="Context Menus" link="komodo-doc-workspace.html#Context_Menus"/>
-    <node name="Toolbars" link="komodo-doc-workspace.html#Toolbars"/>
-    <node name="Left Pane" link="komodo-doc-workspace.html#Left_Pane"/>
-    <node name="Right Pane" link="komodo-doc-workspace.html#Right_Pane"/>
-    <node name="Editor Pane" link="komodo-doc-workspace.html#Editor_Pane"/>
-    <node name="Bottom Pane" link="komodo-doc-workspace.html#Output_Pane"/>
-    <node name="Managing Tabs and Panes" link="komodo-doc-workspace.html#manage"/>
-    <node name="Enabling Full Screen Mode" link="komodo-doc-workspace.html#full_screen"/>
+  <node name="The Komodo Workspace" link="workspace.html#workspace_top">
+    <node name="Start Page" link="workspace.html#Get_Started_Page"/>
+    <node name="Menus" link="workspace.html#Menus"/>
+    <node name="Context Menus" link="workspace.html#Context_Menus"/>
+    <node name="Toolbars" link="workspace.html#Toolbars"/>
+    <node name="Left Pane" link="workspace.html#Left_Pane"/>
+    <node name="Right Pane" link="workspace.html#Right_Pane"/>
+    <node name="Editor Pane" link="workspace.html#Editor_Pane"/>
+    <node name="Bottom Pane" link="workspace.html#Output_Pane"/>
+    <node name="Managing Tabs and Panes" link="workspace.html#manage"/>
+    <node name="Enabling Full Screen Mode" link="workspace.html#full_screen"/>
   </node>
-  <node name="Komodo's Sample Project" link="komodo-doc-getstarted.html#getstarted_top">
-    <node name="Open the Sample Project" link="komodo-doc-getstarted.html#Opening_the_Sample_Project"/>
-    <node name="Edit a Sample Program" link="komodo-doc-getstarted.html#Editing_Sample_File"/>
+  <node name="Komodo's Sample Project" link="getstarted.html#getstarted_top">
+    <node name="Open the Sample Project" link="getstarted.html#Opening_the_Sample_Project"/>
+    <node name="Edit a Sample Program" link="getstarted.html#Editing_Sample_File"/>
   </node>
 
   <node name="Release Notes" link="relnotes.html#relnotes_top">
@@ -71,331 +71,331 @@
   </node>
 
   <node name="License and Copyright" link="lic_copy.html#lic_copy_top"/>
-  <node name="Komodo Feedback" link="komodo-doc-feedback.html#feedback_top"/>
+  <node name="Komodo Feedback" link="feedback.html#feedback_top"/>
 </node>
 
-<node name="Project Tab" link="komodo-doc-project.html#project_top">
-  <node name="Displaying the Project Tab" link="komodo-doc-project.html#project_display"/>
-  <node name="Creating Projects" link="komodo-doc-project.html#Creating_a_Project">
-    <node name="Live Import" link="komodo-doc-project.html#Live_Import"/>
+<node name="Project Tab" link="project.html#project_top">
+  <node name="Displaying the Project Tab" link="project.html#project_display"/>
+  <node name="Creating Projects" link="project.html#Creating_a_Project">
+    <node name="Live Import" link="project.html#Live_Import"/>
   </node>
-  <node name="Opening Projects" link="komodo-doc-project.html#Opening_a_Project"/>
-  <node name="Setting the Active Project" link="komodo-doc-project.html#Switching_Between_Projects"/>
-  <node name="Adding Components to Projects" link="komodo-doc-project.html#project_add_comp"/>
-  <node name="Project Display Settings" link="komodo-doc-project.html#org_project"/>
-  <node name="Saving Projects" link="komodo-doc-project.html#Saving_a_Project"/>
-  <node name="Refreshing Project Status" link="komodo-doc-project.html#Refreshing_a_Project"/>
-  <node name="Importing/Exporting via Packages" link="komodo-doc-project.html#project_impexp"/>
-  <node name="Importing from a File System" link="komodo-doc-project.html#project_impcomp"/>
-  <node name="Reverting Projects" link="komodo-doc-project.html#Reverting_a_Project"/>
-  <node name="Closing Projects" link="komodo-doc-project.html#Closing_Projects"/>
-  <node name="Deleting Projects" link="komodo-doc-project.html#project_delete"/>
-  <node name="Project Properties" link="komodo-doc-project.html#project_props"/>
+  <node name="Opening Projects" link="project.html#Opening_a_Project"/>
+  <node name="Setting the Active Project" link="project.html#Switching_Between_Projects"/>
+  <node name="Adding Components to Projects" link="project.html#project_add_comp"/>
+  <node name="Project Display Settings" link="project.html#org_project"/>
+  <node name="Saving Projects" link="project.html#Saving_a_Project"/>
+  <node name="Refreshing Project Status" link="project.html#Refreshing_a_Project"/>
+  <node name="Importing/Exporting via Packages" link="project.html#project_impexp"/>
+  <node name="Importing from a File System" link="project.html#project_impcomp"/>
+  <node name="Reverting Projects" link="project.html#Reverting_a_Project"/>
+  <node name="Closing Projects" link="project.html#Closing_Projects"/>
+  <node name="Deleting Projects" link="project.html#project_delete"/>
+  <node name="Project Properties" link="project.html#project_props"/>
 </node>
 
-<node name="Toolbox" link="komodo-doc-toolbox.html#toolbox_top">
-  <node name="Displaying the Toolbox" link="komodo-doc-toolbox.html#toolbox_display"/>
-  <node name="Adding Components to the Toolbox" link="komodo-doc-toolbox.html#toolbox_addcomp"/>
-  <node name="Exporting and Importing Toolbox Contents" link="komodo-doc-toolbox.html#export_import"/>
-  <node name="Sharing Toolboxes" link="komodo-doc-toolbox.html#toolbox_share"/>
+<node name="Toolbox" link="toolbox.html#toolbox_top">
+  <node name="Displaying the Toolbox" link="toolbox.html#toolbox_display"/>
+  <node name="Adding Components to the Toolbox" link="toolbox.html#toolbox_addcomp"/>
+  <node name="Exporting and Importing Toolbox Contents" link="toolbox.html#export_import"/>
+  <node name="Sharing Toolboxes" link="toolbox.html#toolbox_share"/>
 </node>
 
-<node name="Files" link="komodo-doc-files.html#files_top">
-  <node name="Creating Files" link="komodo-doc-files.html#Creating_a_New_File"/>
-  <node name="Creating Files from Templates" link="komodo-doc-files.html#files_templates"/>
-  <node name="Storing Files within a Project or the Toolbox" link="komodo-doc-files.html#files_projtool">
-    <node name="Creating an Open Shortcut" link="komodo-doc-files.html#files_openshort"/>
-    <node name="Exporting Files as Projects" link="komodo-doc-files.html#files_exproj"/>
-    <node name="Exporting Files to a Package" link="komodo-doc-files.html#files_expack"/>
+<node name="Files" link="files.html#files_top">
+  <node name="Creating Files" link="files.html#Creating_a_New_File"/>
+  <node name="Creating Files from Templates" link="files.html#files_templates"/>
+  <node name="Storing Files within a Project or the Toolbox" link="files.html#files_projtool">
+    <node name="Creating an Open Shortcut" link="files.html#files_openshort"/>
+    <node name="Exporting Files as Projects" link="files.html#files_exproj"/>
+    <node name="Exporting Files to a Package" link="files.html#files_expack"/>
   </node>
-  <node name="Opening Files" link="komodo-doc-files.html#Opening_a_File">
-    <node name="Opening Files with the Open/Find Toolbar" link="komodo-doc-files.html#files_openfindtoolbar"/>
-    <node name="Opening Remote Files" link="komodo-doc-files.html#Opening_Remote_Files">
-      <node name="Connecting to an FTP Server" link="komodo-doc-files.html#files_ftpconnect"/>
-      <node name="Navigating the Remote File System" link="komodo-doc-files.html#files_navremote"/>
-      <node name="Storing Remote Files in Projects or the Toolbox" link="komodo-doc-files.html#files_remprojtool"/>
+  <node name="Opening Files" link="files.html#Opening_a_File">
+    <node name="Opening Files with the Open/Find Toolbar" link="files.html#files_openfindtoolbar"/>
+    <node name="Opening Remote Files" link="files.html#Opening_Remote_Files">
+      <node name="Connecting to an FTP Server" link="files.html#files_ftpconnect"/>
+      <node name="Navigating the Remote File System" link="files.html#files_navremote"/>
+      <node name="Storing Remote Files in Projects or the Toolbox" link="files.html#files_remprojtool"/>
     </node>
-    <node name="Opening Mapped URIs" link="komodo-doc-files.html#Open_Mapped_URI"/>
+    <node name="Opening Mapped URIs" link="files.html#Open_Mapped_URI"/>
   </node>
-  <node name="Switching Between Files" link="komodo-doc-files.html#Switching_Between_Files"/>
-  <node name="Comparing Files" link="komodo-doc-files.html#Comparing_Files"/>
-  <node name="Refreshing File Status" link="komodo-doc-files.html#files_refstatus"/>
-  <node name="File Properties and Settings" link="komodo-doc-files.html#files_settings">
-    <node id="files_settings_props" name="Properties" link="komodo-doc-files.html#files_settings_props"/>
-    <node id="files_settings_scc" name="Source Control" link="komodo-doc-files.html#files_settings_scc"/>
-    <node id="filles_settings_editing" name="Editing" link="komodo-doc-files.html#files_settings_editing"/>
-    <node id="files_settings_editing" name="Indentation" link="komodo-doc-files.html#files_settings_indent"/>
-    <node id="files_browser_preview" name="Preview" link="komodo-doc-files.html#browser_preview"/>
+  <node name="Switching Between Files" link="files.html#Switching_Between_Files"/>
+  <node name="Comparing Files" link="files.html#Comparing_Files"/>
+  <node name="Refreshing File Status" link="files.html#files_refstatus"/>
+  <node name="File Properties and Settings" link="files.html#files_settings">
+    <node id="files_settings_props" name="Properties" link="files.html#files_settings_props"/>
+    <node id="files_settings_scc" name="Source Control" link="files.html#files_settings_scc"/>
+    <node id="filles_settings_editing" name="Editing" link="files.html#files_settings_editing"/>
+    <node id="files_settings_editing" name="Indentation" link="files.html#files_settings_indent"/>
+    <node id="files_browser_preview" name="Preview" link="files.html#browser_preview"/>
   </node>
-  <node name="Printing Files" link="komodo-doc-files.html#Printing">
-    <node name="Printing Overview" link="komodo-doc-files.html#Printing"/>
-    <node name="Page Setup" link="komodo-doc-files.html#page_setup"/>
-    <node name="Print to HTML File" link="komodo-doc-files.html#files_printhtml"/>
+  <node name="Printing Files" link="files.html#Printing">
+    <node name="Printing Overview" link="files.html#Printing"/>
+    <node name="Page Setup" link="files.html#page_setup"/>
+    <node name="Print to HTML File" link="files.html#files_printhtml"/>
   </node>
-  <node name="Saving Files" link="komodo-doc-files.html#Saving_a_File">
-    <node name="Saving Files Remotely" link="komodo-doc-files.html#Saving_Files_Remotely"/>
-    <node name="Show Unsaved Changes" link="komodo-doc-files.html#files_showunsaved"/>
-    <node name="Reverting Files" link="komodo-doc-files.html#Revert_File"/>
-    <node name="Closing Files" link="komodo-doc-files.html#Closing_Files"/>
-  </node>
-</node>
-
-<node name="Searching" link="komodo-doc-search.html#search_top">
-  <node name="Searching for Strings" link="komodo-doc-search.html#search_strings">
-    <node name="Find Dialog" link="komodo-doc-search.html#Finding_a_word"/>
-    <node name="Replace Dialog" link="komodo-doc-search.html#Searching_and_replacing"/>
-    <node name="Searching for the Word Under the Cursor" link="komodo-doc-search.html#word_under_cursor"/>
-    <node name="Incremental Search" link="komodo-doc-search.html#incr_search"/>
-    <node name="Find in Files Dialog" link="komodo-doc-search.html#find_in_files"/>
-    <node name="Open/Find Toolbar" link="komodo-doc-search.html#editor_find_toolbar"/>
-    <node name="Find Results Tabs" link="komodo-doc-search.html#Find_Results"/>
-  </node>
-  <node name="Function Search" link="komodo-doc-search.html#functions">
-    <node name="Moving Between Functions" link="komodo-doc-search.html#search_movefunc"/>
-    <node name="Displaying a List of Functions" link="komodo-doc-search.html#search_dispfunc"/>
+  <node name="Saving Files" link="files.html#Saving_a_File">
+    <node name="Saving Files Remotely" link="files.html#Saving_Files_Remotely"/>
+    <node name="Show Unsaved Changes" link="files.html#files_showunsaved"/>
+    <node name="Reverting Files" link="files.html#Revert_File"/>
+    <node name="Closing Files" link="files.html#Closing_Files"/>
   </node>
 </node>
 
-<node name="Editing" link="komodo-doc-editor.html#editor_top">
-  <node name="Language Support" link="komodo-doc-editor.html#editor_lang">
-    <node name="Syntax Coloring and Indentation" link="komodo-doc-editor.html#Syntax_Coloring"/>
-    <node name="Background Syntax Checking" link="komodo-doc-editor.html#Linting"/>
-    <node name="AutoComplete and CallTips" link="komodo-doc-editor.html#AutoComplete">
-      <node name="Perl AutoComplete" link="komodo-doc-editor.html#Perl_AutoComplete"/>
-      <node name="Python AutoComplete" link="komodo-doc-editor.html#Python_AutoComplete"/>
-      <node name="Ruby AutoComplete" link="komodo-doc-editor.html#Ruby_AutoComplete"/>
-      <node name="PHP AutoComplete" link="komodo-doc-editor.html#PHP_AutoComplete"/>
-      <node name="Tcl AutoComplete" link="komodo-doc-editor.html#Tcl_AutoComplete"/>
-      <node name="XSLT AutoComplete" link="komodo-doc-editor.html#XSLT_AutoComplete"/>
-      <node name="XML AutoComplete" link="komodo-doc-editor.html#XML_AutoComplete"/>
+<node name="Searching" link="search.html#search_top">
+  <node name="Searching for Strings" link="search.html#search_strings">
+    <node name="Find Dialog" link="search.html#Finding_a_word"/>
+    <node name="Replace Dialog" link="search.html#Searching_and_replacing"/>
+    <node name="Searching for the Word Under the Cursor" link="search.html#word_under_cursor"/>
+    <node name="Incremental Search" link="search.html#incr_search"/>
+    <node name="Find in Files Dialog" link="search.html#find_in_files"/>
+    <node name="Open/Find Toolbar" link="search.html#editor_find_toolbar"/>
+    <node name="Find Results Tabs" link="search.html#Find_Results"/>
+  </node>
+  <node name="Function Search" link="search.html#functions">
+    <node name="Moving Between Functions" link="search.html#search_movefunc"/>
+    <node name="Displaying a List of Functions" link="search.html#search_dispfunc"/>
+  </node>
+</node>
+
+<node name="Editing" link="editor.html#editor_top">
+  <node name="Language Support" link="editor.html#editor_lang">
+    <node name="Syntax Coloring and Indentation" link="editor.html#Syntax_Coloring"/>
+    <node name="Background Syntax Checking" link="editor.html#Linting"/>
+    <node name="AutoComplete and CallTips" link="editor.html#AutoComplete">
+      <node name="Perl AutoComplete" link="editor.html#Perl_AutoComplete"/>
+      <node name="Python AutoComplete" link="editor.html#Python_AutoComplete"/>
+      <node name="Ruby AutoComplete" link="editor.html#Ruby_AutoComplete"/>
+      <node name="PHP AutoComplete" link="editor.html#PHP_AutoComplete"/>
+      <node name="Tcl AutoComplete" link="editor.html#Tcl_AutoComplete"/>
+      <node name="XSLT AutoComplete" link="editor.html#XSLT_AutoComplete"/>
+      <node name="XML AutoComplete" link="editor.html#XML_AutoComplete"/>
     </node>
-    <node name="Soft Characters" link="komodo-doc-editor.html#Soft_Char"/>
-    <node name="Viewing File as Another Language" link="komodo-doc-editor.html#View_as_Lang"/>
-    <node name="Commenting Blocks of Code" link="komodo-doc-editor.html#Code_Commenting"/>
+    <node name="Soft Characters" link="editor.html#Soft_Char"/>
+    <node name="Viewing File as Another Language" link="editor.html#View_as_Lang"/>
+    <node name="Commenting Blocks of Code" link="editor.html#Code_Commenting"/>
   </node>
-  <node name="Manipulating Code" link="komodo-doc-editor.html#editor_mancode">
-    <node name="Repeating Keystrokes" link="komodo-doc-editor.html#repeat_keystrokes"/>
-    <node name="Indenting Code" link="komodo-doc-editor.html#Indenting"/>
-    <node name="Reflowing Paragraphs" link="komodo-doc-editor.html#reflow"/>
-    <node name="Joining Lines" link="komodo-doc-editor.html#join_lines"/>
-    <node name="Converting Case" link="komodo-doc-editor.html#Case"/>
-    <node name="Transposing Characters" link="komodo-doc-editor.html#transpose"/>
-    <node name="Literal Characters" link="komodo-doc-editor.html#raw_keys"/>
-    <node name="Commenting Code" link="komodo-doc-editor.html#Commenting"/>
-    <node name="Cleaning Line Endings" link="komodo-doc-editor.html#Cleaning"/>
-    <node name="Tabifying Code Regions" link="komodo-doc-editor.html#Tabifying"/>
-    <node name="Selecting Columns or Blocks" link="komodo-doc-editor.html#Column_Select"/>
-    <node name="Completing Words" link="komodo-doc-editor.html#Complete_Word"/>
-    <node name="Selecting Blocks of Code" link="komodo-doc-editor.html#Select_Block"/>
+  <node name="Manipulating Code" link="editor.html#editor_mancode">
+    <node name="Repeating Keystrokes" link="editor.html#repeat_keystrokes"/>
+    <node name="Indenting Code" link="editor.html#Indenting"/>
+    <node name="Reflowing Paragraphs" link="editor.html#reflow"/>
+    <node name="Joining Lines" link="editor.html#join_lines"/>
+    <node name="Converting Case" link="editor.html#Case"/>
+    <node name="Transposing Characters" link="editor.html#transpose"/>
+    <node name="Literal Characters" link="editor.html#raw_keys"/>
+    <node name="Commenting Code" link="editor.html#Commenting"/>
+    <node name="Cleaning Line Endings" link="editor.html#Cleaning"/>
+    <node name="Tabifying Code Regions" link="editor.html#Tabifying"/>
+    <node name="Selecting Columns or Blocks" link="editor.html#Column_Select"/>
+    <node name="Completing Words" link="editor.html#Complete_Word"/>
+    <node name="Selecting Blocks of Code" link="editor.html#Select_Block"/>
   </node>
-  <node name="Editor Display" link="komodo-doc-editor.html#editor_dispchar">
-    <node name="Toggling Whitespace Display" link="komodo-doc-editor.html#whitespace"/>
-    <node name="Toggling Indentation Guides" link="komodo-doc-editor.html#indentation_guides"/>
-    <node name="Toggling Line Numbers" link="komodo-doc-editor.html#line_numbers_on"/>
-    <node name="Toggling EOL Markers" link="komodo-doc-editor.html#EOL"/>
-    <node name="Changing the Font Size" link="komodo-doc-editor.html#font_size"/>
-    <node name="Toggling Font Width" link="komodo-doc-editor.html#Toggling_Font_Width"/>
-    <node name="Code Folding" link="komodo-doc-editor.html#Folding"/>
+  <node name="Editor Display" link="editor.html#editor_dispchar">
+    <node name="Toggling Whitespace Display" link="editor.html#whitespace"/>
+    <node name="Toggling Indentation Guides" link="editor.html#indentation_guides"/>
+    <node name="Toggling Line Numbers" link="editor.html#line_numbers_on"/>
+    <node name="Toggling EOL Markers" link="editor.html#EOL"/>
+    <node name="Changing the Font Size" link="editor.html#font_size"/>
+    <node name="Toggling Font Width" link="editor.html#Toggling_Font_Width"/>
+    <node name="Code Folding" link="editor.html#Folding"/>
   </node>
-  <node name="Navigating Within Files" link="komodo-doc-editor.html#editor_nav">
-    <node name="Moving to a Specific Line" link="komodo-doc-editor.html#Moving_to_a_line"/>
-    <node name="Go to Definition" link="komodo-doc-editor.html#go_to_def"/>
-    <node name="Using Bookmarks and Marks" link="komodo-doc-editor.html#bookmarks"/>
-    <node name="Matching Braces" link="komodo-doc-editor.html#matching_brace"/>
+  <node name="Navigating Within Files" link="editor.html#editor_nav">
+    <node name="Moving to a Specific Line" link="editor.html#Moving_to_a_line"/>
+    <node name="Go to Definition" link="editor.html#go_to_def"/>
+    <node name="Using Bookmarks and Marks" link="editor.html#bookmarks"/>
+    <node name="Matching Braces" link="editor.html#matching_brace"/>
   </node>
-  <node name="Detecting Changed Files" link="komodo-doc-editor.html#Detect_Changed"/>
-  <node name="Preview in Browser" link="komodo-doc-editor.html#browser_preview"/>
-  <node name="Editor Tab Display" link="komodo-doc-editor.html#editor_tabs"/>
+  <node name="Detecting Changed Files" link="editor.html#Detect_Changed"/>
+  <node name="Preview in Browser" link="editor.html#browser_preview"/>
+  <node name="Editor Tab Display" link="editor.html#editor_tabs"/>
 </node>
 
-<node name="Folders" link="komodo-doc-folders.html#folders_top">
-  <node name="Folder Options" link="komodo-doc-folders.html#folders_options"/>
-  <node name="Import from File System" link="komodo-doc-folders.html#folders_importfs"/>
-  <node name="Import Contents from Package" link="komodo-doc-folders.html#folders_importpack"/>
-  <node name="Export Contents to Package" link="komodo-doc-folders.html#folders_opt_expack"/>
-  <node name="Refresh Folder Contents Status" link="komodo-doc-folders.html#folders_opt_refstat"/>
-  <node name="Adding Components to Folders" link="komodo-doc-folders.html#folders_add"/>
-  <node name="Exporting Contents as Project File" link="komodo-doc-folders.html#folders_opt_exproj"/>
-  <node name="Renaming Folders" link="komodo-doc-folders.html#folders_opt_rename"/>
-  <node name="Source Control on Folder Contents" link="komodo-doc-folders.html#folders_opt_scccont"/>
-  <node name="Deleting Folders" link="komodo-doc-folders.html#folders_opt_del"/>
+<node name="Folders" link="folders.html#folders_top">
+  <node name="Folder Options" link="folders.html#folders_options"/>
+  <node name="Import from File System" link="folders.html#folders_importfs"/>
+  <node name="Import Contents from Package" link="folders.html#folders_importpack"/>
+  <node name="Export Contents to Package" link="folders.html#folders_opt_expack"/>
+  <node name="Refresh Folder Contents Status" link="folders.html#folders_opt_refstat"/>
+  <node name="Adding Components to Folders" link="folders.html#folders_add"/>
+  <node name="Exporting Contents as Project File" link="folders.html#folders_opt_exproj"/>
+  <node name="Renaming Folders" link="folders.html#folders_opt_rename"/>
+  <node name="Source Control on Folder Contents" link="folders.html#folders_opt_scccont"/>
+  <node name="Deleting Folders" link="folders.html#folders_opt_del"/>
 </node>
 
-<node name="Snippets" link="komodo-doc-snippets.html#snippets_top">
-  <node name="Creating Snippets" link="komodo-doc-snippets.html#snippets_creating"/>
-  <node name="Configuring Snippets" link="komodo-doc-snippets.html#snippets_config"/>
-  <node name="Using Snippets" link="komodo-doc-snippets.html#snippets_using"/>
-  <node name="Snippet Options" link="komodo-doc-snippets.html#snippets_options">
-    <node name="Snippet Properties" link="komodo-doc-snippets.html#snippets_properties">
-      <node name="Assigning Custom Icons to Snippets" link="komodo-doc-snippets.html#snippets_Cust_Icons"/>
-      <node name="Snippet Key Bindings" link="komodo-doc-snippets.html#snippets_key_bindings"/>
-    </node>
-  </node>
-</node>
-
-<node name="Tab Stops" link="komodo-doc-tabstops.html#tabstops_top">
-  <node name="Tab Stop Usage" link="komodo-doc-tabstops.html#tabstop_usage"/>
-  <node name="Tab Stop Examples" link="komodo-doc-tabstops.html#tabstop_examples"/>
-</node>
-
-<node name="Macros" link="komodo-doc-macros.html#macros_top">
-  <node name="Creating Macros" link="komodo-doc-macros.html#creating_macros">
-    <node name="Recording Macros" link="komodo-doc-macros.html#macros_adding"/>
-    <node name="Saving Recorded Macros" link="komodo-doc-macros.html#macros_saving_macros"/>
-    <node name="Programming Macros" link="komodo-doc-macros.html#macros_adding_macros"/>
-  </node>
-  <node name="Running Macros" link="komodo-doc-macros.html#macros_using"/>
-  <node name="Specifying Macro Triggers" link="komodo-doc-macros.html#triggers_macros">
-    <node name="Running Macros in the Background" link="komodo-doc-macros.html#run_background"/>
-  </node>
-  <node name="Storing Macros in Projects or the Toolbox" link="komodo-doc-macros.html#assign">
-    <node name="Macro Options" link="komodo-doc-macros.html#macros_options"/>
-    <node name="Assigning Custom Icons to Macros" link="komodo-doc-macros.html#Cust_Icons"/>
-    <node name="Assigning Key Bindings to Macros" link="komodo-doc-macros.html#key_bindings"/>
-  </node>
-  <node name="Macro API" link="komodo-doc-macroapi.html#macroapi_top">
-    <node name="Macro API Overview" link="komodo-doc-macroapi.html#macroapi_overview"/>
-    <node name="JavaScript Macros" link="komodo-doc-macroapi.html#macroapi_js">
-      <node name="The scimoz Object" link="komodo-doc-macroapi.html#macroapi_scimoz"/>
-      <node name="The document Object" link="komodo-doc-macroapi.html#macroapi_document"/>
-      <node name="The document.file Object" link="komodo-doc-macroapi.html#macroapi_file"/>
-      <node name="The doCommand Function" link="komodo-doc-macroapi.html#macroapi_doCommand"/>
-      <node name="The open.URI Function" link="komodo-doc-macroapi.html#macroapi_openURI"/>
-      <node name="The findPart Function" link="komodo-doc-macroapi.html#macroapi_findPart"/>
-      <node name="The interpolate Function" link="komodo-doc-macroapi.html#macroapi_interpolate"/>
-      <node name="The getWordUnderCursor Function" link="komodo-doc-macroapi.html#macroapi_getWordUnderCursor"/>
-      <node name="The runEncodedCommand Function" link="komodo-doc-macroapi.html#macroapi_runEncodedCommand"/>
-    </node>
-    <node name="Python Macros" link="komodo-doc-macroapi.html#macroapi_py">
-      <node name="Creating a view object (XPCOM)" link="komodo-doc-macroapi.html#xpcom_currentView"/>
-      <node name="Opening a URI (XPCOM)" link="komodo-doc-macroapi.html#xpcom_openURI"/>
-      <node name="Interpolate a string (komodo.interpolate)" link="komodo-doc-macroapi.html#komodo_interpolate"/>
-      <node name="Get word under cursor (komodo.getWordUnderCursor)" link="komodo-doc-macroapi.html#komodo_getWordUnderCursor"/>
-      <node name="Running a Komodo command (XPCOM)" link="komodo-doc-macroapi.html#xpcom_doCommand"/>
-      <node name="Find a part (XPCOM)" link="komodo-doc-macroapi.html#xpcom_findPart"/>
-  </node>
-  </node>
-  <node name="Command ID List" link="komodo-doc-commandid.html"/>
-</node>
-
-<node name="Templates" link="komodo-doc-templates.html#templates_top">
-  <node name="Creating New Files from Templates" link="komodo-doc-templates.html#templates_newmenu"/>
-  <node name="Custom Templates" link="komodo-doc-templates.html#create_custom">
-    <node name="Using Interpolation Shortcuts in Custom Templates" link="komodo-doc-templates.html#template_variables"/>
-  </node>
-  <node name="Project Templates" link="komodo-doc-templates.html#project_templates"/>
-  <node name="Storing Templates in a Project or the Toolbox" link="komodo-doc-templates.html#templates_projtool">
-    <node name="Template Options" link="komodo-doc-templates.html#templates_options"/>
-    <node name="Assigning Custom Icons to Templates" link="komodo-doc-templates.html#Cust_Icons"/>
-    <node name="Template Key Bindings" link="komodo-doc-templates.html#template_key_bindings"/>
-  </node>
-</node>
-
-<node name="Open Shortcuts" link="komodo-doc-openshort.html#openshort_top">
-  <node name="Open Shortcut Options" link="komodo-doc-openshort.html#openshort_options">
-    <node name="Open Shortcut Properties" link="komodo-doc-openshort.html#openshort_props">
-      <node name="Assigning Custom Icons to Open Shortcuts" link="komodo-doc-openshort.html#openshort_Cust_Icons"/>
-      <node name="Open Shortcut Key Bindings" link="komodo-doc-openshort.html#openshort_key_bindings"/>
+<node name="Snippets" link="snippets.html#snippets_top">
+  <node name="Creating Snippets" link="snippets.html#snippets_creating"/>
+  <node name="Configuring Snippets" link="snippets.html#snippets_config"/>
+  <node name="Using Snippets" link="snippets.html#snippets_using"/>
+  <node name="Snippet Options" link="snippets.html#snippets_options">
+    <node name="Snippet Properties" link="snippets.html#snippets_properties">
+      <node name="Assigning Custom Icons to Snippets" link="snippets.html#snippets_Cust_Icons"/>
+      <node name="Snippet Key Bindings" link="snippets.html#snippets_key_bindings"/>
     </node>
   </node>
 </node>
 
-<node name="URL Shortcuts" link="komodo-doc-urls.html#urls_top">
-  <node name="URL Shortcut Options" link="komodo-doc-urls.html#urls_options">
-    <node name="URL Shortcut Properties" link="komodo-doc-urls.html#urls_props">
-      <node name="Assigning Custom Icons to URL Shortcuts" link="komodo-doc-urls.html#urls_icons"/>
-      <node name="URL Shortcut Key Bindings" link="komodo-doc-urls.html#urls_keybindings"/>
+<node name="Tab Stops" link="tabstops.html#tabstops_top">
+  <node name="Tab Stop Usage" link="tabstops.html#tabstop_usage"/>
+  <node name="Tab Stop Examples" link="tabstops.html#tabstop_examples"/>
+</node>
+
+<node name="Macros" link="macros.html#macros_top">
+  <node name="Creating Macros" link="macros.html#creating_macros">
+    <node name="Recording Macros" link="macros.html#macros_adding"/>
+    <node name="Saving Recorded Macros" link="macros.html#macros_saving_macros"/>
+    <node name="Programming Macros" link="macros.html#macros_adding_macros"/>
+  </node>
+  <node name="Running Macros" link="macros.html#macros_using"/>
+  <node name="Specifying Macro Triggers" link="macros.html#triggers_macros">
+    <node name="Running Macros in the Background" link="macros.html#run_background"/>
+  </node>
+  <node name="Storing Macros in Projects or the Toolbox" link="macros.html#assign">
+    <node name="Macro Options" link="macros.html#macros_options"/>
+    <node name="Assigning Custom Icons to Macros" link="macros.html#Cust_Icons"/>
+    <node name="Assigning Key Bindings to Macros" link="macros.html#key_bindings"/>
+  </node>
+  <node name="Macro API" link="macroapi.html#macroapi_top">
+    <node name="Macro API Overview" link="macroapi.html#macroapi_overview"/>
+    <node name="JavaScript Macros" link="macroapi.html#macroapi_js">
+      <node name="The scimoz Object" link="macroapi.html#macroapi_scimoz"/>
+      <node name="The document Object" link="macroapi.html#macroapi_document"/>
+      <node name="The document.file Object" link="macroapi.html#macroapi_file"/>
+      <node name="The doCommand Function" link="macroapi.html#macroapi_doCommand"/>
+      <node name="The open.URI Function" link="macroapi.html#macroapi_openURI"/>
+      <node name="The findPart Function" link="macroapi.html#macroapi_findPart"/>
+      <node name="The interpolate Function" link="macroapi.html#macroapi_interpolate"/>
+      <node name="The getWordUnderCursor Function" link="macroapi.html#macroapi_getWordUnderCursor"/>
+      <node name="The runEncodedCommand Function" link="macroapi.html#macroapi_runEncodedCommand"/>
+    </node>
+    <node name="Python Macros" link="macroapi.html#macroapi_py">
+      <node name="Creating a view object (XPCOM)" link="macroapi.html#xpcom_currentView"/>
+      <node name="Opening a URI (XPCOM)" link="macroapi.html#xpcom_openURI"/>
+      <node name="Interpolate a string (komodo.interpolate)" link="macroapi.html#komodo_interpolate"/>
+      <node name="Get word under cursor (komodo.getWordUnderCursor)" link="macroapi.html#komodo_getWordUnderCursor"/>
+      <node name="Running a Komodo command (XPCOM)" link="macroapi.html#xpcom_doCommand"/>
+      <node name="Find a part (XPCOM)" link="macroapi.html#xpcom_findPart"/>
+  </node>
+  </node>
+  <node name="Command ID List" link="commandid.html"/>
+</node>
+
+<node name="Templates" link="templates.html#templates_top">
+  <node name="Creating New Files from Templates" link="templates.html#templates_newmenu"/>
+  <node name="Custom Templates" link="templates.html#create_custom">
+    <node name="Using Interpolation Shortcuts in Custom Templates" link="templates.html#template_variables"/>
+  </node>
+  <node name="Project Templates" link="templates.html#project_templates"/>
+  <node name="Storing Templates in a Project or the Toolbox" link="templates.html#templates_projtool">
+    <node name="Template Options" link="templates.html#templates_options"/>
+    <node name="Assigning Custom Icons to Templates" link="templates.html#Cust_Icons"/>
+    <node name="Template Key Bindings" link="templates.html#template_key_bindings"/>
+  </node>
+</node>
+
+<node name="Open Shortcuts" link="openshort.html#openshort_top">
+  <node name="Open Shortcut Options" link="openshort.html#openshort_options">
+    <node name="Open Shortcut Properties" link="openshort.html#openshort_props">
+      <node name="Assigning Custom Icons to Open Shortcuts" link="openshort.html#openshort_Cust_Icons"/>
+      <node name="Open Shortcut Key Bindings" link="openshort.html#openshort_key_bindings"/>
     </node>
   </node>
 </node>
 
-<node name="Run Commands" link="komodo-doc-run.html#run_top">
-  <node name="Creating Run Commands" link="komodo-doc-run.html#run_create">
-    <node name="Simple Run Commands" link="komodo-doc-run.html#run_simple"/>
-    <node name="Advanced Run Commands" link="komodo-doc-run.html#run_advanced"/>
-    <node name="Command Output Tab" link="komodo-doc-run.html#run_outputtab"/>
-  </node>
-  <node name="Storing Run Commands in a Project or the Toolbox" link="komodo-doc-run.html#run_projtool">
-    <node name="Run Command Properties" link="komodo-doc-run.html#runcmd_props">
-      <node name="Assigning Custom Icons to Run Commands" link="komodo-doc-run.html#run_Cust_Icons"/>
-      <node name="Run Command Key Bindings" link="komodo-doc-run.html#run_key_bindings"/>
+<node name="URL Shortcuts" link="urls.html#urls_top">
+  <node name="URL Shortcut Options" link="urls.html#urls_options">
+    <node name="URL Shortcut Properties" link="urls.html#urls_props">
+      <node name="Assigning Custom Icons to URL Shortcuts" link="urls.html#urls_icons"/>
+      <node name="URL Shortcut Key Bindings" link="urls.html#urls_keybindings"/>
     </node>
   </node>
 </node>
 
-<node name="Custom Toolbars and Menus" link="komodo-doc-custtbi.html#custtbi_top">
-  <node name="Creating Custom Toolbars and Menus" link="komodo-doc-custtbi.html#Cust_Toolbar_Menu"/>
-  <node name="Custom Menu and Toolbar Options" link="komodo-doc-custtbi.html#custtbi_options"/>
-  <node name="Custom Menu and Toolbar Properties" link="komodo-doc-custtbi.html#custtbi_props"/>
-</node>
-
-<node name="Interpolation Shortcuts" link="komodo-doc-shortcuts.html#shortcuts_top">
-  <node name="Interpolation Shortcut List" link="komodo-doc-shortcuts.html#shortcuts_all_codes"/>
-  <node name="Interpolation Shortcut Syntax" link="komodo-doc-shortcuts.html#basic">
-    <node name="Non-Bracketed Syntax" link="komodo-doc-shortcuts.html#shortcuts_nonbrack"/>
-    <node name="Bracketed Syntax" link="komodo-doc-shortcuts.html#shortcuts_brack"/>
+<node name="Run Commands" link="run.html#run_top">
+  <node name="Creating Run Commands" link="run.html#run_create">
+    <node name="Simple Run Commands" link="run.html#run_simple"/>
+    <node name="Advanced Run Commands" link="run.html#run_advanced"/>
+    <node name="Command Output Tab" link="run.html#run_outputtab"/>
   </node>
-  <node name="Basic Interpolation Shorcut Options" link="komodo-doc-shortcuts.html#options"/>
-  <node name="%(date)" link="komodo-doc-shortcuts.html#shortcuts_datecode"/>
-  <node name="%(ask)" link="komodo-doc-shortcuts.html#shortcuts_askcode"/>
-  <node name="%(path)" link="komodo-doc-shortcuts.html#shortcuts_pathcode"/>
-  <node name="%(debugger)" link="komodo-doc-shortcuts.html#shortcuts_debugcode"/>
-  <node name="%(pref)" link="komodo-doc-shortcuts.html#shortcuts_prefscode"/>
-  <node name="Back-References" link="komodo-doc-shortcuts.html#back_references"/>
-</node>
-
-<node name="Preferences" link="komodo-doc-prefs.html#prefs_top">
-  <node name="Appearance" link="komodo-doc-prefs.html#UI_Configuration"/>
-  <node name="Code Intelligence Preferences" link="komodo-doc-prefs.html#code_intel"/>
-  <node name="Directory Import" link="komodo-doc-prefs.html#Directory_Import"/>
-  <node name="Editor" link="komodo-doc-prefs.html#prefs_editor">
-    <node name="Key Bindings" link="komodo-doc-prefs.html#Config_Key_Bindings"/>
-    <node name="Indentation" link="komodo-doc-prefs.html#Indentation_Features"/>
-    <node name="Smart Editing" link="komodo-doc-prefs.html#smart_editing">
-      <node name="Background Syntax Checking Preferences" link="komodo-doc-prefs.html#syntax_checking"/>
-      <node name="Word Completion" link="komodo-doc-prefs.html#Config_Word_Complete"/>
-      <node name="Word Wrap" link="komodo-doc-prefs.html#Config_Auto_Wrap"/>
-      <node name="Configuring Edge Lines" link="komodo-doc-prefs.html#Config_Edge_Line"/>
-      <node id="enable_soft_characters" name="Soft Characters" link="komodo-doc-prefs.html#Soft_Chars"/>
-      <node name="Configuring Folding" link="komodo-doc-prefs.html#Folding"/>
+  <node name="Storing Run Commands in a Project or the Toolbox" link="run.html#run_projtool">
+    <node name="Run Command Properties" link="run.html#runcmd_props">
+      <node name="Assigning Custom Icons to Run Commands" link="run.html#run_Cust_Icons"/>
+      <node name="Run Command Key Bindings" link="run.html#run_key_bindings"/>
     </node>
-    <node name="Save Options" link="komodo-doc-prefs.html#Save_Options"/>
   </node>
-  <node name="Environment" link="komodo-doc-prefs.html#Environment"/>
-  <node name="File Associations" link="komodo-doc-prefs.html#File_Associations"/>
-  <node name="Fonts and Colors" link="komodo-doc-prefs.html#Customizing_Fonts">
-    <node name="Fonts" link="komodo-doc-prefs.html#fonts"/>
-    <node name="Colors" link="komodo-doc-prefs.html#colors"/>
-    <node name="Common Syntax Coloring" link="komodo-doc-prefs.html#common_syntax"/>
-    <node name="Language-Specific Coloring" link="komodo-doc-prefs.html#lang_specific"/>
-  </node>
-  <node name="Internationalization Preferences" link="komodo-doc-prefs.html#Internationalization"/>
-  <node name="Language Help Preferences" link="komodo-doc-prefs.html#language_help"/>
-  <node name="Language Configuration Preferences" link="komodo-doc-prefs.html#lang_config">
-    <node name="JavaScript Configuration" link="komodo-doc-prefs.html#JavaScript"/>
-    <node name="Perl Configuration" link="komodo-doc-prefs.html#Perl"/>
-    <node name="PHP Configuration" link="komodo-doc-prefs.html#PHP"/>
-    <node name="Python Configuration" link="komodo-doc-prefs.html#Python"/>
-    <node name="Ruby Configuration" link="komodo-doc-prefs.html#Ruby"/>
-    <node name="Tcl Configuration" link="komodo-doc-prefs.html#Tcl"/>
-    <node name="HTML Configuration" link="komodo-doc-prefs.html#html"/>
-    <node name="XML Catalog Configuration" link="komodo-doc-prefs.html#xml_catalogs"/>
-  </node>
-  <node name="Mapped URIs" link="komodo-doc-prefs.html#mapped_uris"/>
-  <node name="New Files" link="komodo-doc-prefs.html#new_files"/>
-  <node name="Printing" link="komodo-doc-prefs.html#printing"/>
-  <node name="Projects and Workspace" link="komodo-doc-prefs.html#projects"/>
-  <node name="Server Configuration" link="komodo-doc-prefs.html#Servers"/>
-  <node name="Shared Support" link="komodo-doc-prefs.html#Shared_Support">
-    <node name="Configuring the Common Data Directory" link="komodo-doc-prefs.html#Config_CDD"/>
-    <node name="Sharing .tip, .pcx and .pdx Files" link="komodo-doc-prefs.html#Share_Files"/>
-    <node name="Sharing Preferences" link="komodo-doc-prefs.html#Share_Prefs"/>
-  </node>
-  <node name="Web and Browser" link="komodo-doc-prefs.html#web"/>
-  <node name="Windows Integration" link="komodo-doc-prefs.html#integration"/>
 </node>
 
-<node name="Tutorials" link="komodo-doc-tut-intro.html#tut_over_top">
+<node name="Custom Toolbars and Menus" link="custtbi.html#custtbi_top">
+  <node name="Creating Custom Toolbars and Menus" link="custtbi.html#Cust_Toolbar_Menu"/>
+  <node name="Custom Menu and Toolbar Options" link="custtbi.html#custtbi_options"/>
+  <node name="Custom Menu and Toolbar Properties" link="custtbi.html#custtbi_props"/>
+</node>
+
+<node name="Interpolation Shortcuts" link="shortcuts.html#shortcuts_top">
+  <node name="Interpolation Shortcut List" link="shortcuts.html#shortcuts_all_codes"/>
+  <node name="Interpolation Shortcut Syntax" link="shortcuts.html#basic">
+    <node name="Non-Bracketed Syntax" link="shortcuts.html#shortcuts_nonbrack"/>
+    <node name="Bracketed Syntax" link="shortcuts.html#shortcuts_brack"/>
+  </node>
+  <node name="Basic Interpolation Shorcut Options" link="shortcuts.html#options"/>
+  <node name="%(date)" link="shortcuts.html#shortcuts_datecode"/>
+  <node name="%(ask)" link="shortcuts.html#shortcuts_askcode"/>
+  <node name="%(path)" link="shortcuts.html#shortcuts_pathcode"/>
+  <node name="%(debugger)" link="shortcuts.html#shortcuts_debugcode"/>
+  <node name="%(pref)" link="shortcuts.html#shortcuts_prefscode"/>
+  <node name="Back-References" link="shortcuts.html#back_references"/>
+</node>
+
+<node name="Preferences" link="prefs.html#prefs_top">
+  <node name="Appearance" link="prefs.html#UI_Configuration"/>
+  <node name="Code Intelligence Preferences" link="prefs.html#code_intel"/>
+  <node name="Directory Import" link="prefs.html#Directory_Import"/>
+  <node name="Editor" link="prefs.html#prefs_editor">
+    <node name="Key Bindings" link="prefs.html#Config_Key_Bindings"/>
+    <node name="Indentation" link="prefs.html#Indentation_Features"/>
+    <node name="Smart Editing" link="prefs.html#smart_editing">
+      <node name="Background Syntax Checking Preferences" link="prefs.html#syntax_checking"/>
+      <node name="Word Completion" link="prefs.html#Config_Word_Complete"/>
+      <node name="Word Wrap" link="prefs.html#Config_Auto_Wrap"/>
+      <node name="Configuring Edge Lines" link="prefs.html#Config_Edge_Line"/>
+      <node id="enable_soft_characters" name="Soft Characters" link="prefs.html#Soft_Chars"/>
+      <node name="Configuring Folding" link="prefs.html#Folding"/>
+    </node>
+    <node name="Save Options" link="prefs.html#Save_Options"/>
+  </node>
+  <node name="Environment" link="prefs.html#Environment"/>
+  <node name="File Associations" link="prefs.html#File_Associations"/>
+  <node name="Fonts and Colors" link="prefs.html#Customizing_Fonts">
+    <node name="Fonts" link="prefs.html#fonts"/>
+    <node name="Colors" link="prefs.html#colors"/>
+    <node name="Common Syntax Coloring" link="prefs.html#common_syntax"/>
+    <node name="Language-Specific Coloring" link="prefs.html#lang_specific"/>
+  </node>
+  <node name="Internationalization Preferences" link="prefs.html#Internationalization"/>
+  <node name="Language Help Preferences" link="prefs.html#language_help"/>
+  <node name="Language Configuration Preferences" link="prefs.html#lang_config">
+    <node name="JavaScript Configuration" link="prefs.html#JavaScript"/>
+    <node name="Perl Configuration" link="prefs.html#Perl"/>
+    <node name="PHP Configuration" link="prefs.html#PHP"/>
+    <node name="Python Configuration" link="prefs.html#Python"/>
+    <node name="Ruby Configuration" link="prefs.html#Ruby"/>
+    <node name="Tcl Configuration" link="prefs.html#Tcl"/>
+    <node name="HTML Configuration" link="prefs.html#html"/>
+    <node name="XML Catalog Configuration" link="prefs.html#xml_catalogs"/>
+  </node>
+  <node name="Mapped URIs" link="prefs.html#mapped_uris"/>
+  <node name="New Files" link="prefs.html#new_files"/>
+  <node name="Printing" link="prefs.html#printing"/>
+  <node name="Projects and Workspace" link="prefs.html#projects"/>
+  <node name="Server Configuration" link="prefs.html#Servers"/>
+  <node name="Shared Support" link="prefs.html#Shared_Support">
+    <node name="Configuring the Common Data Directory" link="prefs.html#Config_CDD"/>
+    <node name="Sharing .tip, .pcx and .pdx Files" link="prefs.html#Share_Files"/>
+    <node name="Sharing Preferences" link="prefs.html#Share_Prefs"/>
+  </node>
+  <node name="Web and Browser" link="prefs.html#web"/>
+  <node name="Windows Integration" link="prefs.html#integration"/>
+</node>
+
+<node name="Tutorials" link="tut-intro.html#tut_over_top">
   <node id="showcase_tutorial" name="Feature Showcase" link="tutorial/tourlet_over.html#over_top">
     <node name="Code Completion Snippet" link="tutorial/tourlet_codecomp.html#codecomp_top"/>
     <node name="Create a Custom Toolbar" link="tutorial/tourlet_custtoolbar.html#custtoolbar_top"/>
@@ -424,13 +424,13 @@
 </node>
 
 <node name="Komodo Reference" link="">
-  <node name="Komodo FAQ" link="komodo-doc-trouble.html#trouble_top"/>
-  <node name="Default Key Binding Lists" link="komodo-doc-keybind.html">
-    <node name="Windows/Linux Key Bindings" link="komodo-doc-defkeybind.html"/>
-    <node name="OS X Key Bindings" link="komodo-doc-osxkeybind.html"/>
-    <node name="Emacs Key Bindings" link="komodo-doc-emacskeybind.html"/>
-    <node name="Vi Key Bindings" link="komodo-doc-vikeybind.html">
-      <node name="Custom Vi Commands" link="komodo-doc-vikeybind.html#vi_commands"/>
+  <node name="Komodo FAQ" link="trouble.html#trouble_top"/>
+  <node name="Default Key Binding Lists" link="keybind.html">
+    <node name="Windows/Linux Key Bindings" link="defkeybind.html"/>
+    <node name="OS X Key Bindings" link="osxkeybind.html"/>
+    <node name="Emacs Key Bindings" link="emacskeybind.html"/>
+    <node name="Vi Key Bindings" link="vikeybind.html">
+      <node name="Custom Vi Commands" link="vikeybind.html#vi_commands"/>
     </node>
   </node>
 
@@ -438,44 +438,44 @@
 <!-- #include "komodo-js-api.toc" -->
 <!-- #endif -->
 
-  <node name="XML Catalogs" link="komodo-doc-catalogs.html#xml_catalogs_top">
-    <node name="Using XML Catalogs" link="komodo-doc-catalogs.html#using_xml_catalogs"/>
-    <node name="Creating XML Catalogs" link="komodo-doc-catalogs.html#creating_xml_catalogs"/>
-    <node name="XML Catalog Resources" link="komodo-doc-catalogs.html#xml_catalog_resources"/>
+  <node name="XML Catalogs" link="catalogs.html#xml_catalogs_top">
+    <node name="Using XML Catalogs" link="catalogs.html#using_xml_catalogs"/>
+    <node name="Creating XML Catalogs" link="catalogs.html#creating_xml_catalogs"/>
+    <node name="XML Catalog Resources" link="catalogs.html#xml_catalog_resources"/>
   </node>
-  <node name="User-Defined Languages" link="komodo-doc-udl.html#udl_top">
-    <node name="Introduction" link="komodo-doc-udl.html#udl_introduction"/>
-    <node name="Luddite Language Overview" link="komodo-doc-udl.html#udl_language-overview">
-      <node name="A Sample" link="komodo-doc-udl.html#udl_a-sample"/>
+  <node name="User-Defined Languages" link="udl.html#udl_top">
+    <node name="Introduction" link="udl.html#udl_introduction"/>
+    <node name="Luddite Language Overview" link="udl.html#udl_language-overview">
+      <node name="A Sample" link="udl.html#udl_a-sample"/>
     </node>
-    <node name="Luddite in a Nutshell" link="komodo-doc-udl.html#udl_luddite-in-a-nutshell">
-      <node name="Families" link="komodo-doc-udl.html#udl_families"/>
-      <node name="Styles" link="komodo-doc-udl.html#udl_styles"/>
-      <node name="UDL Keywords" link="komodo-doc-udl.html#udl_keywords"/>
-      <node name="Pattern Variables" link="komodo-doc-udl.html#udl_pattern-variables"/>
-      <node name="States and Transitions" link="komodo-doc-udl.html#udl_states-and-transitions">
-        <node name="The Initial State" link="komodo-doc-udl.html#udl_the-initial-state"/>
-        <node name="Specifying State Transitions" link="komodo-doc-udl.html#udl_specifying-state-transitions"/>
-        <node name="Include, Upto, and EOF Conditions" link="komodo-doc-udl.html#udl_include-upto-and-eof-conditions"/>
-        <node name="Redo and Lookahead" link="komodo-doc-udl.html#udl_redo-and-lookahead"/>
-        <node name="Preventing Keyword Promotion" link="komodo-doc-udl.html#udl_no_keyword"/>
-        <node name="Pattern Syntax" link="komodo-doc-udl.html#udl_pattern-syntax"/>
-        <node name="Pushing States" link="komodo-doc-udl.html#udl_pushing-states"/>
-        <node name="Handling Newlines" link="komodo-doc-udl.html#udl_line_oriented_transitions"/>
-        <node name="Supporting Arbitrary Delimiters" link="komodo-doc-udl.html#udl_arbitrary_delimiters"/>
+    <node name="Luddite in a Nutshell" link="udl.html#udl_luddite-in-a-nutshell">
+      <node name="Families" link="udl.html#udl_families"/>
+      <node name="Styles" link="udl.html#udl_styles"/>
+      <node name="UDL Keywords" link="udl.html#udl_keywords"/>
+      <node name="Pattern Variables" link="udl.html#udl_pattern-variables"/>
+      <node name="States and Transitions" link="udl.html#udl_states-and-transitions">
+        <node name="The Initial State" link="udl.html#udl_the-initial-state"/>
+        <node name="Specifying State Transitions" link="udl.html#udl_specifying-state-transitions"/>
+        <node name="Include, Upto, and EOF Conditions" link="udl.html#udl_include-upto-and-eof-conditions"/>
+        <node name="Redo and Lookahead" link="udl.html#udl_redo-and-lookahead"/>
+        <node name="Preventing Keyword Promotion" link="udl.html#udl_no_keyword"/>
+        <node name="Pattern Syntax" link="udl.html#udl_pattern-syntax"/>
+        <node name="Pushing States" link="udl.html#udl_pushing-states"/>
+        <node name="Handling Newlines" link="udl.html#udl_line_oriented_transitions"/>
+        <node name="Supporting Arbitrary Delimiters" link="udl.html#udl_arbitrary_delimiters"/>
       </node>
-    <node name="Disambiguation" link="komodo-doc-udl.html#udl_disambiguation"/>
-    <node name="Specifying Folding" link="komodo-doc-udl.html#udl_specifying-folding"/>
-    <node name="Compiling and Installing" link="komodo-doc-udl.html#udl_compile-install"/>
-    <node name="Samples" link="komodo-doc-udl.html#udl_samples"/>
+    <node name="Disambiguation" link="udl.html#udl_disambiguation"/>
+    <node name="Specifying Folding" link="udl.html#udl_specifying-folding"/>
+    <node name="Compiling and Installing" link="udl.html#udl_compile-install"/>
+    <node name="Samples" link="udl.html#udl_samples"/>
     </node>
   </node>
 
-  <node name="Luddite Reference" link="komodo-doc-luddite.html#luddite_top">
-    <node name="Keywords" link="komodo-doc-luddite.html#luddite_keywords"/>
-    <node name="Style Names" link="komodo-doc-luddite.html#style-names"/>
-    <node name="Terms" link="komodo-doc-luddite.html#terms"/>
-    <node name="Concepts" link="komodo-doc-luddite.html#concepts"/>
+  <node name="Luddite Reference" link="luddite.html#luddite_top">
+    <node name="Keywords" link="luddite.html#luddite_keywords"/>
+    <node name="Style Names" link="luddite.html#style-names"/>
+    <node name="Terms" link="luddite.html#terms"/>
+    <node name="Concepts" link="luddite.html#concepts"/>
   </node>
 
 </node>

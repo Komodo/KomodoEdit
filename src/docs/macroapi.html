@@ -90,7 +90,7 @@
     <li>The <a
     href="#macroapi_doCommand"><code>ko.commands.doCommand(...)</code></a>
     function to execute Komodo <a
-    href="komodo-doc-commandid.html">commands</a>.</li>
+    href="commandid.html">commands</a>.</li>
     
     <li>The <a href="#macroapi_openURI"><code>ko.open.URI(...)</code></a>
     function to open a local or remote file using a URI.</li>
@@ -105,7 +105,7 @@
       <li>The <a
       href="#macroapi_interpolate"><code>interpolateStrings(...)</code></a>
       function for evaluation of <a
-      href="komodo-doc-shortcuts.html#shortcuts_all_codes">interpolation
+      href="shortcuts.html#shortcuts_all_codes">interpolation
       codes</a></li>
       
       <li>The <a
@@ -790,7 +790,7 @@ ko.commands.doCommand(commandId)
   <code>commandId</code>.</p>
 
   <p>Command IDs and their corresponding functions are available in
-  the <a href="komodo-doc-commandid.html">Command ID
+  the <a href="commandid.html">Command ID
   reference</a>.</p>
 
   <p>Most editor-related commands require that the Editor Pane be
@@ -826,7 +826,7 @@ ko.projects.findPart(type, name, where) -&gt; part
 </pre>
 
   <p>Find a "part" (the internal name for a <a href=
-  "komodo-doc-toolbox.html#toolbox_top">component</a> such as a
+  "toolbox.html#toolbox_top">component</a> such as a
   snippet, another macro, a run command, etc) in the Toolbox or a
   project.</p>
 
@@ -896,7 +896,7 @@ ko.interpolate.interpolateString(s[, bracketed]) -&gt; string
 </pre>
 
   <p>Evaluate <a href=
-  "komodo-doc-shortcuts.html#shortcuts_top">interpolation
+  "shortcuts.html#shortcuts_top">interpolation
   shortcuts</a> in the given string.</p>
 
   <ul>
@@ -1031,7 +1031,7 @@ obsvc.notifyObservers(None, 'open-url', uri);</pre>
   <h3><a name="komodo_interpolate">Interpolate a string</a></h3>
     
   <p>There is currently no equivalent in XPCOM for evaluating <a
-  href="komodo-doc-shortcuts.html#shortcuts_all_codes">interpolation codes</a>.
+  href="shortcuts.html#shortcuts_all_codes">interpolation codes</a>.
   This can be done using the old <code>komodo</code> namespace as follows:</p>
     
   <pre class="code">
@@ -1056,7 +1056,7 @@ komodo.getWordUnderCursor()</pre>
   
   <h3><a name="xpcom_doCommand">Running a Komodo command</a></h3>
   
-  <p>To execute Komodo <a href="komodo-doc-commandid.html">command</a>:</p>
+  <p>To execute Komodo <a href="commandid.html">command</a>:</p>
   
   <pre class="code">
 def doCommand(commandId):
