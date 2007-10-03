@@ -23,22 +23,11 @@ if ($buildType eq 'debug') {
 }
 
 $cons->Command(
-    ["../include/Scintilla_gen.h","../include/SciLexer_gen.h"],
-    # files needed to do the generation
+    [$pluginName],              # %0
+    "scintilla_vc6.mak",        # %1
+    "../include/HFacer.py",     # %2
     "../include/Face.py",
-    "../include/HFacer.py",
-    "../bin/empty.txt",   # as for scintilla dist, only there to create bin dir
-    qq(
-        $unsiloedPythonExe bin/run-in-dir.py %1:d python HFacer.py
-    )
-);
-
-$cons->Command(
-    [$pluginName],
-    "scintilla_vc6.mak",
     "../include/Accessor.h",
-    "../include/Face.py",
-    "../include/HFacer.py",
     "../include/KeyWords.h",
     "../include/Platform.h",
     "../include/PropSet.h",
@@ -177,7 +166,12 @@ $cons->Command(
     "libpcre.lib", # built and installed from contrib/pcre
     "../include/pcre.h", # installed from contrib/pcre
 
-    "set FLAGS=\"$makeFlags\" && $unsiloedPythonExe bin/run-in-dir.py %1:d nmake /nologo QUIET=0 $pluginName -f %1:f");
+    qq(
+        $unsiloedPythonExe bin/run-in-dir.py %2:d python HFacer.py
+        set FLAGS=\"$makeFlags\" && $unsiloedPythonExe bin/run-in-dir.py %1:d nmake /nologo QUIET=0 $pluginName -f %1:f
+    )
+);
+
 
 # install it
 $cons->Install($mozBin, $pluginName);
