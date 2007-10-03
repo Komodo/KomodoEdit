@@ -79,14 +79,16 @@ def get_wxs_paths():
     assert "feature-core.wxs.in" in os.listdir('.'),\
         "You must run this from the dir with 'feature-core.wxs.in'."
     # Include the .wxs files from *all* active Komodo branches.
-    active_branches = ["4.1", "devel"]
+    active_branches = ["Komodo-4.2", "komodo", "openkomodo"]
     base = normpath(join(dirname(abspath(__file__)),
                          "..", "..", "..", "..", ".."))
-    active_wix_dirs = [join(base, "Komodo-"+b, "src", "install", "wix")
+    active_wix_dirs = [join(base, b, "src", "install", "wix")
                        for b in active_branches]
     wxs_paths = []
     for d in active_wix_dirs:
         if not exists(d):
+            #TODO: Determine if this is still necessary and try to drop
+            #      this requirement.
             raise Error("'%s' does not exist: to run this script you need "
                         "all active Komodo branches synced" % d)
         wxs_paths += glob(join(d, "*.wxs"))
@@ -108,6 +110,16 @@ def newfile(path, guru):
             markers_found = True
             assert line.lstrip().startswith("<File ")
             indent = line[:line.index('<')]
+
+            if line.rstrip().endswith("/>"):
+                tail_hack = None
+            elif line.rstrip().endswith(">"):
+                tail_hack = ">" # just the one char
+                line = line.rstrip()[:-1] + "/>"
+            else:
+                tail_hack = ""
+                line = line.rstrip() + "/>"
+
             elem = ET.fromstring(line)
             src = elem.get("src")
             if src is None:
@@ -124,6 +136,16 @@ def newfile(path, guru):
                 attrib["LongName"] = longname
             print "... updating <File/> for %s" % (longname or name)
             file_tag = ET.tostring(ET.Element("File", **attrib))
+
+            if tail_hack is None:
+                pass
+            elif tail_hack == ">":
+                file_tag = file_tag.rstrip()[:-2] + ">"
+            elif tail_hack == "":
+                file_tag = file_tag.rstrip()[:-2]
+            else:
+                raise Error("unexpected tail hack: %r" % tail_hack)
+
             new_lines.append(indent + file_tag)
         if line.lstrip().startswith("<Directory "):
             last_directory_line = line
