@@ -150,7 +150,12 @@ var ko = {
             this.getTextStylesFromLanguageObj();
             // Simplified, scintilla-ready regex'es
             // For scintilla, \w => a-zA-Z\x80-\xff (assumes utf-8)
-            var word_match = (/[\w'_][\w\d\-\.'_]*/); //workaround with parens
+            // bug 72412: Watch out for words that include an
+            // apostrophe that's actually the string delimiter.  For now
+            // don't bother with words that start or end with an apostrophe.
+            // Yes, check for words that are at least two characters long.
+            // 
+            var word_match = /[\w_][\w\d\-\.'_]*[\w_]/;
             var skip_word_ptns = [/[\._]/, /[a-z].*[A-Z]/, /[\d]/, /-/, /'.*'/]; // skip anything containing one of these
             
             function expand_ptn(ptn) {
@@ -252,8 +257,8 @@ var ko = {
                         }
                     }
                     if (rej) break;
-                    var style = this.scimoz.getStyleAt(i);
-                    if (!this.text_styles[style] || this.scimoz.getStyleAt(possibleTargetEnd - 1) != style) {
+                    var style = this.scimoz.getStyleAt(possibleTargetEnd - 1);
+                    if (!this.text_styles[style] || this.scimoz.getStyleAt(possibleTargetStart) != style) {
                         break;
                     }
                     var word = this.scimoz.getTextRange(possibleTargetStart, possibleTargetEnd);
