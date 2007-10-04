@@ -268,6 +268,7 @@ VimController.WORKS_IN_VISUAL_MODE = 0x100; // Can be used in visual mode
 VimController.CANCELS_VISUAL_MODE = 0x200;  // Cancels visual mode
 VimController.CHOOSE_CARET_X =  0x400;      // Sets the caret X position after the command
 VimController.DELAY_MODE_INSERT = 0x800;    // Do not enter insert mode yet
+VimController.NO_OP_FLAG_CHANGE = 0x1000;   // Do not change the operation flag.
 
 // Used as representation that this command is specially handled
 // Commands with this value must have a matching JS function of the same name.
@@ -512,8 +513,9 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
         // Remember the last mode
         this._lastMode = old_mode;
         this._movePosBefore = false;
-        // Set operation type back to none, FIND mode does not change it though
-        if (new_mode != VimController.MODE_FIND_CHAR && old_mode != VimController.MODE_FIND_CHAR) {
+        // Set operation type back to none, find modes do not change it though.
+        if (new_mode != VimController.MODE_FIND_CHAR &&
+            new_mode != VimController.MODE_SEARCH) {
             this.operationFlags = VimController.OPERATION_NONE;
         }
         var scimoz = null;
@@ -1309,36 +1311,67 @@ VimController.prototype.performSearch = function (scimoz, searchString,
         this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
         this._findSvc.options.matchWord = false;
         this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
-        var incrementalSearchContext = Components.classes["@activestate.com/koFindContext;1"]
+        var searchContext = Components.classes["@activestate.com/koFindContext;1"]
                                         .createInstance(Components.interfaces.koIFindContext);
-        incrementalSearchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
+        searchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
         this._setFindSvcContext("find");
-        var findres = Find_FindNext(window, incrementalSearchContext,
-                                    searchString,
-                                    null,  // mode
-                                    true,  // quiet
-                                    true); // add pattern to find MRU
-        if (findres == false) {
-            this.setStatusBarMessage("No occurences of '" +
-                                     searchString + "' was found",
-                                     5000, true);
-            // Didn't find anything, ensure we move back to the start position
-            scimoz.currentPos = orig_currentPos;
-        } else {
-            // The search engine highlights the selection, we don't want this:
-            //   http://bugs.activestate.com/show_bug.cgi?id=65586
-            var new_currentPos = scimoz.anchor;
-            scimoz.currentPos = new_currentPos;
-            var msg = "Search: '" + searchString + "'";
-            if ((searchDirection == VimController.SEARCH_FORWARD) &&
-                (new_currentPos < orig_currentPos)) {
-                msg += " (search hit BOTTOM, continuing at TOP)";
-            } else if ((searchDirection == VimController.SEARCH_BACKWARD) &&
-                       (new_currentPos > orig_currentPos)) {
-                msg += " (search hit TOP, continuing at BOTTOM)";
+        var repeatSearchCount = Math.max(1, this.repeatCount);
+        vimlog.debug("Repeating search: " + repeatSearchCount + " times");
+        var msg = "Search: '" + searchString + "'";
+        // Track how many times the search has looped around the document.
+        var loopcount = 0;
+        var loop_trackingPos = orig_currentPos;
+        var searchString_byteLength = ko.stringutils.bytelength(searchString);
+
+        // Vi searches can have a repitition count.
+        for (var count=0; count < repeatSearchCount; count++) {
+            var findres = Find_FindNext(window,
+                                        searchContext,
+                                        searchString,
+                                        null,  // mode
+                                        true,  // quiet
+                                        true); // add pattern to find MRU
+            if (findres == false) {
+                msg = "No occurences of '" + searchString + "' was found";
+                // Didn't find anything, ensure we move back to the start position
+                scimoz.currentPos = orig_currentPos;
+                break;
+            } else {
+                // The search engine highlights the selection, we don't want this:
+                //   http://bugs.activestate.com/show_bug.cgi?id=65586
+                var new_currentPos = scimoz.anchor;
+                if ((count+1) < repeatSearchCount) {
+                    // The next search must continue from after the found text.
+                    scimoz.currentPos = new_currentPos + searchString_byteLength;
+                } else {
+                    scimoz.currentPos = new_currentPos;
+                }
+
+                // Check if we've looped around the document.
+                if ((searchDirection == VimController.SEARCH_FORWARD) &&
+                    (new_currentPos < loop_trackingPos)) {
+                    loopcount++;
+                    if (loopcount > 1) {
+                        break;
+                    }
+                    msg += " (search hit BOTTOM, continuing at TOP)";
+                } else if ((searchDirection == VimController.SEARCH_BACKWARD) &&
+                           (new_currentPos > loop_trackingPos)) {
+                    loopcount++;
+                    if (loopcount > 1) {
+                        break;
+                    }
+                    msg += " (search hit TOP, continuing at BOTTOM)";
+                }
+                loop_trackingPos = new_currentPos;
             }
-            this.setStatusBarMessage(msg, 5000, true);
         }
+        if (loopcount > 1) {
+            // We've looped twice, cancel the search.
+            scimoz.currentPos = orig_currentPos;
+            msg = "Operation cancelled: Search looped around twice";
+        }
+        this.setStatusBarMessage(msg, 5000, true);
     } catch (e) {
         vimlog.exception(e);
     }
@@ -2256,8 +2289,12 @@ VimController.command_mappings = {
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_enterSearchForward" :  [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
+                                                                    VimController.MOVEMENT_ACTION |
+                                                                    VimController.NO_OP_FLAG_CHANGE |
                                                                     VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_enterSearchBackward" : [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
+                                                                    VimController.MOVEMENT_ACTION |
+                                                                    VimController.NO_OP_FLAG_CHANGE |
                                                                     VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_setRegister" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "cmd_vim_saveAndClose" :        [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
@@ -2420,8 +2457,8 @@ function vim_doCommand(command)
         }
 
         // Record modifying action if makes modifications
-        var modifyAction = (mappedCommand[1] & VimController.MODIFY_ACTION ||
-                            gVimController.operationFlags & VimController.OPERATION_DELETE);
+        var modifyAction = ((mappedCommand[1] & VimController.MODIFY_ACTION) ||
+                            (gVimController.operationFlags & VimController.OPERATION_DELETE));
         if (modifyAction) {
             // Use the original command, as repeat uses vim_doCommand() and
             // this requires the original command that was run.
@@ -2476,7 +2513,8 @@ function vim_doCommand(command)
                 }
             }
 
-            if (opMovementAction) {
+            if (opMovementAction &&
+                !(mappedCommand[1] & VimController.NO_OP_FLAG_CHANGE)) {
                 var movePos = gVimController._currentPos;
                 if (movePos == orig_currentPos) {
                     // Use scimoz setting directly then
@@ -2545,17 +2583,19 @@ function vim_doCommand(command)
                           " and "+selectionEnd);
                 if (selectionStart < selectionEnd) {
                     gVimController.copyInternal(scimoz, selectionStart, selectionEnd,
-                                                gVimController.operationFlags & VimController.OPERATION_DELETE);
+                                                (gVimController.operationFlags & VimController.OPERATION_DELETE));
                     // Move to the start of the selection after the copy/delete
                     gVimController._currentPos = selectionStart;
                 } else {
                     gVimController.copyInternal(scimoz, selectionEnd, selectionStart,
-                                                gVimController.operationFlags & VimController.OPERATION_DELETE);
+                                                (gVimController.operationFlags & VimController.OPERATION_DELETE));
                 }
                 gVimController.resetCommandSettings();
             }
-        } else {
-            // reset the operationFlags back to normal.
+        } else if (!(mappedCommand[1] & VimController.NO_OP_FLAG_CHANGE)) {
+            // Reset the operationFlags back to normal. Not done if the
+            // operation actions need to be delayed, see bug:
+            // http://bugs.activestate.com/show_bug.cgi?id=72695
             gVimController.resetCommandSettings();
         }
 
@@ -3295,16 +3335,18 @@ function vim_InputBuffer_KeyPress(event)
             } else if (gVimController.mode == VimController.MODE_SEARCH) {
                 // Command mode "/" or "?"
                 // We have a search, set up the findSvc and perform the search
-                var searchOptions = { value: value, options: null };
                 if (value) {
                     // Only update the search details if there is something
                     // to update with, otherwsie we used whatever we used
                     // on the last search
+                    var searchOptions = { value: value, options: null };
                     _vi_updateSearchField(searchOptions);
                     gVimController._searchOptions = searchOptions.options;
+                    // Store the search text, will be retrieved by the
+                    // cmd_vim_findNext command.
+                    ko.mru.add("find-patternMru", searchOptions.value);
                 }
-                gVimController.performSearch(scimoz, searchOptions.value,
-                                             false  /* reverseDirection */);
+                vim_doCommand("cmd_vim_findNext");
                 if (gVimController._lastMode == VimController.MODE_VISUAL) {
                     returnToMode = VimController.MODE_VISUAL;
                 }

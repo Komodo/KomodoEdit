@@ -601,6 +601,7 @@ test_vi_emulation.prototype._runOperationCommands = function(cmd, buffer,
  * Test commands that use the find char with an operation mode.
  * @param cmd {string}  The command to be run
  * @param buffer {string}  Contains the text and caret positions
+ * @param charToFind {string}  The character to search for
  * @param searchDirection {int}  Direction to search in
  * @param t_style {boolean}  Use the position before|after "t" command semantics
  * @param register {string}  The register to be used for the command
@@ -628,6 +629,41 @@ test_vi_emulation.prototype._runFindCharOperation = function(cmd, buffer,
         gVimController._lastMovePosBefore = false;
     }
     gVimController.mode = VimController.MODE_FIND_CHAR;
+    gVimController._lastRepeatCount = 1;
+
+    this._runRegisterOperationCommands(cmd, buffer, register, testRepeat,
+                                       operations, tags, false /* resetMode */,
+                                       forcedRepeatCount);
+}
+
+
+/**
+ * Test commands that use searching commands combined with an operation mode.
+ * @param cmd {string}  The search command to be run.
+ * @param buffer {string}  Contains the text and caret positions
+ * @param searchText {string}  The text to search for
+ * @param searchDirection {int}  Direction to search in
+ * @param register {string}  The register to be used for the command
+ * @param testRepeat {boolean}  Test the command using a repeat count.
+ * @param operations {array}  The operations to run the command with
+ * @param tags {array}  List of specific test tag names
+ * @param forcedRepeatCount {int}  Set repeat count to this value on every op
+ */
+test_vi_emulation.prototype._runSearchCommandWithOperation = function(
+                            cmd,
+                            buffer,
+                            searchText,
+                            searchDirection,
+                            register /* null */,
+                            testRepeat /* false */,
+                            operations /* [ OPERATION_NONE ] */,
+                            tags /* null */,
+                            forcedRepeatCount /* 1 */) {
+    this._reset();
+    // Set the string we are looking for, this is done using the find mru.
+    ko.mru.add("find-patternMru", searchText, true);
+    gVimController._searchDirection = searchDirection;
+    gVimController.mode = VimController.MODE_SEARCH;
     gVimController._lastRepeatCount = 1;
 
     this._runRegisterOperationCommands(cmd, buffer, register, testRepeat,
@@ -1218,6 +1254,28 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
 }
 
 
+test_vi_emulation.prototype.test_search_with_operation = function() {
+    this._runSearchCommandWithOperation("findNext",
+                               "Word <|>is the search <1>Word, my second Worry search <2>Word searched, got <3>Word! Done!\r\n",
+                               "Word" /* text to find */,
+                               VimController.SEARCH_FORWARD,
+                               null /* register */,
+                               TEST_REPETITION,
+                               [VimController.OPERATION_NONE,
+                                VimController.OPERATION_YANK,
+                                VimController.OPERATION_DELETE,
+                                VimController.OPERATION_CHANGE]);
+}
+
+
+test_vi_emulation.prototype.assertRegisterIs = function(register, value) {
+    this.assertEqual(gVimController._registers[register],
+                     value,
+                     "Register '" + register + "' incorrect, reg: '" +
+                     gVimController._registers[register] + "', expected: '" +
+                     value + "'");
+}
+
 test_vi_emulation.prototype.test_registers = function() {
     gVimController._searchDirection = VimController.SEARCH_FORWARD;
     this._runRegisterOperationCommands("wordRight",
@@ -1243,19 +1301,11 @@ test_vi_emulation.prototype.test_registers = function() {
                                [VimController.OPERATION_DELETE]);
     //gVimController._dumpRegisters();
     // Ensure the registers hold the correct values
-    this.assertEqual(gVimController._registers["b"],
-                     "is is my code-firstbuffer",
-                     "b register: register incorrect after running command!");
-    this.assertEqual(gVimController._registers["c"],
-                     "is is my",
-                     "c register: register incorrect after running command!");
-    this.assertEqual(gVimController._registers["d"],
-                     "is is my code-thirdbuffer",
-                     "d register: register incorrect after running command!");
+    this.assertRegisterIs("b", "is is my code-firstbuffer");
+    this.assertRegisterIs("c", "is is my");
+    this.assertRegisterIs("d", "is is my code-thirdbuffer");
     // Ensure the yank and delete registers hold the correct values
-    this.assertEqual(gVimController._registers["0"],
-                     "is is my ",
-                     "yank register: register incorrect after running command!");
+    this.assertRegisterIs("0", "is is my ");
     // Try pasting
     this._runRegisterCommand("paste",
                              ["this is my <|>code-thirdbuffer\r\n",
