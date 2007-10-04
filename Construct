@@ -162,17 +162,6 @@ if ($platform eq "win") {
 }
 
 
-# HACK Cons and g++ get confused if a directory with the same name as a 
-# #included file comes before the file in the include search path.
-# Mozilla has some headers in include/string, which conflicts with the
-# standard C++ header, <string>.
-#
-# Unfortunately, the behaviors of Cons differ on Windows and Linux
-# the Linux fix breaks cons on Windows, and the Windows fix breaks
-# gcc on Linux.  We need to understand what's going on, but we
-# also need builds working urgently, so special case it for now.
-
-
 $mozIncludeDir = "$mozDevelDist/include";
 $mozIncludePath = join($platformPathSep, 
                        ("$mozIncludeDir",
@@ -182,7 +171,6 @@ $mozIncludePath = join($platformPathSep,
                         "$mozIncludeDir/plugin",
                         "$mozIncludeDir/widget",
                         "$mozIncludeDir/xpcom"));
-
 
 if ($platform eq "win") {
     # HACK $mozIncludeDir/string should be added to $mozIncludePath, but
@@ -194,53 +182,11 @@ if ($platform eq "win") {
     # This fires because several files in Rx #include <string>.  We can
     # work around this by adding $mozIncludeDir/string to the INCLUDE
     # environment variable instead.
-    # XXX This hack might no longer be necessary now that the old Rx has
-    #     been removed.
     $ENV{INCLUDE} = join($platformPathSep, ($ENV{INCLUDE}, 
 					    "$mozIncludeDir/string"));
-} elsif ($platform eq "darwin") {
-   # not an issue on osx
+} else {
     $mozIncludePath = join($platformPathSep, 
 			   ("$mozIncludePath",
-        		    "$mozIncludeDir/string"));
-} else {
-    # We can work around the problem by explicitly placing the standard C++
-    # headers ahead of the mozilla headers in the search path.
-    #
-    # This is not a general solution on Linux, because gcc might be
-    # installed under, e.g. /usr/local.  However, this hardcoded
-    # location does work on swatter, pliers, and screwdriver.  We need
-    # to figure out what Mozilla is doing.
-
-    #XXX should decide based on gcc version, not RH version
-    #    This is probably the source of the Rx compilation problem on
-    #    RedHat 9.x. and 8.x
-    my $cppHeaderDir = "";
-    if (-d "/usr/include/c++/3.2.2") {
-        # "string" and other headers seem to be here on RH9.0
-        $cppHeaderDir = "/usr/include/c++/3.2.2";
-    } elsif (-d "/usr/include/c++/3.2") {
-        # "string" and other headers seem to be here on RH8.0
-        $cppHeaderDir = "/usr/include/c++/3.2";
-    } elsif (-d "/usr/include/c++/3.3.2") {
-        # "string" and other headers are here on Fedora core 1
-        $cppHeaderDir = "/usr/include/c++/3.3.2";
-    } elsif (-d "/usr/include/g++-3") {
-        $cppHeaderDir = "/usr/include/g++-3";
-    } elsif (-d "/usr/include/g++-2") {
-        $cppHeaderDir = "/usr/include/g++-2";
-    } elsif (-d "/usr/include/g++") {
-	# SuSE 8.2
-        $cppHeaderDir = "/usr/include/g++";
-    } elsif (-d "/usr/local/include/c++/3.3") {
-        $cppHeaderDir = "/usr/local/include/c++/3.3";
-    } else {
-        print "XXX WARN: could not find an appropriate C++ include dir for the 'mozIncludePath' Cons variable. This may have been a problem for the old Rx.\n"
-    }
-
-    $mozIncludePath = join($platformPathSep, 
-			   ("$cppHeaderDir",
-			    "$mozIncludePath",
         		    "$mozIncludeDir/string"));
 }
 
