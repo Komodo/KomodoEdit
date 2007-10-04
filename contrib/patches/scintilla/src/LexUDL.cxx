@@ -530,8 +530,9 @@ class StackItem {
 class StateStack {
     private:
     StackItem *p_top;
+    int        size;
     public:
-    StateStack() : p_top(NULL) {
+    StateStack() : p_top(NULL), size(0) {
     };
     ~StateStack() {
         while (p_top) {
@@ -541,6 +542,7 @@ class StateStack {
     void Push(int state) {
         StackItem *p_tmp = new StackItem(state, p_top);
         p_top = p_tmp;
+        size += 1;
     };
     int Pop() {
         if (!p_top) {
@@ -550,7 +552,11 @@ class StateStack {
         StackItem *p_tmp = p_top;
         p_top = p_top->p_next;
         delete p_tmp;
+        size -= 1;
         return i;
+    };
+    int Size() {
+        return size;
     };
 };
 
@@ -856,6 +862,7 @@ class TransitionTable {
         p_transitions = new TransitionInfo[count];
     };
 
+    //XXX -- drop these
     void SetNumUniqueStates(int i) {
         num_unique_states = i;
         p_unique_state_map = new int[2 * i];
@@ -1063,6 +1070,9 @@ class MainInfo {
     };
     int PopState() {
         return p_StateStack->Pop();
+    };
+    int StateStackSize() {
+        return p_StateStack->Size();
     };
 
     // Helpers and internal routines
@@ -1964,18 +1974,46 @@ static char* line_colon_col(int pos, Accessor &styler) {
 }
 #endif
 
+// Macros for manipulating the line-state
+
+#define LEXER_STATE_MASK	0xfff
+#define DELIMITER_MASK		0xfff
+#define PUSH_STATE_MASK		0x7f
+
+#define eol_state_from_line_state(state) ((state) & LEXER_STATE_MASK)
+#define delimiter_hash_from_line_state(state) ((state >> 12) & DELIMITER_MASK)
+#define push_stack_size_from_line_state(state) ((state >> 24) & PUSH_STATE_MASK)
+
+static int create_line_state(int push_stack_size,
+                             int state) {
+    if (state > LEXER_STATE_MASK) {
+        // Fake a reason not to accept this state.
+        state = LEXER_STATE_MASK;
+        push_stack_size += 1;
+    }
+    if (push_stack_size > PUSH_STATE_MASK) {
+        push_stack_size = PUSH_STATE_MASK;
+    }
+    // Delimiter hashes are added in update_line_state_from_delim
+    return ((push_stack_size << 24) | state);
+}
+
+#define update_line_state_from_delim(line_state, delimiter_hash) \
+    ((line_state) | (((delimiter_hash) & DELIMITER_MASK) << 12))
+
 static void synchronizeDocStart(unsigned int& startPos,
                                 int &length,
-                                int &initStyle,
+                                int &initState, // out only
                                 int &currFamily,
                                 Accessor &styler,
-                                MainInfo		   *p_MainInfo,
-                                TransitionTable	   *p_TTable
-                                ) 
+                                MainInfo		   *p_MainInfo
+                                )
 {
     int startLine;
     int newPos = startPos;
     int lineEndPos;
+    // Avoid moving back to the beginning when in a nested state
+    int nested_lines_to_skip = 24;
     if (newPos > 0) {
         // Start at the line previous to the line the lexer's invoked at.
         startLine = styler.GetLine(newPos);
@@ -1991,50 +2029,50 @@ static void synchronizeDocStart(unsigned int& startPos,
     if (startLine > 0) {
         styler.Flush();
         for(;;) {
-            int currStyle, internalStyle;
+
+            // Move up the buffer looking for a line we can stop at,
+            // and restore the internal lexer state
+
+            int currStyle;
             currStyle = actual_style(styler.StyleAt(newPos));
             currFamily = p_MainInfo->StyleToFamily(currStyle);
-            internalStyle = p_TTable->GetUniqueState(currStyle);
             int familyDefaultStyle = p_MainInfo->GetFamilyDefaultColor(currFamily);
-            // Skip leading white space
-            int first_sig_pos;
-            for (first_sig_pos = newPos; first_sig_pos < lineEndPos; first_sig_pos++) {
-                if (actual_style(styler.StyleAt(first_sig_pos)) != familyDefaultStyle) {
+            int prevLineEndStyle = actual_style(styler.StyleAt(lineEndPos));
+            if (prevLineEndStyle == familyDefaultStyle) {
+                int prevLineState = styler.GetLineState(startLine - 1);
+                if (delimiter_hash_from_line_state(prevLineState)) {
 #if 0
-                    fprintf(stderr, "  skipped leading white-space to pos %s\n",
-                            line_colon_col((int) first_sig_pos, styler));
-                    fprintf(stderr, "  style(%d) = %d, familyDefaultStyle = %d\n",
-                            first_sig_pos,
-                            styler.StyleAt(first_sig_pos), familyDefaultStyle);
+                    fprintf(stderr, "Rejecting line %d because of delim.\n",
+                            startLine - 1);
 #endif
-                    break;
-                }
-            }
-            if (first_sig_pos == lineEndPos) {
-                // Go to previous line
-            } else {
-                if (first_sig_pos > newPos) {
-                    currStyle = actual_style(styler.StyleAt(first_sig_pos));
-                    internalStyle = p_TTable->GetUniqueState(currStyle);
-                }
-                if (internalStyle >= 0) {
-                    if (first_sig_pos > newPos
-                        || (newPos > 0 && (actual_style(styler.StyleAt(newPos - 1))
-                                           == familyDefaultStyle))) {
-                        initStyle = p_MainInfo->GetFamilyDefaultStyle(currFamily);
+                } else if (--nested_lines_to_skip >= 0
+                           && push_stack_size_from_line_state(prevLineState)) {
 #if 0
-                        fprintf(stderr, "udl: QQQ: synchronizeDocStart: stopping at line %d, pos %d, docLength %d, internalStyle %d, family %d, color %d\n",
-                                startLine, newPos, length + (startPos - newPos),
-                                initStyle,
-                                currFamily,
-                                familyDefaultStyle);
-#endif
-                        p_MainInfo->SetCurrFamily(currFamily);
-                        length += (startPos - newPos);
-                        startPos = newPos;
-                        return;
+                    if (nested_lines_to_skip == 23
+                        || nested_lines_to_skip == 0) {
+                        fprintf(stderr, "Rejecting line %d because it's in a push-state.\n",
+                                startLine - 1);
                     }
+#endif
+                } else {
+#if 0
+                    fprintf(stderr, "udl: QQQ: synchronizeDocStart: stopping at line %d => %d, pos %d => %d, docLength %d, family %d, color %d\n",
+                            styler.GetLine(startPos),
+                            startLine, startPos, newPos, length + (startPos - newPos),
+                            currFamily,
+                            familyDefaultStyle);
+#endif
+                    p_MainInfo->SetCurrFamily(currFamily);
+                    initState = eol_state_from_line_state(prevLineState);
+                    length += (startPos - newPos);
+                    startPos = newPos;
+                    return;
                 }
+            } else {
+#if 0
+                fprintf(stderr, " rejecting line %d -- prev line ends with style %d\n",
+                        startLine, prevLineEndStyle);
+#endif
             }
             if (--startLine <= 0) {
                 break;
@@ -2048,7 +2086,7 @@ static void synchronizeDocStart(unsigned int& startPos,
     // By default, start in the markup family
     currFamily = TRAN_FAMILY_MARKUP;
     p_MainInfo->SetCurrFamily(currFamily);
-    initStyle = p_MainInfo->GetCurrFamily()->DefaultStartState();
+    initState = p_MainInfo->GetCurrFamily()->DefaultStartState();
 }
 
 static void doColorAction(int	    styleNum,
@@ -2518,9 +2556,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         fprintf(stderr, "udl: ColouriseTemplate1Doc: failed to load the engine\n");
         return;
     }
-    // initStyle will come in as an external style, but get converted
-    // to an internal style (which we call "istate" to distinguish from
-    // external styles.
     
     int curr_family;
     TransitionTable  *p_TransitionTable = p_MainInfo->GetTable();
@@ -2528,10 +2563,10 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     int origStartPos = startPos;
     int origLength = length;
 #endif
-    synchronizeDocStart(startPos, length, initStyle, curr_family,
+    int istate; // the internal state
+    synchronizeDocStart(startPos, length, istate, curr_family,
                         styler, // ref args
-                        p_MainInfo,
-                        p_TransitionTable
+                        p_MainInfo
                         );
     FamilyInfo		 *p_FamilyInfo = p_MainInfo->GetCurrFamily();
     if (!p_FamilyInfo) {
@@ -2547,7 +2582,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     int origLine = styler.GetLine(origStartPos);
     int currLine = styler.GetLine(startPos);
     fprintf(stderr,
-            "udl: ColouriseTemplate1Doc -- sync moved from %d[%d:%d](%d) to %d[%d:%d](%d), style %d\n",
+            "udl: ColouriseTemplate1Doc -- sync moved from %d[%d:%d](%d) to %d[%d:%d](%d), internal state %d\n",
             
             origStartPos,
             origLine + 1,
@@ -2557,7 +2592,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
             currLine + 1,
             startPos - styler.LineStart(currLine),
             length,
-            initStyle);
+            istate);
 #endif
 
     TransitionInfo *p_TransitionInfo;
@@ -2572,7 +2607,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         return;
     }
     
-    int istate = initStyle; // the internal state
     char ch;
     int lengthDoc = startPos + length;
     int totalDocLength = styler.Length();
@@ -2583,7 +2617,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     const int redoLimit = 1000;
 
     char lexerMask = 0x3f; // 6 bits
-    unsigned int  lineStateHashMask = 0x1ffffff; // 25, all but the 6 bits
 
     styler.StartAt(startPos, lexerMask);
     styler.StartSegment(startPos);
@@ -2607,17 +2640,20 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 int lineEndPos = styler.LineStart(iLine + 1) - 1;
                 int oldLineState = styler.GetLineState(iLine);
                 int baseLineState = actual_style(styler.StyleAt(lineEndPos));
-                int newLineState = baseLineState;
-
+                int currStackSize = p_MainInfo->StateStackSize();
+                int newLineState = create_line_state(currStackSize,
+                                                     istate);
+                
                 // If we have an active delimiter, set the line-state
                 // based on a hash of it.  Otherwise set it to the current style.
                 if (p_MainInfo->current_delimiter[0]) {
                     // Create a hash of the delimiter, and or it in based
                     // on the current state
-                    unsigned int delimHash = (simpleHash(lineStateHashMask,
+                    unsigned int delimHash = (simpleHash(DELIMITER_MASK,
                                                 p_MainInfo->current_delimiter.c_str())
-                                     & lineStateHashMask);
-                    newLineState |= (int) (delimHash << 6);
+                                     & DELIMITER_MASK);
+                    newLineState = update_line_state_from_delim(newLineState,
+                                                                delimHash);
                     if (oldLineState != newLineState && iLine == lineCurrent - 1) {
                         // We changed delimiters, so force at least another line
                         int nextLine = lineCurrent + 1;
@@ -2831,11 +2867,10 @@ static void FoldUDLDoc(unsigned int startPos, int length, int initStyle,
 	const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 	// bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
     int curr_family;
-    TransitionTable  *p_TransitionTable = p_MainInfo->GetTable();
-    synchronizeDocStart(startPos, length, initStyle, curr_family,
+    int istate; // the internal state
+    synchronizeDocStart(startPos, length, istate, curr_family,
                         styler, // ref args
-                        p_MainInfo,
-                        p_TransitionTable
+                        p_MainInfo
                         );
     FamilyInfo		 *p_FamilyInfo = p_MainInfo->GetCurrFamily();
     if (!p_FamilyInfo) {
