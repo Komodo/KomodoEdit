@@ -501,11 +501,12 @@ class SVNBranch(Branch):
                 elif action == "A":
                     src_path = join(self.base_dir, rel_path)
                     dst_path = join(dst_branch.base_dir, rel_path)
-                    cmd = '"%s" cat -r %s "%s" > "%s"' \
-                          % (self._svn_exe, changenum, src_path, dst_path)
-                    log.debug("running '%s'", cmd)
-                    retval = os.system(cmd)
-                    assert not retval, "error running '%s'" % cmd
+                    argv = [self._svn_exe, 'cat', '-r', str(changenum),
+                            src_path, '>', dst_path]
+                    log.debug("running: %s", argv)
+                    p = subprocess.Popen(argv, shell=True)
+                    retval = p.wait()
+                    assert not retval, "error running %s" % argv
                     assert exists(dst_path), \
                         "`%s' couldn't be retrieved from svn" % dst_path
                     dst_branch.add(rel_path)
