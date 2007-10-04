@@ -28,6 +28,7 @@ include "html2css.udl"
 include "html2php.udl"
 
 include "css2html.udl"
+include "css2php.udl"
 
 include "js2html.udl"
 include "js2php.udl"

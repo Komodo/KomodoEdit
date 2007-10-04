@@ -1,0 +1,32 @@
+# css2php.udl
+# Transition from CSS into PHP code blocks and expressions.  Fixes bug 72699
+#
+# Copyright (c) 2007 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+#
+# Authors: 
+#  Eric Promislow <ericp@activestate.com>
+
+state IN_CSS_DSTRING:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_DSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_SSTRING:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_DEFAULT:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_DEFAULT) => IN_SSL_DEFAULT
+
+state IN_CSS_COMMENT_1:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_COMMENTBLOCK), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_COMMENT_1) => IN_SSL_DEFAULT
+
+# This one can be completely wrong, because we don't know how many lines of code
+# the PHP expression will return, but we have the same problem with strings, so
+# we'll do it anyway.
+
+state IN_CSS_COMMENT_LINE_1:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_COMMENT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_COMMENT_LINE_1) => IN_SSL_DEFAULT
