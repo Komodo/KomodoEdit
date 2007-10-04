@@ -1984,6 +1984,55 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
 
+    @tag("bug71872")
+    def test_completions_on_files_with_the_same_name(self):
+        # In PHP, only one of these files would win, but since we include
+        # everything in Komodo, we don't know which one it would be so
+        # we should be checking all possible matches.
+        # The bug is that Komodo is currently only ever checking one of
+        # the possible files. This is because the database get_blob()
+        # implementation does not keep track of same named blobs.
+        test_dir = join(self.test_dir,
+                        "test_completions_on_files_with_the_same_name")
+        test_content, test_positions = unmark_text(php_markup(dedent("""\
+            $rdata = new <1>Reg_Data();
+            Reg_Data::<2>xxx;
+        """)))
+
+        manifest = [
+            (join(test_dir, "include_a", "Data.php"), php_markup(dedent("""
+                class blah_Data {
+                    public static $a_pub_var;
+                }
+             """))),
+            (join(test_dir, "include_b", "Data.php"), php_markup(dedent("""
+                class Reg_Data {
+                    public static $b_pub_var;
+                }
+             """))),
+            (join(test_dir, "include_c", "Data.php"), php_markup(dedent("""
+                class Foo_Data {
+                    public static $c_pub_var;
+                }
+             """))),
+            (join(test_dir, "test.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        extra_paths = [join(test_dir, "include_a"),
+                       join(test_dir, "include_b"),
+                       join(test_dir, "include_c")]
+        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+                                     env=env)
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("class", "Reg_Data")])
+        self.assertCompletionsInclude2(buf, test_positions[2],
+            [("variable", "b_pub_var")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[2],
+            [("variable", "a_pub_var"), ("variable", "c_pub_var")])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
