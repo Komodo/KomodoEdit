@@ -1538,13 +1538,16 @@ EOD;
         """)))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", name) for name in class_magic_methods])
+            [ ("function", name) for name in class_magic_methods ])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+                [ ("function", name) for name in global_magic_methods ])
+
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
-            [("function", name) for name in global_magic_methods])
+            [ ("function", name) for name in global_magic_methods ])
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-                [("function", name) for name in class_magic_methods
-                                    if name not in global_magic_methods])
+                [ ("function", name) for name in class_magic_methods ])
+
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
                              php_magic_class_method_data.get("__construct"))
 

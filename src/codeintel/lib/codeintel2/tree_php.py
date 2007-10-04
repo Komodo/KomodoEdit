@@ -81,8 +81,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 sorted(php_magic_global_method_data.keys()) ]
     # Classes can use both global and class specific functions.
     php_magic_class_method_cplns = [ ("function", name) for name in
-                sorted(php_magic_global_method_data.keys() +
-                       php_magic_class_method_data.keys()) ]
+                sorted(php_magic_class_method_data.keys()) ]
 
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
@@ -165,6 +164,16 @@ class PHPTreeEvaluator(TreeEvaluator):
                 return [ php_magic_class_method_data[expr] ]
             # Else, let the tree work it out.
         elif expr in php_magic_global_method_data:
+            elem = self._elem_from_scoperef(start_scope)
+            if elem.get("ilk") == "function":
+                # Check the parent is not a class. See:
+                # http://bugs.activestate.com/show_bug.cgi?id=69758
+                blob, lpath = start_scope
+                if len(lpath) > 1:
+                    elem = self._elem_from_scoperef((blob, lpath[:-1]))
+            if elem.get("ilk") == "class":
+                # Not available inside a class.
+                return []
             return [ php_magic_global_method_data[expr] ]
         hit = self._hit_from_citdl(expr, start_scope)
         return self._calltips_from_hit(hit)
