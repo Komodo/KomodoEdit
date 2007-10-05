@@ -440,11 +440,11 @@
             if (!this.document || !this.document.differentOnDisk()) return;
             var baseName = this.document.baseName;
             if (this.document.isDirty) {
-                prompt = 'The file ' + baseName + ' is unsaved, and the file changed '+
-                         'on disk.  You can use '+
-                         '"Show Unsaved Changes" to view a diff of the changes, '+
-                         'revert or save your changes.';
-                title = 'Current unsaved buffer has changed on disk';
+                var prompt = 'The file ' + baseName + ' is unsaved, and the ' +
+		         'file changed on disk.  You can use '+
+                         '"Show Unsaved Changes" to view a diff of the ' +
+			 'changes, revert or save your changes.';
+                var title = 'Current unsaved buffer has changed on disk';
                 if (this.prefs.getBooleanPref("donotask_buffer_conflicts_with_file_on_disk")) return;
                 var choice = ko.dialogs.customButtons(
                     prompt,
@@ -519,7 +519,7 @@
             // current encoding.
             // XXX Untested: I don't know how to force this to test it.
             if (! this.document.isEncodable) {
-                prompt = "Some of the characters in '"+baseName+
+                var prompt = "Some of the characters in '"+baseName+
                          "' cannot be saved using the current encoding.  "+
                          "Komodo can force the save by "+
                          "replacing all unrepresentable "+
@@ -566,13 +566,13 @@
                                          true);
                     return false;
                 }
-                var prompt, choice;
 
                 // Untitled documents get "saved as".
                 if (this.document.isUntitled) {
                     return this.saveAs();
                 }
 
+                var choice;
                 var baseName = this.document.baseName;
                 var file = this.document.file;
                 var hasChanged = 0;
