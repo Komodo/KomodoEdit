@@ -1380,21 +1380,29 @@ viewManager.prototype.do_cmd_gotoLine = function() {
     var num = parsed[1];
     var scimoz = view.scintilla.scimoz;
     var currLine;
+    var targetLine;
     switch (sign) {
     case null:
         scimoz.gotoLine(num-1);  // scimoz handles out of bounds
+        targetLine = num - 1;
         break;
     case "+":
         currLine = scimoz.lineFromPosition(scimoz.currentPos);
-        scimoz.gotoLine(currLine + num);
+        targetLine = currLine + num;
         break;
     case "-":
         currLine = scimoz.lineFromPosition(scimoz.currentPos);
-        scimoz.gotoLine(currLine - num);
+        targetLine = currLine - num;
         break;
     default:
         log.error("unexpected goto line 'sign' value: '"+sign+"'")
+        targetLine = null;
         break;
+    }
+    if (targetLine != null) {
+        scimoz.gotoLine(targetLine);
+        scimoz.ensureVisible(targetLine);
+        scimoz.scrollCaret();
     }
 }
 
