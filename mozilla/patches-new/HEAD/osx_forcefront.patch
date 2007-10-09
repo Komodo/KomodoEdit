@@ -1,0 +1,34 @@
+Index: toolkit/xre/nsAppRunner.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsAppRunner.cpp,v
+retrieving revision 1.195
+diff -u -r1.195 toolkit/xre/nsAppRunner.cpp
+--- toolkit/xre/nsAppRunner.cpp	3 Oct 2007 21:44:05 -0000	1.195
++++ toolkit/xre/nsAppRunner.cpp	8 Oct 2007 21:39:59 -0000
+@@ -2816,6 +2816,26 @@
+     }
+ #endif
+ 
++#ifdef XP_MACOSX
++        {
++         OSErr osError;
++         ProcessSerialNumber psn;
++
++         /* Make sure the window comes up in the front of the calling
++          * application.
++          */
++         if (GetCurrentProcess(&psn) >= 0) {
++             //printf("setting as front process\n");
++             osError = SetFrontProcess(&psn);
++             if (osError != noErr) {
++          printf("error setting as front process: %d!\n", osError);
++             }
++         } else {
++             printf("error: couldn't get process number\n");
++         }
++        }
++#endif
++
+ #ifdef MOZ_ENABLE_XREMOTE
+     // handle -remote now that xpcom is fired up
+ 

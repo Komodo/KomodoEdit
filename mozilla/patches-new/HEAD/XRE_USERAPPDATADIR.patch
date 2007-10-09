@@ -1,11 +1,20 @@
-Index: /Users/shanec/svn/komodo/mozilla/build/cvs-ko4.30/mozilla/toolkit/xre/nsXREDirProvider.cpp
+Index: toolkit/xre/nsXREDirProvider.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/toolkit/xre/nsXREDirProvider.cpp,v
 retrieving revision 1.65
 diff -u -r1.65 nsXREDirProvider.cpp
 --- toolkit/xre/nsXREDirProvider.cpp	26 Sep 2007 18:35:21 -0000	1.65
-+++ toolkit/xre/nsXREDirProvider.cpp	8 Oct 2007 21:24:02 -0000
-@@ -984,6 +984,17 @@
++++ toolkit/xre/nsXREDirProvider.cpp	8 Oct 2007 21:27:42 -0000
+@@ -42,6 +42,8 @@
+ #include "nsAppRunner.h"
+ #include "nsXREDirProvider.h"
+ 
++#include "prenv.h"
++
+ #include "jsapi.h"
+ 
+ #include "nsIJSContextStack.h"
+@@ -984,6 +986,17 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
  
@@ -23,7 +32,7 @@ diff -u -r1.65 nsXREDirProvider.cpp
  #if defined(XP_MACOSX)
    FSRef fsRef;
    OSType folderType;
-@@ -1062,6 +1073,7 @@
+@@ -1062,6 +1075,7 @@
  #error "Don't know how to get product dir on your platform"
  #endif
    NS_ENSURE_SUCCESS(rv, rv);
