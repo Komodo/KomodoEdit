@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
         int xreArgc;
         char** xreArgv;
         KoStart_PrepareForXRE(argc, argv, &xreArgc, &xreArgv);
-        retval = XRE_main(xreArgc, xreArgv, &kAppData);
+        retval = XRE_main(xreArgc, xreArgv, appData);
     }
     goto main_exit;
 

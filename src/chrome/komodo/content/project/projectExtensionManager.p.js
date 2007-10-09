@@ -43,6 +43,7 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function() {
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var log = ko.logging.getLogger('ko.projects.extensionManager');
 
 function projectExtensionManager() {

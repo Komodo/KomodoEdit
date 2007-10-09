@@ -1607,7 +1607,12 @@ def target_configure(argv):
         #TODO: This is being overridden by PYTHON being set in the
         #      environment for building in _setupMozillaEnv(). Probably
         #      best to remove the other and keep this one.
-        if "python/xpcom" in mozBuildExtensions or "python/dom" in mozBuildExtensions:
+        if "python/xpcom" in mozBuildExtensions or "python/dom" in mozBuildExtensions \
+            or "python" in mozBuildExtensions:
+            if "python/dom" in mozBuildExtensions:
+                mozBuildExtensions.append("python")
+                mozBuildExtensions.remove("python/dom")
+                mozBuildExtensions.remove("python/xpcom")
             if sys.platform == "win32":
                 python = _msys_path_from_path(config["python"])
             else:
@@ -2456,6 +2461,11 @@ def target_mbsdiff(argv=["mozilla"]):
     config = _importConfig()
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+    builddir = os.path.join(native_objdir, 'modules', 'libbz2')
+    log.info("entering directory '%s' (to build libbz2 separately)",
+             builddir)
+    _run_in_dir('make', builddir, log.info)
+
     bsdiffDir = os.path.join(native_objdir, 'other-licenses', 'bsdiff')
     log.info("entering directory '%s' (to build mbsdiff separately)",
              bsdiffDir)
@@ -2506,6 +2516,7 @@ def target_patch(argv=["patch"]):
             except which.WhichError:
                 raise BuildError("Could not find a 'patch' executable.")
 
+    config.mozVer = _get_mozilla_version()
     patchtree.log.setLevel(logging.INFO)
     patchtree.patch(config.patchesDirs,
                     srcDir,

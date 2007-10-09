@@ -1,0 +1,43 @@
+Index: extensions/python/dom/src/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/dom/src/Makefile.in,v
+retrieving revision 1.3
+diff -d -u -r1.3 Makefile.in
+--- extensions/python/dom/src/Makefile.in	5 Oct 2006 10:44:02 -0000	1.3
++++ extensions/python/dom/src/Makefile.in	25 Mar 2007 23:14:29 -0000
+@@ -21,9 +21,16 @@
+ 
+ # We always need the Python and pyxpcom includes and libs.
+ LOCAL_INCLUDES = $(MOZ_PYTHON_INCLUDES)
++
++ifeq ($(OS_ARCH),Darwin)
++EXTRA_LIBS += $(MOZ_PYTHON_LIBS) \
++              $(NULL)
++else
+ EXTRA_LIBS += $(MOZ_PYTHON_LIBS) \
+               $(DIST)/lib/$(LIB_PREFIX)pyxpcom.$(LIB_SUFFIX) \
+               $(NULL)
++endif
++
+ 
+ # In the shorter term we need JS too.
+ EXTRA_LIBS += $(MOZ_JS_LIBS)
+@@ -41,9 +48,18 @@
+ 
+ CXXFLAGS += -DPYTHON_SO=\"libpython$(MOZ_PYTHON_VER_DOTTED).so\"
+ 
++ifeq ($(OS_ARCH),Darwin)
++EXTRA_DSO_LDOPTS = -bundle $(XPCOM_LIBS) \
++                    $(MOZ_COMPONENT_NSPR_LIBS) \
++                    $(XPCOM_STANDALONE_GLUE_LDOPTS) \
++                    -lpyxpcom \
++                    $(NULL)
++  
++else
+ EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
+                     $(XPCOM_GLUE_LDOPTS) \
+                     $(NULL)
++endif
+ 
+ include $(topsrcdir)/config/rules.mk
+ 

@@ -19,6 +19,7 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function () {
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 this.manager = null;
 
 var _activeView = null;
