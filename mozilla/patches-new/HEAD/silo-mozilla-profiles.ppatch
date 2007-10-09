@@ -30,26 +30,6 @@ diff -u -r3.36 vr_stubs.c
  
  
  /* ------------------------------------------------------------------
-Index: profile/src/nsProfile.cpp
-===================================================================
-RCS file: /cvsroot/mozilla/profile/src/nsProfile.cpp,v
-retrieving revision 1.315
-diff -u -r1.315 nsProfile.cpp
---- profile/src/nsProfile.cpp	27 Apr 2005 11:56:39 -0000	1.315
-+++ profile/src/nsProfile.cpp	30 Jun 2005 22:15:34 -0000
-@@ -343,8 +343,11 @@
- 
-     ScopeFlag startupFlag(&mStartingUp);
- 
--    if (cmdLineArgs)
-+    // Komodo change - we do not want profile command line args to impact anymore
-+     if (cmdLineArgs)
-         rv = ProcessArgs(cmdLineArgs, canInteract, &profileDirSet, profileURLStr);
-+        //rv = ProcessArgs(cmdLineArgs, canInteract, &profileDirSet, profileURLStr);
-+        rv = NS_OK;
- 
-     // This boolean is set only when an automigrated user runs out of disk space
-     // and chooses to cancel further operations from the dialogs presented...
 Index: xpcom/io/nsAppFileLocationProvider.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/xpcom/io/nsAppFileLocationProvider.cpp,v
