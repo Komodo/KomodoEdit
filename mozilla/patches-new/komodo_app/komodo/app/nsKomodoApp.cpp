@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
       return 255;
     }
 #else
-    nsXREAppData *appData = &kAppData;
+    const nsXREAppData *appData = &kAppData;
 #endif
 
 #ifdef KOSTART_PLACEHOLDER
