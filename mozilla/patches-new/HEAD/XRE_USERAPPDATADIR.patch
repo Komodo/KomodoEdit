@@ -1,0 +1,33 @@
+Index: /Users/shanec/svn/komodo/mozilla/build/cvs-ko4.30/mozilla/toolkit/xre/nsXREDirProvider.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsXREDirProvider.cpp,v
+retrieving revision 1.65
+diff -u -r1.65 nsXREDirProvider.cpp
+--- nsXREDirProvider.cpp	26 Sep 2007 18:35:21 -0000	1.65
++++ nsXREDirProvider.cpp	8 Oct 2007 21:24:02 -0000
+@@ -984,6 +984,17 @@
+   nsresult rv;
+   nsCOMPtr<nsILocalFile> localDir;
+ 
++  // ActiveState Komodo patch:
++  // Allow the _XRE_USERAPPDATADIR environment variable to override.
++  const char* envvar;
++  envvar = PR_GetEnv("_XRE_USERAPPDATADIR");
++  if (envvar && *envvar) {
++    rv = NS_NewNativeLocalFile(nsDependentCString(envvar), PR_TRUE,
++                               getter_AddRefs(localDir));
++    NS_ENSURE_SUCCESS(rv, rv);
++  }
++  else {
++
+ #if defined(XP_MACOSX)
+   FSRef fsRef;
+   OSType folderType;
+@@ -1062,6 +1073,7 @@
+ #error "Don't know how to get product dir on your platform"
+ #endif
+   NS_ENSURE_SUCCESS(rv, rv);
++  } /* if $_XRE_USERAPPDATADIR */
+ 
+   rv = AppendProfilePath(localDir);
+   NS_ENSURE_SUCCESS(rv, rv);
