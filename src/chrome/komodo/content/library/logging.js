@@ -281,6 +281,13 @@ this.dumpDOM = function dumpDOM(node, level, recursive) {
   }
 }
 
+this._repeatStr = function _repeatStr(str, aCount) {
+   var res = "";
+   while (--aCount >= 0)
+     res += str;
+   return res;
+};
+
 this.dumpEvent = function dumpEvent(event)
 {
     dump('-EVENT DUMP--------------------------\n');

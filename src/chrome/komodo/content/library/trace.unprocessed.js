@@ -53,13 +53,6 @@ this.Trace.prototype = {
             this.timelineService.mark("perfTimer: " + name + ": " + title)
     },
 
-    _repeatStr: function _repeatStr(str, aCount) {
-       var res = "";
-       while (--aCount >= 0)
-         res += str;
-       return res;
-    },
-
     startTimer: function startTimer(name)
     {
         if (this.timelineService) {
