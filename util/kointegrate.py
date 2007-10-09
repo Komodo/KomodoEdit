@@ -339,6 +339,18 @@ class SVNBranch(Branch):
             if not line:
                 break
             action, svnpath = line.split(' ', 1)
+
+            # A *svn mv* looks like this:
+            #    A /komodo/trunk/mozilla/patches-new/MOZILLA_1_8_BRANCH/autoupdate_base_dir.patch (from /komodo/trunk/mozilla/patches-new/autoupdate_base_dir.patch:9351)
+            #    D /komodo/trunk/mozilla/patches-new/autoupdate_base_dir.patch
+            # Limitation: For now we are going to look the "mv"
+            # connection and do separate "A" and "D".
+            if " (from " in svnpath:
+                svnpath = svnpath.split(" (from ", 1)[0]
+                log.warn("dropping info that `%s' was *moved* ('add' and "
+                         "'delete' will be done separately",
+                         self._svn_relpath(svnpath))
+
             rel_path = self._svn_relpath(svnpath)
             files.append({
                 "action": action,
@@ -510,11 +522,21 @@ class SVNBranch(Branch):
                     src_path = join(self.base_dir, rel_path)
                     dst_path = join(dst_branch.base_dir, rel_path)
                     argv = [self._svn_exe, 'cat', '-r', str(changenum),
-                            src_path, '>', dst_path]
+                            src_path]
                     log.debug("running: %s", argv)
-                    p = subprocess.Popen(argv, shell=True)
+                    p = subprocess.Popen(argv,
+                                         stderr=subprocess.PIPE,
+                                         stdout=subprocess.PIPE)
+                    stdout = p.stdout.read()
                     retval = p.wait()
-                    assert not retval, "error running %s" % argv
+                    if retval:
+                        stderr = p.stderr.read()
+                        raise Error("error running `svn cat`:\n"
+                                    "argv: %r\n"
+                                    "stderr:\n%s" % (argv, _indent(stderr)))
+                    fout = open(dst_path, 'w')
+                    fout.write(stdout)
+                    fout.close()
                     assert exists(dst_path), \
                         "`%s' couldn't be retrieved from svn" % dst_path
                     dst_branch.add(rel_path)
