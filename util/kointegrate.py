@@ -11,7 +11,7 @@ Komodo branches. This will perform the necessary "p4|svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
 """
 
-__version_info__ = (1, 0, 0)
+__version_info__ = (1, 0, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -416,7 +416,10 @@ class SVNBranch(Branch):
 
         # Ensure that none of the target files are modified/opened.
         modified_paths = [p for p in dst_paths if
-                          dst_branch.is_modified_or_open(p)]
+                          dst_branch.is_modified_or_open(p)
+                          # Dirs give false positives, and we abort
+                          # handling dirs below anyway.
+                          and not isdir(p)]
         if modified_paths:
             print textwrap.dedent("""
                 ***
@@ -440,6 +443,11 @@ class SVNBranch(Branch):
                     continue
                 patch_path = join(tmp_dir, "%d.patch" % i)
                 fout = open(patch_path, 'w')
+                if isdir(f["path"]):
+                    raise Error("cannot integrate a directory: `%s' (you "
+                        "are probably just editing properties on this dir, "
+                        "use the '-x %s' option to skip this path)"
+                        % (f["rel_path"], f["rel_path"]))
                 diff = _capture_stdout([
                     self._svn_exe, "diff",
                     "-r%d:%d" % (changenum-1, changenum),
