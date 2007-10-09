@@ -5,10 +5,17 @@
 #include <windows.h>
 #include <stdlib.h>
 #endif
+#ifdef MOZILLA_1_8_BRANCH
 #include "nsBuildID.h"
+#else
+#include "nsCOMPtr.h"
+#include "nsILocalFile.h"
+#include "nsStringGlue.h"
+#endif
 
 #include "koStart.h"
 
+#ifdef MOZILLA_1_8_BRANCH
 // NS_XRE_ENABLE_EXTENSION_MANAGER is required for extension install/uninstall
 static const nsXREAppData kAppData = {
   sizeof(nsXREAppData),
@@ -27,15 +34,34 @@ static const nsXREAppData kAppData = {
   "Copyright (c) 1998 - 2006 ActiveState Software Inc.",
   NS_XRE_ENABLE_EXTENSION_MANAGER
 };
+#endif
 
 int main(int argc, char* argv[])
 {
+#ifndef MOZILLA_1_8_BRANCH
+    nsCOMPtr<nsILocalFile> appini;
+    nsresult rv = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
+    if (NS_FAILED(rv)) {
+      fprintf(stderr, "Couldn't calculate the application directory.");
+      return 255;
+    }
+    appini->SetNativeLeafName(NS_LITERAL_CSTRING("application.ini"));
+    nsXREAppData *appData;
+    rv = XRE_CreateAppData(appini, &appData);
+    if (NS_FAILED(rv)) {
+      fprintf(stderr, "Couldn't read application.ini");
+      return 255;
+    }
+#else
+    nsXREAppData *appData = &kAppData;
+#endif
+
 #ifdef KOSTART_PLACEHOLDER
     // The special Komodo startup gymnastics are only done when the
     // properly configured koStart.h|c are built in as part of the
     // *Komodo* build. After the default Mozilla build (in
     // Mozilla-devel/...) we simply start the XRE.
-    return XRE_main(argc, argv, &kAppData);
+    return XRE_main(argc, argv, appData);
 #else
     int rv;
     int retval = 0;
@@ -75,7 +101,7 @@ int main(int argc, char* argv[])
         int xreArgc;
         char** xreArgv;
         KoStart_PrepareForXRE(argc, argv, &xreArgc, &xreArgv);
-        retval = XRE_main(xreArgc, xreArgv, &kAppData);
+        retval = XRE_main(xreArgc, xreArgv, appData);
     }
     goto main_exit;
 

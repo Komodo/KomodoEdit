@@ -367,7 +367,7 @@ AB := $(firstword $(subst -, ,$(AB_CD)))
 clean clobber repackage::
 	rm -rf $(DIST)/$(APP_NAME).app
 
-libs repackage:: $(PROGRAM)
+libs repackage:: $(PROGRAM) application.ini
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/MacOS
 	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
 	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
