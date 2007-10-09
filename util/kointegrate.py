@@ -625,6 +625,11 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
                 exclude_outside_paths=False, excludes=None,
                 force=False):
     """Returns True if successfully setup the integration."""
+    if not cfg.branches:
+        raise Error("You haven't configured any Komodo branches. "
+                    "See `kointegrate.py --help-ini' for help on "
+                    "configuring this script.")
+
     try:
         dst_branch = cfg.branches[dst_branch_name]
     except KeyError:
@@ -635,19 +640,6 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
 
     # Figure out what source branch we are taking about.
     src_branch = None
-    if not cfg.branches:
-        raise Error(textwrap.dedent("""\
-            You haven't configured any Komodo branches. You need to create
-                %s
-            and add an [active-branches] section telling this script where
-            your Komodo working copies are. For example:
-
-                [active-branches]
-                # <branch-name> = <branch-base-dir>
-                ok    = /home/me/play/openkomodo
-                devel = /home/me/wrk/Komodo-devel
-                4.2   = /home/me/wrk/Komodo-4.2
-            """ % cfg.cfg_path))
     norm_cwd_plus_sep = normcase(os.getcwd()) + os.sep
     for branch in cfg.branches.values():
         norm_branch_dir_plus_sep = normcase(branch.base_dir) + os.sep
@@ -966,11 +958,13 @@ def main(argv=sys.argv):
     else:
         desc += "\n    ".join(map(str,
             [b for (n,b) in sorted(cfg.branches.items())]))
-    desc += "\n\nConfigure your active branches in `%s'.\n" % cfg.cfg_path
+    desc += "\n\nUse `kointegrate --help-ini' for help on configuring.\n"
 
     parser = optparse.OptionParser(prog="kointegrate", usage="",
         version=version, description=desc,
         formatter=_NoReflowFormatter())
+    parser.add_option("--help-ini", action="store_true",
+                      help="print help on configuring kointegrate")
     parser.add_option("-v", "--verbose", dest="log_level",
                       action="store_const", const=logging.DEBUG,
                       help="more verbose output")
@@ -994,6 +988,29 @@ def main(argv=sys.argv):
                         interactive=True, excludes=[], force=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
+    
+    if opts.help_ini:
+        print textwrap.dedent("""
+            Configuring kointegrate.py
+            --------------------------
+            
+            This script uses a "kointegrate.ini" file here:
+                %s
+            
+            The "[active-branches]" section of that file (a normal
+            INI-syntax file) is used. Each entry in that section should
+            be of the form:
+            
+                <branch-nickname> = <full-path-to-branch-working-copy>
+            
+            For example,
+
+                [active-branches]
+                openkomodo = /home/me/play/openkomodo
+                devel      = /home/me/wrk/Komodo-devel
+                4.2        = /home/me/wrk/Komodo-4.2
+        """ % cfg.cfg_path)
+        return
 
     if len(args) != 2:
         log.error("incorrect number of arguments: %s", args)
