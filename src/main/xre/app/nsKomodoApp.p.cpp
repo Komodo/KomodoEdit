@@ -5,10 +5,17 @@
 #include <windows.h>
 #include <stdlib.h>
 #endif
+#ifdef MOZILLA_1_8_BRANCH
 #include "nsBuildID.h"
+#else
+#include "nsCOMPtr.h"
+#include "nsILocalFile.h"
+#include "nsStringGlue.h"
+#endif
 
 #include "koStart.h"
 
+#ifdef MOZILLA_1_8_BRANCH
 // NS_XRE_ENABLE_EXTENSION_MANAGER is required for extension install/uninstall
 static const nsXREAppData kAppData = {
   sizeof(nsXREAppData),
@@ -21,6 +28,7 @@ static const nsXREAppData kAppData = {
   "Copyright (c) 1998 - 2007 ActiveState Software Inc.",
   NS_XRE_ENABLE_EXTENSION_MANAGER
 };
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -29,6 +37,27 @@ int main(int argc, char* argv[])
     KoStartOptions options;
     KoStartHandle mutex = KS_BAD_HANDLE;
     KoStartHandle theMan = KS_BAD_HANDLE;
+
+#ifndef MOZILLA_1_8_BRANCH
+    nsCOMPtr<nsILocalFile> appini;
+    nsresult r = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
+    if (NS_FAILED(r)) {
+      fprintf(stderr, "Couldn't calculate the application directory. [%s]\n", argv[0]);
+      return 255;
+    }
+    appini->SetNativeLeafName(NS_LITERAL_CSTRING("application.ini"));
+    nsXREAppData *appData;
+    r = XRE_CreateAppData(appini, &appData);
+    if (NS_FAILED(r)) {
+      nsCAutoString pathName;
+      appini->GetNativePath(pathName);
+      fprintf(stderr, "Couldn't read application.ini [%s]\n", pathName.get());
+      return 255;
+    }
+#else
+    nsXREAppData *appData = &kAppData;
+#endif
+
 
     // Handle command line arguments.
     rv = KoStart_HandleArgV(argc, argv, &options);

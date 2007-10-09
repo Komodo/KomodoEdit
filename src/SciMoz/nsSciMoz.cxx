@@ -48,8 +48,10 @@ using namespace Scintilla;
 #include "nsIPrivateTextEvent.h"
 #include "nsIPrivateTextRange.h"
 #include "nsGUIEvent.h"
+#if 0
 #include "nsUnitConversion.h"
 #include "nsIDeviceContext.h"
+#endif
 #include "nsGfxCIID.h"
 static NS_DEFINE_IID(kDeviceContextIID, NS_DEVICE_CONTEXT_CID);
 // -- IME support

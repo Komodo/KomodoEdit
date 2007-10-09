@@ -97,7 +97,7 @@ else {
       $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
       $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
       $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-      $consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue.a ";
+      $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue.a ";
     }
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
