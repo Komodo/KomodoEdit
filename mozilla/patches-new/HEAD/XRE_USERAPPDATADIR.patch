@@ -3,8 +3,8 @@ Index: /Users/shanec/svn/komodo/mozilla/build/cvs-ko4.30/mozilla/toolkit/xre/nsX
 RCS file: /cvsroot/mozilla/toolkit/xre/nsXREDirProvider.cpp,v
 retrieving revision 1.65
 diff -u -r1.65 nsXREDirProvider.cpp
---- nsXREDirProvider.cpp	26 Sep 2007 18:35:21 -0000	1.65
-+++ nsXREDirProvider.cpp	8 Oct 2007 21:24:02 -0000
+--- toolkit/xre/nsXREDirProvider.cpp	26 Sep 2007 18:35:21 -0000	1.65
++++ toolkit/xre/nsXREDirProvider.cpp	8 Oct 2007 21:24:02 -0000
 @@ -984,6 +984,17 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
