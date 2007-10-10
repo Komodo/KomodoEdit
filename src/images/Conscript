@@ -72,6 +72,7 @@ $cons->Install($imagesDir, "icons/xpm/ac_variable.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_variable_scalar.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_variable_array.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_variable_hash.xpm");
+$cons->Install($imagesDir, "icons/xpm/ac_constant.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_interface.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_namespace.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_xml_element.xpm");

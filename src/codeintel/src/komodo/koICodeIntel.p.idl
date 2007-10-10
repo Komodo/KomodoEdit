@@ -80,6 +80,7 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
     const long ACIID_DIRECTORY = 9;
     const long ACIID_XML_ELEMENT = 10;
     const long ACIID_XML_ATTRIBUTE = 11;
+    const long ACIID_CONSTANT = 12;
     
     // Called by a koICodeIntelCompletionLanguageService (see
     // src/languages/ko*Language.py) to provide data for these UIs.
