@@ -107,7 +107,8 @@ class PHPTreeEvaluator(TreeEvaluator):
         if trg.type == "variables":
             return self._variables_from_scope(self.expr, start_scope)
         elif trg.type == "functions":
-            retval = self._functions_from_scope(self.expr, start_scope)
+            retval = self._functions_from_scope(self.expr, start_scope) + \
+                     self._constants_from_scope(self.expr, start_scope)
             #if self.ctlr.is_aborted():
             #    return None
             return retval
@@ -269,6 +270,15 @@ class PHPTreeEvaluator(TreeEvaluator):
         expr = expr[:1]
         return [ (ilk, name) for ilk, name in vars if name.startswith(expr) ]
 
+    def _constants_from_scope(self, expr, scoperef):
+        """Return all available constant names beginning with expr"""
+        # XXX - TODO: Use FUNCTION_TRIGGER_LEN instead of hard coding 3
+        return self._element_names_from_scope_starting_with_expr(expr[:3],
+                            scoperef,
+                            "constant",
+                            ("globals", "imports", "builtins"),
+                            self.constant_shortnames_from_elem)
+
     def _functions_from_scope(self, expr, scoperef):
         """Return all available function names beginning with expr"""
         # XXX - TODO: Use FUNCTION_TRIGGER_LEN instead of hard coding 3
@@ -426,10 +436,12 @@ class PHPTreeEvaluator(TreeEvaluator):
                 if attributes is None:
                     attributes = child.get("attributes", "").split()
                 if static_cplns:
-                    if "static" not in attributes:
+                    # Static variables use the '$' prefix, constants do not.
+                    if "static" in attributes:
+                        name_prefix = '$'
+                    elif child.get("ilk") != "constant":
                         continue
-                    name_prefix = '$'
-                elif "static" in attributes:
+                elif "static" in attributes or child.get("ilk") == "constant":
                     continue
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
@@ -955,9 +967,30 @@ class PHPTreeEvaluator(TreeEvaluator):
         variable_names = cache.get(cache_item_name)
         if variable_names is None:
             variables = self._get_all_children_with_details(elem, "variable")
-            variable_names = [ x.get("name") for x in variables ]
+            variable_names = [ x.get("name") for x in variables if x.get("ilk") != "constant" ]
             cache[cache_item_name] = variable_names
         return variable_names
+
+    def constant_names_from_elem(self, elem, cache_item_name='constant_names'):
+        cache = self._php_cache_from_elem(elem)
+        constant_names = cache.get(cache_item_name)
+        if constant_names is None:
+            constants = self._get_all_children_with_details(elem, "variable",
+                                                            {"ilk": "constant"})
+            constant_names = [ x.get("name") for x in constants ]
+            cache[cache_item_name] = constant_names
+        return constant_names
+
+    def constant_shortnames_from_elem(self, elem, cache_item_name='constant_shortnames'):
+        cache = self._php_cache_from_elem(elem)
+        constant_short_names = cache.get(cache_item_name)
+        if constant_short_names is None:
+            constant_short_names = make_short_name_dict(
+                                    self.constant_names_from_elem(elem),
+                                    # XXX - TODO: Use constant_TRIGGER_LEN instead of hard coding 3
+                                    length=3)
+            cache[cache_item_name] = constant_short_names
+        return constant_short_names
 
     def function_names_from_elem(self, elem, cache_item_name='function_names'):
         cache = self._php_cache_from_elem(elem)

@@ -336,6 +336,14 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
     # ignore_styles_ws, includes whitespace styles
     ignore_styles_ws = ignore_styles + (whitespace_style, )
 
+    def cb_variable_data_from_elem(self, elem):
+        """Use the 'constant' image in the Code Browser for a variable constant.
+        """
+        data = LangIntel.cb_variable_data_from_elem(self, elem)
+        if elem.get("ilk") == "constant":
+            data["img"] = "constant"
+        return data
+
     def _functionCalltipTrigger(self, ac, pos, DEBUG=False):
         # Implicit calltip triggering from an arg separater ",", we trigger a
         # calltip if we find a function open paren "(" and function identifier
@@ -379,6 +387,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
 
     #@util.hotshotit
     def trg_from_pos(self, buf, pos, implicit=True, DEBUG=False, ac=None):
+        #DEBUG = True
         if pos < 4:
             return None
 
@@ -643,6 +652,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
 
     def _citdl_expr_from_pos(self, buf, pos, implicit=True,
                              include_forwards=False, DEBUG=False):
+        #DEBUG = True
         #PERF: Would dicts be faster for all of these?
         WHITESPACE = tuple(" \t\n\r\v\f")
         EOL = tuple("\r\n")
@@ -1294,8 +1304,10 @@ class PHPCILEDriver(UDLCILEDriver):
         return cixtree
 
       #except Exception, e:
+      #    print "\nPHP cile exception"
       #    import traceback
       #    traceback.print_exc()
+      #    print
       #    raise
 
 
@@ -1413,6 +1425,20 @@ class PHPVariable:
         cixelement = createCixVariable(cixblob, self.name, vartype=vartype,
                                        attributes=self.attributes)
         cixelement.attrib["line"] = str(self.linestart)
+        return cixelement
+
+class PHPConstant(PHPVariable):
+    def __init__(self, name, line, vartype=''):
+        PHPVariable.__init__(self, name, line, vartype)
+
+    def __repr__(self):
+        return "constant %s line %s type %s\n"\
+               % (self.name, self.linestart, self.types)
+
+    def toElementTree(self, cixblob):
+        cixelement = PHPVariable.toElementTree(self, cixblob)
+        cixelement.attrib["ilk"] = "constant"
+        return cixelement
 
 class PHPFunction:
     def __init__(self, funcname, args, optionalArgs, lineno, depth=0,
@@ -1527,6 +1553,7 @@ class PHPInterface:
         self.linestart = lineno
         self.lineend = None
         self.depth = depth
+        self.constants = {} # declared class constants
         self.members = {} # declared class variables
         self.variables = {} # all variables used in class
         self.functions = {}
@@ -1540,6 +1567,11 @@ class PHPInterface:
         if self.extends:
             r += " EXTENDS %s" % self.extends
         r += '\n'
+
+        if self.constants:
+            r += "Constants:\n"
+            for m in self.constants:
+                r += "    var %s line %s\n"  % (m, self.constants[m])
 
         if self.members:
             r += "Members:\n"
@@ -1574,8 +1606,8 @@ class PHPInterface:
         if self.doc:
             setCixDoc(self.doc)
 
-        allValues = self.functions.values() + self.members.values() + \
-                    self.variables.values()
+        allValues = self.functions.values() + self.constants.values() + \
+                    self.members.values() + self.variables.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
@@ -1587,6 +1619,7 @@ class PHPClass:
         self.linestart = lineno
         self.lineend = None
         self.depth = depth
+        self.constants = {} # declared class constants
         self.members = {} # declared class variables
         self.variables = {} # all variables used in class
         self.functions = {}
@@ -1610,6 +1643,11 @@ class PHPClass:
         if self.extends:
             r += " EXTENDS %s" % self.extends
         r += '\n'
+
+        if self.constants:
+            r += "Constants:\n"
+            for m in self.constants:
+                r += "    var %s line %s\n"  % (m, self.constants[m])
 
         if self.members:
             r += "Members:\n"
@@ -1645,8 +1683,8 @@ class PHPClass:
         for i in self.interfaces:
             addInterfaceRef(cixelement, i.strip())
 
-        allValues = self.functions.values() + self.members.values() + \
-                    self.variables.values()
+        allValues = self.functions.values() + self.constants.values() + \
+                    self.members.values() + self.variables.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
@@ -1669,6 +1707,7 @@ class PHPFile:
         self.functions = {} # functions declared in file
         self.classes = {} # classes declared in file
         self.variables = {} # all variables used in file
+        self.constants = {} # all constants used in file
         self.includes = {} # files included into this file
         self.interfaces = {} # interfaces declared in file
 
@@ -1678,6 +1717,10 @@ class PHPFile:
 
         for f, l in self.includes.items():
             r += "include %s on line %d\n" % (f, l)
+
+        r += "constants:\n"
+        for v in self.constants.values():
+            r += "    %r" % v
 
         r += "functions:\n"
         for f in self.functions.values():
@@ -1697,8 +1740,9 @@ class PHPFile:
         for fn in self.includes:
             SubElement(cixmodule, "import", module=fn, line=str(self.includes[fn]))
 
-        allValues = self.functions.values() + self.interfaces.values() + \
-                    self.variables.values() + self.classes.values()
+        allValues = self.constants.values() + self.functions.values() + \
+                    self.interfaces.values() + self.variables.values() + \
+                    self.classes.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixmodule)
 
@@ -1950,6 +1994,20 @@ class PHPParser:
                           name, vartype)
                 phpVariable.addType(self.lineno, vartype)
 
+    def addClassConstant(self, name, vartype, doc=None):
+        """Add a constant variable into the current class."""
+
+        if self.currentClass:
+            phpConstant = self.currentClass.constants.get(name)
+            if phpConstant is None:
+                log.debug("CLASS CONST: %r", name)
+                self.currentClass.constants[name] = PHPConstant(name, self.lineno,
+                                                              vartype)
+            elif vartype:
+                log.debug("Adding type information for CLASS CONST: %r, "
+                          "vartype: %r", name, vartype)
+                phpConstant.addType(self.lineno, vartype)
+
     def addInterface(self, name, extends=None, doc=None):
         if name not in self.fileinfo.classes:
             # push the current class onto the class stack
@@ -1989,6 +2047,18 @@ class PHPParser:
                 log.debug("Adding type information for VAR: %r, vartype: %r",
                           name, vartype)
                 phpVariable.addType(self.lineno, vartype)
+
+    def addConstant(self, name, vartype='', doc=None):
+        """Add a constant at the global scope level."""
+
+        log.debug("CONSTANT: %r type: %r on line %d", name, vartype, self.lineno)
+        phpConstant = self.fileinfo.constants.get(name)
+        # Add it if it's not already defined
+        if phpConstant is None:
+            if vartype and isinstance(vartype, (list, tuple)):
+                vartype = ".".join(vartype)
+            self.fileinfo.constants[name] = PHPConstant(name, self.lineno,
+                                                        vartype)
 
     def _getArgumentsFromPos(self, styles, text, pos):
         """Return a tuple (arguments, optional arguments, next position)
@@ -2103,13 +2173,18 @@ class PHPParser:
                 p += 1
                 typeNames = ["int"]
             elif styles[p] == self.PHP_IDENTIFIER:
-                typeNames, p = self._getIdentifiersFromPos(styles, text, p)
-                # Don't record null, as it doesn't help us with anything
-                if typeNames == ["NULL"]:
-                    typeNames = []
-                elif typeNames and p < len(styles) and \
-                   styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
-                    typeNames[-1] += "()"
+                # PHP Uses mixed upper/lower case for boolean values.
+                if text[p].lower() in ("true", "false"):
+                    p += 1
+                    typeNames = ["boolean"]
+                else:
+                    typeNames, p = self._getIdentifiersFromPos(styles, text, p)
+                    # Don't record null, as it doesn't help us with anything
+                    if typeNames == ["NULL"]:
+                        typeNames = []
+                    elif typeNames and p < len(styles) and \
+                       styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
+                        typeNames[-1] += "()"
             elif styles[p] == self.PHP_VARIABLE:
                 typeNames, p = self._getIdentifiersFromPos(styles, text, p, self.PHP_VARIABLE)
                 if typeNames:
@@ -2174,6 +2249,7 @@ class PHPParser:
 
     def _getIncludePath(self, styles, text, p):
         """Work out the include string and return it (without the quotes)"""
+
         # Some examples (include has identical syntax):
         #   require 'prepend.php';
         #   require $somefile;
@@ -2194,6 +2270,23 @@ class PHPParser:
             p += 1
         return None
 
+    def _getConstantNameAndType(self, styles, text, p):
+        """Work out the constant name and type is, returns these as tuple"""
+
+        # Some examples (include has identical syntax):
+        #   define('prepend', 1);
+        #   define ('somefile', "file.txt");
+        constant_name = None
+        constant_type = None
+        if p+4 < len(styles) and \
+           styles[p] == self.PHP_OPERATOR and text[p] == "(" and \
+           styles[p+1] in self.PHP_STRINGS:
+            constant_name = self._unquoteString(text[p+1])
+            if text[p+2] == ",":
+                constant_type, p = self._getVariableType(styles, text, p+3,
+                                                         assignmentChar=None)
+        return constant_name, constant_type
+ 
     def _addAllVariables(self, styles, text, p):
         while p < len(styles):
             if styles[p] == self.PHP_VARIABLE:
@@ -2223,14 +2316,21 @@ class PHPParser:
                         self.addVariable(name, attributes=attributes)
             p += 1
 
-    def _variableHandler(self, styles, text, p, attributes, doc=None):
-        log.debug("_variableHandler:: text: %r, attributes: %r", text[p:],
-                  attributes)
+    def _variableHandler(self, styles, text, p, attributes, doc=None,
+                         style="variable"):
+        log.debug("_variableHandler:: style: %r, text: %r, attributes: %r",
+                  style, text[p:], attributes)
         classVar = False
         if attributes:
             classVar = True
             if "var" in attributes:
                 attributes.remove("var")  # Don't want this in cile output
+        if style == "const":
+            if self.currentClass is None:
+                log.debug("Ignoring const %r, as not defined in a "
+                          "class context.", text)
+                return
+            classVar = True
         looped = False
         while p < len(styles):
             if looped:
@@ -2240,8 +2340,12 @@ class PHPParser:
                 p += 1
             else:
                 looped = True
-            namelist, p = self._getIdentifiersFromPos(styles, text, p,
-                                                      self.PHP_VARIABLE)
+            if style == "const":
+                namelist, p = self._getIdentifiersFromPos(styles, text, p,
+                                                          self.PHP_IDENTIFIER)
+            else:
+                namelist, p = self._getIdentifiersFromPos(styles, text, p,
+                                                          self.PHP_VARIABLE)
             if not namelist:
                 break
             log.debug("namelist:%r, p:%d", namelist, p)
@@ -2281,7 +2385,10 @@ class PHPParser:
                                          text[p] in ",;":
                 log.debug("Line %d, variable definition: %r",
                          self.lineno, namelist)
-                if classVar and self.currentClass is not None:
+                if style == "const":
+                    self.addClassConstant(name, ".".join(typeNames),
+                                          doc=self.comment)
+                elif classVar and self.currentClass is not None:
                     self.addClassMember(name, ".".join(typeNames),
                                         attributes=attributes, doc=self.comment)
                 else:
@@ -2309,7 +2416,7 @@ class PHPParser:
             # Eat special attribute keywords
             while firstStyle == self.PHP_WORD and \
                   text[pos] in ("var", "public", "protected", "private",
-                                "final", "static", "const", "abstract"):
+                                "final", "static", "abstract"):
                 attributes.append(text[pos])
                 pos += 1
                 firstStyle = styles[pos]
@@ -2336,6 +2443,20 @@ class PHPParser:
                         else:
                             log.debug("Could not work out requirename. Text: %r",
                                       text[pos:])
+                elif keyword == "define":
+                    # Defining a constant
+                    #   define("FOO",     "something");
+                    #   define('TEST_CONSTANT', FALSE);
+                    name, citdl = self._getConstantNameAndType(styles, text, pos)
+                    if name:
+                        self.addConstant(name, citdl)
+
+                elif keyword == "const":
+                    # Defining a class constant
+                    #   const myconstant = x;
+                    self._variableHandler(styles, text, pos, attributes,
+                                          doc=self.comment, style="const")
+
                 elif keyword == "function":
                     namelist, p = self._getIdentifiersFromPos(styles, text, pos)
                     log.debug("namelist:%r, p:%d", namelist, p)

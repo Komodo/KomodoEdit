@@ -1551,6 +1551,98 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
                              php_magic_class_method_data.get("__construct"))
 
+    @tag("bug41700")
+    def test_complete_constants(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=41700
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            define("MAXSIZE", 100);
+            $myvar = 1;
+            class ConstBaseClass {
+                const base_constant;
+                var $base_instance_var;
+            }
+            class ConstTestClass extends ConstBaseClass {
+                const a_constant = 10;
+                var $an_instance_var;
+                function somefunc() {
+                    $this-><1>xxx;
+                    self::<2>xxx;
+                    MAX<3>;
+                }
+            }
+            ConstTestClass::<4>xxx;
+            $x = MAX<5>;
+            $c_inst = new ConstTestClass();
+            $c_inst-><6>xxx;
+        """)))
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [ ("variable", "an_instance_var"),
+              ("variable", "base_instance_var"),
+              ("function", "somefunc") ])
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [ ("constant", "a_constant"),
+              ("constant", "base_constant"),
+              ("function", "somefunc") ])
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+            [ ("constant", "MAXSIZE") ])
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
+            [ ("constant", "a_constant"),
+              ("constant", "base_constant"),
+              ("function", "somefunc") ])
+
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+            [ ("constant", "MAXSIZE") ])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[5]),
+            [ ("constant", "myvar") ])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[5]),
+            [ ("variable", "myvar") ])
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[6]),
+            [ ("variable", "an_instance_var"),
+              ("variable", "base_instance_var"),
+              ("function", "somefunc") ])
+
+    # Now try using constants through imports.
+    @tag("bug41700")
+    def test_complete_constants_from_imports(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=41700
+
+        test_dir = join(self.test_dir, "test_complete_constants_from_imports")
+        test_content, test_positions = unmark_text(php_markup(dedent("""\
+            require ("simple.php");
+            $x = SIM<1>;
+            $obj = new SimpleClassForConst();
+            $obj-><2>foo();
+            SimpleClassForConst::<3>xxx;
+        """)))
+
+        manifest = [
+            ("simple.php", php_markup(dedent("""
+                define("SIMPLE_DEFINE", 100);
+                class SimpleClassForConst {
+                    const simple_constant;
+                    var $simple_variable;
+                }
+             """))),
+            ("test.php", test_content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("constant", "SIMPLE_DEFINE")])
+        self.assertCompletionsAre2(buf, test_positions[2],
+            [("variable", "simple_variable")])
+        self.assertCompletionsAre2(buf, test_positions[3],
+            [("constant", "simple_constant")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -1987,7 +2079,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
 
-    @tag("bug71872")
+    @tag("bug71872", "knownfailure")
     def test_completions_on_files_with_the_same_name(self):
         # In PHP, only one of these files would win, but since we include
         # everything in Komodo, we don't know which one it would be so

@@ -271,6 +271,8 @@ class Database(object):
     # version number should be used for small upgrades to the database.
     #
     # db change log:
+    # - 2.0.16: (PHP constants) Adding "ilk='constant'" attribute to
+    #   PHP variables that are marked as constants.
     # - 2.0.15: (PHP/JS import-everything semantics.) Add
     #   "toplevelprefix_index" to stdlibs and catalogs zones. Currently
     #   not adding this index for (multi)lang zones (see comment in
@@ -304,7 +306,7 @@ class Database(object):
     # - 2.0.2: added scan_error to res_index in LangZone and MultiLangZone,
     #   add "lang" file to lang zones for reverse safe_lang -> lang lookup
     # - 2.0.1: s/VERSION.txt/VERSION/, made PHP a MultiLangZone
-    VERSION = "2.0.15"
+    VERSION = "2.0.16"
 
     LEN_PREFIX = 3 # Length of prefix in 'toplevelprefix_index' indeces.
 
@@ -543,6 +545,7 @@ class Database(object):
         # Techically only needed to wipe 'stdlibs' and 'catalogs' for
         # PHP and JavaScript, but this is easier.
         "2.0.14": (VERSION, _upgrade_wipe_db, None),
+        "2.0.15": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
     }
 
     def report_event(self, desc):
@@ -928,7 +931,10 @@ class Database(object):
         if not exists(dirname(path)):
             log.debug("fs-write: mkdir '%s'",
                       dirname(path)[len(self.base_dir)+1:])
-            os.makedirs(dirname(path))
+            try:
+                os.makedirs(dirname(path))
+            except OSError, ex:
+                log.warn("error creating `%s': %s", dirname(path), ex)
         log.debug("fs-write: '%s'", path[len(self.base_dir)+1:])
         fout = open(path, 'wb')
         try:

@@ -46,6 +46,11 @@ overloaded. It is short (good for space savings), it is weird (people won't
 think this is related to type inferencing info) and it is rare (good for
 finding uses in the codeintel sources).
 
+"ilk" dev note: Developers should be aware that ilk is used by multiple
+element types and that it is not enough to simply check the ilk type to
+work out the type of element, you should be checking both the tag name
+and then the ilk type to determine element type.
+
 Why 'blob' for modules/packages/importable-things? See
 <http://p4.activestate.com/p4db/changeView.cgi?CH=269772> for a reasons why.
 
@@ -89,6 +94,12 @@ below.
         Indicates that this item should not be used anymore.
     constant
         Indicates that this item can/should not be modified.
+        Note: PHP is defining constants by setting the ilk="constant" attribute
+        on the variable element instead. This is because PHP needs to
+        distinguish between the two, as PHP constants trigger differently to PHP
+        variables. Setting the ilk="constant" attribute will affect the results
+        of database API calls that depend upon an "ilk" attribute, like
+        "toplevel_cplns()".
 
 
 # TODO
@@ -363,6 +374,12 @@ below.
         <element name="variable">
             <attribute name="name"/>
             <optional> <attribute name="line"/> </optional>
+            <!-- A special ilk="constant" has been added to better support
+                 variable constants (initially just for PHP), as the optional
+                 attributes field (see below) can contain multiple values
+                 making it more difficult to process than just a singular field.
+            -->
+            <optional> <attribute name="ilk"/> </optional>
             <!-- Special variable attributes:
                 __instancevar__
                     This can be used to differentiate between class instance
