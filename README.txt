@@ -363,7 +363,7 @@ Build Troubleshooting Notes
      free to put some print statements in there and re-run your
      "bk configure ..." call to try to suss out the problem.
   3. Log a bug:
-     http://bugs.activestate.com/enter_bug.cgi?set_product=Komodo&component=InternalBuild
+     http://bugs.activestate.com/enter_bug.cgi?set_product=OpenKomodo&component=InternalBuild
   
 
 
