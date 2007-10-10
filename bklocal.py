@@ -52,7 +52,7 @@ def _getLinuxDistro():
     if os.path.exists(redhatRelease):
         content = open(redhatRelease).read()
         pattern = re.compile("^Red Hat Linux release ([\d\.]+)")
-        fedoraPattern = re.compile("^Fedora Core release ([\d\.]+)")
+        fedoraPattern = re.compile("^Fedora (Core )?release ([\d\.]+)")
         match = pattern.search(content)
         fedoraMatch = fedoraPattern.search(content)
         if match:
