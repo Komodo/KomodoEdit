@@ -342,6 +342,29 @@ Build Troubleshooting Notes
   had to tweak "~/opt/php/4.3.11/bin/phpize" to use "autoconf2.50" instead
   of bare "autoconf".
 
+- "bk configure" fails.
+
+  If "bk configure" fails, here is how to go about trying to help fix it.
+  Background: "bk configure" is doing an autoconf-like thing: gathering a
+  bunch of information (guided by command-line options) that is then
+  written out to a config file (current "bkconfig.py", "bkconfig.pm" and
+  "bkconfig.bat|sh") for use by subsequent build steps. The list of
+  config vars being determined is in the "configuration" dict in
+  "Blackfile.py" ("bk" == Black, hence make is to Makefile as "bk" is to
+  Blackfile.py). The implementation logic for most configuration vars
+  is in "bklocal.py" -- one Python class definition per configuration var.
+  
+  Process to help find the problem:
+  1. Look at the "bk configure" output. The error will be after output
+     that says "determining BLAH...". Look for that "BLAH" string in
+     "bklocal.py" to find the corresponding config var class.
+  2. The awkwardly named "_Determine_Do()" method for that class is where
+     the value is determined. The failure is probably in there. Feel
+     free to put some print statements in there and re-run your
+     "bk configure ..." call to try to suss out the problem.
+  3. Log a bug:
+     http://bugs.activestate.com/enter_bug.cgi?set_product=Komodo&component=InternalBuild
+  
 
 
 Setup to Build a Komodo Installer
