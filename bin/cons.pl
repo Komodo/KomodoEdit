@@ -2853,10 +2853,10 @@ sub select {
 # MD5-based signature package.
 package sig::md5;
 
-use MD5 1.6;
+use Digest::MD5;
 
 BEGIN {
-    $md5 = new MD5;
+    $md5 = Digest::MD5->new;
 }
 
 # Invalidate a cache entry.
