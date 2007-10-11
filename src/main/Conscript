@@ -286,6 +286,10 @@ else {
     $cons->Install($stubDir, "stub/komodo");
 }
 
+if ($mozVersionNumber >= 190) {
+    $cons->Preprocess("application.p.ini", "application.ini", \%ppData);
+    $cons->Install($mozBin, "application.ini");
+}
 
 } else {
     # XULRUNNER 1.9 build
