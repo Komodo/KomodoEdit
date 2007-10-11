@@ -19,6 +19,7 @@ $cons->InstallInChrome('listbox.xml');
 $cons->InstallInChrome('colorpicker.xml');
 $cons->Preprocess('scintilla.unprocessed.xml', 'scintilla.xml');
 $cons->InstallInChrome('scintilla.xml');
+$cons->Preprocess('scintilla-overlay.p.xul', 'scintilla-overlay.xul');
 $cons->InstallInChrome('scintilla-overlay.xul');
 $cons->InstallInChrome('widgets.xml');
 $cons->Preprocess('views.unprocessed.xml', 'views.xml');
