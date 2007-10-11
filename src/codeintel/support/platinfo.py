@@ -29,8 +29,6 @@
         'linux-x86'
         >>> print pi
         linux-x86
-        >>> pi
-        <PlatInfo 'linux-x86'>
 
         # ...but that can be customized with some rules.
         >>> pi.name('os', 'distro', 'arch')
@@ -76,8 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__revision__ = "$Id$"
-__version_info__ = (0, 4, 0)
+__version_info__ = (0, 8, 2)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -98,9 +95,9 @@ log = logging.getLogger("platinfo")
 class Error(Exception):
     pass
 
-class InternalError(Exception):
+class InternalError(Error):
     def __str__(self):
-        return Exception.__str__(self) + """
+        return Error.__str__(self) + """
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Please send an email to <trentm@gmail.com> to report this error.    *
@@ -116,8 +113,61 @@ class InternalError(Exception):
 
 class PlatInfo(object):
     """Platform information for the current machine."""
-    def __init__(self):
-        if sys.platform == "win32":
+    _known_oses = set(
+        "win32 win64 hpux linux macosx aix solaris freebsd".split())
+    _known_archs = set(
+        "x86 powerpc ppc x64 x86_64 ia64 sparc parisc".split())
+
+    @classmethod
+    def from_name(cls, name):
+        """Create a PlatInfo instance from a platname string.
+
+        This only knows how to deal with "os[os_ver]-arch[arch_ver]".
+        For example:
+            GOOD: win32-x86, hpux-parisc2.0, aix5-powerpc
+            BAD:  linux-libcpp5-x86
+        """
+        parts = name.split('-')
+        if len(parts) != 2:
+            raise Error("cannot parse a platname that doesn't match "
+                        "'os[os_ver]-arch[arch_ver]': %r" % name)
+        data = {}
+        if parts[0] in cls._known_oses:
+            data["os"] = parts[0]
+        else:
+            for known_os in cls._known_oses:
+                if parts[0].startswith(known_os):
+                    data["os"] = known_os
+                    data["os_ver"] = parts[0][len(known_os):]
+                    break
+            else:
+                raise Error("could not part os-part of platform name: %r"
+                            % parts[0])
+        if parts[1] in cls._known_archs:
+            data["arch"] = parts[1]
+        else:
+            for known_arch in cls._known_archs:
+                if parts[1].startswith(known_arch):
+                    data["arch"] = known_arch
+                    data["arch_ver"] = parts[1][len(known_arch):]
+                    break
+            else:
+                raise Error("could not part arch-part of platform name: %r"
+                            % parts[1])
+        return cls(**data)
+
+    def __init__(self, **kwargs):
+        """If created with no arguments, all available data for the current
+        platform will be determine. If called with arguments, the PlatInfo
+        will just use those as all platform info. E.g.,
+
+            >>> p = PlatInfo(os='win32', arch='x86')
+            >>> p.name()
+            'win32-x86'
+        """
+        if kwargs:
+            self.__dict__ = kwargs
+        elif sys.platform == "win32":
             self._init_win32()
         elif sys.platform.startswith("linux"):
             self._init_linux()
@@ -129,6 +179,8 @@ class PlatInfo(object):
             self._init_aix()
         elif sys.platform == "darwin":
             self._init_mac()
+        elif sys.platform.startswith("freebsd"):
+            self._init_freebsd()
         else:
             raise InternalError("unknown platform: '%s'" % sys.platform)
 
@@ -136,7 +188,18 @@ class PlatInfo(object):
         return self.name()
 
     def __repr__(self):
-        return "<PlatInfo '%s'>" % self
+        args = ['%s=%r' % item for item in self.__dict__.items()]
+        class_parts = [self.__class__.__name__]
+        if self.__class__.__module__ != "__main__":
+            class_parts.insert(0, self.__class__.__module__)
+        return "%s(%s)" % ('.'.join(class_parts), ', '.join(args))
+
+    def match(self, **kwargs):
+        for name, value in kwargs.items():
+            if getattr(self, name) != value:
+                return False
+        else:
+            return True
 
     def name(self, *rules, **kwargs):
         """name([rules...]) --> platform name
@@ -184,7 +247,8 @@ class PlatInfo(object):
             parts = ["os", "os_name"]
         else:
             parts = ["os+os_ver[:2]"]
-        parts += ["distro+distro_ver", "arch+arch_ver"]
+        parts += ["distro+distro_ver", "libc", "glibc+glibc_ver[:2]",
+                  "libcpp", "arch+arch_ver"]
         return self.name(*parts)
 
     _token_parser = re.compile(r"^([\w]+)(\[[\d:]+\])?$")
@@ -275,6 +339,17 @@ class PlatInfo(object):
             if version: self.os_ver = version
             if csd:     self.os_csd = csd
 
+    def _init_freebsd(self):
+        self.os = "freebsd"
+        uname = os.uname()
+        self.os_ver = uname[2].split('-', 1)[0]
+
+        arch = uname[-1]
+        if re.match(r"i\d86", arch):
+            self.arch = "x86"
+        else:
+            raise InternalError("unknown FreeBSD architecture: '%s'" % arch)
+
     def _init_linux(self):
         self.os = "linux"
         uname = os.uname()
@@ -291,10 +366,18 @@ class PlatInfo(object):
             self.arch = "x86"
         elif arch == "x86_64":
             self.arch = "x86_64"
+        elif arch == "ppc":
+            self.arch = "ppc"
         else:
             raise InternalError("unknown Linux architecture: '%s'" % arch)
         self._set_linux_distro_info()
-        self.libcpp = "libcpp" + _get_linux_libcpp_version()
+        lib_info = _get_linux_lib_info()
+        self.libcpp = "libcpp" + lib_info["libstdc++"]
+        # For now, only the major 'libc' version number is used.
+        self.libc = "libc" + lib_info["libc"].split('.')[0]
+        if "glibc" in lib_info:
+            self.glibc = "glibc"
+            self.glibc_ver = lib_info["glibc"]
 
     def _init_solaris(self):
         self.os = "solaris"
@@ -478,6 +561,8 @@ class PlatInfo(object):
 
         patterns = {
             "redhat": re.compile("^Red Hat Linux release ([\d\.]+)"),
+            # As of release 7, "Fedora Core" is not called "Fedora".
+            "fedora": re.compile("^Fedora release ([\d\.]+)"),
             "fedoracore": re.compile("^Fedora Core release ([\d\.]+)"),
             "mandrake": re.compile("^Mandrake Linux release ([\d\.]+)"),
             # Ignoring the different RHEL flavours (AS, ES, WS) for now.
@@ -613,15 +698,33 @@ def _join_ver(ver_tuple):
         dotted.append(str(bit))
     return ''.join(dotted)
 
-def _get_linux_libcpp_version():
+def _get_linux_lib_info():
+    """Return a dict of default lib versions for a build on linux.
+    
+    For example:
+        {"libstdc++": "5", "libc": "6", "glibc": "2.3.3"}
+    
+    The 'glibc' version is only returned if 'libc' is >=6.
+    
+    Some notes on Linux libc versions
+    ---------------------------------
+    
+    From http://sourceware.org/glibc/glibc-faq.html#s-2.1
+        libc-4      a.out libc
+        libc-5      original ELF libc
+        libc-6      GNU libc
+    
+    But what are libc.so.7 and libc.so.8 that is see in Google searches (but
+    not yet in any Linux installs I have access to)?
+    """
     assert sys.platform.startswith("linux")
     tmpdir = _create_temp_dir()
     try:
         # Compile a test C++ file and get its object dump.
-        cxxfile = os.path.join(tmpdir, "libcpp-version.cxx")
+        cxxfile = os.path.join(tmpdir, "lib-info.cxx")
         f = open(cxxfile, 'w')
         try:
-            f.write("""#include <features.h>
+            f.write("""
 #include <stdio.h>
 #include <stdlib.h>
 int main(int argc, char **argv) { exit(0); }
@@ -639,17 +742,44 @@ int main(int argc, char **argv) { exit(0); }
         finally:
             os.chdir(currdir)
 
-        # Parse the libcpp version from the object dump.
+        # Parse the lib versions from the object dump.
         # e.g.: libstdc++-libc6.2-2.so.3
-        pattern = re.compile(r'NEEDED\s+libstdc\+\+(-libc\d+\.\d+\-\d+)?\.so\.(?P<ver>.*)')
-        match = pattern.search(objdump)
-        if not match:
-            raise InternalError("could not find 'NEEDED libstdc++...' "
-                                "in objdump of compiled test C++ file")
-        version = match.group("ver")
-        return version
+        patterns = {
+            "libstdc++": re.compile(r'NEEDED\s+libstdc\+\+(-libc\d+\.\d+\-\d+)?\.so\.(?P<ver>.*)'),
+            "libc": re.compile(r'NEEDED\s+libc\.so\.(?P<ver>.*)'),
+        }
+        lib_info = {}
+        for name, pattern in patterns.items():
+            match = pattern.search(objdump)
+            if not match:
+                raise InternalError("could not find 'NEEDED %s...' in "
+                                    "objdump of compiled test C++ file"
+                                    % name)
+            lib_info[name] = match.group("ver")
     finally:
         _rmtree(tmpdir)
+
+    # If this is glibc, get its version.
+    if int(_split_ver(lib_info["libc"])[0]) >= 6:
+        libc_so = os.path.join("/lib", "libc.so."+lib_info["libc"])
+        o = os.popen(libc_so)
+        try:
+            libc_so_ver_line = o.readline().strip()
+        finally:
+            retval = o.close()
+        if retval:
+            raise InternalError("error determining running '%s'" % libc_so)
+        # e.g.:
+        #   GNU C Library stable release version 2.3.3 (20040917), by R...
+        #   GNU C Library stable release version 2.5, by Roland McGrath et al.
+        pattern = re.compile(r"^GNU C Library.*?(\d+\.\d+(\.\d+)?)")
+        match = pattern.search(libc_so_ver_line)
+        if not match:
+            raise InternalError("error determining glibc version from '%s'"
+                                % libc_so_ver_line)
+        lib_info["glibc"] = match.group(1)
+
+    return lib_info
 
 
 def _get_hpux_parisc_arch_ver():
