@@ -94,12 +94,7 @@
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="start_page_tip_box_closed">1</boolean>
   <boolean id="start_page_landing_box_closed">0</boolean>
-<!-- # if PRODUCT_TYPE == "edit" -->
-  <string id="start_page_landing_box_url">http://www.activestate.com/products/komodo_edit/start/</string>
-<!-- #endif -->
-<!-- # if PRODUCT_TYPE == "ide" -->
-  <string id="start_page_landing_box_url">http://www.activestate.com/products/komodo_ide/start/</string>
-<!-- #endif -->
+  <string id="start_page_landing_box_url">http://www.openkomodo.com/start_page</string>
 
   <boolean id="uiRxSeparateWindow">0</boolean>
 
