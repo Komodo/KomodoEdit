@@ -58,6 +58,7 @@ Shell               .ksh
 Shell               .zsh
 Java                .java
 C#                  .cs
+TeX                 .tex
 
 # Some Komodo-specific file extensions
 Python              .ksf  # Fonts & Colors scheme files

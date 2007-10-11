@@ -82,6 +82,8 @@
               ...
         C     #endif
 
+    And other languages.
+
 
     Preprocessor Syntax
     -------------------
@@ -97,16 +99,27 @@
         #endif
         #error <error string>
         #include "<file>"
+        #include <var>
       where <expr> is any valid Python expression.
     - The expression after #if/elif may be a Python statement. It is an
       error to refer to a variable that has not been defined by a -D
       option or by an in-content #define.
     - Special built-in methods for expressions:
         defined(varName)    Return true if given variable is defined.  
+
+
+    Tips
+    ----
+
+    A suggested file naming convention is to let input files to
+    preprocess be of the form <basename>.p.<ext> and direct the output
+    of preprocess to <basename>.<ext>, e.g.:
+        preprocess -o foo.py foo.p.py
+    The advantage is that other tools (esp. editors) will still
+    recognize the unpreprocessed file as the original language.
 """
 
-__revision__ = "$Id$"
-__version_info__ = (1, 0, 2)
+__version_info__ = (1, 0, 8)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -156,7 +169,7 @@ _commentGroups = {
     "Ruby":       [ ('#', '') ],
     "Tcl":        [ ('#', '') ],
     "Shell":      [ ('#', '') ],
-    # allowing for CSS and Javascript comments for preprocess in XML files
+    # Allowing for CSS and JavaScript comments in XML/HTML.
     "XML":        [ ('<!--', '-->'), ('/*', '*/'), ('//', '') ],
     "HTML":       [ ('<!--', '-->'), ('/*', '*/'), ('//', '') ],
     "Makefile":   [ ('#', '') ],
@@ -169,6 +182,7 @@ _commentGroups = {
     "IDL":        [ ('/*', '*/'), ('//', '') ],
     "Text":       [ ('#', '') ],
     "Fortran":    [ (re.compile(r'^[a-zA-Z*$]\s*'), ''), ('!', '') ],
+    "TeX":        [ ('%', '') ],
 }
 
 
@@ -364,7 +378,8 @@ def getContentType(filename):
 #---- module API
 
 def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
-               includePath=[], substitute=0, __preprocessedFiles=None):
+               includePath=[], substitute=0, contentType=None,
+               __preprocessedFiles=None):
     """Preprocess the given file.
 
     "infile" is the input filename.
@@ -381,6 +396,8 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
     "substitute", if true, will allow substitution of defines into emitted
         lines. (NOTE: This substitution will happen within program strings
         as well. This may not be what you expect.)
+    "contentType" can be used to specify the content type of the input
+        file. It not given, it will be guessed.
     "__preprocessedFiles" (for internal use only) is used to ensure files
         are not recusively preprocessed.
 
@@ -399,11 +416,12 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
     __preprocessedFiles.append(os.path.abspath(infile))
 
     # Determine the content type and comment info for the input file.
-    contentType = getContentType(infile)
     if contentType is None:
-        contentType = "Text"
-        log.warn("defaulting content type for '%s' to '%s'",
-                 infile, contentType)
+        contentType = getContentType(infile)
+        if contentType is None:
+            contentType = "Text"
+            log.warn("defaulting content type for '%s' to '%s'",
+                     infile, contentType)
     try:
         cgs = _commentGroups[contentType]
     except KeyError:
@@ -429,6 +447,7 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
              '#\s*(?P<op>define)\s+(?P<var>[^\s]*?)(\s+(?P<val>.+?))?',
              '#\s*(?P<op>undef)\s+(?P<var>[^\s]*?)',
              '#\s*(?P<op>include)\s+"(?P<fname>.*?)"',
+             r'#\s*(?P<op>include)\s+(?P<var>[^\s]+?)',
             ]
     patterns = []
     for stmt in stmts:
@@ -505,7 +524,14 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
                         pass
             elif op == "include":
                 if not (states and states[-1][0] == SKIP):
-                    f = match.group("fname")
+                    if "var" in match.groupdict():
+                        # This is the second include form: #include VAR
+                        var = match.group("var")
+                        f = defines[var]
+                    else:
+                        # This is the first include form: #include "path"
+                        f = match.group("fname")
+                        
                     for d in [os.path.dirname(infile)] + includePath:
                         fname = os.path.normpath(os.path.join(d, f))
                         if os.path.exists(fname):
@@ -597,7 +623,8 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
                     #     would be a pain right now.
                     sline = line
                     if substitute:
-                        for name, value in defines.items():
+                        for name in reversed(sorted(defines, key=len)):
+                            value = defines[name]
                             sline = sline.replace(name, str(value))
                     fout.write(sline)
                 elif keepLines:
