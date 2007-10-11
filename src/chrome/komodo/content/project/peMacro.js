@@ -438,7 +438,7 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code, part /* = null *
         var komodo = new _KomodoJSMacroAPI(part, view);
         var __retcode = -1;
         try {
-            var __compiled_func = eval("function() { \n" + __code + "\n }; ");
+            var __compiled_func = eval("(function() { \n" + __code + "\n })");
             try {
                 __retcode = __compiled_func();
             } catch(rex) {
