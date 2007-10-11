@@ -156,8 +156,9 @@ _commentGroups = {
     "Ruby":       [ ('#', '') ],
     "Tcl":        [ ('#', '') ],
     "Shell":      [ ('#', '') ],
-    "XML":        [ ('<!--', '-->') ],
-    "HTML":       [ ('<!--', '-->') ],
+    # allowing for CSS and Javascript comments for preprocess in XML files
+    "XML":        [ ('<!--', '-->'), ('/*', '*/'), ('//', '') ],
+    "HTML":       [ ('<!--', '-->'), ('/*', '*/'), ('//', '') ],
     "Makefile":   [ ('#', '') ],
     "JavaScript": [ ('/*', '*/'), ('//', '') ],
     "CSS":        [ ('/*', '*/') ],
