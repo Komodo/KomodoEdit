@@ -47,8 +47,12 @@ class KoObserverService:
         if topic not in self._topics:
             return L
         for wr in self._topics[topic]:
-            if not callable(wr) or wr() is not None:
-                L.append(wr)
+            try:
+                if not callable(wr) or wr() is not None:
+                    L.append(wr)
+            except Exception, e:
+                # bug 72807, pyxpcom failure on trunk
+                log.exception(e)
         return L
 
     # returns list of strong refs for observers in topic
