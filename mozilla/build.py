@@ -97,16 +97,14 @@ import string
 import types
 import logging
 
-sys.path.insert(0, "support")
-import sh
-import tm.path
-from tm import process
-import preprocess
+sys.path.insert(0, join(dirname(__file__), "..", "util"))
 import which
+import process
+import preprocess
 import platinfo
 import patchtree
+import sh
 del sys.path[0]
-
 
 
 #---- exceptions
@@ -2043,10 +2041,10 @@ def _extract_tarball(tarball, buildDir):
     log.info("extracting '%s' into '%s'", tarball, buildDir)
     if tarball.endswith(".tar.bz2"):
         cmd = "cd %s && tar xjf %s"\
-          % (buildDir, tm.path.relpath(tarball, buildDir))
+          % (buildDir, _relpath(tarball, buildDir))
     else:
         cmd = "cd %s && tar xzf %s"\
-          % (buildDir, tm.path.relpath(tarball, buildDir))
+          % (buildDir, _relpath(tarball, buildDir))
     log.info(cmd)
     retval = os.system(cmd)
     if retval:
@@ -2612,6 +2610,90 @@ def target_clean(argv):
 
 #---- internal support routines
 #TODO: move support routines from above here
+
+def _splitall(path):
+    r"""Return list of all split directory parts.
+
+    Often, it's useful to process parts of paths more generically than
+    os.path.split(), for example if you want to walk up a directory.
+    This recipe splits a path into each piece which corresponds to a
+    mount point, directory name, or file.  A few test cases make it
+    clear:
+        >>> _splitall('')
+        []
+        >>> _splitall('a/b/c')
+        ['a', 'b', 'c']
+        >>> _splitall('/a/b/c/')
+        ['/', 'a', 'b', 'c']
+        >>> _splitall('/')
+        ['/']
+        >>> _splitall('C:\\a\\b')
+        ['C:\\', 'a', 'b']
+        >>> _splitall('C:\\a\\')
+        ['C:\\', 'a']
+
+    (From the Python Cookbook, Files section, Recipe 99.)
+    """
+    allparts = []
+    while 1:
+        parts = os.path.split(path)
+        if parts[0] == path:  # sentinel for absolute paths
+            allparts.insert(0, parts[0])
+            break
+        elif parts[1] == path: # sentinel for relative paths
+            allparts.insert(0, parts[1])
+            break
+        else:
+            path = parts[0]
+            allparts.insert(0, parts[1])
+    allparts = [p for p in allparts if p] # drop empty strings 
+    return allparts
+
+
+def _relpath(path, relto=None):
+    """Return a relative path of the given path.
+
+    "relto" indicates a directory to which to make "path" relative.
+        It default to the cwd if not specified.
+    """
+    if not os.path.isabs(path):
+        path = os.path.abspath(path)
+    if relto is None:
+        relto = os.getcwd()
+    else:
+        relto = os.path.abspath(relto)
+
+    if sys.platform.startswith("win"):
+        def _equal(a, b): return a.lower() == b.lower()
+    else:
+        def _equal(a, b): return a == b
+
+    pathDrive, pathRemainder = os.path.splitdrive(path)
+    if not pathDrive:
+        pathDrive = os.path.splitdrive(os.getcwd())[0]
+    relToDrive, relToRemainder = os.path.splitdrive(relto)
+    if not _equal(pathDrive, relToDrive):
+        # Which is better: raise an exception or return ""?
+        return ""
+        #raise OSError("Cannot make '%s' relative to '%s'. They are on "\
+        #              "different drives." % (path, relto))
+
+    pathParts = _splitall(pathRemainder)[1:] # drop the leading root dir
+    relToParts = _splitall(relToRemainder)[1:] # drop the leading root dir
+    #print "_relpath: pathPaths=%s" % pathParts
+    #print "_relpath: relToPaths=%s" % relToParts
+    for pathPart, relToPart in zip(pathParts, relToParts):
+        if _equal(pathPart, relToPart):
+            # drop the leading common dirs
+            del pathParts[0]
+            del relToParts[0]
+    #print "_relpath: pathParts=%s" % pathParts
+    #print "_relpath: relToParts=%s" % relToParts
+    # Relative path: walk up from "relto" dir and walk down "path".
+    relParts = [os.curdir] + [os.pardir]*len(relToParts) + pathParts
+    #print "_relpath: relParts=%s" % relParts
+    relPath = os.path.normpath( os.path.join(*relParts) )
+    return relPath
 
 
 
