@@ -5,33 +5,40 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>{DF8E5247-8E0A-4de6-B393-0735A39DFD80}</em:id>
-    <em:version>0.1.338</em:version>
+    <em:version>0.1.356</em:version>
     
     <!-- Target Application this extension can install into, 
         with minimum and maximum supported versions. -->
-    <!-- Komodo -->
     <em:targetApplication>
 	    <Description>
 		    <!-- Komodo Snapdragon uuid -->
 		    <em:id>{2cb9d397-8ec9-4211-bd89-7fea34120af6}</em:id>
-		    <em:minVersion>0</em:minVersion>
+		    <em:minVersion>0</em:minVersion> 
 		    <em:maxVersion>1.*</em:maxVersion>
 	    </Description>
     </em:targetApplication>
     <em:targetApplication>
-      <Description>
-        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
-        <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>KOMODO_SHORT_VERSION</em:maxVersion>
-      </Description>
+	    <Description>
+		    <!-- Komodo IDE's uuid -->
+		    <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
+		    <em:minVersion>4.0</em:minVersion>
+		    <em:maxVersion>4.*</em:maxVersion>
+	    </Description>
     </em:targetApplication>
-    
+    <em:targetApplication>
+	    <Description>
+		    <!-- Komodo Edit's uuid -->
+		    <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
+		    <em:minVersion>4.0</em:minVersion>
+		    <em:maxVersion>4.*</em:maxVersion>
+	    </Description>
+    </em:targetApplication>
     <!-- Firefox -->
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>1.0</em:minVersion>
-        <em:maxVersion>2.*</em:maxVersion>
+        <em:minVersion>1.0+</em:minVersion>
+        <em:maxVersion>2.0.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -39,8 +46,17 @@
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>1.0</em:minVersion>
-        <em:maxVersion>1.5.0.*</em:maxVersion>
+        <em:minVersion>1.0+</em:minVersion>
+        <em:maxVersion>2.0.0.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Suite -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</em:id>
+        <em:minVersion>1.0.*</em:minVersion>
+        <em:maxVersion>1.8</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -48,9 +64,18 @@
     <!-- Will only be used for listing on update.mozilla.org -->
     <em:targetApplication>
       <Description>
-        <em:id>{86c18b42-e466-45a9-ae7a-9b95ba6f5640}</em:id>
-        <em:minVersion>1.7</em:minVersion>
+        <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
+        <em:minVersion>1.0.*</em:minVersion>
         <em:maxVersion>1.8</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Flock -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{a463f10c-3994-11da-9945-000d60ca027b}</em:id>
+        <em:minVersion>0.1</em:minVersion>
+        <em:maxVersion>2.0.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
     
@@ -87,8 +112,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>1.0</em:minVersion>
-        <em:maxVersion>2.*</em:maxVersion>
+        <em:minVersion>1.0+</em:minVersion>
+        <em:maxVersion>2.0.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -96,8 +121,8 @@
     <em:targetApplication>
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-        <em:minVersion>1.0</em:minVersion>
-        <em:maxVersion>1.5.0.*</em:maxVersion>
+        <em:minVersion>1.0+</em:minVersion>
+        <em:maxVersion>2.0.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 

@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = 0;
 
 const JSLIB_CONTRACTID   = "@mozilla.org/jslib;1";
 const JSLIB_CID          = Components.ID("{c3366882-5f84-4ad3-88a9-79c90b37cd2e}");
@@ -19,31 +19,34 @@ function jsLib () {}
 jsLib.prototype.init = 
 function (aContext)
 {
-  if ("JS_LIB_LOADED" in aContext)
-    return;
-
-  // ensure context is a chrome window
-  if (!(aContext instanceof nsIDOMChromeWindow) && 
-      !(aContext instanceof nsIDOMWindow)) 
+  try 
   {
-    debug("Not an nsIDOMChromeWindow");
-    return;
-  }
+    if ("JS_LIB_LOADED" in aContext) return;
 
-  var docURI = aContext.location;
-  if (!/^chrome:\/\/|codetab:/.test(docURI)) {
-    debug("ACCESS ERROR: ["+docURI+"]\n");
-    debug("does not have privileges to access jslib dom object \n");
-    return;
-  }
+    // ensure context is a chrome window
+    if (!(aContext instanceof nsIDOMChromeWindow) && 
+        !(aContext instanceof nsIDOMWindow)) 
+    {
+      debug("Not an nsIDOMChromeWindow");
+      return;
+    }
 
-  try {
-    const jsLibPath = "chrome://jslib/content/jslib.js";
+    var docURI = aContext.location;
+    if (!/^chrome:\/\/|codetab:/.test(docURI)) 
+    {
+      debug("ACCESS ERROR: ["+docURI+"]\n");
+      debug("does not have privileges to access jslib dom object \n");
+      return;
+    }
+
+    const JSLIB_PATH = "chrome://jslib/content/jslib.js";
+
     var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"];
-    loader = loader.getService(mozIJSSubScriptLoader);
-    loader.loadSubScript(jsLibPath, aContext);
-  } catch (e) { debug(e); }
+        loader = loader.getService(mozIJSSubScriptLoader);
 
+    loader.loadSubScript(JSLIB_PATH, aContext.wrappedJSObject || aContext);
+
+  } catch (e) { debug(e); }
 }
 
 // property of nsIClassInfo

@@ -14,7 +14,7 @@
 <![CDATA[
 function init ()
 {
- jslib.init(this);
+  jslib.init(this);
 
   if (typeof(JS_LIB_LOADED)=='boolean')
     alert(JS_LIB_HELP);

@@ -135,15 +135,15 @@ function (contentType, windowTarget, request, aRemovedArg)
     {
       case "about":
       const cURL = "chrome://jslib/content/jslib/content/aboutDialog.xul";
-      w.openDialog(cURL, "_blank", "chrome,dialog=no");
-      closeIf(w);
+      w.openDialog(cURL, "_blank", "chrome,dialog=no,resizable=no,centerscreen");
+      //closeIf(w);
       return;
           
       case "splash":
       case "version":
       const jURL = "chrome://jslib/content/";
-      w.openDialog(jURL, "_blank", "chrome,dialog=no");
-      closeIf(w);
+      w.openDialog(jURL, "_blank", "chrome,dialog=no,resizable=no");
+      //closeIf(w);
       return;
           
       case "get":
@@ -241,13 +241,13 @@ function (contentType, windowTarget, request, aRemovedArg)
       case "samples.file":
       const fURL = "chrome://jslib/content/samples/file.xul";
       w.openDialog(fURL, "_blank", "chrome,dialog=no");
-      closeIf(w);
+      //closeIf(w);
       return;
 
       case "samples.remotefile":
       const rURL = "chrome://jslib/content/samples/remotefile.xul";
       w.openDialog(rURL, "_blank", "chrome,dialog=no");
-      closeIf(w);
+      //closeIf(w);
       return;
 
       case "debug.on":

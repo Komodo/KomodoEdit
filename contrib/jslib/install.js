@@ -25,7 +25,7 @@
 
 const G_DISPLAY_NAME    = "jsLib";
 const G_NAME            = "jslib";
-const G_VER             = "0.1.338";
+const G_VER             = "0.1.356";
 const G_CHROME          = "Chrome";
 const G_USER            = "Current User";
 const G_CONTENT         = "";

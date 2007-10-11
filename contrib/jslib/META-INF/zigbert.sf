@@ -5,6 +5,11 @@ Digest-Algorithms: MD5 SHA1
 MD5-Digest: f2XP9lsoHe04PBOvuFXL5g==
 SHA1-Digest: 8RHZ0uUrxScBNJtHgI/t7stA9yA=
 
+Name: application.ini
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: /2+6PFdWGnrj68kLJeLxAQ==
+SHA1-Digest: lAFfZQe0CPm73QIA6+8mNLvMZac=
+
 Name: chrome.manifest
 Digest-Algorithms: MD5 SHA1
 MD5-Digest: tbB66BCB4tc/zoLiTwn72g==
@@ -12,13 +17,13 @@ SHA1-Digest: 1MXOPG50xc+8HBBfsES7+I5qmMY=
 
 Name: install.rdf
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: qlAtS1SUWuERUxv1tMHxNA==
-SHA1-Digest: SxXf60M1LwZ0FeM990kruncRan8=
+MD5-Digest: pIP9bME5wcc7idnF1BRnkQ==
+SHA1-Digest: CMlsu2wJ2rT6xMXqUr786+oPdCM=
 
 Name: components/jslib-dom.js
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: E00Q3CcY0xj7aa7qvEm+hQ==
-SHA1-Digest: KyghPWBydwnyZz/Ck3RTqcrHvX0=
+MD5-Digest: ZUbUBnXSI5tOh4geIGafMg==
+SHA1-Digest: sf9wd9wmjy6hwNRF4QuaTkYerac=
 
 Name: components/jslib.xpt
 Digest-Algorithms: MD5 SHA1
@@ -27,25 +32,30 @@ SHA1-Digest: 5ttfssAvyB336W9kcms/ghH5Rrk=
 
 Name: components/jslib-service.js
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: m99mzk3YrPob0QepybJGrQ==
-SHA1-Digest: 3bR8CZPUHrn9aN3hUu4ola+0A7w=
+MD5-Digest: wjpzJS1a3CG0HS9ooAaPOQ==
+SHA1-Digest: GgmIGakjk4Sd+i8lO9yhLoGYbsc=
 
 Name: install.js
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: J5GvGxrX5z2BRz9uipYllg==
-SHA1-Digest: 1o4zZV5AUAf15XQGLiu86grZ8OM=
+MD5-Digest: lKGUMHcG7kyU7s9uh71ypQ==
+SHA1-Digest: 0Za36bSnDt5aYE+Bc9pwW8x2N1I=
 
 Name: chrome/jslib.jar
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: saHIBrfzsvnPg1jjKG8ySA==
-SHA1-Digest: 8QDs0xNP2fG8IZt7Alk8gB8VPyM=
+MD5-Digest: enFMISJ4HbJrMc2sjcUs7A==
+SHA1-Digest: D950G64bDgpqA9qZUo+tuwADNXE=
 
 Name: chrome/jsliblive/jsliblive.xul
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: WuSUMCLEAnwoyWaaUYhvhg==
-SHA1-Digest: pNYBbu3Yydv0Cf3KENJEKnQvlEo=
+MD5-Digest: 7EzhlSGJhV8YVWZV8YMLsQ==
+SHA1-Digest: eQj5hdKOfXpTIrq2MPL1YGBWjA0=
 
 Name: chrome/jsliblive/contents.rdf
 Digest-Algorithms: MD5 SHA1
 MD5-Digest: FHwLOOmwH+6c2qIRRlL/gg==
 SHA1-Digest: IcpeUctd1DUf5Uyh+VHcg5c+7dg=
+
+Name: defaults/preferences/prefs.js
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: 6piNdrhpuyjTHUxGHNPfyg==
+SHA1-Digest: 2aIxiKXq/Vit9rsipEtO86ivhHw=
