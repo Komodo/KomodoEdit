@@ -111,7 +111,8 @@
   <node name="Opening Files" link="files.html#Opening_a_File">
     <node name="Opening Files with the Open/Find Toolbar" link="files.html#files_openfindtoolbar"/>
     <node name="Opening Remote Files" link="files.html#Opening_Remote_Files">
-      <node name="Connecting to an FTP Server" link="files.html#files_ftpconnect"/>
+      <node name="Connecting to a Remote Server" link="files.html#files_remote_connect"/>
+      <node name="Using Public Key Authentication" link="files.html#files_public_key_auth"/>
       <node name="Navigating the Remote File System" link="files.html#files_navremote"/>
       <node name="Storing Remote Files in Projects or the Toolbox" link="files.html#files_remprojtool"/>
     </node>

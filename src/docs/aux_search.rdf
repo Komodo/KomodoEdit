@@ -11,6 +11,9 @@
       <rdf:li> <rdf:Description ID="project_templates" nc:link="templates.html#project_templates" nc:name="Komodo Extension Project Template" /> </rdf:li>
       <rdf:li> <rdf:Description ID="project_templates" nc:link="templates.html#project_templates" nc:name="Mozilla Extension Project Template" /> </rdf:li>
       <rdf:li> <rdf:Description ID="project_templates" nc:link="templates.html#project_templates" nc:name="Ruby on Rails Project Template" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="opening_remote_files" nc:link="files.html#Opening_Remote_Files" nc:name="Opening Remote Files (FTP, SFTP and SCP)" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="files_public_key_auth" nc:link="files.html#files_public_key_auth" nc:name="ssh-agent and Pageant" /> </rdf:li>
+      <rdf:li> <rdf:Description ID="files_public_key_auth" nc:link="files.html#files_public_key_auth" nc:name="Passwordless Authentication" /> </rdf:li>
     </rdf:Seq>
   </nc:subheadings>
 </rdf:Description>

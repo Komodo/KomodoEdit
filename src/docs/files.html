@@ -298,7 +298,7 @@
   <p>To open a file located on a remote server, select
   <strong>File|Open|Remote File</strong>.</p>
 
-  <h4><a name="files_ftpconnect" id="files_ftpconnect">Connecting
+  <h4><a name="files_remote_connect" id="files_remote_connect">Connecting
   to a remote Server</a></h4>
 
   <ul>
@@ -319,6 +319,33 @@
     server, click <strong>Remember these values</strong>.</li>
   </ul>
 
+  <h4><a name="files_public_key_auth" id="files_public_key_auth">Using Public
+  Key Authentication</a></h4>
+  
+  <p>Komodo supports public key authentication through external key agents like
+  ssh-agent (inlcuded with the <a target="_blank" href="http://www.openssh.org/">OpenSSH</a>
+  distribution) and Pageant (a companion utility for <a
+  target="_blank" href="http://www.putty.nl/">Putty</a>). This allows you to
+  access remote files over SFTP or SCP without entering passwords.</p>
+  
+  <ul>
+    <li><strong>ssh-agent configuration</strong>: See Jeremy Mates's "<a target="_blank"
+    href="http://sial.org/howto/openssh/publickey-auth/">OpenSSH Public Key
+    Authentication</a>" guide or the <a target="_blank"
+    href="http://www.openbsd.org/cgi-bin/man.cgi?query=ssh-agent">ssh-agent
+    manual page</a>.</li>
+    
+    <li><strong>Pageant configuration</strong>: See <a target="_blank"
+    href="http://www.putty.nl/0.60/htmldoc/Chapter9.html#pageant">Using Pageant
+    for authentication</a>".</li>
+  
+  </ul>
+  
+  <p>Information on configuring public key authentication with source code
+  control (CVS and SVN) can be found in <a
+  href="scc.html#config_ssh">Configuring SSH Support for CVS and
+  Subversion</a>.</p>
+  
   <h4><a name="files_navremote" id="files_navremote">Navigating the
   Remote File System</a></h4>
 
