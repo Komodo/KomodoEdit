@@ -32,13 +32,19 @@ ko.logging = {};
 
 var _gLoggingMgr = null;
 
-this.LOG_NOTSET = 0;
-this.LOG_DEBUG = 10;
-this.LOG_INFO = 20;
-this.LOG_WARN = 30;
-this.LOG_ERROR = 40;
-this.LOG_CRITICAL = 50;
+const LOG_NOTSET = 0;
+const LOG_DEBUG = 10;
+const LOG_INFO = 20;
+const LOG_WARN = 30;
+const LOG_ERROR = 40;
+const LOG_CRITICAL = 50;
 
+this.__defineGetter__("LOG_NOTSET", function() { return LOG_NOTSET; });
+this.__defineGetter__("LOG_DEBUG", function() { return LOG_DEBUG; });
+this.__defineGetter__("LOG_INFO", function() { return LOG_INFO; });
+this.__defineGetter__("LOG_WARN", function() { return LOG_WARN; });
+this.__defineGetter__("LOG_ERROR", function() { return LOG_ERROR; });
+this.__defineGetter__("LOG_CRITICAL", function() { return LOG_CRITICAL; });
 
 // Logger wrapper objects get notified of the log levels associated with
 // particular loggers.  They only make the calls to the logging system if
@@ -63,7 +69,7 @@ this.Logger.prototype.getEffectiveLevel = function() {
 
 this.Logger.prototype.debug= function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_DEBUG) {
+        if (this._logger.getEffectiveLevel() <= LOG_DEBUG) {
             this._logger.debug(message);
         }
     } catch(ex) {
@@ -73,7 +79,7 @@ this.Logger.prototype.debug= function(message) {
 
 this.Logger.prototype.info = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_INFO) {
+        if (this._logger.getEffectiveLevel() <= LOG_INFO) {
             this._logger.info(message);
         }
     } catch(ex) {
@@ -83,7 +89,7 @@ this.Logger.prototype.info = function(message) {
 
 this.Logger.prototype.warn = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_WARN) {
+        if (this._logger.getEffectiveLevel() <= LOG_WARN) {
             this._logger.warn(message);
         }
     } catch(ex) {
@@ -93,11 +99,11 @@ this.Logger.prototype.warn = function(message) {
 
 this.Logger.prototype.error = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_ERROR) {
+        if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
             // I would prefer to have this be a separate log.exception(). --TM
             dump("Traceback from ERROR in '" +
                  this._logger_name + "' logger:\n    " +
-                 ko.logging.getStack().replace('\n', '\n    ', 'g').slice(0, -4));
+                 getStack().replace('\n', '\n    ', 'g').slice(0, -4));
             this._logger.error(message);
         }
     } catch(ex) {
@@ -107,7 +113,7 @@ this.Logger.prototype.error = function(message) {
 
 this.Logger.prototype.critical = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_CRITICAL) {
+        if (this._logger.getEffectiveLevel() <= LOG_CRITICAL) {
             this._logger.critical(message);
         }
     } catch(ex) {
@@ -118,8 +124,8 @@ this.Logger.prototype.critical = function(message) {
 
 this.Logger.prototype.exception = function(e, message) {
     try {
-        if (this._logger.getEffectiveLevel() <= ko.logging.LOG_ERROR) {
-            var objDump = ko.logging.getObjectTree(e,1);
+        if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
+            var objDump = getObjectTree(e,1);
             if (typeof(e) == 'object' && 'stack' in e)
                 objDump += e.stack;
             if (typeof(message)=='undefined' || !message)
@@ -135,7 +141,7 @@ this.Logger.prototype.exception = function(e, message) {
     }
 }
 
-this.getStack = function getStack()
+function getStack()
 {
     if (!((typeof Components == "object") &&
           (typeof Components.classes == "object")))
@@ -153,6 +159,7 @@ this.getStack = function getStack()
 
     return str+"\n";
 }
+this.getStack = getStack;
 
 /* XXX copied from venkman-utils.js
  * Dumps an object in tree format, recurse specifiec the the number of objects
@@ -177,7 +184,7 @@ this.dumpObjectTree = function dumpObjectTree(o, recurse, compress, level)
     dump(this.getObjectTree(o, recurse, compress, level));
 }
 
-this.getObjectTree = function getObjectTree(o, recurse, compress, level)
+function getObjectTree(o, recurse, compress, level)
 {
     var s = "";
     var pfx = "";
@@ -220,7 +227,7 @@ this.getObjectTree = function getObjectTree(o, recurse, compress, level)
                     if (!compress)
                         s += pfx + "|\n";
                     if ((i != "parent") && (recurse))
-                        s += ko.logging.getObjectTree(o[i], recurse - 1,
+                        s += getObjectTree(o[i], recurse - 1,
                                              compress, level + 1);
                     break;
 
@@ -250,8 +257,9 @@ this.getObjectTree = function getObjectTree(o, recurse, compress, level)
 
     return s;
 }
+this.getObjectTree = getObjectTree;
 
-this.dumpDOM = function dumpDOM(node, level, recursive) {
+function dumpDOM(node, level, recursive) {
   if (level == undefined) {
     level = 0
   }
@@ -274,12 +282,13 @@ this.dumpDOM = function dumpDOM(node, level, recursive) {
     } else if (recursive) {
       dump(this._repeatStr(" ", (2*level)) + ">\n");
       for (i = 0; i < node.childNodes.length; i++) {
-        ko.logging.dumpDOM(node.childNodes[i], level + 1);
+        dumpDOM(node.childNodes[i], level + 1);
       }
       dump(this._repeatStr(" ", 2*level) + "</" + node.nodeName + ">\n");
     }
   }
 }
+this.dumpDOM = dumpDOM;
 
 this._repeatStr = function _repeatStr(str, aCount) {
    var res = "";
