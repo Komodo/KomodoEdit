@@ -38,7 +38,8 @@
     Module Usage:
         from preprocess import preprocess
         preprocess(infile, outfile=sys.stdout, defines={}, force=0,
-                   keepLines=0, includePath=[], substitute=0)
+                   keepLines=0, includePath=[], substitute=0,
+                   contentType=None)
 
     The <infile> can be marked up with special preprocessor statement lines
     of the form:
@@ -406,9 +407,9 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
     """
     if __preprocessedFiles is None: __preprocessedFiles = []
     log.info("preprocess(infile=%r, outfile=%r, defines=%r, force=%r, "\
-             "keepLines=%r, includePath=%r, __preprocessedFiles=%r)",
-             infile, outfile, defines, force, keepLines, includePath,
-             __preprocessedFiles)
+             "keepLines=%r, includePath=%r, contentType=%r, "\
+             "__preprocessedFiles=%r)", infile, outfile, defines, force,
+             keepLines, includePath, contentType, __preprocessedFiles)
     absInfile = os.path.normpath(os.path.abspath(infile))
     if absInfile in __preprocessedFiles:
         raise PreprocessError("detected recursive #include of '%s'"\
@@ -542,7 +543,7 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
                                               % (f, includePath))
                     defines = preprocess(fname, fout, defines, force,
                                          keepLines, includePath, substitute,
-                                         __preprocessedFiles)
+                                         None, __preprocessedFiles)
             elif op in ("if", "ifdef", "ifndef"):
                 if op == "if":
                     expr = match.group("expr")
