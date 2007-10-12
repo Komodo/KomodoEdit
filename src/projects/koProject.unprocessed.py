@@ -2299,6 +2299,15 @@ class KoFileImportingService:
             if e.errno == 13: # permission denied
                 self.lastErrorSvc.setLastError(13, 'Permission denied')
             raise
+# #if PLATFORM == "win"
+        except WindowsError, e:
+            if e.errno in (5, 32) and not os.path.exists(dirname):
+                # Looks like the directory was deleted between the
+                # time the request was initiated and when it was handled
+                return []
+            else:
+                raise
+# #endif
 
         dirsonly = [name for name in allnames\
                 if os.path.isdir(os.path.join(dirname, name))]
