@@ -1,0 +1,183 @@
+
+
+bugfixes and news in wnd 0.1.20
+
+
+###### --Backwards incompatible changes- ########################
+
+Seems like I was so busy wrapping win32 apis that I forgot how to write PYTHON code. Some methods or functions are using the following synthax:
+def (arg=None, *args):
+Does not make to much sense like this. Corrected the affected methods and
+functions so they should behave now as expected.
+
+The following methods or functions are affected by the changes:
+
+gdi.Font.TextOutEx
+		was: TextOutEx(dc, text, x, y, rect=None, spacing=None, *flags):
+		corrected: TextOutEx(dc, text, x, y, *flags, **kwargs):
+
+controls.toolbar.Toolbar.Button
+		was:	 Button(ID, title, iImage=0, lp=0, *state):
+		corrected: Button(ID, title, *state, **kwargs):
+
+controls.toolbar.Toolbar.InsertButton
+		was:	 InsertButton(i, ID, title, iImage=0, lp=0, *state):
+		corrected: InsertButton(i, ID, title, *state, **kwargs):
+
+controls.menu.Menu.Separator
+		was: Separator(ID=0, *flags)
+		corrected Separator(ID, *flags)
+
+api.shell.FileOperation
+		was: FileOperation(fileaction, From, To,  title='', hwnd=0, *flags)
+		corrected: FileOperation(fileaction, From, To,  *flags, **kwargs)
+		Same goes for:
+			MoveFiles
+			CopyFiles
+			RenameFiles
+			DeleteFiles
+
+api.privleges.EnablePrivleges
+		was: EnablePrivleges(hProcess=None, *privleges)
+		corrected: EnablePrivleges(*privleges, **kwargs)
+		Same goes for:
+			DisablePrivleges
+	
+
+If you use one of the affected methods or functions, you have to manualy
+adjust your code. 
+
+>> dlgs.choosefont
+	
+	- the 'hook' flag should be set in the Run method not on __init__
+		and the Run method is called now like this: Run(hwnd, *flags, **kwargs)
+		(Backwards incompatible)
+		See wnd.dlgs.choosefont
+
+
+###### - controls - ###########################################
+
+>> mdi frame
+	- implemented new window MDIFrame
+		++ sample GUI 'gui_mdiframe'
+		
+		See wnd.controls.mdiframe
+
+
+>> propertysheet
+	- new class PropertySheet to create property sheets and wizards
+
+	See wnd.controls.propertysheet
+
+
+>> rebar
+	- implemented new control Rebar
+
+	See wnd.controls.rebar
+
+
+>> trackbar
+	- new control Trackbar
+
+	see wnd.controls.trackbar
+
+
+>> datepicker
+	- new control datepicker
+
+>> monthcal
+	- new control Monthcal
+
+
+>> Textin
+	__len__ method was not working. This is fixed now
+
+>> tab
+	- implemented new method FindLparam
+	- 'flatseparators' style did not work. Fixed now.
+	
+	See wnd.controls.tab
+
+
+>> editbox
+	- fixed a bug in Editbox. Editboxes 'wantreturn' style did not insert
+		a new line when enter was hit. This is fixed now.
+
+	See wnd.controls.editbox
+
+
+>> dialog
+	- fixed a bug for 'modeless' dialog boxes. Button message 'command'
+		was not processed for the first button. This is fixed now
+
+	- new method GetMainWindow for dialogs
+	- 'dialoglike' keyboard works now for modeless dialogs
+	- new method GetDlgItem for dialogs (was not documented) 
+		
+
+
+>> misc enhancements
+		- mainwindows have a new method: ForceSingleInstance to disallow running of
+			more then one instance of a GUI at a time
+		- all controls and windows support the following new methods:
+			1. SetGUID
+			2. GetGUID
+			3. ThreadWindows
+
+
+###### - custom- #############################################
+
+>> dirlist
+	- new methods SortBy / GetSortBy to sort the view and retrieve sorting flags
+
+	See wnd.custom.dirlist
+
+
+#### - dlgs - #####################################
+
+>> wnd.dlgs
+	- implemented a few new common dialogs:
+		OpenSaveFile (OpenFile and SaveFile)
+		FindText
+		ReplaceText
+		ChooseColor
+		BrowseForFolder 
+	
+
+#### - api - #####################################
+
+new class CopyData to handle interprocess communication via WM_COPYDATA
+	see wnd.api.copydata 
+
+
+
+#### - gdi - #####################################
+
+>> bitmap
+	- new class BitmapFromBytes
+
+
+#### - tools - #####################################
+
+>> dlgeditor
+	>> DlgEditor
+		
+		- font parameter was not mentioned in the documentation
+			was
+				BeginTemplate(classname, ID, title, x, y, w, h, *styles)
+		corrected:
+			BeginTemplate(classname, ID, title, x, y, w, h, font, *styles)
+
+		- fixed bug in dlgeditor.DlgEditor, ex-styles did not work; fixed now
+
+	For both, DlgEditor and DlgTemplate font can be None (was not mentioned in the docs)
+
+
+>>wnd.tools
+	-  a new function ClipGUID, clipping a newly created  GUID to the
+	clipboard
+
+
+
+
+

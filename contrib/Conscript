@@ -258,6 +258,20 @@ if ($platform eq "win") {
 }
 
 
+#---- pywin: Komodo uses ctypes+wnd to replace pythonwin
+#---- wnd: http://wnd.sourceforge.net/
+#---- ctypes: now built into Python 2.5
+#---- comtypes: wnd uses comtypes for COM-specific type info
+#---- Note: wnd references the old ctypes.comtypes module, which was
+#           dropped, so we supply it.
+
+if ($platform eq "win") {
+    my $landmark = "$komodoPythonUtilsDir/wnd";
+    $cons->InstallRecursive($landmark,
+			    cwd() . "/contrib/pywin/wnd-0-1-20");
+}
+
+
 
 #---- inflector: Komodo's ruby codeintel uses this
 # svn export http://opensvn.csie.org/inflector/trunk/python inflector
