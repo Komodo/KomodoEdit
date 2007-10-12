@@ -128,14 +128,3 @@ diff -u -r1.19 extensions/python/xpcom/src/dllmain.cpp
  	// and somewhat like Python itself (site, citecustomize), we attempt 
  	// to import "sitepyxpcom" ignoring ImportError
  	PyObject *mod = PyImport_ImportModule("sitepyxpcom");
-@@ -184,6 +251,10 @@
- 	PRBool bDidInitPython = !Py_IsInitialized(); // well, I will next line, anyway :-)
- 	if (bDidInitPython) {
- 		NS_TIMELINE_START_TIMER("PyXPCOM: Python initializing");
-+#if defined(XP_WIN) || defined(XP_UNIX)
-+	// XXXXX!!!!!  this is all different now
-+                //SetPythonHome(location);
-+#endif
- 		Py_Initialize(); // NOTE: We never finalize Python!!
- #ifndef NS_DEBUG
- 		Py_OptimizeFlag = 1;
