@@ -131,8 +131,9 @@ class P4Branch(Branch):
         print "      by: %s" % change["user"]
         print "      to: %s" % dst_branch.base_dir
         if len(rel_paths) > 7:
-            print "   files: %s" % _indent(' '.join(rel_paths[:7] + ['...']),
-                                           10, True)
+            ellipsis = '...and %d other files' % (len(rel_paths)-7)
+            print "   files: %s" \
+                  % _indent(' '.join(rel_paths[:7] + [ellipsis]), 10, True)
         else:
             print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
         if interactive:
@@ -376,11 +377,15 @@ class SVNBranch(Branch):
 
     def edit(self, path):
         pass
-    def add(self, path):
-        log.info("svn add %s", path)
+    def add(self, path, isdir=False):
         if not isabs(path):
-            path = join(self.base_dir, path)
-        _patchRun([self._svn_exe, "add", path])
+            abs_path = join(self.base_dir, path)
+        if isdir:
+            log.info("svn mkdir %s", path)
+            _patchRun([self._svn_exe, "mkdir", abs_path])
+        else:
+            log.info("svn add %s", path)
+            _patchRun([self._svn_exe, "add", abs_path])
     def delete(self, path):
         log.info("svn delete %s", path)
         if not isabs(path):
@@ -416,8 +421,9 @@ class SVNBranch(Branch):
         print "      by: %s" % change["author"]
         print "      to: %s" % dst_branch.base_dir
         if len(rel_paths) > 7:
-            print "   files: %s" % _indent(' '.join(rel_paths[:7] + ['...']),
-                                           10, True)
+            ellipsis = '...and %d other files' % (len(rel_paths)-7)
+            print "   files: %s" \
+                  % _indent(' '.join(rel_paths[:7] + [ellipsis]), 10, True)
         else:
             print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
         if interactive:
@@ -520,27 +526,45 @@ class SVNBranch(Branch):
                     changes_made.append("delete `%s'" % rel_path)
                 elif action == "A":
                     src_path = join(self.base_dir, rel_path)
-                    dst_path = join(dst_branch.base_dir, rel_path)
-                    argv = [self._svn_exe, 'cat', '-r', str(changenum),
-                            src_path]
-                    log.debug("running: %s", argv)
-                    p = subprocess.Popen(argv,
-                                         stderr=subprocess.PIPE,
-                                         stdout=subprocess.PIPE)
-                    stdout = p.stdout.read()
-                    retval = p.wait()
-                    if retval:
-                        stderr = p.stderr.read()
-                        raise Error("error running `svn cat`:\n"
-                                    "argv: %r\n"
-                                    "stderr:\n%s" % (argv, _indent(stderr)))
-                    fout = open(dst_path, 'w')
-                    fout.write(stdout)
-                    fout.close()
-                    assert exists(dst_path), \
-                        "`%s' couldn't be retrieved from svn" % dst_path
-                    dst_branch.add(rel_path)
-                    changes_made.append("add `%s'" % rel_path)
+                    if isdir(src_path):
+                        dst_branch.add(rel_path, isdir=True)
+                        changes_made.append("mkdir `%s'" % rel_path)
+                    else:
+                        dst_path = join(dst_branch.base_dir, rel_path)
+                        argv = [self._svn_exe, 'cat', '-r', str(changenum),
+                                src_path]
+                        log.debug("running: %s", argv)
+                        p = subprocess.Popen(argv,
+                                             stderr=subprocess.PIPE,
+                                             stdout=subprocess.PIPE)
+                        stdout = p.stdout.read()
+                        retval = p.wait()
+                        if retval:
+                            stderr = p.stderr.read()
+                            extra = ""
+                            if "has no URL" in stderr:
+                                extra = "\n***\n%s\n***\n" % textwrap.fill(
+                                    "The 'svn: ... has no URL' "
+                                    "error from subversion typically indicates "
+                                    "that you are trying to integrate a file "
+                                    "that has since be deleted from the "
+                                    "current repo. I know of no easy way to "
+                                    "get the original file contents with 'svn' "
+                                    "-- hence this file cannot be integrated "
+                                    "with this script. You could consider "
+                                    "using the '-x' option to exclude this "
+                                    "file from the change to integrate.")
+                            raise Error("error running `svn cat`:\n"
+                                        "argv: %r\n"
+                                        "stderr:\n%s%s"
+                                        % (argv, _indent(stderr), extra))
+                        fout = open(dst_path, 'wb')
+                        fout.write(stdout)
+                        fout.close()
+                        assert exists(dst_path), \
+                            "`%s' couldn't be retrieved from svn" % dst_path
+                        dst_branch.add(rel_path)
+                        changes_made.append("add `%s'" % rel_path)
                 elif action == "M":
                     pass # already handled above
                 else:
