@@ -273,7 +273,7 @@ def _html_ci_elem(opts, elem, lang=None):
     if opts.toc_file:
         file_href = opts.output or "komodo-js-api.html"
         toc_node = Element("node", name="Komodo JavaScript API Reference",
-                           link="")
+                           link=file_href)
         for ns, elem in namespace_elements:
             sub_node = SubElement(toc_node, "node", name=ns, link="%s#%s" % (
                           file_href, ns, ))
