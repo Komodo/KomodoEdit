@@ -1577,7 +1577,10 @@ def target_configure(argv):
         if "gtk" in config["buildOpt"]:
             mozBuildOptions.append('enable-default-toolkit=gtk')
         elif "gtk2" in config["buildOpt"]:
-            mozBuildOptions.append('enable-default-toolkit=gtk2')
+            if float(mozVer) >= 1.9:
+                mozBuildOptions.append('enable-default-toolkit=cairo-gtk2')
+            else:
+                mozBuildOptions.append('enable-default-toolkit=gtk2')
             mozBuildOptions.append('enable-xft')
         if "xft" in config["buildOpt"]:
             mozBuildOptions.append('enable-xft')
