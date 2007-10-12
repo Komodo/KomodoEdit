@@ -251,24 +251,12 @@ if ($platform eq "win") {
 if ($platform eq "win") {
     my $landmark = "$komodoPythonUtilsDir/wnd";
     $cons->InstallRecursive($landmark,
-			    cwd() . "/contrib/pywin");
+			    cwd() . "/contrib/pywin",
+                            ('\.svn', '\.consign'));
     $landmark = "$komodoPythonUtilsDir/comtypes";
     $cons->InstallRecursive($landmark,
-			    cwd() . "/contrib/comtypes/comtypes");
-}
-
-
-#---- pywin: Komodo uses ctypes+wnd to replace pythonwin
-#---- wnd: http://wnd.sourceforge.net/
-#---- ctypes: now built into Python 2.5
-#---- comtypes: wnd uses comtypes for COM-specific type info
-#---- Note: wnd references the old ctypes.comtypes module, which was
-#           dropped, so we supply it.
-
-if ($platform eq "win") {
-    my $landmark = "$komodoPythonUtilsDir/wnd";
-    $cons->InstallRecursive($landmark,
-			    cwd() . "/contrib/pywin/wnd-0-1-20");
+			    cwd() . "/contrib/comtypes/comtypes",
+                            ('\.svn', '\.consign'));
 }
 
 
