@@ -245,17 +245,17 @@ if ($platform eq "win") {
     $cons->DependsRecursive($landmark, "pcre", ('\.svn'));
 }
 
-#---- pywin: Komodo uses wnd (named "pywin" in contrib source) to replace pythonwin
-#---- comtypes: wnd uses comtypes for COM-specific type info
+
+#---- pywin
+# Komodo uses the wnd package (from http://wnd.sourceforge.net/)
+# as a replacement for PyWin32. 'wnd' provides some of the same Windows
+# API functionality via ctypes. We've renamed 'wnd' to 'pywin' to
+# hopefully be more clear -- though that renaming may be reverted.
 
 if ($platform eq "win") {
     my $landmark = "$komodoPythonUtilsDir/wnd";
     $cons->InstallRecursive($landmark,
-			    cwd() . "/contrib/pywin",
-                            ('\.svn', '\.consign'));
-    $landmark = "$komodoPythonUtilsDir/comtypes";
-    $cons->InstallRecursive($landmark,
-			    cwd() . "/contrib/comtypes/comtypes",
+                            cwd() . "/contrib/pywin/wnd-0-1-20",
                             ('\.svn', '\.consign'));
 }
 
