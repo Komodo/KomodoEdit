@@ -19,7 +19,6 @@ class TestKoFileStatusServiceObserver:
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         self._observerSvc.addObserver(self,'file_status',0)
-        self._observerSvc.addObserver(self,'file_status_updated',0)
         self.lock = threading.Condition()
         self.subject = None
         self.topic = None

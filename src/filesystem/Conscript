@@ -18,6 +18,7 @@ Import(
     'buildFlavour',
     'mozVersion',
     'sdkDir',
+    'withSCC',
 );
 
 # Examples
@@ -30,6 +31,9 @@ $cons->InstallXpcomComponent('koFileNotificationService.py');
 
 $cons->InstallPythonUtility('osFilePollingNotifier.py');
 $cons->InstallPythonUtility('osFileNotificationUtils.py');
+
+$cons->Preprocess('fileStatusUtils.p.py', 'fileStatusUtils.py');
+$cons->InstallPythonUtility('fileStatusUtils.py');
 
 if ($platform eq "win") {
     $cons->InstallPythonUtility('osFileNotifications_win32.py');

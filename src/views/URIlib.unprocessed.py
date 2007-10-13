@@ -347,7 +347,6 @@ class FileHandlerBase(object):
         self._mode = 'rb'
         
         # used by file status service
-        self.update = 0
         self.dofileupdate = 0
         
         # lastAccessedTime is special, in that it can change
@@ -567,7 +566,6 @@ class FileHandler(FileHandlerBase):
         tmpstats = self.__get_stats()
         if self._stats != tmpstats:
             self._stats = tmpstats
-            self.update = 0
             self.dofileupdate = 1
             return 1
         return 0
@@ -858,7 +856,6 @@ class RemoteURIHandler(FileHandlerBase):
         tmpstats = self.__get_stats()
         if self._stats != tmpstats:
             self._stats = tmpstats
-            self.update = 0
             self.dofileupdate = 1
             return 1
         return 0

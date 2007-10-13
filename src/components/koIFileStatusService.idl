@@ -2,42 +2,101 @@
    See the file LICENSE.txt for licensing information. */
 
 #include "nsISupports.idl"
+#include "koIStatusMessage.idl"
 #include "koIFileEx.idl"
+#include "koISCC.idl"
+
 
 // Provide a file status service that continously updates status information
+[scriptable, uuid(47c3c314-dc8e-4615-9386-cf3cd16b6d4f)]
+interface koIFileStatusChecker : nsISupports {
+    attribute wstring type;               // "disk" or "scc"
+    attribute wstring name;               // unique name of the checker
+    attribute koISCC  svc;                // koISCC service for this checker
+
+    // Used to see if the checker is enabled
+    boolean isActive();
+
+    // Use to see if the checker supports background status checking, if the
+    // checker supports this, then the file status service will call the
+    // updateFileStatus() method for all urls every "background" value minutes.
+    // Some services, like the disk service have no need of periodic background
+    // checking, since all changes will be already monitored by the file
+    // notification system and these events already feed back to the file
+    // status service.
+    boolean isBackgroundCheckingEnabled();
+
+    // Once a checker is added, this is called to initialize the service.
+    void initialize();
+
+    // Call when the checker is removed or Komodo is shutting down.
+    void shutdown();
+
+    /**
+     * Check and update the file status. This function is called by the file
+     * status service and when this returns true, a 'file_status_changed'
+     * notification event will be sent by the file status service in order
+     * to update other parts of Komodo.
+     * @param file         - The file to be updated.
+     * @param updateReason - Why this file is being checked for updates.
+     * @returns {boolean}  - True when the status has changed, false otherwise.
+     */
+    boolean updateFileStatus(in koIFileEx file, in long updateReason);
+
+    /**
+     * Reasons for performing an updateFileStatus check.
+     */
+    const long REASON_BACKGROUND_CHECK = 1;
+    const long REASON_ONFOCUS_CHECK = 2;
+    const long REASON_FILE_CHANGED = 3;
+    const long REASON_FORCED_CHECK = 4;
+};
+
+
+// Provide a file status service that continously updates status information.
 [scriptable, uuid(607513C6-32D3-444d-8A07-84EE150B4B4E)]
 interface koIFileStatusService : nsISupports {
     void init();
     void unload();
     
-    // url's are added to the status service by sending a notification
-    // of view_opened, file_project or file_added.  If the notification is file_added,
-    // the status service will persist that url until it receives a notification
-    // of file_removed.  This is used by partWrapper.js to update
-    // the status service with files loaded in projects or toolbox
-    // view_opened is sent by scintillaview when a file is opened
-    // view_closed is sent by scintillaview when a file is closed
-    // file_changed is sent by scintillaview when a file is saved
-    
-    // the service does not check anything on it's own.  Additional PYTHON
-    // non-xpcom classes must be added.  The background thread will
-    // call on each status checker to gather information about the file
-    // then it will send a notification of 'file_status' with the url.
-    // at the end of an update run, 'file_status_updated' is notified.
-
-    // Synchronous call gets the status and fills in koIFileEx attributes
-    // @param file {koIFile} file to check SCC status on
-    // @param forceRefresh {boolean} forces server contact for the information,
-    //                               this is notably used for Subversion.
-    void getStatusForFile(in koIFileEx file, in boolean forceRefresh);
+    // The file status service periodically obtains the list of currently
+    // opened koIFile xpcom objects (correstponding to opened files/projects)
+    // which it obtains status information for and then monitors for file
+    // changes. Files can also be checked on demand by sending a notification
+    // of file_added.
     //
-    // Same as getStatusForFile, except service finds the file and then does
-    // the same check as getStatusForFile
-    // @param URI {string} uri for the file to check
-    // @param forceRefresh {boolean} forces server contact for the information,
-    //                               this is notably used for Subversion.
-    void getStatusForUri(in wstring URI, in boolean forceRefresh);
+    // When a monitored file changes (or received file_added) the status
+    // service will perform an immediate status check for this particular file,
+    // querying each of the registered status checkers for updated information.
+    //
+    // A forced check can also be made on demand, to take into account changes
+    // that are made outside of the Komodo environment. This is particularly
+    // common for SCC, such as a commit from a command terminal that changes
+    // the scc status of files, but does not change the file attributes (i.e.
+    // the file itself did not change, but it's scc status did).
+    //
+    // This service does not check anything on it's own, xpcom status checker
+    // classes must be added. These xpcom classes must register themselves
+    // with the specific 'category-komodo-file-status' category, which will be
+    // queried by this service at startup, in order to then create the checker
+    // xpcom instances. The background thread will call on each status checker
+    // to gather information about the file then it will send a notification of
+    // 'file_status' with the url. At the end of an update run.
 
-    // returns 'p4' or 'cvs' or empty string if not in repository
-    string isRepository(in wstring url);
+
+    /**
+     * Synchronous call gets the status and fills in koIFileEx attributes
+     * @param file {koIFile} file to check SCC status on
+     * @param forceRefresh {boolean} forces server contact for the information,
+     *                               this is notably used for Subversion.
+     */
+    void getStatusForFile(in koIFileEx file, in boolean forceRefresh);
+    /**
+     * Same as getStatusForFile, except service finds the file and then does
+     * the same check as the getStatusForFile call.
+     * @param URI {string} uri for the file to check
+     * @param forceRefresh {boolean} forces server contact for the information,
+     *                               this is notably used for Subversion.
+     */
+    void getStatusForUri(in wstring URI, in boolean forceRefresh);
 };
