@@ -121,14 +121,6 @@
  
  #ifdef INTERNATIONAL_INPUT
  #if GTK_MAJOR_VERSION < 2
-@@ -633,7 +677,7 @@
- 		gint cursor_pos;
- 
- 		gtk_im_context_get_preedit_string(sciThis->im_context, &str, NULL, &cursor_pos);
- 		if (PWidget(sciThis->wPreedit) != NULL) {
- 			if (strlen(str) > 0) {
- 				gtk_widget_show(PWidget(sciThis->wPreedit));
- 			} else {
 @@ -652,8 +696,9 @@
  gint ScintillaGTK::FocusOut(GtkWidget *widget, GdkEventFocus * /*event*/) {
  	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
