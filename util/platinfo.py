@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 8, 2)
+__version_info__ = (0, 8, 3)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -568,6 +568,7 @@ class PlatInfo(object):
             # Ignoring the different RHEL flavours (AS, ES, WS) for now.
             "rhel": re.compile("^Red Hat Enterprise Linux \w{2} release ([\d\.]+)"),
             "suse": re.compile("^SuSE Linux ([\d\.]+)"),
+            "opensuse": re.compile("^openSUSE ([\d\.]+)"),
             "debian": re.compile("^([\d\.]+)"),
         }
         for distro, pattern in patterns.items():
