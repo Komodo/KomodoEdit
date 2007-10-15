@@ -44,43 +44,7 @@ out = black.configure.out
 
 def _getLinuxDistro():
     assert sys.platform.startswith("linux")
-    # It would be nice to keep this in sync with
-    #   ../Komodo-devel/bklocal.py::LinuxDistribution._getDistroName()
-    redhatRelease = "/etc/redhat-release"
-    debianVersion = "/etc/debian_version"
-    suseRelease = "/etc/SuSE-release"
-    if os.path.exists(redhatRelease):
-        content = open(redhatRelease).read()
-        pattern = re.compile("^Red Hat Linux release ([\d\.]+)")
-        fedoraPattern = re.compile("^Fedora (?:Core )?release ([\d\.]+)")
-        match = pattern.search(content)
-        fedoraMatch = fedoraPattern.search(content)
-        if match:
-            ver = match.group(1).split('.')[0]
-            return "redhat"+ver
-        elif fedoraMatch:
-            ver = fedoraMatch.group(1).split('.')[0]
-            return "fedoracore"+ver
-        else:
-            raise ConfigureError(
-                "Could not determine RedHat release from first "
-                "line of '%s': '%s'" % (redhatRelease, content))
-    elif os.path.exists(debianVersion):
-        content = open(debianVersion).read()
-        return content.strip().replace('.', '')
-    elif os.path.exists(suseRelease):
-        content = open(suseRelease).read()
-        pattern = re.compile("^(?:SuSE Linux|openSuse|VERSION\s+=)\s+([\d\.]+)",re.M)
-        match = pattern.search(content)
-        if match:
-            ver = match.group(1).split('.')[0]
-            return "suse"+ver
-        else:
-            raise ConfigureError(
-                "Could not determine SuSE release from first "
-                "line of '%s': '%s'" % (suseRelease, content))
-    else:
-        raise ConfigureError("unknown Linux distro")
+    return platinfo.platname("distro+distro_ver")
 
 
 def _getPrettyVersion(version):
