@@ -1638,10 +1638,10 @@ def target_configure(argv):
     
         config["mozBuildExtensions"] = mozBuildExtensions
 
-        if sys.platform == "linux":
+        if sys.platform.startswith("linux"):
             # http://benjamin.smedbergs.us/blog/2005-10-27/gcc-40-workaround/
             # https://bugs.launchpad.net/ubuntu/+source/firefox/+bug/102518
-            config["mozconfig"] += "ac_cv_visibility_pragma=no"
+            config["mozconfig"] += "ac_cv_visibility_pragma=no\n"
 
     # Error out if it looks like we will hit the subtle limitation on
     # PATH length on Windows.
