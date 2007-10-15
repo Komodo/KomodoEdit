@@ -1577,8 +1577,9 @@ def target_configure(argv):
         if "gtk" in config["buildOpt"]:
             mozBuildOptions.append('enable-default-toolkit=gtk')
         elif "gtk2" in config["buildOpt"]:
-            mozVer = _get_mozilla_version()
-            if float(mozVer) >= 1.9:
+            mozSrcCvsTag = config.get('mozSrcCvsTag')  # it might not be defined
+            if mozSrcCvsTag is None or float(mozVer) >= 1.9:
+                # Mozilla 1.9 now uses cairo with gtk builds.
                 mozBuildOptions.append('enable-default-toolkit=cairo-gtk2')
             else:
                 mozBuildOptions.append('enable-default-toolkit=gtk2')
