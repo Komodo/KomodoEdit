@@ -2,9 +2,7 @@
    See the file LICENSE.txt for licensing information. */
 
 #include "nsISupports.idl"
-#include "koIStatusMessage.idl"
 #include "koIFileEx.idl"
-#include "koISCC.idl"
 
 
 // Provide a file status service that continously updates status information
@@ -12,7 +10,6 @@
 interface koIFileStatusChecker : nsISupports {
     attribute wstring type;               // "disk" or "scc"
     attribute wstring name;               // unique name of the checker
-    attribute koISCC  svc;                // koISCC service for this checker
 
     // Used to see if the checker is enabled
     boolean isActive();
