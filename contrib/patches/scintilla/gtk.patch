@@ -1,18 +1,29 @@
---- gtk/ScintillaGTK.cxx	2007-05-25 06:24:07.000000000 -0700
-+++ gtk/ScintillaGTK.cxx	2007-05-25 06:23:28.000000000 -0700
-@@ -2,6 +2,11 @@
- // ScintillaGTK.cxx - GTK+ specific subclass of ScintillaBase
+--- gtk/ScintillaGTK.cxx	2007-10-12 15:09:56.000000000 -0700
++++ gtk/ScintillaGTK.cxx	2007-10-12 16:04:00.000000000 -0700
+@@ -3,6 +3,11 @@
  // Copyright 1998-2004 by Neil Hodgson <neilh@scintilla.org>
  // The License.txt file describes the conditions under which this software may be distributed.
-+
+ 
 +
 +// enable focus hack.    // KOMODO
 +#define KOMODO_NO_FOCUS  // KOMODO
 +#define KOMODO_DISABLE_DRAG_DROP // KOMODO
- 
++
  #include <stdlib.h>
  #include <string.h>
-@@ -99,6 +104,8 @@
+ #include <stdio.h>
+@@ -90,6 +95,10 @@
+ 
+ extern char *UTF8FromLatin1(const char *s, int &len);
+ 
++#ifndef WM_UNICHAR
++#define WM_UNICHAR                      0x0109
++#endif
++
+ class ScintillaGTK : public ScintillaBase {
+ 	_ScintillaObject *sci;
+ 	Window wText;
+@@ -99,6 +108,8 @@
  	GtkObject *adjustmenth;
  	int scrollBarWidth;
  	int scrollBarHeight;
@@ -21,7 +32,7 @@
  
  	// Because clipboard access is asynchronous, copyText is created by Copy
  #ifndef USE_GTK_CLIPBOARD
-@@ -195,7 +202,9 @@
+@@ -195,7 +206,9 @@
  	virtual void ClaimSelection();
  	void GetGtkSelectionText(GtkSelectionData *selectionData, SelectionText &selText);
  	void ReceivedSelection(GtkSelectionData *selection_data);
@@ -31,7 +42,7 @@
  	static void GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *selected);
  #ifdef USE_GTK_CLIPBOARD
  	static void ClipboardGetSelection(GtkClipboard* clip, GtkSelectionData *selection_data, guint info, void *data);
-@@ -260,6 +269,7 @@
+@@ -260,6 +273,7 @@
  #if GTK_MAJOR_VERSION < 2
  	static gint SelectionNotify(GtkWidget *widget, GdkEventSelection *selection_event);
  #endif
@@ -39,7 +50,7 @@
  	static void DragBegin(GtkWidget *widget, GdkDragContext *context);
  	gboolean DragMotionThis(GdkDragContext *context, gint x, gint y, guint dragtime);
  	static gboolean DragMotion(GtkWidget *widget, GdkDragContext *context,
-@@ -273,6 +283,7 @@
+@@ -273,6 +287,7 @@
  	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time);
  	static void DragDataGet(GtkWidget *widget, GdkDragContext *context,
  	                        GtkSelectionData *selection_data, guint info, guint time);
@@ -47,7 +58,7 @@
  	static gint TimeOut(ScintillaGTK *sciThis);
  	static gint IdleCallback(ScintillaGTK *sciThis);
  	static void PopUpCB(ScintillaGTK *sciThis, guint action, GtkWidget *widget);
-@@ -285,6 +296,10 @@
+@@ -285,6 +300,10 @@
  
  	static sptr_t DirectFunction(ScintillaGTK *sciThis,
  	                             unsigned int iMessage, uptr_t wParam, sptr_t lParam);
@@ -58,7 +69,7 @@
  };
  
  enum {
-@@ -338,7 +353,7 @@
+@@ -338,7 +357,7 @@
  		adjustmentv(0), adjustmenth(0),
  		scrollBarWidth(30), scrollBarHeight(30),
  		capturedMouse(false), dragWasDropped(false),
@@ -67,12 +78,10 @@
  #ifdef INTERNATIONAL_INPUT
  #if GTK_MAJOR_VERSION < 2
  		ic(NULL),
-@@ -375,6 +390,30 @@
+@@ -377,6 +396,30 @@
+ ScintillaGTK::~ScintillaGTK() {
  }
  
- ScintillaGTK::~ScintillaGTK() {
-+}
-+
 +// KOMODO HACK
 +void
 +ScintillaGTK::GrabFocus()
@@ -95,10 +104,12 @@
 +		GTK_WIDGET_UNSET_FLAGS(PWidget(wMain), GTK_HAS_FOCUS);
 +#endif
 +	SetFocusState(focus);
- }
- 
++}
++
  void ScintillaGTK::RealizeThis(GtkWidget *widget) {
-@@ -620,8 +659,9 @@
+ 	//Platform::DebugPrintf("ScintillaGTK::realize this\n");
+ 	GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
+@@ -620,8 +663,9 @@
  gint ScintillaGTK::FocusIn(GtkWidget *widget, GdkEventFocus * /*event*/) {
  	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
  	//Platform::DebugPrintf("ScintillaGTK::focus in %x\n", sciThis);
@@ -110,7 +121,15 @@
  
  #ifdef INTERNATIONAL_INPUT
  #if GTK_MAJOR_VERSION < 2
-@@ -652,8 +692,9 @@
+@@ -633,7 +677,7 @@
+ 		gint cursor_pos;
+ 
+ 		gtk_im_context_get_preedit_string(sciThis->im_context, &str, NULL, &cursor_pos);
+ 		if (PWidget(sciThis->wPreedit) != NULL) {
+ 			if (strlen(str) > 0) {
+ 				gtk_widget_show(PWidget(sciThis->wPreedit));
+ 			} else {
+@@ -652,8 +696,9 @@
  gint ScintillaGTK::FocusOut(GtkWidget *widget, GdkEventFocus * /*event*/) {
  	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
  	//Platform::DebugPrintf("ScintillaGTK::focus out %x\n", sciThis);
@@ -122,7 +141,7 @@
  
  #ifdef INTERNATIONAL_INPUT
  #if GTK_MAJOR_VERSION < 2
-@@ -670,7 +711,12 @@
+@@ -670,7 +715,12 @@
  }
  
  void ScintillaGTK::SizeRequest(GtkWidget *widget, GtkRequisition *requisition) {
@@ -136,7 +155,7 @@
  	requisition->height = gdk_screen_height();
  	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
  	GtkRequisition child_requisition;
-@@ -710,7 +756,9 @@
+@@ -710,7 +760,9 @@
  	parentClass = reinterpret_cast<GtkWidgetClass *>(
  	                  gtk_type_class(gtk_container_get_type()));
  
@@ -146,7 +165,7 @@
  	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(PWidget(wMain)), GTK_SENSITIVE);
  	gtk_widget_set_events(PWidget(wMain),
  	                      GDK_EXPOSURE_MASK
-@@ -768,7 +816,8 @@
+@@ -768,7 +820,8 @@
  	gtk_widget_set_parent(PWidget(scrollbarh), PWidget(wMain));
  	gtk_widget_show(PWidget(scrollbarh));
  
@@ -156,7 +175,7 @@
  
  	gtk_selection_add_targets(GTK_WIDGET(PWidget(wMain)), GDK_SELECTION_PRIMARY,
  	                          clipboardCopyTargets, nClipboardCopyTargets);
-@@ -777,11 +826,11 @@
+@@ -777,11 +830,11 @@
  	gtk_selection_add_targets(GTK_WIDGET(PWidget(wMain)), atomClipboard,
  	                          clipboardPasteTargets, nClipboardPasteTargets);
  #endif
@@ -170,7 +189,7 @@
  #if GLIB_MAJOR_VERSION >= 2
  	// Set caret period based on GTK settings
  	gboolean blinkOn = false;
-@@ -828,6 +877,9 @@
+@@ -828,6 +881,9 @@
  
  void ScintillaGTK::StartDrag() {
  	dragWasDropped = false;
@@ -180,7 +199,7 @@
  	inDragDrop = ddDragging;
  	GtkTargetList *tl = gtk_target_list_new(clipboardCopyTargets, nClipboardCopyTargets);
  	gtk_drag_begin(GTK_WIDGET(PWidget(wMain)),
-@@ -835,6 +887,7 @@
+@@ -835,6 +891,7 @@
  	               static_cast<GdkDragAction>(GDK_ACTION_COPY | GDK_ACTION_MOVE),
  	               evbtn.button,
  	               reinterpret_cast<GdkEvent *>(&evbtn));
@@ -188,7 +207,7 @@
  }
  
  #ifdef USE_CONVERTER
-@@ -956,7 +1009,8 @@
+@@ -956,7 +1013,8 @@
  	switch (iMessage) {
  
  	case SCI_GRABFOCUS:
@@ -198,7 +217,35 @@
  		break;
  
  	case SCI_GETDIRECTFUNCTION:
-@@ -1417,6 +1471,118 @@
+@@ -977,6 +1035,18 @@
+ 		return EncodedFromUTF8(reinterpret_cast<char*>(wParam),
+ 			reinterpret_cast<char*>(lParam));
+ 
++	case WM_UNICHAR:
++		if (IsUnicodeMode()) {
++			char utfval[4];
++			wchar_t wcs[2] = {wParam, 0};
++			unsigned int len = UTF8Length(wcs, 1);
++			UTF8FromUTF16(wcs, 1, utfval, len);
++			AddCharUTF(utfval, len);
++			return 1;
++		} else {
++			return 0;
++		}
++		
+ 	default:
+ 		return ScintillaBase::WndProc(iMessage, wParam, lParam);
+ 	}
+@@ -1269,7 +1339,7 @@
+ int ScintillaGTK::KeyDefault(int key, int modifiers) {
+ 	if (!(modifiers & SCI_CTRL) && !(modifiers & SCI_ALT)) {
+ 		if (key < 256) {
+-			NotifyKey(key, modifiers);
++			AddChar(key);
+ 			return 0;
+ 		} else {
+ 			// Pass up to container in case it is an accelerator
+@@ -1417,6 +1487,118 @@
  	}
  }
  
@@ -317,7 +364,7 @@
  // Detect rectangular text, convert line ends to current mode, convert from or to UTF-8
  void ScintillaGTK::GetGtkSelectionText(GtkSelectionData *selectionData, SelectionText &selText) {
  	char *data = reinterpret_cast<char *>(selectionData->data);
-@@ -1442,7 +1608,7 @@
+@@ -1442,7 +1624,7 @@
  	char *dest;
  	if (selectionType == GDK_TARGET_STRING) {
  		dest = Document::TransformLineEnds(&len, data, len, pdoc->eolMode);
@@ -326,7 +373,7 @@
  			// Unknown encoding so assume in Latin1
  			char *destPrevious = dest;
  			dest = UTF8FromLatin1(dest, len);
-@@ -1492,6 +1658,10 @@
+@@ -1492,6 +1674,10 @@
  			} else {
  				pdoc->InsertString(currentPos, selText.s, selText.len);
  				SetEmptySelection(currentPos + selText.len);
@@ -337,7 +384,7 @@
  			}
  			pdoc->EndUndoAction();
  			EnsureCaretVisible();
-@@ -1502,6 +1672,7 @@
+@@ -1502,6 +1688,7 @@
  	Redraw();
  }
  
@@ -345,7 +392,7 @@
  void ScintillaGTK::ReceivedDrop(GtkSelectionData *selection_data) {
  	dragWasDropped = true;
  	if (selection_data->type == atomUriList || selection_data->type == atomDROPFILES_DND) {
-@@ -1521,7 +1692,7 @@
+@@ -1521,7 +1708,7 @@
  	}
  	Redraw();
  }
@@ -354,7 +401,7 @@
  
  
  void ScintillaGTK::GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *text) {
-@@ -1664,7 +1835,9 @@
+@@ -1664,7 +1851,9 @@
  void ScintillaGTK::Resize(int width, int height) {
  	//Platform::DebugPrintf("Resize %d %d\n", width, height);
  	//printf("Resize %d %d\n", width, height);
@@ -365,7 +412,7 @@
  	// Not always needed, but some themes can have different sizes of scrollbars
  	scrollBarWidth = GTK_WIDGET(PWidget(scrollbarv))->requisition.width;
  	scrollBarHeight = GTK_WIDGET(PWidget(scrollbarh))->requisition.height;
-@@ -1716,6 +1889,13 @@
+@@ -1716,6 +1905,13 @@
  	if (!verticalScrollBarVisible)
  		alloc.width += scrollBarWidth;
  	gtk_widget_size_allocate(GTK_WIDGET(PWidget(wText)), &alloc);
@@ -379,7 +426,7 @@
  }
  
  static void SetAdjustmentValue(GtkObject *object, int value) {
-@@ -1749,7 +1929,8 @@
+@@ -1749,7 +1945,8 @@
  
  	bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
  
@@ -389,7 +436,7 @@
  	if (event->button == 1) {
  		// On X, instead of sending literal modifiers use control instead of alt
  		// This is because most X window managers grab alt + click for moving
-@@ -1799,7 +1980,7 @@
+@@ -1799,7 +1996,7 @@
  			SetAdjustmentValue(adjustmentv, topLine + 3);
  	}
  #if GTK_MAJOR_VERSION >= 2
@@ -398,7 +445,25 @@
  #else
  	return FALSE;
  #endif
-@@ -2371,6 +2552,7 @@
+@@ -2048,7 +2245,7 @@
+ 
+ gboolean ScintillaGTK::KeyPress(GtkWidget *widget, GdkEventKey *event) {
+ 	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
+-	return sciThis->KeyThis(event);
++	return sciThis->KeyThis(event);
+ }
+ 
+ gboolean ScintillaGTK::KeyRelease(GtkWidget *, GdkEventKey * /*event*/) {
+@@ -2098,7 +2295,7 @@
+ void ScintillaGTK::CommitThis(char *utfVal) {
+ 	//~ fprintf(stderr, "Commit '%s'\n", utfVal);
+ 	if (IsUnicodeMode()) {
+-		AddCharUTF(utfVal,strlen(utfVal));
++        AddCharUTF(utfVal, strlen(utfVal));
+ 	} else {
+ 		const char *source = CharacterSetID();
+ 		if (*source) {
+@@ -2371,6 +2568,7 @@
  }
  #endif
  
@@ -406,7 +471,7 @@
  void ScintillaGTK::DragBegin(GtkWidget *, GdkDragContext *) {
  	//Platform::DebugPrintf("DragBegin\n");
  }
-@@ -2451,6 +2633,7 @@
+@@ -2451,6 +2649,7 @@
  	}
  	sciThis->SetDragPosition(invalidPosition);
  }
@@ -414,7 +479,7 @@
  
  int ScintillaGTK::TimeOut(ScintillaGTK *sciThis) {
  	sciThis->Tick();
-@@ -2613,13 +2796,21 @@
+@@ -2613,13 +2812,21 @@
  	widget_class->selection_notify_event = SelectionNotify;
  #endif
  
@@ -437,7 +502,7 @@
  	widget_class->realize = Realize;
  	widget_class->unrealize = UnRealize;
  	widget_class->map = Map;
-@@ -2695,7 +2886,9 @@
+@@ -2695,7 +2902,9 @@
  }
  
  static void scintilla_init(ScintillaObject *sci) {

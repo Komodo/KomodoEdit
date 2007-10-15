@@ -21,17 +21,9 @@ NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
 	return NS_OK;
 }
 
-
 /* void AddChar( in PRUint32 ch); */
 NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
-	// XXX - Scintilla needs an SCI_ADDCHAR API??
-	GdkEventKey ev;
-
-	ev.type = GDK_KEY_PRESS;
-	ev.window = wEditor->window;
-	ev.keyval = ch;
-	ev.state = 0;
-	gtk_widget_event(wEditor, (GdkEvent *)&ev);
+	SendEditor(WM_UNICHAR, ch);
 	return NS_OK;
 }
 
