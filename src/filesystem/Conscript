@@ -18,7 +18,6 @@ Import(
     'buildFlavour',
     'mozVersion',
     'sdkDir',
-    'withSCC',
 );
 
 # Examples
