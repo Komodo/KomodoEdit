@@ -1577,11 +1577,13 @@ def target_configure(argv):
         if "gtk" in config["buildOpt"]:
             mozBuildOptions.append('enable-default-toolkit=gtk')
         elif "gtk2" in config["buildOpt"]:
-            mozSrcCvsTag = config.get('mozSrcCvsTag')  # it might not be defined
-            if mozSrcCvsTag is None or float(mozVer) >= 1.9:
-                # Mozilla 1.9 now uses cairo with gtk builds.
+            mozCvsVer = _guess_mozilla_cvs_version_from_config(config)
+            # Note: "mozCvsVer" can be None
+            if mozCvsVer is None or mozCvsVer >= 1.9:
+                # Assume at least mozilla 1.9 then, use cairo gtk builds.
                 mozBuildOptions.append('enable-default-toolkit=cairo-gtk2')
             else:
+                # A pre 1.9 mozilla source
                 mozBuildOptions.append('enable-default-toolkit=gtk2')
             mozBuildOptions.append('enable-xft')
         if "xft" in config["buildOpt"]:
@@ -2292,7 +2294,27 @@ def _get_mozilla_version(): #XXX
     ver[1] = "%d" % str2int(ver[1]) 
     return '.'.join(ver)
 
+
+def _guess_mozilla_cvs_version_from_config(config):
+    """Guess the mozilla version from the config "cvsTag" setting.
+
+    Returns None if could not be determined, else returns a floating point
+    value of the mozilla cvs version. Examples:
     
+    """
+    mozCvsVer = None
+    mozSrcCvsTag = config.get("mozSrcCvsTag")
+    # "mozSrcCvsTag" looks like None, "MOZILLA_<ver>_BRANCH" or "HEAD".
+    if mozSrcCvsTag:
+        match = re.search(r"MOZILLA_(?P<ver>(\d+_?)+)_BRANCH", mozSrcCvsTag)
+        if match:
+            # Turn into a floating point.
+            ver = match.group("ver").replace("_", ".", 1)
+            ver = ver.replace("_", "")
+            mozCvsVer = float(ver)
+    return mozCvsVer
+
+
 def _msys_path_from_path(path):
     drive, subpath = os.path.splitdrive(path)
     msys_path = "/%s%s" % (drive[0].lower(),
