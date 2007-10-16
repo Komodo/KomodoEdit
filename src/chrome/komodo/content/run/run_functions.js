@@ -388,7 +388,12 @@ try {
             // Command was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
             errmsg = lastErrorSvc.getLastErrorMessage();
-            alert("Error running command: " + errmsg);
+            var fullmsg = "Error running command";
+            if (name) {
+                fullmsg += " [" + name + "]";
+            }
+            fullmsg += ": " + errmsg;
+            alert(fullmsg);
         } else {
             _log.error(ex);
             alert("There was an unexpected error: " + ex);
