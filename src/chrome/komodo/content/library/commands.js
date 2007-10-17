@@ -166,7 +166,7 @@ this.doCode = function command_doCode(cmdId, code) {
         if (typeof(ko.isearch.controller) != 'undefined' &&
             ko.isearch.controller.inRepeatCounterAccumulation) {
             numRepeats = ko.isearch.controller.repeatCounter;
-            gCancelMultiHandler();
+            ko.isearch.controller.cancelMultiHandler();
         }
         for (var i = 0; i < numRepeats; i++) {
             eval(code);
@@ -226,7 +226,7 @@ this.doCommand = function command_doCommand(command) {
             if (typeof(ko.isearch) != 'undefined' &&
                 ko.isearch.controller.inRepeatCounterAccumulation) {
                 numRepeats = ko.isearch.controller.repeatCounter;
-                gCancelMultiHandler();
+                ko.isearch.controller.cancelMultiHandler();
             }
             for (var i = 0; i < numRepeats; i++) {
                 if (_isCheckCommand(commandNode)) {

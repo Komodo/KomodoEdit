@@ -133,6 +133,8 @@ ISController.prototype.do_cmd_rawKey= function() {
 function gCancelRawHandler(event) {
     if (this.key_handler) {
         this.key_handler = null;
+        ko.views.manager.currentView.scintilla.
+            removeEventListener('blur', gCancelRawHandler, false);
     }
     ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
 }
@@ -176,7 +178,7 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
     try {
         var scintilla = ko.views.manager.currentView.scintilla;
         scintilla.key_handler = this.multiHandler;
-        scintilla.addEventListener('blur', gCancelMultiHandler, false);
+        scintilla.addEventListener('blur', ko.isearch.controller.cancelMultiHandler, false);
         scintilla.scimoz.focus = true;
         ko.isearch.controller.inRepeatCounterAccumulation = true;
         ko.isearch.controller.repeatCounter = 0;
@@ -186,11 +188,13 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
     }
 }
 
-function gCancelMultiHandler(event) {
+ISController.prototype.cancelMultiHandler = function(event) {
     ko.isearch.controller.inRepeatCounterAccumulation = false;
-    ko.views.manager.currentView.scintilla.key_handler = null;
+    var scintilla = ko.views.manager.currentView.scintilla;
+    scintilla.removeEventListener('blur', ko.isearch.controller.cancelMultiHandler, false);
+    scintilla.key_handler = null;
     ko.statusBar.AddMessage(null, "multi_input", 0, false, true)
-}
+};
 
 ISController.prototype.multiHandler= function(event) {
     try {
@@ -205,11 +209,11 @@ ISController.prototype.multiHandler= function(event) {
         // If the key corresponds to the cmd_cancel command, cancel.
         if (gKeybindingMgr.command2key['cmd_cancel'] == key) {
             event.cancelBubble = true;
-            gCancelMultiHandler();
+            ko.isearch.controller.cancelMultiHandler();
             return;
         }
         if (event.charCode && !event.ctrlKey && !event.altKey && !event.metaKey) {
-            gCancelMultiHandler();
+            ko.isearch.controller.cancelMultiHandler();
             // it's just a simple keystroke, do that.
             key = String.fromCharCode(event.charCode);
             var txt = '';
