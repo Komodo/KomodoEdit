@@ -1305,6 +1305,11 @@
             disabled="true"
             desc="&editorCut.desc;"/>
         <command
+            id="cmd_copyRegion" key="key_cmd_copyRegion"
+            oncommand="ko.commands.doCommand('cmd_copyRegion')"
+            disabled="true"
+            desc="&editorCopyRegion.desc;"/>
+        <command
             id="cmd_cutRegion" key="key_cmd_cutRegion"
             oncommand="ko.commands.doCommand('cmd_cutRegion')"
             disabled="true"

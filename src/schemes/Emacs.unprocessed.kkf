@@ -10,7 +10,7 @@ version 2
 #  -
 # #if PLATFORM == "darwin"
 binding cmd_editProperties Meta+Return
-binding cmd_copy Meta+W
+binding cmd_copyRegion Meta+W
 binding cmd_gotoLine Meta+G
 binding cmd_gotoLine Meta+L
 binding cmd_deleteWordLeft  Meta+Backspace
@@ -29,7 +29,9 @@ binding cmd_wordRight  Meta+F
 binding cmd_wordLeft Meta+B
 # #else
 binding cmd_editProperties Alt+Return
-binding cmd_copy Alt+W
+binding cmd_copyRegion Alt+W
+# Alt-W probably hooked by Window menubar, so require the Escape key
+binding cmd_copyRegion Escape W
 binding cmd_gotoLine Alt+G
 binding cmd_gotoLine Alt+L
 binding cmd_deleteWordLeft  Alt+Backspace

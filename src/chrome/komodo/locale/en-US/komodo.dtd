@@ -53,6 +53,7 @@
 <!ENTITY editorCloseCurrentBuffer.desc "Editor: Close Current Buffer">
 <!ENTITY editorCompareWithFileOnDisk.desc "Editor: Compare with file on disk">
 <!ENTITY editorCopy.desc "Editor: Copy">
+<!ENTITY editorCopyRegion.desc "Editor: Copy Region">
 <!ENTITY editorCurrentFileSettings.desc "Editor: Current File Settings">
 <!ENTITY editorCut.desc "Editor: Cut">
 <!ENTITY editorCutLine.desc "Editor: Cut Line">

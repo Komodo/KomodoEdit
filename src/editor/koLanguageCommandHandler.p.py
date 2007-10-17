@@ -205,6 +205,19 @@ class GenericCommandHandler:
             return
         sm.anchor = mark
         sm.cut()
+        sm.sendUpdateCommands("clipboard")        
+
+    def _do_cmd_copyRegion(self):
+        view = self._view
+        sm = view.scimoz
+        mark = view.transientMark
+        if mark == -1:
+            return
+        if mark < sm.currentPos:
+            startp, endp = mark, sm.currentPos
+        else:
+            startp, endp = sm.currentPos, mark
+        sm.copyRange(startp, endp)
         sm.sendUpdateCommands("clipboard")
         
     def _do_cmd_transientMarkExchangeWithPoint(self):
