@@ -198,7 +198,7 @@ class GenericCommandHandler:
         sm.scrollCaret()
 
     def _do_cmd_cutRegion(self):
-        view = self.view()
+        view = self._view
         sm = view.scimoz
         mark = view.transientMark
         if mark == -1:
