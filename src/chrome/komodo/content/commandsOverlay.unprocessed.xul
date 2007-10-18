@@ -520,6 +520,12 @@
             oncommand="ko.commands.doCommand('cmd_jumpToMatchingBrace')"
             desc="&sourceCodeJumpToMatchingBrace.desc;"/>
 
+	<!-- emacs commands -->
+        <command
+            id="cmd_openLine" key="key_cmd_openLine"
+            oncommand="ko.commands.doCommand('cmd_openLine')"
+            desc="&openLine.desc;"/>
+
     </broadcasterset>
 
 <!--

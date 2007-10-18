@@ -198,6 +198,7 @@ binding cmd_startMacroMode Ctrl+X (
 binding cmd_stopMacroMode Ctrl+X )
 binding cmd_executeLastMacro Ctrl+X M
 binding cmd_killLine Ctrl+K
+binding cmd_openLine Ctrl+O
 binding cmd_rawKey Ctrl+Q
 
 binding cmd_goToDefinition Escape .
