@@ -23,6 +23,29 @@ function ISController(viewManager) {
     this.findSvc = Components.classes["@activestate.com/koFindService;1"].
                 getService(Components.interfaces.koIFindService);
     window.controllers.appendController(this);
+    var prefName = "defaultRepeatFactor";
+    var default_defaultRepeatFactor = 4; // Like in Emacs
+    try {
+        var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
+                                getService(Components.interfaces.koIPrefService);
+        var prefs = prefsSvc.prefs;
+        if (prefs.hasPref(prefName)) {
+            var candidate = prefs.getLongPref(prefName);
+            // Sanity-check it
+            if (!candidate || candidate <= 0) {
+                // The ! part includes NaN as well as 0
+                // Undefined prefs should throw an exception
+                dump("new ISController: rejecting pref " + prefName + " setting of " + candidate + "\n");
+                candidate = default_defaultRepeatFactor;
+            }
+            this[prefName] = candidate;
+        } else {
+            this[prefName] = default_defaultRepeatFactor;
+        }
+    } catch(ex) {
+        _log.error(ex + "\n");
+        this[prefName] = default_defaultRepeatFactor;
+    }
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -183,8 +206,10 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
         scintilla.scimoz.focus = true;
         ko.isearch.controller.inRepeatCounterAccumulation = true;
         ko.isearch.controller.repeatCounter = 0;
-        ko.isearch.controller.defaultRepeatCounter = 4;
-        ko.statusBar.AddMessage("Number of Repeats: 4|", "multi_input", 0, true, true)
+        ko.isearch.controller.defaultRepeatCounter = ko.isearch.controller.defaultRepeatFactor;
+        ko.statusBar.AddMessage("Number of Repeats: "
+                                + ko.isearch.controller.defaultRepeatCounter
+                                + "|", "multi_input", 0, true, true)
     } catch (e) {
         _log.exception(e);
     }
@@ -221,6 +246,7 @@ ISController.prototype.cancelMultiHandler = function(event) {
  ** Digits or minus sign following C-u make up the numeric argument.
  ** C-u following the digits or minus sign ends the argument.
  ** C-u without digits or minus sign provides 4 as argument.
+ ** (Note that "4" is configurable via the unexposed pref defaultRepeatFactor)
  ** Repeating C-u without digits or minus sign
  **  multiplies the argument by 4 each time.
  ** For some commands, just C-u by itself serves as a flag
@@ -259,7 +285,7 @@ ISController.prototype.multiHandler= function(event) {
         } else if (ko.isearch.controller._lookingAtRepeatCommand(event)) {
             event.cancelBubble = true;
             event.preventDefault();
-            ko.isearch.controller.defaultRepeatCounter *= 4;
+            ko.isearch.controller.defaultRepeatCounter *= ko.isearch.controller.defaultRepeatFactor;
             ko.statusBar.AddMessage("Number of Repeats: " + String(ko.isearch.controller.defaultRepeatCounter) + '|',
                                     "multi_input", 0, false, true);
             return;

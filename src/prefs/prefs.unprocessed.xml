@@ -827,5 +827,7 @@
 
   <!-- Vi emulation customizable settings -->
   <preference-set id="viCustomSettings"/>
+  
+  <long id="defaultRepeatFactor">4</long>
 
 </preference-set>
