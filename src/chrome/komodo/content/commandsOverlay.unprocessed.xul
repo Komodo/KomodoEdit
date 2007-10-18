@@ -309,6 +309,10 @@
             oncommand="ko.commands.doCommand('cmd_selectHome')"
             desc="&editorSelectToBeginningOfLineFirstCharFirstColumn.desc;"/>
         <command
+            id="cmd_selectHomeAbsolute" key="key_cmd_selectHomeAbsolute"
+            oncommand="ko.commands.doCommand('cmd_selectHomeAbsolute')"
+            desc="&editorSelectToBeginningOfLineAnyCharFirstColumn.desc;"/>
+        <command
             id="cmd_selectEnd" key="key_cmd_selectEnd"
             oncommand="ko.commands.doCommand('cmd_selectEnd')"
             desc="&editorSelectToEndOfLine.desc;"/>

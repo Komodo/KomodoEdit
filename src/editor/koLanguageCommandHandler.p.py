@@ -219,6 +219,20 @@ class GenericCommandHandler:
             startp, endp = sm.currentPos, mark
         sm.copyRange(startp, endp)
         sm.sendUpdateCommands("clipboard")
+
+    def _do_cmd_selectHomeAbsolute(self):
+        """
+        Used by emacs keybinding Ctrl+Shift+A
+        """
+        view = self._view
+        sm = view.scimoz
+        currentPos = sm.currentPos
+        lineStartPos = sm.positionFromLine(sm.lineFromPosition(currentPos))
+        #XXX
+        # See bug 33211 note on updating the transientMark on selection changes
+        # view.transientMark = currentPos;
+        sm.gotoPos(lineStartPos)
+        sm.anchor = currentPos
         
     def _do_cmd_transientMarkExchangeWithPoint(self):
         view = self._view

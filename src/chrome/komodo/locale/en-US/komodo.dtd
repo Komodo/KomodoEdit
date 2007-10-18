@@ -123,6 +123,7 @@
 <!ENTITY editorSelectRectangularToNextLine.desc "Editor: Select Rectangular to Next Line">
 <!ENTITY editorSelectRectangularToPreviousLine.desc "Editor: Select Rectangular to Previous Line">
 <!ENTITY editorSelectToBeginningOfLineFirstCharFirstColumn.desc "Editor: Select to Beginning of Line (first char/first column)">
+<!ENTITY editorSelectToBeginningOfLineAnyCharFirstColumn.desc "Editor: Select to Beginning of Line (always first column)">
 <!ENTITY editorSelectToBeginningOfWord.desc "Editor: Select to Beginning of word">
 <!ENTITY editorSelectToEndOfDocument.desc "Editor: Select to End of Document">
 <!ENTITY editorSelectToEndOfLine.desc "Editor: Select to End of Line">

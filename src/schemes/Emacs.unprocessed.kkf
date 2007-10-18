@@ -59,7 +59,9 @@ binding cmd_paste Ctrl+Y
 binding cmd_pasteAndSelect Ctrl+Shift+V
 #binding cmd_blockSelect Ctrl+B
 binding cmd_toggleButtonText Ctrl+Shift+B
-binding cmd_home Ctrl+A
+# Emacs-only keybinding, moves to column zero
+binding cmd_homeAbsolute Ctrl+A
+binding cmd_selectHomeAbsolute Ctrl+Shift+A
 binding cmd_end Ctrl+E
 binding cmd_indent Ctrl+C >
 binding cmd_dedent Ctrl+C <
@@ -107,8 +109,8 @@ binding cmd_lineScrollDown  Escape Z
 binding cmd_selectLineNext  Shift+Down
 binding cmd_end  End 
 binding cmd_documentEnd  Ctrl+End
+binding cmd_selectEnd  Ctrl+Shift+E
 binding cmd_selectEnd  Shift+End
-binding cmd_selectDocumentEnd  Ctrl+Shift+End
 binding cmd_cancel Ctrl+G
 binding cmd_helpHelp  F1      
 binding cmd_helpLanguageAlternate  Ctrl+F1
@@ -178,7 +180,6 @@ binding cmd_stopMacroMode Ctrl+X )
 binding cmd_executeLastMacro Ctrl+X e
 binding cmd_startIncrementalSearch Ctrl+S
 binding cmd_startIncrementalSearchBackwards Ctrl+R
-binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_browserPreview Ctrl+C Ctrl+V
 binding cmd_focusSource Ctrl+C Ctrl+S
 binding cmd_findNextResult Ctrl+Shift+F3
