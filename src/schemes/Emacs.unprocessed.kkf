@@ -32,6 +32,7 @@ binding cmd_editProperties Alt+Return
 binding cmd_copyRegion Alt+W
 # Alt-W probably hooked by Window menubar, so require the Escape key
 binding cmd_copyRegion Escape W
+binding cmd_copyRegion Alt+W
 binding cmd_gotoLine Alt+G
 binding cmd_gotoLine Alt+L
 binding cmd_deleteWordLeft  Alt+Backspace
@@ -197,6 +198,7 @@ binding cmd_startMacroMode Ctrl+X (
 binding cmd_stopMacroMode Ctrl+X )
 binding cmd_executeLastMacro Ctrl+X M
 binding cmd_killLine Ctrl+K
+binding cmd_rawKey Ctrl+Q
 
 binding cmd_goToDefinition Escape .
 
