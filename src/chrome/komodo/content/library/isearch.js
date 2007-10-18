@@ -19,6 +19,7 @@ function ISController(viewManager) {
     this._lastIncrementalSearchText = '';
     this.inRepeatCounterAccumulation = false;
     this.repeatCounter = 0;
+    this.defaultRepeatCounter = 0;
     this.findSvc = Components.classes["@activestate.com/koFindService;1"].
                 getService(Components.interfaces.koIFindService);
     window.controllers.appendController(this);
@@ -172,7 +173,7 @@ ISController.prototype.rawHandler= function(event) {
     } catch (e) {
         _log.error(e);
     }
-}
+};
 
 ISController.prototype.do_cmd_repeatNextCommandBy= function() {
     try {
@@ -182,10 +183,21 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
         scintilla.scimoz.focus = true;
         ko.isearch.controller.inRepeatCounterAccumulation = true;
         ko.isearch.controller.repeatCounter = 0;
-        ko.statusBar.AddMessage("Number of Repeats: |", "multi_input", 0, true, true)
+        ko.isearch.controller.defaultRepeatCounter = 4;
+        ko.statusBar.AddMessage("Number of Repeats: 4|", "multi_input", 0, true, true)
     } catch (e) {
         _log.exception(e);
     }
+};
+
+ISController.prototype.getCount = function() {
+    var count;
+    if (ko.isearch.controller.defaultRepeatCounter > 0) {
+        count = ko.isearch.controller.defaultRepeatCounter;
+    } else {
+        count = ko.isearch.controller.repeatCounter;
+    }
+    return count;
 }
 
 ISController.prototype.cancelMultiHandler = function(event) {
@@ -196,13 +208,60 @@ ISController.prototype.cancelMultiHandler = function(event) {
     ko.statusBar.AddMessage(null, "multi_input", 0, false, true)
 };
 
+/* _lookingAtRepeatCommand -
+ * @param {Object} event - the keypress event object
+ *
+ * The single-key variant implement emacs-style Ctrl-U universal-argument
+ * key.  This avoids ambiguity of what Ctrl-U means in the
+ * sequence Ctrl-K, Ctrl-U, Ctrl-U
+ *
+ * Emacs documentation:
+ *
+ ** Begin a numeric argument for the following command.
+ ** Digits or minus sign following C-u make up the numeric argument.
+ ** C-u following the digits or minus sign ends the argument.
+ ** C-u without digits or minus sign provides 4 as argument.
+ ** Repeating C-u without digits or minus sign
+ **  multiplies the argument by 4 each time.
+ ** For some commands, just C-u by itself serves as a flag
+ ** which is different in effect from any particular numeric argument.
+ ** These commands include C-@ and C-x (.
+ *
+ * Negative arguments don't make sense yet -- see bug
+ * http://bugs.activestate.com/show_bug.cgi?id=72910
+ */
+
+ISController.prototype._lookingAtRepeatCommand = function(event) {
+    var actual_key = gKeybindingMgr.event2keylabel(event);
+    var expected_key_sequences = gKeybindingMgr.command2key['cmd_repeatNextCommandBy'];
+    for (var i in expected_key_sequences) {
+        // Reject multi-character keylabels like Ctrl-K, Ctrl-Home
+        // to eliminate any ambiguity.
+        // to distinguish it from keys that *use* the comma
+        var acceptable_key_seq = expected_key_sequences[i].split(/,[\s]+/);
+        if (acceptable_key_seq.length == 1
+            && acceptable_key_seq[0] == actual_key) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ISController.prototype.multiHandler= function(event) {
     try {
         if (event.type != 'keypress') return;
         if (event.charCode >= 48 && event.charCode <= 57) {
+            ko.isearch.controller.defaultRepeatCounter = 0;
             ko.isearch.controller.repeatCounter = ko.isearch.controller.repeatCounter * 10 + (event.charCode - 48);
             ko.statusBar.AddMessage("Number of Repeats: " + String(ko.isearch.controller.repeatCounter) + '|',
-                                 "multi_input", 0, false, true)
+                                    "multi_input", 0, false, true);
+            return;
+        } else if (ko.isearch.controller._lookingAtRepeatCommand(event)) {
+            event.cancelBubble = true;
+            event.preventDefault();
+            ko.isearch.controller.defaultRepeatCounter *= 4;
+            ko.statusBar.AddMessage("Number of Repeats: " + String(ko.isearch.controller.defaultRepeatCounter) + '|',
+                                    "multi_input", 0, false, true);
             return;
         }
         var key = gKeybindingMgr.event2keylabel(event);
@@ -217,7 +276,8 @@ ISController.prototype.multiHandler= function(event) {
             // it's just a simple keystroke, do that.
             key = String.fromCharCode(event.charCode);
             var txt = '';
-            for (var i = 0; i < ko.isearch.controller.repeatCounter; i++) {
+            var count = ko.isearch.controller.getCount();
+            for (var i = 0; i < count; i++) {
                 txt += key;
             }
             var scintilla = ko.views.manager.currentView.scintilla;
@@ -227,7 +287,6 @@ ISController.prototype.multiHandler= function(event) {
         _log.error(e);
     }
 }
-
 ISController.prototype.keyPressForSearch = function(event) {
     try {
         if (event.type != 'keypress') return;

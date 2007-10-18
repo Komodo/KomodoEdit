@@ -165,8 +165,12 @@ this.doCode = function command_doCode(cmdId, code) {
         // a 'repeated command' situation
         if (typeof(ko.isearch.controller) != 'undefined' &&
             ko.isearch.controller.inRepeatCounterAccumulation) {
-            numRepeats = ko.isearch.controller.repeatCounter;
+            numRepeats = ko.isearch.controller.getCount();
             ko.isearch.controller.cancelMultiHandler();
+            if (numRepeats > 256) {
+                dump("Repeating command " + cmdId
+                                        + numRepeat + 'times...\n');
+            }
         }
         for (var i = 0; i < numRepeats; i++) {
             eval(code);
@@ -225,7 +229,7 @@ this.doCommand = function command_doCommand(command) {
             // a 'repeated command' situation
             if (typeof(ko.isearch) != 'undefined' &&
                 ko.isearch.controller.inRepeatCounterAccumulation) {
-                numRepeats = ko.isearch.controller.repeatCounter;
+                numRepeats = ko.isearch.controller.getCount();
                 ko.isearch.controller.cancelMultiHandler();
             }
             for (var i = 0; i < numRepeats; i++) {
