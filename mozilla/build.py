@@ -1262,9 +1262,6 @@ def target_configure(argv):
         elif opt == "--official":
             config["official"] = True
             config["komodoVersion"] = None
-            # XXX disabling crypto requires a hacky patch,
-            #     enable it for official builds
-            mozBuildOptions.append('enable-crypto')
         elif opt == "--gtk":
             config["buildOpt"].append("gtk")
             if "gtk2" in config["buildOpt"]:
@@ -1561,10 +1558,6 @@ def target_configure(argv):
             mozBuildExtensions.append('webservices')
             mozBuildExtensions.append('transformiix')
             
-            # Always want crypto disabled for Komodo <=3.x. 
-            if int(config["komodoVersion"].split('.')[0]) < 4:
-                mozBuildOptions.append("disable-crypto")
-
         elif config["mozApp"] == "xulrunner":
             mozBuildOptions.append('enable-application=xulrunner')
         else:
