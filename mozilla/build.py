@@ -1514,12 +1514,7 @@ def target_configure(argv):
             # some extensions that may help us in
             # development
             mozBuildExtensions.append('venkman')
-            mozBuildExtensions.append('inspector')
             mozBuildExtensions.append('cview')
-            
-        elif int(config["komodoVersion"].split('.')[0]) >= 4:
-            # built-in extensions we want to use
-            mozBuildExtensions.append('inspector')
         
         if config["mozApp"] in ("browser", "komodo"):
             # based on build options from the standard firefox distro, there
@@ -1541,7 +1536,7 @@ def target_configure(argv):
             
             mozBuildExtensions.append('spellcheck')
             #mozBuildExtensions.append('typeaheadfind')
-            #mozBuildExtensions.append('inspector')
+            mozBuildExtensions.append('inspector')
             
             # XXX these fail, but we probably dont care
             #mozBuildExtensions.append('gnomevfs')
@@ -1557,7 +1552,7 @@ def target_configure(argv):
             mozBuildExtensions.append('universalchardet')
             mozBuildExtensions.append('webservices')
             mozBuildExtensions.append('transformiix')
-            
+
         elif config["mozApp"] == "xulrunner":
             mozBuildOptions.append('enable-application=xulrunner')
         else:
