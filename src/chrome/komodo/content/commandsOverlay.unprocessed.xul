@@ -525,6 +525,10 @@
             id="cmd_openLine" key="key_cmd_openLine"
             oncommand="ko.commands.doCommand('cmd_openLine')"
             desc="&openLine.desc;"/>
+        <command
+            id="cmd_splitLine" key="key_cmd_splitLine"
+            oncommand="ko.commands.doCommand('cmd_splitLine')"
+            desc="&splitLine.desc;"/>
 
     </broadcasterset>
 

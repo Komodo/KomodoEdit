@@ -27,6 +27,7 @@ binding cmd_documentEnd  Meta+Shift+.
 binding cmd_documentHome  Meta+Shift+,
 binding cmd_wordRight  Meta+F
 binding cmd_wordLeft Meta+B
+binding cmd_splitLine Meta+Ctrl+O
 # #else
 binding cmd_editProperties Alt+Return
 binding cmd_copyRegion Alt+W
@@ -49,6 +50,7 @@ binding cmd_documentEnd  Alt+Shift+.
 binding cmd_documentHome  Alt+Shift+,
 binding cmd_wordRight  Alt+F
 binding cmd_wordLeft Alt+B
+binding cmd_splitLine Alt+Ctrl+O
 # #endif
 binding cmd_transientMarkSet Ctrl+Space
 binding cmd_completeWordBack Ctrl+Shift+Space

@@ -3,7 +3,6 @@
 
 from xpcom import components
 from xpcom.client import WeakReference
-import eollib
 import string
 import re
 import logging
@@ -931,15 +930,6 @@ class koScintillaController:
         else:
             end = min(sm.positionFromLine(lineNo+1), sm.textLength)
         self._doSmartCut(sm.currentPos, end)
-
-    def _do_cmd_openLine(self):
-        """ emacs keybinding: insert a newline here, position to
-        left of newline after"""
-        sm = self.scimoz()
-        currentPos = sm.currentPos
-        eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
-        sm.insertText(sm.currentPos, eol)
-        sm.gotoPos(currentPos)        
         
 
 charClass = {}

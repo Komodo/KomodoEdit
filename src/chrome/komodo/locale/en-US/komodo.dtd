@@ -376,6 +376,7 @@
 <!ENTITY openFindToolbar.tooltiptext "Open / Find Toolbar">
 <!ENTITY openLabel.accesskey "n">
 <!ENTITY openLine.desc "Editor: Open Line">
+<!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
 <!ENTITY openProject.tooltiptext "Open Project">
 <!ENTITY pageSetup.label "Page Setup">
