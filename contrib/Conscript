@@ -373,8 +373,6 @@ $consLocal->Install("$supportDir/html", $exeName);
         "komododoc/config.py",
         "komododoc/configure.py",
         qq{
-            which mk
-            which python
             cd %1:d && $unsiloedPythonExe %1:f --filter snapdragon --lang en-US --chrome-dir $mozChromeDir
         }
     );
