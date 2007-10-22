@@ -16,6 +16,7 @@ Import(
     'productType',
     'mozVersion',
     'mozExtensionDir',
+    'mozChromeDir',
     'komodoShortVersion',
     'mozBin',
     'withCrypto',
@@ -361,5 +362,34 @@ $consLocal->Command($exeName,
                     qq{cd $tidyDir && $make -f $makefile}
                    );
 $consLocal->Install("$supportDir/html", $exeName);
+}
 
+
+#---- komododoc
+# The Komodo documentation project.
+
+{
+    my $mk = "$unsiloedPythonExe";
+    
+    $cons->Command(
+        "komododoc/config.py",
+        "komododoc/configure.py",
+        qq{
+            which mk
+            which python
+            cd %1:d && $unsiloedPythonExe %1:f --filter snapdragon --lang en-US --chrome-dir $mozChromeDir
+        }
+    );
+    
+    $landmark = "$mozChromeDir/komododoc.manifest";  # just a landmark file for now
+    $cons->Command(
+        $landmark,
+        "komododoc/Makefile.py",
+        "komododoc/config.py",
+        qq{
+            cd %1:d && mk mozhelp
+        }
+    );
+    $cons->DependsRecursive($landmark, "komododoc",
+                            ("build", '\.svn', '\.consign'));
 }

@@ -1582,6 +1582,11 @@ class SetPath(black.configure.SetPathEnvVar):
             if d and not self.Contains(d) and not d in systemDirs:
                 self.value.append(d)
 
+        # The 'mk' bin dir.
+        d = join(dirname(abspath(__file__)), "contrib", "mk", "bin")
+        if d and not self.Contains(d):
+            self.value.append(d)
+
         # add the system directories
         #   - not added first because the installed Cons, Perl, and Python
         #     should override those in the system directories

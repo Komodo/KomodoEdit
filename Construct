@@ -288,9 +288,6 @@ Build(
 
     "$build/commandments/Conscript",
 
-    "$build/docs/Conscript",
-    "$build/docs/img/Conscript",
-    "$build/docs/tutorial/Conscript",
     "$build/license_text/Conscript",
 
     "$build/codeintel/Conscript",
