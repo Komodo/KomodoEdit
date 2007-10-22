@@ -369,8 +369,6 @@ $consLocal->Install("$supportDir/html", $exeName);
 # The Komodo documentation project.
 
 {
-    my $mk = "$unsiloedPythonExe";
-    
     $cons->Command(
         "komododoc/config.py",
         "komododoc/configure.py",
