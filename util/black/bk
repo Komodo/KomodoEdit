@@ -1,4 +1,3 @@
-#!/bin/bash
-#
+#!/bin/sh
 python -tt `which bk.py` "$@"
 
