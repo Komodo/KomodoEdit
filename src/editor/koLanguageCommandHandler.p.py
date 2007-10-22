@@ -244,6 +244,28 @@ class GenericCommandHandler:
         sm.currentPos = sm.anchor = mark
         sm.scrollCaret()
 
+    def _do_cmd_openLine(self):
+        """ emacs keybinding: insert a newline here, position to
+        left of newline after"""
+        sm = self._view.scimoz
+        currentPos = sm.currentPos
+        eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+        sm.insertText(sm.currentPos, eol)
+        sm.gotoPos(currentPos)        
+
+    def _do_cmd_splitLine(self):
+        """ emacs keybinding: insert a newline here with indentation
+        up to the current spot.  Position the cursor at the end
+        of the current line.
+        """
+        sm = self._view.scimoz
+        currentPos = sm.currentPos
+        column = sm.getColumn(currentPos)
+        newIndent = scimozindent.makeIndentFromWidth(sm, column)
+        eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+        sm.insertText(sm.currentPos, eol + newIndent)
+        sm.gotoPos(currentPos)        
+
     def _do_cmd_editReflow(self):
         """ Reflow -- currently only works for paragraphs in text documents
         needs to be tweaked for comments and strings in code.
