@@ -1229,7 +1229,7 @@ def _PackageKomodoMSI(cfg):
          % (join("src", "install", "rmtree", "rmtreew.exe"),
             join(wrkDir, "rmtreew.exe")))
     _run("copy /y %s %s"
-         % (join(cfg.buildRelDir, "docs", "license", "LICENSE.rtf"),
+         % (join(cfg.buildRelDir, "license_text", "LICENSE.rtf"),
             join(wrkDir, "aswixui", "License.rtf")))
 
     # Run "autowix" to configure the WiX sources.

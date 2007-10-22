@@ -9,7 +9,7 @@ Import(
 );
 
 $cons->InstallAs("LICENSE.rtf", "LICENSE.mpl.rtf"); 
-$cons->InstallAs("../LICENSE.txt", "LICENSE.mpl.txt"); 
+$cons->InstallAs("../docs/LICENSE.txt", "LICENSE.mpl.txt"); 
 $cons->InstallAs("$readmeDir/LICENSE.txt", "LICENSE.mpl.txt"); 
 
 

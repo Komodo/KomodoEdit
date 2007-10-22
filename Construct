@@ -291,7 +291,7 @@ Build(
     "$build/docs/Conscript",
     "$build/docs/img/Conscript",
     "$build/docs/tutorial/Conscript",
-    "$build/docs/license/Conscript",
+    "$build/license_text/Conscript",
 
     "$build/codeintel/Conscript",
     "$build/editor/Conscript",
