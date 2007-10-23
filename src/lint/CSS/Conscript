@@ -94,17 +94,14 @@ else {
     $consLocal{'CC'} = "gcc";
     $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core ";
     if ($mozVersionNumber >= 190) {
-      $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
-      $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-      $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue.a ";
+      $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
     }
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
     }
-    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
+    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
 
     if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
