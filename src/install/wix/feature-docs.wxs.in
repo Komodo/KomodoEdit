@@ -50,10 +50,10 @@
                 <Shortcut Id="StartMenuUserGuideShortcut" Directory="StartMenuDir"
                     Name="KOMOD_82.HTM" LongName="User Guide" />
               </File>
-              <File Id="file2" Name="README_0.HTM" LongName="readme.html"
-                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\readme.html">
+              <File Id="file2" Name="INSTAL_0.HTM" LongName="install.html"
+                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\install.html">
                 <Shortcut Id="StartMenuInstallGuideShortcut" Directory="StartMenuDir"
-                    Name="README_0.HTM" LongName="Install Guide" />
+                    Name="INSTAL_0.HTM" LongName="Install Guide" />
               </File>
               <File Id="file3" Name="RELNOT_0.HTM" LongName="relnotes.html"
                   Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\relnotes.html">
