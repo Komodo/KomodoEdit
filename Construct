@@ -304,6 +304,7 @@ Build(
     "$build/filesystem/Conscript",
     "$build/projects/Conscript",
     "$build/python-sitelib/Conscript",
+    "$build/python-sitelib/koWndWrapper/Conscript",
     "$build/run/Conscript",
     "$build/samples/Conscript",
     "$build/schemes/Conscript",

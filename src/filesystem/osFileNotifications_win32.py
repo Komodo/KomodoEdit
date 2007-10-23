@@ -15,12 +15,12 @@ import time
 import threading
 import logging
 import wnd
-
 import ctypes
-import wnd.komodo
-from wnd.komodo_d.notify import *
-from wnd.consts import win32con
-from wnd.consts import ntsecuritycon
+import koWndWrapper  # Komodo's wrapper for wnd
+
+from koWndWrapper.notify import *
+from koWndWrapper.consts import win32con
+from koWndWrapper.consts import ntsecuritycon
 
 # Import the common definitions and utility functions
 from osFileNotificationUtils import *
@@ -91,7 +91,7 @@ class DirectoryWatcher(object):
         log.debug("Deleting watcher for: %s", self.__dirname)
         if self.__handle:
             #print "Closed the handle"
-            wnd.komodo.close_handle(self.__handle)
+            koWndWrapper.close_handle(self.__handle)
 
     def __str__(self):
         return "  DirectoryWatcher('%s', r:%r) observers:\n    %s\n" % (
@@ -116,8 +116,8 @@ class DirectoryWatcher(object):
     def __initWin32Objects(self):
         log.info("Initializing win32 objects for path: %s", self.dirname)
         if self.__handle:
-            wnd.komodo.close_handle(self.__handle)
-        self.__handle = wnd.komodo.CreateFile (
+            koWndWrapper.close_handle(self.__handle)
+        self.__handle = koWndWrapper.CreateFile (
                                 self.__dirname,
                                 ntsecuritycon.FILE_LIST_DIRECTORY,
                                   # Allow other process to read this folder
@@ -134,7 +134,7 @@ class DirectoryWatcher(object):
         self.__readBuffer_size = 8192
         self.__readBuffer = create_unicode_buffer(self.__readBuffer_size / 2) # (c_byte * self.__readBuffer_size)()
         self.__overlapped_obj = OVERLAPPED()
-        self.__overlapped_obj.hEvent = wnd.komodo.create_event(None, None, 0)
+        self.__overlapped_obj.hEvent = koWndWrapper.create_event(None, None, 0)
         self.__needs_full_reset = False
         self.__new_event_was_created = True
 
@@ -579,11 +579,11 @@ class WindowsFileWatcher(threading.Thread):
         self.__file_watchers_changed_event = threading.Event()
         self.__finished_checking_event = threading.Event()
         # _watchers_list and _watcher_events_list are used when querying the
-        # events for changes, through wnd.komodo.wait_for_multiple_objects()
+        # events for changes, through koWndWrapper.wait_for_multiple_objects()
         self._watchers_list = []
         self._watcher_events_list = []
-        self._internal_event = wnd.komodo.create_event("Internal event",
-                                                       None, 0)
+        self._internal_event = koWndWrapper.create_event("Internal event",
+                                                         None, 0)
         # This is the running state of the thread
         self._isRunning = 0
         # This is used for atomic copying of the _watcher_events_list list
@@ -669,7 +669,7 @@ class WindowsFileWatcher(threading.Thread):
                 if len(self._watchers_list) == 0:
                     return
             # This can be cleared now
-            wnd.komodo.reset_event(self._internal_event)
+            koWndWrapper.reset_event(self._internal_event)
         finally:
             self.__lock.release()
 
@@ -681,9 +681,9 @@ class WindowsFileWatcher(threading.Thread):
         while total_time_used < POLL_PERIOD:
             # Wait for our event, or timeout after x seconds.
             if _watcher_path_changes:
-                rc = wnd.komodo.wait_for_multiple_objects(self._watcher_events_list, 0, 50)
+                rc = koWndWrapper.wait_for_multiple_objects(self._watcher_events_list, 0, 50)
             else:
-                rc = wnd.komodo.wait_for_multiple_objects(self._watcher_events_list, 0, POLL_PERIOD_MILLISECONDS)
+                rc = koWndWrapper.wait_for_multiple_objects(self._watcher_events_list, 0, POLL_PERIOD_MILLISECONDS)
             #log.debug("Received event: %d", rc)
             # rc == 258 when timeout occurs
             if rc < 0 or rc > len(self._watchers_list):
@@ -757,7 +757,7 @@ class WindowsFileWatcher(threading.Thread):
         self._isRunning = 0
         self.__file_watchers_changed_event.set()
         # Notify our internal event in case we are in WaitForMultipleObjects()
-        wnd.komodo.set_event(self._internal_event)
+        koWndWrapper.set_event(self._internal_event)
 
     def addObserverForPath(self, observer, dirname, path, watch_type, flags):
         """Monitor this path for changes
@@ -773,7 +773,7 @@ class WindowsFileWatcher(threading.Thread):
             # Make sure main thread knows there is changes
             if self._needsWatcherUpdate:
                 self.__file_watchers_changed_event.set()
-                wnd.komodo.set_event(self._internal_event)
+                koWndWrapper.set_event(self._internal_event)
             return True
         finally:
             self.__lock.release()
@@ -793,7 +793,7 @@ class WindowsFileWatcher(threading.Thread):
             # Make sure main thread knows there is changes
             if self._needsWatcherUpdate:
                 self.__file_watchers_changed_event.set()
-                wnd.komodo.set_event(self._internal_event)
+                koWndWrapper.set_event(self._internal_event)
         finally:
             self.__lock.release()
 
@@ -811,7 +811,7 @@ class WindowsFileWatcher(threading.Thread):
                 # The watcher_array_list will be updated on next run() loop
                 self._needsWatcherUpdate = 1
                 self.__file_watchers_changed_event.set()
-                wnd.komodo.set_event(self._internal_event)
+                koWndWrapper.set_event(self._internal_event)
         finally:
             self.__lock.release()
 
@@ -832,7 +832,7 @@ class WindowsFileWatcherService:
     # passed to it (for most machines this is the value 64).
     #_max_watchers_per_thread = win32event.MAXIMUM_WAIT_OBJECTS
     # We subtract one as we use one event for special internal purposes
-    _max_watchers_per_thread = wnd.komodo.MAXIMUM_WAIT_OBJECTS - 1
+    _max_watchers_per_thread = koWndWrapper.MAXIMUM_WAIT_OBJECTS - 1
 
     def __init__(self):
         # Make sure it's available on this machine
