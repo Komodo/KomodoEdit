@@ -59,9 +59,9 @@ Index: extensions/python/xpcom/src/module/Makefile.in
 ===================================================================
 RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/module/Makefile.in,v
 retrieving revision 1.5
-diff -d -u -r1.5 Makefile.in
+diff -u -r1.5 extensions/python/xpcom/src/module/Makefile.in
 --- extensions/python/xpcom/src/module/Makefile.in	5 Oct 2006 10:44:03 -0000	1.5
-+++ extensions/python/xpcom/src/module/Makefile.in	25 Mar 2007 23:14:08 -0000
++++ extensions/python/xpcom/src/module/Makefile.in	23 Oct 2007 20:29:21 -0000
 @@ -70,14 +70,15 @@
  
  ifeq ($(OS_ARCH),Darwin)
@@ -78,9 +78,10 @@ diff -d -u -r1.5 Makefile.in
 -  EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
 -                      $(XPCOM_GLUE_LDOPTS) \
 -                      $(NULL)
-+EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
-+                    $(XPCOM_GLUE_LDOPTS) \
++EXTRA_DSO_LDOPTS += $(XPCOM_GLUE_LDOPTS) \
++                    $(MOZ_COMPONENT_LIBS) \
 +                    $(NULL)
  endif
  IMPORT_LIBRARY		:= $(SHARED_LIBRARY:.pyd=.lib)
  
+

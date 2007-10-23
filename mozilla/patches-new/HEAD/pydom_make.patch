@@ -2,9 +2,9 @@ Index: extensions/python/dom/src/Makefile.in
 ===================================================================
 RCS file: /cvsroot/mozilla/extensions/python/dom/src/Makefile.in,v
 retrieving revision 1.3
-diff -d -u -r1.3 Makefile.in
+diff -u -r1.3 extensions/python/dom/src/Makefile.in
 --- extensions/python/dom/src/Makefile.in	5 Oct 2006 10:44:02 -0000	1.3
-+++ extensions/python/dom/src/Makefile.in	25 Mar 2007 23:14:29 -0000
++++ extensions/python/dom/src/Makefile.in	23 Oct 2007 20:50:18 -0000
 @@ -21,9 +21,16 @@
  
  # We always need the Python and pyxpcom includes and libs.
@@ -15,7 +15,8 @@ diff -d -u -r1.3 Makefile.in
 +              $(NULL)
 +else
  EXTRA_LIBS += $(MOZ_PYTHON_LIBS) \
-               $(DIST)/lib/$(LIB_PREFIX)pyxpcom.$(LIB_SUFFIX) \
+-              $(DIST)/lib/$(LIB_PREFIX)pyxpcom.$(LIB_SUFFIX) \
++              $(call EXPAND_LIBNAME_PATH,pyxpcom,$(DIST)/lib) \
                $(NULL)
 +endif
 +
@@ -26,6 +27,8 @@ diff -d -u -r1.3 Makefile.in
  
  CXXFLAGS += -DPYTHON_SO=\"libpython$(MOZ_PYTHON_VER_DOTTED).so\"
  
+-EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
+-                    $(XPCOM_GLUE_LDOPTS) \
 +ifeq ($(OS_ARCH),Darwin)
 +EXTRA_DSO_LDOPTS = -bundle $(XPCOM_LIBS) \
 +                    $(MOZ_COMPONENT_NSPR_LIBS) \
@@ -34,8 +37,8 @@ diff -d -u -r1.3 Makefile.in
 +                    $(NULL)
 +  
 +else
- EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
-                     $(XPCOM_GLUE_LDOPTS) \
++EXTRA_DSO_LDOPTS += $(XPCOM_GLUE_LDOPTS) \
++                    $(MOZ_COMPONENT_LIBS) \
                      $(NULL)
 +endif
  
