@@ -12,7 +12,11 @@ import string
 import process
 import koprocessutils
 
-# php error line format
+import logging
+log = logging.getLogger("koPHPLinter")
+log.setLevel(logging.DEBUG)
+
+# PHP error line format
 # \nPHP ERROR NAME: error text in filename.php on line ##\n
 # requires php.ini settings
 #      display_errors	      = On
@@ -41,9 +45,14 @@ class KoPHPCompileLinter:
     # debugging, so we have our own version checking
     def checkValidVersion(self):
         version = self.phpInfoEx.version
-        # last point can be something like 10-beta
-        version = tuple([int(x) for x in re.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()])
-        if version < (4,0,5):
+        if not version:
+            # Allow for None or empty string
+            reject = True
+        else:
+            # last point can be something like 10-beta
+            version = tuple([int(x) for x in re.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()])
+            reject = (version < (4,0,5))
+        if reject:
             errmsg = "Could not find a suitable PHP interpreter for "\
                      "linting, need 4.0.5 or later."
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
