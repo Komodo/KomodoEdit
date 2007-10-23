@@ -12,10 +12,6 @@ import string
 import process
 import koprocessutils
 
-import logging
-log = logging.getLogger("koPHPLinter")
-log.setLevel(logging.DEBUG)
-
 # PHP error line format
 # \nPHP ERROR NAME: error text in filename.php on line ##\n
 # requires php.ini settings
