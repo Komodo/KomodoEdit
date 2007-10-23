@@ -24,6 +24,7 @@ Import(
     'ranRegxpcomStateFileName',
     'siloedPython',
     'universal',
+    'komodoDevDir',
 );
 
 
@@ -369,11 +370,22 @@ $consLocal->Install("$supportDir/html", $exeName);
 # The Komodo documentation project.
 
 {
+    my @opts = (
+        "--filter", "ide,edit",
+        "--lang", "en-US",
+        "--chrome-dir", $mozChromeDir,
+        "--license-text-path", "%2",
+        "--komodo-cix-path", "%3:a",
+    );
+    my $opts = join ' ', @opts;
+    my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
     $cons->Command(
-        "komododoc/config.py",
-        "komododoc/configure.py",
+        "komododoc/config.py",          # %0
+        "komododoc/configure.py",       # %1
+        "../license_text/LICENSE.mpl.txt",     # %2
+        $komodoCix,                     # %3
         qq{
-            cd %1:d && $unsiloedPythonExe %1:f --filter snapdragon --lang en-US --chrome-dir $mozChromeDir
+            cd %1:d && $unsiloedPythonExe %1:f $opts
         }
     );
     
@@ -382,6 +394,7 @@ $consLocal->Install("$supportDir/html", $exeName);
         $landmark,
         "komododoc/Makefile.py",
         "komododoc/config.py",
+        $komodoCix,
         qq{
             cd %1:d && mk mozhelp
         }
