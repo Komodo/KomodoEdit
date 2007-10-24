@@ -56,38 +56,6 @@
   <string id="rx-default-regex">(.*)(\d+)</string>
   <string id="rx-default-teststring">testing123</string>
 
-  <!-- The new new Rx (aka Rxx) preferences:
-    rxx_*_{width|height}: Rx window pane dimensions in pixels, if defined
-        rxx_pattern_row_height, rxx_text_row_height, rxx_search_column_width,
-        rxx_replace_column_width, rxx_match_results_area_height
-    rxx_regex_area_height: if defined, the height in pixels
-    rxx_search_text_area_height: if defined, the height in pixels
-    rxx_regex_area_width: if defined, the width in pixels
-    rxx_replacement_area_width: if defined, the width in pixels
-    rxx_match_results_area_height: if defined, the height in pixels
-    rxx_mode: one of "match", "search", "find-all", "replace" defining
-        the mode of usage of the user's regular expression in Rxx.
-    rxx_language: one of the supported Rxx languages, e.g. "python", "perl"
-    rxx_search_text: the save search text
-    rxx_regex: the saved regular expression
-    rxx_replacement: the saved replacement pattern
-    rxx_modifier_?: one boolean pref for each regular expression modifier:
-        i: ignore-case
-        m: multiline
-        s: dotall
-        x: verbose
-        u: unicode
-        l: locale
-  -->
-  <string id="rxx_mode">match-all</string> <!-- probably the mode most commonly wanted -->
-  <string id="rxx_language">python</string> <!-- XXX want to change to "perl" when that is supported -->
-  <boolean id="rxx_modifier_i">0</boolean>
-  <boolean id="rxx_modifier_m">0</boolean>
-  <boolean id="rxx_modifier_s">0</boolean>
-  <boolean id="rxx_modifier_x">0</boolean>
-  <boolean id="rxx_modifier_u">0</boolean>
-  <boolean id="rxx_modifier_l">0</boolean>
-
   <!-- 'show_start_page' indicates whether to show the Start Page at startup. -->
   <boolean id="show_start_page">1</boolean>
   <boolean id="start_page_tutorials_box_closed">0</boolean>
