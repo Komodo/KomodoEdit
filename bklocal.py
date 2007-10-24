@@ -114,6 +114,13 @@ def _getValidPlatforms(libcppVersion=False, linuxDistro=False):
             if libcppVersion:
                 config += "-libcpp" + black.configure.items["libcppVersion"].Get()
             validPlats = ["linux%s-x86" % config]
+        elif uname[4] == "x86_64":
+            config = ""
+            if linuxDistro:
+                config += "-" + _getLinuxDistro()
+            if libcppVersion:
+                config += "-libcpp" + black.configure.items["libcppVersion"].Get()
+            validPlats = ["linux%s-x86_64" % config]
         else:
             raise ConfigureError("unknown Linux architecture: '%s'"
                                  % uname[4])
