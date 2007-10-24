@@ -20,12 +20,11 @@ import optparse
 import time
 
 try:
-    from make import itpl
+    from make.path import path
 except ImportError:
     # The 'make' package may not be on sys.path, just make it work.
     sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-    from make import itpl
-from make.path import path
+    from make.path import path
 
 
 
