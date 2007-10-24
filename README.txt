@@ -103,6 +103,8 @@ Build Prerequisites for Windows
   (Eventually this dependency will go away when the curent Komodo
   Cons/Black-based system is replaced (hopefully late 2007 or early 2008.)
 
+- Install Ruby, at least version 1.8.4
+
 See <http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites> for
 more details on Windows build prerequisites. However, following the above
 steps is *meant to be sufficient* to get building Komodo.
@@ -126,6 +128,8 @@ Build Prerequisites for Mac OS X
 
 - Xcode. Install the latest one (avoid Xcode 2.0, though).
   http://developer.apple.com/tools/download/
+  Be sure to install the Cross-Development SDKs, which is
+  only available by choosing a Customized build in the Xcode installer.
 
 - MacPorts (http://www.macports.org/).
 
