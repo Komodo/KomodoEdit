@@ -1,13 +1,13 @@
+# Copyright (c) 2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
 # luddite_lexer.py -- lexer for Luddite, using PLY
 #
-#
-
 # See http://systems.cs.uchicago.edu/ply for more information on
 # PLY, the lexer/parser framework this code uses.
 #
-# Copyright (C) ActiveState 2006.
 # Author(s):
-# Eric Promislow <ericp@activestate.com>
+#   Eric Promislow <ericp@activestate.com>
 #
 
 import sys
