@@ -23,45 +23,8 @@ Import(
 my $imagesDir = "$mozChromeDir/komodo/skin/images";
 
 # Code Intelligence system icons
-$cons->Install($imagesDir, "icons/codeintel_sort_by_file_order.gif");
-$cons->Install($imagesDir, "icons/codeintel_sort_alphabetically.gif");
-$cons->Install($imagesDir, "icons/codeintel_sort_by_access.gif");
-$cons->Install($imagesDir, "icons/codeintel_sort_by_type.gif");
-$cons->Install($imagesDir, "icons/codeintel_group_by_type.gif");
 $cons->Install($imagesDir, "icons/codeintel_search.gif");
 $cons->Install($imagesDir, "icons/codeintel_search_disable.gif");
-
-$cons->Install($imagesDir, "icons/cb_scanning.png");
-$cons->Install($imagesDir, "icons/cb_error.png");
-$cons->Install($imagesDir, "icons/cb_function.png");
-$cons->Install($imagesDir, "icons/cb_function_private.png");
-$cons->Install($imagesDir, "icons/cb_function_protected.png");
-$cons->Install($imagesDir, "icons/cb_class.png");
-$cons->Install($imagesDir, "icons/cb_class_private.png");
-$cons->Install($imagesDir, "icons/cb_class_protected.png");
-$cons->Install($imagesDir, "icons/cb_variable.png");
-$cons->Install($imagesDir, "icons/cb_variable_private.png");
-$cons->Install($imagesDir, "icons/cb_variable_protected.png");
-$cons->Install($imagesDir, "icons/cb_argument.png");
-$cons->Install($imagesDir, "icons/cb_argument_private.png");
-$cons->Install($imagesDir, "icons/cb_argument_protected.png");
-$cons->Install($imagesDir, "icons/cb_import.png");
-$cons->Install($imagesDir, "icons/cb_instance_variable.png");
-$cons->Install($imagesDir, "icons/cb_instance_variable_private.png");
-$cons->Install($imagesDir, "icons/cb_instance_variable_protected.png");
-$cons->Install($imagesDir, "icons/cb_interface.png");
-$cons->Install($imagesDir, "icons/cb_interface_protected.png");
-$cons->Install($imagesDir, "icons/cb_interface_private.png");
-$cons->Install($imagesDir, "icons/cb_namespace.png");
-
-
-$cons->Install($imagesDir, "icons/lang_perl.png");
-$cons->Install($imagesDir, "icons/lang_python.png");
-$cons->Install($imagesDir, "icons/lang_php.png");
-$cons->Install($imagesDir, "icons/lang_tcl.png");
-$cons->Install($imagesDir, "icons/lang_xml.png");
-$cons->Install($imagesDir, "icons/lang_ruby.png");
-
 
 # AutoComplete UI images.
 $cons->Install($imagesDir, "icons/xpm/ac_class.xpm");
