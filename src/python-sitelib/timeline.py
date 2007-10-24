@@ -1,4 +1,7 @@
 #!python
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
 # timeline - a Python interface into the Mozilla "timeline" service.
 #
 # To enable the timeline service in Mozilla:
@@ -7,14 +10,12 @@
 # * Set NS_TIMELINE_ENABLE=1
 # * Set NS_TIMELINE_LOG_FILE=filename - default is stdout
 #   which includes lots of noise.
-
+#
 # These functions are designed to be as fast as possible
 # when the timeline is not available, so should be capable
 # of being called in "production" code (although we do still
 # incur the standard Python call overhead.)
 
-# Copyright (c) 2000-2006 ActiveState Software Inc.
-# See the file LICENSE.txt for licensing information.
 from xpcom import components, COMException, _xpcom
 import xpcom
 
