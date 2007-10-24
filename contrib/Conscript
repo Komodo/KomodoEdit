@@ -223,6 +223,10 @@ if ($platform eq "win") {
             $build_env.= 'CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
             $build_env.= 'CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
         }
+    } else {
+        $build_env.= 'LDFLAGS=-fPIC ';
+        $build_env.= 'CFLAGS=-fPIC ';
+        $build_env.= 'CXXFLAGS=-fPIC ';
     }
 
     $landmark = "$scintilla_dir_for_cons/$scintilla_plat_dir/libpcre.a";

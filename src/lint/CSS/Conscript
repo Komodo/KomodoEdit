@@ -100,6 +100,7 @@ else {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
+        $consLocal{'CXXFLAGS'} .= " -fPIC";
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
