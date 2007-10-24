@@ -28,7 +28,7 @@ xtk.baseTreeView = function treeView() {
   this.mSortType = 0;
   this.mTotalRows = 0;
   this.debug = 0;
-}
+};
 
 xtk.baseTreeView.prototype = {
 
@@ -167,7 +167,7 @@ xtk.baseTreeView.prototype = {
 
   /* AString getImageSrc(in long row, in wstring colID); */
   getImageSrc: function(row, colID) {}
-}
+};
 
 
 
@@ -219,6 +219,24 @@ JavaScript:
     var sampleTreeView = new SampleTreeView();
     var sampleTree = document.getElementById("sample_tree");
     sampleTree.treeBoxObject.view = sampleTreeView;
+ 
+
+    // SORTING:
+    // Sorting capabilitilies are automatically included (string sorting by
+    // default). These are all of the sort specific attributes:
+    //   <treecol sortActive="true|false" />  - marks the default sort column
+    //   <treecol sortDirection="ascending|descending|natural" />
+    //   <treecol sortType="string" />   - String sorting (default when not specified)
+    //   <treecol sortType="numeric" />  - Numerical sorting
+    //   <treecol sortType="function:func_name" /> - Custom sort function:
+    //      where "func_name" is a function in the SampleTreeView class. The
+    //      signature looks like: "func_name(compare1, compare2)". Each
+    //      compare argument is an object that contains these attributes:
+    //          compare1.data      ->  data (string) return by getCellText.
+    //          compare1.row       ->  the real underlying row object.
+    //          compare1.oldindex  ->  original row index before the sort.
+    //      See the "_doDataCompare" function below for an example.
+    //
  */
 
 xtk.dataTreeView = function dataTreeView(initial_rows) {
@@ -229,7 +247,7 @@ xtk.dataTreeView = function dataTreeView(initial_rows) {
         this._rows = initial_rows;
     }
     this._debug = 0;
-}
+};
 
 xtk.dataTreeView.SORT_DESCENDING = 0;
 xtk.dataTreeView.SORT_ASCENDING = 1;
@@ -262,14 +280,21 @@ xtk.dataTreeView.prototype = {
     getColumnProperties : function(column,prop){},
     getCellProperties : function(row,column,properties) {},
     isContainer : function(row) {return false;},
+    getLevel: function(row) { return 0; },
     cycleCell: function(row, colId) {},
     selectionChanged : function() {},
     performAction : function(action) {},
     isSorted : function() {return false;},
     getImageSrc : function() {return null;},
-    cycleHeader : function() {},
+    cycleHeader : function(col) {
+        this.sortByColumn(col.element);
+    },
 
     /* Own defined methods */
+
+    get rows() { return this._rows },
+    // Setter for the rows needs to do some additional work.
+    set rows(theRows) { this.setTreeRows(theRows); },
 
     /*
      * Function for updating the tree rows, must be called to set what the
@@ -279,15 +304,20 @@ xtk.dataTreeView.prototype = {
      * @param doReSort {bool} Whether to sort the data after it's set.
      */
     setTreeRows : function(rows, doReSort /* false */) {
-        // Clearing the selection
-        this.selection.clearSelection();
-        // Using rowCountChanged to notify rows were removed
-        this.tree.rowCountChanged(0, -this._rows.length);
-        this._rows = rows;
-        // Using rowCountChanged to notify rows were added
-        this.tree.rowCountChanged(0, this._rows.length);
-        if (doReSort) {
-            this.reSort();
+        if (this.tree) {
+            // Clearing the selection
+            this.selection.clearSelection();
+            // Using rowCountChanged to notify rows were removed
+            this.tree.rowCountChanged(0, -this._rows.length);
+            this._rows = rows;
+            // Using rowCountChanged to notify rows were added
+            this.tree.rowCountChanged(0, this._rows.length);
+            if (doReSort) {
+                this.reSort();
+            }
+        } else {
+            // No tree yet, just assign it.
+            this._rows = rows;
         }
     },
 
@@ -312,14 +342,15 @@ xtk.dataTreeView.prototype = {
     },
     sortByColumn : function(col, sortDirection)
     {
-        if (!col) {
-            col = this.tree.columns.getFirstColumn().element;
-        }
-        if (typeof(sortDirection) == 'undefined') {
+        if (!col || typeof(sortDirection) == 'undefined') {
+            // Get the settings from the treecolumns then.
             var colElem;
             var sortSetting;
             for (var i=0 ; i < this.tree.columns.count; i++) {
                 colElem = this.tree.columns.getColumnAt(i).element;
+                if (!col && colElem.getAttribute("sortActive")) {
+                    col = colElem;
+                }
                 sortSetting = colElem.getAttribute("sortDirection");
                 if (sortSetting == "ascending") {
                     sortDirection = xtk.dataTreeView.SORT_ASCENDING;
@@ -329,10 +360,18 @@ xtk.dataTreeView.prototype = {
                     break;
                 }
             }
-            // No setting already in the column headers, go ascending
+            // No sortDirection setting in the column headers, go ascending
             if (typeof(sortDirection) == 'undefined') {
                 sortDirection = xtk.dataTreeView.SORT_ASCENDING;
+            } else if (!col && colElem) {
+                // No sortActive setting in the column header, but we do
+                // have a sortDirection, take that column then!
+                col = colElem;
             }
+        }
+        if (!col) {
+            // No sortDirection or sortActive settings, choose the first column.
+            col = this.tree.columns.getFirstColumn().element;
         }
 
         // Function to compare two row values, compare objects are:
@@ -344,7 +383,22 @@ xtk.dataTreeView.prototype = {
         {
             if (compare1 && compare2) {
                 if (compare1.data > compare2.data) {
-                    return -1;
+                    return 1;
+                } else if (compare1.data == compare2.data) {
+                    // Keep the sort order as uniform as possible.
+                    return compare1.oldindex - compare2.oldindex;
+                }
+            }
+            return -1;
+        };
+        function _doNumericDataCompare(compare1, compare2)
+        {
+            if (compare1 && compare2) {
+                if (compare1.data == compare2.data) {
+                    // Keep the sort order as uniform as possible.
+                    return compare1.oldindex - compare2.oldindex;
+                } else {
+                    return parseInt(compare1.data) - parseInt(compare2.data);
                 }
             }
             return 1;
@@ -352,6 +406,7 @@ xtk.dataTreeView.prototype = {
 
         //dump("Sorting direction: " + this._sortDirection + "\n");
         //dump("Sorting by column: " + col.id + "\n");
+
         /* if it's the same as last sorted column, just reverse the order */
         if (this._sortColumn == col) {
             //dump("Just reversing sort order for existing column.\n");
@@ -366,20 +421,24 @@ xtk.dataTreeView.prototype = {
                 this.setSortDirection(col, xtk.dataTreeView.SORT_ASCENDING);
             }
             return;
-        } else if (typeof(sortDirection) == 'undefined') {
+        }
+
+        if (typeof(sortDirection) == 'undefined') {
             sortDirection = xtk.dataTreeView.SORT_ASCENDING;
         }
 
         // Get all the row data we need to compare with
         var unsorted_row_data = [];
         // Convert all fields to a string value
+        var data;
         for (var i=0; i < this._rows.length; i++) {
             if (this._sortCaseInsensitive) {
-                unsorted_row_data[i] = { "data": this.getCellText(i, col).toLowerCase(),
+                data = this.getCellText(i, col);
+                unsorted_row_data[i] = { "data": data ? data.toLowerCase() : "",
                                          "row": this._rows[i],
                                          "oldindex": i };
             } else {
-                unsorted_row_data[i] = { "data": this.getCellText(i, col),
+                unsorted_row_data[i] = { "data": data,
                                          "row": this._rows[i],
                                          "oldindex": i };
             }
@@ -387,7 +446,22 @@ xtk.dataTreeView.prototype = {
 
         // Sort the rows, using our own customized sorting function
         //dump("Beginning sort of " + unsorted_row_values.length + " rows...\n");
-        unsorted_row_data.sort(_doDataCompare);
+        var sortType = col.getAttribute("sortType");
+        var noCaseSortType = sortType;
+        if (sortType) noCaseSortType = sortType.toLowerCase();
+        var sortFunction = _doDataCompare;
+        if (noCaseSortType == "numeric") {
+            sortFunction = _doNumericDataCompare;
+        } else if (noCaseSortType.substring(0, 9)  == "function:") {
+            var sortFunction = this[sortType.substring(9)];
+            if (!sortFunction) {
+                log.error("sortByColumn:: Function '" + sortType +
+                          "' defined by the sortType attribute doesn't exist.");
+                sortFunction = _doDataCompare;
+            }
+        }
+        unsorted_row_data.sort(sortFunction);
+
         if (sortDirection == xtk.dataTreeView.SORT_DESCENDING) {
             // Reverse the sorted order
             unsorted_row_data.reverse();
@@ -421,4 +495,4 @@ xtk.dataTreeView.prototype = {
     sortDescending: function(column) {
         this.sortByColumn(column, xtk.dataTreeView.SORT_DESCENDING);
     }
-}
+};
