@@ -148,68 +148,6 @@
         </content>
     </binding>
 
-    <!-- A slightly customized <tree/> for use by the Code Browser.
-
-         The whole purpose of this new widget is to prevent <Enter> and
-         double-click on container rows in the tree from toggling the open
-         state of that row. Here is a list of desired/attempts describing
-         how this was accomplished:
-
-         1. Ideally this would just be an option on a tree widget:
-                <tree togglerowoninvoke="false" .../>
-            but Mozilla's tree.xml does not have such a feature and we don't
-            want to do a Mozilla patch.
-
-         2. We hoped we would be able to capture the <Enter> and double-click
-            events before they got the <tree/> binding and cancel them.
-
-            We are only able to get the double-click event before the <tree/>
-            by handling it in the capturing phase. Therefore, using a XBL
-            binding was required because <tree ondblclick="..."/> is for the
-            later bubbling phase. We *are* able to cancel this event.
-
-            We *are* able to get the <Enter> event before the <tree/> does
-            using the bubbling phase (i.e. either with
-            <tree onkeypress="..."/> or with a <handler/> in this XBL.
-            However, we are *not* able to cancel the event (whether we work
-            on the capturing or bubbling phases). Therefore a HACK was
-            required: tell our nsITreeView implementation to ignore the
-            coming .toggleOpenState() call via the special
-            .ignoreNextToggleOpenState().
-      -->
-    <binding id="cbtree" extends="chrome://global/content/bindings/tree.xml#tree">
-        <handlers>
-            <handler event="click" clickcount="2" phase="capturing">
-                <![CDATA[
-                    // Both 'event.cancelBubble = true;' and
-                    // 'event.stopPropagation();' work to cancel the event.
-                    // Seeing as the later is actually documented for the
-                    // Event object, we'll use that one. Note that this
-                    // doesn't cancel the
-                    //  <tree ondblclick="..."/>
-                    // that we use for other purposes. That is a good thing.
-                    event.stopPropagation();
-                ]]>
-            </handler>
-            <handler event="keypress" keycode="vk_enter">
-                <![CDATA[
-                    var currentIndex = this.view.selection.currentIndex;
-                    if (currentIndex != -1 && this.view.isContainer(currentIndex)) {
-                        this.view.ignoreNextToggleOpenState();
-                    }
-                ]]>
-            </handler>
-            <handler event="keypress" keycode="vk_return">
-                <![CDATA[
-                    var currentIndex = this.view.selection.currentIndex;
-                    if (currentIndex != -1 && this.view.isContainer(currentIndex)) {
-                        this.view.ignoreNextToggleOpenState();
-                    }
-                ]]>
-            </handler>
-        </handlers>
-    </binding>
-
     <!-- TODO: add a "check path validity" icon -->
 
     <binding id="listbox-patheditor"

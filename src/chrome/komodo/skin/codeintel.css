@@ -2,35 +2,13 @@
    See the file LICENSE.txt for licensing information. */
 
 /*
- * CSS for the Code Intelligence UI elements (code browser, etc).
+ * CSS for the Code Intelligence UI elements.
  */
-
-/* Custom tree for specialized event handling in Code Browser. */
-tree.cbtree {
-    -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#cbtree');
-}
-treechildren.cbtree::-moz-tree-image {
-    width: 18px;
-}
-treechildren::-moz-tree-cell-text(showDetail) {
-    background-color: infobackground;
-    color: black;
-    border: 1px black solid;
-    padding: 0px 2px 1px 2px;
-    margin-top: -1px;
-    margin-bottom: -2px;
-    height: 30px;
-    /* Move the margin back the left-padding plus the border so the text
-       does not appear to move. */
-    margin-left: -3px;
-}
-treechildren::-moz-tree-cell-text(notMatchResult) {
-    color: grey;
-}
 
 
 /* Generic tree CSS
  * TODO: should be move to a general place for other Komodo bits to use.
+ * Currently this is used, at least, by the API catalog tree in prefs.
  */
 treechildren::-moz-tree-checkbox
 {
@@ -54,47 +32,6 @@ treechildren::-moz-tree-column(sort-column)
 
 
 
-.codeintel-sort-by-button,
-.codeintel-sort-by-button:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_sort_alphabetically.gif");
-}
-
-.codeintel-sort-by-button[sortBy="file-order"],
-.codeintel-sort-by-button[sortBy="file-order"]:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_sort_by_file_order.gif");
-}
-.codeintel-sort-by-button[sortBy="alphabetically"],
-.codeintel-sort-by-button[sortBy="alphabetically"]:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_sort_alphabetically.gif");
-}
-.codeintel-sort-by-button[sortBy="type"],
-.codeintel-sort-by-button[sortBy="type"]:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_sort_by_type.gif");
-}
-.codeintel-sort-by-button[sortBy="access"],
-.codeintel-sort-by-button[sortBy="access"]:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_sort_by_access.gif");
-}
-.codeintel-sort-by-button[sortBy="group-by-type"],
-.codeintel-sort-by-button[sortBy="group-by-type"]:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_group_by_type.gif");
-}
-
-/* XXX Need disabled versions of all the sort-by icons. */
-
-
-#codebrowser-filter-textbox[error="true"] {
-    /* Coloring the textbox text red because can't successfully get the
-       *background* to go red. */
-    color: red;
-}
-
 .codeintel-search
 {
     list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
@@ -113,81 +50,4 @@ treechildren::-moz-tree-column(sort-column)
 }
 
 
-.codeintel-locate
-{
-    list-style-image : url("chrome://komodo/skin/images/tree_select.png");
-}
 
-.codeintel-locate:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/tree_select_hover.png");
-}
-
-.codeintel-locate[disabled="true"],
-.codeintel-locate[disabled="true"]:hover,
-.codeintel-locate[disabled="true"]:hover:active
-{
-    list-style-image : url("chrome://komodo/skin/images/tree_select_disable.png");
-}
-
-
-.codeintel-description {
-    background-color: white;
-    border: 1px inset ThreeDHighlight;
-    height: 150px;
-    overflow: auto;
-}
-
-.cb-scope-box {
-    background-color: #cccccc;
-    padding: 0px;
-    margin: 0px;
-}
-
-.cb-scope-label {
-    /*background-color: #cccccc;*/
-    color: black;
-    padding: 4px;
-    margin: 0px;
-    font-size: 90%;
-    font-family: verdana,helvetica,arial,sans-serif;
-}
-
-.cb-signature-label {
-    font-weight: bold;
-    margin: 0px 0px 4px 0px;
-    padding: 4px 4px 24px 4px;
-    font-family: verdana,helvetica,arial,sans-serif;
-    border-bottom: 1px dotted;
-}
-
-.cb-location-label {
-    background-color: #888888;
-    color: white;
-    font-size: 70%;
-    padding: 4px;
-    margin: 0px;
-    font-family: verdana,helvetica,arial,sans-serif;
-}
-
-.cb-doc-label-border {
-    padding: 0px;
-    margin: 0px;
-}
-
-.cb-doc-label {
-    font-size: 100%;
-    /*border-top: 1px dotted;*/
-    padding: 3px 4px 0px 4px;
-    margin: 0px 0px 1em 0px;
-    font-family: "Bitstream Vera Sans Mono",courier;
-}
-
-
-.cb-doc-contentline {
-    font-size: 100%;
-    /*border-top: 1px dotted;*/
-    padding: 3px 4px 0px 4px;
-    margin: 0px 0px 0em 0px;
-    font-family: "Bitstream Vera Sans Mono",courier;
-}

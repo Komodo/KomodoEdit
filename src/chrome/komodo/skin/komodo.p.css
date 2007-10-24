@@ -126,14 +126,6 @@ tab > .tab-text {
 }
 
 
-tree.codetree {
-    -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#cbtree');
-}
-treechildren.codetree:-moz-tree-image(primaryColumn) {
-    width: 22px;
-}
-
-
 .divot_splitter {
   background-image: url("chrome://komodo/skin/images/grippy.png");
   background-repeat: no-repeat;
