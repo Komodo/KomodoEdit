@@ -186,9 +186,13 @@ class KoFileStatusService:
         self._cv.acquire()
         try:
             if flags & self.FNS_FILE_DELETED:
-                # The file was deleted, remove it from our list of paths checked.
-                # The file notification system observer is automatically removed.
-                self._monitoredUrls.pop(uri)
+                # File was deleted, remove it from our list of paths checked.
+                # The file notification system observer automatically removes
+                # our observer for this file. The uri may not be yet monitored
+                # through the file status service though:
+                #   http://bugs.activestate.com/show_bug.cgi?id=72865
+                if uri in self._monitoredUrls:
+                    self._monitoredUrls.remove(uri)
             else:
                 self._items_to_check.add((UnwrapObject(self._fileSvc.getFileFromURI(uri)),
                                           uri, self.REASON_FILE_CHANGED))
@@ -343,9 +347,16 @@ class KoFileStatusService:
                 for uri in set_all_local_urls.difference(self._monitoredUrls):
                     # Newly added files.
                     log.debug("Adding a file observer for uri: %r", uri)
-                    self._fileNotificationSvc.addObserver(self, uri,
-                                                          self.FNS_WATCH_FILE,
-                                                          self.FNS_NOTIFY_ALL)
+                    try:
+                        self._fileNotificationSvc.addObserver(self, uri,
+                                                              self.FNS_WATCH_FILE,
+                                                              self.FNS_NOTIFY_ALL)
+                    except COMException, ex:
+                        # Likely the path does not exist anymore.
+                        # Ensure we remove the uri, this way if it does come
+                        # into existance, we can start monitoring it again.
+                        log.debug("Could not monitor file uri: %r", uri)
+                        set_all_local_urls.remove(uri)
                 for uri in self._monitoredUrls.difference(set_all_local_urls):
                     # Removed unused files.
                     self._fileNotificationSvc.removeObserver(self, uri)
