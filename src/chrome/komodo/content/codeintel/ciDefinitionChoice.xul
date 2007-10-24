@@ -43,7 +43,6 @@
                        flex="1"
                        label="&name.label;"
                        crop="right"
-                       onclick="gHttpInspector.sortByTreeColumn(this);"
                        persist="width hidden sortActive sortDirection"
                        class="sortDirectionIndicator"/>
               <splitter class="tree-splitter"/>
@@ -51,7 +50,6 @@
                        flex="1"
                        label="&type.label;"
                        crop="right"
-                       onclick="gHttpInspector.sortByTreeColumn(this);"
                        persist="width hidden sortActive sortDirection"
                        class="sortDirectionIndicator"/>
               <splitter class="tree-splitter"/>
@@ -59,7 +57,6 @@
                        flex="4"
                        label="&path.label;"
                        crop="right"
-                       onclick="gHttpInspector.sortByTreeColumn(this);"
                        persist="width hidden sortActive sortDirection"
                        class="sortDirectionIndicator"/>
               <splitter class="tree-splitter"/>
