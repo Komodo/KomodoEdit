@@ -42,6 +42,7 @@
 <!ENTITY decrease.label "Decrease">
 <!ENTITY decreaseLineIndent.label "Decrease Line Indent">
 <!ENTITY delete.label "Delete">
+<!ENTITY deleteBlankLines.desc "Delete Blank Lines">
 <!ENTITY edit.label "Edit">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet to Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">

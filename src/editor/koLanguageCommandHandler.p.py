@@ -10,6 +10,7 @@ import logging
 import re
 import eollib
 log = logging.getLogger('koLanguageCommandHandler')
+log.setLevel(logging.ERROR)
 indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
 #indentlog.setLevel(logging.DEBUG)
 jumplog = logging.getLogger('koLanguageCommandHandler.jump')
@@ -251,7 +252,7 @@ class GenericCommandHandler:
         currentPos = sm.currentPos
         eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
         sm.insertText(sm.currentPos, eol)
-        sm.gotoPos(currentPos)        
+        sm.gotoPos(currentPos)
 
     def _do_cmd_splitLine(self):
         """ emacs keybinding: insert a newline here with indentation
@@ -264,7 +265,178 @@ class GenericCommandHandler:
         newIndent = scimozindent.makeIndentFromWidth(sm, column)
         eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
         sm.insertText(sm.currentPos, eol + newIndent)
-        sm.gotoPos(currentPos)        
+        sm.gotoPos(currentPos)
+
+    def _do_cmd_deleteBlankLines(self):
+        """ emacs keybinding: delete blank lines like so:
+            On blank line, delete all surrounding blank lines, leaving just one.
+            On isolated blank line, delete that one.
+            On nonblank line, delete any immediately following blank lines.
+            XXX: What to do if the selection isn't empty?
+        """
+        sm = self._view.scimoz
+        currentPos = sm.currentPos
+        currentLine = sm.lineFromPosition(currentPos)
+        selectionStart = sm.selectionStart
+        selectionEnd = sm.selectionEnd
+        self._deleteBlankLines_needWrapUndo = True
+        if selectionStart == selectionEnd:
+            return self._do_cmd_deleteBlankLinesAtLine(sm, currentLine, currentPos)
+        selectionStartLine = sm.lineFromPosition(selectionStart)
+        selectionEndLine = sm.lineFromPosition(selectionEnd)
+        if selectionStartLine == selectionEndLine:
+            # Non-empty selection on same line: delete a line, and if the
+            # current line isn't blank retain the selection
+            selectionStartOffset = selectionStart - sm.positionFromLine(selectionStartLine)
+            res = self._do_cmd_deleteBlankLinesAtLine(sm, currentLine, currentPos)
+            finalCurrentLine = sm.lineFromPosition(sm.currentPos)
+            newSelectionStart = sm.positionFromLine(finalCurrentLine) + selectionStartOffset
+            sm.selectionStart = newSelectionStart
+            sm.selectionEnd = newSelectionStart + (selectionEnd - selectionStart)
+            return res
+        # Zap the white-space in the selection.  Use global rules for
+        # blank lines at start and end of selection.
+        targetLine = selectionEndLine;
+        self._deleteBlankLines_needWrapUndo = False
+        needWrapUndo = True
+        try:
+            while targetLine >= selectionStartLine:
+                if self._onBlankLine(sm, targetLine):
+                    prevNonBlankLine = self._findPrevNonBlankLine(sm, targetLine - 1)
+                    if needWrapUndo:
+                        sm.beginUndoAction()
+                        needWrapUndo = False
+                    self._deleteBlankLines(sm, targetLine,
+                                           sm.positionFromLine(targetLine),
+                                           collapseSingle=False)
+                    targetLine = prevNonBlankLine - 1
+                else:
+                    targetLine -= 1
+        finally:
+            if not needWrapUndo:
+                sm.endUndoAction()
+                
+    def _findPrevNonBlankLine(self, sm, targetLine):
+        """ return -1 if no blank line is found
+        """
+        while targetLine >= 0:
+            if not self._onBlankLine(sm, targetLine):
+                return targetLine
+            targetLine -= 1
+        return targetLine
+        
+    def _do_cmd_deleteBlankLinesAtLine(self, sm, currentLine, currentPos):
+        if self._onBlankLine(sm, currentLine):
+            return self._deleteBlankLines(sm, currentLine, currentPos)
+        else:
+            return self._deleteFollowingBlankLines(sm, currentLine, currentPos)
+            
+    def _onBlankLine(self, sm, currentLine):
+        lineStart = sm.positionFromLine(currentLine)
+        lineEnd = sm.getLineEndPosition(currentLine)
+        lineText = sm.getTextRange(lineStart, lineEnd)
+        return not lineText.strip()
+
+    def _wrapReplaceAndGo(self, sm, replaceString, finalPos=-1):
+        # Sanity check: verify we don't delete non-white-space
+        sm.searchFlags = sm.SCFIND_REGEXP
+        p = r"[^\s\t\r\n]"
+        res = sm.searchInTarget(len(p), p)
+        if res != -1:
+            targettedText = sm.getTextRange(sm.targetStart, sm.targetEnd)
+            log.error("Komodo Internal Error: found non-white-space char in purported run of white-space: char %d (%r) in %r",
+                      res, targettedText[res], targettedText)
+            return
+        if self._deleteBlankLines_needWrapUndo:
+            sm.beginUndoAction()
+        try:
+            sm.replaceTarget(len(replaceString), replaceString)
+            if finalPos >= 0:
+                sm.gotoPos(finalPos)
+        finally:
+            if self._deleteBlankLines_needWrapUndo:
+                sm.endUndoAction()
+    
+    def _deleteBlankLines(self, sm, currentLine, currentPos, collapseSingle=True):
+        prevLine = currentLine
+        while prevLine > 0:
+            if self._onBlankLine(sm, prevLine - 1):
+                prevLine -= 1
+            else:
+                break
+        numLines = sm.lineFromPosition(sm.length)
+        nextLine = currentLine + 1
+        while nextLine <= numLines:
+            if self._onBlankLine(sm, nextLine):
+                nextLine += 1
+            else:
+                break
+        if prevLine == nextLine - 1 or prevLine == numLines - 1:
+            if not collapseSingle:
+                return
+            # Delete isolated blank line
+            if currentLine == numLines - 1:
+                # Delete the last line of the buffer, end up at end
+                # of previous line
+                sm.targetStart = sm.positionFromLine(currentLine)
+                sm.targetEnd = sm.length
+                if currentLine == 0:
+                    finalPos = 0
+                else:
+                    finalPos = sm.getLineEndPosition(currentLine - 1)
+            elif currentPos == sm.length:
+                if prevLine < currentLine:
+                    # special case: the current line is empty,
+                    # and at least one line before it is blank
+                    sm.targetStart = sm.positionFromLine(prevLine)
+                    sm.targetEnd = currentPos
+                    finalPos = sm.targetStart
+                else:
+                    # On the start of the last line of the buffer,
+                    # this line doesn't end in an EOL,
+                    # previous line isn't blank
+                    return
+            else:
+                lineStart = sm.positionFromLine(currentLine)
+                # On last line, remove white-space, move to start
+                nextLineStart = sm.positionFromLine(currentLine + 1)
+                sm.targetStart = lineStart
+                sm.targetEnd = nextLineStart
+                finalPos = sm.getLineEndPosition(currentLine - 1)
+            self._wrapReplaceAndGo(sm, "", finalPos)
+            return
+
+        # Distinguish the following:
+        # Inner block of white-space => collapse to current
+        sm.targetStart = sm.positionFromLine(prevLine)
+        sm.targetEnd = sm.positionFromLine(nextLine)
+        currLineStart = sm.positionFromLine(currentLine);
+        currLine = sm.getTextRange(currLineStart,
+                                   sm.positionFromLine(currentLine + 1))
+        # Emacs stops at the start of this line, more useful to stop
+        # at the same point in it.
+        self._wrapReplaceAndGo(sm, currLine,
+                               sm.targetStart + currentPos - currLineStart)
+        
+    def _deleteFollowingBlankLines(self, sm, currentLine, currentPos):
+        numLines = sm.lineFromPosition(sm.length)
+        firstCandidateLine = currentLine + 1
+        nextLine = firstCandidateLine
+        while nextLine <= numLines:
+            if self._onBlankLine(sm, nextLine):
+                nextLine += 1
+            else:
+                break
+        if nextLine == firstCandidateLine:
+            # The next line isn't blank
+            return
+        sm.targetStart = sm.positionFromLine(firstCandidateLine)
+        if nextLine > numLines:
+            sm.targetEnd = sm.length
+        else:
+            sm.targetEnd = sm.positionFromLine(nextLine)
+        # Don't move anywhere
+        self._wrapReplaceAndGo(sm, "")
 
     def _do_cmd_editReflow(self):
         """ Reflow -- currently only works for paragraphs in text documents

@@ -8,6 +8,7 @@ version 2
 #  - move editor to new window (Ctrl+X 5 3)
 #  - Ctrl+Alt+L: move to last buffer
 #  -
+binding cmd_splitLine Escape Ctrl+O
 # #if PLATFORM == "darwin"
 binding cmd_editProperties Meta+Return
 binding cmd_copyRegion Meta+W
@@ -201,6 +202,7 @@ binding cmd_stopMacroMode Ctrl+X )
 binding cmd_executeLastMacro Ctrl+X M
 binding cmd_killLine Ctrl+K
 binding cmd_openLine Ctrl+O
+binding cmd_deleteBlankLines Ctrl+X Ctrl+O
 binding cmd_rawKey Ctrl+Q
 
 binding cmd_goToDefinition Escape .

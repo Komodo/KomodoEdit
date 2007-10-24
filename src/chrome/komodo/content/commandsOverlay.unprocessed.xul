@@ -529,6 +529,10 @@
             id="cmd_splitLine" key="key_cmd_splitLine"
             oncommand="ko.commands.doCommand('cmd_splitLine')"
             desc="&splitLine.desc;"/>
+        <command
+            id="cmd_deleteBlankLines" key="key_cmd_deleteBlankLines"
+            oncommand="ko.commands.doCommand('cmd_deleteBlankLines')"
+            desc="&deleteBlankLines.desc;"/>
 
     </broadcasterset>
 
