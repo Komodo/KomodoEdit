@@ -26,10 +26,6 @@ if ($siloedPythonVersion =~ /^(\d+)\.(\d+)/) {
 }
 
 $cons->InstallPythonUtility('uriparse.py');
-# must be 2.2 or less to get our own platform.py
-if ($siloedPythonMajor == 2 && $siloedPythonMinor < 3) {
-    $cons->InstallPythonUtility('platform.py');
-}
 $cons->InstallPythonUtility('HTMLTreeParser.py');
 $cons->InstallPythonUtility('koXMLDatasetInfo.py');
 $cons->InstallPythonUtility('koXMLTreeService.py');
