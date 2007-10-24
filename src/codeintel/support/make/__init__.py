@@ -10,6 +10,7 @@ __version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
+from os.path import exists, abspath, dirname
 import sys
 import getopt
 import re
@@ -18,13 +19,6 @@ import glob
 import logging
 import optparse
 import time
-
-try:
-    from make.path import path
-except ImportError:
-    # The 'make' package may not be on sys.path, just make it work.
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-    from make.path import path
 
 
 
@@ -83,7 +77,7 @@ def makes(*outputs):
     def decorate(f):
         if not hasattr(f, "outputs"):
             f.outputs = []
-        f.outputs += [path(output) for output in outputs]
+        f.outputs += [xpath(output) for output in outputs]
         return f
     return decorate
 
@@ -105,8 +99,8 @@ def dep(*deps):
 def find_makefile_path(makefile_opt):
     #XXX Eventually might do the Cons-thang: walk up dir tree looking
     #    for Makefile.py.
-    makefile_path = path(makefile_opt or "Makefile.py")
-    if not makefile_path.exists():
+    makefile_path = xpath(makefile_opt or "Makefile.py")
+    if not exists(makefile_path):
         raise MakeError("could not file makefile: '%s'" % makefile_path)
     return makefile_path
 
@@ -122,7 +116,7 @@ class Maker(object):
         self._process_makefile()
 
     def _load_makefile(self, makefile_path):
-        sys.path.insert(0, makefile_path.parent)
+        sys.path.insert(0, dirname(abspath(makefile_path)))
         try:
             return _module_from_path(makefile_path)
         finally:
@@ -188,7 +182,7 @@ class Maker(object):
             # If any of this targets outputs do not exist, then we know for
             # sure that we need to remake it.
             outputs = self.get_outputs(target)
-            nonexistant_outputs = [o for o in outputs if not o.exists()]
+            nonexistant_outputs = [o for o in outputs if not exists(o)]
             for output in nonexistant_outputs:
                 self._debug("Output `%s' of target `%s' does not exist.",
                             output, target)
@@ -290,6 +284,16 @@ class Maker(object):
 
 
 #---- internal support functions
+
+def xpath(*parts):
+    """Massage a Unix-like path into an appropriately native one."""
+    if len(parts) == 1:
+        path = parts[0]
+    else:
+        path = join(*parts)
+    if sys.platform == "win32":
+        path = path.replace('/', '\\')
+    return normpath(expanduser(path))
 
 # Recipe: module_from_path (1.0) in /Users/trentm/tm/recipes/cookbook
 def _module_from_path(path):

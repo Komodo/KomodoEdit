@@ -16,7 +16,6 @@ sys.path.insert(0, join(dirname(__file__), "support"))
 try:
     import make
     from make import makes, dep, default, MakeError
-    from make.path import path
     import eol
 
     try:
@@ -235,7 +234,7 @@ def make_clean_silvercity(maker, log):
 @dep("src_scintilla", "src_silvercity", "pcre")
 @makes("lib/SilverCity")
 def make_silvercity(maker, log):
-    src_dir = path("src/SilverCity")
+    src_dir = xpath("src/SilverCity")
 
     # Regenerate ScintillaConstants.py for new scintilla sources.
     _run_in_dir(cfg.python+" PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py",
@@ -300,9 +299,9 @@ def make_src_elementtree(maker, log):
 @dep("src_elementtree")
 @makes("lib/ciElementTree"+PYD)
 def make_elementtree(maker, log):
-    elementtree_dirs = [path("src/elementtree"),
-                        path("src/cElementTree"),
-                        path("src/ciElementTree")]
+    elementtree_dirs = [xpath("src/elementtree"),
+                        xpath("src/cElementTree"),
+                        xpath("src/ciElementTree")]
     for src_dir in elementtree_dirs:
         # Distutils' --install-data doesn't seem to NOT install default.css
         # to the lib dir without this hack.
@@ -367,7 +366,7 @@ if sys.platform != "win32":
     @dep("src_syck")
     @makes("lib/syck"+PYD)
     def make_syck(maker, log):
-        src_dir = path("src/syck")
+        src_dir = xpath("src/syck")
 
         _run_in_dir("./configure", src_dir, logstream=log.info)
         _run_in_dir("make", src_dir, logstream=log.info)
