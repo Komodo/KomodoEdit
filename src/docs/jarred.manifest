@@ -1,4 +1,0 @@
-overlay chrome://help/content/help.xul chrome://komododoc/content/helpOverlay.xul
-content komododoc jar:komododoc.jar!/content/ xpcnativewrappers=yes
-locale komododoc en-US jar:komododoc.jar!/locale/en-US/
-skin komododoc classic/1.0 jar:komododoc.jar!/skin/
