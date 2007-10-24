@@ -10,7 +10,7 @@ __version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
-from os.path import exists, abspath, dirname
+from os.path import exists, abspath, dirname, normpath, expanduser
 import sys
 import getopt
 import re
