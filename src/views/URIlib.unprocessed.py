@@ -421,7 +421,15 @@ class FileHandlerBase(object):
 
     def read(self, nBytes):
         try:
-            return self._file.read(nBytes)
+            if nBytes >= 0xFFFFFFFF:
+                # XXX - Hack around the fact that the read nBytes is
+                #           marked as an unisigned int in the IDL, but some
+                #           parts of the code use read(-1), which makes a
+                #           really large unsigned int, causing exceptions!
+                # http://bugs.activestate.com/show_bug.cgi?id=72912
+                return self._file.read()
+            else:
+                return self._file.read(nBytes)
         except EnvironmentError, ex:
             lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                            .getService(components.interfaces.koILastErrorService)
