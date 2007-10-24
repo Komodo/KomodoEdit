@@ -112,7 +112,7 @@ function ciDefinitionChoice_onLoad() {
         // Load the defns into the tree view
         gCIDefChoiceObj.treeView.setTreeRows(defns);
     } catch (e) {
-        _httpInspector_log.exception(e);
+        _ciDefChoice_log.exception(e);
     }
 }
 
