@@ -1716,6 +1716,14 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                                 advanceOneChar(i, ch, chNext, chNext2);
                             }
                             break;
+                        
+                        case '/':
+                            if (chNext == '/') {
+                                // Perl 5.10 definedness or-operator
+                                advanceOneChar(i, ch, chNext, chNext2);
+                            }
+                            braceStartsBlock = true;
+                            break;
 
                         default:
                             braceStartsBlock = true;
