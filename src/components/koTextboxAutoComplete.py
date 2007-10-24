@@ -177,12 +177,16 @@ class KoTACDemoSearch(KoTACSearch):
         for name in [f for f in filenames if f.startswith(searchString)]:
             path = os.path.join(self.tmpdir, name)
             comment = "%s bytes" % os.stat(path).st_size
+            # Notes on styling: For a given style to work you must be sure
+            # to include the relevant CSS in the XUL with the autocomplete
+            # textbox. For example, you might have CSS like this:
+            #   treechildren::-moz-tree-cell-text(girly) {
+            #       color: pink;
+            #   }
+            # and code here like this:
+            #   if is_girly(name):
+            #       style = "girly"
             style = None
-            # If uncommenting this, then must be sure to include the
-            # relevant CSS in the XUL with the autocomplete textbox.
-            # (For "showDetail" this is codeintel.css.)
-            #if name.endswith(".py"):
-            #    style = "showDetail"
             result.addMatch(name, comment, style, False)
         listener.onSearchResult(self, result)
 
