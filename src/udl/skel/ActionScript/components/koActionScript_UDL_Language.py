@@ -47,11 +47,6 @@ class KoActionScriptLanguage(KoUDLLanguage):
 }
 """
 
-    def get_linter(self):
-        if self._linter is None:
-            self._linter = KoLinterLanguageService("@activestate.com/koLinter?language=ActionScript;1")
-        return self._linter
-
 from xpcom import components, nsError, ServerException
 from koLintResult import *
 from koLintResults import koLintResults
