@@ -1573,6 +1573,15 @@ def target_configure(argv):
             else:
                 # A pre 1.9 mozilla source
                 mozBuildOptions.append('enable-default-toolkit=gtk2')
+
+            # Add enable cairo option for building on Gnome.
+            # JeffG and ToddW ran into this building on Ubuntu 7.10 platform.
+            # XXX - Not sure if this is necessary for moz trunk or other
+            #       versions of Linux.
+            # Fix described at:
+            #   http://live.gnome.org/JhbuildIssues/mozilla
+            mozBuildOptions.append('enable-system-cairo')
+
             mozBuildOptions.append('enable-xft')
         if "xft" in config["buildOpt"]:
             mozBuildOptions.append('enable-xft')
