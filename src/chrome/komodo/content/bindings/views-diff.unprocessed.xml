@@ -359,7 +359,7 @@
                 var response = ko.dialogs.customButtons(
                         "Could not determine the local path corresponding to '"
                             + path + "'. Please browse to it.",
-                        ["Browse...", "Cancel"], // buttons
+                        ["&Browse...", "Cancel"], // buttons
                         "Browse...", // default response
                         null, // text
                         "Cannot find '" + ko.uriparse.baseName(path) + "'"); // title

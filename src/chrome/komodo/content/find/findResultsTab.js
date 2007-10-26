@@ -97,8 +97,8 @@ function FindResultsTab_GetTab(preferredId)
                 "'Find Results "+preferredId+"' is busy. Would you like to use "+
                 "the other find results tab, stop the current search and use "+
                 "the requested tab, or cancel this operation?",
-                ["Use Other Tab",
-                 "Stop and Use Requested Tab",
+                ["Use &Other Tab",
+                 "&Stop and Use Requested Tab",
                  "Cancel"],
                 "Use Other Tab",  // default button
                 null, // text
@@ -118,7 +118,7 @@ function FindResultsTab_GetTab(preferredId)
                 "Both Find Results tab are busy. Would you like to stop the "+
                 "search in 'Find Results "+preferredId+"' and use it or cancel "+
                 "this operation?",
-                ["Stop and Use Requested Tab",
+                ["&Stop and Use Requested Tab",
                  "Cancel"],
                 "Stop and Use Requested Tab",  // default button
                 null, // text
@@ -508,7 +508,7 @@ FindResultsTabManager.prototype.stopSearch = function()
 //            var answer = ko.dialogs.customButtons(
 //                "The search is still in progress. The search must be stopped "+
 //                "before the tab can be closed.",
-//                ["Stop and Close Tab", "Cancel"],
+//                ["Stop and &Close Tab", "Cancel"],
 //                "Cancel",  // default button
 //                null, // text
 //                null, // title

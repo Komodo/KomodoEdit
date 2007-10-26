@@ -448,7 +448,7 @@
                 if (this.prefs.getBooleanPref("donotask_buffer_conflicts_with_file_on_disk")) return;
                 var choice = ko.dialogs.customButtons(
                     prompt,
-                    ["Ok", "Show Changes"],
+                    ["Ok", "&Show Changes"],
                     "Ok", // default response
                     null, // text
                     title); // title
@@ -528,12 +528,12 @@
                          "the 'Edit | Current File Settings' dialog.";
                 //XXX Really should offer to change the encoding in-line,
                 //    right here.
-                choice = ko.dialogs.customButtons(prompt, ["Force", "Cancel"],
+                var choice = ko.dialogs.customButtons(prompt, ["&Force", "Cancel"],
                                               "Cancel"); // default
                 if (choice != "Force") {
                     return false;
                 } else {
-                    prompt = "You will lose data if you proceed. Are you " +
+                    var prompt = "You will lose data if you proceed. Are you " +
                              "sure that you want to continue saving?";
                     if (ko.dialogs.yesNo(prompt, "No") != "Yes") {
                         return false;
@@ -600,7 +600,7 @@
                     choice = ko.dialogs.customButtons(
                         "The file has changed on disk. Are you sure you "+
                             "want to overwrite those changes?",
-                        ["Yes", "No", "No, Show Changes"],
+                        ["&Yes", "&No", "No, &Show Changes"],
                         "No", // default response
                         null, // text
                         "File Conflict"); // title

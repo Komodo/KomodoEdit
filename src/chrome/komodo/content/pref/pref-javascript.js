@@ -30,7 +30,7 @@ function PrefJavaScript_InstallFFExtension()
             var msg = "Could not find a Firefox installation on your system. "
                       +"Would you like to browse for a Firefox "
                       +"installation with which to install the extensions?";
-            var answer = ko.dialogs.customButtons(msg, ["Browse...", "Cancel"],
+            var answer = ko.dialogs.customButtons(msg, ["&Browse...", "Cancel"],
                                               "Browse...");
             if (answer == "Browse...") {
                 var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();

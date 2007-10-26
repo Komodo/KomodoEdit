@@ -464,7 +464,7 @@ function applyEncodingAndBOM(encodingName, bom)
                            "characters with a question mark, '?', or you "+
                            "may Cancel and select a different encoding.";
                 var choice = ko.dialogs.customButtons(question,
-                                                  ["Force", "Cancel"],
+                                                  ["&Force", "Cancel"],
                                                   "Cancel"); // default
                 if (choice == "Force") {
                     try {

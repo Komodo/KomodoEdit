@@ -31,7 +31,6 @@ var gExtra1Button = null;
 var gExtra2Button = null;
 var gCancelButton = null;
 
-
 //---- interface routines for XUL
 
 function OnLoad()
@@ -42,7 +41,7 @@ function OnLoad()
     gExtra1Button = dialog.getButton("extra1");
     gExtra2Button = dialog.getButton("extra2");
     gCancelButton = dialog.getButton("cancel");
-    gCancelButton.setAttribute("accesskey", "c");
+    gCancelButton.setAttribute("accesskey", "C");
     var buttonWidgets = [gAcceptButton, gExtra1Button, gExtra2Button];
 
     // .prompt
@@ -57,34 +56,75 @@ function OnLoad()
 
     // .buttons
     var buttons = window.arguments[0].buttons;
+    var msg = null;
     if (typeof buttons == "undefined" || buttons == null) {
-        var msg = "Internal Error: illegal 'buttons' value for "
+        msg = "Internal Error: illegal 'buttons' value for "
                   +"Custom Buttons dialog: '"+buttons+"'.";
-        log.error(msg);
-        alert(msg);
-        window.close();
     } else if (buttons.length == 0 || buttons.length > 4) {
-        var msg = "Internal Error: illegal number of buttons for "
+        msg = "Internal Error: illegal number of buttons for "
                   +"Custom Buttons dialog: '"+buttons.length+"'.";
-        log.error(msg);
-        alert(msg);
-        window.close();
     } else if (buttons.length == 4 && buttons[3] != "Cancel") {
-        var msg = "Internal Error: there are 4 buttons to display but "
+        msg = "Internal Error: there are 4 buttons to display but "
                   +"the last one is not Cancel.";
+    }
+    if (msg) {
         log.error(msg);
         alert(msg);
         window.close();
-    } else if (buttons[buttons.length-1] == "Cancel") {
+    }
+    // Don't modify the incoming buttons array -- write final values into a copy
+    var finalButtons = new Array(buttons.length);
+    for (i = 0; i < buttons.length; i++) {
+        var buttonText = buttons[i];
+        // See http://developer.mozilla.org/en/docs/index.php?title=XUL_Accesskey_FAQ_and_Policies&printable=yes
+        // for info on specifying access keys
+        var ampIdx = buttonText.indexOf("&");
+        var accesskey = null;
+        if (ampIdx >= 0) {
+            var finalText = "";
+            while (true) {
+                finalText += buttonText.substring(0, ampIdx);
+                buttonText = buttonText.substring(ampIdx + 1);
+                if (buttonText.length == 0) {
+                    finalText += "&";
+                    break;
+                } else if (/\w/.test(buttonText[0])) {
+                    // Allow underscore and digits as well
+                    if (accesskey == null) {
+                        accesskey = buttonText[0]; // .toLowerCase();
+                        buttonWidgets[i].setAttribute("accesskey", accesskey);
+                    }
+                    finalText += buttonText[0];
+                    buttonText = buttonText.substring(1);
+                    // Keep processing rest of string for && and &x
+                } else {
+                    finalText += "&";
+                    if (buttonText[0] != "&") {
+                        finalText += buttonText[0];
+                    }
+                    buttonText = buttonText.substring(1);
+                }
+                ampIdx = buttonText.indexOf("&");
+                if (ampIdx == -1) {
+                    finalText += buttonText;
+                    break;
+                }
+            }
+            finalButtons[i] = finalText;
+        } else {
+            finalButtons[i] = buttons[i];
+        }
+    }
+    if (buttons[buttons.length-1] == "Cancel") {
         for (i = 0; i < buttons.length-1; ++i) {
-            buttonWidgets[i].setAttribute("label", buttons[i]);
+            buttonWidgets[i].setAttribute("label", finalButtons[i]);
         }
         for (i = buttons.length-1; i < buttonWidgets.length; ++i) {
             buttonWidgets[i].setAttribute("collapsed", true);
         }
     } else {
         for (i = 0; i < buttons.length; ++i) {
-            buttonWidgets[i].setAttribute("label", buttons[i]);
+            buttonWidgets[i].setAttribute("label", finalButtons[i]);
         }
         for (i = buttons.length; i < buttonWidgets.length; ++i) {
             buttonWidgets[i].setAttribute("collapsed", true);

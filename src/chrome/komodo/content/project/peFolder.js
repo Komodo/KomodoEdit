@@ -171,9 +171,9 @@ peFolder.prototype.doCommand = function(command) {
 
         var removeText;
         if (ko.projects.active.manager.name == "projectManager") {
-            removeText = "Remove from Project";
+            removeText = "&Remove from Project";
         } else {
-            removeText = "Remove from Toolbox";
+            removeText = "&Remove from Toolbox";
         }
         var haveLive = false;
         if (havemultiple) {
@@ -195,7 +195,7 @@ peFolder.prototype.doCommand = function(command) {
         var buttons;
         var text = null;
         if (haveLive) {
-            buttons = ["Move to Trash", removeText, "Cancel"];
+            buttons = ["&Move to Trash", removeText, "Cancel"];
             text = "You may delete the files on disk, or simply remove the selected "+
                     "items from the project or toolbox.  If you choose only to remove "+
                     "the items and they are in a live folder, they will reappear later.";
