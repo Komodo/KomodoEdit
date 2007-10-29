@@ -563,6 +563,8 @@ _copyrighterMap = {
     re.compile(r"^.*\.udl$") : ScriptCopyrighter,
     # Komodo properties file.
     re.compile(r"^.*\.properties$") : ScriptCopyrighter,
+    # Bk build script
+    re.compile(r"^bk$") : ScriptCopyrighter,
 
     re.compile(r"^.*\.php$") : PHPCopyrighter,
     re.compile(r"^.*\.inc$") : PHPCopyrighter,
@@ -698,6 +700,10 @@ _g_rx_skip_paths_matching = [
     re.compile(r"^.*preprocess.py$"),
     re.compile(r"^.*platinfo.py$"),
     re.compile(r"^.*content.types$"),
+    re.compile(r"^.*util/fixapplepython23.py$"),  # Came from python sources.
+    re.compile(r"^.*util/desktop.py$"),
+    re.compile(r"^.*util/markdown.py$"),
+    re.compile(r"^.*util/p4lib.py$"),
 ]
 
 # These matches are always updated, even if the path matches on of the
