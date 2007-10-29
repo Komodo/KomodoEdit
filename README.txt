@@ -13,7 +13,7 @@ Komodo is based on Mozilla, so prepare yourself for some serious build
 time. If you have trouble with any of the following instructions please
 log a bug:
 
-    http://bugs.activestate.com/enter_bug.cgi?set_product=OpenKomodo&component=Documentation
+    http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation
 
 
 
@@ -178,7 +178,7 @@ This section is intended to give Linux distro-specific package manager steps
 for installing all build prerequisites. If you have info for distros not
 listed here and/or corrections, please start a Documentation bug for this:
 
-    http://bugs.activestate.com/enter_bug.cgi?set_product=OpenKomodo&component=Documentation
+    http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation
 
 
 - Ubuntu 7.10:
@@ -378,7 +378,7 @@ Build Troubleshooting Notes
      free to put some print statements in there and re-run your
      "bk configure ..." call to try to suss out the problem.
   3. Log a bug:
-     http://bugs.activestate.com/enter_bug.cgi?set_product=OpenKomodo&component=InternalBuild
+     http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=InternalBuild
   
 
 
