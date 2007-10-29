@@ -182,7 +182,8 @@ http://www.mozilla.org/MPL/
         licenseLines = fileCommenter.commentLines(_g_mpl_copyright_lines,
                                                   newline)
         removed, added = fileCommenter.replaceLines(lines, licenseLines,
-                                                    lineFrom, lineTo)
+                                                    lineFrom, lineTo,
+                                                    newline)
 
         log.info("%sUpdating license to MPL: %r", logpadding, filename)
         log.debug("\n- %s", "- ".join(removed))
@@ -200,6 +201,8 @@ http://www.mozilla.org/MPL/
             if prefix and fileCommenter.commentStart not in prefix:
                 if prefix[0] in "\"'":
                     # in a string, not updating this!
+                    log.warn("string license in: %r => %r",
+                             fileCommenter.filename, lines[lineNo])
                     return False
             lineTo = lineNo+1
             if len(lines) > lineTo:
@@ -369,7 +372,7 @@ class CopyrighterFileHandler:
             commentedLines.append("".join(line))
         return commentedLines
 
-    def replaceLines(self, lines, newlines, lineFrom, lineTo):
+    def replaceLines(self, lines, newlines, lineFrom, lineTo, newline):
         if not self.commentSpansMultipleLines:
             lines[lineFrom:lineTo] = newlines
             return lines[lineFrom:lineTo], newlines
@@ -413,14 +416,15 @@ class CopyrighterFileHandler:
             #print "  %r" % (lines[lineTo], )
             #print "  %r" % (lines[lineTo+1], )
             #print "  %r" % (lines[lineTo+2], )
-            # If the next line is not empty, add an empty line separator.
             if lineTo < len(lines):
-                nextLine = lines[lineTo].strip()
-                newlines.append("%s%s%s" % (self.commentEnd,
+                nextLine = lines[lineTo].lstrip()
+                newlines.append(newline)
+                newlines.append("%s%s%s" % (self.commentStart,
                                     self.commentLineDelimiter, nextLine))
                 lineTo += 1
-            #newlines +=
-        return lines[lineFrom:lineTo], newlines
+        oldlines = lines[lineFrom:lineTo]
+        lines[lineFrom:lineTo] = newlines
+        return oldlines, newlines
 
     def PatchIfNecessary(self):
         matchedCopyrightHandler = None
