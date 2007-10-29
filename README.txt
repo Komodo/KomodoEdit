@@ -12,8 +12,7 @@ means building Komodo Snapdragon (codename for a Web-focussed IDE).
 Komodo is based on Mozilla, so prepare yourself for some serious build
 time. If you have trouble with any of the following instructions please
 log a bug:
-
-    http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation
+<http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation>
 
 
 
@@ -74,8 +73,7 @@ Build Prerequisites for Windows
 ===============================
 
 - Python 2.5. You can install ActivePython 2.5 from here:
-
-    http://downloads.activestate.com/ActivePython/windows/2.5/ActivePython-2.5.1.1-win32-x86.msi
+  <http://downloads.activestate.com/ActivePython/windows/2.5/ActivePython-2.5.1.1-win32-x86.msi>
 
 - Visual C++ 6.0, service pack 5, Visual C processor pack.
   
@@ -88,12 +86,11 @@ Build Prerequisites for Windows
 
 - Install the MozillaBuild 1.1 package into *the default dir*
   (i.e. "C:\mozilla-build").
-
-    http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/MozillaBuildSetup-1.1.exe
+  <http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/MozillaBuildSetup-1.1.exe>
 
 - Install ActivePerl 5.8.
 
-    http://downloads.activestate.com/ActivePerl/Windows/5.8/ActivePerl-5.8.8.822-MSWin32-x86-280952.msi
+  <http://downloads.activestate.com/ActivePerl/Windows/5.8/ActivePerl-5.8.8.822-MSWin32-x86-280952.msi>
 
   ActivePerl is currently required for the Komodo-part of the build
   (where the "Mozilla-part of the build" is the other part). The
@@ -116,7 +113,7 @@ Build Prerequisites for Mac OS X
 
 - Python 2.5. You can install ActivePython 2.5 from here:
 
-    http://downloads.activestate.com/ActivePython/macosx/2.5/ActivePython-2.5.1.1-macosx.dmg
+  <http://downloads.activestate.com/ActivePython/macosx/2.5/ActivePython-2.5.1.1-macosx.dmg>
 
   If you prefer the Python builds from python.org should be sufficient
   as well.
@@ -127,11 +124,11 @@ Build Prerequisites for Mac OS X
   these, if we are able.
 
 - Xcode. Install the latest one (avoid Xcode 2.0, though).
-  http://developer.apple.com/tools/download/
+  <http://developer.apple.com/tools/download/>
   Be sure to install the Cross-Development SDKs, which is
   only available by choosing a Customized build in the Xcode installer.
 
-- MacPorts (http://www.macports.org/).
+- MacPorts (<http://www.macports.org/>).
 
   (Note: Fink works too but most of the build testing and instructions is
   done with MacPorts.)
@@ -164,11 +161,11 @@ Build Prerequisites for Linux
 - Python 2.5. Your distro's Python 2.5 should be sufficient, or you can
   install ActivePython from here:
   
-    http://downloads.activestate.com/ActivePython/linux/2.5/
+    <http://downloads.activestate.com/ActivePython/linux/2.5/>
 
 - Everything mentioned in the Mozilla Linux build prerequisites:
 
-    http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites
+    <http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites>
 
 
 Prerequisite packages by Distro
@@ -178,7 +175,7 @@ This section is intended to give Linux distro-specific package manager steps
 for installing all build prerequisites. If you have info for distros not
 listed here and/or corrections, please start a Documentation bug for this:
 
-    http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation
+    <http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation>
 
 
 - Ubuntu 7.10:
@@ -220,7 +217,7 @@ Currently these are ActivePython builds. However, the plan is to update
 the Open Komodo build system (in late 2007) to support building its own
 Python from sources rather than relying on a prebuilt ActivePython. This
 was just the quickest way to get the Open Komodo sources out in 2 f*@&ing
-months (http://blogs.activestate.com/shanec/2007/09/holy-komodo.html).
+months (<http://blogs.activestate.com/shanec/2007/09/holy-komodo.html>).
 
 
 Step 2: Building Mozilla
@@ -378,7 +375,7 @@ Build Troubleshooting Notes
      free to put some print statements in there and re-run your
      "bk configure ..." call to try to suss out the problem.
   3. Log a bug:
-     http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=InternalBuild
+     <http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=InternalBuild>
   
 
 
