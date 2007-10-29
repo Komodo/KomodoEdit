@@ -161,7 +161,7 @@ above steps is *meant to be sufficient* to get building Komodo.
 Build Prerequisites for Linux
 =============================
 
-- Python 2.5. You distro's Python 2.5 should be sufficient, or you can
+- Python 2.5. Your distro's Python 2.5 should be sufficient, or you can
   install ActivePython from here:
   
     http://downloads.activestate.com/ActivePython/linux/2.5/
@@ -171,11 +171,22 @@ Build Prerequisites for Linux
     http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites
 
 
-Note: I (trentm) am interested in adding Linux distro-specific package
-manager steps for installing all these dependencies. If you are interested
-in spec'ing those out, please start a Documentation bug for this:
+Prerequisite packages by Distro
+-------------------------------
+
+This section is intended to give Linux distro-specific package manager steps
+for installing all build prerequisites. If you have info for distros not
+listed here and/or corrections, please start a Documentation bug for this:
 
     http://bugs.activestate.com/enter_bug.cgi?set_product=OpenKomodo&component=Documentation
+
+
+- Ubuntu 7.10:
+  
+    apt-get install g++ patch libgtk2.0-dev libidl-dev
+
+- Others ...
+
 
 
 
