@@ -1,10 +1,8 @@
 #!/usr/bin/env python
-# Copyright (c) 2002-2005 ActiveState Corp.
-# See LICENSE.txt for license details.
-# Author:
-#   Trent Mick (TrentM@ActiveState.com)
-# Home:
-#   http://trentm.com/projects/px/
+# Copyright (c) 2004-2006 ActiveState Software Inc.
+# Written by: Trent Mick (TrentM@ActiveState.com)
+# License: MIT License (http://www.opensource.org/licenses/mit-license.php)
+# Homepage: http://trentm.com/projects/px/
 
 """
     An OO interface to 'p4' (the Perforce client command line app).
