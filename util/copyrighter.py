@@ -378,7 +378,6 @@ class CopyrighterFileHandler:
             return lines[lineFrom:lineTo], newlines
 
         inMiddleOfComment = False
-        eatPreviousLine = False
         singleLineCommentStyle = False
 
         line = lines[lineFrom].strip()
@@ -400,8 +399,11 @@ class CopyrighterFileHandler:
                 if prevLine.startswith(self.commentStart) and not \
                    prevLine.endswith(self.commentStart):
                     leftOver = prevLine[len(self.commentStart):]
+                    # The previous line is the start of the comment, if there
+                    # is nothing worth saving on that line, then we eat it
+                    # as well, making the license piece the start of a comment.
                     if not leftOver or leftOver == "*":
-                        eatPreviousLine = True
+                        lineFrom -= 1
                         inMiddleOfComment = False
         if inMiddleOfComment:
             print "Expected comment style %r, got %r in %r" % (
