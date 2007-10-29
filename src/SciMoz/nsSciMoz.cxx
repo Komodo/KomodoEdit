@@ -421,17 +421,31 @@ void SciMoz::Notify(long lParam) {
 			// perf modification, do some early checks to see if
 			// we really want to call into js
 #ifdef FAST_CODE
-			// if we are deleting or inserting on a fold, exand
+			// if we are deleting or inserting on a fold, expand
 			// the fold first
 			if (notification->modificationType & (SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT))
 			{
-				int currentPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
-				int lineCurrent = SendEditor(SCI_LINEFROMPOSITION, currentPos, 0);
-				int foldLevel = SendEditor(SCI_GETFOLDLEVEL, lineCurrent, 0);
-				if (foldLevel & SC_FOLDLEVELHEADERFLAG &&
-				!SendEditor(SCI_GETFOLDEXPANDED, lineCurrent, 0))
-				{
-					SendEditor(SCI_TOGGLEFOLD, lineCurrent, 0);
+				// If there's a selection, test both ends of it
+				int positions[2];
+				int lineAnchors[2];
+				int foldLevel;
+				int numLineAnchors = 1;
+				positions[0] = SendEditor(SCI_GETSELECTIONSTART, 0, 0);
+				lineAnchors[0] = SendEditor(SCI_LINEFROMPOSITION, positions[0], 0);
+				positions[1] = SendEditor(SCI_GETSELECTIONEND, 0, 0);
+				if (positions[1] > positions[0]) {
+					lineAnchors[1] = SendEditor(SCI_LINEFROMPOSITION, positions[1], 0);
+					if (lineAnchors[1] > lineAnchors[0]) {
+						numLineAnchors = 2;
+					}
+				}
+				
+				for (int i = 0; i < numLineAnchors; i++) {
+					foldLevel = SendEditor(SCI_GETFOLDLEVEL, lineAnchors[i], 0);
+					if ((foldLevel & SC_FOLDLEVELHEADERFLAG)
+					    && !SendEditor(SCI_GETFOLDEXPANDED, lineAnchors[i], 0)) {
+						SendEditor(SCI_TOGGLEFOLD, lineAnchors[i], 0);
+					}
 				}
 				// dont go on
 				break;
