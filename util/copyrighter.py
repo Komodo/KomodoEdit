@@ -58,7 +58,7 @@ logpadding = ''         # Used for pretty printing directory depths
 
 #---- globals
 # Options that are set through the command line
-doNotMakesChanges = 0   # Run, but don't make any changes to files
+saveChanges       = 0   # Run, but don't make any changes to files unless this is set to 1/True
 performUpdateOnly = 0   # Only perform updates on existing files with copyright
 makeFileBackup    = 0   # Make a backup of a file if it will be changed
 linesCheckUpTo    = None  # Check first n lines for copyright information
@@ -160,7 +160,7 @@ class ActiveStateCopyrighter(CopyrightUpdater):
 the License. You may obtain a copy of the License at
 http://www.mozilla.org/MPL/
 """
-    rxMPLBriefLicense = [ re.compile("^.*?%s.*?$" % (re.escape(x))) for x in mplBriefLicense ]
+    rxMPLBriefLicense = [ re.compile("^.*?%s.*?$" % (re.escape(x))) for x in mplBriefLicense.splitlines(0) ]
 
     def __init__(self):
         self.replacedFiles = set()
@@ -171,10 +171,9 @@ http://www.mozilla.org/MPL/
             for name in sorted(self.replacedFiles):
                 print("      %r" % (name, ))
 
-    def replace(self, fileCommenter, lineFrom, lineTo):
+    def replace(self, fileCommenter, lines, lineFrom, lineTo):
         """This will update existing license information with a new one."""
         filename = fileCommenter.filename
-        lines = file(filename).readlines()
 
         # Work out the newline style from the line we replace.
         newline = self.determineNewlineFromLine(lines[lineFrom])
@@ -182,18 +181,26 @@ http://www.mozilla.org/MPL/
         # Modify this to contain our new copyright string.
         licenseLines = fileCommenter.commentLines(_g_mpl_copyright_lines,
                                                   newline)
+        removed, added = fileCommenter.replaceLines(lines, licenseLines,
+                                                    lineFrom, lineTo)
+
         log.info("%sUpdating license to MPL: %r", logpadding, filename)
-        log.debug("\n- %s", "- ".join(lines[lineFrom:lineTo]))
-        log.debug("\n+ %s", "+ ".join(licenseLines))
-        if not doNotMakesChanges:
+        log.debug("\n- %s", "- ".join(removed))
+        log.debug("\n+ %s", "+ ".join(added))
+        if saveChanges:
             if makeFileBackup:
                 self.backup(filename)
-            lines[lineFrom:lineTo] = licenseLines
             file(filename, "w").writelines(lines)
         self.replacedFiles.add(fileCommenter.filename)
 
     def handle(self, fileCommenter, lines, lineNo):
-        if self.rxASCopyright.match(lines[lineNo]):
+        match = self.rxASCopyright.match(lines[lineNo])
+        if match:
+            prefix = match.group("prefix").strip()
+            if prefix and fileCommenter.commentStart not in prefix:
+                if prefix[0] in "\"'":
+                    # in a string, not updating this!
+                    return False
             lineTo = lineNo+1
             if len(lines) > lineTo:
                 line = lines[lineTo]
@@ -201,15 +208,16 @@ http://www.mozilla.org/MPL/
                     lineTo += 1
                 else:
                     for i in range(len(self.rxMPLBriefLicense)):
-                        rxLine = self.rxMPLBriefLicense[i]
                         if len(lines) <= (lineTo + i):
                             break
                         line = lines[lineTo + i]
+                        rxLine = self.rxMPLBriefLicense[i]
                         if not rxLine.match(line):
                             break
                     else:
                         lineTo += len(self.rxMPLBriefLicense)
-                self.replace(fileCommenter, lineNo, lineTo)
+                        #print "  lineTo: %r" % (lines[lineTo], )
+                self.replace(fileCommenter, lines, lineNo, lineTo)
             return True
         return False
 
@@ -284,7 +292,7 @@ class MPLCopyrighter(CopyrightUpdater):
         log.info("%sAdding MPL at line %d in %r",
                   logpadding, insertLineNo, fileCommenter.filename)
 
-        if not doNotMakesChanges:
+        if saveChanges:
             if makeFileBackup:
                 self.backup(filename)
             licenseLines = fileCommenter.commentLines(_g_mpl_copyright_lines,
@@ -319,7 +327,7 @@ _g_rx_WarnOnSeeingThese = [ re.compile(r"^.*ActiveState Corp.*$", re.IGNORECASE)
 
 def Revert(filename):
     #XXX should probably do error checking an raise an exception
-    if not doNotMakesChanges:
+    if saveChanges:
         return os.system('svn revert "%s"' % filename)
 
 
@@ -330,7 +338,8 @@ class CopyrighterFileHandler:
     commentStart = ''
     commentEnd = ''
     commentSpansMultipleLines = False
-    commentLineDelimiter = ""
+    commentLineDelimiter = ''
+    alternativeSingleLineCommentStyle = ''
 
     def __init__(self, filename):
         self.filename = filename
@@ -359,6 +368,59 @@ class CopyrighterFileHandler:
             line.append(newline)
             commentedLines.append("".join(line))
         return commentedLines
+
+    def replaceLines(self, lines, newlines, lineFrom, lineTo):
+        if not self.commentSpansMultipleLines:
+            lines[lineFrom:lineTo] = newlines
+            return lines[lineFrom:lineTo], newlines
+
+        inMiddleOfComment = False
+        eatPreviousLine = False
+        singleLineCommentStyle = False
+
+        line = lines[lineFrom].strip()
+        if line and not line.startswith(self.commentStart):
+            # See it's using an alternative comment style
+            inMiddleOfComment = True
+            if self.alternativeSingleLineCommentStyle:
+                for line in lines[lineFrom:lineTo]:
+                    if not line.strip().startswith(self.alternativeSingleLineCommentStyle):
+                        break
+                else:
+                    singleLineCommentStyle = True
+                    inMiddleOfComment = False
+            # If there is a start comment on the previous line and it's
+            # empty, we simply remove the previous line too.
+            if lineFrom > 0:
+                prevLine = lines[lineFrom -1].strip()
+                #print "  Previous line: %r" % (prevLine, )
+                if prevLine.startswith(self.commentStart) and not \
+                   prevLine.endswith(self.commentStart):
+                    leftOver = prevLine[len(self.commentStart):]
+                    if not leftOver or leftOver == "*":
+                        eatPreviousLine = True
+                        inMiddleOfComment = False
+        if inMiddleOfComment:
+            print "Expected comment style %r, got %r in %r" % (
+                    self.commentStart, line[:10] + "...", self.filename)
+
+        # If the last line we replace does not end the comment, we need
+        # to keep the comment going on the next line!
+        if not singleLineCommentStyle and \
+           not lines[lineTo-1].strip().endswith(self.commentEnd):
+            #print "Comment trails on in %r" % (self.filename, )
+            #print "  %r" % (lines[lineTo-1], )
+            #print "  %r" % (lines[lineTo], )
+            #print "  %r" % (lines[lineTo+1], )
+            #print "  %r" % (lines[lineTo+2], )
+            # If the next line is not empty, add an empty line separator.
+            if lineTo < len(lines):
+                nextLine = lines[lineTo].strip()
+                newlines.append("%s%s%s" % (self.commentEnd,
+                                    self.commentLineDelimiter, nextLine))
+                lineTo += 1
+            #newlines +=
+        return lines[lineFrom:lineTo], newlines
 
     def PatchIfNecessary(self):
         matchedCopyrightHandler = None
@@ -402,6 +464,7 @@ class CCopyrighter(CopyrighterFileHandler):
     commentEnd = '*/'
     commentSpansMultipleLines = True
     commentLineDelimiter = " * "
+    alternativeSingleLineCommentStyle = "//"
 
 class ScriptCopyrighter(CopyrighterFileHandler):
     commentStart = '#'
@@ -638,12 +701,12 @@ _g_rx_skip_paths_matching_exceptions = [
     re.compile(r"^.*src/samples/toolbox.p.kpf$"),
 ]
 
-def AddCopyright(filename, runRecursivly=0, noChange=0, doUpdateOnly=0, doMakeFileBackup=0, doLinesCheckTo=10, maxLineLen=1000):
+def AddCopyright(filename, runRecursivly=0, doSaveChanges=0, doUpdateOnly=0, doMakeFileBackup=0, doLinesCheckTo=10, maxLineLen=1000):
     """Add copyright to file if know how, else complain.
     If the file already has a copyright, ensure it is the correct one."""
-    global _copyrighterMap, doNotMakesChanges, logpadding
+    global _copyrighterMap, saveChanges, logpadding
     global performUpdateOnly, makeFileBackup, linesCheckUpTo, maxLineLength
-    doNotMakesChanges = noChange
+    saveChanges = doSaveChanges
     performUpdateOnly = doUpdateOnly
     makeFileBackup = doMakeFileBackup
     linesCheckUpTo = doLinesCheckTo
@@ -666,7 +729,7 @@ def AddCopyright(filename, runRecursivly=0, noChange=0, doUpdateOnly=0, doMakeFi
             logpadding = logpadding + "  "
             for child in os.listdir(filename):
                 child_filename = os.path.join(filename, child)
-                AddCopyright(child_filename, runRecursivly, noChange, doUpdateOnly, doMakeFileBackup, doLinesCheckTo, maxLineLen)
+                AddCopyright(child_filename, runRecursivly, doSaveChanges, doUpdateOnly, doMakeFileBackup, doLinesCheckTo, maxLineLen)
             logpadding = oldlogpadding
         else:
             log.info("%sNot a file, ignoring %r", logpadding, filename)
@@ -745,7 +808,7 @@ if __name__ == "__main__":
 
     if args:
         for filename in args:
-            AddCopyright(filename, opts.recursive, (not opts.save), opts.update_only, opts.backup_files, opts.num_lines, opts.max_line_length)
+            AddCopyright(filename, opts.recursive, opts.save, opts.update_only, opts.backup_files, opts.num_lines, opts.max_line_length)
 
         print "Results:"
 
