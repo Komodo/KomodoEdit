@@ -1088,8 +1088,13 @@ def ImageKomodo(cfg, argv):
     #   in installation *and* in the base of installer package.
     ibits += [
         ("cp", readmepath("*"), iicorereadmepath()),
-        ("cp", readmepath("*"), ipkgpath()),
+        ("cp", readmepath(".*"), iicorereadmepath()),
     ]
+    if sys.platform != "win32":
+        ibits += [
+            ("cp", readmepath("*"), ipkgpath()),
+            ("cp", readmepath(".*"), ipkgpath()),
+        ]
 
     # - The main Komodo docs. (Only need to worry about these separately
     # on Windows because the MSI divides the install image by feature,
