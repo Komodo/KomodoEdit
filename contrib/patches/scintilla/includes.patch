@@ -254,3 +254,17 @@ diff -u -r1.307 include/Scintilla.iface
  # Events
  
  evt void StyleNeeded=2000(int position)
+--- include/Scintilla.h   Thu Sep 27 11:10:30 2007
++++ include/Scintilla.h Mon Oct 29 16:38:27 2007
+@@ -673,6 +673,11 @@
+ #define SCI_GETPROPERTYEXPANDED 4009
+ #define SCI_GETPROPERTYINT 4010
+ #define SCI_GETSTYLEBITSNEEDED 4011
++#define SCI_SETDRAGPOSITION 5002
++#define SCI_GETDRAGPOSITION 5003
++#define SCI_POSITIONATCHAR 5004
++#define SCI_POSITIONATCOLUMN 5005
++#define SCI_CHARPOSATPOSITION 5006
+ #define SC_MOD_INSERTTEXT 0x1
+ #define SC_MOD_DELETETEXT 0x2
+ #define SC_MOD_CHANGESTYLE 0x4
