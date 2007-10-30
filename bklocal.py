@@ -2794,8 +2794,11 @@ class InstallRelDir(black.configure.Datum):
         if sys.platform == "win32":
             self.value = os.path.join("install", buildType)
         else:
+            productType = black.configure.items["productType"].Get()
             prettyProductType = black.configure.items["prettyProductType"].Get()
-            assert ' ' not in prettyProductType
+            productName = (productType == "openkomodo" and prettyProductType
+                           or "Komodo-%s" % prettyProductType)
+            assert ' ' not in productName
             komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
             buildNum = black.configure.items["buildNum"].Get()
             platName = _getDefaultPlatform(libcppVersion=True)
@@ -2804,11 +2807,8 @@ class InstallRelDir(black.configure.Datum):
                 configSuffix = '-' + '-'.join(configTokens)
             else:
                 configSuffix = ""
-            base = "Komodo-%s-%s-%s%s-%s" % (prettyProductType,
-                                             komodoMarketingVersion,
-                                             buildNum,
-                                             configSuffix,
-                                             platName)
+            base = "%s-%s-%s%s-%s" % (productName, komodoMarketingVersion,
+                                      buildNum, configSuffix, platName)
             self.value = os.path.join("install", buildType, base)
         self.determined = 1
 
