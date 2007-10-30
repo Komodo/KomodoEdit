@@ -23,6 +23,7 @@ Import(
     'withJSLib',
     'ranRegxpcomStateFileName',
     'siloedPython',
+    'readmeDir',
     'universal',
     'komodoDevDir',
 );
@@ -378,6 +379,7 @@ $consLocal->Install("$supportDir/html", $exeName);
         "--filter", "ide,edit",
         "--lang", "en-US",
         "--chrome-dir", $mozChromeDir,
+        "--miniset-dir", $readmeDir,
         "--license-text-path", "%2",
         "--komodo-cix-path", "%3:a",
     );
@@ -401,6 +403,18 @@ $consLocal->Install("$supportDir/html", $exeName);
         $komodoCix,
         qq{
             cd %1:d && mk mozhelp
+        }
+    );
+    $cons->DependsRecursive($landmark, "komododoc",
+                            ("build", '\.svn', '\.consign'));
+
+    $landmark = "$readmeDir/relnotes.html";
+    $cons->Command(
+        $landmark,
+        "komododoc/Makefile.py",
+        "komododoc/config.py",
+        qq{
+            cd %1:d && mk miniset
         }
     );
     $cons->DependsRecursive($landmark, "komododoc",
