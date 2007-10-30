@@ -1580,6 +1580,10 @@ def target_configure(argv):
             #       versions of Linux.
             # Fix described at:
             #   http://live.gnome.org/JhbuildIssues/mozilla
+            #
+            # This breaks on gila
+            # (linux2.4-suse9.0-libc6-glibc2.3-libcpp5-x86) with:
+            #   configure: error: Library requirements (cairo >= 0.3.0) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.
             mozBuildOptions.append('enable-system-cairo')
 
             mozBuildOptions.append('enable-xft')
