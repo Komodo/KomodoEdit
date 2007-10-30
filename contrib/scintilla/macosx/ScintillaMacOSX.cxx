@@ -1012,10 +1012,10 @@ void ScintillaMacOSX::NotifyChange() {
 
 pascal void ScintillaMacOSX::LiveScrollHandler( HIViewRef control, SInt16 part )
 {
-    SInt16 currentValue = GetControl32BitValue( control );
-    SInt16 min = GetControl32BitMinimum( control );
-    SInt16 max = GetControl32BitMaximum( control );
-    SInt16 page = GetControlViewSize( control );
+    int currentValue = GetControl32BitValue( control );
+    int min = GetControl32BitMinimum( control );
+    int max = GetControl32BitMaximum( control );
+    int page = GetControlViewSize( control );
 
     // Get a reference to the Scintilla C++ object
     ScintillaMacOSX* scintilla = NULL;
