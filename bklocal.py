@@ -556,15 +556,47 @@ class MacKomodoAppName(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         prettyProductType = black.configure.items["prettyProductType"].Get()
-        self.value = "Komodo %s.app" % prettyProductType
+        productType = black.configure.items["productType"].Get()
+        name = (productType == "openkomodo" and prettyProductType
+                or "Komodo %s" % prettyProductType)
+        self.value = name + ".app"
+        self.determined = 1
+
+
+class ProductType(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "productType",
+            desc="the Komodo product type",
+            acceptedOptions=("", ["product-type="]))
+        self.knownValues = ["openkomodo", "snapdragon"]
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(\
+                "Could not determine %s. Use the "\
+                "--product-type configure option to specify this. "\
+                "The currently valid values for this are %s\n" %\
+                (self.desc, self.knownValues))
+        else:
+            if self.value not in self.knownValues:
+                raise black.configure.ConfigureError(\
+                    "The specified product type '%s' is "\
+                    "not one of the known values: %s" %\
+                    (self.value, self.knownValues))
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        self.value = "openkomodo" # default
+        for opt, optarg in self.chosenOptions:
+            if opt == "--product-type":
+                self.value = optarg
         self.determined = 1
 
 
 class PrettyProductType(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "prettyProductType",
-            desc="the Komodo product type with proper capitalization",
-            acceptedOptions=("", ["product-type="]))
+            desc="the Komodo product type with proper capitalization")
 
     def _Determine_Sufficient(self):
         if self.value is None:
@@ -573,10 +605,9 @@ class PrettyProductType(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = "Snapdragon" # default
-        for opt, optarg in self.chosenOptions:
-            if opt == "--product-type":
-                self.value = optarg
+        productType = black.configure.items["productType"].Get()
+        self.value = {"openkomodo": "OpenKomodo",
+                      "snapdragon": "Snapdragon"}[productType]
         self.determined = 1
 
 class ProductTagLine(black.configure.Datum):
@@ -612,9 +643,10 @@ class GnomeDesktopShortcutName(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         productType = black.configure.items["productType"].Get()
+        name = (productType == "openkomodo" and "openkomodo"
+                or "komodo-"+productType)
         komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "komodo-%s-%s.desktop"\
-                     % (productType, komodoMarketingShortVersion)
+        self.value = "%s-%s.desktop" % (name, komodoMarketingShortVersion)
         self.determined = 1
 
 class GnomeDesktopName(black.configure.Datum):
@@ -632,8 +664,9 @@ class GnomeDesktopName(black.configure.Datum):
         productType = black.configure.items["productType"].Get()
         komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
-        self.value = "Komodo %s %s" % (prettyProductType,
-                                       komodoMarketingShortVersion)
+        name = (productType == "openkomodo" and prettyProductType
+                or "Komodo %s" % prettyProductType)
+        self.value = "%s %s" % (name, komodoMarketingShortVersion)
         self.determined = 1
 
 class GnomeDesktopGenericName(black.configure.Datum):
@@ -669,7 +702,7 @@ class GnomeDesktopCategories(black.configure.Datum):
         productType = black.configure.items["productType"].Get()
         self.value = {
             "edit": "ActiveState;Application;Development;Editor",
-        }.get(productType, "ActiveState;Application;Development;Debugger;IDE")
+        }.get(productType, "ActiveState;Application;Development;IDE")
         self.determined = 1
 
 
@@ -1087,17 +1120,17 @@ class KomodoDefaultUserInstallDir(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        ver = black.configure.items["komodoMarketingShortVersion"].Get()
         platform = black.configure.items["platform"].Get()
         productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
+        name_bits = (productType == "openkomodo" and [prettyProductType]
+                     or ["Komodo", prettyProductType])
         if platform == "win":
-            self.value = "C:\\Program Files\\ActivePython Komodo %s %s"\
-                         % (prettyProductType, ver)
+            self.value = "C:\\Program Files\\%s" % ' '.join(name_bits)
         elif platform == 'darwin':
-            self.value = '/Applications/Komodo %s.app' % prettyProductType
+            self.value = '/Applications/%s.app' % ' '.join(name_bits)
         elif platform in ("linux", "solaris"):
-            self.value = "~/Komodo-%s-%s" % (prettyProductType, ver)
+            self.value = "~/%s" % '-'.join(name_bits)
         else:
             self.value = None
         self.determined = 1
@@ -2541,11 +2574,14 @@ class KomodoFullPrettyVersion(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
     def _Determine_Do(self):
         self.applicable = 1
+        productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
         komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
-        self.value = "Komodo %s %s (Build %s)"\
-                     % (prettyProductType,
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo %s" % prettyProductType)
+        self.value = "%s %s (Build %s)"\
+                     % (productName,
                         _getPrettyVersion(komodoMarketingVersion),
                         buildNum)
         self.determined = 1
@@ -2560,11 +2596,13 @@ class KomodoTitleBarName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
     def _Determine_Do(self):
         self.applicable = 1
+        productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo %s" % prettyProductType)
         komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "ActiveState Komodo %s %s"\
-                     % (prettyProductType,
-                        komodoMarketingShortVersion)
+        self.value = "%s %s"\
+                     % (productName, komodoMarketingShortVersion)
         self.determined = 1
 
 class KomodoAppDataDirName(black.configure.Datum):
@@ -2577,12 +2615,14 @@ class KomodoAppDataDirName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
     def _Determine_Do(self):
         self.applicable = 1
+        productType = black.configure.items["productType"].Get()
+        prettyProductType = black.configure.items["prettyProductType"].Get()
+        name = (productType == "openkomodo" and prettyProductType
+                or "Komodo"+prettyProductType)
         if sys.platform in ("win32", "darwin"):
-            prettyProductType = black.configure.items["prettyProductType"].Get()
-            self.value = "Komodo"+prettyProductType
+            self.value = name
         else:
-            productType = black.configure.items["productType"].Get()
-            self.value = "komodo"+productType
+            self.value = name.lower()
         self.determined = 1
 
 class MSIKomodoPrettyId(black.configure.Datum):
@@ -2598,10 +2638,12 @@ class MSIKomodoPrettyId(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         productType = black.configure.items["productType"].Get()
+        prettyProductType = black.configure.items["prettyProductType"].Get()
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo %s" % prettyProductType)
         komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
-        self.value = "Komodo %s %s" % (prettyProductType,
-                                       komodoMarketingShortVersion)
+        self.value = "%s %s" % (productName, komodoMarketingShortVersion)
         self.determined = 1
 
 class MSIProductName(black.configure.Datum):
@@ -2614,11 +2656,13 @@ class MSIProductName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
     def _Determine_Do(self):
         self.applicable = 1
+        productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo %s" % prettyProductType)
         komodoPrettyVersion = black.configure.items["komodoPrettyVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
-        self.value = "ActiveState Komodo %s %s"\
-                     % (prettyProductType, komodoPrettyVersion)
+        self.value = "%s %s" % (productName, komodoPrettyVersion)
         self.determined = 1
 
 class MSIInstallName(black.configure.Datum):
@@ -2631,10 +2675,12 @@ class MSIInstallName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
     def _Determine_Do(self):
         self.applicable = 1
-        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
+        productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
-        self.value = "ActiveState Komodo %s %s"\
-                     % (prettyProductType, komodoMarketingShortVersion)
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo %s" % prettyProductType)
+        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
+        self.value = "%s %s" % (productName, komodoMarketingShortVersion)
         self.determined = 1
 
 class MSIKomodoVersion(black.configure.Datum):
@@ -2696,6 +2742,7 @@ class MSIKomodoId(black.configure.Datum):
                 "edit": "KoEd"+XY,
                 "ide": "KoIDE"+XY,
                 "snapdragon": "KoSD"+XY,
+                "openkomodo": "OKo"+XY,
             }[productType]
         else:
             raise black.configure.ConfigureError(
@@ -3176,14 +3223,15 @@ class ASPNDocsPackageName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
 
     def _Determine_Do(self):
-        # e.g.: Komodo-3.0.0-12345-win32-aspndocs
         self.applicable = 1
         komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
         platName = _getDefaultPlatform()
         osName = platName.split('-', 1)[0] # don't care about architecture
-        base = "Komodo-%s-%s-%s-aspndocs"\
-               % (komodoMarketingVersion, buildNum, osName)
+        productType = black.configure.items["productType"].Get()
+        name = (productType == "openkomodo" and "OpenKomodo" or "Komodo")
+        base = "%s-%s-%s-%s-aspndocs"\
+               % (name, komodoMarketingVersion, buildNum, osName)
         self.value = base
         self.determined = 1
 
@@ -3202,8 +3250,9 @@ class DocsPackageName(black.configure.Datum):
         self.applicable = 1
         komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
-        base = "Komodo-%s-%s-docs" % (komodoMarketingVersion, buildNum)
-        self.value = base
+        productType = black.configure.items["productType"].Get()
+        name = (productType == "openkomodo" and "OpenKomodo" or "Komodo")
+        self.value = "%s-%s-%s-docs" % (name, komodoMarketingVersion, buildNum)
         self.determined = 1
 
 class MozPatchesPackageName(black.configure.Datum):
@@ -3217,10 +3266,11 @@ class MozPatchesPackageName(black.configure.Datum):
                 "Could not determine %s\n." % self.desc)
 
     def _Determine_Do(self):
-        # e.g.: Komodo-<ver>-mozilla-patches
         self.applicable = 1
         ver = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "Komodo-%s-mozilla-patches" % ver
+        productType = black.configure.items["productType"].Get()
+        name = (productType == "openkomodo" and "OpenKomodo" or "Komodo")
+        self.value = "%s-%s-mozilla-patches" % (name, ver)
         self.determined = 1
 
 class LinuxDistro(black.configure.Datum):
@@ -3319,8 +3369,11 @@ class KomodoInstallerPackage(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         platform = black.configure.items["platform"].Get()
+        productType = black.configure.items["productType"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
-        assert ' ' not in prettyProductType
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo-"+prettyProductType)
+        assert ' ' not in productName
         version = black.configure.items["komodoMarketingVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
         packagesRelDir = black.configure.items["packagesRelDir"].Get()
@@ -3331,8 +3384,8 @@ class KomodoInstallerPackage(black.configure.Datum):
             else:
                 configSuffix = ""
             self.value = os.path.join(packagesRelDir,
-                "Komodo-%s-%s-%s%s.msi"\
-                % (prettyProductType, version, buildNum, configSuffix))
+                "%s-%s-%s%s.msi"\
+                % (productName, version, buildNum, configSuffix))
         elif sys.platform == 'darwin':
             installRelDir = black.configure.items["installRelDir"].Get()
             base = os.path.basename(installRelDir)
@@ -3353,11 +3406,14 @@ class KomodoPackageBase(black.configure.Datum):
         self.applicable = 1
         buildPlatform = black.configure.items["buildPlatform"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
+        productType = black.configure.items["productType"].Get()
+        productName = (productType == "openkomodo" and prettyProductType
+                       or "Komodo-"+prettyProductType)
         assert ' ' not in prettyProductType
         komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
-        self.value = "Komodo-%s-%s-%s-%s" % (
-            prettyProductType,
+        self.value = "%s-%s-%s-%s" % (
+            productName,
             komodoMarketingVersion,
             buildNum,
             buildPlatform
