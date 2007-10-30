@@ -194,6 +194,7 @@ class AugmentedListCmd(cmd.Cmd):
     def default(self, args):
         out.write("%s: unknown syntax: %s (Try `%s help'.)\n" %\
             (self.name, " ".join(args), self.name))
+        return 1
 
     def _helponecmd(self, cmdName):
         """show help for the given command"""
