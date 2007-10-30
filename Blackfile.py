@@ -1052,14 +1052,9 @@ def ImageKomodo(cfg, argv):
     # - The prominent standalone doc bits: place somewhere appropriate
     #   in installation *and* in the base of installer package.
     ibits += [
-        ("cp", readmepath("*.txt"), iicorereadmepath()),
-        ("cp", readmepath("*.txt"), ipkgpath()),
+        ("cp", readmepath("*"), iicorereadmepath()),
+        ("cp", readmepath("*"), ipkgpath()),
     ]
-    if sys.platform == "darwin":
-        ibits += [
-            # No room for FEEDBACK.txt in the DMG root
-            ("rm", ipkgpath("FEEDBACK.txt")),
-        ]
 
     # - The main Komodo docs. (Only need to worry about these separately
     # on Windows because the MSI divides the install image by feature,
