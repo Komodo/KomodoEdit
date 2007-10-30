@@ -1358,8 +1358,9 @@ def _PackageKomodoDMG(cfg):
         "osxpkg is < 2.8.6: require >=2.8.6 for Komodo DMG template fixes: %r" \
         % osxpkg_ver
 
-    template = "Komodo-%s-%s" % (cfg.prettyProductType,
-                                 cfg.komodoMarketingShortVersion)
+    productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
+                   or "Komodo-%s" % cfg.prettyProductType)
+    template = "%s-%s" % (productName, cfg.komodoMarketingShortVersion)
     pkgPath = cfg.komodoInstallerPackage
     if exists(pkgPath):
         _run("rm %s" % pkgPath)
@@ -1501,8 +1502,9 @@ def _PackageKomodoUpdates(cfg):
     elif sys.platform.startswith("linux"):
         image_dir = join(cfg.installRelDir, "INSTALLDIR")
     elif sys.platform.startswith("darwin"):
-        image_dir = join(cfg.installRelDir,
-                         "Komodo %s.app" % cfg.prettyProductType)
+        productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
+                       or "Komodo %s" % cfg.prettyProductType)
+        image_dir = join(cfg.installRelDir, productName + ".app")
     else:
         raise Error("don't know install image dir for platform %r"
                     % sys.platform)
