@@ -244,6 +244,160 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 yield path
 
 
+# Recipe: splitall (0.2) in C:\trentm\tm\recipes\cookbook
+def _splitall(path):
+    r"""Split the given path into all constituent parts.
+
+    Often, it's useful to process parts of paths more generically than
+    os.path.split(), for example if you want to walk up a directory.
+    This recipe splits a path into each piece which corresponds to a
+    mount point, directory name, or file.  A few test cases make it
+    clear:
+        >>> splitall('')
+        []
+        >>> splitall('a/b/c')
+        ['a', 'b', 'c']
+        >>> splitall('/a/b/c/')
+        ['/', 'a', 'b', 'c']
+        >>> splitall('/')
+        ['/']
+        >>> splitall('C:\\a\\b')
+        ['C:\\', 'a', 'b']
+        >>> splitall('C:\\a\\')
+        ['C:\\', 'a']
+
+    (From the Python Cookbook, Files section, Recipe 99.)
+    """
+    allparts = []
+    while 1:
+        parts = os.path.split(path)
+        if parts[0] == path:  # sentinel for absolute paths
+            allparts.insert(0, parts[0])
+            break
+        elif parts[1] == path: # sentinel for relative paths
+            allparts.insert(0, parts[1])
+            break
+        else:
+            path = parts[0]
+            allparts.insert(0, parts[1])
+    allparts = [p for p in allparts if p] # drop empty strings 
+    return allparts
+
+
+# Recipe: relpath (0.2) in C:\trentm\tm\recipes\cookbook
+def _relpath(path, relto=None):
+    """Relativize the given path to another (relto).
+
+    "relto" indicates a directory to which to make "path" relative.
+        It default to the cwd if not specified.
+    """
+    if not os.path.isabs(path):
+        path = os.path.abspath(path)
+    if relto is None:
+        relto = os.getcwd()
+    else:
+        relto = os.path.abspath(relto)
+
+    if sys.platform.startswith("win"):
+        def _equal(a, b): return a.lower() == b.lower()
+    else:
+        def _equal(a, b): return a == b
+
+    pathDrive, pathRemainder = os.path.splitdrive(path)
+    if not pathDrive:
+        pathDrive = os.path.splitdrive(os.getcwd())[0]
+    relToDrive, relToRemainder = os.path.splitdrive(relto)
+    if not _equal(pathDrive, relToDrive):
+        # Which is better: raise an exception or return ""?
+        return ""
+        #raise OSError("Cannot make '%s' relative to '%s'. They are on "\
+        #              "different drives." % (path, relto))
+
+    pathParts = _splitall(pathRemainder)[1:] # drop the leading root dir
+    relToParts = _splitall(relToRemainder)[1:] # drop the leading root dir
+    #print "_relpath: pathPaths=%s" % pathParts
+    #print "_relpath: relToPaths=%s" % relToParts
+    for pathPart, relToPart in zip(pathParts, relToParts):
+        if _equal(pathPart, relToPart):
+            # drop the leading common dirs
+            del pathParts[0]
+            del relToParts[0]
+    #print "_relpath: pathParts=%s" % pathParts
+    #print "_relpath: relToParts=%s" % relToParts
+    # Relative path: walk up from "relto" dir and walk down "path".
+    relParts = [os.curdir] + [os.pardir]*len(relToParts) + pathParts
+    #print "_relpath: relParts=%s" % relParts
+    relPath = os.path.normpath( os.path.join(*relParts) )
+    return relPath
+
+def _short_ver_str_from_ver_info(ver_info):
+    def isint(s):
+        try:
+            int(s)
+        except ValueError:
+            return False
+        else:
+            return True
+
+    dotted = []
+    for bit in ver_info:
+        if bit is None:
+            continue
+        if dotted and isint(dotted[-1]) and isint(bit):
+            dotted.append('.')
+        dotted.append(str(bit))
+    return ''.join(dotted)    
+
+def _ver_info_from_long_ver_str(long_ver_str):
+    """Return a version info tuple for the given long version string.
+    
+    Examples of a "long" version string are:
+        4.0.0-alpha3-12345, 1.2.3-beta-54321, 4.2.5-2598, 5.0.0-43251
+    "Short" would be more like:
+        4.0.0a3, 1.2.3b, 4.2.5
+    
+    The returned tuple will be:
+        (<major>, <minor>, <patch>, <quality>, <quality-num>, <build-num>)
+    where <quality> is a letter ('a' for alpha, 'b' for beta, 'c' if not
+    given). <quality-num> and <build-num> default to None. The defaults are
+    chosen to make sorting result in a natural order.
+    """
+    def _isalpha(ch):
+        return 'a' <= ch <= 'z' or 'A' <= ch <= 'Z'
+    def _isdigit(ch):
+        return '0' <= ch <= '9'
+    def _split_quality(s):
+        for i in reversed(range(1, len(s)+1)):
+            if not _isdigit(s[i-1]):
+                break
+        if i == len(s):
+            quality_name, quality_num = s, None
+        else:
+            quality_name, quality_num = s[:i], int(s[i:])
+        quality = {'alpha': 'a', 'beta': 'b', 'devel': 'd'}[quality_name]
+        return quality, quality_num
+
+    bits = []
+    for i, undashed in enumerate(long_ver_str.split('-')):
+        for undotted in undashed.split('.'):
+            if len(bits) == 3:
+                # This is the "quality" section: 2 bits
+                if _isalpha(undotted[0]):
+                    bits += list(_split_quality(undotted))
+                    continue
+                else:
+                    bits += ['c', None]
+            try:
+                bits.append(int(undotted))
+            except ValueError:
+                bits.append(undotted)
+        # After first undashed segment should have: (major, minor, patch)
+        if i == 0:
+            while len(bits) < 3:
+                bits.append(0)
+    return tuple(bits)
+
+
 def _cp(src, dst):
     if sys.platform == "win32":
         if isdir(src):
@@ -1443,6 +1597,50 @@ def GrokKomodo(cfg, argv):
     desktop.open(url)
 
 
+def UploadKomodoPackages(cfg, argv):
+    """Upload Komodo packages.
+
+    Usage:
+        bk upload <base-upload-dir>
+    """
+    try:
+        upload_base_dir = argv[1]
+    except IndexError:
+        raise Error("incorrect usage, no upload dir given "
+                    "(see `bk help upload')")
+    log.info("upload packages in `%s' to `%s'", cfg.packagesRelDir,
+             upload_base_dir)
+    if buildutils.is_remote_path(upload_base_dir):
+        from posixpath import join as ujoin
+        from posixpath import normpath as unormpath
+        from posixpath import dirname as udirname
+    else:
+        from os.path import join as ujoin
+        from os.path import normpath as unormpath
+        from os.path import dirname as udirname
+
+    version = cfg.version
+    buildNum = cfg.buildNum
+
+    ver_info = _ver_info_from_long_ver_str(version)
+    short_ver = _short_ver_str_from_ver_info(ver_info)
+    upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds",
+                       str(buildNum))
+
+    if not buildutils.remote_exists(upload_dir, log.debug):
+        buildutils.remote_makedirs(upload_dir, log.info)
+    for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
+        reldir = _relpath(dirpath, cfg.packagesRelDir)
+        for filename in filenames:
+            if str(buildNum) not in filename:
+                continue
+            src = join(dirpath, filename)
+            dst = unormpath(ujoin(upload_dir, reldir, filename))
+            if not buildutils.remote_exists(dst, log.debug):
+                buildutils.remote_makedirs(udirname(dst), log.info)
+            buildutils.remote_cp(src, dst, log.info)
+
+
 def PackageKomodo(cfg, argv):
     """Build Komodo packages.
 
@@ -2103,6 +2301,7 @@ commandOverrides = {
     "cleanprefs": CleanPreferences,
     "clean": CleanKomodoBuild,
     "package": PackageKomodo,
+    "upload": UploadKomodoPackages,
     "test": TestKomodo,
     "perf": TestKomodoPerf,
     "image": ImageKomodo,
