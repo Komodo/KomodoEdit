@@ -207,6 +207,7 @@ class Shell(tmCmd.AugmentedListCmd):
         bk test             run %(name)ss self-test suite
 
         bk package          package up %(name)s bits
+        bk upload           upload %(name)s bits to staging area
         bk cleanprefs <komodo|mozilla>
                             clean Komodo or Mozilla prefs
 
@@ -531,6 +532,43 @@ class Shell(tmCmd.AugmentedListCmd):
             else:
                 name = ""
             out.write("warning: Don't know how to 'grok' %s. The "\
+                      "project Blackfile (%s) must describe how to do "\
+                      "this.\n" % (name, blackFileName))
+            out.endErrorItem()
+
+    def do_upload(self, argv):
+        """upload built packages to staging area
+
+        bk upload <base-upload-dir>
+
+        This is a total HACK just for Komodo -- the only user of Black,
+        so that is okay.
+        """
+        # die if there is no project configuration
+        if not blackFile:
+            raise black.BlackError("attempted 'upload' with no project "\
+                "configuration: no Blackfile.py was found")
+        try:
+            projectConfig = black.configure.ImportProjectConfig(
+                blackFileName, blackFile)
+        except ImportError:
+            out.startErrorItem()
+            out.write("error: Attempted 'upload' command without having "\
+                      "configured. You must first configure your project.\n")
+            out.endErrorItem()
+            return 1
+
+        # There can be no default "upload" command. A project must override
+        # this.
+        if HasOverride(blackFile, "upload"):
+            return RunOverride(blackFile, projectConfig, "upload", argv)
+        else:
+            out.startErrorItem()
+            if hasattr(projectConfig, "name"):
+                name = "project '%s'" % projectConfig.name
+            else:
+                name = ""
+            out.write("warning: Don't know how to 'upload' %s. The "\
                       "project Blackfile (%s) must describe how to do "\
                       "this.\n" % (name, blackFileName))
             out.endErrorItem()
