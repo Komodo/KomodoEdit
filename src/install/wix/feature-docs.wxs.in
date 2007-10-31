@@ -107,14 +107,6 @@
               <File Id="file307" LongName="codeintel.html" Name="CODEIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\codeintel.html" />
               <File Id="file363" LongName="commandid.html" Name="COMMAN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\commandid.html" />
               <File Id="file368" LongName="custtbi.html" Name="CUSTTB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\custtbi.html" />
-              <File Id="file369" LongName="debugger.html" Name="DEBUGG_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugger.html" />
-              <File Id="file370" LongName="debugjs.html" Name="DEBUGJ_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugjs.html" />
-              <File Id="file371" LongName="debugperl.html" Name="DEBUGP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugperl.html" />
-              <File Id="file372" LongName="debugphp.html" Name="DEBUGP_1.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugphp.html" />
-              <File Id="file373" LongName="debugpython.html" Name="DEBUGP_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugpython.html" />
-              <File Id="file374" LongName="debugruby.html" Name="DEBUGR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugruby.html" />
-              <File Id="file375" LongName="debugtcl.html" Name="DEBUGT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugtcl.html" />
-              <File Id="file376" LongName="debugxslt.html" Name="DEBUGX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugxslt.html" />
               <File Id="file377" LongName="defkeybind.html" Name="DEFKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\defkeybind.html" />
               <File Id="file378" LongName="dom.html" Name="DOM_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\dom.html" />
               <File Id="file379" LongName="editor.html" Name="EDITOR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\editor.html" />
@@ -152,7 +144,6 @@
               <File Id="file4397" Name="KOMODO_0.RDF" LongName="komodohelp.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodohelp.rdf"/>
               <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
               <File Id="file4398" Name="LIC_CO_1.HTM" LongName="lic_copy.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\lic_copy.html"/>
-              <File Id="file214" LongName="tortoisesvn_icon_license.html" Name="TORTOI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tortoisesvn_icon_license.html" />
             </Component>
             <Directory Id="directory530" Name="css">
               <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
