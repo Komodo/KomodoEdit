@@ -54,6 +54,8 @@
       <ComponentRef Id="component556" />
       <ComponentRef Id="component557" />
       <ComponentRef Id="component603" />
+      <ComponentRef Id="component496"/>
+      <ComponentRef Id="component499"/>
 <?endif ?>
     </FeatureRef>
 
@@ -92,22 +94,13 @@
                 <Shortcut Id="StartMenuInstallGuideShortcut" Directory="StartMenuDir"
                     Name="INSTAL_0.HTM" LongName="Install Guide" />
               </File>
-              <File Id="file3" Name="RELNOT_0.HTM" LongName="relnotes.html"
-                  Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\relnotes.html">
-                <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
-                    Name="RELNOT_0.HTM" LongName="Release Notes" />
-              </File>
               <File Id="file291" LongName="feedback.html" Name="FEEDBA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\feedback.html" >
                 <Shortcut Id="StartMenuFeedbackShortcut" Directory="StartMenuDir"
                     Name="KOMODO_0.HTM" LongName="Sending Feedback" />
               </File>
-              <File Id="file301" LongName="whatsnew.html" Name="WHATSN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\whatsnew.html" />
               <File Id="file304" LongName="starting.html" Name="STARTI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\starting.html" />
               <File Id="file305" LongName="workspace.html" Name="WORKSP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\workspace.html" />
               <File Id="file306" LongName="getstarted.html" Name="GETSTA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\getstarted.html" />
-              <File Id="file2181" Name="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aspn.css"/>
-              <File Id="file1387" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\api.css" />
-              <File Id="file235" Name="top.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\top.css"/>
               <File Id="file2334" Name="favicon.ico" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\favicon.ico"/>
               <File Id="file2335" Name="HELPTO_0.RDF" LongName="help-toc.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help-toc.rdf"/>
               <File Id="file2336" Name="HELP_H_0.XHT" LongName="help_help.xhtml" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help_help.xhtml"/>
@@ -147,6 +140,7 @@
               <File Id="file438" LongName="search.html" Name="SEARCH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\search.html" />
               <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
               <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
+              <File Id="file551" Name="TABSTO_0.HTM" LongName="tabstops.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tabstops.html"/>
               <File Id="file443" LongName="templates.html" Name="TEMPLA_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\templates.html" />
               <File Id="file444" LongName="toolbox.html" Name="TOOLBO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\toolbox.html" />
               <File Id="file445" LongName="trouble.html" Name="TROUBL_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\trouble.html" />
@@ -159,8 +153,16 @@
               <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
               <File Id="file4398" Name="LIC_CO_1.HTM" LongName="lic_copy.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\lic_copy.html"/>
               <File Id="file214" LongName="tortoisesvn_icon_license.html" Name="TORTOI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tortoisesvn_icon_license.html" />
-              <File Id="file4401" Name="REVISI_1.HTM" LongName="revisions.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\revisions.html"/>
             </Component>
+            <Directory Id="directory530" Name="css">
+              <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file552" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\api.css"/>
+                <File Id="file553" Name="app.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\app.css"/>
+                <File Id="file554" Name="ASPN_0.CSS" LongName="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\aspn.css"/>
+                <File Id="file555" Name="SCREEN_0.CSS" LongName="screen.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\screen.css"/>
+                <File Id="file556" Name="top.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\top.css"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\css -->
             <Directory Id="directory598" Name="IMG_0" LongName="img">
               <Component Id="component556" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file4403" Name="AS_LOG_1.GIF" LongName="as_logo_onwhite.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\as_logo_onwhite.gif"/>
@@ -195,7 +197,6 @@
                 <File Id="file4698" Name="EDITOR_6.GIF" LongName="editor_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_pane.gif"/>
                 <File Id="file4699" Name="EDITOR_7.GIF" LongName="editor_syncol.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_syncol.gif"/>
                 <File Id="file4700" Name="entry.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\entry.gif"/>
-                <File Id="file4701" Name="FINDNE_1.GIF" LongName="FindNextResult.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\FindNextResult.gif"/>
                 <File Id="file4702" Name="frame.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\frame.gif"/>
                 <File Id="file4703" Name="IGNORE_1.GIF" LongName="ignore_case.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\ignore_case.gif"/>
                 <File Id="file4704" Name="INTSHE_6.GIF" LongName="intshell_edit_variable.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_edit_variable.gif"/>
@@ -382,7 +383,24 @@
                 <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
                 <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
                 <File Id="file252" LongName="break_response.png" Name="BREAK__1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_response.png" />
+                <File Id="file557" Name="APPEDI_0.PNG" LongName="app-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-edit.png"/>
+                <File Id="file558" Name="APPIDE_0.PNG" LongName="app-ide-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide-edit.png"/>
+                <File Id="file559" Name="APPIDE_1.PNG" LongName="app-ide.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide.png"/>
+                <File Id="file560" Name="APPSNA_0.PNG" LongName="app-snapdragon.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-snapdragon.png"/>
+                <File Id="file561" Name="TOOLBA_0.GIF" LongName="toolbar_cust.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_cust.gif"/>
+                <File Id="file562" Name="TOURLE_0.GIF" LongName="tourlet_rx_openproj.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_openproj.gif"/>
+                <File Id="file563" Name="TOURLE_1.GIF" LongName="tourlet_rx_opensamp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_opensamp.gif"/>
               </Component>
+              <Directory Id="directory534" Name="releases">
+                <Component Id="component499" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file301" LongName="openkomodo.html" Name="OPENKO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\openkomodo.html" >
+                    <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
+                        Name="OPENKO_0.HTM" LongName="Release Notes" />
+                  </File>
+                  <File Id="file577" LongName="openkomodo.html" Name="OPENKO_1.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\openkomodo.html" />
+                  <File Id="file566" Name="INDEX_0.HTM" LongName="index.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\releases -->
               <Directory Id="directory658" Name="top">
                 <Component Id="component603" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file236" Name="ASLOGO_0.PNG" LongName="as-logo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\as-logo.png"/>

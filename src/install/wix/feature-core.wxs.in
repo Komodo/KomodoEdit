@@ -53,7 +53,6 @@
       <ComponentRef Id="component2"/>
       <ComponentRef Id="component25"/>
       <ComponentRef Id="MsvcrtUpdate"/>
-      <ComponentRef Id="MsvcpUpdate"/>
 
 <?if $(var.IsMSIDebugBuild) = "no" ?>
       <ComponentRef Id="component3"/>
@@ -155,11 +154,6 @@
       <ComponentRef Id="component201"/>
       <ComponentRef Id="component205"/>
       <ComponentRef Id="component206"/>
-      <ComponentRef Id="component207"/>
-      <ComponentRef Id="component208"/>
-      <ComponentRef Id="component209"/>
-      <ComponentRef Id="component210"/>
-      <ComponentRef Id="component212"/>
       <ComponentRef Id="component213"/>
       <ComponentRef Id="component214"/>
       <ComponentRef Id="component218"/>
@@ -169,7 +163,6 @@
       <ComponentRef Id="component232"/>
       <ComponentRef Id="component233"/>
       <ComponentRef Id="component234"/>
-      <ComponentRef Id="component422"/>
       <ComponentRef Id="component225"/>
       <ComponentRef Id="component226"/>
       <ComponentRef Id="component227"/>
@@ -271,12 +264,9 @@
       <ComponentRef Id="component153"/>
       <ComponentRef Id="component155"/>
       <ComponentRef Id="component81"/>
-      <ComponentRef Id="component607"/>
-      <ComponentRef Id="component608"/>
       <ComponentRef Id="component297"/>
       <ComponentRef Id="component10"/>
       <ComponentRef Id="component11"/>
-      <ComponentRef Id="component604"/>
       <ComponentRef Id="component605"/>
       <ComponentRef Id="component606"/>
       <ComponentRef Id="component541"/>
@@ -298,7 +288,26 @@
       <ComponentRef Id="component521"/>
       <ComponentRef Id="component513"/>
       <ComponentRef Id="component26"/>
-
+      <ComponentRef Id="component43"/>
+      <ComponentRef Id="component260"/>
+      <ComponentRef Id="component261"/>
+      <ComponentRef Id="component262"/>
+      <ComponentRef Id="component265"/>
+      <ComponentRef Id="component266"/>
+      <ComponentRef Id="component267"/>
+      <ComponentRef Id="component268"/>
+      <ComponentRef Id="component269"/>
+      <ComponentRef Id="component270"/>
+      <ComponentRef Id="component271"/>
+      <ComponentRef Id="component272"/>
+      <ComponentRef Id="component273"/>
+      <ComponentRef Id="component274"/>
+      <ComponentRef Id="component275"/>
+      <ComponentRef Id="component276"/>
+      <ComponentRef Id="component283"/>
+      <ComponentRef Id="component285"/>
+      <ComponentRef Id="component286"/>
+      <ComponentRef Id="component287"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -337,10 +346,7 @@
             DiskId="1" src="feature-core\INSTALLDIR\ko.exe" Vital="yes" />
       </Component>
       <Component Id="ReadMeFiles" DiskId="1" Guid="$(autowix.guid)">
-        <File Id="README.txt" Name="README.txt" src="feature-core\INSTALLDIR\README.txt" />
-        <File Id="file322" Name="FEEDBACK.txt"  src="feature-core\INSTALLDIR\FEEDBACK.txt"/>
         <File Id="file323" Name="LICENSE.txt"   src="feature-core\INSTALLDIR\LICENSE.txt"/>
-        <File Id="file324" Name="RELNOTES.txt"  src="feature-core\INSTALLDIR\RELNOTES.txt"/>
       </Component>
       <Component DiskId="1" Guid="$(autowix.guid)" Id="component25">
         <File Id="file1408" LongName="komodo-config.py" Name="KOMODO_0.PY" Vital="yes" src="feature-core\INSTALLDIR\komodo-config.py" />
@@ -508,10 +514,7 @@
               <File Id="file86" LongName="koCatalogsTree.py" Name="KOCATA_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCatalogsTree.py" />
               <File Id="file1975" Name="KOCODE_0.PY" LongName="koCodeIntel.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCodeIntel.py"/>
               <File Id="file1976" Name="KOCOMM_0.PY" LongName="koCommandmentService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCommandmentService.py"/>
-              <File Id="file1977" Name="KOCONS_0.PY" LongName="koConsole.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koConsole.py"/>
               <File Id="file1978" Name="KOCPPL_0.PY" LongName="koCPPLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCPPLanguage.py"/>
-              <File Id="file1979" Name="koCrypto.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCrypto.py"/>
-              <File Id="file1980" Name="koCrypto.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCrypto.xpt"/>
               <File Id="file1981" Name="KOCSHA_0.PY" LongName="koCSharpLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCSharpLanguage.py"/>
               <File Id="file1982" Name="KOCSSL_0.PY" LongName="koCSSLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCSSLanguage.py"/>
               <File Id="file4341" Name="KOCSSL_1.PY" LongName="koCSSLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCSSLinter.py"/>
@@ -549,11 +552,9 @@
               <File Id="file2018" Name="KOHTML_1.PY" LongName="koHTMLLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHTMLLinter.py"/>
               <File Id="file2019" Name="KOIAPP_0.XPT" LongName="koIAppInfo.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAppInfo.xpt"/>
               <File Id="file2020" Name="KOIAUT_0.XPT" LongName="koIAutoComplete.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAutoComplete.xpt"/>
-              <File Id="file2021" Name="KOIBAS_0.XPT" LongName="koIBasicTypes.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIBasicTypes.xpt"/>
               <File Id="file2022" Name="KOICAL_0.XPT" LongName="koICallTips.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICallTips.xpt"/>
               <File Id="file2023" Name="KOICOD_0.XPT" LongName="koICodeIntel.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICodeIntel.xpt"/>
               <File Id="file2024" Name="KOICOM_0.XPT" LongName="koICommandmentService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICommandmentService.xpt"/>
-              <File Id="file2025" Name="KOICON_0.XPT" LongName="koIConsoleMessageFactory.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIConsoleMessageFactory.xpt"/>
               <File Id="file2028" Name="koIDirs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDirs.xpt"/>
               <File Id="file2029" Name="KOIDLL_0.PY" LongName="koIDLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDLLanguage.py"/>
               <File Id="file2030" Name="KOIDOC_0.XPT" LongName="koIDocument.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDocument.xpt"/>
@@ -595,12 +596,10 @@
               <File Id="file2077" Name="KOISCI_0.XPT" LongName="koIScintillaSchemeService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaSchemeService.xpt"/>
               <File Id="file2078" Name="KOISCI_1.XPT" LongName="koISciUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koISciUtils.xpt"/>
               <File Id="file2079" Name="KOISTA_0.XPT" LongName="koIStatusMessage.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIStatusMessage.xpt"/>
-              <File Id="file2080" Name="KOISTO_0.XPT" LongName="koIStopwatch.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIStopwatch.xpt"/>
               <File Id="file2083" Name="KOISYS_1.XPT" LongName="koISysUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koISysUtils.xpt"/>
               <File Id="file2084" Name="KOITEM_0.XPT" LongName="koITemplateService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITemplateService.xpt"/>
               <File Id="file1405" Name="koITest.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITest.xpt" />
               <File Id="file1386" LongName="koITextboxAutoComplete.xpt" Name="KOITEX_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITextboxAutoComplete.xpt" />
-              <File Id="file2085" Name="KOITUT_0.XPT" LongName="koITutorialService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITutorialService.xpt"/>
               <File Id="file2086" Name="KOIURL_0.XPT" LongName="koIUrllib.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIUrllib.xpt"/>
               <File Id="file2087" Name="KOIURL_1.XPT" LongName="koIUrlUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIUrlUtils.xpt"/>
               <File Id="file2088" Name="KOIVIE_0.XPT" LongName="koIViewController.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIViewController.xpt"/>
@@ -626,7 +625,6 @@
               <File Id="file2109" Name="KOMATL_0.PY" LongName="koMatlabLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMatlabLanguage.py"/>
               <File Id="file2110" Name="KOMETA_0.PY" LongName="koMetapostLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMetapostLanguage.py"/>
               <File Id="file2111" Name="KOMMIX_0.PY" LongName="koMMIXALLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMMIXALLanguage.py"/>
-              <File Id="file2112" Name="KOMODE_0.PY" LongName="koModelineAutoComplete.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koModelineAutoComplete.py"/>
               <File Id="file2113" Name="KOMPTL_0.PY" LongName="koMPTLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMPTLanguage.py"/>
               <File Id="file2114" Name="KOMSSQ_0.PY" LongName="koMSSQLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMSSQLLanguage.py"/>
               <File Id="file2115" Name="KONNCR_0.PY" LongName="konnCrontabLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\konnCrontabLanguage.py"/>
@@ -662,17 +660,14 @@
               <File Id="file2153" Name="KOSPEC_0.PY" LongName="koSpecmanLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSpecmanLanguage.py"/>
               <File Id="file2154" Name="KOSQLL_0.PY" LongName="koSQLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSQLLanguage.py"/>
               <File Id="file2155" Name="KOSTAT_0.PY" LongName="koStatusMessage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koStatusMessage.py"/>
-              <File Id="file2156" Name="KOSTOP_0.PY" LongName="koStopwatch.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koStopwatch.py"/>
               <File Id="file2159" Name="KOSYSU_0.PY" LongName="koSysUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSysUtils.py"/>
               <File Id="file2160" Name="KOTCLC_0.PY" LongName="koTclCompletion.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTclCompletion.py"/>
               <File Id="file2161" Name="KOTCLL_0.PY" LongName="koTclLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTclLanguage.py"/>
-              <File Id="file2162" Name="KOTCLL_1.PY" LongName="koTclLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTclLinter.py"/>
               <File Id="file1406" Name="koTest.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTest.py" />
               <File Id="file2163" Name="KOTEMP_0.PY" LongName="koTemplateService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTemplateService.py"/>
               <File Id="file2164" Name="KOTEXL_0.PY" LongName="koTeXLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTeXLanguage.py"/>
               <File Id="file2165" Name="KOTEXT_0.PY" LongName="koTextboxAutoComplete.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTextboxAutoComplete.py"/>
               <File Id="file2166" Name="KOTEXT_1.PY" LongName="koTextLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTextLanguage.py"/>
-              <File Id="file2167" Name="KOTUTO_0.PY" LongName="koTutorialService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTutorialService.py"/>
               <File Id="file2168" Name="koUrllib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koUrllib.py"/>
               <File Id="file2169" Name="KOURLU_0.PY" LongName="koUrlUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koUrlUtils.py"/>
               <File Id="file2170" Name="KOVBLA_0.PY" LongName="koVBLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koVBLanguage.py"/>
@@ -959,6 +954,13 @@
                 </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\templates\All Languages -->
               </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com -->
+            <Directory Id="directory45" Name="INDUST_0.ORG" LongName="industrial@openoffice.org">
+              <Component Id="component43" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file10" Name="CHROME_0.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\industrial@openoffice.org\chrome.manifest"/>
+                <File Id="file11" Name="INDUST_0.JAR" LongName="industrial.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\industrial@openoffice.org\industrial.jar"/>
+                <File Id="file12" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\industrial@openoffice.org\install.rdf"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\extensions\industrial@openoffice.org -->
             <Directory Id="directory331" Name="SILKFA_0.COM" LongName="silk@famfamfam.com">
               <Component Id="component297" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file437" Name="CHROM_17.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\silk@famfamfam.com\chrome.manifest"/>
@@ -1316,13 +1318,14 @@
             <Directory Id="directory68" Name="komodo">
               <Component Id="component62" DiskId="1" Guid="$(autowix.guid)">
                 <RemoveFile Id="removefile62" On="uninstall" Name="*.pyo" />
+                <File Id="file13" Name="applib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\applib.py"/>
+                <File Id="file83" Name="FILEST_0.PY" LongName="fileStatusUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\fileStatusUtils.py"/>
                 <File Id="file2179" Name="CELEME_0.PYD" LongName="cElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\cElementTree.pyd"/>
                 <File Id="file40" Name="CIELEM_0.PYD" LongName="ciElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ciElementTree.pyd"/>
                 <File Id="file1886" Name="DIFFLI_0.PY" LongName="difflibex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\difflibex.py"/>
                 <File Id="file2291" Name="eollib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\eollib.py"/>
                 <File Id="file2292" Name="FACTOR_0.PY" LongName="factoryStyleSettings.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\factoryStyleSettings.py"/>
                 <File Id="file2293" Name="findlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\findlib.py"/>
-                <File Id="file2296" Name="KOBASI_0.PY" LongName="koBasicTypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koBasicTypes.py"/>
                 <File Id="file2297" Name="KOLANG_2.PY" LongName="koLanguageServiceBase.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLanguageServiceBase.py"/>
                 <File Id="file2298" Name="KOLINT_2.PY" LongName="koLintResult.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLintResult.py"/>
                 <File Id="file2299" Name="KOLINT_3.PY" LongName="koLintResults.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLintResults.py"/>
@@ -1338,7 +1341,6 @@
                 <File Id="file2312" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\process.py"/>
                 <File Id="file2314" Name="PYXPCO_0.PY" LongName="pyxpcomProfiler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pyxpcomProfiler.py"/>
                 <File Id="file2315" Name="reflow.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\reflow.py"/>
-                <File Id="file2316" Name="rotor.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\rotor.pyd"/>
                 <File Id="file2317" Name="SCIMOZ_0.PY" LongName="scimozindent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\scimozindent.py"/>
                 <File Id="file2318" Name="sciutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sciutils.py"/>
                 <File Id="file3912" Name="SITEPY_0.PY" LongName="sitepyxpcom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sitepyxpcom.py"/>
@@ -1504,6 +1506,213 @@
                   </Component>
                 </Directory> <!-- lib\mozilla\python\komodo\inflector\Rules -->
               </Directory> <!-- lib\mozilla\python\komodo\inflector -->
+
+              <Directory Id="directory278" Name="KOWNDW_0" LongName="koWndWrapper">
+                <Component Id="component260" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file128" Name="CONSCR_0" LongName="Conscript" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\Conscript"/>
+                  <File Id="file153" Name="notify.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\notify.py"/>
+                  <File Id="file200" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\__init__.py"/>
+                </Component>
+                <Directory Id="directory279" Name="consts">
+                  <Component Id="component261" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file201" Name="NTSECU_1.PY" LongName="ntsecuritycon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\consts\ntsecuritycon.py"/>
+                    <File Id="file243" Name="win32con.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\consts\win32con.py"/>
+                    <File Id="file245" Name="__INIT_0.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\consts\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\koWndWrapper\consts -->
+                <Directory Id="directory280" Name="koCTypes">
+                  <Component Id="component262" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file247" Name="com.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\koCTypes\com.py"/>
+                    <File Id="file249" Name="__INIT_1.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\koCTypes\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\koWndWrapper\koCTypes -->
+              </Directory> <!-- lib\mozilla\python\komodo\koWndWrapper -->
+              <Directory Id="directory283" Name="wnd">
+                <Component Id="component265" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file367" Name="fwtypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\fwtypes.py"/>
+                  <File Id="file412" Name="license.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\license.txt"/>
+                  <File Id="file415" Name="news.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\news.txt"/>
+                  <File Id="file416" Name="readme.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\readme.txt"/>
+                  <File Id="file417" Name="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\wintypes.py"/>
+                  <File Id="file418" Name="__INIT_4.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\__init__.py"/>
+                </Component>
+                <Directory Id="directory284" Name="api">
+                  <Component Id="component266" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file419" Name="CLIPBO_0.PY" LongName="clipboard.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipboard.py"/>
+                    <File Id="file420" Name="copydata.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\copydata.py"/>
+                    <File Id="file421" Name="display.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\display.py"/>
+                    <File Id="file422" Name="handles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\handles.py"/>
+                    <File Id="file423" Name="MENUHA_0.PY" LongName="menuhandles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\menuhandles.py"/>
+                    <File Id="file424" Name="msgbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\msgbox.py"/>
+                    <File Id="file425" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\process.py"/>
+                    <File Id="file426" Name="RESOUR_0.PY" LongName="resources.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\resources.py"/>
+                    <File Id="file427" Name="win.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win.py"/>
+                    <File Id="file428" Name="winos.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\winos.py"/>
+                    <File Id="file429" Name="winpath.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\winpath.py"/>
+                    <File Id="file430" Name="wintime.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\wintime.py"/>
+                    <File Id="file431" Name="win_NT4.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win_NT4.py"/>
+                    <File Id="file432" Name="WIN_WI_0.PY" LongName="win_win98.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win_win98.py"/>
+                    <File Id="file433" Name="__INI_12.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\__init__.py"/>
+                  </Component>
+                  <Directory Id="directory285" Name="CLIPFO_0" LongName="clipformats">
+                    <Component Id="component267" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file434" Name="DROPEF_0.PY" LongName="dropeffect_performed.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\dropeffect_performed.py"/>
+                      <File Id="file435" Name="DROPEF_1.PY" LongName="dropeffect_prefered.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\dropeffect_prefered.py"/>
+                      <File Id="file436" Name="filename.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\filename.py"/>
+                      <File Id="file450" Name="FILENA_0.PY" LongName="filenamemap.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\filenamemap.py"/>
+                      <File Id="file451" Name="hdropex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\hdropex.py"/>
+                      <File Id="file452" Name="HDROPF_0.PY" LongName="hdropfiles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\hdropfiles.py"/>
+                      <File Id="file453" Name="htmlraw.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\htmlraw.py"/>
+                      <File Id="file454" Name="IDLIST_0.PY" LongName="idlistarray.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\idlistarray.py"/>
+                      <File Id="file455" Name="null.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\null.py"/>
+                      <File Id="file456" Name="oemtext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\oemtext.py"/>
+                      <File Id="file457" Name="text.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\text.py"/>
+                      <File Id="file458" Name="UNICOD_2.PY" LongName="unicodetext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\unicodetext.py"/>
+                      <File Id="file459" Name="__INI_14.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\clipformats -->
+                  <Directory Id="directory287" Name="com">
+                    <Component Id="component268" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file460" Name="ole.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\ole.py"/>
+                      <File Id="file461" Name="__INI_22.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\__init__.py"/>
+                    </Component>
+                    <Directory Id="directory288" Name="tlb">
+                      <Component Id="component269" DiskId="1" Guid="$(autowix.guid)">
+                        <File Id="file462" Name="ie6.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\ie6.py"/>
+                        <File Id="file463" Name="mshtml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\mshtml.py"/>
+                        <File Id="file464" Name="__INI_34.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\__init__.py"/>
+                      </Component>
+                    </Directory> <!-- lib\mozilla\python\komodo\wnd\api\com\tlb -->
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\com -->
+                  <Directory Id="directory289" Name="ole">
+                    <Component Id="component270" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file465" Name="DATAOB_0.PY" LongName="dataobject.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\dataobject.py"/>
+                      <File Id="file466" Name="dragdrop.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\dragdrop.py"/>
+                      <File Id="file467" Name="ENUMFO_0.PY" LongName="enumformatetc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\enumformatetc.py"/>
+                      <File Id="file468" Name="ENUMST_0.PY" LongName="enumstatdata.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\enumstatdata.py"/>
+                      <File Id="file469" Name="WINTYP_0.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\wintypes.py"/>
+                      <File Id="file470" Name="__INI_38.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\ole -->
+                  <Directory Id="directory290" Name="PRIVLE_0" LongName="privleges">
+                    <Component Id="component271" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file471" Name="PRIVLE_0.PY" LongName="privleges.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\privleges.py"/>
+                      <File Id="file472" Name="WINTYP_1.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\wintypes.py"/>
+                      <File Id="file473" Name="__INI_55.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\privleges -->
+                  <Directory Id="directory291" Name="shell">
+                    <Component Id="component272" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file474" Name="consts.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\consts.py"/>
+                      <File Id="file475" Name="CONTEX_1.PY" LongName="contextmenu.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\contextmenu.py"/>
+                      <File Id="file476" Name="FUNCTI_0.PY" LongName="functions.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\functions.py"/>
+                      <File Id="file477" Name="NAMESP_0.PY" LongName="namespace.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\namespace.py"/>
+                      <File Id="file478" Name="SHELLI_0.PY" LongName="shellicon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellicon.py"/>
+                      <File Id="file479" Name="SHELLI_1.PY" LongName="shelliconcache.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shelliconcache.py"/>
+                      <File Id="file480" Name="SHELLL_0.PY" LongName="shelllink.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shelllink.py"/>
+                      <File Id="file481" Name="shellnew.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellnew.py"/>
+                      <File Id="file482" Name="SHELLN_0.PY" LongName="shellnotify.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellnotify.py"/>
+                      <File Id="file483" Name="WINTYP_2.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\wintypes.py"/>
+                      <File Id="file484" Name="__INI_56.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\shell -->
+                </Directory> <!-- lib\mozilla\python\komodo\wnd\api -->
+                <Directory Id="directory292" Name="CONSTS_0" LongName="consts">
+                  <Component Id="component273" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file485" Name="dlgs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\consts\dlgs.py"/>
+                    <File Id="file486" Name="styles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\consts\styles.py"/>
+                    <File Id="file487" Name="vk.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\consts\vk.py"/>
+                    <File Id="file488" Name="__INI_63.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\consts\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\wnd\consts -->
+                <Directory Id="directory293" Name="controls">
+                  <Component Id="component274" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file491" Name="ACCELE_0.PY" LongName="accelerator.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\accelerator.py"/>
+                    <File Id="file492" Name="ANIMAT_0.PY" LongName="animation.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\animation.py"/>
+                    <File Id="file493" Name="blank.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\blank.py"/>
+                    <File Id="file494" Name="button.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\button.py"/>
+                    <File Id="file495" Name="checkbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\checkbox.py"/>
+                    <File Id="file496" Name="combobox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\combobox.py"/>
+                    <File Id="file497" Name="DATEPI_0.PY" LongName="datepicker.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\datepicker.py"/>
+                    <File Id="file498" Name="dialog.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\dialog.py"/>
+                    <File Id="file499" Name="editbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\editbox.py"/>
+                    <File Id="file500" Name="groupbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\groupbox.py"/>
+                    <File Id="file501" Name="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\header.py"/>
+                    <File Id="file502" Name="helpers.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\helpers.py"/>
+                    <File Id="file503" Name="hotkey.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\hotkey.py"/>
+                    <File Id="file504" Name="IMAGEL_0.PY" LongName="imagelist.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\imagelist.py"/>
+                    <File Id="file505" Name="IPCONT_0.PY" LongName="ipcontrol.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\ipcontrol.py"/>
+                    <File Id="file506" Name="listbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\listbox.py"/>
+                    <File Id="file507" Name="monthcal.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\monthcal.py"/>
+                    <File Id="file508" Name="pager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\pager.py"/>
+                    <File Id="file509" Name="PROGRE_0.PY" LongName="progressbar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\progressbar.py"/>
+                    <File Id="file510" Name="PROPER_0.PY" LongName="propertysheet.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\propertysheet.py"/>
+                    <File Id="file511" Name="radiobox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\radiobox.py"/>
+                    <File Id="file512" Name="rebar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\rebar.py"/>
+                    <File Id="file513" Name="SCROLL_1.PY" LongName="scrollbar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\scrollbar.py"/>
+                    <File Id="file514" Name="static.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\static.py"/>
+                    <File Id="file515" Name="STATUS_0.PY" LongName="statusbar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\statusbar.py"/>
+                    <File Id="file516" Name="tab.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\tab.py"/>
+                    <File Id="file517" Name="textin.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\textin.py"/>
+                    <File Id="file518" Name="tooltip.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\tooltip.py"/>
+                    <File Id="file519" Name="trackbar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\trackbar.py"/>
+                    <File Id="file520" Name="trayicon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\trayicon.py"/>
+                    <File Id="file521" Name="updown.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\updown.py"/>
+                    <File Id="file522" Name="window.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\window.py"/>
+                    <File Id="file523" Name="WINDOW_2.PY" LongName="windowclass.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\windowclass.py"/>
+                    <File Id="file524" Name="__INI_64.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\__init__.py"/>
+                  </Component>
+                  <Directory Id="directory294" Name="base">
+                    <Component Id="component275" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file525" Name="control.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\base\control.py"/>
+                      <File Id="file526" Name="DIALOG_0.PY" LongName="dialog.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\base\dialog.py"/>
+                      <File Id="file527" Name="methods.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\base\methods.py"/>
+                      <File Id="file528" Name="WINDOW_3.PY" LongName="window.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\base\window.py"/>
+                      <File Id="file529" Name="__INI_65.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\base\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\base -->
+                  <Directory Id="directory295" Name="listview">
+                    <Component Id="component276" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file530" Name="HEADER_0.PY" LongName="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\listview\header.py"/>
+                      <File Id="file531" Name="MESSAG_0.PY" LongName="messagehandler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\listview\messagehandler.py"/>
+                      <File Id="file532" Name="METHOD_0.PY" LongName="methods.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\listview\methods.py"/>
+                      <File Id="file533" Name="__INI_66.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\listview\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\listview -->
+                  <Directory Id="directory302" Name="mdiframe">
+                    <Component Id="component283" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file534" Name="MDICLI_0.PY" LongName="mdiclient.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\mdiframe\mdiclient.py"/>
+                      <File Id="file535" Name="__INI_67.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\mdiframe\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\mdiframe -->
+                  <Directory Id="directory304" Name="menu">
+                    <Component Id="component285" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file536" Name="HEADER_1.PY" LongName="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\menu\header.py"/>
+                      <File Id="file537" Name="METHOD_1.PY" LongName="methods.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\menu\methods.py"/>
+                      <File Id="file538" Name="popup.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\menu\popup.py"/>
+                      <File Id="file539" Name="__INI_68.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\menu\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\menu -->
+                  <Directory Id="directory305" Name="toolbar">
+                    <Component Id="component286" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file540" Name="HEADER_2.PY" LongName="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\toolbar\header.py"/>
+                      <File Id="file541" Name="HELPER_0.PY" LongName="helpers.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\toolbar\helpers.py"/>
+                      <File Id="file542" Name="MESSAG_1.PY" LongName="messagehandler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\toolbar\messagehandler.py"/>
+                      <File Id="file543" Name="METHOD_2.PY" LongName="methods.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\toolbar\methods.py"/>
+                      <File Id="file544" Name="__INI_69.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\toolbar\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\toolbar -->
+                  <Directory Id="directory306" Name="treeview">
+                    <Component Id="component287" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file545" Name="HEADER_3.PY" LongName="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\treeview\header.py"/>
+                      <File Id="file546" Name="HELPER_1.PY" LongName="helpers.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\treeview\helpers.py"/>
+                      <File Id="file547" Name="MESSAG_2.PY" LongName="messagehandler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\treeview\messagehandler.py"/>
+                      <File Id="file548" Name="METHOD_3.PY" LongName="methods.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\treeview\methods.py"/>
+                      <File Id="file549" Name="__INI_70.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\controls\treeview\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\treeview -->
+                </Directory> <!-- lib\mozilla\python\komodo\wnd\controls -->
+              </Directory> <!-- lib\mozilla\python\komodo\wnd -->
 
 <?if $(var.WithCrypto) = "yes" ?>
               <Directory Id="directory296" Name="Crypto">
@@ -3076,14 +3285,11 @@
               <File Id="file3829" Name="ISciMoz.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMoz.idl"/>
               <File Id="file3830" Name="ISCIMO_0.IDL" LongName="ISciMozController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozController.idl"/>
               <File Id="file3831" Name="ISCIMO_1.IDL" LongName="ISciMozEvents.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozEvents.idl"/>
-              <File Id="file3832" Name="koCrypto.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koCrypto.idl"/>
               <File Id="file3833" Name="KOIAPP_0.IDL" LongName="koIAppInfo.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAppInfo.idl"/>
               <File Id="file3838" Name="KOIAUT_0.IDL" LongName="koIAutoComplete.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAutoComplete.idl"/>
-              <File Id="file3839" Name="KOIBAS_0.IDL" LongName="koIBasicTypes.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIBasicTypes.idl"/>
               <File Id="file3840" Name="KOICAL_0.IDL" LongName="koICallTips.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICallTips.idl"/>
               <File Id="file3841" Name="KOICOD_0.IDL" LongName="koICodeIntel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICodeIntel.idl"/>
               <File Id="file3842" Name="KOICOM_0.IDL" LongName="koICommandmentService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICommandmentService.idl"/>
-              <File Id="file3843" Name="KOICON_0.IDL" LongName="koIConsoleMessageFactory.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIConsoleMessageFactory.idl"/>
               <File Id="file3844" Name="KOICSS_0.IDL" LongName="koICSSParser.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICSSParser.idl"/>
               <File Id="file3852" Name="koIDirs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDirs.idl"/>
               <File Id="file3873" Name="KOIDOC_0.IDL" LongName="koIDocument.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDocument.idl"/>
@@ -3127,12 +3333,10 @@
               <File Id="file4088" Name="KOISCI_0.IDL" LongName="koIScintillaSchemeService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIScintillaSchemeService.idl"/>
               <File Id="file4089" Name="KOISCI_1.IDL" LongName="koISciUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koISciUtils.idl"/>
               <File Id="file4090" Name="KOISTA_0.IDL" LongName="koIStatusMessage.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIStatusMessage.idl"/>
-              <File Id="file4091" Name="KOISTO_0.IDL" LongName="koIStopwatch.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIStopwatch.idl"/>
               <File Id="file4094" Name="KOISYS_1.IDL" LongName="koISysUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koISysUtils.idl"/>
               <File Id="file4095" Name="KOITEM_0.IDL" LongName="koITemplateService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITemplateService.idl"/>
               <File Id="file1407" Name="koITest.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITest.idl" />
               <File Id="file4096" Name="KOITEX_0.IDL" LongName="koITextboxAutoComplete.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITextboxAutoComplete.idl"/>
-              <File Id="file4097" Name="KOITUT_0.IDL" LongName="koITutorialService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITutorialService.idl"/>
               <File Id="file4098" Name="KOIURL_0.IDL" LongName="koIUrllib.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIUrllib.idl"/>
               <File Id="file4099" Name="KOIURL_1.IDL" LongName="koIUrlUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIUrlUtils.idl"/>
               <File Id="file4101" Name="KOIVIE_0.IDL" LongName="koIViewController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIViewController.idl"/>
@@ -3373,6 +3577,7 @@
               <File Id="file43" Name="ACTION_0.UDL" LongName="actionscript-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\actionscript-mainlex.udl"/>
               <File Id="file45" Name="ACTION_1.UDL" LongName="actionscript_lex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\actionscript_lex.udl"/>
               <File Id="file46" Name="css2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\css2html.udl"/>
+              <File Id="file550" Name="css2php.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\css2php.udl"/>
               <File Id="file47" Name="csslex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\csslex.udl"/>
               <File Id="file48" Name="DJANGO_0.UDL" LongName="django-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\django-mainlex.udl"/>
               <File Id="file49" Name="DJANGO_1.UDL" LongName="django2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\django2html.udl"/>
@@ -3454,11 +3659,6 @@
             <File Id="file3674" Name="prefs.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\prefs.xml"/>
           </Component>
           <Directory Id="directory657" Name="DEFAUL_1" LongName="default-project-templates">
-            <Directory Id="directory659" Name="COMMO_15" LongName="Common">
-              <Component Id="component604" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2360" Name="RUBYON_0.KPZ" LongName="Ruby on Rails.kpz" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-project-templates\Common\Ruby on Rails.kpz"/>
-              </Component>
-            </Directory> <!-- lib\support\default-project-templates\Common -->
             <Directory Id="directory660" Name="KOMODO_0" LongName="Komodo">
               <Component Id="component605" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file2361" Name="KOMODO_0.KPZ" LongName="Komodo Extension.kpz" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-project-templates\Komodo\Komodo Extension.kpz"/>
@@ -3969,70 +4169,6 @@
               <File Id="file3855" Name="toolbox.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\toolbox.kpf"/>
               <File Id="file3856" Name="XSLT_S_0.XSL" LongName="xslt_sample.xsl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_sample.xsl"/>
             </Component>
-            <Directory Id="directory663" Name="JS_TUT_0" LongName="js_tutorials">
-              <Component Id="component607" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file403" Name="CONTEX_0.JS" LongName="context-menu.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\context-menu.js"/>
-                <File Id="file404" Name="JSDEMO_0.HTM" LongName="jsdemo.html" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\jsdemo.html"/>
-                <File Id="file405" Name="JS_TUT_0.KPF" LongName="js_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\js_tutorial.kpf"/>
-                <File Id="file406" Name="SELECT_4.PNG" LongName="selectcountry.png" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\selectcountry.png"/>
-              </Component>
-              <Directory Id="directory664" Name="yui">
-                <Component Id="component608" DiskId="1" Guid="$(autowix.guid)">
-                  <File Id="file407" Name="CONTAI_1.JS" LongName="container_core-min.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\yui\container_core-min.js"/>
-                  <File Id="file408" Name="DOMMIN_1.JS" LongName="dom-min.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\yui\dom-min.js"/>
-                  <File Id="file409" Name="EVENTM_1.JS" LongName="event-min.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\yui\event-min.js"/>
-                  <File Id="file410" Name="MENUMI_1.JS" LongName="menu-min.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\yui\menu-min.js"/>
-                  <File Id="file411" Name="YAHOOM_1.JS" LongName="yahoo-min.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\js_tutorials\yui\yahoo-min.js"/>
-                </Component>
-              </Directory> <!-- lib\support\samples\js_tutorials\yui -->
-            </Directory> <!-- lib\support\samples\js_tutorials -->
-            <Directory Id="directory219" Name="PERL_T_0" LongName="perl_tutorials">
-              <Component Id="component207" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file3857" Name="MAILEX_0.TXT" LongName="mailexport.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\perl_tutorials\mailexport.txt"/>
-                <File Id="file3858" Name="MAILEX_0.XML" LongName="mailexport.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\perl_tutorials\mailexport.xml"/>
-                <File Id="file3859" Name="parse.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\perl_tutorials\parse.pl"/>
-                <File Id="file3860" Name="PERL_T_0.KPF" LongName="perl_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\perl_tutorials\perl_tutorial.kpf"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\perl_tutorials -->
-            <Directory Id="directory220" Name="PHP_TU_0" LongName="php_tutorials">
-              <Component Id="component208" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file3861" Name="GUESTB_0.PHP" LongName="guestbook.php" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\php_tutorials\guestbook.php"/>
-                <File Id="file3862" Name="PHP_TU_0.KPF" LongName="php_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\php_tutorials\php_tutorial.kpf"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\php_tutorials -->
-            <Directory Id="directory221" Name="PYTHON_5" LongName="python_tutorials">
-              <Component Id="component209" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file3929" Name="PYTHON_0.KPF" LongName="python_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\python_tutorial.kpf"/>
-                <File Id="file3863" Name="CONTEN_0.TYP" LongName="content.types" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\content.types"/>
-                <File Id="file3864" Name="CONTEN_0.PY" LongName="contenttype.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\contenttype.py"/>
-                <File Id="file3865" Name="HELLOW_0.HTM" LongName="helloworld.html" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\helloworld.html"/>
-                <File Id="file3866" Name="HELLOW_0.PY" LongName="helloworld.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\helloworld.py"/>
-                <File Id="file3868" Name="PREPRO_0.PY" LongName="preprocess.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_tutorials\preprocess.py"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\python_tutorials -->
-            <Directory Id="directory446" Name="RUBY_T_0" LongName="ruby_tutorials">
-              <Component Id="component422" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file1553" Name="ANIMAL_0.YAM" LongName="animals.yaml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\ruby_tutorials\animals.yaml"/>
-                <File Id="file1556" Name="MENAGE_0.RB" LongName="menagerie.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\ruby_tutorials\menagerie.rb"/>
-                <File Id="file1623" Name="RUBY_T_0.KPF" LongName="ruby_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\ruby_tutorials\ruby_tutorial.kpf"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\ruby_tutorials -->
-            <Directory Id="directory222" Name="RUNCMD_0" LongName="runcmd_tutorials">
-              <Component Id="component210" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file3869" Name="hello.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\runcmd_tutorials\hello.pl"/>
-                <File Id="file3870" Name="INDEX_1.HTM" LongName="index.html" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\runcmd_tutorials\index.html"/>
-                <File Id="file3871" Name="play.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\runcmd_tutorials\play.txt"/>
-                <File Id="file3872" Name="RUNCMD_0.KPF" LongName="runcmd_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\runcmd_tutorials\runcmd_tutorial.kpf"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\runcmd_tutorials -->
-            <Directory Id="directory224" Name="XSLT_T_0" LongName="xslt_tutorials">
-              <Component Id="component212" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file3877" Name="MAILEX_0.HTM" LongName="mailexport.html" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_tutorials\mailexport.html"/>
-                <File Id="file3878" Name="MAILEX_1.XML" LongName="mailexport.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_tutorials\mailexport.xml"/>
-                <File Id="file3879" Name="MAILEX_0.XSL" LongName="mailexport2html.xsl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_tutorials\mailexport2html.xsl"/>
-                <File Id="file3880" Name="XSLT_T_0.KPF" LongName="xslt_tutorial.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_tutorials\xslt_tutorial.kpf"/>
-              </Component>
-            </Directory> <!-- lib\support\samples\xslt_tutorials -->
           </Directory> <!-- lib\support\samples -->
           <Directory Id="directory225" Name="schemes">
             <Component Id="component213" DiskId="1" Guid="$(autowix.guid)">
@@ -4048,7 +4184,6 @@
           </Directory> <!-- lib\support\schemes -->
           <Directory Id="directory226" Name="TCL_0" LongName="tcl">
             <Component Id="component214" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file3887" Name="KOTCLL_0.EXE" LongName="kotcllint.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\support\tcl\kotcllint.exe"/>
               <File Id="file3888" Name="TCLCOR_0.TIP" LongName="tcl-core.tip" Vital="yes" src="feature-core\INSTALLDIR\lib\support\tcl\tcl-core.tip"/>
               <File Id="file3889" Name="TKCORE_0.TIP" LongName="tk-core.tip" Vital="yes" src="feature-core\INSTALLDIR\lib\support\tcl\tk-core.tip"/>
             </Component>
@@ -4063,10 +4198,6 @@
         <Condition>VersionNT &lt;= 400</Condition>
         <File Id="file0" Name="msvcirt.dll" Vital="yes" src="feature-core\SystemFolder\msvcirt.dll"/>
         <File Id="file1" Name="msvcrt.dll" Vital="yes" src="feature-core\SystemFolder\msvcrt.dll"/>
-      </Component>
-      <Component Id="MsvcpUpdate" DiskId="1" Guid="$(autowix.guid)">
-        <Condition>(Version9X &lt;= 410) Or (VersionNT &lt;= 500)</Condition>
-        <File Id="file4" Name="MSVCP60.dll" Vital="yes" src="feature-core\SystemFolder\MSVCP60.dll"/>
       </Component>
     </DirectoryRef>
 
