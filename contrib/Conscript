@@ -441,15 +441,17 @@ $consLocal->Install("$supportDir/html", $exeName);
     $cons->DependsRecursive($landmark, "komododoc",
                             ("build", '\.svn', '\.consign'));
 
-    $landmark = "$readmeDir/relnotes.html";
-    $cons->Command(
-        $landmark,
-        "komododoc/Makefile.py",
-        "komododoc/config.py",
-        qq{
-            cd %1:d && mk miniset
-        }
-    );
-    $cons->DependsRecursive($landmark, "komododoc",
-                            ("build", '\.svn', '\.consign'));
+    if ($platform ne "win") {
+        $landmark = "$readmeDir/relnotes.html";
+        $cons->Command(
+            $landmark,
+            "komododoc/Makefile.py",
+            "komododoc/config.py",
+            qq{
+                cd %1:d && mk miniset
+            }
+        );
+        $cons->DependsRecursive($landmark, "komododoc",
+                                ("build", '\.svn', '\.consign'));
+    }
 }

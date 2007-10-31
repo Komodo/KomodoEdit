@@ -38,10 +38,14 @@
 
 Import(
     'cons',
+    'platform',
+    'readmeDir',
 );
 
-$cons->InstallAs("LICENSE.rtf", "LICENSE.mpl.rtf"); 
-
+$cons->InstallAs("LICENSE.rtf", "LICENSE.mpl.rtf");
+if ($platform eq "win") {
+    $cons->InstallAs("$readmeDir/LICENSE.txt", "LICENSE.mpl.txt"); 
+}
 
 
 
