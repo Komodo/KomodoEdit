@@ -155,7 +155,7 @@ this.about = function browse_About() {
 // XXX move these to a properties file or prefs.js
 var tag2uri = {
     'community': "http://www.openkomodo.com/",
-    'bugs': "http://bugs.ActiveState.com/OpenKomodo/"
+    'bugs': "http://bugs.activestate.com/query.cgi?format=specific&product=OpenKomodo"
 };
 
 /**
