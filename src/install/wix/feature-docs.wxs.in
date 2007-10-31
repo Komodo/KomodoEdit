@@ -389,7 +389,6 @@
                     <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
                         Name="OPENKO_0.HTM" LongName="Release Notes" />
                   </File>
-                  <File Id="file577" LongName="openkomodo.html" Name="OPENKO_1.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\openkomodo.html" />
                   <File Id="file566" Name="INDEX_0.HTM" LongName="index.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html"/>
                 </Component>
               </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\releases -->
