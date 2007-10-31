@@ -47,6 +47,11 @@ log = logging.getLogger("koWndWrapper")
 
 import ctypes
 
+# Hardwired constants that we'd normally get from wnd, but 
+# run into old code that wants to import ctypes.com
+
+CLSIDL_APPDATA = 26
+
 _kernel32 = ctypes.windll.kernel32
 _user32 = ctypes.windll.user32
 
