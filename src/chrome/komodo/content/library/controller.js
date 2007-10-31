@@ -70,6 +70,7 @@ var handlers = {
     'cmd_helpHelp': 'ko.help.open()',
     'cmd_helpShowKeybindings': 'ko.browse.showKeybindings()',
     'cmd_helpCommunity': 'ko.browse.browseTag("community")',
+    'cmd_helpKomodoMailLists': 'ko.browse.browseTag("mailLists")',
     'cmd_helpViewBugs': 'ko.browse.browseTag("bugs")',
     'cmd_helpLanguage': 'ko.help.language()',
     'cmd_helpLanguageAlternate': 'ko.help.alternate()',
