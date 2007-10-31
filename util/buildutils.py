@@ -124,28 +124,6 @@ def run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM, dry_run=False):
             os.chdir(old_dir)
 
 
-def capture_stdout(argv, ignore_status=False):
-    p = subprocess.Popen(argv,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-    stderr = p.stderr.read()
-    stdout = p.stdout.read()
-    status = p.wait()  # raise if non-zero status?
-    if status and not ignore_status:
-        raise OSError("running '%s' failed: %d: %s"
-                      % (' '.join(argv), status, stderr))
-    return stdout
-
-def capture_status(argv):
-    p = subprocess.Popen(argv,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    output = p.stdout.read()
-    retval = p.wait()
-    return retval
-
-
-
 #---- text manipulation utilities
 
 # Recipe: dedent (0.1.2) in C:\trentm\tm\recipes\cookbook
@@ -362,6 +340,7 @@ def relpath(path, relto=None):
 
 #---- remote file utilities
 
+# Recipe: remote (0.5.1)
 _remote_path_re = re.compile("(\w+@)?\w+:/(?!/)")
 def is_remote_path(rpath):
     return _remote_path_re.search(rpath) is not None
@@ -371,11 +350,7 @@ def remote_exists(rpath, log=None):
     if sys.platform == "win32":
         argv = ["plink", "-batch", login, "ls", path]
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            argv = ["ssh", login, "ls", path]
-        else:
-            argv = ["ssh", "-o", "BatchMode=yes", login, "ls", path]
+        argv = ["ssh", "-o", "BatchMode=yes", login, "ls", path]
     if log:
         log(' '.join(argv))
     status = capture_status(argv)
@@ -386,11 +361,7 @@ def remote_mkdir(rpath, log=None):
     if sys.platform == "win32":
         cmd = "plink -batch %s mkdir %s" % (login, path)
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            cmd = "ssh %s mkdir %s" % (login, path)
-        else:
-            cmd = "ssh -o BatchMode=yes %s mkdir %s" % (login, path)
+        cmd = "ssh -o BatchMode=yes %s mkdir %s" % (login, path)
     if log:
         log(cmd)
     status = run(cmd)
@@ -410,28 +381,34 @@ def remote_cp(src, dst, log=None):
     if sys.platform == "win32":
         cmd = 'pscp -q "%s" "%s"' % (src, dst)
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            cmd = 'scp -q "%s" "%s"' % (src, dst)
-        else:
-            cmd = 'scp -q -B "%s" "%s"' % (src, dst)
+        cmd = 'scp -q -B "%s" "%s"' % (src, dst)
     if log:
         log(cmd)
     status = run(cmd)
     if status:
         raise OSError("error running '%s': status=%r" % (cmd, status))
 
+def remote_symlink(src, dst, log=None):
+    assert ' ' not in src and ' ' not in dst
+    src_login, src_path = src.split(':', 1)
+    dst_login, dst_path = dst.split(':', 1)
+    assert src_login == dst_login
+    cmd = "ln -s %s %s" % (src_path, dst_path)
+    remote_run(src_login, cmd, log=log)
+
+def remote_rm(rpath, log):
+    assert ' ' not in rpath
+    login, path = rpath.split(':', 1)
+    cmd = 'rm -f %s' % path
+    buildutils.remote_run(login, cmd, log=log)
+
 def remote_glob(rpattern, log=None):
     login, pattern = rpattern.split(':', 1)
     if sys.platform == "win32":
         argv = ["plink", "-batch", login, "ls", "-d", pattern]
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            argv = ["ssh", login, "ls", pattern]
-        else:
-            argv = ["ssh", "-o", "BatchMode=yes", login, "ls", "-d",
-                    pattern]
+        argv = ["ssh", "-o", "BatchMode=yes", login, "ls", "-d",
+                pattern]
     if log:
         log(' '.join(argv))
     try:
@@ -454,11 +431,7 @@ def remote_md5sum(rpath, log=None):
     if sys.platform == "win32":
         argv = ["plink", "-batch", login, rcmd]
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            argv = ["ssh", login, rcmd]
-        else:
-            argv = ["ssh", "-o", "BatchMode=yes", login, rcmd]
+        argv = ["ssh", "-o", "BatchMode=yes", login, rcmd]
     if log:
         log(' '.join(argv))
 
@@ -472,21 +445,60 @@ def remote_md5sum(rpath, log=None):
                       % stdout)
     return md5sum
 
+def remote_size(rpath, log=None):
+    """Return the size of the given remote path.
+    
+    This relies on 'du -b' working on the remote machine. Raises OSError if
+    the size could not be determined.
+    """
+    login, path = rpath.split(':', 1)
+    rcmd = 'du -b "%s"' % path
+    if sys.platform == "win32":
+        argv = ["plink", "-batch", login, rcmd]
+    else:
+        argv = ["ssh", "-o", "BatchMode=yes", login, rcmd]
+    if log:
+        log(' '.join(argv))
+
+    stdout = capture_stdout(argv)
+    
+    try:
+        bytes, rv_path = stdout.splitlines(0)[0].split()
+        assert path == rv_path
+        bytes = int(bytes)
+    except (AssertionError, ValueError, IndexError), ex:
+        raise OSError("error getting remote md5sum: unexpected output: %r"
+                      % stdout)
+    return bytes
+
 def remote_run(login, cmd, log=None):
     if sys.platform == "win32":
         cmd = 'plink -batch %s "%s"' % (login, cmd)
     else:
-        # HACK: gimlet's ancient ssh can't handle BatchMode
-        if socket.gethostname() == "gimlet":
-            cmd = 'ssh %s "%s"' % (login, cmd)
-        else:
-            cmd = 'ssh -o BatchMode=yes %s "%s"' % (login, cmd)
-    if log:
-        log(cmd)
-    status = run(cmd)
+        cmd = 'ssh -o BatchMode=yes %s "%s"' % (login, cmd)
+    status = run(cmd, logstream=log)
     if status:
         raise OSError("error running '%s': status=%r" % (cmd, status))
 
+def capture_stdout(argv, ignore_status=False):
+    p = subprocess.Popen(argv,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout = p.stdout.read()
+    stderr = p.stderr.read()
+    status = p.wait()  # raise if non-zero status?
+    if status and not ignore_status:
+        raise OSError("running '%s' failed: %d: %s"
+                      % (' '.join(argv), status, stderr))
+    return stdout
+
+def capture_status(argv):
+    p = subprocess.Popen(argv,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    output = p.stdout.read()
+    retval = p.wait()
+    return retval
 
 
 #---- version string manipulation unexpected
