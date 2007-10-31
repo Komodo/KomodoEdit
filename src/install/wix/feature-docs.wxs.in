@@ -387,6 +387,7 @@
                 <File Id="file558" Name="APPIDE_0.PNG" LongName="app-ide-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide-edit.png"/>
                 <File Id="file559" Name="APPIDE_1.PNG" LongName="app-ide.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide.png"/>
                 <File Id="file560" Name="APPSNA_0.PNG" LongName="app-snapdragon.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-snapdragon.png"/>
+                <File Id="file3" Name="APPOPE_0.PNG" LongName="app-openkomodo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-openkomodo.png"/>
                 <File Id="file561" Name="TOOLBA_0.GIF" LongName="toolbar_cust.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_cust.gif"/>
                 <File Id="file562" Name="TOURLE_0.GIF" LongName="tourlet_rx_openproj.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_openproj.gif"/>
                 <File Id="file563" Name="TOURLE_1.GIF" LongName="tourlet_rx_opensamp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_opensamp.gif"/>
