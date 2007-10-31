@@ -48,7 +48,7 @@ import getopt
 import traceback
 if sys.platform.startswith("win"):
     import glob
-    import wnd.komodo
+    import koWndWrapper
 else:
     import fcntl
 
@@ -126,7 +126,7 @@ def _handleCommandment(commandment):
 
         if sys.platform.startswith("win"):
             try:
-                wnd.komodo.set_foreground_window(_gHWnd)
+                koWndWrapper.set_foreground_window(_gHWnd)
             except RuntimeError, ex:
                 # XXX This sporadically fails and I don't know why:
                 # api_error: (0, 'SetForegroundWindow', 'No error message is available')
@@ -270,21 +270,21 @@ if sys.platform.startswith("win"):
             threading.Thread.__init__(self, name="CommandmentsReader")
 
         def run(self):
-            lock = wnd.komodo.create_mutex(self._commandmentsLockName)
+            lock = koWndWrapper.create_mutex(self._commandmentsLockName)
             # existing: are there commandments from the invoking command-line?
             existing = os.path.exists(self._commandmentsFileName)
-            newCommandments = wnd.komodo.create_event(self._commandmentsEventName, None, 1, existing)
+            newCommandments = koWndWrapper.create_event(self._commandmentsEventName, None, 1, existing)
 
             while 1:
                 # Wait for new commandments.
-                rv = wnd.komodo.wait_for_single_object(newCommandments)
-                if rv == wnd.komodo.WAIT_OBJECT_0:
+                rv = koWndWrapper.wait_for_single_object(newCommandments)
+                if rv == koWndWrapper.WAIT_OBJECT_0:
                     retval = 1
                 else:
                     raise CommandmentError("Error waiting for new "
                                            "commandments: %r" % rv)
                 # Grab the lock.
-                wnd.komodo.wait_for_single_object(lock)
+                koWndWrapper.wait_for_single_object(lock)
                 # Consume the commandments.
                 f = open(self._commandmentsFileName, 'r')
                 cmds = []
@@ -296,9 +296,9 @@ if sys.platform.startswith("win"):
                 f.close()
                 os.unlink(self._commandmentsFileName)
                 # Reset the "new commandments" event.
-                wnd.komodo.reset_event(newCommandments)
+                koWndWrapper.reset_event(newCommandments)
                 # Release the lock.
-                wnd.komodo.release_mutex(lock)
+                koWndWrapper.release_mutex(lock)
 
                 # Handle the commandments.
                 exit = 0
@@ -325,25 +325,25 @@ if sys.platform.startswith("win"):
                 if exit:
                     break
 
-            wnd.komodo.close_handle(newCommandments)
-            wnd.komodo.close_handle(lock)
+            koWndWrapper.close_handle(newCommandments)
+            koWndWrapper.close_handle(lock)
 
         def exit(self):
             # Grab the lock.
-            lock = wnd.komodo.create_mutex(self._commandmentsLockName)
-            wnd.komodo.wait_for_single_object(lock)
+            lock = koWndWrapper.create_mutex(self._commandmentsLockName)
+            koWndWrapper.wait_for_single_object(lock)
             # Send __exit__ commandment.
             f = open(self._commandmentsFileName, 'a')
             f.write("__exit__\n")
             f.close()
             # Signal that there are new commandments: to ensure worker
             # thread doesn't wedge.
-            newCommandments = wnd.komodo.create_event(self._commandmentsEventName)
-            wnd.komodo.set_event(newCommandments)
-            wnd.komodo.close_handle(newCommandments)
+            newCommandments = koWndWrapper.create_event(self._commandmentsEventName)
+            koWndWrapper.set_event(newCommandments)
+            koWndWrapper.close_handle(newCommandments)
             # Release the lock.
-            wnd.komodo.release_mutex(lock)
-            wnd.komodo.close_handle(lock)
+            koWndWrapper.release_mutex(lock)
+            koWndWrapper.close_handle(lock)
 
             self.join()
             try:
@@ -446,7 +446,7 @@ class KoCommandmentService:
         if sys.platform.startswith("win"):
             global _gHWnd
             try:
-                _gHWnd = wnd.komodo.get_active_window()
+                _gHWnd = koWndWrapper.get_active_window()
             except RuntimeError, ex:
                 # XXX This sporadically fails:
                 # api_error: (0, 'SetForegroundWindow', 'No error message is available')
