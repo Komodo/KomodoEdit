@@ -18,7 +18,7 @@ static const nsXREAppData kAppData = {
   NS_STRINGIFY(APP_VERSION),
   NS_STRINGIFY(BUILD_ID),
   "{36E66FA0-F259-11D9-850E-000D935D3368}",
-  "Copyright (c) 1998 - 2005 ActiveState Corp.",
+  "Copyright (c) 2000 - 2007 ActiveState Software Inc.",
   NS_XRE_ENABLE_EXTENSION_MANAGER
 };
 
