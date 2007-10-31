@@ -392,7 +392,15 @@ class KoRubyInfoEx(KoAppInfoEx):
         return os.path.dirname(os.path.dirname(binaryPath))
 
     def get_executablePath(self):
-        return self._GetRubyExeName()
+        rubyExePath = self._GetRubyExeName()
+        if not rubyExePath:
+            # which("non-existent-app) can return empty string, map it to None
+            return None
+        if not os.path.exists(rubyExePath):
+            log.info("KoRubyInfoEx:get_executablePath: file %r doesn't exist",
+                     rubyExePath)
+            return None
+        return rubyExePath
     
     def set_executablePath(self, path):
         self.installationPath = os.path.dirname(os.path.dirname(path))
@@ -429,11 +437,17 @@ class KoRubyInfoEx(KoAppInfoEx):
 
     def get_valid_version(self):
         rubyExe = self._GetRubyExeName()
-        ver = self.getVersionForBinary(rubyExe)
+        if not rubyExe:
+            return False
         try:
+            ver = self.getVersionForBinary(rubyExe)
             versionParts = self._get_version_num_parts(ver)
             return tuple(versionParts) >= (1,8,4) # minimum version
-        except AttributeError:            
+        except AttributeError:
+            return False
+        except ServerException, ex:
+            if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
+                raise
             return False
 
     def get_buildNumber(self):

@@ -1020,9 +1020,9 @@ class KoRubyCompileLinter:
         lines = []
         try:
             rubyExe = self.rubyInfoEx.executablePath
-            if rubyExe is None:
+            if not rubyExe:
                 rubyExe = self.sysUtils.Which("ruby")
-                if rubyExe is None:
+                if not rubyExe:
                     errmsg = "Could not find a suitable Ruby interpreter for linting."
                     self._lastErrorSvc.setLastError(1, errmsg)
                     raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
