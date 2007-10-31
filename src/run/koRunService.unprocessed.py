@@ -837,20 +837,22 @@ class KoRunService:
 
         if sys.platform.startswith("win"):
             if os.environ.has_key("SHELL"):
-                self.shell = os.environ["SHELL"]
+                shell = os.environ["SHELL"]
             elif os.environ.has_key("ComSpec"):
-                self.shell = os.environ["ComSpec"]
+                shell = os.environ["ComSpec"]
             else:
                 #XXX Would be nice to get full path here so can use
                 #    os.spawn* calls.
-                self.shell = "command.com"
-            self.shellArgs = "/C"
+                shell = "command.com"
+            shellArgs = ["/C"]
         elif sys.platform == "darwin":
-            self.shell = "/bin/sh"
-            self.shellArgs = ""
+            shell = "/bin/sh"
+            shellArgs = []
         else:
-            self.shell = "xterm"
-            self.shellArgs = "-e /bin/sh"
+            shell = "xterm"
+            shellArgs = ["-e", "/bin/sh"]
+        self.shellArgs = [shell] + shellArgs
+            
     
     def Encode(self, command, cwd, env, insertOutput,
                operateOnSelection, doNotOpenOutputWindow, runIn,
@@ -1255,8 +1257,7 @@ exit $RETVAL""" % data)
                 script.write("unset KOMODO_DUMMY\n")
                 script.write("exit $KOMODO_COMMAND_RETVAL\n")
                 script.close()
-            actualCommand = "%s %s %s"\
-                            % (self.shell, self.shellArgs, scriptFileName)
+            actualCommand = self.shellArgs + [scriptFileName]
             
             #print "RUN: actualCommand is '%s'" % actualCommand
             #print "RUN: -------- %s is as follows -------" % scriptFileName
