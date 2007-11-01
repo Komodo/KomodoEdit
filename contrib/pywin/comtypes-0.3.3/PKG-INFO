@@ -1,0 +1,25 @@
+Metadata-Version: 1.0
+Name: comtypes
+Version: 0.3.3
+Summary: Pure Python COM package, based on the ctypes package
+Home-page: http://starship.python.net/crew/wiki/the_comtypes_package
+Author: Thomas Heller
+Author-email: theller@python.net
+License: MIT License
+Download-URL: http://sourceforge.net/project/showfiles.php?group_id=115265
+Description: comtypes - pure Python COM package, based on the ctypes FFI library.
+        
+        comtypes allows to define, call, and implement custom COM interfaces
+        in pure Python.
+        
+        http://svn.python.org/projects/ctypes/trunk/comtypes/#egg=comtypes-dev
+        
+        ----------------------------------------------------------------
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: Microsoft :: Windows CE
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
