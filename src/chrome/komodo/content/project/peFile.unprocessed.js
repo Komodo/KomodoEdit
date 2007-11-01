@@ -160,7 +160,7 @@ peFile.prototype.supportsCommand = function(command, item) {
         //        return false;
         //    }
         //}
-        return 1; // see http://bugs.activestate.com/Komodo/show_bug.cgi?id=27527
+        return 1; // see http://bugs.activestate.com/show_bug.cgi?id=27527
 
     case 'cmd_dumpPartProperties':
         // Only return true in developer builds
@@ -232,7 +232,7 @@ peFile.prototype.supportsCommand = function(command, item) {
         return (items && items.length == 1 && items[0].type == 'file');
     case 'cmd_exportItems':
         // the following isn't great, but it deals with
-        // http://bugs.activestate.com/Komodo/show_bug.cgi?id=23226
+        // http://bugs.activestate.com/show_bug.cgi?id=23226
         // with minimal risk.
         if (items && items.length == 1 && items[0].type == 'project') return 0;
         return items.length > 0;

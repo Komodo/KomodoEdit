@@ -299,7 +299,7 @@ class KoTemplatesView(TreeView):
             datum = self._data[row][column.id]
         except IndexError:
             # Silence this, it is too annoying.
-            # c.f. http://bugs.activestate.com/Komodo/show_bug.cgi?id=27487
+            # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth result" % row)
             return ""
         except KeyError:

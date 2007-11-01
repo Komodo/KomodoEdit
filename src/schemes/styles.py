@@ -416,9 +416,9 @@ StateMap = {
     'Errors': {
         'Default': ('SCE_ERR_DEFAULT',),
         'Error lines':
-            (# 'SCE_ERR_CMD', # too brittle - see http://bugs.activestate.com/Komodo/show_bug.cgi?id=26605
+            (# 'SCE_ERR_CMD', # too brittle - see http://bugs.activestate.com/show_bug.cgi?id=26605
              'SCE_ERR_PYTHON',
-             # 'SCE_ERR_GCC', # too brittle - see http://bugs.activestate.com/Komodo/show_bug.cgi?id=26605
+             # 'SCE_ERR_GCC', # too brittle - see http://bugs.activestate.com/show_bug.cgi?id=26605
              'SCE_ERR_MS',
              'SCE_ERR_CTAG',
              'SCE_ERR_ELF',

@@ -727,7 +727,7 @@ class StartPageHandler(FileHandlerBase):
 
     def get_displayPath(self):
         """A HACK to override the start page view's document.file.displayPath
-        until http://bugs.activestate.com/Komodo/show_bug.cgi?id=25526 is
+        until http://bugs.activestate.com/show_bug.cgi?id=25526 is
         implemented.
         """
         return "Start Page"

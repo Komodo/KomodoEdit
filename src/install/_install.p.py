@@ -498,7 +498,7 @@ Documentation is available in Komodo or on the web here:
 
 Please send us any feedback you might have or log bugs here:
     komodo-feedback@ActiveState.com
-    http://bugs.activestate.com/Komodo/
+    http://bugs.activestate.com/
 
 Thank you for using Komodo.
 %s

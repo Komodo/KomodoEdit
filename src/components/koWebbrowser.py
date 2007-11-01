@@ -261,7 +261,7 @@ class KoWebbrowser:
 
         # Search the PATH as it was when Komodo started, otherwise Komodo's
         # internal mozilla.exe might be listed as a possible browser.
-        #   http://bugs.activestate.com/Komodo/show_bug.cgi?id=26373
+        #   http://bugs.activestate.com/show_bug.cgi?id=26373
         path = koprocessutils.getUserEnv()["PATH"]
         path = path.split(os.pathsep)
         if sys.platform.startswith('win'):
@@ -328,7 +328,7 @@ class KoWebbrowser:
 
         # Search the PATH as it was when Komodo started, otherwise Komodo's
         # internal mozilla.exe might be listed as a possible browser.
-        #   http://bugs.activestate.com/Komodo/show_bug.cgi?id=26373
+        #   http://bugs.activestate.com/show_bug.cgi?id=26373
         path = koprocessutils.getUserEnv()["PATH"]
         path = path.split(os.pathsep)
         if sys.platform.startswith('win'):

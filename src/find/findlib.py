@@ -745,7 +745,7 @@ def test():
         9-11: found 'fu'
 
     Finding and replacing with \ characters:
-    (http://bugs.activestate.com/Komodo/show_bug.cgi?id=19447)
+    (http://bugs.activestate.com/show_bug.cgi?id=19447)
 
         >>> import findlib
         >>> results = findlib.findall('quoted \\"string\\" here', '\\')

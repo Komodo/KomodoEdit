@@ -122,7 +122,7 @@ class KoFindAvailableDirsView(TreeView):
             cell = self._dirs[row]
         except IndexError:
             # Silence this, it is too annoying.
-            # c.f. http://bugs.activestate.com/Komodo/show_bug.cgi?id=27487
+            # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth item" % row)
             return ""
         if type(cell) not in (types.StringType, types.UnicodeType):
@@ -235,7 +235,7 @@ class KoFindSelectedDirsView(TreeView):
             cell = self._dirs[row]
         except IndexError:
             # Silence this, it is too annoying.
-            # c.f. http://bugs.activestate.com/Komodo/show_bug.cgi?id=27487
+            # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth item" % row)
             return ""
         if type(cell) not in (types.StringType, types.UnicodeType):

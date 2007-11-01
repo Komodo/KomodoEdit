@@ -2558,8 +2558,8 @@ void KoStart_PrepareForXRE(int argc, char** argv,
              * don't bother passing anything.  If we chose to pass arguments,
              * ensure they are in malloc'd memory.
              *
-             * http://bugs.activestate.com/Komodo/show_bug.cgi?id=41023
-             * http://bugs.activestate.com/Komodo/show_bug.cgi?id=40893
+             * http://bugs.activestate.com/show_bug.cgi?id=41023
+             * http://bugs.activestate.com/show_bug.cgi?id=40893
              *
              * Specifying the chrome *shouldn't* be necessary; and because
              * of the bugs above, let's not pass this in on Windows either.

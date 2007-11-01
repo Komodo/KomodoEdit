@@ -755,7 +755,7 @@ function _updateWindowList_createMenuItem(view, index, isCurrent)
             menuitem.setAttribute('checked', 'true');
             // No need to switch view oncommand, this view is already current.
             // However we *do* need to ensure that the checkmark stays.
-            // See http://bugs.activestate.com/Komodo/show_bug.cgi?id=26423
+            // See http://bugs.activestate.com/show_bug.cgi?id=26423
             menuitem.setAttribute('oncommand',
                                   'event.target.setAttribute("checked", "true");');
         } else {

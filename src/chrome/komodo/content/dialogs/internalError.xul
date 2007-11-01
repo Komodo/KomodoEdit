@@ -71,10 +71,10 @@
             <label value="You can help make Komodo better by reporting this to:"/>
             <hbox align="center">
                 <separator style="width: 20px;"/>
-                <button label="&lt;http://bugs.ActiveState.com/Komodo&gt;"
+                <button label="&lt;http://bugs.activestate.com/&gt;"
                         class="button-link"
                         style="margin: -10px; color: #b82619;"
-                        oncommand="Browse('http://bugs.ActiveState.com/Komodo');"/>
+                        oncommand="Browse('http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo');"/>
                 <label value="or"/>
                 <button label="&lt;komodo-feedback@ActiveState.com&gt;"
                         class="button-link"

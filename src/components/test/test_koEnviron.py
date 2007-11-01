@@ -130,7 +130,7 @@ class UserEnvironParsingTestCase(unittest.TestCase):
     def test_environment_function1(self):
         if sys.platform.startswith("win"): return
         # Data is from bug
-        # http://bugs.activestate.com/Komodo/show_bug.cgi?id=18855
+        # http://bugs.activestate.com/show_bug.cgi?id=18855
         envStrings = """
 LC_COLLATE=en_US
 CURRENT_PROJECT=ADB-QA

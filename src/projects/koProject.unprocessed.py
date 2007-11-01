@@ -2327,7 +2327,7 @@ class KoFileImportingService:
     def getCandidatesForDir(self, dirname, live, include_pats, exclude_pats):
         # start with current directory contents
         # clean up to deal with some samba problems
-        # http://bugs.activestate.com/Komodo/show_bug.cgi?id=23097
+        # http://bugs.activestate.com/show_bug.cgi?id=23097
         dirname = os.path.normpath(os.path.abspath(dirname))
         try:
             allnames = os.listdir(dirname)

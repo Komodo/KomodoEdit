@@ -452,7 +452,7 @@ ISController.prototype.keyPressForSearch = function(event) {
                 this._incrementalSearchPattern, null,
                 true,
                 // Do NOT add this pattern to find MRU
-                //  http://bugs.activestate.com/Komodo/show_bug.cgi?id=27350
+                //  http://bugs.activestate.com/show_bug.cgi?id=27350
                 // that will be done on stopping of interactive search.
                 false);
             if (! findres) {

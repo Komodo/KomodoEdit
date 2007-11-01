@@ -913,7 +913,7 @@ viewManager.prototype._doCloseAll = function() {
     var i;
     for (i = views.length-1; i >= 0; i--) {
         // Exclude the Start Page from "Close All".
-        //   http://bugs.activestate.com/Komodo/show_bug.cgi?id=27321
+        //   http://bugs.activestate.com/show_bug.cgi?id=27321
         if (views[i].getAttribute("type") == "startpage")
             continue;
         if (! views[i].close()) {

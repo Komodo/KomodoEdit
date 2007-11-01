@@ -495,7 +495,7 @@ void SciMoz::Notify(long lParam) {
 			PRUint32 len = notification->text ? notification->length : 0;
 			//XXX Would like to use the commented out code (as was done
 			//    in Change 73289), but this causes
-			//    <http://bugs.activestate.com/Komodo/show_bug.cgi?id=26793>
+			//    <http://bugs.activestate.com/show_bug.cgi?id=26793>
 			//    so we will not convert the UTF-8 encoded text to
 			//    unicode. Note that this places the burden of
 			//    conversion, if necessary, on the listeners of

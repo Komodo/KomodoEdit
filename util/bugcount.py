@@ -141,7 +141,7 @@ def _numBugsForNamedSearch(name):
     pass
     # XXX should learn how to do this via SQL
 ##    uname = urllib.quote_plus(name)
-##    url = "http://bugs.activestate.com/Komodo/buglist.cgi?"\
+##    url = "http://bugs.activestate.com/buglist.cgi?"\
 ##          "submit=Search&namedcmd=%s&cmdtype=runnamed" % uname
 ##    log.debug("openning url '%s'" % url)
 ##    content = urllib.urlopen(url).read()

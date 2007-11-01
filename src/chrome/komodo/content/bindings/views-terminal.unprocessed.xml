@@ -393,7 +393,7 @@
         <parameter name="position"/>
         <parameter name="modificationType"/>
         <!-- XXX 'text' is NOT unicode ('wstring' in IDL-speak) because of
-             <http://bugs.activestate.com/Komodo/show_bug.cgi?id=26793>.
+             <http://bugs.activestate.com/show_bug.cgi?id=26793>.
              Be warned that 'text' is UTF-8 encoded and must be used as such.
         -->
         <parameter name="text"/>

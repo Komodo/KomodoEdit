@@ -2150,7 +2150,7 @@
                   style="margin: 0px; padding: 0px; border: none;"/>
 
         <!-- Output Area -->
-        <!--Persisting of collapsed disabled because of http://bugs.activestate.com/Komodo/show_bug.cgi?id=25918-->
+        <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
         <vbox id="output_panel"
             class="thin-inset-border"
             height="200"

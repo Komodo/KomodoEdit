@@ -78,7 +78,7 @@ diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
 +// directory) will not conflict.
 +//
 +// Komodo change for:
-+//      http://bugs.activestate.com/Komodo/show_bug.cgi?id=32270
++//      http://bugs.activestate.com/show_bug.cgi?id=32270
 +// Allow the user data dir to be overriden via the KOMODO_USERDATADIR
 +// environment variable.
 +//

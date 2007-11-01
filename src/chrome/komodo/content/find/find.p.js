@@ -141,7 +141,7 @@ function _Initialize()
     // it spans a line, then set the search context to the selection.
     var preferredContextType = gFindSvc.options.preferredContextType;
     if (preferredContextType == FCT_ALL_OPEN_DOCS) {
-        // See http://bugs.activestate.com/Komodo/show_bug.cgi?id=20003
+        // See http://bugs.activestate.com/show_bug.cgi?id=20003
         preferredContextType = FCT_CURRENT_DOC;
     }
     if (preferredContextType == FCT_CURRENT_DOC) {

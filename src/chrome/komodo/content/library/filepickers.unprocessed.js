@@ -789,7 +789,7 @@ this.getFolder = function filepicker_getFolder(defaultDirectory /* =null */,
     if (retval == Components.interfaces.nsIFilePicker.returnOK) {
         var path = fp.file.path;
 // #if PLATFORM == "win"
-        // Fix http://bugs.activestate.com/Komodo/show_bug.cgi?id=23185
+        // Fix http://bugs.activestate.com/show_bug.cgi?id=23185
         // The problem is that select a drive root on Windows returns "C:",
         // withOUT the trailing slash. This means the actual dir use depends on
         // the current dir for that drive on the user's machine.
