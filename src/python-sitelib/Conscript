@@ -84,9 +84,9 @@ $cons->InstallPythonUtility('difflibex.py');
 $cons->InstallPythonUtility('sitepyxpcom.py');
 $cons->InstallPythonUtility('directoryServiceUtils.py');
 $cons->InstallPythonUtility('applib.py');
-
 if ($platform eq "win") {
     $cons->InstallPythonUtility('wininteg.py');
+    $cons->InstallPythonUtility('ctypesutils.py');
 }
 
 

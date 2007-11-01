@@ -175,11 +175,8 @@ class koSysUtils:
         
     def MoveToTrash(self, filename):
         if sys.platform.startswith("win"):
-            from wnd.api.shell.functions import FileOperation
-            FileOperation('delete',
-                          unicode(filename),
-                          None, # To
-                          'noconfirm', 'allowundo')
+            import ctypesutils
+            ctypesutils.move_to_trash(filename)
         elif sys.platform.startswith("darwin"):
             try:
                 import findertools
