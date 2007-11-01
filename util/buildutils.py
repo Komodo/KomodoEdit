@@ -45,6 +45,7 @@ import re
 import logging
 import socket
 from pprint import pprint
+import getpass
 import subprocess
 
 
@@ -340,7 +341,7 @@ def relpath(path, relto=None):
 
 #---- remote file utilities
 
-# Recipe: remote (0.5.1)
+# Recipe: remote (0.7.0)
 _remote_path_re = re.compile("(\w+@)?\w+:/(?!/)")
 def is_remote_path(rpath):
     return _remote_path_re.search(rpath) is not None
@@ -348,6 +349,8 @@ def is_remote_path(rpath):
 def remote_exists(rpath, log=None):
     login, path = rpath.split(':', 1)
     if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
         argv = ["plink", "-batch", login, "ls", path]
     else:
         argv = ["ssh", "-o", "BatchMode=yes", login, "ls", path]
@@ -359,6 +362,8 @@ def remote_exists(rpath, log=None):
 def remote_mkdir(rpath, log=None):
     login, path = rpath.split(':', 1)
     if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
         cmd = "plink -batch %s mkdir %s" % (login, path)
     else:
         cmd = "ssh -o BatchMode=yes %s mkdir %s" % (login, path)
@@ -378,15 +383,60 @@ def remote_makedirs(rpath, log=None):
             remote_mkdir(rpath_part, log)
 
 def remote_cp(src, dst, log=None):
-    if sys.platform == "win32":
-        cmd = 'pscp -q "%s" "%s"' % (src, dst)
+    if is_remote_path(src) and is_remote_path(dst):
+        # This is harder, because remote to remote copying is not
+        # supported by scp.
+        assert ' ' not in src and ' ' not in dst
+        src_login, src_path = src.split(':', 1)
+        rcmd = 'scp -q -B %s %s' % (src_path, dst)
+        remote_run(src_login, rcmd, log=log)
     else:
-        cmd = 'scp -q -B "%s" "%s"' % (src, dst)
-    if log:
-        log(cmd)
-    status = run(cmd)
-    if status:
-        raise OSError("error running '%s': status=%r" % (cmd, status))
+        if sys.platform == "win32":
+            cmd = 'pscp -q "%s" "%s"' % (src, dst)
+        else:
+            cmd = 'scp -q -B "%s" "%s"' % (src, dst)
+        if log:
+            log(cmd)
+        status = run(cmd)
+        if status:
+            raise OSError("error running '%s': status=%r" % (cmd, status))
+
+def remote_relpath(rpath, relto):
+    """Relativize the given remote path to another.
+    
+    >>> remote_relpath('server:/home/trentm', 'server:/home')
+    'server:trentm'
+    >>> remote_relpath('server:/home/trentm/tmp', 'server:/home')
+    'server:trentm/tmp'
+    >>> remote_relpath('server:/home', 'server:/home/trentm')
+    'server:..'
+    
+    Requirements:
+    - both 'rpath' and 'relto' are on the same server
+    - both are absolute paths (there is no cwd with which to make
+      them absolute)
+    - presuming the remote server uses Unix paths ('/' dir sep,
+      case-sensitive)
+    """
+    from posixpath import isabs, join, normpath
+
+    login, path = rpath.split(':', 1)
+    relto_login, relto_path = relto.split(':', 1)
+    assert login == relto_login
+    assert isabs(path) and isabs(relto_path)
+
+    path_parts = path[1:].split('/') # drop the leading root dir
+    relto_path_parts = relto_path[1:].split('/') # drop the leading root dir
+
+    for path_part, relto_path_part in zip(path_parts, relto_path_parts):
+        if path_part == relto_path_part:
+            # drop the leading common dirs
+            del path_parts[0]
+            del relto_path_parts[0]
+    # Relative path: walk up from "relto" dir and walk down "path".
+    rel_parts = ['.'] + ['..']*len(relto_path_parts) + path_parts
+    rel_path = normpath(join(*rel_parts))
+    return login + ':' + rel_path
 
 def remote_symlink(src, dst, log=None):
     assert ' ' not in src and ' ' not in dst
@@ -396,15 +446,17 @@ def remote_symlink(src, dst, log=None):
     cmd = "ln -s %s %s" % (src_path, dst_path)
     remote_run(src_login, cmd, log=log)
 
-def remote_rm(rpath, log):
+def remote_rm(rpath, log=None):
     assert ' ' not in rpath
     login, path = rpath.split(':', 1)
     cmd = 'rm -f %s' % path
-    buildutils.remote_run(login, cmd, log=log)
+    remote_run(login, cmd, log=log)
 
 def remote_glob(rpattern, log=None):
     login, pattern = rpattern.split(':', 1)
     if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
         argv = ["plink", "-batch", login, "ls", "-d", pattern]
     else:
         argv = ["ssh", "-o", "BatchMode=yes", login, "ls", "-d",
@@ -420,6 +472,43 @@ def remote_glob(rpattern, log=None):
                   for p in stdout.splitlines(0) if p.strip()]
     return rpaths
 
+def remote_walk(rdir, log=None):
+    """Like os.walk(dir), but for a remote dir.
+    
+    This presumes a GNU-like `ls` on the remote machine.
+    """
+    from posixpath import join
+
+    login, dir = rdir.split(':', 1)
+    if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
+        argv_base = ["plink", "-batch", login, "ls", "-aF"]
+    else:
+        argv_base = ["ssh", "-o", "BatchMode=yes", login, "ls", "-aF"]
+    if log:
+        log(' '.join(argv))
+
+    dirs = [dir]
+    while dirs:
+        dpath = dirs.pop(0)
+        p = subprocess.Popen(argv_base + [dpath],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        dnames = []
+        fnames = []
+        for name in p.stdout.read().splitlines(0):
+            sigil = ""
+            if name[-1] in "*/=>@|":
+                name, sigil = name[:-1], name[-1]
+            if name in ('.', '..'):
+                continue
+            if sigil == '/':
+                dnames.append(name)
+            else:
+                fnames.append(name)
+        yield login+":"+dpath, dnames, fnames
+        dirs += [join(dpath, n) for n in dnames]
+
 def remote_md5sum(rpath, log=None):
     """Return the md5sum for the given remote path.
     
@@ -429,6 +518,8 @@ def remote_md5sum(rpath, log=None):
     login, path = rpath.split(':', 1)
     rcmd = 'md5sum "%s"' % path
     if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
         argv = ["plink", "-batch", login, rcmd]
     else:
         argv = ["ssh", "-o", "BatchMode=yes", login, rcmd]
@@ -454,6 +545,8 @@ def remote_size(rpath, log=None):
     login, path = rpath.split(':', 1)
     rcmd = 'du -b "%s"' % path
     if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
         argv = ["plink", "-batch", login, rcmd]
     else:
         argv = ["ssh", "-o", "BatchMode=yes", login, rcmd]
@@ -473,9 +566,11 @@ def remote_size(rpath, log=None):
 
 def remote_run(login, cmd, log=None):
     if sys.platform == "win32":
-        cmd = 'plink -batch %s "%s"' % (login, cmd)
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
+        cmd = 'plink -A -batch %s "%s"' % (login, cmd)
     else:
-        cmd = 'ssh -o BatchMode=yes %s "%s"' % (login, cmd)
+        cmd = 'ssh -A -o BatchMode=yes %s "%s"' % (login, cmd)
     status = run(cmd, logstream=log)
     if status:
         raise OSError("error running '%s': status=%r" % (cmd, status))
