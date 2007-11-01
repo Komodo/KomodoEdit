@@ -47,7 +47,6 @@ import stat
 import time
 import threading
 import logging
-import wnd
 import ctypes
 import koWndWrapper  # Komodo's wrapper for wnd
 
