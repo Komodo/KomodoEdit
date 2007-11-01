@@ -3245,29 +3245,6 @@ class ScintillaBuildDir(black.configure.Datum):
         self.determined = 1
 
 
-class ASPNDocsPackageName(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "aspnDocsPackageName",
-            desc="the base name of the ASPN Komodo Doc Import package")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s\n." % self.desc)
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
-        buildNum = black.configure.items["buildNum"].Get()
-        platName = _getDefaultPlatform()
-        osName = platName.split('-', 1)[0] # don't care about architecture
-        productType = black.configure.items["productType"].Get()
-        name = (productType == "openkomodo" and "OpenKomodo" or "Komodo")
-        base = "%s-%s-%s-%s-aspndocs"\
-               % (name, komodoMarketingVersion, buildNum, osName)
-        self.value = base
-        self.determined = 1
-
 class DocsPackageName(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "docsPackageName",

@@ -819,7 +819,6 @@ configuration = {
     "linuxDistro": LinuxDistro(),
     "komodoInstallerPackage": KomodoInstallerPackage(),
     "configTokens": ConfigTokens(),
-    "aspnDocsPackageName": ASPNDocsPackageName(),
     "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
