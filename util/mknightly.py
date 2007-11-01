@@ -1,0 +1,425 @@
+#!/usr/bin/env python
+
+r"""Upload a set of devbuilds (on crimper) to the appropriate nightly
+area on downloads.openkomodo.com.
+
+Yes the script name is "mk" and this just uploads stuff. Get over it.
+By default this will grab the latest dev build of OpenKomodo and plop
+it properly into <http://downloads.openkomodo.com/openkomodo/nightly/>.
+
+TODO: scanning (robot:/home/sav$ update/savupdate.sh && ./sav.sh BUILDS-DIR)
+      c.f. http://www.rexswain.com/eicar.html
+"""
+
+__version_info__ = (0, 1, 0)
+__version__ = '.'.join(map(str, __version_info__))
+
+    
+import os
+import sys
+import re
+from pprint import pprint
+from glob import glob
+import time
+import traceback
+import logging
+import optparse
+
+import buildutils
+
+
+#---- exceptions
+
+class Error(Exception):
+    pass
+
+#---- globals
+
+log = logging.getLogger("mknightly")
+g_default_upload_base_dir = "box17:/data/download/"
+
+
+
+
+#---- module API
+
+def mknightly(project, upload_base_dir=None, dry_run=True):
+    """Upload devbuild packages to
+        http://downloads.openkomodo.com/*/nightly/...
+    """
+    from posixpath import join, basename, dirname
+    
+    if upload_base_dir is None:
+        upload_base_dir = g_default_upload_base_dir
+    log.debug("mknightly(%r, upload_base_dir=%r, dry_run=%r)",
+              project, upload_base_dir, dry_run)
+    assert buildutils.is_remote_path(upload_base_dir)
+
+    # Get the source packages dir.
+    devbuilds_dir = _get_devbuilds_dir(project)
+    log.info("mknightly %s %s", devbuilds_dir, upload_base_dir)
+
+    # Sanity guard: the project dir on the upload site must exist
+    # already.
+    upload_base_dir = join(upload_base_dir, project, "nightly")
+    if not buildutils.remote_exists(upload_base_dir):
+        raise Error("`%s' does not exist: as a sanity check you must "
+                    "make the project dir manually" % upload_base_dir)
+
+    # Figure out what serial number to use (to avoid collisions
+    # for multiple builds for same day).
+    branch = "trunk"  #TODO: argument for this
+    year, month, day = time.localtime()[:3]
+    upload_dir_pat = join(upload_base_dir, str(year), str(month),
+        "%04d-%02d-%02d-*-%s" % (year, month, day, branch))
+    used_serials = []
+    for d in buildutils.remote_glob(upload_dir_pat):
+        try:
+            used_serials.append(int(basename(d).split('-')[3]))
+        except ValueError:
+            pass
+    used_serials.sort()
+    if not used_serials:
+        serial = 0
+    else:
+        serial = used_serials[-1] + 1
+    if serial > 99:
+        raise Error("too many nightly builds for today: serial=%r"
+                    % serial)
+    
+    # Do the upload.
+    upload_dir = join(upload_base_dir, str(year), str(month),
+        "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, branch))
+    _upload(devbuilds_dir, upload_dir,
+            excludes=["*.mar", "*.md5sums", "internal"],
+            dry_run=dry_run)
+    
+    # Symlinks.
+    # latest-$branch -> $upload_dir
+    dst = join(upload_base_dir, "latest-" + branch)
+    if not dry_run and buildutils.remote_exists(dst):
+        buildutils.remote_rm(dst)
+    src_relpath = buildutils.remote_relpath(upload_dir, dirname(dst))
+    log.info("ln -s %s %s", src_relpath, dst)
+    if not dry_run:
+        buildutils.remote_symlink(src_relpath, dst, log.debug)
+
+
+
+#---- internal support stuff
+
+def _upload(src_dir, dst_dir, excludes=[], dry_run=False):
+    from posixpath import join, normpath, dirname
+    from fnmatch import fnmatch
+    
+    log.debug("upload %s %s", src_dir, dst_dir)
+    if not dry_run and not buildutils.remote_exists(dst_dir, log.debug):
+        buildutils.remote_makedirs(dst_dir, log.debug)
+
+    for dirpath, dirnames, filenames in buildutils.remote_walk(src_dir):
+        rel_rdir = buildutils.remote_relpath(dirpath, src_dir)
+        reldir = rel_rdir.split(':', 1)[1]
+        for filename in filenames:
+            matches = [x for x in excludes if fnmatch(filename, x)]
+            if matches:
+                log.debug("skipping `%s' (matches exclusion pattern)", filename)
+                continue
+            src = join(dirpath, filename)
+            dst = normpath(join(dst_dir, reldir, filename))
+            log.info("cp %s %s", src, dst)
+            if not dry_run:
+                if not buildutils.remote_exists(dirname(dst), log.debug):
+                    buildutils.remote_makedirs(dirname(dst), log.debug)
+                buildutils.remote_cp(src, dst, log.debug)
+
+def _get_devbuilds_dir(project, ver=None, build_num=None):
+    from posixpath import join, basename
+    
+    base_dir = {
+        "openkomodo": "crimper:/home/apps/OpenKomodo",
+    }[project]
+    
+    # Find the appropriate version dir.
+    if ver:
+        ver_dir = join(base_dir, ver)
+        assert buildutils.remote_exists(ver_dir), \
+            "'%s' does not exist" % ver_dir
+    else:
+        vers = []
+        for d in buildutils.remote_glob(join(base_dir, "*")):
+            vers.append((_split_short_ver(basename(d), intify=True),
+                         d))
+        assert vers, "no devbuilds in '%s'" % base_dir
+        vers.sort()
+        ver_dir = vers[-1][1]
+    
+    # Find the appropriate build dir.
+    if build_num:
+        build_dir = join(ver_dir, "DevBuilds", build_num)
+        assert buildutils.remote_exists(ver_dir), \
+            "'%s' does not exist" % ver_dir
+    else:
+        build_nums = []
+        for d in buildutils.remote_glob(join(ver_dir, "DevBuilds", "*")):
+            try:
+                build_nums.append( (int(basename(d)), d) )
+            except ValueError:
+                pass
+        assert build_nums, "no devbuilds in '%s'" % ver_dir
+        build_nums.sort()
+        build_dir = build_nums[-1][1]
+    return build_dir
+    
+    
+
+
+# Recipe: ver (1.0)
+def _split_full_ver(ver_str):
+    """Split a full version string to component bits.
+
+    >>> _split_full_ver('4.0.0-alpha3-12345')
+    (4, 0, 0, 'alpha', 3, 12345)
+    >>> _split_full_ver('4.1.0-beta-12345')
+    (4, 1, 0, 'beta', None, 12345)
+    >>> _split_full_ver('4.1.0-12345')
+    (4, 1, 0, None, None, 12345)
+    >>> _split_full_ver('4.1-12345')
+    (4, 1, 0, None, None, 12345)
+    """
+    def _isalpha(ch):
+        return 'a' <= ch <= 'z' or 'A' <= ch <= 'Z'
+    def _isdigit(ch):
+        return '0' <= ch <= '9'
+    def split_quality(s):
+        for i in reversed(range(1, len(s)+1)):
+            if not _isdigit(s[i-1]):
+                break
+        if i == len(s):
+            quality, quality_num = s, None
+        else:
+            quality, quality_num = s[:i], int(s[i:])
+        return quality, quality_num
+
+    bits = []
+    for i, undashed in enumerate(ver_str.split('-')):
+        for undotted in undashed.split('.'):
+            if len(bits) == 3:
+                # This is the "quality" section: 2 bits
+                if _isalpha(undotted[0]):
+                    bits += list(split_quality(undotted))
+                    continue
+                else:
+                    bits += [None, None]
+            try:
+                bits.append(int(undotted))
+            except ValueError:
+                bits.append(undotted)
+        # After first undashed segment should have: (major, minor, patch)
+        if i == 0:
+            while len(bits) < 3:
+                bits.append(0)
+    return tuple(bits)
+
+def _split_short_ver(ver_str, intify=False, pad_zeros=None):
+    """Parse the given version into a tuple of "significant" parts.
+
+    @param intify {bool} indicates if numeric parts should be converted
+        to integers.
+    @param pad_zeros {int} is a number of numeric parts before any
+        "quality" letter (e.g. 'a' for alpha).
+   
+    >>> _split_short_ver("4.1.0")
+    ('4', '1', '0')
+    >>> _split_short_ver("1.3a2")
+    ('1', '3', 'a', '2')
+    >>> _split_short_ver("1.3a2", intify=True)
+    (1, 3, 'a', 2)
+    >>> _split_short_ver("1.3a2", intify=True, pad_zeros=3)
+    (1, 3, 0, 'a', 2)
+    >>> _split_short_ver("1.3", intify=True, pad_zeros=3)
+    (1, 3, 0)
+    >>> _split_short_ver("1", pad_zeros=3)
+    ('1', '0', '0')
+    """
+    def isint(s):
+        try:
+            int(s)
+        except ValueError:
+            return False
+        else:
+            return True
+    def do_intify(s):
+        try:
+            return int(s)
+        except ValueError:
+            return s
+
+    hit_quality_bit = False
+    bits = []
+    for bit in re.split("(\.|[a-z])", ver_str):
+        if bit == '.':
+            continue
+        if intify:
+            bit = do_intify(bit)
+        if pad_zeros and not hit_quality_bit and not isint(bit):
+            hit_quality_bit = True
+            while len(bits) < pad_zeros:
+                bits.append(not intify and "0" or 0)
+        bits.append(bit)
+    if pad_zeros and not hit_quality_bit:
+        while len(bits) < pad_zeros:
+            bits.append(not intify and "0" or 0)
+    return tuple(bits)
+
+def _join_short_ver(ver_tuple, pad_zeros=None):
+    """Join the given version-tuple, inserting '.' as appropriate.
+
+    @param pad_zeros {int} is a number of numeric parts before any
+        "quality" letter (e.g. 'a' for alpha).
+    
+    >>> _join_short_ver( ('4', '1', '0') )
+    '4.1.0'
+    >>> _join_short_ver( ('1', '3', 'a', '2') )
+    '1.3a2'
+    >>> _join_short_ver(('1', '3', 'a', '2'), pad_zeros=3)
+    '1.3.0a2'
+    >>> _join_short_ver(('1', '3'), pad_zeros=3)
+    '1.3.0'
+    """
+    def isint(s):
+        try:
+            int(s)
+        except ValueError:
+            return False
+        else:
+            return True
+
+    if pad_zeros:
+        bits = []
+        hit_quality_bit = False
+        for bit in ver_tuple:
+            if not hit_quality_bit and not isint(bit):
+                hit_quality_bit = True
+                while len(bits) < pad_zeros:
+                    bits.append(0)
+            bits.append(bit)
+        if not hit_quality_bit:
+            while len(bits) < pad_zeros:
+                bits.append(0)
+    else:
+        bits = ver_tuple
+
+    dotted = []
+    for bit in bits:
+        if dotted and isint(dotted[-1]) and isint(bit):
+            dotted.append('.')
+        dotted.append(str(bit))
+    return ''.join(dotted)
+
+
+class _NoReflowFormatter(optparse.IndentedHelpFormatter):
+    """An optparse formatter that does NOT reflow the description."""
+    def format_description(self, description):
+        return description or ""
+
+# Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
+class _PerLevelFormatter(logging.Formatter):
+    """Allow multiple format string -- depending on the log level.
+
+    A "fmtFromLevel" optional arg is added to the constructor. It can be
+    a dictionary mapping a log record level to a format string. The
+    usual "fmt" argument acts as the default.
+    """
+    def __init__(self, fmt=None, datefmt=None, fmtFromLevel=None):
+        logging.Formatter.__init__(self, fmt, datefmt)
+        if fmtFromLevel is None:
+            self.fmtFromLevel = {}
+        else:
+            self.fmtFromLevel = fmtFromLevel
+    def format(self, record):
+        record.lowerlevelname = record.levelname.lower()
+        if record.levelno in self.fmtFromLevel:
+            #XXX This is a non-threadsafe HACK. Really the base Formatter
+            #    class should provide a hook accessor for the _fmt
+            #    attribute. *Could* add a lock guard here (overkill?).
+            _saved_fmt = self._fmt
+            self._fmt = self.fmtFromLevel[record.levelno]
+            try:
+                return logging.Formatter.format(self, record)
+            finally:
+                self._fmt = _saved_fmt
+        else:
+            return logging.Formatter.format(self, record)
+
+def _setup_logging(stream=None):
+    """Do logging setup:
+
+    We want a prettier default format:
+         do: level: ...
+    Spacing. Lower case. Skip " level:" if INFO-level. 
+    """
+    hdlr = logging.StreamHandler(stream)
+    defaultFmt = "%(name)s: %(levelname)s: %(message)s"
+    infoFmt = "%(name)s: %(message)s"
+    fmtr = _PerLevelFormatter(fmt=defaultFmt,
+                              fmtFromLevel={logging.INFO: infoFmt})
+    hdlr.setFormatter(fmtr)
+    logging.root.addHandler(hdlr)
+    log.setLevel(logging.INFO)
+
+
+
+#---- mainline
+
+def main(argv):
+    usage = "usage: %prog [OPTIONS...]"
+    version = "%prog "+__version__
+    parser = optparse.OptionParser(prog="mknightly", usage=usage,
+        version=version, description=__doc__,
+        formatter=_NoReflowFormatter())
+    parser.add_option("-v", "--verbose", dest="log_level",
+                      action="store_const", const=logging.DEBUG,
+                      help="more verbose output")
+    parser.add_option("-q", "--quiet", dest="log_level",
+                      action="store_const", const=logging.WARNING,
+                      help="quieter output")
+    parser.add_option("-n", "--dry-run", action="store_true",
+                      help="do a dry-run")
+    parser.add_option("-p", "--project",
+                      help="project for which to upload nightlies: "
+                           "openkomodo (the default, and only supported "
+                           "project for now)")
+    parser.set_defaults(log_level=logging.INFO, dry_run=False,
+                        project="openkomodo")
+    opts, args = parser.parse_args()
+    log.setLevel(opts.log_level)
+
+    mknightly(opts.project, dry_run=opts.dry_run)
+
+
+if __name__ == "__main__":
+    _setup_logging()
+    try:
+        retval = main(sys.argv)
+    except SystemExit:
+        pass
+    except KeyboardInterrupt:
+        sys.exit(1)
+    except:
+        exc_info = sys.exc_info()
+        if log.level <= logging.DEBUG:
+            import traceback
+            print
+            traceback.print_exception(*exc_info)
+        else:
+            if hasattr(exc_info[0], "__name__"):
+                #log.error("%s: %s", exc_info[0].__name__, exc_info[1])
+                log.error(exc_info[1])
+            else:  # string exception
+                log.error(exc_info[0])
+        sys.exit(1)
+    else:
+        sys.exit(retval)
+
+
+
