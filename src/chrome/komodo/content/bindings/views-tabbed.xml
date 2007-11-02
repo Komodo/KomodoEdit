@@ -48,7 +48,6 @@
 <binding id="view-tabbed-list"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
     <resources>
-        <stylesheet src="chrome://komodo/skin/bindings/tabs.css"/>
         <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
     </resources>
     <content>
