@@ -293,13 +293,6 @@
       <ComponentRef Id="component261"/>
       <ComponentRef Id="component262"/>
       <ComponentRef Id="component265"/>
-      <ComponentRef Id="component266"/>
-      <ComponentRef Id="component267"/>
-      <ComponentRef Id="component268"/>
-      <ComponentRef Id="component269"/>
-      <ComponentRef Id="component270"/>
-      <ComponentRef Id="component271"/>
-      <ComponentRef Id="component272"/>
       <ComponentRef Id="component273"/>
       <ComponentRef Id="component274"/>
       <ComponentRef Id="component275"/>
@@ -308,6 +301,8 @@
       <ComponentRef Id="component285"/>
       <ComponentRef Id="component286"/>
       <ComponentRef Id="component287"/>
+      <ComponentRef Id="component296"/>
+      <ComponentRef Id="component298"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1537,87 +1532,6 @@
                   <File Id="file417" Name="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\wintypes.py"/>
                   <File Id="file418" Name="__INIT_4.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\__init__.py"/>
                 </Component>
-                <Directory Id="directory284" Name="api">
-                  <Component Id="component266" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file419" Name="CLIPBO_0.PY" LongName="clipboard.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipboard.py"/>
-                    <File Id="file420" Name="copydata.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\copydata.py"/>
-                    <File Id="file421" Name="display.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\display.py"/>
-                    <File Id="file422" Name="handles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\handles.py"/>
-                    <File Id="file423" Name="MENUHA_0.PY" LongName="menuhandles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\menuhandles.py"/>
-                    <File Id="file424" Name="msgbox.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\msgbox.py"/>
-                    <File Id="file425" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\process.py"/>
-                    <File Id="file426" Name="RESOUR_0.PY" LongName="resources.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\resources.py"/>
-                    <File Id="file427" Name="win.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win.py"/>
-                    <File Id="file428" Name="winos.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\winos.py"/>
-                    <File Id="file429" Name="winpath.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\winpath.py"/>
-                    <File Id="file430" Name="wintime.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\wintime.py"/>
-                    <File Id="file431" Name="win_NT4.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win_NT4.py"/>
-                    <File Id="file432" Name="WIN_WI_0.PY" LongName="win_win98.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\win_win98.py"/>
-                    <File Id="file433" Name="__INI_12.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\__init__.py"/>
-                  </Component>
-                  <Directory Id="directory285" Name="CLIPFO_0" LongName="clipformats">
-                    <Component Id="component267" DiskId="1" Guid="$(autowix.guid)">
-                      <File Id="file434" Name="DROPEF_0.PY" LongName="dropeffect_performed.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\dropeffect_performed.py"/>
-                      <File Id="file435" Name="DROPEF_1.PY" LongName="dropeffect_prefered.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\dropeffect_prefered.py"/>
-                      <File Id="file436" Name="filename.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\filename.py"/>
-                      <File Id="file450" Name="FILENA_0.PY" LongName="filenamemap.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\filenamemap.py"/>
-                      <File Id="file451" Name="hdropex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\hdropex.py"/>
-                      <File Id="file452" Name="HDROPF_0.PY" LongName="hdropfiles.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\hdropfiles.py"/>
-                      <File Id="file453" Name="htmlraw.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\htmlraw.py"/>
-                      <File Id="file454" Name="IDLIST_0.PY" LongName="idlistarray.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\idlistarray.py"/>
-                      <File Id="file455" Name="null.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\null.py"/>
-                      <File Id="file456" Name="oemtext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\oemtext.py"/>
-                      <File Id="file457" Name="text.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\text.py"/>
-                      <File Id="file458" Name="UNICOD_2.PY" LongName="unicodetext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\unicodetext.py"/>
-                      <File Id="file459" Name="__INI_14.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\clipformats\__init__.py"/>
-                    </Component>
-                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\clipformats -->
-                  <Directory Id="directory287" Name="com">
-                    <Component Id="component268" DiskId="1" Guid="$(autowix.guid)">
-                      <File Id="file460" Name="ole.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\ole.py"/>
-                      <File Id="file461" Name="__INI_22.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\__init__.py"/>
-                    </Component>
-                    <Directory Id="directory288" Name="tlb">
-                      <Component Id="component269" DiskId="1" Guid="$(autowix.guid)">
-                        <File Id="file462" Name="ie6.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\ie6.py"/>
-                        <File Id="file463" Name="mshtml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\mshtml.py"/>
-                        <File Id="file464" Name="__INI_34.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\com\tlb\__init__.py"/>
-                      </Component>
-                    </Directory> <!-- lib\mozilla\python\komodo\wnd\api\com\tlb -->
-                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\com -->
-                  <Directory Id="directory289" Name="ole">
-                    <Component Id="component270" DiskId="1" Guid="$(autowix.guid)">
-                      <File Id="file465" Name="DATAOB_0.PY" LongName="dataobject.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\dataobject.py"/>
-                      <File Id="file466" Name="dragdrop.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\dragdrop.py"/>
-                      <File Id="file467" Name="ENUMFO_0.PY" LongName="enumformatetc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\enumformatetc.py"/>
-                      <File Id="file468" Name="ENUMST_0.PY" LongName="enumstatdata.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\enumstatdata.py"/>
-                      <File Id="file469" Name="WINTYP_0.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\wintypes.py"/>
-                      <File Id="file470" Name="__INI_38.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\ole\__init__.py"/>
-                    </Component>
-                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\ole -->
-                  <Directory Id="directory290" Name="PRIVLE_0" LongName="privleges">
-                    <Component Id="component271" DiskId="1" Guid="$(autowix.guid)">
-                      <File Id="file471" Name="PRIVLE_0.PY" LongName="privleges.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\privleges.py"/>
-                      <File Id="file472" Name="WINTYP_1.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\wintypes.py"/>
-                      <File Id="file473" Name="__INI_55.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\privleges\__init__.py"/>
-                    </Component>
-                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\privleges -->
-                  <Directory Id="directory291" Name="shell">
-                    <Component Id="component272" DiskId="1" Guid="$(autowix.guid)">
-                      <File Id="file474" Name="consts.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\consts.py"/>
-                      <File Id="file475" Name="CONTEX_1.PY" LongName="contextmenu.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\contextmenu.py"/>
-                      <File Id="file476" Name="FUNCTI_0.PY" LongName="functions.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\functions.py"/>
-                      <File Id="file477" Name="NAMESP_0.PY" LongName="namespace.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\namespace.py"/>
-                      <File Id="file478" Name="SHELLI_0.PY" LongName="shellicon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellicon.py"/>
-                      <File Id="file479" Name="SHELLI_1.PY" LongName="shelliconcache.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shelliconcache.py"/>
-                      <File Id="file480" Name="SHELLL_0.PY" LongName="shelllink.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shelllink.py"/>
-                      <File Id="file481" Name="shellnew.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellnew.py"/>
-                      <File Id="file482" Name="SHELLN_0.PY" LongName="shellnotify.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\shellnotify.py"/>
-                      <File Id="file483" Name="WINTYP_2.PY" LongName="wintypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\wintypes.py"/>
-                      <File Id="file484" Name="__INI_56.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\api\shell\__init__.py"/>
-                    </Component>
-                  </Directory> <!-- lib\mozilla\python\komodo\wnd\api\shell -->
-                </Directory> <!-- lib\mozilla\python\komodo\wnd\api -->
                 <Directory Id="directory292" Name="CONSTS_0" LongName="consts">
                   <Component Id="component273" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file485" Name="dlgs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\consts\dlgs.py"/>
@@ -1713,6 +1627,28 @@
                     </Component>
                   </Directory> <!-- lib\mozilla\python\komodo\wnd\controls\treeview -->
                 </Directory> <!-- lib\mozilla\python\komodo\wnd\controls -->
+                <Directory Id="directory315" Name="dlgs">
+                  <Component Id="component296" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file4" Name="BROWSE_1.PY" LongName="browseforfolder.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\browseforfolder.py"/>
+                    <File Id="file6" Name="CHOOSE_0.PY" LongName="choosecolor.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\choosecolor.py"/>
+                    <File Id="file7" Name="CHOOSE_1.PY" LongName="choosefont.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\choosefont.py"/>
+                    <File Id="file8" Name="error.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\error.py"/>
+                    <File Id="file9" Name="findtext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\findtext.py"/>
+                    <File Id="file214" Name="OPENSA_0.PY" LongName="opensavefile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\opensavefile.py"/>
+                    <File Id="file235" Name="REPLAC_1.PY" LongName="replacetext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\replacetext.py"/>
+                    <File Id="file322" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\__init__.py"/>
+                  </Component>
+                  <Directory Id="directory316" Name="TEMPL_28" LongName="templates">
+                    <Component Id="component298" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file324" Name="CHOOSE_2.PY" LongName="choosecolor.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\choosecolor.py"/>
+                      <File Id="file369" Name="CHOOSE_3.PY" LongName="choosefont.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\choosefont.py"/>
+                      <File Id="file370" Name="contents.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\contents.txt"/>
+                      <File Id="file371" Name="FINDTE_0.PY" LongName="findtext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\findtext.py"/>
+                      <File Id="file372" Name="OPENSA_1.PY" LongName="opensavefile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\opensavefile.py"/>
+                      <File Id="file373" Name="REPLAC_2.PY" LongName="replacetext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wnd\dlgs\templates\replacetext.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\wnd\dlgs\templates -->
+                </Directory> <!-- lib\mozilla\python\komodo\wnd\dlgs -->
               </Directory> <!-- lib\mozilla\python\komodo\wnd -->
 
 <?if $(var.WithCrypto) = "yes" ?>
