@@ -45,7 +45,9 @@ import time
 import re
 from Tkinter import *  # for fakey komodo.xul
 if sys.platform.startswith("win"):
-    import wnd.komodo
+    import win32api
+    import win32event
+    from win32com.shell import shellcon, shell
 else:
     import fcntl
 
@@ -71,14 +73,13 @@ def _getKomodoVersion():
 
 ver = _getKomodoVersion()
 if sys.platform.startswith("win"):
-    from wnd.api.shell.consts import CLSIDL_APPDATA
     _gStatusLockName = "komodo-%s-status-lock" % ver
     _gStartingEventName = "komodo-%s-starting" % ver
     _gRunningEventName = "komodo-%s-running" % ver
     _gCommandmentsLockName = "komodo-%s-commandments-lock" % ver
     _gCommandmentsEventName = "komodo-%s-new-commandments" % ver
     _gCommandmentsFileName = os.path.join(
-        wnd.komodo.get_path_by_shell_clsidl(CLSIDL_APPDATA),
+        shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0),
         "ActiveState", "Komodo", ver, "commandments.txt")
 else:
     _gRunningLockFileName = os.path.expanduser("~/.komodo/%s/running.lock" % ver)
@@ -124,18 +125,20 @@ if sys.platform.startswith("win"):
                 os.unlink(_gCommandmentsFileName)
 
         def run(self):
-            lock = wnd.komodo.create_mutex(_gCommandmentsLockName)
-            newCommandments = wnd.komodo.create_event(_gCommandmentsEventName)
+            lock = win32event.CreateMutex(None, 0, _gCommandmentsLockName)
+            newCommandments = win32event.CreateEvent(None, 1, 0,
+                                                     _gCommandmentsEventName)
 
             while 1:
                 # Wait for new commandments.
-                rv = wnd.komodo.wait_for_single_object(newCommandments)
-                if rv == wnd.komodo.WAIT_OBJECT_0:
+                rv = win32event.WaitForSingleObject(newCommandments,
+                                                    win32event.INFINITE)
+                if rv == win32event.WAIT_OBJECT_0:
                     retval = 1
                 else:
                     raise "Error waiting for new commandments: %r" % rv
                 # Grab the lock.
-                wnd.komodo.wait_for_single_object(lock)
+                win32event.WaitForSingleObject(lock, win32event.INFINITE)
                 # Consume the commandments.
                 f = open(_gCommandmentsFileName, 'r')
                 cmds = []
@@ -145,9 +148,9 @@ if sys.platform.startswith("win"):
                 f.close()
                 os.unlink(_gCommandmentsFileName)
                 # Reset the "new commandments" event.
-                wnd.komodo.reset_event(newCommandments)
+                win32event.ResetEvent(newCommandments)
                 # Release the lock.
-                wnd.komodo.release_mutex(lock)
+                win32event.ReleaseMutex(lock)
                 # Handle the commandments.
                 exit = 0
                 for cmd in cmds:
@@ -158,24 +161,25 @@ if sys.platform.startswith("win"):
                 if exit:
                     break
 
-            wnd.komodo.close_handle(newCommandments)
-            wnd.komodo.close_handle(lock)
+            win32api.CloseHandle(newCommandments)
+            win32api.CloseHandle(lock)
 
         def exit(self):
             # Grab the lock.
-            lock = wnd.komodo.create_mutex(_gCommandmentsLockName)
-            wnd.komodo.wait_for_single_object(lock)
+            lock = win32event.CreateMutex(None, 0, _gCommandmentsLockName)
+            win32event.WaitForSingleObject(lock, win32event.INFINITE)
             # Send __exit__ commandment.
             f = open(_gCommandmentsFileName, 'a')
             f.write("__exit__\n")
             f.close()
             # Signal hat there are new commandments.
-            newCommandments = wnd.komodo.create_event(_gCommandmentsEventName)
-            wnd.komodo.set_event(newCommandments)
-            wnd.komodo.close_handle(newCommandments)
+            newCommandments = win32event.CreateEvent(None, 1, 0,
+                                                     _gCommandmentsEventName)
+            win32event.SetEvent(newCommandments)
+            win32api.CloseHandle(newCommandments)
             # Release the lock.
-            wnd.komodo.release_mutex(lock)
-            wnd.komodo.close_handle(lock)
+            win32event.ReleaseMutex(lock)
+            win32api.CloseHandle(lock)
 
             self.join()
 
@@ -225,23 +229,23 @@ def acquireKomodoStatusLock():
     # No such lock used on Linux.
     lock = None
     if sys.platform.startswith("win"):
-        lock = wnd.komodo.create_mutex(_gStatusLockName)
+        lock = win32event.CreateMutex(None, 0, _gStatusLockName)
         #XXX Perhaps should have a reasonable timeout?
-        wnd.komodo.wait_for_single_object(lock)
+        win32event.WaitForSingleObject(lock, win32event.INFINITE)
     return lock
 
 def releaseKomodoStatusLock(lock):
     # No such lock used on Linux.
     if sys.platform.startswith("win"):
-        wnd.komodo.release_mutex(lock)
-        wnd.komodo.close_handle(lock)
+        win32event.ReleaseMutex(lock)
+        win32api.CloseHandle(lock)
 
 
 def setKomodoStatusToRunning():
     handle = None
     if sys.platform.startswith("win"):
-        handle = wnd.komodo.create_event(_gRunningEventName)
-        wnd.komodo.set_event(handle)
+        handle = win32event.CreateEvent(None, 1, 0, _gRunningEventName)
+        win32event.SetEvent(handle)
     else:
         handle = open(_gRunningLockFileName, 'w')
         handle.write( str(os.getpid()) )
@@ -252,7 +256,7 @@ def setKomodoStatusToRunning():
 def cleanupRunningHandle(handle):
     if sys.platform.startswith("win"):
         if handle:
-            wnd.komodo.close_handle(handle)
+            win32api.CloseHandle(handle)
     else:
         fcntl.flock(handle, fcntl.LOCK_UN)
         handle.close()

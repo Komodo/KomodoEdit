@@ -471,19 +471,12 @@ def _get_komodo_user_data_dir(kover, hostdir=False):
     if os.environ.has_key("KOMODO_USERDATADIR"):
         userdatadir = os.environ["KOMODO_USERDATADIR"]
     if sys.platform == "win32":
+        from win32com.shell import shellcon, shell
+        userdatadir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
         try:
-            from wnd.komodo import get_unicode_path_by_shell_clsidl
-            from wnd.api.shell.consts import CLSIDL_APPDATA
-            userdatadir = get_unicode_path_by_shell_clsidl(CLSIDL_APPDATA)
-        except ImportError:
-            # bug 72062 -- this might not be executing in an
-            # environment that has contrib/pywin installed as wnd
-            from win32com.shell import shellcon, shell
-            userdatadir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-            try:
-                userdatadir = unicode(userdatadir)
-            except:
-                pass
+            userdatadir = unicode(userdatadir)
+        except:
+            pass
         userdatadir = os.path.join(userdatadir, "ActiveState", "Komodo")
     else:
         userdatadir = os.path.expanduser("~/.komodo")
