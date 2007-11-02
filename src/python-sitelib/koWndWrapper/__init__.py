@@ -55,29 +55,6 @@ CLSIDL_APPDATA = 26
 _kernel32 = ctypes.windll.kernel32
 _user32 = ctypes.windll.user32
 
-def get_path_by_shell_clsidl(pidl_val):
-    from wnd.api.shell.functions import GetPathFromPidl, PidlFree
-    from wnd.api.shell.wintypes import PIDL, ITEMIDLIST, shell32
-    from ctypes import byref
-    pIdl_tmp = PIDL(ITEMIDLIST())
-    shell32.SHGetSpecialFolderLocation(0, pidl_val, byref(pIdl_tmp))
-    path = GetPathFromPidl(pIdl_tmp)
-    PidlFree(pIdl_tmp)
-    #log.debug("get_path_by_shell_clsidl(%r) => %r", pidl_val, path)
-    return path
-
-def get_unicode_path_by_shell_clsidl(pidl_val):
-    path = get_path_by_shell_clsidl(pidl_val)
-    # Try to make this a unicode path because SHGetFolderPath does
-    # not return unicode strings when there is unicode data in the
-    # path.
-    try:
-        path = unicode(path)
-    except UnicodeError:
-        pass
-    #log.debug("get_unicode_path_by_shell_clsidl(%r) => %r", pidl_val, path)
-    return path
-
 # Wrappers around win32api routines
 
 def close_handle(h):
@@ -112,8 +89,10 @@ def release_mutex(lock):
 def set_event(h):
     return _kernel32.SetEvent(h)
 
-from wnd.api.process import INFINITE
-from wnd.api.process import WAIT_OBJECT_0
+# Constants from wnd.api.process
+
+INFINITE = -1
+WAIT_OBJECT_0 = 0
 
 def wait_for_single_object(h, timeout=None):
     if timeout is None:
