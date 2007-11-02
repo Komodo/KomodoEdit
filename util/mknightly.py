@@ -1,17 +1,54 @@
 #!/usr/bin/env python
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+# 
+# The contents of this file are subject to the Mozilla Public License
+# Version 1.1 (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+# License for the specific language governing rights and limitations
+# under the License.
+# 
+# The Original Code is Komodo code.
+# 
+# The Initial Developer of the Original Code is ActiveState Software Inc.
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# ActiveState Software Inc. All Rights Reserved.
+# 
+# Contributor(s):
+#   ActiveState Software Inc
+# 
+# Alternatively, the contents of this file may be used under the terms of
+# either the GNU General Public License Version 2 or later (the "GPL"), or
+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+# 
+# ***** END LICENSE BLOCK *****
 
-"""Make the latest OpenKomodo build a nightly.
+r"""Make the latest Komodo build a nightly.
 
 Being a "nightly" means that it shows up on the nightly channel of
-the Komodo update service and it appears publicly on
-<downloads.openkomodo.com>.
+the Komodo update service.
 
 Yes the script name is "mk" and this just uploads stuff. Get over it.
-By default this will grab the latest dev build of OpenKomodo and plop
-it properly into <http://downloads.openkomodo.com/openkomodo/nightly/>.
+By default this will grab the latest dev build of Komodo and plop
+it properly into the nightly downloads area.
 
-TODO: scanning (robot:/home/sav$ update/savupdate.sh && ./sav.sh BUILDS-DIR)
-      c.f. http://www.rexswain.com/eicar.html
+Supported project names:
+    openkomodo
+    komodoide
+    komodoedit
 """
 
 __version_info__ = (0, 1, 0)
@@ -26,9 +63,11 @@ from glob import glob
 import time
 import traceback
 import logging
+import tempfile
 import optparse
 
 import buildutils
+
 
 
 #---- exceptions
@@ -36,24 +75,37 @@ import buildutils
 class Error(Exception):
     pass
 
+
+
 #---- globals
 
 log = logging.getLogger("mknightly")
-g_default_upload_base_dir = "box17:/data/download/"
 
+_default_upload_base_dir_from_project = {
+    "komodoedit": "crimper:/home/apps/Komodo/idownloads",
+    "komodoide": "crimper:/home/apps/Komodo/idownloads",
+    "openkomodo": "box17:/data/download/",
+}
+_pkg_pats_from_project = {
+    "komodoedit": ["Komodo-Edit-*"],
+    "komodoide": ["Komodo-IDE-*"],
+    "openkomodo": ["OpenKomodo-*"],
+}
 
 
 
 #---- module API
 
-def mknightly(project, upload_base_dir=None, dry_run=True):
-    """Upload devbuild packages to
-        http://downloads.openkomodo.com/*/nightly/...
+def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
+    """Make the latest Komodo IDE/Edit devbuild a nightly.
+    
+    @param can_link {boolean} indicates if hard-linking files is allowed
+        if the devbuilds dir and downloads dir are on the same server.
     """
     from posixpath import join, basename, dirname
     
     if upload_base_dir is None:
-        upload_base_dir = g_default_upload_base_dir
+        upload_base_dir = _default_upload_base_dir_from_project[project]
     log.debug("mknightly(%r, upload_base_dir=%r, dry_run=%r)",
               project, upload_base_dir, dry_run)
     assert buildutils.is_remote_path(upload_base_dir)
@@ -93,9 +145,14 @@ def mknightly(project, upload_base_dir=None, dry_run=True):
     # Do the upload.
     upload_dir = join(upload_base_dir, str(year), str(month),
         "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, branch))
+    excludes = ["internal", "*RemoteDebugging*"]
+    includes = _pkg_pats_from_project[project]
     _upload(devbuilds_dir, upload_dir,
-            excludes=["*.mar", "*.md5sums", "internal"],
-            dry_run=dry_run)
+            includes=includes, excludes=excludes,
+            dry_run=dry_run, can_link=can_link)
+    
+    # MD5SUMs info file in the 'updates' subdir.
+    _mk_mar_md5sums(join(upload_dir, "updates"))
     
     # Symlinks.
     # latest-$branch -> $upload_dir
@@ -111,7 +168,39 @@ def mknightly(project, upload_base_dir=None, dry_run=True):
 
 #---- internal support stuff
 
-def _upload(src_dir, dst_dir, excludes=[], dry_run=False):
+def _mk_mar_md5sums(rdir):
+    """Create a (slightly non-standard) MD5SUMs file in the given
+    dir. The format of the file is:
+    
+        <md5sum> <size> <filename>
+    
+    One line for each .mar file in that dir. This file is used by the
+    "nightly" channel of the update server to be able to get size and md5
+    info without resorting the ssh (just HTTP).
+    """
+    from posixpath import join, basename
+
+    if not buildutils.remote_exists(rdir):
+        return
+    
+    path = join(rdir, "MD5SUMs")
+    log.info("create %s", path)
+    
+    info = []
+    for rpath in buildutils.remote_glob(join(rdir, "*.mar")):
+        size = buildutils.remote_size(rpath, log.debug)
+        md5sum = buildutils.remote_md5sum(rpath, log.debug)
+        info.append((md5sum, size, basename(rpath)))
+    
+    tmppath = tempfile.mktemp()
+    f = open(tmppath, 'w')
+    f.write('\n'.join("%s %s %s" % i for i in info))
+    f.close()
+    buildutils.remote_cp(tmppath, path)
+    os.remove(tmppath)
+
+def _upload(src_dir, dst_dir, includes=None, excludes=[],
+            dry_run=False, can_link=False):
     from posixpath import join, normpath, dirname
     from fnmatch import fnmatch
     
@@ -119,29 +208,46 @@ def _upload(src_dir, dst_dir, excludes=[], dry_run=False):
     if not dry_run and not buildutils.remote_exists(dst_dir, log.debug):
         buildutils.remote_makedirs(dst_dir, log.debug)
 
-    for dirpath, dirnames, filenames in buildutils.remote_walk(src_dir):
+    for dirpath, dnames, fnames in buildutils.remote_walk(src_dir):
         rel_rdir = buildutils.remote_relpath(dirpath, src_dir)
         reldir = rel_rdir.split(':', 1)[1]
-        for filename in filenames:
-            matches = [x for x in excludes if fnmatch(filename, x)]
+
+        for dname in dnames[:]:
+            matches = [x for x in excludes if fnmatch(dname, x)]
             if matches:
-                log.debug("skipping `%s' (matches exclusion pattern)", filename)
+                log.debug("skipping `%s' (matches exclusion pattern)", dname)
+                dnames.remove(dname)
+            
+        for fname in fnames:
+            if includes:
+                for include in includes:
+                    if fnmatch(fname, include):
+                        break
+                else:
+                    log.debug("skipping `%s' (doesn't match any includes)", fname)
+                    continue
+            matches = [x for x in excludes if fnmatch(fname, x)]
+            if matches:
+                log.debug("skipping `%s' (matches exclusion pattern)", fname)
                 continue
-            src = join(dirpath, filename)
-            dst = normpath(join(dst_dir, reldir, filename))
+            src = join(dirpath, fname)
+            dst = normpath(join(dst_dir, reldir, fname))
             log.info("cp %s %s", src, dst)
             if not dry_run:
                 if not buildutils.remote_exists(dirname(dst), log.debug):
                     buildutils.remote_makedirs(dirname(dst), log.debug)
-                buildutils.remote_cp(src, dst, log.debug)
+                buildutils.remote_cp(src, dst, log.debug,
+                                     hard_link_if_can=can_link)
 
 def _get_devbuilds_dir(project, ver=None, build_num=None):
     from posixpath import join, basename
     
     base_dir = {
         "openkomodo": "crimper:/home/apps/OpenKomodo",
+        "komodoide": "crimper:/home/apps/Komodo",
+        "komodoedit": "crimper:/home/apps/Komodo",
     }[project]
-    
+        
     # Find the appropriate version dir.
     if ver:
         ver_dir = join(base_dir, ver)
@@ -324,13 +430,12 @@ def _join_short_ver(ver_tuple, pad_zeros=None):
     return ''.join(dotted)
 
 
-
 class _NoReflowFormatter(optparse.IndentedHelpFormatter):
     """An optparse formatter that does NOT reflow the description."""
     def format_description(self, description):
         return description or ""
 
-# Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
+# Recipe: pretty_logging (0.1)
 class _PerLevelFormatter(logging.Formatter):
     """Allow multiple format string -- depending on the log level.
 
@@ -380,7 +485,7 @@ def _setup_logging(stream=None):
 #---- mainline
 
 def main(argv):
-    usage = "usage: %prog [OPTIONS...]"
+    usage = "usage: %prog [OPTIONS...] [PROJECTS]"
     version = "%prog "+__version__
     parser = optparse.OptionParser(prog="mknightly", usage=usage,
         version=version, description=__doc__,
@@ -393,16 +498,21 @@ def main(argv):
                       help="quieter output")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="do a dry-run")
-    parser.add_option("-p", "--project",
-                      help="project for which to upload nightlies: "
-                           "openkomodo (the default, and only supported "
-                           "project for now)")
+    parser.add_option("-p", "--project", action="append", dest="projects",
+                      help="Projects for which to upload nightlies "
+                           "(e.g., openkomodo, komodoide, komodoedit)."
+                           "Can specify multiple times for multiple "
+                           "projects.")
     parser.set_defaults(log_level=logging.INFO, dry_run=False,
-                        project="openkomodo")
-    opts, args = parser.parse_args()
+                        projects=[])
+    opts, projects = parser.parse_args()
     log.setLevel(opts.log_level)
 
-    mknightly(opts.project, dry_run=opts.dry_run)
+    if not projects:
+        log.info("You probably want to specify some projects. "
+                 "(See `mknightly -h'.)")
+    for project in projects:
+        mknightly(project, dry_run=opts.dry_run, can_link=True)
 
 
 if __name__ == "__main__":
