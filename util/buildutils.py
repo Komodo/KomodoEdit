@@ -341,7 +341,8 @@ def relpath(path, relto=None):
 
 #---- remote file utilities
 
-# Recipe: remote (0.7.0)
+
+# Recipe: remote (0.7.2)
 _remote_path_re = re.compile("(\w+@)?\w+:/(?!/)")
 def is_remote_path(rpath):
     return _remote_path_re.search(rpath) is not None
@@ -382,13 +383,20 @@ def remote_makedirs(rpath, log=None):
         if not remote_exists(rpath_part, log):
             remote_mkdir(rpath_part, log)
 
-def remote_cp(src, dst, log=None):
+def remote_cp(src, dst, log=None, hard_link_if_can=False):
     if is_remote_path(src) and is_remote_path(dst):
         # This is harder, because remote to remote copying is not
         # supported by scp.
         assert ' ' not in src and ' ' not in dst
         src_login, src_path = src.split(':', 1)
-        rcmd = 'scp -q -B %s %s' % (src_path, dst)
+        dst_login, dst_path = dst.split(':', 1)
+        if src_login == dst_login:
+            if hard_link_if_can:
+                rcmd = 'ln -f %s %s' % (src_path, dst_path)
+            else:
+                rcmd = 'cp -f %s %s' % (src_path, dst_path)
+        else:
+            rcmd = 'scp -q -B %s %s' % (src_path, dst)
         remote_run(src_login, rcmd, log=log)
     else:
         if sys.platform == "win32":
@@ -454,13 +462,14 @@ def remote_rm(rpath, log=None):
 
 def remote_glob(rpattern, log=None):
     login, pattern = rpattern.split(':', 1)
+    norm_login = login
     if sys.platform == "win32":
         if '@' not in login:
-            login = "%s@%s" % (getpass.getuser(), login)
-        argv = ["plink", "-batch", login, "ls", "-d", pattern]
+            norm_login = "%s@%s" % (getpass.getuser(), login)
+        argv = ["plink", "-batch", norm_login, "ls", "-d", pattern]
     else:
-        argv = ["ssh", "-o", "BatchMode=yes", login, "ls", "-d",
-                pattern]
+        argv = ["ssh", '-A', "-o", "BatchMode=yes", norm_login,
+                "ls", "-d", pattern]
     if log:
         log(' '.join(argv))
     try:
@@ -480,12 +489,14 @@ def remote_walk(rdir, log=None):
     from posixpath import join
 
     login, dir = rdir.split(':', 1)
+    norm_login = login
     if sys.platform == "win32":
         if '@' not in login:
-            login = "%s@%s" % (getpass.getuser(), login)
-        argv_base = ["plink", "-batch", login, "ls", "-aF"]
+            norm_login = "%s@%s" % (getpass.getuser(), login)
+        argv_base = ["plink", "-batch", norm_login, "ls", "-aF"]
     else:
-        argv_base = ["ssh", "-o", "BatchMode=yes", login, "ls", "-aF"]
+        argv_base = ["ssh", "-o", "BatchMode=yes", norm_login,
+                     "ls", "-aF"]
     if log:
         log(' '.join(argv))
 
