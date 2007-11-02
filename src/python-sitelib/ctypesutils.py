@@ -66,7 +66,7 @@ def move_to_trash(filename):
     sho.hwnd = 0
     sho.wFunc = FO_DELETE
     sho.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION
-    sho.pFrom = str(filename) + "\x00";
+    sho.pFrom = filename + "\x00";
     sho.pTo = None
     sho.fAnyOperationsAborted = False
     sho.hNameMappings = None
