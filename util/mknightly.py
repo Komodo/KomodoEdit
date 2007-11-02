@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-r"""Upload a set of devbuilds (on crimper) to the appropriate nightly
-area on downloads.openkomodo.com.
+"""Make the latest OpenKomodo build a nightly.
+
+Being a "nightly" means that it shows up on the nightly channel of
+the Komodo update service and it appears publicly on
+<downloads.openkomodo.com>.
 
 Yes the script name is "mk" and this just uploads stuff. Get over it.
 By default this will grab the latest dev build of OpenKomodo and plop
@@ -147,8 +150,10 @@ def _get_devbuilds_dir(project, ver=None, build_num=None):
     else:
         vers = []
         for d in buildutils.remote_glob(join(base_dir, "*")):
-            vers.append((_split_short_ver(basename(d), intify=True),
-                         d))
+            try:
+                vers.append((_split_short_ver(basename(d), intify=True), d))
+            except ValueError:
+                pass
         assert vers, "no devbuilds in '%s'" % base_dir
         vers.sort()
         ver_dir = vers[-1][1]
@@ -171,9 +176,7 @@ def _get_devbuilds_dir(project, ver=None, build_num=None):
     return build_dir
     
     
-
-
-# Recipe: ver (1.0)
+# Recipe: ver (1.0.1)
 def _split_full_ver(ver_str):
     """Split a full version string to component bits.
 
@@ -220,6 +223,7 @@ def _split_full_ver(ver_str):
                 bits.append(0)
     return tuple(bits)
 
+_short_ver_re = re.compile("(\d+)(\.\d+)*([a-z](\d+)?)?")
 def _split_short_ver(ver_str, intify=False, pad_zeros=None):
     """Parse the given version into a tuple of "significant" parts.
 
@@ -253,6 +257,9 @@ def _split_short_ver(ver_str, intify=False, pad_zeros=None):
             return int(s)
         except ValueError:
             return s
+
+    if not _short_ver_re.match(ver_str):
+        raise ValueError("%r is not a valid short version string" % ver_str)
 
     hit_quality_bit = False
     bits = []
@@ -315,6 +322,7 @@ def _join_short_ver(ver_tuple, pad_zeros=None):
             dotted.append('.')
         dotted.append(str(bit))
     return ''.join(dotted)
+
 
 
 class _NoReflowFormatter(optparse.IndentedHelpFormatter):
