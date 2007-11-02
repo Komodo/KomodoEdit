@@ -57,7 +57,7 @@ $libName = '../bin/scintilla.a';
 # build scintilla
 my $makeFlags = "-fPIC -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
 if ($buildType eq 'debug') {
-    $makeFlags = "-DDEBUG=1";
+    $makeFlags .= "-g -DDEBUG=1";
 }
 
 # The SciMoz build on Linux explicitly links the Lex*.o files from the
