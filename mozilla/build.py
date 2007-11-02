@@ -1541,6 +1541,9 @@ def target_configure(argv):
                 mozBuildOptions.append('enable-optimize')
             mozBuildOptions.append('disable-debug')
             mozBuildOptions.append('disable-dtd-debug')
+        elif buildType == "debug":
+            mozBuildOptions.append('enable-debug')
+            mozBuildOptions.append('disable-optimize')
 
         if "perf" in config["buildOpt"]:
             mozBuildOptions.append('enable-xpctools')
