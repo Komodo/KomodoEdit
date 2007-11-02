@@ -1,0 +1,7 @@
+
+This folder contains some default templates for common dialogs, readdy
+for copy and paste.
+They are created with the help of dlgeditor from wnd.tools.dlgeditor
+and might be usefull for customizing the dialog boxes.
+Feel free to play around with them.
+
