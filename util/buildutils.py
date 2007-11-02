@@ -579,8 +579,8 @@ def capture_stdout(argv, ignore_status=False):
     p = subprocess.Popen(argv,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-    stdout = p.stdout.read()
     stderr = p.stderr.read()
+    stdout = p.stdout.read()
     status = p.wait()  # raise if non-zero status?
     if status and not ignore_status:
         raise OSError("running '%s' failed: %d: %s"
