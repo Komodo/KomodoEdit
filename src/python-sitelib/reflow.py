@@ -38,16 +38,16 @@
 # a standalone file to make usable by doctest.
 
 r"""
->>> reflow("This is a long paragraph which is useful in testing reflow\n", 30, '\n')
+>>> sreflow("This is a long paragraph which is useful in testing reflow\n", 30, '\n')
 'This is a long paragraph which\nis useful in testing reflow\n'
 >>> tst = "tomato\n\nbar\n\nasdas\n"
->>> reflow(tst, 30, '\n')
+>>> sreflow(tst, 30, '\n')
 'tomato\n\nbar\n\nasdas\n'
 >>> tst = "tomato\n\nbar\n\nasdas "
->>> reflow(tst, 30, '\n')
+>>> sreflow(tst, 30, '\n')
 'tomato\n\nbar\n\nasdas '
->>> tst = u"  Susan: I assume that would push out our release date, though, right?\r\n\r\n  Tom: What? No, no, absolutely not. In fact, I've been building a prototype just to get a feel for it, and I'm pretty sure that we could have an alpha out earlier than what we've currently got planned.\r\n\r\n  Susan: Why earlier?"
->>> reflow(tst, 40, '\n')
+>>> tst = "  Susan: I assume that would push out our release date, though, right?\r\n\r\n  Tom: What? No, no, absolutely not. In fact, I've been building a prototype just to get a feel for it, and I'm pretty sure that we could have an alpha out earlier than what we've currently got planned.\r\n\r\n  Susan: Why earlier?"
+>>> sreflow(tst, 40, '\n')
 "  Susan: I assume that would push out\n  our release date, though, right?\n\r\n  Tom: What? No, no, absolutely not. In\n  fact, I've been building a prototype\n  just to get a feel for it, and I'm\n  pretty sure that we could have an\n  alpha out earlier than what we've\n  currently got planned.\n\r\n  Susan: Why earlier?"
 >>> tst = "# - get PySQLite into our silo'd Python and make it easy for dev builders\n#   on all platforms\n# - what mechanism to use to change code browser fileset?\n# - What about cleaning out info from the DB for deleted files?\n#   Perhaps that can be done lazily when looking up symbols? I.e.\n#   when about to report a symbol that comes from a file, check\n#   that that file still exists. That might be too slow. Perhaps\n#   the logic could be: check that the file still exists if we ..."
 
@@ -63,7 +63,7 @@ r"""
 >>> p = Paragraphize(tst)
 >>> len(p)
 3
->>> print reflow(tst, 40, '\n')
+>>> print sreflow(tst, 40, '\n')
 # - get PySQLite into our silo'd Python
 #   and make it easy for dev builders on
 #   all platforms
@@ -79,11 +79,16 @@ r"""
 #   Perhaps the logic could be: check
 #   that the file still exists if we ...
 >>> email = '    > This is a really really really really really really really really long sentence\n    > and this is the next line.'
->>> print reflow(email, 40, '\n')
+>>> print sreflow(email, 40, '\n')
     > This is a really really really
     > really really really really really
     > long sentence and this is the next
     > line.
+>>> homer = u"The other instances in Homer of double names in the language of men and gods are 2.813 \u03c4\u1f74\u03bd \u1f26 \u03c4\u03bf\u03b9 \u1f04\u03bd\u03b4\u03c1\u03b5\u03c2 \u0392\u03b1\u03c4 end!"
+>>> print repr(reflow(homer, 40, '\n'))
+u'The other instances in Homer of double\nnames in the language of men and gods\nare 2.813 \u03c4\u1f74\u03bd \u1f26 \u03c4\u03bf\u03b9 \u1f04\u03bd\u03b4\u03c1\u03b5\u03c2 \u0392\u03b1\u03c4 end!'
+>>> print repr(reflow(homer, 20, '\n'))
+u'The other instances\nin Homer of double\nnames in the\nlanguage of men and\ngods are 2.813 \u03c4\u1f74\u03bd \u1f26\n\u03c4\u03bf\u03b9 \u1f04\u03bd\u03b4\u03c1\u03b5\u03c2 \u0392\u03b1\u03c4 end!'
 """
 
 import re
@@ -91,7 +96,7 @@ import sys
 
 TABWIDTH = 8
 
-class Line(str):
+class Line(unicode):
     r"""Line objects are "smart" wrappers around lines.  They know about
     all of the indentation-related semantics of the line, such as:
       - whether the line is all whitespace or not
@@ -118,7 +123,7 @@ class Line(str):
     >>> t.iscomment
     True
     >>> t.uncomment()
-    'foobar'
+    u'foobar'
     >>> line1 = Line("# - get PySQLite into our silo'd Python and make it easy for dev builders\n")
     >>> line2 = Line("#   on all platforms\n")
     >>> line1.iscomment
@@ -133,7 +138,7 @@ class Line(str):
     [2, 4]
     """
     def __init__(self, line):
-        str.__init__(line)
+        unicode.__init__(line)
         self._line = line
         self.iswhitespace = not line.strip()
         self.indentWidths = []
@@ -163,13 +168,13 @@ class Line(str):
         return line
     def _strip(self):
         if self.iscode:
-            return str(self)
+            return unicode(self)
         if self.bulleted:
             return self[len(self.bullet):].rstrip()
         else:
             return self[len(self.leadingIndent):].rstrip()
     def __str__(self):
-        return str(self._line)
+        return unicode(self._line)
 
 bulletRe = re.compile("(\s*?[\*%-]\s+)(.*)")
 
@@ -252,7 +257,7 @@ class Para(list):
     r"""
     >>> x = Para(Line('  * '))
     >>> x[0]
-    '  * '
+    u'  * '
     >>> type(x[0])
     <class 'reflow.Line'>
     >>> x[0].indentWidths
@@ -274,7 +279,7 @@ class Para(list):
     >>> l = Line("    and so on and so on and so on")
     >>> b.append(l)
     >>> b.reflow(30, '\n')
-    >>> b
+    >>> [str(x) for x in b]
     ['  * this is a bullleted line\n', '    which accepts a line which\n', '    is indented accordingly\n', '    and so on and so on and so\n', '    on']
     
     # now test the handling of comments
@@ -283,10 +288,10 @@ class Para(list):
     >>> len(x)
     1
     >>> x[0]
-    [' # - this is\n', 'a test']
+    [u' # - this is\n', u'a test']
     >>> x[0].reflow(10, '\n')
     >>> x
-    [[' # - this\n', ' #   is a\n', ' #   test']]
+    [[u' # - this\n', u' #   is a\n', u' #   test']]
     """
     def __init__(self, line):
         list.__init__(self)
@@ -405,30 +410,30 @@ class Paragraphize(list):
           - a line starting with a 'bullet' is a paragraph beginning.
 
         >>> print Paragraphize("Foo\nbar\n\nbaz")
-        [['Foo\n', 'bar\n'], ['\n'], ['baz']]
+        [[u'Foo\n', u'bar\n'], [u'\n'], [u'baz']]
         >>> print Paragraphize("this\n   \nis\n")
-        [['this\n'], ['   \n'], ['is\n']]
+        [[u'this\n'], [u'   \n'], [u'is\n']]
 
         >>> tst =  '''Given a text, return 1 or more paragraph objects, where\na paragraph is defined for 'reflow' purposes, thus:\n'''
         >>> f = Paragraphize(tst)
         >>> f[0]
-        ['Given a text, return 1 or more paragraph objects, where\n', "a paragraph is defined for 'reflow' purposes, thus:\n"]
+        [u'Given a text, return 1 or more paragraph objects, where\n', u"a paragraph is defined for 'reflow' purposes, thus:\n"]
         >>> [para.reflow(40, '\n') for para in f]
         [None]
         >>> f[0]
-        ['Given a text, return 1 or more paragraph\n', 'objects, where a paragraph is defined\n', "for 'reflow' purposes, thus:\n"]
+        [u'Given a text, return 1 or more paragraph\n', u'objects, where a paragraph is defined\n', u"for 'reflow' purposes, thus:\n"]
         >>> tst2 =  '''foo, where\na paragraph is defined for 'reflow' purposes, thus:\n  - this is a test\n'''
         >>> tst2
         "foo, where\na paragraph is defined for 'reflow' purposes, thus:\n  - this is a test\n"
         >>> g = Paragraphize(tst2)
         >>> g[0]
-        ['foo, where\n', "a paragraph is defined for 'reflow' purposes, thus:\n"]
+        [u'foo, where\n', u"a paragraph is defined for 'reflow' purposes, thus:\n"]
         >>> g[1]
-        ['  - this is a test\n']
+        [u'  - this is a test\n']
         >>> [para.reflow(40, '\n') for para in g]
         [None, None]
         >>> g[0]
-        ['foo, where a paragraph is defined for\n', "'reflow' purposes, thus:\n"]
+        [u'foo, where a paragraph is defined for\n', u"'reflow' purposes, thus:\n"]
 
 
         >>> tst =  '''Given a text, return 1 or more paragraph objects, where\na paragraph is defined for 'reflow' purposes, thus:\n  - a line consisting only of whitespace is its own\n    paragraph and is a marker of a paragraph end.\n  - a line starting with a 'bullet' is a paragraph beginning.\n'''
@@ -473,19 +478,19 @@ class Paragraphize(list):
         >>> tst = "tomato\ncucumber\n\nbar\n\nasdas\n"
         >>> f = Paragraphize(tst)
         >>> print f
-        [['tomato\n', 'cucumber\n'], ['\n'], ['bar\n'], ['\n'], ['asdas\n']]
+        [[u'tomato\n', u'cucumber\n'], [u'\n'], [u'bar\n'], [u'\n'], [u'asdas\n']]
         >>> junk = [para.reflow(30, '\n') for para in f]
         >>> print f
-        [['tomato cucumber\n'], ['\n'], ['bar\n'], ['\n'], ['asdas\n']]
+        [[u'tomato cucumber\n'], [u'\n'], [u'bar\n'], [u'\n'], [u'asdas\n']]
         >>> tst = "    Foo: bar\n\n    Baz: tomato\n\n    Cucumber: vegetable"
         >>> f = Paragraphize(tst)
         >>> f[0]
-        ['    Foo: bar\n']
+        [u'    Foo: bar\n']
         >>> f[2]
-        ['    Baz: tomato\n']
+        [u'    Baz: tomato\n']
         >>> f[2].reflow(30, '\n')
         >>> f[2]
-        ['    Baz: tomato\n']
+        [u'    Baz: tomato\n']
 
         # the following tests handling of paragraphs following blank paragraphs
         >>> tst = '''    Sam: Sounds right. Make sure you don't get a rabid anti-capitalist, though.\n\n    Tom: Right - I hear IBM and Nokia are hotbeds of rabid anti-capitalism.\n\n    Susan: Please get someone who washes and wears shoes.'''
@@ -514,6 +519,10 @@ def reflow(text, width, eol):
     [para.reflow(width, eol) for para in paragraphs]
     reflowed = ''.join([''.join(para) for para in paragraphs])
     return reflowed
+
+# For doctests only
+def sreflow(*args):
+    return str(reflow(*args))
     
 class HTMLContext:
     inDL = False
