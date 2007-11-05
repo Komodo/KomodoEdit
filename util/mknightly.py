@@ -194,7 +194,7 @@ def _mk_mar_md5sums(rdir):
     
     tmppath = tempfile.mktemp()
     f = open(tmppath, 'w')
-    f.write('\n'.join("%s %s %s" % i for i in info))
+    f.write('\n'.join("%s %s %s" % i for i in info) + '\n')
     f.close()
     buildutils.remote_cp(tmppath, path)
     os.remove(tmppath)
