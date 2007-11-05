@@ -62,6 +62,7 @@ my @toExport = (
     'withDocJarring',
     'withKomodoCix',
     'xulrunner', # xulrunner based builds
+    'xulrunnerBuildId',
     'universal', # universal binary builds for osx
 
     'ludditeVersion',
