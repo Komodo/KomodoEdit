@@ -155,174 +155,172 @@ if ($platform eq "win") {
 
 
 if (!$xulrunner) {
-
-
-my @xreFiles = (
-    # <action>, <src>, <dest>
-    #   where "dest" defaults to "src" if undefined.
-    # Here the "+share" actions mean to copy the file over to the main/stub
-    # directory where it will also be used for the stub.
-    ["cp+share",         'app/getopt.h', undef],
-    ["cp+share",         'app/my_getopt.h', undef],
-    ["cp+share",         'app/my_getopt.c', undef],
-    ["preprocess+share", 'app/nsKomodoApp.p.cpp', 'app/nsKomodoApp.cpp'],
-    ["cp+share",         'app/koStart.h', undef],
-    ["preprocess+share", 'app/koStart.unprocessed.c', 'app/koStart.c'],
-
-    ["preprocess",       'app/module.unprocessed.ver','app/module.ver'],
-    ["preprocess",       'app/splash.unprocessed.rc', 'app/splash.rc'],
-
-    ["preprocess",       'app/macbuild/Contents/Info.unprocessed.plist.in',
-                         'app/macbuild/Contents/Info.plist.in'],
-    ["preprocess",       'app/profile/komodo.p.js', 'app/profile/komodo.js'],
-
-    ["preprocess",       'config/version.p.txt', 'config/version.txt'],
-
-    #TODO: Add ko_project.ico.
-    ["cp",               "app/komodo.$productType.ico", "app/komodo.ico"],
-    ["cp",               "app/macbuild/$macKoIconName.icns",
-                         "app/macbuild/komodo.icns"],
-    ["cp",               "../komodo16.$productType.xpm", "app/default.xpm"],
-);
-
-foreach my $xreFileData_ref (@xreFiles) {
-    my @xreFileData = @$xreFileData_ref;
-    my $action = $xreFileData[0];
-    my $src = $xreFileData[1];
-    my $dest = $xreFileData[2];
-    if (! $dest) {
-        $dest = $src;
-    }
-
-    if ($action eq "cp" || $action eq "cp+share") {
-        $cons->Command("$mozKomodoSrcDir/$dest",
-                       "xre/$src",
-                       qq(
-                        $cp %1 %0
-                       ));
-        if ($action eq "cp+share") {
-            $cons->Command("stub/".basename($dest),
+    my @xreFiles = (
+        # <action>, <src>, <dest>
+        #   where "dest" defaults to "src" if undefined.
+        # Here the "+share" actions mean to copy the file over to the main/stub
+        # directory where it will also be used for the stub.
+        ["cp+share",         'app/getopt.h', undef],
+        ["cp+share",         'app/my_getopt.h', undef],
+        ["cp+share",         'app/my_getopt.c', undef],
+        ["preprocess+share", 'app/nsKomodoApp.p.cpp', 'app/nsKomodoApp.cpp'],
+        ["cp+share",         'app/koStart.h', undef],
+        ["preprocess+share", 'app/koStart.unprocessed.c', 'app/koStart.c'],
+    
+        ["preprocess",       'app/module.unprocessed.ver','app/module.ver'],
+        ["preprocess",       'app/splash.unprocessed.rc', 'app/splash.rc'],
+    
+        ["preprocess",       'app/macbuild/Contents/Info.unprocessed.plist.in',
+                             'app/macbuild/Contents/Info.plist.in'],
+        ["preprocess",       'app/profile/komodo.p.js', 'app/profile/komodo.js'],
+    
+        ["preprocess",       'config/version.p.txt', 'config/version.txt'],
+    
+        #TODO: Add ko_project.ico.
+        ["cp",               "app/komodo.$productType.ico", "app/komodo.ico"],
+        ["cp",               "app/macbuild/$macKoIconName.icns",
+                             "app/macbuild/komodo.icns"],
+        ["cp",               "../komodo16.$productType.xpm", "app/default.xpm"],
+    );
+    
+    foreach my $xreFileData_ref (@xreFiles) {
+        my @xreFileData = @$xreFileData_ref;
+        my $action = $xreFileData[0];
+        my $src = $xreFileData[1];
+        my $dest = $xreFileData[2];
+        if (! $dest) {
+            $dest = $src;
+        }
+    
+        if ($action eq "cp" || $action eq "cp+share") {
+            $cons->Command("$mozKomodoSrcDir/$dest",
                            "xre/$src",
                            qq(
                             $cp %1 %0
                            ));
+            if ($action eq "cp+share") {
+                $cons->Command("stub/".basename($dest),
+                               "xre/$src",
+                               qq(
+                                $cp %1 %0
+                               ));
+            }
         }
+        elsif ($action eq "preprocess" || $action eq "preprocess+share") {
+            $cons->Preprocess("xre/$src", "xre/$dest", \%ppData);
+            $cons->InstallAs("$mozKomodoSrcDir/$dest", "xre/$dest");
+            if ($action eq "preprocess+share") {
+                $cons->InstallAs("stub/".basename($dest), "xre/$dest");
+            }
+        }
+        else {
+            die "unknown XRE data action: '$action'\n";
+        }
+        $cons->Depends($mozExe, "$mozKomodoSrcDir/$dest");
     }
-    elsif ($action eq "preprocess" || $action eq "preprocess+share") {
-        $cons->Preprocess("xre/$src", "xre/$dest", \%ppData);
-        $cons->InstallAs("$mozKomodoSrcDir/$dest", "xre/$dest");
-        if ($action eq "preprocess+share") {
-            $cons->InstallAs("stub/".basename($dest), "xre/$dest");
-        }
+    
+    # Some XRE files aren't handled by the mozilla/komodo/.../Makefile's,
+    # so we need to do the copy to .../dist/bin ourselves here.
+    $cons->Preprocess("xre/app/profile/channel-prefs.p.js",
+                      "xre/app/profile/channel-prefs.js", \%ppData);
+    $cons->Install("$mozBin/defaults/pref", "xre/app/profile/channel-prefs.js");
+    
+    
+    $cons->Command($mozExe, $buildCmd);
+    # Make sure we run before the regxpcom process (which currently tries to
+    # do this build). (XXX Not sure this is necessary any more.)
+    $cons->Depends($ranRegxpcomStateFileName, $mozExe);
+    
+    
+    if ($platform eq "win") {
+        # Build the Komodo stub exe for Windows
+        #XXX May want to build a komodow.exe for double-clicking as well.
+    
+        # Preprocess the Komodo resource file.
+        #XXX Technically using our $buildNum (which is the Perforce change
+        #    number) is not valid for a Windows file version string: each
+        #    numeric element is limited to 65535 (I think that was it, the
+        #    exact number is somewhere in MSI) and ours is over this limit.
+        #    This *could* surprise us with MSI upgrades at some point.
+        my $FILEVERSION = $komodoVersion;
+        $FILEVERSION =~ s/-.*$//g; # drop potential non-numeric bit: "-alpha1"
+        $FILEVERSION .= '.' . $buildNum;
+        $FILEVERSION =~ s/[.-]/, /g;
+        my %rcData = (
+            'PP_KO_VERSION' => "$komodoVersion-$buildNum",
+            'PP_KO_COMMASEP_VERSION' => $FILEVERSION, # must all be numeric
+        );
+        $cons->Preprocess("stub/komodo.unprocessed.rc", "stub/komodo.rc",
+                          \%rcData);
+    
+        $cons->InstallAs("xre/app/komodo.ico",
+                         "xre/app/komodo.$productType.ico");
+    
+        # Build the Komodo starter stub (ko.exe: console, komodo.exe: windows)
+        my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /MD";
+        my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib";
+        $cons->Command(
+            "stub/ko.exe",                  # 0
+            "stub/komodo.c",                # 1
+            "stub/komodo.rc",               # 2
+            "xre/app/komodo.ico",           # 3
+            "xre/app/ko_project.ico",       # 4
+            "xre/app/guibuilder_ui.ico",    # 5
+            "stub/koStart.c",               # 6
+            "stub/koStart.h",               # 7
+            "stub/my_getopt.c",             # 8
+            "stub/getopt.h",                # 9
+            "stub/my_getopt.h",             # 10
+            qq(
+                copy %3 %0:d
+                copy %4 %0:d
+                copy %5 %0:d
+                cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%1:b.obj /c %1
+                cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%6:b.obj /c %6
+                cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%8:b.obj /c %8
+                rc /fo%2:b.res %2
+                link /nologo $LDFLAGS /subsystem:console /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+            )
+        );
+        $cons->Install($stubDir, "stub/ko.exe");
+    
+        $cons->Command(
+            "stub/komodo.exe",              # 0
+            "stub/komodo.c",                # 1
+            "stub/komodo.rc",               # 2
+            "xre/app/komodo.ico",           # 3
+            "xre/app/ko_project.ico",       # 4
+            "xre/app/guibuilder_ui.ico",    # 5
+            "stub/koStart.c",               # 6
+            "stub/koStart.h",               # 7
+            "stub/my_getopt.c",             # 8
+            "stub/getopt.h",                # 9
+            "stub/my_getopt.h",             # 10
+            qq(
+                copy %3 %0:d
+                copy %4 %0:d
+                copy %5 %0:d
+                cl /nologo $CFLAGS /D_WINDOWS /Fo%1:b.obj /c %1
+                cl /nologo $CFLAGS /D_WINDOWS /Fo%6:b.obj /c %6
+                cl /nologo $CFLAGS /D_WINDOWS /Fo%8:b.obj /c %8
+                rc /fo%2:b.res %2
+                link /nologo $LDFLAGS /subsystem:windows /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+            )
+        );
+        $cons->Install($stubDir, "stub/komodo.exe");
+    }
+    elsif ($platform eq "darwin") {
+        # There is currently no starter stub on Mac OS X.
     }
     else {
-        die "unknown XRE data action: '$action'\n";
+        # Install the Linux/Solaris start stub.
+        $cons->Install($stubDir, "stub/komodo");
     }
-    $cons->Depends($mozExe, "$mozKomodoSrcDir/$dest");
-}
-
-# Some XRE files aren't handled by the mozilla/komodo/.../Makefile's,
-# so we need to do the copy to .../dist/bin ourselves here.
-$cons->Preprocess("xre/app/profile/channel-prefs.p.js",
-                  "xre/app/profile/channel-prefs.js", \%ppData);
-$cons->Install("$mozBin/defaults/pref", "xre/app/profile/channel-prefs.js");
-
-
-$cons->Command($mozExe, $buildCmd);
-# Make sure we run before the regxpcom process (which currently tries to
-# do this build). (XXX Not sure this is necessary any more.)
-$cons->Depends($ranRegxpcomStateFileName, $mozExe);
-
-
-if ($platform eq "win") {
-    # Build the Komodo stub exe for Windows
-    #XXX May want to build a komodow.exe for double-clicking as well.
-
-    # Preprocess the Komodo resource file.
-    #XXX Technically using our $buildNum (which is the Perforce change
-    #    number) is not valid for a Windows file version string: each
-    #    numeric element is limited to 65535 (I think that was it, the
-    #    exact number is somewhere in MSI) and ours is over this limit.
-    #    This *could* surprise us with MSI upgrades at some point.
-    my $FILEVERSION = $komodoVersion;
-    $FILEVERSION =~ s/-.*$//g; # drop potential non-numeric bit: "-alpha1"
-    $FILEVERSION .= '.' . $buildNum;
-    $FILEVERSION =~ s/[.-]/, /g;
-    my %rcData = (
-        'PP_KO_VERSION' => "$komodoVersion-$buildNum",
-        'PP_KO_COMMASEP_VERSION' => $FILEVERSION, # must all be numeric
-    );
-    $cons->Preprocess("stub/komodo.unprocessed.rc", "stub/komodo.rc",
-                      \%rcData);
-
-    $cons->InstallAs("xre/app/komodo.ico",
-                     "xre/app/komodo.$productType.ico");
-
-    # Build the Komodo starter stub (ko.exe: console, komodo.exe: windows)
-    my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /MD";
-    my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib";
-    $cons->Command(
-        "stub/ko.exe",                  # 0
-        "stub/komodo.c",                # 1
-        "stub/komodo.rc",               # 2
-        "xre/app/komodo.ico",           # 3
-        "xre/app/ko_project.ico",       # 4
-        "xre/app/guibuilder_ui.ico",    # 5
-        "stub/koStart.c",               # 6
-        "stub/koStart.h",               # 7
-        "stub/my_getopt.c",             # 8
-        "stub/getopt.h",                # 9
-        "stub/my_getopt.h",             # 10
-        qq(
-            copy %3 %0:d
-            copy %4 %0:d
-            copy %5 %0:d
-            cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%1:b.obj /c %1
-            cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%6:b.obj /c %6
-            cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%8:b.obj /c %8
-            rc /fo%2:b.res %2
-            link /nologo $LDFLAGS /subsystem:console /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
-        )
-    );
-    $cons->Install($stubDir, "stub/ko.exe");
-
-    $cons->Command(
-        "stub/komodo.exe",              # 0
-        "stub/komodo.c",                # 1
-        "stub/komodo.rc",               # 2
-        "xre/app/komodo.ico",           # 3
-        "xre/app/ko_project.ico",       # 4
-        "xre/app/guibuilder_ui.ico",    # 5
-        "stub/koStart.c",               # 6
-        "stub/koStart.h",               # 7
-        "stub/my_getopt.c",             # 8
-        "stub/getopt.h",                # 9
-        "stub/my_getopt.h",             # 10
-        qq(
-            copy %3 %0:d
-            copy %4 %0:d
-            copy %5 %0:d
-            cl /nologo $CFLAGS /D_WINDOWS /Fo%1:b.obj /c %1
-            cl /nologo $CFLAGS /D_WINDOWS /Fo%6:b.obj /c %6
-            cl /nologo $CFLAGS /D_WINDOWS /Fo%8:b.obj /c %8
-            rc /fo%2:b.res %2
-            link /nologo $LDFLAGS /subsystem:windows /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
-        )
-    );
-    $cons->Install($stubDir, "stub/komodo.exe");
-}
-elsif ($platform eq "darwin") {
-    # There is currently no starter stub on Mac OS X.
-}
-else {
-    # Install the Linux/Solaris start stub.
-    $cons->Install($stubDir, "stub/komodo");
-}
-
-if ($mozVersionNumber >= 190) {
-    $cons->Preprocess("application.p.ini", "application.ini", \%ppData);
-    $cons->Install($mozBin, "application.ini");
-}
+    
+    if ($mozVersionNumber >= 190) {
+        $cons->Preprocess("application.p.ini", "application.ini", \%ppData);
+        $cons->Install($mozBin, "application.ini");
+    }
 
 } else {
     # XULRUNNER 1.9 build
