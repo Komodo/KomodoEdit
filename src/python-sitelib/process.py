@@ -49,6 +49,7 @@ log = logging.getLogger("process")
 #log.setLevel(logging.DEBUG)
 
 CREATE_NEW_CONSOLE = 0x10 # same as win32process.CREATE_NEW_CONSOLE
+CREATE_NO_WINDOW = 0x8000000 # same as win32process.CREATE_NO_WINDOW
 
 
 #-------- Classes -----------#
@@ -61,7 +62,7 @@ class ProcessError(Exception):
         self.errno = errno
 
 class Process(Popen):
-    def __init__(self, cmd, cwd=None, env=None, flags=0,
+    def __init__(self, cmd, cwd=None, env=None, flags=None,
                  stdin=None, stdout=None, stderr=None,
                  universal_newlines=False):
         """Create a child process.
@@ -99,6 +100,8 @@ class Process(Popen):
                         log.warn("Could not encode environment variable %r "
                                  "so removing it", key)
                 env = _enc_env
+            if flags is None:
+                flags = CREATE_NO_WINDOW
         else:
             # subprocess raises an exception otherwise.
             flags = 0
