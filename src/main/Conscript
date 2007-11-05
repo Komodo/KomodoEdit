@@ -74,6 +74,7 @@ Import(
     'mozVersionNumber',
     "stubDir",
     "xulrunner",
+    "xulrunnerBuildId",
 );
 
 
@@ -98,7 +99,7 @@ if ($buildType eq 'debug') {
 # tree.
 
 my ($cp, $buildCmd, $mozKomodoSrcDir, $mozKomodoObjDir,
-    $macKoIconName, $envVars, $updateChannel);
+    $macKoIconName, $envVars, $updateChannel, $productName);
 
 if ($buildFlavour eq "full") {
     $macKoIconName = "komodo.$productType";
@@ -113,6 +114,9 @@ $koMinor = $2;
 $koPatch = $3;
 $updateChannel = ($komodoVersion =~ /-/ ? "beta" : "release");
 $komodoAppUpdateEnabled = ($buildFlavour eq "dev" ? "false" : "true");
+$productName = ($productType eq "openkomodo"
+                ? "OpenKomodo"
+                : "Komodo $prettyProductType");
 
 my %ppData = (
     'PP_KO_MAJOR' => $koMajor,
@@ -123,11 +127,13 @@ my %ppData = (
     'PP_KO_MARKETING_SHORT_VERSION' => "$komodoMarketingShortVersion",
     'PP_KO_FULL_PRETTY_VERSION' => "$komodoFullPrettyVersion",
     'PP_KO_PROD_TYPE' => "$productType",
+    'PP_KO_PROD_NAME' => "$productName",
     'PP_KO_APPDATADIR_NAME' => "$komodoAppDataDirName",
     'PP_KO_VERSION' => "$komodoVersion",
     'PP_KO_UPDATE_MANUAL_URL' => "$komodoUpdateManualURL",
     'PP_KO_APP_UPDATE_ENABLED' => "$komodoAppUpdateEnabled",
     'PP_KO_BUILD_NUMBER' => "$buildNum",
+    'PP_XULRUNNER_BUILD_ID' => "$xulrunnerBuildId",
     'PP_KO_UPDATE_CHANNEL' => "$updateChannel",
     'PP_KO_PLATNAME' => "$buildPlatform",
     'PP_PYTHON_MAJOR_MINOR' => "$siloedPyVer",

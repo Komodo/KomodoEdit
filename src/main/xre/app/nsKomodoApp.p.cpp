@@ -56,7 +56,7 @@ static const nsXREAppData kAppData = {
   sizeof(nsXREAppData),
   nsnull,
   "ActiveState",
-  "Komodo Snapdragon",
+  "PP_KO_PROD_NAME",
   NS_STRINGIFY(APP_VERSION),
   NS_STRINGIFY(PP_KO_BUILD_NUMBER),
   "{2cb9d397-8ec9-4211-bd89-7fea34120af6}",
