@@ -1467,8 +1467,9 @@ into the appropriate .wxs files in "src/install/wix":
 def _PackageKomodoUpdates(cfg):
     print "packaging 'Komodo Updates'..."
     mozupdate = join("util", "mozupdate.py")
-    if not isdir(cfg.packagesRelDir):
-        os.makedirs(cfg.packagesRelDir)
+    packagesDir = join(cfg.packagesRelDir, "updates")
+    if not isdir(packagesDir):
+        os.makedirs(packagesDir)
     wrk_dir = join(cfg.buildRelDir, "pkg_updates")
     if not exists(wrk_dir):
         os.makedirs(wrk_dir)
@@ -1540,14 +1541,14 @@ def _PackageKomodoUpdates(cfg):
         ref_mar_dir = mar_cacher.get_image_for_mar_path(ref_mar_path)
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
-        pkg_path = join(cfg.packagesRelDir, pkg_name)
+        pkg_path = join(packagesDir, pkg_name)
         _run('python %s -q partial %s --force %s "%s" "%s"'
              % (mozupdate, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'nightly' channel)" % pkg_path
         
         # ...and a changelog for this.
-        changelog_path = join(cfg.packagesRelDir,
+        changelog_path = join(packagesDir,
             "%s-partial-%s.html" % (cfg.komodoPackageBase, ref_mar_ver))
         start_rev = guru.changenum_from_mar_path(ref_mar_path) + 1
         end_rev = guru.changenum_from_mar_path(pkg_path)
@@ -1569,7 +1570,7 @@ def _PackageKomodoUpdates(cfg):
         ref_mar_dir = mar_cacher.get_image_for_mar_path(ref_mar_path)
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
-        pkg_path = join(cfg.packagesRelDir, pkg_name)
+        pkg_path = join(packagesDir, pkg_name)
         _run('python %s -q partial %s --force %s "%s" "%s"'
              % (mozupdate, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
@@ -1589,7 +1590,7 @@ def _PackageKomodoUpdates(cfg):
             ref_mar_dir = mar_cacher.get_image_for_mar_path(ref_mar_path)
             ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
             pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
-            pkg_path = join(cfg.packagesRelDir, pkg_name)
+            pkg_path = join(packagesDir, pkg_name)
             _run('python %s -q partial %s --force %s "%s" "%s"'
                  % (mozupdate, mozupdate_clobber_arg,
                     pkg_path, ref_mar_dir, image_dir))
@@ -1598,7 +1599,7 @@ def _PackageKomodoUpdates(cfg):
     # Complete update package.
     # E.g.: Komodo-IDE-4.2.0-beta2-123456-win32-x86-complete.mar
     pkg_name = "%s-complete.mar" % cfg.komodoPackageBase
-    pkg_path = join(cfg.packagesRelDir, pkg_name)
+    pkg_path = join(packagesDir, pkg_name)
     _run('python %s -q complete --force %s "%s"'
          % (mozupdate, pkg_path, image_dir))
     print "created '%s'" % pkg_path
@@ -1742,34 +1743,6 @@ def PackageKomodo(cfg, argv):
             raise ValueError("unknown package name: '%s'" % package)
         if retval:
             raise Error("error packaging '%s': retval=%r" % (package, retval))
-
-    _PackageUpdateMd5sums(cfg)
-
-
-def _PackageUpdateMd5sums(cfg):
-    """The "nightly" channel code on the Komodo update server needs a way
-    to get the size and MD5 of .mar files that it gives as updates. We'd
-    like to get that info via HTTP rather than `ssh` for cleaner deployment
-    on production servers. This .md5sums file (which provides the size and
-    MD5 for all built packages) provides that.
-    """
-    md5sums_path = join(cfg.packagesRelDir, cfg.komodoPackageBase + ".md5sums")
-    info = []
-    pat = join(cfg.packagesRelDir, "*%s*" % cfg.buildNum)
-    for path in glob.glob(pat):
-        if path == md5sums_path:
-            continue
-        size = os.stat(path).st_size
-        md5sum = md5.new(open(path, 'rb').read()).hexdigest()
-        info.append((md5sum, size, basename(path)))
-
-    if exists(md5sums_path):
-        os.remove(md5sums_path)
-    if info:
-        fout = open(md5sums_path, 'w')
-        fout.write('\n'.join("%s %s %s" % i for i in info))
-        fout.close()
-        log.info("'%s' created", md5sums_path)
 
 
 def _PackageKomodoDocs(cfg):
