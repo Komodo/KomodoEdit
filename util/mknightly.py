@@ -498,13 +498,7 @@ def main(argv):
                       help="quieter output")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="do a dry-run")
-    parser.add_option("-p", "--project", action="append", dest="projects",
-                      help="Projects for which to upload nightlies "
-                           "(e.g., openkomodo, komodoide, komodoedit)."
-                           "Can specify multiple times for multiple "
-                           "projects.")
-    parser.set_defaults(log_level=logging.INFO, dry_run=False,
-                        projects=[])
+    parser.set_defaults(log_level=logging.INFO, dry_run=False)
     opts, projects = parser.parse_args()
     log.setLevel(opts.log_level)
 
