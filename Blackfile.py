@@ -837,6 +837,7 @@ configuration = {
     "buildTime": BuildTime(),
     "buildASCTime": BuildASCTime(),
     "buildPlatform": BuildPlatform(),
+    "xulrunnerBuildId": XULRunnerBuildId(),
 
     #---- items necessary for building a Komodo installer
     # (i.e. not required for plain development builds),

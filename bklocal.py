@@ -3352,9 +3352,20 @@ class BuildASCTime(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         buildTime = black.configure.items["buildTime"].Get()
-        self.value = time.asctime(time.localtime(buildTime))
+        self.value = time.asctime(time.gmtime(buildTime))
         self.determined = 1
 
+class XULRunnerBuildId(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "xulrunnerBuildId",
+            desc="a XULRunner-specified format build id")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        buildTime = black.configure.items["buildTime"].Get()
+        year, month, day = time.gmtime(buildTime)[:3]
+        self.value = "%04d%02d%02d" % (year, month, day)
+        self.determined = 1
 
 class ConfigTokens(black.configure.Datum):
     def __init__(self):
