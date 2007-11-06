@@ -85,6 +85,16 @@ if ($^O eq "linux") {
 # Autogenerate C++ interface functions and IDL interface stubs from
 # Scintilla.iface. The IDL stubs are patched into ISciMoz.template.idl to
 # make ISciMoz.idl.
+#
+# We use preprocessing to support building SciMoz for both 32-bit
+# and 64-bit architecutres (due to having a different pointer size).
+# The Scintilla.iface *must* be patched before the XPFacer is used,
+# to ensure the Scintilla definitions are aware of pointer references,
+# this is done in the "iface_64bit.patch" file in the patches directory.
+my %ppData = (
+    'ARCHITECTURE' => "$architecture",
+);
+$cons->Preprocess('XPFacer.p.py', 'XPFacer.py', \%ppData);
 $cons->Command(
     "npscimoz_gen.h",
     # files needed to do the generation
