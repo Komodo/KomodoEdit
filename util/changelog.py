@@ -35,13 +35,13 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-r"""Make a Komodo changelog, given a p4 revision range."""
+r"""Make a Komodo changelog, given an svn revision range."""
 
-__revision__ = "$Id$"
-__version_info__ = (0, 1, 0)
+__version_info__ = (0, 2, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
+from os.path import dirname, join, abspath
 import sys
 import re
 from pprint import pprint
@@ -57,83 +57,96 @@ class Error(Exception):
 
 
 
-#---- globals
-
-p4_tree = "//depot/main/Apps/Komodo-devel"
-
-
-
 #---- module API
-
-def changelog_info(start_rev, end_rev):
-    """Gather changelog info for the given revision range."""
-    import p4lib
-    p4 = p4lib.P4()
-    changes = p4.changes("%s/...@%s,%s" % (p4_tree, start_rev, end_rev),
-                         longOutput=True)
-    return changes
 
 def changelog_text(start_rev, end_rev):
     """Return a text-formatted changelog for the given revision range."""
-    info = changelog_info(start_rev, end_rev)
+    changelog = "Komodo Changelog (build %s)\n\n" % end_rev
+    dir = dirname(dirname(abspath(__file__)))
+    changelog += _capture_stdout(
+        ["svn", "log", "-r", "%s:%s" % (end_rev, start_rev), dir])
     
-    lines = ["Komodo Changelog (build %s)" % end_rev]
-    lines.append("=" * len(lines[-1]))
-    
-    for change in info:
-        lines += ["",
-                  "Change %(change)s by %(user)s on %(date)s" % change,
-                  ""]
-        lines += ["    " + s for s in change["description"].splitlines(0)]
-    
-    return '\n'.join(lines)
-
+    return changelog
 
 def changelog_markdown(start_rev, end_rev):
     """Return a Markdown-formatted changelog for the given revision range."""
-    info = changelog_info(start_rev, end_rev)
-    lines = ["## Komodo Changelog (build %s)" % end_rev]
-    for change in info:
-        lines += ["",
-                  "### [Change %(change)s](http://p4.activestate.com/p4db/changeView.cgi?CH=%(change)s) by %(user)s on %(date)s" % change,
-                  ""]
-        lines += ["> %s<br/>" % _bugzilla_urlize(_markdown_urlize(s))
-                  for s in change["description"].splitlines(0)]
-    return '\n'.join(lines)
+    text = "## Komodo Changelog (build %s)\n\n" % end_rev
+    dir = dirname(dirname(abspath(__file__)))
+    changelog = _capture_stdout(
+        ["svn", "log", "-r", "%s:%s" % (end_rev, start_rev), dir])
+    changelog = _markdown_hr_fix(changelog)
+    changelog = _markdown_urlize(changelog)
+    text += changelog
+    return text
 
-
-def changelog_html(start_rev, end_rev, full_html=False):
-    """Return an HTML-formatted changelog for the given revision range.
-    
-    @param full_html {boolean} Whether to include enclosing HTML header
-        and footer content. By default false.
-    """
-    sys.path.insert(0, os.path.dirname(__file__))
+def changelog_html(start_rev, end_rev):
+    """Return an HTML-formatted changelog for the given revision range."""
+    sys.path.insert(0, join(dirname(dirname(abspath(__file__))),
+                            "contrib", "smallstuff"))
     try:
-        import markdown
+        import markdown2
     finally:
         del sys.path[0]
     text = changelog_markdown(start_rev, end_rev)
-    return markdown.markdown(text)
+    text = _markdown_urlize(text)
+    return markdown2.markdown(text,
+        extras=["link-patterns"],
+        link_patterns=[
+            (re.compile("((komodo\s+)?bug\s*#?(?P<id>\d+))", re.I),
+             r'http://bugs.activestate.com/show_bug.cgi?id=\g<id>'),
+            (re.compile("((moz(illa)?\s+)?bug\s*#?(?P<id>\d+))", re.I),
+             r'http://bugzilla.mozilla.org/show_bug.cgi?id=\g<id>'),
+            (re.compile(r"\br(\d+)\b"),
+             r'%s/revision?rev=\1' % _svnview_base_url()),
+        ])
 
 
 #---- internal support stuff
 
-_url_pat = re.compile("(https?://[^\s]+(?<!\.|>))")
-def _markdown_urlize(s):
-    return _url_pat.sub(r"[\1](\1)", s)
+def _svnview_base_url():
+    stdout = _capture_stdout(['svn', 'info', dirname(__file__)])
+    for line in stdout.splitlines(0):
+        if line.startswith("Repository Root:"):
+            root = line.split(':', 1)[1].strip()
+            if '//svn.openkomodo.com' in root:
+                return "http://svn.openkomodo.com/openkomodo"
+            elif '//svn.activestate.com' in root:
+                return "http://svn.activestate.com/activestate"
+            else:
+                raise Error("don't know svnview base url for '%s' "
+                            "repository root" % root)
 
-_bug_pat = re.compile("((?P<moz>moz(illa)? )?bug #?(?P<num>\d+))", re.I)
-def _bugzilla_urlize(s):
-    def repl(m):
-        if m.group("moz"):
-            return "[%s](http://bugs.mozilla.org/show_bug.cgi?id=%s)" \
-                   % (m.group(0), m.group("num"))
-        else:
-            return "[%s](http://bugs.activestate.com/show_bug.cgi?id=%s)" \
-                   % (m.group(0), m.group("num"))
-    return _bug_pat.sub(repl, s)
+def _capture_stdout(argv, ignore_retval=False):
+    import subprocess
+    p = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                         universal_newlines=True)
+    stdout = p.stdout.read()
+    retval = p.wait()
+    if retval and not ignore_retval:
+        raise Error("error running '%s'" % ' '.join(argv))
+    return stdout
 
+_url_pat = re.compile("(?<!<)(https?://[^\s]+(?<!\.|>))")
+def _markdown_urlize(text):
+    return _url_pat.sub(r"<\1>", text)
+
+def _markdown_hr_fix(text):
+    needs_fix_re = re.compile(r'(?<!\n\n)^(?P<hr>-+)$', re.M)
+    return needs_fix_re.sub('\n\g<hr>', text)
+
+# Recipe: indent (0.2.1)
+def _indent(s, width=4, skip_first_line=False):
+    """_indent(s, [width=4]) -> 's' indented by 'width' spaces
+
+    The optional "skip_first_line" argument is a boolean (default False)
+    indicating if the first line should NOT be indented.
+    """
+    lines = s.splitlines(1)
+    indentstr = ' '*width
+    if skip_first_line:
+        return indentstr.join(lines)
+    else:
+        return indentstr + indentstr.join(lines)
 
 
 #---- mainline
@@ -196,9 +209,13 @@ def main(argv):
     parser.add_option("-q", "--quiet", dest="log_level",
                       action="store_const", const=logging.WARNING,
                       help="quieter output")
-    parser.add_option("--html", action="store_true",
+    parser.add_option("--html", dest="format", action="store_const",
+                      const="html",
                       help="product HTML output instead of text (the default)")
-    parser.set_defaults(log_level=logging.INFO, html=False)
+    parser.add_option("--markdown", dest="format", action="store_const",
+                      const="markdown",
+                      help="product Markdown output instead of text (the default)")
+    parser.set_defaults(log_level=logging.INFO, format="text")
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
 
@@ -206,10 +223,14 @@ def main(argv):
         raise Error("incorrect number of argments (see `%s --help')"
                     % sys.argv[0])
     start_rev, end_rev = args
-    if opts.html:
-        print changelog_html(start_rev, end_rev)
-    else:
+    if opts.format == "text":
         print changelog_text(start_rev, end_rev)
+    elif opts.format == "html":
+        print changelog_html(start_rev, end_rev)
+    elif opts.format == "markdown":
+        print changelog_markdown(start_rev, end_rev)
+    else:
+        raise Error("unknown format: %r" % opts.format)
 
 
 if __name__ == "__main__":
