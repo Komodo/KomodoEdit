@@ -45,7 +45,8 @@ import re
 import logging
 import md5
 from pprint import pprint
-from posixpath import join as urljoin
+from posixpath import join as rjoin
+from posixpath import basename as rbasename
 
 import applib
 import buildutils
@@ -64,31 +65,51 @@ class KomodoReleasesGuru(object):
     """A class that knows how to scan the Komodo file share to figure out
     what the current dev builds and releases are.
     """
-    file_share_dir = "crimper:/home/apps/Komodo"
-    _devbuild_platname_from_platname = {
-        "win32-x86": "Windows",
-        "linux-libcpp5-x86": "Linux",
-        "linux-libcpp6-x86": "Linux",
-        "macosx-x86": "MacOSX",
-        "macosx-powerpc": "MacOSX",
+    pkg_prefix_from_project = {
+        "komodoedit": "Komodo-Edit",
+        "komodoide": "Komodo-IDE",
+        "openkomodo": "OpenKomodo",
+    }
+    pkg_base_dir_from_project = {
+        "komodoedit": "crimper:/home/apps/Komodo",
+        "komodoide": "crimper:/home/apps/Komodo",
+        "openkomodo": "crimper:/home/apps/OpenKomodo",
+    }
+    nightly_base_dir_from_project = {
+        "komodoedit": "crimper:/home/apps/Komodo/idownloads/komodoedit/nightly",
+        "komodoide": "crimper:/home/apps/Komodo/idownloads/komodoide/nightly",
+        "openkomodo": "box17:/data/download/openkomodo/nightly",
     }
     
-    def __init__(self, platname, pretty_product_type, version):
+    def __init__(self, project, platname, full_ver):
+        self.project = project
         self.platname = platname
-        self.pretty_product_type = pretty_product_type
-        self.version = version
+        self.full_ver = full_ver
+        self.ver_bits = buildutils.split_full_ver(full_ver)
+        self.short_ver = buildutils.short_ver_from_full_ver(full_ver)
     
     @property
     def ver(self):
-        return '.'.join(self.version.split('.')[:2])
-    
+        return '.'.join(map(int, self.ver_bits[:2]))
+
     @property
-    def devbuilds_dir(self):
-        return urljoin(self.file_share_dir, "DevBuilds",
-                       self._devbuild_platname_from_platname[self.platname])
+    def pkg_prefix(self):
+        return self.pkg_prefix_from_project[self.project]
+
+    @property
+    def pkg_base_dir(self):
+        return self.pkg_base_dir_from_project[self.project]
+
+    @property
+    def nightly_base_dir(self):
+        return self.nightly_base_dir_from_project[self.project]
+
+    @property
+    def devbuilds_base_dir(self):
+        return rjoin(self.pkg_base_dir, self.short_ver, "DevBuilds")
 
     def changenum_from_mar_path(self, mar_path):
-        changenum_pat = re.compile("^Komodo-.*?-(\d+)-%s-.*$" % self.platname)
+        changenum_pat = re.compile("^%s-.*?-(\d+)-%s-.*$" % (self.pkg_prefix, self.platname))
         try:
             return int(changenum_pat.search(basename(mar_path)).group(1))
         except AttributeError, ex:
@@ -96,8 +117,8 @@ class KomodoReleasesGuru(object):
                              % (basename(mar_path), changenum_pat.pattern))
 
     def version_from_mar_path(self, mar_path):
-        ver_pat = re.compile("^Komodo-%s-(.+?)-%s-complete.mar$"
-                             % (self.pretty_product_type, self.platname))
+        ver_pat = re.compile("^%s-(.+?)-%s-complete.mar$"
+                             % (self.pkg_prefix, self.platname))
         try:
             return ver_pat.search(basename(mar_path)).group(1)
         except IndexError, ex:
@@ -121,7 +142,7 @@ class KomodoReleasesGuru(object):
         if self._released_versions_cache is None:
             self._released_versions_cache = []
             for f in buildutils.remote_glob(
-                        urljoin(self.file_share_dir, "*", "GoldBits")):
+                        rjoin(self.pkg_base_dir, "*", "GoldBits")):
                 ver_str = basename(dirname(f))
                 ver = buildutils.split_short_ver(ver_str, intify=True)
                 if len(ver) == 3: # e.g. (4,1,0) -> (4,1,0,'c',0)
@@ -131,8 +152,8 @@ class KomodoReleasesGuru(object):
                 else:
                     is_beta = True
                 
-                pkg_pat = urljoin(self.file_share_dir, ver_str, "GoldBits",
-                                  "Komodo-*-*-*.msi")
+                pkg_pat = rjoin(self.pkg_base_dir, ver_str, "GoldBits",
+                                "%s-*-*.msi" % self.pkg_prefix)
                 for p in buildutils.remote_glob(pkg_pat):
                     # Warning: This parse is brittle.
                     changenum = int(splitext(basename(p))[0].split('-')[-1])
@@ -151,36 +172,42 @@ class KomodoReleasesGuru(object):
         for v in self._released_versions_cache:
             yield v
 
-    def last_dev_complete_mar(self, ignore_changenum=None):
-        """Return the remote path to the latest dev build .mar file.
-        
-        @param ignore_changenum  If specified, a changenum to ignore.
-            Typically this is used to ignore the current build changenum
-            to ensure one doesn't create a partial .mar relative to oneself.
+    def nightly_complete_mars(self, branch="trunk"):
+        """Generate the paths to the complete .mar file for all nightly builds
+        (most recent first).
         """
-        pat = "Komodo-%s-%s.*-%s-complete.mar" \
-              % (self.pretty_product_type, self.ver, self.platname)
-        mar_paths = buildutils.remote_glob(urljoin(self.devbuilds_dir, pat))
-        if not mar_paths:
-            return None
-        mar_paths.sort(key=self.changenum_from_mar_path, reverse=True)
-
-        if ignore_changenum is not None:
-            if self.changenum_from_mar_path(mar_paths[0]) == ignore_changenum:
-                del mar_paths[0]
-
-        if not mar_paths:
-            return None
-        return mar_paths[0]
+        years = buildutils.remote_glob(rjoin(self.nightly_base_dir, "????"))
+        for year_dir in sorted(years, reverse=True):
+            year = rbasename(year_dir)
+            if not isint(year): continue
+            months = buildutils.remote_glob(rjoin(year_dir, "??"))
+            for month_dir in sorted(months, reverse=True):
+                month = rbasename(month_dir)
+                if not isint(month): continue
+                nightlies = buildutils.remote_glob(
+                    rjoin(month_dir, "????-??-??-??-"+branch))
+                for nightly_dir in sorted(nightlies, reverse=True):
+                    pat = "%s-*-%s-complete.mar" % (self.pkg_prefix, self.platname)
+                    complete_mar_paths = buildutils.remote_glob(
+                        rjoin(nightly_dir, "updates", pat))
+                    if len(complete_mar_paths) < 1:
+                        continue
+                    elif len(complete_mar_paths) > 1:
+                        log.warn("`%s' has multiple complete update packages "
+                                 "matching `%s': %r"
+                                 % (nightly_dir, pat,
+                                 ", ".join(rbasename(p) for p in complete_mar_paths)))
+                        continue
+                    yield complete_mar_paths[0]
 
     def dev_complete_mar_from_changenum(self, changenum):
         """Return the remote path to the dev build complete .mar file
         for the given change number, if any. Otherwise, returns None.
         """
-        pat = "Komodo-%s-%s-%s-%s-complete.mar" \
-              % (self.pretty_product_type, self.version, changenum,
-                 self.platname)
-        mar_paths = buildutils.remote_glob(urljoin(self.devbuilds_dir, pat))
+        pat = "%s-%s-%s-%s-complete.mar" \
+              % (self.pkg_prefix, self.version, changenum, self.platname)
+        pat = rjoin(self.devbuilds_base_dir, str(changenum), pat)
+        mar_paths = buildutils.remote_glob(pat)
         if mar_paths:
             return mar_paths[0]
         else:
@@ -190,13 +217,16 @@ class KomodoReleasesGuru(object):
         """Return the remote paths to the dev build partial .mar files
         for the given change number, if any. Otherwise, returns None.
         """
-        pat = "Komodo-%s-%s-%s-%s-partial-*.mar" \
-              % (self.pretty_product_type, self.version, changenum,
-                 self.platname)
-        mar_paths = buildutils.remote_glob(urljoin(self.devbuilds_dir, pat))
-        if not mar_paths:
-            return None
-        return mar_paths
+        pat = "%s-%s-%s-%s-partial-*.mar" \
+              % (self.pkg_prefix, self.version, changenum, self.platname)
+        candidates = [
+            rjoin(self.devbuilds_base_dir, str(changenum), "updates", pat),
+            rjoin(self.devbuilds_base_dir, str(changenum), pat),
+        ]
+        for candidate in candidates:
+            mar_paths = buildutils.remote_glob(candidate)
+            if mar_paths:
+                return mar_paths
 
     def _get_last_release_complete_mar(self, include_betas=False):
         for ver, ver_str, is_beta in self.released_versions:
@@ -213,12 +243,18 @@ class KomodoReleasesGuru(object):
             last_release_ver_str += "-beta%d" % last_release_ver[4]
         last_release_ver_str += "-%s" % last_release_ver[5]
 
-        mar_name = "Komodo-%s-%s-%s-complete.mar" \
-                   % (self.pretty_product_type, last_release_ver_str,
+        mar_name = "%s-%s-%s-complete.mar" \
+                   % (self.pkg_prefix, last_release_ver_str,
                       self.platname)
-        mar_path = urljoin(self.file_share_dir, last_release_ver_dir,
-                           "GoldBits", mar_name)
-        return mar_path
+        goldbits_dir = rjoin(self.pkg_base_dir, last_release_ver_dir, "GoldBits")
+        candidates = [
+            rjoin(goldbits_dir, "updates", mar_name),
+            rjoin(goldbits_dir, mar_name),
+        ]
+        for candidate in candidates:
+            mar_paths = buildutils.remote_glob(candidate)
+            if mar_paths:
+                return mar_paths[0]
     
     @property
     def last_release_complete_mar(self):
@@ -331,6 +367,14 @@ class KomodoMarCacher(object):
 
 
 #---- internal support stuff
+
+def isint(s):
+    try:
+        int(s)
+    except ValueError:
+        return False
+    else:
+        return True
 
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:

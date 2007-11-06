@@ -81,12 +81,14 @@ class Error(Exception):
 
 log = logging.getLogger("mknightly")
 
-_default_upload_base_dir_from_project = {
+#TODO: get from or keep in sync with pkgutils.py
+#      `KomodoReleasesGuru.nightly_base_dir_from_project`.
+upload_base_dir_from_project = {
     "komodoedit": "crimper:/home/apps/Komodo/idownloads",
     "komodoide": "crimper:/home/apps/Komodo/idownloads",
     "openkomodo": "box17:/data/download/",
 }
-_pkg_pats_from_project = {
+pkg_pats_from_project = {
     "komodoedit": ["Komodo-Edit-*"],
     "komodoide": ["Komodo-IDE-*"],
     "openkomodo": ["OpenKomodo-*"],
@@ -105,7 +107,7 @@ def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
     from posixpath import join, basename, dirname
     
     if upload_base_dir is None:
-        upload_base_dir = _default_upload_base_dir_from_project[project]
+        upload_base_dir = upload_base_dir_from_project[project]
     log.debug("mknightly(%r, upload_base_dir=%r, dry_run=%r)",
               project, upload_base_dir, dry_run)
     assert buildutils.is_remote_path(upload_base_dir)
@@ -146,7 +148,7 @@ def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
     upload_dir = join(upload_base_dir, str(year), str(month),
         "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, branch))
     excludes = ["internal", "*RemoteDebugging*"]
-    includes = _pkg_pats_from_project[project]
+    includes = pkg_pats_from_project[project]
     _upload(devbuilds_dir, upload_dir,
             includes=includes, excludes=excludes,
             dry_run=dry_run, can_link=can_link)

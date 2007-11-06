@@ -700,6 +700,14 @@ def join_short_ver(ver_tuple):
         dotted.append(str(bit))
     return ''.join(dotted)
 
+def short_ver_from_full_ver(full_ver):
+    full_bits = split_full_ver(full_ver)
+    short_bits = list(full_bits[:3])
+    if full_bits[3] is not None:
+        short_bits.append(full_bits[3][0])
+        if full_bits[4] is not None:
+            short_bits.append(full_bits[4])
+    return join_short_ver(short_bits)
 
 
 #---- self-test

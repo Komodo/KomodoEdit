@@ -1530,21 +1530,31 @@ def _PackageKomodoUpdates(cfg):
         ])
 
     # Partial update package(s).
-    guru = pkgutils.KomodoReleasesGuru(
-        cfg.buildPlatform, cfg.prettyProductType, cfg.komodoVersion)
+    project = {"ide": "komodoide", "edit": "komodoedit",
+               "openkomodo": "openkomodo"}[cfg.productType]
+    guru = pkgutils.KomodoReleasesGuru(project, cfg.buildPlatform,
+                                       cfg.komodoVersion)
     mar_cacher = pkgutils.KomodoMarCacher()
 
-    # - Always want a partial update relative to last build in devbuilds
-    #   (for nightly channel). E.g.:
+    # - Always want a partial update relative to last few (for now: 5)
+    #   nightly builds (for the 'nightly' channel). E.g.:
     #   Komodo-IDE-4.2.0-beta2-123456-win32-x86-partial-4.2.0-beta2-123455.mar
-    ref_mar_path = guru.last_dev_complete_mar(ignore_changenum=cfg.buildNum)
-    if ref_mar_path:
+    NUM_PARTIAL_NIGHTLY_MARS = 5
+    for i, ref_mar_path in enumerate(guru.nightly_complete_mars()):
+        if i >= NUM_PARTIAL_NIGHTLY_MARS:
+            break
+        ref_mar_changenum = guru.changenum_from_mar_path(ref_mar_path)
+        if ref_mar_changenum == cfg.buildNum:
+            # skip own build
+            continue
+
         ref_mar_dir = mar_cacher.get_image_for_mar_path(ref_mar_path)
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
-        _run('python %s -q partial %s --force %s "%s" "%s"'
-             % (mozupdate, mozupdate_clobber_arg,
+        print "creating '%s' (for 'nightly' channel)" % pkg_name
+        _run('python %s -q partial %s %s --force %s "%s" "%s"'
+             % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'nightly' channel)" % pkg_path
         
@@ -1557,8 +1567,8 @@ def _PackageKomodoUpdates(cfg):
         open(changelog_path, 'w').write(html)
         print "created '%s'" % changelog_path
     else:
-        log.warn("no previous dev complete .mar exists: skipping build of "
-                 "partial update package for *nightly* channel")
+        log.warn("no previous nightly complete .mar exists: skipping "
+                 "build of partial update package for *nightly* channel")
     
     # - For betas *and* finals, want a partial update relative to the last
     #   released package, beta or not (for beta channel). Note: alphas
@@ -1572,8 +1582,9 @@ def _PackageKomodoUpdates(cfg):
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
-        _run('python %s -q partial %s --force %s "%s" "%s"'
-             % (mozupdate, mozupdate_clobber_arg,
+        print "creating '%s' (for 'beta' channel)" % pkg_name
+        _run('python %s -q partial %s %s --force %s "%s" "%s"'
+             % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'beta' channel)" % pkg_path
     
@@ -1592,8 +1603,9 @@ def _PackageKomodoUpdates(cfg):
             ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
             pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
             pkg_path = join(packagesDir, pkg_name)
-            _run('python %s -q partial %s --force %s "%s" "%s"'
-                 % (mozupdate, mozupdate_clobber_arg,
+            print "creating '%s' (for 'release' channel)" % pkg_name
+            _run('python %s -q partial %s %s --force %s "%s" "%s"'
+                 % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
                     pkg_path, ref_mar_dir, image_dir))
             print "created '%s' (for 'release' channel)" % pkg_path
 
@@ -1601,8 +1613,8 @@ def _PackageKomodoUpdates(cfg):
     # E.g.: Komodo-IDE-4.2.0-beta2-123456-win32-x86-complete.mar
     pkg_name = "%s-complete.mar" % cfg.komodoPackageBase
     pkg_path = join(packagesDir, pkg_name)
-    _run('python %s -q complete --force %s "%s"'
-         % (mozupdate, pkg_path, image_dir))
+    _run('python %s -q complete %s --force %s "%s"'
+         % (mozupdate, mozupdate_mn_arg, pkg_path, image_dir))
     print "created '%s'" % pkg_path
 
 
