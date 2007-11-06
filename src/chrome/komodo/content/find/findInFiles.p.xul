@@ -47,9 +47,16 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 
-<!-- #ifndef __PATHSEP__ -->
-<!-- #error "findInFiles.xul cannot be preprocessed by 'bk build quick'" -->
+<!-- #if PLATFORM == "win" -->
+<!-- #define ENTER_DIRECTORIES_ENTITY &enterDirectoriesWin.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeWin.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeWin.tooltiptext; -->
+<!-- #else -->
+<!-- #define ENTER_DIRECTORIES_ENTITY &enterDirectoriesUnix.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeUnix.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeUnix.tooltiptext; -->
 <!-- #endif -->
+
 
 <window id="findinfiles-window"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -279,7 +286,7 @@
                        style="width: 5.6em;"/>
                 <textbox id="find-folders"
                          flex="1"
-                         tooltiptext="&enterDirectoriesToSearchInSeparateDirectoriesWithPATHSEP.tooltiptext;"
+                         tooltiptext="ENTER_DIRECTORIES_ENTITY"
                          type="autocomplete"
                          maxrows="10"
                          autocompletesearch="mru_and_dirpath"
@@ -310,7 +317,7 @@
                        style="width: 5.6em;"/>
                 <textbox id="find-include-filetypes"
                          flex="1"
-                         tooltiptext="&enterFiletypesToIncludeInSearchEGPlPATHSEPPmEmptyMeansAll.tooltiptext;"
+                         tooltiptext="ENTER_FILETYPES_TO_INCLUDE_ENTITY"
                          type="autocomplete"
                          maxrows="10"
                          autocompletesearch="mru"
@@ -329,7 +336,7 @@
                        style="width: 5.6em;"/>
                 <textbox id="find-exclude-filetypes"
                          flex="1"
-                         tooltiptext="&enterFiletypesToExcludeFromSearchEGDtdPATHSEPObjEmptyMeansNone.tooltiptext;"
+                         tooltiptext="ENTER_FILETYPES_TO_EXCLUDE_ENTITY"
                          type="autocomplete"
                          maxrows="10"
                          autocompletesearch="mru"

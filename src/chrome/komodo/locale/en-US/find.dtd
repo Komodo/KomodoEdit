@@ -61,9 +61,12 @@
 <!ENTITY ellipsis.accesskey ".">
 <!ENTITY ellipsis.label "...">
 <!ENTITY endOfLine.label "$ : end of line">
-<!ENTITY enterDirectoriesToSearchInSeparateDirectoriesWithPATHSEP.tooltiptext "Enter directories to search in. Separate directories with '__PATHSEP__'.">
-<!ENTITY enterFiletypesToExcludeFromSearchEGDtdPATHSEPObjEmptyMeansNone.tooltiptext "Enter filetypes to exclude from search, e.g. '*.dtd__PATHSEP__*.obj'. Empty means none.">
-<!ENTITY enterFiletypesToIncludeInSearchEGPlPATHSEPPmEmptyMeansAll.tooltiptext "Enter filetypes to include in search, e.g. '*.pl__PATHSEP__*.pm'. Empty means all.">
+<!ENTITY enterDirectoriesWin.tooltiptext "Enter directories to search in. Separate directories with ';'.">
+<!ENTITY enterDirectoriesUnix.tooltiptext "Enter directories to search in. Separate directories with ':'.">
+<!ENTITY enterFiletypesToExcludeWin.tooltiptext "Enter filetypes to exclude from search, e.g. '*.dtd;*.obj'. Empty means none.">
+<!ENTITY enterFiletypesToExcludeUnix.tooltiptext "Enter filetypes to exclude from search, e.g. '*.dtd:*.obj'. Empty means none.">
+<!ENTITY enterFiletypesToIncludeWin.tooltiptext "Enter filetypes to include in search, e.g. '*.pl;*.pm'. Empty means all.">
+<!ENTITY enterFiletypesToIncludeUnix.tooltiptext "Enter filetypes to include in search, e.g. '*.pl:*.pm'. Empty means all.">
 <!ENTITY equivalentTo09.tooltiptext "equivalent to [^0-9]">
 <!ENTITY equivalentToTNRFV.tooltiptext "equivalent to [^ \t\n\r\f\v]">
 <!ENTITY escapeRegexSpecialCharacters.label "escape regex special characters">

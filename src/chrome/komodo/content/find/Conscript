@@ -62,21 +62,10 @@ if (0) {
     $cons->InstallInChrome('find2.xul');
 }
 
-
-$pathsep = ':';
-# if the version is 5.003, we can check $^O
-if ($] <  5.003) {
-	eval("require Win32");
-	$iswin32 = (!$@);
-} else {
-	$iswin32 = ($^O eq "MSWin32") ? 1 : 0;
-}
-if ($iswin32) {
-	$_WIN32 = 1;
-	$pathsep = ';';
-}
 $cons->Preprocess('findInFiles.p.xul', 'findInFiles.xul',
-                  {'__PATHSEP__' => $pathsep});
+                  # Third arg to turn on substitution (of internal
+                  # defines:
+                  {"BOOGABOOGA" => "BOOGABOOGA"});
 $cons->InstallInChrome('findInFiles.xul');
 
 $cons->InstallInChrome('browseForDirs.xul');
