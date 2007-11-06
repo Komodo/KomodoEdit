@@ -1153,7 +1153,6 @@ class KoRunService:
                 #XXX does the correct retval actually get returned?
                 bat.write("exit %KOMODO_COMMAND_ERRORLEVEL%\n")
                 bat.close()
-                #XXX does this work on Win9x???
             elif sys.platform == "darwin":
                 # We can use applescript to run a shell command in a new
                 # Terminal.app window. The problem is that the relevant
@@ -1250,7 +1249,7 @@ exit $RETVAL""" % data)
                 script.write("export KOMODO_COMMAND_RETVAL\n")
                 if sys.platform.startswith("sunos"):
                     # Solaris /bin/sh is doesn't understand -n
-                    script.write("echo Press ENTER to continue . . .\n")
+                    script.write("echo Press ENTER to continue . . .\\c\n")
                 else:
                     script.write("echo -n Press ENTER to continue . . .\n")
                 script.write("read KOMODO_DUMMY\n")
