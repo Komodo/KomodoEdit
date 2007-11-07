@@ -1575,8 +1575,12 @@ def _PackageKomodoUpdates(cfg):
     # - For betas *and* finals, want a partial update relative to the last
     #   released package, beta or not (for beta channel). Note: alphas
     #   count as a "beta" here, i.e. "beta" == "pre-release".
-    ref_mar_path = guru.last_release_complete_mar
-    if not buildutils.remote_exists(ref_mar_path):
+    ref_mar_path = last_beta_release_complete_mar \
+        = guru.last_release_complete_mar
+    if ref_mar_path is None:
+        log.warn("no preceding release complete .mar package: skipping "
+                 "build of partial update package for *beta* channel")
+    elif not buildutils.remote_exists(ref_mar_path):
         log.warn("`%s' does not exist: skipping build of partial "
                  "update package for *beta* channel", ref_mar_path)
     else:
@@ -1594,9 +1598,16 @@ def _PackageKomodoUpdates(cfg):
     #   non-beta (for release channel).
     ver_bits = cfg.komodoVersion.split('-')
     is_final = len(ver_bits) == 1
-    if is_final and (guru.last_final_release_complete_mar
-                     != guru.last_release_complete_mar):
-        ref_mar_path = guru.last_final_release_complete_mar
+    last_final_release_complete_mar = guru.last_final_release_complete_mar
+    if not is_final:
+        pass
+    elif last_final_release_complete_mar is None:
+        log.warn("no preceding final release complete .mar package: skipping "
+                 "build of partial update package for *release* channel")
+    elif last_final_release_complete_mar == last_beta_release_complete_mar:
+        pass
+    else:
+        ref_mar_path = last_final_release_complete_mar
         if not buildutils.remote_exists(ref_mar_path):
             log.warn("`%s' does not exist: skipping build of partial "
                      "update package for *release* channel", ref_mar_path)

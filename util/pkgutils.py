@@ -235,6 +235,8 @@ class KomodoReleasesGuru(object):
             last_release_ver = ver
             last_release_ver_dir = ver_str
             break
+        else:
+            return None
 
         last_release_ver_str = '.'.join(map(str, last_release_ver[:3]))
         if last_release_ver[3] == 'a':
@@ -256,6 +258,7 @@ class KomodoReleasesGuru(object):
             if mar_paths:
                 return mar_paths[0]
     
+    #TODO: rename this to 'last_beta_release_complete_mar'
     @property
     def last_release_complete_mar(self):
         """Return the remote path to the complete .mar for the latest
