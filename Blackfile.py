@@ -1540,6 +1540,7 @@ def _PackageKomodoUpdates(cfg):
     #   nightly builds (for the 'nightly' channel). E.g.:
     #   Komodo-IDE-4.2.0-beta2-123456-win32-x86-partial-4.2.0-beta2-123455.mar
     NUM_PARTIAL_NIGHTLY_MARS = 5
+    built_at_least_one_nightly_update = False
     for i, ref_mar_path in enumerate(guru.nightly_complete_mars()):
         if i >= NUM_PARTIAL_NIGHTLY_MARS:
             break
@@ -1557,6 +1558,7 @@ def _PackageKomodoUpdates(cfg):
              % (mozupdate, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'nightly' channel)" % pkg_path
+        built_at_least_one_nightly_update = True
         
         # ...and a changelog for this.
         changelog_path = join(packagesDir,
@@ -1566,7 +1568,7 @@ def _PackageKomodoUpdates(cfg):
         html = changelog.changelog_html(start_rev, end_rev)
         open(changelog_path, 'w').write(html)
         print "created '%s'" % changelog_path
-    else:
+    if not built_at_least_one_nightly_update:
         log.warn("no previous nightly complete .mar exists: skipping "
                  "build of partial update package for *nightly* channel")
     
