@@ -1553,8 +1553,8 @@ def _PackageKomodoUpdates(cfg):
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
         print "creating '%s' (for 'nightly' channel)" % pkg_name
-        _run('python %s -q partial %s %s --force %s "%s" "%s"'
-             % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
+        _run('python %s -q partial %s --force %s "%s" "%s"'
+             % (mozupdate, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'nightly' channel)" % pkg_path
         
@@ -1583,8 +1583,8 @@ def _PackageKomodoUpdates(cfg):
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
         print "creating '%s' (for 'beta' channel)" % pkg_name
-        _run('python %s -q partial %s %s --force %s "%s" "%s"'
-             % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
+        _run('python %s -q partial %s --force %s "%s" "%s"'
+             % (mozupdate, mozupdate_clobber_arg,
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'beta' channel)" % pkg_path
     
@@ -1604,8 +1604,8 @@ def _PackageKomodoUpdates(cfg):
             pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
             pkg_path = join(packagesDir, pkg_name)
             print "creating '%s' (for 'release' channel)" % pkg_name
-            _run('python %s -q partial %s %s --force %s "%s" "%s"'
-                 % (mozupdate, mozupdate_mn_arg, mozupdate_clobber_arg,
+            _run('python %s -q partial %s --force %s "%s" "%s"'
+                 % (mozupdate, mozupdate_clobber_arg,
                     pkg_path, ref_mar_dir, image_dir))
             print "created '%s' (for 'release' channel)" % pkg_path
 
@@ -1613,8 +1613,8 @@ def _PackageKomodoUpdates(cfg):
     # E.g.: Komodo-IDE-4.2.0-beta2-123456-win32-x86-complete.mar
     pkg_name = "%s-complete.mar" % cfg.komodoPackageBase
     pkg_path = join(packagesDir, pkg_name)
-    _run('python %s -q complete %s --force %s "%s"'
-         % (mozupdate, mozupdate_mn_arg, pkg_path, image_dir))
+    _run('python %s -q complete --force %s "%s"'
+         % (mozupdate, pkg_path, image_dir))
     print "created '%s'" % pkg_path
 
 
