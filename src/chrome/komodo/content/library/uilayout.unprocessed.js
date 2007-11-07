@@ -404,6 +404,7 @@ this.fullScreen = function uilayout_FullScreen()
         window.maximize();
         windowControls.removeAttribute('hidden');
     } else {
+        document.getElementById("toolbox_main").restoreFromFullScreen = true;
         window.restore();
         windowControls.setAttribute('hidden', 'true');
     }

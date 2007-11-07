@@ -74,6 +74,7 @@
         <implementation>
             <field name="allowReflow">false</field>
             <field name="_lastWidth">0</field>
+            <field name="restoreFromFullScreen">false</field>
 
             <method name="init">
             <body>
@@ -91,31 +92,68 @@
             ]]>
             </body>
             </method>
+            
+            <method name="handle_underflow_toolbars">
+            <body>
+            <![CDATA[
+                for (var i=0; i < this.childNodes.length; ++i) {
+                    if (this.childNodes[i].tagName == 'toolboxrow') {
+                        while (this.underflow(this.childNodes[i])) {}
+                    }
+                }
+            ]]>
+            </body>
+            </method>
+            
+            <method name="handle_overflow_toolbars">
+            <body>
+            <![CDATA[
+                for (var i=0; i < this.childNodes.length; ++i) {
+                    if (this.childNodes[i].tagName == 'toolboxrow') {
+                        while (this.overflow(this.childNodes[i])) {}
+                    }
+                }
+            ]]>
+            </body>
+            </method>
 
+
+            <method name="updateFromFullScreen">
+                <parameter name="force"/>
+            <body>
+            <![CDATA[
+                // We've just come out of full screen mode, so assume the worst.
+                // First underflow everything, then overflow where necessary.
+                this.handle_underflow_toolbars();
+                this.handle_overflow_toolbars();
+                this._lastWidth = this.boxObject.width;
+            ]]>
+            </body>
+            </method>
+            
             <method name="update">
                 <parameter name="force"/>
             <body>
             <![CDATA[
-            if (!this.allowReflow) return;
+            if (!this.allowReflow) {
+                return;
+            }
+            if (this.restoreFromFullScreen) {
+                this.restoreFromFullScreen = false;
+                this.updateFromFullScreen(force);
+                return;
+            }
             try {
                 if (typeof(force) == 'undefined') force = false;
+                if (force || this._lastWidth < this.boxObject.width) {
+                    // the box width has decreased, we need to see if
+                    // we have overflow then move our toolbars around
+                    this.handle_underflow_toolbars();
+                }
                 if (force || this._lastWidth >= this.boxObject.width) {
                     // the box width has increased, we need to see if
                     // we have underflow then move our toolbars around
-                    for (var i=0; i < this.childNodes.length; ++i) {
-                        if (this.childNodes[i].tagName == 'toolboxrow') {
-                            while (this.overflow(this.childNodes[i])) {}
-                        }
-                    }
-                } else
-                if (force || this._lastWidth < this.boxObject.width) {
-                    // the box width has increased, we need to see if
-                    // we have underflow then move our toolbars around
-                    for (var i=0; i < this.childNodes.length; ++i) {
-                        if (this.childNodes[i].tagName == 'toolboxrow') {
-                            while (this.underflow(this.childNodes[i])) {}
-                        }
-                    }
+                    this.handle_overflow_toolbars();
                 }
                 this._lastWidth = this.boxObject.width;
             } catch(e) {
