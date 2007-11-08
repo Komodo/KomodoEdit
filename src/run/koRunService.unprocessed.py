@@ -201,6 +201,12 @@ class _KoRunProcessProxy(process.ProcessProxy):
                                                   _terminal, cmd=cmd)
             self._stderr_thread.start()
 
+    def wait(self, timeout=None):
+        try:
+            return process.ProcessProxy.wait(self, timeout)
+        except process.ProcessError, ex:
+            raise ServerException(ex.errno, str(ex))
+
     def readStdout(self):
         return self.stdout.read()
     def readStderr(self):
