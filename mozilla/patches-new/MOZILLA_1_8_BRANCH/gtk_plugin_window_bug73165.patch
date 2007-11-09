@@ -1,0 +1,93 @@
+This patch will destroy the GTK (Scintilla) plugin earlier than what is
+currently happening in the Mozilla 1.8 branch. Otherwise after closing a
+Scintilla window in Komodo, the plugin is still around (limbo) for a couple of
+seconds, but the GTK system still thinks it's active and will try to access
+it, causing memory corruptions. See the following bug report:
+http://bugs.activestate.com/show_bug.cgi?id=73165
+Index: modules/plugin/base/src/nsPluginNativeWindowGtk2.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/base/src/nsPluginNativeWindowGtk2.cpp,v
+retrieving revision 1.6
+diff -d -u -8 -p -r1.6 nsPluginNativeWindowGtk2.cpp
+--- modules/plugin/base/src/nsPluginNativeWindowGtk2.cpp	17 Dec 2003 19:49:44 -0000	1.6
++++ modules/plugin/base/src/nsPluginNativeWindowGtk2.cpp	8 Nov 2007 20:01:01 -0000
+@@ -64,17 +64,17 @@ public: 
+   virtual nsresult CallSetWindow(nsCOMPtr<nsIPluginInstance> &aPluginInstance);
+ private:
+   GtkWidget*  mGtkSocket;
+   nsresult  CreateXEmbedWindow();
+   void      SetAllocation();
+   PRBool    CanGetValueFromPlugin(nsCOMPtr<nsIPluginInstance> &aPluginInstance);
+ };
+ 
+-static gboolean plug_removed_cb   (GtkWidget *widget, gpointer data);
++static gboolean plug_removed_cb (GtkWidget *widget, GtkWidget *socket);
+ 
+ nsPluginNativeWindowGtk2::nsPluginNativeWindowGtk2() : nsPluginNativeWindow()
+ {
+   // initialize the struct fields
+   window = nsnull; 
+   x = 0; 
+   y = 0; 
+   width = 0; 
+@@ -82,20 +82,17 @@ nsPluginNativeWindowGtk2::nsPluginNative
+   memset(&clipRect, 0, sizeof(clipRect));
+   ws_info = nsnull;
+   type = nsPluginWindowType_Window;
+   mGtkSocket = 0;
+ }
+ 
+ nsPluginNativeWindowGtk2::~nsPluginNativeWindowGtk2() 
+ {
+-  if(mGtkSocket) {
+-    gtk_widget_destroy(mGtkSocket);
+-    mGtkSocket = 0;
+-  }
++  mGtkSocket = 0;
+ }
+ 
+ nsresult PLUG_NewPluginNativeWindow(nsPluginNativeWindow ** aPluginNativeWindow)
+ {
+   NS_ENSURE_ARG_POINTER(aPluginNativeWindow);
+   *aPluginNativeWindow = new nsPluginNativeWindowGtk2();
+   return *aPluginNativeWindow ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+ }
+@@ -150,17 +147,17 @@ nsresult nsPluginNativeWindowGtk2::Creat
+     //attach the socket to the container widget
+     gtk_widget_set_parent_window(mGtkSocket, win);
+ 
+     // Make sure to handle the plug_removed signal.  If we don't the
+     // socket will automatically be destroyed when the plug is
+     // removed, which means we're destroying it more than once.
+     // SYNTAX ERROR.
+     g_signal_connect(mGtkSocket, "plug_removed",
+-                     G_CALLBACK(plug_removed_cb), NULL);
++                     G_CALLBACK(plug_removed_cb), mGtkSocket);
+ 
+     gpointer user_data = NULL;
+     gdk_window_get_user_data(win, &user_data);
+ 
+     GtkContainer *container = GTK_CONTAINER(user_data);
+     gtk_container_add(container, mGtkSocket);
+     gtk_widget_realize(mGtkSocket);
+ 
+@@ -239,15 +236,15 @@ PRBool nsPluginNativeWindowGtk2::CanGetV
+   }
+ #endif
+ 
+   return PR_TRUE;
+ }
+ 
+ /* static */
+ gboolean
+-plug_removed_cb (GtkWidget *widget, gpointer data)
++plug_removed_cb (GtkWidget *widget, GtkWidget *socket)
+ {
+-  // Gee, thanks for the info!
++  if (socket) {
++    gtk_widget_destroy(socket);
++  }
+   return TRUE;
+ }
+-
+-
