@@ -1167,8 +1167,12 @@ test_vi_emulation.prototype.test_search_commands = function() {
     this._runOperationCommands("repeatLastFindCharInLine",
                                "<|>thi<1>s i<2>s <3>search word. My <4>second <5>search word <6>searched\r\n",
                                TEST_REPETITION,
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE]);
+    // operations make this work slightly differently
+    this._runOperationCommands("repeatLastFindCharInLine",
+                               "<|>this<1> is<2> s<3>earch word. My s<4>econd s<5>earch word s<6>earched\r\n",
+                               TEST_REPETITION,
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
     // Test 'F'
@@ -1185,8 +1189,13 @@ test_vi_emulation.prototype.test_search_commands = function() {
     this._runOperationCommands("repeatLastFindCharInLine",
                                "<|>th<1>is is search word. My second search word searched\r\n",
                                NO_REPETITION,
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE]);
+    // operations make this work slightly differently
+    gVimController._lastMovePosBefore = true;
+    this._runOperationCommands("repeatLastFindCharInLine",
+                               "<|>thi<1>s is search word. My second search word searched\r\n",
+                               NO_REPETITION,
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
     // Test 'T'
