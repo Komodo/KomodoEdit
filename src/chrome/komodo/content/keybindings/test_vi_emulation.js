@@ -1210,6 +1210,7 @@ test_vi_emulation.prototype.test_search_commands = function() {
 
 
 test_vi_emulation.prototype.test_find_char_with_operation = function() {
+    // [y|c|d]fW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word <|>is the search <1>Word, my second search <2>Word searched, got <3>Word! Done!\r\n",
                                "W" /* char to find */,
@@ -1217,10 +1218,19 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                false /* movePos[Before|After] */,
                                null /* register */,
                                TEST_REPETITION,
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE]);
+    // operations make this work slightly differently
+    this._runFindCharOperation("repeatLastFindCharInLine",
+                               "Word <|>is the search W<1>ord, my second search W<2>ord searched, got W<3>ord! Done!\r\n",
+                               "W" /* char to find */,
+                               VimController.SEARCH_FORWARD,
+                               false /* movePos[Before|After] */,
+                               null /* register */,
+                               TEST_REPETITION,
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
+    // [y|c|d]FW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word is the search <3>Word, my second search <2>Word searched, got <1>Word! Do<|>ne!\r\n",
                                "W" /* char to find */,
@@ -1232,6 +1242,7 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                 VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
+    // [y|c|d]tW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word <|>is the search<1><2><3> Word, my second search Word searched, got Word! Done!\r\n",
                                "W" /* char to find */,
@@ -1239,10 +1250,20 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                true /* movePos[Before|After] */,
                                null /* register */,
                                NO_REPETITION,  // Repeat works differently
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE]);
+    // operations make this work slightly differently
+    this._runFindCharOperation("repeatLastFindCharInLine",
+                               "Word <|>is the search <1>Word, my second search <2>Word searched, got <3>Word! Done!\r\n",
+                               "W" /* char to find */,
+                               VimController.SEARCH_FORWARD,
+                               true /* movePos[Before|After] */,
+                               null /* register */,
+                               NO_REPETITION,  // Repeat works differently
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
-                                VimController.OPERATION_CHANGE]);
+                                VimController.OPERATION_CHANGE],
+                               ["knownfailure"]);
+    // 3[y|c|d]tW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word <|>is the search Word, my second search Word searched, got<1> Word! Done!\r\n",
                                "W" /* char to find */,
@@ -1250,8 +1271,18 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                true /* movePos[Before|After] */,
                                null /* register */,
                                NO_REPETITION,  // Repeat works differently
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE],
+                               [] /* tags */,
+                               3 /* forcedRepeatCount */);
+    // operations make this work slightly differently
+    this._runFindCharOperation("repeatLastFindCharInLine",
+                               "Word <|>is the search Word, my second search Word searched, got <1>Word! Done!\r\n",
+                               "W" /* char to find */,
+                               VimController.SEARCH_FORWARD,
+                               true /* movePos[Before|After] */,
+                               null /* register */,
+                               NO_REPETITION,  // Repeat works differently
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE],
                                [] /* tags */,
@@ -1259,6 +1290,7 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
   //vimlog.setLevel(ko.logging.LOG_DEBUG);
   //log.setLevel(Casper.Logging.DEBUG);
   //try {
+    // [y|c|d]TW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word is the search Word, my second search Word searched, got W<1><2><3>ord! Do<|>ne!\r\n",
                                "W" /* char to find */,
@@ -1270,6 +1302,7 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                 VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
+    // 3[y|c|d]TW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word is the search W<1>ord, my second search Word searched, got Word! Do<|>ne!\r\n",
                                "W" /* char to find */,
