@@ -1074,27 +1074,6 @@ class PythonExe(black.configure.Datum):
             self.value = ""
         self.determined = 1
 
-
-class ApplePython23NeedsFixing(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "applePython23NeedsFixing",
-            desc="if the Apple Python 2.3 installation needs fixing")
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        cmd = "python util/fixapplepython23.py -n "
-        o = os.popen(cmd)
-        stdout = o.read()
-        retval = o.close()
-        if retval:
-            raise black.configure.ConfigureError("""\
-You need to run a fixer script on your system Apple Python installation.
-Run this:
-    sudo python util/fixapplepython23.py
-""")
-        self.value = False
-        self.determined = 1
-
 class UnsiloedPythonExe(black.configure.Datum):
     # See discussion for "UnsiloedPythonBinDir".
     def __init__(self):

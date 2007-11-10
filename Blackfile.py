@@ -845,8 +845,6 @@ configuration = {
 }
 if sys.platform != "darwin":
     configuration["perl56"] = PerlExe(version=(5,6))
-if sys.platform == "darwin":
-    configuration["applePython23NeedsFixing"] = ApplePython23NeedsFixing()
 if sys.platform == "win32":
     configuration["nonMsysPerl"] = NonMsysPerlExe()
 
