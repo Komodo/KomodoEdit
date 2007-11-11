@@ -1,0 +1,28 @@
+Index: modules/plugin/base/public/npapi.h
+===================================================================
+RCS file: /cvsroot/mozilla/modules/plugin/base/public/npapi.h,v
+retrieving revision 3.47
+diff -u -8 -r3.47 npapi.h
+--- modules/plugin/base/public/npapi.h	6 Sep 2007 01:45:08 -0000	3.47
++++ modules/plugin/base/public/npapi.h	11 Nov 2007 23:22:46 -0000
+@@ -407,16 +407,20 @@
+   NPPVpluginScriptableNPObject  = 15,
+ 
+   /* Get the plugin value (as \0-terminated UTF-8 string data) for
+    * form submission if the plugin is part of a form. Use
+    * NPN_MemAlloc() to allocate memory for the string data. Introduced
+    * in Mozilla 1.8b2 (NPAPI minor version 15).
+    */
+   NPPVformValue = 16
++#ifdef XP_MACOSX
++  /* Used for negotiating drawing models */
++  , NPPVpluginDrawingModel = 1000
++#endif
+ } NPPVariable;
+ 
+ /*
+  * List of variable names for which NPN_GetValue is implemented by Mozilla
+  */
+ typedef enum {
+   NPNVxDisplay = 1,
+   NPNVxtAppContext,
