@@ -181,7 +181,11 @@ PlatformInstance;
 #include <Carbon/Carbon.h>
 typedef struct _PlatformInstance {
 	WindowPtr	container;
+#if MOZ_VERSION < 190 //1.8 branch
 	CGrafPtr    port;
+#else
+	CGContextRef port;
+#endif
 }
 PlatformInstance;
 #endif

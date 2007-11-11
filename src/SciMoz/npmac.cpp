@@ -289,12 +289,30 @@ void NPN_ForceRedraw(NPP instance)
 // here the plugin creates a plugin instance object which 
 // will be associated with this newly created NPP instance and 
 // will do all the neccessary job
-NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc, char* argn[], char* argv[], NPSavedData* saved)
+NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
+                char* argn[], char* argv[], NPSavedData* saved)
 {
   if(instance == NULL)
     return NPERR_INVALID_INSTANCE_ERROR;
 
   NPError rv = NPERR_NO_ERROR;
+
+#if MOZ_VERSION >= 190
+    // Check if the browser supports the CoreGraphics drawing model
+    NPBool supportsCoreGraphics = FALSE;
+    NPError err = NPN_GetValue(instance,
+                                    NPNVsupportsCoreGraphicsBool,
+                                    &supportsCoreGraphics);
+    if (err != NPERR_NO_ERROR || !supportsCoreGraphics) 
+        return NPERR_INCOMPATIBLE_VERSION_ERROR;
+
+    // Set the drawing model
+    err = NPN_SetValue(instance,
+                            NPPVpluginDrawingModel,
+                            (void*)NPDrawingModelCoreGraphics);
+    if (err != NPERR_NO_ERROR) 
+        return NPERR_INCOMPATIBLE_VERSION_ERROR;
+#endif
 
   // create a new plugin instance object
   // initialization will be done when the associated window is ready

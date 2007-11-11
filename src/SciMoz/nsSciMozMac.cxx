@@ -218,9 +218,15 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	if (npwindow && npwindow->window) {
 		fWindow = npwindow;
 		portMain = npwindow->window;
+#if MOZ_VERSION < 190 //1.8 branch
 		NP_Port* npport = (NP_Port*) portMain;
 		fPlatform.port = npport->port;
 		fPlatform.container = GetWindowFromPort(fPlatform.port);
+#else
+		NP_CGContext* npport = (NP_CGContext*) portMain;
+		fPlatform.port = npport->context;
+		fPlatform.container = npport->window;
+#endif
 		wMain = HIViewGetRoot(fPlatform.container);
 
 		// show scintilla
@@ -240,7 +246,11 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 #endif
 		scintilla->SetTicking(false);
 		scintilla->Resize(0,0);
+#if MOZ_VERSION < 190 //1.8 branch
 		Draw1Control(wEditor);
+#else
+		HIViewSetNeedsDisplay(wEditor, true);
+#endif
 		HIViewSetDrawingEnabled(wEditor, false);
 		HIViewSetVisible(wEditor, false);
 		HIViewRemoveFromSuperview(wEditor);
@@ -257,7 +267,11 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 		HIViewAddSubview(wMain, wEditor);
 		Resize();
 		scintilla->Resize(fWindow->width,fWindow->height);
+#if MOZ_VERSION < 190 //1.8 branch
 		Draw1Control(wEditor);
+#else
+		HIViewSetNeedsDisplay(wEditor, true);
+#endif
 		scintilla->SetTicking(true);
 	}
 }
@@ -339,7 +353,11 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 #ifdef DEBUG_PAINT
 		fprintf(stderr, "SciMoz::PlatformHandleEvent updateEvt %08X\n", wEditor);
 #endif
+#if MOZ_VERSION < 190 //1.8 branch
 		Draw1Control(wEditor);
+#else
+		HIViewSetNeedsDisplay(wEditor, true);
+#endif
 		return true;
 		break;
 	case diskEvt:
