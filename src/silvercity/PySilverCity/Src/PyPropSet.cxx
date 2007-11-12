@@ -27,7 +27,7 @@ PyPropSet_new(PyObject *, PyObject* args)
         return NULL;
     }
 
-    pyPropSet->propSet = new PropSet();
+    pyPropSet->propSet = new PropSetEx();
 
     if (pyPropertyMap != NULL) {
         if (PyPropSet_set_from_map(pyPropSet, pyPropertyMap) == -1) {

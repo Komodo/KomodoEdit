@@ -11,9 +11,54 @@
 
 extern PyTypeObject PyPropSetType;
 
+class PropSetEx : public PropSet {
+public:
+    bool GetFirst(char **key, char **val) {
+	for (int i = 0; i < hashRoots; i++) {
+		for (Property *p = props[i]; p; p = p->next) {
+			if (p) {
+				*key = p->key;
+				*val = p->val;
+				enumnext = p->next; // GetNext will begin here ...
+				enumhash = i;		  // ... in this block
+				return true;
+			}
+		}
+	}
+	return false;
+    }
+
+    /**
+     * Continue enumeration.
+     */
+    bool GetNext(char ** key, char ** val) {
+	bool firstloop = true;
+
+	// search begins where we left it : in enumhash block
+	for (int i = enumhash; i < hashRoots; i++) {
+		if (!firstloop)
+			enumnext = props[i]; // Begin with first property in block
+		// else : begin where we left
+		firstloop = false;
+
+		for (Property *p = enumnext; p; p = p->next) {
+			if (p) {
+				*key = p->key;
+				*val = p->val;
+				enumnext = p->next; // for GetNext
+				enumhash = i;
+				return true;
+			}
+		}
+	}
+	return false;
+    }
+
+};
+
 typedef struct {
     PyObject_HEAD
-    PropSet * propSet;
+    PropSetEx * propSet;
 } PyPropSet;
 
 #define PyPropSet_Check(op) ((op)->ob_type == &PyPropSetType)
