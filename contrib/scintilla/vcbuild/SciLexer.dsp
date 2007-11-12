@@ -146,6 +146,10 @@ SOURCE=..\src\KeyWords.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\LexAbaqus.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\LexAda.cxx
 # End Source File
 # Begin Source File
@@ -159,6 +163,10 @@ SOURCE=..\src\LexAsm.cxx
 # Begin Source File
 
 SOURCE=..\src\LexAsn1.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\LexASY.cxx
 # End Source File
 # Begin Source File
 
@@ -343,6 +351,10 @@ SOURCE=..\src\LexPS.cxx
 # Begin Source File
 
 SOURCE=..\src\LexPython.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\LexR.cxx
 # End Source File
 # Begin Source File
 

@@ -39,7 +39,7 @@ static bool IsSpaceEquiv(int state) {
 // a = b+++/ptn/...
 // Putting a space between the '++' post-inc operator and the '+' binary op
 // fixes this, and is highly recommended for readability anyway.
-static bool FollowsPostOperator(StyleContext &sc, Accessor &styler) {
+static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) {
 	int pos = (int) sc.currentPos;
 	while (--pos > 0) {
 		char ch = styler[pos];
@@ -316,7 +316,8 @@ static void ColouriseCppDoc(unsigned int startPos, int length, int initStyle, Wo
 					sc.SetState(SCE_C_COMMENTLINEDOC);
 				else
 					sc.SetState(SCE_C_COMMENTLINE);
-			} else if (sc.ch == '/' && setOKBeforeRE.Contains(chPrevNonWhite) && (!setCouldBePostOp.Contains(chPrevNonWhite) || !FollowsPostOperator(sc, styler))) {
+			} else if (sc.ch == '/' && setOKBeforeRE.Contains(chPrevNonWhite) &&
+				(!setCouldBePostOp.Contains(chPrevNonWhite) || !FollowsPostfixOperator(sc, styler))) {
 				sc.SetState(SCE_C_REGEX);	// JavaScript's RegEx
 			} else if (sc.ch == '\"') {
 				sc.SetState(SCE_C_STRING);
@@ -356,7 +357,7 @@ static bool IsStreamCommentStyle(int style) {
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
-static void FoldCppDoc(unsigned int startPos, int length, int initStyle, 
+static void FoldCppDoc(unsigned int startPos, int length, int initStyle,
 					   WordList *[], Accessor &styler) {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldPreprocessor = styler.GetPropertyInt("fold.preprocessor") != 0;

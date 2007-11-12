@@ -360,7 +360,7 @@ val STYLE_CONTROLCHAR=36
 val STYLE_INDENTGUIDE=37
 val STYLE_CALLTIP=38
 val STYLE_LASTPREDEFINED=39
-val STYLE_MAX=127
+val STYLE_MAX=255
 
 # Character set identifiers are used in StyleSetCharacterSet.
 # The values are the same as the Windows *_CHARSET values.
@@ -727,11 +727,17 @@ set void SetHScrollBar=2130(bool show,)
 # Is the horizontal scroll bar visible?
 get bool GetHScrollBar=2131(,)
 
+enu IndentView=SC_IV_
+val SC_IV_NONE=0
+val SC_IV_REAL=1
+val SC_IV_LOOKFORWARD=2
+val SC_IV_LOOKBOTH=3
+
 # Show or hide indentation guides.
-set void SetIndentationGuides=2132(bool show,)
+set void SetIndentationGuides=2132(int indentView,)
 
 # Are the indentation guides visible?
-get bool GetIndentationGuides=2133(,)
+get int GetIndentationGuides=2133(,)
 
 # Set the highlighted indentation guide column.
 # 0 = no highlighted guide.
@@ -1143,6 +1149,12 @@ set void SetScrollWidth=2274(int pixelWidth,)
 # Retrieve the document width assumed for scrolling.
 get int GetScrollWidth=2275(,)
 
+# Sets whether the maximum width line displayed is used to set scroll width.
+set void SetScrollWidthTracking=2516(bool tracking,)
+
+# Retrieve whether the scroll width tracks wide lines.
+get bool GetScrollWidthTracking=2517(,)
+
 # Measure the pixel width of some text in a particular style.
 # NUL terminated text argument.
 # Does not handle tab or control characters.
@@ -1305,6 +1317,9 @@ fun void DelWordLeft=2335(,)
 
 # Delete the word to the right of the caret.
 fun void DelWordRight=2336(,)
+
+# Delete the word to the right of the caret, but not the trailing non-word characters.
+fun void DelWordRightEnd=2518(,)
 
 # Cut the line containing the caret.
 fun void LineCut=2337(,)
@@ -1845,7 +1860,8 @@ val SC_MOD_BEFOREDELETE=0x800
 val SC_MULTILINEUNDOREDO=0x1000
 val SC_STARTACTION=0x2000
 val SC_MOD_CHANGEINDICATOR=0x4000
-val SC_MODEVENTMASKALL=0x6FFF
+val SC_MOD_CHANGELINESTATE=0x8000
+val SC_MODEVENTMASKALL=0xFFFF
 
 # For compatibility, these go through the COMMAND notification rather than NOTIFY
 # and should have had exactly the same values as the EN_* constants.
@@ -1972,6 +1988,9 @@ val SCLEX_CMAKE=80
 val SCLEX_GAP=81
 val SCLEX_PLM=82
 val SCLEX_PROGRESS=83
+val SCLEX_ABAQUS=84
+val SCLEX_ASYMPTOTE=85
+val SCLEX_R=86
 
 # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
 # value assigned in sequence from SCLEX_AUTOMATIC+1.
@@ -2224,6 +2243,9 @@ val SCE_PL_STRING_QX=28
 val SCE_PL_STRING_QR=29
 val SCE_PL_STRING_QW=30
 val SCE_PL_POD_VERB=31
+val SCE_PL_SUB_PROTOTYPE=40
+val SCE_PL_FORMAT_IDENT=41
+val SCE_PL_FORMAT=42
 # Lexical states for SCLEX_RUBY
 lex Ruby=SCLEX_RUBY SCE_RB_
 val SCE_RB_DEFAULT=0
@@ -2343,6 +2365,7 @@ val SCE_ERR_IFORT=17
 val SCE_ERR_ABSF=18
 val SCE_ERR_TIDY=19
 val SCE_ERR_JAVA_STACK=20
+val SCE_ERR_VALUE=21
 # Lexical states for SCLEX_BATCH
 lex Batch=SCLEX_BATCH SCE_BAT_
 val SCE_BAT_DEFAULT=0
@@ -2708,6 +2731,7 @@ val SCE_YAML_REFERENCE=5
 val SCE_YAML_DOCUMENT=6
 val SCE_YAML_TEXT=7
 val SCE_YAML_ERROR=8
+val SCE_YAML_OPERATOR=9
 # Lexical states for SCLEX_TEX
 lex TeX=SCLEX_TEX SCE_TEX_
 val SCE_TEX_DEFAULT=0
@@ -3155,6 +3179,7 @@ val SCE_PLM_IDENTIFIER=4
 val SCE_PLM_OPERATOR=5
 val SCE_PLM_CONTROL=6
 val SCE_PLM_KEYWORD=7
+# Lexical state for SCLEX_PROGRESS
 lex Progress=SCLEX_PROGRESS SCE_4GL_
 val SCE_4GL_DEFAULT=0
 val SCE_4GL_NUMBER=1
@@ -3188,6 +3213,49 @@ val SCE_4GL_COMMENT3_=28
 val SCE_4GL_COMMENT4_=29
 val SCE_4GL_COMMENT5_=30
 val SCE_4GL_COMMENT6_=31
+# Lexical states for SCLEX_ABAQUS
+lex ABAQUS=SCLEX_ABAQUS SCE_ABAQUS_
+val SCE_ABAQUS_DEFAULT=0
+val SCE_ABAQUS_COMMENT=1
+val SCE_ABAQUS_COMMENTBLOCK=2
+val SCE_ABAQUS_NUMBER=3
+val SCE_ABAQUS_STRING=4
+val SCE_ABAQUS_OPERATOR=5
+val SCE_ABAQUS_WORD=6
+val SCE_ABAQUS_PROCESSOR=7
+val SCE_ABAQUS_COMMAND=8
+val SCE_ABAQUS_SLASHCOMMAND=9
+val SCE_ABAQUS_STARCOMMAND=10
+val SCE_ABAQUS_ARGUMENT=11
+val SCE_ABAQUS_FUNCTION=12
+# Lexical states for SCLEX_ASYMPTOTE
+lex Asymptote=SCLEX_ASYMPTOTE SCE_ASY_
+val SCE_ASY_DEFAULT=0
+val SCE_ASY_COMMENT=1
+val SCE_ASY_COMMENTLINE=2
+val SCE_ASY_NUMBER=3
+val SCE_ASY_WORD=4
+val SCE_ASY_STRING=5
+val SCE_ASY_CHARACTER=6
+val SCE_ASY_OPERATOR=7
+val SCE_ASY_IDENTIFIER=8
+val SCE_ASY_STRINGEOL=9
+val SCE_ASY_COMMENTLINEDOC=10
+val SCE_ASY_WORD2=11
+# Lexical states for SCLEX_R
+lex R=SCLEX_R SCE_R_
+val SCE_R_DEFAULT=0
+val SCE_R_COMMENT=1
+val SCE_R_KWORD=2
+val SCE_R_BASEKWORD=3
+val SCE_R_OTHERKWORD=4
+val SCE_R_NUMBER=5
+val SCE_R_STRING=6
+val SCE_R_STRING2=7
+val SCE_R_OPERATOR=8
+val SCE_R_IDENTIFIER=9
+val SCE_R_INFIX=10
+val SCE_R_INFIXEOL=11
 
 # Events
 

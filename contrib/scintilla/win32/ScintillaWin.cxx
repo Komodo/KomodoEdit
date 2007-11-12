@@ -28,11 +28,10 @@
 #include "Accessor.h"
 #include "KeyWords.h"
 #endif
-#include "ContractionState.h"
-#include "SVector.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
+#include "ContractionState.h"
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
@@ -554,6 +553,24 @@ static unsigned int SciMessageFromEM(unsigned int iMessage) {
 	return iMessage;
 }
 
+static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
+	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
+	BOOL bci = ::TranslateCharsetInfo((DWORD*)characterSet,
+		&ci, TCI_SRCCHARSET);
+
+	UINT cp;
+	if (bci)
+		cp = ci.ciACP;
+	else
+		cp = documentCodePage;
+
+	CPINFO cpi;
+	if (!IsValidCodePage(cp) && !GetCPInfo(cp, &cpi))
+		cp = CP_ACP;
+
+	return cp;
+}
+
 sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 	//Platform::DebugPrintf("S M:%x WP:%x L:%x\n", iMessage, wParam, lParam);
 	iMessage = SciMessageFromEM(iMessage);
@@ -730,24 +747,36 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 		}
 
 	case WM_CHAR:
-		if (!iscntrl(wParam&0xff) || !lastKeyDownConsumed) {
-			if (IsUnicodeMode()) {
-				// For a wide character version of the window:
-				//char utfval[4];
-				//wchar_t wcs[2] = {wParam, 0};
-				//unsigned int len = UTF8Length(wcs, 1);
-				//UTF8FromUTF16(wcs, 1, utfval, len);
-				//AddCharUTF(utfval, len);
-				AddCharBytes('\0', LOBYTE(wParam));
+		if (((wParam >= 128) || !iscntrl(wParam)) || !lastKeyDownConsumed) {
+			if (::IsWindowUnicode(MainHWND())) {
+				wchar_t wcs[2] = {wParam, 0};
+				if (IsUnicodeMode()) {
+					// For a wide character version of the window:
+					char utfval[4];
+					unsigned int len = UTF8Length(wcs, 1);
+					UTF8FromUTF16(wcs, 1, utfval, len);
+					AddCharUTF(utfval, len);
+				} else {
+					UINT cpDest = CodePageFromCharSet(
+						vs.styles[STYLE_DEFAULT].characterSet, pdoc->dbcsCodePage);
+					char inBufferCP[20];
+					int size = ::WideCharToMultiByte(cpDest,
+						0, wcs, 1, inBufferCP, sizeof(inBufferCP) - 1, 0, 0);
+					AddCharUTF(inBufferCP, size);
+				}
 			} else {
-				AddChar(LOBYTE(wParam));
+				if (IsUnicodeMode()) {
+					AddCharBytes('\0', LOBYTE(wParam));
+				} else {
+					AddChar(LOBYTE(wParam));
+				}
 			}
 		}
 		return 0;
 
 	case WM_UNICHAR:
 		if (wParam == UNICODE_NOCHAR) {
-			return 1;
+			return IsUnicodeMode() ? 1 : 0;
 		} else if (lastKeyDownConsumed) {
 			return 1;
 		} else {
@@ -1039,7 +1068,7 @@ bool ScintillaWin::HaveMouseCapture() {
 
 bool ScintillaWin::PaintContains(PRectangle rc) {
 	bool contains = true;
-	if (paintState == painting) {
+	if ((paintState == painting) && (!rc.Empty())) {
 		if (!rcPaint.Contains(rc)) {
 			contains = false;
 		} else {
@@ -1213,24 +1242,6 @@ bool ScintillaWin::CanPaste() {
 	if (IsUnicodeMode())
 		return ::IsClipboardFormatAvailable(CF_UNICODETEXT) != 0;
 	return false;
-}
-
-static UINT CodePageFromCharSet(DWORD characterSet, UINT documentCodePage) {
-	CHARSETINFO ci = { 0, 0, { { 0, 0, 0, 0 }, { 0, 0 } } };
-	BOOL bci = ::TranslateCharsetInfo((DWORD*)characterSet,
-		&ci, TCI_SRCCHARSET);
-
-	UINT cp;
-	if (bci)
-		cp = ci.ciACP;
-	else
-		cp = documentCodePage;
-
-	CPINFO cpi;
-	if (!IsValidCodePage(cp) && !GetCPInfo(cp, &cpi))
-		cp = CP_ACP;
-
-	return cp;
 }
 
 class GlobalMemory {
@@ -2191,10 +2202,10 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 
 	hInstance = hInstance_;
 	bool result;
-#if 0
+
 	// Register the Scintilla class
 	if (IsNT()) {
-	//if (0) {
+
 		// Register Scintilla as a wide character window
 		WNDCLASSEXW wndclass;
 		wndclass.cbSize = sizeof(wndclass);
@@ -2209,9 +2220,9 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclass.lpszMenuName = NULL;
 		wndclass.lpszClassName = L"Scintilla";
 		wndclass.hIconSm = 0;
-		result = ::RegisterClassExW(&wndclass);
+		result = ::RegisterClassExW(&wndclass) != 0;
 	} else {
-#endif
+
 		// Register Scintilla as a normal character window
 		WNDCLASSEX wndclass;
 		wndclass.cbSize = sizeof(wndclass);
@@ -2227,7 +2238,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		wndclass.lpszClassName = scintillaClassName;
 		wndclass.hIconSm = 0;
 		result = ::RegisterClassEx(&wndclass) != 0;
-	//}
+	}
 
 	if (result) {
 		// Register the CallTip class

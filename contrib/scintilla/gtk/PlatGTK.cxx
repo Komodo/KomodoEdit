@@ -1383,8 +1383,15 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 					pango_layout_iter_get_cluster_extents(iter, NULL, &pos);
 					int position = PANGO_PIXELS(pos.x);
 					int curIndex = pango_layout_iter_get_index(iter);
+					int places = curIndex - i;
+					int distance = position - positions[i-1];
 					while (i < curIndex) {
-						positions[i++] = position;
+						// Evenly distribute space among bytes of this cluster.
+						// Would be better to find number of characters and then
+						// divide evenly between characters with each byte of a character
+						// being at the same position.
+						positions[i] = position - (curIndex - 1 - i) * distance / places;
+						i++;
 					}
 				}
 				while (i < lenPositions)
@@ -1436,12 +1443,25 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 						utfForm = UTF8FromLatin1(s, len);
 					}
 					pango_layout_set_text(layout, utfForm, len);
-					int i = 0;
 					PangoLayoutIter *iter = pango_layout_get_iter(layout);
 					pango_layout_iter_get_cluster_extents(iter, NULL, &pos);
+					int i = 0;
+					int positionStart = 0;
+					int clusterStart = 0;
+					// Each Latin1 input character may take 1 or 2 bytes in UTF-8
+					// and groups of up to 3 may be represented as ligatures.
 					while (pango_layout_iter_next_cluster(iter)) {
 						pango_layout_iter_get_cluster_extents(iter, NULL, &pos);
-						positions[i++] = PANGO_PIXELS(pos.x);
+						int position = PANGO_PIXELS(pos.x);
+						int distance = position - positionStart;
+						int clusterEnd = pango_layout_iter_get_index(iter);
+						int ligatureLength = g_utf8_strlen(utfForm + clusterStart, clusterEnd - clusterStart);
+						PLATFORM_ASSERT(ligatureLength > 0 && ligatureLength <= 3);
+						for (int charInLig=0; charInLig<ligatureLength; charInLig++) {
+							positions[i++] = position - (ligatureLength - 1 - charInLig) * distance / ligatureLength;
+						}
+						positionStart = position;
+						clusterStart = clusterEnd;
 					}
 					while (i < lenPositions)
 						positions[i++] = PANGO_PIXELS(pos.x + pos.width);
@@ -1852,6 +1872,34 @@ void Window::SetCursor(Cursor curs) {
 
 void Window::SetTitle(const char *s) {
 	gtk_window_set_title(GTK_WINDOW(id), s);
+}
+
+/* Returns rectangle of monitor pt is on, both rect and pt are in Window's
+   gdk window coordinates */
+PRectangle Window::GetMonitorRect(Point pt) {
+	gint x_offset, y_offset;
+	pt = pt;
+
+	gdk_window_get_origin(PWidget(id)->window, &x_offset, &y_offset);
+
+// gtk 2.2+
+#if GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 2)
+	{
+		GdkScreen* screen;
+		gint monitor_num;
+		GdkRectangle rect;
+
+		screen = gtk_widget_get_screen(PWidget(id));
+		monitor_num = gdk_screen_get_monitor_at_point(screen, pt.x + x_offset, pt.y + y_offset);
+		gdk_screen_get_monitor_geometry(screen, monitor_num, &rect);
+		rect.x -= x_offset;
+		rect.y -= y_offset;
+		return PRectangle(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
+	}
+#else
+	return PRectangle(-x_offset, -y_offset, (-x_offset) + gdk_screen_width(),
+	                  (-y_offset) + gdk_screen_height());
+#endif
 }
 
 struct ListImage {

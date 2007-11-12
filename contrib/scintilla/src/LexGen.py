@@ -217,13 +217,6 @@ def RegenerateAll():
             propFiles.sort(ciCompare)
             print propFiles
 
-            # Find all the menu command IDs in the SciTE header
-            SciTEHeader = file(root + "scite/src/SciTE.h")
-            lines = SciTEHeader.read().split("\n")
-            SciTEHeader.close()
-            ids = [id for id in [l.split()[1] for l in lines if l.startswith("#define")] if id.startswith("IDM_")]
-	#print ids
-
 	Regenerate(root + "scintilla/src/KeyWords.cxx", "//", NATIVE, lexerModules)
 	Regenerate(root + "scintilla/win32/makefile", "#", NATIVE, lexFiles)
 	Regenerate(root + "scintilla/win32/scintilla.mak", "#", NATIVE, lexFiles)
@@ -237,7 +230,6 @@ def RegenerateAll():
         if os.path.exists(root + "scite"):
             Regenerate(root + "scite/win32/makefile", "#", NATIVE, lexFiles, propFiles)
             Regenerate(root + "scite/win32/scite.mak", "#", NATIVE, lexFiles, propFiles)
-            Regenerate(root + "scite/src/SciTEProps.cxx", "//", NATIVE, lexerProperties, ids)
             Generate(root + "scite/boundscheck/vcproj.gen",
 	         root + "scite/boundscheck/SciTE.vcproj", "#", NATIVE, lexFiles)
 

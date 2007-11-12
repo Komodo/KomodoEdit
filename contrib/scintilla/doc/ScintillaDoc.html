@@ -38,7 +38,7 @@
 
     <h1>Scintilla Documentation</h1>
 
-    <p>Last edited 4/February/2006 NH</p>
+    <p>Last edited 20/June/2007 NH</p>
 
     <p>There is <a class="jump" href="Design.html">an overview of the internal design of
     Scintilla</a>.<br />
@@ -281,7 +281,7 @@
     information. The combination of a character byte and a style byte is called a cell. Style bytes
     are interpreted an index into an array of styles.
     Style bytes may be split into an index and a set of indicator bits
-    but this use is discouraged and indicators sould now use
+    but this use is discouraged and indicators should now use
     <a class="message" href ="#SCI_INDICATORFILLRANGE">SCI_INDICATORFILLRANGE</a>
     and related calls.
     The default split is with the index in the low 5 bits and 3 high bits as <a class="jump"
@@ -513,6 +513,10 @@ struct TextRange {
 
 
     <h2 id="Searching">Searching</h2>
+    <p>
+    There are methods to search for text and for regular expressions. The regular expression support
+    is limited and should only be used for simple cases and initial development.
+    </p>
     <code><a class="message" href="#SCI_FINDTEXT">SCI_FINDTEXT(int flags, TextToFind
     *ttf)</a><br />
      <a class="message" href="#SCI_SEARCHANCHOR">SCI_SEARCHANCHOR</a><br />
@@ -1333,6 +1337,8 @@ struct TextToFind {
      <a class="message" href="#SCI_SETXOFFSET">SCI_SETXOFFSET(int xOffset)</a><br />
      <a class="message" href="#SCI_SETSCROLLWIDTH">SCI_SETSCROLLWIDTH(int pixelWidth)</a><br />
      <a class="message" href="#SCI_GETSCROLLWIDTH">SCI_GETSCROLLWIDTH</a><br />
+     <a class="message" href="#SCI_SETSCROLLWIDTHTRACKING">SCI_SETSCROLLWIDTHTRACKING(bool tracking)</a><br />
+     <a class="message" href="#SCI_GETSCROLLWIDTHTRACKING">SCI_GETSCROLLWIDTHTRACKING</a><br />
      <a class="message" href="#SCI_SETENDATLASTLINE">SCI_SETENDATLASTLINE(bool
     endAtLastLine)</a><br />
      <a class="message" href="#SCI_GETENDATLASTLINE">SCI_GETENDATLASTLINE</a><br />
@@ -1639,7 +1645,14 @@ struct TextToFind {
      For performance, Scintilla does not measure the display width of the document to determine
      the properties of the horizontal scroll bar. Instead, an assumed width is used.
      These messages set and get the document width in pixels assumed by Scintilla.
-     The default value is 2000.</p>
+     The default value is 2000.
+     To ensure the width of the currently visible lines can be scrolled use
+     <a class="message" href="#SCI_SETSCROLLWIDTHTRACKING"><code>SCI_SETSCROLLWIDTHTRACKING</code></a></p>
+
+    <p><b id="SCI_SETSCROLLWIDTHTRACKING">SCI_SETSCROLLWIDTHTRACKING(bool tracking)</b><br />
+     <b id="SCI_GETSCROLLWIDTHTRACKING">SCI_GETSCROLLWIDTHTRACKING</b><br />
+     If scroll width tracking is enabled then the scroll width is adjusted to ensure that all of the lines currently
+     displayed can be completely scrolled. This mode never adjusts the scroll width to be narrower.</p>
 
     <p><b id="SCI_SETENDATLASTLINE">SCI_SETENDATLASTLINE(bool endAtLastLine)</b><br />
      <b id="SCI_GETENDATLASTLINE">SCI_GETENDATLASTLINE</b><br />
@@ -1850,7 +1863,9 @@ struct TextToFind {
      As well as the 8 bits of lexical state stored for each character there is also an integer
     stored for each line. This can be used for longer lived parse states such as what the current
     scripting language is in an ASP page. Use <code>SCI_SETLINESTATE</code> to set the integer
-    value and <code>SCI_GETLINESTATE</code> to get the value.</p>
+    value and <code>SCI_GETLINESTATE</code> to get the value.
+    Changing the value produces a <a class="message" href="#SC_MOD_CHANGELINESTATE">SC_MOD_CHANGELINESTATE</a> notification.
+    </p>
 
     <p><b id="SCI_GETMAXLINESTATE">SCI_GETMAXLINESTATE</b><br />
      This returns the last line that has any line state.</p>
@@ -2645,13 +2660,46 @@ struct TextToFind {
     <p><b id="SCI_GETLINEINDENTPOSITION">SCI_GETLINEINDENTPOSITION(int line)</b><br />
      This returns the position at the end of indentation of a line.</p>
 
-    <p><b id="SCI_SETINDENTATIONGUIDES">SCI_SETINDENTATIONGUIDES(bool view)</b><br />
+    <p><b id="SCI_SETINDENTATIONGUIDES">SCI_SETINDENTATIONGUIDES(int indentView)</b><br />
      <b id="SCI_GETINDENTATIONGUIDES">SCI_GETINDENTATIONGUIDES</b><br />
      Indentation guides are dotted vertical lines that appear within indentation white space every
     indent size columns. They make it easy to see which constructs line up especially when they
     extend over multiple pages. Style <a class="message"
     href="#StyleDefinition"><code>STYLE_INDENTGUIDE</code></a> (37) is used to specify the
     foreground and background colour of the indentation guides.</p>
+
+    <p>There are 4 indentation guide views.
+    SC_IV_NONE turns the feature off but the other 3 states determine how far the guides appear on
+    empty lines.
+    <table border="0" summary="Search flags">
+      <tbody>
+        <tr>
+          <td><code>SC_IV_NONE</code></td>
+          <td>No indentation guides are shown.</td>
+        </tr>
+
+        <tr>
+          <td><code>SC_IV_REAL</code></td>
+          <td>Indentation guides are shown inside real indentation white space.</td>
+        </tr>
+
+        <tr>
+          <td><code>SC_IV_LOOKFORWARD</code></td>
+          <td>Indentation guides are shown beyond the actual indentation up to the level of the
+	next non-empty line.
+	If the previous non-empty line was a fold header then indentation guides are shown for
+	one more level of indent than that line. This setting is good for Python.</td>
+        </tr>
+
+        <tr>
+          <td><code>SC_IV_LOOKBOTH</code></td>
+          <td>Indentation guides are shown beyond the actual indentation up to the level of the
+	next non-empty line or previous non-empty line whichever is the greater.
+	This setting is good for most languages.</td>
+        </tr>
+
+    </table>
+    </p>
 
     <p><b id="SCI_SETHIGHLIGHTGUIDE">SCI_SETHIGHLIGHTGUIDE(int column)</b><br />
      <b id="SCI_GETHIGHLIGHTGUIDE">SCI_GETHIGHLIGHTGUIDE</b><br />
@@ -2857,7 +2905,9 @@ struct TextToFind {
     <p><b id="SCI_MARKERDEFINEPIXMAP">SCI_MARKERDEFINEPIXMAP(int markerNumber, const char
     *xpm)</b><br />
      Markers can be set to pixmaps with this message. The XPM format is used for the pixmap and it
-    is limited to pixmaps that use one character per pixel. The data should be null terminated.
+    is limited to pixmaps that use one character per pixel with no named colours.
+    The transparent colour may be named 'None'.
+    The data should be null terminated.
     Pixmaps use the <code>SC_MARK_PIXMAP</code> marker symbol. You can find the full description of
     the XPM format <a class="jump" href="http://koala.ilog.fr/lehors/xpm.html">here</a>.</p>
 
@@ -3068,15 +3118,15 @@ struct TextToFind {
     <b id="SCI_SETINDICATORCURRENT">SCI_SETINDICATORCURRENT(int indicator)</b><br />
     <b id="SCI_GETINDICATORCURRENT">SCI_GETINDICATORCURRENT</b><br />
     These two messages set and get the indicator that will be affected by calls to
-    <a class="jump" href="#SCI_INDICATORFILLRANGE">SCI_INDICATORFILLRANGE</a> and
-    <a class="jump" href="#SCI_INDICATORCLEARRANGE">SCI_INDICATORCLEARRANGE</a>.
+    <a class="message" href="#SCI_INDICATORFILLRANGE">SCI_INDICATORFILLRANGE</a> and
+    <a class="message" href="#SCI_INDICATORCLEARRANGE">SCI_INDICATORCLEARRANGE</a>.
     </p>
 
     <p>
     <b id="SCI_SETINDICATORVALUE">SCI_SETINDICATORVALUE(int value)</b><br />
     <b id="SCI_GETINDICATORVALUE">SCI_GETINDICATORVALUE</b><br />
     These two messages set and get the value that will be set by calls to
-    <a class="jump" href="#SCI_INDICATORFILLRANGE">SCI_INDICATORFILLRANGE</a>.
+    <a class="message" href="#SCI_INDICATORFILLRANGE">SCI_INDICATORFILLRANGE</a>.
     </p>
 
     <p>
@@ -3628,10 +3678,14 @@ struct TextToFind {
           <td><code>SCI_DELETEBACK</code></td>
 
           <td><code>SCI_DELETEBACKNOTLINE</code></td>
+        </tr>
 
+        <tr>
           <td><code>SCI_DELWORDLEFT</code></td>
 
           <td><code>SCI_DELWORDRIGHT</code></td>
+
+          <td><code>SCI_DELWORDRIGHTEND</code></td>
         </tr>
 
         <tr>
@@ -4220,6 +4274,8 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
      <a class="message" href="#SCI_GETWRAPSTARTINDENT">SCI_GETWRAPSTARTINDENT</a><br />
      <a class="message" href="#SCI_SETLAYOUTCACHE">SCI_SETLAYOUTCACHE(int cacheMode)</a><br />
      <a class="message" href="#SCI_GETLAYOUTCACHE">SCI_GETLAYOUTCACHE</a><br />
+     <a class="message" href="#SCI_SETPOSITIONCACHE">SCI_SETPOSITIONCACHE(int size)</a><br />
+     <a class="message" href="#SCI_GETPOSITIONCACHE">SCI_GETPOSITIONCACHE</a><br />
      <a class="message" href="#SCI_LINESSPLIT">SCI_LINESSPLIT(int pixelWidth)</a><br />
      <a class="message" href="#SCI_LINESJOIN">SCI_LINESJOIN</a><br />
      <a class="message" href="#SCI_WRAPCOUNT">SCI_WRAPCOUNT(int docLine)</a><br />
@@ -4400,6 +4456,12 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
       </tbody>
     </table>
     <br />
+
+    <p><b id="SCI_SETPOSITIONCACHE">SCI_SETPOSITIONCACHE(int size)</b><br />
+     <b id="SCI_GETPOSITIONCACHE">SCI_GETPOSITIONCACHE</b><br />
+     The position cache stores position information for short runs of text
+     so that their layout can be determined more quickly if the run recurs.
+     The size in entries of this cache can be set with <code>SCI_SETPOSITIONCACHE</code>.</p>
 
     <p><b id="SCI_LINESSPLIT">SCI_LINESSPLIT(int pixelWidth)</b><br />
      Split a range of lines indicated by the target into lines that are at most pixelWidth wide.
@@ -4717,6 +4779,8 @@ struct SCNotification {
      <a class="message" href="#SCN_ZOOM">SCN_ZOOM</a><br />
      <a class="message" href="#SCN_HOTSPOTCLICK">SCN_HOTSPOTCLICK</a><br />
      <a class="message" href="#SCN_HOTSPOTDOUBLECLICK">SCN_HOTSPOTDOUBLECLICK</a><br />
+     <a class="message" href="#SCN_INDICATORCLICK">SCN_INDICATORCLICK</a><br />
+     <a class="message" href="#SCN_INDICATORRELEASE">SCN_INDICATORRELEASE</a><br />
      <a class="message" href="#SCN_CALLTIPCLICK">SCN_CALLTIPCLICK</a><br />
      <a class="message" href="#SCN_AUTOCSELECTION">SCN_AUTOCSELECTION</a><br />
     </code>
@@ -5014,6 +5078,27 @@ href="#SCI_POSITIONFROMLINE">SCI_POSITIONFROMLINE</a>(lineNumber);
         </tr>
 
         <tr>
+          <td align="left"><code>SC_MOD_CHANGEINDICATOR</code></td>
+
+          <td align="center">0x4000</td>
+
+          <td>An indicator has been added or removed from a range of text.</td>
+
+          <td><code>position, length</code></td>
+        </tr>
+
+        <tr>
+          <td align="left"><code id="SC_MOD_CHANGELINESTATE">SC_MOD_CHANGELINESTATE</code></td>
+
+          <td align="center">0x8000</td>
+
+          <td>A line state has changed because <a class="message" href="#SCI_SETLINESTATE">SCI_SETLINESTATE</a>
+	  was called.</td>
+
+          <td><code>line</code></td>
+        </tr>
+
+        <tr>
           <td align="left"><code>SC_MULTILINEUNDOREDO</code></td>
 
           <td align="center">0x1000</td>
@@ -5284,6 +5369,15 @@ for line = lineStart to lineEnd do SCI_ENSUREVISIBLE(line) next
      These notifications are generated when the user clicks or double clicks on
      text that is in a style with the hotspot attribute set.
     This notification can be used to link to variable definitions or web pages.
+    The <code>position</code> field is set the text position of the click or
+    double click and the <code>modifiers</code> field set to the key modifiers
+    held down in a similar manner to <a class="message" href="#SCN_KEY">SCN_KEY</a>.</p>
+
+    <p>
+    <b id="SCN_INDICATORCLICK">SCN_INDICATORCLICK</b><br />
+    <b id="SCN_INDICATORRELEASE">SCN_INDICATORRELEASE</b><br />
+     These notifications are generated when the user clicks or releases the mouse on
+     text that has an indicator.
     The <code>position</code> field is set the text position of the click or
     double click and the <code>modifiers</code> field set to the key modifiers
     held down in a similar manner to <a class="message" href="#SCN_KEY">SCN_KEY</a>.</p>

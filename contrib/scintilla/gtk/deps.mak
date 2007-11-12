@@ -100,7 +100,8 @@ LexConf.o: ../src/LexConf.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/Scintilla.h ../include/SciLexer.h
 LexCPP.o: ../src/LexCPP.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../src/StyleContext.h \
-  ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
+  ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h \
+  ../src/CharacterSet.h
 LexCrontab.o: ../src/LexCrontab.cxx ../include/Platform.h \
   ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
   ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
@@ -150,7 +151,8 @@ LexHaskell.o: ../src/LexHaskell.cxx ../include/Platform.h \
   ../include/SciLexer.h
 LexHTML.o: ../src/LexHTML.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../src/StyleContext.h \
-  ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
+  ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h \
+  ../src/CharacterSet.h
 LexInno.o: ../src/LexInno.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../src/StyleContext.h \
   ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
@@ -203,9 +205,16 @@ LexPB.o: ../src/LexPB.cxx ../include/Platform.h ../include/PropSet.h \
 LexPerl.o: ../src/LexPerl.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../include/KeyWords.h \
   ../include/Scintilla.h ../include/SciLexer.h
+LexPLM.o: ../src/LexPLM.cxx ../include/Platform.h ../include/PropSet.h \
+  ../include/SString.h ../include/Accessor.h ../include/KeyWords.h \
+  ../include/Scintilla.h ../include/SciLexer.h ../src/StyleContext.h
 LexPOV.o: ../src/LexPOV.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../src/StyleContext.h \
   ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
+LexProgress.o: ../src/LexProgress.cxx ../include/Platform.h \
+  ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
+  ../src/StyleContext.h ../include/KeyWords.h ../include/Scintilla.h \
+  ../include/SciLexer.h
 LexPS.o: ../src/LexPS.cxx ../include/Platform.h ../include/PropSet.h \
   ../include/SString.h ../include/Accessor.h ../src/StyleContext.h \
   ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h

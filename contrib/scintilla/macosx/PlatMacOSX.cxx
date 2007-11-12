@@ -7,7 +7,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
-#include <dlfcn.h>
+
 #include <assert.h>
 
 #include <sys/time.h>
@@ -135,7 +135,7 @@ void SurfaceImpl::Release() {
     bitmapData = NULL;
     gc = NULL;
 
-    bitmapWidth = 0;    
+    bitmapWidth = 0;
     bitmapHeight = 0;
     x = 0;
     y = 0;
@@ -176,7 +176,7 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /*surface_*/, Windo
     // Create a new bitmap context, along with the RAM for the bitmap itself
     bitmapWidth = width;
     bitmapHeight = height;
-    
+
     const int bitmapBytesPerRow   = (width * BYTES_PER_PIXEL);
     const int bitmapByteCount     = (bitmapBytesPerRow * height);
 
@@ -208,7 +208,7 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /*surface_*/, Windo
         }
 
     // the context retains the color space, so we can release it
-    CGColorSpaceRelease( colorSpace );  
+    CGColorSpaceRelease( colorSpace );
 
     assert( gc != NULL && bitmapData != NULL );
 
@@ -248,7 +248,7 @@ CGImageRef SurfaceImpl::GetImage() {
 
     const int bitmapBytesPerRow   = ((int) bitmapWidth * BYTES_PER_PIXEL);
     const int bitmapByteCount     = (bitmapBytesPerRow * (int) bitmapHeight);
-    
+
     // Create a data provider
     CGDataProviderRef dataProvider = CGDataProviderCreateWithData( NULL, bitmapData, bitmapByteCount, NULL );
     assert( dataProvider != NULL );
@@ -310,7 +310,7 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
                       ColourAllocated back) {
     // Allocate memory for the array of points
     CGPoint *points = new CGPoint[ npts ];
-    
+
     for (int i = 0;i < npts;i++) {
         // Quartz floating point issues: plot the MIDDLE of the pixels
         points[i].x = pts[i].x + 0.5;
@@ -327,7 +327,7 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
     CGContextAddLines( gc, points, npts );
     // TODO: Should the path be automatically closed, or is that the caller's responsability?
     // Explicitly close the path, so it is closed for stroking AND filling (implicit close = filling only)
-    CGContextClosePath( gc ); 
+    CGContextClosePath( gc );
     CGContextDrawPath( gc, kCGPathFillStroke );
 
     // Deallocate memory
@@ -421,12 +421,12 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern) {
 void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
     // TODO: Look at the Win32 API to determine what this is supposed to do:
     //  ::RoundRect(hdc, rc.left + 1, rc.top, rc.right - 1, rc.bottom, 8, 8 );
-    
+
     // Create a rectangle with semicircles at the corners
     const int MAX_RADIUS = 4;
     int radius = Platform::Minimum( MAX_RADIUS, rc.Height()/2 );
     radius = Platform::Minimum( radius, rc.Width()/2 );
-    
+
     // Points go clockwise, starting from just below the top left
     // Corners are kept together, so we can easily create arcs to connect them
     CGPoint corners[4][3] =
@@ -464,17 +464,17 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
 
     PenColour( fore );
     FillColour( back );
-    
+
     // Move to the last point to begin the path
     CGContextBeginPath( gc );
     CGContextMoveToPoint( gc, corners[3][2].x, corners[3][2].y );
-    
+
     for ( int i = 0; i < 4; ++ i )
         {
         CGContextAddLineToPoint( gc, corners[i][0].x, corners[i][0].y );
         CGContextAddArcToPoint( gc, corners[i][1].x, corners[i][1].y, corners[i][2].x, corners[i][2].y, radius );
         }
-    
+
     // Close the path to enclose it for stroking and for filling, then draw it
     CGContextClosePath( gc );
     CGContextDrawPath( gc, kCGPathFillStroke );
@@ -554,19 +554,19 @@ void SurfaceImpl::Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated b
     CGContextDrawPath( gc, kCGPathFillStroke );
 }
 
-void SurfaceImpl::CopyImageRectangle(Surface &surfaceSource, PRectangle srcRect, PRectangle dstRect) 
+void SurfaceImpl::CopyImageRectangle(Surface &surfaceSource, PRectangle srcRect, PRectangle dstRect)
 {
     SurfaceImpl& source = static_cast<SurfaceImpl &>(surfaceSource);
     CGImageRef image = source.GetImage();
-    
+
     CGRect src = PRectangleToCGRect(srcRect);
     CGRect dst = PRectangleToCGRect(dstRect);
-    
+
     /* source from QuickDrawToQuartz2D.pdf on developer.apple.com */
     float w = (float) CGImageGetWidth(image);
-    float h = (float) CGImageGetHeight(image); 
+    float h = (float) CGImageGetHeight(image);
     CGRect drawRect = CGRectMake (0, 0, w, h);
-    if (!CGRectEqualToRect (src, dst))  
+    if (!CGRectEqualToRect (src, dst))
     {
         float sx = CGRectGetWidth(dst) / CGRectGetWidth(src);
         float sy = CGRectGetHeight(dst) / CGRectGetHeight(src);
@@ -574,10 +574,10 @@ void SurfaceImpl::CopyImageRectangle(Surface &surfaceSource, PRectangle srcRect,
         float dy = CGRectGetMinY(dst) - (CGRectGetMinY(src) * sy);
         drawRect = CGRectMake (dx, dy, w*sx, h*sy);
     }
-    CGContextSaveGState (gc);  
-    CGContextClipToRect (gc, dst);  
+    CGContextSaveGState (gc);
+    CGContextClipToRect (gc, dst);
     CGContextDrawImage (gc, drawRect, image);
-    CGContextRestoreGState (gc); 
+    CGContextRestoreGState (gc);
 }
 
 void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSource) {
@@ -587,7 +587,7 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
 
     // For now, assume that copy can only be called on PixMap surfaces
     SurfaceImpl& source = static_cast<SurfaceImpl &>(surfaceSource);
-    
+
     // Get the CGImageRef
     CGImageRef image = source.GetImage();
     // If we could not get an image reference, fill the rectangle black
@@ -596,7 +596,7 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
         FillRectangle( rc, ColourAllocated( 0 ) );
         return;
         }
-    
+
     assert( image != NULL );
 
     // Now draw the image on the surface
@@ -625,10 +625,10 @@ QuartzTextLayout* SurfaceImpl::GetTextLayout( Font &font_, const char *s, int le
         fprintf(stderr, "SurfaceImpl::GetTextLayout error calling textLayout->setText %d %s\n", err, unicodeMode?"Invalid UTF8":"Unknown error");
         if (unicodeMode)
             err = textLayout->setText( reinterpret_cast<const UInt8*>( s ), len, kCFStringEncodingASCII );
-        if (err != noErr) 
+        if (err != noErr)
             return NULL;
     }
-    
+
     textLayout->setStyle( *reinterpret_cast<QuartzTextStyle*>( font_.GetID() ) );
 
     // TODO: If I could modify Scintilla to use ATSUHighlightText, this would not be required.
@@ -690,13 +690,13 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
                 textLayout->getLayout(), 0,
                 kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
                 (void **)&layoutRecords, &numRecords) );
-    
+
     int i, count;
     long position;
     unsigned char uch;
     unsigned char mask;
     FontID fontid = font_.GetID();
-    
+
     for ( unicodePosition = 0, i = 0; i < len && unicodePosition < numRecords; unicodePosition ++ ) {
         if (fontid) {
 
@@ -739,7 +739,7 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
     {
         QuartzTextLayout* textLayout = GetTextLayout( font_, s, len );
         if (!textLayout) return 0;
-        
+
         // TODO: Maybe I should add some sort of text measurement features to QuartzTextLayout?
         unsigned long actualNumberOfBounds = 0;
         ATSTrapezoid glyphBounds;
@@ -755,7 +755,7 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
         }
 
         //Platform::DebugPrintf( "WidthText: \"%*s\" = %ld\n", len, s, Fix2Long( glyphBounds.upperRight.x - glyphBounds.upperLeft.x ) );
-        
+
         // Get rid of the layout object
         delete textLayout;
         textLayout = NULL;
@@ -917,14 +917,14 @@ bool Window::HasFocus() {
 PRectangle Window::GetPosition() {
     // Before any size allocated pretend its 1000 wide so not scrolled
     PRectangle rc(0, 0, 1000, 1000);
-    
+
     // The frame rectangle gives the position of this view inside the parent view
     if (id) {
         HIRect controlFrame;
         HIViewGetFrame( reinterpret_cast<HIViewRef>( id ), &controlFrame );
         rc = CGRectToPRectangle( controlFrame );
     }
-    
+
     return rc;
 }
 
@@ -935,11 +935,11 @@ void Window::SetPosition(PRectangle rc) {
         // Set the frame on the view, the function handles the rest
         CGRect r = PRectangleToCGRect( rc );
         HIViewSetFrame( reinterpret_cast<HIViewRef>( id ), &r );
-    } 
+    }
 }
 
 void Window::SetPositionRelative(PRectangle rc, Window window) {
-    // used to actually move child windows (ie. listbox/calltip) so we have to move 
+    // used to actually move child windows (ie. listbox/calltip) so we have to move
     // the window, not the hiview
     if (windowRef) {
         // we go through some contortions here to get an accurate location for our
@@ -947,7 +947,7 @@ void Window::SetPositionRelative(PRectangle rc, Window window) {
         // app may be setup.  See SciTest/main.c (GOOD && BAD) for test case.
         WindowRef relativeWindow = GetControlOwner(reinterpret_cast<HIViewRef>( window.GetID() ));
         WindowRef thisWindow = reinterpret_cast<WindowRef>( windowRef );
-      
+
         Rect portBounds;
         ::GetWindowBounds(relativeWindow, kWindowStructureRgn, &portBounds);
         //fprintf(stderr, "portBounds %d %d %d %d\n", portBounds.left, portBounds.top, portBounds.right, portBounds.bottom);
@@ -982,7 +982,7 @@ PRectangle Window::GetClientPosition() {
 void Window::Show(bool show) {
     if ( id ) {
         HIViewSetVisible( reinterpret_cast<HIViewRef>( id ), show );
-    } 
+    }
     // this is necessary for calltip/listbox
     if (windowRef) {
         WindowRef thisWindow = reinterpret_cast<WindowRef>( windowRef );
@@ -1047,7 +1047,7 @@ void Window::SetCursor(Cursor curs) {
                 cursor = kThemeArrowCursor;
                 break;
         }
-        
+
         SetThemeCursor( cursor );
     }
 }
@@ -1059,15 +1059,19 @@ void Window::SetTitle(const char *s) {
     CFRelease(title);
 }
 
+PRectangle Window::GetMonitorRect(Point) {
+	return PRectangle();
+}
+
 ListBox::ListBox() {}
 
 ListBox::~ListBox() {}
 
 static const OSType scintillaListBoxType = 'sclb';
 
-enum { 
+enum {
     kItemsPerContainer = 1,
-    kIconColumn = 'icon', 
+    kIconColumn = 'icon',
     kTextColumn = 'text'
 };
 static SInt32 kScrollBarWidth = 0;
@@ -1220,7 +1224,7 @@ void ListBoxImpl::Create(Window &/*parent*/, int /*ctrlID*/, Scintilla::Point /*
     lineHeight = lineHeight_;
     unicodeMode = unicodeMode_;
     maxWidth = 1000;
-    
+
     WindowClass windowClass = kHelpWindowClass;
     WindowAttributes attributes = kWindowNoAttributes;
     Rect contentBounds;
@@ -1265,7 +1269,7 @@ void ListBoxImpl::Create(Window &/*parent*/, int /*ctrlID*/, Scintilla::Point /*
 
     eventHandler = NULL;
     InstallWindowEventHandler( outWindow, WindowEventHandler,
-                   GetEventTypeCount( kWindowEvents ), 
+                   GetEventTypeCount( kWindowEvents ),
                    kWindowEvents, this, &eventHandler );
 
     id = lb;
@@ -1291,14 +1295,14 @@ pascal OSStatus ListBoxImpl::WindowEventHandler(
           }
         case kEventMouseDown:
           {
-            // we cannot handle the double click from the databrowser notify callback as 
+            // we cannot handle the double click from the databrowser notify callback as
             // calling doubleClickAction causes the listbox to be destroyed.  It is
             // safe to do it from this event handler since the destroy event will be queued
             // until we're done here.
             TCarbonEvent        event( inEvent );
             EventMouseButton inMouseButton;
             event.GetParameter<EventMouseButton>( kEventParamMouseButton, typeMouseButton, &inMouseButton );
-    
+
             UInt32 inClickCount;
             event.GetParameter( kEventParamClickCount, &inClickCount );
             if (inMouseButton == kEventMouseButtonPrimary && inClickCount == 2) {
@@ -1417,24 +1421,24 @@ void ListBoxImpl::ConfigureDataBrowser()
     DataBrowserViewStyle viewStyle;
     DataBrowserSelectionFlags selectionFlags;
     ::GetDataBrowserViewStyle(lb, &viewStyle);
-    
+
     ::SetDataBrowserHasScrollBars(lb, false, true);
     ::SetDataBrowserListViewHeaderBtnHeight(lb, 0);
     ::GetDataBrowserSelectionFlags(lb, &selectionFlags);
     ::SetDataBrowserSelectionFlags(lb, selectionFlags |= kDataBrowserSelectOnlyOne);
     // if you change the hilite style, also change the style in ListBoxDrawItemCallback
     ::SetDataBrowserTableViewHiliteStyle(lb, kDataBrowserTableViewFillHilite);
-  
+
     Rect insetRect;
     ::GetDataBrowserScrollBarInset(lb, &insetRect);
-    
+
     insetRect.right = kScrollBarWidth - 1;
     ::SetDataBrowserScrollBarInset(lb, &insetRect);
-  
+
     switch (viewStyle)
     {
       case kDataBrowserListView:
-      {  
+      {
         DataBrowserListViewColumnDesc iconCol;
         iconCol.headerBtnDesc.version = kDataBrowserListViewLatestHeaderDesc;
         iconCol.headerBtnDesc.minimumWidth = 0;
@@ -1442,19 +1446,19 @@ void ListBoxImpl::ConfigureDataBrowser()
         iconCol.headerBtnDesc.titleOffset = 0;
         iconCol.headerBtnDesc.titleString = NULL;
         iconCol.headerBtnDesc.initialOrder = kDataBrowserOrderIncreasing;
-          
+
         iconCol.headerBtnDesc.btnFontStyle.flags = kControlUseJustMask;
         iconCol.headerBtnDesc.btnFontStyle.just = teFlushLeft;
-        
+
         iconCol.headerBtnDesc.btnContentInfo.contentType = kControlContentTextOnly;
-        
+
         iconCol.propertyDesc.propertyID = kIconColumn;
         iconCol.propertyDesc.propertyType = kDataBrowserCustomType;
         iconCol.propertyDesc.propertyFlags = kDataBrowserListViewSelectionColumn;
-        
+
         ::AddDataBrowserListViewColumn(lb, &iconCol, kDataBrowserListViewAppendColumn);
       }  break;
-      
+
     }
 }
 
@@ -1466,7 +1470,7 @@ void ListBoxImpl::InstallDataBrowserCustomCallbacks()
     verify_noerr(InitDataBrowserCustomCallbacks(&callbacks));
     callbacks.u.v1.drawItemCallback = NewDataBrowserDrawItemUPP(ListBoxDrawItemCallback);
     callbacks.u.v1.hitTestCallback = NULL;//NewDataBrowserHitTestUPP(ListBoxHitTestCallback);
-    callbacks.u.v1.trackingCallback = NULL;//NewDataBrowserTrackingUPP(ListBoxTrackingCallback); 
+    callbacks.u.v1.trackingCallback = NULL;//NewDataBrowserTrackingUPP(ListBoxTrackingCallback);
     callbacks.u.v1.editTextCallback = NULL;
     callbacks.u.v1.dragRegionCallback = NULL;
     callbacks.u.v1.acceptDragCallback = NULL;
@@ -1530,10 +1534,10 @@ int ListBoxImpl::GetVisibleRows() const {
 PRectangle ListBoxImpl::GetDesiredRect() {
     PRectangle rcDesired = GetPosition();
 
-    // XXX because setting the line height on the table doesnt 
+    // XXX because setting the line height on the table doesnt
     //     *stick*, we'll have to suffer and just use whatever
     //     the table desides is the correct height.
-    UInt16 itemHeight;// = lineHeight; 
+    UInt16 itemHeight;// = lineHeight;
     GetDataBrowserTableViewRowHeight(lb, &itemHeight);
 
     int rows = Length();
@@ -1549,7 +1553,7 @@ PRectangle ListBoxImpl::GetDesiredRect() {
     if (rcDesired.right > maxWidth) {
         rcDesired.right = maxWidth;
     }
-    if (Length() > rows) 
+    if (Length() > rows)
         rcDesired.right += kScrollBarWidth;
     rcDesired.right += IconWidth();
     return rcDesired;
@@ -1583,12 +1587,12 @@ void ListBoxImpl::Append(char *s, int type) {
     int count = Length();
     CFStringRef r = CFStringCreateWithCString(NULL, s, kTextEncodingMacRoman);
     ld.Add(count, type, r);
-  
+
     DataBrowserItemID items[1];
     items[0] = count + 1;
     AddDataBrowserItems (lb, kDataBrowserNoItem, 1, items, kDataBrowserItemNoProperty);
     ShowHideScrollbar();
-    
+
     size_t len = strlen(s);
     if (maxItemCharacters < len)
             maxItemCharacters = len;
@@ -1752,7 +1756,7 @@ ElapsedTime::ElapsedTime() {
     int retVal;
     retVal = gettimeofday( &curTime, NULL );
     assert( retVal == 0 );
-    
+
     bigBit = curTime.tv_sec;
     littleBit = curTime.tv_usec;
 }
@@ -1807,13 +1811,6 @@ bool Platform::MouseButtonBounce() {
     return false;
 }
 
-bool Platform::WaitMouseMoved(Scintilla::Point pt) { 
-    ::Point mpt;
-    mpt.v = pt.x;
-    mpt.h = pt.y;
-    return ::WaitMouseMoved(mpt);
-}
-
 bool Platform::IsKeyDown(int keyCode) {
     return false;
     // TODO: Map Scintilla/Windows key codes to Mac OS X key codes
@@ -1824,7 +1821,7 @@ bool Platform::IsKeyDown(int keyCode) {
     // Get the keys
     KeyMap keys;
     GetKeys( keys );
-    
+
     // Calculate the key map index
     long keyMapIndex = keys[keyCode/8];
     // Calculate the individual bit to check
@@ -1836,12 +1833,6 @@ bool Platform::IsKeyDown(int keyCode) {
 
 long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam, long lParam) {
     return scintilla_send_message( w, msg, wParam, lParam );
-}
-
-long Platform::SendScintillaPointer(
-    WindowID w, unsigned int msg, unsigned long wParam, void *lParam) {
-	return scintilla_send_message(w, msg, wParam,
-	                              reinterpret_cast<sptr_t>(lParam));
 }
 
 bool Platform::IsDBCSLeadByte(int /*codePage*/, char /*ch*/) {
@@ -1925,37 +1916,4 @@ int Platform::Clamp(int val, int minVal, int maxVal) {
     if (val < minVal)
         val = minVal;
     return val;
-}
-
-class DynamicLibraryImpl : public DynamicLibrary {
-protected:
-	void* m;
-public:
-	DynamicLibraryImpl(const char *modulePath) {
-		m = dlopen(modulePath, RTLD_LAZY);
-	}
-
-	virtual ~DynamicLibraryImpl() {
-		if (m != NULL)
-			dlclose(m);
-	}
-
-	virtual Function FindFunction(const char *name) {
-		if (m != NULL) {
-			void *fn_address = dlsym(m, name);
-			if (fn_address)
-				return static_cast<Function>(fn_address);
-			else
-				return NULL;
-		} else
-			return NULL;
-	}
-
-	virtual bool IsValid() {
-		return m != NULL;
-	}
-};
-
-DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
-	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
 }

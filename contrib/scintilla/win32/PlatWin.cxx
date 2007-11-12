@@ -1052,6 +1052,34 @@ void Window::SetTitle(const char *s) {
 	::SetWindowTextA(reinterpret_cast<HWND>(id), s);
 }
 
+/* Returns rectangle of monitor pt is on, both rect and pt are in Window's
+   coordinates */
+#ifdef MULTIPLE_MONITOR_SUPPORT
+PRectangle Window::GetMonitorRect(Point pt) {
+	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 so are not used.
+	// There could be conditional code and dynamic loading in a future version
+	// so this would work on those platforms where they are available.
+	PRectangle rcPosition = GetPosition();
+	POINT ptDesktop = {pt.x + rcPosition.left, pt.y + rcPosition.top};
+	HMONITOR hMonitor = ::MonitorFromPoint(ptDesktop, MONITOR_DEFAULTTONEAREST);
+	MONITORINFOEX mi;
+	memset(&mi, 0, sizeof(mi));
+	mi.cbSize = sizeof(mi);
+	if (::GetMonitorInfo(hMonitor, &mi)) {
+		PRectangle rcMonitor(
+			mi.rcWork.left - rcPosition.left,
+			mi.rcWork.top - rcPosition.top,
+			mi.rcWork.right - rcPosition.left,
+			mi.rcWork.bottom - rcPosition.top);
+		return rcMonitor;
+	}
+}
+#else
+PRectangle Window::GetMonitorRect(Point) {
+	return PRectangle();
+}
+#endif
+
 struct ListItemData {
 	const char *text;
 	int pixId;
