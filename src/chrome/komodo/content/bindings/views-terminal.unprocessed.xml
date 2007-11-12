@@ -480,6 +480,7 @@
         <parameter name="event"/>
         <body>
         <![CDATA[
+            if (!this.terminalHandler.active) return;
             try {
                 // The purpose of this function is to make sure that keyboard motions stay within
                 // the current line.  There are a few cases to worry about:
@@ -524,6 +525,7 @@
         <body>
         <![CDATA[
             // send EOF
+            if (!this.terminalHandler.active) return;
             try {
                 if (this.terminalHandler.stdinHandler)
                     this.terminalHandler.stdinHandler.puts(null)
@@ -547,6 +549,7 @@
         <![CDATA[
             //dump('terminal keypress VK_UP\n');
             // get our history and put it in the last line
+            if (!this.terminalHandler.active) return;
             try {
                 if (this.scimoz.autoCActive()) {
                     return;
@@ -585,6 +588,7 @@
         <parameter name="event"/>
         <body>
         <![CDATA[
+            if (!this.terminalHandler.active) return;
             //dump('terminal keypress VK_DOWN\n');
             // get our history and put it in the last line
             try {
@@ -628,6 +632,7 @@
         <body>
         <![CDATA[
             //dump('terminal keypress ctrl VK_UP\n');
+            if (!this.terminalHandler.active) return;
             try {
                 this.scimoz.lineScrollUp();
             } catch(e) {
