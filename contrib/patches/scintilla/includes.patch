@@ -1,7 +1,6 @@
-diff -u -r1.307 include/Scintilla.iface
---- include/Scintilla.iface	23 Apr 2007 02:26:05 -0000	1.307
-+++ include/Scintilla.iface	23 May 2007 20:53:59 -0000
-@@ -1825,6 +1825,24 @@
+--- include/Scintilla.iface	2007-11-04 02:03:56.000000000 -0800
++++ include/Scintilla.iface	2007-11-11 17:14:56.000000000 -0800
+@@ -1840,6 +1840,24 @@
  # Retrieve the number of bits the current lexer needs for styling.
  get int GetStyleBitsNeeded=4011(,)
  
@@ -26,17 +25,17 @@ diff -u -r1.307 include/Scintilla.iface
  # Notifications
  # Type of modification and the action which caused the modification.
  # These are defined as a bit mask to make it easy to specify which notifications are wanted.
-@@ -1972,6 +1993,9 @@
- val SCLEX_GAP=81
- val SCLEX_PLM=82
- val SCLEX_PROGRESS=83
-+val SCLEX_XSLT=84
+@@ -1991,6 +2009,9 @@
+ val SCLEX_ABAQUS=84
+ val SCLEX_ASYMPTOTE=85
+ val SCLEX_R=86
++val SCLEX_XSLT=87
 +# User-defined languages
-+val SCLEX_UDL=85
++val SCLEX_UDL=88
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
-@@ -1994,6 +2018,11 @@
+@@ -2013,6 +2034,11 @@
  val SCE_P_STRINGEOL=13
  val SCE_P_WORD2=14
  val SCE_P_DECORATOR=15
@@ -48,7 +47,7 @@ diff -u -r1.307 include/Scintilla.iface
  # Lexical states for SCLEX_CPP
  lex Cpp=SCLEX_CPP SCE_C_
  lex Pascal=SCLEX_PASCAL SCE_C_
-@@ -2018,6 +2047,9 @@
+@@ -2037,6 +2063,9 @@
  val SCE_C_COMMENTDOCKEYWORD=17
  val SCE_C_COMMENTDOCKEYWORDERROR=18
  val SCE_C_GLOBALCLASS=19
@@ -58,7 +57,7 @@ diff -u -r1.307 include/Scintilla.iface
  # Lexical states for SCLEX_D
  lex D=SCLEX_D SCE_D_
  val SCE_D_DEFAULT=0
-@@ -2042,26 +2074,22 @@
+@@ -2061,26 +2090,22 @@
  lex TCL=SCLEX_TCL SCE_TCL_
  val SCE_TCL_DEFAULT=0
  val SCE_TCL_COMMENT=1
@@ -101,25 +100,24 @@ diff -u -r1.307 include/Scintilla.iface
  # Lexical states for SCLEX_HTML, SCLEX_XML
  lex HTML=SCLEX_HTML SCE_H
  lex XML=SCLEX_XML SCE_H
-@@ -2224,6 +2252,15 @@
- val SCE_PL_STRING_QR=29
- val SCE_PL_STRING_QW=30
- val SCE_PL_POD_VERB=31
+@@ -2246,6 +2271,14 @@
+ val SCE_PL_SUB_PROTOTYPE=40
+ val SCE_PL_FORMAT_IDENT=41
+ val SCE_PL_FORMAT=42
 +### ACTIVESTATE PERL LEXER ADDITIONS
-+val SCE_PL_SUB=40
-+val SCE_PL_SUB_ARGS=41
-+val SCE_PL_UNKNOWN_FIELD=42
-+val SCE_PL_STDIN=43
-+val SCE_PL_STDOUT=44
-+val SCE_PL_STDERR=45
-+val SCE_PL_FORMAT=46
-+val SCE_PL_UPPER_BOUND=47
++val SCE_PL_SUB=43
++val SCE_PL_SUB_ARGS=44
++val SCE_PL_UNKNOWN_FIELD=45
++val SCE_PL_STDIN=46
++val SCE_PL_STDOUT=47
++val SCE_PL_STDERR=48
++val SCE_PL_UPPER_BOUND=49
  # Lexical states for SCLEX_RUBY
  lex Ruby=SCLEX_RUBY SCE_RB_
  val SCE_RB_DEFAULT=0
-@@ -3189,6 +3226,136 @@
- val SCE_4GL_COMMENT5_=30
- val SCE_4GL_COMMENT6_=31
+@@ -3257,6 +3291,136 @@
+ val SCE_R_INFIX=10
+ val SCE_R_INFIXEOL=11
  
 +# Lexical states for the SCLEX_XML (XML files)
 +val SCE_XML_DEFAULT=0
@@ -256,7 +254,7 @@ diff -u -r1.307 include/Scintilla.iface
  evt void StyleNeeded=2000(int position)
 --- include/Scintilla.h   Thu Sep 27 11:10:30 2007
 +++ include/Scintilla.h Mon Oct 29 16:38:27 2007
-@@ -673,6 +673,11 @@
+@@ -680,6 +680,11 @@
  #define SCI_GETPROPERTYEXPANDED 4009
  #define SCI_GETPROPERTYINT 4010
  #define SCI_GETSTYLEBITSNEEDED 4011

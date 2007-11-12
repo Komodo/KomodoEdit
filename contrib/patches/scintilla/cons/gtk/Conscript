@@ -63,11 +63,11 @@ if ($buildType eq 'debug') {
 # The SciMoz build on Linux explicitly links the Lex*.o files from the
 # scintilla build AND with Cons multiple targets for a "Command" cannot be
 # specified, so have to specify a makefile call for each platform.
-my @lexers = ("Ada", "APDL", "Asn1", "AU3", "Asm", "AVE", "Baan", "Bash", "Basic",
+my @lexers = ("Ada", "APDL", "Asn1", "AU3", "Abaqus", "Asm", "ASY", "AVE", "Baan", "Bash", "Basic",
     "Bullant", "Caml", "Conf", "CPP", "CSS", "CLW", "Cmake", "Crontab", "Csound", "D", "Eiffel", "EScript",
     "Erlang", "Flagship", "Forth", "Fortran", "GAP", "Gui4Cli", "Haskell", "HTML", "Inno", "Kix", "Lisp", "Lout",
     "Lua", "Matlab", "Metapost", "MMIXAL", "MPT", "MSSQL", "Nsis", "Opal", "Others",
-    "PB", "Pascal", "Perl", "PLM", "Progress", "PS", "Python", "POV", "Rebol", "Ruby", "Scriptol", "Smalltalk",
+    "PB", "PLM", "Pascal", "Perl", "PS", "Python", "POV", "Progress", "R", "Rebol", "Ruby", "Scriptol", "Smalltalk",
     "Specman", "SQL", "Spice", "TADS3", "TeX", "Tcl", "UDL", "VB", "Verilog", "VHDL", "XSLT", "YAML");
 
 my @args = (

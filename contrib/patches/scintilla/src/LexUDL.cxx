@@ -2526,8 +2526,8 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
 #endif
 
     bool rc;
-    WordList *wl = keywordlists[0];
-    char *p_subLanguage = (*wl)[0];
+    WordList &wl = *keywordlists[0];
+    char *p_subLanguage = wl.words[0];
     if (!p_subLanguage || !p_subLanguage[0]) {
         // This happens as part of a fallback in
         // koTemplateLanguageBase.py::koTemplateLanguage.get_lexer
@@ -2860,7 +2860,7 @@ static void FoldUDLDoc(unsigned int startPos, int length, int initStyle,
     }
     LogEvent(true, "FoldUDLDoc", &styler);
 #endif
-    MainInfo *p_MainInfo = LexerList.Intern((*(keywordlists[0]))[0]);
+    MainInfo *p_MainInfo = LexerList.Intern((*(keywordlists[0])).words[0]);
     if (!p_MainInfo || !p_MainInfo->IsReady()) {
         return;
     }
