@@ -146,7 +146,7 @@ class Shell(cmdln.Cmdln):
         a subsequent release this will get the name `luddite compile'.
         """
         return commands.compile(
-            udl_path, lexres_path=opts.lexres_path,
+            udl_path, output_dir=opts.output_dir,
             include_path=opts.include_dirs, log=log)
 
     @cmdln.option("--ext",
