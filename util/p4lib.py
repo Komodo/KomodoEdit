@@ -38,8 +38,7 @@
 #     branches in one group; client, change, branch, label in another.
 #     Should share implementation between these all.
 
-__revision__ = "$Id$"
-__version_info__ = (0, 9, 3)
+__version_info__ = (0, 9, 4)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -1344,11 +1343,12 @@ class P4:
         # Example header lines:
         #   - from 'p4 describe':
         #       ==== //depot/apps/px/ReadMe.txt#5 (text) ====
+        #       ==== //depot/main/Apps/Komodo-4.2/src/udl/luddite.py#2 (text+kwx) ====
         #   - from 'p4 diff':
         #       ==== //depot/apps/px/p4lib.py#12 - c:\trentm\apps\px\p4lib.py ====
         #       ==== //depot/foo.doc#42 - c:\trentm\foo.doc ==== (binary)
-        header1Re = re.compile("^==== (?P<depotFile>//.*?)#(?P<rev>\d+) "\
-                               "\((?P<type>\w+)\) ====$")
+        header1Re = re.compile(r"^==== (?P<depotFile>//.*?)#(?P<rev>\d+) "\
+                               r"\((?P<type>[\w+]+)\) ====$")
         header2Re = re.compile("^==== (?P<depotFile>//.*?)#(?P<rev>\d+) - "\
                                "(?P<localFile>.+?) ===="\
                                "(?P<binary> \(binary\))?$")
