@@ -1,3 +1,7 @@
+diff
+
+c.f. https://bugzilla.mozilla.org/show_bug.cgi?id=403418
+
 Index: modules/plugin/base/public/npapi.h
 ===================================================================
 RCS file: /cvsroot/mozilla/modules/plugin/base/public/npapi.h,v
