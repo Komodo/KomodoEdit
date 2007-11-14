@@ -63,7 +63,7 @@ def compile(udl_path, output_dir=None, include_path=None, log=None):
     """
     log = log or _log
     if output_dir is None:
-        lexres_path = dirname(udl_path) or os.curdir
+        output_dir = dirname(udl_path) or os.curdir
 
     # Clean up after PLY. It leaves some turds that can break subsequent
     # parsing if the parser source is changed.
