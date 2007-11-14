@@ -205,7 +205,7 @@ class _KoRunProcessProxy(process.ProcessProxy):
         try:
             return process.ProcessProxy.wait(self, timeout)
         except process.ProcessError, ex:
-            raise ServerException(ex.errno, str(ex))
+            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
     def readStdout(self):
         return self.stdout.read()
