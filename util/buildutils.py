@@ -473,7 +473,7 @@ def remote_glob(rpattern, log=None):
     if log:
         log(' '.join(argv))
     try:
-        stdout = capture_stdout(argv)
+        stdout = capture_output(argv)
     except OSError, ex:
         rpaths = []
     else:
@@ -597,6 +597,17 @@ def capture_stdout(argv, ignore_status=False):
         raise OSError("running '%s' failed: %d: %s"
                       % (' '.join(argv), status, stderr))
     return stdout
+
+def capture_output(argv, ignore_status=False):
+    p = subprocess.Popen(argv,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    output = p.stdout.read()
+    status = p.wait()  # raise if non-zero status?
+    if status and not ignore_status:
+        raise OSError("running '%s' failed: %d: %s"
+                      % (' '.join(argv), status, output))
+    return output
 
 def capture_status(argv):
     p = subprocess.Popen(argv,

@@ -189,7 +189,7 @@ def _mk_mar_md5sums(rdir):
     log.info("create %s", path)
     
     info = []
-    for rpath in buildutils.remote_glob(join(rdir, "*.mar")):
+    for rpath in buildutils.remote_glob(join(rdir, "*.mar"), log.debug):
         size = buildutils.remote_size(rpath, log.debug)
         md5sum = buildutils.remote_md5sum(rpath, log.debug)
         info.append((md5sum, size, basename(rpath)))
