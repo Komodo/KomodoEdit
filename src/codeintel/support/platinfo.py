@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 8, 3)
+__version_info__ = (0, 8, 6)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -181,6 +181,8 @@ class PlatInfo(object):
             self._init_mac()
         elif sys.platform.startswith("freebsd"):
             self._init_freebsd()
+        elif sys.platform.startswith("openbsd"):
+            self._init_openbsd()
         else:
             raise InternalError("unknown platform: '%s'" % sys.platform)
 
@@ -349,6 +351,17 @@ class PlatInfo(object):
             self.arch = "x86"
         else:
             raise InternalError("unknown FreeBSD architecture: '%s'" % arch)
+
+    def _init_openbsd(self):
+        self.os = "openbsd"
+        uname = os.uname()
+        self.os_ver = uname[2].split('-', 1)[0]
+
+        arch = uname[-1]
+        if re.match(r"i\d86", arch):
+            self.arch = "x86"
+        else:
+            raise InternalError("unknown OpenBSD architecture: '%s'" % arch)
 
     def _init_linux(self):
         self.os = "linux"
@@ -547,17 +560,13 @@ class PlatInfo(object):
 
         d = {}
         release_file_pat = re.compile(r'(\w+)[-_](release|version)')
+        candidate_etc_files = []
         for etc_file in etc_files:
             m = release_file_pat.match(etc_file)
             if m:
-                d["distro_family"] = m.group(1)
-                break
-        else:
+                candidate_etc_files.append((m.group(1), "/etc/"+etc_file))
+        if not candidate_etc_files:
             return {}
-
-        f = open("/etc/"+etc_file, 'r')
-        first_line = f.readline().rstrip()
-        f.close()
 
         patterns = {
             "redhat": re.compile("^Red Hat Linux release ([\d\.]+)"),
@@ -570,19 +579,29 @@ class PlatInfo(object):
             "suse": re.compile("^SuSE Linux ([\d\.]+)"),
             "opensuse": re.compile("^openSUSE ([\d\.]+)"),
             "debian": re.compile("^([\d\.]+)"),
+            "gentoo": re.compile("^Gentoo Base System release ([\d\.]+)"),
         }
-        for distro, pattern in patterns.items():
-            m = pattern.search(first_line)
-            if m:
-                d["distro"] = distro
-                d["distro_ver"] = m.group(1)
-                if first_line.strip() != m.group(1):
-                    d["distro_desc"] = first_line.strip()
+
+        errmsgs = []
+        for distro_family, etc_path in candidate_etc_files:
+            f = open(etc_path, 'r')
+            first_line = f.readline().rstrip()
+            f.close()
+            for distro, pattern in patterns.items():
+                m = pattern.search(first_line)
+                if m:
+                    d["distro_family"] = distro_family
+                    d["distro"] = distro
+                    d["distro_ver"] = m.group(1)
+                    if first_line.strip() != m.group(1):
+                        d["distro_desc"] = first_line.strip()
+                    break
+            errmsgs.append("first line of '%s' (%s)" % (etc_path, first_line))
+            if d:
                 break
         else:            
-            raise InternalError("Could not determine distro & release from "
-                                "first line of '%s': '%s'"
-                                % ("/etc/"+etc_file, first_line))
+            raise InternalError("Could not determine distro & release from %s."
+                                % " or ".join(errmsgs))
         return d
 
     def _set_linux_distro_info(self):
@@ -614,7 +633,7 @@ class PlatInfo(object):
         # Then try to find a release/version file in "/etc".
         # - Algorithm borrows from platform.py.
         d = self._get_linux_release_file_info()
-        if 0 and "distro" in d and "distro_ver" in d:
+        if "distro" in d and "distro_ver" in d:
             for k, v in d.items():
                 setattr(self, k, v)
             return
