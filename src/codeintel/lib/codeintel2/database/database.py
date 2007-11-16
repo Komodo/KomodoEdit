@@ -464,22 +464,23 @@ class Database(object):
         self.acquire_lock()
         try:
             if exists(self.base_dir):
+                #TODO: make this more bullet proof
                 if backup:
                     err_base_dir = self.base_dir + ".err"
                     log.info("backing up db to '%s'", err_base_dir)
                     if os.path.exists(err_base_dir):
-                        os.remove(err_base_dir)
+                        rmdir(err_base_dir)
                         for i in range(10): # Try to avoid OSError from slow-deleting NTFS
                             if not os.path.exists(err_base_dir): break
                             time.sleep(1)
                     if os.path.exists(err_base_dir): # couldn't remove it
                         log.warn("couldn't remove old '%s' (skipping backup)",
                                  err_base_dir)
-                        os.remove(self.base_dir)
+                        rmdir(self.base_dir)
                     else:
                         os.rename(self.base_dir, err_base_dir)
                 else:
-                    os.remove(self.base_dir)
+                    rmdir(self.base_dir)
 
             self.create()
         finally:
