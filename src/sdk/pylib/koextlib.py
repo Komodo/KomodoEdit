@@ -546,7 +546,8 @@ def build_ext(base_dir, log=None):
             _mkdir(lexers_dir, log.info)
         _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
 
-    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib"):
+    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
+                  "lexers"):
         if isdir(dname):
             xpi_manifest.append(dname)
 
