@@ -1431,6 +1431,7 @@ def target_configure(argv):
                              "\tsudo ln -s /Library %s/Library"
                              % (sdk, sdk))
         if not os.path.exists("%s/Library/Frameworks/Python.framework" % sdk):
+            #TODO: Is *Active*Python actually required here? if not just say "Python".
             raise BuildError("ActivePython is not installed to "
                              "'/Library/Frameworks'.")
     
