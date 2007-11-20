@@ -543,7 +543,6 @@ def build_ext(base_dir, log=None):
     for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
         if not exists(lexers_dir):
             _mkdir(lexers_dir, log.info)
-        lang = basename(mainlex_udl_path)[:-len("-mainlex.udl")]
         _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
     if exists(lexers_dir):
         xpi_manifest.append(lexers_dir)
