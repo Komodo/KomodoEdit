@@ -581,7 +581,9 @@ def parse_udl_path(udl_path, include_path=None, debug_level=1):
 
     global num_errs
     num_errs = 0
-    yacc.yacc()
+    # `write_tables=0` because we don't want 'parsetab.py' file. It can
+    # cause subtle problems if the cwd changes.
+    yacc.yacc(write_tables=0)
     p2 = yacc.parse(debug=debug_level, lexer=lexer)
     
     # Because 'include' is part of the language, and not a pre-processor

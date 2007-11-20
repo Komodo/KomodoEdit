@@ -56,7 +56,7 @@ __version__ = "1.7"
 # Change these to modify the default behavior of yacc (if you wish)
 #-----------------------------------------------------------------------------
 
-yaccdebug   = 1                # Debugging mode.  If set, yacc generates a
+yaccdebug   = 0                # Debugging mode.  If set, yacc generates a
                                # a 'parser.out' file in the current directory
 
 debug_file  = 'parser.out'     # Default name of the debugging file
