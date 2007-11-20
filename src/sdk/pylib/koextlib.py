@@ -539,15 +539,16 @@ def build_ext(base_dir, log=None):
             xpi_manifest.append(idl_build_dir)
 
     # Handle any UDL lexer compilation.
+    lexers_dir = join(build_dir, "lexers")
     for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
-        lang = basename(mainlex_udl_path)[:-len("-mainlex.udl")]
-        lexers_dir = join(build_dir, "lexers")
         if not exists(lexers_dir):
             _mkdir(lexers_dir, log.info)
+        lang = basename(mainlex_udl_path)[:-len("-mainlex.udl")]
         _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
+    if exists(lexers_dir):
+        xpi_manifest.append(lexers_dir)
 
-    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
-                  "lexers"):
+    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib"):
         if isdir(dname):
             xpi_manifest.append(dname)
 
