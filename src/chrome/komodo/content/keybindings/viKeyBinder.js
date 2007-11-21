@@ -2336,11 +2336,13 @@ VimController.command_mappings = {
     "cmd_vim_enterSearchForward" :  [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
                                                                     VimController.MOVEMENT_ACTION |
                                                                     VimController.NO_OP_FLAG_CHANGE |
-                                                                    VimController.WORKS_IN_VISUAL_MODE ],
+                                                                    VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.DELAY_MODE_INSERT ],
     "cmd_vim_enterSearchBackward" : [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
                                                                     VimController.MOVEMENT_ACTION |
                                                                     VimController.NO_OP_FLAG_CHANGE |
-                                                                    VimController.WORKS_IN_VISUAL_MODE ],
+                                                                    VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.DELAY_MODE_INSERT ],
     "cmd_vim_setRegister" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "cmd_vim_saveAndClose" :        [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "cmd_vim_closeNoSave" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
@@ -3413,7 +3415,14 @@ function vim_InputBuffer_KeyPress(event)
             // Save into the buffer history
             gVimController.inputBufferSaveHistory(value);
 
-            gVimController.mode = returnToMode;
+            // May have already changed to another mode such as INSERT_MODE,
+            // so we don't want to change it again in that case. Fixes:
+            // http://bugs.activestate.com/show_bug.cgi?id=73315
+            if ((gVimController.mode == VimController.MODE_SEARCH) ||
+                (gVimController.mode == VimController.MODE_COMMAND)) {
+                gVimController.mode = returnToMode;
+            }
+
             gVimController.updateCursorAndSelection(scimoz, orig_currentPos,
                                                     null, orig_anchorPos, true);
             ko.views.manager.currentView.setFocus();
