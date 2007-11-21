@@ -7,7 +7,8 @@ Introduction
 
 This README.txt tells you how to get started building, using and
 developing with the Open Komodo source base. Currently this basically
-means building Komodo Snapdragon (codename for a Web-focussed IDE).
+means building Komodo Edit (the once free-as-in-beer, now also
+free-as-in-speech Komodo editor).
 
 Komodo is based on Mozilla, so prepare yourself for some serious build
 time. If you have trouble with any of the following instructions please
@@ -27,7 +28,7 @@ Build steps on Windows:
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
-    python build.py configure -k 1.0 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
+    python build.py configure -k 4.3 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -41,7 +42,7 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 1.0 --moz-src=cvs:1.8 --release \
+    python build.py configure -k 4.3 --moz-src=cvs:1.8 --release \
         --no-strip --shared --tools
     python build.py distclean all
     cd ..
