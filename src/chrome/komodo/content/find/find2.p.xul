@@ -1,9 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % findDTD SYSTEM "chrome://komodo/locale/find.dtd">
-  %findDTD;
-]>
-
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
  
@@ -40,6 +35,21 @@
  
  ***** END LICENSE BLOCK ***** -->
 
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % findDTD SYSTEM "chrome://komodo/locale/find.dtd">
+  %findDTD;
+]>
+
+<!-- #if PLATFORM == "win" -->
+<!-- #define ENTER_DIRECTORIES_ENTITY &enterDirectoriesWin.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeWin.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeWin.tooltiptext; -->
+<!-- #else -->
+<!-- #define ENTER_DIRECTORIES_ENTITY &enterDirectoriesUnix.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeUnix.tooltiptext; -->
+<!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeUnix.tooltiptext; -->
+<!-- #endif -->
+
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
@@ -47,6 +57,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 <!-- for rx-icon class -->
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+
 
 <window id="find2-window"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -319,7 +330,7 @@
                    accesskey="&D.accesskey;"/>
             <textbox id="find-folders"
                      flex="1"
-                     tooltiptext="&enterDirectoriesToSearchInSeparateDirectoriesWithPATHSEP.tooltiptext;"
+                     tooltiptext="ENTER_DIRECTORIES_ENTITY"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru_and_dirpath"
@@ -352,7 +363,7 @@
                    style="width: 5.6em;"/>
             <textbox id="find-include-filetypes"
                      flex="1"
-                     tooltiptext="&enterFiletypesToIncludeInSearchEGPlPATHSEPPmEmptyMeansAll.tooltiptext;"
+                     tooltiptext="ENTER_FILETYPES_TO_INCLUDE_ENTITY"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru"
@@ -371,7 +382,7 @@
                    style="width: 5.6em;"/>
             <textbox id="find-exclude-filetypes"
                      flex="1"
-                     tooltiptext="&enterFiletypesToExcludeFromSearchEGDtdPATHSEPObjEmptyMeansNone.tooltiptext;"
+                     tooltiptext="ENTER_FILETYPES_TO_EXCLUDE_ENTITY"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru"

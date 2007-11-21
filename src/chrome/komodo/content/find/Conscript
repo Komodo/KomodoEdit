@@ -55,9 +55,9 @@ $cons->InstallInChrome('find.xul');
 $cons->Preprocess('findInFiles.p.js', 'findInFiles.js');
 $cons->InstallInChrome('findInFiles.js');
 
-if (0) {
-    $cons->Preprocess('find2.p.js', 'find2.js');
-    $cons->InstallInChrome('find2.js');
+if (1) {
+    #$cons->Preprocess('find2.p.js', 'find2.js');
+    #$cons->InstallInChrome('find2.js');
     $cons->Preprocess('find2.p.xul', 'find2.xul');
     $cons->InstallInChrome('find2.xul');
 }
