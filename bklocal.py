@@ -601,7 +601,7 @@ class ProductType(black.configure.Datum):
         black.configure.Datum.__init__(self, "productType",
             desc="the Komodo product type",
             acceptedOptions=("", ["product-type="]))
-        self.knownValues = ["openkomodo", "snapdragon"]
+        self.knownValues = ["edit", "snapdragon", "openkomodo"]
 
     def _Determine_Sufficient(self):
         if self.value is None:
@@ -619,7 +619,7 @@ class ProductType(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = "openkomodo" # default
+        self.value = "edit" # default
         for opt, optarg in self.chosenOptions:
             if opt == "--product-type":
                 self.value = optarg
@@ -640,6 +640,7 @@ class PrettyProductType(black.configure.Datum):
         self.applicable = 1
         productType = black.configure.items["productType"].Get()
         self.value = {"openkomodo": "OpenKomodo",
+                      "edit": "Edit",
                       "snapdragon": "Snapdragon"}[productType]
         self.determined = 1
 
@@ -648,7 +649,6 @@ class ProductTagLine(black.configure.Datum):
         black.configure.Datum.__init__(self, "productTagLine",
             desc="the Komodo product tag line",
             acceptedOptions=("", ["product-tag-line="]))
-            
 
     def _Determine_Sufficient(self):
         if self.value is None:
@@ -657,7 +657,11 @@ class ProductTagLine(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = "The IDE for the Open Web"
+        productType = black.configure.items["productType"].Get()
+        self.value = {
+            "edit": "Free multi-platform editor that makes it easy to write quality code.",
+            "openkomodo": "The IDE for the Open Web",
+        }[productType]
         for opt, optarg in self.chosenOptions:
             if opt == "--product-tag-line":
                 self.value = optarg
