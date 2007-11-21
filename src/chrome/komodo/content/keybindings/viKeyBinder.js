@@ -821,6 +821,12 @@ VimController.prototype.findCharInLine = function(scimoz, charToFind,
                 pos -= 1;
             }
             if (pos >= 0) {
+                // When working with the yank, change and delete operations,
+                // we need to include the found character position. See:
+                // http://bugs.activestate.com/show_bug.cgi?id=67045#c9
+                if (this.operationFlags) {
+                    pos = scimoz.positionAfter(pos);
+                }
                 // Found it, lets move to it then
                 var newCurrentPos = nextPos + ko.stringutils.bytelength(text.substr(0, pos));
                 vimlog.debug("findCharInLine:: currentPos: " + currentPos + ", pos: " + pos +", newCurrentPos: "+newCurrentPos);
