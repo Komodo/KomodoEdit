@@ -66,6 +66,7 @@ log = logging.getLogger("run")
 class _NotifyOnTermination(threading.Thread):
     def __init__(self, process_, termListener, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
+        self.setDaemon(True)
         self._termListener = termListener
         self._process = process_
     def run(self):
@@ -1286,6 +1287,7 @@ exit $RETVAL""" % data)
                                      'command': command,
                                      'scriptFileName': scriptFileName,
                                      'inputFileName': inputFileName})
+        t.setDaemon(True)
         t.start()
 
     def RunAndCaptureOutput(self, command, cwd, env, input=None):
@@ -1378,6 +1380,7 @@ exit $RETVAL""" % data)
 
         t = threading.Thread(target=self._WaitAndNotify,
                              kwargs={'child': child, 'command': command})
+        t.setDaemon(True)
         t.start()
         return child
 
