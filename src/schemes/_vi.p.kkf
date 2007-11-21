@@ -36,8 +36,6 @@
 
 #VI key bindings for Komodo
 
-version 3
-
 # Movement commands
 binding cmd_vim_left  h
 binding cmd_vim_right  l
