@@ -546,9 +546,13 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
         // Remember the last mode
         this._lastMode = old_mode;
         this._movePosBefore = false;
-        // Set operation type back to none, find modes do not change it though.
-        if (new_mode != VimController.MODE_FIND_CHAR &&
-            new_mode != VimController.MODE_SEARCH) {
+        // Set operation type back to none, find modes do not change it though,
+        // on both going into and coming out of the find modes. Fixes:
+        // http://bugs.activestate.com/show_bug.cgi?id=67045
+        if ((new_mode != VimController.MODE_FIND_CHAR) &&
+            (new_mode != VimController.MODE_SEARCH) &&
+            (old_mode != VimController.MODE_FIND_CHAR) &&
+            (old_mode != VimController.MODE_SEARCH)) {
             this.operationFlags = VimController.OPERATION_NONE;
         }
         var scimoz = null;
