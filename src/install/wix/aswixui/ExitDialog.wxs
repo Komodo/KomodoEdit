@@ -12,11 +12,7 @@
           <Publish Event="DoAction" Value="OpenDocs">(NOT Installed) AND (OPENDOCS = 1)</Publish>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Disabled="yes" Text="Cancel" />
-<?if $(var.ProductType) = "edit" ?>
-        <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="141" Height="234" TabSkip="no" Text="WixUI_Bmp_Upsell_Dialog" />
-<?else ?>
         <Control Id="Bitmap" Type="Bitmap" X="0" Y="0" Width="141" Height="234" TabSkip="no" Text="WixUI_Bmp_Dialog" />
-<?endif ?>
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="&amp;Back" />
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="374" Height="0" />
         <Control Id="Description" Type="Text" X="155" Y="70" Width="205" Height="20" Transparent="yes" NoPrefix="yes">

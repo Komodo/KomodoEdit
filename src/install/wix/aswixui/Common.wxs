@@ -7,9 +7,6 @@
 
     <Binary Id="WixUI_Bmp_Banner" src="Bitmaps\bannrbmp.bmp" />
     <Binary Id="WixUI_Bmp_Dialog" src="Bitmaps\dlgbmp.$(var.ProductType).bmp" />
-<?if $(var.ProductType) = "edit" ?>
-    <Binary Id="WixUI_Bmp_Upsell_Dialog" src="Bitmaps\dlgbmp.upsell.bmp" />
-<?endif ?>
     <Binary Id="WixUI_Ico_Exclam" src="Bitmaps\exclamic.ico" />
     <Binary Id="WixUI_Ico_Info" src="Bitmaps\info.ico" />
     <Binary Id="WixUI_Bmp_New" src="Bitmaps\New.ico" />
