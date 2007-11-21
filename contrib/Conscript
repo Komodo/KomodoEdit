@@ -59,6 +59,7 @@ Import(
     'readmeDir',
     'universal',
     'komodoDevDir',
+    'withKomodoCix',
 );
 
 
@@ -414,30 +415,45 @@ $consLocal->Install("$supportDir/html", $exeName);
         "--chrome-dir", $mozChromeDir,
         "--miniset-dir", $readmeDir,
         "--license-text-path", "%2",
-        "--komodo-cix-path", "%3:a",
     );
+    if ($withKomodoCix) {
+        push @opts, ("--komodo-cix-path", "%3:a");
+    }
     my $opts = join ' ', @opts;
     my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
-    $cons->Command(
-        "komododoc/config.py",          # %0
-        "komododoc/configure.py",       # %1
-        "../license_text/LICENSE.mpl.txt",     # %2
-        $komodoCix,                     # %3
-        qq{
-            cd %1:d && $unsiloedPythonExe %1:f $opts
-        }
-    );
+    if ($withKomodoCix) {
+        $cons->Command(
+            "komododoc/config.py",          # %0
+            "komododoc/configure.py",       # %1
+            "../license_text/LICENSE.mpl.txt",     # %2
+            $komodoCix,                     # %3
+            qq{
+                cd %1:d && $unsiloedPythonExe %1:f $opts
+            }
+        );
+    } else {
+        $cons->Command(
+            "komododoc/config.py",          # %0
+            "komododoc/configure.py",       # %1
+            "../license_text/LICENSE.mpl.txt",     # %2
+            qq{
+                cd %1:d && $unsiloedPythonExe %1:f $opts
+            }
+        );
+    }
     
     $landmark = "$mozChromeDir/komododoc.manifest";  # just a landmark file for now
     $cons->Command(
         $landmark,
         "komododoc/Makefile.py",
         "komododoc/config.py",
-        $komodoCix,
         qq{
             cd %1:d && mk mozhelp
         }
     );
+    if ($withKomodoCix) {
+        $cons->Depends($landmark, $komodoCix);
+    }
     $cons->DependsRecursive($landmark, "komododoc",
                             ("build", '\.svn', '\.consign'));
 
