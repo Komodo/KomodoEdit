@@ -1686,7 +1686,7 @@ def UploadKomodoPackages(cfg, argv):
     ver_info = _ver_info_from_long_ver_str(version)
     short_ver = _short_ver_str_from_ver_info(ver_info)
     upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds",
-                       str(buildNum))
+                       "%s-%s" % (cfg.productType, buildNum))
 
     if not buildutils.remote_exists(upload_dir, log.debug):
         buildutils.remote_makedirs(upload_dir, log.info)
