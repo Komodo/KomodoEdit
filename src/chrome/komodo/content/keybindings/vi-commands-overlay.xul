@@ -89,6 +89,14 @@
             oncommand="vim_doCommand('cmd_vim_end')"
             desc="&editorViMoveToEndOfCurrentLine.desc;"/>
         <command
+            id="cmd_vim_scrollHalfPageUp" key="key_cmd_vim_scrollHalfPageUp"
+            oncommand="vim_doCommand('cmd_vim_scrollHalfPageUp')"
+            desc="&editorViScrollHalfPageUp.desc;"/>
+        <command
+            id="cmd_vim_scrollHalfPageDown" key="key_cmd_vim_scrollHalfPageDown"
+            oncommand="vim_doCommand('cmd_vim_scrollHalfPageDown')"
+            desc="&editorViScrollHalfPageDown.desc;"/>
+        <command
             id="cmd_vim_pageUp" key="key_cmd_vim_pageUp"
             oncommand="vim_doCommand('cmd_vim_pageUp')"
             desc="&editorViMoveOnePageUp.desc;"/>

@@ -67,6 +67,8 @@
 <!ENTITY editorViInsertNewlineStartingOnThePreviousLine.desc "Editor: Vi: Insert Newline (starting on the previous line)">
 <!ENTITY editorViJoinCurrentAndNextLines.desc "Editor: Vi: Join current and next lines">
 <!ENTITY editorViMoveLeftOneCharacter.desc "Editor: Vi: Move Left One Character">
+<!ENTITY editorViScrollHalfPageDown.desc "Editor: Vi: Scroll half a page downwards">
+<!ENTITY editorViScrollHalfPageUp.desc "Editor: Vi: Scroll half a page upwards">
 <!ENTITY editorViMoveOnePageDown.desc "Editor: Vi: Move one page down">
 <!ENTITY editorViMoveOnePageUp.desc "Editor: Vi: Move one page up">
 <!ENTITY editorViMoveOneWordLeft.desc "Editor: Vi: Move One Word Left">

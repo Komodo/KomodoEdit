@@ -36,11 +36,14 @@
 
 #VI key bindings for Komodo
 
+version 3
+
 # Movement commands
 binding cmd_vim_left  h
 binding cmd_vim_right  l
 binding cmd_vim_right  Space
 binding cmd_vim_linePrevious  k
+binding cmd_vim_linePrevious  Ctrl+P
 binding cmd_vim_lineNext  j
 binding cmd_vim_linePreviousHome  -
 binding cmd_vim_wordLeft  b
@@ -65,12 +68,12 @@ binding cmd_vim_moveFunctionPrevious [ [
 binding cmd_vim_moveFunctionNext     ] ]
 
 # Scrolling movements
-#binding cmd_vim_halfPageDown  Ctrl+D
-#binding cmd_vim_halfPageUp  Ctrl+U
+binding cmd_vim_scrollHalfPageDown  Ctrl+D
+binding cmd_vim_scrollHalfPageUp  Ctrl+U
 binding cmd_vim_pageDown  Ctrl+F
 binding cmd_vim_pageUp  Ctrl+B
 binding cmd_vim_gotoLine  G
-binding cmd_vim_lineScrollUp  Ctrl+P
+binding cmd_vim_lineScrollUp  Ctrl+Y
 binding cmd_vim_lineScrollDown  Ctrl+E
 
 # Select commands

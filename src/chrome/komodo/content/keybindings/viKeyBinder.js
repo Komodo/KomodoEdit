@@ -2153,6 +2153,8 @@ VimController.command_mappings = {
     "cmd_vim_home" :                [ "cmd_home",                   VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_homeAbsolute" :        [ "cmd_homeAbsolute",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_end"  :                [ "cmd_end",                    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_scrollHalfPageDown" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_scrollHalfPageUp" :    [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_pageDown" :            [ "cmd_pageDown",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_pageUp" :              [ "cmd_pageUp",                 VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordLeft" :            [ "cmd_wordLeft",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2802,6 +2804,20 @@ function cmd_vim_right(scimoz, allowWhichWrap /* true */) {
          gVimController.settings["whichwrap"].indexOf(">") >= 0)) {
         gVimController._currentPos = scimoz.positionAfter(gVimController._currentPos);
     }
+}
+
+function cmd_vim_scrollHalfPageDown(scimoz) {
+    var linesToScroll = (scimoz.linesOnScreen / 2);
+    scimoz.lineScroll(0, linesToScroll);
+    var lineNo = scimoz.docLineFromVisible(scimoz.firstVisibleLine + linesToScroll);
+    gVimController._currentPos = scimoz.positionFromLine(lineNo);
+}
+
+function cmd_vim_scrollHalfPageUp(scimoz) {
+    var linesToScroll = (scimoz.linesOnScreen / 2);
+    scimoz.lineScroll(0, -linesToScroll);
+    var lineNo = scimoz.docLineFromVisible(scimoz.firstVisibleLine + linesToScroll);
+    gVimController._currentPos = scimoz.positionFromLine(lineNo);
 }
 
 function cmd_vim_gotoLine(scimoz, lineNumber) {

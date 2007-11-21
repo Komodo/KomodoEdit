@@ -255,10 +255,11 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 3: Komodo 4.2.1 and above
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 2;
+const currentKeybindingVersionNumber = 3;
 
 /**
  * Remove this dictionary of keybinds.
@@ -445,6 +446,19 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         "cmd_SCCcommit":                   [ "Ctrl+K, c" ]
                     });
                 }
+                break;
+            case 2: // Handles upgrades from Komodo 4.2.0 to 4.2.1+
+                if (vi_enabled) {
+                    // Handle the specific vi keybinds
+                    // - scroll commands, bug 73301
+                    this._remove_keybinding_sequences({
+                        "cmd_vim_lineScrollUp":            [ "Ctrl+P" ]
+                    });
+                    this._add_keybinding_sequences({
+                        "cmd_vim_lineScrollUp":            [ "Ctrl+Y" ],
+                        "cmd_vim_scrollHalfPageUp":        [ "Ctrl+U" ],
+                        "cmd_vim_scrollHalfPageDown":      [ "Ctrl+D" ]
+                    });
                 break;
         }
         from_version += 1;
