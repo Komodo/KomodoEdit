@@ -459,6 +459,7 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         "cmd_vim_scrollHalfPageUp":        [ "Ctrl+U" ],
                         "cmd_vim_scrollHalfPageDown":      [ "Ctrl+D" ]
                     });
+                }
                 break;
         }
         from_version += 1;
