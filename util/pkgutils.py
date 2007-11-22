@@ -68,17 +68,17 @@ class KomodoReleasesGuru(object):
     pkg_prefix_from_project = {
         "komodoedit": "Komodo-Edit",
         "komodoide": "Komodo-IDE",
-        "openkomodo": "OpenKomodo",
+        "openkomodo": "OpenKomodo", # DEPRECATED
     }
     pkg_base_dir_from_project = {
         "komodoedit": "crimper:/home/apps/Komodo",
         "komodoide": "crimper:/home/apps/Komodo",
-        "openkomodo": "crimper:/home/apps/OpenKomodo",
+        "openkomodo": "crimper:/home/apps/OpenKomodo", # DEPRECATED
     }
     nightly_base_dir_from_project = {
-        "komodoedit": "crimper:/home/apps/Komodo/idownloads/komodoedit/nightly",
-        "komodoide": "crimper:/home/apps/Komodo/idownloads/komodoide/nightly",
-        "openkomodo": "box17:/data/download/openkomodo/nightly",
+        "komodoedit": "box17:/data/download/komodoedit/nightly",
+        "komodoide": "crimper:/home/apps/Komodo/fakey-downloads/komodoide/nightly",
+        "openkomodo": "box17:/data/download/openkomodo/nightly",  # DEPRECATED
     }
     
     def __init__(self, project, platname, full_ver):
