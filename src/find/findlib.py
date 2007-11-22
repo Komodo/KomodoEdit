@@ -44,8 +44,6 @@ Public Interface:
 See usage() below for information on the command line interface or
 just do this:
     python findlib.py --help
-
-See the test() doc string at the bottom for illustrative usage tests.
 """
 
 import os, sys, re
@@ -508,7 +506,6 @@ def usage():
 
     Options:
         -v, --verbose       verbose output
-        --test              run the self-test
 
         --simple, --wildcard, --regex-python
                             search token type (default is "simple")
@@ -531,7 +528,7 @@ def main(argv):
     import getopt
     try:
         optlist, args = getopt.getopt(argv[1:], 'hvw',\
-            ['help', 'verbose', 'test',
+            ['help', 'verbose',
              'simple', 'wildcard', 'regex-python',
              'word',
              'case=', 'backward', 'offset=' ])
@@ -548,8 +545,6 @@ def main(argv):
         elif opt in ('-h', '--help'):
             usage()
             return 0
-        elif opt == "--test":
-            return test()
         elif opt in ("--simple", "--wildcard", "--regex-python"):
             if options.has_key("patternType"):
                 out.write("Can only specify one of --simple, --wildcard, "\
@@ -615,177 +610,6 @@ def main(argv):
             print "%s: %s" % (filename, result)
 
     return 0
-
-
-def test():
-    r"""
-    Simple usage of 'find' and 'findall':
-
-        >>> import findlib
-        >>> result = findlib.find("hello there", "he")
-        >>> print result
-        0-2: found 'he'
-        >>> results = findlib.findall("hello there", "he")
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'he'
-        7-9: found 'he'
-        >>>
-
-    Simple usage of 'replace' and 'replaceall':
-
-        >>> result = findlib.replace("Hello there", "he", "foo")
-        >>> print result
-        0-2: replace 'He' with 'foo'
-        >>> results = findlib.replaceall("Hello there", "he", "foo")
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: replace 'He' with 'foo'
-        7-9: replace 'he' with 'foo'
-        >>>
-
-    Specify a starting offset:
-
-        >>> import findlib
-        >>> result = findlib.find("Hello there", "he", 4)
-        >>> print result
-        7-9: found 'he'
-        >>>
-
-    Using some options (case-sensitivity):
-
-        >>> import findlib
-        >>> options = {}
-        >>> options["case"] = "sensitive"
-        >>> results = findlib.findall("Hello there", "he", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        7-9: found 'he'
-        >>>
-        >>> options["case"] = "insensitive"
-        >>> results = findlib.findall("Hello there", "he", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'He'
-        7-9: found 'he'
-        >>> options["case"] = "smart"
-        >>> results = findlib.findall("Hello there", "he", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'He'
-        7-9: found 'he'
-        >>> results = findlib.findall("Hello there", "He", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'He'
-        >>>
-
-    Using some options (wildcard and regex-python searches):
-
-        >>> import findlib
-        >>> options = {}
-        >>> options["patternType"] = "simple"
-        >>> results = findlib.findall("fe fi fo fum", "f", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-1: found 'f'
-        3-4: found 'f'
-        6-7: found 'f'
-        9-10: found 'f'
-        >>> options["patternType"] = "wildcard"
-        >>> results = findlib.findall("fe fi fo fum", "f?", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'fe'
-        3-5: found 'fi'
-        6-8: found 'fo'
-        9-11: found 'fu'
-        >>> options["matchWord"] = 1
-        >>> results = findlib.findall("fe fi fo fum", "f?", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'fe'
-        3-5: found 'fi'
-        6-8: found 'fo'
-        >>> options["patternType"] = "regex-python"
-        >>> options["matchWord"] = 0
-        >>> results = findlib.findall("fe fi fo fum", "f[eu]m?", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'fe'
-        9-12: found 'fum'
-
-    Searching backwards:
-
-        >>> import findlib
-        >>> options = {}
-        >>> options["patternType"] = "wildcard"
-        >>> options["searchBackward"] = 0
-        >>> results = findlib.findall("fe fi fo fum", "f?", **options)
-        >>> for result in results:
-        ...     print result
-        ...
-        0-2: found 'fe'
-        3-5: found 'fi'
-        6-8: found 'fo'
-        9-11: found 'fu'
-        >>> options["searchBackward"] = 1
-        >>> result = findlib.find("fe fi fo fum", "f?", 11, **options)
-        >>> print result
-        9-11: found 'fu'
-
-    Finding and replacing with \ characters:
-    (http://bugs.activestate.com/show_bug.cgi?id=19447)
-
-        >>> import findlib
-        >>> results = findlib.findall('quoted \\"string\\" here', '\\')
-        >>> for result in results:
-        ...     print result
-        ...
-        7-8: found '\'
-        15-16: found '\'
-
-        >>> print findlib.find('quoted \\"string\\" here', '\\')
-        7-8: found '\'
-
-        >>> print findlib.replace('quoted \\"string\\" here', '\\', '')
-        7-8: replace '\' with ''
-
-        >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', 'a')
-        7-9: replace '\\' with 'a'
-
-        >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', '\\')
-        7-9: replace '\\' with '\'
-
-        >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', '\\\\a\\')
-        7-9: replace '\\' with '\a\'
-
-        >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', '\\\\\\')
-        7-9: replace '\\' with '\\\'
-
-        >>> print findlib.replace('quoted "string" here', '(str)ing', '\\1', patternType="regex-python")
-        8-14: replace 'string' with 'str'
-
-        >>> print findlib.replace('quoted "string" here', '(str)ing', '\\g<1>', patternType="regex-python")
-        8-14: replace 'string' with 'str'
-
-        >>> print findlib.replace('quoted "string" here', '(?P<var>str)ing', '\\g<var>', patternType="regex-python")
-        8-14: replace 'string' with 'str'
-
-    XXX find, replace, and replaceall in all of the above
-    """
-    import doctest, findlib
-    return doctest.testmod(findlib)
 
 
 if __name__ == "__main__":
