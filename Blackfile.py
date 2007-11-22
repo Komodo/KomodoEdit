@@ -1688,8 +1688,6 @@ def UploadKomodoPackages(cfg, argv):
     upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds",
                        "%s-%s" % (cfg.productType, buildNum))
 
-    if not buildutils.remote_exists(upload_dir, log.debug):
-        buildutils.remote_makedirs(upload_dir, log.info)
     for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
         reldir = _relpath(dirpath, cfg.packagesRelDir)
         for filename in filenames:
@@ -1697,8 +1695,8 @@ def UploadKomodoPackages(cfg, argv):
                 continue
             src = join(dirpath, filename)
             dst = unormpath(ujoin(upload_dir, reldir, filename))
-            if not buildutils.remote_exists(dst, log.debug):
-                buildutils.remote_makedirs(udirname(dst), log.info)
+            buildutils.remote_mkdir(udirname(dst), parents=True,
+                                    log=log.info)
             buildutils.remote_cp(src, dst, log.info)
 
 
