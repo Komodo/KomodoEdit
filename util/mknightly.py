@@ -46,12 +46,11 @@ By default this will grab the latest dev build of Komodo and plop
 it properly into the nightly downloads area.
 
 Supported project names:
-    openkomodo
     komodoide
     komodoedit
 """
 
-__version_info__ = (0, 1, 0)
+__version_info__ = (0, 2, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
     
@@ -84,23 +83,38 @@ log = logging.getLogger("mknightly")
 #TODO: get from or keep in sync with pkgutils.py
 #      `KomodoReleasesGuru.nightly_base_dir_from_project`.
 upload_base_dir_from_project = {
-    "komodoedit": "crimper:/home/apps/Komodo/idownloads",
-    "komodoide": "crimper:/home/apps/Komodo/idownloads",
-    "openkomodo": "box17:/data/download/",
+    "komodoedit": "box17:/data/download/",
+    "komodoide": "crimper:/home/apps/Komodo/fakey-downloads",
 }
 pkg_pats_from_project = {
     "komodoedit": ["Komodo-Edit-*"],
     "komodoide": ["Komodo-IDE-*"],
-    "openkomodo": ["OpenKomodo-*"],
+}
+
+devbuilds_base_dir_from_project = {
+    "komodoide": "crimper:/home/apps/Komodo",
+    "komodoedit": "crimper:/home/apps/Komodo",
+}
+scc_repo_name_from_project = {
+    "komodoide": "assvn",  # ActiveState SVN
+    "komodoedit": "oksvn", # svn.openkomodo.com
 }
 
 
 
 #---- module API
 
-def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
+def mknightly(project, branch="trunk", upload_base_dir=None,
+              dry_run=True, can_link=False):
     """Make the latest Komodo IDE/Edit devbuild a nightly.
     
+    @param project {str} is the name for the project for which to
+        make a nightly.
+    @param branch {str} is the source tree branch whose builds to use
+        (is "trunk" be default).
+    @param upload_base_dir {str} an override for the default hardcoded
+        base dir for the given project name.
+    @param dry_run {boolean} can be used to just go through the motions.
     @param can_link {boolean} indicates if hard-linking files is allowed
         if the devbuilds dir and downloads dir are on the same server.
     """
@@ -113,7 +127,7 @@ def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
     assert buildutils.is_remote_path(upload_base_dir)
 
     # Get the source packages dir.
-    devbuilds_dir = _get_devbuilds_dir(project)
+    devbuilds_dir = _get_devbuilds_dir(project, branch)
     log.info("mknightly %s %s", devbuilds_dir, upload_base_dir)
 
     # Sanity guard: the project dir on the upload site must exist
@@ -125,7 +139,6 @@ def mknightly(project, upload_base_dir=None, dry_run=True, can_link=False):
 
     # Figure out what serial number to use (to avoid collisions
     # for multiple builds for same day).
-    branch = "trunk"  #TODO: argument for this
     year, month, day = time.localtime()[:3]
     upload_dir_pat = join(upload_base_dir, str(year), str(month),
         "%04d-%02d-%02d-*-%s" % (year, month, day, branch))
@@ -241,14 +254,10 @@ def _upload(src_dir, dst_dir, includes=None, excludes=[],
                 buildutils.remote_cp(src, dst, log.debug,
                                      hard_link_if_can=can_link)
 
-def _get_devbuilds_dir(project, ver=None, build_num=None):
+def _get_devbuilds_dir(project, branch, ver=None, build_num=None):
     from posixpath import join, basename
     
-    base_dir = {
-        "openkomodo": "crimper:/home/apps/OpenKomodo",
-        "komodoide": "crimper:/home/apps/Komodo",
-        "komodoedit": "crimper:/home/apps/Komodo",
-    }[project]
+    base_dir = devbuilds_base_dir_from_project[project]
         
     # Find the appropriate version dir.
     if ver:
@@ -267,22 +276,33 @@ def _get_devbuilds_dir(project, ver=None, build_num=None):
         ver_dir = vers[-1][1]
     
     # Find the appropriate build dir.
+    # Individual build dirs are of the form: SCCNAME-BRANCH-BUILDNUM
+    scc_repo_name = scc_repo_name_from_project[project]
     if build_num:
-        build_dir = join(ver_dir, "DevBuilds", build_num)
+        build_dir = join(ver_dir, "DevBuilds",
+                         "%s-%s-%s" % (scc_repo_name, branch, build_num))
         assert buildutils.remote_exists(ver_dir), \
             "'%s' does not exist" % ver_dir
     else:
-        build_nums = []
-        for d in buildutils.remote_glob(join(ver_dir, "DevBuilds", "*")):
+        builds = []
+        pat = join(ver_dir, "DevBuilds", "%s-%s-*" % (scc_repo_name, branch))
+        for d in buildutils.remote_glob(pat):
             try:
-                build_nums.append( (int(basename(d)), d) )
+                build_num = int(basename(d).split('-')[2])
             except ValueError:
                 pass
-        assert build_nums, "no devbuilds in '%s'" % ver_dir
-        build_nums.sort()
-        build_dir = build_nums[-1][1]
+            else:
+                builds.append( (build_num, d) )
+        assert builds, "no devbuilds matching '%s'" % pat
+        builds.sort()
+        build_dir = builds[-1][1]
     return build_dir
-    
+
+def _intify(s):
+    try:
+        return int(s)
+    except ValueError:
+        return s
     
 # Recipe: ver (1.0.1)
 def _split_full_ver(ver_str):
@@ -489,7 +509,7 @@ def _setup_logging(stream=None):
 def main(argv):
     usage = "usage: %prog [OPTIONS...] [PROJECTS]"
     version = "%prog "+__version__
-    parser = optparse.OptionParser(prog="mknightly", usage=usage,
+    parser = optparse.OptionParser(usage=usage,
         version=version, description=__doc__,
         formatter=_NoReflowFormatter())
     parser.add_option("-v", "--verbose", dest="log_level",
@@ -500,7 +520,10 @@ def main(argv):
                       help="quieter output")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="do a dry-run")
-    parser.set_defaults(log_level=logging.INFO, dry_run=False)
+    parser.add_option("-b", "--branch",
+        help="Komodo source tree branch builds to use (default is 'trunk')")
+    parser.set_defaults(log_level=logging.INFO, dry_run=False,
+                        branch="trunk")
     opts, projects = parser.parse_args()
     log.setLevel(opts.log_level)
 
@@ -508,7 +531,8 @@ def main(argv):
         log.info("You probably want to specify some projects. "
                  "(See `mknightly -h'.)")
     for project in projects:
-        mknightly(project, dry_run=opts.dry_run, can_link=True)
+        mknightly(project, branch=opts.branch, dry_run=opts.dry_run,
+                  can_link=True)
 
 
 if __name__ == "__main__":
