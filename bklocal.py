@@ -2447,6 +2447,42 @@ class SourceId(black.configure.Datum):
         self.determined = 1
 
 
+class SCCBranch(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "sccBranch",
+            desc="the SCC branch this source tree is on")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(
+                "Could not determine %s." % self.desc)
+
+    def _get_repo_url(self, dir):
+        stdout = _capture_stdout(['svn', 'info', dir])
+        for line in stdout.splitlines(0):
+            if line.startswith("URL:"):
+                return line.split(':', 1)[1].strip()
+
+    def _Determine_Do(self):
+        from posixpath import basename as ubasename
+        self.applicable = 1
+        repo_url = self._get_repo_url(dirname(__file__))
+        self.value = ubasename(repo_url)
+        self.determined = 1
+
+
+class NormSCCBranch(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "normSCCBranch",
+            desc="normalized version of SCC branch for use in upload dirs")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        sccBranch = black.configure.items["sccBranch"].Get()
+        self.value = re.sub(r'[^\w]', '_', sccBranch).lower()
+        self.determined = 1
+
+
 class VersionInfoFile(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "versionInfoFile",

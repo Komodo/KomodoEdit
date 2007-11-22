@@ -731,14 +731,17 @@ configuration = {
     "libcppVersion": LibCPPVersion(),
     "glibcVersion": GLibCVersion(),
 
-    # Komodo version configuration vars.
+    # Komodo build/version configuration vars.
+    "sourceId": SourceId(),                                         #   e.g., 1234M
+    "sccRepoName": "oksvn",                 # openkomodo.com SVN repo
+    "sccBranch": SCCBranch(),               # e.g.: "trunk"
+    "normSCCBranch": NormSCCBranch(),       # Normalized version.
     # - base variables:                                             # Example:
     "komodoVersion": KomodoVersion(),                               #   3.10.0-alpha1
     "productType": ProductType(),                                   #   ide
     "prettyProductType": PrettyProductType(),                       #   IDE
     "productTagLine": ProductTagLine(),                             #   The professional IDE for dynamic languages
     "buildNum": BuildNum(),                                         #   123456
-    "sourceId": SourceId(),                                         #   e.g., 1234M
     # - derived from base variables:
     "komodoShortVersion": KomodoShortVersion(),                     #   3.10
     "komodoMarketingVersion": KomodoMarketingVersion(),             #   3.X-alpha1  (dropping '0' here for effect)
@@ -1685,8 +1688,8 @@ def UploadKomodoPackages(cfg, argv):
 
     ver_info = _ver_info_from_long_ver_str(version)
     short_ver = _short_ver_str_from_ver_info(ver_info)
-    upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds",
-                       "%s-%s" % (cfg.productType, buildNum))
+    d = "%s-%s-%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum)    
+    upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds", d)
 
     for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
         reldir = _relpath(dirpath, cfg.packagesRelDir)
