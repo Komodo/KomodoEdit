@@ -341,8 +341,7 @@ def relpath(path, relto=None):
 
 #---- remote file utilities
 
-
-# Recipe: remote (0.7.2)
+# Recipe: remote (0.7.4)
 _remote_path_re = re.compile("(\w+@)?\w+:/(?!/)")
 def is_remote_path(rpath):
     return _remote_path_re.search(rpath) is not None
@@ -360,14 +359,17 @@ def remote_exists(rpath, log=None):
     status = capture_status(argv)
     return status == 0
 
-def remote_mkdir(rpath, log=None):
+def remote_mkdir(rpath, parents=False, log=None):
     login, path = rpath.split(':', 1)
+    opts = ""
+    if parents:
+        opts = " -p"
     if sys.platform == "win32":
         if '@' not in login:
             login = "%s@%s" % (getpass.getuser(), login)
-        cmd = "plink -batch %s mkdir %s" % (login, path)
+        cmd = "plink -batch %s mkdir%s %s" % (login, opts, path)
     else:
-        cmd = "ssh -o BatchMode=yes %s mkdir %s" % (login, path)
+        cmd = "ssh -o BatchMode=yes %s mkdir%s %s" % (login, opts, path)
     if log:
         log(cmd)
     status = run(cmd)
@@ -616,6 +618,7 @@ def capture_status(argv):
     output = p.stdout.read()
     retval = p.wait()
     return retval
+
 
 
 #---- version string manipulation unexpected
