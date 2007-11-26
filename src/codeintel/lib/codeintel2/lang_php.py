@@ -2576,6 +2576,9 @@ class PHPParser:
         #log.debug("text: %r", text)
 
         if self.state == S_GET_HEREDOC_MARKER:
+            if not text.strip():
+                log.debug("Ignoring whitespace after <<<: %r", text)
+                return
             self.heredocMarker = text
             log.debug("getting heredoc marker: %r, now in heredoc state", text)
             self._resetState(S_IN_HEREDOC)
