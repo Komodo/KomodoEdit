@@ -156,8 +156,16 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     if (npwindow) {
 #ifdef GTK2
 #ifdef GTK2_XEMBED
+
+// 64 bit machines use different sized pointers. Split call into appropriate
+// architectures. This fixes build breakage on Komodo 64 bit SciMoz builds.
+// #if ARCHITECTURE == 'x86_64'
+	fPlatform.moz_box = gtk_plug_new((gulong)npwindow->window);
+// #else
 	fPlatform.moz_box = gtk_plug_new((guint)npwindow->window);
-#else
+// #endif
+
+#else /* !GTK2_XEMBED */
 	fPlatform.moz_box = gtk_plug_new(0);
 #endif
 	wMain = fPlatform.moz_box;

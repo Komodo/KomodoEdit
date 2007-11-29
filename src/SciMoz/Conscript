@@ -398,6 +398,11 @@ else {
     $consLocal = new cons(%consLocal);
     $consLocal->Depends($pluginName, "$scintillaBuildDir/bin/scintilla.a");
 
+    my %ppData = (
+        'ARCHITECTURE' => "$architecture",
+    );
+    $cons->Preprocess('nsSciMozGtk.p.cxx', 'nsSciMozGtk.cxx', \%ppData);
+
     #XXX have to add licensing code here as well.
     $consLocal->Program($pluginName,
         "plugin.cxx",
