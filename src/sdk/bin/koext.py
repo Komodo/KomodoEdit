@@ -286,12 +286,15 @@ class KoExtShell(cmdln.Cmdln):
                                         #   "*-mainlex.udl" files
 
             XML catalogs
-                An extension can include an XML catalog (and associates
-                schemas) defining namespace to schema mappings for XML
-                autocomplete.
+                An extension can include an XML catalog (and associated
+                schemas -- DTDs, XML Schemas, Relax NG) defining
+                namespace to schema mappings for XML autocomplete.
                 
                 source files:
-                    catalog.xml         # Note: This may move to xmlcatalogs/...
+                    xmlcatalogs/
+                        catalog.xml
+                        *.dtd
+                        *.rng
 
             API catalogs
                 An extension can include API catalogs to provide autocomplete
