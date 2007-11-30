@@ -200,12 +200,13 @@ class koScintillaController:
             # Hmm -- I think I'll leave the cursor at the beginning of the copied line for now.
             oldCurrentPos = sm.currentPos
             lineStart = sm.lineFromPosition(sm.currentPos)
+            nextLineStartPos = self._getNextLineWithExtraNewline(sm, lineStart)
             sm.selectionStart = sm.positionFromLine(lineStart)
-            sm.selectionEnd = sm.positionFromLine(lineStart+1)
+            sm.selectionEnd = nextLineStartPos
             sm.copy()
             sm.sendUpdateCommands("select")
             sm.sendUpdateCommands("clipboard")
-            sm.currentPos = sm.selectionEnd = sm.selectionStart
+            sm.currentPos = sm.selectionStart = sm.selectionEnd
             sm.chooseCaretX()
             self._lastcutposition = None 
         elif command_name == 'cmd_cut':
@@ -223,8 +224,8 @@ class koScintillaController:
             # We're cutting a line -- either the first, or possibly a subsequent one
             lineNo = sm.lineFromPosition(sm.currentPos)
             lineStart = sm.positionFromLine(lineNo)
-            lineEnd = min(sm.positionFromLine(lineNo+1), sm.textLength)
-            self._doSmartCut(lineStart, lineEnd)
+            nextLineStartPos = self._getNextLineWithExtraNewline(sm, lineNo)
+            self._doSmartCut(lineStart, nextLineStartPos)
             return
         methname= '_do_'+command_name
         attr = getattr(self, methname, None)
@@ -248,6 +249,16 @@ class koScintillaController:
         if old_sel_exists != new_sel_exists:
             sm.sendUpdateCommands("select")
 
+    def _getNextLineWithExtraNewline(self, sm, lineStart):
+        nextLineStartPos = sm.positionFromLine(lineStart + 1)
+        if sm.getLineEndPosition(lineStart) == nextLineStartPos:
+            # Append a newline
+            import eollib
+            eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+            sm.insertText(sm.length, eol)
+            nextLineStartPos += len(eol)
+        return nextLineStartPos
+        
     def _doSmartCut(self, start, end):
         sm = self.scimoz()
         sm.targetStart = start
