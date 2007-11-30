@@ -538,19 +538,19 @@ def build_ext(base_dir, log=None):
     if exists(lexers_dir):
         xpi_manifest.append(lexers_dir)
 
-    # Handle XML catalogs and schemas.
-    # Note: eventually Komodo should change to look for these under an
-    # "xmlcatalogs" dir in the installed extension, but for now it looks
-    # in the top-level extension dir. *However*, "koext build" looks
-    # in the "xmlcatalogs" *source* dir.
+    # Remaining hook dirs that are just included verbatim in the XPI.
+    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib"):
+        if isdir(dname):
+            xpi_manifest.append(dname)
+
+    # Handle XML catalogs (**for compatibility with Komodo <=4.2.1**)
+    # Komodo version <=4.2.1 only looked for 'catalog.xml' files for
+    # XML autocomplete in the *top-level* of extension dirs. In Komodo
+    # versions >=4.2.2 this has moved to 'xmlcatalogs/catalog.xml'
+    # (although for a transition period Komodo looks in both areas).
     if isdir("xmlcatalogs"):
         for path in glob(join("xmlcatalogs", "*")):
             xpi_manifest.append(path)
-
-    # Remaining hook dirs that are just included verbatim in the XPI.
-    for dname in ("templates", "apicatalogs", "pylib"):
-        if isdir(dname):
-            xpi_manifest.append(dname)
 
     # Make the xpi.
     #pprint(xpi_manifest)
