@@ -721,6 +721,10 @@ function _UiForFindServiceError(op /* = "find" */)
     alert(msg);
 }
 
+var _Find_charsToEscape_re = /([\\\'])/g;
+function _Find_RegexEscapeString(original) {
+    return original.replace(_Find_charsToEscape_re, '\\$1');
+}
 
 
 //---- public functions
@@ -948,7 +952,7 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_FindNextInMacro(window, " +
                                     context.type + ", '" +
-                                    pattern.replace('\'', '\\\'', 'g') + "', " +
+                                    _Find_RegexEscapeString(pattern) + "', " +
                                     findSvc.options.patternType + ", " +
                                     findSvc.options.caseSensitivity + ", " +
                                     findSvc.options.searchBackward + ", " +
@@ -1003,7 +1007,7 @@ function Find_FindAll(editor, context, pattern, patternAlias)
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_FindAllInMacro(window, " +
                                     context.type + ", '" +
-                                    pattern.replace('\'', '\\\'', 'g') + "', " +
+                                    _Find_RegexEscapeString(pattern) + "', " +
                                     findSvc.options.patternType + ", " +
                                     findSvc.options.caseSensitivity + ", " +
                                     findSvc.options.searchBackward + ", " +
@@ -1091,7 +1095,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias)
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_MarkAllInMacro(window, " +
                                     context.type + ", '" +
-                                    pattern.replace('\'', '\\\'', 'g') + "', " +
+                                    _Find_RegexEscapeString(pattern) + "', " +
                                     findSvc.options.patternType + ", " +
                                     findSvc.options.caseSensitivity + ", " +
                                     findSvc.options.searchBackward + ", " +
@@ -1162,8 +1166,8 @@ function Find_Replace(editor, context, pattern, replacement)
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_ReplaceInMacro(window, " +
                                     context.type + ", '" +
-                                    pattern.replace('\'', '\\\'', 'g') + "', '" +
-                                    replacement.replace('\'', '\\\'', 'g') + "', " +
+                                    _Find_RegexEscapeString(pattern) + "', '" +
+                                    _Find_RegexEscapeString(replacement) + "', " +
                                     findSvc.options.patternType + ", " +
                                     findSvc.options.caseSensitivity + ", " +
                                     findSvc.options.searchBackward + ", " +
@@ -1234,8 +1238,8 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_ReplaceAllInMacro(window, " +
                                     context.type + ", '" +
-                                    pattern.replace('\'', '\\\'', 'g') + "', '" +
-                                    replacement.replace('\'', '\\\'', 'g') + "', " +
+                                    _Find_RegexEscapeString(pattern) + "', '" +
+                                    _Find_RegexEscapeString(replacement) + "', " +
                                     showReplaceResults + ", " +
                                     findSvc.options.patternType + ", " +
                                     findSvc.options.caseSensitivity + ", " +
