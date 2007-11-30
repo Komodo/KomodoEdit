@@ -207,12 +207,10 @@
             </xul:hbox>
             <xul:listbox
                 flex="1"
-                style="min-height: 80px"
                 seltype="multiple"
-                rows="4"
                 type="editable"
                 onclick="this.parentNode.updateButtons()"
-                xbl:inherits="flex,seltype,rows,style">
+                xbl:inherits="seltype,rows">
                 <children/>
             </xul:listbox>
         </content>
@@ -247,13 +245,8 @@
                 <![CDATA[
                 try {
                     var listbox = document.getAnonymousNodes(this)[1];
-                    var rowcount = listbox.getRowCount();
-                    if (rowcount) {
-                        for (var i = 0; i < rowcount; i++) {
-                            var item = listbox.getItemAtIndex(i);
-                            item.setAttribute('type', 'editable');
-                        }
-                        listbox.selectAll();
+                    if (listbox.getRowCount()) {
+                        listbox.selectItem(listbox.getItemAtIndex(0));
                     }
                     this.updateButtons();
                 } catch (e) {
