@@ -72,9 +72,12 @@ class XBLBuffer(UDLBuffer, XMLParsingBufferMixin):
     cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
 
 
-#class XBLCILEDriver(UDLCILEDriver):
-#    lang = lang
-#    csl_lang = "JavaScript"
+# This gives global window completions but does not produce cile
+# information, so completions for local variables and functions will
+# not work.
+class XBLCILEDriver(UDLCILEDriver):
+    lang = lang
+    csl_lang = "JavaScript"
 
 
 
@@ -86,6 +89,6 @@ def register(mgr):
                       silvercity_lexer=XBLLexer(),
                       buf_class=XBLBuffer,
                       import_handler_class=None,
-                      cile_driver_class=None,
+                      cile_driver_class=XBLCILEDriver,
                       is_cpln_lang=True)
 
