@@ -156,7 +156,15 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     if (npwindow) {
 #ifdef GTK2
 #ifdef GTK2_XEMBED
+
+// We use both __LP64__ and _LP64 because some platforms define both, others
+// only may only define one or the other...
+#if defined(__LP64__) || defined(_LP64)
+	fPlatform.moz_box = gtk_plug_new((gulong)npwindow->window);
+#else
 	fPlatform.moz_box = gtk_plug_new((guint)npwindow->window);
+#endif
+
 #else /* !GTK2_XEMBED */
 	fPlatform.moz_box = gtk_plug_new(0);
 #endif
