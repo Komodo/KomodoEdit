@@ -153,21 +153,20 @@ function OnPreferencePageLoading(prefset) {
         gDialog.currentEncoding = 'default';
         updateEncodingPopup();
         setupSchemes();
-        updateLanguage();
-        updateFromScheme();
-        initFonts();
-        updateEncodingReset();
         
         var tb = _getTabbox();
         var p = "prefs.fontsColorsLanguages.whichTab";
         if (prefset.hasLongPref(p)) {
             tb.selectedIndex = prefset.getLongPref(p);
         }
-        var languageList = document.getElementById("languageList");
         p = "prefs.fontsColorsLanguages.langSpecific.lang";
         if (prefset.hasStringPref(p)) {
-            languageList.selection = prefset.getStringPref(p);
+            gDialog.languageList.selection = prefset.getStringPref(p);
         }
+        changeLanguage();
+        updateFromScheme();
+        initFonts();
+        updateEncodingReset();
     } catch (e) {
         log.error(e);
     }
