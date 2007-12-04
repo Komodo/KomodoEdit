@@ -1039,7 +1039,7 @@ class KoLanguageBase:
                         for aLine in [lineNo, indentedLineNo]]
                 # each entry in ws_info consists of a (raw, indent length, foundTabs bool) tuple
                 guess = ws_info[1][1] - ws_info[0][1]
-                foundTabs = ws_info[0][2] or ws_info[0][1]
+                foundTabs = ws_info[0][2] or ws_info[1][2]
                 # If the guess is reasonable, use it -- indents less than
                 # 2 don't qualify.
                 if guess >= minIndentLevel:
