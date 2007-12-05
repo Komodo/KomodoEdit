@@ -249,7 +249,7 @@ protected:
 
 #ifdef XP_MACOSX
 	void SetHIViewShowHide(bool disabled);
-	static void NotifySignal(sptr_t *ThisPtr, long param);
+	static void NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 	Scintilla::ScintillaMacOSX *scintilla;
 #endif
 #ifdef XP_PC

@@ -130,10 +130,17 @@ extern "C" {
 extern HIViewRef scintilla_new(void);
 }
 
-typedef void (*SciNotifyFunc)(sptr_t *, long);
-void SciMoz::NotifySignal(sptr_t *ptr, long param) {
-	SciMoz *s = reinterpret_cast<SciMoz *>(ptr);
-	s->Notify(param);
+void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam) {
+	switch (iMessage) {
+	case WM_NOTIFY:
+		SciMoz *s = reinterpret_cast<SciMoz *>(windowid);
+		s->Notify(lParam);
+		break;
+	case WM_COMMAND:
+		// wParam >> 16 == SCEN_SETFOCUS | SCEN_KILLFOCUS
+		// wParam >> 16 == SCEN_CHANGE
+		break;
+	}
 }
 
 void SciMoz::PlatformNew(void) {
@@ -152,13 +159,7 @@ void SciMoz::PlatformNew(void) {
 	SendEditor(SCI_SETFOCUS, FALSE, 0);
 	
 	// setup the hooks that are necessary to receive notifications from scintilla
-	SciMoz* objectPtr = this;
-	SciNotifyFunc fn = SciMoz::NotifySignal;
-	
-	err = SetControlProperty( wEditor, scintillaNotifyObject, 0, sizeof( this ), &objectPtr );
-	assert( err == noErr );
-	err = SetControlProperty( wEditor, scintillaNotifyFN, 0, sizeof( void * ), &fn );
-	assert( err == noErr );
+	scintilla->registerNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
 
 	Create(wEditor);
 }
@@ -407,7 +408,7 @@ NS_IMETHODIMP SciMoz::EndDrop()
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
-	*_ret = scintilla->inDragSession;
+	*_ret = scintilla->inDragSession();
 	return NS_OK;
 }
 
