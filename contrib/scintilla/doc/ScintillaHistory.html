@@ -322,6 +322,147 @@
       </li>
     </ul>
     <h3>
+       <a href="http://prdownloads.sourceforge.net/scintilla/scite175.zip?download">Release 1.75</a>
+    </h3>
+    <ul>
+	<li>
+	Released on 22 November 2007.
+	</li>
+	<li>
+	Some WordList and PropSet functionality moved from Scintilla to SciTE.
+	Projects that link to Scintilla's code for these classes may need to copy
+	code from SciTE.
+	</li>
+	<li>
+	Borland C++ can no longer build Scintilla.
+	</li>
+	<li>
+	Invalid bytes in UTF-8 mode are displayed as hex blobs. This also prevents crashes due to
+	passing invalid UTF-8 to platform calls.
+	</li>
+	<li>
+	Indentation guides enhanced to be visible on completely empty lines when possible.
+	</li>
+	<li>
+	The horizontal scroll bar may grow to match the widest line displayed.
+	</li>
+	<li>
+	Allow autocomplete popups to appear outside client rectangle in some cases.
+	</li>
+	<li>
+	When line state changed, SC_MOD_CHANGELINESTATE modification notification sent and
+	margin redrawn.
+	</li>
+	<li>
+	SciTE scripts can access the menu command values IDM_*.
+	</li>
+	<li>
+	SciTE's statement.end property has been implemented again.
+	</li>
+	<li>
+	SciTE shows paths and matches in different styles for Find In Files.
+	</li>
+	<li>
+	Incremental search in SciTE for Windows is modeless to make it easier to exit.
+	</li>
+	<li>
+	Folding performance improved.
+	</li>
+	<li>
+	SciTE for GTK+ now includes a Browse button in the Find In Files dialog.
+	</li>
+	<li>
+	On Windows versions that support Unicode well, Scintilla is a wide character window
+	which allows input for some less common languages like Armenian, Devanagari,
+	Tamil, and Georgian. To fully benefit, applications should use wide character calls.
+	</li>
+	<li>
+	Lua function names are exported from SciTE to allow some extension libraries to work.
+	</li>
+	<li>
+	Lexers added for Abaqus, Ansys APDL, Asymptote, and R.
+	</li>
+	<li>
+	SCI_DELWORDRIGHTEND added for closer compatibility with GTK+ entry widget.
+	</li>
+	<li>
+	The styling buffer may now use all 8 bits in each byte for lexical states with 0 bits for indicators.
+	</li>
+	<li>
+	Multiple characters may be set for SciTE's calltip.&lt;lexer&gt;.parameters.start property.
+	</li>
+	<li>
+	Bash lexer handles octal literals.
+	</li>
+	<li>
+	C++/JavaScript lexer recognises regex literals in more situations.
+	</li>
+	<li>
+	Haskell lexer fixed for quoted strings.
+	</li>
+	<li>
+	HTML/XML lexer does not notice XML indicator if there is
+	non-whitespace between the "&lt;?" and "XML".
+	ASP problem fixed where &lt;/ is used inside a comment.
+	</li>
+	<li>
+	Error messages from Lua 5.1 are recognised.
+	</li>
+	<li>
+	Folding implemented for Metapost.
+	</li>
+	<li>
+	Perl lexer enhanced for handling minus-prefixed barewords,
+	underscores in numeric literals and vector/version strings,
+	^D and ^Z similar to __END__,
+	subroutine prototypes as a new lexical class,
+	formats and format blocks as new lexical classes, and
+	'/' suffixed keywords and barewords.
+	</li>
+	<li>
+	Python lexer styles all of a decorator in the decorator style rather than just the name.
+	</li>
+	<li>
+	YAML lexer styles colons as operators.
+	</li>
+	<li>
+	Fixed SciTE bug where undo would group together multiple separate modifications.
+	</li>
+	<li>
+	Bug fixed where setting background colour of calltip failed.
+	</li>
+	<li>
+	SciTE allows wildcard suffixes for file pattern based properties.
+	</li>
+	<li>
+	SciTE on GTK+ bug fixed where user not prompted to save untitled buffer.
+	</li>
+	<li>
+	SciTE bug fixed where property values from one file were not seen by lower priority files.
+	</li>
+	<li>
+	Bug fixed when showing selection with a foreground colour change which highlighted
+	an incorrect range in some positions.
+	</li>
+	<li>
+	Cut now invokes SCN_MODIFYATTEMPTRO notification.
+	</li>
+	<li>
+	Bug fixed where caret not shown at beginning of wrapped lines.
+	Caret made visible in some cases after wrapping and scroll bar updated after wrapping.
+	</li>
+	<li>
+	Modern indicators now work on wrapped lines.
+	</li>
+	<li>
+	Some crashes fixed for 64-bit GTK+.
+	</li>
+	<li>
+	On GTK+ clipboard features improved for VMWare tools copy and paste.
+	SciTE exports the clipboard more consistently on shut down.
+	</li>
+    </ul>
+    <h3>
        <a href="http://prdownloads.sourceforge.net/scintilla/scite174.zip?download">Release 1.74</a>
     </h3>
     <ul>
@@ -453,7 +594,7 @@
 	SciTE on GTK+ removed GTK+ 1.x compatible file dialog code.
 	</li>
 	<li>
-	SciTE on GTK+ recognizes key names KeypadMultiply and KeypadDivide.
+	SciTE on GTK+ recognises key names KeypadMultiply and KeypadDivide.
 	</li>
 	<li>
 	Background colour of line wrapping visual flag changed to STYLE_DEFAULT.
@@ -1158,7 +1299,7 @@
 	PHP allows spaces after &lt;&lt;&lt;.
 	</li>
 	<li>
-	TADS3 has a simpler set of states and recognizes identifiers.
+	TADS3 has a simpler set of states and recognises identifiers.
 	</li>
 	<li>
 	Avenue elseif folds better.
@@ -1256,7 +1397,7 @@
 	</li>
 	<li>
 	Perl can fold POD and package sections. POD verbatim section style.
-	Globbing syntax recognized better.
+	Globbing syntax recognised better.
 	</li>
 	<li>
 	Context menu moved slightly on GTK+ so that it will be under the mouse and will
@@ -1741,7 +1882,7 @@
 	AutoIt3 lexer updated.
 	</li>
 	<li>
-	Perl lexer recognizes regular expression use better.
+	Perl lexer recognises regular expression use better.
 	</li>
 	<li>
 	Errorlist lexer understands Lua tracebacks and copes with findstr

@@ -1,9 +1,10 @@
 /*
  *  QuartzTextLayout.h
- *  wtf
  *
- *  Created by Evan Jones on Wed Oct 02 2002.
- *  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+ *  Original Code by Evan Jones on Wed Oct 02 2002.
+ *  Contributors:
+ *  Shane Caraveo, ActiveState
+ *  Bernd Paradies, Adobe
  *
  */
 
@@ -20,26 +21,23 @@ public:
     /** Create a text layout for drawing on the specified context. */
     QuartzTextLayout( CGContextRef context ) : layout( NULL ), unicode_string( NULL ), unicode_length( 0 )
     {
-        gc = context;
+        OSStatus err = ATSUCreateTextLayout( &layout );
+        if (0 != err)
+                layout = NULL;
 
-        OSStatus err;
-        err = ATSUCreateTextLayout( &layout );
-        assert( err == noErr && layout != NULL );
+        setContext(context);
 
-        setControl( kATSUCGContextTag, sizeof( gc ), &gc );
-
-        /*ATSUAttributeTag tag = kATSULineLayoutOptionsTag;
+        ATSUAttributeTag tag = kATSULineLayoutOptionsTag;
         ByteCount size = sizeof( ATSLineLayoutOptions );
-        ATSLineLayoutOptions rendering = kATSLineHasNoOpticalAlignment; // kATSLineUseDeviceMetrics; | kATSLineFractDisable | kATSLineUseQDRendering
+        ATSLineLayoutOptions rendering = kATSLineUseDeviceMetrics; //| kATSLineFractDisable | kATSLineUseQDRendering
         ATSUAttributeValuePtr valuePtr = &rendering;
         err = ATSUSetLayoutControls( layout, 1, &tag, &size, &valuePtr );
-        assert( err == noErr );*/
     }
 
     ~QuartzTextLayout()
     {
-        assert( layout != NULL );
-        ATSUDisposeTextLayout( layout );
+        if (NULL != layout)
+            ATSUDisposeTextLayout( layout );
         layout = NULL;
 
         if ( unicode_string != NULL )
@@ -55,13 +53,15 @@ public:
     // TODO: Optimise the ASCII version by not copying so much
     OSStatus setText( const UInt8* buffer, size_t byteLength, CFStringEncoding encoding )
     {
-        assert( buffer != NULL && byteLength > 0 );
-        
+        if (NULL == layout)
+                return -1;
         CFStringRef str = CFStringCreateWithBytes( NULL, buffer, byteLength, encoding, false );
         if (!str)
             return -1;
 
         unicode_length = CFStringGetLength( str );
+        if (unicode_string)
+            delete[] unicode_string;
         unicode_string = new UniChar[ unicode_length ];
         CFStringGetCharacters( str, CFRangeMake( 0, unicode_length ), unicode_string );
 
@@ -76,12 +76,16 @@ public:
         return ATSUSetTransientFontMatching( layout, true );
     }
 
+    inline void setText( const UInt8* buffer, size_t byteLength, const QuartzTextStyle& r )
+    {
+        this->setText( buffer, byteLength, kCFStringEncodingUTF8 );
+        ATSUSetRunStyle( layout, r.getATSUStyle(), 0, unicode_length );
+    }
+
     /** Apply the specified text style on the entire range of text. */
     void setStyle( const QuartzTextStyle& style )
     {
-        OSStatus err;
-        err = ATSUSetRunStyle( layout, style.getATSUStyle(), kATSUFromTextBeginning, kATSUToTextEnd );
-        assert( err == noErr );
+        ATSUSetRunStyle( layout, style.getATSUStyle(), kATSUFromTextBeginning, kATSUToTextEnd );
     }
 
     /** Draw the text layout into the current CGContext at the specified position, flipping the CGContext's Y axis if required.
@@ -90,6 +94,8 @@ public:
     * @param flipTextYAxis If true, the CGContext's Y axis will be flipped before drawing the text, and restored afterwards. Use this when drawing in an HIView's CGContext, where the origin is the top left corner. */
     void draw( float x, float y, bool flipTextYAxis = false )
     {
+        if (NULL == layout || 0 == unicode_length)
+                return;
         if ( flipTextYAxis )
         {
             CGContextSaveGState( gc );
@@ -99,7 +105,6 @@ public:
         
         OSStatus err;
         err = ATSUDrawText( layout, kATSUFromTextBeginning, kATSUToTextEnd, X2Fix( x ), X2Fix( y ) );
-        assert( err == noErr );
 
         if ( flipTextYAxis ) CGContextRestoreGState( gc );
     }
@@ -111,13 +116,19 @@ public:
     */
     void setControl( ATSUAttributeTag tag, ByteCount size, ATSUAttributeValuePtr value )
     {
-        OSStatus err;
-        err = ATSUSetLayoutControls( layout, 1, &tag, &size, &value );
-        assert( noErr == err );
+        ATSUSetLayoutControls( layout, 1, &tag, &size, &value );
     }
 
     ATSUTextLayout getLayout() {
         return layout;
+    }
+
+    inline CFIndex getLength() const { return unicode_length; }
+    inline void setContext (CGContextRef context)
+    {
+        gc = context;
+        if (NULL != layout)
+            setControl( kATSUCGContextTag, sizeof( gc ), &gc );
     }
 
 private:

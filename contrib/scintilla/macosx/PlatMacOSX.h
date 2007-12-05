@@ -23,12 +23,11 @@ private:
     float x;
     float y;
 
-#ifdef SUPPORT_PORT
-    CGrafPtr port;
-#endif
     CGContextRef gc;
 
 
+    /** The text layout instance */
+    QuartzTextLayout*	textLayout;
     /** If the surface is a bitmap context, contains a reference to the bitmap data. */
     uint8_t* bitmapData;
     /** If the surface is a bitmap context, stores the dimensions of the bitmap. */
@@ -74,7 +73,6 @@ public:
     void Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back);
     void Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSource);
 
-    QuartzTextLayout* GetTextLayout( Font &font_, const char *s, int len );
     void DrawTextNoClip(PRectangle rc, Font &font_, int ybase, const char *s, int len, ColourAllocated fore, ColourAllocated back);
     void DrawTextClipped(PRectangle rc, Font &font_, int ybase, const char *s, int len, ColourAllocated fore, ColourAllocated back);
     void DrawTextTransparent(PRectangle rc, Font &font_, int ybase, const char *s, int len, ColourAllocated fore);

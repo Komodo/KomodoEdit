@@ -109,29 +109,24 @@ void Font::Release() {
 
 SurfaceImpl::SurfaceImpl() {
     bitmapData = NULL; // Release will try and delete bitmapData if != NULL
-#ifdef SUPPORT_PORT
-    port = NULL;
-#endif
     gc = NULL;
+    textLayout = new QuartzTextLayout(NULL);
     Release();
 }
 
 SurfaceImpl::~SurfaceImpl() {
     Release();
+    delete textLayout;
 }
 
 void SurfaceImpl::Release() {
+    textLayout->setContext (NULL);
     if ( bitmapData != NULL )
         {
         delete[] bitmapData;
         // We only "own" the graphics context if we are a bitmap context
         if ( gc != NULL ) CGContextRelease( gc );
         }
-#ifdef SUPPORT_PORT
-    if ( port != NULL && gc != NULL) {
-      QDEndCGContext(port, &gc);
-    }
-#endif
     bitmapData = NULL;
     gc = NULL;
 
@@ -155,20 +150,13 @@ void SurfaceImpl::Init(WindowID /*wid*/) {
     // aquire/release of the context.
 
     Release();
-#ifdef SUPPORT_PORT
-    // Note, this seems to be unecessary, I have not seen any functionality loss by
-    // doing nothing in this method.
-
-    WindowRef window = GetControlOwner(reinterpret_cast<HIViewRef>(wid));
-    port = GetWindowPort(window);
-    QDBeginCGContext(port, &gc);
-#endif
 }
 
 void SurfaceImpl::Init(SurfaceID sid, WindowID /*wid*/) {
     Release();
     gc = reinterpret_cast<CGContextRef>( sid );
     CGContextSetLineWidth( gc, 1.0 );
+    textLayout->setContext (gc);
 }
 
 void SurfaceImpl::InitPixMap(int width, int height, Surface* /*surface_*/, WindowID /*wid*/) {
@@ -182,13 +170,12 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /*surface_*/, Windo
 
     // create an RGB color space
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    assert( colorSpace != NULL );
+    if( colorSpace == NULL )
+        return;
 
     // create the bitmap
     bitmapData = new uint8_t[ bitmapByteCount ];
-    assert( bitmapData != NULL );
-    if( bitmapData != NULL )
-        {
+    if( bitmapData != NULL ) {
         // create the context
         gc = CGBitmapContextCreate( bitmapData,
                                     width,
@@ -198,24 +185,25 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /*surface_*/, Windo
                                     colorSpace,
                                     kCGImageAlphaPremultipliedLast);
 
-        if( gc == NULL )
-            {
+        if( gc == NULL ) {
             // the context couldn't be created for some reason,
             // and we have no use for the bitmap without the context
             delete[] bitmapData;
             bitmapData = NULL;
-            }
         }
+        textLayout->setContext (gc);
+    }
 
     // the context retains the color space, so we can release it
     CGColorSpaceRelease( colorSpace );
 
-    assert( gc != NULL && bitmapData != NULL );
-
-    // "Erase" to white
-    CGContextClearRect( gc, CGRectMake( 0, 0, width, height ) );
-    CGContextSetRGBFillColor( gc, 1.0, 1.0, 1.0, 1.0 );
-    CGContextFillRect( gc, CGRectMake( 0, 0, width, height ) );
+    if ( gc != NULL && bitmapData != NULL )
+    {
+        // "Erase" to white
+        CGContextClearRect( gc, CGRectMake( 0, 0, width, height ) );
+        CGContextSetRGBFillColor( gc, 1.0, 1.0, 1.0, 1.0 );
+        CGContextFillRect( gc, CGRectMake( 0, 0, width, height ) );
+    }
 }
 
 void SurfaceImpl::PenColour(ColourAllocated fore) {
@@ -244,28 +232,30 @@ CGImageRef SurfaceImpl::GetImage() {
 
     // create an RGB color space
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    assert( colorSpace != NULL );
+    if( colorSpace == NULL )
+        return NULL;
 
     const int bitmapBytesPerRow   = ((int) bitmapWidth * BYTES_PER_PIXEL);
     const int bitmapByteCount     = (bitmapBytesPerRow * (int) bitmapHeight);
 
     // Create a data provider
     CGDataProviderRef dataProvider = CGDataProviderCreateWithData( NULL, bitmapData, bitmapByteCount, NULL );
-    assert( dataProvider != NULL );
-
-    // create the CGImage
-    CGImageRef image = CGImageCreate( bitmapWidth,
-                                   bitmapHeight,
-                                   BITS_PER_COMPONENT,
-                                   BITS_PER_PIXEL,
-                                   bitmapBytesPerRow,
-                                   colorSpace,
-                                   kCGImageAlphaPremultipliedLast,
-                                   dataProvider,
-                                   NULL,
-                                   0,
-                                   kCGRenderingIntentDefault );
-    assert( image != NULL );
+    CGImageRef image = NULL;
+    if ( dataProvider != NULL )
+    {
+        // create the CGImage
+        image = CGImageCreate( bitmapWidth,
+                            bitmapHeight,
+                            BITS_PER_COMPONENT,
+                            BITS_PER_PIXEL,
+                            bitmapBytesPerRow,
+                            colorSpace,
+                            kCGImageAlphaPremultipliedLast,
+                            dataProvider,
+                            NULL,
+                            0,
+                            kCGRenderingIntentDefault );
+    }
 
     // the image retains the color space, so we can release it
     CGColorSpaceRelease( colorSpace );
@@ -379,8 +369,6 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern) {
         return;
         }
 
-    assert( image != NULL );
-
     const CGPatternCallbacks drawImageCallbacks = { 0, reinterpret_cast<CGPatternDrawPatternCallback>( drawImageRefCallback ), NULL };
 
     CGPatternRef pattern = CGPatternCreate( image,
@@ -392,30 +380,30 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern) {
                                          true,
                                          &drawImageCallbacks
                                          );
-    assert( pattern != NULL );
+    if( pattern != NULL ) {
 
-    // Create a pattern color space
-    CGColorSpaceRef colorSpace = CGColorSpaceCreatePattern( NULL );
-    assert( colorSpace != NULL );
+        // Create a pattern color space
+        CGColorSpaceRef colorSpace = CGColorSpaceCreatePattern( NULL );
+        if( colorSpace != NULL ) {
 
-    CGContextSaveGState( gc );
-    CGContextSetFillColorSpace( gc, colorSpace );
+            CGContextSaveGState( gc );
+            CGContextSetFillColorSpace( gc, colorSpace );
 
-    // Unlike the documentation, you MUST pass in a "components" parameter:
-    // For coloured patterns it is the alpha value.
-    const float alpha = 1.0;
-    CGContextSetFillPattern( gc, pattern, &alpha );
-    CGContextFillRect( gc, PRectangleToCGRect( rc ) );
-
-    CGContextRestoreGState( gc );
-
-    // Free the color space, the pattern and image
-    CGColorSpaceRelease( colorSpace );
-    colorSpace = NULL;
-    CGPatternRelease( pattern );
-    pattern = NULL;
-    CGImageRelease( image );
-    image = NULL;
+            // Unlike the documentation, you MUST pass in a "components" parameter:
+            // For coloured patterns it is the alpha value.
+            const float alpha = 1.0;
+            CGContextSetFillPattern( gc, pattern, &alpha );
+            CGContextFillRect( gc, PRectangleToCGRect( rc ) );
+            CGContextRestoreGState( gc );
+            // Free the color space, the pattern and image
+            CGColorSpaceRelease( colorSpace );
+        } /* colorSpace != NULL */
+        colorSpace = NULL;
+        CGPatternRelease( pattern );
+        pattern = NULL;
+        CGImageRelease( image );
+        image = NULL;
+    } /* pattern != NULL */
 }
 
 void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
@@ -480,20 +468,16 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
     CGContextDrawPath( gc, kCGPathFillStroke );
 }
 
-void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
-        ColourAllocated outline, int alphaOutline, int flags) {
-    // XXX TODO
+void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, ColourAllocated fill, int alphaFill,
+                                            ColourAllocated /*outline*/, int /*alphaOutline*/, int /*flags*/)
+{
     if ( gc ) {
-        CGContextBeginPath( gc );
-        //FillColour(fill);
-        PenColour(outline);
+        ColourDesired colour( fill.AsLong() );
 
-        // Quartz integer -> float point conversion fun (see comment in SurfaceImpl::LineTo)
-        // We subtract 1 from the Width() and Height() so that all our drawing is within the area defined
-        // by the PRectangle. Otherwise, we draw one pixel too far to the right and bottom.
-        // TODO: Create some version of PRectangleToCGRect to do this conversion for us?
-        CGContextAddRect( gc, CGRectMake( rc.left + 0.5, rc.top + 0.5, rc.Width() - 1, rc.Height() - 1 ) );
-        CGContextDrawPath( gc, kCGPathFill );
+        // Set the Fill color to match
+        CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 100.0 );
+        CGRect rect = PRectangleToCGRect( rc );
+        CGContextFillRect( gc, rect );
     }
 }
 
@@ -597,8 +581,6 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
         return;
         }
 
-    assert( image != NULL );
-
     // Now draw the image on the surface
 
     // Some fancy clipping work is required here: draw only inside of rc
@@ -614,29 +596,6 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
     // Done with the image
     CGImageRelease( image );
     image = NULL;
-}
-
-QuartzTextLayout* SurfaceImpl::GetTextLayout( Font &font_, const char *s, int len )
-{
-    // create the text layout
-    QuartzTextLayout* textLayout = new QuartzTextLayout( gc );
-    OSStatus err = textLayout->setText( reinterpret_cast<const UInt8*>( s ), len, ( unicodeMode ? kCFStringEncodingUTF8 : kCFStringEncodingASCII ) );
-    if (err != noErr) {
-        fprintf(stderr, "SurfaceImpl::GetTextLayout error calling textLayout->setText %d %s\n", err, unicodeMode?"Invalid UTF8":"Unknown error");
-        if (unicodeMode)
-            err = textLayout->setText( reinterpret_cast<const UInt8*>( s ), len, kCFStringEncodingASCII );
-        if (err != noErr)
-            return NULL;
-    }
-
-    textLayout->setStyle( *reinterpret_cast<QuartzTextStyle*>( font_.GetID() ) );
-
-    // TODO: If I could modify Scintilla to use ATSUHighlightText, this would not be required.
-    // However, using this setting makes Scintilla's rendering match TextEdit's (except for the antialiasing rules)
-    ATSLineLayoutOptions rendering = kATSLineUseDeviceMetrics;
-    textLayout->setControl( kATSULineLayoutOptionsTag, sizeof( rendering ), &rendering );
-
-    return textLayout;
 }
 
 void SurfaceImpl::DrawTextNoClip(PRectangle rc, Font &font_, int ybase, const char *s, int len,
@@ -656,89 +615,80 @@ void SurfaceImpl::DrawTextClipped(PRectangle rc, Font &font_, int ybase, const c
 }
 
 void SurfaceImpl::DrawTextTransparent(PRectangle rc, Font &font_, int ybase, const char *s, int len, ColourAllocated fore) {
-    PLATFORM_ASSERT( gc != NULL );
-    QuartzTextLayout* textLayout = GetTextLayout( font_, s, len );
-    if (!textLayout) return;
+    textLayout->setText (reinterpret_cast<const UInt8*>(s), len, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+
     // The Quartz RGB fill color influences the ATSUI color
     FillColour(fore);
-
     // Draw the text, with the Y axis flipped
     textLayout->draw( rc.left, ybase, true );
-
-    // Get rid of the layout object
-    delete textLayout;
-    textLayout = NULL;
 }
 
 void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positions) {
     // sample at http://developer.apple.com/samplecode/ATSUICurveAccessDemo/listing1.html
     // sample includes use of ATSUGetGlyphInfo which would be better for older
     // OSX systems.  We should expand to using that on older systems as well.
-    QuartzTextLayout* textLayout = GetTextLayout( font_, s, len );
-    if (!textLayout) return;
+    for (int i = 0; i < len; i++)
+            positions [i] = 0;
+            
+    // We need the right X coords, so we have to append a char to get the left coord of thast extra char
+    char* buf = (char*) malloc (len+1);
+    if (!buf)
+            return;
+            
+    memcpy (buf, s, len);
+    buf [len] = '.';
+    
+    textLayout->setText (reinterpret_cast<const UInt8*>(buf), len+1, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
+    ATSUGlyphInfoArray* theGlyphInfoArrayPtr;
+    ByteCount theArraySize;
 
-    // Get the UNICODE character length
-    UniCharCount unicodeLength, unicodePosition;
-    OSStatus err;
-    err = ATSUGetTextLocation( textLayout->getLayout(), NULL, NULL, NULL, &unicodeLength, NULL );
-    assert( err == noErr );
-
-    ATSLayoutRecord *layoutRecords;
-    ItemCount numRecords;
-    // Get the arrays of glyph information
-    verify_noerr( ATSUDirectGetLayoutDataArrayPtrFromTextLayout(
-                textLayout->getLayout(), 0,
-                kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
-                (void **)&layoutRecords, &numRecords) );
-
-    int i, count;
-    long position;
-    unsigned char uch;
-    unsigned char mask;
-    FontID fontid = font_.GetID();
-
-    for ( unicodePosition = 0, i = 0; i < len && unicodePosition < numRecords; unicodePosition ++ ) {
-        if (fontid) {
-
-            // note: an extra layoutRecord is provided (eg. numRecords will be one
-            //       more than unicodeLength).  Each record contains the left x
-            //       coordinate, but we need the right x coordinate, so we skip
-            //       the first layoutRecord, thus unicodePosition+1.
-            position = Fix2Long( layoutRecords[unicodePosition+1].realPos );
-            uch = s[i];
-            positions[i++] = position;
-
-            // If we are using unicode (UTF8), map the Unicode position back to the UTF8 characters,
-            // as 1 unicode character can map to multiple UTF8 characters.
-            // See: http://www.tbray.org/ongoing/When/200x/2003/04/26/UTF
-            // Or: http://www.cl.cam.ac.uk/~mgk25/unicode.html
-            if ( unicodeMode ) {
-                mask = 0xc0;
-                count = 1;
-                // Add one additonal byte for each extra high order one in the byte
-                while ( uch >= mask && count < 8 ) {
-                    assert( i < len );
+    // Get the GlyphInfoArray
+    ATSUTextLayout layout = textLayout->getLayout();
+    if ( noErr == ATSUGetGlyphInfo (layout, 0, textLayout->getLength(), &theArraySize, NULL))
+    {
+        theGlyphInfoArrayPtr = (ATSUGlyphInfoArray *) malloc (theArraySize + sizeof(ItemCount) + sizeof(ATSUTextLayout));
+        if (theGlyphInfoArrayPtr)
+        {
+            if (noErr == ATSUGetGlyphInfo (layout, 0, textLayout->getLength(), &theArraySize, theGlyphInfoArrayPtr))
+            {
+                // do not count the first item, which is at the beginning of the line
+                for ( UniCharCount unicodePosition = 1, i = 0; i < len && unicodePosition < theGlyphInfoArrayPtr->numGlyphs; unicodePosition ++ )
+                {
+                    // The ideal position is the x coordinate of the glyph, relative to the beginning of the line
+                    int position = (int)( theGlyphInfoArrayPtr->glyphs[unicodePosition].idealX + 0.5 );    // These older APIs return float values
+                    unsigned char uch = s[i];
                     positions[i++] = position;
-                    count ++;
-                    mask = mask >> 1 | 0x80; // add an additional one in the highest order position
+
+                    // If we are using unicode (UTF8), map the Unicode position back to the UTF8 characters,
+                    // as 1 unicode character can map to multiple UTF8 characters.
+                    // See: http://www.tbray.org/ongoing/When/200x/2003/04/26/UTF
+                    // Or: http://www.cl.cam.ac.uk/~mgk25/unicode.html
+                    if ( unicodeMode ) 
+                    {
+                        unsigned char mask = 0xc0;
+                        int count = 1;
+                        // Add one additonal byte for each extra high order one in the byte
+                        while ( uch >= mask && count < 8 ) 
+                        {
+                            positions[i++] = position;
+                            count ++;
+                            mask = mask >> 1 | 0x80; // add an additional one in the highest order position
+                        }
+                    }
                 }
-                assert( count <= 8 );
             }
-        } else {
-        positions[i++] = (i == 0) ? 1 : positions[i-1] + 1;
+
+            // Free the GlyphInfoArray
+            free (theGlyphInfoArrayPtr);
         }
     }
-    verify_noerr( ATSUDirectReleaseLayoutDataArrayPtr(NULL, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent, (void **)&layoutRecords) );
-    // Get rid of the layout object
-    delete textLayout;
-    textLayout = NULL;
+    free (buf);
 }
 
 int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
     if (font_.GetID())
     {
-        QuartzTextLayout* textLayout = GetTextLayout( font_, s, len );
-        if (!textLayout) return 0;
+        textLayout->setText (reinterpret_cast<const UInt8*>(s), len, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
 
         // TODO: Maybe I should add some sort of text measurement features to QuartzTextLayout?
         unsigned long actualNumberOfBounds = 0;
@@ -748,17 +698,10 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
         if ( ATSUGetGlyphBounds( textLayout->getLayout(), 0, 0, kATSUFromTextBeginning, kATSUToTextEnd, kATSUseDeviceOrigins, 1, &glyphBounds, &actualNumberOfBounds ) != noErr || actualNumberOfBounds != 1 )
         {
             Platform::DebugDisplay( "ATSUGetGlyphBounds failed in WidthText" );
-            // Get rid of the layout object
-            delete textLayout;
-            textLayout = NULL;
             return 0;
         }
 
         //Platform::DebugPrintf( "WidthText: \"%*s\" = %ld\n", len, s, Fix2Long( glyphBounds.upperRight.x - glyphBounds.upperLeft.x ) );
-
-        // Get rid of the layout object
-        delete textLayout;
-        textLayout = NULL;
         return Fix2Long( glyphBounds.upperRight.x - glyphBounds.upperLeft.x );
     }
     return 1;
@@ -768,8 +711,7 @@ int SurfaceImpl::WidthChar(Font &font_, char ch) {
     char str[2] = { ch, '\0' };
     if (font_.GetID())
     {
-        QuartzTextLayout* textLayout = GetTextLayout( font_, str, 1 );
-        if (!textLayout) return 0;
+        textLayout->setText (reinterpret_cast<const UInt8*>(str), 1, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
 
         // TODO: Maybe I should add some sort of text measurement features to QuartzTextLayout?
         unsigned long actualNumberOfBounds = 0;
@@ -779,15 +721,9 @@ int SurfaceImpl::WidthChar(Font &font_, char ch) {
         if ( ATSUGetGlyphBounds( textLayout->getLayout(), 0, 0, kATSUFromTextBeginning, kATSUToTextEnd, kATSUseDeviceOrigins, 1, &glyphBounds, &actualNumberOfBounds ) != noErr || actualNumberOfBounds != 1 )
         {
             Platform::DebugDisplay( "ATSUGetGlyphBounds failed in WidthChar" );
-            // Get rid of the layout object
-            delete textLayout;
-            textLayout = NULL;
             return 0;
         }
 
-        // Get rid of the layout object
-        delete textLayout;
-        textLayout = NULL;
         return Fix2Long( glyphBounds.upperRight.x - glyphBounds.upperLeft.x );
     }
     else
@@ -893,14 +829,15 @@ void SurfaceImpl::SetUnicodeMode(bool unicodeMode_) {
 }
 
 void SurfaceImpl::SetDBCSMode(int codePage) {
-    // TODO: Implement this
+    // TODO: Implement this for code pages != UTF-8
 }
 
 Surface *Surface::Allocate() {
     return new SurfaceImpl(  );
 }
 
-Window::~Window() {}
+Window::~Window() {
+}
 
 void Window::Destroy() {
     if (windowRef) {
@@ -996,9 +933,7 @@ void Window::Show(bool show) {
 
 void Window::InvalidateAll() {
     if ( id ) {
-        OSStatus err;
-        err = HIViewSetNeedsDisplay( reinterpret_cast<HIViewRef>( id ), true );
-        assert( err == noErr );
+        HIViewSetNeedsDisplay( reinterpret_cast<HIViewRef>( id ), true );
     }
 }
 
@@ -1006,13 +941,10 @@ void Window::InvalidateRectangle(PRectangle rc) {
     if (id) {
         // Create a rectangular region
         RgnHandle region = NewRgn();
-        assert( region != NULL );
         SetRectRgn( region, rc.left, rc.top, rc.right, rc.bottom );
 
         // Make that region invalid
-        OSStatus err;
-        err = HIViewSetNeedsDisplayInRegion( reinterpret_cast<HIViewRef>( id ), region, true );
-        assert( err == noErr );
+        HIViewSetNeedsDisplayInRegion( reinterpret_cast<HIViewRef>( id ), region, true );
         DisposeRgn( region );
     }
 }
@@ -1041,6 +973,8 @@ void Window::SetCursor(Cursor curs) {
                 cursor = kThemeResizeLeftRightCursor;
                 break;
             case cursorVert:
+                cursor = kThemeResizeUpDownCursor;
+                break;
             case cursorReverseArrow:
             case cursorUp:
             default:
@@ -1148,7 +1082,7 @@ private:
     int lineHeight;
     bool unicodeMode;
     int desiredVisibleRows;
-    unsigned int maxItemCharacters;
+    unsigned int maxItemWidth;
     unsigned int aveCharWidth;
     Font font;
     int maxWidth;
@@ -1170,7 +1104,7 @@ public:
     void *doubleClickActionData;
 
     ListBoxImpl() : lb(NULL), lineHeight(10), unicodeMode(false),
-            desiredVisibleRows(5), maxItemCharacters(0), aveCharWidth(8),
+            desiredVisibleRows(5), maxItemWidth(0), aveCharWidth(8),
             doubleClickAction(NULL), doubleClickActionData(NULL)
     {
       if (kScrollBarWidth == 0)
@@ -1223,7 +1157,7 @@ void ListBoxImpl::Create(Window &/*parent*/, int /*ctrlID*/, Scintilla::Point /*
                          int lineHeight_, bool unicodeMode_) {
     lineHeight = lineHeight_;
     unicodeMode = unicodeMode_;
-    maxWidth = 1000;
+    maxWidth = 2000;
 
     WindowClass windowClass = kHelpWindowClass;
     WindowAttributes attributes = kWindowNoAttributes;
@@ -1501,13 +1435,14 @@ void ListBoxImpl::SetFont(Font &font_) {
 #endif
 
     // !@&^#%$ we cant copy Font, but we need one for our custom drawing
-    Str255 fontName;
-    if (FMGetFontFamilyName(style.font, fontName) != kFMInvalidFontFamilyErr) {
-      // make sure we conver to a proper C string first.
-      char cFontName[255];
-      CopyPascalStringToC(fontName, cFontName);
-      font.Create((const char *)cFontName, 0, style.size, false, false);
-    }
+    Str255 fontName255;
+    char fontName[256];
+    FMGetFontFamilyName(style.font, fontName255);
+
+    CFStringRef fontNameCF = ::CFStringCreateWithPascalString( kCFAllocatorDefault, fontName255, kCFStringEncodingMacRoman );
+    ::CFStringGetCString( fontNameCF, fontName, (CFIndex)255, kCFStringEncodingMacRoman );
+
+    font.Create((const char *)fontName, 0, style.size, false, false);
 }
 
 void ListBoxImpl::SetAverageCharWidth(int width) {
@@ -1545,17 +1480,14 @@ PRectangle ListBoxImpl::GetDesiredRect() {
         rows = desiredVisibleRows;
 
     rcDesired.bottom = itemHeight * rows;
-    int width = maxItemCharacters;
-    if (width < 12)
-        width = 12;
-    // XXX use the quartz text stuff to figure out the correct string width
-    rcDesired.right = rcDesired.left + width * (aveCharWidth+aveCharWidth/4);
-    if (rcDesired.right > maxWidth) {
-        rcDesired.right = maxWidth;
-    }
-    if (Length() > rows)
+    rcDesired.right = rcDesired.left + maxItemWidth + aveCharWidth;
+
+    if (Length() > rows) 
         rcDesired.right += kScrollBarWidth;
     rcDesired.right += IconWidth();
+
+    // Set the column width
+    ::SetDataBrowserTableViewColumnWidth (lb, UInt16 (rcDesired.right - rcDesired.left));
     return rcDesired;
 }
 
@@ -1578,7 +1510,7 @@ int ListBoxImpl::CaretFromEdge() {
 
 void ListBoxImpl::Clear() {
     // passing NULL to "items" arg 4 clears the list
-    maxItemCharacters = 0;
+    maxItemWidth = 0;
     ld.Clear();
     AddDataBrowserItems (lb, kDataBrowserNoItem, 0, NULL, kDataBrowserItemNoProperty);
 }
@@ -1588,15 +1520,15 @@ void ListBoxImpl::Append(char *s, int type) {
     CFStringRef r = CFStringCreateWithCString(NULL, s, kTextEncodingMacRoman);
     ld.Add(count, type, r);
 
+    Scintilla::SurfaceImpl surface;
+    unsigned int width = surface.WidthText (font, s, strlen (s));
+    if (width > maxItemWidth)
+        maxItemWidth = width;
+
     DataBrowserItemID items[1];
     items[0] = count + 1;
     AddDataBrowserItems (lb, kDataBrowserNoItem, 1, items, kDataBrowserItemNoProperty);
     ShowHideScrollbar();
-
-    size_t len = strlen(s);
-    if (maxItemCharacters < len)
-            maxItemCharacters = len;
-
 }
 
 void ListBoxImpl::SetList(const char* list, char separator, char typesep) {
@@ -1721,7 +1653,6 @@ void Menu::CreatePopUp() {
     Destroy();
     OSStatus err;
     err = CreateNewMenu( nextMenuID++, 0, reinterpret_cast<MenuRef*>( &id ) );
-    assert( noErr == err && id != NULL );
 }
 
 void Menu::Destroy() {
@@ -1746,8 +1677,6 @@ void Menu::Show(Point pt, Window &) {
                                 &menuId,
                                 &menuItem
                                 );
-    // The system should always handle the command for us, so we should get userCanceledErr
-    assert( /*noErr == err ||*/ userCanceledErr == err );
 }
 
 // TODO: Consider if I should be using GetCurrentEventTime instead of gettimeoday
@@ -1755,7 +1684,6 @@ ElapsedTime::ElapsedTime() {
     struct timeval curTime;
     int retVal;
     retVal = gettimeofday( &curTime, NULL );
-    assert( retVal == 0 );
 
     bigBit = curTime.tv_sec;
     littleBit = curTime.tv_usec;
@@ -1765,7 +1693,6 @@ double ElapsedTime::Duration(bool reset) {
     struct timeval curTime;
     int retVal;
     retVal = gettimeofday( &curTime, NULL );
-    assert( retVal == 0 );
     long endBigBit = curTime.tv_sec;
     long endLittleBit = curTime.tv_usec;
     double result = 1000000.0 * (endBigBit - bigBit);
@@ -1794,7 +1721,11 @@ static Str255 PlatformDefaultFontName;
 const char *Platform::DefaultFont() {
     long id = HighShortFromLong(GetScriptVariable(smCurrentScript, smScriptAppFondSize));
     FMGetFontFamilyName(id, PlatformDefaultFontName);
-    return (const char *)PlatformDefaultFontName;
+    char* defaultFontName = (char*) PlatformDefaultFontName;
+    defaultFontName[defaultFontName[0]+1] = 0;
+    ++defaultFontName;
+
+    return defaultFontName;
 }
 
 int Platform::DefaultFontSize() {
@@ -1836,17 +1767,17 @@ long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam,
 }
 
 bool Platform::IsDBCSLeadByte(int /*codePage*/, char /*ch*/) {
-    // TODO: Implement this
+    // TODO: Implement this for code pages != UTF-8
     return false;
 }
 
 int Platform::DBCSCharLength(int /*codePage*/, const char* /*s*/) {
-    // TODO: Implement this
+    // TODO: Implement this for code pages != UTF-8
     return 1;
 }
 
 int Platform::DBCSCharMaxLength() {
-    // TODO: Implement this
+    // TODO: Implement this for code pages != UTF-8
     //return CFStringGetMaximumSizeForEncoding( 1, CFStringEncoding encoding );
     return 2;
 }
@@ -1906,11 +1837,13 @@ void Platform::Assert(const char *c, const char *file, int line) {
     sprintf(buffer, "Assertion [%s] failed at %s %d", c, file, line);
     strcat(buffer, "\r\n");
     Platform::DebugDisplay(buffer);
-    abort();
+#ifdef DEBUG 
+    // Jump into debugger in assert on Mac (CL269835)
+    ::Debugger();
+#endif
 }
 
 int Platform::Clamp(int val, int minVal, int maxVal) {
-    assert( minVal <= maxVal );
     if (val > maxVal)
         val = maxVal;
     if (val < minVal)

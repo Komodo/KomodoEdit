@@ -1,9 +1,10 @@
 /*
  *  QuartzTextStyleAttribute.h
- *  wtf
  *
- *  Created by Evan Jones on Wed Oct 02 2002.
- *  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+ *  Original Code by Evan Jones on Wed Oct 02 2002.
+ *  Contributors:
+ *  Shane Caraveo, ActiveState
+ *  Bernd Paradies, Adobe
  *
  */
 
@@ -16,6 +17,8 @@
 class QuartzTextStyleAttribute
 {
 public:
+    QuartzTextStyleAttribute() {}
+    virtual ~QuartzTextStyleAttribute() {}
     virtual ByteCount getSize() const = 0;
     virtual ATSUAttributeValuePtr getValuePtr() = 0;
     virtual ATSUAttributeTag getTag() const = 0;
@@ -104,17 +107,12 @@ public:
     QuartzFont( const char* name, int length )
     {
         assert( name != NULL && length > 0 && name[length] == '\0' );
-        /*CFStringRef fontName = CFStringCreateWithCString( NULL, name, kCFStringEncodingMacRoman );
-        
-        ATSFontRef fontRef = ATSFontFindFromName( fontName, kATSOptionFlagsDefault );
-        assert( fontRef != NULL );
-        fontid = fontRef;
+        // try to create font
+        OSStatus err = ATSUFindFontFromName( const_cast<char*>( name ), length, kFontFullName, (unsigned) kFontNoPlatform, kFontRomanScript, (unsigned) kFontNoLanguage, &fontid );
 
-        CFRelease( fontName );*/
-
-        OSStatus err;
-        err = ATSUFindFontFromName( const_cast<char*>( name ), length, kFontFullName, (unsigned) kFontNoPlatform, kFontRomanScript, (unsigned) kFontNoLanguage, &fontid );
-        //assert( err == noErr && fontid != kATSUInvalidFontID );
+        // need a fallback if font isn't installed
+        if( err != noErr || fontid == kATSUInvalidFontID )
+                ::ATSUFindFontFromName( "Lucida Grande", 13, kFontFullName, (unsigned) kFontNoPlatform, kFontRomanScript, (unsigned) kFontNoLanguage, &fontid );
     }
 
     ByteCount getSize() const

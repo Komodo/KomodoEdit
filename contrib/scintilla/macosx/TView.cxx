@@ -111,12 +111,8 @@ TView::~TView()
 	// If we have installed our custom mouse events handler on the window,
 	// go forth and remove it. Note: -1 is used to indicate that no handler has
 	// been installed yet, but we want to once we get a window.
-	if ( mouseEventHandler != NULL && mouseEventHandler != reinterpret_cast<void*>( -1 ) )
-		{
-		OSStatus err;
-		err = RemoveEventHandler( mouseEventHandler );
-		assert( err == noErr );
-		}
+	if ( mouseEventHandler != NULL && mouseEventHandler != reinterpret_cast<void*>( -1 ) ) 
+		RemoveEventHandler( mouseEventHandler );
 	mouseEventHandler = NULL;
 }
 
@@ -549,7 +545,6 @@ OSStatus TView::ActivateInterface(
 
 					result = AddEventTypesToHandler( fHandler, GetEventTypeCount( kControlMouseEvents ),
 									  kControlMouseEvents );
-					assert( result == noErr );
 					}
 
 				if ( this->GetOwner() != NULL )
@@ -558,7 +553,6 @@ OSStatus TView::ActivateInterface(
 					if ( mouseEventHandler != NULL &&  mouseEventHandler != reinterpret_cast<void*>( -1 ) )
 						{
 						result = RemoveEventHandler( mouseEventHandler );
-						assert( result != NULL );
 						}
 					mouseEventHandler = NULL;
 					
@@ -570,11 +564,9 @@ OSStatus TView::ActivateInterface(
 						{ kEventClassMouse, kEventMouseDragged },
 					};
 
-					assert( mouseEventHandler == NULL );
 					result = InstallEventHandler( GetWindowEventTarget( this->GetOwner() ), WindowEventHandler,
 								      GetEventTypeCount( kWindowMouseEvents ), kWindowMouseEvents, 
 								      this, &mouseEventHandler );
-					assert( result == noErr && mouseEventHandler != NULL );
 					}
 				// If we have no window yet. Set the mouseEventHandler to -1 so when we get one we
 				// will install the event handler
@@ -595,7 +587,6 @@ OSStatus TView::ActivateInterface(
 		      
 		      result = AddEventTypesToHandler( fHandler, GetEventTypeCount( kControlMouseEvents ),
 						       kControlMouseEvents );
-		      assert( result == noErr );
 		    }
 		  }
 
@@ -697,8 +688,8 @@ pascal OSStatus TView::ViewEventHandler(
 	OSStatus			result;
 	TView*				view = (TView*) inUserData;
 	TCarbonEvent		event( inEvent );
-	if (view->debugPrint)
-	  fprintf(stderr,"TView::ViewEventHandler\n");
+	//if (view->debugPrint)
+	//  fprintf(stderr,"TView::ViewEventHandler\n");
 	result = view->HandleEvent( inCallRef, event );
 
 	return result;
@@ -714,7 +705,8 @@ pascal OSStatus TView::WindowEventHandler(
 	TCarbonEvent event( inEvent );
 
 	const WindowRef window = view->GetOwner();
-	assert( window != NULL );
+	if (NULL == window)
+		return eventNotHandledErr;
 
 	// If the window is not active, let the standard window handler execute.
 	if ( ! IsWindowActive( window ) ) return eventNotHandledErr;
@@ -722,7 +714,8 @@ pascal OSStatus TView::WindowEventHandler(
 	  fprintf(stderr,"TView::WindowEventHandler\n");
 	
 	const HIViewRef rootView = HIViewGetRoot( window );
-	assert( rootView != NULL );
+	if (NULL == rootView)
+		return eventNotHandledErr;
 
 	// TODO: On OS X 10.3, test if this bug still exists
 	// This is a hack to work around a bug in the OS. See:
@@ -739,19 +732,18 @@ pascal OSStatus TView::WindowEventHandler(
 		// convert screen coords to window relative
 		Rect bounds;
 		err = GetWindowBounds( window, kWindowStructureRgn, &bounds );
-		assert( err == noErr );
-
-		ptMouse.x -= bounds.left;
-		ptMouse.y -= bounds.top;
-
-		event.SetParameter( kEventParamWindowMouseLocation, ptMouse );
+		if( err == noErr )
+		{
+			ptMouse.x -= bounds.left;
+			ptMouse.y -= bounds.top;
+			event.SetParameter( kEventParamWindowMouseLocation, ptMouse );
+		}
 	}
 	
 	HIViewRef targetView = NULL;
 	err = HIViewGetViewForMouseEvent( rootView, inEvent, &targetView );
-	assert( err == noErr && targetView != NULL );
-	if (view->debugPrint)
-	  fprintf(stderr,"TView::WindowEventHandler root[%08X] viewRef[%08X] targetView[%08X]\n", rootView, view->GetViewRef(), targetView);
+	//if (view->debugPrint)
+	//  fprintf(stderr,"TView::WindowEventHandler root[%08X] viewRef[%08X] targetView[%08X]\n", rootView, view->GetViewRef(), targetView);
 	if ( targetView == view->GetViewRef() || event.GetKind() == kEventMouseDragged )
 		{
 		return view->HandleEvent( inCallRef, event );
@@ -1076,7 +1068,6 @@ OSStatus TView::HandleEvent(
 					
 				// some other kind of Control event
 				default:
-					assert( false );
 					break;
 			}
 			break;
@@ -1086,70 +1077,59 @@ OSStatus TView::HandleEvent(
 			break;
 
 		case kEventClassMouse:
+		{
 			result = inEvent.GetParameter<HIPoint>( kEventParamWindowMouseLocation, typeHIPoint, &where );
 			HIViewConvertPoint( &where, NULL, fViewRef );
-			assert( result == noErr );
 			
 			UInt32 inKeyModifiers;
 			result = inEvent.GetParameter( kEventParamKeyModifiers, &inKeyModifiers );
-			assert( result == noErr );
-			
+			if( result != noErr )
+				inKeyModifiers = 0;
+			EventMouseButton inMouseButton = 0;
+			result = inEvent.GetParameter<EventMouseButton>( kEventParamMouseButton, typeMouseButton, &inMouseButton );
+			if (noErr != result)
+				// assume no button is pressed if there is no button info
+				inMouseButton = 0;
+			UInt32 inClickCount;
+			result = inEvent.GetParameter( kEventParamClickCount, &inClickCount );
+			if( result != noErr )
+				inClickCount = 0;
+				
 			switch ( inEvent.GetKind() )
-				{
+			{
 				case kEventMouseWheelMoved:
-					{
-						EventMouseWheelAxis inAxis;
-						result = inEvent.GetParameter<EventMouseWheelAxis>( kEventParamMouseWheelAxis, typeMouseWheelAxis, &inAxis );
-						assert( noErr == result );
+				{
+					EventMouseWheelAxis inAxis;
+					result = inEvent.GetParameter<EventMouseWheelAxis>( kEventParamMouseWheelAxis, typeMouseWheelAxis, &inAxis );
 
-						SInt32 inDelta;
-						result = inEvent.GetParameter<SInt32>( kEventParamMouseWheelDelta, typeSInt32, &inDelta );
-						assert( noErr == result );
+					SInt32 inDelta;
+					result = inEvent.GetParameter<SInt32>( kEventParamMouseWheelDelta, typeSInt32, &inDelta );
 
-						result = MouseWheelMoved( inAxis, inDelta, inKeyModifiers );					
-					}
-					break;
-					
-					
-				// some other kind of Mouse event: This is (in my opinion) an error
-				// TODO: There is also a MouseMoved event that we do not handle
-				default:
-					{
-						EventMouseButton inMouseButton;
-						result = inEvent.GetParameter<EventMouseButton>( kEventParamMouseButton, typeMouseButton, &inMouseButton );
-						assert( result == noErr );
-
-						UInt32 inClickCount;
-						result = inEvent.GetParameter( kEventParamClickCount, &inClickCount );
-						assert( result == noErr );
-
-						switch ( inEvent.GetKind() )
-						  {
-						  case kEventMouseDown:
-						    result = MouseDown( where, inKeyModifiers, inMouseButton, inClickCount, inEvent );
-						    break;
-						  case kEventMouseUp:
-						    result = MouseUp( where, inKeyModifiers, inMouseButton, inClickCount );
-						    break;
-						  case kEventMouseExited:
-						    result = MouseExited( where, inKeyModifiers, inMouseButton, inClickCount );
-						    break;
-						  case kEventMouseEntered:
-						    result = MouseEntered( where, inKeyModifiers, inMouseButton, inClickCount );
-						    break;
-						  case kEventMouseMoved:
-						  case kEventMouseDragged:
-						    result = MouseDragged( where, inKeyModifiers, inMouseButton, inClickCount );
-						    break;
-						  }
-					}
-					break;
+					result = MouseWheelMoved( inAxis, inDelta, inKeyModifiers );
+					break;				
 				}
-				break;
-			
+				case kEventMouseDown:
+					result = MouseDown( where, inKeyModifiers, inMouseButton, inClickCount, inEvent );
+					break;
+				case kEventMouseUp:
+					result = MouseUp( where, inKeyModifiers, inMouseButton, inClickCount );
+					break;
+				case kEventMouseExited:
+					result = MouseExited( where, inKeyModifiers, inMouseButton, inClickCount );
+					break;
+				case kEventMouseEntered:
+					result = MouseEntered( where, inKeyModifiers, inMouseButton, inClickCount );
+					break;
+				case kEventMouseMoved:
+				case kEventMouseDragged:
+					result = MouseDragged( where, inKeyModifiers, inMouseButton, inClickCount );
+					break;
+				default:;
+			}
+			break;
+                }
 		// some other event class
 		default:
-			assert( false );
 			break;
 	}
 

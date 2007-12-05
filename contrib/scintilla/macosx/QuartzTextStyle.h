@@ -19,23 +19,19 @@ class QuartzTextStyle
 public:
     QuartzTextStyle()
     {
-        OSStatus err;
-        err = ATSUCreateStyle( &style );
-        assert( err == noErr );
+        ATSUCreateStyle( &style );
     }
 
     ~QuartzTextStyle()
     {
-        assert( style != NULL );
-        ATSUDisposeStyle( style );
+        if ( style != NULL )
+            ATSUDisposeStyle( style );
         style = NULL;
     }
 
     void setAttribute( ATSUAttributeTag tag, ByteCount size, ATSUAttributeValuePtr value )
     {
-        OSStatus err;
-        err = ATSUSetAttributes( style, 1, &tag, &size, &value );
-        assert( err == noErr );
+        ATSUSetAttributes( style, 1, &tag, &size, &value );
     }
 
     void setAttribute( QuartzTextStyleAttribute& attribute )
@@ -45,8 +41,7 @@ public:
 
     void getAttribute( ATSUAttributeTag tag, ByteCount size, ATSUAttributeValuePtr value, ByteCount* actualSize )
     {
-        OSStatus err; err = ATSUGetAttribute( style, tag, size, value, actualSize );
-        assert( err == noErr );
+        ATSUGetAttribute( style, tag, size, value, actualSize );
     }
 
     template <class T>
@@ -54,9 +49,7 @@ public:
     {
         T value;
         ByteCount actualSize;
-        OSStatus err;
-        err = ATSUGetAttribute( style, tag, sizeof( T ), &value, &actualSize );
-        assert( (err == noErr || err == kATSUNotSetErr) && actualSize == sizeof( T ) );
+        ATSUGetAttribute( style, tag, sizeof( T ), &value, &actualSize );
         return value;
     }
 
@@ -75,9 +68,7 @@ public:
             values[i] = attributes[i]->getValuePtr();
         }
         
-        OSStatus err;
-        err = ATSUSetAttributes( style, number, tags, sizes, values );
-        //assert( err == noErr );
+        ATSUSetAttributes( style, number, tags, sizes, values );
 
         // Free the arrays that were allocated
         delete[] tags;
@@ -87,9 +78,7 @@ public:
 
     void setFontFeature( ATSUFontFeatureType featureType, ATSUFontFeatureSelector selector )
     {
-        OSStatus err;
-        err = ATSUSetFontFeatures( style, 1, &featureType, &selector );
-        assert( err == noErr );
+        ATSUSetFontFeatures( style, 1, &featureType, &selector );
     }
 
     const ATSUStyle& getATSUStyle() const

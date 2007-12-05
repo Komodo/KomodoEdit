@@ -435,7 +435,7 @@ void SurfaceImpl::Release() {
 	}
 	bitmap = 0;
 	if (paletteOld) {
-		// Fonts are not deleted as they are owned by a Palette object
+		// Palettes are not deleted as they are owned by a Palette object
 		::SelectPalette(reinterpret_cast<HDC>(hdc),
 			reinterpret_cast<HPALETTE>(paletteOld), TRUE);
 		paletteOld = 0;
