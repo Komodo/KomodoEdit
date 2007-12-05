@@ -38,7 +38,7 @@ endif
 
 OPTIONS=-Wall -Wno-missing-braces -Wno-char-subscripts -DSCI_NAMESPACE -DMACOSX -DSCI_LEXER
 
-DEBUG = 1
+#DEBUG = 1
 
 ifdef DEBUG
 DFLAGS=-DDEBUG -g
