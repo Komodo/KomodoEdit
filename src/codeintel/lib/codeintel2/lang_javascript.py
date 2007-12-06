@@ -63,9 +63,6 @@ from SilverCity.ScintillaConstants import (
     SCE_UDL_CSL_COMMENT, SCE_UDL_CSL_COMMENTBLOCK, SCE_UDL_CSL_DEFAULT,
     SCE_UDL_CSL_IDENTIFIER, SCE_UDL_CSL_NUMBER, SCE_UDL_CSL_OPERATOR,
     SCE_UDL_CSL_REGEX, SCE_UDL_CSL_STRING, SCE_UDL_CSL_WORD,
-    SCE_UDL_M_DEFAULT, SCE_UDL_M_STAGO, SCE_UDL_M_TAGNAME,
-    SCE_UDL_M_TAGSPACE, SCE_UDL_M_STAGC, SCE_UDL_M_EMP_TAGC,
-    SCE_UDL_M_ETAGO,
 )
 
 from codeintel2.citadel import CitadelBuffer, ImportHandler
@@ -78,7 +75,7 @@ from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
 from codeintel2.jsdoc import JSDoc, JSDocParameter, jsdoc_tags
 from codeintel2.gencix_utils import *
 from codeintel2.database.langlib import LangDirsLib
-from codeintel2.udl import UDLBuffer
+from codeintel2.udl import UDLBuffer, is_udl_csl_style
 from codeintel2.accessor import AccessorCache
 from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
@@ -117,10 +114,6 @@ S_IN_ARGS = 1
 S_IN_ASSIGNMENT = 2
 S_IGNORE_SCOPE = 3
 S_OBJECT_ARGUMENT = 4
-# Special tags for multilang handling (i.e. through UDL)
-S_OPEN_TAG  = 10
-S_CHECK_CLOSE_TAG = 11
-S_IN_SCRIPT = 12
 
 # Types used by JavaScriptScanner when parsing information
 TYPE_NONE = 0
@@ -697,58 +690,6 @@ class JavaScriptImportHandler(ImportHandler):
 class JavaScriptCILEDriver(CILEDriver):
     lang = lang
 
-    def scan(self, request):
-        #print >> sys.stderr, request.path
-        log.info("scan %r", request.path)
-
-        mtime = request.mtime
-        if mtime is None:
-            mtime = int(time.time())
-
-        filename = request.path
-        # The 'path' attribute must use normalized dir separators.
-        if sys.platform.startswith("win"):
-            path = filename.replace('\\', '/')
-        else:
-            path = filename
-
-        try:
-            #XXX Sprinkling code like this for perf measurement can be helpful
-            #       if _g_clock_it: sys.stdout.write(" (stepname:%.3fs)" % (_g_clock()-_g_start_time))
-            # Scan the content, create out internal format
-            jscile = JavaScriptCiler(path, mtime)
-            # Profiling code: BEGIN
-            #import hotshot, hotshot.stats
-            #profiler = hotshot.Profile("%s.prof" % (__file__))
-            #profiler.runcall(jscile.scan_puretext, request.content)
-            # Profiling code: END
-            jscile.scan_puretext(request.content)
-
-            cix = createCixRoot()
-            # Convert the Javascript to CIX, content goes into cix element
-            jscile.convertToElementTreeFile(cix)
-
-            return get_cix_string(cix)
-
-            #raise NotImplementedError("TODO")
-        except Exception, ex:
-            import traceback
-            traceback.print_exc()
-
-            file_attrs = {"language": self.lang,
-                          "path": path}
-            file_attrs["error"] = str(ex)
-            file = '    <file%s/>' % getAttrStr(file_attrs)
-
-        cix = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<codeintel version="2.0">
-%s
-</codeintel>
-''' % file
-
-        return cix
-
     def scan_purelang(self, buf):
         #print >> sys.stderr, buf.path
         log.info("scan_purelang: path: %r", buf.path)
@@ -771,6 +712,8 @@ class JavaScriptCILEDriver(CILEDriver):
         return tree
 
     def scan_multilang(self, buf, csl_cile_driver=None):
+        """Given the buffer, scan the buffer tokens for CSL UDL tokens."""
+
         #print >> sys.stderr, buf.path
         log.info("scan_multilang: path: %r", buf.path)
 
@@ -782,23 +725,49 @@ class JavaScriptCILEDriver(CILEDriver):
         mtime = "XXX"
         jscile = JavaScriptCiler(norm_path, mtime)
 
-        # XXX - Should only be scanning this if it contains a "<script" tag
-        jscile.scan_udl_tokens(buf.accessor.gen_tokens())
-        #if buf.accessor.contains_text("<script"):
-        #    print 'Contains "<script"'
-        #    jscile.scan_udl_tokens(buf.accessor.gen_tokens())
+        jscile.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
+                              identiferStyle=SCE_UDL_CSL_IDENTIFIER,
+                              operatorStyle=SCE_UDL_CSL_OPERATOR,
+                              stringStyles=(SCE_UDL_CSL_STRING, ),
+                              numberStyle=SCE_UDL_CSL_NUMBER,
+                              commentStyles=jscile.UDL_COMMENT_STYLES)
+        for token in buf.accessor.gen_tokens():
+            # The tokens can be a generator of mixed UDL tokens (CSL, SSL, CSS
+            # etc.). Need to parse out the tokens that are not CSL.
+            if is_udl_csl_style(token['style']):
+                jscile.token_next(**token)
+        # Ensure we take notice of any text left in the ciler
+        jscile._endOfScanReached()
+        # We've parsed up the JavaScript, fix any variables types
+        jscile.cile.updateAllScopeNames()
 
         tree = createCixRoot()
         jscile.convertToElementTreeFile(tree, file_lang=buf.lang)
         return tree
 
     def scan_csl_tokens(self, file_elem, blob_name, csl_tokens):
+        """csl_tokens are pure JavaScript UDL tokens.
+        
+        There is no need to parse out other types of tokens.
+        """
+
         #print >> sys.stderr, file_elem.get("path")
         log.info("scan_csl_tokens: %r", file_elem.get("path"))
         blob_elem = createCixModule(file_elem, blob_name, lang,
                                     src=file_elem.get("path"))
         jscile = JavaScriptCiler()
-        jscile.scan_pure_csl_tokens(csl_tokens)
+        jscile.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
+                              identiferStyle=SCE_UDL_CSL_IDENTIFIER,
+                              operatorStyle=SCE_UDL_CSL_OPERATOR,
+                              stringStyles=(SCE_UDL_CSL_STRING, ),
+                              numberStyle=SCE_UDL_CSL_NUMBER,
+                              commentStyles=jscile.UDL_COMMENT_STYLES)
+        for csl_token in csl_tokens:
+            jscile.token_next(**csl_token)
+        # Ensure we take notice of any text left in the ciler
+        jscile._endOfScanReached()
+        # We've parsed up the JavaScript, fix any variables types
+        jscile.cile.updateAllScopeNames()
         jscile.convertToElementTreeModule(blob_elem)
 
 
@@ -1338,10 +1307,8 @@ class JavaScriptCiler:
 
         # state : used to store the current JS lexing state
         # state_stack : used to store JS state to return to
-        # multilang_state : used to store the current UDL lexing state
         self.state = S_DEFAULT
         self.state_stack = []
-        self.multilang_state = S_DEFAULT
 
         # JScile will store all references for what we scan in
         self.cile = JSFile(path, mtime)
@@ -3025,56 +2992,6 @@ class JavaScriptCiler:
         elif style in self.JS_COMMENT_STYLES:
             self.comment.append(text)
 
-    def token_next_for_udl(self, style, text, start_column, start_line, **other_args):
-        """Tokenizes the UDL buffer and parses information in "<script>" tags"""
-
-        # Need to first find an opening script tag, then we parse everything
-        # inside it
-        if style == SCE_UDL_M_DEFAULT:
-            # Don't care about default style
-            return
-        if self.multilang_state == S_DEFAULT:
-            # We are looking for an opening tag
-            #print "Looking for Tag open: style:%d, text:%r" % (style, text)
-            if style == SCE_UDL_M_STAGO:
-                #print "Tag open: %r" % (text)
-                self.multilang_state = S_OPEN_TAG
-        elif self.multilang_state == S_OPEN_TAG:
-            # We are looking for script tag
-            #print "Looking for 'script', found: %r" % (text)
-            if style == SCE_UDL_M_TAGNAME:
-                if text.lower() == "script":
-                    self.multilang_state = S_CHECK_CLOSE_TAG
-                else:
-                    # Wrong tag, go back to default state
-                    self.multilang_state = S_DEFAULT
-            elif style == SCE_UDL_M_TAGSPACE:
-                # XXX -- hrmmm... check namespace?
-                pass
-            else:
-                #print "Unexpeced style: %d" % (style)
-                self.multilang_state = S_DEFAULT
-        elif self.multilang_state == S_CHECK_CLOSE_TAG:
-            #print "Looking for 'end of tag', found: %r" % (text)
-            # We've found the script tag, make sure it does not close itself
-            # Example: <script />
-            if style == SCE_UDL_M_STAGC:
-                # Welcome to script world!
-                self.multilang_state = S_IN_SCRIPT
-            elif style == SCE_UDL_M_EMP_TAGC:
-                # The tag closes itself
-                self.multilang_state = S_DEFAULT
-            else:
-                pass
-        elif self.multilang_state == S_IN_SCRIPT:
-            # We are looking for end script tag
-            if style == SCE_UDL_M_ETAGO:
-                # Leave the script tag!
-                # Do we care what type of tag it is?? I don't think so...
-                self.multilang_state = S_DEFAULT
-            else:
-                self.token_next(style, text, start_column, start_line, **other_args)
-
     def scan_puretext(self, content, updateAllScopeNames=True):
         """Scan the given pure javascript content"""
 
@@ -3087,39 +3004,6 @@ class JavaScriptCiler:
         if updateAllScopeNames:
             # We've parsed up the JavaScript, fix any variables types
             self.cile.updateAllScopeNames()
-
-    def scan_pure_csl_tokens(self, pure_csl_tokens):
-        """csl_tokens are pure JavaScript UDL tokens.
-        
-        There is no need to parse out other types of tokens.
-        """
-        self.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
-                            identiferStyle=SCE_UDL_CSL_IDENTIFIER,
-                            operatorStyle=SCE_UDL_CSL_OPERATOR,
-                            stringStyles=(SCE_UDL_CSL_STRING, ),
-                            numberStyle=SCE_UDL_CSL_NUMBER,
-                            commentStyles=self.UDL_COMMENT_STYLES)
-        for csl_token in pure_csl_tokens:
-            self.token_next(**csl_token)
-        # We've parsed up the JavaScript, fix any variables types
-        self.cile.updateAllScopeNames()
-
-    def scan_udl_tokens(self, tokens):
-        """'tokens' is a generator of mixed UDL tokens (CSL, SSL, CSS
-        etc.). Need to parse out the tokens that are not CSL.
-        """
-        self.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
-                            identiferStyle=SCE_UDL_CSL_IDENTIFIER,
-                            operatorStyle=SCE_UDL_CSL_OPERATOR,
-                            stringStyles=(SCE_UDL_CSL_STRING, ),
-                            numberStyle=SCE_UDL_CSL_NUMBER,
-                            commentStyles=self.UDL_COMMENT_STYLES)
-        for token in tokens:
-            self.token_next_for_udl(**token)
-        # Ensure we take notice of any text left in the ciler
-        self._endOfScanReached()
-        # We've parsed up the JavaScript, fix any variables types
-        self.cile.updateAllScopeNames()
 
     def convertToElementTreeFile(self, cixelement, file_lang):
         """Store JS information into the cixelement as a file(s) sub element"""
