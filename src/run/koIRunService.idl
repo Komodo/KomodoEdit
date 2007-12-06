@@ -228,14 +228,17 @@ interface koITerminalHandler : nsISupports{
     void setLanguage(in koILanguage languageObj);
     readonly attribute boolean active;
     // You must call "startSession()" to make the output window "active"
-    // and create valid std handlers ("stdin", "stdout", "stderr"). When
-    // the session is complete, call "endSession()" to cleanup.
+    // When the session is complete, call "endSession()" to cleanup.
     void startSession();
     // - Std handlers to be passed to child processes. They will proxy
     //   reading and writing between the child and the terminal window.
     readonly attribute koIFile stdin;
     readonly attribute koIFile stdout;
     readonly attribute koIFile stderr;
+    // Sets up the hooks for proxying the io from the child process to
+    // and from the terminal.
+    void hookIO(in koIFile stdin, in koIFile stdout, in koIFile stderr,
+                in wstring name);
 
     // if this is set, stdin from the terminal will be written here instead
     // once it is unset, it will return to the regular stdin handler.  if the

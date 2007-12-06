@@ -40,13 +40,8 @@
 import os
 import sys
 import re
-import types
 import threading
-import process
-import time
 import logging
-import traceback
-import Queue
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
@@ -121,17 +116,31 @@ class koTerminalHandler:
         # XXX scintilla MUST NEVER be used from a thread!!!
         self._scintilla = scintilla
 
+        # Does not look like these are necessary anymore... [ToddW]
         # Synchronization between the terminal and its _KoRunTerminalFile's.
-        self.mutex = threading.RLock()
-        self.ui_mutex = threading.Lock()
-        self.stateChange = threading.Condition()
+        #self.mutex = threading.Lock()
+        #self.ui_mutex = threading.Lock()
+        #self.stateChange = threading.Condition()
 
     def setLanguage(self, lang):
         self.language = lang
 
     def startSession(self):
+        log.debug("Start session")
         self.active = 1
         self.lastWritePosition = 0
+
+    def hookIO(self, stdin, stdout, stderr, name=None):
+        # Setup hooks to pipe the stdin, stdout and stderr between the
+        # io handles supplied and the Komodo terminal/Scintilla.
+        if stdin:
+            self.stdin = _TerminalWriter("<stdin>", stdin, self, name)
+        if stdout:
+            self._stdout_thread = _TerminalReader("<stdout>", stdout, self, name)
+            self._stdout_thread.start()
+        if stderr:
+            self._stderr_thread = _TerminalReader("<stderr>", stderr, self, name)
+            self._stderr_thread.start()
 
     def endSession(self):
         self.active = 0
@@ -564,3 +573,116 @@ class KoRunTerminal(koTerminalHandler, TreeView):
                 max(0, len(self._data) - 1 - self._updateGroupCounter),
                 self._updateGroupCounter)
             self._updateGroupCounter = 0
+
+#---- helpers
+
+class _TerminalWriter(object):
+    """Give the terminal the ability to safely write to stdin of a process.
+
+    Keeps stdin synchronized so it can be used between different threads.
+    """
+
+    _com_interfaces_ = [components.interfaces.koIFile]
+
+    def __init__(self, name, stdin, terminal, cmd=None):
+        """Create the link between the terminal and the process stdin.
+            "name" is the alias for this type of io.
+            "stdin" is the process stdin file handle.
+            "terminal" is a koTerminalHandler.
+            "cmd" is the process run command that stdin is linked to.
+        """
+        log.debug("_TerminalWriter.__init__")
+        self.__name = name
+        self.__stdin = stdin
+        self.__terminal = terminal
+        self.__cmd = cmd
+        # A state change is defined as the buffer being closed or a
+        # write occuring.
+        self.__closed = 0
+
+    def write(self, s):
+        log.debug("_TerminalWriter.write:: s: %r", s)
+        # Silently drop writes after the buffer has been close()'d.
+        if self.__closed:
+            return
+        # If empty write, close buffer (mimicking behaviour from
+        # koprocess.cpp.)
+        if not s:
+            self.close()
+            return
+
+        #self.__terminal.mutex.acquire()
+        try:
+            self.__stdin.write(s)
+            self.__stdin.flush()
+        finally:
+            #self.__terminal.mutex.release()
+            pass
+        log.debug("_TerminalWriter.write:: written succssfully.")
+
+    def writelines(self, list):
+        self.write(''.join(list))
+
+    def puts(self, data):
+        self.write(data)
+
+    def close(self):
+        if not self.__closed:
+            log.info("_TerminalWriter.close %r" % self.__name)
+            self.__stdin.close()
+            self.__closed = 1
+
+class _TerminalReader(threading.Thread):
+    """Give the process the ability to safely write to the terminal.
+
+    Ensures all stdout/stderr output is passed on the terminal.
+    """
+
+    def __init__(self, name, stdio, terminal, cmd=None):
+        """Create the link between the terminal and the process output.
+            "name" is the alias for this type of io.
+            "stdio" is the process stdout/stderr file handle.
+            "terminal" is a koTerminalHandler.
+            "cmd" is the process run command that stdin is linked to.
+        """
+        threading.Thread.__init__(self, name="Process piping thread")
+        self.setDaemon(True)
+        self.__name = name
+        self.__stdio = stdio
+        self.__terminal = terminal
+        self.__cmd = cmd
+
+    def run(self):
+        running = True
+        encodingServices = components.classes['@activestate.com/koEncodingServices;1'].\
+                         getService(components.interfaces.koIEncodingServices);
+        fileno = self.__stdio.fileno()
+        name = self.__name
+        try:
+            while running:
+                # We use "os.read()" as it will block until data is available,
+                # but it will return when there is at least some data there,
+                # though it may not be the full 4096 bytes.
+                data = os.read(fileno, 4096)
+                if not data:
+                    break
+                # Anything we get in must be converted to unicode if it
+                # isn't already.  Try utf-8 first, if that fails, fallback to
+                # the default system encoding.
+                try:
+                    data, enc, bom = encodingServices.\
+                                        getUnicodeEncodedString(data)
+                    l = len(data.encode('utf-8'))
+                except:
+                    l = len(data)
+                #self.__terminal.mutex.acquire()
+                #try:
+                self.__terminal.addText(l, data, name)
+                #finally:
+                    #self.__terminal.mutex.release()
+        except Exception, ex:
+            log.exception("_TerminalReader:: exception during %r socket read "
+                          "for cmd: %r", name, self.__cmd)
+        log.debug("_TerminalReader finished reading %r for cmd: %r",
+                  name, self.__cmd)
+

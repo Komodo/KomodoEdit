@@ -284,6 +284,7 @@
                     event.stopPropagation();
                 }
                 if (typeof(this.dataToSend) == 'undefined') return;
+                //dump('sending data ['+this.dataToSend+']\n');
                 if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(this.dataToSend)) {
                     this.terminalHandler.stdin.puts(this.dataToSend+'\n');
                 }
@@ -460,7 +461,7 @@
                 for (var i = 0; i < lines.length; i++) {
                     this.addLineToHistory(lines[i]);
                 }
-                //dump('sending data ['+data+']\n');
+                //dump('sending pasted data ['+data+']\n');
                 if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(data)) {
                     // If there is a stdin, send the input to it.
                     // There won't be for macros that write to the command output window.
@@ -527,9 +528,11 @@
             // send EOF
             if (!this.terminalHandler.active) return;
             try {
+                //dump('sending EOF\n');
                 if (this.terminalHandler.stdinHandler)
                     this.terminalHandler.stdinHandler.puts(null)
-                this.terminalHandler.stdin.close();
+                if (this.terminalHandler.stdin)
+                    this.terminalHandler.stdin.close();
                 this.scimoz.newLine();
                 this.scimoz.readOnly = 1;
                 if (typeof(event) != 'undefined') {
