@@ -187,6 +187,28 @@ static void synchronizeDocStart(unsigned int& startPos,
     initStyle = SCE_TCL_DEFAULT;
 }
 
+static inline bool isSafeAlnum(char ch) {
+    return ((unsigned int) ch >= 128) || isalnum(ch) || ch == '_';
+}
+
+// precondition: pos > 0 && styler[pos - 1] == '('
+// returns: the point after the ")", if it ends a
+// simple key, or 0 if there is no simple key.
+static int getSimpleKeyExtent(unsigned int pos,
+			       unsigned int lengthDoc,
+			       Accessor &styler) {
+    if (pos == lengthDoc || !isSafeAlnum(styler[(int) pos])) {
+	// require at least one char before the closing paren
+	return 0;
+    }
+    // assert styler[pos - 1] == '(';
+    while (++pos < lengthDoc) {
+	char ch = styler[(int) pos];
+	if (ch == ')') return pos + 1;
+	else if (!isSafeAlnum(ch)) return 0;
+    }
+    return 0;
+}
 
 static void ColouriseTclDoc(unsigned int startPos,
 			    int length,
@@ -203,7 +225,6 @@ static void ColouriseTclDoc(unsigned int startPos,
     bool cmdStart	= true;
     // Keep track of whether a variable is using braces or it is an array
     bool varBraced	= 0;
-    bool varSeenCloseParen = 0;
     bool isMultiLineString = false;
 
     //fprintf(stderr, "Start lexing at pos %d, len %d, style %d\n", startPos, length, initStyle);
@@ -317,8 +338,7 @@ static void ColouriseTclDoc(unsigned int startPos,
 		colourString(i-1, state, styler);
 		state = SCE_TCL_VARIABLE;
 		// note whether this is a braced simple or array var
-		varBraced = (chNext == '{');
-		varSeenCloseParen = 0;
+		varBraced = false;
 	    } else if (isTclOperator(ch) || ch == ':') {
 		if (ch == '-' && isascii(chNext) && isalpha(chNext)) {
 		    colourString(i-1, state, styler);
@@ -362,33 +382,59 @@ static void ColouriseTclDoc(unsigned int startPos,
 		 * A variable is ${?\w*}? and may be directly followed by
 		 * another variable.  This should handle weird cases like:
 		 * $a$b           ;# multiple vars
-		 * $a(def)(ghi)   ;# (def) is array key, (ghi) is just chars
 		 * ${a(def)(def)} ;# all one var
 		 * ${abc}(def)    ;# (def) is not part of the var name now
+		 * Dropped post Komodo 4.2.1:
+		 * Old: $a(def)(ghi)   ;# (def) is array key, (ghi) is just chars
+		 * New: $a(def)(ghi)   ;# ( and ) are operators, def and ghi are chars
+		 *   This is because array keys can be complex.
+		 *   Special case: $xx([a-zA-Z0-9_]+) is colored as a variable
 		 */
-		if (!(iswordchar(ch) || ch == ':' || ch == '$'
-		      || (chPrev == '$' && ch == '{')
-		      || (varBraced && ch == '}')
-		      || (!varSeenCloseParen && (ch == '(' || ch == ')')))) {
-		    colourString(i-1, state, styler);
-		    // retry current character in default state
-		    state = SCE_TCL_DEFAULT;
-		    if (ch != '\n' && ch != '\r') {
-			// Avoid folding complications
-			i--;
-			chNext = ch;
-			continue;
+		if (!iswordchar(ch)) {
+		    int endPoint = 0; // Assume no ending
+		    if (varBraced) {
+			if (ch == '}') {
+			    varBraced = false;
+			    endPoint = i;
+			}
+		    } else if (ch == ':' && chNext == ':') {
+			// continue, it's part of a simple name, but advance
+			// so we don't stumble on the second colon
+			i++;
+			ch = chNext;
+			chNext = styler.SafeGetCharAt(i + 1);
+		    } else if (ch == '{' && chPrev == '$') {
+			varBraced = true;
+		    } else if (ch == '(') {
+			endPoint = getSimpleKeyExtent(i + 1, lengthDoc, styler);
+			if (endPoint > 0) {
+			    // Fabricate all the items, and continue
+			    // after the close-paren.
+			    // endPoint points one past the location of the
+			    // close-paren
+			    colourString(endPoint - 1, state, styler);
+			    state = SCE_TCL_DEFAULT;
+			    i = endPoint - 1;
+			    chNext = styler.SafeGetCharAt(endPoint);
+			    ch = styler[i];
+			    continue;
+			} else {
+			    endPoint = i - 1;
+			}
+		    } else {
+			// Switch state and retry with this char
+			endPoint = i - 1;
 		    }
-		} else if ((!varBraced && (ch == ')'))
-			   || (varBraced && (ch == '}'))) {
-		    varSeenCloseParen = 1;
-		} else if (ch == '$') {
-		    /*
-		     * If this is a following variable, make sure that we have
-		     * the correct value for varBraced and reset CloseParen.
-		     */
-		    varBraced = (chNext == '{');
-		    varSeenCloseParen = 0;
+		    if (endPoint > 0) {
+			colourString(endPoint, state, styler);
+			state = SCE_TCL_DEFAULT;
+			if (endPoint == (int) i - 1) {
+			    // retry current character in default state
+			    --i;
+			    chNext = ch;
+			    ch = chPrev;
+			}
+		    }
 		}
 	    } else if (state == SCE_TCL_OPERATOR) {
 		/* not reached */
