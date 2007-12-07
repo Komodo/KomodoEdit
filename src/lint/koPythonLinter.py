@@ -171,7 +171,7 @@ class KoPythonLinter:
     
             results = koLintResults()
             try:
-                argv = [python, compilePy, tmpFileName]
+                argv = [python, '-u', compilePy, tmpFileName]
                 #print "---- check syntax of the following with %r" % argv
                 #sys.stdout.write(text)
                 #print "-"*70
@@ -202,8 +202,7 @@ class KoPythonLinter:
                         pythonPath = pythonPath.replace('\\', '/')
                     env["PYTHONPATH"] = pythonPath
                 
-                p = process.ProcessOpen(argv, cwd=cwd, env=env,
-                                        universal_newlines=True)
+                p = process.ProcessOpen(argv, cwd=cwd, env=env)
                 p.stdin.close()
                 error = p.stderr.read()
                 output = p.stdout.read()
