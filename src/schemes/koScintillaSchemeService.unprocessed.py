@@ -661,7 +661,7 @@ class KoScintillaSchemeService:
                 style.append('}\n\n');
                 css.append(''.join(style))
         return ''.join(css)
-
+    
     def convertToHTMLFile(self, scimoz, title, language, style_bits, encoding,
                           fname, selectionOnly, forceColor):
         cp = scimoz.currentPos
@@ -694,7 +694,11 @@ class KoScintillaSchemeService:
         _globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                        getService(components.interfaces.koIPrefService).prefs
         useLineNos = _globalPrefs.getBooleanPref('print_showLineNos')
-        lineLength = _globalPrefs.getLongPref('print_lineLength')
+        maxLineLength = _globalPrefs.getLongPref('print_lineLength')
+        # Sanity check
+        if maxLineLength < 0:
+            log.warn("Found a negative pref for print_lineLength = %d", maxLineLength)
+            maxLineLength = 0
         scimoz.colourise(0, scimoz.textLength)
         textlength = scimoz.textLength
         if selectionOnly:
@@ -706,7 +710,7 @@ class KoScintillaSchemeService:
             lineNo += 1
             lineEnd = min(textlength, scimoz.positionFromLine(lineNo))
             self._addLogicalLine(html, scimoz, lineStart, lineEnd, language, lineNo,
-                                 useLineNos, style_bits, lineLength,
+                                 useLineNos, style_bits, maxLineLength,
                                  selectionOnly)
             if lineEnd == textlength: break
             if selectionOnly and lineEnd > scimoz.selectionEnd:
@@ -730,7 +734,7 @@ class KoScintillaSchemeService:
             raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
 
     def _addLogicalLine(self, html, scimoz, lineStart, lineEnd, language,
-                        lineNo, useLineNos, style_bits, lineLength,
+                        lineNo, useLineNos, style_bits, maxLineLength,
                         selectionOnly):
         if useLineNos:
             lineNoStr = '%4d    ' % lineNo
@@ -740,15 +744,24 @@ class KoScintillaSchemeService:
         else:
             prefixLen = 0
             html.write('<br />')
-        if lineLength == 0:
-            lineLength = lineEnd-lineStart
-        lineLength = lineLength - prefixLen
-        numlines, leftover = divmod(lineEnd-lineStart, lineLength)
+        if maxLineLength == 0:
+            maxLineLength = lineEnd - lineStart
+        else:
+            maxLineLength -= prefixLen
+            if maxLineLength <= 0:
+                # This is silly -- they've specified a max line-width
+                #    of 1 through 8, but we have a consistent story for it:
+                # Do more or less what they requested,
+                # and spit out one character per line.
+                log.warn("Maximum line-width of %d is less-than the line-number region of %d",
+                         maxLineLength, prefixLen)
+                maxLineLength = 1
+        numlines, leftover = divmod(lineEnd - lineStart, maxLineLength)
         if leftover:
             numlines += 1
         for physline in range(numlines):
-            start = lineStart + lineLength * physline
-            end = min(lineEnd, start + lineLength)
+            start = lineStart + maxLineLength * physline
+            end = min(lineEnd, start + maxLineLength)
             if selectionOnly:
                 if end < scimoz.selectionStart:
                     continue
