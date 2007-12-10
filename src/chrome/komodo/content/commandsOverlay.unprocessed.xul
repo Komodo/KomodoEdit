@@ -505,6 +505,14 @@
             id="cmd_beginningOfWordExtend" key="key_cmd_beginningOfWordExtend"
             oncommand="ko.commands.doCommand('cmd_beginningOfWordExtend')"
             desc="&editorSelectToBeginningOfWord.desc;"/>
+        <command
+            id="cmd_paraUp" key="key_cmd_paraUp"
+            oncommand="ko.commands.doCommand('cmd_paraUp')"
+            desc="&editorParaUp.desc;"/>
+        <command
+            id="cmd_paraDown" key="key_cmd_paraDown"
+            oncommand="ko.commands.doCommand('cmd_paraDown')"
+            desc="&editorParaDown.desc;"/>
         <!-- The remaining ones are only available when a read/write
              editor has focus: optimization possible -->
         <command

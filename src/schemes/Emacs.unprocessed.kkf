@@ -65,6 +65,8 @@ binding cmd_documentHome  Meta+Shift+,
 binding cmd_wordRight  Meta+F
 binding cmd_wordLeft Meta+B
 binding cmd_splitLine Meta+Ctrl+O
+binding cmd_paraUp Meta+P
+binding cmd_paraDown Meta+N
 # #else
 binding cmd_editProperties Alt+Return
 binding cmd_copyRegion Alt+W
@@ -81,6 +83,7 @@ binding cmd_wordPartLeft  Alt+Left
 binding cmd_wordPartLeftExtend  Alt+Shift+Left
 binding cmd_wordPartRight  Alt+Right
 binding cmd_wordPartRightExtend  Alt+Shift+Right
+binding cmd_pageUp Escape V
 binding cmd_pageUp Alt+V
 binding cmd_replace Alt+Shift+5
 binding cmd_documentEnd  Alt+Shift+.
@@ -88,6 +91,9 @@ binding cmd_documentHome  Alt+Shift+,
 binding cmd_wordRight  Alt+F
 binding cmd_wordLeft Alt+B
 binding cmd_splitLine Alt+Ctrl+O
+binding cmd_paraUp Escape P
+binding cmd_paraUp Alt+P
+binding cmd_paraDown Escape N
 # #endif
 binding cmd_transientMarkSet Ctrl+Space
 binding cmd_completeWordBack Ctrl+Shift+Space

@@ -130,6 +130,8 @@
 <!ENTITY editorMoveToPreviousMarkInMarkRing.desc "Editor: Move to previous mark in mark ring">
 <!ENTITY editorPageDown.desc "Editor: Page Down">
 <!ENTITY editorPageUp.desc "Editor: Page Up">
+<!ENTITY editorParaUp.desc "Editor: Paragraph Up">
+<!ENTITY editorParaDown.desc "Editor: Paragraph Down">
 <!ENTITY editorPaste.desc "Editor: Paste">
 <!ENTITY editorPasteAndSelect.desc "Editor: Paste and Select">
 <!ENTITY editorRedo.desc "Editor: Redo">

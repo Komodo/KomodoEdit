@@ -90,6 +90,8 @@ command_map = {
     'cmd_fontZoomOut' : 'zoomOut',
     'cmd_toggleOvertype' : 'editToggleOvertype',
     #'cmd_newline' : 'newLine',
+    'cmd_paraUp' : 'paraUp',
+    'cmd_paraDown' : 'paraDown',
     'cmd_copyLine' : 'lineCopy',
     'cmd_homeAbsolute' : 'home',
 }
