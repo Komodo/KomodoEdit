@@ -699,8 +699,10 @@ Casper.UnitTest.TestCaseSerialClassAsync.prototype.runOne = function()
     this.currentTest = this._testChild[this._testIndex++];
     if (Casper.UnitTest.testRunner.shouldRunTestchild(this.name, this.currentTest.name)) {
         try {
-            this[this.currentTest.name]();
+            // Pass the test by default, this allows the called function to be
+            // able to set the test results itself.
             this.currentTest.result.passes();
+            this[this.currentTest.name]();
         } catch(ex if ex instanceof Casper.UnitTest.AssertException) {
             this.currentTest.result.fails(ex.message, ex);
             this.result.fails(ex.message, ex);
@@ -712,8 +714,10 @@ Casper.UnitTest.TestCaseSerialClassAsync.prototype.runOne = function()
             this.currentTest.wasRun = true;
         }
     }
-    if (!this.currentTest.asyncComplete)
+    if (!this.currentTest.asyncComplete ||
+        (this.currentTest.result.type != Casper.UnitTest.PASS)) {
         this.runNext();
+    }
 }
 
 Casper.UnitTest.TestCaseSerialClassAsync.prototype.runNext = function()
