@@ -1206,19 +1206,11 @@ exit $RETVAL""" % data)
 
         try:
             child = process.ProcessProxy(command, cwd=cwd, env=envDict)
+            output, error = child.communicate(input)
+            return (child.returncode, output, error)
         except process.ProcessError, ex:
             _gLastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
-
-        if input:
-            child.stdin.write(input)
-            child.stdin.close()
-        retval = child.wait()
-        output = child.stdout.read()
-        error = child.stderr.read()
-        child.close()
-
-        return retval, output, error
 
     def _WaitAndNotify(self, child, command):
         retval = child.wait(None)
