@@ -2187,6 +2187,15 @@ class PHPParser:
             # Assignment to the variable
             if assignmentChar is not None:
                 p += 1
+                if p+1 >= len(styles):
+                    return typeNames, p
+
+            if styles[p] == self.PHP_OPERATOR and text[p] == '&':
+                log.debug("_getVariableType: skipping over reference char '&'")
+                p += 1
+                if p+1 >= len(styles):
+                    return typeNames, p
+
             if styles[p] == self.PHP_WORD:
                 # Keyword
                 keyword = text[p]
@@ -2406,14 +2415,18 @@ class PHPParser:
 
             assignChar = text[p]
             typeNames = []
+            # Work out the citdl
             if p+1 < len(styles) and styles[p] == self.PHP_OPERATOR and \
                                          assignChar in "=":
                 # Assignment to the variable
                 typeNames, p = self._getVariableType(styles, text, p, assignChar)
+                log.debug("typeNames: %r", typeNames)
                 # Skip over paren arguments from class, function calls.
                 if typeNames and p < len(styles) and \
                    styles[p] == self.PHP_OPERATOR and text[p] == "(":
                     p = self._skipPastParenArguments(styles, text, p+1)
+
+            # Create the variable cix information.
             if p < len(styles) and styles[p] == self.PHP_OPERATOR and \
                                          text[p] in ",;":
                 log.debug("Line %d, variable definition: %r",
