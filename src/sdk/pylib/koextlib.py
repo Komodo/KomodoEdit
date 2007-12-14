@@ -60,6 +60,7 @@ A Komodo extension source dir looks like this:
     # Other extension hooks
     components/         # XPCOM components
     templates/          # Komodo "New File" templates
+    project-templates/  # Komodo "New Project" templates
     lexers/             # UDL-based ".lexres" files for custom language
                         #   syntax coloring. These are built with the
                         #   "luddite" tool. Typically source ".udl" files
@@ -539,7 +540,8 @@ def build_ext(base_dir, log=None):
         xpi_manifest.append(lexers_dir)
 
     # Remaining hook dirs that are just included verbatim in the XPI.
-    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib"):
+    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
+                  "project-templates"):
         if isdir(dname):
             xpi_manifest.append(dname)
 

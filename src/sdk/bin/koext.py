@@ -270,7 +270,17 @@ class KoExtShell(cmdln.Cmdln):
                 
                 source files:
                     templates/
+
+            Project templates
+                A file hierarchy under here maps into Komodo's "New
+                Project from Template" dialog. For example,
+                "project-templates/Common/ILoveChocolate.kpz" will result
+                in a new project template called "ILoveChocolate" in the
+                "Common" folder of the "New Project from Template" dialog.
                 
+                source files:
+                    project-templates/
+
             lexers
                 Komodo User-Defined Languages (UDL) system provides a
                 facility for writing regular expression, state-based lexers
