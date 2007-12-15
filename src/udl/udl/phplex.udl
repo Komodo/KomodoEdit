@@ -401,7 +401,7 @@ state IN_SSL_NON_KEYWORD_IDENTIFIER_2:
 
 state IN_SSL_COMMENT_1 : 
 '?>' : paint(upto, SSL_COMMENT), redo => IN_SSL_DEFAULT
-/$/ : paint(include, SSL_COMMENT), => IN_SSL_DEFAULT
+/[\r\n]/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT
 
 state IN_SSL_COMMENT_2 : 
 '*/' : paint(include, SSL_COMMENTBLOCK), => IN_SSL_DEFAULT
