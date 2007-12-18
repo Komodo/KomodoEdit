@@ -617,15 +617,6 @@ bool ScintillaMacOSX::DragLeave(DragRef inDrag )
     return true;
 }
 
-enum
-{
-    kFormatBad,
-    kFormatText,
-    kFormatUnicode,
-    kFormatUTF8,
-    kFormatFile
-};
-
 bool ScintillaMacOSX::GetDragData(DragRef inDrag, PasteboardRef &pasteBoard,
                                   SelectionText *selectedText, bool *isFileURL)
 {
@@ -688,7 +679,7 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
                                         bool *isFileURL)
 {
     // how many items in the pasteboard?
-    CFDataRef data;
+    
     CFStringRef textString = NULL;
     bool isRectangular = selectedText ? selectedText->rectangular : false;
     ItemCount i, itemCount;
@@ -726,25 +717,25 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
             CFStringRef flavorType = (CFStringRef)CFArrayGetValueAtIndex(flavorTypeArray, j);
             if (flavorType != NULL) 
             {
-                int format = kFormatBad;
+                CFStringEncoding encoding = kCFStringEncodingInvalidId;
                 if (UTTypeConformsTo(flavorType, CFSTR("public.file-url"))) {
-                    format = kFormatFile;
+                    encoding = kCFStringEncodingMacRoman;
                     *isFileURL = true;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("com.scintilla.utf16-plain-text.rectangular"))) {
-                    format = kFormatUnicode;
+                    encoding = kCFStringEncodingUnicode;
                     isRectangular = true;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-plain-text"))) { // this is 'utxt'
-                    format = kFormatUnicode;
+                    encoding = kCFStringEncodingUnicode;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text"))) {
-                    format = kFormatUTF8;
+                    encoding = kCFStringEncodingUTF8;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("com.apple.traditional-mac-plain-text"))) { // this is 'TEXT'
-                    format = kFormatText;
+                    encoding = kCFStringEncodingMacRoman;
                 }
-                if (format == kFormatBad)
+                if (encoding == kCFStringEncodingInvalidId)
                     continue;
                 
                 // if we got a flavor match, and we have no textString, we just want
@@ -755,24 +746,9 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
                 }
                 if (PasteboardCopyItemFlavorData(pasteBoard, itemID, flavorType, &flavorData) == noErr)
                 {
-                    CFIndex dataSize = CFDataGetLength (flavorData);
-                    const UInt8* dataBytes = CFDataGetBytePtr (flavorData);
-                    switch (format)
-                    {
-                        case kFormatFile:
-                        case kFormatText:
-                            data = CFDataCreate (NULL, dataBytes, dataSize);
-                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingMacRoman);
-                            break;
-                        case kFormatUnicode:
-                            data = CFDataCreate (NULL, dataBytes, dataSize);
-                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUnicode);
-                            break;
-                        case kFormatUTF8:
-                            data = CFDataCreate (NULL, dataBytes, dataSize);
-                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUTF8);
-                            break;
-                    }
+                    CFIndex dataSize = CFDataGetLength(flavorData);
+                    const UInt8* dataBytes = CFDataGetBytePtr(flavorData);
+                    textString = CFStringCreateWithBytes(NULL, dataBytes, dataSize, encoding, false);
                     CFRelease (flavorData);
                     goto PasteboardDataRetrieved;
                 }
@@ -781,7 +757,6 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
     }
 PasteboardDataRetrieved:
     if (flavorTypeArray != NULL) CFRelease(flavorTypeArray);
-        int newlen = 0;
     if (textString != NULL) {
         selectedText->s = GetStringFromCFString(textString, &selectedText->len);
         selectedText->rectangular = isRectangular;
@@ -800,14 +775,16 @@ char *ScintillaMacOSX::GetStringFromCFString(CFStringRef &textString, int *textL
 
     // Allocate a buffer, plus the null byte
     CFIndex numUniChars = CFStringGetLength( textString );
+    CFRange range = { 0, numUniChars };
+    CFIndex bufLen;
     CFStringEncoding encoding = ( IsUnicodeMode() ? kCFStringEncodingUTF8 : kCFStringEncodingMacRoman);
-    CFIndex maximumByteLength = CFStringGetMaximumSizeForEncoding( numUniChars, encoding ) + 1;
-    char* cstring = new char[maximumByteLength];
+    
+    CFStringGetBytes(textString, range, encoding, '?', false, NULL, 0, &bufLen);
+    char* cstring = new char[bufLen + 1];
     CFIndex usedBufferLength = 0;
-    CFIndex numCharsConverted;
-    numCharsConverted = CFStringGetBytes( textString, CFRangeMake( 0, numUniChars ), encoding,
+    CFIndex numCharsConverted = CFStringGetBytes( textString, range, encoding,
                               '?', false, reinterpret_cast<UInt8*>( cstring ),
-                              maximumByteLength, &usedBufferLength );
+                              bufLen, &usedBufferLength );
     cstring[usedBufferLength] = '\0'; // null terminate the ASCII/UTF8 string
 
     // determine whether a BOM is in the string.  Apps like Emacs prepends a BOM
@@ -834,7 +811,6 @@ OSStatus ScintillaMacOSX::DragReceive(DragRef inDrag )
 
     PasteboardRef pasteBoard;
     SelectionText selectedText;
-    CFStringRef textString = NULL;
     bool isFileURL = false;
     if (!GetDragData(inDrag, pasteBoard, &selectedText, &isFileURL)) {
         return dragNotAcceptedErr;
@@ -1490,7 +1466,7 @@ void ScintillaMacOSX::Copy()
 #endif
         SelectionText selectedText;
         CopySelectionRange(&selectedText);
-        fprintf(stderr, "copied text is rectangular? %d\n", selectedText.rectangular);
+        //fprintf(stderr, "copied text is rectangular? %d\n", selectedText.rectangular);
         CopyToClipboard(selectedText);
     }
 }
@@ -1526,7 +1502,7 @@ void ScintillaMacOSX::Paste(bool forceRectangular)
     PasteboardCreate( kPasteboardClipboard, &theClipboard );
     bool ok = GetPasteboardData(theClipboard, &selectedText, &isFileURL);
     CFRelease( theClipboard );
-    fprintf(stderr, "paste is rectangular? %d\n", selectedText.rectangular);
+    //fprintf(stderr, "paste is rectangular? %d\n", selectedText.rectangular);
     if (!ok || !selectedText.s)
         // no data or no flavor we support
         return;
