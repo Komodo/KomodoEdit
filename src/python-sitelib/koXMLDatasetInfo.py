@@ -113,7 +113,7 @@ class DataSetHandler(EmptyDatasetHandler):
             node = tree.parent(node)
         if self.dataset.element_info(orig_node.localName):
             return self.dataset.possible_children(orig_node.localName)
-        return self.dataset.possible_children()
+        return self.dataset.all_element_types()
 
     def attrs(self, tree, node=None):
         if node is None:

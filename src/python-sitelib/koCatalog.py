@@ -565,12 +565,12 @@ class CatalogResolver:
             ns.update(catalog.urimap)
         return ns
         
-    def getDatasetForURI(self, uri):
+    def getDatasetForURI(self, uri, casename=False):
         if uri in self.datasets:
             return self.datasets[uri]
         ext = os.path.splitext(uri)[1]
         if ext == ".dtd":
-            dataset = DTD(uri, resolver=self).dataset
+            dataset = DTD(uri, resolver=self, casename=casename).dataset
         elif ext == ".rng":
             dataset = rng(uri).dataset
         else:
@@ -582,7 +582,8 @@ class CatalogResolver:
         uri = self.resolveExternalIdentifier(publicId, systemId)
         if not uri:
             return None
-        return self.getDatasetForURI(uri)
+        casename = publicId and publicId.find(" HTML ") >= 0
+        return self.getDatasetForURI(uri, casename)
 
     def getDatasetForNamespace(self, uri=None):
         uri = self.resolveURI(uri)

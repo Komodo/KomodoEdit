@@ -185,7 +185,7 @@ class dtd_entity:
         
 class dtd_element:
     _top_groups = re.compile(r'([+-]\(.*?\)|\(.*?\)[\*\+]|\(.*?\))(?:\s|$)', re.S|re.U)
-    def __init__(self, d):
+    def __init__(self, d, casename=False):
         self.name = d['name']
         self.data = d
         self.start = d['start']
@@ -207,7 +207,10 @@ class dtd_element:
                 for match in matches:
                     if match[0] == "-":
                         children = children.difference([n for n in groupedNamesRe.split(match) if n])
-                self.elements = list(children)
+                if casename:
+                    self.elements = [i.lower() for i in list(children)]
+                else:
+                    self.elements = list(children)
         
     def dump(self, stream):
         stream.write("ELEMENT: %s\n" % self.name)
@@ -260,7 +263,7 @@ class DTD:
     ELEMENT = 4
     ATTRIBUTE = 5
 
-    def __init__(self, filename, dataset=None, resolver=None):
+    def __init__(self, filename, dataset=None, resolver=None, casename=False):
         # hook up the lexical matches to a function that handles the token
         self.lex_matches = [
             ('whitespace',      self.doMultiLineBlock,  EXECFN|SKIPTOK),
@@ -283,6 +286,7 @@ class DTD:
             ('PROCTAG',         None,           SKIPTOK),
         ]
 
+        self.casename = casename
         self.resolver = resolver
         if dataset is None:
             dataset = dtd_dataset()
@@ -418,8 +422,10 @@ class DTD:
         groupedNamesRe = collector.res["groupedNamesSplitter"]
         names = [n for n in groupedNamesRe.split(d['name']) if n]
         for name in names:
+            if self.casename:
+                name = name.lower()
             d['name'] = name
-            t = dtd_element(d)
+            t = dtd_element(d, self.casename)
             self.dataset.elements[name] = t
             self.dataset.elements_caseless[name.lower()] = t
             if name in self.dataset.attlist:
