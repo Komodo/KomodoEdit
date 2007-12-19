@@ -1,0 +1,31 @@
+Index: win32/ScintillaWin.cxx
+===================================================================
+--- win32/ScintillaWin.cxx	(revision 500)
++++ win32/ScintillaWin.cxx	(working copy)
+@@ -2202,7 +2202,7 @@
+ 
+ 	hInstance = hInstance_;
+ 	bool result;
+-
++#if 0
+ 	// Register the Scintilla class
+ 	if (IsNT()) {
+ 
+@@ -2222,7 +2222,7 @@
+ 		wndclass.hIconSm = 0;
+ 		result = ::RegisterClassExW(&wndclass) != 0;
+ 	} else {
+-
++#endif
+ 		// Register Scintilla as a normal character window
+ 		WNDCLASSEX wndclass;
+ 		wndclass.cbSize = sizeof(wndclass);
+@@ -2238,7 +2238,7 @@
+ 		wndclass.lpszClassName = scintillaClassName;
+ 		wndclass.hIconSm = 0;
+ 		result = ::RegisterClassEx(&wndclass) != 0;
+-	}
++	//}
+ 
+ 	if (result) {
+ 		// Register the CallTip class
