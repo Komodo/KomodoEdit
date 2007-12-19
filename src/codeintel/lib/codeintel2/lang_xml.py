@@ -53,7 +53,6 @@ from codeintel2.udl import UDLBuffer, UDLLexer, XMLParsingBufferMixin
 
 import koXMLTreeService, koXMLDatasetInfo
 from koXMLDatasetInfo import getService
-from HTMLTreeParser import html_optional_close_tags
 
 from SilverCity.ScintillaConstants import (SCE_UDL_M_STAGO, SCE_UDL_M_DEFAULT,
                                            SCE_UDL_M_ETAGO, SCE_UDL_M_TAGNAME,
@@ -312,12 +311,13 @@ class XMLLangIntel(LangIntel):
             if hasattr(ctlr, "_comobj_"):
                 ctlr = UnwrapObject(ctlr)
 
+        cplns = None
         ctlr.start(buf, trg)
         type = trg.type
         if type == "tags-and-namespaces":
             # extract tag hierarchy context -> context
             # pass context to schema-based-evaluator -> completions
-            cplns = _StartTagNameAutoComplete(buf, trg)
+            cplns = self.cpln_start_tag(buf, trg, True)
         elif type == "gt-bang":
             cplns = [
                 ('doctype', 'DOCTYPE'),
@@ -325,7 +325,7 @@ class XMLLangIntel(LangIntel):
                 ('comment', '--'),
             ]
         elif type == "end-tag":
-            cplns = _EndTagAutoComplete(buf, trg)
+            cplns = self.cpln_end_tag(buf, trg)
         elif type == "well-known-ns":
             # this is a hack, we should get this from the catalog, but
             # prefix names are *not* standardized.
@@ -335,13 +335,13 @@ class XMLLangIntel(LangIntel):
             uris = getService().resolver.getWellKnownNamspaces()
             cplns = [('namespace', x) for x in uris]
         elif type == "ns-tags":
-            cplns = _StartLocalTagNameAutoComplete(buf, trg)
+            plns = self.cpln_start_tag(buf, trg, False)
         elif type == "ns-tags-attrs":
-            cplns = _StartAttrAutoComplete(buf, trg)
+            cplns = self.cpln_start_attrribute(buf, trg)
         elif type == "tag-attrs":
-            cplns = _StartAttrAutoComplete(buf, trg)
+            cplns = self.cpln_start_attrribute(buf, trg)
         elif type == "attr-enum-values":
-            cplns = _StartAttrValueAutoComplete(buf, trg)
+            cplns = self.cpln_start_attribute_value(buf, trg)
         else:
             ctlr.error("unknown UDL-based XML completion: %r" % (id,))
             ctlr.done("error")
@@ -350,6 +350,98 @@ class XMLLangIntel(LangIntel):
             ctlr.set_cplns(cplns)
         ctlr.done("success")
 
+
+    def get_valid_tagnames(self, buf, pos, withPrefix=False):
+        node = buf.xml_node_at_pos(pos)
+        #print "get_valid_tagnames NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
+        handlerclass = buf.xml_tree_handler(node)
+        tagnames = handlerclass.tagnames(buf.xml_tree, node)
+        if not tagnames:
+            return None
+        tagnames = list(tagnames)
+        tagnames.sort()
+        if withPrefix and node is not None:
+            prefix = buf.xml_tree.prefix(node)
+            if prefix:
+                return ["%s:%s" % (prefix, name) for name in tagnames]
+        return tagnames
+    
+    def get_valid_attributes(self, buf, pos):
+        """get_valid_attributes
+        get the current tag, and return the attributes that are allowed in that
+        element
+        """
+        node = buf.xml_node_at_pos(pos)
+        if node is None: return None
+        #print "get_valid_attributes NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
+        already_supplied = node.attrib.keys()
+        handlerclass = buf.xml_tree_handler(node)
+        attrs = handlerclass.attrs(buf.xml_tree, node)
+        if not attrs:
+            return None
+        attrs = [name for name in attrs if name not in already_supplied]
+        attrs.sort()
+        return attrs
+    
+    def get_valid_attribute_values(self, attr, buf, pos):
+        """get_valid_attribute_values
+        get the current attribute, and return the values that are allowed in that
+        attribute
+        """
+        node = buf.xml_node_at_pos(pos)
+        if node is None: return None
+        handlerclass = buf.xml_tree_handler(node)
+        values = handlerclass.values(attr, buf.xml_tree, node)
+        if not values:
+            return None
+        values.sort()
+        return values
+    
+    
+    def cpln_start_tag(self, buf, trg, withPrefix=True):
+        lastpos = trg.pos
+        if withPrefix:
+            accessor = buf.accessor
+            lastpos = accessor.text.rfind("<", 0, trg.pos)
+            lastpos = max(lastpos, 0)
+        tagnames = self.get_valid_tagnames(buf, lastpos, withPrefix=withPrefix)
+        if not tagnames:
+            return []
+        return [('element', tag) for tag in tagnames]
+    
+    def cpln_end_tag(self, buf, trg):
+        node = buf.xml_node_at_pos(trg.pos)
+        if node is None: return None
+        tagName = buf.xml_tree.tagname(node)
+        if not tagName:
+            return []
+        return [('element',tagName+">")]    
+    
+    def cpln_start_attribute_value(self, buf, trg):
+        accessor = buf.accessor
+        attrName = accessor.text_range(*accessor.contiguous_style_range_from_pos(trg.pos-3))
+        if not attrName:
+            log.warn("no attribute name in cpln_start_attribute_value")
+            return []
+    
+        values = self.get_valid_attribute_values(attrName, buf, trg.pos)
+        if not values:
+            return []
+    
+        return [('attribute_value', value) for value in values]
+    
+    def cpln_start_attrribute(self, buf, trg):
+        accessor = buf.accessor
+        attrs = self.get_valid_attributes(buf, trg.pos)
+        if not attrs:
+            return []
+        attrName = accessor.text_range(*accessor.contiguous_style_range_from_pos(trg.pos-1))
+        if attrName:
+            attrName = attrName.strip()
+        if attrName:
+            return [('attribute', attr+"=") for attr in attrs if attr.startswith(attrName)]
+        return [('attribute', attr+"=") for attr in attrs]
+    
 
 class XMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     lang = lang
@@ -373,202 +465,4 @@ def register(mgr):
                       import_handler_class=None,
                       cile_driver_class=None,
                       is_cpln_lang=True)
-
-
-#---- internal support
-
-
-def getTreeForDocument(accessor, uri=None):
-    return koXMLTreeService.getService().getTreeForURI(uri, accessor.text)
-    # XXX FIXME post beta 1
-    #if not uri:
-    #    return koXMLTreeService.getService().getTreeForContent(accessor.text)
-    #
-    #tree = koXMLTreeService.getService().treeFromCache(uri)
-    #if not tree:
-    #    tree = koXMLTreeService.getService().getTreeForURI(uri, accessor.text)
-    #return tree
-
-def getNodeForPosition(accessor, pos, uri=None):
-    tree = getTreeForDocument(accessor, uri)
-    if not tree:
-        return None, None
-    line, col = accessor.line_and_col_at_pos(pos)
-    node = tree.locateNode(line, col)
-    # XXX this needs to be worked out better
-    last_start = accessor.text.rfind('<', 0, pos)
-    last_end = accessor.text.find('>', last_start, pos)
-    if node is None and last_start >= 0:
-        node = koXMLTreeService.elementFromText(tree, accessor.text[last_start:last_end], node)
-    if node is None or node.start is None:
-        return tree, node
-    # elementtree line numbers are 1 based, convert to zero based
-    node_pos = accessor.pos_from_line_and_col(node.start[0]-1, node.start[1])
-    if last_end == -1 and last_start != node_pos:
-        #print "try parse ls %d le %d np %d pos %d %r" % (last_start, last_end, node_pos, pos, accessor.text[last_start:pos])
-        # we have a dirty tree, need to create a current node and add it
-        newnode = koXMLTreeService.elementFromText(tree, accessor.text[last_start:pos], node)
-        if newnode is not None:
-            return tree, newnode
-    return tree, node
-
-def getDefaultCompletion(tree, node, buf, trg):
-    #print "%s:%s node %r" % (buf.lang, trg.lang, node)
-    datasetSvc = getService()
-    if buf.lang == "XSLT":
-        if node is not None and not tree.namespace(node):
-            # Do we have an output element, if so, figure out if we're html.
-            # Cheap way to get the output element.
-            output = tree.tags.get(tree.namespace(tree.root), {}).get('output', None)
-            if output is not None:
-                lang = output.attrib.get('method').upper()
-                publicId = output.attrib.get('doctype-public')
-                systemId = output.attrib.get('doctype-system')
-                if publicId or systemId:
-                    default_dataset_info = (publicId, systemId, None)
-                else:
-                    default_dataset_info = (
-                        datasetSvc.getDefaultPublicId(lang, buf.env),
-                        None,
-                        datasetSvc.getDefaultNamespace(lang, buf.env)
-                    )
-                #print "get output type %r" % (default_dataset_info,)
-                return default_dataset_info
-    
-    return (datasetSvc.getDefaultPublicId(trg.lang, buf.env),
-            None,
-            datasetSvc.getDefaultNamespace(trg.lang, buf.env))
-
-def getValidTagNames(accessor, pos, buf, trg, withPrefix=False):
-    tree, node = getNodeForPosition(accessor, pos, buf.path)
-    #print "getValidTagNames NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
-    default = getDefaultCompletion(tree, node, buf, trg)
-    handlerclass = koXMLDatasetInfo.get_tree_handler(tree, node, default)
-    isHTML = buf.lang_from_pos(pos) == "HTML"
-    if node is None: # or not tree.parent(node):
-        tagnames = handlerclass.dataset.all_element_types()
-    else:
-        tagnames = handlerclass.tagnames(tree, node)
-        if isHTML:
-            tagnames = set(tagnames)
-            while node is not None and node.localName in html_optional_close_tags:
-                node = tree.parent(node)
-                if node is not None:
-                    tagnames = tagnames.union(handlerclass.tagnames(tree, node))
-    if not tagnames and hasattr(handlerclass, "dataset"):
-        tagnames = handlerclass.dataset.all_element_types()
-        if not tagnames:
-            return None
-    tagnames = list(tagnames)
-    # XXX should be a pref
-    if isHTML:
-        tagnames = [t.lower() for t in tagnames]
-    tagnames.sort()
-    if withPrefix and node is not None:
-        prefix = tree.prefix(node)
-        if prefix:
-            return ["%s:%s" % (prefix, name) for name in tagnames]
-    return tagnames
-
-def getValidAttributes(accessor, pos, buf, trg):
-    """getValidAttributes
-    get the current tag, and return the attributes that are allowed in that
-    element
-    """
-    tree, node = getNodeForPosition(accessor, pos, buf.path)
-    if node is None: return None
-    #print "getValidAttributes NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
-    already_supplied = node.attrib.keys()
-    default = getDefaultCompletion(tree, node, buf, trg)
-    handlerclass = koXMLDatasetInfo.get_tree_handler(tree, node, default)
-    attrs = handlerclass.attrs(tree, node)
-    if not attrs:
-        return None
-    attrs = [name for name in attrs if name not in already_supplied]
-    attrs.sort()
-    return attrs
-
-def getValidAttributeValues(accessor, pos, attr, buf, trg):
-    """getValidAttributeValues
-    get the current attribute, and return the values that are allowed in that
-    attribute
-    """
-    tree, node = getNodeForPosition(accessor, pos, buf.path)
-    if node is None: return None
-    default = getDefaultCompletion(tree, node, buf, trg)
-    handlerclass = koXMLDatasetInfo.get_tree_handler(tree, node, default)
-    values = handlerclass.values(attr, tree, node)
-    if not values:
-        return None
-    values.sort()
-    return values
-
-
-def _StartTagNameAutoComplete(buf, trg):
-    accessor = buf.accessor
-    lastpos = accessor.text.rfind("<", 0, trg.pos)
-    lastpos = max(lastpos, 0)
-    tagnames = getValidTagNames(accessor, lastpos, buf, trg, withPrefix=True)
-    if not tagnames:
-        return []
-    return [('element', tag) for tag in tagnames]
-
-def _StartLocalTagNameAutoComplete(buf, trg):
-    accessor = buf.accessor
-    tagnames = getValidTagNames(accessor, trg.pos, buf, trg, withPrefix=False)
-    if not tagnames:
-        return []
-    return [('element', tag) for tag in tagnames]
-
-def _EndTagAutoComplete(buf, trg):
-    accessor = buf.accessor
-
-    tree, node = getNodeForPosition(accessor, trg.pos, buf.path)
-    if node is None: return None
-    tagName = tree.tagname(node)
-    if not tagName:
-        return []
-    if buf.lang_from_pos(trg.pos-1) is not "HTML":
-        return [('element',tagName+">")]
-
-    # here on, we're only working with HTML documents
-    line, col = accessor.line_and_col_at_pos(trg.pos)
-    names = [tagName]
-    # if this is an optional close node, get parents until a node that
-    # requires close is found
-    while node is not None and node.localName in html_optional_close_tags:
-        node = tree.parent(node)
-        if node is None:
-            break
-        if not node.end:
-            names.append(tree.tagname(node))
-            continue
-    return [('element',tagName+">") for tagName in names]
-
-
-def _StartAttrValueAutoComplete(buf, trg):
-    accessor = buf.accessor
-    attrName = accessor.text_range(*accessor.contiguous_style_range_from_pos(trg.pos-3))
-    if not attrName:
-        log.warn("no attribute name in _StartSuggestAutoComplete")
-        return []
-
-    values = getValidAttributeValues(accessor, trg.pos, attrName, buf, trg)
-    if not values:
-        return []
-
-    return [('attribute_value', value) for value in values]
-
-def _StartAttrAutoComplete(buf, trg):
-    accessor = buf.accessor
-    attrs = getValidAttributes(accessor, trg.pos, buf, trg)
-    if not attrs:
-        return []
-    attrName = accessor.text_range(*accessor.contiguous_style_range_from_pos(trg.pos-1))
-    if attrName:
-        attrName = attrName.strip()
-    if attrName:
-        return [('attribute', attr+"=") for attr in attrs if attr.startswith(attrName)]
-    return [('attribute', attr+"=") for attr in attrs]
-
 

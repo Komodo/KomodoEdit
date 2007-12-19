@@ -368,6 +368,7 @@ class XMLParsingBufferMixin(object):
     TODO: locking?
     """
     _xml_tree_cache = None
+    _xml_default_dataset_info = None
     @property
     def xml_tree(self):
         if self._xml_tree_cache is None:
@@ -379,6 +380,43 @@ class XMLParsingBufferMixin(object):
         self._xml_tree_cache = getService().getTreeForURI(
                 self.path, self.accessor.text)
 
+    def xml_default_dataset_info(self, node=None):
+        if self._xml_default_dataset_info is None:
+            import koXMLDatasetInfo
+            datasetSvc = koXMLDatasetInfo.getService()
+            self._xml_default_dataset_info = (datasetSvc.getDefaultPublicId(self.lang, self.env),
+                                            None,
+                                            datasetSvc.getDefaultNamespace(self.lang, self.env))
+        return self._xml_default_dataset_info
+
+    def xml_tree_handler(self, node=None):
+        import koXMLDatasetInfo
+        return koXMLDatasetInfo.get_tree_handler(self._xml_tree_cache, node, self.xml_default_dataset_info(node))
+    
+    def xml_node_at_pos(self, pos):
+        import koXMLTreeService
+        self.xml_parse()
+        tree = self._xml_tree_cache
+        if not tree:
+            return None
+        line, col = self.accessor.line_and_col_at_pos(pos)
+        node = tree.locateNode(line, col)
+        # XXX this needs to be worked out better
+        last_start = self.accessor.text.rfind('<', 0, pos)
+        last_end = self.accessor.text.find('>', last_start, pos)
+        if node is None and last_start >= 0:
+            node = koXMLTreeService.elementFromText(tree, self.accessor.text[last_start:last_end], node)
+        if node is None or node.start is None:
+            return node
+        # elementtree line numbers are 1 based, convert to zero based
+        node_pos = self.accessor.pos_from_line_and_col(node.start[0]-1, node.start[1])
+        if last_end == -1 and last_start != node_pos:
+            #print "try parse ls %d le %d np %d pos %d %r" % (last_start, last_end, node_pos, pos, accessor.text[last_start:pos])
+            # we have a dirty tree, need to create a current node and add it
+            newnode = koXMLTreeService.elementFromText(tree, self.accessor.text[last_start:pos], node)
+            if newnode is not None:
+                return newnode
+        return node
 
 class _NotYetSet(object):
     # Used below to distinguish from None.

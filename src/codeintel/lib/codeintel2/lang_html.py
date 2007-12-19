@@ -48,7 +48,7 @@ from codeintel2.common import *
 from codeintel2.langintel import LangIntel
 from codeintel2.udl import UDLLexer, UDLBuffer, UDLCILEDriver, XMLParsingBufferMixin
 from codeintel2.lang_xml import XMLLangIntel
-
+from HTMLTreeParser import html_optional_close_tags
 
 try:
     from xpcom.server import UnwrapObject
@@ -73,6 +73,50 @@ class HTMLLexer(UDLLexer):
 
 class HTMLLangIntel(XMLLangIntel):
     lang = lang
+
+    def get_valid_tagnames(self, buf, pos, withPrefix=False):
+        node = buf.xml_node_at_pos(pos)
+        #print "get_valid_tagnames NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
+        handlerclass = buf.xml_tree_handler(node)
+        tagnames = None
+        if node is not None: # or not tree.parent(node):
+            tagnames = set(handlerclass.tagnames(buf.xml_tree, node))
+            while node is not None and node.localName in html_optional_close_tags:
+                node = buf.xml_tree.parent(node)
+                if node is not None:
+                    tagnames = tagnames.union(handlerclass.tagnames(buf.xml_tree, node))
+        if not tagnames and hasattr(handlerclass, "dataset"):
+            tagnames = handlerclass.dataset.all_element_types()
+        if not tagnames:
+            return None
+        tagnames = list(tagnames)
+        tagnames.sort()
+        if withPrefix and node is not None:
+            prefix = buf.xml_tree.prefix(node)
+            if prefix:
+                return ["%s:%s" % (prefix, name) for name in tagnames]
+        return tagnames
+    
+    def cpln_end_tag(self, buf, trg):
+        node = buf.xml_node_at_pos(trg.pos)
+        if node is None: return None
+        tagName = buf.xml_tree.tagname(node)
+        if not tagName:
+            return []
+    
+        # here on, we're only working with HTML documents
+        line, col = buf.accessor.line_and_col_at_pos(trg.pos)
+        names = [tagName]
+        # if this is an optional close node, get parents until a node that
+        # requires close is found
+        while node is not None and node.localName in html_optional_close_tags:
+            node = buf.xml_tree.parent(node)
+            if node is None:
+                break
+            if not node.end:
+                names.append(buf.xml_tree.tagname(node))
+                continue
+        return [('element',tagName+">") for tagName in names]
 
 class HTMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     lang = lang
