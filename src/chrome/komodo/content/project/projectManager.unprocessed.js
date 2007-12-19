@@ -499,7 +499,8 @@ projectManager.prototype._addProject = function(project) {
 }
 
 projectManager.prototype.getProjectByURL = function(url) {
-    for (project in this._projects) {
+    for (i in this._projects) {
+        var project = this._projects[i];
         if (project.url == url) {
             return project;
         }
