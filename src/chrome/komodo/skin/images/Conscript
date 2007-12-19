@@ -50,7 +50,7 @@ $cons->InstallInChrome('icon-community.png');
 $cons->InstallInChrome('icon-mailing-list.png');
 $cons->InstallInChrome('icon-bugs.png');
 $cons->InstallInChrome('webServicesImg.png');
-$cons->InstallInChrome('browser_buttons.gif');
+$cons->InstallInChrome('browser_buttons.png');
 $cons->InstallInChrome('small-x.png');
 $cons->InstallInChrome('small-x_hover.png');
 $cons->InstallInChrome('small-x_disable.png');

@@ -37,7 +37,7 @@
 /* browser buttons */
 
 .browser-toolbar {
-  list-style-image: url("chrome://komodo/skin/images/browser_buttons.gif");
+  list-style-image: url("chrome://komodo/skin/images/browser_buttons.png");
 }
 /* rect(top,right,bottom,left) */
 #browser-back-button {
@@ -66,28 +66,28 @@
   -moz-image-region: rect(32px 32px 48px 16px) !important;
 }
 
-#browser-reload-button {
-  -moz-image-region: rect(0px 47px 16px 32px);
-}
-
-#browser-reload-button:hover,
-#browser-reload-button:hover:active {
-  -moz-image-region: rect(16px 47px 32px 32px);
-}
-
-#browser-reload-button[disabled="true"] {
-  -moz-image-region: rect(32px 47px 48px 32px) !important;
-}
-
 #browser-stop-button {
-  -moz-image-region: rect(0px 58px 16px 47px);
+  -moz-image-region: rect(0px 48px 16px 32px);
 }
 
 #browser-stop-button:hover,
 #browser-stop-button:hover:active {
-  -moz-image-region: rect(16px 58px 32px 47px);
+  -moz-image-region: rect(16px 48px 32px 32px);
 }
 
 #browser-stop-button[disabled="true"] {
-  -moz-image-region: rect(32px 58px 48px 47px) !important;
+  -moz-image-region: rect(32px 48px 48px 32px) !important;
+}
+
+#browser-reload-button {
+  -moz-image-region: rect(0px 64px 16px 48px);
+}
+
+#browser-reload-button:hover,
+#browser-reload-button:hover:active {
+  -moz-image-region: rect(16px 64px 32px 48px);
+}
+
+#browser-reload-button[disabled="true"] {
+  -moz-image-region: rect(32px 64px 48px 48px) !important;
 }
