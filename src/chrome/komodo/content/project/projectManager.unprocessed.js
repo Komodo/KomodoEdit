@@ -446,11 +446,8 @@ projectManager.prototype.loadProject = function(url) {
     var project = Components.classes["@activestate.com/koProject;1"]
                         .createInstance(Components.interfaces.koIProject);
 
-    // is the project already loaded?
-    for (var i = 0; i < this._projects.length; i++) {
-        if (this._projects[i].url == url) {
-            return null;
-        }
+    if (this.getProjectByURL(url)) {
+        return null; // the project is already loaded
     }
     window.setCursor("wait");
     try {
