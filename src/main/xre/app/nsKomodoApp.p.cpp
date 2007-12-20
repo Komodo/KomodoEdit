@@ -59,7 +59,7 @@ static const nsXREAppData kAppData = {
   "PP_KO_PROD_NAME",
   NS_STRINGIFY(APP_VERSION),
   NS_STRINGIFY(PP_KO_BUILD_NUMBER),
-  "{2cb9d397-8ec9-4211-bd89-7fea34120af6}",
+  "{b1042fb5-9e9c-11db-b107-000d935d3368}",
   "Copyright (c) 1998 - 2007 ActiveState Software Inc.",
   NS_XRE_ENABLE_EXTENSION_MANAGER
 };
