@@ -34,6 +34,10 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+
 #include "Platform.h"
 
 #include "Scintilla.h"
@@ -76,19 +80,60 @@ NS_IMPL_ISUPPORTS1(SciDoc, ISciDoc)
 SciDoc::SciDoc()
 {
   /* member initializers and constructor code */
+    documentPointer = new Document();
+    if (documentPointer) {
+        documentPointer->AddRef();
+    }
 }
 
 SciDoc::~SciDoc()
 {
-  /* destructor code */
+    /* destructor code */
+    if (documentPointer!=nsnull) {
+        documentPointer->Release();
+    }
 }
 
-/* readonly attribute long document; */
-NS_IMETHODIMP SciDoc::GetDocument(PRInt32 *aDocument)
+/* attribute long document; */
+NS_IMETHODIMP SciDoc::GetDocPointer(PRInt32 *aDocument)
 {
     if (documentPointer==nsnull) return NS_ERROR_UNEXPECTED;
     *aDocument = reinterpret_cast<PRInt32>(documentPointer);
     return NS_OK;
+}
+NS_IMETHODIMP SciDoc::SetDocPointer(PRInt32 aDocument)
+{
+    if (documentPointer!=nsnull) {
+        documentPointer->Release();
+    }
+    documentPointer = reinterpret_cast<Document *>(aDocument);
+    if (documentPointer) {
+            documentPointer->AddRef();
+    }
+    return NS_OK;
+}
+
+NS_IMETHODIMP SciDoc::GetText(PRUnichar ** text)
+{
+    return GetCharRange(0, documentPointer->Length(), text);
+}
+NS_IMETHODIMP SciDoc::SetText(const PRUnichar * aText)
+{
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciDoc::SetText\n");
+#endif
+        // SCI_SETTEXT from Editor.cxx
+        documentPointer->BeginUndoAction();
+        documentPointer->DeleteChars(0, documentPointer->Length());
+        // SetEmptySelection(0);
+	if (documentPointer->dbcsCodePage == 0) {
+	    documentPointer->InsertCString(0, NS_LossyConvertUTF16toASCII(aText).get());
+	} else {
+	    documentPointer->InsertCString(0, NS_ConvertUTF16toUTF8(aText).get());
+	}
+        documentPointer->EndUndoAction();
+
+	return NS_OK;
 }
 
 /* attribute PRInt32 stylingBits; */
@@ -452,8 +497,7 @@ NS_IMETHODIMP SciDoc::TransformLineEnds(const PRUnichar *s, PRInt32 eolMode, PRU
                                              reinterpret_cast<const char *>(text.get()),
                                              text.Length(),
                                              eolMode);
-    int codePage = 1; /* TODO FIXME SendEditor(SCI_GETCODEPAGE, 0, 0); */
-    if (codePage == 0) {
+    if (documentPointer->dbcsCodePage == 0) {
         *_retval =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
     } else {
         *_retval =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
@@ -537,8 +581,7 @@ NS_IMETHODIMP SciDoc::GetCharRange(PRInt32 position, PRInt32 lengthRetrieve, PRU
 
     NS_ASSERTION(buffer[lengthRetrieve] == NULL, "Buffer overflow");
 
-    int codePage = 1; /* TODO FIXME SendEditor(SCI_GETCODEPAGE, 0, 0); */
-    if (codePage == 0) {
+    if (documentPointer->dbcsCodePage == 0) {
         *_retval =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
     } else {
         *_retval =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
@@ -745,8 +788,7 @@ NS_IMETHODIMP SciDoc::SubstituteByPosition(const PRUnichar *s, PRUnichar **_retv
     nsCAutoString text = NS_ConvertUTF16toUTF8(s);
     int length = text.Length();
     const char *buffer = documentPointer->SubstituteByPosition(reinterpret_cast<const char *>(text.get()), &length);
-    int codePage = 1; /* TODO FIXME SendEditor(SCI_GETCODEPAGE, 0, 0); */
-    if (codePage == 0) {
+    if (documentPointer->dbcsCodePage == 0) {
         *_retval =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
     } else {
         *_retval =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));

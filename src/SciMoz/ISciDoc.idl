@@ -38,7 +38,7 @@
 
 [scriptable, uuid(681a24e8-7361-4e5c-a342-77806ef98d30)]
 interface ISciDoc : nsISupports {
-    readonly attribute long document;
+    attribute long docPointer;
 
     attribute PRInt32 stylingBits;
     attribute PRInt32 stylingBitsMask;
@@ -65,7 +65,8 @@ interface ISciDoc : nsISupports {
 
     // ACTIVESTATE    
     PRInt32 GetBytePositionForCharOffset(in PRInt32 bytePos, in PRInt32 charOffset, in boolean checkLineEnd);
-
+    attribute wstring text;
+    
     // Gateways to modifying document
     void ModifiedAt(in PRInt32 pos);
     boolean DeleteChars(in PRInt32 pos, in PRInt32 len);

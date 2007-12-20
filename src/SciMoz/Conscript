@@ -131,6 +131,7 @@ $cons->BuildHeaderFromIdl('ISciMozEvents.idl');
 $cons->Preprocess('koScintillaController.p.py','koScintillaController.py');
 $cons->InstallXpcomComponent('koScintillaController.py');
 
+
 # build and install the Mozilla plugin
 my $pluginName;
 my $xScintillaBuildDir = DirPath($scintillaBuildDir);
@@ -219,7 +220,7 @@ elsif ($platform eq "darwin") {
     
 
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
-    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:$scintillaBuildDir/bin";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:$mozBin";
     $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common ";
     # XXX cannot build universal unless mozilla is universal
     if ($universal) {
@@ -263,7 +264,7 @@ elsif ($platform eq "darwin") {
     }
 
     $consLocal = new cons(%consLocal);
-    $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/libscintilla.a");
+    $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/libscintilla.dylib");
 
     $consLocal->Program(
 	"SciMoz",
@@ -300,28 +301,6 @@ $unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pl
 chmod a+rX $mozPluginsDir/$pluginName
                    )
 		));
-
-# this would do a build using the xcode project, however building manually allows us to rely on the
-# dependencies for scintilla better.
-
-#    my @args = ( 
-#		$pluginName,
-#		"SciMoz.xcode/project.pbxproj",
-#		"prefix.h",
-#		"npmac.cpp",
-#		"plugin.cxx",
-#		"nsSciMoz.cxx",
-#		"nsSciMoz.h",
-#		"plugin.h",
-#		"sendscintilla.cxx",
-#		"sendscintilla.h",
-#		"SciMoz.r",
-#		"Info.plist",
-#		"English.lproj/InfoPlist.strings",
-#		(qq($unsiloedPythonExe bin/run-in-dir.py %1:d xcodebuild -buildstyle Deployment))
-#	       );
-
-#    $cons->InstallRecursive("$mozBin/plugins/$pluginName", cwd()."/build/release/SciMoz/$pluginName", ('\.svn'));
 
 } 
 else {
@@ -410,4 +389,129 @@ else {
 if ($platform eq "darwin") {
 } else {
     $cons->Install("$mozPluginsDir", $pluginName);
+}
+
+
+if ($platform eq "darwin") { # until this can be worked on for more than darwin
+# the SciDoc XPCOM component
+$cons->Install($idlExportDir, 'ISciDoc.idl');
+$cons->BuildAndInstallXpt('ISciDoc.idl');
+$cons->BuildHeaderFromIdl('ISciDoc.idl');
+
+if ($platform eq "win") {
+    exit(0); # XXX FIXME
+    my $LDFLAGS = "";
+    my $CXXFLAGS = "";
+    foreach my $includeDir (split(';', $mozIncludePath)) {
+        $CXXFLAGS .= " -I$includeDir";
+    }
+    $CXXFLAGS .= " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/necko" .
+        " -I$mozDevelDist/include/layout";
+
+    # override the construction environment as necessary:
+    #   - specify a DLL
+    #   - link in some Mozilla libs
+    #   - CXXFLAGS is basically a copy of the that obtained via Mozilla's
+    #     build makefiles, huge, mostly probably not necessary
+    foreach my $libDir (split(';', $mozLibPath)) {
+        $LDFLAGS .= " /libpath:$libDir";
+    }
+
+    $CXXFLAGS .= ' -I./include';
+    $CXXFLAGS .= ' -I./include/private';
+    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib ";
+    $LDFLAGS .= " /dll";
+    $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
+    $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
+    $CXXFLAGS .= " /FI$mozObjDir\\mozilla-config.h";
+
+    if ($buildType eq 'debug') {
+        $LDFLAGS .= " /DEBUG";
+        $CXXFLAGS .= " /Od -Zi  -DDEBUG  -D_DEBUG -MDd";
+    } else {
+        $CXXFLAGS .= " /Ox -DNDEBUG -D_NDEBUG -MD";
+        # LDFLAGS is fine!
+    }
+    $dllName = 'koSciDoc.dll';
+
+    $cons->Command($dllName,
+        "nsSciDoc.cxx",
+        "ISciDoc.idl",
+        "ISciDoc.h",
+        qq(
+            pwd || exit 0
+            cl /nologo $CXXFLAGS /Fo%1:b.obj /c %1
+            link /nologo $LDFLAGS /out:%0 %1:b.obj
+        )
+    );
+}
+
+else {
+    %consLocal = $cons->copy();
+
+    $consLocal{'LIBPATH'} = "$mozLibPath:$mozBin";
+    $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$scintillaBuildDir/src";
+    $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
+        " -I$mozDevelDist/include/necko" .
+        " -I$mozDevelDist/include/layout";
+    $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DSCI_LEXER ".
+                            " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
+                            " -DUSE_SYSTEM_CONSOLE=1 ".
+                            " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
+
+    $consLocal{'CXX'} = "g++";
+    $consLocal{'CC'} = "gcc";
+    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core -lscintilla ";
+    if ($mozVersionNumber >= 190) {
+      $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
+    }
+    if ($platform eq "darwin") {
+        $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
+        $consLocal{'CXXFLAGS'} .= " -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
+        if ($universal) {
+            $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+            $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+            $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
+        }
+    } else {
+        $consLocal{'LDFLAGS'} = "-fPIC -shared";
+        $consLocal{'CXXFLAGS'} .= " -fPIC";
+    }
+    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
+    $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
+
+    if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
+
+	# big-endian byte order indicator to license code
+        $consLocal{'CXXFLAGS'} .= " -DBYTEORDER=0x4321";
+    }
+    # On Solaris, you have to use the -mimpure-text option if you are linking
+    # a shared library that links to static libs.
+    if ($platform eq "solaris") {
+        $consLocal{'LDFLAGS'} .= " -mimpure-text";
+    }
+
+    if ($buildType eq 'debug') {
+        $consLocal{'CXXFLAGS'} .= " -g -DDEBUG -D_DEBUG";
+    } else {
+        $consLocal{'CXXFLAGS'} .= " -DNDEBUG -D_NDEBUG";
+        if ($withSymbols) {
+            $consLocal{'CXXFLAGS'} .= " -g";
+        }
+    }
+    if ($platform eq "darwin") {
+      $consLocal{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
+      $dllName = "libkoSciDoc.dylib";
+    } else {
+      $dllName = 'libkoSciDoc.so';
+    }
+    $consLocal = new cons(%consLocal);
+
+    $consLocal->Program($dllName,
+                        "nsSciDoc.cxx");
+}
+
+$cons->InstallXpcomComponent($dllName);
+
 }
