@@ -1,0 +1,14 @@
+Patch to use -fPIC compilcation flag on Linux.
+Bug: http://bugs.activestate.com/show_bug.cgi?id=73926
+===================================================================
+--- gtk/makefile	(revision 508)
++++ gtk/makefile	(working copy)
+@@ -23,7 +23,7 @@
+ vpath %.cxx ../src
+ 
+ INCLUDEDIRS=-I ../include -I ../src
+-CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -pedantic -Os -DGTK -DSCI_LEXER $(INCLUDEDIRS)
++CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -pedantic -Os -fPIC -DGTK -DSCI_LEXER $(INCLUDEDIRS)
+ 
+ ifdef NOTHREADS
+ THREADFLAGS=-DG_THREADS_IMPL_NONE
