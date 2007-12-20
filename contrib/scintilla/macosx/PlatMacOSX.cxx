@@ -1766,6 +1766,11 @@ long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam,
     return scintilla_send_message( w, msg, wParam, lParam );
 }
 
+long Platform::SendScintillaPointer(WindowID w, unsigned int msg, unsigned long wParam, void *lParam) {
+    return scintilla_send_message(w, msg, wParam,
+                                  reinterpret_cast<sptr_t>(lParam));
+}
+
 bool Platform::IsDBCSLeadByte(int /*codePage*/, char /*ch*/) {
     // TODO: Implement this for code pages != UTF-8
     return false;
@@ -1849,4 +1854,38 @@ int Platform::Clamp(int val, int minVal, int maxVal) {
     if (val < minVal)
         val = minVal;
     return val;
+}
+
+#include <dlfcn.h>
+class DynamicLibraryImpl : public DynamicLibrary {
+protected:
+    void* m;
+public:
+    DynamicLibraryImpl(const char *modulePath) {
+            m = dlopen(modulePath, RTLD_LAZY);
+    }
+
+    virtual ~DynamicLibraryImpl() {
+            if (m != NULL)
+                    dlclose(m);
+    }
+
+    virtual Function FindFunction(const char *name) {
+            if (m != NULL) {
+                    void *fn_address = dlsym(m, name);
+                    if (fn_address)
+                            return static_cast<Function>(fn_address);
+                    else
+                            return NULL;
+            } else
+                    return NULL;
+    }
+
+    virtual bool IsValid() {
+            return m != NULL;
+    }
+};
+
+DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
+    return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
 }
