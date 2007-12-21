@@ -55,7 +55,9 @@
 #include "nsString.h"
 #include "ISciDoc.h"
 
+#ifdef SCI_NAMESPACE
 using namespace Scintilla;
+#endif
 
 /* Header file */
 class SciDoc : public ISciDoc

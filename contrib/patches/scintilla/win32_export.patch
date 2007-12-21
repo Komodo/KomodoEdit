@@ -1,0 +1,228 @@
+Index: include/Platform.h
+===================================================================
+--- include/Platform.h	(revision 515)
++++ include/Platform.h	(working copy)
+@@ -21,6 +21,9 @@
+ #define PLAT_WX  0
+ #define PLAT_FOX 0
+ 
++#define SCIAPI
++#define SCIEXTERN
++
+ #if defined(FOX)
+ #undef PLAT_FOX
+ #define PLAT_FOX 1
+@@ -46,8 +49,19 @@
+ #undef PLAT_WIN
+ #define PLAT_WIN 1
+ 
++#undef SCIAPI
++#undef SCIEXTERN
++
++#ifdef SCIAPI_DLL
++#define SCIAPI __declspec(dllexport)
++#define SCIEXTERN
++#else
++#define SCIAPI __declspec(dllimport)
++#define SCIEXTERN extern
+ #endif
+ 
++#endif
++
+ #ifdef SCI_NAMESPACE
+ namespace Scintilla {
+ #endif
+Index: src/Partitioning.h
+===================================================================
+--- src/Partitioning.h	(revision 515)
++++ src/Partitioning.h	(working copy)
+@@ -43,7 +43,7 @@
+ /// Divide an interval into multiple partitions.
+ /// Useful for breaking a document down into sections such as lines.
+ 
+-class Partitioning {
++class SCIAPI Partitioning {
+ private:
+ 	// To avoid calculating all the partition positions whenever any text is inserted
+ 	// there may be a step somewhere in the list.
+Index: src/RunStyles.h
+===================================================================
+--- src/RunStyles.h	(revision 515)
++++ src/RunStyles.h	(working copy)
+@@ -11,7 +11,7 @@
+ namespace Scintilla {
+ #endif
+ 
+-class RunStyles {
++class SCIAPI RunStyles {
+ public:
+ 	Partitioning *starts;
+ 	SplitVector<int> *styles;
+Index: src/Decoration.h
+===================================================================
+--- src/Decoration.h	(revision 515)
++++ src/Decoration.h	(working copy)
+@@ -11,7 +11,7 @@
+ namespace Scintilla {
+ #endif
+ 
+-class Decoration {
++class SCIAPI Decoration {
+ public:
+ 	Decoration *next;
+ 	RunStyles rs;
+@@ -23,7 +23,7 @@
+ 	bool Empty();
+ };
+ 
+-class DecorationList {
++class SCIAPI DecorationList {
+ 	int currentIndicator;
+ 	int currentValue;
+ 	Decoration *current;
+Index: src/CellBuffer.h
+===================================================================
+--- src/CellBuffer.h	(revision 515)
++++ src/CellBuffer.h	(working copy)
+@@ -25,7 +25,7 @@
+ /**
+  * A marker handle set contains any number of MarkerHandleNumbers.
+  */
+-class MarkerHandleSet {
++class SCIAPI MarkerHandleSet {
+ 	MarkerHandleNumber *root;
+ 
+ public:
+@@ -44,8 +44,10 @@
+ /**
+  * The line vector contains information about each of the lines in a cell buffer.
+  */
+-class LineVector {
++SCIEXTERN template class SCIAPI SplitVector<MarkerHandleSet *>;
+ 
++class SCIAPI LineVector {
++
+ 	Partitioning starts;
+ 	SplitVector<MarkerHandleSet *> markers;
+ 	SplitVector<int> levels;
+@@ -88,7 +90,7 @@
+ /**
+  * Actions are used to store all the information required to perform one undo/redo step.
+  */
+-class Action {
++class SCIAPI Action {
+ public:
+ 	actionType at;
+ 	int position;
+@@ -106,7 +108,7 @@
+ /**
+  *
+  */
+-class UndoHistory {
++class SCIAPI UndoHistory {
+ 	Action *actions;
+ 	int lenActions;
+ 	int maxAction;
+@@ -149,7 +151,7 @@
+  * Based on article "Data Structures in a Bit-Mapped Text Editor"
+  * by Wilfred J. Hansen, Byte January 1987, page 183.
+  */
+-class CellBuffer {
++class SCIAPI CellBuffer {
+ private:
+ 	SplitVector<char> substance;
+ 	SplitVector<char> style;
+Index: src/CharClassify.h
+===================================================================
+--- src/CharClassify.h	(revision 515)
++++ src/CharClassify.h	(working copy)
+@@ -8,7 +8,9 @@
+ #ifndef CHARCLASSIFY_H
+ #define CHARCLASSIFY_H
+ 
+-class CharClassify {
++#include "Platform.h"
++
++class SCIAPI CharClassify {
+ public:
+ 	CharClassify();
+ 
+Index: src/Document.h
+===================================================================
+--- src/Document.h	(revision 515)
++++ src/Document.h	(working copy)
+@@ -25,7 +25,7 @@
+  * as is the case for the selection where the end position is the position of the caret.
+  * If either position is invalidPosition then the range is invalid and most operations will fail.
+  */
+-class Range {
++class SCIAPI Range {
+ public:
+ 	Position start;
+ 	Position end;
+@@ -78,11 +78,11 @@
+ 
+ /**
+  */
+-class Document {
++class SCIAPI Document {
+ 
+ public:
+ 	/** Used to pair watcher pointer with user data. */
+-	class WatcherWithUserData {
++	class SCIAPI WatcherWithUserData {
+ 	public:
+ 		DocWatcher *watcher;
+ 		void *userData;
+@@ -261,7 +261,7 @@
+  * scope of the change.
+  * If the DocWatcher is a document view then this can be used to optimise screen updating.
+  */
+-class DocModification {
++class SCIAPI DocModification {
+ public:
+   	int modificationType;
+ 	int position;
+@@ -298,7 +298,7 @@
+  * A class that wants to receive notifications from a Document must be derived from DocWatcher
+  * and implement the notification methods. It can then be added to the watcher list with AddWatcher.
+  */
+-class DocWatcher {
++class SCIAPI DocWatcher {
+ public:
+ 	virtual ~DocWatcher() {}
+ 
+Index: src/SplitVector.h
+===================================================================
+--- src/SplitVector.h	(revision 515)
++++ src/SplitVector.h	(working copy)
+@@ -10,7 +10,7 @@
+ #define SPLITVECTOR_H
+ 
+ template <typename T>
+-class SplitVector {
++class SCIAPI SplitVector {
+ protected:
+ 	T *body;
+ 	int size;
+@@ -240,4 +240,7 @@
+ 
+ };
+ 
++SCIEXTERN template class SCIAPI SplitVector<int>;
++SCIEXTERN template class SCIAPI SplitVector<char>;
++
+ #endif
+Index: win32/scintilla_vc6.mak
+===================================================================
+--- win32/scintilla_vc6.mak	(revision 515)
++++ win32/scintilla_vc6.mak	(working copy)
+@@ -36,7 +36,7 @@
+ LD=link
+ 
+ #-Zc:forScope -Zc:wchar_t
+-CXXFLAGS=-Zi -TP -W4
++CXXFLAGS=-Zi -TP -W4 -DSCIAPI_DLL
+ # For something scary:-Wp64
+ CXXDEBUG=-Od -MTd -DDEBUG
+ CXXNDEBUG=-O1 -MT -DNDEBUG

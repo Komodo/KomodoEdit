@@ -392,35 +392,25 @@ if ($platform eq "darwin") {
 }
 
 
-if ($platform eq "darwin") { # until this can be worked on for more than darwin
+if ($platform ne "linux") { # until this can be worked on for more than darwin
 # the SciDoc XPCOM component
 $cons->Install($idlExportDir, 'ISciDoc.idl');
 $cons->BuildAndInstallXpt('ISciDoc.idl');
 $cons->BuildHeaderFromIdl('ISciDoc.idl');
 
 if ($platform eq "win") {
-    exit(0); # XXX FIXME
-    my $LDFLAGS = "";
-    my $CXXFLAGS = "";
+    my $LDFLAGS = "/libpath:$xScintillaBuildDir/bin ";
+    my $CXXFLAGS = "/DWINVER=0x400 /I$xScintillaBuildDir/include /I$xScintillaBuildDir/src ";
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " -I$includeDir";
     }
-    $CXXFLAGS .= " -I$mozDevelDist/include/content" .
-        " -I$mozDevelDist/include/necko" .
-        " -I$mozDevelDist/include/layout";
-
-    # override the construction environment as necessary:
-    #   - specify a DLL
-    #   - link in some Mozilla libs
-    #   - CXXFLAGS is basically a copy of the that obtained via Mozilla's
-    #     build makefiles, huge, mostly probably not necessary
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib ";
+    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib SciLexer.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -439,6 +429,7 @@ if ($platform eq "win") {
         "nsSciDoc.cxx",
         "ISciDoc.idl",
         "ISciDoc.h",
+        "$scintillaBuildDir/bin/SciLexer.dll",
         qq(
             pwd || exit 0
             cl /nologo $CXXFLAGS /Fo%1:b.obj /c %1
