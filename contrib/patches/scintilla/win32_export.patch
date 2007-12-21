@@ -1,6 +1,6 @@
 Index: include/Platform.h
 ===================================================================
---- include/Platform.h	(revision 515)
+--- include/Platform.h	(revision 518)
 +++ include/Platform.h	(working copy)
 @@ -21,6 +21,9 @@
  #define PLAT_WX  0
@@ -34,7 +34,7 @@ Index: include/Platform.h
  #endif
 Index: src/Partitioning.h
 ===================================================================
---- src/Partitioning.h	(revision 515)
+--- src/Partitioning.h	(revision 518)
 +++ src/Partitioning.h	(working copy)
 @@ -43,7 +43,7 @@
  /// Divide an interval into multiple partitions.
@@ -47,7 +47,7 @@ Index: src/Partitioning.h
  	// there may be a step somewhere in the list.
 Index: src/RunStyles.h
 ===================================================================
---- src/RunStyles.h	(revision 515)
+--- src/RunStyles.h	(revision 518)
 +++ src/RunStyles.h	(working copy)
 @@ -11,7 +11,7 @@
  namespace Scintilla {
@@ -60,7 +60,7 @@ Index: src/RunStyles.h
  	SplitVector<int> *styles;
 Index: src/Decoration.h
 ===================================================================
---- src/Decoration.h	(revision 515)
+--- src/Decoration.h	(revision 518)
 +++ src/Decoration.h	(working copy)
 @@ -11,7 +11,7 @@
  namespace Scintilla {
@@ -82,7 +82,7 @@ Index: src/Decoration.h
  	Decoration *current;
 Index: src/CellBuffer.h
 ===================================================================
---- src/CellBuffer.h	(revision 515)
+--- src/CellBuffer.h	(revision 518)
 +++ src/CellBuffer.h	(working copy)
 @@ -25,7 +25,7 @@
  /**
@@ -93,19 +93,21 @@ Index: src/CellBuffer.h
  	MarkerHandleNumber *root;
  
  public:
-@@ -44,8 +44,10 @@
+@@ -44,8 +44,12 @@
  /**
   * The line vector contains information about each of the lines in a cell buffer.
   */
 -class LineVector {
++#ifdef SCIAPI_DLL
 +SCIEXTERN template class SCIAPI SplitVector<MarkerHandleSet *>;
++#endif
  
 +class SCIAPI LineVector {
 +
  	Partitioning starts;
  	SplitVector<MarkerHandleSet *> markers;
  	SplitVector<int> levels;
-@@ -88,7 +90,7 @@
+@@ -88,7 +92,7 @@
  /**
   * Actions are used to store all the information required to perform one undo/redo step.
   */
@@ -114,7 +116,7 @@ Index: src/CellBuffer.h
  public:
  	actionType at;
  	int position;
-@@ -106,7 +108,7 @@
+@@ -106,7 +110,7 @@
  /**
   *
   */
@@ -123,7 +125,7 @@ Index: src/CellBuffer.h
  	Action *actions;
  	int lenActions;
  	int maxAction;
-@@ -149,7 +151,7 @@
+@@ -149,7 +153,7 @@
   * Based on article "Data Structures in a Bit-Mapped Text Editor"
   * by Wilfred J. Hansen, Byte January 1987, page 183.
   */
@@ -134,7 +136,7 @@ Index: src/CellBuffer.h
  	SplitVector<char> style;
 Index: src/CharClassify.h
 ===================================================================
---- src/CharClassify.h	(revision 515)
+--- src/CharClassify.h	(revision 518)
 +++ src/CharClassify.h	(working copy)
 @@ -8,7 +8,9 @@
  #ifndef CHARCLASSIFY_H
@@ -149,7 +151,7 @@ Index: src/CharClassify.h
  
 Index: src/Document.h
 ===================================================================
---- src/Document.h	(revision 515)
+--- src/Document.h	(revision 518)
 +++ src/Document.h	(working copy)
 @@ -25,7 +25,7 @@
   * as is the case for the selection where the end position is the position of the caret.
@@ -194,7 +196,7 @@ Index: src/Document.h
  
 Index: src/SplitVector.h
 ===================================================================
---- src/SplitVector.h	(revision 515)
+--- src/SplitVector.h	(revision 518)
 +++ src/SplitVector.h	(working copy)
 @@ -10,7 +10,7 @@
  #define SPLITVECTOR_H
@@ -205,17 +207,19 @@ Index: src/SplitVector.h
  protected:
  	T *body;
  	int size;
-@@ -240,4 +240,7 @@
+@@ -240,4 +240,9 @@
  
  };
  
++#ifdef SCIAPI_DLL
 +SCIEXTERN template class SCIAPI SplitVector<int>;
 +SCIEXTERN template class SCIAPI SplitVector<char>;
-+
  #endif
++
++#endif
 Index: win32/scintilla_vc6.mak
 ===================================================================
---- win32/scintilla_vc6.mak	(revision 515)
+--- win32/scintilla_vc6.mak	(revision 518)
 +++ win32/scintilla_vc6.mak	(working copy)
 @@ -36,7 +36,7 @@
  LD=link
