@@ -179,9 +179,9 @@ push(@args, (qq(
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ python HFacer.py
              $unsiloedPythonExe bin/run-in-dir.py %1:d chmod a+w deps.mak
              $unsiloedPythonExe bin/run-in-dir.py %1:d make deps
-             CXXFLAGS="$makeFlags" $unsiloedPythonExe bin/run-in-dir.py %1:d make shared NATIVE=1 -f %1:f $libName)
+             CXXFLAGS="$makeFlags" $unsiloedPythonExe bin/run-in-dir.py %1:d make shared NATIVE=1 -f %1:f $libName
 	     $unsiloedPythonExe bin/run-in-dir.py %1:d cp $libName $mozBin
-             )
+             ))
      );
 
 $cons->Command(@args);
