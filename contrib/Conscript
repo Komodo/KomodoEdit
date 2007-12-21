@@ -278,7 +278,8 @@ if ($platform eq "win") {
                    #    http://lists.apple.com/archives/darwin-dev/2005/Sep/msg00053.html
                    qq(
                     cd %1:d && ./configure --enable-shared=no --enable-utf8 --enable-unicode-properties $build_env && make
-                    cp %1:d/.libs/libpcre.a $scintilla_dir/$scintilla_plat_dir/libpcre.a
+                    ranlib %1:d/.libs/libpcre.a
+		    cp %1:d/.libs/libpcre.a $scintilla_dir/$scintilla_plat_dir/libpcre.a
                     cp %1:d/pcre.h $scintilla_dir/include/pcre.h
                     cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
                     ranlib $silvercity_dir/libpcre.a
