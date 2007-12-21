@@ -774,6 +774,8 @@
               <File Id="file339" Name="myspell.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\myspell.dll"/>
               <File Id="file1394" Name="SPELLC_0.XPT" LongName="spellchecker.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchecker.xpt"/>
               <File Id="file1395" Name="spellchk.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchk.dll"/>
+              <File Id="file230" Name="ISciDoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciDoc.xpt"/>
+              <File Id="file236" Name="koSciDoc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSciDoc.dll"/>
 <?if $(var.WithCrypto) = "yes" ?>
               <File Id="file3946" Name="koSFTP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSFTP.py"/>
               <File Id="file4016" Name="koSCP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSCP.py"/>
@@ -3219,6 +3221,7 @@
             <Component Id="component570" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file3823" Name="ASIJSD_0.IDL" LongName="asIJSDialogProxy.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\asIJSDialogProxy.idl"/>
               <File Id="file3828" Name="domstubs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\domstubs.idl"/>
+              <File Id="file280" Name="ISciDoc.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciDoc.idl"/>
               <File Id="file3829" Name="ISciMoz.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMoz.idl"/>
               <File Id="file3830" Name="ISCIMO_0.IDL" LongName="ISciMozController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozController.idl"/>
               <File Id="file3831" Name="ISCIMO_1.IDL" LongName="ISciMozEvents.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozEvents.idl"/>
