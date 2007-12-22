@@ -45,7 +45,6 @@
 
 Import(
     'cons',
-    'mozBin',
     'buildType',
     'mozPluginsDir',
     'unsiloedPythonExe',
@@ -53,7 +52,7 @@ Import(
 );
 
 # this is what we want from the scintilla build process
-$libName = '../bin/libscintilla.so';
+$libName = '../bin/scintilla.a';
 
 # build scintilla
 my $makeFlags = "-fPIC -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
@@ -167,8 +166,7 @@ push(@args, (qq(
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ python HFacer.py
              $unsiloedPythonExe bin/run-in-dir.py %1:d chmod a+w deps.mak
              $unsiloedPythonExe bin/run-in-dir.py %1:d make deps
-             CXXFLAGS="$makeFlags" $unsiloedPythonExe bin/run-in-dir.py %1:d make shared -f %1:f $libName
-             $unsiloedPythonExe bin/run-in-dir.py %1:d cp $libName $mozBin
+             CXXFLAGS="$makeFlags" $unsiloedPythonExe bin/run-in-dir.py %1:d make -f %1:f $libName
              )));
 
 $cons->Command(@args);

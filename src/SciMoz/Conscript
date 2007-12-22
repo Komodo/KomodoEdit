@@ -307,7 +307,8 @@ else {
     $pluginName = "libnpscimoz.so";
 
     %consLocal = $cons->copy();
-    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s -lscintilla";
+    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s";
+    $consLocal{'LIBS'} .= " $xScintillaBuildDir/bin/scintilla.a";
 
     # PCRE is built from contrib/pcre and is require by LexUDL.
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
@@ -374,7 +375,7 @@ else {
     }
 
     $consLocal = new cons(%consLocal);
-    $consLocal->Depends($pluginName, "$scintillaBuildDir/bin/libscintilla.so");
+    $consLocal->Depends($pluginName, "$scintillaBuildDir/bin/scintilla.a");
 
     #XXX have to add licensing code here as well.
     $consLocal->Program($pluginName,
@@ -391,6 +392,7 @@ if ($platform eq "darwin") {
 }
 
 
+if ($platform ne "linux") { # until this can be worked on for more than darwin
 # the SciDoc XPCOM component
 $cons->Install($idlExportDir, 'ISciDoc.idl');
 $cons->BuildAndInstallXpt('ISciDoc.idl');
@@ -444,7 +446,7 @@ else {
     $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/necko" .
         " -I$mozDevelDist/include/layout";
-    $consLocal{'CXXFLAGS'} .= " -DSCI_LEXER ".
+    $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DUSE_SYSTEM_CONSOLE=1 ".
                             " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
@@ -457,7 +459,7 @@ else {
     }
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
-        $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
+        $consLocal{'CXXFLAGS'} .= " -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
         if ($universal) {
             $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
             $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
@@ -465,9 +467,9 @@ else {
         }
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
-        $consLocal{'CXXFLAGS'} .= " -DGTK -fPIC";
+        $consLocal{'CXXFLAGS'} .= " -fPIC";
     }
-    $consLocal{'CXXFLAGS'} .= " -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
+    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
 
     if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
@@ -490,12 +492,10 @@ else {
         }
     }
     if ($platform eq "darwin") {
-      $consLocal{'DYLD_LIBRARY_PATH'} = "$mozBin";
+      $consLocal{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
       $dllName = "libkoSciDoc.dylib";
-      $consLocal->Depends($dllName, "$mozBin/libscintilla.dylib");
     } else {
       $dllName = 'libkoSciDoc.so';
-      $consLocal->Depends($dllName, "$mozBin/libscintilla.so");
     }
     $consLocal = new cons(%consLocal);
 
@@ -505,3 +505,4 @@ else {
 
 $cons->InstallXpcomComponent($dllName);
 
+}
