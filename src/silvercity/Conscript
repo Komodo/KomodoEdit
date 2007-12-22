@@ -39,6 +39,7 @@ use Cwd;
 
 Import(
     "cons",
+    "mozBin",
     "platform",
     "build",
     "install",
@@ -86,9 +87,9 @@ my $pluginName;
 if ($platform eq "win") {
     # no depends?
 } elsif ($platform eq "darwin") {
-    $cons->Depends($landmark, "$scintillaBuildDir/bin/libscintilla.dylib");
+    $cons->Depends($landmark, "$mozBin/libscintilla.dylib");
 } else {
-    $cons->Depends($landmark, "$scintillaBuildDir/bin/scintilla.a");
+    $cons->Depends($landmark, "$mozBin/libscintilla.so");
 }
 $cons->DependsRecursive($landmark, "PySilverCity", ('\.svn'));
 $cons->DependsRecursive($landmark, "Lib", ('\.svn'));
