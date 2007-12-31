@@ -695,9 +695,8 @@ koPrefWindow.prototype =
     },
 
     savepageprefs: function() {
-        var frameName, prefset, contentFrame;
+        var frameName, contentFrame;
         for( frameName in this.contentFrames ) {
-            prefset = this._getCurrentPrefSet();
             contentFrame = this.contentFrames[frameName];
             if (!this.savesinglepageprefs(contentFrame)) {
                 return false;
