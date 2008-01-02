@@ -135,11 +135,11 @@ projectExtensionManager.prototype.registerExtension = function(extension) {
     try {
         log.info("registering event handler for : " + extension.name)
         extension.registerEventHandlers();
-    } catch(e) { log.error("Error regitering event handlers for " + extension.name + " " + e); }
+    } catch(e) { log.error("Error registering event handlers for " + extension.name + " " + e); }
     try {
         log.info("registering menus for: " + extension.name)
         extension.registerMenus();
-    } catch(e) { log.error("Error regitering menus for " + extension.name + " " + e); }
+    } catch(e) { log.error("Error registering menus for " + extension.name + " " + e); }
 }
 
 projectExtensionManager.prototype.setDatapoint = function(columnname,fieldname) {
