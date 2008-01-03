@@ -156,7 +156,8 @@ function _initTypePopup(list, popupId, defaultSetting, matchRx) {
     popup.parentNode.selectedItem = selected;
 }
 
-function OnPreferencePageOK(prefset) {
+function OnPreferencePageClosing(prefset, ok) {
+    if (!ok) return ok;
     try {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                            getService(Components.interfaces.koILastErrorService);
@@ -233,8 +234,7 @@ function OnPreferencePageOK(prefset) {
                 var encodingName = data.encoding.selectedItem.getAttribute("data");
                 var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
                            && data.bom.checked);
-                var ok = applyEncodingAndBOM(encodingName, bom);
-                if (!ok) return false;
+                if (!applyEncodingAndBOM(encodingName, bom)) return false;
                 observerSvc.notifyObservers(parent.view,
                                             "current_view_encoding_changed",
                                             null);
