@@ -279,6 +279,12 @@ def _testOneInputFile(self, fpath):
 
 def _fillScanInputsTestCase():
     for dpath, dnames, fnames in os.walk(gInputsDir):
+        # Don't descend into SCC control dirs.
+        scc_dirs = [".svn", "CVS", ".hg"]
+        for scc_dir in scc_dirs:
+            if scc_dir in dnames:
+                dnames.remove(scc_dir)
+
         if dpath == gInputsDir and "unicode" in dnames:
             # The scan_inputs/unicode is where the unicode test files
             # are placed. Don't descend into here. They are handled elsewhere.
