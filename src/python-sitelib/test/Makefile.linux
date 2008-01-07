@@ -141,5 +141,8 @@ printenv printenv_setvbuf : talk.cpp
 
 
 clean:
-	rm -rf *.o
+	rm -f *.o
 
+distclean: clean
+	rm -f ask ask_then_talk ask_then_talklots ask_then_talk_flushing ask_then_talklots_flushing talk talklots talk_flushing talklots_flushing quiet hang printcwd printenv ask_setvbuf  ask_then_talk_setvbuf ask_then_talklots_setvbuf ask_then_talk_flushing_setvbuf ask_then_talklots_flushing_setvbuf talk_setvbuf talklots_setvbuf talk_flushing_setvbuf talklots_flushing_setvbuf         quiet_setvbuf  hang_setvbuf  printcwd_setvbuf  printenv_setvbuf hello10 hello10noeol log "log space"
+	rm -f log.log talk.log 
