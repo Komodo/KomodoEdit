@@ -17,9 +17,14 @@ Basic usage:
 Advanced usage:
 
     >>> lidb = langinfo.Database()
-    >>> py = lidb.langinfo_from_lang("Python")
-    >>> py.name
-    'Python'
+    >>> lidb.langinfo_from_lang("HTML")
+    <HTML LangInfo>
+    >>> db.langinfo_from_filename("Makefile")
+    <Makefile LangInfo>
+    >>> db.langinfo_from_ext(".pm")
+    <Perl LangInfo>
+    >>> db.langinfo_from_magic("#!/usr/bin/env ruby")
+    <Ruby LangInfo>
 
 The advanced usage allows one to customize how the langinfo database is
 built. For example, specified 'dirs' will be searched for
