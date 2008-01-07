@@ -174,7 +174,9 @@ class Manager(threading.Thread, Queue):
         
         @param langs {list} is an optional list of language names
             to register. If not given, all available languages are
-            registered.
+            registered. Note that these given language names are
+            compared (case-insensitively) to the name of the
+            "lang_<lang>.py" module *filenames*. Admittedly this isn't ideal.
         @param extra_lang_module_dirs {list} is an optional list of extra
             dirs in which to look for and use "lang_*.py" lang support
             modules. By default just the codeintel2 package directory is
@@ -186,7 +188,7 @@ class Manager(threading.Thread, Queue):
         dirs = [dirname(__file__)]
         if extra_lang_module_dirs:
             dirs += extra_lang_module_dirs
-        remaining_langs = langs and set(langs) or None
+        remaining_langs = langs and set(lang.lower() for lang in langs) or None
         for dir in dirs:
             for module_path in glob(join(dir, "lang_*.py")):
                 lang = basename(module_path)[5:-3]
