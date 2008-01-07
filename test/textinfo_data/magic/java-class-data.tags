@@ -1,0 +1,4 @@
+# Is identified as "Mach-O Universal" because that an compiled Java class data
+# share the same magic number. `file` uses a hack to distinguish the two.
+# `textinfo.py` doesn't bother for now.
+knownfailure

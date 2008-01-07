@@ -1,0 +1,5 @@
+#!python
+# vim:set fenc=koi8-r:
+
+if True:
+    print "hi there"
