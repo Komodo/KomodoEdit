@@ -11,47 +11,30 @@ A "bk test" primer
 
 	$ bk test
 
-This runs the whole Komodo test suite (such as it is). Note that there are many test-y things spread around Komodo, but the "test suite" that I'm talking about here is stuff under: 
+This runs the whole Komodo test suite (such as it is). Note that there are
+many test-y things spread around Komodo, but the "test suite" that I'm
+talking about here is stuff under the "test" directory.
 
-	Komodo-devel/test/suite
-
-As of right now: no PyXPCOM stuff, no running Komodo, no Casper, no GUI.
+As of right now: no running Komodo, no Casper, no GUI. However, PyXPCOM tests
+run outside of Komodo *are* supported.
 
 
 	$ bk test foo bar baz
 
-Those are *tags* used to (1) filter the set of test files run and (2) are also passed to those tests so they can sub-filter based on the tags. Some examples:
+Those are *tags* used to (1) filter the set of test files run and (2) are
+also passed to those tests so they can sub-filter based on the tags. Some
+examples:
 
-	$ bk test xdebug   # run test/suite/test_xdebug.py
+	$ bk test ci            # run all CodeIntel tests
+	$ bk test runcommand    # run all run-command system tests
+	$ bk test -- -ci        # run everything *except* CodeIntel tests
 
-	$ bk test dbgp     # run all the DBGP tests (.../test_dbgp.py)
+(Note that to use the "-foo" trick you need to explicitly stop option
+processing with the "--".)
 
-	$ bk test -- -xdebug  # run everything *except* test_xdebug
+You can use multiple tags:
 
-(Note that to use the "-foo" trick you need to explicitly stop option processing with the "--".)
-
-
-Some examples of sub-filtering:
-
-	$ bk test dbgp python   # run just the *Python* DBGP tests
-	$ bk test dbgp perl     # guess
-
-        $ bk test dbgp python
-	test_dbgp:python2.2:goodbyeworld.test ... ok
-	test_dbgp:python2.2:helloworld.test ... ok
-	test_dbgp:python2.3:goodbyeworld.test ... ok
-	test_dbgp:python2.3:helloworld.test ... ok
-	test_dbgp:python2.4:goodbyeworld.test ... ok
-	test_dbgp:python2.4:helloworld.test ... ok
-
-	$ bk test dbgp python hello
-	test_dbgp:python2.2:helloworld.test ... ok
-	test_dbgp:python2.3:helloworld.test ... ok
-	test_dbgp:python2.4:helloworld.test ... ok
-
-	$ bk test dbgp python hello 2.3
-	test_dbgp:python2.3:helloworld.test ... ok
-
+	$ bk test ci python     # run just the Python-related CodeIntel tests
 
 Full glorious details:
 
@@ -62,16 +45,19 @@ Full glorious details:
 How do I add new tests?
 -----------------------
 
-1. Add a test/suite/test_*.py file. Start with 'test_xdebug.py'.
-2. Consider extending the README.txt in that directory with things that you found confusing when adding a new test.
+To add a new test you generally need to add or extend a "test_*.py" module in
+the appropriate place. The test suite is based upon Python's unittest.py
+module. Some knowledge of unittest is useful
+(http://docs.python.org/lib/module-unittest.html).
 
+If your test cases use PyXPCOM modules, then add a module under
+"test/pyxpcom/...". If your tests cases just test a pure-Python system in
+Komodo, add a module in the "test" dir.  To add tests to the CodeIntel
+system, see the "src/codeintel/test2/..." directory.
 
+If you have difficulties adding a new test, please ask on the OpenKomodo
+development list:
 
-How do I add new DBGP tests?
-----------------------------
-
-TODO
-
-
+    http://lists.openkomodo.com/mailman/listinfo/openkomodo-dev
 
 
