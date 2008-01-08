@@ -275,6 +275,23 @@ class TextInfo(object):
     def _classify_from_content(self, lidb):
         log.debug("XXX:TODO: _classify_from_content")
 
+        #TODO: sketch out plan here
+        # Plan:
+        # - get emacs local vars (local_vars or emacs_vars?) and vi modeline
+        #   (vi_modeline)
+        # - if lang not determined use both of those (preferring emacs
+        #   vars)
+        # - if conforms-to XML or HTML: get doctype stuff
+        # - if conforms-to XML: get XML prolog stuff
+        # - if is XML: fine-tune the lang via the DOCTYPE, if available
+        #   (test case in .xml for XBL files)
+        # - eol_* attrs (test cases for this!)
+
+        if self.langinfo is not None and self.langinfo.conforms_to("XML"):
+            head_bytes = self._accessor.head_bytes
+            (self.has_xml_prolog, self.xml_prolog_version,
+             self.xml_prolog_encoding) = self._get_xml_prolog_info(head_bytes)
+
     def _classify_from_magic(self, lidb):
         """Attempt to classify from the file's magic number/shebang
         line, etc.
@@ -447,6 +464,7 @@ class TextInfo(object):
                          % (norm_http_encoding, self._accessor))
 
         # 7. Emacs-style local vars.
+        #TODO: pick up lang from local vars to use for lang-specific fallback?
         emacs_head_vars = self._get_emacs_head_vars(head_bytes)
         emacs_encoding = emacs_head_vars.get("coding")
         if not emacs_encoding:
@@ -468,6 +486,7 @@ class TextInfo(object):
                      % (norm_emacs_encoding, self._accessor))
 
         # 8. Vi[m]-style local vars.
+        #TODO: pick up lang from local vars to use for lang-specific fallback?
         vi_vars = self._get_vi_vars(head_bytes)
         vi_encoding = vi_vars.get("fileencoding") or vi_vars.get("fenc")
         if not vi_encoding:
