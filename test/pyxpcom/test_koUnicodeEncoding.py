@@ -34,7 +34,9 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-import sys, os
+import sys
+import os
+from os.path import join, normpath, dirname
 import unittest
 import codecs
 
@@ -228,8 +230,11 @@ class TestDetectFileEncoding(unittest.TestCase):
     def __init__(self, methodName='runTest'):
         unittest.TestCase.__init__(self, methodName)
         
-        # we expect files to be relative to this test script
-        self._dir = "../../test/charsets/www.kostis.net/charsets"
+        # We expect files to be relative to this test script.
+        test_dir = dirname(dirname(__file__))
+        self._dir = normpath(join(test_dir,
+            "stuff/charsets/www.kostis.net/charsets"))
+
         self._enc = {}
         # get all the utf-8 files in this dir, and well recode them
         names = os.listdir(self._dir)
@@ -257,7 +262,6 @@ class TestDetectFileEncoding(unittest.TestCase):
             ok = self._test_recode_raw_file(enc, name)
             if not ok:
                 sys.stderr.write("    recoding %s FAILED\n" % name)
-        sys.stderr.write(" ... ")
 
     def _test_recode_unicode_file(self, encoding, name):
         path = os.path.join(self._dir, name)
@@ -284,7 +288,7 @@ class TestDetectFileEncoding(unittest.TestCase):
             ok = self._test_recode_unicode_file(enc, name)
             if not ok:
                 sys.stderr.write("    recoding %s FAILED\n" % name)
-        sys.stderr.write(" ... ")
+
 
 #---- mainline
 
