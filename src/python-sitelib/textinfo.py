@@ -190,9 +190,14 @@ class TextInfo(object):
         return self
 
     @classmethod
-    def init_from_path(cls, path, encoding=None, lidb=None):
+    def init_from_path(cls, path, encoding=None, lidb=None,
+                       quick_determine_lang=False):
         """Create an instance using the filename and stat/read info
         from the given path to initialize.
+
+        @param quick_determine_lang {boolean} can be set to True to have
+            processing stop as soon as the language has been determined.
+            Note that this means some fields will not be populated.
         """
         if lidb is None:
             lidb = get_default_lidb()
@@ -218,6 +223,8 @@ class TextInfo(object):
                 self._classify_from_magic(lidb)
                 if self.is_text is False:
                     return self
+            if self.lang and quick_determine_lang:
+                return self
 
             self._classify_encoding(lidb, suggested_encoding=encoding)
             if self.is_text is None and self.encoding:
