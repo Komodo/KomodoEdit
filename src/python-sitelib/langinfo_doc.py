@@ -80,7 +80,7 @@ class XULLangInfo(LangInfo):
     #   <!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [ ... ]>
 
 class XBLLangInfo(LangInfo):
-    """eXtensible Binding Language"
+    """eXtensible Binding Language"""
     name = "XBL"
     conforms_to_bases = ["XML"]
     exts = ['.xbl']
