@@ -36,32 +36,17 @@
 
 import os
 import unittest
-import sys, md5
+import sys
 import tempfile
 
 from xpcom import components, COMException
+from testlib import tag
 
 import uriparse
-win32 = sys.platform.startswith("win")
 
-class Test_uriparse(unittest.TestCase):
-    paths = [
-        ("path", "Normal windows local path",
-                r"c:\test\test.txt", "file:///c:/test/test.txt"),
-        ("path", "Windows UNC path",
-                r"\\planer\d\trentm\tmp\foo.txt", "file://planer/d/trentm/tmp/foo.txt"),
-    ]
-    urls = [
-        ("url",  "Windows UNC URI (2 slashes)", "file://planer/d/trentm/tmp/foo.txt",
-                r"\\planer\d\trentm\tmp\foo.txt"),
-        ("url",  "Windows UNC URI (5 slashes)", "file://///planer/d/trentm/tmp/foo.txt",
-                r"\\planer\d\trentm\tmp\foo.txt"),
-        ("url",  "File URI with spaces", "file://breakfast/spam and eggs.txt",
-                r"\\breakfast\spam and eggs.txt"),
-        #("url",  "Windows UNC URI (1 slashes)", "file:/planer/d/trentm/tmp/foo.txt"),
-        #("url",  "Windows UNC URI (3 slashes)", "file:///planer/d/trentm/tmp/foo.txt"),
-        #("url",  "Windows UNC URI (4 slashes)", "file:////planer/d/trentm/tmp/foo.txt"),
-    ]
+
+
+class URIParseTestCase(unittest.TestCase):
     relative = [
         # base, relative, full, common
         (r'c:\test',r'test.txt',r'c:\test\test.txt', r'c:\test'),
@@ -90,15 +75,33 @@ class Test_uriparse(unittest.TestCase):
         _p2 = p2.replace('\\','/')
         self.failUnlessEqual(_p1, _p2, "%r != %r"%(p1,p2))
 
-    def test_localpaths(self):
-        for test in self.paths:
-            uri = uriparse.localPathToURI(test[2].replace("\\","/"))
-            self.failUnlessSamePath(uri,test[3].replace("\\","/"))
+    if sys.platform == "win32":
+        def test_localpaths(self):
+            paths = [
+                ("path", "Normal windows local path",
+                        r"c:\test\test.txt", "file:///c:/test/test.txt"),
+                ("path", "Windows UNC path",
+                        r"\\planer\d\trentm\tmp\foo.txt", "file://planer/d/trentm/tmp/foo.txt"),
+            ]
+            for test in paths:
+                uri = uriparse.localPathToURI(test[2].replace("\\","/"))
+                self.failUnlessSamePath(uri, test[3].replace("\\","/"))
 
-    def test_urls(self):
-        for test in self.urls:
-            path = uriparse.URIToLocalPath(test[2])
-            self.failUnlessSamePath(path,test[3])
+        def test_urls(self):
+            urls = [
+                ("url",  "Windows UNC URI (2 slashes)", "file://planer/d/trentm/tmp/foo.txt",
+                        r"\\planer\d\trentm\tmp\foo.txt"),
+                ("url",  "Windows UNC URI (5 slashes)", "file://///planer/d/trentm/tmp/foo.txt",
+                        r"\\planer\d\trentm\tmp\foo.txt"),
+                ("url",  "File URI with spaces", "file://breakfast/spam and eggs.txt",
+                        r"\\breakfast\spam and eggs.txt"),
+                #("url",  "Windows UNC URI (1 slashes)", "file:/planer/d/trentm/tmp/foo.txt"),
+                #("url",  "Windows UNC URI (3 slashes)", "file:///planer/d/trentm/tmp/foo.txt"),
+                #("url",  "Windows UNC URI (4 slashes)", "file:////planer/d/trentm/tmp/foo.txt"),
+            ]
+            for test in urls:
+                path = uriparse.URIToLocalPath(test[2])
+                self.failUnlessSamePath(path,test[3])
 
     def test_commonprefix(self):
         for base, rel, full, common in self.relative:
@@ -140,7 +143,7 @@ class _dummyPrefsClass(object):
     def getStringPref(self, pref_name):
         return self.string_dict.get(pref_name, "")
 
-class Test_URIMapping(unittest.TestCase):
+class URIMappingTestCase(unittest.TestCase):
     def test_getMappedURI(self):
         mappingdata_for_mappedPaths = {
             "": {
@@ -231,7 +234,7 @@ class Test_URIMapping(unittest.TestCase):
                                      "Mapped URI was not expected: %r != %r" %
                                      (mapped_uri, expected_uri))
 
-    #@tag("knownfailure")
+    @tag("knownfailure")
     def test_URIUnmapping(self):
         # Testcase to show where the current mapped uri system falls down
         mappingdata_for_mappedPaths = {
