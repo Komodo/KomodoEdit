@@ -187,7 +187,7 @@ def test():
         7-9: replace '\\' with '\'
 
         >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', '\\\\a\\')
-        7-9: replace '\\' with '\a\'
+        7-9: replace '\\' with '\\a\'
 
         >>> print findlib.replace('quoted \\\\"string\\\\" here', '\\\\', '\\\\\\')
         7-9: replace '\\' with '\\\'
