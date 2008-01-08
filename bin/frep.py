@@ -78,13 +78,13 @@ Primarily this exists to exercise the backend for Komodo's Find/Replace
 functionality.
     
 Example Usage:
-  frep.py foo *.txt           # find 'foo' in .txt files
-  frep.py -r foo .            # find 'foo' in all text files (recursively)
-  frep.py /f[ei]/i *.txt      # find 'fe', 'fi' (ignore case) in .txt files
-  frep.py -l foo *.txt        # list .txt files with 'foo'
-  frep.py s/foo/bar/ *.txt    # replace 'foo' with 'bar' in .txt files
-  frep.py -u|--undo           # list replacements that can be undone
-  frep.py -u ID               # undo replacement with id 'ID'
+  frep foo *.txt           # find 'foo' in .txt files
+  frep -r foo .            # find 'foo' in all text files (recursively)
+  frep /f[ei]/i *.txt      # find 'fe', 'fi' (ignore case) in .txt files
+  frep -l foo *.txt        # list .txt files with 'foo'
+  frep s/foo/bar/ *.txt    # replace 'foo' with 'bar' in .txt files
+  frep -u|--undo           # list replacements that can be undone
+  frep -u ID               # undo replacement with id 'ID'
 
 Undo notes:
   A replacement will log an id that can be used for subsequent undo.
@@ -114,9 +114,17 @@ import codecs
 import md5
 import difflib
 
-sys.path.insert(0, expanduser("~/tm/check/lib")) #XXX
-import textinfo
-import findlib2
+ko_dir = dirname(dirname(abspath(__file__)))
+try:
+    import textinfo
+except ImportError:
+    sys.path.insert(0, join(ko_dir, "src", "python-sitelib"))
+    import textinfo
+try:
+    import findlib2
+except ImportError:
+    sys.path.insert(0, join(ko_dir, "src", "find"))
+    import findlib2
 
 
 #---- exceptions
