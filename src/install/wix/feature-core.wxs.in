@@ -1350,6 +1350,13 @@
                 <File Id="file2329" Name="USERST_0.PY" LongName="userStyleSettings.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\userStyleSettings.py"/>
                 <File Id="file2330" Name="which.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\which.py"/>
                 <File Id="file2331" Name="wininteg.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\wininteg.py"/>
+                <File Id="file374" Name="textinfo.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\textinfo.py" />
+                <File Id="file375" Name="langinfo.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo.py" />
+                <File Id="file376" LongName="langinfo_binary.py" Name="LANGIN_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_binary.py" />
+                <File Id="file587" LongName="langinfo_doc.py" Name="LANGIN_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_doc.py" />
+                <File Id="file588" LongName="langinfo_other.py" Name="LANGIN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_other.py" />
+                <File Id="file589" LongName="langinfo_prog.py" Name="LANGIN_4.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_prog.py" />
+                <File Id="file590" LongName="langinfo_tiny.py" Name="LANGIN_5.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_tiny.py" />
                 <File Id="file4447" Name="KOCATA_0.PY" LongName="koCatalog.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koCatalog.py"/>
                 <File Id="file4448" Name="koDTD.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koDTD.py"/>
                 <File Id="file4449" Name="KOSIMP_0.PY" LongName="koSimpleLexer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koSimpleLexer.py"/>
