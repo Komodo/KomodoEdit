@@ -330,23 +330,12 @@ class TextInfo(object):
         12. chardet (http://chardet.feedparser.org/)
         13. Give UTF-8 a try (it is a pretty common fallback).
 
-        XXX:TODO: shouldn't we attempt to decode the *whole* buffer? Because
-        what happens when we pick one and the first 8kB decode, but
-        another part of it doesn't?
-
         Notes:
         - A la Universal Feed Parser, if some
           supposed-to-be-authoritative encoding indicator is wrong (e.g.
           the BOM, the Python 'coding:' decl for Python),
           `self.encoding_bozo` is set True and a reason is appended to
           the `self.encoding_bozo_reasons` list.
-
-        Dev Notes:
-        - "Trying" an encoding means: attempt to decode the first 8kB.
-        - Many binary types could possibly be ruled out ahead of time if
-          this module attempted to support binary content, but it
-          doesn't.  This module's bias is text files so we'll presume
-          text unless all text decoding proves otherwise.
         """
         # 1. Try the BOM.
         if self.has_bom is not False:  # Was set in `_classify_from_magic()`.
