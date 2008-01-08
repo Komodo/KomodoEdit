@@ -1323,6 +1323,7 @@
                 <File Id="file2291" Name="eollib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\eollib.py"/>
                 <File Id="file2292" Name="FACTOR_0.PY" LongName="factoryStyleSettings.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\factoryStyleSettings.py"/>
                 <File Id="file2293" Name="findlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\findlib.py"/>
+                <File Id="file598" Name="findlib2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\findlib2.py" />
                 <File Id="file2297" Name="KOLANG_2.PY" LongName="koLanguageServiceBase.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLanguageServiceBase.py"/>
                 <File Id="file2298" Name="KOLINT_2.PY" LongName="koLintResult.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLintResult.py"/>
                 <File Id="file2299" Name="KOLINT_3.PY" LongName="koLintResults.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koLintResults.py"/>
