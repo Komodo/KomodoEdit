@@ -1849,6 +1849,9 @@ class PHPcile:
 class PHPParser:
 
     PHP_COMMENT_STYLES = (SCE_UDL_SSL_COMMENT, SCE_UDL_SSL_COMMENTBLOCK)
+    # lastText, lastStyle are use to remember the previous tokens.
+    lastText = None
+    lastStyle = None
 
     def __init__(self, filename, content=None, mtime=None):
         self.filename = filename
@@ -2681,13 +2684,21 @@ class PHPParser:
                         self._addCodePiece()
                     col += 1
         elif style in self.PHP_COMMENT_STYLES:
-            self.comment.append(text)
+            # Use rstrip to remove any trailing spaces or newline characters.
+            self.comment.append(text.rstrip())
+        elif style == SCE_UDL_SSL_DEFAULT and \
+             self.lastStyle in self.PHP_COMMENT_STYLES and text[0] in "\r\n":
+            # This is necessary as line comments are supplied to us without
+            # the newlines, so check to see if this is a newline and if the
+            # last line was a comment, append it the newline to it.
+            self.comment.append("\n")
         elif is_udl_csl_style(style):
             self.csl_tokens.append({"style": style,
                                     "text": text,
                                     "start_column": start_column,
                                     "start_line": start_line})
         self.lastText = text
+        self.lastStyle = style
 
     def scan_multilang_content(self, content):
         """Scan the given PHP content, only processes SSL styles"""
