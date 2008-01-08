@@ -78,13 +78,21 @@ Primarily this exists to exercise the backend for Komodo's Find/Replace
 functionality.
     
 Example Usage:
-  frep foo *.txt           # find 'foo' in .txt files
-  frep -r foo .            # find 'foo' in all text files (recursively)
-  frep /f[ei]/i *.txt      # find 'fe', 'fi' (ignore case) in .txt files
-  frep -l foo *.txt        # list .txt files with 'foo'
+  # grep-like
+  frep foo *.txt           # grep for 'foo' in .txt files
+  frep -r foo .            # grep for 'foo' in all text files (recursively)
+  frep /f[ei]/i *.txt      # grep for 'fe', 'fi' (ignore case) in .txt files
+  frep -l foo *.txt        # list .txt files matching 'foo'
+
+  # sed-like
   frep s/foo/bar/ *.txt    # replace 'foo' with 'bar' in .txt files
   frep -u|--undo           # list replacements that can be undone
   frep -u ID               # undo replacement with id 'ID'
+
+  # find-like (not implemented yet, TODO)
+  frep . -i "foo*"         # list paths matching "foo*"
+  frep . -i lang:Perl      # list Perl paths
+  frep . -x lang:Python    # list all but Python paths
 
 Undo notes:
   A replacement will log an id that can be used for subsequent undo.
@@ -142,9 +150,52 @@ log = logging.getLogger("frep")
 
 #---- public functionality
 
+def find(paths, includes=None, excludes=None):
+    """List paths matching the given filters (a la GNU find).
+
+    @param paths {sequence|iterator} is a sequence of paths to search.
+    @param includes {list} is a sequence of 2-tuples defining include
+        filters on textinfo data: (<textinfo-field>, <value>).
+    @param excludes {list} is a sequence of 2-tuples defining exclude
+        filters on textinfo data: (<textinfo-field>, <value>).
+    """
+    if not includes and not excludes: # Quick case.
+        for path in paths:
+            yield path
+    else:
+        all_fields = set(k for k,v in includes)
+        all_fields.update(k for k,v in excludes)
+        quick_determine_lang = False
+        if all_fields == set('lang'):  # Special quick case.
+            quick_determine_lang = True
+
+        lidb = textinfo.get_default_lidb()
+        for path in paths:
+            ti = textinfo.TextInfo.init_from_path(path, lidb=lidb,
+                    quick_determine_lang=quick_determine_lang)
+
+            if includes:
+                unmatched_includes = [field for field, value in includes
+                                      if getattr(ti, field, None) != value]
+                if unmatched_includes:
+                    log.debug("excluding path not matching '%s' include(s): %r",
+                              "', '".join(unmatched_includes), path)
+                    continue
+            if excludes:
+                matched_excludes = [field for field, value in excludes
+                                    if getattr(ti, field, None) == value]
+                if matched_excludes:
+                    log.debug("excluding path matching '%s' exclude(s): %r",
+                              "', '".join(matched_excludes), path)
+                    continue
+            
+            yield path
+
+
 def grep(regex, paths, files_with_matches=False,
-         treat_binary_files_as_text=False):
-    """Grep for `regex` in each path.
+         treat_binary_files_as_text=False,
+         includes=None, excludes=None):
+    """Grep for `regex` in the given paths.
 
     @param regex {regex} is the regular expression to search for.
     @param paths {sequence|iterator} is a sequence of paths to search.
@@ -153,9 +204,29 @@ def grep(regex, paths, files_with_matches=False,
         Default is false.
     @param treat_binary_files_as_text {boolean} indicates that binary files
         should be search. By default they are skipped.
+    @param includes {list} is a sequence of 2-tuples defining include
+        filters on textinfo data: (<textinfo-field>, <value>).
+    @param excludes {list} is a sequence of 2-tuples defining exclude
+        filters on textinfo data: (<textinfo-field>, <value>).
     """
     for path in paths:
         ti = textinfo.textinfo_from_path(path)
+
+        if includes:
+            unmatched_includes = [field for field, value in includes
+                                  if getattr(ti, field, None) != value]
+            if unmatched_includes:
+                log.debug("excluding path not matching '%s' include(s): %r",
+                          "', '".join(unmatched_includes), path)
+                continue
+        if excludes:
+            matched_excludes = [field for field, value in excludes
+                                if getattr(ti, field, None) == value]
+            if matched_excludes:
+                log.debug("excluding path matching '%s' exclude(s): %r",
+                          "', '".join(matched_excludes), path)
+                continue
+
         if ti.is_text:
             text = ti.text
         elif treat_binary_files_as_text:
@@ -172,203 +243,6 @@ def grep(regex, paths, files_with_matches=False,
                 yield PathHit(path)
                 break
             yield FindHit(path, ti.encoding, match, accessor)
-
-def _grouped_by_path(events):
-    """Group the given grep event stream.
-    
-    Non-Hits are in their own group. Hits are grouped by path. 
-    """
-    group_path = None
-    group = []  # group of FindHits for a single path
-
-    for event in events:
-        if not isinstance(event, Hit):
-            if group:
-                yield group
-                group_path = None
-                group = []
-            yield [event]
-            continue
-
-        if group_path is None:
-            group_path = event.path
-            group = []
-        elif event.path != group_path:
-            yield group
-            group_path = event.path
-            group = []
-        group.append(event)
-
-    if group:
-        yield group
-
-
-class Journal(list):
-    """A replacement journal.
-    
-    >> j = Journal.create("s/foo/bar/ in *.py")  # create a new journal 
-    >> j.add_replace_group(...) # add replacements for a path
-    >> j.close()                # save (as a pickle) and close the file
-
-    The created journal file is a pickle file in the journal dir
-    (as returned by the _get_journal_dir() static method). The path is
-    stored in `j.path`.
-
-    >> k = Journal.load(j.path)    # open and load the saved journal
-    >> k[0]
-    ...hits for 'path'...
-
-    There is also a journal id (it is part of the file path) that can be
-    used to open.
-
-    >> m = Journal.load(j.id)
-    >> m[0]
-    ...hits for 'path'...
-    """
-    id = None
-    path = None
-    summary_path = None
-    summary = None   # prose description of the replacement
-
-    @staticmethod
-    def get_journal_dir():
-        try:
-            import applib
-        except ImportError:
-            d = expanduser("~/.frep")
-        else:
-            d = applib.user_cache_dir("frep", "ActiveState")
-        return d
-
-    @staticmethod
-    def get_new_id(journal_dir):
-        existing_ids = set(p[8:-7] for p in os.listdir(journal_dir)
-            if p.startswith("journal-") and p.endswith(".pickle"))
-
-        SENTINEL = 100
-        for i in range(SENTINEL):
-             id = _get_friendly_id()
-             if id not in existing_ids:
-                return id
-        else:
-            raise FindError("could not find a unique journal id in "
-                            "%d attempts" % SENTINEL)
-
-    NUM_JOURNALS_TO_KEEP = 5
-    @classmethod
-    def remove_old_journals(cls, journal_dir):
-        """By default creating a replacement journal will remove all but
-        the last 10 journals. Otherwise space consumption could get
-        huge after long usage.
-        """
-        try:
-            mtimes_and_journal_ids = [
-                (os.stat(p).st_mtime, p[8:-7])
-                for p in glob(join(journal_dir, "journal-*.pickle"))
-            ]
-            mtimes_and_journal_ids.sort()
-            for mtime, id in mtimes_and_journal_ids[:-cls.NUM_JOURNALS_TO_KEEP]:
-                log.debug("rm old journal `%s'", id)
-                for path in glob(join(journal_dir, "*-%s.*" % id)):
-                    os.remove(path)
-        except EnvironmentError, ex:
-            log.warn("error removing old journals: %s (ignored)", ex)
-
-    @classmethod
-    def journals(cls):
-        """Generate the list of current journals.
-
-        Yields tuples of the form (most recent first):
-            (<mtime>, <id>, <summary>)
-        """
-        journal_dir = cls.get_journal_dir()
-        mtimes_and_paths = [
-            (os.stat(p).st_mtime, p)
-            for p in glob(join(journal_dir, "journal-*.pickle"))
-        ]
-        mtimes_and_paths.sort(reverse=True)
-
-        for mtime, path in mtimes_and_paths:
-            id = basename(path)[8:-7]  # len("journal") == 8, ...
-            summary_path = join(dirname(path), "summary-%s.txt" % id)
-            try:
-                f = codecs.open(summary_path, 'r', "utf-8")
-                summary = f.read()
-                f.close()
-            except EnvironmentError:
-                summary = "(no summary)"
-            yield mtime, id, summary
-
-    @classmethod
-    def create(cls, summary):
-        journal_dir = cls.get_journal_dir()
-        if not exists(journal_dir):
-            os.makedirs(journal_dir)
-        else:
-            cls.remove_old_journals(journal_dir)
-
-        id = cls.get_new_id(journal_dir)
-        path = join(journal_dir, "journal-%s.pickle" % id)
-
-        summary_path = join(journal_dir, "summary-%s.txt" % id)
-        f = codecs.open(summary_path, 'w', "utf-8")
-        try:
-            f.write(summary)
-        finally:
-            f.close()
-
-        file = open(path, 'wb')
-        instance = cls(id, path, file)
-        instance.summary_path = summary_path
-        instance.summary = summary
-        return instance
-
-    @classmethod
-    def load(cls, path_or_id):
-        if os.sep in path_or_id or os.altsep and os.altsep in path_or_id:
-            path = path_or_id
-            id = basename(path_or_id)[8:-7]
-        else:
-            id = path_or_id
-            journal_dir = cls.get_journal_dir()
-            path = join(journal_dir, "journal-%s.pickle" % id)
-
-        summary_path = join(journal_dir, "summary-%s.txt" % id)
-        f = codecs.open(summary_path, 'r', "utf-8")
-        try:
-            summary = f.read()
-        finally:
-            f.close()
-
-        file = open(path, 'rb')
-        instance = cls(id, path, file)
-        instance.summary_path = summary_path
-        instance.summary = summary
-        try:
-            instance += pickle.load(file)
-        finally:
-            file.close()
-        return instance
-
-    def __init__(self, id, path, file):
-        list.__init__(self)
-        self.id = id
-        self.path = path
-        self.file = file
-
-    def __del__(self):
-        self.close()
-
-    def add_replace_group(self, group):
-        #TODO: Do I need eol-style here as well? Yes, I think so. Add a
-        #      test case for this!
-        self.append(group)
-
-    def close(self):
-        if not self.file.closed:
-            # Dump data to pickle.
-            pickle.dump(list(self), self.file)
-            self.file.close()
 
 
 def replace(regex, repl, paths, include_diff_events=False, dry_run=False):
@@ -572,6 +446,175 @@ def undo_replace(journal_id, dry_run=False):
             except EnvironmentError, ex:
                 log.warn("couldn't remove journal summary '%s': %s", 
                          journal.summary_path, ex)
+
+#---- replace Journal stuff
+
+class Journal(list):
+    """A replacement journal.
+    
+    >> j = Journal.create("s/foo/bar/ in *.py")  # create a new journal 
+    >> j.add_replace_group(...) # add replacements for a path
+    >> j.close()                # save (as a pickle) and close the file
+
+    The created journal file is a pickle file in the journal dir
+    (as returned by the _get_journal_dir() static method). The path is
+    stored in `j.path`.
+
+    >> k = Journal.load(j.path)    # open and load the saved journal
+    >> k[0]
+    ...hits for 'path'...
+
+    There is also a journal id (it is part of the file path) that can be
+    used to open.
+
+    >> m = Journal.load(j.id)
+    >> m[0]
+    ...hits for 'path'...
+    """
+    id = None
+    path = None
+    summary_path = None
+    summary = None   # prose description of the replacement
+
+    @staticmethod
+    def get_journal_dir():
+        try:
+            import applib
+        except ImportError:
+            d = expanduser("~/.frep")
+        else:
+            d = applib.user_cache_dir("frep", "ActiveState")
+        return d
+
+    @staticmethod
+    def get_new_id(journal_dir):
+        existing_ids = set(p[8:-7] for p in os.listdir(journal_dir)
+            if p.startswith("journal-") and p.endswith(".pickle"))
+
+        SENTINEL = 100
+        for i in range(SENTINEL):
+             id = _get_friendly_id()
+             if id not in existing_ids:
+                return id
+        else:
+            raise FindError("could not find a unique journal id in "
+                            "%d attempts" % SENTINEL)
+
+    NUM_JOURNALS_TO_KEEP = 5
+    @classmethod
+    def remove_old_journals(cls, journal_dir):
+        """By default creating a replacement journal will remove all but
+        the last 10 journals. Otherwise space consumption could get
+        huge after long usage.
+        """
+        try:
+            mtimes_and_journal_ids = [
+                (os.stat(p).st_mtime, p[8:-7])
+                for p in glob(join(journal_dir, "journal-*.pickle"))
+            ]
+            mtimes_and_journal_ids.sort()
+            for mtime, id in mtimes_and_journal_ids[:-cls.NUM_JOURNALS_TO_KEEP]:
+                log.debug("rm old journal `%s'", id)
+                for path in glob(join(journal_dir, "*-%s.*" % id)):
+                    os.remove(path)
+        except EnvironmentError, ex:
+            log.warn("error removing old journals: %s (ignored)", ex)
+
+    @classmethod
+    def journals(cls):
+        """Generate the list of current journals.
+
+        Yields tuples of the form (most recent first):
+            (<mtime>, <id>, <summary>)
+        """
+        journal_dir = cls.get_journal_dir()
+        mtimes_and_paths = [
+            (os.stat(p).st_mtime, p)
+            for p in glob(join(journal_dir, "journal-*.pickle"))
+        ]
+        mtimes_and_paths.sort(reverse=True)
+
+        for mtime, path in mtimes_and_paths:
+            id = basename(path)[8:-7]  # len("journal") == 8, ...
+            summary_path = join(dirname(path), "summary-%s.txt" % id)
+            try:
+                f = codecs.open(summary_path, 'r', "utf-8")
+                summary = f.read()
+                f.close()
+            except EnvironmentError:
+                summary = "(no summary)"
+            yield mtime, id, summary
+
+    @classmethod
+    def create(cls, summary):
+        journal_dir = cls.get_journal_dir()
+        if not exists(journal_dir):
+            os.makedirs(journal_dir)
+        else:
+            cls.remove_old_journals(journal_dir)
+
+        id = cls.get_new_id(journal_dir)
+        path = join(journal_dir, "journal-%s.pickle" % id)
+
+        summary_path = join(journal_dir, "summary-%s.txt" % id)
+        f = codecs.open(summary_path, 'w', "utf-8")
+        try:
+            f.write(summary)
+        finally:
+            f.close()
+
+        file = open(path, 'wb')
+        instance = cls(id, path, file)
+        instance.summary_path = summary_path
+        instance.summary = summary
+        return instance
+
+    @classmethod
+    def load(cls, path_or_id):
+        if os.sep in path_or_id or os.altsep and os.altsep in path_or_id:
+            path = path_or_id
+            id = basename(path_or_id)[8:-7]
+        else:
+            id = path_or_id
+            journal_dir = cls.get_journal_dir()
+            path = join(journal_dir, "journal-%s.pickle" % id)
+
+        summary_path = join(journal_dir, "summary-%s.txt" % id)
+        f = codecs.open(summary_path, 'r', "utf-8")
+        try:
+            summary = f.read()
+        finally:
+            f.close()
+
+        file = open(path, 'rb')
+        instance = cls(id, path, file)
+        instance.summary_path = summary_path
+        instance.summary = summary
+        try:
+            instance += pickle.load(file)
+        finally:
+            file.close()
+        return instance
+
+    def __init__(self, id, path, file):
+        list.__init__(self)
+        self.id = id
+        self.path = path
+        self.file = file
+
+    def __del__(self):
+        self.close()
+
+    def add_replace_group(self, group):
+        #TODO: Do I need eol-style here as well? Yes, I think so. Add a
+        #      test case for this!
+        self.append(group)
+
+    def close(self):
+        if not self.file.closed:
+            # Dump data to pickle.
+            pickle.dump(list(self), self.file)
+            self.file.close()
 
 
 #---- internal hit classes
@@ -825,6 +868,35 @@ class _TextAccessor(object):
 
 
 #---- internal support stuff
+
+def _grouped_by_path(events):
+    """Group "Hit" events in the given find event stream by path
+    
+    Non-Hits are in their own group. Hits are grouped by path. 
+    """
+    group_path = None
+    group = []  # group of FindHits for a single path
+
+    for event in events:
+        if not isinstance(event, Hit):
+            if group:
+                yield group
+                group_path = None
+                group = []
+            yield [event]
+            continue
+
+        if group_path is None:
+            group_path = event.path
+            group = []
+        elif event.path != group_path:
+            yield group
+            group_path = event.path
+            group = []
+        group.append(event)
+
+    if group:
+        yield group
 
 def _get_friendly_id():
     """Create an ID string we can recognise.
@@ -1292,6 +1364,19 @@ def _safe_print(u):
     s = u.encode(sys.stdout.encoding or "utf-8", 'replace')
     print s
 
+_bool_from_str = {
+    "true": True, "True": True,
+    "false": False, "False": False,
+}
+def _value_from_str(s):
+    try:
+        return int(s)
+    except ValueError:
+        if s in _bool_from_str:
+            return _bool_from_str[s]
+        else:
+            return s
+
 
 #---- mainline
 
@@ -1308,19 +1393,24 @@ def main_list_journals(opts):
         else:
             print "%s  %s (at %s)" % (id, summary, dt)
 
-def main_grep_list(regex, paths, opts):
-    for event in grep(regex, paths, files_with_matches=True):
+def main_find(paths, includes, excludes, opts):
+    for path in find(paths, includes=includes, excludes=excludes):
+        print path
+
+def main_find_matching_files(regex, paths, includes, excludes, opts):
+    for event in grep(regex, paths, files_with_matches=True,
+                      includes=includes, excludes=excludes):
         if isinstance(event, Hit):
             print event.path
 
-def main_grep(regex, paths, opts):
+def main_grep(regex, paths, includes, excludes, opts):
     last_line_nums = None
-    for hit in grep(regex, paths):
+    for hit in grep(regex, paths, includes=includes, excludes=excludes):
         if not isinstance(hit, Hit):
             continue
 
-        # Skip reporting a hit if it is one a line (or lines) that
-        # have already been printed (a la grep).
+        # Skip reporting a hit if it is on a line (or lines) that
+        # has already been printed (a la grep).
         start, end = hit.line_num_range
         line_nums = set(range(start, end+1))
         if last_line_nums and line_nums.issubset(last_line_nums):
@@ -1343,7 +1433,7 @@ def main_grep(regex, paths, opts):
             else:
                 _safe_print("%s:%s" % (hit.path, _chomp(lines[0])))
 
-def main_replace(regex, repl, paths, argv, opts):
+def main_replace(regex, repl, paths, includes, excludes, argv, opts):
     start_time = time.time()
     num_repls = 0
     journal_id = None
@@ -1352,6 +1442,7 @@ def main_replace(regex, repl, paths, argv, opts):
 
     for event in replace(regex, repl, paths,
                          include_diff_events=include_diff_events,
+                         includes=includes, excludes=excludes,
                          dry_run=opts.dry_run):
         if isinstance(event, StartJournal):
             journal_id = event.id
@@ -1427,10 +1518,14 @@ def main(argv):
              "replacement id to undo it.")
     parser.add_option("-i", "--include", dest="includes",
         action="append", metavar="PATTERN",
-        help="Path patterns to include.")
+        help="Path patterns to include. Alternatively, the argument can "
+             "be of the form FIELD:VALUE to filter based on textinfo "
+             "attributes of a file; for example, '-i lang:Python'.")
     parser.add_option("-x", "--exclude", dest="excludes",
         action="append", metavar="PATTERN",
-        help="Path patterns to exclude.")
+        help="Path patterns to exclude. Alternatively, the argument can "
+             "be of the form FIELD:VALUE to filter based on textinfo "
+             "attributes of a file; for example, '-x encoding:ascii'.")
     parser.add_option("--dry-run", action="store_true",
         help="Do a dry-run replacement.")
     parser.set_defaults(log_level=logging.INFO, recursive=False,
@@ -1445,29 +1540,63 @@ def main(argv):
     elif opts.undo is not None:
         return main_undo(opts)
 
-    # All other actions use the two args. Validate and prepare the args.
-    #TODO: support for more complex includes/excludes:
-    #       -i lang:Python
-    if len(args) < 2:
+    # Process includes and excludes.
+    path_includes = []
+    textinfo_includes = []
+    for i in opts.includes:
+        if '=' in i:
+            field, value = i.split('=', 1)
+            textinfo_includes.append( (field, _value_from_str(value)) )
+        elif ':' in i:
+            field, value = i.split(':', 1)
+            textinfo_includes.append( (field, _value_from_str(value)) )
+        else:
+            path_includes.append(i)
+    path_excludes = []
+    textinfo_excludes = []
+    for i in opts.excludes:
+        if '=' in i:
+            field, value = i.split('=', 1)
+            textinfo_excludes.append( (field, _value_from_str(value)) )
+        elif ':' in i:
+            field, value = i.split(':', 1)
+            textinfo_excludes.append( (field, _value_from_str(value)) )
+        else:
+            path_excludes.append(i)
+
+    # Validate and prepare the args.
+    if len(args) < 1:
         log.error("incorrect number of arguments (see `%s --help')", argv[0])
         return 1
-    pattern_str, path_patterns = args[0], args[1:]
-    regex, repl = _regex_info_from_str(pattern_str, word_match=opts.word)
-    action = (repl is None and "search" or "replace")
-    if opts.list:
-        if action == "replace":
-            raise FindError("cannot use -l|--list for a replacement")
-        action = "list"
-    paths = _paths_from_path_patterns(path_patterns, recursive=opts.recursive,
-                includes=opts.includes, excludes=opts.excludes)
+    elif len(args) == 1:
+        # GNU find-like functionality uses one arg.
+        action = "find"
+        path_patterns = args
+        recursive = True    # -r is implied for find functionality
+    else:
+        pattern_str, path_patterns = args[0], args[1:]
+        regex, repl = _regex_info_from_str(pattern_str, word_match=opts.word)
+        action = (repl is None and "grep" or "replace")
+        if opts.list:
+            if action == "replace":
+                raise FindError("cannot use -l|--list for a replacement")
+            action = "grep-list"
+        recursive = opts.recursive
 
     # Dispatch to the appropriate action.
-    if action == "list":
-        return main_grep_list(regex, paths, opts)
-    elif action == "search":
-        return main_grep(regex, paths, opts)
+    paths = _paths_from_path_patterns(path_patterns, recursive=recursive,
+                includes=path_includes, excludes=path_excludes)
+    if action == "find":
+        return main_find(paths, textinfo_includes, textinfo_excludes, opts)
+    if action == "grep-list":
+        return main_find_matching_files(regex, paths,
+            textinfo_includes, textinfo_excludes, opts)
+    elif action == "grep":
+        return main_grep(regex, paths,
+            textinfo_includes, textinfo_excludes, opts)
     elif action == "replace":
-        return main_replace(regex, repl, paths, argv, opts)
+        return main_replace(regex, repl, paths,
+            textinfo_includes, textinfo_excludes, argv, opts)
     else:
         raise FindError("unexpected action: %r" % action)
 
