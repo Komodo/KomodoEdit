@@ -933,7 +933,7 @@ def _splitall(path):
 #    log.info("%s: %s", title, message)
 
 
-# Recipe: regex_from_str (2.0+)
+# Recipe: regex_from_str (2.1.0)
 def _str_from_regex_info(regex, repl=None):
     r"""Generate a string representing the regex (and optional replacement).
 
@@ -995,7 +995,7 @@ def _regex_info_from_str(s, allow_replace=True, word_match=False):
     boundaries.
 
         >>> _regex_info_from_str("/foo/", word_match=True) \
-        ...   == (re.compile('(?<!\w)foo(?!\w)'), None)
+        ...   == (re.compile(r'(?<!\w)foo(?!\w)'), None)
         True
 
     Note: this is intended to round-trip with _str_from_regex_info().
@@ -1046,7 +1046,10 @@ def _regex_info_from_str(s, allow_replace=True, word_match=False):
         flags = _flags_from_str(flags_str)
         return (re.compile(pattern, flags), repl)
     else: # not an encoded regex
-        return (re.compile(re.escape(s)), None)
+        pattern = re.escape(s)
+        if word_match:
+            pattern = r"(?<!\w)" + pattern + r"(?!\w)"
+        return (re.compile(pattern), None)
 
 
 # Recipe: paths_from_path_patterns (0.3.7+)
@@ -1450,8 +1453,6 @@ def main(argv):
         return 1
     pattern_str, path_patterns = args[0], args[1:]
     regex, repl = _regex_info_from_str(pattern_str, word_match=opts.word)
-    #XXX TODO START HERE: why doesn't -w|--word work here!?
-    print "XXX", regex.pattern, opts.word
     action = (repl is None and "search" or "replace")
     if opts.list:
         if action == "replace":
