@@ -35,30 +35,22 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-"""
-A library of find and replace utilities for Komodo.
+"""A library of find and replace utilities for Komodo."""
 
-Public Interface:
-    find(), findall(), replace(), replaceall()
+__version_info__ = (1, 0, 0)
+__version__ = '.'.join(map(str, __version_info__))
 
-See usage() below for information on the command line interface or
-just do this:
-    python findlib.py --help
-"""
-
-import os, sys, re
-
-#---- globals
-
-verbosity = 0     # <0 == quiet, 0 == normal, >0 == verbose
-out = sys.stdout
+import os
+import sys
+import re
+import optparse
+import logging
 
 
 
-#---- exceptions raise by this module
+#---- globals and exceptions
 
-class FindError(Exception):
-    pass
+log = logging.getLogger("findlib")
 
 
 
@@ -207,14 +199,12 @@ def find(text, pattern, startOffset=0, **options):
         case: insensitive* | sensitive | smart
     (*) indicates the default
     """
-    global verbosity
     flags = _GetReFlags(pattern, **options)
     pattern = _MassageSearchToken(pattern, **options)
     searchBackward = options.has_key("searchBackward") and options["searchBackward"]
     
-    if verbosity > 0:
-        print "find: text=%r pattern=%r startOffset=%d flags=%s"\
-              % (text, pattern, startOffset, flags)
+    log.debug("find: text=%r pattern=%r startOffset=%d flags=%s",
+              text, pattern, startOffset, flags)
     if not searchBackward:
         match = _Find(text, startOffset, len(text), pattern, flags)
     else:
@@ -494,124 +484,4 @@ def replaceallex(text, pattern, replacement, skipZone=None,
         
     return repl, numRepls, matches
 
-
-#---- command line mainline
-
-def usage():
-    usage = """Usage:
-    findlib [options] find <pattern> [<files>...]
-    findlib [options] findall <pattern> [<files>...]
-    findlib [options] replace <pattern> <replacement> [<files>...]
-    findlib [options] replaceall <pattern> <replacement> [<files>...]
-
-    Options:
-        -v, --verbose       verbose output
-
-        --simple, --wildcard, --regex-python
-                            search token type (default is "simple")
-        -w, --word          match whole words only
-        --case=sensitive|insensitive|smart
-                            case sensitivity, default is insensitive, "smart"
-                            indicate to be case sensitive iff there are any
-                            uppercase chars in search token
-    Options for find() and replace() only:
-        --backward          search backwards through the given files
-        --offset=<num>      a character offset at which to begin searching,
-                            default is 0
-"""
-    out.write(usage)
-
-
-def main(argv):
-    """command line interface (primarily) for testing this module"""
-    # parse options
-    import getopt
-    try:
-        optlist, args = getopt.getopt(argv[1:], 'hvw',\
-            ['help', 'verbose',
-             'simple', 'wildcard', 'regex-python',
-             'word',
-             'case=', 'backward', 'offset=' ])
-    except getopt.GetoptError, msg:
-        out.write("%s: error in options: %s\n" % (argv[0], msg))
-        out.write("Try 'python findlib.py --help'.\n")
-        return 1
-    global verbosity
-    options = {}
-    startOffset = 0
-    for opt,optarg in optlist:
-        if opt in ('-v', '--verbose'):
-            verbosity = 1
-        elif opt in ('-h', '--help'):
-            usage()
-            return 0
-        elif opt in ("--simple", "--wildcard", "--regex-python"):
-            if options.has_key("patternType"):
-                out.write("Can only specify one of --simple, --wildcard, "\
-                          "--regex-python.\n")
-                usage()
-                return 1
-            else:
-                options["patternType"] = opt[2:]
-        elif opt in ('-w', '--word'):
-            options["matchWord"] = 1 
-        elif opt == "--case":
-            recognized = ("sensitive", "insensitive", "smart")
-            if optarg not in recognized:
-                out.write("Unrecognized case-sensitivity type '%s'. It "\
-                          "must be one of %s.\n" % (optarg, recognized))
-                usage()
-                return 1
-            else:
-                options["case"] = optarg
-        elif opt == "--backward":
-            options["searchBackward"] = 1
-        elif opt == "--offset":
-            startOffset = int(optarg)
-
-    # parse arguments
-    try:
-        action = args[0]
-        if action in ("find", "findall"):
-            pattern = args[1]
-            filenames = args[2:]
-        elif action in ("replace", "replaceall"):
-            pattern, replacement = args[1:3]
-            filenames = args[3:]
-        else:
-            raise FindError("Urecognized action: %s" % action)
-    except (IndexError, ValueError):
-        print "Error: incorrect args: %s" % args
-        usage()
-        if verbosity > 0:
-            raise   # re-raise
-        else:
-            return 1
-
-    # do the work
-    for filename in filenames:
-        i = open(filename, "r")
-        text = i.read()
-        i.close()
-        
-        results = []
-        if action == "find":
-            result = find(text, pattern, startOffset, **options)
-            results.append(result)
-        elif action == "replace":
-            result = replace(text, pattern, replacement,
-                             startOffset, **options)
-            results.append(result)
-        elif action == "findall":
-            results = findall(text, pattern, startOffset, **options)
-        elif action == "replaceall":
-            results = replaceall(text, pattern, replacement, **options)
-        for result in results:
-            print "%s: %s" % (filename, result)
-
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit( main(sys.argv) )
 
