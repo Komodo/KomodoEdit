@@ -127,6 +127,7 @@ class LangInfo(object):
     filename_patterns = None
     magic_numbers = None
     doctypes = None
+    emacs_modes = None # Emacs modes, other than `name', that identify lang.
 
     # Some languages mandate a default encoding, e.g. for Python it is
     # ASCII, for XML UTF-8.
@@ -213,6 +214,7 @@ class Database(object):
         self._magic_table = None
         self._li_from_doctype_public_id = None
         self._li_from_doctype_system_id = None
+        self._li_from_emacs_mode = None
 
         self._load()
         if dirs is None:
@@ -230,6 +232,15 @@ class Database(object):
         if norm_lang not in self._langinfo_from_norm_lang:
             raise LangInfoError("no info on %r lang" % lang)
         return self._langinfo_from_norm_lang[norm_lang]
+
+    def langinfo_from_emacs_mode(self, emacs_mode):
+        if self._li_from_emacs_mode is None:
+            self._build_tables()
+        if emacs_mode in self._li_from_emacs_mode:
+            return self._li_from_emacs_mode[emacs_mode]
+        norm_lang = self._norm_lang_from_lang(emacs_mode)
+        if norm_lang in self._langinfo_from_norm_lang:
+            return self._langinfo_from_norm_lang[norm_lang]
 
     def langinfo_from_ext(self, ext):
         """Return an appropriate LangInfo for the given filename extension, 
@@ -325,6 +336,7 @@ class Database(object):
         self._magic_table = []  # list of (<magic-tuple>, <langinfo>)
         self._li_from_doctype_public_id = {}
         self._li_from_doctype_system_id = {}
+        self._li_from_emacs_mode = {}
 
         for li in self._langinfo_from_norm_lang.values():
             if li.exts:
@@ -360,6 +372,9 @@ class Database(object):
                         self._li_from_doctype_public_id[public_id] = li
                     if system_id:
                         self._li_from_doctype_system_id[system_id] = li
+            if li.emacs_modes:
+                for em in li.emacs_modes:
+                    self._li_from_emacs_mode[em] = li
 
     def _norm_lang_from_lang(self, lang):
         return lang.lower()

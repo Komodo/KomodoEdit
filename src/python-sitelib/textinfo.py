@@ -291,13 +291,12 @@ class TextInfo(object):
 
         #TODO: Plan:
         # - eol_* attrs (test cases for this!)
-        # - get emacs local vars (local_vars or emacs_vars?) and vi modeline
-        #   (vi_modeline)
-        # - if lang not determined use both of those (preferring emacs
-        #   vars)
 
         head = self.text[:self._accessor.HEAD_SIZE]
+        tail = self.text[-self._accessor.TAIL_SIZE:]
 
+        # If lang is unknown, attempt to guess from XML prolog or
+        # shebang now that we've successfully decoded the buffer.
         if self.langinfo is None:
             (self.has_xml_prolog, xml_version,
              xml_encoding) = self._get_xml_prolog_info(head)
@@ -312,8 +311,18 @@ class TextInfo(object):
                     self.langinfo = li
                     self.lang = li.name
 
-        #TODO: test cases:
-        # - eols
+        # Extract Emacs local vars and Vi(m) modeline info and, if the
+        # lang is still unknown, attempt to use them to determine it.
+        self.emacs_vars = self._get_emacs_head_vars(head)
+        self.emacs_vars.update(self._get_emacs_tail_vars(tail))
+        self.vi_vars = self._get_vi_vars(head)
+        if not self.vi_vars:
+            self.vi_vars = self._get_vi_vars(tail)
+        if self.langinfo is None and "mode" in self.emacs_vars:
+            li = lidb.langinfo_from_emacs_mode(self.emacs_vars["mode"])
+            if li:
+                self.langinfo = li
+                self.lang = li.name
 
         if self.langinfo is not None:
             if self.langinfo.conforms_to("XML"):
@@ -547,7 +556,6 @@ class TextInfo(object):
                          % (norm_http_encoding, self._accessor))
 
         # 7. Emacs-style local vars.
-        #TODO: pick up lang from local vars to use for lang-specific fallback?
         emacs_head_vars = self._get_emacs_head_vars(head_bytes)
         emacs_encoding = emacs_head_vars.get("coding")
         if not emacs_encoding:
@@ -569,7 +577,6 @@ class TextInfo(object):
                      % (norm_emacs_encoding, self._accessor))
 
         # 8. Vi[m]-style local vars.
-        #TODO: pick up lang from local vars to use for lang-specific fallback?
         vi_vars = self._get_vi_vars(head_bytes)
         vi_encoding = vi_vars.get("fileencoding") or vi_vars.get("fenc")
         if not vi_encoding:
@@ -1007,8 +1014,8 @@ class TextInfo(object):
 
         return emacs_vars
 
-    #TODO: nice if parser also gave which of 'vi, vim, ex'
-    #      and the range in the accessor.
+    # Note: It might nice if parser also gave which of 'vi, vim, ex' and
+    # the range in the accessor.
     _vi_vars_pats_and_splitters = [
         (re.compile(r'[ \t]+(?:vi|vim|ex):\s*set? (.*?):', re.M),
          re.compile(r'[ \t]+')),
@@ -1084,7 +1091,6 @@ class TextInfo(object):
         
         Sets `lang' and `langinfo', if can be determined.
         """
-        #TODO Add support for binary/not-binary in contentinfo.conf.
         filename = basename(self.path)
 
         # ...from the ext
@@ -1144,8 +1150,6 @@ def _norm_encoding(encoding):
     Interesting link:
         The IANA-registered set of character sets.
         http://www.iana.org/assignments/character-sets
-
-    TODO: use encodings.aliases.aliases dict to normalize
     """
     try:
         # This requires Python >=2.5.
@@ -1158,8 +1162,6 @@ def _norm_encoding(encoding):
 # The idea here is to abstract accessing the text file content being
 # classified to allow, e.g. classifying content without a file, from
 # a Komodo buffer, etc.
-#
-#TODO: improve this, spec it. It is currently lame.
 
 class Accessor(object):
     """Virtual base class defining Accessor API for accessing
