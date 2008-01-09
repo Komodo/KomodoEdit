@@ -64,25 +64,43 @@ log = logging.getLogger("run")
 #---- internal support stuff
 
 class _NotifyOnTermination(threading.Thread):
-    def __init__(self, process_, termListener, *args, **kwargs):
+    def __init__(self, process_, terminal=None, termListener=None, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
         self.setDaemon(True)
-        self._termListener = termListener
+        self._noAttachedTerminal = terminal is None
+        if termListener is not None:
+            self._termListenerProxy = _xpcom.getProxyForObject(None,
+                                    components.interfaces.koIRunTerminationListener,
+                                    termListener,
+                                    _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
+        else:
+            self._termListenerProxy = None
         self._process = process_
+
     def run(self):
         try:
+            if self._noAttachedTerminal:
+                # There is no terminal reading the stdout and stderr, so we
+                # need to ensure it does not block up.
+                self._process.communicate()
             retval = self._process.wait(None)
         except process.ProcessError, ex:
             retval = ex.errno  # Use the error set in the exception.
-        self._termListener.onTerminate(retval)
+        if self._termListenerProxy is not None:
+            self._termListenerProxy.onTerminate(retval)
 
 
-class _KoRunProcessProxy(process.ProcessProxy):
+class _KoRunProcessOpen(process.ProcessOpen):
 
     _com_interfaces_ = [components.interfaces.koIRunProcess]
 
     def __init__(self, cmd, mode='t', cwd=None, env=None, terminal=None):
-        process.ProcessProxy.__init__(self, cmd, cwd=cwd, env=env)
+        process.ProcessOpen.__init__(self, cmd, cwd=cwd, env=env)
+
+        # Stdout, stderr results get set in the communicate call.
+        self._stdoutData = None
+        self._stderrData = None
+
         if terminal is not None:
             # Need to unwrap the terminal handler because we are not actually
             # passing in koIFile xpcom objects, we are using the subprocess
@@ -90,16 +108,64 @@ class _KoRunProcessProxy(process.ProcessProxy):
             _terminal = UnwrapObject(terminal)
             _terminal.hookIO(self.stdin, self.stdout, self.stderr, cmd)
 
+    # Override the process.wait() method, so we raise an XPCOM exception.
     def wait(self, timeout=None):
         try:
-            return process.ProcessProxy.wait(self, timeout)
+            return process.ProcessOpen.wait(self, timeout)
         except process.ProcessError, ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
+    # Override process.communicate() with our own method.
+    # We do this so we can retain the stdout and stderr results on the
+    # process object.
+    def communicate(self, input=None):
+        self._stdoutData, self._stderrData = \
+                                process.ProcessOpen.communicate(self, input)
+        return self._stdoutData, self._stderrData
+
+    ##
+    # @deprecated since Komodo 4.3.0
     def readStdout(self):
-        return self.stdout.read()
+        import warnings
+        warnings.warn("process.readStdout() is deprecated, use "
+                      "process.getStdout() instead.",
+                      DeprecationWarning)
+        try:
+            return self.stdout.read()
+        except ValueError:
+            # stdout socket has been closed
+            data = self._stdoutData
+            if data is not None:
+                self._stdoutData = ""
+                return data
+            raise
+
+    ##
+    # @deprecated since Komodo 4.3.0
     def readStderr(self):
-        return self.stderr.read()
+        import warnings
+        warnings.warn("process.readStderr() is deprecated, use "
+                      "process.getStderr() instead.",
+                      DeprecationWarning)
+        try:
+            return self.stderr.read()
+        except ValueError:
+            # stdout socket has been closed
+            data = self._stderrData
+            if data is not None:
+                self._stderrData = ""
+                return data
+            raise
+
+    ##
+    # @since Komodo 4.3.0
+    def getStdout(self):
+        return self._stdoutData or ""
+
+    ##
+    # @since Komodo 4.3.0
+    def getStderr(self):
+        return self._stderrData or ""
 
 
 #---- run service components
@@ -915,8 +981,8 @@ class KoRunService:
 
         if input:
             try:
-                p = _KoRunProcessProxy(command, cwd=cwd, env=envDict,
-                                       terminal=terminal)
+                p = _KoRunProcessOpen(command, cwd=cwd, env=envDict,
+                                      terminal=terminal)
             except process.ProcessError, ex:
                 _gLastErrorSvc.setLastError(ex.errno, str(ex))
                 raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
@@ -924,35 +990,28 @@ class KoRunService:
             p.stdin.close()
         else:
             try:
-                p = _KoRunProcessProxy(command, cwd=cwd, env=envDict, mode='b',
-                                       terminal=terminal)
+                p = _KoRunProcessOpen(command, cwd=cwd, env=envDict, mode='b',
+                                      terminal=terminal)
             except process.ProcessError, ex:
                 _gLastErrorSvc.setLastError(ex.errno, str(ex))
                 raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
         # If the user provides a termination listener (interface
-        # koIRunTerminationListener), then setup a thread to notify of
-        # termination of the child.
-        if termListener:
-            _termListenerProxy = _xpcom.getProxyForObject(None,
-                components.interfaces.koIRunTerminationListener, termListener,
-                _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
-            t = _NotifyOnTermination(p, _termListenerProxy)
-            t.start()
-        # XXX What if no termination listener is provided? Does the loss
-        #     of 'p' reference cause premature deletion of the Process?
-        #     This might be moot when (if?) we start passing back a
-        #     koIRunProcess object holding the Process object. Nope, it
-        #     would not be moot if the user did not assign the returned
-        #     process to a variable. Perhaps a _NotifyOnTermination()
-        #     should *always* be created, holding that reference. This
-        #     then *requires* that all child processes must close before
-        #     Komodo, which sucks for, say, TkBuilder (*does* this imply
-        #     that?).
+        # koIRunTerminationListener), then the thread will notify
+        # the termination of the child. We always setup a thread for
+        # handling this even when there is no termListener, as we
+        # have to ensure that the process does not get blocked on
+        # stdout/stderr writes.
+        t = _NotifyOnTermination(p, terminal, termListener)
+        t.start()
+
         return p
 
     def _WaitAndCleanUp(self, child, command, scriptFileName=None,
                         inputFileName=None):
+        # We use communicate to ensure the process does not block up on
+        # a stdout/stderr channel.
+        child.communicate()
         retval = child.wait()
 
         if scriptFileName:
@@ -1165,8 +1224,8 @@ exit $RETVAL""" % data)
             scriptFileName = None
             flags = None
 
-        child = process.Process(actualCommand, cwd=cwd, env=envDict,
-                                flags=flags)
+        child = process.ProcessOpen(actualCommand, cwd=cwd, env=envDict,
+                                    flags=flags, stdin=None)
         # The return value is passed to the status bar when the child
         # terminates. A separate thread is created to handle that so
         # this call can return immediately.
@@ -1205,14 +1264,15 @@ exit $RETVAL""" % data)
         envDict = uEnvDict
 
         try:
-            child = process.ProcessProxy(command, cwd=cwd, env=envDict)
+            child = process.ProcessOpen(command, cwd=cwd, env=envDict)
             output, error = child.communicate(input)
             return (child.returncode, output, error)
         except process.ProcessError, ex:
             _gLastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
-    def _WaitAndNotify(self, child, command):
+    def _WaitAndNotify(self, child, command, input):
+        child.communicate(input)
         retval = child.wait(None)
 
         # Notify any listener of child termination.
@@ -1249,17 +1309,15 @@ exit $RETVAL""" % data)
         envDict = uEnvDict
 
         try:
-            child = _KoRunProcessProxy(command, cwd=cwd, env=envDict)
+            child = _KoRunProcessOpen(command, cwd=cwd, env=envDict)
         except process.ProcessError, ex:
             _gLastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
-        if input:
-            child.stdin.write(input)
-            child.stdin.close()
-
         t = threading.Thread(target=self._WaitAndNotify,
-                             kwargs={'child': child, 'command': command})
+                             kwargs={'child': child,
+                                     'command': command,
+                                     'input': input})
         t.setDaemon(True)
         t.start()
         return child

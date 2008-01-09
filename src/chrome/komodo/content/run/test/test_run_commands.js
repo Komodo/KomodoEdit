@@ -72,9 +72,9 @@ test_run_commands.prototype.tearDown = function() {
 
 /* Utility functions */
 
-    /**
-     * Used to check settings of testcase with result
-     */
+        /**
+         * Used to check settings of testcase with result
+         */
     test_run_commands.prototype._passedTest = function(cmd, tags) {
         // Check if it's a knownfailure
         if (tags && tags.some(function(x) { return x == "knownfailure"; })) {
@@ -82,17 +82,16 @@ test_run_commands.prototype.tearDown = function() {
         }
     }
     
-    /**
-     * Log knownfailure
-     */
+        /**
+         * Log knownfailure
+         */
     test_run_commands.prototype.logKnownFailure = function(cmd, ex) {
         log.info("knownfailure: " + ex.message);
     }
 
 /* Child test cases */
 
-// TODO:
-// * test run retval
+    // * test run retval
 test_run_commands.prototype.test_run_and_capture_output = function() {
     var cmd = this.tidyArgv.join(" ") + " --version";
     // Run(in wstring command, in wstring cwd, in wstring env,
@@ -108,7 +107,7 @@ test_run_commands.prototype.test_run_and_capture_output = function() {
                                           stderrObj.value + "'");
 }
 
-// * test run wait
+    // * test run wait
 test_run_commands.prototype.test_run_process = function() {
     var cmd = this.tidyArgv.join(" ") + " --version";
     // Run(in wstring command, in wstring cwd, in wstring env,
@@ -117,17 +116,15 @@ test_run_commands.prototype.test_run_process = function() {
     var retval = process.wait(-1);  // Wait forever.
     this.assertEqual(retval, 0, "Expected retval of 0, got " + retval);
     // We expect some stdout, but no stderr
-    var stdout = process.readStdout();
+    var stdout = process.getStdout();
     this.assertNotEqual(stdout, "", "Expected some stdout, got nothing.");
-    var stderr = process.readStderr();
+    var stderr = process.getStderr();
     this.assertEqual(stderr, "", "Expected no stderr, got '" + stderr + "'");
 }
 
-/**
- * Test process timeout.
- * Fails on Komodo-devel on Linux as it never times out.
- * @tags knownfailure
- */
+    /**
+     * Test process timeout.
+     */
 test_run_commands.prototype.test_run_process_timeout = function() {
     // This command will block forever, trying to read stdin.
     var cmd = this.tidyArgv.join(" ");
@@ -139,7 +136,7 @@ test_run_commands.prototype.test_run_process_timeout = function() {
     } catch (ex) {
         // We should get a python ProcessError exception, though it has
         // been turned into an nsIException after passing through xpcom.
-        var expectSubstring = "ProcessError: Process timeout:";
+        var expectSubstring = "Process timeout: waited 3 seconds, process not yet finished";
         var actualSubstring = ex.message.substring(0, expectSubstring.length);
         this.assertEqual(actualSubstring, expectSubstring,
                          "Expected process timeout exception, got " + ex);
@@ -148,7 +145,7 @@ test_run_commands.prototype.test_run_process_timeout = function() {
     }
 }
 
-// * test run termination callback
+    // * test run termination callback
 test_run_commands.prototype.test_run_termination_callback = function() {
     var cmd = this.tidyArgv.join(" ") + " --version";
     var gotretval = false;
@@ -182,7 +179,7 @@ test_run_commands.prototype.test_run_termination_callback = function() {
     setTimeout(checkReceivedCallback, 1000);
 }
 
-// * test run kill
+    // * test run kill
 test_run_commands.prototype.test_kill_run_process = function() {
     // This command will block forever, trying to read stdin.
     var cmd = this.tidyArgv.join(" ");
@@ -201,6 +198,137 @@ test_run_commands.prototype.test_kill_run_process = function() {
     }
 }
 
+    /**
+     * Test large amounts of stdout, stderr and mixed combos.
+     * This ensures that the run processes do not get blocked when
+     * large amounts of data are passed through the stdout/stderr handles.
+     */
+test_run_commands.prototype.test_large_stdout_stderr = function() {
+    var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                    getService(Components.interfaces.koIFileService);
+    // koIFile for writing a python program contents.
+    var koIFile = fileSvc.makeTempFile(".py", "w");
+    koIFile.close();
+
+    // Python file contents that will output the stdout/stderr.
+    var fileStdoutContents = "\n\
+import sys\n\
+len_stdout_written = 0\n\
+while len_stdout_written < 65536:\n\
+    sys.stdout.write(sys.copyright)\n\
+    #sys.stderr.write(sys.copyright)\n\
+    len_stdout_written += len(sys.copyright)\n\
+";
+    var outputTestType = "";
+    var cmd = "python '" + koIFile.path + "'";
+    // loop_replacements is used for alternating the fileContents between
+    // outputting to stdout/stderr or to both.
+    var loop_replacements = [
+                               // Stdout only.
+                               [],
+                               // Stderr only.
+                               [["sys.stdout.write", "#sys.stdout.write"],
+                                ["#sys.stderr.write", "sys.stderr.write"]],
+                               // Both stdout and stderr.
+                               [["#sys.stdout.write", "sys.stdout.write"]]
+                            ];
+
+    for (var i=0; i < loop_replacements.length; i++) {
+        var replacements = loop_replacements[i];
+        if (i == 0) {
+            outputTestType = "stdout only";
+        } else if (i == 1) {
+            outputTestType = "stderr only";
+        } else if (i == 2) {
+            outputTestType = "stdout and stderr";
+        }
+        for (var j=0; j < replacements.length; j++) {
+            fileStdoutContents = fileStdoutContents.replace(replacements[j][0],
+                                                            replacements[j][1]);
+        }
+        koIFile.open("w");
+        koIFile.puts(fileStdoutContents);
+        //dump("fileStdoutContents[" + i + "]: " + fileStdoutContents + "\n");
+        koIFile.close();
+
+        var cmdName;
+        var retval;
+        var stdout;
+        var stderr;
+        var cmdNames = ["RunAndCaptureOutput",
+                        "RunAndNotify",
+                        "RunInTerminal",
+                        "Run"];
+        // Run for each run command available.
+        for (j=0; j < cmdNames.length; j++) {
+            cmdName = cmdNames[j];
+            try {
+                if (cmdName == "RunAndCaptureOutput") {
+                    var stdoutObj = new Object();
+                    var stderrObj = new Object();
+                    retval = this.runSvc.RunAndCaptureOutput(cmd,
+                                                             null /* cwd */,
+                                                             null /* env */,
+                                                             null /* input */,
+                                                             stdoutObj,
+                                                             stderrObj);
+                    stdout = stdoutObj.value;
+                    stderr = stderrObj.value;
+                } else if (cmdName == "RunAndNotify") {
+                    var process = this.runSvc.RunAndNotify(cmd,
+                                                           null /* cwd */,
+                                                           null /* env */,
+                                                           null /* input */);
+                    retval = process.wait(10);  // Wait 10 seconds before failing.
+                    stdout = process.getStdout();
+                    stderr = process.getStderr();
+                } else if (cmdName == "RunInTerminal") {
+                    var process = this.runSvc.RunInTerminal(cmd,
+                                                            null /* cwd */,
+                                                            null /* env */,
+                                                            null /* koITreeOutputHandler */,
+                                                            null /* koIRunTerminationListener */,
+                                                            null /* input */);
+                    retval = process.wait(10);  // Wait 10 seconds before failing.
+                    stdout = process.getStdout();
+                    stderr = process.getStderr();
+                } else if (cmdName == "Run") {
+                    this.runSvc.Run(cmd,
+                                    null  /* cwd */,
+                                    null  /* env */,
+                                    false /* console */,
+                                    null  /* input */);
+                    continue;
+                }
+            } catch(ex) {
+                if (ex.message.search("Process timeout") >= 0) {
+                    this.fail(cmdName + " '" + outputTestType + "' failed to return!");
+                    return;
+                } else {
+                    throw ex;
+                }
+            }
+            cmdName += " '" + outputTestType + "'";
+
+            this.assertEqual(retval, 0, cmdName +": Expected retval of 0, got " + retval);
+            // We expect some stdout, but no stderr
+            if (i == 0 || i == 2) {
+                this.assertTrue((stdoutObj.value.length >= 65536), cmdName +":Expected stdout length >= 65536, but only got: " + stdoutObj.value.length);
+                if (i == 0) {
+                    this.assertEqual(stderrObj.value, "", cmdName +":Expected no stderr, got '" +
+                                                          stderrObj.value + "'");
+                }
+            }
+            if (i == 1 || i == 2) {
+                this.assertTrue((stderrObj.value.length >= 65536), cmdName +":Expected stderr length >= 65536, but only got: " + stderrObj.value.length);
+                if (i == 1) {
+                    this.assertEqual(stdoutObj.value, "", cmdName +":Expected no stdout, got '" +
+                                                          stdoutObj.value + "'");
+                }
+            }
+        }
+    }
+}
 
 /* TEST SUITE */
 

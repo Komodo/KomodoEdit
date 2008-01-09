@@ -303,11 +303,13 @@ interface koIRunTerminationListener: nsISupports {
 };
 
 
+/**
+ * This is a "run command" specific wrapper around process.ProcessOpen
+ * to enable passing back a handle to a process to be able to .kill()
+ * and .wait() for it.
+ */
 [scriptable, uuid(30851CB2-3BAE-4243-9AC2-B8AA7783AD8F)]
 interface koIRunProcess: nsISupports {
-    // This is a "run command" specific wrapper around
-    // process.ProcessProxy to enable passing back a handle to a process
-    // to be able to .kill() and .wait() for it.
 
     // Terminate the process.
     //   "exitCode" is what the process return value is set to.
@@ -320,10 +322,22 @@ interface koIRunProcess: nsISupports {
     // process has finished executing.
     PRInt32 wait(in PRInt32 timeout);
 
-    // Equivalent to p.stdout.read() and p.stderr.read(), because
-    // getting p.stdout and p.stderr through PyXPCOM is a real PITA.
+    /**
+     * @deprecated since Komodo 4.3.0, use getStdout instead.
+     */
     wstring readStdout();
+    /**
+     * @deprecated since Komodo 4.3.0, use getStderr instead.
+     */
     wstring readStderr();
+
+    /**
+     * These have replaced the readStdout, readStderr calls. The data for
+     * these calls is only available after the process has finished.
+     * @since Komodo 4.3.0
+     */
+    wstring getStdout();
+    wstring getStderr();
 };
 
 [scriptable, uuid(6D22AC55-BD4F-455e-9A80-A820FD8190EE)]
@@ -342,39 +356,101 @@ interface koIRunService : nsISupports {
                 out boolean parseOutput, out wstring parseRegex,
                 out boolean showParsedOutputList);
 
-    // In all of the following:
-    //  "command" is the command string to run.
-    //  "cwd" is the dir in which to run the command ('' or null to
-    //      inherit from parent).
-    //  "env" is a string representing environment changes to make for
-    //      the child process, these are to be merged in with the parent
-    //      environment. The format is: VAR1=value1\nVAR2=value2\n...
-    //  "terminal" holds the std handlers for redirection of the childs
-    //      std handlers.
-    //  "termListener" is a component that will be notified when the
-    //      process terminates.
-    //  "input" is an optional input string to pass to the child's
-    //      stdin. If this is None/null/NULL then no input is sent to
-    //      the child.
-    //
-    // If there is an error raised in any of the following the an error
-    // is set in the koILastErrorService.
-
-    // Run the given command in the given terminal.
+        /**
+         * Run the given command in the given terminal. A terminal is like the
+         * Komodo Command Output window or Komodo's debugging terminals, it is
+         * *not* like an xterm or windows command prompt.
+         *
+         * @param command {string}  The command string to run.
+         * @param cwd {string}  The dir in which to run the command ('' or null
+         *                      to inherit from parent).
+         * @param env {string}  A string representing environment changes to
+         *                      make for the child process, these are to be
+         *                      merged in with the parent environment. The
+         *                      format is: VAR1=value1\nVAR2=value2\n...
+         * @param terminal {Components.interfaces.koITreeOutputHandler}  The
+         *                 Komodo terminal widget handling the io.
+         * @param termListener {Components.interfaces.koIRunTerminationListener}
+         *                 Process terminalination listener.
+         * @param input {string}  If supplied, then the command is run via
+         *                        "command < input", where the input is placed
+         *                        in a temporary file and redirected to stdin.
+         * @returns {Components.interfaces.koIRunProcess}  The process handle.
+         */
     koIRunProcess RunInTerminal(in wstring command, in wstring cwd, in
                                 wstring env, in koITreeOutputHandler terminal,
                                 in koIRunTerminationListener termListener,
                                 in wstring input);
-    // Run the given command in a new (console) window.
+
+        /**
+         * Run will start the process running and then return. Run has the
+         * ability to run the command in a new (console) window, such as an
+         * xterm or windows command prompt. Any input passed to this function
+         * will be redirected using a temporary file.
+         *
+         * @param command {string}  The command string to run.
+         * @param cwd {string}  The dir in which to run the command ('' or null
+         *                      to inherit from parent).
+         * @param env {string}  A string representing environment changes to
+         *                      make for the child process, these are to be
+         *                      merged in with the parent environment. The
+         *                      format is: VAR1=value1\nVAR2=value2\n...
+         * @param console {boolean} indicating whether the child should be
+         *                          spawned with a new console window or not.
+         * @param input {string}  If supplied, then the command is run via
+         *                        "command < input", where the input is placed
+         *                        in a temporary file and redirected to stdin.
+         */
     void Run(in wstring command, in wstring cwd, in wstring env,
              in boolean console, in wstring input);
-    // Capture the output/error/retval from running the given command.
+
+        /**
+         * Run and capture the output/error/retval from running the given
+         * command. This call will block until the process has finished
+         * before returning. It is suggested not to use this method unless you
+         * are absolutely sure that the process will exit quickly, otherwise
+         * if called in the main UI thread, then the whole Komodo UI will be
+         * locked until the process is completed!
+         *
+         * @param command {string}  The command string to run.
+         * @param cwd {string}  The dir in which to run the command ('' or null
+         *                      to inherit from parent).
+         * @param env {string}  A string representing environment changes to
+         *                      make for the child process, these are to be
+         *                      merged in with the parent environment. The
+         *                      format is: VAR1=value1\nVAR2=value2\n...
+         * @param input {string}  If supplied, then the command is run via
+         *                        "command < input", where the input is placed
+         *                        in a temporary file and redirected to stdin.
+         * @param output {string}  The resulting stdout read from the process.
+         * @param error {string}  The resulting stderr read from the process.
+         * @returns {int}  The return code from the finished process.
+         */
     PRUint32 RunAndCaptureOutput(in wstring command,
                                  in wstring cwd, in wstring env,
                                  in wstring input,
                                  out wstring output, out wstring error);
-    // Run the given command, returning the process object immediately,
-    // and notify (via nsIObserver) when the process terminates.
+
+        /**
+         * Starts running the given command and then returns immediately.
+         * An observer (nsIObserver) notification will be sent when the process
+         * finally terminates. The arguments to the notification will be:
+         *   subject: {Components.interfaces.koIRunProcess} The process handle.
+         *   topic:   "run_terminated"
+         *   data:    The command {string} that was just run.
+         *
+         * @param command {string}  The command string to run.
+         * @param cwd {string}  The dir in which to run the command ('' or null
+         *                      to inherit from parent).
+         * @param env {string}  A string representing environment changes to
+         *                      make for the child process, these are to be
+         *                      merged in with the parent environment. The
+         *                      format is: VAR1=value1\nVAR2=value2\n...
+         * @param input {string}  If supplied, then the command is run via
+         *                        "command < input", where the input is placed
+         *                        in a temporary file and redirected to stdin.
+         * @returns {Components.interfaces.koIRunProcess}  The process handle.
+         */
     koIRunProcess RunAndNotify(in wstring command, in wstring cwd,
                                in wstring env, in wstring input);
 };
@@ -412,6 +488,3 @@ interface koIRunEnvView : nsITreeView {
     // GetEnvironmentStrings().
     void SetEnvironmentStrings(in wstring s);
 };
-
-
-

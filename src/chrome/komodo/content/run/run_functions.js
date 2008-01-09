@@ -487,9 +487,14 @@ try {
         }
 
         if (! cancelled) {
+            // The process has finished. Either the process has finished within
+            // 2 seconds or the waitfortermination dialog was displayed and the
+            // user then waited till the process finished. Note that the modal
+            // flags of the dialog stop the code from reaching this point until
+            // the dialog is closed.
             //dump("XXX RunAndNotify: get output and error\n");
-            output = process.readStdout();
-            error = process.readStderr();
+            output = process.getStdout();
+            error = process.getStderr();
             //dump("XXX RunAndNotify: finished getting output and error\n");
         }
 

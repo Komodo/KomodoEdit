@@ -36,10 +36,12 @@
 
 import os
 import sys
+import time
 import signal  # used by kill() method on Linux/Mac
 import ctypes  # used by kill() method on Windows
 import logging
 import threading
+import warnings
 from subprocess import Popen, PIPE
 
 
@@ -50,6 +52,7 @@ log = logging.getLogger("process")
 
 CREATE_NEW_CONSOLE = 0x10 # same as win32process.CREATE_NEW_CONSOLE
 CREATE_NO_WINDOW = 0x8000000 # same as win32process.CREATE_NO_WINDOW
+WAIT_TIMEOUT = 258 # same as win32event.WAIT_TIMEOUT
 
 
 #-------- Classes -----------#
@@ -61,9 +64,9 @@ class ProcessError(Exception):
         Exception.__init__(self, msg)
         self.errno = errno
 
-class Process(Popen):
+class ProcessOpen(Popen):
     def __init__(self, cmd, cwd=None, env=None, flags=None,
-                 stdin=None, stdout=None, stderr=None,
+                 stdin=PIPE, stdout=PIPE, stderr=PIPE,
                  universal_newlines=False):
         """Create a child process.
 
@@ -74,6 +77,12 @@ class Process(Popen):
             this can be a bitwise-OR of any of the win32process.CREATE_*
             constants (Note: win32process.CREATE_NEW_PROCESS_GROUP is always
             OR'd in). On Unix, this is currently ignored.
+        "stdin", "stdout", "stderr" can be used to specify file objects
+            to handle read (stdout/stderr) and write (stdin) events from/to
+            the child. By default a file handle will be created for each
+            io channel automatically, unless set explicitly to None. When set
+            to None, the parent io handles will be used, which can mean the
+            output is redirected to Komodo's log files.
         "universal_newlines": turn off \r output on Windows (see process.Popen
             for more info).
         """
@@ -110,21 +119,30 @@ class Process(Popen):
                        universal_newlines=universal_newlines,
                        creationflags=flags)
 
+        # Internal attributes.
         self.__cmd = cmd
         self.__retval = None
         self.__hasTerminated = threading.Condition()
 
-    # Setup the retval handler. Used to keep track of process state.
-    def _getRetval(self):
-        return self.__retval
-    def _setRetval(self, value):
-        self.__retval = value
+    # Override the returncode handler (used by subprocess.py), this is so
+    # we can notify any listeners when the process has finished.
+    def _getReturncode(self):
+        return self.__returncode
+    def _setReturncode(self, value):
+        self.__returncode = value
         if value is not None:
             # Notify that the process is done.
             self.__hasTerminated.acquire()
             self.__hasTerminated.notifyAll()
             self.__hasTerminated.release()
-    retval = property(fget=_getRetval, fset=_setRetval)
+    returncode = property(fget=_getReturncode, fset=_setReturncode)
+
+    # Setup the retval handler. This is a readonly wrapper around returncode.
+    def _getRetval(self):
+        # Ensure the returncode is set by subprocess if the process is finished.
+        self.poll()
+        return self.returncode
+    retval = property(fget=_getRetval)
 
     def wait(self, timeout=None):
         """Wait for the started process to complete.
@@ -136,27 +154,33 @@ class Process(Popen):
         will return the child's exit value. Note that in the case of a timeout,
         the process is still running. Use kill() to forcibly stop the process.
         """
-        # If it's already finished, return with the result.
-        if self.retval is not None:
-            return self.retval
-
         if timeout is None or timeout < 0:
             # Use the parent call.
             return Popen.wait(self)
-        else:
-            # Wait for the retval set event.
+
+        # We poll for the retval, as we cannot rely on self.__hasTerminated
+        # to be called, as there are some code paths that do not trigger it.
+        # The accuracy of this wait call is roughly within 1 seconds.
+        time_now = time.time()
+        time_end = time_now + timeout
+        while time_now < time_end:
+            result = self.poll()
+            if result is not None:
+                return result
+            # We use hasTerminated here to get a faster notification.
             self.__hasTerminated.acquire()
-            self.__hasTerminated.wait(timeout)
-            try:
-                if self.__retval is None:
-                    # 258 means timeout, defined in koIRunService.idl
-                    raise ProcessError("Process timeout: waited %d seconds, "
-                                       "process not yet finished." % (timeout,),
-                                       258)
-                else:
-                    return self.__retval
-            finally:
-                self.__hasTerminated.release()
+            # XXX - Not sure what good timeout value for this is...
+            self.__hasTerminated.wait(1.0)
+            self.__hasTerminated.release()
+            time_now = time.time()
+        # last chance
+        result = self.poll()
+        if result is not None:
+            return result
+
+        raise ProcessError("Process timeout: waited %d seconds, "
+                           "process not yet finished." % (timeout,),
+                           WAIT_TIMEOUT)
 
     # For backward compatibility with older process.py
     def close(self):
@@ -193,69 +217,15 @@ class Process(Popen):
                 if ex.errno != 3:
                     # Ignore:   OSError: [Errno 3] No such process
                     raise
-            self.retval = exitCode
+            self.returncode = exitCode
 
-class ProcessOpen(Process):
-    """Create a process and setup pipes to it standard handles.
 
-    This is a super popen3.
-    """
-    def __init__(self, cmd, mode='t', cwd=None, env=None,
-                 universal_newlines=False):
-        """Create a Process with proxy threads for each std handle.
+## Deprecated process classes ##
 
-        "cmd" is the command to run, either a list of arguments or a string.
-        "mode" (Windows only) specifies whether the pipes used to communicate
-            with the child are openned in text, 't', or binary, 'b', mode.
-            This is ignored on platforms other than Windows. Default is 't'.
-        "cwd" optionally specifies the directory in which the child process
-            should be started. Default is None, a.k.a. inherits the cwd from
-            the parent.
-        "env" is optionally a mapping specifying the environment in which to
-            start the child. Default is None, a.k.a. inherits the environment
-            of the parent.
-        "universal_newlines": same as in subprocess.Popen
-        """
-        # XXX - Ignoring "mode". Perhaps it can be used to set universal
-        #       newlines?
-        Process.__init__(self, cmd, cwd=cwd, env=env,
-                         stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                         universal_newlines=universal_newlines)
-        log.info("ProcessOpen.__init__(cmd=%r, mode=%r, cwd=%r, env=%r)",
-                 cmd, mode, cwd, env)
+class Process(ProcessOpen):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("'process.%s' is now deprecated. Please use 'process.ProcessOpen'." % (self.__class__.__name__))
+        ProcessOpen.__init__(self, *args, **kwargs)
 
 class ProcessProxy(Process):
-    """Create a process and proxy communication via the standard handles.
-    """
-    def __init__(self, cmd, mode='t', cwd=None, env=None,
-                 stdin=None, stdout=None, stderr=None):
-        """Create a Process with proxy threads for each std handle.
-
-        "cmd" is the command string or argument vector to run.
-        "mode" (Windows only) specifies whether the pipes used to communicate
-            with the child are openned in text, 't', or binary, 'b', mode.
-            This is ignored on platforms other than Windows. Default is 't'.
-        "cwd" optionally specifies the directory in which the child process
-            should be started. Default is None, a.k.a. inherits the cwd from
-            the parent.
-        "env" is optionally a mapping specifying the environment in which to
-            start the child. Default is None, a.k.a. inherits the environment
-            of the parent.
-        "stdin", "stdout", "stderr" can be used to specify objects with
-            file-like interfaces to handle read (stdout/stderr) and write
-            (stdin) events from the child. By default a process.IOBuffer
-            instance is assigned to each handler.
-        """
-        # XXX - Ignoring "mode". Perhaps it can be used to set universal
-        #       newlines?
-        if stdin is None:
-            stdin = PIPE
-        if stdout is None:
-            stdout = PIPE
-        if stderr is None:
-            stderr = PIPE
-        Process.__init__(self, cmd, cwd=cwd, env=env,
-                         stdin=stdin, stdout=stdout, stderr=stderr)
-        log.info("ProcessProxy.__init__(cmd=%r, mode=%r, cwd=%r, env=%r, "\
-                 "stdin=%r, stdout=%r, stderr=%r)",
-                 cmd, mode, cwd, env, stdin, stdout, stderr)
+    pass
