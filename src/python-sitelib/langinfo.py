@@ -59,6 +59,8 @@ Advanced usage:
     <Perl LangInfo>
     >>> db.langinfo_from_magic("#!/usr/bin/env ruby")
     <Ruby LangInfo>
+    >>> db.langinfo_from_doctype(public_id="-//W3C//DTD HTML 4.01//EN")
+    <HTML LangInfo>
 
 The advanced usage allows one to customize how the langinfo database is
 built. For example, specified 'dirs' will be searched for
@@ -124,6 +126,7 @@ class LangInfo(object):
     exts = None
     filename_patterns = None
     magic_numbers = None
+    doctypes = None
 
     # Some languages mandate a default encoding, e.g. for Python it is
     # ASCII, for XML UTF-8.
@@ -208,6 +211,8 @@ class Database(object):
         self._langinfo_from_filename = None
         self._langinfo_from_filename_re = None
         self._magic_table = None
+        self._li_from_doctype_public_id = None
+        self._li_from_doctype_system_id = None
 
         self._load()
         if dirs is None:
@@ -252,7 +257,11 @@ class Database(object):
             self._build_tables()
 
         for magic_number, li in self._magic_table:
-            start, format, pattern = magic_number
+            try:
+                start, format, pattern = magic_number
+            except ValueError:
+                # Silently drop bogus magic number decls.
+                continue
             if format == "string":
                 end = start + len(pattern)
                 if head_bytes[start:end] == pattern:
@@ -273,11 +282,38 @@ class Database(object):
                     if struct.unpack(format, bytes)[0] == pattern:
                         return li
 
+    def langinfo_from_doctype(self, public_id=None, system_id=None):
+        """Return a LangInfo instance matching any of the specified
+        pieces of doctype info, or None if no match is found.
+        
+        The behaviour when doctype info from multiple LangInfo classes
+        collide is undefined (in the current impl, the last one wins).
+
+        Notes on doctype info canonicalization:
+        - I'm not sure if there is specified canonicalization of
+          doctype names or public-ids, but matching is done
+          case-insensitively here.
+        - Technically doctype system-id comparison is of URI (with
+          non-trivial but well-defined canonicalization rules). For
+          simplicity we just compare case-insensitively.
+        """
+        if self._li_from_doctype_public_id is None:
+            self._build_tables()
+        
+        if public_id is not None \
+           and public_id in self._li_from_doctype_public_id:
+            return self._li_from_doctype_public_id[public_id]
+        if system_id is not None \
+           and system_id in self._li_from_doctype_system_id:
+            return self._li_from_doctype_system_id[system_id]
+
     def _build_tables(self):
         self._langinfo_from_ext = {}
         self._langinfo_from_filename = {}
         self._langinfo_from_filename_re = {}
         self._magic_table = []  # list of (<magic-tuple>, <langinfo>)
+        self._li_from_doctype_public_id = {}
+        self._li_from_doctype_system_id = {}
 
         for li in self._langinfo_from_norm_lang.values():
             if li.exts:
@@ -301,6 +337,18 @@ class Database(object):
             if li.magic_numbers:
                 for mn in li.magic_numbers:
                     self._magic_table.append((mn, li))
+            if li.doctypes:
+                for dt in li.doctypes:
+                    try:
+                        flavour, name, public_id, system_id = dt
+                    except ValueError:
+                        log.debug("invalid doctype tuple for %r: %r "
+                                  "(dropping it)", li, dt)
+                        continue
+                    if public_id:
+                        self._li_from_doctype_public_id[public_id] = li
+                    if system_id:
+                        self._li_from_doctype_system_id[system_id] = li
 
     def _norm_lang_from_lang(self, lang):
         return lang.lower()
@@ -320,6 +368,8 @@ class Database(object):
                 module = _module_from_path(path)
             except Exception, ex:
                 log.warn("could not import `%s': %s", path, ex)
+                #import traceback
+                #traceback.print_exc()
                 continue
             for name in dir(module):
                 attr = getattr(module, name)

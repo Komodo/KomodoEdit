@@ -36,6 +36,12 @@
 
 """LangInfo definitions for some document languages."""
 
+#TODO:
+# - some XML langs to add:  DocBook, Atom, Dita,
+#   RDF, RSS (various versions?), RelaxNG, XML Schema, XSLT.
+#   ODF, UBL (these mentioned by Tim Bray, http://www.tbray.org/ongoing/When/200x/2006/01/08/No-New-XML-Languages)
+#   others?
+
 import re
 from langinfo import LangInfo
 
@@ -55,13 +61,43 @@ class HTMLLangInfo(LangInfo):
     #   http://feedparser.org/docs/character-encoding.html#advanced.encoding.intro
     # We'll just use UTF-8. Safer. It is the future.
     default_encoding = "utf-8"
+    doctypes = [
+        # <flavour>, <common-name>, <public-id>, <system-id>
+        ("HTML 4.01 Strict", "HTML",
+         "-//W3C//DTD HTML 4.01//EN",
+         "http://www.w3.org/TR/html4/strict.dtd"),
+        ("HTML 4.01 Transitional", "HTML",
+         "-//W3C//DTD HTML 4.01 Transitional//EN",
+         "http://www.w3.org/TR/html4/loose.dtd"),
+        ("HTML 4.01 Frameset", "HTML",
+         "-//W3C//DTD HTML 4.01 Frameset//EN",
+         "http://www.w3.org/TR/html4/frameset.dtd"),
+        ("HTML 3.2", "HTML",
+         "-//W3C//DTD HTML 3.2 Final//EN", None),
+        ("HTML 2.0", "HTML",
+         "-//IETF//DTD HTML//EN", None),
+        #TODO: HTML 5
+        # c.f. http://www.elementary-group-standards.com/html/html5-doctype-is-unrecognized.html
+    ]
+    
 
 class XHTMLLLangInfo(LangInfo):
     name = "XHTML"
     conforms_to_bases = ["XML", "HTML"]
     exts = ['.xhtml']
-    #TODO: How does an XHTML file with .html ext get assigned this lang?
-    #      presumably _classify_from_content() will provide this.
+    doctypes = [
+        # <flavour>, <common-name>, <public-id>, <system-id>
+        ("XHTML 1.0 Strict", "html",
+         "-//W3C//DTD XHTML 1.0 Strict//EN",
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"),
+        ("XHTML 1.0 Transitional", "html",
+         "-//W3C//DTD XHTML 1.0 Transitional//EN",
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"),
+        ("XHTML 1.0 Frameset", "html",
+         "-//W3C//DTD XHTML 1.0 Frameset//EN",
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd"),
+    ]
+
 
 class XMLLangInfo(LangInfo):
     name = "XML"
@@ -76,8 +112,11 @@ class XULLangInfo(LangInfo):
     name = "XUL"
     conforms_to_bases = ["XML"]
     exts = ['.xul']
-    # doctype:
-    #   <!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [ ... ]>
+    doctypes = [
+        # <flavour>, <common-name>, <public-id>, <system-id>
+        (None, "window", "-//MOZILLA//DTD XUL V1.0//EN",
+         "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"),
+    ]
 
 class XBLLangInfo(LangInfo):
     """eXtensible Binding Language"""
@@ -86,6 +125,11 @@ class XBLLangInfo(LangInfo):
     exts = ['.xbl']
     # doctype:
     #   <!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+    doctypes = [
+        # <flavour>, <common-name>, <public-id>, <system-id>
+        (None, "bindings", "-//MOZILLA//DTD XBL V1.0//EN",
+         "http://www.mozilla.org/xbl"),
+    ]
 
 class YAMLLangInfo(LangInfo):
     name = "YAML"

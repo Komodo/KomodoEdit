@@ -1,0 +1,10 @@
+<!-- blah -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head>
+<title>HTML file with only DOCTYPE decl to identify it</title>
+</head>
+<body>
+<p>Note: DOCTYPE is intentionally not at first char pos to avoid
+using HTML magic number to determine type.</p>
+</body>
+</html>

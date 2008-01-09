@@ -72,12 +72,12 @@ class DataTestCase(unittest.TestCase):
 
         # 'XXX_attrs_to_skip_for_now' is a hack until
         # textinfo._classify_from_content() is ready.
-        XXX_attrs_to_skip_for_now = ["lang", "xml_version"]
+        #XXX_attrs_to_skip_for_now = ["lang", "xml_version"]
         #XXX_attrs_to_skip_for_now = ["xml_version"]
         actual_ti = textinfo.textinfo_from_path(path, **opts)
         for attr in expected_ti:
-            if attr in XXX_attrs_to_skip_for_now:
-                continue
+            #if attr in XXX_attrs_to_skip_for_now:
+            #    continue
             self.assert_(hasattr(actual_ti, attr),
                 "unexpected textinfo for '%s': expected '%s' attr, but "
                 "there isn't one on %r" % (path, attr, actual_ti))

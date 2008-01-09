@@ -37,21 +37,32 @@
 
 r"""Determine information about text files.
 
-    >> import textinfo
-    >> textinfo.textinfo_from_path('textinfo.py')
-    {'encoding': 'ascii',
-     'file_type': 0100000,
-     'file_type_name': 'regular file',
-     'has_bom': False,
-     'is_text': True,
-     'lang': 'Python',
-     'langinfo': <Python LangInfo>,
-     'text': ... # the decoded unicode text of the file
-     ...}
-
 This module efficiently determines the encoding of text files (see
 _classify_encoding for details), accurately identifies binary files, and
 provides detailed meta information of text files.
+
+    >>> import textinfo
+    >>> path = __file__
+    >>> if path.endswith(".pyc"): path = path[:-1]
+    >>> ti = textinfo.textinfo_from_path(path)
+    >>> ti.__class__
+    <class 'textinfo.TextInfo'>
+    >>> ti.encoding
+    'ascii'
+    >>> ti.file_type_name
+    'regular file'
+    >>> ti.is_text
+    True
+    >>> ti.lang
+    'Python'
+    >>> ti.langinfo
+    <Python LangInfo>
+    
+...plus a number of other useful information gleaned from the file. To see
+a list of all useful attributes see
+
+    >> list(ti.as_dict().keys())
+    ['encoding', 'file_type', ...]
 
 Note: This module requires at least Python 2.5 to use
 `codecs.lookup(<encname>).name`.
@@ -231,7 +242,7 @@ class TextInfo(object):
                 self.is_text = True
             if self.is_text is False:
                 return self
-            self.text = self._accessor.text #TODO: make this optional (mem usage)?
+            self.text = self._accessor.text
 
             self._classify_from_content(lidb)
             return self
@@ -275,26 +286,74 @@ class TextInfo(object):
     def _classify_from_content(self, lidb):
         log.debug("XXX:TODO: _classify_from_content")
 
-        #TODO: sketch out plan here
-        # Plan:
+        #TODO: Plan:
+        # - eol_* attrs (test cases for this!)
         # - get emacs local vars (local_vars or emacs_vars?) and vi modeline
         #   (vi_modeline)
         # - if lang not determined use both of those (preferring emacs
         #   vars)
-        # - if conforms-to XML or HTML: get doctype stuff
-        # - if conforms-to XML: get XML prolog stuff
-        # - if is XML: fine-tune the lang via the DOCTYPE, if available
-        #   (test case in .xml for XBL files)
-        # - eol_* attrs (test cases for this!)
 
-        if self.langinfo is not None and self.langinfo.conforms_to("XML"):
-            head_bytes = self._accessor.head_bytes
-            (self.has_xml_prolog, self.xml_prolog_version,
-             self.xml_prolog_encoding) = self._get_xml_prolog_info(head_bytes)
+        head = self.text[:self._accessor.HEAD_SIZE]
+
+        if self.langinfo is None:
+            #(self.has_xml_prolog, xml_version,
+            # xml_encoding) = self._get_xml_prolog_info(head)
+            xml_prolog = self._get_xml_prolog_info(head)
+            print "XXX xml prolog:", xml_prolog
+
+        #TODO: test cases:
+        # - eols
+        # - TODO: fix ti with unicode paths Windows (check on Linux too)
+
+        if self.langinfo is not None:
+            if self.langinfo.conforms_to("XML"):
+                (self.has_xml_prolog, self.xml_version,
+                 self.xml_encoding) = self._get_xml_prolog_info(head)
+                (self.has_doctype_decl, self.doctype_decl,
+                 self.doctype_name, self.doctype_public_id,
+                 self.doctype_system_id) = self._get_doctype_decl_info(head)
+                
+                # If this is just plain XML, we try to use the doctype
+                # decl to choose a more specific XML lang.
+                if self.lang == "XML" and self.has_doctype_decl:
+                    li = lidb.langinfo_from_doctype(
+                            public_id=self.doctype_public_id,
+                            system_id=self.doctype_system_id)
+                    if li and li.name != "XML":
+                        self.langinfo = li
+                        self.lang = li.name
+                
+            elif self.langinfo.conforms_to("HTML"):
+                (self.has_doctype_decl, self.doctype_decl,
+                 self.doctype_name, self.doctype_public_id,
+                 self.doctype_system_id) = self._get_doctype_decl_info(head)
+
+                # Allow promotion to XHTML (or other HTML flavours) based
+                # on doctype.
+                if self.lang == "HTML" and self.has_doctype_decl:
+                    li = lidb.langinfo_from_doctype(
+                            public_id=self.doctype_public_id,
+                            system_id=self.doctype_system_id)
+                    if li and li.name != "HTML":
+                        self.langinfo = li
+                        self.lang = li.name
+
+                # Look for XML prolog and promote HTML -> XHTML if it
+                # exists. Note that this wins over a plain HTML doctype.
+                (self.has_xml_prolog, xml_version,
+                 xml_encoding) = self._get_xml_prolog_info(head)
+                if self.has_xml_prolog:
+                    self.xml_version = xml_version
+                    self.xml_encoding = xml_encoding
+                    if self.lang == "HTML":
+                        li = lidb.langinfo_from_lang("XHTML")
+                        self.langinfo = li
+                        self.lang = li.name
+
 
     def _classify_from_magic(self, lidb):
         """Attempt to classify from the file's magic number/shebang
-        line, etc.
+        line, doctype, etc.
 
         Note that this is done before determining the encoding, so we are
         working with the *bytes*, not chars.
@@ -320,6 +379,18 @@ class TextInfo(object):
             self.lang = li.name
             self.is_text = li.is_text
             return
+        
+        (has_doctype_decl, doctype_decl, doctype_name, doctype_public_id,
+         doctype_system_id) = self._get_doctype_decl_info(head_bytes)
+        if has_doctype_decl:
+            li = lidb.langinfo_from_doctype(public_id=doctype_public_id,
+                                            system_id=doctype_system_id)
+            if li:
+                log.debug("lang from doctype: %s", li.name)
+                self.langinfo = li
+                self.lang = li.name
+                self.is_text = li.is_text
+                return
 
     def _classify_encoding(self, lidb, suggested_encoding=None):
         """To classify from the content we need to separate text from
@@ -712,112 +783,65 @@ class TextInfo(object):
 
         return (True, content_type, charset)
 
-    _html_doctype_pat = re.compile(
-        '<!DOCTYPE html(\s*.*?//DTD (?P<doctype>.*?)//EN")?',
-        re.IGNORECASE | re.DOTALL
-    )
-    def _get_html_doctype_info(self, head_bytes):
-        XXX
-
-    def XXX_content_info_via_xml(self, path, path_cache):
-        """Extract content info if this is an XML or HTML file.
-
-        Some HTML DOCTYPE info from:
-            http://www.htmlhelp.com/tools/validator/doctype.htm
-
-        HTML 4.01 Strict
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-                "http://www.w3.org/TR/html4/strict.dtd">
-        HTML 4.01 Transitional
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-                "http://www.w3.org/TR/html4/loose.dtd">
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-        HTML 4.01 Frameset
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
-                "http://www.w3.org/TR/html4/frameset.dtd">
-        XHTML 1.0 Strict
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        XHTML 1.0 Transitional
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        XHTML 1.0 Frameset
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-        HTML 3.2
-            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-        HTML 2.0
-            <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-
-        Returns a 3-tuple:
-            (<content-type-guess>, <tags>, <content-info-dict>)
-        Any of the three can be None if no such info was gathered.
+    #TODO: Note that this isn't going to catch the current HTML 5
+    #      doctype:  '<!DOCTYPE html>'
+    _doctype_decl_re = re.compile(r'''
+        <!DOCTYPE
+        \s+(?P<name>[a-zA-Z_:][\w:.-]*)
+        \s+(?:
+            SYSTEM\s+(["'])(?P<system_id_a>.*?)\2
+            |
+            PUBLIC
+            \s+(["'])(?P<public_id_b>.*?)\4
+            # HTML 3.2 and 2.0 doctypes don't include a system-id.
+            (?:\s+(["'])(?P<system_id_b>.*?)\6)?
+        )
+        (\s*\[.*?\])?        
+        \s*>
+        ''', re.IGNORECASE | re.DOTALL | re.UNICODE | re.VERBOSE)
+    def _get_doctype_decl_info(self, head):
+        """Parse out DOCTYPE info from the given XML or HTML content.
+        
+        Returns a tuple of the form:
+            (<has-doctype-decl>, <doctype-decl>,
+             <name>, <public-id>, <system-id>)
+        
+        The <public-id> is normalized as per this comment in the XML 1.0
+        spec:
+            Before a match is attempted, all strings of white space in the
+            public identifier must be normalized to single space
+            characters (#x20), and leading and trailing white space must
+            be removed.
+        
+        Examples:
+            (False, None, None, None, None)
+            (True, '<!DOCTYPE greeting SYSTEM "hello.dtd">',
+             'greeting', None, 'hello.dtd'),
+            (True,
+             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+             'html',
+             '-//W3C//DTD XHTML 1.0 Transitional//EN',
+             'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd')
+        
+        Here is the spec for DOCTYPE decls in XML:
+            http://www.xml.com/axml/target.html#NT-doctypedecl
+        We loosely follow this to allow for some decls in HTML that isn't
+        proper XML. As well, we are only parsing out decls that reference
+        an external ID, as opposed to those that define entities locally.
         """
-        #XXX It may turn out to be more helpful to have the only
-        #    content-types be 'html' and 'xml' and do the rest with
-        #    tags rather than have 'rdf', 'xslt', 'xhtml' et al main
-        #    content-types and having 'xml' and 'html' tags.
-        content_type_guess = None
-        tags = set()
-        content_info = {}
-
-        head = path_cache.readhead(1024)
-
-        # See if it uses the encouraged '<?xml version=...' prolog for
-        # XML files.
-        #XXX check out PaulP's XML encoding recipe:
-        #    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52257
-        if head.startswith("<?xml"):
-            content_type_guess = "xml"
-            
-            # Try to extract more info from the prolog.
-            match = self._xml_prolog_pat.search(head)
-            if not match:
-                log.warn("`%s' could not match XML prolog: '%s'", path,
-                         _one_line_summary_from_text(head, 40))
-            else:
-                d = match.groupdict()
-                if "ver" in d:
-                    content_info["xml-version"] = d["ver"]
-                if "enc" in d:
-                    content_info["xml-encoding"] = d["enc"]
-
-        # See if it looks like HTML.
-        match = self._html_doctype_pat.search(head)
-        if match:
-            if content_type_guess:
-                tags.add(content_type_guess)
-            content_type_guess = "html"
-            if not match.group(1):
-                # Eventually I will lower this log level (or remove it
-                # altogether) as I become more confident that a good %
-                # of HTML doctypes are being matched.
-                log.warn("`%s' could not match tail in HTML doctype: '%s'",
-                         path,
-                         _one_line_summary_from_text(head[match.start():], 40))
-            else:
-                html_doctype = match.group("doctype")
-                html_doctype = { # translate std html doctypes
-                    "HTML": "HTML 2.0",
-                    "HTML 3.2 Final": "HTML 3.2",
-                }.get(html_doctype, html_doctype)
-                content_info["html-doctype"] = html_doctype
-
-                if "xhtml" in html_doctype.lower():
-                    tags.add("xml")
-
-        # See if recognize a popular XML flavour.
-        # C.f. Don't Invent XML Languages
-        #      http://www.tbray.org/ongoing/When/200x/2006/01/08/No-New-XML-Languages
-        # Namely: XHTML, DocBook, ODF, UBL, Atom
-        #
-        # The list I consider tier 1:
-        # XHTML (done above), RDF, XUL, Atom, RSS (various versions?),
-        # DocBook, RelaxNG, XML Schema, XSLT.
-        if content_type_guess == "xml":
-            log.warn("XXX add XML flavour detection")
-
-        return content_type_guess, tags, content_info
+        if "<!DOCTYPE" not in head:  # quick out
+            return (False, None, None, None, None)
+        m = self._doctype_decl_re.search(head)
+        if not m:
+            return (False, None, None, None, None)
+        
+        d = m.groupdict()
+        name = d.get("name")
+        system_id = d.get("system_id_a") or d.get("system_id_b")
+        public_id = d.get("public_id_b")
+        if public_id:
+            public_id = re.sub("\s+", ' ', public_id.strip())  # normalize
+        return (True, m.group(0), name, public_id, system_id)
 
     _emacs_vars_head_pat = re.compile("-\*-\s*(.*?)\s*-\*-")
 
@@ -1141,7 +1165,7 @@ class Accessor(object):
     encoding = None
     text = None
     _unsuccessful_encodings = None
-    def decode(self, encoding):
+    def decode(self, encoding, has_bom=None):
         """Decodes bytes with the given encoding and, if successful,
         sets `self.text` with the decoded result and returns True.
         Otherwise, returns False.
