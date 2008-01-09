@@ -252,7 +252,16 @@ class Database(object):
                 if regex.search(filename):
                     return li
 
-    def langinfo_from_magic(self, head_bytes):
+    def langinfo_from_magic(self, head_bytes, shebang_only=False):
+        """Attempt to identify the appropriate LangInfo from the magic number
+        in the file. This mimics some of the behaviour of GNU file.
+
+        @param head_bytes {string} is a string of 8-bit char bytes or a
+            unicode string from the head of the document.
+        @param shebang_only {boolean} can be set to true to only process
+            magic number records for shebang lines (a minor perf
+            improvement).
+        """
         if self._magic_table is None:
             self._build_tables()
 
@@ -261,6 +270,8 @@ class Database(object):
                 start, format, pattern = magic_number
             except ValueError:
                 # Silently drop bogus magic number decls.
+                continue
+            if shebang_only and format != "regex":
                 continue
             if format == "string":
                 end = start + len(pattern)

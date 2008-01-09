@@ -71,6 +71,9 @@ Note: This module requires at least Python 2.5 to use
 _cmdln_doc = """Determine information about text files.
 """
 
+# TODO:
+# - fix ti with unicode paths Windows (check on Linux too)
+
 # ----------------
 # Current Komodo (4.2) Encoding Determination Notes (used for reference,
 # but not absolutely followed):
@@ -244,7 +247,8 @@ class TextInfo(object):
                 return self
             self.text = self._accessor.text
 
-            self._classify_from_content(lidb)
+            if self.text:  # No `self.text' with current UTF-32 hack.
+                self._classify_from_content(lidb)
             return self
         finally:
             # Free the memory used by the accessor.
@@ -284,7 +288,6 @@ class TextInfo(object):
         return "%s: %s" % (self.path, ', '.join(info))
 
     def _classify_from_content(self, lidb):
-        log.debug("XXX:TODO: _classify_from_content")
 
         #TODO: Plan:
         # - eol_* attrs (test cases for this!)
@@ -296,19 +299,27 @@ class TextInfo(object):
         head = self.text[:self._accessor.HEAD_SIZE]
 
         if self.langinfo is None:
-            #(self.has_xml_prolog, xml_version,
-            # xml_encoding) = self._get_xml_prolog_info(head)
-            xml_prolog = self._get_xml_prolog_info(head)
-            print "XXX xml prolog:", xml_prolog
+            (self.has_xml_prolog, xml_version,
+             xml_encoding) = self._get_xml_prolog_info(head)
+            if self.has_xml_prolog:
+                self.xml_version = xml_version
+                self.xml_encoding = xml_encoding
+                self.langinfo = lidb.langinfo_from_lang("XML")
+                self.lang = self.langinfo.name
+            elif self.text.startswith("#!"):
+                li = lidb.langinfo_from_magic(self.text, shebang_only=True)
+                if li:
+                    self.langinfo = li
+                    self.lang = li.name
 
         #TODO: test cases:
         # - eols
-        # - TODO: fix ti with unicode paths Windows (check on Linux too)
 
         if self.langinfo is not None:
             if self.langinfo.conforms_to("XML"):
-                (self.has_xml_prolog, self.xml_version,
-                 self.xml_encoding) = self._get_xml_prolog_info(head)
+                if not hasattr(self, "has_xml_prolog"):
+                    (self.has_xml_prolog, self.xml_version,
+                     self.xml_encoding) = self._get_xml_prolog_info(head)
                 (self.has_doctype_decl, self.doctype_decl,
                  self.doctype_name, self.doctype_public_id,
                  self.doctype_system_id) = self._get_doctype_decl_info(head)
@@ -358,7 +369,7 @@ class TextInfo(object):
         Note that this is done before determining the encoding, so we are
         working with the *bytes*, not chars.
         """
-        self.has_bom, bom_encoding = self._get_bom_info()
+        self.has_bom, bom, bom_encoding = self._get_bom_info()
         if self.has_bom:
             # If this file has a BOM then, unless something funny is
             # happening, this will be a text file encoded with
@@ -427,8 +438,9 @@ class TextInfo(object):
         """
         # 1. Try the BOM.
         if self.has_bom is not False:  # Was set in `_classify_from_magic()`.
-            self.has_bom, bom_encoding = self._get_bom_info()
+            self.has_bom, bom, bom_encoding = self._get_bom_info()
             if self.has_bom:
+                self._accessor.strip_bom(bom)
                 # Python doesn't currently include a UTF-32 codec. For now
                 # we'll *presume* that a UTF-32 BOM is correct. The
                 # limitation is that `self.text' will NOT get set
@@ -1046,11 +1058,11 @@ class TextInfo(object):
         return vi_vars
 
     def _get_bom_info(self):
-        """Returns (<has-bom>, <bom-encoding>). Examples:
+        r"""Returns (<has-bom>, <bom>, <bom-encoding>). Examples:
 
-            (True, "utf-8") 
-            (True, "utf-16-le") 
-            (False, None)
+            (True, '\xef\xbb\xbf', "utf-8") 
+            (True, '\xff\xfe', "utf-16-le") 
+            (False, None, None)
         """
         boms_and_encodings = [ # in order from longest to shortest
             (codecs.BOM_UTF32_LE, "utf-32-le"),
@@ -1062,10 +1074,10 @@ class TextInfo(object):
         head_4 = self._accessor.head_4_bytes
         for bom, encoding in boms_and_encodings:
             if head_4.startswith(bom):
-                return (True, encoding)
+                return (True, bom, encoding)
                 break
         else:
-            return (False, None)
+            return (False, None, None)
 
     def _classify_from_filename(self, lidb):
         """Classify from the path *filename* only.
@@ -1164,8 +1176,9 @@ class Accessor(object):
 
     encoding = None
     text = None
+
     _unsuccessful_encodings = None
-    def decode(self, encoding, has_bom=None):
+    def decode(self, encoding):
         """Decodes bytes with the given encoding and, if successful,
         sets `self.text` with the decoded result and returns True.
         Otherwise, returns False.
@@ -1302,6 +1315,14 @@ class PathAccessor(Accessor):
                 
         if self._read_state == self.READ_ALL:
             self.close()
+
+    def strip_bom(self, bom):
+        """This should be called by the user of this class to strip a
+        detected BOM from the bytes for subsequent decoding and
+        analysis.
+        """
+        assert self._bytes[:len(bom)] == bom
+        self._bytes = self._bytes[len(bom):]
 
     @property
     def head_bytes(self):
