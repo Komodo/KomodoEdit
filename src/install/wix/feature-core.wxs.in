@@ -588,6 +588,7 @@
               <File Id="file2071" Name="KOIPYT_1.XPT" LongName="koIPythonProfiler.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIPythonProfiler.xpt"/>
               <File Id="file2072" Name="KOIPYT_2.XPT" LongName="koIPythonStdLib.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIPythonStdLib.xpt"/>
               <File Id="file2074" Name="KOIRUN_0.XPT" LongName="koIRunService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIRunService.xpt"/>
+              <File Id="file600" LongName="koIAsyncOperations.xpt" Name="KOIASY_1.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAsyncOperations.xpt" />
               <File Id="file2077" Name="KOISCI_0.XPT" LongName="koIScintillaSchemeService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaSchemeService.xpt"/>
               <File Id="file2078" Name="KOISCI_1.XPT" LongName="koISciUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koISciUtils.xpt"/>
               <File Id="file2079" Name="KOISTA_0.XPT" LongName="koIStatusMessage.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIStatusMessage.xpt"/>
@@ -646,6 +647,7 @@
               <File Id="file2142" Name="KOREGE_0.PY" LongName="koRegexLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koRegexLanguage.py"/>
               <File Id="file2144" Name="KORUBY_0.PY" LongName="koRubyLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koRubyLanguage.py"/>
               <File Id="file2145" Name="KORUNS_0.PY" LongName="koRunService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koRunService.py"/>
+              <File Id="file601" LongName="koAsyncOperations.py" Name="KOASYN_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koAsyncOperations.py" />
               <File Id="file2146" Name="KORUNT_0.PY" LongName="koRunTerminal.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koRunTerminal.py"/>
               <File Id="file2147" Name="KORXLA_0.PY" LongName="koRxLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koRxLanguage.py"/>
               <File Id="file2149" Name="KOSCIN_0.PY" LongName="koScintillaController.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koScintillaController.py"/>
@@ -1372,6 +1374,7 @@
                 <File Id="file1286" Name="ELEMEN_0.EGG" LongName="elementtree-1.2.6_20050316-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\elementtree-1.2.6_20050316-py2.5.egg-info"/>
                 <File Id="file1342" Name="SILVER_0.EGG" LongName="SilverCity-0.9.5-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.5.egg-info"/>
                 <File Id="file1385" Name="kotaclib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\kotaclib.py" />
+                <File Id="file602" LongName="koAsyncOperationUtils.py" Name="KOASYN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koAsyncOperationUtils.py" />
                 <File Id="file350" Name="SGMLOP_0.EGG" LongName="sgmlop-1.1.1_20040207-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop-1.1.1_20040207-py2.5.egg-info"/>
                 <File Id="file352" Name="sgmlop.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop.pyd"/>
 <?if $(var.WithCrypto) = "yes" ?>
@@ -3278,6 +3281,7 @@
               <File Id="file4082" Name="KOIREM_0.IDL" LongName="koIRemoteConnectionService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRemoteConnectionService.idl"/>
               <File Id="file4083" Name="KOIREM_1.IDL" LongName="koIRemoteFileInfo.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRemoteFileInfo.idl"/>
               <File Id="file4085" Name="KOIRUN_0.IDL" LongName="koIRunService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRunService.idl"/>
+              <File Id="file603" LongName="koIAsyncOperations.idl" Name="KOIASY_1.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAsyncOperations.idl" />
               <File Id="file4088" Name="KOISCI_0.IDL" LongName="koIScintillaSchemeService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIScintillaSchemeService.idl"/>
               <File Id="file4089" Name="KOISCI_1.IDL" LongName="koISciUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koISciUtils.idl"/>
               <File Id="file4090" Name="KOISTA_0.IDL" LongName="koIStatusMessage.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIStatusMessage.idl"/>
