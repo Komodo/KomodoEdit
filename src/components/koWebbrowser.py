@@ -63,7 +63,8 @@ class KoWebbrowser:
             log.error(str(ex))
             return 1
         try:
-            process.Process(command, env=env)
+            process.ProcessOpen(command, env=env, stdin=None, stdout=None,
+                                stderr=None)
             return 1
         except process.ProcessError, ex:
             log.error(str(ex))

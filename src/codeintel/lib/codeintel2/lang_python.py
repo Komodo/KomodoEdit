@@ -217,11 +217,10 @@ class PythonLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
 
         argv = [python, "-c", info_cmd]
         log.debug("run `%s -c ...'", python)
-        p = process.ProcessOpen(argv, env=env.get_all_envvars())
-        stdout_lines = p.stdout.read().splitlines(0)
-        stderr = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        p = process.ProcessOpen(argv, env=env.get_all_envvars(), stdin=None)
+        stdout, stderr = p.communicate()
+        stdout_lines = stdout.splitlines(0)
+        retval = p.returncode
         if retval:
             log.warn("failed to determine Python info:\n"
                      "  path: %s\n"
@@ -704,10 +703,9 @@ class PythonImportHandler(ImportHandler):
         if "PYTHONHOME" in env: del env["PYTHONHOME"]
         if "PYTHONSTARTUP" in env: del env["PYTHONSTARTUP"]
 
-        p = process.ProcessOpen(argv, env=env)
-        retval = p.wait()
-        output = p.stdout.read()
-        p.close()
+        p = process.ProcessOpen(argv, env=env, stdin=None)
+        stdout, stderr = p.communicate()
+        retval = p.returncode
         path = [line for line in output.splitlines(0)]
         if path and (path[0] == "" or path[0] == os.getcwd()):
             del path[0] # cwd handled separately

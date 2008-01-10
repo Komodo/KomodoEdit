@@ -1021,11 +1021,10 @@ class PerlLangIntel(LangIntel,
                     r'print join("\n", @INC);')
         argv = [perl, "-e", info_cmd]
         log.debug("run `%s -e ...'", perl)
-        p = process.ProcessOpen(argv, env=env.get_all_envvars())
-        stdout_lines = p.stdout.read().splitlines(0)
-        stderr = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        p = process.ProcessOpen(argv, env=env.get_all_envvars(), stdin=None)
+        stdout, stderr = p.communicate()
+        stdout_lines = stdout.splitlines(0)
+        retval = p.returncode
         if retval:
             log.warn("failed to determine Perl info:\n"
                      "  path: %s\n"
@@ -1259,12 +1258,9 @@ class PerlImportHandler(ImportHandler):
         if "PERL5LIB" in env: del env["PERL5LIB"]
         if "PERLLIB" in env: del env["PERLLIB"]
 
-        p = process.ProcessOpen(argv, env=env)
-        retval = p.wait()
-        output = p.stdout.read()
-        error = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        p = process.ProcessOpen(argv, env=env, stdin=None)
+        output, error = p.communicate()
+        retval = p.returncode
         if retval:
             raise CodeIntelError("could not determine Perl import path: %s"
                                  % error)
@@ -1526,16 +1522,9 @@ class PerlCILEDriver(CILEDriver):
                     "--md5", request.md5sum]
             
             # Run language engine and report any errors.
-            p = process.ProcessOpen(argv)
             content = line_end_re.sub("\n", request.content)
-            p.stdin.write(content)
-            p.stdin.close()
-            # Lots of stderr output mixed with stdout can cause a full read of
-            # stdout to block, presumably because of a full system stderr buffer.
-            # There is probably a more correct fix at the process.py-level.
-            p.stderr.close()
-            stdout = p.stdout.read()
-            p.close()
+            p = process.ProcessOpen(argv, stderr=None)
+            stdout, stderr = p.communicate(communicate)
             return stdout.decode("utf-8")
         else:
             return perlcile.scan(request.content, request.path,

@@ -345,11 +345,10 @@ class RubyLangIntel(LangIntel,
         info_cmd = "puts RUBY_VERSION; puts $:"
         argv = [ruby, "-e", info_cmd]
         log.debug("run `%s -e ...'", ruby)
-        p = process.ProcessOpen(argv, env=env.get_all_envvars())
-        stdout_lines = p.stdout.read().splitlines(0)
-        stderr = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        p = process.ProcessOpen(argv, env=env.get_all_envvars(), stdin=None)
+        stdout, stderr = p.communicate()
+        stdout_lines = stdout.splitlines(0)
+        retval = p.returncode
         if retval:
             log.warn("failed to determine Ruby info:\n"
                      "  path: %s\n"
@@ -1416,11 +1415,10 @@ class RubyImportHandler(ImportHandler):
         if "RUBYLIB" in env: del env["RUBYLIB"]
         if "RUBYLIB_PREFIX" in env: del env["RUBYLIB_PREFIX"]
 
-        p = process.ProcessOpen(argv, env=env)
-        retval = p.wait()
-        output = p.stdout.read()
-        p.close()
-        path = [line for line in output.splitlines(0)]
+        p = process.ProcessOpen(argv, env=env, stdin=None)
+        output, stderr = p.communicate(info_cmd)
+        retval = p.returncode
+        path = output.splitlines(0)
         if sys.platform == "win32":
             path = [p.replace('/', '\\') for p in path]
         # Handle cwd separately.

@@ -992,12 +992,9 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
 
         log.debug("run `%s < ...'", php)
         p = process.ProcessOpen(argv, env=env.get_all_envvars())
-        p.stdin.write(info_cmd)
-        p.stdin.close()
-        stdout_lines = p.stdout.read().splitlines(0)
-        stderr = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        stdout, stderr = p.communicate(info_cmd)
+        stdout_lines = stdout.splitlines(0)
+        retval = p.returncode
         if retval:
             log.warn("failed to determine PHP info:\n"
                      "  path: %s\n"

@@ -133,11 +133,8 @@ class TclImportHandler(ImportHandler):
         import process
         argv = [compiler]
         p = process.ProcessOpen(argv)
-        p.stdin.write("puts [join $auto_path \\n]")
-        p.stdin.close()
-        retval = p.wait()
-        output = p.stdout.read()
-        p.close()
+        output, stderr = p.communicate("puts [join $auto_path \\n]")
+        retval = p.returncode
         path = [os.path.normpath(line) for line in output.splitlines(0)]
         if path and (path[0] == "" or path[0] == os.getcwd()):
             del path[0] # cwd handled separately
@@ -231,14 +228,9 @@ class TclCILEDriverOld(CILEDriver):
         #    env["TCLLIBPATH"] = TCLLIBPATH
 
         # Run language engine and report any errors.
-        p = process.ProcessOpen(argv, env=env)
         content = line_end_re.sub("\n", request.content)
-        p.stdin.write(content)
-        p.stdin.close()
-        stdout = p.stdout.read()
-        stderr = p.stderr.read()
-        p.close()
-        
+        p = process.ProcessOpen(argv, env=env)
+        stdout, stderr = p.communicate(content)
         return stdout.decode("utf-8")
 
     def scan_purelang(self, buf):
@@ -267,14 +259,9 @@ class TclCILEDriverOld(CILEDriver):
         #    env["TCLLIBPATH"] = TCLLIBPATH
 
         # Run language engine and report any errors.
-        p = process.ProcessOpen(argv, env=env)
         content = re.sub("(\r\n|\r)", "\n", buf.accessor.text)
-        p.stdin.write(content)
-        p.stdin.close()
-        stdout = p.stdout.read()
-        stderr = p.stderr.read()
-        p.close()
-
+        p = process.ProcessOpen(argv, env=env)
+        stdout, stderr = p.communicate(content)
         cix = stdout.decode("utf-8")
         return tree_from_cix(cix)
 

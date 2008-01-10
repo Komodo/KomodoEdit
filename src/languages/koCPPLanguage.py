@@ -314,23 +314,15 @@ class KoCPPCompileLinter:
         try:
             env = koprocessutils.getUserEnv()
             cwd = cwd or None
-            p = process.ProcessOpen(argv, mode='b', cwd=cwd, env=env)
-            p.stdin.close()
-            # XXX gcc hangs if we read stdout, need to test with
-            # msvc
-            #stdout = p.stdout.readlines()
-            #print stdout
-            lines = p.stderr.readlines()
+            # XXX gcc hangs if we read stdout, so we don't pipe stdout,
+            # need to test this again since using subprocess and also
+            # test this with msvc.
+            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+            stdout, stderr = p.communicate()
+            lines = stderr.splitlines(1)
             #print lines
         finally:
             os.unlink(filename)
-            try:
-                if p: p.close()
-            except IOError, e:
-                if e.errno == 0:  
-                    pass
-                else:
-                    raise
         
         try:
             results = koLintResults()

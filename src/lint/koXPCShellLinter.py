@@ -80,16 +80,13 @@ class KoXPCShellLinter:
         # lint the temp file
         cmd = [jsInterp, "-version", "170", "-C", "-w", "-s", jsfilename]
         cwd = cwd or None
-        #XXX For one reason or another, ProcessProxy does not work with the
-        #    standalone js interpreter on windows, perhaps the js process is
-        #    ending too quickly?  ProcessProxy will work if you touch js32.dll,
-        #    which I am guessing forces the system disk cache to refetch the dll
-        p = process.ProcessOpen(cmd, cwd=cwd)
-        p.stdin.close()
-        p.stdout.close()
-        warnLines = p.stderr.readlines()
-        p.close()
-        os.unlink(jsfilename)
+        # We only need the stderr result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
+            stdout, stderr = p.communicate()
+            warnLines = stderr.splitlines(0) # Don't need the newlines.
+        finally:
+            os.unlink(jsfilename)
         
         # 'js' error reports come in 4 line chunks that look like
         # this:

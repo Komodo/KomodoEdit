@@ -125,25 +125,12 @@ class KoPHPCompileLinter:
                 ini = self._prefProxy.prefs.getStringPref("phpConfigFile")
                 if ini: env["PHPRC"] = ini
             cwd = cwd or None
-            # PHP sets stdin, stdout to binary on it's end.  If we do not do
-            # the same, some wierd things can happen, most notably with shell
-            # comments that end with \r\n.
-            p = process.ProcessOpen(argv, mode='b', cwd=cwd, env=env)
-            p.stdin.close()
-            # XXX The relevant output is either on stdout or stderr. Dunno
-            #     which. We should only be parsing over one of the two.
-            lines = p.stdout.readlines() + p.stderr.readlines()
+            p = process.ProcessOpen(argv, cwd=cwd, env=env)
+            stdout, stderr = p.communicate()
+            # The relevant output is contained in stdout.
+            lines = stdout.splitlines(1)
         finally:
             os.unlink(phpfilename)
-            # For some reason, PHP linter causes an exception on close
-            # with errno = 0, will investigate in PHP later.
-            try:
-                if p: p.close()
-            except IOError, e:
-                if e.errno == 0:  
-                    pass
-                else:
-                    raise
         
         results = koLintResults()
         if lines:

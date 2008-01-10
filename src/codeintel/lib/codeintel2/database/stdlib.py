@@ -392,7 +392,8 @@ class StdLibsZone(object):
         unzip_exe = which.which("unzip")
         cmd = '"%s" -q -d "%s" "%s"'\
               % (unzip_exe, dirname(self.base_dir), preload_zip)
-        p = process.ProcessOpen(cmd)
+        p = process.ProcessOpen(cmd, stdin=None)
+        stdout, stderr = p.communicate()
         retval = p.wait()
         if retval:
             raise OSError("error running '%s'" % cmd)

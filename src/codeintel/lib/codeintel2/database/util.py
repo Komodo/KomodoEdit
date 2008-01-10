@@ -154,7 +154,8 @@ def run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
     # TODO: Perhaps we should use Process for all plats? (bug 65961).
     if sys.platform == "win32":
         import process
-        p = process.Process(cmd)
+        p = process.ProcessOpen(cmd, stdin=None)
+        p.communicate()
         retval = p.wait()
     else:
         retval = os.system(cmd)

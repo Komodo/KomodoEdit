@@ -202,12 +202,9 @@ class KoPythonLinter:
                         pythonPath = pythonPath.replace('\\', '/')
                     env["PYTHONPATH"] = pythonPath
                 
-                p = process.ProcessOpen(argv, cwd=cwd, env=env)
-                p.stdin.close()
-                error = p.stderr.read()
-                output = p.stdout.read()
-                retval = p.wait()
-                p.close()
+                p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+                output, error = p.communicate()
+                retval = p.returncode
                 #print "-"*60, "output"
                 #print output
                 #print "-"*60, "error"

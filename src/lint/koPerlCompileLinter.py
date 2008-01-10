@@ -383,10 +383,11 @@ class KoPerlCompileLinter:
             argv += [option, tmpFileName]
             cwd = cwd or None # convert '' to None (cwd=='' for new files)
             env = koprocessutils.getUserEnv()
-            p = process.ProcessOpen(argv, cwd=cwd, env=env)
-            results = p.stderr.readlines()
-            lintResults = PerlWarnsToLintResults(results, tmpFileName, text)
-            p.close()
+            # We only need stderr output.
+            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+            stdout, stderr = p.communicate()
+            lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
+                                                 tmpFileName, text)
         finally:
             os.unlink(tmpFileName)
 

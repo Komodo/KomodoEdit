@@ -115,19 +115,11 @@ class KoHTMLCompileLinter:
             argv += ['-config', configFile]
         
         cwd = cwd or None
-        #XXX Use ProcessProxy instead of ProcessOpen because its use of
-        #    threads to monitor each of the std handles seems to avoid a
-        #    potential problem is p.stdin.write(text) hanging when text
-        #    is large (os.popen3 suffers from the hang as well).
-        p = process.ProcessProxy(argv, cwd=cwd)
-        p.stdin.write(text)
-        p.stdin.close()
-        # Ignore stdout, tidy dumps a cleaned up version of the input file on
-        # it. Also, must read and/or close stdout before reading stderr,
-        # else 'tidy' may hang (it did on my Win2K box).
-        p.stdout.close()
-        lines = p.stderr.readlines()
-        p.close()
+        # Ignore stdout, as tidy dumps a cleaned up version of the input
+        # file on it, which we don't care about.
+        p = process.ProcessOpen(argv, cwd=cwd)
+        stdout, stderr = p.communicate(text)
+        lines = stderr.splitlines(1)
 
         # Tidy stderr output looks like this:
         #    Tidy (vers 4th August 2000) Parsing console input (stdin)

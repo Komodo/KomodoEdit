@@ -1041,10 +1041,9 @@ class KoRubyCompileLinter:
             argv += [option, tmpFileName]
             cwd = cwd or None # convert '' to None (cwd=='' for new files)
             env = koprocessutils.getUserEnv()
-            p = process.ProcessOpen(argv, cwd=cwd, env=env)
-            p.stdin.close()
-            lines = p.stderr.readlines()
-            p.close()
+            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+            stdout, stderr = p.communicate()
+            lines = stderr.splitlines(1)
         finally:
             try:
                 os.unlink(tmpFileName)
