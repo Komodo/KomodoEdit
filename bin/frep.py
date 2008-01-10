@@ -53,14 +53,14 @@
 # -----------------
 # - !!! Don't replace in if can't identify the lang
 # - test suite !
-# - _MassageSearchToken in findlib does something important with
-#   matchWord=True (-w|--word)
 # - See about necessary changes for one-shot confirmation
 #   and other integration issues with Komodo
 # - EOL tests (should use universal newlines?) I'm okay with not
 #   supporting mixed newlines.
 # - unicode content tests
 # - unicode path tests
+# - 'frep foo bar.txt' for one input file only: output differs from grep
+#   (prefixing with filename). Should frep copy grep here?
 # - findlib.replaceall() -- and probably others -- has some handling for
 #   nicer error messages for a bogus regex or repl.
 #
@@ -178,15 +178,15 @@ def find(paths, includes=None, excludes=None):
                 unmatched_includes = [field for field, value in includes
                                       if getattr(ti, field, None) != value]
                 if unmatched_includes:
-                    log.debug("excluding path not matching '%s' include(s): %r",
-                              "', '".join(unmatched_includes), path)
+                    #log.debug("excluding path not matching '%s' include(s): %r",
+                    #          "', '".join(unmatched_includes), path)
                     continue
             if excludes:
                 matched_excludes = [field for field, value in excludes
                                     if getattr(ti, field, None) == value]
                 if matched_excludes:
-                    log.debug("excluding path matching '%s' exclude(s): %r",
-                              "', '".join(matched_excludes), path)
+                    #log.debug("excluding path matching '%s' exclude(s): %r",
+                    #          "', '".join(matched_excludes), path)
                     continue
             
             yield path
@@ -194,6 +194,7 @@ def find(paths, includes=None, excludes=None):
 
 def grep(regex, paths, files_with_matches=False,
          treat_binary_files_as_text=False,
+         skip_unknown_lang_paths=False,
          includes=None, excludes=None):
     """Grep for `regex` in the given paths.
 
@@ -204,6 +205,11 @@ def grep(regex, paths, files_with_matches=False,
         Default is false.
     @param treat_binary_files_as_text {boolean} indicates that binary files
         should be search. By default they are skipped.
+    @param skip_unknown_lang_paths {boolean} can be set True to skip
+        grepping in files for which the lang could not be determined.
+        This is useful when doing *replacements* to be safe about not
+        wrecking havoc in binary files that happen to look like plain
+        text.
     @param includes {list} is a sequence of 2-tuples defining include
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
@@ -212,19 +218,22 @@ def grep(regex, paths, files_with_matches=False,
     for path in paths:
         ti = textinfo.textinfo_from_path(path)
 
+        if skip_unknown_lang_paths and ti.lang is None:
+            yield SkipUnknownLangPath(path)
+            continue
         if includes:
             unmatched_includes = [field for field, value in includes
                                   if getattr(ti, field, None) != value]
             if unmatched_includes:
-                log.debug("excluding path not matching '%s' include(s): %r",
-                          "', '".join(unmatched_includes), path)
+                #log.debug("excluding path not matching '%s' include(s): %r",
+                #          "', '".join(unmatched_includes), path)
                 continue
         if excludes:
             matched_excludes = [field for field, value in excludes
                                 if getattr(ti, field, None) == value]
             if matched_excludes:
-                log.debug("excluding path matching '%s' exclude(s): %r",
-                          "', '".join(matched_excludes), path)
+                #log.debug("excluding path matching '%s' exclude(s): %r",
+                #          "', '".join(matched_excludes), path)
                 continue
 
         if ti.is_text:
@@ -234,7 +243,7 @@ def grep(regex, paths, files_with_matches=False,
             text = f.read()
             f.close()
         else:
-            yield SkipBinary(path)
+            yield SkipBinaryPath(path)
             continue
         
         accessor = _TextAccessor(text)
@@ -245,7 +254,8 @@ def grep(regex, paths, files_with_matches=False,
             yield FindHit(path, ti.encoding, match, accessor)
 
 
-def replace(regex, repl, paths, include_diff_events=False, dry_run=False):
+def replace(regex, repl, paths, include_diff_events=False, 
+            includes=None, excludes=None, dry_run=False):
     """Make the given regex replacement in the given paths.
 
     @param regex {regular expression} is the regex with which to search
@@ -256,14 +266,19 @@ def replace(regex, repl, paths, include_diff_events=False, dry_run=False):
         each changed path *before* the changes are saved.  This will
         allow for a confirmation process (TODO). False by default
         because there is a significant perf cost in calculating the diff.
+    @param includes {list} is a sequence of 2-tuples defining include
+        filters on textinfo data: (<textinfo-field>, <value>).
+    @param excludes {list} is a sequence of 2-tuples defining exclude
+        filters on textinfo data: (<textinfo-field>, <value>).
     @param dry_run {boolean} if True will result in going through the
         motions but not actually saving results (or generating a
         journal).
     """
     journal = None
     try:
-        #TODO:XXX: skipping paths if don't know lang
-        for group in _grouped_by_path(grep(regex, paths)):
+        grepper = grep(regex, paths, skip_unknown_lang_paths=True,
+                       includes=includes, excludes=excludes)
+        for group in _grouped_by_path(grepper):
             if not isinstance(group[0], Hit):
                 yield group[0]
                 continue
@@ -646,12 +661,21 @@ class _memoized(object):
 class Event(object):
     pass
 
-class SkipBinary(Event):
+class SkipBinaryPath(Event):
     """Event yielded when skipping a binary path during grep() or replace()."""
     def __init__(self, path):
         self.path = path
     def __repr__(self):
-        return "<SkipBinary %s>" % self.path
+        return "<SkipBinaryPath %s>" % self.path
+
+class SkipUnknownLangPath(Event):
+    """Event yielded when skipping a path because its lang could not be
+    identified.
+    """
+    def __init__(self, path):
+        self.path = path
+    def __repr__(self):
+        return "<SkipUnknownLangPath %s>" % self.path
 
 class ReplaceDiff(Event):
     """Event giving the diff for an impending replacement."""
@@ -983,26 +1007,6 @@ def _splitall(path):
             allparts.insert(0, parts[1])
     allparts = [p for p in allparts if p] # drop empty strings 
     return allparts
-
-
-#TODO: put in recipes and drop
-#_notifier = None
-#def _stage_notify(title, message):
-#    try:
-#        import Growl
-#    except ImportError:
-#        pass
-#    else:
-#        global _notifier
-#        if _notifier is None:
-#            icns_path = '/Library/Frameworks/Python.framework/Resources/Python.app/Contents/Resources/PythonInterpreter.icns'
-#            icon = Growl.Image.imageFromPath(icns_path)
-#            #icon = Growl.Image.imageWithIconForApplication("/Applications/Komodo IDE 4.2.app")
-#            _notifier = Growl.GrowlNotifier(applicationName="find",
-#                notifications=["stage"], applicationIcon=icon)
-#            _notifier.register()
-#        _notifier.notify("stage", "find: "+title, message)
-#    log.info("%s: %s", title, message)
 
 
 # Recipe: regex_from_str (2.1.0)
@@ -1446,6 +1450,8 @@ def main_replace(regex, repl, paths, includes, excludes, argv, opts):
                          dry_run=opts.dry_run):
         if isinstance(event, StartJournal):
             journal_id = event.id
+        elif isinstance(event, SkipUnknownLangPath):
+            log.info("Skip `%s' (don't know language).", event.path)
         elif isinstance(event, ReplaceDiff) and event.diff:
             sys.stdout.write(event.diff)
         if not isinstance(event, Hit):
