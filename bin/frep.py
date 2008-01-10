@@ -89,7 +89,7 @@ Example Usage:
   frep -u|--undo           # list replacements that can be undone
   frep -u ID               # undo replacement with id 'ID'
 
-  # find-like (not implemented yet, TODO)
+  # find-like
   frep . -i "foo*"         # list paths matching "foo*"
   frep . -i lang:Perl      # list Perl paths
   frep . -x lang:Python    # list all but Python paths
