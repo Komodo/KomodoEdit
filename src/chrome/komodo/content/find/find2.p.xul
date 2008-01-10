@@ -81,135 +81,8 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find_functions.js"/>
-    <!--<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find2.js"/>-->
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find2.js"/>
     
-    <script type="application/x-javascript;version=1.7"><![CDATA[
-      var widgets = {};
-    
-      function _toggle_collapse(widget) {
-        if (widget.hasAttribute("collapsed")) {
-          widget.removeAttribute("collapsed");
-        } else {
-          widget.setAttribute("collapsed", "true");
-        }
-      }
-
-      function _collapse_widget(widget, collapse) {
-        if (collapse) {
-          widget.setAttribute("collapsed", "true");
-        } else {
-          widget.removeAttribute("collapsed");
-        }
-      }
-
-      function on_load() {
-        widgets.opt_replace = document.getElementById('opt-replace');
-        widgets.search_in = document.getElementById('search-in');
-        widgets.pattern_error = document.getElementById('pattern-error');
-        widgets.find_prev_btn = document.getElementById('find-prev-button');
-        widgets.find_next_btn = document.getElementById('find-next-button');
-        widgets.replace_btn = document.getElementById('replace-button');
-        widgets.find_all_btn = document.getElementById('find-all-button');
-        widgets.replace_all_btn = document.getElementById('replace-all-button');
-        widgets.mark_all_btn = document.getElementById('mark-all-button');
-        widgets.close_btn = document.getElementById('close-button');
-        widgets.help_btn = document.getElementById('help-button');
-
-        update_replace_ui();
-        update_search_in_ui();
-      }
-      function on_unload() {
-      }
-
-      function toggle_error() {
-        if (widgets.pattern_error.hasAttribute("collapsed")) {
-          widgets.pattern_error.removeAttribute("collapsed");
-        } else {
-          widgets.pattern_error.setAttribute("collapsed", "true");
-        }
-      }
-
-      function update_button_ui() {
-        //TODO:
-        // - set the correct default button
-        // - whither "Display results in Find Results 2 tab" checkbox?
-        // - whither "Show 'Replace All' Results" checkbox?
-
-        if (widgets.opt_replace.checked) {
-          switch (widgets.search_in.value) {
-          case "project":
-          case "files":
-            // Replace in Files: Replace All, Close, Help
-            dump("update_button_ui: replace in files\n");
-            _collapse_widget(widgets.find_prev_btn, true);
-            _collapse_widget(widgets.find_next_btn, true);
-            _collapse_widget(widgets.replace_btn, true);
-            _collapse_widget(widgets.find_all_btn, true);
-            _collapse_widget(widgets.replace_all_btn, false);
-            _collapse_widget(widgets.mark_all_btn, true);
-            break
-          default:
-            // Replace: Find Next, Replace*, Replace All, Close, Help
-            dump("update_button_ui: replace\n");
-            _collapse_widget(widgets.find_prev_btn, true);
-            _collapse_widget(widgets.find_next_btn, false);
-            _collapse_widget(widgets.replace_btn, false);
-            _collapse_widget(widgets.find_all_btn, true);
-            _collapse_widget(widgets.replace_all_btn, false);
-            _collapse_widget(widgets.mark_all_btn, true);
-          }
-        } else {
-          switch (widgets.search_in.value) {
-          case "project":
-          case "files":
-            // Find in Files: Find All*, Close, Help
-            dump("update_button_ui: find in files\n");
-            _collapse_widget(widgets.find_prev_btn, true);
-            _collapse_widget(widgets.find_next_btn, true);
-            _collapse_widget(widgets.replace_btn, true);
-            _collapse_widget(widgets.find_all_btn, false);
-            _collapse_widget(widgets.replace_all_btn, true);
-            _collapse_widget(widgets.mark_all_btn, true);
-            break
-          default:
-            // Find: Find Previous, Find Next*, Find All, Mark All, Close, Help
-            dump("update_button_ui: find\n");
-            _collapse_widget(widgets.find_prev_btn, false);
-            _collapse_widget(widgets.find_next_btn, false);
-            _collapse_widget(widgets.replace_btn, true);
-            _collapse_widget(widgets.find_all_btn, false);
-            _collapse_widget(widgets.replace_all_btn, true);
-            _collapse_widget(widgets.mark_all_btn, false);
-          }
-        }
-      }
-
-      function update_replace_ui() {
-        var replace = widgets.opt_replace.checked;
-        _collapse_widget(document.getElementById('replacement-label'), !replace);
-        _collapse_widget(document.getElementById('replacement'), !replace);
-        update_button_ui();
-      }
-      
-      function update_search_in_ui() {
-        switch (widgets.search_in.value) {
-        case "files":
-          _collapse_widget(document.getElementById('directories-row'), false);
-          _collapse_widget(document.getElementById('subfolders-row'), false);
-          _collapse_widget(document.getElementById('include-row'), false);
-          _collapse_widget(document.getElementById('exclude-row'), false);
-          break;
-        default:
-          _collapse_widget(document.getElementById('directories-row'), true);
-          _collapse_widget(document.getElementById('subfolders-row'), true);
-          _collapse_widget(document.getElementById('include-row'), true);
-          _collapse_widget(document.getElementById('exclude-row'), true);
-        }
-        update_button_ui();
-        window.sizeToContent();
-      }
-    ]]></script>
-
     <keyset id="findKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
         <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
@@ -230,7 +103,7 @@
         <rows>
           <row align="center">
             <label value="Find what:" control="pattern"
-                   accesskey="&n.accesskey;"/>
+                   accesskey="n"/>
             <!--<hbox>-->
               <textbox id="pattern"
                        flex="1"
@@ -242,31 +115,29 @@
                        autocompletepopup="popupTextboxAutoComplete"
                        enablehistory="true"
                        completeselectedindex="true"
-                       ontextentered="this.focus(); UpdateButtons();"
+                       ontextentered="this.focus(); XXXUpdateButtons();"
                        onfocus="this.setSelectionRange(0,this.value.length);"
-                       onkeyup="UpdateButtons();"/>
+                       onkeyup="XXXUpdateButtons();"/>
               <!-- TODO: prettier shortcuts button -->
               <button type="menu" id="pattern-shortcuts"
-                      tooltiptext="&regularExpressionShortcuts.tooltiptext;"
+                      tooltiptext="Regular Expression Shortcuts"
                       class="rightarrow-button">
                 <menupopup popupanchor="topright">
-                  <menuitem label="&escapeRegexSpecialCharacters.label;"
-                            oncommand="RegexEscape();"/>
+                  <menuitem label="Escape Regex Special Characters"
+                            oncommand="XXXRegexEscape();"/>
                 </menupopup>
               </button>
               <button id="rx-button"
                       class="rx-icon button-toolbar-a"
                       tooltiptext="&openInRx.tooltiptext;"
-                      accesskey="&rxButton.accesskey;"
-                      oncommand="OpenInRx();"/>
+                      oncommand="XXXOpenInRx();"/>
             <!--</hbox>-->
           </row>
 
-          <row id="replacement-row" align="center" style="height: 5ex;">
-            <label id="replacement-label" value="Replace with:"
-                   control="replacement"
-                   accesskey="&replacementLabel.accesskey;"/>
-            <textbox id="replacement"
+          <row id="repl-row" align="center" style="height: 5ex;">
+            <label id="repl-lbl" value="Replace with:"
+                   control="repl" accesskey="l"/>
+            <textbox id="repl"
                      flex="1"
                      type="autocomplete"
                      maxrows="10"
@@ -276,20 +147,23 @@
                      enablehistory="true"
                      completeselectedindex="true"
                      ontextentered="this.focus();"
-                     onfocus="this.setSelectionRange(0,this.value.length);"/>
+                     onfocus="this.setSelectionRange(0, this.value.length);"/>
           </row>
           
           <row>
             <box/>
             <hbox>
-              <checkbox id="opt-regex" label="&regularExpr.label;"
-                        accesskey="&optRegex.accesskey;"/>
-              <checkbox id="opt-case" label="&ignoreCase.label;"
-                        accesskey="&optCase.accesskey;"/>
-              <checkbox id="opt-replace" label="&replace.label;"
-                        accesskey="&optReplace.accesskey;" oncommand="update_replace_ui()"/>
-              <checkbox id="opt-multiline" label="&multiline.label;"
-                        accesskey="&optMultiline.accesskey;" oncommand="TODO"/>
+              <checkbox id="opt-regex" label="Regex" accesskey="x"
+                        tooltiptext="Treat the pattern as a regular expression"/>
+              <checkbox id="opt-case" label="Ignore case"
+                        accesskey="c"/>
+              <checkbox id="opt-word" label="Word"
+                        accesskey="W" tooltiptext="Match whole words"/>
+              <!-- TODO: multiline, later
+              <checkbox id="opt-multiline" label="Multiline"
+                        accesskey="M" oncommand="XXX"/> -->
+              <checkbox id="opt-repl" label="Replace"
+                        accesskey="p" oncommand="update_replace_ui()"/>
             </hbox>
           </row>
           
@@ -297,37 +171,33 @@
             <hbox/>
             <deck id="pattern-info-deck" selectedIndex="1">
               <label id="pattern-info" value="lorem ipsum"/>
-              <hbox id="pattern-error"
+              <hbox id="pattern-error-box"
                     style="background-color: #BF5D56; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;"
                     XXXcollapsed="true">
                 <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
-                <label id="error" value="describe some error in the regex"/>
+                <label id="error" value="no error text"/>
               </hbox>
             </deck>
           </row>
 
 
           <row align="center" style="margin-top: 10px;">
-              <label value="Search In:" accesskey="&I.accesskey;" control="search-in"/>
-              <!-- TODO: switch to textbox autocomplete?
-                Pros:
-                - UI more consistent with pattern/replacement
-                - could get one char selection from list
-              -->
-              <menulist id="search-in" oncommand="update_search_in_ui()">
+              <label value="Search in:" accesskey="i" control="search-in-menu"/>
+              <menulist id="search-in-menu" oncommand="update_search_in_ui()">
                   <menupopup>
-                      <menuitem value="document" label="&currentDocument.label;"/>
-                      <menuitem value="selection" label="&selection.label;" disabled="true"/>
-                      <menuitem value="project" label="&currentProject.label;"/>
-                      <menuitem value="open-files" label="&allOpenFiles.label;"/>
-                      <menuitem value="files" label="&files.label;"/>
+                      <menuitem value="document" label="Current document"/>
+                      <menuitem value="selection" label="Selected text" disabled="true"/>
+                      <!-- TODO: fill in project info -->
+                      <menuitem value="project" label="Current project"/>
+                      <menuitem value="open-files" label="All open files"/>
+                      <menuitem value="files" label="Text files"/>
                   </menupopup>
               </menulist>
           </row>
 
-          <row id="directories-row" align="center">
+          <row id="dirs-row" align="center">
             <label value="Directories:" control="find-folders"
-                   accesskey="&D.accesskey;"/>
+                   accesskey="D"/>
             <textbox id="find-folders"
                      flex="1"
                      tooltiptext="ENTER_DIRECTORIES_ENTITY"
@@ -340,27 +210,24 @@
                      tabscrolling="true"
                      completeselectedindex="true"
                      ontextentered="this.focus(); UpdateOption('folders');"
-                     onkeyup="UpdateOption('folders');"
-                     onfocus="FolderOnFocus(this, event);"/>
+                     onkeyup="XXXUpdateOption('folders');"
+                     onfocus="XXXFolderOnFocus(this, event);"/>
             <!--<button label="..." accesskey="."-->
             <!--        style="min-width: 0px; margin: 0px 6px 0px 0px;"-->
             <!--        tooltiptext="Edit list of directories to search"-->
             <!--        oncommand="BrowseForDirectories();"/>-->
           </row>
-          <row id="subfolders-row">
+          <row id="subdirs-row">
             <box/>
-            <checkbox id="find-search-in-subfolders"
-                      label="&searchInSubfolders.label;"
-                      accesskey="&findSearchInSubfolders.accesskey;" uses-accesskey="true"
-                      oncommand="UpdateOption('searchInSubfolders');"/>
+            <checkbox id="find-search-in-subdir"
+                      label="Search in sub-directories"
+                      accesskey="b"
+                      oncommand="XXXUpdateOption('searchInSubfolders');"/>
           </row>
 
-
-<!-- #if 1 -->
           <row id="include-row" align="center">
             <label value="Include:" control="find-include-filetypes"
-                   accesskey="&d.accesskey;" uses-accesskey="true"
-                   style="width: 5.6em;"/>
+                   accesskey="u" style="width: 5.6em;"/>
             <textbox id="find-include-filetypes"
                      flex="1"
                      tooltiptext="ENTER_FILETYPES_TO_INCLUDE_ENTITY"
@@ -378,7 +245,6 @@
 
           <row id="exclude-row" align="center">
             <label value="Exclude:" control="find-exclude-filetypes"
-                   accesskey="&x.accesskey;" uses-accesskey="true"
                    style="width: 5.6em;"/>
             <textbox id="find-exclude-filetypes"
                      flex="1"
@@ -394,88 +260,35 @@
                      onfocus="this.setSelectionRange(0,this.value.length);"
                      onkeyup="UpdateOption('excludeFiletypes');"/>
           </row>
-
-<!-- #else -->
-
-          <row id="include-row" align="center">
-            <box/>
-            <hbox align="center">
-              <label value="Include:" control="find-include-filetypes"
-                     accesskey="&d.accesskey;" uses-accesskey="true"/>
-              <textbox id="find-include-filetypes"
-                       flex="1"
-                       tooltiptext="&enterFiletypesToIncludeInSearchEGPlPATHSEPPmEmptyMeansAll.tooltiptext;"
-                       type="autocomplete"
-                       maxrows="10"
-                       autocompletesearch="mru"
-                       autocompletesearchparam="find-includeFiletypesMru"
-                       autocompletepopup="popupTextboxAutoComplete"
-                       enablehistory="true"
-                       completeselectedindex="true"
-                       ontextentered="this.focus(); UpdateOption('includeFiletypes');"
-                       onfocus="this.setSelectionRange(0,this.value.length);"
-                       onkeyup="UpdateOption('includeFiletypes');"/>
-              <label value="Exclude:" control="find-exclude-filetypes"
-                     accesskey="&x.accesskey;" uses-accesskey="true"/>
-              <textbox id="find-exclude-filetypes"
-                       flex="1"
-                       tooltiptext="&enterFiletypesToExcludeFromSearchEGDtdPATHSEPObjEmptyMeansNone.tooltiptext;"
-                       type="autocomplete"
-                       maxrows="10"
-                       autocompletesearch="mru"
-                       autocompletesearchparam="find-excludeFiletypesMru"
-                       autocompletepopup="popupTextboxAutoComplete"
-                       enablehistory="true"
-                       completeselectedindex="true"
-                       ontextentered="this.focus(); UpdateOption('excludeFiletypes');"
-                       onfocus="this.setSelectionRange(0,this.value.length);"
-                       onkeyup="UpdateOption('excludeFiletypes');"/>
-            </hbox>
-          </row>
-
-<!-- #endif -->
         </rows>
       </grid>
 
       <separator class="thin"/>
       <vbox id="find-buttons" style="width: 10em;">
-        <button id="find-prev-button" label="&findPrevious.label;"
-                accesskey="&findPrevButton.accesskey;" />
-        <button id="find-next-button" label="&findNext.label;"
-                accesskey="&findNextButton.accesskey;" />
-        <button id="replace-button" label="&replace.label;"
-                accesskey="&replaceButton.accesskey;" />
-        <!-- TODO: ensure don't have to remove and set accesskey to avoid conflict -->
-        <button id="find-all-button" label="&findAll.label;"
-                accesskey="&findAllButton.accesskey;" />
-        <button id="replace-all-button" label="&replaceAll.label;"
-                accesskey="&replaceAllButton.accesskey;" />
-        <button id="mark-all-button" label="&markAll.label;"
-                accesskey="&markAllButton.accesskey;" oncommand="toggle_error();" />
-        <!-- 'close-button' is being styled somewhere to add 'X' icon.
-             Don't want it. -->
-        <button id="find-close-button" label="&close.label;"
-                accesskey="&findCloseButton.accesskey;" oncommand="window.close();"
-                collapsed="true"/>
-        <button id="help-button" label="&help.label;"
-                accesskey="&helpButton.accesskey;" oncommand="ko.help.open('find2_dialog');"/>
+        <button id="find-prev-btn" label="Find Previous"
+                accesskey="v" />
+        <button id="find-next-btn" label="&findNext.label;"
+                accesskey="F" />
+        <button id="replace-btn" label="&replace.label;"
+                accesskey="R" />
+        <!-- TODO: uses-accesskey handling -->
+        <button id="find-all-btn" label="&findAll.label;"
+                _accesskey="A" uses-accesskey="true"/>
+        <button id="replace-all-btn" label="&replaceAll.label;"
+                _accesskey="A" uses-accesskey="true"/>
+        <!-- TODO: mark-all
+        <button id="mark-all-btn" label="Mark All"
+                accesskey="k" oncommand="TODO" /> -->
+        <!-- TODO: room for close button? necessary?
+        <button id="close-btn" label="Close"
+                accesskey="s" oncommand="window.close();"/> -->
+        <button id="help-btn" label="Help" accesskey="H"
+                oncommand="ko.help.open('find2_dialog');"/>
 
-        <!--<checkbox id="find-display-in-find-results-2"-->
+        <!--<checkbox id="display-in-find-results-2"-->
         <!--          label="Display results in Find Results 2 tab"-->
-        <!--          accesskey="2" uses-accesskey="true"-->
+        <!--          accesskey="2"-->
         <!--          oncommand="UpdateOption('displayInFindResults2');"/>-->
-
-        <!--<hbox>-->
-        <!--  <separator flex="1"/>-->
-        <!--  <button id="rx-button"-->
-        <!--          class="rx-icon button-toolbar-a"-->
-        <!--          tooltiptext="Open in Rx"-->
-        <!--          accesskey="x"-->
-        <!--          oncommand="OpenInRx();"/>-->
-        <!--  <button id="help-button"-->
-        <!--          class="help-button button-toolbar-a"-->
-        <!--          tooltiptext="Help"/>-->
-        <!--</hbox>-->
       </vbox>
 
     </hbox>
