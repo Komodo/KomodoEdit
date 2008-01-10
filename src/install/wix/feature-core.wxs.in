@@ -1357,7 +1357,7 @@
                 <File Id="file375" Name="langinfo.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo.py" />
                 <File Id="file376" LongName="langinfo_binary.py" Name="LANGIN_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_binary.py" />
                 <File Id="file587" LongName="langinfo_doc.py" Name="LANGIN_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_doc.py" />
-                <File Id="file601" LongName="langinfo_komodo.py" Name="LANGI_12.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_komodo.py" />
+                <File Id="file604" LongName="langinfo_komodo.py" Name="LANGI_12.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_komodo.py" />
                 <File Id="file588" LongName="langinfo_other.py" Name="LANGIN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_other.py" />
                 <File Id="file589" LongName="langinfo_prog.py" Name="LANGIN_4.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_prog.py" />
                 <File Id="file590" LongName="langinfo_tiny.py" Name="LANGIN_5.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_tiny.py" />
