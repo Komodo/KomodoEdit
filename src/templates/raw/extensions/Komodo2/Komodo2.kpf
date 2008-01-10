@@ -77,8 +77,8 @@ userPath = userEnv["PATH"].split(os.pathsep)
 
 def executeCmd(argv, cwd=None):
     try:
-        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv)
-        return [p.stdout.read(), p.stderr.read()]
+        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv, stdin=None)
+        return [p.communicate()]
     finally:
         p.close()
 

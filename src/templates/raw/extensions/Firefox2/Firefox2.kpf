@@ -19,8 +19,8 @@ userPath = userEnv["PATH"].split(os.pathsep)
 
 def executeCmd(argv, cwd=None):
     try:
-        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv)
-        return [p.stdout.read(), p.stderr.read()]
+        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv, stdin=None)
+        return [p.communicate()]
     finally:
         p.close()
 
@@ -306,8 +306,8 @@ if(data.valid) {
   <string id="extension_author_domain">YourDomain.com</string>
   <boolean id="import_live">1</boolean>
   <string id="import_type">useFolders</string>
-  <string id="extension_version">1.0</string>
-  <string id="import_include_matches"></string>
   <string id="extension_update_url">http://yourdomain.com/extension/extension.rdf</string>
+  <string id="import_include_matches"></string>
+  <string id="extension_version">1.0</string>
 </preference-set>
 </project>

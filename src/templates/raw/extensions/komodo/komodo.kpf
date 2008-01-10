@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
-<project id="020c3156-5fbf-11db-8b3a-000d935d3368" name="komodo.kpf" kpf_version="4">
-<folder idref="020c3156-5fbf-11db-8b3a-000d935d3368" id="19d5b619-5fc1-11db-8b3a-000d935d3368" name="project">
-</folder>
-<file url="_prj_internal_/setup-wizard.xul" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" id="1dadc0c4-5fc1-11db-8b3a-000d935d3368" name="setup-wizard.xul">
+<project id="020c3156-5fbf-11db-8b3a-000d935d3368" kpf_version="4" name="komodo.kpf">
+<file id="1dadc0c4-5fc1-11db-8b3a-000d935d3368" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" name="setup-wizard.xul" url="_prj_internal_/setup-wizard.xul">
 </file>
-<macro keyboard_shortcut="" name="oncreate" language="JavaScript" trigger_enabled="0" rank="100" trigger="trigger_postopen" async="0" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" id="482d4ba7-5fc1-11db-8b3a-000d935d3368">
+<macro async="0" id="482d4ba7-5fc1-11db-8b3a-000d935d3368" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" keyboard_shortcut="" language="JavaScript" name="oncreate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
 var project = komodo.macro.project;
 var wizard = project.getChildByAttributeValue('name','setup-wizard.xul', 1);
@@ -83,7 +81,7 @@ for (var i =0; i &lt; files.length; i++) {
 } catch(e) {
     log.exception(e);
 }</macro>
-<macro keyboard_shortcut="" name="build XPI" language="Python" trigger_enabled="0" rank="100" trigger="trigger_postopen" async="0" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" id="062d638d-5fcb-11db-8b3a-000d935d3368">
+<macro async="0" id="062d638d-5fcb-11db-8b3a-000d935d3368" idref="19d5b619-5fc1-11db-8b3a-000d935d3368" keyboard_shortcut="" language="Python" name="build XPI" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 import sys, os, which
 import process
 import koprocessutils
@@ -96,8 +94,8 @@ userPath = userEnv["PATH"].split(os.pathsep)
 
 def executeCmd(argv, cwd=None):
     try:
-        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv)
-        return [p.stdout.read(), p.stderr.read()]
+        p = process.ProcessOpen(argv, cwd=cwd, env=userEnv, stdin=None)
+        return [p.communicate()]
     finally:
         p.close()
 
@@ -140,12 +138,14 @@ cmd = zipper + ["%s-%s.xpi" % (extName, extVer), '%s.jar' % extName, "install.rd
 executeCmd(cmd, projectFile.dirName)
 
 </macro>
+<folder id="19d5b619-5fc1-11db-8b3a-000d935d3368" idref="020c3156-5fbf-11db-8b3a-000d935d3368" name="project">
+</folder>
 <preference-set idref="020c3156-5fbf-11db-8b3a-000d935d3368">
   <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;_prj_internal_</string>
   <boolean id="import_recursive">1</boolean>
+  <string id="import_dirname"></string>
   <boolean id="import_live">1</boolean>
   <string id="import_type">useFolders</string>
-  <string id="import_dirname"></string>
   <string id="import_include_matches"></string>
 </preference-set>
 </project>

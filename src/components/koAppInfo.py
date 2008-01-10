@@ -146,9 +146,8 @@ class KoPerlInfoEx(KoAppInfoEx):
         if not os.path.exists(perlExe):
             raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
         argv = [perlExe, "-v"]
-        p = process.ProcessOpen(argv)
-        perlVersionDump = p.stdout.read()
-        p.close()
+        p = process.ProcessOpen(argv, stdin=None)
+        perlVersionDump, stderr = p.communicate()
         # Old perls look like: This is perl, version 5.005_03 built for MSWin32-x86-object
         # New perls look like: This is perl, v5.6.1 built for MSWin32-x86-multi-thread
         perlVersionMatch = re.search("This is perl, v(?:ersion )?([0-9._]+)", perlVersionDump)
@@ -162,9 +161,8 @@ class KoPerlInfoEx(KoAppInfoEx):
 
     def get_buildNumber(self):
         argv = [self.get_executablePath(), "-v"]
-        p = process.ProcessOpen(argv)
-        versionDump = p.stdout.read()
-        p.close()
+        p = process.ProcessOpen(argv, stdin=None)
+        versionDump, stderr = p.communicate()
         pattern = re.compile("Binary build (\d+(\.\d+)?)( \[\d+\])? provided by ActiveState")
         match = pattern.search(versionDump)
         if match:
@@ -198,9 +196,9 @@ class KoPerlInfoEx(KoAppInfoEx):
         perlExe = self.get_executablePath()
         for module in modules:
             argv = [perlExe, "-M"+module, "-e1"]
-            p = process.ProcessOpen(argv)
+            p = process.ProcessOpen(argv, stdin=None)
+            stdout, stderr = p.communicate()
             retval = p.wait()
-            p.close()
             if retval: # if returns non-zero, then don't have that module
                 return 0
         else:
@@ -281,9 +279,8 @@ class KoPythonInfoEx(KoAppInfoEx):
         pythonExe = self._GetPythonExeName()
         pythonDir = os.path.dirname(pythonExe)
         argv = [pythonExe, "-c", versionScript]
-        p = process.ProcessOpen(argv, cwd=pythonDir)
-        versionDump = p.stdout.read()
-        p.close()
+        p = process.ProcessOpen(argv, cwd=pythonDir, stdin=None)
+        versionDump, stderr = p.communicate()
         # we are only to rely on the first 2 digits being in the form x.y
         match = re.search("([0-9.]+)", versionDump)
         if match:
@@ -412,9 +409,8 @@ class KoRubyInfoEx(KoAppInfoEx):
         if not os.path.exists(rubyExe):
             raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
         argv = [rubyExe, "-v"]
-        p = process.ProcessOpen(argv)
-        rubyVersionDump = p.stdout.read()
-        p.close()
+        p = process.ProcessOpen(argv, stdin=None)
+        rubyVersionDump, stderr = p.communicate()
         pattern = re.compile("ruby ([\w\.]+) ")
         match = pattern.search(rubyVersionDump)
         if match:
@@ -559,14 +555,9 @@ class KoPHPInfoInstance(KoAppInfoEx):
             cwd = os.path.dirname(php)
         else:
             cwd = None
-        # PHP sets stdin, stdout to binary on it's end.  If we do not do
-        # the same, some wierd things can happen, most notably with shell
-        # comments that end with \r\n.
         try:
-            p = process.ProcessOpen(argv, mode='b', env=env, cwd=cwd)
-            p.stdin.write(phpCode)
-            p.stdin.close()
-            output = p.stdout.read()
+            p = process.ProcessOpen(argv, env=env, cwd=cwd)
+            output, stderr = p.communicate(phpCode)
             # For some reason, PHP linter causes an exception on close
             # with errno = 0, will investigate in PHP later.
             try:
@@ -888,12 +879,9 @@ class KoCVSInfoEx(KoAppInfoEx):
         """
         cvsExe = self.get_executablePath()
         if not cvsExe: return None
-        p = process.ProcessOpen([cvsExe, '-v'])
-        p.stdin.close()
-        output = p.stdout.read()
-        error = p.stderr.read()
-        retval = p.wait()
-        p.close()
+        p = process.ProcessOpen([cvsExe, '-v'], stdin=None)
+        output, error = p.communicate()
+        retval = p.returncode
         
         versionRe = re.compile(r'\((?P<family>.+?)\)\s+(?P<version>[\d\.\w]+?)[\s\-]',
                                re.MULTILINE)
