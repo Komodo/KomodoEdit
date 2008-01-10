@@ -1432,6 +1432,19 @@
 <!-- #endif -->
                 </menupopup>
             </menu>
+<!-- #if BUILD_FLAVOUR == "dev" -->
+            <menu
+                id="menu_developer_test"
+                label="Test"
+                accesskey="s"
+                ordinal="9997"
+                >
+                <menupopup id="popup_test">
+                    <menuitem label="New Find Dialog"
+                              oncommand="ko.launch.find2();"/>
+                </menupopup>
+            </menu>
+<!-- #endif -->
 <!-- #if PLATFORM != "darwin" -->
             <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
             <hbox id="window-controls" flex="1" hidden="true" fullscreencontrol="true"

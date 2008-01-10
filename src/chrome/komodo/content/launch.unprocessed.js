@@ -203,6 +203,16 @@ this.find = function(searchTerm) {
     _launch_FindTab("find", searchTerm);
 }
 
+this.find2 = function(searchTerm) {
+    ko.inputBuffer.start();
+    gFindSearchTerm = searchTerm;
+    gFindDialogPanel = "find"; // special global to pass info to find.xul
+    return ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
 
 /**
  * Open the Find & Replace dialog.
