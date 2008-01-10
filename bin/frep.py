@@ -51,8 +51,6 @@
 #
 # TODOs for frep.py
 # -----------------
-# - !!! Don't replace in if can't identify the lang
-# - test suite !
 # - See about necessary changes for one-shot confirmation
 #   and other integration issues with Komodo
 # - EOL tests (should use universal newlines?) I'm okay with not
@@ -79,7 +77,7 @@ functionality.
     
 Example Usage:
   # grep-like
-  frep foo *.txt           # grep for 'foo' in .txt files
+  frep foo *.pl            # grep for 'foo' in .pl files
   frep -r foo .            # grep for 'foo' in all text files (recursively)
   frep /f[ei]/i *.txt      # grep for 'fe', 'fi' (ignore case) in .txt files
   frep -l foo *.txt        # list .txt files matching 'foo'
