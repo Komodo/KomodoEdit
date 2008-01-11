@@ -1593,6 +1593,12 @@ def main(argv):
     # Dispatch to the appropriate action.
     paths = _paths_from_path_patterns(path_patterns, recursive=recursive,
                 includes=path_includes, excludes=path_excludes)
+    if log.isEnabledFor(logging.DEBUG):
+        def log_it_first(paths):
+            for path in paths:
+                log.debug("considering '%s'...", path)
+                yield path
+        paths = log_it_first(paths)
     if action == "find":
         return main_find(paths, textinfo_includes, textinfo_excludes, opts)
     if action == "grep-list":
