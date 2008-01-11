@@ -85,8 +85,13 @@ interface koIFindOptions: nsISupports {
     const long FOC_SENSITIVE = 1;    // case sensitive
     const long FOC_SMART = 2;        // case sensitive iff pattern includes any uppercase letters
 
-    // The name of the context type that is preferred. See the FCT_*
-    // constants in the koIFindContext interface.
+    // One of FCT_CURRENT_DOC or FCT_ALL_OPEN_DOCS.
+    // This is set by the find dialog (when the user manually switches the
+    // context there) and is used by cmd_findNext and cmd_findPrevious in
+    // the main Komodo window. Opening the find dialog resets this to
+    // FCT_CURRENT_DOC (see bug 20003 for why).
+    //
+    // Persisted in the 'find-preferredContextType' pref.
     attribute long preferredContextType; 
 
     attribute boolean displayInFindResults2;
