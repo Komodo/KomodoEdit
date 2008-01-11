@@ -73,6 +73,13 @@ _cmdln_doc = """Determine information about text files.
 
 # TODO:
 # - fix ti with unicode paths Windows (check on Linux too)
+# - Shift-JIS encoding is not detected for
+#   http://public.activestate.com/pub/apc/perl-current/lib/Pod/Simple/t/corpus/s2763_sjis.txt
+#   [Jan wrote]
+#   > While the document isn't identified by filename extension as POD,
+#   > it does contain POD and a corresponding =encoding directive.
+#   Could potentially have a content heuristic check for POD.
+#
 
 # ----------------
 # Current Komodo (4.2) Encoding Determination Notes (used for reference,

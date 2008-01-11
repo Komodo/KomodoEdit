@@ -125,6 +125,10 @@ class CLangInfo(LangInfo):
         ".c", 
         ".xs",  # Perl extension modules. *Are* they legal C?
     ]
+    #TODO: Note for Jan:
+    # .xs files are *NOT* legal C or C++ code.  However, they are
+    # similar enough that I find it useful to edit them using c-mode or
+    # c++-mode in Emacs.
 
 class CPlusPlusLangInfo(LangInfo):
     #TODO: consider breaking out headers and have separate
