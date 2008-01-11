@@ -305,6 +305,17 @@
                 view.parentNode._tab.setAttribute('readonly',"chrome://komodo/skin/images/status_icon_readonly.png");
             }
 
+	    var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
+			    getService(Components.interfaces.koIAsyncService);
+	    if (asyncSvc.uriHasPendingOperation(view.document.file.URI)) {
+                // This file has an asynchronous operation pending, give it
+                // the "processing" throbber gif.
+		view.parentNode._tab.setAttribute('action', "chrome://global/skin/throbber/Throbber-small.gif");
+                view.parentNode._tab.removeAttribute('status');
+                this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
+		return;
+	    }
+
             if (view.document.isUntitled || view.document.file.sccType == '') {
                 view.parentNode._tab.removeAttribute('action');
                 view.parentNode._tab.removeAttribute('status');

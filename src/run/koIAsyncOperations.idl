@@ -92,6 +92,21 @@ interface koIAsyncService: nsISupports {
     void getRunningOperations(out unsigned long count,
                               [array, size_is(count), retval] out koIAsyncOperation async_ops);
 
+        // Return whether the uri is has a pending asynchronous operation.
+    boolean uriHasPendingOperation(in wstring uri);
+
+        // Return whether the uri is locked by a pending asynchronous operation.
+    boolean uriIsLocked(in wstring uri);
+
+        // Return the list of uris that have a running asynchronous operation.
+    void getAllRunningUris(out unsigned long count,
+                           [array, size_is(count), retval] out wstring uris);
+
+        // Return the list of uris that have a running asynchronous operation
+        // and are marked as locked.
+    void getAllLockedUris(out unsigned long count,
+                          [array, size_is(count), retval] out wstring uris);
+
         // The "aOp" koIAsyncOperation must be implemented in Python, otherwise
         // this call will raise an exception.
         // If the aOpCallback is defined, this objects "callback" method will
@@ -101,5 +116,6 @@ interface koIAsyncService: nsISupports {
              in koIAsyncOperation aOp,
              in koIAsyncCallback aOpCallback,
              in unsigned long count,
-             [array, size_is(count)] in wstring lock_these_uris);
+             [array, size_is(count)] in wstring affected_uris,
+             in boolean lock_these_uris);
 };

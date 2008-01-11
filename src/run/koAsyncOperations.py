@@ -66,8 +66,13 @@ class koAsyncService(object):
 
     def __init__(self):
         self._runningOperations = []
+        self._affectedUris = {}
         self._lockedUris = {}
         self._lock = threading.Lock()
+        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
+        self._observerProxy = getProxyForObject(1, components.interfaces.nsIObserverService,
+                                                self._observerSvc, PROXY_SYNC | PROXY_ALWAYS)
         # The testing mode variable is used when running python tests from
         # the command line, as the getProxyForObject results in an object
         # that never actually calls the callback function.
@@ -80,13 +85,20 @@ class koAsyncService(object):
     def setTestingMode(self, value):
         self.__testing_mode = value
 
-    def __run(self, name, aOp, aOpCallback, lock_these_uris):
+    def __run(self, name, aOp, aOpCallback, affected_uris, lock_these_uris):
         # Add the operation to the list
-        tracking_tuple = (name, aOp, aOpCallback, lock_these_uris)
+        tracking_tuple = (name, aOp, aOpCallback, affected_uris, lock_these_uris)
         with self._lock:
             self._runningOperations.append(tracking_tuple)
-            for uri in lock_these_uris:
-                self._lockedUris[uri] = self._lockedUris.get(uri, 0) + 1
+            for uri in affected_uris:
+                self._affectedUris[uri] = self._affectedUris.get(uri, 0) + 1
+                if lock_these_uris:
+                    self._lockedUris[uri] = self._lockedUris.get(uri, 0) + 1
+
+        # Notify the observers that these uri's have changed.
+        self._observerProxy.notifyObservers(None, 'file_status',
+                                            "\n".join(affected_uris))
+
         try:
             # Run the operation
             if aOpCallback:
@@ -122,17 +134,32 @@ class koAsyncService(object):
                     self._runningOperations.remove(tracking_tuple)
                 except ValueError:
                     log.exception("Tracking tuple was already removed")
-                # Unlock the uri's
-                for uri in lock_these_uris:
-                    num_locked = self._lockedUris.get(uri)
-                    if num_locked is not None:
-                        if num_locked > 1:
+
+                # Remove the associated uri's
+                for uri in affected_uris:
+                    num_affected = self._affectedUris.get(uri)
+                    if num_affected is not None:
+                        if num_affected > 1:
                             # Other operations are also locking this uri
-                            self._lockedUris[uri] = num_locked - 1
+                            self._affectedUris[uri] = num_affected - 1
                         else:
-                            # Remove the lock
-                            self._lockedUris.pop(uri)
-                # XXX - Link with file status service?
+                            # Remove the uri
+                            self._affectedUris.pop(uri)
+
+                    if lock_these_uris:
+                        # Unlock the uri's
+                        num_locked = self._lockedUris.get(uri)
+                        if num_locked is not None:
+                            if num_locked > 1:
+                                # Other operations are also locking this uri
+                                self._lockedUris[uri] = num_locked - 1
+                            else:
+                                # Remove the lock on this uri
+                                self._lockedUris.pop(uri)
+
+            # XXX - Link with file status service?
+            self._observerProxy.notifyObservers(None, 'file_status',
+                                                "\n".join(affected_uris))
 
     ###
     # XPCOM functions
@@ -143,18 +170,31 @@ class koAsyncService(object):
         with self._lock:
             return [x[1] for x in self._runningOperations]
 
+    def getAllRunningUris(self):
+        return self._affectedUris.keys()
+
+    def getAllLockedUris(self):
+        return self._lockedUris.keys()
+
+    def uriHasPendingOperation(self, uri):
+        return uri in self._affectedUris
+
+    def uriIsLocked(self, uri):
+        return uri in self._lockedUris
+
     # The "aOp" koIAsyncOperation must be implemented in Python, otherwise this
     # call will raise an exception. If the aOpCallback is defined, this objects
     # "callback" method will automatically called when the koIAsyncOperation run
     # finishes, either through normal operation, cancellation or through an
     # unexpected error.
-    def run(self, name, aOp, aOpCallback, lock_these_uris):
+    def run(self, name, aOp, aOpCallback, affected_uris, lock_these_uris):
         # Test if we can unwrap the operation. This ensure's that aOp is a
         # Python object! If it is not, then an exception will be raised.
         UnwrapObject(aOp)
         log.debug("Running asynchronous command: %r", name)
         t = threading.Thread(name=name,
                              target=self.__run,
-                             args=(name, aOp, aOpCallback, lock_these_uris))
+                             args=(name, aOp, aOpCallback, affected_uris,
+                                   lock_these_uris))
         t.setDaemon(True)
         t.start()

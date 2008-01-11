@@ -84,9 +84,13 @@
                 </xul:hbox>
             </xul:toolbar>
         </xul:toolbox>
-        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
-                       flex="1"
-                       mozcontext="bufferContextMenu"/>
+        <xul:notificationbox anonid="diff_notificationbox"
+                             flex="1">
+            <xul:scintilla anonid="scintilla"
+                           xbl:inherits="flex,focused,context,mozcontext"
+                           flex="1"
+                           mozcontext="bufferContextMenu"/>
+        </xul:notificationbox>
     </content>
     <implementation name="viewdiff" implements="koIScintillaView, ISciMozEvents, nsIObserver">
 
@@ -98,10 +102,15 @@
         <property name="scintilla">
             <getter><![CDATA[
                 if (!this._scintilla) {
-                    var nodes = document.getAnonymousNodes(this);
-                    this._scintilla = nodes[nodes.length-1];
+                    this._scintilla = document.getAnonymousElementByAttribute(this, "anonid", "scintilla");
                 }
                 return this._scintilla;
+            ]]></getter>
+        </property>
+
+        <property name="notificationbox">
+            <getter><![CDATA[
+                return document.getAnonymousElementByAttribute(this, "anonid", "diff_notificationbox");
             ]]></getter>
         </property>
 

@@ -47,6 +47,7 @@
 // Globals
 //
 var _dw_log = ko.logging.getLogger("diff");
+//_dw_log.setLevel(ko.logging.LOG_DEBUG);
 var _diffWindow = null;
 
 //
@@ -61,19 +62,31 @@ function DiffWindow()
     var view = document.getElementById('view');
     view.init();
 
-    var diff;
-    if (!'diff' in window.arguments[0] || !window.arguments[0].diff) {
-        _dw_log.error('The diff was not specified for diff.xul');
-        diff = '';
-    } else {
-        diff = window.arguments[0].diff;
-    }
     try {
         _document = view.docSvc.createUntitledDocument("Diff"); // koIDocument
         _dw_log.debug("_document = "+_document);
         _document.addView(view);
+
+        var diff = '';
+        if (!window.arguments[0].diff) {
+            if (window.arguments[0].async_op) {
+                // Display the notification widget that it's running asynchronously.
+                var label = "Fetching diff information...";
+                var value = null;
+                var image_src = "chrome://global/skin/throbber/Throbber-small.gif";
+                view.notificationbox.appendNotification(label, value, image_src);
+                diff = "Loading asynchronously...";
+            } else {
+                _dw_log.error('The diff was not specified for diff.xul');
+            }
+        } else {
+            diff = window.arguments[0].diff;
+        }
+        _dw_log.debug("diff.length: " + diff.length);
         _document.buffer = diff;
         view.initWithBuffer(diff, "Diff");
+        view.document = _document;
+
         view.encoding = _document.encoding.python_encoding_name;
         view.scimoz.codePage = _document.codePage;
         // Force scintilla buffer to readonly mode, bug:
@@ -110,7 +123,6 @@ DiffWindow.prototype.doCommand = function(cmdName) {
     }
     return false;
 }
-
 
 //
 // Main loading and unloading of the diff window
