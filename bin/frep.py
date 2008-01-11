@@ -105,7 +105,7 @@ __version__ = '.'.join(map(str, __version_info__))
 
 import os
 from os.path import (expanduser, join, basename, splitext, exists, dirname,
-                     abspath)
+                     abspath, islink, normpath)
 import time
 import sys
 import re
@@ -120,6 +120,9 @@ import codecs
 import md5
 import difflib
 
+
+while islink(__file__):
+    __file__ = normpath(join(dirname(__file__), os.readlink(__file__)))
 ko_dir = dirname(dirname(abspath(__file__)))
 try:
     import textinfo
