@@ -203,17 +203,6 @@ this.find = function(searchTerm) {
     _launch_FindTab("find", searchTerm);
 }
 
-this.find2 = function(searchTerm) {
-    ko.inputBuffer.start();
-    gFindSearchTerm = searchTerm;
-    gFindDialogPanel = "find"; // special global to pass info to find.xul
-    return ko.windowManager.openOrFocusDialog(
-        "chrome://komodo/content/find/find2.xul",
-        "komodo_find2",
-        "chrome,close=yes");
-}
-
-
 /**
  * Open the Find & Replace dialog.
  *
@@ -265,6 +254,119 @@ function _launch_FindInFilesTab(panel, searchTerm, folders) {
     return ko.windowManager.openOrFocusDialog("chrome://komodo/content/find/findInFiles.xul",
                       "komodo_find_in_files",
                       "chrome,close=yes");
+}
+
+
+/**
+ * Open the Find2 dialog for find, replace, find in files or
+ * replace in files.
+ */
+this.find2_dialog_args = null;
+
+this.find2 = function(pattern) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "pattern": pattern,
+        "mode": "find"
+    }
+
+    return ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
+this.replace2 = function(pattern, repl) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "pattern": pattern,
+        "repl": repl,
+        "mode": "replace"
+    }
+
+    return ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
+this.findInFiles2 = function(pattern, dirs, includes, excludes) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Use the current view's cwd for interpreting relative paths.
+    var view = ko.views.manager.currentView;
+    var cwd = null;
+    if (view != null &&
+        view.getAttribute("type") == "editor" &&
+        view.document.file &&
+        view.document.file.isLocal) {
+        cwd = view.document.file.dirName;
+    }
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "pattern": pattern,
+        "dirs": dirs,
+        "includes": includes,
+        "excludes": excludes,
+        "cwd": cwd,
+        "mode": "findinfiles"
+    }
+
+    return ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
+this.replaceInFiles2 = function(pattern, repl, dirs, includes, excludes) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Use the current view's cwd for interpreting relative paths.
+    var view = ko.views.manager.currentView;
+    var cwd = null;
+    if (view != null &&
+        view.getAttribute("type") == "editor" &&
+        view.document.file &&
+        view.document.file.isLocal) {
+        cwd = view.document.file.dirName;
+    }
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "pattern": pattern,
+        "repl": repl,
+        "dirs": dirs,
+        "includes": includes,
+        "excludes": excludes,
+        "cwd": cwd,
+        "mode": "replaceinfiles"
+    }
+
+    return ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
 }
 
 

@@ -55,8 +55,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
-<!-- for rx-icon class -->
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 
 
 <window id="find2-window"
@@ -68,6 +66,7 @@
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
+        onfocus="on_focus(event);"
         orient="vertical">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -82,12 +81,13 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find_functions.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find2.js"/>
-    
+  
     <keyset id="findKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
         <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
         <!-- TODO: Cmd+W to close dialog on macosx -->
+        <!-- TODO: Ctrl+O to select "all open files" as context -->
     </keyset>
     <popupset>
         <popup type="autocomplete" id="popupTextboxAutoComplete"/>
@@ -104,34 +104,28 @@
           <row align="center">
             <label value="Find what:" control="pattern"
                    accesskey="n"/>
-            <!--<hbox>-->
-              <textbox id="pattern"
-                       flex="1"
-                       style="min-width: 30em;"
-                       type="autocomplete"
-                       maxrows="10"
-                       autocompletesearch="mru"
-                       autocompletesearchparam="find-patternMru"
-                       autocompletepopup="popupTextboxAutoComplete"
-                       enablehistory="true"
-                       completeselectedindex="true"
-                       ontextentered="this.focus(); XXXUpdateButtons();"
-                       onfocus="this.setSelectionRange(0,this.value.length);"
-                       onkeyup="XXXUpdateButtons();"/>
-              <!-- TODO: prettier shortcuts button -->
-              <button type="menu" id="pattern-shortcuts"
-                      tooltiptext="Regular Expression Shortcuts"
-                      class="rightarrow-button">
-                <menupopup popupanchor="topright">
-                  <menuitem label="Escape Regex Special Characters"
-                            oncommand="XXXRegexEscape();"/>
-                </menupopup>
-              </button>
-              <button id="rx-button"
-                      class="rx-icon button-toolbar-a"
-                      tooltiptext="&openInRx.tooltiptext;"
-                      oncommand="XXXOpenInRx();"/>
-            <!--</hbox>-->
+            <textbox id="pattern"
+                     flex="1"
+                     style="min-width: 30em;"
+                     type="autocomplete"
+                     maxrows="10"
+                     autocompletesearch="mru"
+                     autocompletesearchparam="find-patternMru"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     enablehistory="true"
+                     completeselectedindex="true"
+                     ontextentered="this.focus(); update('pattern');"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
+                     onkeyup="update('pattern');"/>
+            <!-- TODO: prettier shortcuts button -->
+            <button type="menu" id="pattern-shortcuts"
+                    tooltiptext="Regular Expression Shortcuts"
+                    class="rightarrow-button">
+              <menupopup popupanchor="topright">
+                <menuitem label="Escape Regex Special Characters"
+                          oncommand="XXXRegexEscape();"/>
+              </menupopup>
+            </button>
           </row>
 
           <row id="repl-row" align="center" style="height: 5ex;">
@@ -154,16 +148,18 @@
             <box/>
             <hbox>
               <checkbox id="opt-regex" label="Regex" accesskey="x"
-                        tooltiptext="Treat the pattern as a regular expression"/>
+                        tooltiptext="Treat the pattern as a regular expression"
+                        oncommand="update('regex')"/>
               <checkbox id="opt-case" label="Ignore case"
-                        accesskey="c"/>
-              <checkbox id="opt-word" label="Word"
-                        accesskey="W" tooltiptext="Match whole words"/>
+                        accesskey="c" oncommand="update('case')"/>
+              <checkbox id="opt-word" label="Word" accesskey="W"
+                        tooltiptext="Match whole words"
+                        oncommand="update('word')"/>
               <!-- TODO: multiline, later
               <checkbox id="opt-multiline" label="Multiline"
-                        accesskey="M" oncommand="XXX"/> -->
+                        accesskey="M" oncommand="update('multiline')"/> -->
               <checkbox id="opt-repl" label="Replace"
-                        accesskey="p" oncommand="update_replace_ui()"/>
+                        accesskey="p" oncommand="update('replace')"/>
             </hbox>
           </row>
           
@@ -173,17 +169,16 @@
               <label id="pattern-info" value="lorem ipsum"/>
               <hbox id="pattern-error-box"
                     style="background-color: #BF5D56; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;"
-                    XXXcollapsed="true">
+                    collapsed="true">
                 <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
                 <label id="error" value="no error text"/>
               </hbox>
             </deck>
           </row>
 
-
           <row align="center" style="margin-top: 10px;">
               <label value="Search in:" accesskey="i" control="search-in-menu"/>
-              <menulist id="search-in-menu" oncommand="update_search_in_ui()">
+              <menulist id="search-in-menu" oncommand="update('search-in')">
                   <menupopup>
                       <menuitem value="document" label="Current document"/>
                       <menuitem value="selection" label="Selected text" disabled="true"/>
@@ -196,9 +191,9 @@
           </row>
 
           <row id="dirs-row" align="center">
-            <label value="Directories:" control="find-folders"
+            <label value="Directories:" control="dirs"
                    accesskey="D"/>
-            <textbox id="find-folders"
+            <textbox id="dirs"
                      flex="1"
                      tooltiptext="ENTER_DIRECTORIES_ENTITY"
                      type="autocomplete"
@@ -209,8 +204,8 @@
                      enablehistory="true"
                      tabscrolling="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); UpdateOption('folders');"
-                     onkeyup="XXXUpdateOption('folders');"
+                     ontextentered="this.focus(); update('dirs');"
+                     onkeyup="update('dirs');"
                      onfocus="XXXFolderOnFocus(this, event);"/>
             <!--<button label="..." accesskey="."-->
             <!--        style="min-width: 0px; margin: 0px 6px 0px 0px;"-->
@@ -219,16 +214,16 @@
           </row>
           <row id="subdirs-row">
             <box/>
-            <checkbox id="find-search-in-subdir"
+            <checkbox id="search-in-subdirs"
                       label="Search in sub-directories"
                       accesskey="b"
-                      oncommand="XXXUpdateOption('searchInSubfolders');"/>
+                      oncommand="update('search-in-subdirs');"/>
           </row>
 
-          <row id="include-row" align="center">
-            <label value="Include:" control="find-include-filetypes"
+          <row id="includes-row" align="center">
+            <label value="Include:" control="ncludes"
                    accesskey="u" style="width: 5.6em;"/>
-            <textbox id="find-include-filetypes"
+            <textbox id="includes"
                      flex="1"
                      tooltiptext="ENTER_FILETYPES_TO_INCLUDE_ENTITY"
                      type="autocomplete"
@@ -238,15 +233,15 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); UpdateOption('includeFiletypes');"
-                     onfocus="this.setSelectionRange(0,this.value.length);"
-                     onkeyup="UpdateOption('includeFiletypes');"/>
+                     ontextentered="this.focus(); update('includes');"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
+                     onkeyup="update('includes');"/>
           </row>
 
-          <row id="exclude-row" align="center">
-            <label value="Exclude:" control="find-exclude-filetypes"
+          <row id="excludes-row" align="center">
+            <label value="Exclude:" control="excludes"
                    style="width: 5.6em;"/>
-            <textbox id="find-exclude-filetypes"
+            <textbox id="excludes"
                      flex="1"
                      tooltiptext="ENTER_FILETYPES_TO_EXCLUDE_ENTITY"
                      type="autocomplete"
@@ -256,9 +251,9 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); UpdateOption('excludeFiletypes');"
-                     onfocus="this.setSelectionRange(0,this.value.length);"
-                     onkeyup="UpdateOption('excludeFiletypes');"/>
+                     ontextentered="this.focus(); update('excludes');"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
+                     onkeyup="update('excludes');"/>
           </row>
         </rows>
       </grid>
