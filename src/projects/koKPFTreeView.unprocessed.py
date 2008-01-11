@@ -264,6 +264,10 @@ class KPFTreeView(TreeView):
         self._dataLock = threading.RLock()
         self.atomService = components.classes["@mozilla.org/atom-service;1"].\
                                 getService(components.interfaces.nsIAtomService)
+        # Get a handle on the Komodo asnychronous operations service. Used for
+        # checking and displaying a in-progress image on the tree view.
+        self._asyncOpSvc = components.classes['@activestate.com/koAsyncService;1'].\
+                getService(components.interfaces.koIAsyncService)
         
         wrapSelf = WrapObject(self, components.interfaces.koIKPFTreeView)
         self._wrapSelf = getProxyForObject(1, components.interfaces.koIKPFTreeView,
@@ -822,7 +826,9 @@ class KPFTreeView(TreeView):
             f = UnwrapObject(self._rows[row]['file'])
             # missing, sccOk, sccSync, sccConflict, add, delete, edit,
             # isReadOnly, branch, integrate
-            if hasattr(f, 'exists') and not f.exists:
+            if self._asyncOpSvc.uriHasPendingOperation(f.URI):
+                prop.append("asyncOperation")
+            elif hasattr(f, 'exists') and not f.exists:
                 prop.append("missing")
             else:
                 if hasattr(f, 'get_scc'):

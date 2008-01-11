@@ -133,6 +133,10 @@ partviewer {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
 }
 
+.projectTree:-moz-tree-image(project, asyncOperation) {
+  list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
+}
+
 .projectTree:-moz-tree-image(project, sccOk) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_ok.png');
 }
@@ -213,6 +217,10 @@ partviewer {
 
 .projectTree:-moz-tree-image(file, missing) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+}
+
+.projectTree:-moz-tree-image(file, asyncOperation) {
+  list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
 }
 
 .projectTree:-moz-tree-image(file, sccOk) {
