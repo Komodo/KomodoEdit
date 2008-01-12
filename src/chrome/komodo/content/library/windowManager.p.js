@@ -81,7 +81,7 @@ ko.windowManager = {
             newArgs[i] = arguments[i];
           }
         }
-        return window.openDialog.apply(window, this.fixupOpenDialogArgs(newArgs));
+        return window.openDialog.apply(window, ko.windowManager.fixupOpenDialogArgs(newArgs));
     },
     /**
      * return a reference to the main Komodo window
