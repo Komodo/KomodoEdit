@@ -133,8 +133,8 @@ def _relpath(path, relTo=None):
         pathDrive = os.path.splitdrive(os.getcwd())[0]
     relToDrive, relToRemainder = os.path.splitdrive(relTo)
     if pathDrive != relToDrive:
-        raise ASIError("Cannot make '%s' relative to '%s'. They are on "\
-                       "different drives." % (path, relTo))
+        raise OSError("Cannot make '%s' relative to '%s'. They are on "\
+                      "different drives." % (path, relTo))
 
     pathParts = _splitall(pathRemainder)[1:] # drop the leading root dir
     relToParts = _splitall(relToRemainder)[1:] # drop the leading root dir
