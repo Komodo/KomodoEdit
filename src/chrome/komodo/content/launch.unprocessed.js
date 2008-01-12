@@ -276,10 +276,18 @@ this.find2 = function(pattern) {
         "mode": "find"
     }
 
-    return ko.windowManager.openOrFocusDialog(
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // because that ends up causing problems when re-opening the find
+    // dialog (i.e. Ctrl+F when the Find dialog is already up).
+    // openOrFocusDialog() results in the onfocus event but not onload
+    // to the find dialog. That *could* be worked around with an onfocus
+    // handler on find2.xul, but then you run into problems attempting
+    // to focus the pattern textbox. (Or at least I did when experimenting
+    // on Windows.)
+    return window.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
 this.replace2 = function(pattern, repl) {
@@ -296,10 +304,12 @@ this.replace2 = function(pattern, repl) {
         "mode": "replace"
     }
 
-    return ko.windowManager.openOrFocusDialog(
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // (See above for why.)
+    return window.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
 this.findInFiles2 = function(pattern, dirs, includes, excludes) {
@@ -329,10 +339,12 @@ this.findInFiles2 = function(pattern, dirs, includes, excludes) {
         "mode": "findinfiles"
     }
 
-    return ko.windowManager.openOrFocusDialog(
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // (See above for why.)
+    return window.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
 this.replaceInFiles2 = function(pattern, repl, dirs, includes, excludes) {
@@ -363,10 +375,12 @@ this.replaceInFiles2 = function(pattern, repl, dirs, includes, excludes) {
         "mode": "replaceinfiles"
     }
 
-    return ko.windowManager.openOrFocusDialog(
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // (See above for why.)
+    return window.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
 

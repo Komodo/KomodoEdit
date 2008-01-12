@@ -66,7 +66,6 @@
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
-        onfocus="on_focus(event);"
         orient="vertical">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -114,16 +113,14 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); update('pattern');"
-                     onfocus="this.setSelectionRange(0, this.value.length);"
-                     onkeyup="update('pattern');"/>
+                     oninput="update('pattern');"/>
             <!-- TODO: prettier shortcuts button -->
             <button type="menu" id="pattern-shortcuts"
                     tooltiptext="Regular Expression Shortcuts"
                     class="rightarrow-button">
               <menupopup popupanchor="topright">
                 <menuitem label="Escape Regex Special Characters"
-                          oncommand="XXXRegexEscape();"/>
+                          oncommand="regex_escape();"/>
               </menupopup>
             </button>
           </row>
@@ -139,9 +136,7 @@
                      autocompletesearchparam="find-replacementMru"
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
-                     completeselectedindex="true"
-                     ontextentered="this.focus();"
-                     onfocus="this.setSelectionRange(0, this.value.length);"/>
+                     completeselectedindex="true"/>
           </row>
           
           <row>
@@ -204,9 +199,8 @@
                      enablehistory="true"
                      tabscrolling="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); update('dirs');"
-                     onkeyup="update('dirs');"
-                     onfocus="XXXFolderOnFocus(this, event);"/>
+                     TODOonfocus="XXFolderOnFocus(this, event);"
+                     oninput="update('dirs');"/>
             <!--<button label="..." accesskey="."-->
             <!--        style="min-width: 0px; margin: 0px 6px 0px 0px;"-->
             <!--        tooltiptext="Edit list of directories to search"-->
@@ -233,9 +227,7 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); update('includes');"
-                     onfocus="this.setSelectionRange(0, this.value.length);"
-                     onkeyup="update('includes');"/>
+                     oninput="update('includes');"/>
           </row>
 
           <row id="excludes-row" align="center">
@@ -251,9 +243,7 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
-                     ontextentered="this.focus(); update('excludes');"
-                     onfocus="this.setSelectionRange(0, this.value.length);"
-                     onkeyup="update('excludes');"/>
+                     oninput="update('excludes');"/>
           </row>
         </rows>
       </grid>

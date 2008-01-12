@@ -65,7 +65,10 @@ function on_load() {
         gFindSvc = Components.classes["@activestate.com/koFindService;1"].
                    getService(Components.interfaces.koIFindService);
         _init_widgets();
-        window.focus(); //TODO: necessary?
+
+        // Necessary for re-launching (i.e. Ctrl+F when the dialog is already open).
+        window.focus();
+
         _init_ui();
     } catch (ex) {
         log.exception(ex);
@@ -75,20 +78,6 @@ function on_load() {
 function on_unload() {
 }
 
-function on_focus(event) {
-    if (event.target != document) {
-        return;
-    }
-    // This onfocus event was for the window -- as oppposed to being for
-    // a subelement in the window.
-    if (typeof opener.ko.launch.find2_dialog_args != "undefined") {
-        // This window was re-launched.
-        // Note: We will still be using the same "opener" so effectively
-        //       we are presuming we were launched from the main Komodo
-        //       window.
-        _init_ui()
-    }
-}
 
 /**
  * Update as appropriate for some change in the dialog.
@@ -194,6 +183,31 @@ function update(changed /* =null */) {
     }
 }
 
+function regex_escape()
+{
+    try {
+        var textbox = widgets.pattern;
+        var selection = textbox.value.slice(textbox.selectionStart,
+                                            textbox.selectionEnd);
+        var escaped;
+        if (selection) {
+            escaped = gFindSvc.regex_escape_string(selection);
+            var selStart = textbox.selectionStart;
+            textbox.value = textbox.value.slice(0, selStart)
+                + escaped + textbox.value.slice(textbox.selectionEnd);
+            textbox.focus();
+            textbox.setSelectionRange(selStart,
+                                      selStart + escaped.length);
+        } else {
+            escaped = gFindSvc.regex_escape_string(textbox.value);
+            textbox.value = escaped;
+            textbox.focus();
+        }
+    } catch (ex) {
+        log.exception(ex);
+    }
+}
+
 
 function toggle_error() {
     if (widgets.pattern_error_box.hasAttribute("collapsed")) {
@@ -210,6 +224,9 @@ function toggle_error() {
 // interesting elements in the dialog.
 function _init_widgets()
 {
+    if (widgets != null) {
+        return; // was already called
+    }
     widgets = new Object();
 
     widgets.pattern = document.getElementById('pattern');
@@ -314,10 +331,10 @@ function _init_ui() {
     widgets.pattern.value = "";
     if (input_buf) {
         widgets.pattern.value = input_buf;
-        window.setTimeout('_set_pattern_sel_focus();', 0);
+        _set_pattern_focus(false);
     } else {
         widgets.pattern.value = default_pattern;
-        widgets.pattern.focus();
+        _set_pattern_focus(true);
     }
 
     // Set other dialog data (from the given args and from the
@@ -359,23 +376,23 @@ function _init_ui() {
     }
     update();
 
-    //TODO
-    //// The act of opening the find dialog should reset the find session.
-    //// This is the behaviour of least surprise.
-    //gFindSession.Reset();
+    // The act of opening the find dialog should reset the find session.
+    // This is the behaviour of least surprise.
+    gFindSession.Reset();
 }
 
-function _set_pattern_sel_focus()
+function _set_pattern_focus(select_all)
 {
     widgets.pattern.focus();
-    window.setTimeout('_set_pattern_sel_range();', 0);
+    if (select_all) {
+        widgets.pattern.setSelectionRange(0,
+                                          widgets.pattern.textLength);
+    } else {
+        widgets.pattern.setSelectionRange(widgets.pattern.textLength,
+                                          widgets.pattern.textLength);
+    }
 }
 
-function _set_pattern_sel_range()
-{
-    widgets.pattern.setSelectionRange(widgets.pattern.textLength,
-                                      widgets.pattern.textLength);
-}
 
 /**
  * Update the UI as appropriate for the current mode.
