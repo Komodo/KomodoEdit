@@ -673,13 +673,19 @@ function _MarkLinesForViewId(editor, viewId, lines)
 }
 
 
-function _UiForCompletedFindSession(editor, context)
+/** Report the completion of a find session to the user.
+ *
+ * @param context {DOMWindow} is the koIFindContext for the find session.
+ * @param msgHandler {callback} is a callback for displaying a
+ *      message to the user. See Find_FindNext documentation for details.
+ */
+function _UiForCompletedFindSession(context, msgHandler)
 {
     var numFinds = gFindSession.GetNumFinds();
     var numReplacements = gFindSession.GetNumReplacements();
 
-    // Pop up an alert box with an appropriate message.
-    var msg = "Komodo has finished searching " + context.name + ".";
+    // Put together an appropriate message.
+    var msg = "";
     if (numFinds == 0) {
         msg += " The search item was not found.";
     } else if (numReplacements > 0) {
@@ -688,16 +694,19 @@ function _UiForCompletedFindSession(editor, context)
     } else {
         msg += " " + numFinds + " occurrence(s) were found.";
     }
-    alert(msg);
+
+    msgHandler("info", msg);
 }
 
 
-// Report and error in the find service to the user.
-//
-//  "op" indicates if the current operation was during finding or replacement.
-//      It must be one of "find" or "replace".
-//
-function _UiForFindServiceError(op /* = "find" */)
+/** Report an error in the find service to the user.
+ *
+ * @param op {string} indicates if the current operation was during
+ *      finding or replacement. It must be one of "find" or "replace".
+ * @param msgHandler {callback} is a callback for displaying a
+ *      message to the user. See Find_FindNext documentation for details.
+ */
+function _UiForFindServiceError(op, msgHandler)
 {
     if (typeof op == 'undefined' || op == null) op = "find";
 
@@ -718,13 +727,27 @@ function _UiForFindServiceError(op /* = "find" */)
                         .getService(Components.interfaces.koILastErrorService);
     msg += lastErrorSvc.getLastErrorMessage();
     msg += ".";
-    alert(msg);
+
+    msgHandler("error", msg);
 }
 
 var _Find_charsToEscape_re = /([\\\'])/g;
 function _Find_RegexEscapeString(original) {
     return original.replace(_Find_charsToEscape_re, '\\$1');
 }
+
+
+/**
+ * Return a callback appropriate for the 'msgHandler' callbacks that
+ * will put a message on the status bar.
+ */
+function _Find_GetStatusbarMsgHandler(editor)
+{
+    return function (level, msg) {
+        editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
+    }
+}
+
 
 
 //---- public functions
@@ -936,12 +959,23 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
 //      search typically sets this to true. Default is false.
 //  "useMRU" (optional) is a boolean indicating if the pattern should be
 //      loaded into the find MRU. Default is true.
+//  "msgHandler" (optional) is a callback that is called for displaying
+//      a message during the find. It will be called like this:
+//          callback(level, message)
+//      where `level` is one of "info", "warn" or "error" and `message`
+//      is the message to display. The msgHandler is ignore if `quiet`
+//      is true. By default messages are sent to the statusbar.
 function Find_FindNext(editor, context, pattern, mode /* ="find" */,
-                       quiet /* =false */, useMRU /* =true */)
+                       quiet /* =false */, useMRU /* =true */,
+                       msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(mode) == 'undefined' || mode == null) mode = "find";
     if (typeof(quiet) == 'undefined' || quiet == null) quiet = false;
     if (typeof(useMRU) == 'undefined' || useMRU == null) useMRU = true;
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
     findLog.info("Find_FindNext(editor, context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
 
@@ -977,7 +1011,7 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
         findResult = _SetupAndFindNext(editor, context, pattern, mode);
     } catch(e) {
         if (!quiet)
-            _UiForFindServiceError();
+            _UiForFindServiceError("find", msgHandler);
         return null;
     }
     if (useMRU)
@@ -987,7 +1021,7 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
         _DisplayFindResult(editor, findResult);
     } else {
         if (!quiet)
-            _UiForCompletedFindSession(editor, context);
+            _UiForCompletedFindSession(context, msgHandler);
         //log.debug("Reset find session, because 'FindNext' did not find "
         //         + "anything.");
         gFindSession.Reset();
@@ -996,8 +1030,13 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
 }
 
 
-function Find_FindAll(editor, context, pattern, patternAlias)
+function Find_FindAll(editor, context, pattern, patternAlias,
+                      msgHandler /* =<statusbar notifier> */)
 {
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
     findLog.info("Find_FindAll(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
     if (findSvc == null) {
@@ -1063,7 +1102,7 @@ function Find_FindAll(editor, context, pattern, patternAlias)
         resultsMgr.searchFinished(true, resultsMgr.view.rowCount, null,
                                   numFilesSearched);
     } catch(ex) {
-        _UiForFindServiceError();
+        _UiForFindServiceError("find", msgHandler);
         return null;
     }
 
@@ -1077,7 +1116,7 @@ function Find_FindAll(editor, context, pattern, patternAlias)
         } else {
             msg = "'"+pattern+"' was not found in "+context.name+".";
         }
-        alert(msg);
+        msgHandler("warn", msg);
     }
     gFindSession.Reset();
 
@@ -1085,8 +1124,13 @@ function Find_FindAll(editor, context, pattern, patternAlias)
 }
 
 
-function Find_MarkAll(editor, context, pattern, patternAlias)
+function Find_MarkAll(editor, context, pattern, patternAlias,
+                      msgHandler /* =<statusbar notifier> */)
 {
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+    
     // Returns true iff any matches were found and displayed.
     if (findSvc == null) {
         findSvc = Components.classes["@activestate.com/koFindService;1"]
@@ -1143,7 +1187,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias)
         } else {
             msg = "'"+pattern+"' was not found in "+context.name+".";
         }
-        alert(msg);
+        msgHandler("warn", msg);
     }
     gFindSession.Reset();
 
@@ -1151,8 +1195,13 @@ function Find_MarkAll(editor, context, pattern, patternAlias)
 }
 
 
-function Find_Replace(editor, context, pattern, replacement)
+function Find_Replace(editor, context, pattern, replacement,
+                      msgHandler /* =<statusbar notifier> */)
 {
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
     // Replace the currently selected find result (if there is one) and find
     // the next occurrence of the current pattern. Returns true iff a next
     // occurence of the pattern was found and hilighted.
@@ -1188,7 +1237,7 @@ function Find_Replace(editor, context, pattern, replacement)
             findLog.info("Find_Replace: replace last find result");
             _ReplaceLastFindResult(editor, context, pattern, replacement);
         } catch(e) {
-            _UiForFindServiceError("replace");
+            _UiForFindServiceError("replace", msgHandler);
             return null;
         }
 
@@ -1203,14 +1252,14 @@ function Find_Replace(editor, context, pattern, replacement)
                              findResult.value+"'");
             }
         } catch(e) {
-            _UiForFindServiceError();
+            _UiForFindServiceError("replace", msgHandler);
             return null;
         }
         ko.mru.add("find-patternMru", pattern, true);
 
         // Do the appropriate UI work for results.
         if (findResult == null) {
-            _UiForCompletedFindSession(editor, context);
+            _UiForCompletedFindSession(context);
             //findLog.debug("Reset find session, because 'Replace' action "
             //              + "returned no result.");
             gFindSession.Reset();
@@ -1223,9 +1272,14 @@ function Find_Replace(editor, context, pattern, replacement)
 
 
 function Find_ReplaceAll(editor, context, pattern, replacement,
-                         showReplaceResults /* =false */)
+                         showReplaceResults /* =false */,
+                         msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
     findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern+
                  "', replacement='"+replacement+"', showReplaceResults="+
                  showReplaceResults+")\n");
@@ -1326,7 +1380,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     if (numReplacements == 0) {
         msg = "'"+pattern+"' was not found in "+context.name+
                   ". No changes were made.";
-        alert(msg);
+        msgHandler("info", msg);
     } else {
         msg = "Made "+numReplacements+" replacements in "+
                   context.name+".";
@@ -1338,8 +1392,20 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
 }
 
 
-function Find_FindAllInFiles(editor, context, pattern, patternAlias)
+/**
+ * Find all hits in files.
+ *
+ * ...
+ * @param msgHandler {callback} is an optional callback for displaying a
+ *      message to the user. See Find_FindNext documentation for details.
+ */
+function Find_FindAllInFiles(editor, context, pattern, patternAlias,
+                             msgHandler /* =<statusbar notifier> */)
 {
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
     findLog.info("Find_FindAllInFiles(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
     if (findSvc == null) {
@@ -1362,7 +1428,7 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias)
         findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr,
                            resultsMgr.view);
     } catch(e) {
-        _UiForFindServiceError();
+        _UiForFindServiceError("find", msgHandler);
         resultsMgr.clear();
         gWidgets.panel.pattern.focus();
         return false;
