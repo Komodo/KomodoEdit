@@ -50,7 +50,8 @@ Requirements:
   * svn command line client on the users path
 
 Tested with dojo versions:
-  * 0.3.1           (default)
+  * 0.4.3           (default)
+  * 0.4.0
 
 Dev notes:
     Uses a customized version of simplejson, which uses an ordered dictionary,
@@ -68,6 +69,18 @@ from optparse import OptionParser
 
 from codeintel2.gencix_utils import *
 import simplejson
+
+library_alternatives = {
+    "0.4.3": {
+        "checkout_url": "http://svn.dojotoolkit.org/dojo/tags/release-0.4.3/docscripts/output/local/json",
+    },
+    "0.4.0": {
+        "checkout_url": "http://svn.dojotoolkit.org/dojo/tags/release-0.4.0/docscripts/local_json",
+    },
+}
+library_name = "Dojo"
+library_version = "0.4.3"
+library_info = library_alternatives[library_version]
 
 
 def print_keys_values(d, depth=0):
@@ -296,15 +309,19 @@ def updateCix(filename, content, updatePerforce=False):
 # Main function
 def main(cix_filename, updatePerforce=False):
     # 
-    cixroot = createCixRoot(name="Dojo", description="Open Source Javascript web development toolkit")
+    cixroot = createCixRoot(name="%s_v%s" % (library_name,
+                                             library_version.replace(".", "")),
+                            description="%s JavaScript library - version %s" % (
+                                             library_name, library_version))
     cixfile = createCixFile(cixroot, "dojo.js", lang="JavaScript")
-    dojoblob = createCixModule(cixfile, "dojo", lang="JavaScript")
+    dojoblob = createCixModule(cixfile, "dojo_v%s" % (library_version),
+                               lang="JavaScript")
     dojomodule = createCixVariable(dojoblob, "dojo", vartype="Object")
 
     # svn checkout of dojo trunk
     co_dir = os.path.abspath("dojo_svn")
     remove_directory(co_dir)
-    p = os.popen("svn co http://svn.dojotoolkit.org/dojo/tags/release-0.4.0/docscripts/local_json dojo_svn")
+    p = os.popen("svn co %s dojo_svn" % (library_info["checkout_url"]))
     # Read, to ensure we don't get a broken pipe before everything is done
     svn_output = p.read()
 
