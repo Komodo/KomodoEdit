@@ -238,6 +238,7 @@ class KoTACFilePathSearch(KoTACSearch):
     _reg_desc_ = "local file path textbox autocomplete search"
 
     dirsOnly = False
+    normPaths = True   # normalize paths
 
     def startSearch(self, pattern, cwd, previousResult, listener):
         """Synchronously complete the given path pattern. If the path is
@@ -264,6 +265,8 @@ class KoTACFilePathSearch(KoTACSearch):
             #    Ideally this should be asynchronous with the result being
             #    dropped if get stopSearch() before finished.
             for path in _genPathCompletions(pattern, cwd, self.dirsOnly):
+                if self.normPaths:
+                    path = os.path.normpath(path)
                 result.addMatch(path, None, None, False)
 
         listener.onSearchResult(self, result)
@@ -336,6 +339,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
     _reg_desc_ = "Komodo MRU+filepath textbox autocomplete search"
 
     dirsOnly = False
+    normPaths = True   # normalize paths
 
     def __init__(self):
         KoTACSearch.__init__(self)
@@ -358,7 +362,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
         syntax is like specifying CSS style attributes (the key/value
         pairs can be in any order):
 
-            cwd: ...; mru: ...; maxmru: ...
+            cwd: ...; mru: ...; maxmru: ...; multipaths: ...
 
         Where:
             'cwd' is the current working directory. If not given then
@@ -368,6 +372,9 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
             'maxmru' is a maximum number of MRU results to return.
                 Something like '5' is typical. If not specified then all
                 MRU results are returned.
+            'multipaths' is a boolean (should be "true" or "false")
+                indicating if the textbox can contain multiple
+                ('os.pathsep'-separated) paths. By default this is false.
         """
         DEBUG = False
         log.debug("startSearch(searchString=%r, searchParam=%r, "
@@ -387,6 +394,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
                 log.warn("invalid searchParam 'maxmru' value, skipping: %r",
                          mruLimit)
                 mruLimit = None
+        multiPaths = self._boolFromStr(params.get("multipaths"))
         if not cwd and not prefName:
             log.warn("potentially bogus autocompletesearchparam for "
                      "mru_and_filepath search: %r" % searchParam)
@@ -418,6 +426,11 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
                             print "startSearch: skip mru item: %r" % item
 
         # Now filepath hits.
+        if multiPaths:
+            # If this is textbox can hold multiple 'os.pathsep'-separated
+            # paths, then just complete on the last one.
+            paths = searchString.rsplit(os.pathsep, 1)
+            leadingPaths, searchString = paths[:-1], paths[-1]
         if DEBUG:
             print "startSearch: complete '%s' path in '%s'" % (searchString, cwd)
         num = 0
@@ -425,13 +438,25 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
             if DEBUG:
                 print "startSearch: path hit: '%s'" % path
             isDefault = num == 0
-            result.addMatch(path, None, None, isDefault)
+            if self.normPaths:
+                path = os.path.normpath(path)
+            if multiPaths and leadingPaths:
+                result.addMatch(os.pathsep.join(leadingPaths + [path]),
+                                path, None, isDefault)
+            else:
+                result.addMatch(path, None, None, isDefault)
             num += 1
 
         listener.onSearchResult(self, result)
 
     def stopSearch(self):
         pass
+
+    def _boolFromStr(self, s):
+        if s.strip() == "true":
+            return True
+        else:
+            return False
 
 
 class KoTACMruAndDirPathSearch(KoTACMruAndFilePathSearch):
