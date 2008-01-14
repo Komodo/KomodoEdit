@@ -37,6 +37,7 @@
 /* Komodo's Find and Replace dialog (rev 2).
  *
  * TODOs:
+ * - search in subdirs should be on by default
  * - whither "Display results in Find Results 2 tab" checkbox?
  * - whither "Show 'Replace All' Results" checkbox?
  */
@@ -95,7 +96,12 @@ function update(changed /* =null */) {
         var repl = widgets.opt_repl.checked;
         _collapse_widget(widgets.repl_lbl, !repl);
         _collapse_widget(widgets.repl, !repl);
-        (repl ? widgets.repl : widgets.pattern).focus();
+        // Don't muck with the focus for dialog init (changed=null)
+        // because we want the pattern widget to get the focus, even
+        // in replace mode.
+        if (changed == "replace") {
+            (repl ? widgets.repl : widgets.pattern).focus();
+        }
         mode_changed = true;
     }
 
@@ -214,6 +220,27 @@ function toggle_error() {
         widgets.pattern_error_box.removeAttribute("collapsed");
     } else {
         widgets.pattern_error_box.setAttribute("collapsed", "true");
+    }
+}
+
+/**
+ * Handle the onfocus event on the 'dirs' textbox.
+ */
+function dirs_on_focus(widget, event)
+{
+    try {
+        widget.setSelectionRange(0, widget.textLength);
+        // For textbox-autocomplete (TAC) of directories on this widget we
+        // need a cwd with which to interpret relative paths. The chosen
+        // cwd is that of the current file in the main editor window.
+        if (event.target.nodeName == 'html:input') { 
+            var textbox = widget.parentNode.parentNode.parentNode;
+            var cwd = ko.windowManager.getMainWindow().ko.window.getCwd();
+            textbox.searchParam = ko.stringutils.updateSubAttr(
+                textbox.searchParam, 'cwd', cwd);            
+        }
+    } catch(ex) {
+        log.exception(ex);
     }
 }
 
@@ -374,7 +401,7 @@ function _init_ui() {
         widgets.search_in_menu.value = "files";
         break;
     }
-    update();
+    update(null);
 
     // The act of opening the find dialog should reset the find session.
     // This is the behaviour of least surprise.

@@ -113,6 +113,7 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
                      oninput="update('pattern');"/>
             <!-- TODO: prettier shortcuts button -->
             <button type="menu" id="pattern-shortcuts"
@@ -136,6 +137,7 @@
                      autocompletesearchparam="find-replacementMru"
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
                      completeselectedindex="true"/>
           </row>
           
@@ -194,12 +196,12 @@
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru_and_dirpath"
-                     autocompletesearchparam="mru: find-foldersMru; maxmru: 5"
+                     autocompletesearchparam="mru: find-foldersMru; maxmru: 5; multipaths: true"
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      tabscrolling="true"
                      completeselectedindex="true"
-                     TODOonfocus="XXFolderOnFocus(this, event);"
+                     onfocus="dirs_on_focus(this, event);"
                      oninput="update('dirs');"/>
             <!--<button label="..." accesskey="."-->
             <!--        style="min-width: 0px; margin: 0px 6px 0px 0px;"-->
@@ -227,6 +229,7 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
                      oninput="update('includes');"/>
           </row>
 
@@ -243,6 +246,7 @@
                      autocompletepopup="popupTextboxAutoComplete"
                      enablehistory="true"
                      completeselectedindex="true"
+                     onfocus="this.setSelectionRange(0, this.value.length);"
                      oninput="update('excludes');"/>
           </row>
         </rows>
