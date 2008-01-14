@@ -39,24 +39,18 @@
 #  - Todd Whiteman
 #
 
-""" Dojo documentation to Komodo CIX parser.
+"""Dojo documentation to Komodo CIX parser.
 
-Command line tool that parses up dojo's own JSON documentation to
-produce a Komodo CIX file. Works by grabbing latest copy of dojo from subversion
-and then parsing the JSON files to produce "dojo.cix".
-
-Requirements:
-  * cElementTree    (http://effbot.org/downloads/#cElementTree)
-  * svn command line client on the users path
-
-Tested with dojo versions:
-  * 0.4.0           (trunk)
-
-Dev notes:
-    Uses a customized version of simplejson, which uses an ordered dictionary,
-    so it processes values in the same order they are read in. Necessary for
-    function arguments. This was done by: Adding odict.py to simplejson, and
-    then using OrderedDict in simplejson/decoder.py.
+    Command line tool that parses up dojo's own XML documentation to
+    produce a Komodo CIX file. Works by grabbing latest copy of dojo from
+    subversion and then parsing the "api.xml" file to produce "dojo.cix".
+    
+    Requirements:
+      * cElementTree    (http://effbot.org/downloads/#cElementTree)
+      * svn command line client on the users path
+    
+    Tested with dojo versions:
+      * 0.9.0           (trunk)
 """
 
 import os
@@ -67,22 +61,20 @@ from pprint import pprint
 from optparse import OptionParser
 
 from codeintel2.gencix_utils import *
-import simplejson
 
 
-def print_keys_values(d, depth=0):
-    for key, val in d.items():
-        print "%s%s: %r" % (" " * depth, key, val)
-        if isinstance(val, dict):
-            print_keys_values(val, depth+1)
+library_alternatives = {
+    "0.9.0": {
+        "checkout_url": "http://svn.dojotoolkit.org/dojo/tags/release-0.9.0/util/docscripts",
+        "xml_filename": "api.xml"
+    },
+}
 
-def print_keys(d, depth=0):
-    for key, val in d.items():
-        print "%s%s" % (" " * depth, key)
-        if isinstance(val, dict):
-            print_keys(val, depth+1)
+library_name = "Dojo"
+library_version = "0.9.0"
+library_info = library_alternatives[library_version]
 
-def verifyType(name, typename):
+def verifyType(name, typename, DEBUG=False):
     """Ensure the type is a known JS type or a dojo member"""
     typename = typename.lower()
     t = known_javascript_types.get(typename, None)
@@ -97,214 +89,114 @@ def verifyType(name, typename):
                 return t
         if typename.startswith("dojo."):
             return typename
-        elif typename:
+        elif typename and DEBUG:
             print "    %s: Unknown type: %r" % (name, typename)
     return t
 
-def parse_functions(cixclass, funcdict):
-    for funcname, d in funcdict.items():
-        #print "  Function: %s" % (funcname)
-        cixfunction = createCixFunction(cixclass, funcname)
-        #print_keys(d)
-        underscore = d.get("_", None)
-        if not underscore:
-            underscore = d
-        meta = underscore.get("meta", None)
-        if not meta:
+def findOrCreateCixNamespace(cixmodule, namespace_items):
+    scope = cixmodule
+    for name in namespace_items:
+        if name not in scope.names:
+            # Create it then
+            #print "Creating scope: %r, namespace: %r" % (name, namespace_items)
+            scope = createCixVariable(scope, name, "Object")
+        else:
+            scope = scope.names[name]
+    return scope
+
+def sortElement(elem1, elem2):
+    name1_split = elem1.get("name").split(".")
+    name2_split = elem2.get("name").split(".")
+    # Use the number of namespaces first.
+    if len(name1_split) != len(name2_split):
+        return len(name1_split) - len(name2_split)
+    # Now compare against the names.
+    return cmp(elem1.get("name"), elem2.get("name"))
+
+def processVars(cixmodule, varsElement):
+    for elem in sorted(varsElement.getchildren(), sortElement):
+        name = elem.get("name")
+        if not name:
+            print "No name for var element: %r" % (elem, )
             continue
-
-        # Meta should contain summary, description, parameters, variables, etc..
-        # We prefer summary over description.
-        doc = meta.get("summary", "")
-        if not doc:
-            # Could be under description then
-            doc = meta.get("description", "")
-        if doc:
-            setCixDoc(cixfunction, doc, parse=True)
-
-        # Get function parameters, also determines signature
-        paramdict = meta.get("parameters", {})
-        sigparams = []
-        sigoptionals = []
-        #print "function %s parameters: %r" % (funcname, paramdict)
-        isOptional = False
-        hasNLengthArgs = False # "xyz(a, ...)" style
-        for paramname, paramtype in paramdict.items():
-            paramtype = paramtype.get("type", None)
-            sigparamname = paramname
-            if paramtype:
-                # See if there are special n length args ", ..."
-                sp = paramtype.split(",")
-                if len(sp) > 1:
-                    paramtype = sp[0].strip()
-                    extra = sp[1].strip()
-                    if extra == "...":
-                        hasNLengthArgs = True
-                # See if it's an optional arg that specifies a default value
-                sp = paramtype.split("=")
-                if len(sp) > 1:
-                    paramtype = sp[0].strip()
-                    sigparamname += "=%s" % (sp[1])
-                # Take first paramtype given
-                sp = paramtype.split(" ")
-                if len(sp) > 1:
-                    #print "      Shortening paramtype from: %r to %r" % (paramtype, sp[0])
-                    paramtype = sp[0]
-                # Remove optional marker
-                if paramtype.endswith("?"):
-                    # It's optional
-                    #print "      paramtype is optional: %r" % (paramtype)
-                    paramtype = paramtype.rstrip("?")
-                    isOptional = True
-                if paramtype.endswith("[]"):
-                    # It's an array
-                    paramtype = "Array"
-                    sigparamname = "%s[]" % sigparamname
-
-            if isOptional:
-                sigoptionals.append(sigparamname)
-            else:
-                sigparams.append(sigparamname)
-            if hasNLengthArgs:
-                sigoptionals.append("...")
-            #print "    Adding function %r argument: %r, type: %r" % (cixfunction.get("name"), paramname, paramtype)
-            addCixArgument(cixfunction, paramname, verifyType(funcname, paramtype))
-        # The signature tries to have python style
-        sig = ", ".join(sigparams)
-        if sigoptionals:
-            if sig:
-                sigparams = [" [,%s" % (sigoptionals[0])]
-            else:
-                sigparams = ["[%s" % (sigoptionals[0])]
-            for optional in sigoptionals[1:]:
-                sigparams.append("[,%s" % (optional))
-            sig += " ".join(sigparams)
-            sig += "]" * len(sigoptionals)
-        signature = "%s(%s)" % (funcname, sig)
-        setCixSignature(cixfunction, signature)
-
-        # Return value
-        returntype = meta.get("returns", {})
-        if returntype:
-            # Remove some comments that dojo parsing has missed
-            #print "returntype: %r" % (returntype)
-            if isinstance(returntype, dict):
-                print "Returntype unexpectedly is a dictionary: %r" % (returntype)
-            else:
-                returntype = returntype.rstrip(" */")
-                addCixReturns(cixfunction, verifyType(funcname, returntype))
-
-        # Class members
-        member_variables = meta.get("protovariables", {})
-        #print "member_variables: %r" % (member_variables)
-        # List of tuples (variable name, variable type)
-        for varname, vartype in member_variables.items():
-            # These go into the class
-            createCixVariable(cixclass, varname, verifyType(varname, vartype))
-
-        # Class variables
-        variables = meta.get("variables", {})
-        #print "member_variables: %r" % (member_variables)
-        # List of tuples (variable name, variable type)
-        if isinstance(variables, dict):
-            for varname, vartype in variables.items():
-                # These go into the class
-                createCixVariable(cixclass, varname, verifyType(varname, vartype))
-        elif isinstance(variables, list):
-            for varname in variables:
-                # These go into the class
-                createCixVariable(cixclass, varname)
-
-        # Local function variables
-        function_variables = meta.get("this_variables", [])
-        if function_variables:
-            # Also denotes this as the constructor for the class
-            addCixAttribute(cixfunction, "__ctor__")
-        for varname in function_variables:
-            # Add variables defined in the function
-            if varname not in member_variables:
-                # These go into the function
-                createCixVariable(cixfunction, varname)
-
-        # Inheritance
-        inherits = meta.get("inherits", None)
-        if inherits:
-            # This is for the class
-            #print "  Inherits: %s" % (inherits)
-            #if not isinstance(inherits, list):
-            #    inherits = [inherits]
-            for basename in inherits:
-                if basename.startswith("[") and basename.endswith("]"):
-                    sp = basename[1:-1].split(", ")
-                    for basename in sp:
-                        addClassRef(cixclass, basename)
-                else:
-                    addClassRef(cixclass, basename)
-
-        # We ignore "object_inherits"
-
-        # Print anything we've missed
-        for key, val in meta.items():
-            if key not in ("this", "src", "summary", "description",
-                           "parameters", "returns", "prototype",
-                           "prototype_chain",
-                           "protovariables", "prototype_variables",
-                           "this_variables", "inherits", "this_inherits",
-                           "variables", "instance_variables",
-                           "object_inherits", "call_chain"):
-                print "     Not handled: %s: %r" % (key, val)
-
-        #print_keys_values(meta, depth=3)
-        #print_keys_values(meta.get("src", {}), depth=3)
-
-def parse_class(cixclass, meta, namespace):
-    # key is the dojo namespace (ex: "dojo.animation.Timer")
-    # val is dictionary containing the namespace properties
-    for key, val in meta.items():
-        if key == "requires":
-            pass
-        elif key == "functions":
-            parse_functions(cixclass, val)
-        else:
-            print "  Unhandled key: %s" % (key)
-            #print val
-
-def parse_classes(cixfile, dojomodule, d):
-    # key is the dojo namespace (ex: "dojo.animation.Timer")
-    # val is dictionary containing the namespace properties
-    for key, val in d.items():
-        if key.endswith("._"):
-            print "Ingoring: %s" % (key)
+        namespace = name.split(".")
+        name = namespace[-1]
+        if name[0].lower() not in string.ascii_lowercase and name[0] != "_":
+            print "Ignoring invalid element name: %r" % (namespace, )
             continue
-        namespace = key
-        namesplit = namespace.split(".")
-        classname = namesplit[-1]
-        namespace = ".".join(namesplit[:-1])
-        # Ensure dojo namespace goes into dojo blob
-        if not key or not namespace or \
-           (len(namesplit) == 2 and classname[0] in string.uppercase):
-            # Create this under dojo module
-            print "Placing component %s (%r) under dojo" % (classname, namesplit)
-            cixmodule = dojomodule
-        else:
-            if len(namesplit) == 2:
-                cixmodule = createOrFindCixModule(cixfile, key, lang="JavaScript")
-            else:
-                cixmodule = createOrFindCixModule(cixfile, namespace, lang="JavaScript")
-        print "Class: %s in module: %s" % (classname, namespace)
-        meta = val.get("meta", None)
-        # meta contains package info (description, functions, requires, etc...)
-        if meta:
-            cixclass = createCixClass(cixmodule, classname)
-            parse_class(cixclass, meta, namespace)
-        else:
-            print "  no meta!"
+        elemType = elem.get("type")
+        citdl = None
+        summary = None
+        if elemType == "Function":
+            parentClass = None
+            chains = [x for x in elem.getchildren() if x.tag == "chains"]
+            for chain_group in chains:
+                for chain in chain_group.getchildren():
+                    if chain.get("type") == "prototype":
+                        parentClass = chain.get("parent")
+                        elemType = "Class"
+        summaryElem = elem.findall("./summary")
+        if summaryElem:
+            summaryElem = summaryElem[0]
+            summary = summaryElem.text
+        if elemType == None:
+            elemType = "Variable"
+        elif elemType not in ("Function", "Class", "Variable", "Object"):
+            citdl = known_javascript_types.get(elemType.lower())
+            if elemType.startswith("dojo."):
+                citdl = elemType
+            elif elemType.lower().startswith("true|"):
+                citdl = "Boolean"
+            if citdl is None:
+                print "Unknown type %r for %r, marking as variable" % (elemType,
+                                                           namespace)
+            elemType = "Variable"
 
-def parseJSONFile(cixfile, dojomodule, filename):
-    f = file(filename, "rb")
-    d = simplejson.load(f)
-    #pprint(d)
-    parse_classes(cixfile, dojomodule, d)
+        scope = findOrCreateCixNamespace(cixmodule, namespace[:-1])
+        if name in scope.names:
+            continue
+        if elemType == "Function":
+            cixItem = createCixFunction(scope, name)
+            returns = elem.get("returns")
+            if returns:
+                returns = verifyType(name, returns)
+                addCixReturns(cixItem, returns)
+        elif elemType == "Class":
+            cixItem = createCixClass(scope, name)
+        elif elemType == "Variable":
+            cixItem = createCixVariable(scope, name, citdl)
+        elif elemType == "Object":
+            cixItem = createCixVariable(scope, name, "Object")
+        else:
+            raise Exception("Unknown cix element type %r for %r" % (elemType,
+                                                                    namespace))
+        if summary:
+            setCixDoc(cixItem, summary, parse=True)
+        #print "%-10s %s" % (elemType, name)
+
+def generateCIXFromXML(root):
+    # Find all main doc namespaces
+    cix = createCixRoot(name="%s_v%s" % (library_name,
+                                         library_version.replace(".", "")),
+                        description="%s JavaScript library - version %s" % (
+                                         library_name, library_version))
+    cixfile = createCixFile(cix, "", lang="JavaScript")
+
+    # Add the module namespaces.
+    for element in root.getchildren():
+    #for group in root.findall('./method'):
+        if element.tag != "resource":
+            print "Ignoring xml element: %r" % (element, )
+            continue
+        module_name = element.get("project")
+        cixmodule = createOrFindCixModule(cixfile, module_name, lang="JavaScript")
+        for child in element.getchildren():
+            if child.tag == "requires":
+                # Ignore the require elements.
+                continue
+            assert(child.tag == "vars")
+            processVars(cixmodule, child)
+    return cix
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
@@ -318,23 +210,18 @@ def updateCix(filename, content, updatePerforce=False):
 # Main function
 def main(cix_filename, updatePerforce=False):
     # 
-    cixroot = createCixRoot()
-    cixfile = createCixFile(cixroot, "dojo.js", lang="JavaScript")
-    dojomodule = createCixModule(cixfile, "dojo", lang="JavaScript")
-
     # svn checkout of dojo trunk
     co_dir = os.path.abspath("dojo_svn")
     remove_directory(co_dir)
-    p = os.popen("svn co http://svn.dojotoolkit.org/dojo/trunk/docscripts/output/local/json dojo_svn")
+    p = os.popen("svn co %s dojo_svn" % (library_info["checkout_url"], ))
     # Read, to ensure we don't get a broken pipe before everything is done
     svn_output = p.read()
-
     try:
-        #for filename in [directory]:
-        for filename in glob.glob(os.path.join(co_dir, "dojo*")):
-            parseJSONFile(cixfile, dojomodule, filename)
-            #if filename.endswith("dojo.string"):
-            #    break
+        api_filename = os.path.join(co_dir, library_info["xml_filename"])
+        tree = ElementTree()
+        tree.parse(api_filename)
+        root = tree.getroot()
+        cixroot = generateCIXFromXML(root)
     finally:
         # Finally, remove the temporary svn directory
         remove_directory(co_dir)
@@ -351,5 +238,14 @@ if __name__ == '__main__':
 
     cix_filename = "dojo.cix"
     if opts.update_perforce:
-        cix_filename = "../../../../lib/codeintel2/catalog/%s" % (cix_filename)
+        scriptpath = os.path.dirname(sys.argv[0])
+        if not scriptpath:
+            scriptpath = "."
+        scriptpath = os.path.abspath(scriptpath)
+
+        cix_directory = scriptpath
+        # Get main codeintel directory
+        for i in range(4):
+            cix_directory = os.path.dirname(cix_directory)
+        cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
     main(cix_filename, opts.update_perforce)
