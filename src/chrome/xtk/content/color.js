@@ -90,4 +90,90 @@ this.blue = this.RGB(0x00, 0x00, 0xff);
 this.black = this.RGB(0x00, 0x00, 0x00);
 this.white = this.RGB(0xff, 0xff, 0xff);
 
+// Functions for converting a scale between 0 and 1
+// into a web RGB value.
+// Adapted from Bill Chadwick's http://www.bdcc.co.uk/Gmaps/Rainbow.js
+// That code is under no license, claims no copyright.
+
+this.scaler = function() {
+    this.gamma = 0.8;
+    this.brightness = 0.9;  // must be between 0.0 and 1.0 inclusive
+    // Chadwick uses 645.  Using 780 causes a range of 1
+    // to show up as black.
+    this.topScale = 680.0
+}
+
+this.scaler.prototype.Adjust = function(color, factor) {
+    // determine the color intensity
+    return Math.floor(255.0 * Math.pow(color * factor * this.brightness, this.gamma));
+}
+
+this.scaler.prototype.NanometerToRGB = function(nanoMetres) {
+    var Red = 0.0;
+    var Green = 0.0;
+    var Blue = 0.0;
+    var factor = 0.0;
+            
+    if (nanoMetres < 510) {
+        if (nanoMetres >= 490) {
+            // Cyan to green
+            Green = 1.0;
+            Blue  = (510.0 - nanoMetres) / (510.0 - 490.0);
+        } else {
+            Blue = 1.0;            
+            if (nanoMetres >= 440) {
+                // Blue to cyan
+                Green = (nanoMetres - 440.0) / (490.0 - 440.0);
+            } else {
+                // Ultra-violet to blue
+                Red  = (440.0 - nanoMetres) / (440.0 - 380.0);
+            }
+        }
+    } else if (nanoMetres < 580) {
+        // Green to yellow-orange
+        Green = 1.0;
+        Red  = (nanoMetres - 510.0) / (580.0 - 510.0);
+    } else {
+        // Yellow-orange to full red
+        Red = 1.0;
+        Green = (nanoMetres < 644 ?
+                 (645.0 - nanoMetres) / (645.0 - 580.0) : 0.0);
+    }
+    
+    // Condition RGB according to limits of vision
+    if (nanoMetres <= 700) {
+        factor = ((nanoMetres >= 420) ? 1.0 :
+                  (0.3 + (0.7 * (nanoMetres - 380.0)
+                           / (420.0 - 380.0))));
+    } else {
+	factor = ((nanoMetres <= 780.0) ?
+		  0.3 + 0.7 * (780.0 - nanoMetres) / (780.0 - 700.0) :
+		  0.0);
+    }
+
+    Red = this.Adjust(Red, factor);
+    Green = this.Adjust(Green, factor);
+    Blue = this.Adjust(Blue, factor);
+
+    var r = "#";
+    if(Red < 16)
+	    r += "0";
+    r += Red.toString(16);
+
+    if(Green < 16)
+	    r += "0";
+    r += Green.toString(16);
+
+    if(Blue < 16)
+	    r += "0";
+    r += Blue.toString(16);
+
+    return r;
+}
+
+//pass in a number between 0 and 1 to get a color between Violet and Red
+this.scaler.prototype.scaleToRGB = function(w) {
+    return this.NanometerToRGB(Math.round(380.0 + (w * (this.topScale - 380.0))));
+}
+
 }).apply(xtk.color);
