@@ -52,7 +52,7 @@ var koIFindOptions = Components.interfaces.koIFindOptions;
 
 var widgets = null; // object storing interesting XUL element references
 var gFindSvc = null;
-var _gFindContext; // the context in which to search
+var _g_find_context; // the context in which to search
 
 var _g_btns_enabled_for_pattern = true;    // cache for update("pattern")
 var _g_curr_default_btn = null;         // cache for _update_mode_ui()
@@ -79,6 +79,11 @@ function on_load() {
 function on_unload() {
 }
 
+function on_focus(event) {
+    if (event.target == document) {  // focus of the *Window*
+        reset_find_context();
+    }
+}
 
 /**
  * Update as appropriate for some change in the dialog.
@@ -94,8 +99,8 @@ function update(changed /* =null */) {
     // "Replace" checkbox state changed.
     if (changed == null || changed == "replace") {
         var repl = widgets.opt_repl.checked;
-        _collapse_widget(widgets.repl_lbl, !repl);
-        _collapse_widget(widgets.repl, !repl);
+        _collapse_widget(widgets.repl_row, !repl);
+
         // Don't muck with the focus for dialog init (changed=null)
         // because we want the pattern widget to get the focus, even
         // in replace mode.
@@ -130,6 +135,7 @@ function update(changed /* =null */) {
                 gFindSvc.options.preferredContextType = koIFindContext.FCT_ALL_OPEN_DOCS;
             }
         }
+        reset_find_context();
         mode_changed = true;
     }
     
@@ -215,13 +221,74 @@ function regex_escape()
 }
 
 
-function toggle_error() {
-    if (widgets.pattern_error_box.hasAttribute("collapsed")) {
-        widgets.pattern_error_box.removeAttribute("collapsed");
-    } else {
-        widgets.pattern_error_box.setAttribute("collapsed", "true");
+/**
+ * Functions to adding info/warn/error level message notifications to
+ * the dialog.
+ */
+function msg_clear() {
+    _msg_erase();
+    widgets.msg_deck.selectedIndex = 0;
+}
+function msg_callback(level, msg) {
+    switch (level) {
+    case "info":
+        msg_info(msg);
+        break;
+    case "warn":
+        msg_warn(msg);
+        break;
+    case "error":
+        msg_error(msg);
+        break;
+    default:
+        log.error("unexpected msg level: "+level);
     }
 }
+function _msg_erase() {
+    // Clear text nodes from the current panel <description>.
+    if (widgets.msg_deck.selectedIndex != 0) {
+        var elem = widgets.msg_deck.selectedPanel;
+        elem = document.getElementsByTagName("description")[0];
+        while (elem.firstChild) {
+            elem.removeChild(elem.firstChild);
+        }
+        // Intentionally put some "empty" content in here because
+        // window.sizeToContent() on "<description/>" is slightly shorter
+        // than on "<description>blank</description>" and we don't want
+        // the dialog size jitter.
+        elem.appendChild(document.createTextNode("blank"));
+    }
+}
+function _msg_write(deck_idx, desc, msg) {
+    _msg_erase();
+    desc.removeChild(desc.firstChild); // remove the "blank" text node
+    desc.appendChild(document.createTextNode(msg));
+    widgets.msg_deck.selectedIndex = deck_idx;
+    window.sizeToContent();
+}
+function msg_info(msg) {
+    try {
+        _msg_write(1, widgets.msg_info, msg);
+    } catch (ex) {
+        log.exception(ex);
+    }
+}
+function msg_warn(msg) {
+    try {
+        _msg_write(2, widgets.msg_warn, msg);
+    } catch (ex) {
+        log.exception(ex);
+    }
+}
+function msg_error(msg) {
+    try {
+        _msg_write(3, widgets.msg_error, msg);
+    } catch (ex) {
+        log.exception(ex);
+    }
+}
+
+
 
 /**
  * Handle the onfocus event on the 'dirs' textbox.
@@ -245,6 +312,72 @@ function dirs_on_focus(widget, event)
 }
 
 
+function find_next() {
+    msg_clear();
+    
+    var pattern = widgets.pattern.value;
+    if (! pattern) {
+        // Should we warn here?
+        return;
+    }
+
+    // This handles, for example, the context being "search in
+    // selection", but there is no selection.
+    if (! _g_find_context) {
+        // Make one attempt to get the context again: state in the
+        // main editor may have changed such that getting a context is
+        // possible.
+        reset_find_context();
+        if (! _g_find_context) {
+            return;
+        }
+    }
+
+    ko.mru.addFromACTextbox(widgets.pattern);
+    var mode = (widgets.opt_repl.checked ? "replace" : "find");
+    var foundOne = null;
+    try {
+        foundOne = Find_FindNext(opener, _g_find_context, pattern, mode,
+                                 false,         // quiet
+                                 true,          // useMRU
+                                 msg_callback); // msgHandler
+    } catch (ex) {
+        log.exception(ex, "Error in Find_FindNext");
+    }
+
+    if (!foundOne) {
+        // If no match was hilighted then it is likely that the user will
+        // now want to enter a different pattern. (Copying Word's
+        // behaviour here.)
+        widgets.pattern.focus();
+    }
+}
+
+/*
+function find_all() {
+    // Find all occurrences of the current pattern in the current context.
+    var pattern = widgets.panel.pattern.value;
+    if (pattern != "") {
+        ko.mru.addFromACTextbox(widgets.panel.pattern);
+//XXX These break with the following and I don't know why:
+//    Komodo: Debug: chrome://komodo/content/library/common.js(12): reference to undefined property window.setCursor
+//        parentWindow.setCursor("spinning");
+        var foundSome = null;
+        try {
+            foundSome = Find_FindAll(parentWindow, _gFindContext, pattern);
+        } catch (ex) {
+            log.exception(ex, "Error in Find_FindAll");
+        }
+//        parentWindow.setCursor("auto");
+        if (foundSome) {
+            window.close();
+        }
+    }
+}
+*/
+
+
+
 //---- internal support stuff
 
 // Load the global 'widgets' object, which contains references to
@@ -257,6 +390,7 @@ function _init_widgets()
     widgets = new Object();
 
     widgets.pattern = document.getElementById('pattern');
+    widgets.repl_row = document.getElementById('repl-row');
     widgets.repl_lbl = document.getElementById('repl-lbl');
     widgets.repl = document.getElementById('repl');
 
@@ -266,7 +400,10 @@ function _init_widgets()
     //widgets.opt_multiline = document.getElementById('opt-multiline');
     widgets.opt_repl = document.getElementById('opt-repl');
 
-    widgets.pattern_error_box = document.getElementById('pattern-error-box');
+    widgets.msg_deck = document.getElementById('msg-deck');
+    widgets.msg_info = document.getElementById('msg-info');
+    widgets.msg_warn = document.getElementById('msg-warn');
+    widgets.msg_error = document.getElementById('msg-error');
     
     widgets.search_in_menu = document.getElementById('search-in-menu');
 
@@ -421,6 +558,17 @@ function _set_pattern_focus(select_all)
 }
 
 
+function _get_curr_scimoz() {
+    var scimoz = null;
+    try {
+        scimoz = opener.ko.views.manager.currentView.scintilla.scimoz;
+    } catch(ex) {
+        /* pass: just don't have a current editor view */
+    }
+    return scimoz;
+}
+
+
 /**
  * Update the UI as appropriate for the current mode.
  */
@@ -503,6 +651,66 @@ function _update_mode_ui() {
                               elem.getAttribute("_accesskey"));
         }
     }
+}
+
+
+/**
+ * Determine an appropriate koIFindContext instance for
+ * searching/replacing, and set it to the `_g_find_context` global.
+ * 
+ * Can return null if an appropriate context could not be determined.
+ */
+function reset_find_context() {
+    var context = null;
+    msg_clear();
+
+    switch (widgets.search_in_menu.value) {
+    case "document":
+        context = Components.classes["@activestate.com/koFindContext;1"]
+            .createInstance(Components.interfaces.koIFindContext);
+        context.type = koIFindContext.FCT_CURRENT_DOC;
+        //TODO: warn and return null if no curr file in which can search
+        break;
+
+    case "selection":
+        var scimoz = _get_curr_scimoz();
+        if (!scimoz) {
+            msg_warn("No current file in which to search.");
+        } else if (scimoz.selectionStart == scimoz.selectionEnd) {
+            msg_warn("No current selection.");
+        } else {
+            context = Components.classes["@activestate.com/koRangeFindContext;1"]
+                .createInstance(Components.interfaces.koIRangeFindContext);
+            context.type = koIFindContext.FCT_SELECTION;
+            context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
+            context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
+        }
+        break;
+
+    case "project":
+        log.error("TODO");
+        break;
+
+    case "open-files":
+        context = Components.classes["@activestate.com/koFindContext;1"]
+            .createInstance(Components.interfaces.koIFindContext);
+        context.type = koIFindContext.FCT_ALL_OPEN_DOCS;
+        //TODO: warn if no open files?
+        break;
+
+    case "files":
+        log.error("TODO");
+        context = Components.classes["@activestate.com/koFindContext;1"]
+            .createInstance(Components.interfaces.koIFindContext);
+        context.type = koIFindContext.FCT_CURRENT_DOC;
+        break;
+
+    default:
+        log.error("unexpected search-in-menu value: "
+                  + widgets.search_in_menu.value);
+    }
+    
+    _g_find_context = context;
 }
 
 

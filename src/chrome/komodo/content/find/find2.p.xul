@@ -66,6 +66,7 @@
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
+        onfocus="on_focus(event);"
         orient="vertical">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -87,6 +88,14 @@
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
         <!-- TODO: Cmd+W to close dialog on macosx -->
         <!-- TODO: Ctrl+O to select "all open files" as context -->
+<!-- #if PLATFORM != "darwin" -->
+        <!--<key key="f" modifiers="control" oncommand="SwitchToPanel('find');" />-->
+        <!--<key key="h" modifiers="control" oncommand="SwitchToPanel('replace');" />-->
+<!-- #else -->
+        <!--<key key="F" modifiers="meta" oncommand="SwitchToPanel('find');" />-->
+        <!--<key key="=" modifiers="meta" oncommand="SwitchToPanel('replace');" />-->
+        <!--<key key="G" modifiers="meta" oncommand="doFindNext();" />-->
+<!-- #endif -->
     </keyset>
     <popupset>
         <popup type="autocomplete" id="popupTextboxAutoComplete"/>
@@ -162,13 +171,30 @@
           
           <row>
             <hbox/>
-            <deck id="pattern-info-deck" selectedIndex="1">
-              <label id="pattern-info" value="lorem ipsum"/>
-              <hbox id="pattern-error-box"
-                    style="background-color: #BF5D56; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;"
-                    collapsed="true">
-                <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
-                <label id="error" value="no error text"/>
+
+            <!-- TODO: consider notificationbox -->
+            <deck id="msg-deck" selectedIndex="0" style="XXXheight: 30px; max-width: 30em;">
+              <hbox />
+              <hbox id="msg-info-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb;">
+                <hbox align="start">
+                  <image src="chrome://famfamfamsilk/skin/icons/information.png"/>
+                </hbox>
+                <description id="msg-info" flex="1">blank</description>
+              </hbox>
+              <hbox id="msg-warn-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
+                <hbox align="start">
+                  <image src="chrome://famfamfamsilk/skin/icons/error.png"/>
+                </hbox>
+                <description id="msg-warn" flex="1">blank</description>
+              </hbox>
+              <hbox id="msg-error-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
+                <hbox align="start">
+                  <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
+                </hbox>
+                <description id="msg-error" flex="1">blank</description>
               </hbox>
             </deck>
           </row>
@@ -178,7 +204,7 @@
               <menulist id="search-in-menu" oncommand="update('search-in')">
                   <menupopup>
                       <menuitem value="document" label="Current document"/>
-                      <menuitem value="selection" label="Selected text" disabled="true"/>
+                      <menuitem value="selection" label="Selected text"/>
                       <!-- TODO: fill in project info -->
                       <menuitem value="project" label="Current project"/>
                       <menuitem value="open-files" label="All open files"/>
@@ -257,7 +283,7 @@
         <button id="find-prev-btn" label="Find Previous"
                 accesskey="v" />
         <button id="find-next-btn" label="&findNext.label;"
-                accesskey="F" />
+                accesskey="F" oncommand="find_next();"/>
         <button id="replace-btn" label="&replace.label;"
                 accesskey="R" />
         <!-- TODO: uses-accesskey handling -->
