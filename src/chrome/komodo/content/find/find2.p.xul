@@ -168,12 +168,15 @@
                         accesskey="p" oncommand="update('replace')"/>
             </hbox>
           </row>
-          
+
+          <!-- Note: Could use a notificationbox element here. This would
+               be a little cleaner. However, would require some CSS to
+               style the notifcation's as with the custom boxes here
+               and an attempt to get rid of the notifcation close
+               buttons. -->
           <row>
             <hbox/>
-
-            <!-- TODO: consider notificationbox -->
-            <deck id="msg-deck" selectedIndex="0" style="XXXheight: 30px; max-width: 30em;">
+            <deck id="msg-deck" selectedIndex="0" style="max-width: 30em;">
               <hbox />
               <hbox id="msg-info-box" align="center"
                     style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb;">
