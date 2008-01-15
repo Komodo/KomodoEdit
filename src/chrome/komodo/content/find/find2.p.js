@@ -325,7 +325,6 @@ function find_next(backward /* =false */) {
     
     var pattern = widgets.pattern.value;
     if (! pattern) {
-        // Should we warn here?
         return;
     }
 
@@ -371,28 +370,40 @@ function find_next(backward /* =false */) {
     }
 }
 
-/*
 function find_all() {
-    // Find all occurrences of the current pattern in the current context.
-    var pattern = widgets.panel.pattern.value;
-    if (pattern != "") {
-        ko.mru.addFromACTextbox(widgets.panel.pattern);
-//XXX These break with the following and I don't know why:
-//    Komodo: Debug: chrome://komodo/content/library/common.js(12): reference to undefined property window.setCursor
-//        parentWindow.setCursor("spinning");
-        var foundSome = null;
-        try {
-            foundSome = Find_FindAll(parentWindow, _gFindContext, pattern);
-        } catch (ex) {
-            log.exception(ex, "Error in Find_FindAll");
-        }
-//        parentWindow.setCursor("auto");
-        if (foundSome) {
-            window.close();
+    msg_clear();
+    
+    var pattern = widgets.pattern.value;
+    if (! pattern) {
+        return;
+    }
+
+    // This handles, for example, the context being "search in
+    // selection", but there is no selection.
+    if (! _g_find_context) {
+        // Make one attempt to get the context again: state in the
+        // main editor may have changed such that getting a context is
+        // possible.
+        reset_find_context();
+        if (! _g_find_context) {
+            return;
         }
     }
+
+    ko.mru.addFromACTextbox(widgets.pattern);
+
+    var foundSome = null;
+    try {
+        foundSome = Find_FindAll(opener, _g_find_context, pattern,
+                                 null,          // patternAlias
+                                 msg_callback); // msgHandler
+    } catch (ex) {
+        log.exception(ex, "Error in Find_FindAll");
+    }
+    if (foundSome) {
+        window.close();
+    }
 }
-*/
 
 
 

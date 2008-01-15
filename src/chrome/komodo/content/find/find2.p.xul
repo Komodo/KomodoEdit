@@ -291,7 +291,8 @@
                 accesskey="R" />
         <!-- TODO: uses-accesskey handling -->
         <button id="find-all-btn" label="&findAll.label;"
-                _accesskey="A" uses-accesskey="true"/>
+                _accesskey="A" uses-accesskey="true"
+                oncommand="find_all();"/>
         <button id="replace-all-btn" label="&replaceAll.label;"
                 _accesskey="A" uses-accesskey="true"/>
         <!-- TODO: mark-all
