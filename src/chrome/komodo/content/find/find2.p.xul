@@ -284,7 +284,7 @@
       <separator class="thin"/>
       <vbox id="find-buttons" style="width: 10em;">
         <button id="find-prev-btn" label="Find Previous"
-                accesskey="v" />
+                accesskey="v" oncommand="find_prev();"/>
         <button id="find-next-btn" label="&findNext.label;"
                 accesskey="F" oncommand="find_next();"/>
         <button id="replace-btn" label="&replace.label;"

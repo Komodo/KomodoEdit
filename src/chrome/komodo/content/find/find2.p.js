@@ -93,6 +93,8 @@ function on_focus(event) {
  *      initialization).
  */
 function update(changed /* =null */) {
+    if (typeof(changed) == "undefined") changed = null;
+    
     var mode_changed = false;
     var opts = gFindSvc.options;
     
@@ -312,7 +314,13 @@ function dirs_on_focus(widget, event)
 }
 
 
-function find_next() {
+function find_prev() {
+    find_next(true);
+}
+
+function find_next(backward /* =false */) {
+    if (typeof(backward) == "undefined" || backward == null) backward = false;
+
     msg_clear();
     
     var pattern = widgets.pattern.value;
@@ -334,6 +342,15 @@ function find_next() {
     }
 
     ko.mru.addFromACTextbox(widgets.pattern);
+
+    //TODO: Icky. The "searchBackward" state being set on the global
+    //      object then restored is gross. koIFindOptions should be
+    //      an argument to the Find_* functions. The macro versions
+    //      of the Find_* functions have to do this same save/restore
+    //      dance.
+    var old_searchBackward = gFindSvc.options.searchBackward;
+    gFindSvc.options.searchBackward = backward;
+
     var mode = (widgets.opt_repl.checked ? "replace" : "find");
     var foundOne = null;
     try {
@@ -344,6 +361,7 @@ function find_next() {
     } catch (ex) {
         log.exception(ex, "Error in Find_FindNext");
     }
+    gFindSvc.options.searchBackward = old_searchBackward;
 
     if (!foundOne) {
         // If no match was hilighted then it is likely that the user will
