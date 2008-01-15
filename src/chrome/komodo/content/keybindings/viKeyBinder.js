@@ -1452,7 +1452,7 @@ VimController.prototype.performReplace = function (searchString, replaceString,
                                         findContext,
                                         searchString,
                                         null,  // mode, defaults to find
-                                        true,  // quite
+                                        true,  // quiet
                                         false); // add pattern to find MRU
             if (!findres) {
                 this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
@@ -1490,7 +1490,7 @@ VimController.prototype.performReplace = function (searchString, replaceString,
                                             findContext,
                                             searchString,
                                             null,  // mode, defaults to find
-                                            true,  // quite
+                                            true,  // quiet
                                             false); // add pattern to find MRU
                 if (findres) {
                     // Using _ReplaceLastFindResult() to get around having to
