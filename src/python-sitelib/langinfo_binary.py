@@ -92,6 +92,11 @@ class ZipLangInfo(LangInfo):
     exts = [".zip"]
     magic_numbers = [(0, "string", "PK\003\004")]
 
+class MSILangInfo(LangInfo):
+    """Microsoft Installer Package"""
+    name = "MSI"
+    exts = [".msi"]
+
 class JarLangInfo(ZipLangInfo):
     name = "Jar archive"
     exts = [".jar"]
