@@ -264,7 +264,7 @@
 
           <row id="excludes-row" align="center">
             <label value="Exclude:" control="excludes"
-                   style="width: 5.6em;"/>
+                   style="width: 5.6em;" accesskey="E"/>
             <textbox id="excludes"
                      flex="1"
                      tooltiptext="ENTER_FILETYPES_TO_EXCLUDE_ENTITY"
@@ -285,11 +285,11 @@
       <vbox id="find-buttons" style="width: 10em;">
         <button id="find-prev-btn" label="Find Previous"
                 accesskey="v" oncommand="find_prev();"/>
-        <button id="find-next-btn" label="&findNext.label;"
+        <button id="find-next-btn" label="Find Next"
                 accesskey="F" oncommand="find_next();"/>
         <button id="replace-btn" label="&replace.label;"
                 accesskey="R" oncommand="replace();"/>
-        <button id="find-all-btn" label="&findAll.label;"
+        <button id="find-all-btn" label="Find All"
                 _accesskey="A" uses-accesskey="true"
                 oncommand="find_all();"/>
         <button id="replace-all-btn" label="&replaceAll.label;"
@@ -306,11 +306,6 @@
                 accesskey="s" oncommand="window.close();"/> -->
         <button id="help-btn" label="Help" accesskey="H"
                 oncommand="ko.help.open('find2_dialog');"/>
-
-        <!--<checkbox id="display-in-find-results-2"-->
-        <!--          label="Display results in Find Results 2 tab"-->
-        <!--          accesskey="2"-->
-        <!--          oncommand="UpdateOption('displayInFindResults2');"/>-->
       </vbox>
 
     </hbox>

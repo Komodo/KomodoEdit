@@ -263,7 +263,7 @@ function _launch_FindInFilesTab(panel, searchTerm, folders) {
  */
 this.find2_dialog_args = null;
 
-this.find2 = function(pattern) {
+this.find2 = function(pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -290,7 +290,7 @@ this.find2 = function(pattern) {
         ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
-this.replace2 = function(pattern, repl) {
+this.replace2 = function(pattern /* =null */, repl /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -312,7 +312,8 @@ this.replace2 = function(pattern, repl) {
         ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
-this.findInFiles2 = function(pattern, dirs, includes, excludes) {
+this.findInFiles2 = function(pattern /* =null */, dirs /* =null */,
+                             includes /* =null */, excludes /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -347,21 +348,13 @@ this.findInFiles2 = function(pattern, dirs, includes, excludes) {
         ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
-this.replaceInFiles2 = function(pattern, repl, dirs, includes, excludes) {
+this.replaceInFiles2 = function(pattern /* =null */, repl /* =null */,
+                                dirs /* =null */, includes /* =null */,
+                                excludes /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
-
-    // Use the current view's cwd for interpreting relative paths.
-    var view = ko.views.manager.currentView;
-    var cwd = null;
-    if (view != null &&
-        view.getAttribute("type") == "editor" &&
-        view.document.file &&
-        view.document.file.isLocal) {
-        cwd = view.document.file.dirName;
-    }
 
     // Special global to pass info to find2.xul. Passing in via
     // openDialog() doesn't work if the dialog is already up.
@@ -371,7 +364,7 @@ this.replaceInFiles2 = function(pattern, repl, dirs, includes, excludes) {
         "dirs": dirs,
         "includes": includes,
         "excludes": excludes,
-        "cwd": cwd,
+        //"cwd": cwd,
         "mode": "replaceinfiles"
     }
 

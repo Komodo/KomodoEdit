@@ -374,39 +374,58 @@ function find_next(backward /* =false */) {
 }
 
 function find_all() {
-    msg_clear();
-    
-    var pattern = widgets.pattern.value;
-    if (! pattern) {
-        return;
-    }
-
-    // This handles, for example, the context being "search in
-    // selection", but there is no selection.
-    if (! _g_find_context) {
-        // Make one attempt to get the context again: state in the
-        // main editor may have changed such that getting a context is
-        // possible.
-        reset_find_context();
-        if (! _g_find_context) {
+    try {
+        msg_clear();
+        
+        var pattern = widgets.pattern.value;
+        if (! pattern) {
             return;
         }
-    }
+    
+        // This handles, for example, the context being "search in
+        // selection", but there is no selection.
+        if (! _g_find_context) {
+            // Make one attempt to get the context again: state in the
+            // main editor may have changed such that getting a context is
+            // possible.
+            reset_find_context();
+            if (! _g_find_context) {
+                return;
+            }
+        }
 
-    ko.mru.addFromACTextbox(widgets.pattern);
+        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+            ko.mru.addFromACTextbox(widgets.pattern);
+            ko.mru.addFromACTextbox(widgets.dirs);
+            if (widgets.includes.value)
+                ko.mru.addFromACTextbox(widgets.includes);
+            if (widgets.excludes.value)
+                ko.mru.addFromACTextbox(widgets.excludes);
 
-    var found_some = null;
-    try {
-        found_some = Find_FindAll(opener, _g_find_context, pattern,
-                                  null,          // patternAlias
-                                  msg_callback); // msgHandler
-    } catch (ex) {
-        log.exception(ex, "Error in Find_FindAll");
-    }
-    if (found_some) {
-        window.close();
-    } else {
-        widgets.pattern.focus();
+            if (Find_FindAllInFiles(opener, _g_find_context,
+                                    pattern, null)) {
+                window.close();
+            }
+
+        } else {
+            ko.mru.addFromACTextbox(widgets.pattern);
+        
+            var found_some = null;
+            try {
+                found_some = Find_FindAll(opener, _g_find_context, pattern,
+                                          null,          // patternAlias
+                                          msg_callback); // msgHandler
+            } catch (ex) {
+                log.exception(ex, "Error in Find_FindAll");
+            }
+            if (found_some) {
+                window.close();
+            } else {
+                widgets.pattern.focus();
+            }
+        }
+    } catch(ex) {
+        log.exception(ex);
     }
 }
 
@@ -628,10 +647,10 @@ function _init_ui() {
         = opts.caseSensitivity == koIFindOptions.FOC_INSENSITIVE;
     widgets.opt_word.checked = opts.matchWord;
     //widgets.opt_multiline.checked = ...
-    widgets.dirs.value = opts.encodedFolders;
+    widgets.dirs.value = args.dirs || opts.encodedFolders;
     widgets.search_in_subdirs.checked = opts.searchInSubfolders;
-    widgets.includes.value = opts.encodedIncludeFiletypes;
-    widgets.excludes.value = opts.encodedExcludeFiletypes;
+    widgets.includes.value = args.includes || opts.encodedIncludeFiletypes;
+    widgets.excludes.value = args.excludes || opts.encodedExcludeFiletypes;
     widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
     
     // Setup the UI for the mode, as appropriate.
@@ -821,10 +840,19 @@ function reset_find_context() {
         break;
 
     case "files":
-        log.error("TODO");
-        context = Components.classes["@activestate.com/koFindContext;1"]
-            .createInstance(Components.interfaces.koIFindContext);
-        context.type = koIFindContext.FCT_CURRENT_DOC;
+        context = Components.classes[
+            "@activestate.com/koFindInFilesContext;1"]
+            .createInstance(Components.interfaces.koIFindInFilesContext);
+        context.type = Components.interfaces.koIFindContext.FCT_IN_FILES;
+
+        // Use the current view's cwd for interpreting relative paths.
+        var view = opener.ko.views.manager.currentView;
+        if (view != null &&
+            view.getAttribute("type") == "editor" &&
+            view.document.file &&
+            view.document.file.isLocal) {
+            context.cwd = view.document.file.dirName;
+        }
         break;
 
     default:
