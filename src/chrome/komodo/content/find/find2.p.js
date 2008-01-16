@@ -507,7 +507,7 @@ function replace_all() {
     if (found_some) {
         window.close();
     } else {
-        widgets.panel.pattern.focus();
+        widgets.pattern.focus();
     }
 }
 

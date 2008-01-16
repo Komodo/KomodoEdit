@@ -364,7 +364,6 @@ this.replaceInFiles2 = function(pattern /* =null */, repl /* =null */,
         "dirs": dirs,
         "includes": includes,
         "excludes": excludes,
-        //"cwd": cwd,
         "mode": "replaceinfiles"
     }
 
