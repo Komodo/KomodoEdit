@@ -324,52 +324,51 @@ function find_prev() {
 function find_next(backward /* =false */) {
     if (typeof(backward) == "undefined" || backward == null) backward = false;
 
-    msg_clear();
-    
-    var pattern = widgets.pattern.value;
-    if (! pattern) {
-        return;
-    }
-
-    // This handles, for example, the context being "search in
-    // selection", but there is no selection.
-    if (! _g_find_context) {
-        // Make one attempt to get the context again: state in the
-        // main editor may have changed such that getting a context is
-        // possible.
-        reset_find_context();
-        if (! _g_find_context) {
+    try {
+        msg_clear();
+        
+        var pattern = widgets.pattern.value;
+        if (! pattern) {
             return;
         }
-    }
-
-    ko.mru.addFromACTextbox(widgets.pattern);
-
-    //TODO: Icky. The "searchBackward" state being set on the global
-    //      object then restored is gross. koIFindOptions should be
-    //      an argument to the Find_* functions. The macro versions
-    //      of the Find_* functions have to do this same save/restore
-    //      dance.
-    var old_searchBackward = gFindSvc.options.searchBackward;
-    gFindSvc.options.searchBackward = backward;
-
-    var mode = (widgets.opt_repl.checked ? "replace" : "find");
-    var found_one = null;
-    try {
-        found_one = Find_FindNext(opener, _g_find_context, pattern, mode,
-                                  false,         // quiet
-                                  true,          // useMRU
-                                  msg_callback); // msgHandler
+    
+        // This handles, for example, the context being "search in
+        // selection", but there is no selection.
+        if (! _g_find_context) {
+            // Make one attempt to get the context again: state in the
+            // main editor may have changed such that getting a context is
+            // possible.
+            reset_find_context();
+            if (! _g_find_context) {
+                return;
+            }
+        }
+    
+        ko.mru.addFromACTextbox(widgets.pattern);
+    
+        //TODO: Icky. The "searchBackward" state being set on the global
+        //      object then restored is gross. koIFindOptions should be
+        //      an argument to the Find_* functions. The macro versions
+        //      of the Find_* functions have to do this same save/restore
+        //      dance.
+        var old_searchBackward = gFindSvc.options.searchBackward;
+        gFindSvc.options.searchBackward = backward;
+    
+        var mode = (widgets.opt_repl.checked ? "replace" : "find");
+        var found_one = Find_FindNext(opener, _g_find_context, pattern, mode,
+                                      false,         // quiet
+                                      true,          // useMRU
+                                      msg_callback); // msgHandler
+        gFindSvc.options.searchBackward = old_searchBackward;
+    
+        if (!found_one) {
+            // If no match was hilighted then it is likely that the user will
+            // now want to enter a different pattern. (Copying Word's
+            // behaviour here.)
+            widgets.pattern.focus();
+        }
     } catch (ex) {
-        log.exception(ex, "Error in Find_FindNext");
-    }
-    gFindSvc.options.searchBackward = old_searchBackward;
-
-    if (!found_one) {
-        // If no match was hilighted then it is likely that the user will
-        // now want to enter a different pattern. (Copying Word's
-        // behaviour here.)
-        widgets.pattern.focus();
+        log.exception(ex);
     }
 }
 
@@ -394,8 +393,9 @@ function find_all() {
             }
         }
 
+        ko.mru.addFromACTextbox(widgets.pattern);
+
         if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
-            ko.mru.addFromACTextbox(widgets.pattern);
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
                 ko.mru.addFromACTextbox(widgets.includes);
@@ -403,21 +403,15 @@ function find_all() {
                 ko.mru.addFromACTextbox(widgets.excludes);
 
             if (Find_FindAllInFiles(opener, _g_find_context,
-                                    pattern, null)) {
+                                    pattern, null,
+                                    msg_callback)) {
                 window.close();
             }
 
         } else {
-            ko.mru.addFromACTextbox(widgets.pattern);
-        
-            var found_some = null;
-            try {
-                found_some = Find_FindAll(opener, _g_find_context, pattern,
+            var found_some = Find_FindAll(opener, _g_find_context, pattern,
                                           null,          // patternAlias
                                           msg_callback); // msgHandler
-            } catch (ex) {
-                log.exception(ex, "Error in Find_FindAll");
-            }
             if (found_some) {
                 window.close();
             } else {
@@ -431,83 +425,98 @@ function find_all() {
 
 
 function replace() {
-    msg_clear();
-    
-    var pattern = widgets.pattern.value;
-    if (! pattern) {
-        return;
-    }
-    var repl = widgets.repl.value;
-
-    // This handles, for example, the context being "search in
-    // selection", but there is no selection.
-    if (! _g_find_context) {
-        // Make one attempt to get the context again: state in the
-        // main editor may have changed such that getting a context is
-        // possible.
-        reset_find_context();
-        if (! _g_find_context) {
+    try {
+        msg_clear();
+        
+        var pattern = widgets.pattern.value;
+        if (! pattern) {
             return;
         }
-    }
-
-    ko.mru.addFromACTextbox(widgets.pattern);
-    if (repl)
-        ko.mru.addFromACTextbox(widgets.repl);
-
-    var found_one = null;
-    try {
-        found_one = Find_Replace(opener, _g_find_context, pattern,
-                                 repl, msg_callback);
+        var repl = widgets.repl.value;
+    
+        // This handles, for example, the context being "search in
+        // selection", but there is no selection.
+        if (! _g_find_context) {
+            // Make one attempt to get the context again: state in the
+            // main editor may have changed such that getting a context is
+            // possible.
+            reset_find_context();
+            if (! _g_find_context) {
+                return;
+            }
+        }
+    
+        ko.mru.addFromACTextbox(widgets.pattern);
+        if (repl)
+            ko.mru.addFromACTextbox(widgets.repl);
+    
+        var found_one = Find_Replace(opener, _g_find_context,
+                pattern, repl, msg_callback);
+        if (!found_one) {
+            // If no match was hilighted then it is likely that the user will
+            // now want to enter a different pattern. (Copying Word's
+            // behaviour here.)
+            widgets.pattern.focus();
+        }
     } catch (ex) {
-        log.exception(ex, "Error in Find_Replace");
-    }
-    if (!found_one) {
-        // If no match was hilighted then it is likely that the user will
-        // now want to enter a different pattern. (Copying Word's
-        // behaviour here.)
-        widgets.pattern.focus();
+        log.exception(ex);
     }
 }
 
-function replace_all() {
-    msg_clear();
-    
-    var pattern = widgets.pattern.value;
-    if (! pattern) {
-        return;
-    }
-    var repl = widgets.repl.value;
 
-    // This handles, for example, the context being "search in
-    // selection", but there is no selection.
-    if (! _g_find_context) {
-        // Make one attempt to get the context again: state in the
-        // main editor may have changed such that getting a context is
-        // possible.
-        reset_find_context();
-        if (! _g_find_context) {
+function replace_all() {
+    try {
+        msg_clear();
+        
+        var pattern = widgets.pattern.value;
+        if (! pattern) {
             return;
         }
-    }
+        var repl = widgets.repl.value;
+    
+        // This handles, for example, the context being "search in
+        // selection", but there is no selection.
+        if (! _g_find_context) {
+            // Make one attempt to get the context again: state in the
+            // main editor may have changed such that getting a context is
+            // possible.
+            reset_find_context();
+            if (! _g_find_context) {
+                return;
+            }
+        }
+    
+        ko.mru.addFromACTextbox(widgets.pattern);
+        if (repl)
+            ko.mru.addFromACTextbox(widgets.repl);
 
-    ko.mru.addFromACTextbox(widgets.pattern);
-    if (repl)
-        ko.mru.addFromACTextbox(widgets.repl);
+        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+            alert("Replace All in Files is not yet implemented. Working on it!");
+            //ko.mru.addFromACTextbox(widgets.dirs);
+            //if (widgets.includes.value)
+            //    ko.mru.addFromACTextbox(widgets.includes);
+            //if (widgets.excludes.value)
+            //    ko.mru.addFromACTextbox(widgets.excludes);
+            //
+            //if (Find_FindAllInFiles(opener, _g_find_context,
+            //                        pattern, null)) {
+            //    window.close();
+            //}
 
-    var found_some = null;
-    try {
-        found_some = Find_ReplaceAll(opener, _g_find_context, pattern,
-                                     repl,
-                                     widgets.show_replace_all_results.checked,
-                                     msg_callback);
+        } else {
+            var found_some = null;
+            var found_some = Find_ReplaceAll(
+                    opener, _g_find_context, pattern, repl,
+                    widgets.show_replace_all_results.checked,
+                    msg_callback);
+            if (found_some) {
+                window.close();
+            } else {
+                widgets.pattern.focus();
+            }
+        }
     } catch (ex) {
-        log.exception(ex, "Error in Find_ReplaceAll");
-    }
-    if (found_some) {
-        window.close();
-    } else {
-        widgets.pattern.focus();
+        log.exception(ex, "error in replace_all");
     }
 }
 
@@ -722,7 +731,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
-            _collapse_widget(widgets.show_replace_all_results, false);
+            _collapse_widget(widgets.show_replace_all_results, true);
             //_collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
