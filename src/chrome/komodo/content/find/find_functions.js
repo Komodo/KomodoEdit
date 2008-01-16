@@ -1430,7 +1430,6 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
     } catch(e) {
         _UiForFindServiceError("find", msgHandler);
         resultsMgr.clear();
-        gWidgets.panel.pattern.focus();
         return false;
     }
     return true;
@@ -1439,3 +1438,45 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
 }
 
 
+/**
+ * Replace all hits in files.
+ *
+ * ...
+ * @param msgHandler {callback} is an optional callback for displaying a
+ *      message to the user. See Find_FindNext documentation for details.
+ */
+function Find_ReplaceAllInFiles(editor, context, pattern, repl,
+                                msgHandler /* =<statusbar notifier> */)
+{
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
+    findLog.info("Find_ReplaceAllInFiles(editor, context, pattern='"+pattern+
+                 "', repl='"+repl+"')");
+    if (findSvc == null) {
+        findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
+    }
+
+    //XXX:TODO macro recording stuff for this
+
+    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
+    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+    if (resultsMgr == null)
+        return false;
+    resultsMgr.configure(pattern, null, repl, context,
+                         findSvc.options);
+    resultsMgr.show();
+
+    // This will kick off a thread to fill in the given tree/outliner.
+    try {
+        findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
+                                  resultsMgr, resultsMgr.view);
+    } catch(e) {
+        _UiForFindServiceError("replace", msgHandler);
+        resultsMgr.clear();
+        return false;
+    }
+    return true;
+}

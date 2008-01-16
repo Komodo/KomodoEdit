@@ -520,7 +520,7 @@ FindResultsTabManager.prototype.stopSearch = function()
 {
     var findSvc = Components.classes["@activestate.com/koFindService;1"].
               getService(Components.interfaces.koIFindService);
-    findSvc.stopfindallinfiles(this.id);
+    findSvc.stopfindreplaceinfiles(this.id);
     this.searchFinished(false);
 }
 

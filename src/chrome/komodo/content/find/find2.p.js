@@ -37,9 +37,20 @@
 /* Komodo's Find and Replace dialog (rev 2).
  *
  * TODOs:
- * - search in subdirs should be on by default
- * - whither "Display results in Find Results 2 tab" checkbox?
- * - whither "Show 'Replace All' Results" checkbox?
+ * - replace in files support
+ * - restore the regex shortcuts
+ * - better error message handling (perhaps validate with lexregex.py)
+ * - find/replace in project support
+ * - "Edit" menu hookup
+ * - undo functionality
+ * - all spec'd replace in files guards
+ * - find results tab enhancements (pin, grouping/view opts, handling
+ *   replacement warnings/errors, filter, redo)
+ * - replacement for "Display results in Find Results 2 tab" checkbox
+ *   (the plan is the 'pin' option)
+ * - some key mappings (see find2.xul)
+ * - prep new docs for Troy
+ * - replacement for smart-case matching?
  */
 
 //---- globals
@@ -491,17 +502,17 @@ function replace_all() {
             ko.mru.addFromACTextbox(widgets.repl);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
-            alert("Replace All in Files is not yet implemented. Working on it!");
-            //ko.mru.addFromACTextbox(widgets.dirs);
-            //if (widgets.includes.value)
-            //    ko.mru.addFromACTextbox(widgets.includes);
-            //if (widgets.excludes.value)
-            //    ko.mru.addFromACTextbox(widgets.excludes);
-            //
-            //if (Find_FindAllInFiles(opener, _g_find_context,
-            //                        pattern, null)) {
-            //    window.close();
-            //}
+            ko.mru.addFromACTextbox(widgets.dirs);
+            if (widgets.includes.value)
+                ko.mru.addFromACTextbox(widgets.includes);
+            if (widgets.excludes.value)
+                ko.mru.addFromACTextbox(widgets.excludes);
+
+            if (Find_ReplaceAllInFiles(opener, _g_find_context,
+                                       pattern, repl, null,
+                                       msg_callback)) {
+                window.close();
+            }
 
         } else {
             var found_some = null;
@@ -516,7 +527,7 @@ function replace_all() {
             }
         }
     } catch (ex) {
-        log.exception(ex, "error in replace_all");
+        log.exception(ex);
     }
 }
 

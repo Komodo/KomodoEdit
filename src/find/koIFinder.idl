@@ -193,14 +193,28 @@ interface koIFindService : nsISupports {
     // in the "options" attribute.
     //XXX Need to add a .finalize() to the find service to .stop() and
     //    .join() any findallinfiles thread.
-    void findallinfiles(in long id, // session id
-                        in wstring pattern,
-                        in koIFindResultsTabManager resultsMgr,
-                        //XXX Drop this and put it in koIFindResultsTab eventually.
-                        in koIFindResultsView resultsView);
-    // Abort a running findallinfiles session.
-    void stopfindallinfiles(in long id);
+    void findallinfiles(
+            in long id, // session id
+            in wstring pattern,
+            in koIFindResultsTabManager resultsMgr,
+            //XXX Drop this and put it in koIFindResultsTabManager eventually.
+            in koIFindResultsView resultsView);
 
+    // Asynchronously replace all "pattern" with "repl" and load those
+    // into the "resultsView". Note: the information on which files to
+    // search are in the "options" attribute.
+    //XXX Need to add a .finalize() to the find service to .stop() and
+    //    .join() any replaceallinfiles thread.
+    void replaceallinfiles(
+            in long id, // session id
+            in wstring pattern,
+            in wstring repl,
+            in koIFindResultsTabManager resultsMgr,
+            //XXX Drop this and put it in koIFindResultsTabManager eventually.
+            in koIFindResultsView resultsView);
+
+    // Abort a running findallinfiles or replaceallinfiles session.
+    void stopfindreplaceinfiles(in long id);
 
     wstring regex_escape_string(in wstring s);
 

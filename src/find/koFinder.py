@@ -73,13 +73,7 @@ gPrefSvc = None
 lastErrorSvc = None
 
 
-#---- Find in Files backend
-
-class _UserAbort(Exception):
-    """Too facilitate stopping processing when user aborts asynchronous
-    search.
-    """
-    pass
+#---- Find/Replace in Files backend
 
 class _FinderInFiles(threading.Thread):
     """Find all hits of the given pattern in the given files and
@@ -880,13 +874,42 @@ class KoFindService:
 
         return replacementText, numReplacements
 
+    def replaceallinfiles(self, id, pattern, repl, resultsMgr,
+                          resultsView):
+        log.info("s/%s/%s/g", pattern, repl)
+        print "TODO: s/%s/%s/g" % (pattern, repl)
+
+        #patternType = self.patternTypeMap[self.options.patternType]
+        #caseSensitivity = self.caseMap[self.options.caseSensitivity]
+        #try:
+        #    findlib.validatePattern(pattern, patternType=patternType,
+        #                            case=caseSensitivity,
+        #                            matchWord=self.options.matchWord)
+        #except (re.error, findlib.FindError), ex:
+        #    lastErrorSvc.setLastError(0, str(ex))
+        #    raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        #
+        #t = _ReplacerInFiles(
+        #        id, pattern, patternType, repl, caseSensitivity,
+        #        self.options.matchWord,
+        #        self.options.getFolders(),
+        #        resultsMgr.context_.cwd,
+        #        self.options.searchInSubfolders,
+        #        self.options.getIncludeFiletypes(),
+        #        self.options.getExcludeFiletypes(),
+        #        resultsMgr,
+        #        resultsView)
+        #self._threadMap[id] = t
+        #resultsMgr.searchStarted()
+        #self._threadMap[id].start()        
+
     def findallinfiles(self, id, pattern, resultsMgr, resultsView):
         """Feed all occurrences of "pattern" in the files identified by
         the options attribute into the given koIFindResultsView.
 
             "id" is a unique number to distinguish this findallinfiles
                 session from others.
-            "resultsMgr" is a koIFindResultsTab instance.
+            "resultsMgr" is a koIFindResultsTabManager instance.
             "resultsView" is a koIFindResultView instance on which
                 the find results should be logged via the Add*() methods.
         
@@ -921,7 +944,7 @@ class KoFindService:
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
-    def stopfindallinfiles(self, id):
+    def stopfindreplaceinfiles(self, id):
         #XXX Do I need a lock-guard around usage of self._threadMap?
         if id in self._threadMap:
             self._threadMap[id].stop()
