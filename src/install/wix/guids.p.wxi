@@ -38,8 +38,8 @@
 
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
-    <?define ProductCode = "50e54ee6-75f5-4483-b73e-137b4207ca08" ?>
-    <?define UpgradeCode = "d3568666-e96f-4251-ad1a-8f647d3f3307" ?>
+    <?define ProductCode = "2f60dd96-aceb-4ace-a85e-bdbfcad0c958" ?>
+    <?define UpgradeCode = "b25fe6ed-a30d-4205-bea2-abc0bb62a1d6" ?>
 <!-- #elif PRODUCT_TYPE == "openkomodo" -->
     <?define ProductCode = "92d4565f-f09f-414f-af45-bd44ee7463f1" ?>
     <?define UpgradeCode = "15da3b9e-39f5-4b38-ba41-3bd736792b04" ?>
