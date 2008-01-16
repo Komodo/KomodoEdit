@@ -291,6 +291,7 @@
   <boolean id="find-matchWord">0</boolean>
   <boolean id="find-searchBackward">0</boolean>
   <boolean id="find-displayInFindResults2">0</boolean>
+  <boolean id="find-showReplaceAllResults">1</boolean>
   <ordered-preference id="find-folders"/>
   <boolean id="find-searchInSubfolders">1</boolean>
   <ordered-preference id="find-includeFiletypes"/>

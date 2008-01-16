@@ -94,6 +94,7 @@ interface koIFindOptions: nsISupports {
     // Persisted in the 'find-preferredContextType' pref.
     attribute long preferredContextType; 
 
+    attribute boolean showReplaceAllResults;
     attribute boolean displayInFindResults2;
 
     // Find in Files stuff:

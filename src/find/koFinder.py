@@ -445,6 +445,7 @@ class KoFindOptions:
         self.searchBackwardPrefName = "find-searchBackward"
         self.preferredContextTypePrefName = "find-preferredContextType"
         self.displayInFindResults2PrefName = "find-displayInFindResults2"
+        self.showReplaceAllResultsPrefName = "find-showReplaceAllResults"
         self.foldersPrefName = "find-folders"
         self.searchInSubfoldersPrefName = "find-searchInSubfolders"
         self.includeFiletypesPrefName = "find-includeFiletypes"
@@ -456,6 +457,7 @@ class KoFindOptions:
         self.searchBackward = gPrefSvc.prefs.getBooleanPref(self.searchBackwardPrefName)
         self.preferredContextType = gPrefSvc.prefs.getLongPref(self.preferredContextTypePrefName)
         self.displayInFindResults2 = gPrefSvc.prefs.getBooleanPref(self.displayInFindResults2PrefName)
+        self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
 
         # In case we run into some alternate dimension where
         #   os.pathsep not in ';:'
@@ -520,6 +522,10 @@ class KoFindOptions:
     def set_displayInFindResults2(self, value):
         self.displayInFindResults2 = value
         return gPrefSvc.prefs.setBooleanPref(self.displayInFindResults2PrefName, value)
+
+    def set_showReplaceAllResults(self, value):
+        self.showReplaceAllResults = value
+        return gPrefSvc.prefs.setBooleanPref(self.showReplaceAllResultsPrefName, value)
 
     def set_encodedFolders(self, value):
         self.encodedFolders = value
