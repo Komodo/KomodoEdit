@@ -131,14 +131,6 @@ interface koIFindService : nsISupports {
                        in wstring pattern,
                        in long startOffset);
 
-    // Return all the results of searching for "pattern" in "text".
-    // DEPRECATED: use findallex()
-    void findall(in wstring url,
-                 in wstring text,
-                 in wstring pattern,
-                 out PRUint32 count,
-                 [retval, array, size_is(count)] out koIFindResult rv);
-
     // Return a result indicating how to replace the first "pattern" in
     // "text" with "replacement".
     koIReplaceResult replace(in wstring url,
@@ -146,16 +138,6 @@ interface koIFindService : nsISupports {
                              in wstring pattern,
                              in wstring replacement,
                              in long startOffset);
-
-    // Return all the results indicating how to replace "pattern" in
-    // "text" with "replacement".
-    // DEPRECATED: use replaceallex()
-    void replaceall(in wstring url,
-                    in wstring text,
-                    in wstring pattern,
-                    in wstring replacement,
-                    out PRUint32 count,
-                    [retval, array, size_is(count)] out koIReplaceResult rv);
 
     // A faster alternative to findall() specific to Komodo usage.
     // See the implementation for more docs.

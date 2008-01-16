@@ -622,28 +622,6 @@ class KoFindService:
             retval = None
         return retval
 
-    def findall(self, url, text, pattern):
-        """Return all the results of searching for "pattern" in "text".
-        Return value is a list of KoFindResult's.
-        """
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
-        try:
-            results = findlib.findall(text, pattern, patternType=patternType,
-                                      case=case,
-                                      matchWord=self.options.matchWord);
-        except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        retvals = []
-        for result in results:
-            retval = KoFindResult(url=url, start=result.start, end=result.end,
-                                  value=result.value)
-            retvals.append(retval)
-        return retvals
-
     def replace(self, url, text, pattern, replacement, startOffset):
         """Return a result indicating how to replace the first "pattern" in
         "text" with "replacement".
@@ -671,36 +649,6 @@ class KoFindService:
         else:
             retval = None
         return retval
-
-    def replaceall(self, url, text, pattern, replacement):
-        """Return a result indicating how to replace the first "pattern" in
-        "text" with "replacement".
-        
-        DEPRECATED: use replaceallex()
-
-        Return value is a list of KoReplaceResult's.
-        """
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
-        try:
-            results = findlib.replaceall(text, pattern, replacement,
-                                         patternType=patternType,
-                                         case=case,
-                                         searchBackward=self.options.searchBackward,
-                                         matchWord=self.options.matchWord);
-        except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        retvals = []
-        for result in results:
-            retval = KoReplaceResult(url=url,
-                                     start=result.start, end=result.end,
-                                     value=result.value,
-                                     replacement=result.replacement)
-            retvals.append(retval)
-        return retvals
 
     def findallex(self, url, text, pattern, resultsView, contextOffset,
                   scimoz):
