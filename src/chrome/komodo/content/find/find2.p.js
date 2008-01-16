@@ -190,6 +190,9 @@ function update(changed /* =null */) {
     if (changed == null || changed == "excludes") {
         opts.encodedExcludeFiletypes = widgets.excludes.value;
     }
+    if (changed == null || changed == "show-replace-all-results") {
+        opts.showReplaceAllResults = widgets.show_replace_all_results.checked;
+    }
 
     if (mode_changed) {
         _update_mode_ui();
@@ -351,18 +354,18 @@ function find_next(backward /* =false */) {
     gFindSvc.options.searchBackward = backward;
 
     var mode = (widgets.opt_repl.checked ? "replace" : "find");
-    var foundOne = null;
+    var found_one = null;
     try {
-        foundOne = Find_FindNext(opener, _g_find_context, pattern, mode,
-                                 false,         // quiet
-                                 true,          // useMRU
-                                 msg_callback); // msgHandler
+        found_one = Find_FindNext(opener, _g_find_context, pattern, mode,
+                                  false,         // quiet
+                                  true,          // useMRU
+                                  msg_callback); // msgHandler
     } catch (ex) {
         log.exception(ex, "Error in Find_FindNext");
     }
     gFindSvc.options.searchBackward = old_searchBackward;
 
-    if (!foundOne) {
+    if (!found_one) {
         // If no match was hilighted then it is likely that the user will
         // now want to enter a different pattern. (Copying Word's
         // behaviour here.)
@@ -392,16 +395,100 @@ function find_all() {
 
     ko.mru.addFromACTextbox(widgets.pattern);
 
-    var foundSome = null;
+    var found_some = null;
     try {
-        foundSome = Find_FindAll(opener, _g_find_context, pattern,
-                                 null,          // patternAlias
-                                 msg_callback); // msgHandler
+        found_some = Find_FindAll(opener, _g_find_context, pattern,
+                                  null,          // patternAlias
+                                  msg_callback); // msgHandler
     } catch (ex) {
         log.exception(ex, "Error in Find_FindAll");
     }
-    if (foundSome) {
+    if (found_some) {
         window.close();
+    } else {
+        widgets.pattern.focus();
+    }
+}
+
+
+function replace() {
+    msg_clear();
+    
+    var pattern = widgets.pattern.value;
+    if (! pattern) {
+        return;
+    }
+    var repl = widgets.repl.value;
+
+    // This handles, for example, the context being "search in
+    // selection", but there is no selection.
+    if (! _g_find_context) {
+        // Make one attempt to get the context again: state in the
+        // main editor may have changed such that getting a context is
+        // possible.
+        reset_find_context();
+        if (! _g_find_context) {
+            return;
+        }
+    }
+
+    ko.mru.addFromACTextbox(widgets.pattern);
+    if (repl)
+        ko.mru.addFromACTextbox(widgets.repl);
+
+    var found_one = null;
+    try {
+        found_one = Find_Replace(opener, _g_find_context, pattern,
+                                 repl, msg_callback);
+    } catch (ex) {
+        log.exception(ex, "Error in Find_Replace");
+    }
+    if (!found_one) {
+        // If no match was hilighted then it is likely that the user will
+        // now want to enter a different pattern. (Copying Word's
+        // behaviour here.)
+        widgets.pattern.focus();
+    }
+}
+
+function replace_all() {
+    msg_clear();
+    
+    var pattern = widgets.pattern.value;
+    if (! pattern) {
+        return;
+    }
+    var repl = widgets.repl.value;
+
+    // This handles, for example, the context being "search in
+    // selection", but there is no selection.
+    if (! _g_find_context) {
+        // Make one attempt to get the context again: state in the
+        // main editor may have changed such that getting a context is
+        // possible.
+        reset_find_context();
+        if (! _g_find_context) {
+            return;
+        }
+    }
+
+    ko.mru.addFromACTextbox(widgets.pattern);
+    if (repl)
+        ko.mru.addFromACTextbox(widgets.repl);
+
+    var found_some = null;
+    try {
+        found_some = Find_ReplaceAll(opener, _g_find_context, pattern,
+                                     repl,
+                                     widgets.show_replace_all_results.checked,
+                                     msg_callback);
+    } catch (ex) {
+        log.exception(ex, "Error in Find_ReplaceAll");
+    }
+    if (found_some) {
+        window.close();
+    } else {
+        widgets.panel.pattern.focus();
     }
 }
 
@@ -450,6 +537,7 @@ function _init_widgets()
     widgets.replace_btn = document.getElementById('replace-btn');
     widgets.find_all_btn = document.getElementById('find-all-btn');
     widgets.replace_all_btn = document.getElementById('replace-all-btn');
+    widgets.show_replace_all_results = document.getElementById('show-replace-all-results');
     //widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
     widgets.help_btn = document.getElementById('help-btn');
@@ -544,6 +632,7 @@ function _init_ui() {
     widgets.search_in_subdirs.checked = opts.searchInSubfolders;
     widgets.includes.value = opts.encodedIncludeFiletypes;
     widgets.excludes.value = opts.encodedExcludeFiletypes;
+    widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
     
     // Setup the UI for the mode, as appropriate.
     var mode = args.mode || "find";
@@ -614,6 +703,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
+            _collapse_widget(widgets.show_replace_all_results, false);
             //_collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
@@ -624,6 +714,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_btn, false);
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
+            _collapse_widget(widgets.show_replace_all_results, false);
             //_collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_btn;
         }
@@ -637,6 +728,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
+            _collapse_widget(widgets.show_replace_all_results, true);
             //_collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.find_all_btn;
             break
@@ -647,6 +739,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
+            _collapse_widget(widgets.show_replace_all_results, true);
             //_collapse_widget(widgets.mark_all_btn, false);
             default_btn = widgets.find_next_btn;
         }
