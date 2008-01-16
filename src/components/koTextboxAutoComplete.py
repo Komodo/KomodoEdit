@@ -394,7 +394,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
                 log.warn("invalid searchParam 'maxmru' value, skipping: %r",
                          mruLimit)
                 mruLimit = None
-        multiPaths = self._boolFromStr(params.get("multipaths"))
+        multiPaths = self._boolFromStr(params.get("multipaths", ""))
         if not cwd and not prefName:
             log.warn("potentially bogus autocompletesearchparam for "
                      "mru_and_filepath search: %r" % searchParam)
