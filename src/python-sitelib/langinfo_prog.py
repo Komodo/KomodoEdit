@@ -149,7 +149,7 @@ class ADALangInfo(LangInfo):
 class NTBatchLangInfo(LangInfo):
     name = "Batch"
     conforms_to_bases = ["Text"]
-    exts = [".bat"]  #TODO ".com"?
+    exts = [".bat", ".cmd"]  #TODO ".com"?
 
 class BashLangInfo(LangInfo):
     name = "Bash"
