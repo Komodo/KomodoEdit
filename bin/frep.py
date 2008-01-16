@@ -238,6 +238,9 @@ def grep(regex, paths, files_with_matches=False,
                 continue
 
         if ti.is_text:
+            if ti.text is None:
+                yield SkipPath(path, "couldn't decode '%s' text" % ti.encoding)
+                continue
             text = ti.text
         elif treat_binary_files_as_text:
             f = open(path, 'rb')
@@ -662,21 +665,34 @@ class _memoized(object):
 class Event(object):
     pass
 
-class SkipBinaryPath(Event):
+class SkipPath(Event):
+    def __init__(self, path, reason):
+        self.path = path
+        self.reason = reason
+    def __repr__(self):
+        SUMMARY_LEN = 40
+        reason_summary = self.reason
+        if len(reason_summary) > SUMMARY_LEN:
+            reason_summary = reason_summary[:SUMMARY_LEN-3] + "..."
+        return "<SkipPath %s (%s)>" % (self.path, reason_summary)
+    def __str__(self):
+        SUMMARY_LEN = 40
+        reason_summary = self.reason
+        if len(reason_summary) > SUMMARY_LEN:
+            reason_summary = reason_summary[:SUMMARY_LEN-3] + "..."
+        return "skipped `%s' (%s)" % (self.path, reason_summary)
+
+class SkipBinaryPath(SkipPath):
     """Event yielded when skipping a binary path during grep() or replace()."""
     def __init__(self, path):
-        self.path = path
-    def __repr__(self):
-        return "<SkipBinaryPath %s>" % self.path
+        SkipPath.__init__(self, path, "binary")
 
-class SkipUnknownLangPath(Event):
+class SkipUnknownLangPath(SkipPath):
     """Event yielded when skipping a path because its lang could not be
     identified.
     """
     def __init__(self, path):
-        self.path = path
-    def __repr__(self):
-        return "<SkipUnknownLangPath %s>" % self.path
+        SkipPath.__init__(self, path, "unknown language")
 
 class ReplaceDiff(Event):
     """Event giving the diff for an impending replacement."""
@@ -1412,6 +1428,7 @@ def main_grep(regex, paths, includes, excludes, opts):
     last_line_nums = None
     for hit in grep(regex, paths, includes=includes, excludes=excludes):
         if not isinstance(hit, Hit):
+            log.info(hit)
             continue
 
         # Skip reporting a hit if it is on a line (or lines) that
