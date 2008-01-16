@@ -1259,7 +1259,7 @@ function Find_Replace(editor, context, pattern, replacement,
 
         // Do the appropriate UI work for results.
         if (findResult == null) {
-            _UiForCompletedFindSession(context);
+            _UiForCompletedFindSession(context, msgHandler);
             //findLog.debug("Reset find session, because 'Replace' action "
             //              + "returned no result.");
             gFindSession.Reset();
