@@ -764,32 +764,62 @@ class KoFindService:
         else:
             return None
 
-    def replace(self, url, text, pattern, replacement, startOffset):
-        """Return a result indicating how to replace the first "pattern" in
-        "text" with "replacement".
+    def replace(self, url, text, pattern, repl, startOffset):
+        """Return a result indicating how to replace the first occurrence
+        of `pattern` in `text` with `repl`.
 
-        Return value is a KoReplaceResult or None.
+        Returns a KoReplaceResult or None.
         """
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
         try:
-            result = findlib.replace(text, pattern, replacement,
-                                     startOffset=startOffset,
-                                     patternType=patternType, case=case,
-                                     searchBackward=self.options.searchBackward,
-                                     matchWord=self.options.matchWord);
-        except (re.error, findlib.FindError), ex:
+            regex = _findlib2_regex_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        if result:
-            retval = KoReplaceResult(url=url,
-                                     start=result.start, end=result.end,
-                                     value=result.value,
-                                     replacement=result.replacement)
+        #TODO: extend _findlib2_regex_from_ko_find_data to
+        # _regex_info_from_ko_find_data() and include the necessary
+        # 'repl' escaping work below.
+
+        #TODO: do the same here:
+        ## Check for a return a nicer error message for an unescaped trailing
+        ## slash than what sre would return:
+        ##   sre_constants.error: bogus escape (end of line)
+        #numTrailingSlashes = 0
+        #for i in range(len(replacement)-1, -1, -1):
+        #    if replacement[i] == '\\':
+        #        numTrailingSlashes += 1
+        #    else:
+        #        break
+        #if numTrailingSlashes % 2:
+        #    raise FindError("the trailing backslash must be escaped")
+
+        # For replacement strings not using regexes, backslashes must
+        # be escaped to prevent the unlucky "\1" or "\g<foo>" being
+        # interpreted as a back-reference.
+        if self.options.patternType != FOT_REGEX_PYTHON:
+            repl = repl.replace('\\', '\\\\')
+
+        try:
+            if self.options.searchBackward:
+                gen = findlib2.find_all_matches_bwd(regex, text,
+                        start=0, end=startOffset)
+            else:
+                gen = findlib2.find_all_matches(regex, text,
+                        start=startOffset)
+        except (re.error, findlib2.FindError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        for match in gen:
+            return KoReplaceResult(url, match.start(), match.end(),
+                                   match.group(0),
+                                   match.expand(repl))
+            break # only want the first one
         else:
-            retval = None
-        return retval
+            return None        
 
     def findallex(self, url, text, pattern, resultsView, contextOffset,
                   scimoz):
@@ -1084,8 +1114,8 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
     if '$' in pattern:
         # Modifies the pattern such that the '$' anchor will match at
         # '\r\n' and '\r'-style EOLs. To do this we replace occurrences
-        # '$' with '(?=\r\n|\n|\r)', being careful to skip escaped dollar
-        # signs.
+        # '$' with '(?=\r\n|\n|\r|\Z)', being careful to skip escaped
+        # dollar signs.
         chs = []
         STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
         state = STATE_DEFAULT
@@ -1095,7 +1125,7 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
                 if ch == '\\':
                     state = STATE_ESCAPE
                 elif ch == '$':
-                    chs[-1] = r"(?=\r\n|\n|\r)"
+                    chs[-1] = r"(?=\r\n|\n|\r|\Z)"
                 elif ch == '[':
                     state = STATE_CHARCLASS
             elif state == STATE_ESCAPE:

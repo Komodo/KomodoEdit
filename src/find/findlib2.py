@@ -873,7 +873,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
     '$' anchor will match at '\r\n' and '\r'-style EOLs.
     
         >>> regex_info_from_str("/foo$/", universal_newlines=True) \
-        ...   == (re.compile(r'foo(?=\r\n|\n|\r)'), None)
+        ...   == (re.compile(r'foo(?=\r\n|\n|\r|\Z)'), None)
         True
         >>> regex_info_from_str(r"/foo\$/", universal_newlines=True) \
         ...   == (re.compile(r'foo\$'), None)
@@ -939,7 +939,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
             # side of the pattern.
             pattern = r"(?<!\w)" + pattern + r"(?!\w)"
         if universal_newlines and '$' in pattern:
-            # Replace '$' with '(?=\r\n|\n|\r)', being careful to skip
+            # Replace '$' with '(?=\r\n|\n|\r|\Z)', being careful to skip
             # escaped dollar signs.
             chs = []
             STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
@@ -950,7 +950,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
                     if ch == '\\':
                         state = STATE_ESCAPE
                     elif ch == '$':
-                        chs[-1] = r"(?=\r\n|\n|\r)"
+                        chs[-1] = r"(?=\r\n|\n|\r|\Z)"
                     elif ch == '[':
                         state = STATE_CHARCLASS
                 elif state == STATE_ESCAPE:
