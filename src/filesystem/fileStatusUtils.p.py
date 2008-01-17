@@ -56,11 +56,20 @@ monitoredPrefNames = { "enabledPrefName": types.BooleanType,
                        "recursivePrefName": types.BooleanType }
 
 class KoFileCheckerBase:
+
+    # Save have to look this up all over the status checker code.
+    _is_windows = sys.platform.startswith("win")
+
     def __init__(self, type, name):
         self.type = type
         self.name = name
 
         # Dictionary of when a URI was last checked.
+        # Note: On Windows, the URI must be lowered, because it's a case
+        #       insensitive filesystem and we never can be sure which case
+        #       styling will be used. You should use the "_norm_uri_cache_key"
+        #       method for this (below).
+        #       http://bugs.activestate.com/show_bug.cgi?id=74339
         self._lastChecked = {}
 
         # How prefName and matching attribute values work:
@@ -93,6 +102,14 @@ class KoFileCheckerBase:
         self.REASON_ONFOCUS_CHECK = components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK
         self.REASON_FILE_CHANGED = components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED
         self.REASON_FORCED_CHECK = components.interfaces.koIFileStatusChecker.REASON_FORCED_CHECK
+
+    ##
+    # Helper function to ensure the cache key "uri" is consistently the same,
+    # no matter how the platform handles filename case sensitivity.
+    def _norm_uri_cache_key(self, uri):
+        if self._is_windows:
+            return uri.lower()
+        return uri
 
     #  Interface method
     def initialize(self):
@@ -196,6 +213,7 @@ class KoDiskFileChecker(KoFileCheckerBase):
 
     def updateFileStatus(self, koIFile, reason):
         if koIFile.isLocal and (reason == self.REASON_FORCED_CHECK or
-               (self._lastChecked.get(koIFile.URI, 0) < time.time() - (self.backgroundDuration))):
+             (self._lastChecked.get(self._norm_uri_cache_key(koIFile.URI), 0) <
+              time.time() - (self.backgroundDuration))):
             return koIFile.hasChanged
         return 0
