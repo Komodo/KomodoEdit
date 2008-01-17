@@ -169,7 +169,7 @@ def grep(regex, paths, files_with_matches=False,
             continue
 
         accessor = _TextAccessor(text)
-        for match in _find_all(regex, text, start=0, end=None):
+        for match in find_all_matches(regex, text, start=0, end=None):
             if files_with_matches:
                 yield PathHit(path)
                 break
@@ -390,6 +390,35 @@ def undo_replace(journal_id, dry_run=False):
                 log.warn("couldn't remove journal summary '%s': %s", 
                          journal.summary_path, ex)
 
+
+#---- public API functions the generally deal in re MatchObject's
+
+def find_all_matches(regex, text, start=0, end=None):
+    """Generate a regex `MatchObject` for each match of `regex` in the
+    given `text`.
+    """
+    if end is None:
+        end = len(text)
+    while True:
+        match = regex.search(text, start, end)
+        if match:
+            yield match
+            if match.start() - match.end() == 0:
+                start = match.end() + 1
+                if start > end:
+                    break
+            else:
+                start = match.end()
+        else:
+            break
+
+def find_all_matches_bwd(regex, text, start=0, end=None):
+    """Generate a regex `MatchObject` for each match of `regex` in the
+    given `text` *backwards* from `end` to `start`.
+    """
+    matches = [m for m in find_all_matches(regex, text, start, end)]
+    for match in reversed(matches):
+        yield match
 
 
 #---- event/hit class hierarchy
@@ -1164,24 +1193,6 @@ class _TextAccessor(object):
 
 #---- internal support stuff
 
-def _find_all(regex, text, start=0, end=None):
-    """Generate a regex `MatchObject` for each match of `regex` in the
-    given `text`.
-    """
-    if end is None:
-        end = len(text)
-    while True:
-        match = regex.search(text, start, end)
-        if match:
-            yield match
-            if match.start() - match.end() == 0:
-                start = match.end() + 1
-                if start > end:
-                    break
-            else:
-                start = match.end()
-        else:
-            break
 
 # Recipe: relpath (0.2)
 def _relpath(path, relto=None):

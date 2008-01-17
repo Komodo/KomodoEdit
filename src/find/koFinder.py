@@ -530,7 +530,7 @@ class _FinderInFiles(threading.Thread):
 
 #---- find and replace components
 
-class KoFindResult:
+class KoFindResult(object):
     _com_interfaces_ = components.interfaces.koIFindResult
     _reg_desc_ = "Find Result"
     _reg_clsid_ = "{0D889F34-0369-4363-BAAB-7465D14EE421}"
@@ -543,9 +543,8 @@ class KoFindResult:
         self.value = value
 
 
-class KoReplaceResult:
-    _com_interfaces_ = [components.interfaces.koIFindResult,
-                        components.interfaces.koIReplaceResult]
+class KoReplaceResult(object):
+    _com_interfaces_ = [components.interfaces.koIReplaceResult]
     _reg_desc_ = "Replace Result"
     _reg_clsid_ = "{53056470-F2F0-4a05-B8FF-36DE117C9741}"
     _reg_contractid_ = "@activestate.com/koReplaceResult;1"
@@ -738,27 +737,32 @@ class KoFindService:
         self._threadMap = {}
        
     def find(self, url, text, pattern, startOffset):
-        """Return the result of searching for the first "pattern" in "text".
-        Return value is a KoFindResult or None.
-        """
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
         try:
-            result = findlib.find(text, pattern, startOffset=startOffset,
-                                  patternType=patternType, case=case,
-                                  searchBackward=self.options.searchBackward,
-                                  matchWord=self.options.matchWord);
-        except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
+            regex = _findlib2_regex_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
             lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        if result:
-            retval = KoFindResult(url=url, start=result.start, end=result.end,
-                                  value=result.value)
+        try:
+            if self.options.searchBackward:
+                gen = findlib2.find_all_matches_bwd(regex, text,
+                        start=0, end=startOffset)
+            else:
+                gen = findlib2.find_all_matches(regex, text,
+                        start=startOffset)
+        except (re.error, findlib2.FindError), ex:
+            lastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        for match in gen:
+            return KoFindResult(url, match.start(), match.end(),
+                                match.group(0))
+            break # only want the first one
         else:
-            retval = None
-        return retval
+            return None
 
     def replace(self, url, text, pattern, replacement, startOffset):
         """Return a result indicating how to replace the first "pattern" in
@@ -1003,9 +1007,6 @@ class KoFindService:
 
     def replaceallinfiles(self, id, pattern, repl, resultsMgr,
                           resultsView):
-        log.info("s/%s/%s/g", pattern, repl)
-        print "XXX -------------- s/%s/%s/g" % (pattern, repl)
-
         try:
             regex = _findlib2_regex_from_ko_find_data(
                 pattern, self.options.patternType,
@@ -1084,6 +1085,24 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
         # if there is NOT a word character to either immediate side of the
         # pattern.
         pattern = r"(?<!\w)" + pattern + r"(?!\w)"
+    if '$' in pattern:
+        # Modifies the pattern such that the '$' anchor will match at
+        # '\r\n' and '\r'-style EOLs. To do this we replace occurrences
+        # '$' with '(?=\r\n|\n|\r)', being careful to skip escaped dollar
+        # signs.
+        chs = []
+        STATE_DEFAULT, STATE_ESCAPE = range(2)
+        state = STATE_DEFAULT
+        for ch in pattern:
+            chs.append(ch)
+            if state == STATE_DEFAULT:
+                if ch == '\\':
+                    state = STATE_ESCAPE
+                elif ch == '$':
+                    chs[-1] = r"(?=\r\n|\n|\r)"
+            elif state == STATE_ESCAPE:
+                state = STATE_DEFAULT
+        pattern = ''.join(chs)
 
     return re.compile(pattern, flags)
 
