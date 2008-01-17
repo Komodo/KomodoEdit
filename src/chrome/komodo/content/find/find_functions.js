@@ -396,25 +396,18 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                                             findResult.end-findResult.start);
         var findText = scimoz.getTextRange(startByte, endByte);
         var startOffset;
-        var contextOffset = findResult.start;
         if (findSvc.options.searchBackward) {
-            startOffset = stringutils_bytelength(findText);
+            startOffset = endByte;
         } else {
-            startOffset = 0;
+            startOffset = startByte;
         }
-        gFindSession.StartReplace(pattern, replacement, url, findSvc.options);
-        replaceResult = findSvc.replace(url, findText, pattern,
+        replaceResult = findSvc.replace(url, scimoz.text, pattern,
                                         replacement, startOffset);
         if (replaceResult) {
-            // fix it up
-            replaceResult.start += contextOffset;
-            replaceResult.end += contextOffset;
-
             findLog.info("replace result (from FindSvc): s/"+replaceResult.value+
                          "/"+replaceResult.replacement+"/ at "+
                          replaceResult.start+"-"+replaceResult.end);
         }
-
 
         // - make the replacement (if the findResult is genuine)
         if (replaceResult &&
