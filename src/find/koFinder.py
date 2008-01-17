@@ -71,7 +71,7 @@ FOC_SMART = components.interfaces.koIFindOptions.FOC_SMART
 
 # services setup in Find Service ctor
 gPrefSvc = None
-lastErrorSvc = None
+gLastErrorSvc = None
 
 
 #---- Find/Replace in Files backend
@@ -712,10 +712,10 @@ class KoFindService:
     _reg_contractid_ = "@activestate.com/koFindService;1"
 
     def __init__(self):
-        global gPrefSvc, lastErrorSvc
+        global gPrefSvc, gLastErrorSvc
         gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
                   .getService(components.interfaces.koIPrefService)
-        lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+        gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                        .getService(components.interfaces.koILastErrorService)
 
         # Define mappings from koIFinder.idl option enums to findlib option
@@ -743,7 +743,7 @@ class KoFindService:
                 self.options.caseSensitivity,
                 self.options.matchWord)
         except (re.error, ValueError), ex:
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         try:
@@ -754,7 +754,7 @@ class KoFindService:
                 gen = findlib2.find_all_matches(regex, text,
                         start=startOffset)
         except (re.error, findlib2.FindError), ex:
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         for match in gen:
@@ -779,8 +779,7 @@ class KoFindService:
                                      searchBackward=self.options.searchBackward,
                                      matchWord=self.options.matchWord);
         except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         if result:
@@ -819,8 +818,7 @@ class KoFindService:
                 patternType=patternType, case=case,
                 matchWord=self.options.matchWord)
         except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         if matches:
@@ -868,8 +866,7 @@ class KoFindService:
                 patternType=patternType, case=case,
                 matchWord=self.options.matchWord)
         except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         lines = {}  # use dict to avoid dupes
@@ -931,8 +928,7 @@ class KoFindService:
                 matchWord=self.options.matchWord, skipZone=skipZone,
                 wantMatches=resultsView is not None)
         except (re.error, findlib.FindError), ex:
-            global lastErrorSvc
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         if matches:
@@ -989,7 +985,7 @@ class KoFindService:
                                     case=caseSensitivity,
                                     matchWord=self.options.matchWord)
         except (re.error, findlib.FindError), ex:
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         t = _FinderInFiles(id, pattern, patternType, caseSensitivity,
@@ -1013,7 +1009,7 @@ class KoFindService:
                 self.options.caseSensitivity,
                 self.options.matchWord)
         except (re.error, ValueError), ex:
-            lastErrorSvc.setLastError(0, str(ex))
+            gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         t = _ReplacerInFiles(
