@@ -94,9 +94,9 @@
                 <Shortcut Id="StartMenuInstallGuideShortcut" Directory="StartMenuDir"
                     Name="INSTAL_0.HTM" LongName="Install Guide" />
               </File>
-              <File Id="file291" LongName="feedback.html" Name="FEEDBA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\feedback.html" >
-                <Shortcut Id="StartMenuFeedbackShortcut" Directory="StartMenuDir"
-                    Name="KOMODO_0.HTM" LongName="Sending Feedback" />
+              <File Id="file291" LongName="support.html" Name="SUPPOR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\support.html" >
+                <Shortcut Id="StartMenuSupportShortcut" Directory="StartMenuDir"
+                    Name="KOMODO_0.HTM" LongName="Getting Support" />
               </File>
               <File Id="file304" LongName="starting.html" Name="STARTI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\starting.html" />
               <File Id="file305" LongName="workspace.html" Name="WORKSP_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\workspace.html" />
