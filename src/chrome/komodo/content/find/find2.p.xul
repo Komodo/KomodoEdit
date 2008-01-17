@@ -246,7 +246,7 @@
           </row>
 
           <row id="includes-row" align="center">
-            <label value="Include:" control="ncludes"
+            <label value="Include:" control="includes"
                    accesskey="u" style="width: 5.6em;"/>
             <textbox id="includes"
                      flex="1"
