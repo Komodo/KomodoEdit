@@ -64,6 +64,8 @@ class KoFindContext:
     _reg_clsid_ = "{D6C80051-0A3D-46bc-80E3-DA4413D83EFB}"
     _reg_contractid_ = "@activestate.com/koFindContext;1"
 
+    type = None
+
     def get_name(self):
         try:
             return _names[self.type]
@@ -77,6 +79,8 @@ class KoRangeFindContext(KoFindContext):
     _reg_clsid_ = "{EE524C16-BB91-43ec-B213-C7FE5697876A}"
     _reg_contractid_ = "@activestate.com/koRangeFindContext;1"
 
+    startIndex = None
+    endIndex = None
 
 class KoFindInFilesContext(KoFindContext):
     _com_interfaces_ = [components.interfaces.koIFindInFilesContext]
@@ -84,4 +88,5 @@ class KoFindInFilesContext(KoFindContext):
     _reg_clsid_ = "{11CDB7B7-24B4-4C5E-A1EA-8CE9A866536D}"
     _reg_contractid_ = "@activestate.com/koFindInFilesContext;1"
 
+    cwd = None
 

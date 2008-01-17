@@ -294,6 +294,7 @@
   <boolean id="find-showReplaceAllResults">1</boolean>
   <ordered-preference id="find-folders"/>
   <boolean id="find-searchInSubfolders">1</boolean>
+  <string id="find-cwd">~</string>
   <ordered-preference id="find-includeFiletypes"/>
   <ordered-preference id="find-excludeFiletypes"/>
 

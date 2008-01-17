@@ -97,6 +97,9 @@ interface koIFindOptions: nsISupports {
     attribute boolean showReplaceAllResults;
     attribute boolean displayInFindResults2;
 
+    // Fallback cwd for interpreting relative dirs for searching.
+    attribute wstring cwd;
+
     // Find in Files stuff:
     // - The folders in which to search
     //   This is a _list_ of folders but this list is often represented in

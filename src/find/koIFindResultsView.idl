@@ -68,8 +68,7 @@ interface koIFindResultsView : nsITreeView {
                           in PRUint32 columnNum,
                           in wstring context_);
 
-    // Optimization: add multiple find results at once.
-    //XXX Used by find in files -- perhaps Find all could use this as well.
+    // Optimization: add multiple find/replace results at once.
     void AddFindResults(in unsigned long url_count,
                         [array, size_is(url_count)] in wstring url,
                         in unsigned long startIndex_count,
@@ -86,7 +85,25 @@ interface koIFindResultsView : nsITreeView {
                         [array, size_is(columnNum_count)] in PRUint32 columnNum,
                         in unsigned long context_count,
                         [array, size_is(context_count)] in wstring context_);
-
+    void AddReplaceResults(
+            in unsigned long url_count,
+            [array, size_is(url_count)] in wstring url,
+            in unsigned long startIndex_count,
+            [array, size_is(startIndex_count)] in PRUint32 startIndex,
+            in unsigned long endIndex_count,
+            [array, size_is(endIndex_count)] in PRUint32 endIndex,
+            in unsigned long value_count,
+            [array, size_is(value_count)] in wstring value,
+            in unsigned long replacement_count,
+            [array, size_is(replacement_count)] in wstring replacement,
+            in unsigned long fileName_count,
+            [array, size_is(fileName_count)] in wstring fileName,
+            in unsigned long lineNum_count,
+            [array, size_is(lineNum_count)] in PRUint32 lineNum,
+            in unsigned long columnNum_count,
+            [array, size_is(columnNum_count)] in PRUint32 columnNum,
+            in unsigned long context_count,
+            [array, size_is(context_count)] in wstring context_);
 
     // Extract part of the find result data at a specific index.
     wstring GetUrl(in PRUint32 index);

@@ -144,6 +144,30 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
+    def AddReplaceResults(self, urls, startIndexs, endIndexs,
+                          values, replacements, fileNames,
+                          lineNums, columnNums, contexts):
+        for (url, startIndex, endIndex, value, replacement,
+             fileName, lineNum, columnNum, context
+             ) in zip(urls, startIndexs, endIndexs, values, replacements,
+                      fileNames, lineNums, columnNums, contexts):
+            datum = {"url": url,
+                     "startIndex": startIndex,
+                     "endIndex": endIndex,
+                     "value": value,
+                     "replacement": replacement,
+                     "lineNum": lineNum,
+                     "columnNum": columnNum,
+                     "findresults%d-filename" % self.id: fileName,
+                     "findresults%d-linenum" % self.id: lineNum,
+                     "findresults%d-context" % self.id: context}
+            self._data.append(datum)
+        self._sortedBy = None
+        self._tree.beginUpdateBatch()
+        self._tree.rowCountChanged(0, len(urls))
+        self._tree.invalidate()  #XXX invalidating too much here?
+        self._tree.endUpdateBatch()
+
     def GetUrl(self, index):
         return self._data[index]["url"]
     def GetStartIndex(self, index):

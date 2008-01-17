@@ -50,6 +50,7 @@ from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 import findlib
+import findlib2
 
 
 
@@ -74,6 +75,137 @@ lastErrorSvc = None
 
 
 #---- Find/Replace in Files backend
+
+class _ReplacerInFiles(threading.Thread):
+    def __init__(self, id, regex, repl, folders, cwd, searchInSubfolders,
+                 includeFiletypes, excludeFiletypes, resultsMgr,
+                 resultsView):
+        threading.Thread.__init__(self, name="ReplacerInFiles")
+
+        self.id = id
+        self.regex = regex
+        self.repl = repl
+        self.folders = folders
+        self.cwd = normpath(expanduser(cwd))
+        self.searchInSubfolders = searchInSubfolders
+        self.includeFiletypes = includeFiletypes
+        self.excludeFiletypes = excludeFiletypes
+        self.resultsMgr = resultsMgr
+        self.resultsView = resultsView
+
+        self.resultsMgrProxy = getProxyForObject(None,
+            components.interfaces.koIFindResultsTabManager,
+            self.resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
+        self.resultsViewProxy = getProxyForObject(None,
+            components.interfaces.koIFindResultsView,
+            self.resultsView, PROXY_ALWAYS | PROXY_SYNC)
+        self._resultsView = UnwrapObject(resultsView)
+
+        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+                      .getService(components.interfaces.koILastErrorService)
+
+        self._stop = 0 # when true the processing thread should terminate
+
+    def stop(self):
+        """Stop processing."""
+        log.debug("stopping replace in files thread")
+        self._stop = 1
+
+    def _norm_dir_from_dir(self, dir):
+        dir = normpath(dir)
+        if dir.startswith("~"):
+            return expanduser(dir)
+        elif not isabs(dir):
+            return join(self.cwd, dir)
+        else:
+            return dir
+
+    def run(self):
+        # Rule: if self._stop is true then this code MUST NOT use
+        #       self.resultsMgrProxy or self.resultsViewProxy, because they
+        #       may have been destroyed.
+
+        # optimization: delay reporting of results, store them here
+        self._resetResultCache()
+
+        self.numResults = 0
+        self.numFiles = 0
+        self.numSearchedFiles = 0
+        self.searched_norm_dirs = set() # used to avoid dupes
+        try:
+            if self._stop:
+                return
+            else:
+                self.resultsMgrProxy.setDescription(
+                    "Phase 1: gathering list of files...", 0)
+
+            #TODO: add 'already_handled_dirs' optional set arg to
+            #      paths_from_path_patterns to have it use and update
+            #      that to properly skip dirs already handled.
+            paths = findlib2.paths_from_path_patterns(
+                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        recursive=self.searchInSubfolders,
+                        includes=self.includeFiletypes,
+                        excludes=self.excludeFiletypes)
+            for event in findlib2.replace(self.regex, self.repl, paths,
+                                          include_diff_events=True,
+                                          dry_run=True):
+                if self._stop:
+                    return
+                print repr(event)
+
+            self._flushResultCache() # Add the last chunk of find results
+        finally:
+            if not self._stop:
+                self.resultsMgrProxy.searchFinished(1, self.numResults,
+                                                    self.numFiles,
+                                                    self.numSearchedFiles)
+                if self.numSearchedFiles == 0:
+                    self.resultsMgrProxy.setDescription(
+                        "No files were found to search in.", 1)
+
+    def _resetResultCache(self):
+        self._r_urls = []
+        self._r_startIndexes = []
+        self._r_endIndexes = []
+        self._r_values = []
+        self._r_replacements = []
+        self._r_fileNames = []
+        self._r_lineNums = []
+        self._r_columnNums = []
+        self._r_contexts = []
+
+    def _cacheResult(self, url, startIndex, endIndex, value, fileName,
+                     lineNum, columnNum, context):
+        self._r_urls.append(url)
+        self._r_startIndexes.append(startIndex)
+        self._r_endIndexes.append(endIndex)
+        self._r_values.append(value)
+        self._r_replacements.append(replacement)
+        self._r_fileNames.append(fileName)
+        self._r_lineNums.append(lineNum)
+        self._r_columnNums.append(columnNum)
+        self._r_contexts.append(context)
+
+    def _flushResultCache(self):
+        if self._r_urls:
+            self.resultsViewProxy.AddReplaceResults(
+                self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                self._r_values, self._r_replacements, self._r_fileNames,
+                self._r_lineNums, self._r_columnNums, self._r_contexts)
+            self._resetResultCache()
+
+            numSearchedFiles = len(self.searchedFiles)
+            if numSearchedFiles == 1:
+                filesStr = "1 file"
+            else:
+                filesStr = str(numSearchedFiles) + " files"
+            #TODO: mk appropriate for *replace*
+            desc = "Found %d occurrences in %d of %s so far."\
+                   % (self.numResults, self.numFiles, filesStr)
+            self.resultsMgrProxy.setDescription(desc, 0)
+
+
 
 class _FinderInFiles(threading.Thread):
     """Find all hits of the given pattern in the given files and
@@ -173,7 +305,7 @@ class _FinderInFiles(threading.Thread):
         if not self.searchInSubfolders:
             path_patterns = [join(folder, "*"), join(folder, ".*")]
 
-        for path in _paths_from_path_patterns(
+        for path in findlib2.paths_from_path_patterns(
                         path_patterns,
                         includes=self.includeFiletypes,
                         excludes=self.excludeFiletypes,
@@ -440,6 +572,7 @@ class KoFindOptions:
         self.preferredContextTypePrefName = "find-preferredContextType"
         self.displayInFindResults2PrefName = "find-displayInFindResults2"
         self.showReplaceAllResultsPrefName = "find-showReplaceAllResults"
+        self.cwdPrefName = "find-cwd"
         self.foldersPrefName = "find-folders"
         self.searchInSubfoldersPrefName = "find-searchInSubfolders"
         self.includeFiletypesPrefName = "find-includeFiletypes"
@@ -452,6 +585,7 @@ class KoFindOptions:
         self.preferredContextType = gPrefSvc.prefs.getLongPref(self.preferredContextTypePrefName)
         self.displayInFindResults2 = gPrefSvc.prefs.getBooleanPref(self.displayInFindResults2PrefName)
         self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
+        self.cwd = gPrefSvc.prefs.getStringPref(self.cwdPrefName)
 
         # In case we run into some alternate dimension where
         #   os.pathsep not in ';:'
@@ -516,6 +650,10 @@ class KoFindOptions:
     def set_displayInFindResults2(self, value):
         self.displayInFindResults2 = value
         return gPrefSvc.prefs.setBooleanPref(self.displayInFindResults2PrefName, value)
+
+    def set_cwd(self, value):
+        self.cwd = value
+        return gPrefSvc.prefs.setStringPref(self.cwdPrefName, value)
 
     def set_showReplaceAllResults(self, value):
         self.showReplaceAllResults = value
@@ -822,35 +960,6 @@ class KoFindService:
 
         return replacementText, numReplacements
 
-    def replaceallinfiles(self, id, pattern, repl, resultsMgr,
-                          resultsView):
-        log.info("s/%s/%s/g", pattern, repl)
-        print "TODO: s/%s/%s/g" % (pattern, repl)
-
-        #patternType = self.patternTypeMap[self.options.patternType]
-        #caseSensitivity = self.caseMap[self.options.caseSensitivity]
-        #try:
-        #    findlib.validatePattern(pattern, patternType=patternType,
-        #                            case=caseSensitivity,
-        #                            matchWord=self.options.matchWord)
-        #except (re.error, findlib.FindError), ex:
-        #    lastErrorSvc.setLastError(0, str(ex))
-        #    raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-        #
-        #t = _ReplacerInFiles(
-        #        id, pattern, patternType, repl, caseSensitivity,
-        #        self.options.matchWord,
-        #        self.options.getFolders(),
-        #        resultsMgr.context_.cwd,
-        #        self.options.searchInSubfolders,
-        #        self.options.getIncludeFiletypes(),
-        #        self.options.getExcludeFiletypes(),
-        #        resultsMgr,
-        #        resultsView)
-        #self._threadMap[id] = t
-        #resultsMgr.searchStarted()
-        #self._threadMap[id].start()        
-
     def findallinfiles(self, id, pattern, resultsMgr, resultsView):
         """Feed all occurrences of "pattern" in the files identified by
         the options attribute into the given koIFindResultsView.
@@ -892,6 +1001,33 @@ class KoFindService:
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
+    def replaceallinfiles(self, id, pattern, repl, resultsMgr,
+                          resultsView):
+        log.info("s/%s/%s/g", pattern, repl)
+        print "XXX -------------- s/%s/%s/g" % (pattern, repl)
+
+        try:
+            regex = _findlib2_regex_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
+            lastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        t = _ReplacerInFiles(
+                id, regex, repl,
+                self.options.getFolders(),
+                resultsMgr.context_.cwd,
+                self.options.searchInSubfolders,
+                self.options.getIncludeFiletypes(),
+                self.options.getExcludeFiletypes(),
+                resultsMgr,
+                resultsView)
+        self._threadMap[id] = t
+        resultsMgr.searchStarted()
+        self._threadMap[id].start()
+
     def stopfindreplaceinfiles(self, id):
         #XXX Do I need a lock-guard around usage of self._threadMap?
         if id in self._threadMap:
@@ -902,163 +1038,54 @@ class KoFindService:
         return re.escape(s)
 
 
+
 #---- internal support stuff
 
-# Recipe: paths_from_path_patterns (0.3.5)
-def _should_include_path(path, includes, excludes):
-    """Return True iff the given path should be included."""
-    from os.path import basename
-    from fnmatch import fnmatch
+def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
+                                      caseSensitivity=FOC_SENSITIVE,
+                                      matchWord=False):
+    # Determine the flags.
+    #TODO: should we turn on re.UNICODE all the time?
+    flags = re.MULTILINE   # Generally always want line-based searching.
+    if caseSensitivity == FOC_INSENSITIVE:
+        flags |= re.IGNORECASE
+    elif caseSensitivity == FOC_SENSITIVE:
+        pass
+    elif caseSensitivity == FOC_SMART:
+        # Smart case-sensitivity is modelled after the options in Emacs
+        # where by a search is case-insensitive if the seach string is
+        # all lowercase. I.e. if the search string has an case
+        # information then the implication is that a case-sensitive
+        # search is desired.
+        if pattern == pattern.lower():
+            flags |= re.IGNORECASE
+    else:
+        raise ValueError("unrecognized case-sensitivity: %r"
+                         % caseSensitivity)
 
-    base = basename(path)
-    if includes:
-        for include in includes:
-            if fnmatch(base, include):
-                try:
-                    log.debug("include `%s' (matches `%s')", path, include)
-                except (NameError, AttributeError):
-                    pass
-                break
-        else:
-            log.debug("exclude `%s' (matches no includes)", path)
-            return False
-    for exclude in excludes:
-        if fnmatch(base, exclude):
-            try:
-                log.debug("exclude `%s' (matches `%s')", path, exclude)
-            except (NameError, AttributeError):
-                pass
-            return False
-    return True
+    # Massage the pattern, if necessary.
+    if patternType == FOT_SIMPLE:
+        pattern = re.escape(pattern)
+    elif patternType == FOT_WILDCARD:    # DEPRECATED
+        pattern = re.escape(pattern)
+        pattern = pattern.replace("\\?", "\w")
+        pattern = pattern.replace("\\*", "\w*")
+    elif patternType == FOT_REGEX_PYTHON:
+        pass
+    else:
+        raise ValueError("unrecognized find pattern type: %r"
+                         % patternType)
 
-_NOT_SPECIFIED = ("NOT", "SPECIFIED")
-def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
-                              recursive=True, includes=[], excludes=[],
-                              on_error=_NOT_SPECIFIED):
-    """_paths_from_path_patterns([<path-patterns>, ...]) -> file paths
+    if matchWord:
+        # Bug 33698: "Match whole word" doesn't work as expected Before
+        # this the transformation was "\bPATTERN\b" where \b means:
+        #   matches a boundary between a word char and a non-word char
+        # However what is really wanted (and what VS.NET does) is to match
+        # if there is NOT a word character to either immediate side of the
+        # pattern.
+        pattern = r"(?<!\w)" + pattern + r"(?!\w)"
 
-    Generate a list of paths (files and/or dirs) represented by the given path
-    patterns.
+    return re.compile(pattern, flags)
 
-        "path_patterns" is a list of paths optionally using the '*', '?' and
-            '[seq]' glob patterns.
-        "files" is boolean (default True) indicating if file paths
-            should be yielded
-        "dirs" is string indicating under what conditions dirs are
-            yielded. It must be one of:
-              never             (default) never yield dirs
-              always            yield all dirs matching given patterns
-              if-not-recursive  only yield dirs for invocations when
-                                recursive=False
-            See use cases below for more details.
-        "recursive" is boolean (default True) indicating if paths should
-            be recursively yielded under given dirs.
-        "includes" is a list of file patterns to include in recursive
-            searches.
-        "excludes" is a list of file and dir patterns to exclude.
-            (Note: This is slightly different than GNU grep's --exclude
-            option which only excludes *files*.  I.e. you cannot exclude
-            a ".svn" dir.)
-        "on_error" is an error callback called when a given path pattern
-            matches nothing:
-                on_error(PATH_PATTERN)
-            If not specified, the default is look for a "log" global and
-            call:
-                log.error("`%s': No such file or directory")
-            Specify None to do nothing.
 
-    Typically this is useful for a command-line tool that takes a list
-    of paths as arguments. (For Unix-heads: the shell on Windows does
-    NOT expand glob chars, that is left to the app.)
-
-    Use case #1: like `grep -r`
-      {files=True, dirs='never', recursive=(if '-r' in opts)}
-        script FILE     # yield FILE, else call on_error(FILE)
-        script DIR      # yield nothing
-        script PATH*    # yield all files matching PATH*; if none,
-                        # call on_error(PATH*) callback
-        script -r DIR   # yield files (not dirs) recursively under DIR
-        script -r PATH* # yield files matching PATH* and files recursively
-                        # under dirs matching PATH*; if none, call
-                        # on_error(PATH*) callback
-
-    Use case #2: like `file -r` (if it had a recursive option)
-      {files=True, dirs='if-not-recursive', recursive=(if '-r' in opts)}
-        script FILE     # yield FILE, else call on_error(FILE)
-        script DIR      # yield DIR, else call on_error(DIR)
-        script PATH*    # yield all files and dirs matching PATH*; if none,
-                        # call on_error(PATH*) callback
-        script -r DIR   # yield files (not dirs) recursively under DIR
-        script -r PATH* # yield files matching PATH* and files recursively
-                        # under dirs matching PATH*; if none, call
-                        # on_error(PATH*) callback
-
-    Use case #3: kind of like `find .`
-      {files=True, dirs='always', recursive=(if '-r' in opts)}
-        script FILE     # yield FILE, else call on_error(FILE)
-        script DIR      # yield DIR, else call on_error(DIR)
-        script PATH*    # yield all files and dirs matching PATH*; if none,
-                        # call on_error(PATH*) callback
-        script -r DIR   # yield files and dirs recursively under DIR
-                        # (including DIR)
-        script -r PATH* # yield files and dirs matching PATH* and recursively
-                        # under dirs; if none, call on_error(PATH*)
-                        # callback
-    """
-    from os.path import basename, exists, isdir, join
-    from glob import glob
-
-    GLOB_CHARS = '*?['
-
-    for path_pattern in path_patterns:
-        # Determine the set of paths matching this path_pattern.
-        for glob_char in GLOB_CHARS:
-            if glob_char in path_pattern:
-                paths = glob(path_pattern)
-                break
-        else:
-            paths = exists(path_pattern) and [path_pattern] or []
-        if not paths:
-            if on_error is None:
-                pass
-            elif on_error is _NOT_SPECIFIED:
-                try:
-                    log.error("`%s': No such file or directory", path_pattern)
-                except (NameError, AttributeError):
-                    pass
-            else:
-                on_error(path_pattern)
-
-        for path in paths:
-            if isdir(path):
-                # 'includes' SHOULD affect whether a dir is yielded.
-                if (dirs == "always"
-                    or (dirs == "if-not-recursive" and not recursive)
-                   ) and _should_include_path(path, includes, excludes):
-                    yield path
-
-                # However, if recursive, 'includes' should NOT affect
-                # whether a dir is recursed into. Otherwise you could
-                # not:
-                #   script -r --include="*.py" DIR
-                if recursive and _should_include_path(path, [], excludes):
-                    for dirpath, dirnames, filenames in os.walk(path):
-                        dir_indeces_to_remove = []
-                        for i, dirname in enumerate(dirnames):
-                            d = join(dirpath, dirname)
-                            if dirs == "always" \
-                               and _should_include_path(d, includes, excludes):
-                                yield d
-                            if not _should_include_path(d, [], excludes):
-                                dir_indeces_to_remove.append(i)
-                        for i in reversed(dir_indeces_to_remove):
-                            del dirnames[i]
-                        if files:
-                            for filename in sorted(filenames):
-                                f = join(dirpath, filename)
-                                if _should_include_path(f, includes, excludes):
-                                    yield f
-
-            elif files and _should_include_path(path, includes, excludes):
-                yield path
 

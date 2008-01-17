@@ -51,6 +51,7 @@
  * - some key mappings (see find2.xul)
  * - prep new docs for Troy
  * - replacement for smart-case matching?
+ * - restore mark all
  */
 
 //---- globals
@@ -412,6 +413,7 @@ function find_all() {
                 ko.mru.addFromACTextbox(widgets.includes);
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
+            gFindSvc.options.cwd = _g_find_context.cwd;
 
             if (Find_FindAllInFiles(opener, _g_find_context,
                                     pattern, null,
@@ -507,6 +509,7 @@ function replace_all() {
                 ko.mru.addFromACTextbox(widgets.includes);
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
+            gFindSvc.options.cwd = _g_find_context.cwd;
 
             if (Find_ReplaceAllInFiles(opener, _g_find_context,
                                        pattern, repl, null,
@@ -872,6 +875,8 @@ function reset_find_context() {
             view.document.file &&
             view.document.file.isLocal) {
             context.cwd = view.document.file.dirName;
+        } else {
+            context.cwd = gFindSvc.options.cwd;
         }
         break;
 
