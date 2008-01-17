@@ -329,7 +329,7 @@ def undo_replace(journal_id, dry_run=False):
     #      restoration on any failure.
     paths_failing_sanity_check = []
     for group in journal:
-        f = codecs.open(group.path, 'rU', group.encoding)
+        f = codecs.open(group.path, 'rb', group.encoding)
         text = f.read()
         f.close()
         
