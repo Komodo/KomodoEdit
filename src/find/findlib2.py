@@ -231,7 +231,7 @@ def replace(regex, repl, paths, include_diff_events=False,
             # replacment (for undo).
             if not dry_run and journal is None:
                 #TODO: this isn't good enough for a summary
-                summary = _str_from_regex_info(regex, repl)
+                summary = str_from_regex_info(regex, repl)
                 journal = Journal.create(summary)
                 yield StartJournal(journal.id)
 
@@ -312,6 +312,7 @@ def undo_replace(journal_id, dry_run=False):
           those lines where there are conflicts.
     """
     journal = Journal.load(journal_id)
+    log.debug("undo replace `%s'", journal.id)
 
     # 2. Ensure can complete the undo.
     changed_paths = []
@@ -332,6 +333,7 @@ def undo_replace(journal_id, dry_run=False):
     #      restoration on any failure.
     paths_failing_sanity_check = []
     for group in journal:
+        log.debug("undo changes to `%s'", group.path)
         f = codecs.open(group.path, 'rb', group.encoding)
         text = f.read()
         f.close()
@@ -355,12 +357,14 @@ def undo_replace(journal_id, dry_run=False):
         # 4. Sanity check.
         bytes = text.encode(group.encoding)
         md5sum = md5.md5(bytes).hexdigest()
+        log.debug("undo md5 check: before=%s, after undo=%s",
+                  group.before_md5sum, md5sum)
         if md5sum != group.before_md5sum:
             paths_failing_sanity_check.append(group.path)
 
         # Write out the reverted content.
         if not dry_run:
-            f = open(group.path, 'w')
+            f = open(group.path, 'wb')
             f.write(bytes)
             f.close()
 
@@ -843,7 +847,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
         ...   == (re.compile(r'foo(?=\r\n|\n|\r)'), None)
         True
 
-    Note: this is intended to round-trip with _str_from_regex_info().
+    Note: this is intended to round-trip with str_from_regex_info().
     """
     flag_from_ch = {
         "i": re.IGNORECASE,
