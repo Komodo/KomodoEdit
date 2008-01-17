@@ -875,6 +875,12 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
         >>> regex_info_from_str("/foo$/", universal_newlines=True) \
         ...   == (re.compile(r'foo(?=\r\n|\n|\r)'), None)
         True
+        >>> regex_info_from_str(r"/foo\$/", universal_newlines=True) \
+        ...   == (re.compile(r'foo\$'), None)
+        True
+        >>> regex_info_from_str(r"/foo[$]/", universal_newlines=True) \
+        ...   == (re.compile(r'foo[$]'), None)
+        True
 
     Note: this is intended to round-trip with str_from_regex_info().
     """
@@ -936,7 +942,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
             # Replace '$' with '(?=\r\n|\n|\r)', being careful to skip
             # escaped dollar signs.
             chs = []
-            STATE_DEFAULT, STATE_ESCAPE = range(2)
+            STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
             state = STATE_DEFAULT
             for ch in pattern:
                 chs.append(ch)
@@ -945,8 +951,13 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
                         state = STATE_ESCAPE
                     elif ch == '$':
                         chs[-1] = r"(?=\r\n|\n|\r)"
+                    elif ch == '[':
+                        state = STATE_CHARCLASS
                 elif state == STATE_ESCAPE:
                     state = STATE_DEFAULT
+                elif state == STATE_CHARCLASS:
+                    if ch == ']':
+                        state == STATE_DEFAULT
             pattern = ''.join(chs)
     
     return (re.compile(pattern, flags), repl)
@@ -1310,3 +1321,13 @@ def _get_friendly_id():
     
     return ''.join([choice(v if i%2 else c) for i in range(8)])
 
+
+
+#---- self-test mainline
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()

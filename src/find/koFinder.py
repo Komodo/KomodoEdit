@@ -1091,7 +1091,7 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
         # '$' with '(?=\r\n|\n|\r)', being careful to skip escaped dollar
         # signs.
         chs = []
-        STATE_DEFAULT, STATE_ESCAPE = range(2)
+        STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
         state = STATE_DEFAULT
         for ch in pattern:
             chs.append(ch)
@@ -1100,8 +1100,13 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
                     state = STATE_ESCAPE
                 elif ch == '$':
                     chs[-1] = r"(?=\r\n|\n|\r)"
+                elif ch == '[':
+                    state = STATE_CHARCLASS
             elif state == STATE_ESCAPE:
                 state = STATE_DEFAULT
+            elif state == STATE_CHARCLASS:
+                if ch == ']':
+                    state == STATE_DEFAULT
         pattern = ''.join(chs)
 
     return re.compile(pattern, flags)
