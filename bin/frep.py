@@ -157,124 +157,6 @@ log = logging.getLogger("frep")
 
 #---- internal support stuff
 
-# Recipe: regex_from_str (2.1.0)
-def _str_from_regex_info(regex, repl=None):
-    r"""Generate a string representing the regex (and optional replacement).
-
-        >>> _str_from_regex_info(re.compile('foo'))
-        '/foo/'
-        >>> _str_from_regex_info(re.compile('foo', re.I))
-        '/foo/i'
-        >>> _str_from_regex_info(re.compile('foo'), 'bar')
-        's/foo/bar/'
-        >>> _str_from_regex_info(re.compile('foo/bar', re.M), 'bar')
-        's/foo\\/bar/bar/m'
-
-    Note: this is intended to round-trip with _regex_info_from_str().
-    """
-    ch_from_flag = {
-        re.IGNORECASE: "i",
-        re.LOCALE: "l",
-        re.DOTALL: "s",
-        re.MULTILINE: "m",
-        re.UNICODE: "u",
-    }
-    def _str_from_flags(flags):
-        if not flags:
-            return ""
-        chars = []
-        for flag, ch in ch_from_flag.items():
-            if flags & flag:
-                chars.append(ch)
-        chars.sort()
-        return ''.join(chars)
-    def _escape(s):
-        return s.replace('/', r'\/')
-
-    pattern = _escape(regex.pattern)
-    flags_str = _str_from_flags(regex.flags)
-    if repl is None:
-        s = "/%s/%s" % (pattern, flags_str)
-    else:
-        s = "s/%s/%s/%s" % (pattern, _escape(repl), flags_str)
-    return s
-
-def _regex_info_from_str(s, allow_replace=True, word_match=False):
-    r"""Interpret a regex match or substitution string.
-
-        >>> _regex_info_from_str("foo") \
-        ...   == (re.compile('foo'), None)
-        True
-        >>> _regex_info_from_str("/foo/") \
-        ...   == (re.compile('foo'), None)
-        True
-        >>> _regex_info_from_str("/foo/i") \
-        ...   == (re.compile('foo', re.I), None)
-        True
-        >>> _regex_info_from_str("s/foo/bar/i") \
-        ...   == (re.compile('foo', re.I), "bar")
-        True
-
-    The `word_match` boolean modifies the pattern to match at word
-    boundaries.
-
-        >>> _regex_info_from_str("/foo/", word_match=True) \
-        ...   == (re.compile(r'(?<!\w)foo(?!\w)'), None)
-        True
-
-    Note: this is intended to round-trip with _str_from_regex_info().
-    """
-    flag_from_ch = {
-        "i": re.IGNORECASE,
-        "l": re.LOCALE,
-        "s": re.DOTALL,
-        "m": re.MULTILINE,
-        "u": re.UNICODE,
-    }
-    def _flags_from_str(flags_str):
-        flags = 0
-        for ch in flags_str:
-            try:
-                flags |= flag_from_ch[ch]
-            except KeyError:
-                raise ValueError("unsupported regex flag: '%s' in '%s' "
-                                 "(must be one of '%s')"
-                                 % (ch, flags_str, ''.join(flag_from_ch.keys())))
-        return flags
-
-    if s.startswith('/') and s.rfind('/') != 0:
-        # Parse it: /PATTERN/FLAGS
-        idx = s.rfind('/')
-        pattern, flags_str = s[1:idx], s[idx+1:]
-        if word_match:
-            # Komodo Bug 33698: "Match whole word" doesn't work as
-            # expected Before this the transformation was "\bPATTERN\b"
-            # where \b means:
-            #   matches a boundary between a word char and a non-word char
-            # However what is really wanted (and what VS.NET does) is to
-            # match if there is NOT a word character to either immediate
-            # side of the pattern.
-            pattern = r"(?<!\w)" + pattern + r"(?!\w)"
-        flags = _flags_from_str(flags_str)
-        return (re.compile(pattern, flags), None)
-    elif allow_replace and s.startswith("s/") and s.count('/') >= 3:
-        # Parse it: s/PATTERN/REPL/FLAGS
-        #TODO: test with '\' in pattern and repl
-        repl_re = re.compile(r"^s/(.*?)(?<!\\)/(.*?)(?<!\\)/([ilsmu]*)$")
-        m = repl_re.match(s)
-        if not m:
-            raise ValueError("invalid replacement syntax: %r" % s)
-        pattern, repl, flags_str = m.groups()
-        if word_match:
-            pattern = r"(?<!\w)" + pattern + r"(?!\w)"
-        flags = _flags_from_str(flags_str)
-        return (re.compile(pattern, flags), repl)
-    else: # not an encoded regex
-        pattern = re.escape(s)
-        if word_match:
-            pattern = r"(?<!\w)" + pattern + r"(?!\w)"
-        return (re.compile(pattern), None)
-
 class _NoReflowFormatter(optparse.IndentedHelpFormatter):
     """An optparse formatter that does NOT reflow the description."""
     def format_description(self, description):
@@ -527,6 +409,7 @@ def main(argv):
         includes=[], excludes=[], dry_run=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
+    findlib2.log.setLevel(opts.log_level)
 
     # The -u|--undo actions don't use and args. Handle them first.
     if opts.undo is True:
@@ -569,7 +452,8 @@ def main(argv):
         recursive = True    # -r is implied for find functionality
     else:
         pattern_str, path_patterns = args[0], args[1:]
-        regex, repl = _regex_info_from_str(pattern_str, word_match=opts.word)
+        regex, repl = findlib2.regex_info_from_str(
+            pattern_str, word_match=opts.word, universal_newlines=True)
         action = (repl is None and "grep" or "replace")
         if opts.list:
             if action == "replace":
