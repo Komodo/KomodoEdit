@@ -143,7 +143,7 @@ except ImportError:
 
 #---- exceptions
 
-class FindError(Exception):
+class FrepError(Exception):
     pass
 
 
@@ -210,7 +210,7 @@ def _setup_logging(stream=None):
 
 def _optparse_undo_arg(option, opt_str, value, parser):
     """Add optparse option callback that will gobble the next token if
-    it looks like an arg to -u|--undo (8 letter chars).
+    it looks like an arg to -u|--undo (8 letter chars, or "last").
 
     Based on recipe zero_or_one_arg (0.1).
 
@@ -222,7 +222,7 @@ def _optparse_undo_arg(option, opt_str, value, parser):
     value = True
     if parser.rargs:
         arg = parser.rargs[0]
-        if re.match("^[a-z]{8}$", arg):
+        if arg == "last" or re.match("^[a-z]{8}$", arg):
             value = arg
             del parser.rargs[0]
     setattr(parser.values, option.dest, value)
@@ -340,13 +340,23 @@ def main_replace(regex, repl, paths, includes, excludes, argv, opts):
             log.debug("Completed %d replacement%s in %.2fs%s.", num_repls,
                       s_str, (time.time() - start_time), dry_run_str)
         if journal_id is not None:
-            log.info("Use `%s --undo %s' to undo.", argv[0], journal_id)
+            log.info("Use `frep --undo %s' to undo.", journal_id)
 
 
 def main_undo(opts):
     """Undo the given replacement."""
     dry_run_str = (opts.dry_run and " (dry-run)" or "")
-    for event in findlib2.undo_replace(opts.undo, dry_run=opts.dry_run):
+    
+    journal_id = opts.undo
+    if journal_id == "last":
+        for mtime, id, summary in Journal.journals():
+            log.debug("last replace id is `%s'", id)
+            journal_id = id
+            break
+        else:
+            raise FrepError("there is no last replacement journal to undo")
+
+    for event in findlib2.undo_replace(journal_id, dry_run=opts.dry_run):
         if not isinstance(event, Hit):
             continue
         assert isinstance(event, ReplaceHitGroup)
@@ -457,7 +467,7 @@ def main(argv):
         action = (repl is None and "grep" or "replace")
         if opts.list:
             if action == "replace":
-                raise FindError("cannot use -l|--list for a replacement")
+                raise FrepError("cannot use -l|--list for a replacement")
             action = "grep-list"
         recursive = opts.recursive
 
@@ -483,7 +493,7 @@ def main(argv):
         return main_replace(regex, repl, paths,
             textinfo_includes, textinfo_excludes, argv, opts)
     else:
-        raise FindError("unexpected action: %r" % action)
+        raise FrepError("unexpected action: %r" % action)
 
 
 if __name__ == "__main__":
