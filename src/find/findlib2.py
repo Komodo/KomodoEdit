@@ -201,7 +201,7 @@ def replace(regex, repl, paths, include_diff_events=False,
     try:
         grepper = grep(regex, paths, skip_unknown_lang_paths=True,
                        includes=includes, excludes=excludes)
-        for group in _grouped_by_path(grepper):
+        for group in grouped_by_path(grepper):
             if not isinstance(group[0], Hit):
                 yield group[0]
                 continue
@@ -457,6 +457,37 @@ class _memoized(object):
    def __repr__(self):
       """Return the function's docstring."""
       return self.func.__doc__
+
+def grouped_by_path(events):
+    """Group "Hit" events in the given find event stream by path
+    
+    Non-Hits are in their own group. Hits are grouped by path. 
+    """
+    group_path = None
+    group = []  # group of FindHits for a single path
+
+    for event in events:
+        if not isinstance(event, Hit):
+            if group:
+                yield group
+                group_path = None
+                group = []
+            yield [event]
+            continue
+
+        if group_path is None:
+            group_path = event.path
+            group = []
+        elif event.path != group_path:
+            yield group
+            group_path = event.path
+            group = []
+        group.append(event)
+
+    if group:
+        yield group
+
+
 
 class Event(object):
     pass
@@ -1277,36 +1308,6 @@ def _splitall(path):
             allparts.insert(0, parts[1])
     allparts = [p for p in allparts if p] # drop empty strings 
     return allparts
-
-
-def _grouped_by_path(events):
-    """Group "Hit" events in the given find event stream by path
-    
-    Non-Hits are in their own group. Hits are grouped by path. 
-    """
-    group_path = None
-    group = []  # group of FindHits for a single path
-
-    for event in events:
-        if not isinstance(event, Hit):
-            if group:
-                yield group
-                group_path = None
-                group = []
-            yield [event]
-            continue
-
-        if group_path is None:
-            group_path = event.path
-            group = []
-        elif event.path != group_path:
-            yield group
-            group_path = event.path
-            group = []
-        group.append(event)
-
-    if group:
-        yield group
 
 
 def _get_friendly_id():

@@ -268,42 +268,45 @@ def main_find(paths, includes, excludes, opts):
         print path
 
 def main_find_matching_files(regex, paths, includes, excludes, opts):
-    for event in grep(regex, paths, files_with_matches=True,
-                      includes=includes, excludes=excludes):
+    for event in findlib2.grep(regex, paths, files_with_matches=True,
+                               includes=includes, excludes=excludes):
         if isinstance(event, Hit):
             print event.path
 
 def main_grep(regex, paths, includes, excludes, opts):
-    last_line_nums = None
-    for hit in findlib2.grep(regex, paths, includes=includes,
-                             excludes=excludes):
-        if not isinstance(hit, Hit):
-            log.info(hit)
+    grepper = findlib2.grep(regex, paths, includes=includes, 
+                            excludes=excludes)
+    for group in findlib2.grouped_by_path(grepper):
+        if not isinstance(group[0], Hit):
+            assert len(group) == 1
+            log.info(group[0])
             continue
 
-        # Skip reporting a hit if it is on a line (or lines) that
-        # has already been printed (a la grep).
-        start, end = hit.line_num_range
-        line_nums = set(range(start, end+1))
-        if last_line_nums and line_nums.issubset(last_line_nums):
-            continue
-        last_line_nums = line_nums
+        last_line_nums = None
+        for hit in group:
+            # Skip reporting a hit if it is on a line (or lines) that
+            # has already been printed (a la grep).
+            start, end = hit.line_num_range
+            line_nums = set(range(start, end+1))
+            if last_line_nums and line_nums.issubset(last_line_nums):
+                continue
+            last_line_nums = line_nums
 
-        lines = list(hit.lines)
-        if len(lines) > 1:
-            if opts.show_line_number:
-                start, end = hit.line_num_range
-                _safe_print("%s:%d-%d:" % (hit.path, start+1, end+1))
+            lines = list(hit.lines)
+            if len(lines) > 1:
+                if opts.show_line_number:
+                    start, end = hit.line_num_range
+                    _safe_print("%s:%d-%d:" % (hit.path, start+1, end+1))
+                else:
+                    _safe_print("%s:" % hit.path)
+                for line in lines:
+                    _safe_print("  " + _chomp(line))
             else:
-                _safe_print("%s:" % hit.path)
-            for line in lines:
-                _safe_print("  " + _chomp(line))
-        else:
-            if opts.show_line_number:
-                _safe_print("%s:%d:%s" % (hit.path, hit.line_num_range[0]+1,
-                                          _chomp(lines[0])))
-            else:
-                _safe_print("%s:%s" % (hit.path, _chomp(lines[0])))
+                if opts.show_line_number:
+                    _safe_print("%s:%d:%s" % (hit.path, hit.line_num_range[0]+1,
+                                              _chomp(lines[0])))
+                else:
+                    _safe_print("%s:%s" % (hit.path, _chomp(lines[0])))
 
 def main_replace(regex, repl, paths, includes, excludes, argv, opts):
     start_time = time.time()
