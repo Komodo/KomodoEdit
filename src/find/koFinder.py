@@ -738,7 +738,7 @@ class KoFindService:
        
     def find(self, url, text, pattern, startOffset):
         try:
-            regex = _findlib2_regex_from_ko_find_data(
+            regex, dummy = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
@@ -771,55 +771,28 @@ class KoFindService:
         Returns a KoReplaceResult or None.
         """
         try:
-            regex = _findlib2_regex_from_ko_find_data(
+            regex, munged_repl = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
                 self.options.caseSensitivity,
-                self.options.matchWord)
-        except (re.error, ValueError), ex:
-            gLastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+                self.options.matchWord, repl)
 
-        #TODO: extend _findlib2_regex_from_ko_find_data to
-        # _regex_info_from_ko_find_data() and include the necessary
-        # 'repl' escaping work below.
-
-        #TODO: do the same here:
-        ## Check for a return a nicer error message for an unescaped trailing
-        ## slash than what sre would return:
-        ##   sre_constants.error: bogus escape (end of line)
-        #numTrailingSlashes = 0
-        #for i in range(len(replacement)-1, -1, -1):
-        #    if replacement[i] == '\\':
-        #        numTrailingSlashes += 1
-        #    else:
-        #        break
-        #if numTrailingSlashes % 2:
-        #    raise FindError("the trailing backslash must be escaped")
-
-        # For replacement strings not using regexes, backslashes must
-        # be escaped to prevent the unlucky "\1" or "\g<foo>" being
-        # interpreted as a back-reference.
-        if self.options.patternType != FOT_REGEX_PYTHON:
-            repl = repl.replace('\\', '\\\\')
-
-        try:
             if self.options.searchBackward:
                 gen = findlib2.find_all_matches_bwd(regex, text,
                         start=0, end=startOffset)
             else:
                 gen = findlib2.find_all_matches(regex, text,
                         start=startOffset)
-        except (re.error, findlib2.FindError), ex:
+
+            for match in gen:
+                return KoReplaceResult(url, match.start(), match.end(),
+                                       match.group(0),
+                                       match.expand(munged_repl))
+                break # only want the first one
+            else:
+                return None        
+        except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        for match in gen:
-            return KoReplaceResult(url, match.start(), match.end(),
-                                   match.group(0),
-                                   match.expand(repl))
-            break # only want the first one
-        else:
-            return None        
 
     def findallex(self, url, text, pattern, resultsView, contextOffset,
                   scimoz):
@@ -1034,16 +1007,17 @@ class KoFindService:
     def replaceallinfiles(self, id, pattern, repl, resultsMgr,
                           resultsView):
         try:
-            regex = _findlib2_regex_from_ko_find_data(
+            regex, munged_repl = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
                 self.options.caseSensitivity,
-                self.options.matchWord)
+                self.options.matchWord,
+                repl)
         except (re.error, ValueError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
         t = _ReplacerInFiles(
-                id, regex, repl,
+                id, regex, munged_repl,
                 self.options.getFolders(),
                 resultsMgr.context_.cwd,
                 self.options.searchInSubfolders,
@@ -1068,9 +1042,15 @@ class KoFindService:
 
 #---- internal support stuff
 
-def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
-                                      caseSensitivity=FOC_SENSITIVE,
-                                      matchWord=False):
+def _regex_info_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
+                                  caseSensitivity=FOC_SENSITIVE,
+                                  matchWord=False, repl=None):
+    """Build the appropriate regex from the Komodo find/replace system
+    data for a find/replace.
+    
+    Returns (<regex-object>, <massaged-repl>). May raise re.error or
+    ValueError if there is a problem.
+    """
     # Determine the flags.
     #TODO: should we turn on re.UNICODE all the time?
     flags = re.MULTILINE   # Generally always want line-based searching.
@@ -1102,7 +1082,6 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
     else:
         raise ValueError("unrecognized find pattern type: %r"
                          % patternType)
-
     if matchWord:
         # Bug 33698: "Match whole word" doesn't work as expected Before
         # this the transformation was "\bPATTERN\b" where \b means:
@@ -1135,7 +1114,28 @@ def _findlib2_regex_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
                     state == STATE_DEFAULT
         pattern = ''.join(chs)
 
-    return re.compile(pattern, flags)
+    # Massage the replacement string, if appropriate.
+    if repl is not None:
+        # For replacement strings not using regexes, backslashes must
+        # be escaped to prevent the unlucky "\1" or "\g<foo>" being
+        # interpreted as a back-reference.
+        if patternType != FOT_REGEX_PYTHON:
+            repl = repl.replace('\\', '\\\\')
+            
+        # Check for and return a nicer error message for an unescaped
+        # trailing slash than what sre would return:
+        #   sre_constants.error: bogus escape (end of line)
+        num_trailing_slashes = 0
+        for ch in reversed(repl):
+            if ch == '\\':
+                num_trailing_slashes += 1
+            else:
+                break
+        if num_trailing_slashes % 2:
+            raise ValueError("trailing backslash in the replacement "
+                             "string must be escaped")
+
+    return re.compile(pattern, flags), repl
 
 
 
