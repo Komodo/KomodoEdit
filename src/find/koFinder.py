@@ -805,24 +805,14 @@ class KoFindService:
         
         No return value.
         """
-        log.info("findallex(url='%s', text=%r, pattern='%s', resultsView,"
-                 "contextOffset=%s, scimoz)", url, text[:20]+text[-20:],
-                 pattern, contextOffset)
-
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
         try:
-            matches = findlib.findallex(
-                text, pattern,
-                patternType=patternType, case=case,
-                matchWord=self.options.matchWord)
-        except (re.error, findlib.FindError), ex:
-            gLastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+            regex, dummy = _regex_info_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
 
-        if matches:
             resultsView = UnwrapObject(resultsView)
-            for match in matches:
+            for match in findlib2.find_all_matches(regex, text):
                 value = match.group()
                 startCharIndex = match.start() + contextOffset
                 endCharIndex = startCharIndex + len(value)
@@ -838,12 +828,17 @@ class KoFindService:
                 contextStartPos = scimoz.positionFromLine(startLineNum)
                 contextEndPos = scimoz.getLineEndPosition(endLineNum)
                 context = scimoz.getTextRange(contextStartPos, contextEndPos)
+                #TODO: consider batching this (.AddFindResults()) for
+                #      perf for a large number of hits.
                 resultsView.AddFindResult(
                     url, startByteIndex, endByteIndex, value,
                     url, # fileName (currently url/viewId is the displayName)
                     startLineNum + 1,
                     startByteIndex - scimoz.positionFromLine(startLineNum),
-                    context)
+                    context)            
+        except (re.error, ValueError, findlib2.FindError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
     def findalllines(self, url, text, pattern, contextOffset, scimoz):
         """Return all lines on which "pattern" is found.
