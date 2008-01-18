@@ -246,7 +246,7 @@ function msg_clear() {
     _msg_erase();
     widgets.msg_deck.selectedIndex = 0;
 }
-function msg_callback(level, msg) {
+function msg_callback(level, context, msg) {
     switch (level) {
     case "info":
         msg_info(msg);

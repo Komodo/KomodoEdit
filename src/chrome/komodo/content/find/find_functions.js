@@ -688,40 +688,38 @@ function _UiForCompletedFindSession(context, msgHandler)
         msg += " " + numFinds + " occurrence(s) were found.";
     }
 
-    msgHandler("info", msg);
+    msgHandler("info", "find", msg);
 }
 
 
 /** Report an error in the find service to the user.
  *
- * @param op {string} indicates if the current operation was during
- *      finding or replacement. It must be one of "find" or "replace".
+ * @param context {string} A short string giving context for the error,
+ *      e.g. "find", "find all", "replace", ...
+ * @param exc {exception} is an optional exception, if the error
+ *      was trapped via try/catch. May be null.
  * @param msgHandler {callback} is a callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
+ *
+ * The actual error message is pulled from the koILastErrorService.
  */
-function _UiForFindServiceError(op, msgHandler)
+function _UiForFindServiceError(context, exc, msgHandler)
 {
-    if (typeof op == 'undefined' || op == null) op = "find";
-
-    var msg = null;
-    switch (op) {
-    case "find":
-        msg = "There was a syntax error in your search pattern: ";
-        break;
-    case "replace":
-        msg = "There was a syntax error in your replacement pattern: ";
-        break;
-    default:
-        log.error("unexpected 'op' argument sent to "+
-                 "_UiForFindServiceError(): op='"+op+"'\n");
-    }
-
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                         .getService(Components.interfaces.koILastErrorService);
-    msg += lastErrorSvc.getLastErrorMessage();
-    msg += ".";
+    var msg = "";
+    msg = lastErrorSvc.getLastErrorMessage();
+    if (!msg) {
+        if (exc) {
+            msg = "unexpected error: " + exc;
+        } else {
+            msg = "unexpected error in find service";
+        }
+    } else if (exc && exc.toString() != msg) {
+        msg += " ("+exc+")";
+    }
 
-    msgHandler("error", msg);
+    msgHandler("error", context, msg);
 }
 
 var _Find_charsToEscape_re = /([\\\'])/g;
@@ -736,8 +734,9 @@ function _Find_RegexEscapeString(original) {
  */
 function _Find_GetStatusbarMsgHandler(editor)
 {
-    return function (level, msg) {
-        editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
+    return function (level, context, msg) {
+        editor.ko.statusBar.AddMessage(context+": "+msg, "find",
+                                       3000, true);
     }
 }
 
@@ -954,7 +953,7 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
 //      loaded into the find MRU. Default is true.
 //  "msgHandler" (optional) is a callback that is called for displaying
 //      a message during the find. It will be called like this:
-//          callback(level, message)
+//          callback(level, context, message)
 //      where `level` is one of "info", "warn" or "error" and `message`
 //      is the message to display. The msgHandler is ignore if `quiet`
 //      is true. By default messages are sent to the statusbar.
@@ -1002,9 +1001,9 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     var findResult = null;
     try {
         findResult = _SetupAndFindNext(editor, context, pattern, mode);
-    } catch(e) {
+    } catch (ex) {
         if (!quiet)
-            _UiForFindServiceError("find", msgHandler);
+            _UiForFindServiceError("find", ex, msgHandler);
         return null;
     }
     if (useMRU)
@@ -1094,8 +1093,8 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         // found, but don't easily have that value and it's not a biggie.
         resultsMgr.searchFinished(true, resultsMgr.view.rowCount, null,
                                   numFilesSearched);
-    } catch(ex) {
-        _UiForFindServiceError("find", msgHandler);
+    } catch (ex) {
+        _UiForFindServiceError("find all", ex, msgHandler);
         return null;
     }
 
@@ -1229,8 +1228,8 @@ function Find_Replace(editor, context, pattern, replacement,
         try {
             findLog.info("Find_Replace: replace last find result");
             _ReplaceLastFindResult(editor, context, pattern, replacement);
-        } catch(e) {
-            _UiForFindServiceError("replace", msgHandler);
+        } catch (ex) {
+            _UiForFindServiceError("replace", ex, msgHandler);
             return null;
         }
 
@@ -1244,8 +1243,8 @@ function Find_Replace(editor, context, pattern, replacement,
                              findResult.start+"-"+findResult.end+": '"+
                              findResult.value+"'");
             }
-        } catch(e) {
-            _UiForFindServiceError("replace", msgHandler);
+        } catch (ex) {
+            _UiForFindServiceError("replace", ex, msgHandler);
             return null;
         }
         ko.mru.add("find-patternMru", pattern, true);
@@ -1420,8 +1419,8 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
     try {
         findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr,
                            resultsMgr.view);
-    } catch(e) {
-        _UiForFindServiceError("find", msgHandler);
+    } catch (ex) {
+        _UiForFindServiceError("find all in files", ex, msgHandler);
         resultsMgr.clear();
         return false;
     }
@@ -1466,8 +1465,8 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
     try {
         findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
                                   resultsMgr, resultsMgr.view);
-    } catch(e) {
-        _UiForFindServiceError("replace", msgHandler);
+    } catch (ex) {
+        _UiForFindServiceError("replace all in files", ex, msgHandler);
         resultsMgr.clear();
         return false;
     }
