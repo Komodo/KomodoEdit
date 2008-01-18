@@ -742,27 +742,23 @@ class KoFindService:
                 pattern, self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
-        except (re.error, ValueError), ex:
-            gLastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        try:
             if self.options.searchBackward:
                 gen = findlib2.find_all_matches_bwd(regex, text,
                         start=0, end=startOffset)
             else:
                 gen = findlib2.find_all_matches(regex, text,
                         start=startOffset)
-        except (re.error, findlib2.FindError), ex:
+
+            for match in gen:
+                return KoFindResult(url, match.start(), match.end(),
+                                    match.group(0))
+                break # only want the first one
+            else:
+                return None
+        except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        for match in gen:
-            return KoFindResult(url, match.start(), match.end(),
-                                match.group(0))
-            break # only want the first one
-        else:
-            return None
 
     def replace(self, url, text, pattern, repl, startOffset):
         """Return a result indicating how to replace the first occurrence
