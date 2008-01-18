@@ -67,7 +67,7 @@ class ProcessError(Exception):
 class ProcessOpen(Popen):
     def __init__(self, cmd, cwd=None, env=None, flags=None,
                  stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                 universal_newlines=False):
+                 universal_newlines=True):
         """Create a child process.
 
         "cmd" is the command to run, either a list of arguments or a string.
@@ -83,8 +83,7 @@ class ProcessOpen(Popen):
             io channel automatically, unless set explicitly to None. When set
             to None, the parent io handles will be used, which can mean the
             output is redirected to Komodo's log files.
-        "universal_newlines": turn off \r output on Windows (see process.Popen
-            for more info).
+        "universal_newlines": On by default (the opposite of subprocess).
         """
         shell = False
         if not isinstance(cmd, (list, tuple)):
