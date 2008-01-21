@@ -343,7 +343,8 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
                                  "Error interpolating template '"+
                                  uri+"'.\n\n"+ko.logging.getStack());
         }
-        return null;
+	// bug 74378 -- don't give up if interpolation fails
+	icontent = content;
     }
 
     // Load the template.
