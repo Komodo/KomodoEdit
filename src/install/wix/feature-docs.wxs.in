@@ -297,6 +297,9 @@
                 <File Id="file4875" Name="TOUR_174.GIF" LongName="tourlet_rx_editrx.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_editrx.gif"/>
                 <File Id="file4876" Name="TOUR_175.GIF" LongName="tourlet_rx_results.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_results.gif"/>
                 <File Id="file4877" Name="TOUR_176.GIF" LongName="tourlet_rx_selectrx.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_rx_selectrx.gif"/>
+                <File Id="file611" LongName="tourlet_remote_files_browse.png" Name="TOURL_13.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_remote_files_browse.png" />
+                <File Id="file612" LongName="tourlet_remote_files_open.png" Name="TOURL_14.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_remote_files_open.png" />
+                <File Id="file613" LongName="tourlet_remote_files_pref.png" Name="TOURL_15.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_remote_files_pref.png" />
                 <File Id="file294" LongName="tourlet_snipinput_config.png" Name="TOURLE_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_config.png" />
                 <File Id="file295" LongName="tourlet_snipinput_insert.png" Name="TOURLE_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_insert.png" />
                 <File Id="file296" LongName="tourlet_snipinput_prompt.png" Name="TOURLE_4.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_snipinput_prompt.png" />
@@ -364,6 +367,8 @@
                 <File Id="file4924" Name="TOURL_37.HTM" LongName="tourlet_over.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_over.html"/>
                 <File Id="file4925" Name="TOURL_38.HTM" LongName="tourlet_reuse.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_reuse.html"/>
                 <File Id="file4926" Name="TOURL_39.HTM" LongName="tourlet_rx.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_rx.html"/>
+                <File Id="file614" LongName="tourlet_remote_files.html" Name="TOURLE_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_remote_files.html" />
+                <File Id="file615" LongName="tourlet_live_projects.html" Name="TOURLE_3.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_live_projects.html" />
                 <File Id="file4928" Name="TOURL_41.HTM" LongName="tourlet_snipinput.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_snipinput.html"/>
                 <File Id="file4929" Name="TOURL_42.HTM" LongName="tourlet_tempproj.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_tempproj.html"/>
                 <File Id="file4930" Name="TOURL_43.HTM" LongName="tourlet_viewcss.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tutorial\tourlet_viewcss.html"/>
