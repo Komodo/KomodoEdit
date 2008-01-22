@@ -280,6 +280,10 @@
                 <File Id="file4855" Name="TOUR_154.GIF" LongName="tourlet_keybinding_add.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_add.gif"/>
                 <File Id="file4856" Name="TOUR_155.GIF" LongName="tourlet_keybinding_props.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_props.gif"/>
                 <File Id="file4857" Name="TOUR_156.GIF" LongName="tourlet_keybinding_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_keybinding_tab.gif"/>
+                <File Id="file605" LongName="tourlet_liveproj_browse.png" Name="TOURLE_6.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_liveproj_browse.png" />
+                <File Id="file606" LongName="tourlet_liveproj_name.png" Name="TOURLE_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_liveproj_name.png" />
+                <File Id="file607" LongName="tourlet_liveproj_new.png" Name="TOURLE_8.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_liveproj_new.png" />
+                <File Id="file608" LongName="tourlet_liveproj_pref.png" Name="TOURLE_9.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_liveproj_pref.png" />
                 <File Id="file4865" Name="TOUR_164.GIF" LongName="tourlet_openfind_arrows.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_arrows.gif"/>
                 <File Id="file4866" Name="TOUR_165.GIF" LongName="tourlet_openfind_findfile.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_findfile.gif"/>
                 <File Id="file4867" Name="TOUR_166.GIF" LongName="tourlet_openfind_frontslash.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_openfind_frontslash.gif"/>
