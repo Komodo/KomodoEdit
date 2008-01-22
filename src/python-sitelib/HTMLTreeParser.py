@@ -239,6 +239,8 @@ class Parser:
 
     def parse_doctype(self, data):
         m = collector.res["DOCTYPE"].match(data)
+        if m is None:
+            return
         result = m.groupdict()
         self.doctype = result
         self.publicId = None
