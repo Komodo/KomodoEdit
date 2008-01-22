@@ -343,8 +343,8 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
                                  "Error interpolating template '"+
                                  uri+"'.\n\n"+ko.logging.getStack());
         }
-	// bug 74378 -- don't give up if interpolation fails
-	icontent = content;
+        // bug 74378 -- don't give up if interpolation fails
+        icontent = content;
     }
 
     // Load the template.
@@ -1797,7 +1797,7 @@ viewManager.prototype.do_ViewAs = function(language) {
     // bug 34689  for some reason the above setter is not forcing a colourise.
     // we need to do this get get a relexing of the syntax colouring.  It is
     // better to do it here since this will only happen when the menu
-    // "view->view as langauge" is used.
+    // "view->view as language" is used.
     this.currentView.scimoz.colourise(0,-1);
 }
 
