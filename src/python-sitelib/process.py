@@ -205,7 +205,7 @@ class ProcessOpen(Popen):
 
         if sys.platform.startswith("win"):
             ctypes.windll.kernel32.TerminateProcess(int(self._handle), exitCode)
-            self.retval = exitCode
+            self.returncode = exitCode
         else:
             if sig is None:
                 sig = signal.SIGKILL
