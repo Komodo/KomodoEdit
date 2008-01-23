@@ -73,7 +73,9 @@ function DiffWindow()
                 // Display the notification widget that it's running asynchronously.
                 var label = "Fetching diff information...";
                 var value = null;
-                var image_src = "chrome://global/skin/throbber/Throbber-small.gif";
+                var asyncSvc = Components.classes["@activestate.com/koAsyncService;1"].
+                                getService(Components.interfaces.koIAsyncService);
+                var image_src = asyncSvc.asynchronous_icon_url;
                 view.notificationbox.appendNotification(label, value, image_src);
                 diff = "Loading asynchronously...";
             } else {

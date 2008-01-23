@@ -37,6 +37,7 @@
 # ***** END LICENSE BLOCK *****
 
 from __future__ import with_statement
+import sys
 import threading
 import logging
 
@@ -63,6 +64,12 @@ class koAsyncService(object):
 
     STATUS_RUNNING = components.interfaces.koIAsyncOperation.STATUS_RUNNING
     STATUS_STOPPING = components.interfaces.koIAsyncOperation.STATUS_STOPPING
+
+    # Asynchronous icon used for displaying an "in progress" indicator.
+    if sys.platform.startswith("darwin"):
+        asynchronous_icon_url = "chrome://global/skin/icons/loading_16.gif"
+    else:
+        asynchronous_icon_url = "chrome://global/skin/throbber/Throbber-small.gif"
 
     def __init__(self):
         self._runningOperations = []

@@ -118,4 +118,7 @@ interface koIAsyncService: nsISupports {
              in unsigned long count,
              [array, size_is(count)] in wstring affected_uris,
              in boolean lock_these_uris);
+
+        // This is for the icon that gets shown by the asynchronous widgets.
+    readonly attribute wstring asynchronous_icon_url;
 };

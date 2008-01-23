@@ -311,7 +311,7 @@
                 if (asyncSvc.uriHasPendingOperation(view.document.file.URI)) {
                     // This file has an asynchronous operation pending, give it
                     // the "processing" throbber gif.
-                    view.parentNode._tab.setAttribute('action', "chrome://global/skin/throbber/Throbber-small.gif");
+                    view.parentNode._tab.setAttribute('action', asyncSvc.asynchronous_icon_url);
                     view.parentNode._tab.removeAttribute('status');
                     this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
                     return;
