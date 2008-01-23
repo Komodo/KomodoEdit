@@ -1219,13 +1219,14 @@ exit $RETVAL""" % data)
             #    print line,
             #fin.close()
             #print "RUN: ---------------------------------"
-            flags = process.CREATE_NEW_CONSOLE
+            child = process.ProcessOpen(actualCommand, cwd=cwd, env=envDict,
+                                        flags=process.CREATE_NEW_CONSOLE,
+                                        # Leave the handles alone, it's external
+                                        stdin=None, stdout=None, stderr=None)
         else:
             scriptFileName = None
-            flags = None
-
-        child = process.ProcessOpen(actualCommand, cwd=cwd, env=envDict,
-                                    flags=flags, stdin=None)
+            child = process.ProcessOpen(actualCommand, cwd=cwd, env=envDict,
+                                        flags=None, stdin=None)
         # The return value is passed to the status bar when the child
         # terminates. A separate thread is created to handle that so
         # this call can return immediately.
