@@ -37,6 +37,7 @@
 # ***** END LICENSE BLOCK *****
 
 import os
+import sys
 import time
 import types
 import logging
