@@ -101,7 +101,7 @@
         <popup type="autocomplete" id="popupTextboxAutoComplete"/>
     </popupset>
 
-    <hbox style="padding: 5px 10px 10px 10px;">
+    <hbox style="padding: 5px 10px 5px 10px;">
 
       <grid flex="1">
         <columns>
@@ -298,14 +298,14 @@
         <checkbox id="show-replace-all-results" label="Show results"
                   accesskey="o" oncommand="update('show-replace-all-results')"
                   tooltiptext="Show results tab in bottom pane for 'Replace All'"/>
-        <!-- TODO: mark-all
         <button id="mark-all-btn" label="Mark All"
-                accesskey="k" oncommand="TODO" /> -->
-        <!-- TODO: room for close button? necessary?
+                accesskey="k" oncommand="mark_all();" />
+        <!-- Exclude for lack of space. This isn't crucial.
         <button id="close-btn" label="Close"
                 accesskey="s" oncommand="window.close();"/> -->
+        <!-- Exclude for lack of space. This isn't crucial.
         <button id="help-btn" label="Help" accesskey="H"
-                oncommand="ko.help.open('find2_dialog');"/>
+                oncommand="ko.help.open('find2_dialog');"/> -->
       </vbox>
 
     </hbox>

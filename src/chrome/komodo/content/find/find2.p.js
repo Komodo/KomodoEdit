@@ -436,6 +436,47 @@ function find_all() {
     }
 }
 
+function mark_all() {
+    try {
+        msg_clear();
+        
+        var pattern = widgets.pattern.value;
+        if (! pattern) {
+            return;
+        }
+    
+        // This handles, for example, the context being "search in
+        // selection", but there is no selection.
+        if (! _g_find_context) {
+            // Make one attempt to get the context again: state in the
+            // main editor may have changed such that getting a context is
+            // possible.
+            reset_find_context();
+            if (! _g_find_context) {
+                return;
+            }
+        }
+        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+            log.warn("'Mark All' in files (i.e. files not open in "
+                     + "Komodo) is not supported.");
+            return;
+        }
+
+        ko.mru.addFromACTextbox(widgets.pattern);
+
+        var found_some = Find_MarkAll(opener, _g_find_context, pattern,
+                                      null,          // patternAlias
+                                      msg_callback); // msgHandler
+        if (found_some) {
+            window.close();
+        } else {
+            widgets.pattern.focus();
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
 
 function replace() {
     try {
@@ -580,9 +621,9 @@ function _init_widgets()
     widgets.find_all_btn = document.getElementById('find-all-btn');
     widgets.replace_all_btn = document.getElementById('replace-all-btn');
     widgets.show_replace_all_results = document.getElementById('show-replace-all-results');
-    //widgets.mark_all_btn = document.getElementById('mark-all-btn');
+    widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
-    widgets.help_btn = document.getElementById('help-btn');
+    //widgets.help_btn = document.getElementById('help-btn');
 }
 
 /**
@@ -746,7 +787,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.show_replace_all_results, true);
-            //_collapse_widget(widgets.mark_all_btn, true);
+            _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
         default:
@@ -757,7 +798,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.show_replace_all_results, false);
-            //_collapse_widget(widgets.mark_all_btn, true);
+            _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_btn;
         }
     } else {
@@ -771,7 +812,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
             _collapse_widget(widgets.show_replace_all_results, true);
-            //_collapse_widget(widgets.mark_all_btn, true);
+            _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.find_all_btn;
             break
         default:
@@ -782,7 +823,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
             _collapse_widget(widgets.show_replace_all_results, true);
-            //_collapse_widget(widgets.mark_all_btn, false);
+            _collapse_widget(widgets.mark_all_btn, false);
             default_btn = widgets.find_next_btn;
         }
     }
