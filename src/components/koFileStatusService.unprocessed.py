@@ -301,53 +301,41 @@ class KoFileStatusService:
             # file service shutdown before us?
             log.debug("Unable to remove file service observers")
 
-    def _getFileStatusNow(self, URI, forceRefresh=False):
-        url = self._fileSvc.getFileFromURI(URI)
-        self._getFileStatusNowWithFile(url, forceRefresh)
-    
-    def _getFileStatusNowWithFile(self, url, forceRefresh=False):
-        url = UnwrapObject(url)
-        # force an update to the status
-        urllist = self._fileSvc.getFilesInBaseURI(url.URI)
-        urllist = [UnwrapObject(_url) for _url in urllist]
-        updatedUrls = set()
-        for checker in self._statusCheckers:
-            if not checker.isActive():
-                continue
-
-            # only check for the primary url.  if it is a directory
-            # updateFileStatus will get status for all files in that
-            # directory, but not recursivly
+    def updateStatusForFiles(self, koIFiles, forceRefresh):
+        print "updateStatusForFiles:: uris %r" % ([f.URI for f in koIFiles], )
+        self._cv.acquire()
+        try:
+            reason = self.REASON_FILE_CHANGED
             if forceRefresh:
-                reason = self.REASON_FORCED_CHECK
-            else:
-                reason = self.REASON_ONFOCUS_CHECK
-            if checker.updateFileStatus(url, reason):
-                updatedUrls.add(url)
-            for _url in urllist:
-                if _url != url:
-                    if checker.updateFileStatus(_url, reason):
-                        updatedUrls.add(url)
-                #else:
-                #    print "Not running updateFileStatus() twice for the same url"
-        
-        # send notifications of status updates
-        for _url in updatedUrls:
-            try:
-                self._observerSvc.notifyObservers(_url, 'file_status', _url.URI)
-            except COMException, e:
-                # if noone is listening, we get an exception
-                if e.errno != nsError.NS_ERROR_FAILURE:
-                    #print "caught unknown exception in notify"
-                    raise
+                self.REASON_FORCED_CHECK
+            for koIFile in koIFiles:
+                uri = koIFile.URI
+                self._items_to_check.add((UnwrapObject(koIFile), uri, reason))
+                log.debug("Forced recheck of uri: %r", uri)
+            self._cv.notify()
+        finally:
+            self._cv.release()
 
-    def getStatusForFile(self, kofile, forceRefresh):
-        #print "getStatusForFile: %r" % (kofile.URI)
-        self._getFileStatusNowWithFile(kofile, forceRefresh)
+    def updateStatusForUris(self, uris, forceRefresh):
+        print "updateStatusForUris: %r" % (uris)
+        koIFiles = map(self._fileSvc.getFileFromURI, uris)
+        self.updateStatusForFiles(koIFiles, forceRefresh)
 
+    ##
+    # These two have been deprecated in favour of the two functions above.
+    #
+    def getStatusForFile(self, koIFile, forceRefresh, reportWarning=True):
+        import warnings
+        warnings.warn("koIFileStatusService.getStatusForFile() is deprecated, "
+                      "use updateStatusForFiles instead.",
+                      DeprecationWarning)
+        self.updateStatusForFiles([koIFile], forceRefresh)
     def getStatusForUri(self, URI, forceRefresh):
-        #print "getStatusForUri: %r" % (URI)
-        self._getFileStatusNow(URI, forceRefresh)
+        import warnings
+        warnings.warn("koIFileStatusService.getStatusForUri() is deprecated, "
+                      "use updateStatusForUris instead.",
+                      DeprecationWarning)
+        self.updateStatusForUris([URI], forceRefresh)
 
     def _process(self):
         #print "starting file status background thread"

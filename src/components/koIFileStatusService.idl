@@ -113,20 +113,42 @@ interface koIFileStatusService : nsISupports {
     // to gather information about the file then it will send a notification of
     // 'file_status' with the url. At the end of an update run.
 
+        /**
+         * Asynchronously checks the file status and fills in koIFileEx
+         * attributes.
+         * @since Komodo 4.3.0
+         * 
+         * @param files {Array}
+         *        List of koIFileEx file items to check SCC status on.
+         * @param forceRefresh {boolean}
+         *        forces server contact for the information, this is notably
+         *        used for Subversion.
+         */
+    void updateStatusForFiles(in unsigned long count,
+                              [array, size_is(count)] in koIFileEx files,
+                              in boolean forceRefresh);
 
-    /**
-     * Synchronous call gets the status and fills in koIFileEx attributes
-     * @param file {koIFile} file to check SCC status on
-     * @param forceRefresh {boolean} forces server contact for the information,
-     *                               this is notably used for Subversion.
-     */
+        /**
+         * Same as updateStatusForFiles, except service finds the file and then
+         * does the same check as the updateStatusForFiles call.
+         * @since Komodo 4.3.0
+         * 
+         * @param uris {Array}
+         *        List of file uris to check SCC status on.
+         * @param forceRefresh {boolean}
+         *        forces server contact for the information, this is notably
+         *        used for Subversion.
+         */
+    void updateStatusForUris(in unsigned long count,
+                             [array, size_is(count)] in wstring uris,
+                             in boolean forceRefresh);
+
+        /**
+         * @deprecated since Komodo 4.3.0
+         */
     void getStatusForFile(in koIFileEx file, in boolean forceRefresh);
-    /**
-     * Same as getStatusForFile, except service finds the file and then does
-     * the same check as the getStatusForFile call.
-     * @param URI {string} uri for the file to check
-     * @param forceRefresh {boolean} forces server contact for the information,
-     *                               this is notably used for Subversion.
-     */
+        /**
+         * @deprecated since Komodo 4.3.0
+         */
     void getStatusForUri(in wstring URI, in boolean forceRefresh);
 };

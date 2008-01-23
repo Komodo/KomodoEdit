@@ -295,7 +295,7 @@ peFile.prototype.doCommand = function(command) {
         if (!item.live)
             item.url = newfile;
         var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
-        fileStatusSvc.getStatusForUri(newfile, true /* forcerefresh */);
+        fileStatusSvc.updateStatusForUris(1, [newfile], true /* forcerefresh */);
         ko.projects.active.view.refresh(item);
         break;
     case 'cmd_makeDirectoryShortcutFromFile':
@@ -518,7 +518,7 @@ this.addDirectoryShortcut = function peFile_addDirectoryShortcut(dirname, /*koIP
 
 
 this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
-    var urls = {};
+    var urls = [];
 
     if (!items) {
         var pview = ko.projects.getFocusedProjectView();
@@ -528,7 +528,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     }
     if (items) {
         for (var i=0; i<items.length; i++) {
-            urls[items[i].url]=1;
+            urls.push(items[i].url);
         }
     } else {
         // always fall back to the current view
@@ -539,7 +539,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
             return;
         }
         item.url = view.document.file.URI;
-        urls[item.url]=1;
+        urls.push(item.url);
 
         // Also refresh CodeIntel data for this view, if enabled.
         if (view.isCICitadelStuffEnabled || view.isCIXMLStuffEnabled) {
@@ -553,10 +553,8 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     }
     try {
         var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
-        for (var url in urls) {
-            // ko.projects.manager.log.debug("updating status for url: "+url+"\n");
-            fileStatusSvc.getStatusForUri(url, true /* forcerefresh */);
-        }
+        fileStatusSvc.updateStatusForUris(urls.length, urls,
+                                          true /* forcerefresh */);
     } catch(e) {
         ko.projects.manager.log.error(e);
     }
