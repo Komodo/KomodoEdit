@@ -1614,7 +1614,6 @@ def target_configure(argv):
                 # A pre 1.9 mozilla source
                 mozBuildOptions.append('enable-default-toolkit=gtk2')
 
-            
             # Add enable cairo option for building on Gnome.
             # Fix described at:
             #   http://live.gnome.org/JhbuildIssues/mozilla
@@ -1624,9 +1623,9 @@ def target_configure(argv):
             # - This is known to break on gila
             #   (linux2.4-suse9.0-libc6-glibc2.3-libcpp5-x86) with:
             #       configure: error: Library requirements (cairo >= 0.3.0) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.
-            if config.platinfo["os"] == "linux":
+            if config["platinfo"]["os"] == "linux":
                 try:
-                    libcpp_ver = int(config.platinfo["libcpp"][len("libcpp"):])
+                    libcpp_ver = int(config["platinfo"]["libcpp"][len("libcpp"):])
                 except ValueError:
                     libcpp_ver = None
             else:
