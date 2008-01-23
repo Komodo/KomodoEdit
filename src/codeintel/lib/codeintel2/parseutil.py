@@ -72,7 +72,10 @@ def tryEncoding(buffer, encoding):
         return None
 
 
-_defaultEncoding = locale.getdefaultlocale()[1]
+try:
+    _defaultEncoding = locale.getdefaultlocale()[1]
+except ValueError:
+    _defaultEncoding = None
 if _defaultEncoding is not None:
     _defaultEncoding = _defaultEncoding.lower()
 
