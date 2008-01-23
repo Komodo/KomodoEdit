@@ -59,17 +59,6 @@
 # - unicode path tests
 # - 'frep foo bar.txt' for one input file only: output differs from grep
 #   (prefixing with filename). Should frep copy grep here?
-# - findlib.replaceall() -- and probably others -- has some handling for
-#   nicer error messages for a bogus regex or repl.
-#
-# TODOs for findlib
-# -----------------
-# - remove unused/deprecated stuff where possible
-# - optparse
-# - drop 'verbosity' and out, use logging
-# - command line usage using the separate thread
-# - replace in files on command line
-# - good unicode tests
 
 """A Python script for doing find-and-replace stuff (a la grep/sed).
 Primarily this exists to exercise the backend for Komodo's Find/Replace
