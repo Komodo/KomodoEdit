@@ -512,14 +512,14 @@ class KoCodeIntelManager(Manager):
                     pattern = None
                     scopeLine = 1 # module-level scope
                 if pattern:
-                    import findlib
-                    result = findlib.find(scimoz.text, pattern, position,
-                                          patternType="regex-python",
-                                          searchBackward=1)
-                    if result:
-                        scopeLine = scimoz.lineFromPosition(result.start)+1
+                    import findlib2
+                    for match in findlib2.find_all_matches_bwd(
+                            regex, scimoz.text, start=0, end=position):
+                        scopeLine = scimoz.lineFromPosition(
+                            match.start()) + 1
                         #print "getAdjustedScope: found Python '%s' def'n on "\
-                        #      "line %d" % (result.value, scopeLine)
+                        #      "line %d" % (match.group(0), scopeLine)
+                        break
 
         # The edits-tracking mechanism alone should work well (dogfooding
         # will tell) for brace-languages because one has to add a newline
