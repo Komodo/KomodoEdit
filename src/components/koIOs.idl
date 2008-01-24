@@ -61,6 +61,7 @@ interface koIOsPath : nsISupports {
     wstring relpath(in wstring path, in wstring relativeTo);
     // Strip 'n' dir elements from the start of the given path.
     wstring lstrippath(in wstring path, in PRUint32 n);
+    boolean samepath(in wstring path1, in wstring path2);
 };
 
 [scriptable, uuid(5cba6779-d4a4-4b1a-86be-5bebc7163de2)]
