@@ -274,7 +274,7 @@ class KoFileStatusService:
     # @private
     def _removeObserver(self, topic):
         try:
-            self._observerSvc.removeObserver(self, topic)
+            self._observerSvc.removeObserver(self, topic, 0)
         except:
             log.debug("Unable to remove observer %s"%topic)
 
@@ -291,9 +291,8 @@ class KoFileStatusService:
         for checker in self._statusCheckers:
             self.removeFileStatusChecker(checker)
     
-        self._removeObserver("file_changed")
-        self._removeObserver("file_status_now")
-        self._removeObserver("file_update_now")
+        for notification in self.monitoredFileNotifications:
+            self._removeObserver(notification)
 
         try:
             self._fileSvc.observerService.removeObserver(self,'')
@@ -446,6 +445,8 @@ class KoFileStatusService:
                                 continue
 
                             updated_items.append(file_item)
+                            log.debug("%r sending changed notification for: %r",
+                                      checker.name, uri)
                             try:
                                 if len(updated_items) % 10 == 0:
                                     tmpurllist = [item[1] for item in updated_items[-10:]]
