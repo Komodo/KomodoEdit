@@ -45,6 +45,7 @@ import re
 import logging
 import threading
 import pprint
+from itertools import chain
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
@@ -719,7 +720,7 @@ class KoFindService:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-    def replaceallex(self, url, text, pattern, replacement, session,
+    def replaceallex(self, url, text, pattern, repl, session,
                      resultsView, contextOffset, scimoz):
         """Replace all occurrences of "pattern" in the given text.
 
@@ -736,71 +737,110 @@ class KoFindService:
             1. the replacement text if there was a change, otherwise null
             2. the number of replacements made
         """
-        # Determine a "skip-zone" in the current URL. I.e., the area already
-        # covered by the user in this find session.
-        session = UnwrapObject(session)
-        secondLastHit = session.GetSecondLastFindResult()
-        if not secondLastHit or secondLastHit.url != url:
-            skipZone = None
-        elif session.wrapped:
-            # Skip zone is from 0 to end of second last hit and from
-            # fileStartPos to end of file.
-            if self.options.searchBackward:
-                skipZone = [(0, session.fileStartPos),
-                            (secondLastHit.start, len(text))]
-            else:
-                skipZone = [(0, secondLastHit.end),
-                            (session.fileStartPos, len(text))]
-        else:
-            # Skip zone is from the fileStartPos to the end of the second
-            # last hit. (_Second_ last, because the current hit (the "last")
-            # one is still a candidate for replacement.)
-            if self.options.searchBackward:
-                skipZone = [(secondLastHit.start, session.fileStartPos)]
-            else:
-                skipZone = [(session.fileStartPos, secondLastHit.end)]
-        
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
         try:
-            replacementText, numReplacements, matches = findlib.replaceallex(
-                text, pattern, replacement,
-                patternType=patternType, case=case,
-                searchBackward=self.options.searchBackward,
-                matchWord=self.options.matchWord, skipZone=skipZone,
-                wantMatches=resultsView is not None)
-        except (re.error, findlib.FindError), ex:
+            # Build the appropriate regex and replacement.
+            regex, munged_repl = _regex_info_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord, repl)
+
+            # Determine a "skip-zone" in the current text. I.e., the area
+            # already covered by the user in this replace session.
+            session = UnwrapObject(session)
+            secondLastHit = session.GetSecondLastFindResult()
+            if not secondLastHit or secondLastHit.url != url:
+                skipZone = None
+            elif session.wrapped:
+                # Skip zone is from 0 to end of second last hit and from
+                # fileStartPos to end of file.
+                if self.options.searchBackward:
+                    skipZone = [
+                        (0, session.fileStartPos - contextOffset),
+                        (secondLastHit.start - contextOffset, len(text))
+                    ]
+                else:
+                    skipZone = [
+                        (0, secondLastHit.end - contextOffset),
+                        (session.fileStartPos - contextOffset, len(text))
+                    ]
+            else:
+                # Skip zone is from the fileStartPos to the end of the second
+                # last hit. (_Second_ last, because the current hit (the "last")
+                # one is still a candidate for replacement.)
+                if self.options.searchBackward:
+                    skipZone = [(secondLastHit.start - contextOffset,
+                                 session.fileStartPos - contextOffset)]
+                else:
+                    skipZone = [(session.fileStartPos - contextOffset,
+                                 secondLastHit.end - contextOffset)]
+
+            # Gather all the hits, because actually making the change.
+            if not skipZone:
+                includeZone = [(0, len(text))]
+                greppers = [
+                    findlib2.find_all_matches(regex, text)
+                ]
+            elif len(skipZone) == 1:
+                # e.g., skipZone = [(13, 26)]
+                includeZone = [(0, skipZone[0][0]),
+                               (skipZone[0][1], len(text))]
+                greppers = [
+                    findlib2.find_all_matches(regex, text,
+                            start=0, end=skipZone[0][0]),
+                    findlib2.find_all_matches(regex, text,
+                            start=skipZone[0][1]),
+                ]
+            else:
+                # e.g., skipZone = [(0, 25), (300, 543)] # where 543 == len(text)
+                assert len(skipZone) == 2
+                includeZone = [(skipZone[0][1], skipZone[1][0])]
+                greppers = [
+                    findlib2.find_all_matches(regex, text,
+                            start=skipZone[0][1], end=skipZone[1][0]),
+                ]
+
+            if resultsView is not None:
+                resultsView = UnwrapObject(resultsView)
+            new_text_bits = []
+            num_hits = 0
+            curr_pos = 0  # current working position in `text'.
+            for match in chain(*greppers):
+                num_hits += 1
+                new_text_bits.append(text[curr_pos:match.start()])
+                repl_str = match.expand(munged_repl)
+                new_text_bits.append(repl_str)
+                curr_pos = match.end()
+
+                if resultsView is not None:
+                    startCharIndex = match.start() + contextOffset
+                    endCharIndex = startCharIndex + len(repl_str)
+    
+                    # Convert indices to *byte* offsets (as in scintilla) from
+                    # *char* offsets (which is what the Python regex engine
+                    # searching is using).
+                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                    endByteIndex = scimoz.positionAtChar(0, endCharIndex)
+    
+                    startLineNum = scimoz.lineFromPosition(startCharIndex)
+                    endLineNum = scimoz.lineFromPosition(endCharIndex)
+                    contextStartPos = scimoz.positionFromLine(startLineNum)
+                    contextEndPos = scimoz.getLineEndPosition(endLineNum)
+                    context = scimoz.getTextRange(contextStartPos, contextEndPos)
+                    resultsView.AddReplaceResult(
+                        url, startByteIndex, endByteIndex,
+                        match.group(), # value
+                        repl_str, # replacement string
+                        url, # fileName (currently url/viewId is the displayName)
+                        startLineNum + 1, # 0-based -> 1-based
+                        startByteIndex - scimoz.positionFromLine(startLineNum),
+                        context)
+            new_text_bits.append(text[curr_pos:])
+
+            return ''.join(new_text_bits), num_hits
+
+        except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        if matches:
-            resultsView = UnwrapObject(resultsView)
-            for match in matches:
-                repl = match.expand(replacement)
-                startCharIndex = match.start() + contextOffset
-                endCharIndex = startCharIndex + len(repl)
-
-                # Convert indices to *byte* offsets (as in scintilla) from
-                # *char* offsets (which is what the Python regex engine
-                # searching is using).
-                startByteIndex = scimoz.positionAtChar(0, startCharIndex)
-                endByteIndex = scimoz.positionAtChar(0, endCharIndex)
-
-                startLineNum = scimoz.lineFromPosition(startCharIndex)
-                endLineNum = scimoz.lineFromPosition(endCharIndex)
-                contextStartPos = scimoz.positionFromLine(startLineNum)
-                contextEndPos = scimoz.getLineEndPosition(endLineNum)
-                context = scimoz.getTextRange(contextStartPos, contextEndPos)
-                resultsView.AddReplaceResult(
-                    url, startByteIndex, endByteIndex,
-                    match.group(), # value
-                    repl, # replacement string
-                    url, # fileName (currently url/viewId is the displayName)
-                    startLineNum + 1,
-                    startByteIndex - scimoz.positionFromLine(startLineNum),
-                    context)
-
-        return replacementText, numReplacements
 
     def findallinfiles(self, id, pattern, resultsMgr, resultsView):
         """Feed all occurrences of "pattern" in the files identified by
