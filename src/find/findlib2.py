@@ -1013,7 +1013,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
     return (re.compile(pattern, flags), repl)
 
 
-# Recipe: paths_from_path_patterns (0.3.7)
+# Recipe: paths_from_path_patterns (0.4)
 def _should_include_path(path, includes, excludes):
     """Return True iff the given path should be included."""
     from os.path import basename
@@ -1045,8 +1045,9 @@ def _should_include_path(path, includes, excludes):
 
 _NOT_SPECIFIED = ("NOT", "SPECIFIED")
 def paths_from_path_patterns(path_patterns, files=True, dirs="never",
-                             recursive=True, includes=[], excludes=[],
-                             on_error=_NOT_SPECIFIED):
+                              recursive=True, includes=[], excludes=[],
+                              skip_dupe_dirs=False,
+                              on_error=_NOT_SPECIFIED):
     """paths_from_path_patterns([<path-patterns>, ...]) -> file paths
 
     Generate a list of paths (files and/or dirs) represented by the given path
@@ -1117,12 +1118,15 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                         # under dirs; if none, call on_error(PATH*)
                         # callback
     """
-    from os.path import basename, exists, isdir, join
+    from os.path import basename, exists, isdir, join, normpath, abspath
     from glob import glob
 
     assert not isinstance(path_patterns, basestring), \
         "'path_patterns' must be a sequence, not a string: %r" % path_patterns
     GLOB_CHARS = '*?['
+
+    if skip_dupe_dirs:
+        searched_dirs = set()
 
     for path_pattern in path_patterns:
         # Determine the set of paths matching this path_pattern.
@@ -1145,6 +1149,13 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
 
         for path in paths:
             if isdir(path):
+                if skip_dupe_dirs:
+                    canon_path = normpath(abspath(path))
+                    if canon_path in searched_dirs:
+                        continue
+                    else:
+                        searched_dirs.add(canon_path)
+
                 # 'includes' SHOULD affect whether a dir is yielded.
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
@@ -1160,6 +1171,13 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                         dir_indeces_to_remove = []
                         for i, dirname in enumerate(dirnames):
                             d = join(dirpath, dirname)
+                            if skip_dupe_dirs:
+                                canon_d = normpath(abspath(d))
+                                if canon_d in searched_dirs:
+                                    dir_indeces_to_remove.append(i)
+                                    continue
+                                else:
+                                    searched_dirs.add(canon_d)
                             if dirs == "always" \
                                and _should_include_path(d, includes, excludes):
                                 yield d

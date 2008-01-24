@@ -139,14 +139,12 @@ class _ReplacerInFiles(threading.Thread):
                 self.resultsMgrProxy.setDescription(
                     "Phase 1: gathering list of files...", 0)
 
-            #TODO: add 'already_handled_dirs' optional set arg to
-            #      paths_from_path_patterns to have it use and update
-            #      that to properly skip dirs already handled.
             paths = findlib2.paths_from_path_patterns(
                         [self._norm_dir_from_dir(d) for d in self.folders],
                         recursive=self.searchInSubfolders,
                         includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes)
+                        excludes=self.excludeFiletypes,
+                        skip_dupe_dirs=True)
             for event in findlib2.replace(self.regex, self.repl, paths,
                                           include_diff_events=True,
                                           dry_run=True):
@@ -268,15 +266,12 @@ class _FinderInFiles(threading.Thread):
                 self.resultsMgrProxy.setDescription(
                     "Phase 1: gathering list of files...", 0)
 
-            #TODO: add 'already_handled_dirs' optional set arg to
-            #      paths_from_path_patterns to have it use and update
-            #      that to properly skip dirs already handled.
-            #      How about a 'skip_dupe_dirs' boolean?
             paths = findlib2.paths_from_path_patterns(
                         [self._norm_dir_from_dir(d) for d in self.folders],
                         recursive=self.searchInSubfolders,
                         includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes)
+                        excludes=self.excludeFiletypes,
+                        skip_dupe_dirs=True)
             last_path_with_hits = None
             for event in findlib2.grep(self.regex, paths):
                 if self._stop:
