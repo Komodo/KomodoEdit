@@ -1034,15 +1034,15 @@ class TextInfo(object):
     # Note: It might nice if parser also gave which of 'vi, vim, ex' and
     # the range in the accessor.
     _vi_vars_pats_and_splitters = [
-        (re.compile(r'[ \t]+(?:vi|vim|ex):\s*set? (.*?):', re.M),
+        (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
          re.compile(r'[ \t]+')),
-        (re.compile(r'[ \t]+(?:vi|vim|ex):\s*(.*?)$', re.M),
+        (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*(?P<rhs>.*?)$', re.M),
          re.compile(r'[ \t:]+')),
-        (re.compile(r'^(?:vi|vim):\s*set? (.*?):', re.M),
+        (re.compile(r'^(vi|vim([<>=]?\d{3})?):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
          re.compile(r'[ \t]+')),
     ]
     def _get_vi_vars(self, bytes):
-        """Return a dict of Vi[m] modeline vars.
+        r"""Return a dict of Vi[m] modeline vars.
 
         See ":help modeline" in Vim for a spec.
 
@@ -1066,16 +1066,26 @@ class TextInfo(object):
 
             >>> ti._get_vi_vars("ex: se foo:bar")
             {}
+
+        Some edge cases:
+
+            >>> ti._get_vi_vars("/* vim<580: set foldmethod=marker: */")
+            {'foldmethod': 'marker'}
+            >>> ti._get_vi_vars(r"/* vi:set dir=c\:\tmp: */")
+            {'dir': 'c:\\tmp'}
         """
         # Presume 8-bit encoding... yada yada.
         vi_vars = {}
         for pat, splitter in self._vi_vars_pats_and_splitters:
             match = pat.search(bytes)
             if match:
-                for var_str in splitter.split(match.group(1)):
+                for var_str in splitter.split(match.group("rhs")):
                     if '=' in var_str:
                         name, value = var_str.split('=', 1)
-                        vi_vars[name] = _intify(value)
+                        try:
+                            vi_vars[name] = int(value)
+                        except ValueError:
+                            vi_vars[name] = value.replace('\\:', ':')
                     else:
                         vi_vars[var_str] = None
                 break
@@ -1389,12 +1399,6 @@ def get_default_lidb():
     return _default_lidb
 
 
-def _intify(s):
-    try:
-        return int(s)
-    except ValueError:
-        return s
-
 # Recipe: regex_from_encoded_pattern (1.0)
 def _regex_from_encoded_pattern(s):
     """'foo'    -> re.compile(re.escape('foo'))
@@ -1689,7 +1693,11 @@ def main(argv):
 if __name__ == "__main__":
     _setup_logging()
     try:
-        retval = main(sys.argv)
+        if "--self-test" in sys.argv:
+            import doctest
+            retval = doctest.testmod()[0]
+        else:
+            retval = main(sys.argv)
     except SystemExit:
         pass
     except KeyboardInterrupt:
