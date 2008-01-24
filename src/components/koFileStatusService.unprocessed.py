@@ -99,7 +99,7 @@ class KoFileStatusService:
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
 
-    monitoredFileNotifications = ("file_status", "file_status_now",
+    monitoredFileNotifications = ("file_update_now", "file_status_now",
                                   "file_changed", )
 
     def __init__(self):
@@ -132,6 +132,8 @@ class KoFileStatusService:
         # Set of files need to be status checked. Each item is a tuple of
         # (koIFile, url, reason)
         self._items_to_check = set()
+        # Reason for why an file status update is occuring.
+        self._updateReason = self.REASON_BACKGROUND_CHECK
         # Set up the set of monitored urls
         self._monitoredUrls = set()
         # List of status checkers (file and SCC checkers).
@@ -263,7 +265,14 @@ class KoFileStatusService:
                     koIFile = self._fileSvc.getFileFromURI(data)
                     self._items_to_check.add((UnwrapObject(koIFile), data, self.REASON_FILE_CHANGED))
                     log.debug("Forced recheck of uri: %r", data)
-                self._cv.notify()
+                    self._cv.notify()
+                elif topic in ("file_update_now"):
+                    import warnings
+                    warnings.warn("'file_update_now' is deprecated, use "
+                                  "koIFileStatusService.updateStatusForAllFiles "
+                                  "instead.",
+                                  DeprecationWarning)
+                    self._cv.notify()
             finally:
                 self._cv.release()
         except Exception, e:
@@ -299,6 +308,17 @@ class KoFileStatusService:
         except:
             # file service shutdown before us?
             log.debug("Unable to remove file service observers")
+
+    def updateStatusForAllFiles(self, updateReason):
+        self._cv.acquire()
+        try:
+            # The update reasons have a priority, and we want to keep the
+            # one with the highest priority.
+            if updateReason > self._updateReason:
+                self._updateReason = updateReason
+            self._cv.notify()
+        finally:
+            self._cv.release()
 
     def updateStatusForFiles(self, koIFiles, forceRefresh):
         print "updateStatusForFiles:: uris %r" % ([f.URI for f in koIFiles], )
@@ -352,6 +372,10 @@ class KoFileStatusService:
                     self._items_to_check = set()
                     # Sort the items.
                     items_to_check.sort(sortFileStatus)
+                    # Get the default update reason. Is set by
+                    # a direct call to updateStatusForAllFiles.
+                    updateReason = self._updateReason
+                    self._updateReason = self.REASON_BACKGROUND_CHECK
                 finally:
                     self._cv.release()
 
@@ -386,8 +410,7 @@ class KoFileStatusService:
                     # Fall back to background checking of all files.
                     isBackgroundCheck = True
                     last_bg_check_time = time.time()
-                    reason = self.REASON_BACKGROUND_CHECK
-                    items_to_check = [ (koIFile, koIFile.URI, reason) for
+                    items_to_check = [ (koIFile, koIFile.URI, updateReason) for
                                        koIFile in all_local_files ]
                     #print "updateStatus reason: Background check"
                 else:

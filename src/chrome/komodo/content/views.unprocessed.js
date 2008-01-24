@@ -2006,6 +2006,13 @@ this.saveWorkspace = function view_saveWorkspace()
 ko.window = {};
 (function() {
 
+/**
+ * File Status Service used by the function(s) below.
+ * @private
+ */
+_fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
+                    getService(Components.interfaces.koIFileStatusService);
+REASON_ONFOCUS_CHECK = Components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK;
 
 /**
  * does scintilla have focus?  Return the scintilla widget
@@ -2210,7 +2217,7 @@ function _view_checkDiskFiles(event) {
     } catch(e) {
         log.exception(e);
     }
-    obSvc.notifyObservers(null,'file_update_now',url)
+    _fileStatusSvc.updateStatusForAllFiles(REASON_ONFOCUS_CHECK);
     // when we leave this function, if any dialogs were shown, the
     // main window gets a focus event again.  So we want to wait long
     // enough so that the new focus event does not enter this function
