@@ -42,6 +42,7 @@ import time
 import types
 import logging
 import copy
+from urllib import unquote as unescapeURL
 
 from xpcom import components
 from xpcom.server import UnwrapObject
@@ -106,8 +107,10 @@ class KoFileCheckerBase:
 
     ##
     # Helper function to ensure the cache key "uri" is consistently the same,
-    # no matter how the platform handles filename case sensitivity.
+    # no matter how the platform handles filename case sensitivity or
+    # whether the uri has been escaped.
     def _norm_uri_cache_key(self, uri):
+        uri = unescapeURL(uri)
         if self._is_windows:
             return uri.lower()
         return uri
