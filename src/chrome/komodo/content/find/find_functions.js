@@ -1108,7 +1108,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         } else {
             msg = "'"+pattern+"' was not found in "+context.name+".";
         }
-        msgHandler("warn", msg);
+        msgHandler("warn", "find", msg);
     }
     gFindSession.Reset();
 
@@ -1179,7 +1179,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
         } else {
             msg = "'"+pattern+"' was not found in "+context.name+".";
         }
-        msgHandler("warn", msg);
+        msgHandler("warn", "find", msg);
     }
     gFindSession.Reset();
 
@@ -1372,7 +1372,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     if (numReplacements == 0) {
         msg = "'"+pattern+"' was not found in "+context.name+
                   ". No changes were made.";
-        msgHandler("info", msg);
+        msgHandler("info", "find", msg);
     } else {
         msg = "Made "+numReplacements+" replacements in "+
                   context.name+".";
