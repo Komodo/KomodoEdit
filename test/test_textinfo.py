@@ -105,8 +105,6 @@ def _fill_DataTestCase():
                 if "#" in line:
                     line = line[:line.index('#')].strip()
                 tags += line.split()
-        tags += testsupport.splitall(dirname(
-                    testsupport.relpath(ti_path, data_dir)))
 
         # Options.
         opts = {}
@@ -125,7 +123,9 @@ def _fill_DataTestCase():
             self._test_one_file(path, opts, info)
         if tags:
             test_fn.tags = tags
-        name = 'test_'+basename(data_path)
+
+        name = 'test_%s/%s' % (basename(dirname(data_path)),
+                               basename(data_path))
         setattr(DataTestCase, name, test_fn)
 
 _fill_DataTestCase()

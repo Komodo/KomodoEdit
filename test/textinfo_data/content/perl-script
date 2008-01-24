@@ -1,0 +1,5 @@
+# This is a Perl script, but without a shebang line or extension.
+# vim:set ft=perl:
+
+print "hi\n";
+my $var = 'foo';
