@@ -851,25 +851,23 @@ class KoFindService:
         
         Returns a list of line numbers (0-based).
         """
-        
-        patternType = self.patternTypeMap[self.options.patternType]
-        case = self.caseMap[self.options.caseSensitivity]
         try:
-            matches = findlib.findallex(
-                text, pattern,
-                patternType=patternType, case=case,
-                matchWord=self.options.matchWord)
-        except (re.error, findlib.FindError), ex:
+            regex, dummy = _regex_info_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+
+            lines = set()
+            for match in findlib2.find_all_matches(regex, text):
+                startCharIndex = match.start() + contextOffset
+                startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                startLineNum = scimoz.lineFromPosition(startByteIndex)
+                lines.add(startLineNum)
+            
+            return list(sorted(lines))
+        except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        lines = {}  # use dict to avoid dupes
-        for match in matches:
-            startCharIndex = match.start() + contextOffset
-            startByteIndex = scimoz.positionAtChar(0, startCharIndex)
-            startLineNum = scimoz.lineFromPosition(startByteIndex)
-            lines[startLineNum] = 1
-        return lines.keys()
 
     def replaceallex(self, url, text, pattern, replacement, session,
                      resultsView, contextOffset, scimoz):
