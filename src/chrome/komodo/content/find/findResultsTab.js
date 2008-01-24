@@ -829,31 +829,16 @@ FindResultsTabManager.prototype._doubleClick = function()
         //    itself is poorly represented by the display path of the file. Note
         //    that this may not translate to a valid URL if the view is untitled.
         var displayPath = this.view.GetUrl(i);
-        try {
-            var views = ko.views.manager.topView.getViews(true);
-            var needopen = true;
-            for (var v = 0; v < views.length; ++v) {
-                if (views[v].document && views[v].document.displayPath == displayPath) {
-                    views[v].makeCurrent();
-                    needopen = false;
-                    break;
-                }
-            }
-            if (needopen) {
-                // Fallback to open URI.
-                var retval = ko.open.URI(displayPath);
-                if (retval != null) { // indicates success opening file
-                    window.setTimeout(function(me){ me._doubleClick(); }, 1, this);
-                }
-                return;
-            }
-        } catch(ex) {
-            var msg = "Error opening '"+displayPath+"'.";
-            ko.dialogs.alert(msg);
-            findResultsLog.exception(ex, msg);
+        ko.open.displayPath(displayPath);
+        var view = ko.views.manager.currentView;
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+                .getService(Components.interfaces.koIOsPath);
+        if (!view || !view.document
+            || !osPathSvc.samepath(view.document.displayPath, displayPath))
+        {
+            // File wasn't opened for whatever reason.
             return;
         }
-        var view = ko.views.manager.currentView;
         var scimoz = view.scintilla.scimoz;
 
         // Try to find the match or replacement result. If it cannot be
