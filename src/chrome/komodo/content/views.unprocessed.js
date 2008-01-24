@@ -2010,9 +2010,9 @@ ko.window = {};
  * File Status Service used by the function(s) below.
  * @private
  */
-_fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
+var _fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
                     getService(Components.interfaces.koIFileStatusService);
-REASON_ONFOCUS_CHECK = Components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK;
+var REASON_ONFOCUS_CHECK = Components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK;
 
 /**
  * does scintilla have focus?  Return the scintilla widget
