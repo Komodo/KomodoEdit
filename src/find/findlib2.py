@@ -50,7 +50,13 @@ from glob import glob
 import cPickle as pickle
 import md5
 
-import textinfo
+try:
+    import textinfo
+except ImportError:
+    kopylib_dir = join(dirname(dirname(abspath(__file__))),
+                       "python-sitelib")
+    sys.path.insert(0, kopylib_dir)
+    import textinfo
 
 
 
@@ -60,6 +66,7 @@ class FindError(Exception):
     pass
 
 log = logging.getLogger("findlib2")
+#log.setLevel(logging.DEBUG)
 
 
 
@@ -135,6 +142,7 @@ def grep(regex, paths, files_with_matches=False,
         log.debug("grep %r", str_from_regex_info(regex))
 
     for path in paths:
+        path = normpath(path)
         ti = textinfo.textinfo_from_path(path)
 
         if skip_unknown_lang_paths and ti.lang is None:
@@ -562,11 +570,19 @@ class _HitWithAccessorMixin(object):
         return start, end
 
     @property
+    @_memoized
+    def start_line_and_col_num(self):
+        return self.accessor.line_and_col_from_pos(self.start_pos)
+
+    @property
     def lines(self):
         start, end = self.line_num_range
         for line_num in range(start, end+1):
             start_pos = self.accessor.pos_from_line_and_col(line_num, 0)
-            end_pos = self.accessor.pos_from_line_and_col(line_num+1, 0)
+            try:
+                end_pos = self.accessor.pos_from_line_and_col(line_num+1, 0)
+            except IndexError:
+                end_pos = len(self.accessor.text)
             yield self.accessor.text_range(start_pos, end_pos)
 
     def lines_with_context(self, n):
@@ -576,7 +592,10 @@ class _HitWithAccessorMixin(object):
         for line_num in range(context_start, context_end+1):
             type = (start <= line_num <= end and "hit" or "context")
             start_pos = self.accessor.pos_from_line_and_col(line_num, 0)
-            end_pos = self.accessor.pos_from_line_and_col(line_num+1, 0)
+            try:
+                end_pos = self.accessor.pos_from_line_and_col(line_num+1, 0)
+            except IndexError:
+                end_pos = len(self.accessor.text)
             yield type, self.accessor.text_range(start_pos, end_pos)
 
 
@@ -1162,7 +1181,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
 #---- internal accessor stuff
 
 class _TextAccessor(object):
-    """An API for accessing some text (allowing for a nicer API and cachine).
+    """An API for accessing some text (allowing for a nicer API and caching).
 
     This is based on codeintel's accessor classes, but drops the lexing info
     and is otherwise simplified.
@@ -1171,7 +1190,7 @@ class _TextAccessor(object):
         self.text = text
 
     def line_and_col_from_pos(self, pos):
-        #TODO: Fix this. This is busted for line 0 (at least).
+        #TODO: Fix this. This is busted for line 0 (at least). Really?
         line = self.line_from_pos(pos)
         col = pos - self.__start_pos_from_line[line]
         return line, col
@@ -1198,7 +1217,7 @@ class _TextAccessor(object):
             >>> sa.line_from_pos(35)
             3
         """
-        # Lazily build the line -> start-pos info.
+        # Build the line -> start-pos info.
         if self.__start_pos_from_line is None:
             self.__start_pos_from_line = [0]
             for line_str in self.text.splitlines(True):

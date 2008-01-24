@@ -206,42 +206,32 @@ class _ReplacerInFiles(threading.Thread):
             self.resultsMgrProxy.setDescription(desc, 0)
 
 
-
 class _FinderInFiles(threading.Thread):
-    """Find all hits of the given pattern in the given files and
-    load them into the given koIFindResultsView.
+    REPORT_CHUNK_SIZE = 50  # The number by which to chunk reporting results.
     
-    The running thread can be terminated early by calling the .stop() method.
-
-    XXX:TODO:
-    - Need proper lock-synchronization around usages of self._stop, for
-      example.
-    """
-    def __init__(self, id, pattern, patternType, caseSensitivity, matchWord,
-                 folders, cwd, searchInSubfolders, includeFiletypes,
-                 excludeFiletypes, resultsMgr, resultsView):
+    def __init__(self, id, regex, folders, cwd, searchInSubfolders,
+                 includeFiletypes, excludeFiletypes, resultsMgr,
+                 resultsView):
         threading.Thread.__init__(self, name="FinderInFiles")
 
         self.id = id
-        self.pattern = pattern
-        self.patternType = patternType
-        self.caseSensitivity = caseSensitivity
-        self.matchWord = matchWord
+        self.regex = regex
         self.folders = folders
-        self.cwd = cwd
+        self.cwd = normpath(expanduser(cwd))
         self.searchInSubfolders = searchInSubfolders
         self.includeFiletypes = includeFiletypes
         self.excludeFiletypes = excludeFiletypes
         self.resultsMgr = resultsMgr
+        self.resultsView = resultsView
+
         self.resultsMgrProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsTabManager,
             self.resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
-        self.resultsView = resultsView
         self.resultsViewProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsView,
             self.resultsView, PROXY_ALWAYS | PROXY_SYNC)
         self._resultsView = UnwrapObject(resultsView)
-        
+
         self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                       .getService(components.interfaces.koILastErrorService)
 
@@ -252,18 +242,25 @@ class _FinderInFiles(threading.Thread):
         log.debug("stopping find in files thread")
         self._stop = 1
 
+    def _norm_dir_from_dir(self, dir):
+        dir = normpath(dir)
+        if dir.startswith("~"):
+            return expanduser(dir)
+        elif not isabs(dir):
+            return join(self.cwd, dir)
+        else:
+            return dir
+
     def run(self):
         # Rule: if self._stop is true then this code MUST NOT use
         #       self.resultsMgrProxy or self.resultsViewProxy, because they
         #       may have been destroyed.
-        log.debug("start find in files thread")
 
-        # optimization: delay reporting of results, store them here
         self._resetResultCache()
 
-        self.numResults = 0
-        self.numFiles = 0
-        self.searchedFiles = {} # list of files searched, to avoid dupes
+        self.num_hits = 0
+        self.num_paths_with_hits = 0
+        self.num_paths_searched = 0
         try:
             if self._stop:
                 return
@@ -271,157 +268,75 @@ class _FinderInFiles(threading.Thread):
                 self.resultsMgrProxy.setDescription(
                     "Phase 1: gathering list of files...", 0)
 
-            for folder in self.folders:
+            #TODO: add 'already_handled_dirs' optional set arg to
+            #      paths_from_path_patterns to have it use and update
+            #      that to properly skip dirs already handled.
+            #      How about a 'skip_dupe_dirs' boolean?
+            paths = findlib2.paths_from_path_patterns(
+                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        recursive=self.searchInSubfolders,
+                        includes=self.includeFiletypes,
+                        excludes=self.excludeFiletypes)
+            last_path_with_hits = None
+            for event in findlib2.grep(self.regex, paths):
                 if self._stop:
                     return
-                folder = expanduser(folder)
-                if not isabs(folder) and self.cwd is not None:
-                    folder = join(self.cwd, folder)
-                #XXX *Could* still be relative here, if cwd is None?
-                self._searchFolder(folder)
+
+                if isinstance(event, findlib2.SkipPath):
+                    self.num_paths_searched += 1
+                    continue
+                elif not isinstance(event, findlib2.Hit):
+                    continue
+                self.num_hits += 1
+                if event.path != last_path_with_hits:
+                    self.num_paths_searched += 1
+                    self.num_paths_with_hits += 1
+                    last_path_with_hits = event.path
                 
+                self._report_hit(event)
+
             self._flushResultCache() # Add the last chunk of find results
         finally:
             if not self._stop:
-                self.resultsMgrProxy.searchFinished(1, self.numResults,
-                                                    self.numFiles,
-                                                    len(self.searchedFiles))
-                if not self.searchedFiles:
+                self.resultsMgrProxy.searchFinished(
+                    1, self.num_hits, self.num_paths_with_hits,
+                    self.num_paths_searched)
+                if self.num_paths_searched == 0:
                     self.resultsMgrProxy.setDescription(
                         "No files were found to search in.", 1)
 
-        log.debug("done find in files thread")
+    def _report_hit(self, hit):
+        """Report/cache this findlib2 Hit."""
+        context = '\n'.join(hit.lines)
 
-    def _searchFolder(self, folder):
-        """Search the given folder and report results.
+        # Don't want to see black boxes for EOLs in find results tab.
+        context = context.rstrip('\r\n')
 
-            "folder" is the directory to search.
-        
-        Search results are reported to self.resultsMgrProxy,
-        self.resultsViewProxy and self.numResults.
-        """
-        folder = normpath(folder)
-        path_patterns = [folder]
-        if not self.searchInSubfolders:
-            path_patterns = [join(folder, "*"), join(folder, ".*")]
+        # Firefox trees don't like displaying *very* long lines
+        # which the occassional exceptional situation will cause
+        # (e.g.  Komodo's own webdata.js). Trim the "content"
+        # find result length.
+        MAX_CONTENT_LENGTH = 256
+        if len(context) > MAX_CONTENT_LENGTH:
+            context = context[:MAX_CONTENT_LENGTH]
 
-        for path in findlib2.paths_from_path_patterns(
-                        path_patterns,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        recursive=self.searchInSubfolders):
-            if self._stop:
-                return
-            if path in self.searchedFiles:
-                continue
-            self.searchedFiles[path] = True
+        # When the context gets passed to AddFindResults pyxpcom will
+        # convert it into a unicode string automatically. However, if we
+        # happened to get a result on a binary file, that will fail and we
+        # will not see any results. protect against that by trying to make
+        # the string unicode, and failing that, repr it, then limit its
+        # length as it could be *very* long.
+        if type(context) != types.UnicodeType:
             try:
-                self._searchFile(path)
-            except COMException, ex:
-                errcode, errmsg = self.lastErrorSvc.getLastError()
-                log.warn("skipping '%s': %s: %s", path, errcode, errmsg)
-            except EnvironmentError, ex:
-                log.warn("skipping '%s': %s", path, ex)
+                context = unicode(context)
+            except UnicodeError, ex:
+                context = context[:MAX_CONTENT_LENGTH]
+                context = repr(context)[1:-1]
 
-            if len(self.searchedFiles) % 50 == 0:
-                self._flushResultCache()
-
-    def _searchFile(self, file):
-        """Search the given file and report results.
-        
-            "file" is the filename to search.
-            
-        Search results are reported to self.resultsMgrProxy,
-        self.resultsViewProxy and self.numResults.
-        """
-        #log.debug("search '%s'", file)
-        
-        # Read the file.
-        #XXX Might want to do unicode-y, Komodo preference-y stuff here at
-        #    some point.
-        fin = open(file, 'rb')
-        content = fin.read()
-        fin.close()
-
-        # Find any matches.
-        matches = findlib.findallex(content, self.pattern,
-                                    patternType=self.patternType,
-                                    case=self.caseSensitivity,
-                                    matchWord=self.matchWord)
-
-        # Report results.
-        if matches:
-            # Determine line offsets for finding the line and column number
-            # of each match.
-            lines = [] # One for each line: (start offset, line content)
-            offset = 0
-            for line in content.splitlines(1):
-                lines.append( (offset, line) )
-                offset += len(line)
-
-            lower = 0 # initialize out here because matches are sequential
-            for match in matches:
-                start = match.start()
-                end = match.end()
-                value = content[start:end]
-                #print "\tmatch: %d-%d: %r" % (start, end, value)
-                # Determine the line and line offset of this match.
-                # - Algorithm adapted from scintilla's LineFromPosition.
-                if not lines:
-                    lineNum = 0  # lineNum is 0-based
-                    lineOffset, line = 0, ""
-                elif start >= lines[-1][0]:
-                    lineNum = len(lines)
-                    lineOffset, line = lines[-1]
-                else:
-                    upper = len(lines)
-                    while lower < upper:
-                        middle = (upper + lower + 1) / 2
-                        if start < lines[middle][0]:
-                            upper = middle - 1
-                        else:
-                            lower = middle
-                    lineNum = lower
-                    lineOffset, line = lines[lower]
-                columnNum = start - lineOffset
-
-                file = normpath(file)
-
-                # Optimization: cache find results to only call through
-                # XPCOM to log them every 25 or so (see AddFindResults()).
-                #self.resultsViewProxy.AddFindResult(
-                #    file, start, end, value, file,
-                #    lineNum+1, columnNum+1,
-                #    line)
-
-                # Firefox trees don't like displaying *very* long lines
-                # which the occassional exceptional situation will cause
-                # (e.g.  Komodo's own webdata.js). Trim the "content"
-                # find result length.
-                MAX_CONTENT_LENGTH = 256
-                if len(line) > MAX_CONTENT_LENGTH:
-                    line = line[:MAX_CONTENT_LENGTH]
-                
-                # When line gets passed to AddFindResults pyxpcom will convert it into
-                # a unicode string automagicaly.  However, if we happened to get a
-                # result on a binary file, that will fail and we will not see any results.
-                # protect against that by trying to make the string unicode, and failing
-                # that, repr it, then limit it to 100 bytes as it could be *very* long.
-                if type(line) != types.UnicodeType:
-                    try:
-                        line = unicode(line)
-                    except UnicodeError, e:
-                        line = line[:MAX_CONTENT_LENGTH]
-                        line = repr(line)[1:-1]
-                
-                self._cacheResult(file, start, end, value, file,
-                                  lineNum+1, columnNum+1, line.rstrip())
-
-                self.numResults += 1
-            self.numFiles += 1
-
-            if self.numResults % 25 == 0:
-                self._flushResultCache()
+        line_num, col_num = hit.start_line_and_col_num
+        self._cacheResult(hit.path, hit.start_pos, hit.end_pos,
+                          hit.match.group(0), hit.path,
+                          line_num+1, col_num+1, context)
 
     def _resetResultCache(self):
         self._r_urls = []
@@ -443,87 +358,27 @@ class _FinderInFiles(threading.Thread):
         self._r_lineNums.append(lineNum)
         self._r_columnNums.append(columnNum)
         self._r_contexts.append(context)
+        
+        if len(self._r_urls) >= self.REPORT_CHUNK_SIZE:
+            self._flushResultCache()
 
     def _flushResultCache(self):
         if self._r_urls:
+            #TODO: what's the diff btwn url and fileName?
             self.resultsViewProxy.AddFindResults(
                 self._r_urls, self._r_startIndexes, self._r_endIndexes,
                 self._r_values, self._r_fileNames,
                 self._r_lineNums, self._r_columnNums, self._r_contexts)
             self._resetResultCache()
 
-            numSearchedFiles = len(self.searchedFiles)
-            if numSearchedFiles == 1:
+            if self.num_paths_searched == 1:
                 filesStr = "1 file"
             else:
-                filesStr = str(numSearchedFiles) + " files"
+                filesStr = str(self.num_paths_searched) + " text files"
             desc = "Found %d occurrences in %d of %s so far."\
-                   % (self.numResults, self.numFiles, filesStr)
+                   % (self.num_hits, self.num_paths_with_hits, filesStr)
             self.resultsMgrProxy.setDescription(desc, 0)
 
-    #def _readFile(self, file):
-    #    """Return a Unicode object of the file's content.
-    #    
-    #        "file" is the name of the file to open and read.
-    #        XXX For local PythoAdd some preferences...
-    #        
-    #    It would be nice to have a Python-only implementation of this,
-    #    but for now we will use Komodo-specific code. For a Python-only
-    #    impl we would need to provide a mechanism for providing some
-    #    preferences/directives for detection handling similar to Komodo's.
-    #    
-    #    Returns a 3-tuple: (ucontent, encoding, bom)
-    #    where,
-    #        "ucontent" is a unicode buffer of the file's content
-    #        "encoding" is a Python encoding name
-    #        "bom" is a boolean indicating if the document uses a byte-order
-    #            marker
-    #    May raise an EnvironmentError if the file cannot be accessed. May
-    #    also raise an XPCOM ServerException, in which case the last error
-    #    will be set on koILastErrorService.
-    #    """
-    #    import uriparse
-    #    uri = uriparse.localPathToURI(file)
-    #    print "XXX %s:" % file
-    #    print "\turi: %s" % uri
-    #
-    #    #docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
-    #    #if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
-    #    #    url = self.file.URI
-    #    #    docState = docStateMRU.getPref(url)
-    #    #    self.prefs = docState
-    #    #else:
-    #    #    self.prefs = components.classes['@activestate.com/koPreferenceSet;1'].\
-    #    #                             createInstance(components.interfaces.koIPreferenceSet)
-    #    #    if self.isUntitled:
-    #    #        self.prefs.id = self._untitledName
-    #    #    else:
-    #    #        self.prefs.id = self.file.URI
-    #    #    docStateMRU.setPref(self.prefs)
-    #    #self.prefs.parent = self._globalPrefs
-    #
-    #    encoding_name = self._getStringPref('encodingDefault')
-    #    defaultEncoding = self.encodingServices.get_encoding_info(encoding_name)\
-    #                   .python_encoding_name
-    #    tryEncoding = self._getStringPref('encoding')
-    #    tryXMLDecl = self._getBooleanPref('encodingXMLDec')
-    #    tryHTMLMeta = self._getBooleanPref('encodingHTML')
-    #    tryModeline = self._getBooleanPref('encodingModeline')
-    #    #autodetect = self._getBooleanPref('encodingAutoDetect')
-    #
-    #    import koUnicodeEncoding
-    #    ucontent, encoding, bom = koUnicodeEncoding.autoDetectEncoding(
-    #        content, tryXMLDecl, tryHTMLMeta, tryModeline, wantThisEncoding,
-    #        defaultEncoding)
-    #    bom = len(bom) > 0
-    #
-    #    
-    #    doc = self.docSvcProxy.createDocumentFromURI(uri)
-    #    enc_info = doc.myDetectEncoding()
-    #    print "\t%r, %r, %r"\
-    #          % (enc_info[0][:10]+'...'+enc_info[0][-10:],
-    #             enc_info[1], enc_info[2])
-    #    return enc_info
 
 
 
@@ -967,34 +822,31 @@ class KoFindService:
         
         No return value.
         """
-        log.info("findallinfiles(pattern='%s', resultsView)", pattern)
-
-        patternType = self.patternTypeMap[self.options.patternType]
-        caseSensitivity = self.caseMap[self.options.caseSensitivity]
-        # validate now
         try:
-            findlib.validatePattern(pattern, patternType=patternType,
-                                    case=caseSensitivity,
-                                    matchWord=self.options.matchWord)
-        except (re.error, findlib.FindError), ex:
+            regex, dummy = _regex_info_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        t = _FinderInFiles(id, pattern, patternType, caseSensitivity,
-                           self.options.matchWord,
-                           self.options.getFolders(),
-                           resultsMgr.context_.cwd,
-                           self.options.searchInSubfolders,
-                           self.options.getIncludeFiletypes(),
-                           self.options.getExcludeFiletypes(),
-                           resultsMgr,
-                           resultsView)
+        t = _FinderInFiles(
+                id, regex,
+                self.options.getFolders(),
+                resultsMgr.context_.cwd,
+                self.options.searchInSubfolders,
+                self.options.getIncludeFiletypes(),
+                self.options.getExcludeFiletypes(),
+                resultsMgr,
+                resultsView)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
     def replaceallinfiles(self, id, pattern, repl, resultsMgr,
                           resultsView):
+        """TODO: docstring"""
         try:
             regex, munged_repl = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
