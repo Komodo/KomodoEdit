@@ -110,9 +110,14 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
 this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="editor" */) {
     if (typeof(viewType) == "undefined" || !viewType) viewType = "editor";
 
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+            .getService(Components.interfaces.koIOsPath);
+
     var views = ko.views.manager.topView.getViews(true);
     for (var i = 0; i < views.length; ++i) {
-        if (views[i].document && views[i].document.displayPath == displayPath) {
+        if (views[i].document
+            && osPathSvc.samepath(views[i].document.displayPath, displayPath))
+        {
             views[i].makeCurrent();
             return;
         }
