@@ -59,6 +59,9 @@ monitoredPrefNames = { "enabledPrefName": types.BooleanType,
 
 class KoFileCheckerBase:
 
+    _com_interfaces_ = [components.interfaces.nsIObserver,
+                        components.interfaces.koIFileStatusChecker]
+
     # Save have to look this up all over the status checker code.
     _is_windows = sys.platform.startswith("win")
 
@@ -199,7 +202,6 @@ class KoFileCheckerBase:
 
 class KoDiskFileChecker(KoFileCheckerBase):
 
-    _com_interfaces_ = [components.interfaces.koIFileStatusChecker]
     _reg_clsid_ = "{4871ae1f-edb2-4e2b-b35f-85109aea68ef}"
     _reg_contractid_ = "@activestate.com/koFileStatusChecker?type=disk;1"
     _reg_desc_ = "Komodo Disk Status Checker"
