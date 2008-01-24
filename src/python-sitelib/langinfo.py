@@ -68,6 +68,9 @@ built. For example, specified 'dirs' will be searched for
 allow Komodo extensions to add/override language info.)
 """
 
+# TODO:
+# - add other Komodo languages
+
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
@@ -120,7 +123,6 @@ class LangInfo(object):
     can feel free to define others, as makes sense for that language.
     """
     name = None     # a display name (i.e. appropriate for prose, display)
-    #TODO: add a 'desc' field
 
     # Used for identifying files of this language.
     exts = None

@@ -111,6 +111,8 @@ class RubyLangInfo(LangInfo):
     magic_numbers = [
         (0, "regex", re.compile('\A#!.*ruby.*$', re.I | re.M)),
     ]
+    #TODO: http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/12900
+    #      Ruby uses similar (same?) coding decl as Python.
 
 class JavaScriptLangInfo(LangInfo):
     name = "JavaScript"

@@ -72,6 +72,9 @@ _cmdln_doc = """Determine information about text files.
 """
 
 # TODO:
+# - [high prio] prefs integration
+# - aggegrate "is there an explicit encoding decl in this file" from XML, HTML,
+#   lang-specific, emacs and vi vars decls (as discussed with Shane)
 # - fix ti with unicode paths Windows (check on Linux too)
 # - Shift-JIS encoding is not detected for
 #   http://public.activestate.com/pub/apc/perl-current/lib/Pod/Simple/t/corpus/s2763_sjis.txt
