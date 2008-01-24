@@ -129,7 +129,10 @@ class LangInfo(object):
     filename_patterns = None
     magic_numbers = None
     doctypes = None
-    emacs_modes = None # Emacs modes, other than `name', that identify lang.
+    # Values for Emacs `mode` var or Vi modeline `ft' or `filetype',
+    # other than `name', that identify lang.
+    emacs_modes = None
+    vi_filetypes = None
 
     # Some languages mandate a default encoding, e.g. for Python it is
     # ASCII, for XML UTF-8.
@@ -217,6 +220,7 @@ class Database(object):
         self._li_from_doctype_public_id = None
         self._li_from_doctype_system_id = None
         self._li_from_emacs_mode = None
+        self._li_from_vi_filetype = None
 
         self._load()
         if dirs is None:
@@ -241,6 +245,15 @@ class Database(object):
         if emacs_mode in self._li_from_emacs_mode:
             return self._li_from_emacs_mode[emacs_mode]
         norm_lang = self._norm_lang_from_lang(emacs_mode)
+        if norm_lang in self._langinfo_from_norm_lang:
+            return self._langinfo_from_norm_lang[norm_lang]
+
+    def langinfo_from_vi_filetype(self, vi_filetype):
+        if self._li_from_vi_filetype is None:
+            self._build_tables()
+        if vi_filetype in self._li_from_vi_filetype:
+            return self._li_from_vi_filetype[vi_filetype]
+        norm_lang = self._norm_lang_from_lang(vi_filetype)
         if norm_lang in self._langinfo_from_norm_lang:
             return self._langinfo_from_norm_lang[norm_lang]
 
@@ -339,6 +352,7 @@ class Database(object):
         self._li_from_doctype_public_id = {}
         self._li_from_doctype_system_id = {}
         self._li_from_emacs_mode = {}
+        self._li_from_vi_filetype = {}
 
         for li in self._langinfo_from_norm_lang.values():
             if li.exts:
@@ -377,6 +391,9 @@ class Database(object):
             if li.emacs_modes:
                 for em in li.emacs_modes:
                     self._li_from_emacs_mode[em] = li
+            if li.vi_filetypes:
+                for em in li.vi_filetypes:
+                    self._li_from_vi_filetypes[em] = li
 
     def _norm_lang_from_lang(self, lang):
         return lang.lower()

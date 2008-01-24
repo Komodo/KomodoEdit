@@ -333,6 +333,13 @@ class TextInfo(object):
             if li:
                 self.langinfo = li
                 self.lang = li.name
+        if self.langinfo is None and "filetype" in self.vi_vars \
+           or "ft" in self.vi_vars:
+            vi_filetype = self.vi_vars.get("filetype") or self.vi_vars.get("ft")
+            li = lidb.langinfo_from_vi_filetype(vi_filetype)
+            if li:
+                self.langinfo = li
+                self.lang = li.name
 
         if self.langinfo is not None:
             if self.langinfo.conforms_to("XML"):
