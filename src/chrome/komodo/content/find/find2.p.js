@@ -163,6 +163,7 @@ function update(changed /* =null */) {
             _enable_widget(widgets.replace_btn);
             _enable_widget(widgets.find_all_btn);
             _enable_widget(widgets.replace_all_btn);
+            _enable_widget(widgets.mark_all_btn);
             _g_btns_enabled_for_pattern = true;
         } else if (!widgets.pattern.value && _g_btns_enabled_for_pattern) {
             // We changed from a pattern string to no pattern string.
@@ -172,6 +173,7 @@ function update(changed /* =null */) {
             _disable_widget(widgets.replace_btn);
             _disable_widget(widgets.find_all_btn);
             _disable_widget(widgets.replace_all_btn);
+            _disable_widget(widgets.mark_all_btn);
             _g_btns_enabled_for_pattern = false;
         }
     }
