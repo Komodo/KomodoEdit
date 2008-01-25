@@ -50,7 +50,6 @@ from itertools import chain
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-import findlib
 import findlib2
 
 
@@ -568,19 +567,6 @@ class KoFindService:
                   .getService(components.interfaces.koIPrefService)
         gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                        .getService(components.interfaces.koILastErrorService)
-
-        # Define mappings from koIFinder.idl option enums to findlib option
-        # values.
-        self.patternTypeMap = {    # koIFinder.patternType -> findlib.patternType
-            FOT_SIMPLE:      "simple",
-            FOT_WILDCARD:    "wildcard",
-            FOT_REGEX_PYTHON:"regex-python",
-        }
-        self.caseMap = {   # koIFinder.caseSensitivity -> findlib.case
-            FOC_INSENSITIVE: "insensitive",
-            FOC_SENSITIVE:   "sensitive",
-            FOC_SMART:       "smart",
-        }
 
         # load the find and replace options
         self.options = KoFindOptions()
