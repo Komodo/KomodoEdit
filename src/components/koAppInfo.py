@@ -497,8 +497,9 @@ class KoPHPInfoInstance(KoAppInfoEx):
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
             self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "phpDefaultInterpreter", 0)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "phpConfigFile", 0)
+            prefObserverService = self._prefSvc.prefs.prefObserverService
+            prefObserverService.addObserver(self._wrapped, "phpDefaultInterpreter", 0)
+            prefObserverService.addObserver(self._wrapped, "phpConfigFile", 0)
         except Exception, e:
             print e
 
@@ -760,16 +761,24 @@ class KoPHPInfoEx(KoPHPInfoInstance):
     _reg_desc_ = "PHP Information"
 
     def _GetPHPExeName(self):
-        if self.prefService.prefs.hasStringPref("phpDefaultInterpreter") and\
-           self.prefService.prefs.getStringPref("phpDefaultInterpreter"):
-            return self.prefService.prefs.getStringPref("phpDefaultInterpreter")
-        return self._findPHP()
+        phpDefaultInterpreter = None
+        # Not using the proxied pref observer due to getting Komodo lockups
+        # at start time:
+        # http://bugs.activestate.com/show_bug.cgi?id=74474
+        prefset = self._prefSvc.prefs
+        if prefset.hasStringPref("phpDefaultInterpreter"):
+            phpDefaultInterpreter = prefset.getStringPref("phpDefaultInterpreter")
+        return phpDefaultInterpreter or self._findPHP()
 
     def _getInterpreterConfig(self):
-        if self.prefService.prefs.hasStringPref("phpConfigFile") and\
-           self.prefService.prefs.getStringPref("phpConfigFile"):
-            return self.prefService.prefs.getStringPref("phpConfigFile")
-        return KoPHPInfoInstance._getInterpreterConfig(self)
+        phpConfigFile = None
+        # Not using the proxied pref observer due to getting Komodo lockups
+        # at start time:
+        # http://bugs.activestate.com/show_bug.cgi?id=74474
+        prefset = self._prefSvc.prefs
+        if prefset.hasStringPref("phpConfigFile"):
+            phpConfigFile = prefset.getStringPref("phpConfigFile")
+        return phpConfigFile or KoPHPInfoInstance._getInterpreterConfig(self)
 
     def _get_namedExe(self, name):
         exe = self._GetPHPExeName()
