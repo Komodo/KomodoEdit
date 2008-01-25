@@ -57,7 +57,6 @@ $cons->Install($idlExportDir, 'koIFinder.idl');
 $cons->BuildAndInstallXpt('koIFinder.idl');
 
 $cons->InstallXpcomComponent('koFinder.py');
-$cons->InstallPythonUtility('findlib.py');
 $cons->InstallPythonUtility('findlib2.py');
 
 $cons->Install($idlExportDir, 'koIFindResultsView.idl');
