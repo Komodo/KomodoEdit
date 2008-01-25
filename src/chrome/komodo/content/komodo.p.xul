@@ -134,7 +134,7 @@
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
 
-    <script src="chrome://komodo/content/project/partutils.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/partutils.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/baseManager.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/projectManager.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/projectExtensionManager.js" type="application/x-javascript;version=1.7"/>
