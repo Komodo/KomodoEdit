@@ -321,7 +321,6 @@ class KoFileStatusService:
             self._cv.release()
 
     def updateStatusForFiles(self, koIFiles, forceRefresh):
-        print "updateStatusForFiles:: uris %r" % ([f.URI for f in koIFiles], )
         self._cv.acquire()
         try:
             reason = self.REASON_FILE_CHANGED
@@ -336,7 +335,6 @@ class KoFileStatusService:
             self._cv.release()
 
     def updateStatusForUris(self, uris, forceRefresh):
-        print "updateStatusForUris: %r" % (uris)
         koIFiles = map(self._fileSvc.getFileFromURI, uris)
         self.updateStatusForFiles(koIFiles, forceRefresh)
 
