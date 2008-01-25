@@ -175,7 +175,8 @@ viewManager.prototype.postCanClose = function()
  * is used by file open dialogs to set the initial directory of the dialog.
  *
  * @public
- * @param project {koIProject} optional, instance of a project
+ * @param project {Components.interfaces.koIProject}
+ *        optional, instance of a project
  * @return {string} the current "default" directory to work from.
  */
 viewManager.prototype.getDefaultDirectory = function(project) {
@@ -206,8 +207,9 @@ viewManager.prototype.getDefaultDirectory = function(project) {
  *
  * @public
  * @param defaultDir {string} optional, current directory
- * @param project {koIProject} optional, instance of a project
- * @return {koIView} the buffer view that is opened
+ * @param project {Components.interfaces.koIProject}
+ *        optional, instance of a project
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.newTemplate = function(defaultDir, project) {
     var view = null;
@@ -266,8 +268,9 @@ viewManager.prototype.newTemplate = function(defaultDir, project) {
  * @param uri {string} optional, uri pointing to a template file
  * @param saveto {string} optional, where to save the new file
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {koIViewList} optional, what pane to open the buffer in
- * @return {koIView} the buffer view that is opened
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.doFileNewFromTemplate = function(uri,
                                                        saveto  /*=null*/,
@@ -387,7 +390,7 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
  * @public
  * @param language {string} optional, language of the buffer (eg. python)
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @return {koIView} the buffer view that is opened
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
                                            viewType /*='editor'*/) {
@@ -431,8 +434,9 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
  * @public
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {koIViewList} optional, what pane to open the buffer in
- * @return {koIView} the buffer view that is opened
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, viewList/*=null*/)
 {
@@ -522,8 +526,9 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
  * @public
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {koIViewList} optional, what pane to open the buffer in
- * @return {koIView} the buffer view that is opened
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList/*=null*/)
 {
@@ -555,8 +560,9 @@ viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList
  * @param uri {string} uri to file
  * @param lineno {integer} line number
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {koIViewList} optional, what pane to open the buffer in
- * @return {koIView} the buffer view that is opened
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.doFileOpenAtLine = function(uri, lineno, viewType/*='editor'*/, viewList/*=null*/) {
     if (typeof(viewType)=='undefined' || !viewType)
@@ -575,7 +581,8 @@ viewManager.prototype.doFileOpenAtLine = function(uri, lineno, viewType/*='edito
  *
  * @public
  * @param uri {string} uri to file
- * @return {koIView} the buffer view that is opened
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getViewForFile = function(uri) {
     var v = this.topView.findViewsForURI(uri);
@@ -588,7 +595,7 @@ viewManager.prototype.getViewForFile = function(uri) {
  *
  * @public
  * @param name {string} name of the buffer
- * @return {koIView} the buffer view that is opened
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getUntitledView = function(name) {
     try {
@@ -604,8 +611,8 @@ viewManager.prototype.getUntitledView = function(name) {
  * get a reference to the buffer for a document
  * 
  * @public
- * @param doc {koIDocument} the document object
- * @return {koIView} the buffer view that is opened
+ * @param doc {Components.interfaces.koIDocument} the document object
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getViewForDocument = function(doc) {
     return this.topView.findViewForDocument(doc);
@@ -618,7 +625,7 @@ viewManager.prototype.getViewForDocument = function(doc) {
  * @public
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @return {koIView} the buffer view that is opened
+ * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.loadViewFromURI = function(uri, viewType/*='editor'*/)
 {
