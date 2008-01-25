@@ -132,7 +132,8 @@ interface koIFindService : nsISupports {
     koIFindResult find(in wstring url,
                        in wstring text,
                        in wstring pattern,
-                       in long startOffset);
+                       in long start,
+                       in long end);
 
     // Return a result indicating how to replace the first "pattern" in
     // "text" with "replacement".

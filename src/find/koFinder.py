@@ -587,7 +587,7 @@ class KoFindService:
         
         self._threadMap = {}
        
-    def find(self, url, text, pattern, startOffset):
+    def find(self, url, text, pattern, start, end):
         try:
             regex, dummy = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
@@ -596,10 +596,10 @@ class KoFindService:
 
             if self.options.searchBackward:
                 gen = findlib2.find_all_matches_bwd(regex, text,
-                        start=0, end=startOffset)
+                        start=0, end=start)
             else:
                 gen = findlib2.find_all_matches(regex, text,
-                        start=startOffset)
+                        start=start, end=end)
 
             for match in gen:
                 return KoFindResult(url, match.start(), match.end(),

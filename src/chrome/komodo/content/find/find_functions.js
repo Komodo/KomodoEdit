@@ -183,14 +183,30 @@ function _GetViewFromViewId(editor, displayPath)
 
 //--- internal support routines
 
-function _SetupAndFindNext(editor, context, pattern, mode)
+
+/**
+ * Setup (i.e. do all the right things for find-session maintenance) and
+ * find the next occurrence of "pattern".
+ *
+ * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param context {koIFindContext} defines the scope in which to search,
+ *      e.g., in a selection, just the current doc, all open docs.
+ * @param pattern {string} the pattern to search for.
+ * @param mode {string} either 'find' or 'replace'. The maintenance of a
+ *      find session needs to know if a find-next operation is in the
+ *      context of finding or replacing.
+ * @param check_selection_only {boolean} can be set true to have only
+ *      consider the current selection in the document. This is used to
+ *      handle the special case of priming a find-session for "Replace"
+ *      when the current selection *is* the first hit. By default this
+ *      is false.
+ * @returns {koIFindResult|null} the found occurrence, or null if
+ *      "pattern" wasn't found.
+ */
+function _SetupAndFindNext(editor, context, pattern, mode,
+                           check_selection_only /* =false */)
 {
-    // Return a find result from using the Find Service. Return null if the
-    // find session is complete (i.e. if the pattern could not be found or if
-    // repeated finds fully wrapped around the find context.)
-    // "mode" is either 'find' or 'replace'. The maintenance of a find session
-    //      needs to know if a find-next operation is in the context of
-    //      finding or replacing.
+    if (typeof(check_selection_only) == 'undefined' || check_selection_only == null) check_selection_only = false;
 
     // abort if there is no current view
     var view = editor.ko.views.manager.currentView;
@@ -207,20 +223,41 @@ function _SetupAndFindNext(editor, context, pattern, mode)
               // searching within a selection)
     var contextOffset; // "text"s offset into the whole scimoz buffer
     var startOffset; // offset into "text" at which to begin searching
-    if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
+    var endOffset; // offset into "text" at which to stop searching
+    if (check_selection_only)
+    {
+        var start, end;
+        if (scimoz.anchor == scimoz.currentPos) {
+            return null;
+        } else if (scimoz.anchor < scimoz.currentPos) {
+            start = scimoz.anchor;
+            end = scimoz.currentPos;
+        } else {
+            start = scimoz.currentPos;
+            end = scimoz.anchor;
+        }
+        text = scimoz.text;
+        contextOffset = 0;
+        startOffset = scimoz.charPosAtPosition(start);
+        endOffset = scimoz.charPosAtPosition(end);
+    }
+    else if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS)
     {
         text = scimoz.text;
         contextOffset = 0;
         startOffset = scimoz.charPosAtPosition(-1);
+        endOffset = text.length;
     }
     else if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION)
     {
+        //TODO: fix this, send in all text and adjust offsets accordingly
         text = scimoz.getTextRange(
                     scimoz.positionAtChar(0, context.startIndex),
                     scimoz.positionAtChar(0, context.endIndex));
         contextOffset = context.startIndex;
         startOffset = scimoz.charPosAtPosition(-1) - contextOffset;
+        endOffset = text.length;
     }
     else
     {
@@ -275,7 +312,8 @@ function _SetupAndFindNext(editor, context, pattern, mode)
                            mode);
     var findResult = null;
     while (1) {  // while not done searching all file(s)
-        findResult = findSvc.find(url, text, pattern, startOffset);
+        findResult = findSvc.find(url, text, pattern,
+                                  startOffset, endOffset);
         // fix up the find result for context
         if (findResult != null) {
             findResult.start += contextOffset;
@@ -388,8 +426,17 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
     var view = editor.ko.views.manager.currentView;
     var scimoz = view.scintilla.scimoz;
     var url = view.document.displayPath;
-    var findResult = gFindSession.GetLastFindResult();
     var replaceResult = null;
+    var findResult = gFindSession.GetLastFindResult();
+    
+    // Special case: If there is *no* last find result (i.e. the session
+    // just started), but the current selection is a legitimate hit, then
+    // we need to prime the session with that find result.
+    // http://bugs.activestate.com/show_bug.cgi?id=27208
+    if (findResult == null) {
+        findResult = _SetupAndFindNext(editor, context, pattern, "replace", true);
+    }
+
     if (findResult != null) {
         var startByte = scimoz.positionAtChar(0, findResult.start);
         var endByte = scimoz.positionAtChar(startByte,
