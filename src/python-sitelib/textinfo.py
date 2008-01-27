@@ -1687,7 +1687,7 @@ def main(argv):
                 del d["text"]
             pprint(d)
         else:
-            raise Error("unknown output format: %r" % opts.format)
+            raise TextInfoError("unknown output format: %r" % opts.format)
 
 
 if __name__ == "__main__":
