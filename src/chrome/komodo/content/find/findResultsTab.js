@@ -829,7 +829,7 @@ FindResultsTabManager.prototype._doubleClick = function()
         //    itself is poorly represented by the display path of the file. Note
         //    that this may not translate to a valid URL if the view is untitled.
         var displayPath = this.view.GetUrl(i);
-        ko.open.displayPath(displayPath);
+        ko.open.displayPath(displayPath, "editor");
         var view = ko.views.manager.currentView;
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
                 .getService(Components.interfaces.koIOsPath);
