@@ -66,6 +66,9 @@ class koAsyncService(object):
     STATUS_STOPPING = components.interfaces.koIAsyncOperation.STATUS_STOPPING
 
     # Asynchronous icon used for displaying an "in progress" indicator.
+    # This is used here instead of through css because ToddW could not get
+    # the css image settings of the notification widget to work correctly.
+    # http://bugs.activestate.com/show_bug.cgi?id=74329
     if sys.platform.startswith("darwin"):
         asynchronous_icon_url = "chrome://global/skin/icons/loading_16.gif"
     else:
