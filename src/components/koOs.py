@@ -211,13 +211,9 @@ class koOsPath:
         # '' for first arg is to prevent TypeError if n > len(parts).
         return os.path.join('', *parts[n:])
     
-    if hasattr(os.path, "samefile"):
-        def samepath(self, path1, path2):
-            return os.path.samefile(path1, path2)
-    else:
-        def samepath(self, path1, path2):
-            from os.path import normcase, abspath
-            return normcase(abspath(path1)) == normcase(abspath(path2))
+    def samepath(self, path1, path2):
+        from os.path import normcase, abspath
+        return normcase(abspath(path1)) == normcase(abspath(path2))
 
 
 class koOs:
