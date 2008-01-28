@@ -539,7 +539,7 @@ viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList
     if (viewType == 'editor') {
         uri = ko.uriparse.getMappedURI(uri);
     }
-    var views = this.topView.findViewsForURI(uri);
+    var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
     if (views.length > 0) {
         if (views.indexOf(this.currentView) >= 0) {
             // this uses the correct view in a splitview
@@ -577,17 +577,40 @@ viewManager.prototype.doFileOpenAtLine = function(uri, lineno, viewType/*='edito
 }
 
 /**
- * get a reference to the buffer view for a uri
+ * Get a reference to the buffer view for the given URI and view type.
  *
  * @public
+ * @since Komodo 4.3.0
+ * 
+ * @param uri {string} URI to file
+ * @param viewType {string} optional, type of view to find, default is any
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype.getViewForURI = function(uri, viewType) {
+    var v;
+    if (viewType) {
+        v = this.topView.getViewsByTypeAndURI(true, viewType, uri);
+    } else {
+        v = this.topView.findViewsForURI(uri);
+    }
+    if (v.length > 0)
+        return v[0];
+    return null;
+}
+
+/**
+ * Get a reference to the buffer view for the given URI.
+ *
+ * @public
+ * @deprecated since Komodo 4.3.0, use getViewForURI instead.
+ * 
  * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getViewForFile = function(uri) {
-    var v = this.topView.findViewsForURI(uri);
-    if (v.length > 0) return v[0];
-    return null;
+    log.warn("viewManager.getViewForFile is deprecated, use " +
+             "viewManager.getViewForURI instead.");
+    return this.getViewForURI(uri);
 }
 
 /**

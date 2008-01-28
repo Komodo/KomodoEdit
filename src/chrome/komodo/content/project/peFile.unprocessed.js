@@ -571,7 +571,7 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         file = item.getFile();
     if (file) {
         // try to get the view from the view manager
-        view = ko.views.manager.getViewForFile(file.URI);
+        view = ko.views.manager.getViewForURI(file.URI);
     }
     try {
         // Handle cancel from prefs window

@@ -164,7 +164,7 @@ projectManager.prototype._getOpenURLsInProject = function(project) {
 }
 
 projectManager.prototype.forcedCloseURL = function(url) {
-    var v = ko.views.manager.getViewForFile(url);
+    var v = ko.views.manager.getViewForURI(url);
     if (v) {
         // we don't want dialogs to popup here!!!
         v.closeUnconditionally();
@@ -968,7 +968,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
         var v, file_url;
         for (var i=0; i < opened_files.length; i++) {
             file_url = opened_files.getStringPref(i);
-            v = ko.views.manager.getViewForFile(file_url);
+            v = ko.views.manager.getViewForURI(file_url);
             if (v == null) { // don't re-open existing open filed -- it slows things down.
                 ko.open.URI(file_url);
             }
