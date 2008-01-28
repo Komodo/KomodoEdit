@@ -1453,6 +1453,17 @@ def target_configure(argv):
                 buildName = config["platform"]
             prebuiltDir = join("prebuilt", "python2.5", buildName)
 
+            # If the dirs exists and is out-of-date: remove it.
+            mtime_zip = os.stat(prebuiltDir+".zip").st_mtime
+            if exists(prebuiltDir) \
+               and os.stat(prebuiltDir).st_mtime < mtime_zip:
+                log.info("removing out of date unzip of prebuilt python "
+                         "in `%s'", prebuiltDir)
+                if sys.platform == "win32":
+                    _run('rd /s/q "%s"' % prebuiltDir)
+                else:
+                    _run('rm -rf "%s"' % prebuiltDir)
+
             # If the dir doesn't exist then we need to crack it there.
             if not exists(prebuiltDir):
                 log.info("unzipping prebuilt python in `%s'", prebuiltDir)
