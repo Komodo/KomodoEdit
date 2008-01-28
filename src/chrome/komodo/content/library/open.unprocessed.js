@@ -113,19 +113,16 @@ this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="edit
     var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
             .getService(Components.interfaces.koIOsPath);
 
-    var views = ko.views.manager.topView.getViews(true);
-    for (var i = 0; i < views.length; ++i) {
-        if (views[i].document
-            && osPathSvc.samepath(views[i].document.displayPath, displayPath))
-        {
-            views[i].makeCurrent();
-            return;
-        }
+    var uri = ko.uriparse.pathToURI(displayPath);
+    var views = ko.views.manager.topView.getViewsByTypeAndURI(true, viewType, uri);
+    if (views.length > 0
+        && osPathSvc.samepath(views[0].document.displayPath, displayPath)) {
+        views[0].makeCurrent();
+    } else {
+        ko.open.URI(uri, viewType, true);
     }
-
-    // Fallback to open URI.
-    ko.open.URI(displayPath);
 }
+
 
 /**
  * Open Komodo's Start Page
