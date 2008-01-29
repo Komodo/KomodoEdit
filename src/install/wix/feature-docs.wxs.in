@@ -253,7 +253,6 @@
                 <File Id="file618" LongName="tourlet_extensions_manager.png" Name="TOURL_22.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_extensions_manager.png" />
                 <File Id="file619" LongName="tourlet_extensions_restart.png" Name="TOURL_23.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_extensions_restart.png" />
                 <File Id="file620" LongName="tourlet_extensions_save.png" Name="TOURL_24.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_extensions_save.png" />
-                <File Id="file621" LongName="tourlet_extensions_select.png" Name="TOURL_25.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_extensions_select.png" />
                 <File Id="file622" LongName="tourlet_extensions_use.png" Name="TOURL_26.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_extensions_use.png" />
                 <File Id="file4825" Name="TOUR_124.GIF" LongName="tourlet_expimppkg_exp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_exp.gif"/>
                 <File Id="file4826" Name="TOUR_125.GIF" LongName="tourlet_expimppkg_files.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_expimppkg_files.gif"/>
