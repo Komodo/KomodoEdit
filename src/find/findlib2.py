@@ -853,7 +853,7 @@ class Journal(list):
 
 #---- more generic utils
 
-# Recipe: regex_from_str (2.2.0)
+# Recipe: regex_from_str (2.2.1)
 def str_from_regex_info(regex, repl=None):
     r"""Generate a string representing the regex (and optional replacement).
 
@@ -923,7 +923,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
     '$' anchor will match at '\r\n' and '\r'-style EOLs.
     
         >>> regex_info_from_str("/foo$/", universal_newlines=True) \
-        ...   == (re.compile(r'foo(?=\r\n|\n|\r|\Z)'), None)
+        ...   == (re.compile(r'foo(?=\r\n|(?<!\r)\n|\r(?!\n)|\Z)'), None)
         True
         >>> regex_info_from_str(r"/foo\$/", universal_newlines=True) \
         ...   == (re.compile(r'foo\$'), None)
@@ -989,8 +989,10 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
             # side of the pattern.
             pattern = r"(?<!\w)" + pattern + r"(?!\w)"
         if universal_newlines and '$' in pattern:
-            # Replace '$' with '(?=\r\n|\n|\r|\Z)', being careful to skip
-            # escaped dollar signs.
+            # Modifies the pattern such that the '$' anchor will match
+            # at '\r\n' and '\r'-style EOLs. To do this we replace
+            # occurrences '$' with a pattern that properly matches all
+            # EOL styles, being careful to skip escaped dollar signs.
             chs = []
             STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
             state = STATE_DEFAULT
@@ -1000,7 +1002,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
                     if ch == '\\':
                         state = STATE_ESCAPE
                     elif ch == '$':
-                        chs[-1] = r"(?=\r\n|\n|\r|\Z)"
+                        chs[-1] = r"(?=\r\n|(?<!\r)\n|\r(?!\n)|\Z)"
                     elif ch == '[':
                         state = STATE_CHARCLASS
                 elif state == STATE_ESCAPE:

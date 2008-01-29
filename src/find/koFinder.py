@@ -796,6 +796,9 @@ class KoFindService:
                 repl_str = match.expand(munged_repl)
                 new_text_bits.append(repl_str)
                 curr_pos = match.end()
+                #print "replacement %d-%d: %r -> %r"\
+                #      % (match.start(), match.end(), 
+                #         text[match.start():match.end()], repl_str)
 
                 if resultsView is not None:
                     startCharIndex = match.start() + contextOffset
@@ -955,8 +958,8 @@ def _regex_info_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
     if '$' in pattern:
         # Modifies the pattern such that the '$' anchor will match at
         # '\r\n' and '\r'-style EOLs. To do this we replace occurrences
-        # '$' with '(?=\r\n|\n|\r|\Z)', being careful to skip escaped
-        # dollar signs.
+        # '$' with a pattern that properly matches all EOL styles, being
+        # careful to skip escaped dollar signs. (Bug 72692.)
         chs = []
         STATE_DEFAULT, STATE_ESCAPE, STATE_CHARCLASS = range(3)
         state = STATE_DEFAULT
@@ -966,7 +969,7 @@ def _regex_info_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
                 if ch == '\\':
                     state = STATE_ESCAPE
                 elif ch == '$':
-                    chs[-1] = r"(?=\r\n|\n|\r|\Z)"
+                    chs[-1] = r"(?=\r\n|(?<!\r)\n|\r(?!\n)|\Z)"
                 elif ch == '[':
                     state = STATE_CHARCLASS
             elif state == STATE_ESCAPE:
