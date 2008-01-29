@@ -165,14 +165,19 @@ if ($withJSLib or $buildFlavour eq "dev") {
 
         # install into firefox
         # XXX FIXME The following installrecursive does not work.  why?
-        $baseDir = "$firefoxProfileDir/extensions/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
-        if (! -d $baseDir) {
-            mkdir($baseDir);
-        }
-        $cons->Install($baseDir, "jslib/install.rdf");
-        $cons->InstallRecursive($baseDir,
-                                cwd()."/build/release/contrib/jslib/",
-                                (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
+        #     Answer:
+        #     1. Because $firefoxProfileDir isn't defined.
+        #     2. Because Cons is only considering targets under the dirs
+        #        it is told to build via Default() call in Construct --
+        #        and the firefox profile dir is not in these dirs.
+        #$baseDir = "$firefoxProfileDir/extensions/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
+        #if (! -d $baseDir) {
+        #    mkdir($baseDir);
+        #}
+        #$cons->Install($baseDir, "jslib/install.rdf");
+        #$cons->InstallRecursive($baseDir,
+        #                        cwd()."/build/release/contrib/jslib/",
+        #                        (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
     }
 
     $cons->Command(
