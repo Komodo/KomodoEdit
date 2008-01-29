@@ -114,12 +114,12 @@ def newguid(path):
 def get_wxs_paths():
     assert "feature-core.wxs.in" in os.listdir('.'),\
         "You must run this from the dir with 'feature-core.wxs.in'."
-    # Include the .wxs files from *all* active Komodo branches.
-    active_branches = ["Komodo-4.2", "komodo", "openkomodo"]
-    base = normpath(join(dirname(abspath(__file__)),
-                         "..", "..", "..", "..", ".."))
-    active_wix_dirs = [join(base, b, "src", "install", "wix")
-                       for b in active_branches]
+    # Note: we *used* to required working copies of all Komodo branches.
+    # This was to ensure that elem ids were unique across all versions
+    # so we could integrate changes between them. Dropping that
+    # requirement -- hence we can no longer integrate Wix changes
+    # across Komodo branches. Oh well.
+    active_wix_dirs = [dirname(dirname(abspath(__file__)))]
     wxs_paths = []
     for d in active_wix_dirs:
         if not exists(d):
