@@ -1224,6 +1224,10 @@ class KoCodeIntelService:
                 dummy, document = sdata, odata
                 if self._showProjects and not document.isUntitled:
                     for p in self._projects:
+                        #TODO: This is brutally inefficient for a project
+                        # with lots of items. Re-impl this with a new
+                        # koIProject.hasURL() or similar (i.e. a dict
+                        # lookup instead of a list lookup).
                         urls = p.getAllContainedURLs()
                         if document.file.URI in urls:
                             return
