@@ -1379,7 +1379,6 @@
                 <File Id="file352" Name="sgmlop.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop.pyd"/>
 <?if $(var.WithCrypto) = "yes" ?>
                 <File Id="file3938" Name="REMOTE_3.PY" LongName="remotefileagent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\remotefileagent.py"/>
-                <File Id="file1287" Name="PARAMI_0.EGG" LongName="paramiko-1.6-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko-1.6-py2.5.egg-info"/>
                 <File Id="file1302" Name="PYCRYP_0.EGG" LongName="pycrypto-2.0.1-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.0.1-py2.5.egg-info"/>
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
 <?endif ?>
