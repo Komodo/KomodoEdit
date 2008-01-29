@@ -114,14 +114,13 @@ if ($withCrypto) {
     $cons->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
     
     # paramiko (http://www.lag.net/paramiko/)
-    $landmark = "$komodoPythonUtilsDir/paramiko/__init__.py";
-    $cons->Command($landmark,
-                   "paramiko/setup.py",
-                   qq(
-                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
-                   ));
-    $cons->DependsRecursive($landmark, "paramiko",
-                            ("build", "paramiko.egg-info", "docs", "demos", '\.svn'));
+    # See bug 73155 for a long discussion on why we are NOT using
+    # paramiko's setup.py for installation.
+    $landmark = "$komodoPythonUtilsDir/paramiko";
+    $cons->InstallRecursive($landmark,
+                            #XXX must be absolute path (bug in InstallRecursive)
+                            cwd()."/contrib/paramiko/paramiko",
+                            ('\.svn'));
 }
 
 
