@@ -1,0 +1,25 @@
+Fix the speed at which selection scrolling works, to ensure it only
+scrolls one line up/down at a time.
+http://bugs.activestate.com/show_bug.cgi?id=74082
+
+Note: This patch is already checked in to Scintilla (cvs) and we should
+remove this patch file once we are using that version of Scintilla.
+
+Index: /home/toddw/as/komodo-devel/contrib/scintilla/src/Editor.cxx
+===================================================================
+--- Editor.cxx	(revision 12901)
++++ Editor.cxx	(working copy)
+@@ -5396,11 +5396,11 @@
+ 			if (lineMove < 0) {
+ 				lineMove = cs.DisplayFromDoc(pdoc->LinesTotal() - 1);
+ 			}
+-			ScrollTo(lineMove - LinesOnScreen() + 5);
++			ScrollTo(lineMove - LinesOnScreen() + 1);
+ 			Redraw();
+ 		} else if (pt.y < rcClient.top) {
+ 			int lineMove = cs.DisplayFromDoc(LineFromLocation(pt));
+-			ScrollTo(lineMove - 5);
++			ScrollTo(lineMove - 1);
+ 			Redraw();
+ 		}
+ 		EnsureCaretVisible(false, false, true);
