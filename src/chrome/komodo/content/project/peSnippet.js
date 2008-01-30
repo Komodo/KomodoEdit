@@ -217,7 +217,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                         getService(Components.interfaces.koILastErrorService);
     try {
         try {
-            view.setFocus();
+            view.scintilla.focus(); // we want focus right now, not later
             var setSelection = snippet.hasAttribute('set_selection')
                     && snippet.getStringAttribute('set_selection') == 'true';
             var relativeIndent = snippet.hasAttribute('indent_relative')
@@ -344,7 +344,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
             // XXX we need the setTimeout call in case focus is away from the view 
             // eg the snippet is being double-clicked from the toolbox
             if (hasTabStops) {
-                window.setTimeout(function() { ko.commands.doCommand('cmd_indent'); }, 200);
+                ko.commands.doCommand('cmd_indent');
             } else {
                 if (setSelection) {
                     scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
