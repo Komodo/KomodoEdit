@@ -48,6 +48,7 @@ Import(
     'buildType',
     'mozBin',
     'unsiloedPythonExe',
+    'ranRegxpcomStateFileName',
 );
 
 # this is what we want from the scintilla build process
@@ -215,3 +216,7 @@ $cons->Command(
 
 # install it
 $cons->Install($mozBin, $pluginName);
+
+# Running regxpcom depends on SciLexer.dll being installed.
+my $installedPluginPath = File::Spec->catfile($mozBin, basename($pluginName));
+$cons->Depends($ranRegxpcomStateFileName, $installedPluginPath);
