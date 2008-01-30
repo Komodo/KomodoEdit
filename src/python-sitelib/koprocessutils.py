@@ -81,6 +81,8 @@ def initialize():
         #    _SaferCreateProcess in process.py. Keeping it for Komodo 2.0
         #    release though.
         userEnv[unicode(key)] = unicode(val)
+    if 'PWD' in userEnv:
+        del userEnv['PWD']
     _gUserEnvCache = userEnv
 
 def resetUserEnv():
