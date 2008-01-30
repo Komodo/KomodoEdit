@@ -177,12 +177,14 @@ def grep(regex, paths, files_with_matches=False,
             continue
 
         accessor = _TextAccessor(text)
+        have_hits_in_path = False
         for match in find_all_matches(regex, text, start=0, end=None):
             if files_with_matches:
                 yield PathHit(path)
                 break
             yield FindHit(path, ti.encoding, match, accessor)
-        else:
+            have_hits_in_path = True
+        if not have_hits_in_path:
             yield SkipNoHitsInPath(path)
 
 
