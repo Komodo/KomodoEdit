@@ -7,8 +7,8 @@ remove this patch file once we are using that version of Scintilla.
 
 Index: /home/toddw/as/komodo-devel/contrib/scintilla/src/Editor.cxx
 ===================================================================
---- Editor.cxx	(revision 12901)
-+++ Editor.cxx	(working copy)
+--- src/Editor.cxx	(revision 12901)
++++ src/Editor.cxx	(working copy)
 @@ -5396,11 +5396,11 @@
  			if (lineMove < 0) {
  				lineMove = cs.DisplayFromDoc(pdoc->LinesTotal() - 1);
