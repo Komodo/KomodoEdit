@@ -35,30 +35,42 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-# Implement the Komodo Find Context hierarchy.
+"""Komodo find contexts (i.e. in what to search)"""
+
+import sys
+import os
+from os.path import basename
+from pprint import pprint
+import logging
 
 from xpcom import components, ServerException, nsError
-import sys, os, re, types
+from xpcom.server import WrapObject, UnwrapObject
+import uriparse
+
 
 
 #---- globals
+
+log = logging.getLogger("find")
 
 # context types
 FCT_CURRENT_DOC = components.interfaces.koIFindContext.FCT_CURRENT_DOC
 FCT_SELECTION = components.interfaces.koIFindContext.FCT_SELECTION
 FCT_ALL_OPEN_DOCS = components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS
 FCT_IN_FILES = components.interfaces.koIFindContext.FCT_IN_FILES
+FCT_IN_COLLECTION = components.interfaces.koIFindContext.FCT_IN_COLLECTION
 
 _names = {
     FCT_CURRENT_DOC: "the current document",
     FCT_SELECTION: "the selection",
     FCT_ALL_OPEN_DOCS: "all open documents",
     FCT_IN_FILES: "files",
+    FCT_IN_COLLECTION: "collection",
 }
 
 
 
-class KoFindContext:
+class KoFindContext(object):
     _com_interfaces_ = [components.interfaces.koIFindContext]
     _reg_desc_ = "Find Context"
     _reg_clsid_ = "{D6C80051-0A3D-46bc-80E3-DA4413D83EFB}"
@@ -90,3 +102,83 @@ class KoFindInFilesContext(KoFindContext):
 
     cwd = None
 
+
+class KoCollectionFindContext(KoFindContext):
+    _com_interfaces_ = [components.interfaces.koICollectionFindContext]
+    _reg_desc_ = "Find In Collection Context"
+    _reg_clsid_ = "{d4ad4818-2ea0-4512-99b8-7581bdccbfe6}"
+    _reg_contractid_ = "@activestate.com/koCollectionFindContext;1"
+
+    def __init__(self):
+        self.type = FCT_IN_COLLECTION
+        self.items = []
+
+    @property
+    def desc(self):
+        bits = []
+        for type, item in self.items:
+            if type == "path":
+                bits.append(basename(item))
+            elif type == "file":
+                bits.append(basename(item.url))
+            elif type == "container":
+                part_type = item.type
+                if part_type == "project":
+                    bits.append(basename(item.url))
+                elif part_type == "folder":
+                    bits.append(item.getStringAttribute("name"))
+                elif part_type == "livefolder":
+                    bits.append(basename(item.liveDirectory))
+                else:
+                    log.warn("unexpected container koIPart type: %r",
+                             part_type)
+        return ", ".join(bits)
+    
+    def add_koIContainer(self, container):
+        self.items.append(("container", container))
+    def add_file(self, file):
+        self.items.append(("file", file))
+    def add_path(self, path):
+        self.items.append(("path", path))
+
+    @property
+    def paths(self):
+        """Generate all paths for this collection."""
+        for type, item in self.items:
+            if type == "path":
+                yield item
+            elif type == "file":
+                path = _local_path_from_url(item.url)
+                if path is not None:
+                    yield path
+            elif type == "container":
+                for path in _local_paths_from_container(item):
+                    yield path
+
+
+#---- internal support stuff
+
+def _local_paths_from_container(container_comp):
+    #TODO: currently this only returns project urls that the project has
+    #  lazily determined. Not enough.
+    container = UnwrapObject(container_comp)
+    for part in container.getChildren():
+        part_type = part.type
+        if part_type == "file":
+            path = _local_path_from_url(part.get_url())
+            if path is not None:
+                yield path
+        elif part_type in ("project", "folder", "livefolder"):
+            for path in _local_paths_from_container(part):
+                yield path
+
+
+def _local_path_from_url(url):
+    try:
+        #TODO: check UNC paths, the docs for URIToLocalPath
+        #      say an UNC ends up as a file:// URL, which is
+        #      just wrong (and unhelpful here).
+        return uriparse.URIToLocalPath(url)
+    except ValueError:
+        # The url isn't a local path.
+        return None

@@ -76,33 +76,35 @@ gLastErrorSvc = None
 
 #---- Find/Replace in Files backend
 
-class _ReplacerInFiles(threading.Thread):
-    def __init__(self, id, regex, repl, folders, cwd, searchInSubfolders,
-                 includeFiletypes, excludeFiletypes, resultsMgr,
-                 resultsView):
-        threading.Thread.__init__(self, name="ReplacerInFiles")
 
+class _FindReplaceThread(threading.Thread):
+    """A base class for sharing some functionality between the various
+    find/replace background thread types.
+    """
+    REPORT_CHUNK_SIZE = 50  # The number by which to chunk reporting results.
+    
+    def __init__(self, id, name, mode, resultsMgr):
+        """Create a find/replace thread.
+        
+        @param id {string} is the ID for this find/replace session.
+        @param name {string} is a name for this thread.
+        @param mode {string} must be one of "find" or "replace". Used
+            to control some of the base functionality.
+        @param resultsMgr {koIFindResultsTabManager}
+        """
+        assert mode in ("find", "replace")
+        threading.Thread.__init__(self, name=name)
         self.id = id
-        self.regex = regex
-        self.repl = repl
-        self.folders = folders
-        self.cwd = normpath(expanduser(cwd))
-        self.searchInSubfolders = searchInSubfolders
-        self.includeFiletypes = includeFiletypes
-        self.excludeFiletypes = excludeFiletypes
+        self.mode = mode
         self.resultsMgr = resultsMgr
-        self.resultsView = resultsView
 
         self.resultsMgrProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsTabManager,
-            self.resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
+            resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
         self.resultsViewProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsView,
-            self.resultsView, PROXY_ALWAYS | PROXY_SYNC)
-        self._resultsView = UnwrapObject(resultsView)
-
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                      .getService(components.interfaces.koILastErrorService)
+            resultsMgr.view, PROXY_ALWAYS | PROXY_SYNC)
+        self._resultsView = UnwrapObject(resultsMgr.view)
 
         self._stop = 0 # when true the processing thread should terminate
 
@@ -120,187 +122,83 @@ class _ReplacerInFiles(threading.Thread):
         else:
             return dir
 
-    def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
-        #       self.resultsMgrProxy or self.resultsViewProxy, because they
-        #       may have been destroyed.
-
-        # optimization: delay reporting of results, store them here
-        self._resetResultCache()
-
-        self.numResults = 0
-        self.numFiles = 0
-        self.numSearchedFiles = 0
-        self.searched_norm_dirs = set() # used to avoid dupes
-        try:
-            if self._stop:
-                return
-            else:
-                self.resultsMgrProxy.setDescription(
-                    "Phase 1: gathering list of files...", 0)
-
-            paths = findlib2.paths_from_path_patterns(
-                        [self._norm_dir_from_dir(d) for d in self.folders],
-                        recursive=self.searchInSubfolders,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        skip_dupe_dirs=True)
-            for event in findlib2.replace(self.regex, self.repl, paths,
-                                          include_diff_events=True,
-                                          dry_run=True):
-                if self._stop:
-                    return
-                print repr(event)
-
-            self._flushResultCache() # Add the last chunk of find results
-        finally:
-            if not self._stop:
-                self.resultsMgrProxy.searchFinished(1, self.numResults,
-                                                    self.numFiles,
-                                                    self.numSearchedFiles)
-                if self.numSearchedFiles == 0:
-                    self.resultsMgrProxy.setDescription(
-                        "No files were found to search in.", 1)
-
     def _resetResultCache(self):
         self._r_urls = []
         self._r_startIndexes = []
         self._r_endIndexes = []
         self._r_values = []
-        self._r_replacements = []
         self._r_fileNames = []
         self._r_lineNums = []
         self._r_columnNums = []
         self._r_contexts = []
+        if self.mode == "replace":
+            self._r_replacements = []
 
     def _cacheResult(self, url, startIndex, endIndex, value, fileName,
-                     lineNum, columnNum, context):
+                     lineNum, columnNum, context, replacement=None):
         self._r_urls.append(url)
         self._r_startIndexes.append(startIndex)
         self._r_endIndexes.append(endIndex)
         self._r_values.append(value)
-        self._r_replacements.append(replacement)
         self._r_fileNames.append(fileName)
         self._r_lineNums.append(lineNum)
         self._r_columnNums.append(columnNum)
         self._r_contexts.append(context)
+        if self.mode == "replace":
+            self._r_replacements.append(replacement)
+        
+        if len(self._r_urls) >= self.REPORT_CHUNK_SIZE:
+            self._flushResultCache()
 
     def _flushResultCache(self):
-        if self._r_urls:
+        if not self._r_urls:
+            return
+        
+        if self.mode == "find":
+            verb = "Found"
+            self.resultsViewProxy.AddFindResults(
+                self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                self._r_values, self._r_fileNames,
+                self._r_lineNums, self._r_columnNums, self._r_contexts)
+            self._resetResultCache()
+        else:  # self.mode == "replace"
+            verb = "Replaced"
             self.resultsViewProxy.AddReplaceResults(
                 self._r_urls, self._r_startIndexes, self._r_endIndexes,
                 self._r_values, self._r_replacements, self._r_fileNames,
                 self._r_lineNums, self._r_columnNums, self._r_contexts)
             self._resetResultCache()
 
-            numSearchedFiles = len(self.searchedFiles)
-            if numSearchedFiles == 1:
-                filesStr = "1 file"
-            else:
-                filesStr = str(numSearchedFiles) + " files"
-            #TODO: mk appropriate for *replace*
-            desc = "Found %d occurrences in %d of %s so far."\
-                   % (self.numResults, self.numFiles, filesStr)
-            self.resultsMgrProxy.setDescription(desc, 0)
-
-
-class _FinderInFiles(threading.Thread):
-    REPORT_CHUNK_SIZE = 50  # The number by which to chunk reporting results.
-    
-    def __init__(self, id, regex, folders, cwd, searchInSubfolders,
-                 includeFiletypes, excludeFiletypes, resultsMgr,
-                 resultsView):
-        threading.Thread.__init__(self, name="FinderInFiles")
-
-        self.id = id
-        self.regex = regex
-        self.folders = folders
-        self.cwd = normpath(expanduser(cwd))
-        self.searchInSubfolders = searchInSubfolders
-        self.includeFiletypes = includeFiletypes
-        self.excludeFiletypes = excludeFiletypes
-        self.resultsMgr = resultsMgr
-        self.resultsView = resultsView
-
-        self.resultsMgrProxy = getProxyForObject(None,
-            components.interfaces.koIFindResultsTabManager,
-            self.resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
-        self.resultsViewProxy = getProxyForObject(None,
-            components.interfaces.koIFindResultsView,
-            self.resultsView, PROXY_ALWAYS | PROXY_SYNC)
-        self._resultsView = UnwrapObject(resultsView)
-
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                      .getService(components.interfaces.koILastErrorService)
-
-        self._stop = 0 # when true the processing thread should terminate
-
-    def stop(self):
-        """Stop processing."""
-        log.debug("stopping find in files thread")
-        self._stop = 1
-
-    def _norm_dir_from_dir(self, dir):
-        dir = normpath(dir)
-        if dir.startswith("~"):
-            return expanduser(dir)
-        elif not isabs(dir):
-            return join(self.cwd, dir)
+        # Set a description of the current state for the results tab UI.
+        if self.num_paths_searched == 1:
+            files_str = "1 file"
         else:
-            return dir
+            files_str = str(self.num_paths_searched) + " text files"
+        desc = "%s %d occurrences in %d of %s so far."\
+               % (verb, self.num_hits, self.num_paths_with_hits,
+                  files_str)
+        self.resultsMgrProxy.setDescription(desc, 0)
 
-    def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
-        #       self.resultsMgrProxy or self.resultsViewProxy, because they
-        #       may have been destroyed.
-
-        self._resetResultCache()
-
-        self.num_hits = 0
-        self.num_paths_with_hits = 0
-        self.num_paths_searched = 0
-        try:
+    def _grep_paths(self, paths):
+        last_path_with_hits = None
+        for event in findlib2.grep(self.regex, paths):
             if self._stop:
                 return
-            else:
-                self.resultsMgrProxy.setDescription(
-                    "Phase 1: gathering list of files...", 0)
 
-            paths = findlib2.paths_from_path_patterns(
-                        [self._norm_dir_from_dir(d) for d in self.folders],
-                        recursive=self.searchInSubfolders,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        skip_dupe_dirs=True)
-            last_path_with_hits = None
-            for event in findlib2.grep(self.regex, paths):
-                if self._stop:
-                    return
+            if isinstance(event, findlib2.SkipPath):
+                self.num_paths_searched += 1
+                continue
+            elif not isinstance(event, findlib2.Hit):
+                continue
+            self.num_hits += 1
+            if event.path != last_path_with_hits:
+                self.num_paths_searched += 1
+                self.num_paths_with_hits += 1
+                last_path_with_hits = event.path
+            
+            self._report_find_hit(event)
 
-                if isinstance(event, findlib2.SkipPath):
-                    self.num_paths_searched += 1
-                    continue
-                elif not isinstance(event, findlib2.Hit):
-                    continue
-                self.num_hits += 1
-                if event.path != last_path_with_hits:
-                    self.num_paths_searched += 1
-                    self.num_paths_with_hits += 1
-                    last_path_with_hits = event.path
-                
-                self._report_hit(event)
-
-            self._flushResultCache() # Add the last chunk of find results
-        finally:
-            if not self._stop:
-                self.resultsMgrProxy.searchFinished(
-                    1, self.num_hits, self.num_paths_with_hits,
-                    self.num_paths_searched)
-                if self.num_paths_searched == 0:
-                    self.resultsMgrProxy.setDescription(
-                        "No files were found to search in.", 1)
-
-    def _report_hit(self, hit):
+    def _report_find_hit(self, hit):
         """Report/cache this findlib2 Hit."""
         context = '\n'.join(hit.lines)
 
@@ -333,47 +231,158 @@ class _FinderInFiles(threading.Thread):
                           hit.match.group(0), hit.path,
                           line_num+1, col_num+1, context)
 
-    def _resetResultCache(self):
-        self._r_urls = []
-        self._r_startIndexes = []
-        self._r_endIndexes = []
-        self._r_values = []
-        self._r_fileNames = []
-        self._r_lineNums = []
-        self._r_columnNums = []
-        self._r_contexts = []
+class _ReplacerInFiles(_FindReplaceThread):
+    def __init__(self, id, regex, repl, folders, cwd, searchInSubfolders,
+                 includeFiletypes, excludeFiletypes, resultsMgr):
+        _FindReplaceThread.__init__(self, id, "ReplacerInFiles <%s>" % id,
+                                    "replace", resultsMgr)
 
-    def _cacheResult(self, url, startIndex, endIndex, value, fileName,
-                     lineNum, columnNum, context):
-        self._r_urls.append(url)
-        self._r_startIndexes.append(startIndex)
-        self._r_endIndexes.append(endIndex)
-        self._r_values.append(value)
-        self._r_fileNames.append(fileName)
-        self._r_lineNums.append(lineNum)
-        self._r_columnNums.append(columnNum)
-        self._r_contexts.append(context)
-        
-        if len(self._r_urls) >= self.REPORT_CHUNK_SIZE:
-            self._flushResultCache()
+        self.regex = regex
+        self.repl = repl
+        self.folders = folders
+        self.cwd = normpath(expanduser(cwd))
+        self.searchInSubfolders = searchInSubfolders
+        self.includeFiletypes = includeFiletypes
+        self.excludeFiletypes = excludeFiletypes
 
-    def _flushResultCache(self):
-        if self._r_urls:
-            #TODO: what's the diff btwn url and fileName?
-            self.resultsViewProxy.AddFindResults(
-                self._r_urls, self._r_startIndexes, self._r_endIndexes,
-                self._r_values, self._r_fileNames,
-                self._r_lineNums, self._r_columnNums, self._r_contexts)
-            self._resetResultCache()
+    def run(self):
+        # Rule: if self._stop is true then this code MUST NOT use
+        #       self.resultsMgrProxy or self.resultsViewProxy, because they
+        #       may have been destroyed.
 
-            if self.num_paths_searched == 1:
-                filesStr = "1 file"
+        # optimization: delay reporting of results, store them here
+        self._resetResultCache()
+
+        self.numResults = 0
+        self.numFiles = 0
+        self.numSearchedFiles = 0
+        try:
+            if self._stop:
+                return
             else:
-                filesStr = str(self.num_paths_searched) + " text files"
-            desc = "Found %d occurrences in %d of %s so far."\
-                   % (self.num_hits, self.num_paths_with_hits, filesStr)
-            self.resultsMgrProxy.setDescription(desc, 0)
+                self.resultsMgrProxy.setDescription(
+                    "Phase 1: gathering list of files...", 0)
 
+            paths = findlib2.paths_from_path_patterns(
+                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        recursive=self.searchInSubfolders,
+                        includes=self.includeFiletypes,
+                        excludes=self.excludeFiletypes,
+                        skip_dupe_dirs=True)
+            print
+            print "-- s/%s/%s/" % (self.regex.pattern, self.repl)
+            for event in findlib2.replace(self.regex, self.repl, paths,
+                                          include_diff_events=True,
+                                          dry_run=True):
+                if self._stop:
+                    return
+                print repr(event)
+
+            self._flushResultCache() # Add the last chunk of find results
+        finally:
+            if not self._stop:
+                self.resultsMgrProxy.searchFinished(1, self.numResults,
+                                                    self.numFiles,
+                                                    self.numSearchedFiles)
+                if self.numSearchedFiles == 0:
+                    self.resultsMgrProxy.setDescription(
+                        "No files were found to search in.", 1)
+
+
+
+class _FinderInFiles(_FindReplaceThread):
+    def __init__(self, id, regex, folders, cwd, searchInSubfolders,
+                 includeFiletypes, excludeFiletypes, resultsMgr):
+        _FindReplaceThread.__init__(self, id, "FinderInFiles <%s>" % id,
+                                    "find", resultsMgr)
+
+        self.regex = regex
+        self.folders = folders
+        self.cwd = normpath(expanduser(cwd))
+        self.searchInSubfolders = searchInSubfolders
+        self.includeFiletypes = includeFiletypes
+        self.excludeFiletypes = excludeFiletypes
+
+    def run(self):
+        # Rule: if self._stop is true then this code MUST NOT use
+        #       self.resultsMgrProxy or self.resultsViewProxy, because they
+        #       may have been destroyed.
+
+        self._resetResultCache()
+
+        self.num_hits = 0
+        self.num_paths_with_hits = 0
+        self.num_paths_searched = 0
+        try:
+            if self._stop:
+                return
+            else:
+                self.resultsMgrProxy.setDescription(
+                    "Phase 1: gathering list of files...", 0)
+
+            paths = findlib2.paths_from_path_patterns(
+                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        recursive=self.searchInSubfolders,
+                        includes=self.includeFiletypes,
+                        excludes=self.excludeFiletypes,
+                        skip_dupe_dirs=True)
+            self._grep_paths(paths)
+
+            self._flushResultCache() # Add the last chunk of find results
+        finally:
+            if not self._stop:
+                self.resultsMgrProxy.searchFinished(
+                    1, self.num_hits, self.num_paths_with_hits,
+                    self.num_paths_searched)
+                if self.num_paths_searched == 0:
+                    self.resultsMgrProxy.setDescription(
+                        "No files were found to search in.", 1)
+
+
+
+
+class _FinderInCollection(_FindReplaceThread):
+    def __init__(self, id, regex, resultsMgr):
+        _FindReplaceThread.__init__(self, id,
+                                    "FinderInCollection <%s>" % id,
+                                    "find", resultsMgr)
+        self.regex = regex
+        self.context = resultsMgr.context_
+
+    def run(self):
+        # Rule: if self._stop is true then this code MUST NOT use
+        #       self.resultsMgrProxy or self.resultsViewProxy, because they
+        #       may have been destroyed.
+
+        self._resetResultCache()
+
+        self.num_hits = 0
+        self.num_paths_with_hits = 0
+        self.num_paths_searched = 0
+        try:
+            if self._stop:
+                return
+            else:
+                self.resultsMgrProxy.setDescription(
+                    "Phase 1: gathering list of files...", 0)
+
+            coll = UnwrapObject(self.context)
+            #print
+            #print "-- find in collection: %r" % self.context
+            #for path in coll.paths:
+            #    self.num_paths_searched += 1
+            #    print "...", path
+
+            self._grep_paths(coll.paths)
+            self._flushResultCache() # Add the last chunk of find results
+        finally:
+            if not self._stop:
+                self.resultsMgrProxy.searchFinished(
+                    1, self.num_hits, self.num_paths_with_hits,
+                    self.num_paths_searched)
+                if self.num_paths_searched == 0:
+                    self.resultsMgrProxy.setDescription(
+                        "No files were found to search in.", 1)
 
 
 
@@ -846,6 +855,7 @@ class KoFindService:
         
         No return value.
         """
+        #TODO: drop 'resultsView' arg
         try:
             regex, dummy = _regex_info_from_ko_find_data(
                 pattern, self.options.patternType,
@@ -862,14 +872,12 @@ class KoFindService:
                 self.options.searchInSubfolders,
                 self.options.getIncludeFiletypes(),
                 self.options.getExcludeFiletypes(),
-                resultsMgr,
-                resultsView)
+                resultsMgr)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
-    def replaceallinfiles(self, id, pattern, repl, resultsMgr,
-                          resultsView):
+    def replaceallinfiles(self, id, pattern, repl, resultsMgr):
         """TODO: docstring"""
         try:
             regex, munged_repl = _regex_info_from_ko_find_data(
@@ -888,8 +896,34 @@ class KoFindService:
                 self.options.searchInSubfolders,
                 self.options.getIncludeFiletypes(),
                 self.options.getExcludeFiletypes(),
-                resultsMgr,
-                resultsView)
+                resultsMgr)
+        self._threadMap[id] = t
+        resultsMgr.searchStarted()
+        self._threadMap[id].start()
+
+    def findallincollection(self, id, pattern, resultsMgr):
+        """Feed all occurrences of "pattern" in the files identified by
+        the koICollectionFindContext into the given koIFindResultsView.
+
+            "id" is a unique number to distinguish this findallinfiles
+                session from others.
+            "resultsMgr" is a koIFindResultsTabManager instance.
+        
+        This process is done asynchronously -- i.e. a separate thread is
+        started to do this.
+        
+        No return value.
+        """
+        try:
+            regex, dummy = _regex_info_from_ko_find_data(
+                pattern, self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        t = _FinderInCollection(id, regex, resultsMgr)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()

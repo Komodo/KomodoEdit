@@ -195,11 +195,18 @@ interface koIFindService : nsISupports {
             in long id, // session id
             in wstring pattern,
             in wstring repl,
-            in koIFindResultsTabManager resultsMgr,
-            //XXX Drop this and put it in koIFindResultsTabManager eventually.
-            in koIFindResultsView resultsView);
+            in koIFindResultsTabManager resultsMgr);
 
-    // Abort a running findallinfiles or replaceallinfiles session.
+    // Asynchronously find all occurences of "pattern" and load those into
+    // the "resultsView". Note: the information on which files to search
+    // are is defined by the find context given earlier to the resultsMgr.
+    void findallincollection(
+            in long id, // session id
+            in wstring pattern,
+            in koIFindResultsTabManager resultsMgr);
+
+    // Abort a running findallinfiles, replaceallinfiles or
+    // findallincollection session.
     void stopfindreplaceinfiles(in long id);
 
     wstring regex_escape_string(in wstring s);

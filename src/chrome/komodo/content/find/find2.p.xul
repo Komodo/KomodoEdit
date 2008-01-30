@@ -204,14 +204,20 @@
 
           <row align="center" style="margin-top: 10px;">
               <label value="Search in:" accesskey="i" control="search-in-menu"/>
-              <menulist id="search-in-menu" oncommand="update('search-in')">
+              <menulist id="search-in-menu" oncommand="update('search-in')"
+                        style="max-width: 30em;" crop="center">
                   <menupopup>
                       <menuitem value="document" label="Current document"/>
                       <menuitem value="selection" label="Selected text"/>
-                      <!-- TODO: fill in project info -->
-                      <menuitem value="project" label="Current project"/>
                       <menuitem value="open-files" label="All open files"/>
+                      <menuitem id="search-in-curr-project" collapsed="true"
+                                value="curr-project" label="Current project"/>
                       <menuitem value="files" label="Text files"/>
+                      <menuseparator id="search-in-collection-sep"
+                                     collapsed="true" hidden="true"/>
+                      <menuitem id="search-in-collection" collapsed="true"
+                                value="collection" label="Collection"
+                                crop="center"/>
                   </menupopup>
               </menulist>
           </row>

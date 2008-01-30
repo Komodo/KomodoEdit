@@ -182,6 +182,8 @@ def grep(regex, paths, files_with_matches=False,
                 yield PathHit(path)
                 break
             yield FindHit(path, ti.encoding, match, accessor)
+        else:
+            yield SkipNoHitsInPath(path)
 
 
 
@@ -528,6 +530,13 @@ class SkipUnknownLangPath(SkipPath):
     """
     def __init__(self, path):
         SkipPath.__init__(self, path, "unknown language")
+
+class SkipNoHitsInPath(SkipPath):
+    """Event yielded when skipping a path with no hits during grep()
+    or replace().
+    """
+    def __init__(self, path):
+        SkipPath.__init__(self, path, "no hits")
 
 class ReplaceDiff(Event):
     """Event giving the diff for an impending replacement."""

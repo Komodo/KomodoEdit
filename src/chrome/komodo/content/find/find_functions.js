@@ -1452,7 +1452,7 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
                   getService(Components.interfaces.koIFindService);
     }
 
-    //XXX:TODO macro recording stuff for this
+    //TODO macro recording stuff for this
 
     var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
     var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
@@ -1462,7 +1462,6 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
                          findSvc.options);
     resultsMgr.show();
 
-    // This will kick off a thread to fill in the given tree/outliner.
     try {
         findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr,
                            resultsMgr.view);
@@ -1498,7 +1497,7 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
                   getService(Components.interfaces.koIFindService);
     }
 
-    //XXX:TODO macro recording stuff for this
+    //TODO macro recording stuff for this
 
     var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
     var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
@@ -1508,12 +1507,53 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
                          findSvc.options);
     resultsMgr.show();
 
-    // This will kick off a thread to fill in the given tree/outliner.
     try {
         findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
                                   resultsMgr, resultsMgr.view);
     } catch (ex) {
         _UiForFindServiceError("replace all in files", ex, msgHandler);
+        resultsMgr.clear();
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Find all hits in files.
+ *
+ * ...
+ * @param msgHandler {callback} is an optional callback for displaying a
+ *      message to the user. See Find_FindNext documentation for details.
+ */
+function Find_FindAllInCollection(editor, context, pattern, patternAlias,
+                                  msgHandler /* =<statusbar notifier> */)
+{
+    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
+        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+
+    findLog.info("Find_FindAllInCollection(editor, context, pattern='"+pattern+
+                 "', patternAlias='"+patternAlias+"')");
+    if (findSvc == null) {
+        findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
+    }
+
+    //TODO macro recording stuff for this
+
+    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
+    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+    if (resultsMgr == null)
+        return false;
+    resultsMgr.configure(pattern, patternAlias, null, context,
+                         findSvc.options);
+    resultsMgr.show();
+
+    try {
+        findSvc.findallincollection(resultsMgr.id, pattern, resultsMgr);
+    } catch (ex) {
+        _UiForFindServiceError("find all in collection", ex, msgHandler);
         resultsMgr.clear();
         return false;
     }

@@ -77,6 +77,7 @@ peFile.prototype.registerCommands = function() {
     em.registerCommand("cmd_cut",this);
     em.registerCommand("cmd_copy",this);
     em.registerCommand("cmd_paste",this);
+    em.registerCommand("cmd_findInPart",this);
     em.registerCommand("cmd_showInFinder",this);
     em.registerCommand("cmd_renameFile",this);
 }
@@ -109,6 +110,8 @@ peFile.prototype.registerMenus = function() {
                                     'Show unsaved changes','cmd_showUnsavedChanges');
     em.createMenuItem(Components.interfaces.koIPart_file,
                                     'Compare Files...','cmd_compareFiles');
+    em.createMenuItem(Components.interfaces.koIPart,
+                                    'Find...','cmd_findInPart');
 // #if PLATFORM == "win"
     em.createMenuItem(Components.interfaces.koIPart,
                                     'Show In Explorer','cmd_showInFinder');
@@ -170,6 +173,17 @@ peFile.prototype.supportsCommand = function(command, item) {
     case 'cmd_openFilePart':
         for (i = 0; i < items.length; i++) {
             if (items[i].type == 'file') return true;
+        }
+        return false;
+    case 'cmd_findInPart':
+        for (i = 0; i < items.length; i++) {
+            var type = items[i].type;
+            if (type == 'file' && items[i].getFile().isLocal) {
+                return true;
+            } else if (type == 'project' || type == 'livefolder'
+                       || type == 'folder') {
+                return true;
+            }
         }
         return false;
     case 'cmd_showInFinder':
@@ -270,6 +284,28 @@ peFile.prototype.doCommand = function(command) {
             if (items[i].type == 'file') paths.push(items[i].url);
         }
         ko.open.multipleURIs(paths);
+        break;
+    case 'cmd_findInPart':
+        var coll = Components.classes["@activestate.com/koCollectionFindContext;1"]
+                .createInstance(Components.interfaces.koICollectionFindContext);
+        for (i = 0; i < items.length; i++) {
+            var item = items[i];
+            switch (item.type) {
+            case 'file':
+                if (item.getFile().isLocal) {
+                    coll.add_file(item);
+                }
+                break;
+            case 'project':
+            case 'folder':
+            case 'livefolder':
+                coll.add_koIContainer(item);
+                break;
+            default:
+                log.warn("unexpected item type for 'cmd_findInPart': "+item.type);
+            }
+        }
+        ko.launch.findInCollection2(coll);
         break;
     case 'cmd_showInFinder':
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].

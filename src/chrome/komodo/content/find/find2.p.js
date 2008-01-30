@@ -36,6 +36,8 @@
 
 /* Komodo's Find and Replace dialog (rev 2).
  *
+ * TODO: document usage, esp. allowed 'mode' window.arguments
+ *
  * TODOs:
  * - replace in files support
  * - restore the regex shortcuts
@@ -65,6 +67,8 @@ var koIFindOptions = Components.interfaces.koIFindOptions;
 var widgets = null; // object storing interesting XUL element references
 var gFindSvc = null;
 var _g_find_context; // the context in which to search
+var _g_collection_context; // cache of 'collection' arg passed in, if any
+var _g_curr_project_context; // find context for curr proj, if any
 
 var _g_btns_enabled_for_pattern = true;    // cache for update("pattern")
 var _g_curr_default_btn = null;         // cache for _update_mode_ui()
@@ -389,7 +393,6 @@ function find_next(backward /* =false */) {
 function find_all() {
     try {
         msg_clear();
-        
         var pattern = widgets.pattern.value;
         if (! pattern) {
             return;
@@ -409,7 +412,14 @@ function find_all() {
 
         ko.mru.addFromACTextbox(widgets.pattern);
 
-        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
+            if (Find_FindAllInCollection(opener, _g_find_context,
+                                         pattern, null,
+                                         msg_callback)) {
+                window.close();
+            }
+            
+        } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
                 ko.mru.addFromACTextbox(widgets.includes);
@@ -607,6 +617,9 @@ function _init_widgets()
     widgets.msg_error = document.getElementById('msg-error');
     
     widgets.search_in_menu = document.getElementById('search-in-menu');
+    widgets.search_in_curr_project = document.getElementById('search-in-curr-project');
+    widgets.search_in_collection = document.getElementById('search-in-collection');
+    widgets.search_in_collection_sep = document.getElementById('search-in-collection-sep');
 
     widgets.dirs_row = document.getElementById('dirs-row');
     widgets.dirs = document.getElementById('dirs');
@@ -718,9 +731,41 @@ function _init_ui() {
     widgets.includes.value = args.includes || opts.encodedIncludeFiletypes;
     widgets.excludes.value = args.excludes || opts.encodedExcludeFiletypes;
     widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
-    
+
     // Setup the UI for the mode, as appropriate.
     var mode = args.mode || "find";
+
+    // - Setup for there being a current project.
+    var koPartSvc = Components.classes["@activestate.com/koPartService;1"]
+            .getService(Components.interfaces.koIPartService);
+    var curr_proj = koPartSvc.currentProject;
+    if (curr_proj) {
+        _collapse_widget(widgets.search_in_curr_project, false);
+        widgets.search_in_curr_project.label
+            = "Current Project ("+curr_proj.name+")";
+        _g_curr_project_context = Components.classes["@activestate.com/koCollectionFindContext;1"]
+            .createInstance(Components.interfaces.koICollectionFindContext);
+        _g_curr_project_context.add_koIContainer(curr_proj);
+    } else {
+        _collapse_widget(widgets.search_in_curr_project, true);
+        _g_curr_project_context = null;
+        if (mode == "findincurrproject") {
+            msg_warn("No current project.");
+            mode = "find";
+        }
+    }
+    
+    // - Setup for there a collection having been passed in.
+    if (mode == "findincollection") {
+        _collapse_widget(widgets.search_in_collection, false);
+        _collapse_widget(widgets.search_in_collection_sep, false);
+        widgets.search_in_collection.label = args.collection.desc;
+        _g_collection_context = args.collection;
+    } else {
+        _collapse_widget(widgets.search_in_collection, true);
+        _collapse_widget(widgets.search_in_collection_sep, true);
+        _g_collection_context = null;
+    }
     switch (mode) {
     case "find":
         widgets.opt_repl.checked = false;
@@ -740,6 +785,16 @@ function _init_ui() {
         widgets.opt_repl.checked = true;
         widgets.search_in_menu.value = "files";
         break;
+    case "findincollection":
+        widgets.opt_repl.checked = false;
+        widgets.search_in_menu.value = "collection";
+        break;
+    case "findincurrproject":
+        widgets.opt_repl.checked = false;
+        widgets.search_in_menu.value = "curr-project";
+        break;
+    default:
+        alert("unexpected mode for find dialog: "+mode);
     }
     update(null);
 
@@ -780,7 +835,8 @@ function _update_mode_ui() {
     
     if (widgets.opt_repl.checked) {
         switch (widgets.search_in_menu.value) {
-        case "project":
+        case "curr-project":
+        case "collection":
         case "files":
             // Replace in Files: Replace All, Close, Help
             _collapse_widget(widgets.find_prev_btn, true);
@@ -805,7 +861,8 @@ function _update_mode_ui() {
         }
     } else {
         switch (widgets.search_in_menu.value) {
-        case "project":
+        case "curr-project":
+        case "collection":
         case "files":
             // Find in Files: Find All*, Close, Help
             _collapse_widget(widgets.find_prev_btn, true);
@@ -894,8 +951,12 @@ function reset_find_context() {
         }
         break;
 
-    case "project":
-        log.error("TODO");
+    case "curr-project":
+        context = _g_curr_project_context;
+        break;
+
+    case "collection":
+        context = _g_collection_context;
         break;
 
     case "open-files":
@@ -943,8 +1004,10 @@ function _toggle_collapse(widget) {
 function _collapse_widget(widget, collapse) {
     if (collapse) {
         widget.setAttribute("collapsed", "true");
+        widget.setAttribute("hidden", "true");
     } else {
         widget.removeAttribute("collapsed");
+        widget.removeAttribute("hidden");
     }
 }
 

@@ -1272,6 +1272,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_closeProject', event)"
             disabled="true"
             desc="&generalCloseProject.desc;"/>
+        <command
+            id="cmd_findInCurrProject" key="key_cmd_findInCurrProject"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_findInCurrProject', event)"
+            desc="&findFindInCurrProject.desc;"/>
     </commandset>
 
     <!-- Commands that need updating based on changes in non-editor

@@ -197,11 +197,13 @@
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
 <!ENTITY findFind.desc "Find: Find...">
+<!ENTITY findFindInCurrProject.desc "Find: Find in Current Project...">
 <!ENTITY findFindInFiles.desc "Find: Find in Files...">
 <!ENTITY findFindNext.desc "Find: Find Next">
 <!ENTITY findFindNextResult.desc "Find: Find Next Result">
 <!ENTITY findFindNextSelected.desc "Find: Find Next Selected">
 <!ENTITY findFindPrevious.desc "Find: Find Previous">
+<!ENTITY findInCurrProject.label "Find in Current Project...">
 <!ENTITY findInFiles.label "Find in Files...">
 <!ENTITY findIncrementalSearch.desc "Find: Incremental Search">
 <!ENTITY findIncrementalSearchBackwards.desc "Find: Incremental Search Backwards">

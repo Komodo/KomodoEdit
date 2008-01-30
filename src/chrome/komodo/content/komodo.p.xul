@@ -722,6 +722,11 @@
                               class="menuitem-iconic-wide"
                               observes="cmd_findInFiles"
                               />
+                    <menuitem label="&findInCurrProject.label;"
+                              id="menu_findInCurrProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_findInCurrProject"
+                              />
                     <menuseparator/>
                     <!-- mozilla magic...menu_preferences id makes the preference
                         menu appear in the proper place on osx -->
