@@ -277,17 +277,19 @@ this.find2 = function(pattern /* =null */) {
     };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
-    // because that ends up causing problems when re-opening the find
+    // Because that ends up causing problems when re-opening the find
     // dialog (i.e. Ctrl+F when the Find dialog is already up).
     // openOrFocusDialog() results in the onfocus event but not onload
     // to the find dialog. That *could* be worked around with an onfocus
     // handler on find2.xul, but then you run into problems attempting
     // to focus the pattern textbox. (Or at least I did when experimenting
     // on Windows.)
-    return window.openDialog(
-        "chrome://komodo/content/find/find2.xul",
-        "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+    return window.openDialog.apply(window, 
+        ko.windowManager.fixupOpenDialogArgs([
+            "chrome://komodo/content/find/find2.xul",
+            "komodo_find2",
+            "chrome,close=yes"
+        ]));
 }
 
 this.replace2 = function(pattern /* =null */, repl /* =null */) {
@@ -306,10 +308,12 @@ this.replace2 = function(pattern /* =null */, repl /* =null */) {
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog(
-        "chrome://komodo/content/find/find2.xul",
-        "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+    return window.openDialog.apply(window, 
+        ko.windowManager.fixupOpenDialogArgs([
+            "chrome://komodo/content/find/find2.xul",
+            "komodo_find2",
+            "chrome,close=yes"
+        ]));
 }
 
 /**
@@ -395,10 +399,12 @@ this.findInFiles2 = function(pattern /* =null */, dirs /* =null */,
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog(
-        "chrome://komodo/content/find/find2.xul",
-        "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+    return window.openDialog.apply(window, 
+        ko.windowManager.fixupOpenDialogArgs([
+            "chrome://komodo/content/find/find2.xul",
+            "komodo_find2",
+            "chrome,close=yes"
+        ]));
 }
 
 this.replaceInFiles2 = function(pattern /* =null */, repl /* =null */,
@@ -422,10 +428,12 @@ this.replaceInFiles2 = function(pattern /* =null */, repl /* =null */,
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog(
-        "chrome://komodo/content/find/find2.xul",
-        "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+    return window.openDialog.apply(window, 
+        ko.windowManager.fixupOpenDialogArgs([
+            "chrome://komodo/content/find/find2.xul",
+            "komodo_find2",
+            "chrome,close=yes"
+        ]));
 }
 
 
