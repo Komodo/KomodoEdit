@@ -341,8 +341,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
             scimoz.insertText(oldInsertionPoint, text);
             
             // If there are tabstops, run cmd_indent which ends up running the tabstop handler
-            // XXX we need the setTimeout call in case focus is away from the view 
-            // eg the snippet is being double-clicked from the toolbox
+            // XXX calling cmd_indent is a hack, see bug #74565
             if (hasTabStops) {
                 ko.commands.doCommand('cmd_indent');
             } else {
