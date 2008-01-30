@@ -361,7 +361,6 @@ class koRFConnection:
             self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
         try:
             self.server = server
-            last_username = None
             self.username = username
             self.password = password
             if port > 0: self.port = port
@@ -369,33 +368,34 @@ class koRFConnection:
     
             self.authAttempt = 0
             while self.authAttempt < 3:
-                self.authAttempt = self.authAttempt + 1
+                self.authAttempt += 1
                 self.log.debug("open: s:%s p:%s u:%s", self.server, self.port,self.username)
 
-                if last_username is None or \
-                   (last_username != self.username and \
-                    self.protocol in ("sftp", "scp")):
-                    if last_username is not None:
+                if not self.username or self.authAttempt > 1:
+                    # Need at least a username, or the last login attempt
+                    # failed, prompt for username and password now.
+                    _username = self.username
+                    self._promptForUsernameAndPassword(path)
+                    if self.authAttempt > 1 and _username != self.username and \
+                       self.protocol in ("sftp", "scp"):
                         # Need to reconnect, see:
                         # http://bugs.activestate.com/show_bug.cgi?id=68773
                         self.do_close()
                         self.log.debug("open: username changed, reopening the "
                                        "connection")
+                        self.do_openSocket()
+
+                if self.authAttempt == 1:
+                    # Make the inital socket connection.
                     self.do_openSocket()
 
                 if self.do_authenticateWithAgent():
                     self.log.debug("Agent authentication successful.")
                     break
-                if last_username is None and not self.password:
-                    # User has not set up a password in their server prefs,
-                    # prompt for it now
-                    self._promptForUsernameAndPassword(path)
                 if self.do_authenticateWithPassword():
                     self.log.debug("Password authentication successful.")
                     break
-                # else we had an invalid username/password, let's prompt again
-                last_username = self.username
-                self._promptForUsernameAndPassword(path)
+                # else we had an invalid username/password, let's go round again
             else:
                 self._raiseServerException("Authentication failed.")
 
