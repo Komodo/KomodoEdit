@@ -2042,6 +2042,13 @@ ko.window = {};
  */
 var _fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
                     getService(Components.interfaces.koIFileStatusService);
+/**
+ * Asyncronous operations service used by the function(s) below.
+ * @private
+ */
+var _asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
+                getService(Components.interfaces.koIAsyncService);
+
 var REASON_ONFOCUS_CHECK = Components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK;
 
 /**
@@ -2137,7 +2144,13 @@ function _view_checkDiskFiles(event) {
                 removedItems.push(item);
                 view.document.isDirty = true;
             } else {
-                if (view.document.differentOnDisk()) {
+                if (view.document.differentOnDisk() &&
+                    // If this is has a pending operation, the view will be
+                    // updated automatically when the command finishes, we
+                    // don't want to warn about it until it's finished. See bug:
+                    // http://bugs.activestate.com/show_bug.cgi?id=74471
+                    !_asyncSvc.uriHasPendingOperation(file.URI)) {
+
                     if (view.document.isDirty) {
                         conflictedItems.push(item);
                     } else {
