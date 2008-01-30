@@ -173,7 +173,7 @@ class _FindReplaceThread(threading.Thread):
         if self.num_paths_searched == 1:
             files_str = "1 file"
         else:
-            files_str = str(self.num_paths_searched) + " text files"
+            files_str = str(self.num_paths_searched) + " files"
         desc = "%s %d occurrences in %d of %s so far."\
                % (verb, self.num_hits, self.num_paths_with_hits,
                   files_str)
@@ -370,7 +370,6 @@ class _FinderInCollection(_FindReplaceThread):
             #print
             #print "-- find in collection: %r" % self.context
             #for path in coll.paths:
-            #    self.num_paths_searched += 1
             #    print "...", path
 
             self._grep_paths(coll.paths)
