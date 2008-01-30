@@ -40,10 +40,7 @@
  *
  * TODOs:
  * - replace in files support
- * - restore the regex shortcuts
  * - better error message handling (perhaps validate with lexregex.py)
- * - find/replace in project support
- * - "Edit" menu hookup
  * - undo functionality
  * - all spec'd replace in files guards
  * - find results tab enhancements (pin, grouping/view opts, handling
@@ -53,7 +50,6 @@
  * - some key mappings (see find2.xul)
  * - prep new docs for Troy
  * - replacement for smart-case matching?
- * - restore mark all
  */
 
 //---- globals
@@ -218,6 +214,7 @@ function update(changed /* =null */) {
     }
 }
 
+
 function regex_escape()
 {
     try {
@@ -242,6 +239,55 @@ function regex_escape()
         log.exception(ex);
     }
 }
+
+// Insert the given "shortcut" into the given "textbox" widget, focus it,
+// and select the inserted text.
+function _insert(textbox, shortcut)
+{
+    var sel_start = textbox.selectionStart;
+    var value = textbox.value.slice(0, sel_start);
+    value += shortcut;
+    value += textbox.value.slice(textbox.selectionEnd);
+    textbox.value = value;
+    textbox.focus();
+    textbox.setSelectionRange(sel_start,
+                              sel_start + shortcut.length);
+}
+
+function regex_insert_shortcut(widget)
+{
+    try {
+        var shortcut = widget.getAttribute("shortcut");
+        var ellipsis_idx = shortcut.indexOf("...");
+        var textbox = widgets.pattern;
+
+        // For bounding shortcuts (e.g., '(...)' is a bounding shortcut):
+        // if there is a selection put it in as the '...' part, otherwise
+        // insert and select the '...'.
+        if (ellipsis_idx != -1) {
+            var selection = textbox.value.slice(textbox.selectionStart,
+                                                textbox.selectionEnd);
+            if (selection) {
+                shortcut = shortcut.replace(/\.\.\./, selection);
+                _insert(textbox, shortcut);
+            } else {
+                _insert(textbox, shortcut);
+                textbox.setSelectionRange(
+                    textbox.selectionStart + ellipsis_idx,
+                    textbox.selectionStart + ellipsis_idx + 3);
+            }
+        }
+        // For non-bounding shortcuts (e.g., '^' is a non-bounding
+        // shortcut) replace the selection if there is one or just insert
+        // at the current pos.
+        else {
+            _insert(textbox, shortcut);
+        }
+    } catch (ex) {
+        log.exception(ex);
+    }
+}
+
 
 
 /**
