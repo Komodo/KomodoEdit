@@ -340,23 +340,24 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
             var oldInsertionPoint = scimoz.currentPos;
             scimoz.insertText(oldInsertionPoint, text);
             
-            // If there are tabstops, run cmd_indent which ends up running the tabstop handler
-            // XXX calling cmd_indent is a hack, see bug #74565
-            if (hasTabStops) {
-                ko.commands.doCommand('cmd_indent');
+            if (setSelection) {
+                scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
+                                                      anchor);
+                scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
+                                                          currentPos);
             } else {
-                if (setSelection) {
-                    scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
-                                                          anchor);
-                    scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
-                                                              currentPos);
-                } else {
-                    // selection will be after snippet
-                    scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
-                                                          text.length);
-                    scimoz.currentPos = scimoz.anchor;
+                // selection will be after snippet
+                scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
+                                                      text.length);
+                scimoz.currentPos = scimoz.anchor;
+                
+                // If there are tabstops, run cmd_indent which ends up running the tabstop handler
+                // XXX calling cmd_indent is a hack, see bug #74565
+                if (hasTabStops) {
+                    ko.commands.doCommand('cmd_indent');
                 }
-            }   
+            }
+            
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
