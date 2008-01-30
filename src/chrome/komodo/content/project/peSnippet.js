@@ -217,7 +217,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                         getService(Components.interfaces.koILastErrorService);
     try {
         try {
-            view.setFocus()
+            view.setFocus();
             var setSelection = snippet.hasAttribute('set_selection')
                     && snippet.getStringAttribute('set_selection') == 'true';
             var relativeIndent = snippet.hasAttribute('indent_relative')
@@ -241,6 +241,9 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                 break;
             };
             var text = text.replace(/\r\n|\n|\r/g, eol_str);
+            
+            // detect if there are tabstops before we interpolate the snippet text
+            var hasTabStops = (text.match(/\[%tabstop\:/) != null);
 
             if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
                 // There is no selection but there is a '%w', '%W', '%(w', or
@@ -262,6 +265,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
 
             // Do the interpolation of special codes.
             text = text.replace('%%', '%', 'g');
+            
             var istrings = ko.interpolate.interpolate(
                                 window,
                                 [], // codes are not bracketed
@@ -335,17 +339,23 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
             scimoz.replaceSel("");
             var oldInsertionPoint = scimoz.currentPos;
             scimoz.insertText(oldInsertionPoint, text);
-            if (setSelection) {
-                scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
-                                                      anchor);
-                scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
-                                                          currentPos);
+            
+            // If there are tabstops, run cmd_indent which ends up running the tabstop handler
+            if (hasTabStops) {
+                ko.commands.doCommand('cmd_indent');
             } else {
-                // selection will be after snippet
-                scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
-                                                      text.length);
-                scimoz.currentPos = scimoz.anchor;
-            }
+                if (setSelection) {
+                    scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
+                                                          anchor);
+                    scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
+                                                              currentPos);
+                } else {
+                    // selection will be after snippet
+                    scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
+                                                          text.length);
+                    scimoz.currentPos = scimoz.anchor;
+                }
+            }   
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
