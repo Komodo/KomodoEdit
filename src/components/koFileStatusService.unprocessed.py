@@ -359,6 +359,17 @@ class KoFileStatusService:
         last_bg_check_time = time.time()
         while not self.shutdown:
             try:
+                # Initialize the working variables, this ensures we don't hold
+                # on to any koIFileEx references between runs, allowing the
+                # koIFileEx items to be properly garbage collected. See bug:
+                # http://bugs.activestate.com/show_bug.cgi?id=68285
+                all_local_files = None
+                file_item = None
+                items_to_check = None
+                koIFile = None
+                set_all_local_urls = None
+                updated_items = None
+
                 self._cv.acquire()
                 try:
                     # Run every 31 seconds, but if there are already more
@@ -417,9 +428,6 @@ class KoFileStatusService:
                     #for item in items_to_check:
                     #    print "%d - %s" % (item[2], item[1])
 
-                # all_updated - set of files updated by any status checker
-                all_updated_items = set()
-                
                 # invalidate old status information
                 # we do this seperately so that the scc modules can
                 # catch full directories of urls
@@ -470,7 +478,7 @@ class KoFileStatusService:
                                       checker.name, uri)
                             try:
                                 if len(updated_items) % 10 == 0:
-                                    tmpurllist = [item[1] for item in updated_items[-10:]]
+                                    tmpurllist = [file_item[1] for file_item in updated_items[-10:]]
                                     self._observerProxy.notifyObservers(None, 'file_status',
                                                                         '\n'.join(tmpurllist))
                             except COMException, e:
@@ -486,7 +494,7 @@ class KoFileStatusService:
                         try:
                             left = len(updated_items) % 10
                             if left > 0:
-                                tmpurllist = [item[1] for item in updated_items[-left:]]
+                                tmpurllist = [file_item[1] for file_item in updated_items[-left:]]
                                 #print "file_status sent for:\n  %s" % ('\n  '.join(tmpurllist), )
                                 self._observerProxy.notifyObservers(None, 'file_status',
                                                                     '\n'.join(tmpurllist))
@@ -494,10 +502,10 @@ class KoFileStatusService:
                             if e.errno == nsError.NS_ERROR_FAILURE:
                                 # noone is listening, we get an exception
                                 pass
-                        all_updated_items.update(updated_items)
                 
                 #for koIFile in files:
                 #    koIFile.dofileupdate = 0
+
             except:
                 # we catch any exception so we can clear our thread variable
                 # this allows us to restart the thread again later
