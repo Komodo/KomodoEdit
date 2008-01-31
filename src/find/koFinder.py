@@ -434,6 +434,7 @@ class KoFindOptions:
         self.searchInSubfoldersPrefName = "find-searchInSubfolders"
         self.includeFiletypesPrefName = "find-includeFiletypes"
         self.excludeFiletypesPrefName = "find-excludeFiletypes"
+        self.multilinePrefName = "find-multiline"
 
         self.patternType = gPrefSvc.prefs.getLongPref(self.patternTypePrefName)
         self.caseSensitivity = gPrefSvc.prefs.getLongPref(self.caseSensitivityPrefName)
@@ -443,6 +444,7 @@ class KoFindOptions:
         self.displayInFindResults2 = gPrefSvc.prefs.getBooleanPref(self.displayInFindResults2PrefName)
         self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
         self.cwd = gPrefSvc.prefs.getStringPref(self.cwdPrefName)
+        self.multiline = gPrefSvc.prefs.getBooleanPref(self.multilinePrefName)
 
         # In case we run into some alternate dimension where
         #   os.pathsep not in ';:'
@@ -561,6 +563,10 @@ class KoFindOptions:
 
     def getExcludeFiletypes(self):
         return self._excludeFiletypes
+
+    def set_multiline(self, value):
+        self.multiline = value
+        return gPrefSvc.prefs.setBooleanPref(self.multilinePrefName, value)
 
 
 class KoFindService:

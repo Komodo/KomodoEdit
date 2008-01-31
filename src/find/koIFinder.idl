@@ -118,6 +118,9 @@ interface koIFindOptions: nsISupports {
     attribute wstring encodedExcludeFiletypes;
     void getExcludeFiletypes(out PRUint32 count,
                              [retval, array, size_is(count)] out wstring filetypes);
+
+    // Other stuff:
+    attribute boolean multiline;
 };
 
 

@@ -39,14 +39,14 @@
  * TODO: document usage, esp. allowed 'mode' window.arguments
  *
  * TODOs:
+ * - replacement for "Display results in Find Results 2 tab" checkbox
+ *   (the plan is the 'pin' option)
  * - replace in files support
  * - better error message handling (perhaps validate with lexregex.py)
  * - undo functionality
  * - all spec'd replace in files guards
  * - find results tab enhancements (pin, grouping/view opts, handling
  *   replacement warnings/errors, filter, redo)
- * - replacement for "Display results in Find Results 2 tab" checkbox
- *   (the plan is the 'pin' option)
  * - some key mappings (see find2.xul)
  * - prep new docs for Troy
  * - replacement for smart-case matching?
@@ -82,10 +82,10 @@ function on_load() {
         // Necessary for re-launching (i.e. Ctrl+F when the dialog is already open).
         window.focus();
 
-        _init_ui();
+        _init();
     } catch (ex) {
         log.exception(ex);
-    }    
+    }
 }
 
 function on_unload() {
@@ -108,7 +108,52 @@ function update(changed /* =null */) {
     if (typeof(changed) == "undefined") changed = null;
     
     var mode_changed = false;
+    var ui_changed = false;
     var opts = gFindSvc.options;
+
+    // "Multiline" checkbox state changed.
+    if (changed == null || changed == "multiline") {
+        opts.multiline = widgets.opt_multiline.checked;
+        if (widgets.opt_multiline.checked) {
+            _collapse_widget(widgets.pattern, true);
+            _collapse_widget(widgets.multiline_pattern, false);
+            widgets.pattern_deck.selectedIndex = 1;
+            if (widgets.curr_pattern) {
+                widgets.multiline_pattern.value = widgets.curr_pattern.value;
+            }
+            widgets.curr_pattern = widgets.multiline_pattern;
+
+            _collapse_widget(widgets.repl, true);
+            _collapse_widget(widgets.multiline_repl, false);
+            widgets.repl_deck.selectedIndex = 1;
+            if (widgets.curr_repl) {
+                widgets.multiline_repl.value = widgets.curr_repl.value;
+            }
+            widgets.curr_repl = widgets.multiline_repl;
+        } else {
+            _collapse_widget(widgets.pattern, false);
+            _collapse_widget(widgets.multiline_pattern, true);
+            widgets.pattern_deck.selectedIndex = 0;
+            if (widgets.curr_pattern) {
+                widgets.pattern.value = widgets.curr_pattern.value;
+            }
+            widgets.curr_pattern = widgets.pattern;
+
+            _collapse_widget(widgets.repl, false);
+            _collapse_widget(widgets.multiline_repl, true);
+            widgets.repl_deck.selectedIndex = 0;
+            if (widgets.curr_repl) {
+                widgets.repl.value = widgets.curr_repl.value;
+            }
+            widgets.curr_repl = widgets.repl;
+        }
+        ui_changed = true;
+
+        // Don't muck with the focus for dialog init (changed=null).
+        if (changed == "multiline") {
+            widgets.curr_pattern.focus();
+        }
+    }
     
     // "Replace" checkbox state changed.
     if (changed == null || changed == "replace") {
@@ -122,10 +167,10 @@ function update(changed /* =null */) {
             if (repl) {
                 //HACK: Not sure why this needs to be in setTimeout to work.
                 window.setTimeout(
-                    function() { widgets.repl.focus(); },
+                    function() { widgets.curr_repl.focus(); },
                     100);
             } else {
-                widgets.pattern.focus();
+                widgets.curr_pattern.focus();
             }
         }
         mode_changed = true;
@@ -161,7 +206,7 @@ function update(changed /* =null */) {
     
     // The pattern value changed.
     if (changed == null || changed == "pattern") {
-        if (widgets.pattern.value && !_g_btns_enabled_for_pattern) {
+        if (widgets.curr_pattern.value && !_g_btns_enabled_for_pattern) {
             // We changed from no pattern string to some pattern string.
             // Enable the relevant buttons.
             _enable_widget(widgets.find_prev_btn);
@@ -171,7 +216,7 @@ function update(changed /* =null */) {
             _enable_widget(widgets.replace_all_btn);
             _enable_widget(widgets.mark_all_btn);
             _g_btns_enabled_for_pattern = true;
-        } else if (!widgets.pattern.value && _g_btns_enabled_for_pattern) {
+        } else if (!widgets.curr_pattern.value && _g_btns_enabled_for_pattern) {
             // We changed from a pattern string to no pattern string.
             // Disable the relevant buttons.
             _disable_widget(widgets.find_prev_btn);
@@ -195,9 +240,6 @@ function update(changed /* =null */) {
     if (changed == null || changed == "word") {
         opts.matchWord = widgets.opt_word.checked;
     }
-    //if (changed == null || changed == "multiline") {
-    //    //...
-    //}
     if (changed == null || changed == "dirs") {
         opts.encodedFolders = widgets.dirs.value;
     }
@@ -217,6 +259,8 @@ function update(changed /* =null */) {
     if (mode_changed) {
         reset_find_context();
         _update_mode_ui();
+    }
+    if (mode_changed || ui_changed) {
         window.sizeToContent();
     }
 }
@@ -225,7 +269,7 @@ function update(changed /* =null */) {
 function regex_escape()
 {
     try {
-        var textbox = widgets.pattern;
+        var textbox = widgets.curr_pattern;
         var selection = textbox.value.slice(textbox.selectionStart,
                                             textbox.selectionEnd);
         var escaped;
@@ -266,7 +310,7 @@ function regex_insert_shortcut(widget)
     try {
         var shortcut = widget.getAttribute("shortcut");
         var ellipsis_idx = shortcut.indexOf("...");
-        var textbox = widgets.pattern;
+        var textbox = widgets.curr_pattern;
 
         // For bounding shortcuts (e.g., '(...)' is a bounding shortcut):
         // if there is a selection put it in as the '...' part, otherwise
@@ -423,7 +467,7 @@ function find_next(backward /* =false */) {
     try {
         msg_clear();
         
-        var pattern = widgets.pattern.value;
+        var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
         }
@@ -440,6 +484,9 @@ function find_next(backward /* =false */) {
             }
         }
     
+        if (widgets.opt_multiline.checked) {
+            widgets.pattern.value = widgets.curr_pattern.value;
+        }
         ko.mru.addFromACTextbox(widgets.pattern);
     
         //TODO: Icky. The "searchBackward" state being set on the global
@@ -461,7 +508,7 @@ function find_next(backward /* =false */) {
             // If no match was hilighted then it is likely that the user will
             // now want to enter a different pattern. (Copying Word's
             // behaviour here.)
-            widgets.pattern.focus();
+            widgets.curr_pattern.focus();
         }
     } catch (ex) {
         log.exception(ex);
@@ -471,7 +518,7 @@ function find_next(backward /* =false */) {
 function find_all() {
     try {
         msg_clear();
-        var pattern = widgets.pattern.value;
+        var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
         }
@@ -488,6 +535,9 @@ function find_all() {
             }
         }
 
+        if (widgets.opt_multiline.checked) {
+            widgets.pattern.value = widgets.curr_pattern.value;
+        }
         ko.mru.addFromACTextbox(widgets.pattern);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
@@ -518,7 +568,7 @@ function find_all() {
             if (found_some) {
                 window.close();
             } else {
-                widgets.pattern.focus();
+                widgets.curr_pattern.focus();
             }
         }
     } catch(ex) {
@@ -530,7 +580,7 @@ function mark_all() {
     try {
         msg_clear();
         
-        var pattern = widgets.pattern.value;
+        var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
         }
@@ -552,6 +602,9 @@ function mark_all() {
             return;
         }
 
+        if (widgets.opt_multiline.checked) {
+            widgets.pattern.value = widgets.curr_pattern.value;
+        }
         ko.mru.addFromACTextbox(widgets.pattern);
 
         var found_some = Find_MarkAll(opener, _g_find_context, pattern,
@@ -560,7 +613,7 @@ function mark_all() {
         if (found_some) {
             window.close();
         } else {
-            widgets.pattern.focus();
+            widgets.curr_pattern.focus();
         }
     } catch(ex) {
         log.exception(ex);
@@ -572,11 +625,11 @@ function replace() {
     try {
         msg_clear();
         
-        var pattern = widgets.pattern.value;
+        var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
         }
-        var repl = widgets.repl.value;
+        var repl = widgets.curr_repl.value;
     
         // This handles, for example, the context being "search in
         // selection", but there is no selection.
@@ -590,6 +643,10 @@ function replace() {
             }
         }
     
+        if (widgets.opt_multiline.checked) {
+            widgets.pattern.value = widgets.curr_pattern.value;
+            widgets.repl.value = widgets.curr_repl.value;
+        }
         ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
             ko.mru.addFromACTextbox(widgets.repl);
@@ -600,7 +657,7 @@ function replace() {
             // If no match was hilighted then it is likely that the user will
             // now want to enter a different pattern. (Copying Word's
             // behaviour here.)
-            widgets.pattern.focus();
+            widgets.curr_pattern.focus();
         }
     } catch (ex) {
         log.exception(ex);
@@ -612,11 +669,11 @@ function replace_all() {
     try {
         msg_clear();
         
-        var pattern = widgets.pattern.value;
+        var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
         }
-        var repl = widgets.repl.value;
+        var repl = widgets.curr_repl.value;
     
         // This handles, for example, the context being "search in
         // selection", but there is no selection.
@@ -636,6 +693,10 @@ function replace_all() {
             return;
         }
 
+        if (widgets.opt_multiline.checked) {
+            widgets.pattern.value = widgets.curr_pattern.value;
+            widgets.repl.value = widgets.curr_repl.value;
+        }
         ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
             ko.mru.addFromACTextbox(widgets.repl);
@@ -665,7 +726,7 @@ function replace_all() {
             if (found_some) {
                 window.close();
             } else {
-                widgets.pattern.focus();
+                widgets.curr_pattern.focus();
             }
         }
     } catch (ex) {
@@ -686,15 +747,21 @@ function _init_widgets()
     }
     widgets = new Object();
 
+    widgets.pattern_deck = document.getElementById('pattern-deck');
     widgets.pattern = document.getElementById('pattern');
+    widgets.multiline_pattern = document.getElementById('multiline-pattern');
+    widgets.curr_pattern = widgets.pattern;
     widgets.repl_row = document.getElementById('repl-row');
     widgets.repl_lbl = document.getElementById('repl-lbl');
+    widgets.repl_deck = document.getElementById('repl-deck');
     widgets.repl = document.getElementById('repl');
+    widgets.multiline_repl = document.getElementById('multiline-repl');
+    widgets.curr_repl = widgets.repl;
 
     widgets.opt_regex = document.getElementById('opt-regex');
     widgets.opt_case = document.getElementById('opt-case');
     widgets.opt_word = document.getElementById('opt-word');
-    //widgets.opt_multiline = document.getElementById('opt-multiline');
+    widgets.opt_multiline = document.getElementById('opt-multiline');
     widgets.opt_repl = document.getElementById('opt-repl');
 
     widgets.msg_deck = document.getElementById('msg-deck');
@@ -728,9 +795,9 @@ function _init_widgets()
 }
 
 /**
- * Initialize the dialog UI from `opener.ko.launch.find2_dialog_args` data.
+ * Initialize the dialog from `opener.ko.launch.find2_dialog_args` data.
  */
-function _init_ui() {
+function _init() {
     var args = opener.ko.launch.find2_dialog_args || {};
     opener.ko.launch.find2_dialog_args = null;
 
@@ -789,17 +856,15 @@ function _init_ui() {
     //   want this to happen, because this will defeat the purpose of
     //   the input buffer if the user is part way through typing in
     //   characters.
-    // - Have to set focus in a timer because this could be called within
-    //   an onfocus handler, in which Mozilla does not like .focus()
-    //   calls.
     var input_buf = opener.ko.inputBuffer.finish();
-    widgets.pattern.value = "";
+    var select_all_pattern = null;
+    widgets.curr_pattern.value = "";
     if (input_buf) {
-        widgets.pattern.value = input_buf;
-        _set_pattern_focus(false);
+        widgets.curr_pattern.value = input_buf;
+        select_all_pattern = false;
     } else {
-        widgets.pattern.value = default_pattern;
-        _set_pattern_focus(true);
+        widgets.curr_pattern.value = default_pattern;
+        select_all_pattern = true;
     }
 
     // Set other dialog data (from the given args and from the
@@ -811,7 +876,7 @@ function _init_ui() {
     widgets.opt_case.checked
         = opts.caseSensitivity == koIFindOptions.FOC_INSENSITIVE;
     widgets.opt_word.checked = opts.matchWord;
-    //widgets.opt_multiline.checked = ...
+    widgets.opt_multiline.checked = opts.multiline;
     widgets.dirs.value = args.dirs || opts.encodedFolders;
     widgets.search_in_subdirs.checked = opts.searchInSubfolders;
     widgets.includes.value = args.includes || opts.encodedIncludeFiletypes;
@@ -884,6 +949,8 @@ function _init_ui() {
     }
     update(null);
 
+    _set_pattern_focus(select_all_pattern);
+
     // The act of opening the find dialog should reset the find session.
     // This is the behaviour of least surprise.
     gFindSession.Reset();
@@ -891,13 +958,13 @@ function _init_ui() {
 
 function _set_pattern_focus(select_all)
 {
-    widgets.pattern.focus();
+    widgets.curr_pattern.focus();
     if (select_all) {
-        widgets.pattern.setSelectionRange(0,
-                                          widgets.pattern.textLength);
+        widgets.curr_pattern.setSelectionRange(
+            0, widgets.curr_pattern.textLength);
     } else {
-        widgets.pattern.setSelectionRange(widgets.pattern.textLength,
-                                          widgets.pattern.textLength);
+        widgets.curr_pattern.setSelectionRange(
+            widgets.curr_pattern.textLength, widgets.curr_pattern.textLength);
     }
 }
 
@@ -1106,10 +1173,9 @@ function _toggle_collapse(widget) {
 function _collapse_widget(widget, collapse) {
     if (collapse) {
         widget.setAttribute("collapsed", "true");
-        widget.setAttribute("hidden", "true");
     } else {
-        widget.removeAttribute("collapsed");
-        widget.removeAttribute("hidden");
+        if (widget.hasAttribute("collapsed"))
+            widget.removeAttribute("collapsed");
     }
 }
 

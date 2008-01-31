@@ -106,24 +106,29 @@
       <grid flex="1">
         <columns>
           <column style="width: 7em;"/>
-          <column flex="1"/>
+          <column flex="1" style="max-width: 30em;"/>
         </columns>
         <rows>
           <row align="center">
             <label value="Find what:" control="pattern"
                    accesskey="n"/>
-            <textbox id="pattern"
-                     flex="1"
-                     style="min-width: 30em;"
-                     type="autocomplete"
-                     maxrows="10"
-                     autocompletesearch="mru"
-                     autocompletesearchparam="find-patternMru"
-                     autocompletepopup="popupTextboxAutoComplete"
-                     enablehistory="true"
-                     completeselectedindex="true"
-                     onfocus="this.setSelectionRange(0, this.value.length);"
-                     oninput="update('pattern');"/>
+            <deck id="pattern-deck" selectedIndex="0" flex="1">
+                <textbox id="pattern"
+                         flex="1"
+                         type="autocomplete"
+                         maxrows="10"
+                         autocompletesearch="mru"
+                         autocompletesearchparam="find-patternMru"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         enablehistory="true"
+                         completeselectedindex="true"
+                         onfocus="this.setSelectionRange(0, this.value.length);"
+                         oninput="update('pattern');"/>
+                <textbox id="multiline-pattern" flex="1"
+                         multiline="true" rows="3"
+                         onfocus="this.setSelectionRange(0, this.value.length);"
+                         oninput="update('pattern');"/>
+            </deck>
             <!-- TODO: prettier shortcuts button -->
             <button type="menu" id="pattern-shortcuts"
                     tooltiptext="Regular Expression Shortcuts"
@@ -242,19 +247,25 @@
             </button>
           </row>
 
-          <row id="repl-row" align="center" style="height: 5ex;">
+          <row id="repl-row" align="center">
             <label id="repl-lbl" value="Replace with:"
                    control="repl" accesskey="l"/>
-            <textbox id="repl"
-                     flex="1"
-                     type="autocomplete"
-                     maxrows="10"
-                     autocompletesearch="mru"
-                     autocompletesearchparam="find-replacementMru"
-                     autocompletepopup="popupTextboxAutoComplete"
-                     enablehistory="true"
-                     onfocus="this.setSelectionRange(0, this.value.length);"
-                     completeselectedindex="true"/>
+            <deck id="repl-deck" selectedIndex="0" flex="1">
+                <textbox id="repl"
+                         flex="1"
+                         type="autocomplete"
+                         maxrows="10"
+                         autocompletesearch="mru"
+                         autocompletesearchparam="find-replacementMru"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         enablehistory="true"
+                         onfocus="this.setSelectionRange(0, this.value.length);"
+                         completeselectedindex="true"/>
+                <textbox id="multiline-repl" flex="1"
+                         multiline="true" rows="3"
+                         onfocus="this.setSelectionRange(0, this.value.length);"
+                         oninput="update('repl');"/>
+            </deck>
           </row>
           
           <row>
@@ -268,9 +279,8 @@
               <checkbox id="opt-word" label="Word" accesskey="W"
                         tooltiptext="Match whole words"
                         oncommand="update('word')"/>
-              <!-- TODO: multiline, later
               <checkbox id="opt-multiline" label="Multiline"
-                        accesskey="M" oncommand="update('multiline')"/> -->
+                        accesskey="M" oncommand="update('multiline')"/>
               <checkbox id="opt-repl" label="Replace"
                         accesskey="p" oncommand="update('replace')"/>
             </hbox>
@@ -283,25 +293,25 @@
                buttons. -->
           <row>
             <hbox/>
-            <deck id="msg-deck" selectedIndex="0" style="max-width: 30em;">
+            <deck id="msg-deck" selectedIndex="0">
               <hbox />
               <hbox id="msg-info-box" align="center"
                     style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb;">
-                <hbox align="start">
+                <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/information.png"/>
                 </hbox>
                 <description id="msg-info" flex="1">blank</description>
               </hbox>
               <hbox id="msg-warn-box" align="center"
                     style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
-                <hbox align="start">
+                <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/error.png"/>
                 </hbox>
                 <description id="msg-warn" flex="1">blank</description>
               </hbox>
               <hbox id="msg-error-box" align="center"
                     style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
-                <hbox align="start">
+                <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
                 </hbox>
                 <description id="msg-error" flex="1">blank</description>
@@ -312,7 +322,7 @@
           <row align="center" style="margin-top: 10px;">
               <label value="Search in:" accesskey="i" control="search-in-menu"/>
               <menulist id="search-in-menu" oncommand="update('search-in')"
-                        style="max-width: 30em;" crop="center">
+                        crop="center">
                   <menupopup>
                       <menuitem value="document" label="Current document"/>
                       <menuitem value="selection" label="Selected text"/>
@@ -395,23 +405,30 @@
       </grid>
 
       <separator class="thin"/>
-      <vbox id="find-buttons" style="width: 10em;">
+      <vbox id="find-buttons" style="width: 11em">
         <button id="find-prev-btn" label="Find Previous"
+                style="margin-top: 0px;"
                 accesskey="v" oncommand="find_prev();"/>
         <button id="find-next-btn" label="Find Next"
+                style="margin-top: 0px;"
                 accesskey="F" oncommand="find_next();"/>
         <button id="replace-btn" label="&replace.label;"
+                style="margin-top: 0px;"
                 accesskey="R" oncommand="replace();"/>
         <button id="find-all-btn" label="Find All"
+                style="margin-top: 0px;"
                 _accesskey="A" uses-accesskey="true"
                 oncommand="find_all();"/>
         <button id="replace-all-btn" label="&replaceAll.label;"
+                style="margin-top: 0px;" collapsed="true"
                 _accesskey="A" uses-accesskey="true"
                 oncommand="replace_all();"/>
         <checkbox id="show-replace-all-results" label="Show results"
+                  style="margin-top: 0px;" collapsed="true"
                   accesskey="o" oncommand="update('show-replace-all-results')"
                   tooltiptext="Show results tab in bottom pane for 'Replace All'"/>
         <button id="mark-all-btn" label="Mark All"
+                style="margin-top: 0px;"
                 accesskey="k" oncommand="mark_all();" />
         <!-- Exclude for lack of space. This isn't crucial.
         <button id="close-btn" label="Close"
@@ -420,7 +437,6 @@
         <button id="help-btn" label="Help" accesskey="H"
                 oncommand="ko.help.open('find2_dialog');"/> -->
       </vbox>
-
     </hbox>
 
 </window>
