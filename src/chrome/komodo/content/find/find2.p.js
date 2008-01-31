@@ -119,7 +119,14 @@ function update(changed /* =null */) {
         // because we want the pattern widget to get the focus, even
         // in replace mode.
         if (changed == "replace") {
-            (repl ? widgets.repl : widgets.pattern).focus();
+            if (repl) {
+                //HACK: Not sure why this needs to be in setTimeout to work.
+                window.setTimeout(
+                    function() { widgets.repl.focus(); },
+                    100);
+            } else {
+                widgets.pattern.focus();
+            }
         }
         mode_changed = true;
     }
@@ -149,7 +156,6 @@ function update(changed /* =null */) {
                 gFindSvc.options.preferredContextType = koIFindContext.FCT_ALL_OPEN_DOCS;
             }
         }
-        reset_find_context();
         mode_changed = true;
     }
     
@@ -209,6 +215,7 @@ function update(changed /* =null */) {
     }
 
     if (mode_changed) {
+        reset_find_context();
         _update_mode_ui();
         window.sizeToContent();
     }
@@ -357,6 +364,31 @@ function msg_error(msg) {
     }
 }
 
+/**
+ * Temporary utility for the upcoming alpha release until replace-in-files
+ * is hooked in.
+ */
+function _msg_not_yet_implemented() {
+    var mode = "???";
+    
+    if (widgets.opt_repl.checked) {
+        mode = "Replace";
+    } else {
+        mode = "Find";
+    }
+    
+    switch (widgets.search_in_menu.value) {
+    case "collection":
+    case "files":
+        mode += "-in-files";
+        break;
+    case "curr-project":
+        mode += "-in-project";
+        break;
+    }
+
+    msg_error(mode+" isn't yet support -- but it will be for Komodo 4.3 final!");
+}
 
 
 /**
@@ -597,12 +629,20 @@ function replace_all() {
                 return;
             }
         }
-    
+
+        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION
+            || _g_find_context.type == koIFindContext.FCT_IN_FILES) {
+            _msg_not_yet_implemented();
+            return;
+        }
+
         ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
             ko.mru.addFromACTextbox(widgets.repl);
 
-        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
+            //TODO
+        } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
                 ko.mru.addFromACTextbox(widgets.includes);
@@ -999,10 +1039,20 @@ function reset_find_context() {
 
     case "curr-project":
         context = _g_curr_project_context;
+        if (widgets.opt_repl.checked) {
+            _msg_not_yet_implemented()
+        } else {
+            msg_clear();
+        }
         break;
 
     case "collection":
         context = _g_collection_context;
+        if (widgets.opt_repl.checked) {
+            _msg_not_yet_implemented();
+        } else {
+            msg_clear();
+        }
         break;
 
     case "open-files":
@@ -1027,6 +1077,12 @@ function reset_find_context() {
             context.cwd = view.document.file.dirName;
         } else {
             context.cwd = gFindSvc.options.cwd;
+        }
+
+        if (widgets.opt_repl.checked) {
+            _msg_not_yet_implemented();
+        } else {
+            msg_clear();
         }
         break;
 
