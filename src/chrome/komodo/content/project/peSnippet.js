@@ -217,162 +217,172 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                         getService(Components.interfaces.koILastErrorService);
     try {
         try {
-            view.scintilla.focus(); // we want focus right now, not later
-            var setSelection = snippet.hasAttribute('set_selection')
-                    && snippet.getStringAttribute('set_selection') == 'true';
-            var relativeIndent = snippet.hasAttribute('indent_relative')
-                    && snippet.getStringAttribute('indent_relative') == 'true';
-            var viewData = ko.interpolate.getViewData(window);
-            var text = snippet.value;
-            
-            // Normalize the text to use the target view's preferred EOL.
-            // (See bug 69535).
-            var eol = view.document.new_line_endings;
-            var eol_str;
-            switch (eol) {
-            case Components.interfaces.koIDocument.EOL_LF:
-                eol_str = "\n";
-                break;
-            case Components.interfaces.koIDocument.EOL_CRLF:
-                eol_str = "\r\n";
-                break;
-            case Components.interfaces.koIDocument.EOL_CR:
-                eol_str = "\r";
-                break;
-            };
-            var text = text.replace(/\r\n|\n|\r/g, eol_str);
-            
-            // detect if there are tabstops before we interpolate the snippet text
-            var hasTabStops = (text.match(/\[%tabstop\:/) != null);
-
-            if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
-                // There is no selection but there is a '%w', '%W', '%(w', or
-                // '%(W' in the snippet. Special case: select the word.
-                //TODO: Can we not use ko.interpolate.getWordUnderCursor()?
-                if (ko.interpolate.isWordCharacter(
-                        scimoz.getWCharAt(scimoz.currentPos-1))) {
-                    // There is part of a word to our left
-                    scimoz.wordLeft();
-                }
-                // Using several wordPartRights instead of one wordRight
-                // because the latter is whitespace swallowing.
-                while (ko.interpolate.isWordCharacter(
-                            scimoz.getWCharAt(scimoz.currentPos))) {
-                    // There is part of a word to our right
-                    scimoz.wordPartRightExtend();
-                }
-            }
-
-            // Do the interpolation of special codes.
-            text = text.replace('%%', '%', 'g');
-            
-            var istrings = ko.interpolate.interpolate(
-                                window,
-                                [], // codes are not bracketed
-                                [text], // codes are bracketed
-                                snippet.getStringAttribute("name"),
-                                viewData);
-            text = istrings[0];
-
-            // Do the indentation, if necessary.
-            if (relativeIndent) {
-                var i;
-                var indentSize = scimoz.selectionStart
-                        - scimoz.positionFromLine(scimoz.lineFromPosition(
-                        scimoz.selectionStart));
-                var indent = '';
-                var tabWidth;
-                var useTabs = view.prefs.getBooleanPref("useTabs");
-                for (i = 0; i < indentSize; i++) {
-                    indent += ' ';
-                }
-                var tabequivalent = '';
-                if (useTabs) {
-                    tabWidth = view.prefs.getLongPref("tabWidth");
-                    for (i = 0; i < tabWidth; i++) {
-                        tabequivalent += ' ';
-                    }
-                }
-                var lines = text.split(eol_str);
-                var splits, newindent, rest;
-                for (i = 0; i < lines.length; i++) {
-                    if (i != 0
-                        && lines[i].length != 0 // Do not indent empty lines.
-                        && lines[i] != "<!@#_end>"
-                        && lines[i] != "<!@#_start>")
-                    {  
-                        lines[i] = indent + lines[i];
-                        if (useTabs) {
-                            newindent = '';
-                            // This is ugly but I don't know a better way to
-                            // do this in JS.
-                            rest = lines[i].replace(/^\s*/, '');
-                            newindent = lines[i].slice(0, lines[i].length-rest.length);
-                            newindent = newindent.replace(tabequivalent,
-                                                          '\t', 'g');
-                            lines[i] = newindent + rest;
-                        }
-                    }
-                }
-                text = lines.join(eol_str);
-            }
-
-            // Determine and set the selection and cursor position.
-            var anchor = text.indexOf(ANCHOR_MARKER);
-            var currentPos = text.indexOf(CURRENTPOS_MARKER);
-            if (anchor != -1 && currentPos != -1) {
-                if (anchor < currentPos) {
-                    anchor = text.indexOf(ANCHOR_MARKER);
-                    text = text.replace(ANCHOR_MARKER, '');
-                    currentPos = text.indexOf(CURRENTPOS_MARKER);
-                    text = text.replace(CURRENTPOS_MARKER, '');
-                } else {
-                    currentPos = text.indexOf(CURRENTPOS_MARKER);
-                    text = text.replace(CURRENTPOS_MARKER, '');
-                    anchor = text.indexOf(ANCHOR_MARKER);
-                    text = text.replace(ANCHOR_MARKER, '');
-                }
-            } else {
-                anchor = 0;
-                currentPos = 0;
-            }
-            scimoz.replaceSel("");
-            var oldInsertionPoint = scimoz.currentPos;
-            scimoz.insertText(oldInsertionPoint, text);
-            
-            if (setSelection) {
-                scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
-                                                      anchor);
-                scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
-                                                          currentPos);
-            } else {
-                // selection will be after snippet
-                scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
-                                                      text.length);
-                scimoz.currentPos = scimoz.anchor;
-                
-                // If there are tabstops, run cmd_indent which ends up running the tabstop handler
-                // XXX calling cmd_indent is a hack, see bug #74565
-                if (hasTabStops) {
-                    ko.commands.doCommand('cmd_indent');
-                }
-            }
-            
+            this.snippetInsertImpl(snippet, view);
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
                 // Command was cancelled.
             } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
                 var errmsg = lastErrorSvc.getLastErrorMessage();
-                alert("Error inserting snippet: " + errmsg);
+                ko.dialogs.alert("Error inserting snippet: " + errmsg);
             } else {
                 log.error(ex);
-                alert("There was an unexpected error: " + ex);
+                ko.dialogs.internalError(ex, "Error inserting snippet");
             }
         }
     } finally {
         ko.macros.recordPartInvocation(snippet);
         scimoz.endUndoAction();
+    }
+}
+
+this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */) {
+    
+    if(typeof(view) == 'undefined') {
+        view = ko.views.manager.currentView;
+    }
+    
+    var scimoz = view.scimoz;
+    
+    view.scintilla.focus(); // we want focus right now, not later
+    var setSelection = snippet.hasAttribute('set_selection')
+            && snippet.getStringAttribute('set_selection') == 'true';
+    var relativeIndent = snippet.hasAttribute('indent_relative')
+            && snippet.getStringAttribute('indent_relative') == 'true';
+    var viewData = ko.interpolate.getViewData(window);
+    var text = snippet.value;
+    
+    // Normalize the text to use the target view's preferred EOL.
+    // (See bug 69535).
+    var eol = view.document.new_line_endings;
+    var eol_str;
+    switch (eol) {
+    case Components.interfaces.koIDocument.EOL_LF:
+        eol_str = "\n";
+        break;
+    case Components.interfaces.koIDocument.EOL_CRLF:
+        eol_str = "\r\n";
+        break;
+    case Components.interfaces.koIDocument.EOL_CR:
+        eol_str = "\r";
+        break;
+    };
+    var text = text.replace(/\r\n|\n|\r/g, eol_str);
+    
+    // detect if there are tabstops before we interpolate the snippet text
+    var hasTabStops = (text.match(/\[%tabstop\:/) != null);
+
+    if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
+        // There is no selection but there is a '%w', '%W', '%(w', or
+        // '%(W' in the snippet. Special case: select the word.
+        //TODO: Can we not use ko.interpolate.getWordUnderCursor()?
+        if (ko.interpolate.isWordCharacter(
+                scimoz.getWCharAt(scimoz.currentPos-1))) {
+            // There is part of a word to our left
+            scimoz.wordLeft();
+        }
+        // Using several wordPartRights instead of one wordRight
+        // because the latter is whitespace swallowing.
+        while (ko.interpolate.isWordCharacter(
+                    scimoz.getWCharAt(scimoz.currentPos))) {
+            // There is part of a word to our right
+            scimoz.wordPartRightExtend();
+        }
+    }
+
+    // Do the interpolation of special codes.
+    text = text.replace('%%', '%', 'g');
+    
+    var istrings = ko.interpolate.interpolate(
+                        window,
+                        [], // codes are not bracketed
+                        [text], // codes are bracketed
+                        snippet.getStringAttribute("name"),
+                        viewData);
+    text = istrings[0];
+
+    // Do the indentation, if necessary.
+    if (relativeIndent) {
+        var i;
+        var indentSize = scimoz.selectionStart
+                - scimoz.positionFromLine(scimoz.lineFromPosition(
+                scimoz.selectionStart));
+        var indent = '';
+        var tabWidth;
+        var useTabs = view.prefs.getBooleanPref("useTabs");
+        for (i = 0; i < indentSize; i++) {
+            indent += ' ';
+        }
+        var tabequivalent = '';
+        if (useTabs) {
+            tabWidth = view.prefs.getLongPref("tabWidth");
+            for (i = 0; i < tabWidth; i++) {
+                tabequivalent += ' ';
+            }
+        }
+        var lines = text.split(eol_str);
+        var splits, newindent, rest;
+        for (i = 0; i < lines.length; i++) {
+            if (i != 0
+                && lines[i].length != 0 // Do not indent empty lines.
+                && lines[i] != "<!@#_end>"
+                && lines[i] != "<!@#_start>")
+            {  
+                lines[i] = indent + lines[i];
+                if (useTabs) {
+                    newindent = '';
+                    // This is ugly but I don't know a better way to
+                    // do this in JS.
+                    rest = lines[i].replace(/^\s*/, '');
+                    newindent = lines[i].slice(0, lines[i].length-rest.length);
+                    newindent = newindent.replace(tabequivalent,
+                                                  '\t', 'g');
+                    lines[i] = newindent + rest;
+                }
+            }
+        }
+        text = lines.join(eol_str);
+    }
+
+    // Determine and set the selection and cursor position.
+    var anchor = text.indexOf(ANCHOR_MARKER);
+    var currentPos = text.indexOf(CURRENTPOS_MARKER);
+    if (anchor != -1 && currentPos != -1) {
+        if (anchor < currentPos) {
+            anchor = text.indexOf(ANCHOR_MARKER);
+            text = text.replace(ANCHOR_MARKER, '');
+            currentPos = text.indexOf(CURRENTPOS_MARKER);
+            text = text.replace(CURRENTPOS_MARKER, '');
+        } else {
+            currentPos = text.indexOf(CURRENTPOS_MARKER);
+            text = text.replace(CURRENTPOS_MARKER, '');
+            anchor = text.indexOf(ANCHOR_MARKER);
+            text = text.replace(ANCHOR_MARKER, '');
+        }
+    } else {
+        anchor = 0;
+        currentPos = 0;
+    }
+    scimoz.replaceSel("");
+    var oldInsertionPoint = scimoz.currentPos;
+    scimoz.insertText(oldInsertionPoint, text);
+    
+    if (setSelection) {
+        scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
+                                              anchor);
+        scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
+                                                  currentPos);
+    } else {
+        // selection will be after snippet
+        scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,
+                                              text.length);
+        scimoz.currentPos = scimoz.anchor;
+        
+        // If there are tabstops, run cmd_indent which ends up running the tabstop handler
+        // XXX calling cmd_indent is a hack, see bug #74565
+        if (hasTabStops) {
+            ko.commands.doCommand('cmd_indent');
+        }
     }
 }
 
