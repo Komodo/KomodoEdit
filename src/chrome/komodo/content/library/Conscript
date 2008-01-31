@@ -85,5 +85,5 @@ $cons->InstallInChrome('open.js');
 $cons->Preprocess('viewhistory.unprocessed.js', 'viewhistory.js');
 $cons->InstallInChrome('viewhistory.js');
 $cons->InstallInChrome('eggs.js');
-
+$cons->InstallInChrome('abbrev.js');
 

@@ -147,6 +147,11 @@
         <broadcaster
             id="cmd_openextmgr"
             oncommand="ko.launch.openAddonsMgr();"/>
+        <broadcaster
+            id="cmd_expandAbbrev"
+            key="key_cmd_expandAbbrev"
+            desc="&editorInsertSnippetByName.desc;"
+            oncommand="ko.abbrev.expandAbbrev()"/>
 
         <!--
         The following are commands rather than broadcasters for reasons

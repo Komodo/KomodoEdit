@@ -119,6 +119,7 @@
 <!ENTITY editorInsertNewlineNoFavors.desc "Editor: Insert Newline (no favors)">
 <!ENTITY editorInsertNewlineStartingOnThePreviousLine.desc "Editor: Insert Newline (starting on the previous line)">
 <!ENTITY editorInsertNextKeyAsLiteralCharacter.desc "Editor: Insert Next Key as Literal Character">
+<!ENTITY editorInsertSnippetByName.desc "Editor: Insert Abbreviation Snippet by Name">
 <!ENTITY editorJoinCurrentAndNextLines.desc "Editor: Join current and next lines">
 <!ENTITY editorMoveBackPartOfWord.desc "Editor: Move Back Part of Word">
 <!ENTITY editorMoveForwardPartOfWord.desc "Editor: Move Forward Part of Word">

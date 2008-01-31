@@ -150,6 +150,7 @@
     <script src="chrome://komodo/content/lint/lint.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/codeintel/codeintel.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/eggs.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/abbrev.js"                 type="application/x-javascript;version=1.7"/>
 
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
