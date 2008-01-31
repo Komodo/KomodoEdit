@@ -89,7 +89,7 @@ function _OptionDesc(options, pattern)
 // If the key's value is null the tab XUL needs to be created.
 var _gFindResultsTab_managers = {1: null, 2: null};
 
-// Return a usable (not busy, cleared) Find Results tab manager.
+// Return a usable (not busy, not locked, cleared) Find Results tab manager.
 //
 //  "preferredId" must be 1 or 2, the number of the requested tab.
 //      Note that the returned tab might not be the requested one if it
@@ -121,45 +121,40 @@ function FindResultsTab_GetTab(preferredId)
         var id, answer;
         if (_gFindResultsTab_managers[preferredId] == null) {
             id = preferredId;
-        } else if (!_gFindResultsTab_managers[preferredId].isBusy()) {
+        } else if (!_gFindResultsTab_managers[preferredId].isBusy()
+                   && !_gFindResultsTab_managers[preferredId].is_locked) {
             id = preferredId;
         } else if (_gFindResultsTab_managers[otherId] == null ||
-                   !_gFindResultsTab_managers[otherId].isBusy()) {
-            // Offer the other tab (it is free) or to stop the preferred one.
-            answer = ko.dialogs.customButtons(
-                "'Find Results "+preferredId+"' is busy. Would you like to use "+
-                "the other find results tab, stop the current search and use "+
-                "the requested tab, or cancel this operation?",
-                ["Use &Other Tab",
-                 "&Stop and Use Requested Tab",
-                 "Cancel"],
-                "Use Other Tab",  // default button
-                null, // text
-                null, // title
-                "which_find_results_tab_to_use_when_requested_tab_busy");
-            if (answer == "Use Other Tab") {
-                id = otherId
-            } else if (answer == "Stop and Use Requested Tab") {
-                _gFindResultsTab_managers[preferredId].stopSearch()
-                id = preferredId;
-            } else { // answer == "Cancel"
-                return null;
-            }
+                   (!_gFindResultsTab_managers[otherId].isBusy()
+                    && !_gFindResultsTab_managers[otherId].is_locked)) {
+            // The preferred tab is busy or locked, but the other one is
+            // available: just use the other one.
+            id = otherId;
         } else {
-            // Both are busy. Offer to stop the current one.
+            // Both are busy or locked. Offer to stop/unlock the current one.
+            var action_1 = (_gFindResultsTab_managers[1].isBusy()
+                            ? "Stop" : "Unlock");
+            var action_2 = (_gFindResultsTab_managers[2].isBusy()
+                            ? "Stop" : "Unlock");
             answer = ko.dialogs.customButtons(
-                "Both Find Results tab are busy. Would you like to stop the "+
-                "search in 'Find Results "+preferredId+"' and use it or cancel "+
-                "this operation?",
-                ["&Stop and Use Requested Tab",
+                "Both Find Results tabs are busy or locked. Would you "
+                + "like to override or cancel this search?",
+                [action_1+" and Use Tab &1",
+                 action_2+" and Use Tab &2",
                  "Cancel"],
-                "Stop and Use Requested Tab",  // default button
+                action_1+" and Use Tab 1",  // default button
                 null, // text
-                null, // title
-                "which_find_results_tab_to_use_when_all_tabs_busy");
-            if (answer == "Stop and Use Requested Tab") {
-                _gFindResultsTab_managers[preferredId].stopSearch()
-                id = preferredId;
+                null); // title
+            if (answer == "Stop and Use Tab 1") {
+                _gFindResultsTab_managers[1].stopSearch()
+                id = 1;
+            } else if (answer == "Stop and Use Tab 2") {
+                _gFindResultsTab_managers[2].stopSearch()
+                id = 2;
+            } else if (answer == "Unlock and Use Tab 1") {
+                id = 1;
+            } else if (answer == "Unlock and Use Tab 2") {
+                id = 2;
             } else { // answer == "Cancel"
                 return null;
             }
@@ -207,6 +202,10 @@ function _FindResultsTab_Create(id)
         if (tabpanel.hasAttribute("collapsed"))
             tabpanel.removeAttribute("collapsed");
     } else { // code to manually create the XUL
+
+        //WARNING: This is out of date with the current hardcoded results
+        //         tabs.
+        
         // Create the new XUL.
         var tab, tabpanel, hbox, vbox, label, separator,
             tree, treecols, treecol1, treecol2, treecol3, splitter1, splitter2,
@@ -454,6 +453,8 @@ FindResultsTabManager.prototype.clear = function()
     this._replacement = null;
     this.context_ = null;
     this._options = null;
+    this.is_locked = true;
+    this.toggleLockResults();
 
     // Clear the UI.
     this.view.Clear(0);
@@ -513,6 +514,32 @@ FindResultsTabManager.prototype.jumpToNextResult = function()
     treeWidget.treeBoxObject.view.selection.select(i);
     treeWidget.treeBoxObject.ensureRowIsVisible(i);
     this._doubleClick();
+}
+
+
+FindResultsTabManager.prototype.toggleLockResults = function()
+{
+    findResultsLog.info("FindResultsTabManager.toggleLockResults()");
+    try {
+        this.is_locked = ! this.is_locked;
+        var lockButton = document.getElementById(this._idprefix+"-lock-button");
+        if (!lockButton) {
+            // This is to allow the TODO extension to work. It is piggybacking
+            // on the Find Results tab stuff.
+            return;
+        }
+        if (this.is_locked) {
+            lockButton.setAttribute("locked", "true");
+            lockButton.setAttribute("tooltiptext",
+                "Find results are locked (click to unlock)");
+        } else {
+            lockButton.removeAttribute("locked");
+            lockButton.setAttribute("tooltiptext",
+                "Find results are unlocked (click to lock)");
+        }
+    } catch (ex) {
+        findResultsLog.exception(ex);
+    }
 }
 
 

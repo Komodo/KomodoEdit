@@ -744,13 +744,6 @@
   <boolean id="donotask_stop_search_before_closing_tab">0</boolean>
   <string id="donotask_action_stop_search_before_closing_tab"></string>
 
-  <!-- Ask the user what to do when there is contention for a Find Results
-       tab. -->
-  <boolean id="donotask_which_find_results_tab_to_use_when_requested_tab_busy">0</boolean>
-  <string id="donotask_action_which_find_results_tab_to_use_when_requested_tab_busy"></string>
-  <boolean id="donotask_which_find_results_tab_to_use_when_all_tabs_busy">0</boolean>
-  <string id="donotask_action_which_find_results_tab_to_use_when_all_tabs_busy"></string>
-
   <!-- Ask the user to confirm deletion of breakpoints. -->
   <boolean id="donotask_confirm_delete_breakpoint">0</boolean>
 

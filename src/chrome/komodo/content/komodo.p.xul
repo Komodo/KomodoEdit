@@ -2302,6 +2302,10 @@
                                     tooltiptext="&stopSearch.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).stopSearch();"
                                     disabled="true"/>
+                            <button id="findresults1-lock-button"
+                                    class="find-lock-icon button-toolbar-a"
+                                    tooltiptext="Lock/Unlock Find Results"
+                                    oncommand="FindResultsTab_GetManager(1).toggleLockResults();"/>
                         </hbox>
                         <tree id="findresults1" flex="1"
                               seltype="single" class="no-border"
@@ -2345,6 +2349,10 @@
                                     tooltiptext="&stopSearch.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).stopSearch();"
                                     disabled="true"/>
+                            <button id="findresults2-lock-button"
+                                    class="find-lock-icon button-toolbar-a"
+                                    tooltiptext="Lock/Unlock Find Results"
+                                    oncommand="FindResultsTab_GetManager(2).toggleLockResults();"/>
                         </hbox>
                         <tree id="findresults2" flex="1"
                               seltype="single" class="no-border"
