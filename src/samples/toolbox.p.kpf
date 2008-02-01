@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
-<project id="7f803f0e-3304-11db-a53a-000d935d3368" kpf_version="4" name="toolbox.p.kpf">
+<project id="7f803f0e-3304-11db-a53a-000d935d3368" kpf_version="4" name="toolbox.kpf">
 <snippet id="55b73c8f-c3a4-0741-939b-4ac6fdccc386" idref="cd59b5c5-1958-ba45-a896-75218787ea5b" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
     function(i) {
