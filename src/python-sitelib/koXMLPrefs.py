@@ -241,8 +241,17 @@ class koPreferenceSetDeserializer:
 
         return xpPrefSet 
 
+    def _ds_helper_get_child_text(self, node):
+        if node.hasChildNodes():
+            return getChildText(node)
+        elif node.hasAttribute('relative'):
+            return ""
+        else:
+            return None
+
     def _ds_helper(self, node, insertFunction, convertFunction, basedir=None):
-        if not node.hasChildNodes():
+        childtext = self._ds_helper_get_child_text(node)
+        if childtext is None:
             # For strings we insert the empty string.  However, for
             # other types it implies something bad, but we shouldn't
             # fail totally!
@@ -256,7 +265,6 @@ class koPreferenceSetDeserializer:
                 log.debug("Node '%s' is empty - pretending it doesnt exist!" \
                          % (node,))
         else:
-            childtext = getChildText(node)
             if basedir and node.nodeName == "string" and node.getAttribute('relative'):
                 childtext = uriparse.UnRelativize(basedir, childtext, node.getAttribute('relative'))
             if childtext:

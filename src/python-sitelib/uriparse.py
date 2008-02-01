@@ -383,7 +383,7 @@ def RelativizeURL(origbaseurl, origurl, siblings=0):
 
 def _UnRelativizeURL(baseurl, path):
     if not path:
-        return URIlib.URIParser(path)
+        return URIlib.URIParser(baseurl)
     if path.find("://") > 0:
         # not relative if it's already a URI
         return URIlib.URIParser(path)
