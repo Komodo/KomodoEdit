@@ -87,7 +87,6 @@ function DiffWindow()
         _dw_log.debug("diff.length: " + diff.length);
         _document.buffer = diff;
         view.initWithBuffer(diff, "Diff");
-        view.document = _document;
 
         view.encoding = _document.encoding.python_encoding_name;
         view.scimoz.codePage = _document.codePage;
