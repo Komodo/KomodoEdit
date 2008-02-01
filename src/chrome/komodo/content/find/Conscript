@@ -56,6 +56,5 @@ if (1) {
     $cons->InstallInChrome('find2.xul');
 }
 
-$cons->InstallInChrome('browseForDirs.js');
 $cons->InstallInChrome('findtoolbar.js');
 
