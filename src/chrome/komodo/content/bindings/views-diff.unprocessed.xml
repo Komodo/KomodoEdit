@@ -78,9 +78,9 @@
                     class="reveal-in-editor-icon"
                     label="&reveal.label;"/>
                 <xul:spacer flex="1"/>
-                <xul:hbox id="message-box" align="center" collapsed="true">
+                <xul:hbox anonid="message-box" align="center" collapsed="true">
                     <xul:image src="chrome://komodo/skin/images/famfamfam/information.png"/>
-                    <xul:label id="message-label"/>
+                    <xul:label anonid="message-label"/>
                 </xul:hbox>
             </xul:toolbar>
         </xul:toolbox>
@@ -116,12 +116,12 @@
 
         <property name="message">
             <getter><![CDATA[
-                var messageLabel = this._getElement("label", "message-label");
+                var messageLabel = document.getAnonymousElementByAttribute(this, "anonid", "message-label");
                 return messageLabel.value;
             ]]></getter>
             <setter><![CDATA[
-                var messageBox = this._getElement("hbox", "message-box");
-                var messageLabel = this._getElement("label", "message-label");
+                var messageBox = document.getAnonymousElementByAttribute(this, "anonid", "message-box");
+                var messageLabel = document.getAnonymousElementByAttribute(this, "anonid", "message-label");
                 if (val) {
                     messageBox.removeAttribute("collapsed");
                     messageLabel.value = val;
@@ -438,36 +438,6 @@
                 }
                 
                 return resolvedPath;
-            ]]></body>
-        </method>
-
-
-        <!-- A helper to get elements in our content because getElementById
-             doesn't work in XBL. (Copied from partviewer.xml.) -->
-        <method name="_getElement">
-            <parameter name="type"/>
-            <parameter name="id"/>
-            <body><![CDATA[
-                //dump("looking for element "+type+" "+id+"\n");
-                var v = document.getAnonymousNodes(this);
-                for (var i = 0; i < v.length; i++) {
-                    try {
-                        var l = v[i].getElementsByTagNameNS(
-                            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                            type);
-                        //dump("found "+l.length+" elements\n");
-                        for (var j = 0; j < l.length; j++) {
-                            if (l[j].getAttribute("id") == id) {
-                                //dump("found element "+id+" at index "+j+"\n");
-                                return l[j];
-                            }
-                        }
-                    } catch (ex) {
-                        /* do nothing */
-                    }
-                }
-                //dump("ERROR, could not find element!\n");
-                return null;
             ]]></body>
         </method>
 
