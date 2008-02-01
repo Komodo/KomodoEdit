@@ -49,7 +49,6 @@
  *   replacement warnings/errors, filter, redo)
  * - some key mappings (see find2.xul)
  * - prep new docs for Troy
- * - replacement for smart-case matching?
  */
 
 //---- globals
@@ -233,9 +232,34 @@ function update(changed /* =null */) {
         opts.patternType = (widgets.opt_regex.checked ?
             koIFindOptions.FOT_REGEX_PYTHON : koIFindOptions.FOT_SIMPLE);
     }
-    if (changed == null || changed == "case") {
-        opts.caseSensitivity = (widgets.opt_case.checked ?
-            koIFindOptions.FOC_INSENSITIVE : koIFindOptions.FOC_SENSITIVE);
+    if (changed == "case") {
+        // Skip this for initialization (changed=null).
+
+        // Advance the checkbox to the next state.
+        switch (widgets.opt_case.value) {
+        case "ignore-case":
+            _set_case_widget("match-case");
+            break;
+        case "match-case":
+            _set_case_widget("smart-case");
+            break;
+        case "smart-case":
+            _set_case_widget("ignore-case");
+            break;
+        }
+
+        // Save the current state on the global find options.
+        switch (widgets.opt_case.value) {
+        case "ignore-case":
+            opts.caseSensitivity = koIFindOptions.FOC_INSENSITIVE;
+            break;
+        case "match-case":
+            opts.caseSensitivity = koIFindOptions.FOC_SENSITIVE;
+            break;
+        case "smart-case":
+            opts.caseSensitivity = koIFindOptions.FOC_SMART;
+            break;
+        }
     }
     if (changed == null || changed == "word") {
         opts.matchWord = widgets.opt_word.checked;
@@ -873,8 +897,6 @@ function _init() {
     widgets.repl.value = args.repl || "";
     widgets.opt_regex.checked
         = opts.patternType == koIFindOptions.FOT_REGEX_PYTHON;
-    widgets.opt_case.checked
-        = opts.caseSensitivity == koIFindOptions.FOC_INSENSITIVE;
     widgets.opt_word.checked = opts.matchWord;
     widgets.opt_multiline.checked = opts.multiline;
     widgets.dirs.value = args.dirs || opts.encodedFolders;
@@ -882,6 +904,19 @@ function _init() {
     widgets.includes.value = args.includes || opts.encodedIncludeFiletypes;
     widgets.excludes.value = args.excludes || opts.encodedExcludeFiletypes;
     widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
+
+    switch (opts.caseSensitivity) {
+    case koIFindOptions.FOC_INSENSITIVE:
+        _set_case_widget("ignore-case");
+        break
+    case koIFindOptions.FOC_SENSITIVE:
+        _set_case_widget("match-case");
+        break
+    case koIFindOptions.FOC_SMART:
+        _set_case_widget("smart-case");
+        break
+    }
+    widgets.opt_case.accessKey = "c";
 
     // Setup the UI for the mode, as appropriate.
     var mode = args.mode || "find";
@@ -1159,6 +1194,35 @@ function reset_find_context() {
     }
     
     _g_find_context = context;
+}
+
+
+function _set_case_widget(value) {
+    var w = widgets.opt_case;
+    switch (value) {
+    case "ignore-case":
+        w.value = "ignore-case";
+        w.label = "Match case";
+        w.checked = false;
+        w.setAttribute("tooltiptext", "Ignore case");
+        break;
+    case "match-case":
+        w.value = "match-case";
+        w.label = "Match case";
+        w.checked = true;
+        w.setAttribute("tooltiptext", "Match case");
+        break;
+    case "smart-case":
+        w.value = "smart-case";
+        w.label = "Smart case";
+        w.checked = true;
+        w.setAttribute("tooltiptext",
+            "Match case, if search string contains capital letters");
+        break;
+    default:
+        throw("invalid case widget value: "+value);
+    }
+    w.accessKey = "c";
 }
 
 

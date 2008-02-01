@@ -274,7 +274,15 @@
               <checkbox id="opt-regex" label="Regex" accesskey="x"
                         tooltiptext="Treat the pattern as a regular expression"
                         oncommand="update('regex')"/>
-              <checkbox id="opt-case" label="Ignore case"
+              <!-- This is a fakey tri-state checkbox:
+                    checked     value         label
+                    ==========  ============  ========================
+                    false       ignore-case   Match case
+                    true        match-case    Match case
+                    true        smart-case    Smart case
+                -->
+              <checkbox id="opt-case" label="Match case"
+                        checked="true" value="match-case"
                         accesskey="c" oncommand="update('case')"/>
               <checkbox id="opt-word" label="Word" accesskey="W"
                         tooltiptext="Match whole words"
