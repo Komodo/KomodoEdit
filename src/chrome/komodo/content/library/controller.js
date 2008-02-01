@@ -83,7 +83,7 @@ var handlers = {
     'cmd_newTemplate': 'ko.views.manager.newTemplate()',
     'cmd_quit': 'goQuitApplication()',
     'cmd_findInFiles': 'ko.launch.findInFiles()',
-    'cmd_replaceInFiles': 'ko.launch.replaceInFiles2()',
+    'cmd_replaceInFiles': 'ko.launch.replaceInFiles()',
     'cmd_nextLintResult': 'ko.lint.jumpToNextLintResult()',
     'cmd_lintClearResults': 'ko.lint.clearResults()',
     'cmd_lintNow': 'ko.lint.doRequest()'

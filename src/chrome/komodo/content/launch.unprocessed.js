@@ -191,79 +191,18 @@ this.alternate = function() {
 
 (function () {
 var _log = ko.logging.getLogger("ko.launch");
-var _findPanel = null;
-var _findSearchTerm = null;
+
+
+
+// Used for passing information reliably to the find dialog.
+this.find2_dialog_args = null;
 
 /**
  * Open the Find dialog.
  *
- * @param {String} searchTerm
+ * @param pattern {String} The pattern to search for.
  */
-this.find = function(searchTerm) {
-    _launch_FindTab("find", searchTerm);
-}
-
-/**
- * Open the Find & Replace dialog.
- *
- * TODO: add searchTerm/replacement arguments.
- */
-this.replace = function() {
-    _launch_FindTab("replace", null);
-}
-
-function _launch_FindTab(panel, searchTerm) {
-    // Transfer focus to the hidden input buffer to capture keystrokes from the
-    // user while find.xul is loading. The find dialog will retrieve these
-    // contents when it is ready.
-    ko.inputBuffer.start();
-    gFindSearchTerm = searchTerm;
-    gFindDialogPanel = panel; // special global to pass info to find.xul
-    return ko.windowManager.openOrFocusDialog("chrome://komodo/content/find/find.xul",
-                      "komodo_find",
-                      "chrome,close=yes");
-}
-
-/**
- * Open Find in Files dialog.
- *
- * @param {String} searchTerm
- * @param {String} folders
- */
-this.findInFiles = function(searchTerm, folders) {
-    _launch_FindInFilesTab("find", searchTerm, folders);
-}
-
-function _launch_FindInFilesTab(panel, searchTerm, folders) {
-    // Transfer focus to the hidden input buffer to capture keystrokes from
-    // the user while findInFiles.xul is loading. The find dialog will
-    // retrieve these contents when it is ready.
-    ko.inputBuffer.start();
-
-    gFindInFilesSearchTerm = searchTerm;
-    gFindInFilesFolders = folders;
-    var view = ko.views.manager.currentView;
-    if (view != null &&
-        view.getAttribute("type") == "editor" &&
-        view.document.file &&
-        view.document.file.isLocal) {
-        gFindInFilesCwd = view.document.file.dirName;
-    } else {
-        gFindInFilesCwd = null;
-    }
-    return ko.windowManager.openOrFocusDialog("chrome://komodo/content/find/findInFiles.xul",
-                      "komodo_find_in_files",
-                      "chrome,close=yes");
-}
-
-
-/**
- * Open the Find2 dialog for find, replace, find in files or
- * replace in files.
- */
-this.find2_dialog_args = null;
-
-this.find2 = function(pattern /* =null */) {
+this.find = function(pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -292,7 +231,14 @@ this.find2 = function(pattern /* =null */) {
         ]));
 }
 
-this.replace2 = function(pattern /* =null */, repl /* =null */) {
+
+/**
+ * Open the Find/Replace dialog.
+ *
+ * @param pattern {String} The pattern to search for.
+ * @param repl {String} The replacement pattern.
+ */
+this.replace = function(pattern /* =null */, repl /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -322,7 +268,7 @@ this.replace2 = function(pattern /* =null */, repl /* =null */) {
  * @param collection {koICollectionFindContext} defines in what to search.
  * @param pattern {string} is the pattern to search for. Optional.
  */
-this.findInCollection2 = function(collection, pattern /* =null */) {
+this.findInCollection = function(collection, pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -343,12 +289,13 @@ this.findInCollection2 = function(collection, pattern /* =null */) {
         "komodo_find2",
         ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
-//TODO:
-//this.replaceInCollection2 = function(collection, pattern /* =null */,
-//                                     repl /* =null */) {
-//}
 
-this.findInCurrProject2 = function(pattern /* =null */) {
+/**
+ * Open Find dialog to search in the current project.
+ *
+ * @param pattern {String}
+ */
+this.findInCurrProject = function(pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -369,8 +316,16 @@ this.findInCurrProject2 = function(pattern /* =null */) {
         ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
 }
 
-this.findInFiles2 = function(pattern /* =null */, dirs /* =null */,
-                             includes /* =null */, excludes /* =null */) {
+/**
+ * Open Find dialog to search in files.
+ *
+ * @param pattern {String}
+ * @param dirs {String}
+ * @param includes {Array}
+ * @param excludes {Array}
+ */
+this.findInFiles = function(pattern /* =null */, dirs /* =null */,
+                            includes /* =null */, excludes /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -407,9 +362,18 @@ this.findInFiles2 = function(pattern /* =null */, dirs /* =null */,
         ]));
 }
 
-this.replaceInFiles2 = function(pattern /* =null */, repl /* =null */,
-                                dirs /* =null */, includes /* =null */,
-                                excludes /* =null */) {
+/**
+ * Open Find dialog to make replacements in files.
+ *
+ * @param pattern {String}
+ * @param repl {String}
+ * @param dirs {String}
+ * @param includes {Array}
+ * @param excludes {Array}
+ */
+this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
+                               dirs /* =null */, includes /* =null */,
+                               excludes /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.

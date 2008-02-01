@@ -48,12 +48,6 @@ Import(
 
 $cons->InstallInChrome('find_functions.js');
 $cons->InstallInChrome('findResultsTab.js');
-$cons->Preprocess('find.p.js', 'find.js');
-$cons->InstallInChrome('find.js');
-$cons->Preprocess('find.p.xul', 'find.xul');
-$cons->InstallInChrome('find.xul');
-$cons->Preprocess('findInFiles.p.js', 'findInFiles.js');
-$cons->InstallInChrome('findInFiles.js');
 
 if (1) {
     $cons->Preprocess('find2.p.js', 'find2.js');
@@ -62,14 +56,6 @@ if (1) {
     $cons->InstallInChrome('find2.xul');
 }
 
-$cons->Preprocess('findInFiles.p.xul', 'findInFiles.xul',
-                  # Third arg to turn on substitution (of internal
-                  # defines:
-                  {"BOOGABOOGA" => "BOOGABOOGA"});
-$cons->InstallInChrome('findInFiles.xul');
-
-$cons->InstallInChrome('browseForDirs.xul');
-$cons->Preprocess('browseForDirs.p.js', 'browseForDirs.js');
 $cons->InstallInChrome('browseForDirs.js');
 $cons->InstallInChrome('findtoolbar.js');
 

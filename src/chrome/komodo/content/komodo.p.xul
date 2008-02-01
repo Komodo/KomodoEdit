@@ -1447,13 +1447,13 @@
                 >
                 <menupopup id="popup_test">
                     <menuitem label="Find 2"
-                              oncommand="ko.launch.find2();"/>
+                              oncommand="ko.launch.find();"/>
                     <menuitem label="Replace 2"
-                              oncommand="ko.launch.replace2();"/>
+                              oncommand="ko.launch.replace();"/>
                     <menuitem label="Find in Files 2"
-                              oncommand="ko.launch.findInFiles2();"/>
+                              oncommand="ko.launch.findInFiles();"/>
                     <menuitem label="Replace in Files 2"
-                              oncommand="ko.launch.replaceInFiles2();"/>
+                              oncommand="ko.launch.replaceInFiles();"/>
                 </menupopup>
             </menu>
 <!-- #endif -->
@@ -2086,7 +2086,7 @@
                       persist="orient"
                       flex="1"/>
                 <!-- This is used for capturing user input while slow dialogs
-                (e.g. find.xul) load. -->
+                (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
                      onfocus="InputBuffer_OnFocus(event);"/>
             </vbox>
