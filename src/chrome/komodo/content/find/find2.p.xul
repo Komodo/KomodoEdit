@@ -113,21 +113,21 @@
             <label value="Find what:" control="pattern"
                    accesskey="n"/>
             <deck id="pattern-deck" selectedIndex="0" flex="1">
-                <textbox id="pattern"
-                         flex="1"
-                         type="autocomplete"
-                         maxrows="10"
-                         autocompletesearch="mru"
-                         autocompletesearchparam="find-patternMru"
-                         autocompletepopup="popupTextboxAutoComplete"
-                         enablehistory="true"
-                         completeselectedindex="true"
-                         onfocus="this.setSelectionRange(0, this.value.length);"
-                         oninput="update('pattern');"/>
-                <textbox id="multiline-pattern" flex="1"
-                         multiline="true" rows="3"
-                         onfocus="this.setSelectionRange(0, this.value.length);"
-                         oninput="update('pattern');"/>
+              <textbox id="pattern"
+                       flex="1"
+                       type="autocomplete"
+                       maxrows="10"
+                       autocompletesearch="mru"
+                       autocompletesearchparam="find-patternMru"
+                       autocompletepopup="popupTextboxAutoComplete"
+                       enablehistory="true"
+                       completeselectedindex="true"
+                       onfocus="this.setSelectionRange(0, this.value.length);"
+                       oninput="update('pattern');"/>
+              <textbox id="multiline-pattern" flex="1"
+                       multiline="true" rows="3"
+                       onfocus="this.setSelectionRange(0, this.value.length);"
+                       oninput="update('pattern');"/>
             </deck>
             <!-- TODO: prettier shortcuts button -->
             <button type="menu" id="pattern-shortcuts"
@@ -251,20 +251,20 @@
             <label id="repl-lbl" value="Replace with:"
                    control="repl" accesskey="l"/>
             <deck id="repl-deck" selectedIndex="0" flex="1">
-                <textbox id="repl"
-                         flex="1"
-                         type="autocomplete"
-                         maxrows="10"
-                         autocompletesearch="mru"
-                         autocompletesearchparam="find-replacementMru"
-                         autocompletepopup="popupTextboxAutoComplete"
-                         enablehistory="true"
-                         onfocus="this.setSelectionRange(0, this.value.length);"
-                         completeselectedindex="true"/>
-                <textbox id="multiline-repl" flex="1"
-                         multiline="true" rows="3"
-                         onfocus="this.setSelectionRange(0, this.value.length);"
-                         oninput="update('repl');"/>
+              <textbox id="repl"
+                       flex="1"
+                       type="autocomplete"
+                       maxrows="10"
+                       autocompletesearch="mru"
+                       autocompletesearchparam="find-replacementMru"
+                       autocompletepopup="popupTextboxAutoComplete"
+                       enablehistory="true"
+                       onfocus="this.setSelectionRange(0, this.value.length);"
+                       completeselectedindex="true"/>
+              <textbox id="multiline-repl" flex="1"
+                       multiline="true" rows="3"
+                       onfocus="this.setSelectionRange(0, this.value.length);"
+                       oninput="update('repl');"/>
             </deck>
           </row>
           
