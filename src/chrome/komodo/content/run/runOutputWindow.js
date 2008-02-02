@@ -239,14 +239,16 @@ this.endSession = function RunOutput_EndSession(retval)
 
     var descWidget = document.getElementById("runoutput-desc");
     var command = descWidget.getAttribute("_command");
-    //XXX Bug: This attribute change doesn't actually show up until the cursor
-    //    is moved, triggering some gecko redraw. Cannot use
-    //    window.sizeToContent() because that does bad (though non-fatal)
-    //    things to komodo.xul.
-    var msg = "'" + command + "' returned " + retval + ".";
+    var msg = null;
+    var osSvc = Components.classes["@activestate.com/koOs;1"]
+                       .getService(Components.interfaces.koIOs);
+    if (retval < 0 && osSvc.name == "posix") {
+        msg = "`" + command + "` was terminated by signal " + (-retval) + ".";
+    } else {
+        msg = "`" + command + "` returned " + retval + ".";
+    }
     if (retval != 0) {
         descWidget.style.setProperty("color", "#bb0000", ""); // dark red to not appear "neon" against grey.
-    } else {
     }
     descWidget.setAttribute("value", msg);
 
