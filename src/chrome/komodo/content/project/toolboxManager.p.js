@@ -63,6 +63,8 @@ var _prefs = Components.classes["@activestate.com/koPrefService;1"].
                 getService(Components.interfaces.koIPrefService).prefs;
 var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
+var _fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
+                    getService(Components.interfaces.koIFileStatusService);
 
 this.user = null;
 this.shared  = null;
@@ -171,10 +173,8 @@ toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
             }
         }
 
-        // let the status service know it has work to do
-        try {
-            _obSvc.notifyObservers(this, 'file_update_now', null);
-        } catch(e) { /* exception if no listeners */ }
+        // Let the file status service know it has work to do.
+        _fileStatusSvc.updateStatusForAllFiles(Components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK);
 
         return null;
     } catch (e) {
@@ -499,9 +499,9 @@ toolboxManager.prototype.init = function() {
                 .getService(Components.interfaces.koIPartService);
         _partSvc.toolbox = this.toolbox;
 
-        try {
-            _obSvc.notifyObservers(this, 'file_update_now', null);
-        } catch(e) { /* exception if no listeners */ }
+        // Let the file status service know it has work to do.
+        _fileStatusSvc.updateStatusForAllFiles(Components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK);
+
     } catch (e) {
         log.exception(e);
     }

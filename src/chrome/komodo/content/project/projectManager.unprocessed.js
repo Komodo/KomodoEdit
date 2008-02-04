@@ -480,12 +480,10 @@ projectManager.prototype._addProject = function(project) {
     this.viewMgr.view.refresh(project);
     this.setCurrentProject(project);
 
-    // let the status service know it has work to do
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
-    try {
-        obSvc.notifyObservers(this, 'file_update_now', null);
-    } catch(e) { /* exception if no listeners */ }
+    // Let the file status service know it has work to do.
+    var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
+                        getService(Components.interfaces.koIFileStatusService);
+    fileStatusSvc.updateStatusForAllFiles(Components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK);
 
     ko.mru.addURL("mruProjectList", project.url);
     window.setCursor("auto");
