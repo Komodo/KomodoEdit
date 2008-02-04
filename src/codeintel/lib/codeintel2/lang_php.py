@@ -66,6 +66,7 @@ from SilverCity.ScintillaConstants import (SCE_UDL_SSL_DEFAULT,
                                            SCE_UDL_SSL_COMMENTBLOCK)
 
 from codeintel2.parseutil import *
+from codeintel2.phpdoc import phpdoc_tags
 from codeintel2.citadel import ImportHandler
 from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, XMLParsingBufferMixin
 from codeintel2.common import *
@@ -356,8 +357,8 @@ class PHPLexer(UDLLexer):
 class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
-    trg_chars = tuple('$>:(, ')
-    calltip_trg_chars = tuple('(')
+    trg_chars = tuple('$>:(,@ ')
+    calltip_trg_chars = tuple('( ')
 
     # named styles used by the class
     whitespace_style = SCE_UDL_SSL_DEFAULT
@@ -602,8 +603,84 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                                 print "triggered:: complete magic-methods"
                             return Trigger(lang, TRG_FORM_CPLN, "magic-methods",
                                            prev_pos, implicit)
+
+            # PHPDoc completions
+            elif last_char == "@" and last_style in self.comment_styles:
+                # If the preceeding non-whitespace character is a "*" or newline
+                # then we complete for phpdoc tag names
+                p = last_pos - 1
+                min_p = max(0, p - 50)      # Don't look more than 50 chars
+                if DEBUG:
+                    print "Checking match for phpdoc completions"
+                accessor = buf.accessor
+                while p >= min_p and \
+                      accessor.style_at_pos(p) in self.comment_styles:
+                    ch = accessor.char_at_pos(p)
+                    p -= 1
+                    #if DEBUG:
+                    #    print "Looking at ch: %r" % (ch)
+                    if ch in "*\r\n":
+                        break
+                    elif ch not in " \t\v":
+                        # Not whitespace, not a valid tag then
+                        return None
+                else:
+                    # Nothing found in the specified range
+                    if DEBUG:
+                        print "trg_from_pos: not a phpdoc"
+                    return None
+                if DEBUG:
+                    print "Matched trigger for phpdoc completion"
+                return Trigger("PHP", TRG_FORM_CPLN,
+                               "phpdoc-tags", pos, implicit)
+
+            # PHPDoc calltip
+            elif last_char in " \t" and last_style in self.comment_styles:
+                # whitespace in a comment, see if it matches for phpdoc calltip
+                p = last_pos - 1
+                min_p = max(0, p - 50)      # Don't look more than 50 chars
+                if DEBUG:
+                    print "Checking match for phpdoc calltip"
+                ch = None
+                ident_found_pos = None
+                accessor = buf.accessor
+                while p >= min_p and \
+                      accessor.style_at_pos(p) in self.comment_styles:
+                    ch = accessor.char_at_pos(p)
+                    p -= 1
+                    if ident_found_pos is None:
+                        #print "phpdoc: Looking for identifier, ch: %r" % (ch)
+                        if ch in " \t":
+                            pass
+                        elif _isident(ch):
+                            ident_found_pos = p+1
+                        else:
+                            if DEBUG:
+                                print "No phpdoc, whitespace not preceeded " \
+                                      "by an identifer"
+                            return None
+                    elif ch == "@":
+                        # This is what we've been looking for!
+                        phpdoc_field = accessor.text_range(p+2,
+                                                           ident_found_pos+1)
+                        if DEBUG:
+                            print "Matched trigger for phpdoc calltip: '%s'" % (
+                                        phpdoc_field, )
+                        return Trigger("PHP", TRG_FORM_CALLTIP,
+                                       "phpdoc-tags", ident_found_pos, implicit,
+                                       phpdoc_field=phpdoc_field)
+                    elif not _isident(ch):
+                        if DEBUG:
+                            print "No phpdoc, identifier not preceeded by '@'"
+                        # Not whitespace, not a valid tag then
+                        return None
+                # Nothing found in the specified range
+                if DEBUG:
+                    print "No phpdoc, ran out of characters to look at."
+
             elif DEBUG:
                 print "trg_from_pos: no handle for style: %d" % last_style
+
         except IndexError:
             # Not enough chars found, therefore no trigger
             pass
@@ -656,6 +733,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
             elif DEBUG:
                 print "Out of scope of the identifier"
 
+    _phpdoc_cplns = [ ("variable", t) for t in sorted(phpdoc_tags) ]
 
     #@util.hotshotit
     def async_eval_at_trg(self, buf, trg, ctlr):
@@ -665,12 +743,32 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
         pos = trg.pos
         ctlr.start(buf, trg)
         #print "trg.type: %r" % (trg.type)
-        if trg.type in ("classes", "interfaces"):
+
+        # PHPDoc completions
+        if trg.id == ("PHP", TRG_FORM_CPLN, "phpdoc-tags"):
+            #TODO: Would like a "javadoc tag" completion image name.
+            ctlr.set_cplns(self._phpdoc_cplns)
+            ctlr.done("success")
+            return
+
+        # PHPDoc calltip
+        elif trg.id == ("PHP", TRG_FORM_CALLTIP, "phpdoc-tags"):
+            phpdoc_field = trg.extra.get("phpdoc_field")
+            if phpdoc_field:
+                #print "phpdoc_field: %r" % (phpdoc_field, )
+                calltip = phpdoc_tags.get(phpdoc_field)
+                if calltip:
+                    ctlr.set_calltips([calltip])
+            ctlr.done("success")
+            return
+
+        elif trg.type in ("classes", "interfaces"):
             # Triggers from zero characters, thus calling citdl_expr_from_trg
             # is no help
             line = buf.accessor.line_from_pos(pos)
             evalr = PHPTreeEvaluator(ctlr, buf, trg, "", line)
             buf.mgr.request_eval(evalr)
+
         else:
             try:
                 citdl_expr = self.citdl_expr_from_trg(buf, trg)

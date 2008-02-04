@@ -63,6 +63,7 @@ log = logging.getLogger("test")
 
 def php_markup(s):
     return "<?php %s ?>" % (s)
+php_markup_offset = len("<?php ")
 
 def all_available_phps():
     yielded = {}
@@ -468,6 +469,21 @@ class TriggerTestCase(CodeIntelTestCase):
         #XXX Add test cases for keyword and ellipsis args when have added
         #    support for that in BasicCalltipBufferMixin.
 
+    def test_doctags(self):
+        # Triggers after @ in a comment block
+        #        /** @param
+        cpln_trigger_name = "php-complete-phpdoc-tags"
+        calltip_trigger_name = "php-calltip-phpdoc-tags"
+        self.assertTriggerMatches(php_markup("/** @<|>param"),
+                                  name=cpln_trigger_name,
+                                  pos=5+php_markup_offset)
+        self.assertTriggerMatches(php_markup("/** @param <|>"),
+                                  name=calltip_trigger_name,
+                                  pos=9+php_markup_offset)
+        # Don't trigger in normal code or inside strings
+        self.assertNoTrigger(php_markup("@<|>something"))
+        self.assertNoTrigger(php_markup("$s = '@<|>something';"))
+
     def _unmark_text(self, text):
         """Only unmark the number"""
         result = {}
@@ -813,6 +829,18 @@ class CplnTestCase(CodeIntelTestCase):
              ("class", "SimpleClass2")])
         self.assertCompletionsInclude2(buf, test_positions[3],
             [("function", "simple_func2"), ("variable", "simple_var2")])
+
+    def test_doctags(self):
+        # Triggers after @ in a comment block
+        #        /** @param
+        content, positions = unmark_text(php_markup(dedent("""\
+            /** @<1>param <2>citdl $name Some comment
+        """)))
+        from codeintel2.phpdoc import phpdoc_tags
+        cplns = [ ("variable", x) for x in sorted(phpdoc_tags.keys()) ]
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]), cplns)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             phpdoc_tags["param"])
 
     ##
     # Specific bug tests
