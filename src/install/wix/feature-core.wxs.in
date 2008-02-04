@@ -1396,6 +1396,7 @@
                   <File Id="file1908" Name="common.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\common.py"/>
                   <File Id="file1909" Name="CONSTA_0.PY" LongName="constants_css.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css.py"/>
                   <File Id="file121" Name="GENCIX_0.PY" LongName="gencix_utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\gencix_utils.py"/>
+                  <File Id="file419" Name="phpdoc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\phpdoc.py" />
                   <File Id="file39" Name="jsdoc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\jsdoc.py"/>
                   <File Id="file164" LongName="langintel.py" Name="LANGIN_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\langintel.py" />
                   <File Id="file2207" Name="lang_css.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_css.py"/>
