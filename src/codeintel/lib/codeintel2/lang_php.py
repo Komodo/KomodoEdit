@@ -365,9 +365,8 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
     identifier_style = SCE_UDL_SSL_IDENTIFIER
     keyword_style    = SCE_UDL_SSL_WORD
     variable_style   = SCE_UDL_SSL_VARIABLE
-    ignore_styles    = (SCE_UDL_SSL_COMMENT, SCE_UDL_SSL_COMMENTBLOCK)
-    # ignore_styles_ws, includes whitespace styles
-    ignore_styles_ws = ignore_styles + (whitespace_style, )
+    comment_styles   = (SCE_UDL_SSL_COMMENT, SCE_UDL_SSL_COMMENTBLOCK)
+    comment_styles_or_whitespace = comment_styles + (whitespace_style, )
 
     def cb_variable_data_from_elem(self, elem):
         """Use the 'constant' image in the Code Browser for a variable constant.
@@ -388,7 +387,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
         p = pos
         min_p = max(0, p - 200) # look back max 200 chars
         while p > min_p:
-            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.ignore_styles)
+            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
             if style == self.operator_style:
                 if c == ")":
                     paren_count += 1
@@ -399,9 +398,9 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                         p, ch, style = ac.getPrevPosCharStyle()
                         if DEBUG:
                             print "Function start found, pos: %d" % (p, )
-                        if style in self.ignore_styles_ws:
+                        if style in self.comment_styles_or_whitespace:
                             # Find previous non-ignored style then
-                            p, c, style = ac.getPrecedingPosCharStyle(style, self.ignore_styles_ws)
+                            p, c, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
                         if style in (self.identifier_style, self.keyword_style):
                             return Trigger(lang, TRG_FORM_CALLTIP,
                                            "call-signature",
@@ -448,7 +447,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                 if not implicit:
                     # If we're not already at the keyword style, find it
                     if prev_style != self.keyword_style:
-                        prev_pos, prev_char, prev_style = ac.getPrecedingPosCharStyle(last_style, self.ignore_styles)
+                        prev_pos, prev_char, prev_style = ac.getPrecedingPosCharStyle(last_style, self.comment_styles)
                         if DEBUG:
                             print "Explicit: prev_pos: %d, style: %d, ch: %r" % (prev_pos, prev_style, prev_char)
                 else:
@@ -461,15 +460,15 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                     ch = prev_char
                     #print "p: %d" % p
                     while p > 0 and style == self.operator_style and ch == ",":
-                        p, ch, style = ac.getPrecedingPosCharStyle(style, self.ignore_styles_ws)
+                        p, ch, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
                         #print "p 1: %d" % p
                         if p > 0 and style == self.identifier_style:
                             # Skip the identifier too
-                            p, ch, style = ac.getPrecedingPosCharStyle(style, self.ignore_styles_ws)
+                            p, ch, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
                             #print "p 2: %d" % p
                     if DEBUG:
                         ac.dump()
-                    p, text = ac.getTextBackWithStyle(style, self.ignore_styles, max_text_len=len("implements"))
+                    p, text = ac.getTextBackWithStyle(style, self.comment_styles, max_text_len=len("implements"))
                     if DEBUG:
                         print "ac.getTextBackWithStyle:: pos: %d, text: %r" % (p, text)
                     if text in ("new", "extends"):
@@ -488,7 +487,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                     if not prev_char == ":":
                         return None
                     ac.setCacheFetchSize(10)
-                    p, c, style = ac.getPrecedingPosCharStyle(prev_style, self.ignore_styles)
+                    p, c, style = ac.getPrecedingPosCharStyle(prev_style, self.comment_styles)
                     if DEBUG:
                         print "Preceding: %d, %r, %d" % (p, c, style)
                     if style is None:
@@ -507,7 +506,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                                    pos, implicit)
                 elif last_char == ">":
                     if prev_char == "-":
-                        p, c, style = ac.getPrecedingPosCharStyle(prev_style, self.ignore_styles)
+                        p, c, style = ac.getPrecedingPosCharStyle(prev_style, self.comment_styles)
                         if style in (self.variable_style, self.identifier_style):
                             return Trigger(lang, TRG_FORM_CPLN, "object-members",
                                            pos, implicit)
@@ -523,9 +522,9 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                     if implicit and last_char == ',':
                         return self._functionCalltipTrigger(ac, prev_pos, DEBUG)
 
-                    if prev_style in self.ignore_styles_ws:
+                    if prev_style in self.comment_styles_or_whitespace:
                         # Find previous non-ignored style then
-                        p, c, prev_style = ac.getPrecedingPosCharStyle(prev_style, self.ignore_styles_ws)
+                        p, c, prev_style = ac.getPrecedingPosCharStyle(prev_style, self.comment_styles_or_whitespace)
                     if prev_style in (self.identifier_style, self.keyword_style):
                         return Trigger(lang, TRG_FORM_CALLTIP, "call-signature",
                                        pos, implicit)
@@ -555,7 +554,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                 if prev_style == last_style:
                     trig_pos, ch, style = ac.getPrevPosCharStyle()
                     if style == last_style:
-                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.ignore_styles)
+                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles)
                         # style is None if no change of style (not ignored) was
                         # found in the last x number of chars
                         #if not implicit and style == last_style:
@@ -596,7 +595,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                          style == self.whitespace_style:
                         # XXX - Check the php version, magic methods only
                         #       appeared in php 5.
-                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.ignore_styles)
+                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles)
                         if style == self.keyword_style and \
                            ac.getTextBackWithStyle(style, max_text_len=9)[1] == "function":
                             if DEBUG:
