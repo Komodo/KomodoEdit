@@ -82,6 +82,8 @@ my @toExport = (
     'readmeDir',
     'sysdllsDir',
     'installSupportDir',
+    'userDataDir',
+    'hostUserDataDir',
 
     'compiler',
     'idlExportDir',

@@ -47,6 +47,7 @@ import re
 import time
 from pprint import pprint
 import warnings
+import socket
 
 if sys.platform.startswith('win'):
     import _winreg
@@ -509,7 +510,6 @@ class SetKomodoHostname(black.configure.SetEnvVar):
 
     def _Determine_Do(self):
         self.applicable = 1
-        import socket
         self.value = socket.gethostname()
         self.determined = 1
 
@@ -2862,6 +2862,59 @@ class InstallRelDir(black.configure.Datum):
             base = "%s-%s-%s%s-%s" % (productName, komodoMarketingVersion,
                                       buildNum, configSuffix, platName)
             self.value = os.path.join("install", buildType, base)
+        self.determined = 1
+
+
+class UserDataDir(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "userDataDir",
+            desc="Komodo app data dir for the current user")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(\
+                "Could not determine %s\n." % self.desc)
+
+    def _Determine_Do(self):
+        # Dev Note: This logic must match that in:
+        #   src/components/koDirs.py::KoDirs.get_userDataDir()
+        # This should really be shared code somewhere.
+        from os.path import join
+        self.applicable = 1
+        komodoShortVersion = black.configure.items["komodoShortVersion"].Get()
+        komodoAppDataDirName = black.configure.items["komodoAppDataDirName"].Get()
+        if "KOMODO_USERDATADIR" in os.environ:
+            userAppDataPath = os.environ["KOMODO_USERDATADIR"]
+        else:
+            import applib
+            userAppDataPath = applib.user_data_dir(komodoAppDataDirName,
+                                                   "ActiveState")
+        self.value = join(userAppDataPath, komodoShortVersion)
+        self.determined = 1
+
+
+class HostUserDataDir(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "hostUserDataDir",
+            desc="Komodo app data dir for the current user and host")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(\
+                "Could not determine %s\n." % self.desc)
+
+    def _Determine_Do(self):
+        # Dev Note: This logic must match that in:
+        #   src/components/koDirs.py::KoDirs.get_hostUserDataDir()
+        # This should really be shared code somewhere.
+        from os.path import join
+        self.applicable = 1
+        userDataDir = black.configure.items["userDataDir"].Get()
+        if "KOMODO_HOSTNAME" in os.environ:
+            hostname = os.environ["KOMODO_HOSTNAME"]
+        else:
+            hostname = socket.gethostname()
+        self.value = join(userDataDir, "host-"+hostname)
         self.determined = 1
 
 

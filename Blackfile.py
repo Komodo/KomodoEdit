@@ -798,6 +798,8 @@ configuration = {
     "KOMODO_MOZBINDIR": SetMozBinDir(),
     "komodoPythonUtilsDir": KomodoPythonUtilsDir(),  #XXX change to LibDir
     "installRelDir": InstallRelDir(),
+    "userDataDir": UserDataDir(),
+    "hostUserDataDir": HostUserDataDir(),
     "supportDir": SupportDir(),
     "sdkDir": SDKDir(),
     "stubDir": StubDir(),       # the build dir for the Komodo starter stub

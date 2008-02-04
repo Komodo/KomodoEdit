@@ -52,6 +52,11 @@ log = logging.getLogger("koDirs")
 #---- component implementation
 
 class KoDirs:
+    # Dev Notes:
+    # - If directory determination logic changes here, the equivalent
+    #   logic in bklocal.py (for build-time config vars) must be updated
+    #   as well).
+
     _com_interfaces_ = [components.interfaces.koIDirs]
     _reg_clsid_ = "{98435d6d-e24d-4057-a72a-dfcd1d282fae}"
     _reg_contractid_ = "@activestate.com/koDirs;1"
