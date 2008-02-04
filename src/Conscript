@@ -51,6 +51,7 @@ Import(
     'sdkDir',
     'mozDevelDist',
     'compiler',
+    'hostUserDataDir',
 );
 
 # We use this "state" file as a HACK-around Cons' requirement to have
@@ -58,7 +59,22 @@ Import(
 # having been run should depend on this state file. Komodo build steps
 # that need to happen before regxpcom is run should setup this state file
 # to depend on them.
+#
+# The deletion of the compreg.dat file is one of the few hacks that I
+# could find to trigger f*(#ing PyXPCOM re-registration. It *used* to be
+# that a "bk build" involving a change in our .idl files would result in
+# re-PyXPCOM-registration on next start, but something changed to stop
+# that. I've found this full reregistration is necessary to get a *new*
+# interface working via "bk build" -- i.e. without having to do
+# "bk clean && bk build".
+my $xre_dir = "$hostUserDataDir/XRE";
+my $rm_cmd = "rm -f $xre_dir/compreg.dat";
+if ($platform eq "win") {
+    $xre_dir = "$hostUserDataDir\\XRE";
+    $rm_cmd = "IF EXIST \"$xre_dir\\compreg.dat\" del \"$xre_dir\\compreg.dat\"";
+}
 $cons->Command($ranRegxpcomStateFileName, qq(
+    $rm_cmd
     regxpcom
     @ echo yes> %0
     ));
