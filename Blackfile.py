@@ -1696,7 +1696,12 @@ def UploadKomodoPackages(cfg, argv):
     for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
         reldir = _relpath(dirpath, cfg.packagesRelDir)
         for filename in filenames:
-            if str(buildNum) not in filename:
+            if filename in [
+                    "Komodo-%d.%d-mozilla-patches.zip"
+                      % (ver_info[0], ver_info[1])
+                    ]:
+                pass
+            elif str(buildNum) not in filename:
                 continue
             src = join(dirpath, filename)
             dst = unormpath(ujoin(upload_dir, reldir, filename))
