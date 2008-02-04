@@ -678,6 +678,8 @@
               <File Id="file2947" Name="KOKPFT_0.PY" LongName="koKPFTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koKPFTreeView.py"/>
               <File Id="file1311" Name="KOFILE_3.PY" LongName="koFileNotificationService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koFileNotificationService.py"/>
               <File Id="file2917" Name="KOIFIL_3.XPT" LongName="koIFileNotificationService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFileNotificationService.xpt"/>
+              <File Id="file409" Name="KOITEX_1.XPT" LongName="koITextUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITextUtils.xpt"/>
+              <File Id="file410" Name="KOTEXT_2.PY" LongName="koTextUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTextUtils.py"/>
               <File Id="file227" Name="KOIXML_0.XPT" LongName="koIXMLCatalogService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIXMLCatalogService.xpt"/>
               <File Id="file228" Name="KOXMLC_0.PY" LongName="koXMLCatalogService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koXMLCatalogService.py"/>
               <File Id="file2183" Name="LAYOUT_0.XPT" LongName="layout_base.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\layout_base.xpt"/>
@@ -3288,6 +3290,7 @@
               <File Id="file4095" Name="KOITEM_0.IDL" LongName="koITemplateService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITemplateService.idl"/>
               <File Id="file1407" Name="koITest.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITest.idl" />
               <File Id="file4096" Name="KOITEX_0.IDL" LongName="koITextboxAutoComplete.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITextboxAutoComplete.idl"/>
+              <File Id="file411" Name="KOITEX_1.IDL" LongName="koITextUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITextUtils.idl"/>
               <File Id="file4098" Name="KOIURL_0.IDL" LongName="koIUrllib.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIUrllib.idl"/>
               <File Id="file4099" Name="KOIURL_1.IDL" LongName="koIUrlUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIUrlUtils.idl"/>
               <File Id="file4101" Name="KOIVIE_0.IDL" LongName="koIViewController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIViewController.idl"/>
