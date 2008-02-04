@@ -64,6 +64,8 @@ var _log = ko.logging.getLogger("run_functions");
 var _runSvc = Components.classes["@activestate.com/koRunService;1"]
                .getService(Components.interfaces.koIRunService);
 var _processList = [];
+var ISciMoz = Components.interfaces.ISciMoz;
+
 
 //---- internal utility routines
 
@@ -603,6 +605,22 @@ try {
         function max(a, b) { return a >= b ? a : b; }
         scimoz.targetStart = min(scimoz.anchor, scimoz.currentPos);
         scimoz.targetEnd = max(scimoz.anchor, scimoz.currentPos);
+
+        // Convert text to the target EOL chars.
+        var eol = null;
+        switch (scimoz.eOLMode) {
+        case ISciMoz.SC_EOL_LF:
+            eol = '\n';
+            break;
+        case ISciMoz.SC_EOL_CRLF:
+            eol = '\r\n';
+            break;
+        case ISciMoz.SC_EOL_CR:
+            eol = '\r';
+            break;
+        }
+        output = output.replace(/\r\n|\n|\r/g, eol);
+
         var bytelen = ko.stringutils.bytelength(output);
         scimoz.replaceTarget(bytelen, output);
         scimoz.currentPos = scimoz.anchor + bytelen;
