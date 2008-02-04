@@ -216,7 +216,7 @@ class koOsPath:
         return normcase(abspath(path1)) == normcase(abspath(path2))
 
 
-class koOs:
+class koOs(object):
     _com_interfaces_ = [components.interfaces.koIOs]
     _reg_clsid_ = "{3348b94f-f27e-4819-a689-74978024d106}"
     _reg_contractid_ = "@activestate.com/koOs;1"
@@ -237,6 +237,8 @@ class koOs:
         self.O_CREAT = os.O_CREAT
         self.O_EXCL = os.O_EXCL
         self.O_TRUNC = os.O_TRUNC
+
+        self.name = os.name
 
     def get_sep(self):
         return os.sep

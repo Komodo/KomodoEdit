@@ -66,6 +66,8 @@ interface koIOsPath : nsISupports {
 
 [scriptable, uuid(5cba6779-d4a4-4b1a-86be-5bebc7163de2)]
 interface koIOs : nsISupports {
+    readonly attribute wstring name;
+
     readonly attribute wstring sep;
     readonly attribute wstring pathsep;
     readonly attribute koIOsPath path;
