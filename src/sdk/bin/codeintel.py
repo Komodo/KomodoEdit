@@ -168,6 +168,98 @@ class Shell(cmdln.Cmdln):
         finally:
             mgr.finalize()
 
+    @cmdln.option("-l", "--lang", dest="lang",
+                  help="the language of the given path content")
+    @cmdln.option("-q", "--quiet", action="store_true", default=False,
+                  help="don't output imports, function args and vars "
+                       "(i.e. just the major structures)")
+    def do_outline(self, subcmd, opts, path):
+        """Scan and outline the structure of the given path.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        extra_lang_module_dirs = []
+        if koextlib.is_ext_dir() and exists("pylib"):
+            sys.path.append(abspath("pylib"))
+            extra_lang_module_dirs = [sys.path[-1]]
+            
+        mgr = Manager(extra_lang_module_dirs=extra_lang_module_dirs)
+        mgr.upgrade()
+        mgr.initialize()
+        try:
+            if '#' in path:
+                path, anchor = path.rsplit('#', 1)
+            else:
+                anchor = None
+
+            tree = None
+            try:
+                lang = opts.lang or guess_lang_from_path(path)
+            except CodeIntelError:
+                log.info("skip `%s': couldn't determine language "
+                         "(use --lang option)", path)
+                return
+
+            if path.endswith(".cix"):
+                tree = tree_from_cix(open(path, 'r').read())
+                #buf = mgr.buf_from_content("", tree[0].get("lang"), path=path)
+            else:
+                buf = mgr.buf_from_path(path, lang=opts.lang)
+                if not isinstance(buf, CitadelBuffer):
+                    raise CodeIntelError("`%s' (%s) is not a language that "
+                                         "uses CIX" % (path, buf.lang))
+                tree = buf.tree
+
+            if anchor is not None:
+                # Lookup the anchor in the codeintel CIX tree.
+                lpath = re.split(r'\.|::', anchor)
+                def blobs_from_tree(tree):
+                    for file_elem in tree:
+                        for blob in file_elem:
+                            yield blob
+
+                for elem in blobs_from_tree(tree):
+                    # Generally have 3 types of codeintel trees:
+                    # 1. single-lang file: one <file>, one <blob>
+                    # 2. multi-lang file: one <file>, one or two <blob>'s
+                    # 3. CIX stdlib/catalog file: possibly multiple
+                    #    <file>'s, likely multiple <blob>'s
+                    # Allow the first token to be the blob name or lang.
+                    # (This can sometimes be weird, but seems the most
+                    # convenient solution.)
+                    if lpath[0] in (elem.get("name"), elem.get("lang")):
+                        remaining_lpath = lpath[1:]
+                    else:
+                        remaining_lpath = lpath
+                    for name in remaining_lpath:
+                        try:
+                            elem = elem.names[name]
+                        except KeyError:
+                            elem = None
+                            break # try next lang blob
+                    if elem is not None:
+                        break # found one
+                else:
+                    log.error("could not find `%s' definition (or blob) in `%s'",
+                              anchor, path)
+                    return 1
+            else:
+                elem = tree
+
+            try:
+                _outline_ci_elem(mgr, elem, quiet=opts.quiet)
+            except IOError, ex:
+                if ex.errno == 0:
+                    # Ignore this error from aborting 'less' of this
+                    # command:
+                    #    IOError: (0, 'Error')
+                    pass
+                else:
+                    raise
+        finally:
+            mgr.finalize()
+
     @cmdln.option("-o", "--output",
                   help="path to which to write HTML output (instead of "
                        "PATH.html, use '-' for stdout)")
@@ -239,6 +331,54 @@ class Shell(cmdln.Cmdln):
 
 
 #---- internal support functions
+
+def _outline_ci_elem(mgr, elem, stream=sys.stdout, lang=None, quiet=False,
+                     _lvl=0):
+    """Dump an outline of the given codeintel tree element."""
+    indent = '  '
+    def _dump(s):
+        stream.write(indent*_lvl + s + '\n')
+
+    if elem.tag == "codeintel":
+        _lvl -= 1 # don't count this one
+    elif elem.tag == "file":
+        lang = elem.get("lang")
+        _dump("file %(path)s [%(lang)s]" % elem.attrib)
+    elif elem.tag == "variable":
+        if elem.get("ilk") == "argument":
+            s = "arg "+elem.get("name") # skip?
+        else:
+            s = "var "+elem.get("name")
+        if elem.get("citdl"):
+            s += " [%s]" % elem.get("citdl")
+        _dump(s)
+    elif elem.tag == "scope" and elem.get("ilk") == "function" \
+         and elem.get("signature"):
+        _dump("function %s" % elem.get("signature").split('\n')[0])
+    elif elem.tag == "scope" and elem.get("ilk") == "blob":
+        lang = elem.get("lang")
+        _dump("blob %(name)s [%(lang)s]" % elem.attrib)
+    elif elem.tag == "scope" and elem.get("ilk") == "class" \
+         and elem.get("classrefs"):
+        _dump("%s %s(%s)" % (elem.get("ilk"), elem.get("name"),
+                             ', '.join(elem.get("classrefs").split())))
+    elif elem.tag == "scope":
+        _dump("%s %s" % (elem.get("ilk"), elem.get("name")))
+    elif elem.tag == "import":
+        if not quiet:
+            langintel = mgr.langintel_from_lang(lang)
+            data = langintel.cb_import_data_from_elem(elem)
+            _dump(data["detail"])
+    else:
+        raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
+
+    if quiet and (elem.tag == "scope" and elem.get("ilk") == "function"):
+        pass
+    else:
+        for child in elem:
+            _outline_ci_elem(mgr, child, stream, lang=lang, quiet=quiet,
+                             _lvl=_lvl+1)
+
 
 # From komodo/utils/rst2html/rst2html.py.
 def _url_from_local_path(local_path):
