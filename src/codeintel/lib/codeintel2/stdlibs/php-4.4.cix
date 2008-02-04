@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" file="php-4.4.cix" name="PHP 4.4.7" description="Cix data for PHP 4.4.7">
-  <file lang="PHP" mtime="1200080306" path="php-4.4.cix">
+  <file lang="PHP" mtime="1200955035" path="php-4.4.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="abs" docs="Returns the absolute value of number." ilk="function" signature="number abs ( mixed $number )" returns="number"/>
       <scope name="acos" docs="Returns the arc cosine of arg in radians. acos() is the complementary function of cos(), which means that a==cos(acos(a)) for every value of a that is within acos()&amp;#039; range." ilk="function" signature="float acos ( float $arg )" returns="float"/>

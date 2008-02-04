@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" file="php-5.0.cix" name="PHP 5.0.5" description="Cix data for PHP 5.0.5">
-  <file lang="PHP" mtime="1200080309" path="php-5.0.cix">
+  <file lang="PHP" mtime="1200955037" path="php-5.0.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
-      <scope name="stdClass"/>
-      <scope name="Exception">
+      <scope name="stdClass" ilk="class"/>
+      <scope name="Exception" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class Exception"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class Exception"/>
         <scope ilk="function" name="getMessage" signature="getMessage()" doc="Undocumented method in class Exception"/>
@@ -14,7 +14,7 @@
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()" doc="Undocumented method in class Exception"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class Exception"/>
       </scope>
-      <scope name="ReflectionException" classrefs="Exception">
+      <scope name="ReflectionException" classrefs="Exception" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionException"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionException"/>
         <scope ilk="function" name="getMessage" signature="getMessage()" doc="Undocumented method in class ReflectionException"/>
@@ -25,11 +25,11 @@
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()" doc="Undocumented method in class ReflectionException"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class ReflectionException"/>
       </scope>
-      <scope name="Reflection">
+      <scope name="Reflection" ilk="class">
         <scope ilk="function" name="getModifierNames" signature="getModifierNames()" doc="Undocumented method in class Reflection"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class Reflection"/>
       </scope>
-      <scope name="ReflectionFunction">
+      <scope name="ReflectionFunction" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionFunction"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionFunction"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionFunction"/>
@@ -48,7 +48,7 @@
         <scope ilk="function" name="getNumberOfParameters" signature="getNumberOfParameters()" doc="Undocumented method in class ReflectionFunction"/>
         <scope ilk="function" name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()" doc="Undocumented method in class ReflectionFunction"/>
       </scope>
-      <scope name="ReflectionParameter">
+      <scope name="ReflectionParameter" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionParameter"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionParameter"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionParameter"/>
@@ -61,7 +61,7 @@
         <scope ilk="function" name="isDefaultValueAvailable" signature="isDefaultValueAvailable()" doc="Undocumented method in class ReflectionParameter"/>
         <scope ilk="function" name="getDefaultValue" signature="getDefaultValue()" doc="Undocumented method in class ReflectionParameter"/>
       </scope>
-      <scope name="ReflectionMethod" classrefs="ReflectionFunction">
+      <scope name="ReflectionMethod" classrefs="ReflectionFunction" ilk="class">
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionMethod"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionMethod"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class ReflectionMethod"/>
@@ -90,7 +90,7 @@
         <scope ilk="function" name="getNumberOfParameters" signature="getNumberOfParameters()" doc="Undocumented method in class ReflectionMethod"/>
         <scope ilk="function" name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()" doc="Undocumented method in class ReflectionMethod"/>
       </scope>
-      <scope name="ReflectionClass">
+      <scope name="ReflectionClass" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionClass"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionClass"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionClass"/>
@@ -126,7 +126,7 @@
         <scope ilk="function" name="getExtension" signature="getExtension()" doc="Undocumented method in class ReflectionClass"/>
         <scope ilk="function" name="getExtensionName" signature="getExtensionName()" doc="Undocumented method in class ReflectionClass"/>
       </scope>
-      <scope name="ReflectionObject" classrefs="ReflectionClass">
+      <scope name="ReflectionObject" classrefs="ReflectionClass" ilk="class">
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionObject"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionObject"/>
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionObject"/>
@@ -162,7 +162,7 @@
         <scope ilk="function" name="getExtension" signature="getExtension()" doc="Undocumented method in class ReflectionObject"/>
         <scope ilk="function" name="getExtensionName" signature="getExtensionName()" doc="Undocumented method in class ReflectionObject"/>
       </scope>
-      <scope name="ReflectionProperty">
+      <scope name="ReflectionProperty" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionProperty"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionProperty"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionProperty"/>
@@ -178,7 +178,7 @@
         <scope ilk="function" name="getModifiers" signature="getModifiers()" doc="Undocumented method in class ReflectionProperty"/>
         <scope ilk="function" name="getDeclaringClass" signature="getDeclaringClass()" doc="Undocumented method in class ReflectionProperty"/>
       </scope>
-      <scope name="ReflectionExtension">
+      <scope name="ReflectionExtension" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class ReflectionExtension"/>
         <scope ilk="function" name="export" signature="export()" doc="Undocumented method in class ReflectionExtension"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ReflectionExtension"/>
@@ -191,18 +191,18 @@
         <scope ilk="function" name="getClasses" signature="getClasses()" doc="Undocumented method in class ReflectionExtension"/>
         <scope ilk="function" name="getClassNames" signature="getClassNames()" doc="Undocumented method in class ReflectionExtension"/>
       </scope>
-      <scope name="__PHP_Incomplete_Class"/>
-      <scope name="php_user_filter">
+      <scope name="__PHP_Incomplete_Class" ilk="class"/>
+      <scope name="php_user_filter" ilk="class">
         <scope ilk="function" name="filter" signature="filter()" doc="Undocumented method in class php_user_filter"/>
         <scope ilk="function" name="onCreate" signature="onCreate()" doc="Undocumented method in class php_user_filter"/>
         <scope ilk="function" name="onClose" signature="onClose()" doc="Undocumented method in class php_user_filter"/>
       </scope>
-      <scope name="Directory">
+      <scope name="Directory" ilk="class">
         <scope ilk="function" name="close" signature="close()" doc="Undocumented method in class Directory"/>
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class Directory"/>
         <scope ilk="function" name="read" signature="read()" doc="Undocumented method in class Directory"/>
       </scope>
-      <scope name="SQLiteDatabase">
+      <scope name="SQLiteDatabase" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class SQLiteDatabase"/>
         <scope ilk="function" name="query" signature="query()" doc="Undocumented method in class SQLiteDatabase"/>
         <scope ilk="function" name="queryExec" signature="queryExec()" doc="Undocumented method in class SQLiteDatabase"/>
@@ -217,7 +217,7 @@
         <scope ilk="function" name="lastError" signature="lastError()" doc="Undocumented method in class SQLiteDatabase"/>
         <scope ilk="function" name="fetchColumnTypes" signature="fetchColumnTypes()" doc="Undocumented method in class SQLiteDatabase"/>
       </scope>
-      <scope name="SQLiteResult">
+      <scope name="SQLiteResult" ilk="class">
         <scope ilk="function" name="fetch" signature="fetch()" doc="Undocumented method in class SQLiteResult"/>
         <scope ilk="function" name="fetchObject" signature="fetchObject()" doc="Undocumented method in class SQLiteResult"/>
         <scope ilk="function" name="fetchSingle" signature="fetchSingle()" doc="Undocumented method in class SQLiteResult"/>
@@ -234,7 +234,7 @@
         <scope ilk="function" name="numRows" signature="numRows()" doc="Undocumented method in class SQLiteResult"/>
         <scope ilk="function" name="seek" signature="seek()" doc="Undocumented method in class SQLiteResult"/>
       </scope>
-      <scope name="SQLiteUnbuffered">
+      <scope name="SQLiteUnbuffered" ilk="class">
         <scope ilk="function" name="fetch" signature="fetch()" doc="Undocumented method in class SQLiteUnbuffered"/>
         <scope ilk="function" name="fetchObject" signature="fetchObject()" doc="Undocumented method in class SQLiteUnbuffered"/>
         <scope ilk="function" name="fetchSingle" signature="fetchSingle()" doc="Undocumented method in class SQLiteUnbuffered"/>
@@ -246,7 +246,7 @@
         <scope ilk="function" name="next" signature="next()" doc="Undocumented method in class SQLiteUnbuffered"/>
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class SQLiteUnbuffered"/>
       </scope>
-      <scope name="SQLiteException" classrefs="Exception">
+      <scope name="SQLiteException" classrefs="Exception" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class SQLiteException"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class SQLiteException"/>
         <scope ilk="function" name="getMessage" signature="getMessage()" doc="Undocumented method in class SQLiteException"/>
@@ -257,8 +257,11 @@
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()" doc="Undocumented method in class SQLiteException"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class SQLiteException"/>
       </scope>
-      <scope ilk="class" name="RecursiveIteratorIterator"/>
-      <scope name="FilterIterator">
+      <scope ilk="class" name="RecursiveIteratorIterator">
+        <variable name="SELF_FIRST" citdl="integer" ilk="constant"/>
+        <variable name="CHILD_FIRST" citdl="integer" ilk="constant"/>
+      </scope>
+      <scope name="FilterIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class FilterIterator"/>
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class FilterIterator"/>
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class FilterIterator"/>
@@ -268,7 +271,7 @@
         <scope ilk="function" name="getInnerIterator" signature="getInnerIterator()" doc="Undocumented method in class FilterIterator"/>
         <scope ilk="function" name="accept" signature="accept()" doc="Undocumented method in class FilterIterator"/>
       </scope>
-      <scope name="ParentIterator" classrefs="FilterIterator">
+      <scope name="ParentIterator" classrefs="FilterIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ParentIterator"/>
         <scope ilk="function" name="accept" signature="accept()" doc="Undocumented method in class ParentIterator"/>
         <scope ilk="function" name="hasChildren" signature="hasChildren()" doc="Undocumented method in class ParentIterator"/>
@@ -280,7 +283,7 @@
         <scope ilk="function" name="current" signature="current()" doc="Undocumented method in class ParentIterator"/>
         <scope ilk="function" name="next" signature="next()" doc="Undocumented method in class ParentIterator"/>
       </scope>
-      <scope name="LimitIterator">
+      <scope name="LimitIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class LimitIterator"/>
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class LimitIterator"/>
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class LimitIterator"/>
@@ -291,8 +294,11 @@
         <scope ilk="function" name="getPosition" signature="getPosition()" doc="Undocumented method in class LimitIterator"/>
         <scope ilk="function" name="getInnerIterator" signature="getInnerIterator()" doc="Undocumented method in class LimitIterator"/>
       </scope>
-      <scope ilk="class" name="CachingIterator"/>
-      <scope name="CachingRecursiveIterator" classrefs="CachingIterator">
+      <scope ilk="class" name="CachingIterator">
+        <variable name="CALL_TOSTRING" citdl="integer" ilk="constant"/>
+        <variable name="CATCH_GET_CHILD" citdl="integer" ilk="constant"/>
+      </scope>
+      <scope name="CachingRecursiveIterator" classrefs="CachingIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class CachingRecursiveIterator"/>
         <scope ilk="function" name="hasChildren" signature="hasChildren()" doc="Undocumented method in class CachingRecursiveIterator"/>
         <scope ilk="function" name="getChildren" signature="getChildren()" doc="Undocumented method in class CachingRecursiveIterator"/>
@@ -305,7 +311,7 @@
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class CachingRecursiveIterator"/>
         <scope ilk="function" name="getInnerIterator" signature="getInnerIterator()" doc="Undocumented method in class CachingRecursiveIterator"/>
       </scope>
-      <scope name="ArrayObject">
+      <scope name="ArrayObject" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ArrayObject"/>
         <scope ilk="function" name="offsetExists" signature="offsetExists()" doc="Undocumented method in class ArrayObject"/>
         <scope ilk="function" name="offsetGet" signature="offsetGet()" doc="Undocumented method in class ArrayObject"/>
@@ -316,7 +322,7 @@
         <scope ilk="function" name="count" signature="count()" doc="Undocumented method in class ArrayObject"/>
         <scope ilk="function" name="getIterator" signature="getIterator()" doc="Undocumented method in class ArrayObject"/>
       </scope>
-      <scope name="ArrayIterator">
+      <scope name="ArrayIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class ArrayIterator"/>
         <scope ilk="function" name="offsetExists" signature="offsetExists()" doc="Undocumented method in class ArrayIterator"/>
         <scope ilk="function" name="offsetGet" signature="offsetGet()" doc="Undocumented method in class ArrayIterator"/>
@@ -332,7 +338,7 @@
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class ArrayIterator"/>
         <scope ilk="function" name="seek" signature="seek()" doc="Undocumented method in class ArrayIterator"/>
       </scope>
-      <scope name="DirectoryIterator">
+      <scope name="DirectoryIterator" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class DirectoryIterator"/>
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class DirectoryIterator"/>
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class DirectoryIterator"/>
@@ -360,7 +366,7 @@
         <scope ilk="function" name="isDot" signature="isDot()" doc="Undocumented method in class DirectoryIterator"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class DirectoryIterator"/>
       </scope>
-      <scope name="RecursiveDirectoryIterator" classrefs="DirectoryIterator">
+      <scope name="RecursiveDirectoryIterator" classrefs="DirectoryIterator" ilk="class">
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class RecursiveDirectoryIterator"/>
         <scope ilk="function" name="next" signature="next()" doc="Undocumented method in class RecursiveDirectoryIterator"/>
         <scope ilk="function" name="key" signature="key()" doc="Undocumented method in class RecursiveDirectoryIterator"/>
@@ -403,7 +409,7 @@
         <scope class="SimpleXMLElement" name="registerXPathNamespace" signature="bool registerXPathNamespace ( string $prefix , string $ns )" docs="Creates a prefix/ns context for the next XPath query. In particular, this is helpful if the provider of the given XML document alters the namespace prefixes. registerXPathNamespace will create a prefix for the associated namespace, allowing one to access nodes in that namespace without the need to change code to allow for the new prefixes dictated by the provider." returns="bool" ilk="function"/>
         <scope class="SimpleXMLElement" name="xpath" signature="array xpath ( string $path )" docs="The xpath method searches the SimpleXML node for children matching the XPath path." returns="array" ilk="function"/>
       </scope>
-      <scope name="SimpleXMLIterator" classrefs="SimpleXMLElement">
+      <scope name="SimpleXMLIterator" classrefs="SimpleXMLElement" ilk="class">
         <scope ilk="function" name="rewind" signature="rewind()" doc="Undocumented method in class SimpleXMLIterator"/>
         <scope ilk="function" name="valid" signature="valid()" doc="Undocumented method in class SimpleXMLIterator"/>
         <scope ilk="function" name="current" signature="current()" doc="Undocumented method in class SimpleXMLIterator"/>
@@ -417,7 +423,7 @@
         <scope ilk="function" name="attributes" signature="attributes()" doc="Undocumented method in class SimpleXMLIterator"/>
         <scope ilk="function" name="children" signature="children()" doc="Undocumented method in class SimpleXMLIterator"/>
       </scope>
-      <scope name="DOMException" classrefs="Exception">
+      <scope name="DOMException" classrefs="Exception" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()" doc="Undocumented method in class DOMException"/>
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class DOMException"/>
         <scope ilk="function" name="getMessage" signature="getMessage()" doc="Undocumented method in class DOMException"/>
@@ -428,17 +434,17 @@
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()" doc="Undocumented method in class DOMException"/>
         <scope ilk="function" name="__toString" signature="__toString()" doc="Undocumented method in class DOMException"/>
       </scope>
-      <scope name="DOMStringList">
+      <scope name="DOMStringList" ilk="class">
         <scope ilk="function" name="item" signature="item()" doc="Undocumented method in class DOMStringList"/>
       </scope>
-      <scope name="DOMNameList">
+      <scope name="DOMNameList" ilk="class">
         <scope ilk="function" name="getName" signature="getName()" doc="Undocumented method in class DOMNameList"/>
         <scope ilk="function" name="getNamespaceURI" signature="getNamespaceURI()" doc="Undocumented method in class DOMNameList"/>
       </scope>
-      <scope name="DOMImplementationList">
+      <scope name="DOMImplementationList" ilk="class">
         <scope ilk="function" name="item" signature="item()" doc="Undocumented method in class DOMImplementationList"/>
       </scope>
-      <scope name="DOMImplementationSource">
+      <scope name="DOMImplementationSource" ilk="class">
         <scope ilk="function" name="getDomimplementation" signature="getDomimplementation()" doc="Undocumented method in class DOMImplementationSource"/>
         <scope ilk="function" name="getDomimplementations" signature="getDomimplementations()" doc="Undocumented method in class DOMImplementationSource"/>
       </scope>
@@ -463,7 +469,7 @@
         <scope class="DOMNode" name="removeChild" signature="DOMNode removeChild ( DOMNode $oldnode )" docs="This functions removes a child from a list of children." returns="DOMNode" ilk="function"/>
         <scope class="DOMNode" name="replaceChild" signature="DOMNode replaceChild ( DOMNode $newnode , DOMNode $oldnode )" docs="This function replaces the child oldnode with the passed new node. If the new node is already a child it will not be added a second time. If the replacement succeeds the old node is returned." returns="DOMNode" ilk="function"/>
       </scope>
-      <scope name="DOMNameSpaceNode"/>
+      <scope name="DOMNameSpaceNode" ilk="class"/>
       <scope ilk="class" name="DOMDocumentFragment" classref="DOMNode" classrefs="DOMNode">
         <scope class="DOMDocumentFragment" name="appendXML" signature="bool appendXML ( string $data )" docs="Appends raw XML data to a DOMDocumentFragment." returns="bool" ilk="function"/>
       </scope>
@@ -500,7 +506,7 @@
         <scope class="DOMDocument" name="validate" signature="bool validate ( void )" docs="Validates the document based on its DTD." returns="bool" ilk="function"/>
         <scope class="DOMDocument" name="xinclude" signature="int xinclude ([ int $options ] )" docs="This method substitutes &amp;raquo; XIncludes in a DOMDocument object." returns="int" ilk="function"/>
       </scope>
-      <scope name="DOMNodeList">
+      <scope name="DOMNodeList" ilk="class">
         <scope ilk="function" name="item" signature="item()" doc="Undocumented method in class DOMNodeList"/>
       </scope>
       <scope ilk="class" name="DOMNamedNodeMap">
@@ -548,21 +554,21 @@
       <scope ilk="class" name="DOMComment" classref="DOMCharacterData" classrefs="DOMCharacterData">
         <scope class="DOMComment" name="__construct" signature="__construct ([ string $value ] )" docs="Creates a new DOMComment object. This object is read only. It may be appended to a document, but additional nodes may not be appended to this node until the node is associated with a document. To create a writeable node, use DOMDocument-&gt;createComment()." returns="__construct" ilk="function"/>
       </scope>
-      <scope name="DOMTypeinfo"/>
-      <scope name="DOMUserDataHandler">
+      <scope name="DOMTypeinfo" ilk="class"/>
+      <scope name="DOMUserDataHandler" ilk="class">
         <scope ilk="function" name="handle" signature="handle()" doc="Undocumented method in class DOMUserDataHandler"/>
       </scope>
-      <scope name="DOMDomError"/>
-      <scope name="DOMErrorHandler">
+      <scope name="DOMDomError" ilk="class"/>
+      <scope name="DOMErrorHandler" ilk="class">
         <scope ilk="function" name="handleError" signature="handleError()" doc="Undocumented method in class DOMErrorHandler"/>
       </scope>
-      <scope name="DOMLocator"/>
-      <scope name="DOMConfiguration">
+      <scope name="DOMLocator" ilk="class"/>
+      <scope name="DOMConfiguration" ilk="class">
         <scope ilk="function" name="setParameter" signature="setParameter()" doc="Undocumented method in class DOMConfiguration"/>
         <scope ilk="function" name="getParameter" signature="getParameter()" doc="Undocumented method in class DOMConfiguration"/>
         <scope ilk="function" name="canSetParameter" signature="canSetParameter()" doc="Undocumented method in class DOMConfiguration"/>
       </scope>
-      <scope name="DOMCdataSection" classrefs="DOMText">
+      <scope name="DOMCdataSection" classrefs="DOMText" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()" doc="Undocumented method in class DOMCdataSection"/>
         <scope ilk="function" name="splitText" signature="splitText()" doc="Undocumented method in class DOMCdataSection"/>
         <scope ilk="function" name="isWhitespaceInElementContent" signature="isWhitespaceInElementContent()" doc="Undocumented method in class DOMCdataSection"/>
@@ -600,7 +606,7 @@
       <scope ilk="class" name="DOMProcessingInstruction" classref="DOMNode" classrefs="DOMNode">
         <scope class="DOMProcessingInstruction" name="__construct" signature="__construct ( string $name [, string $value ] )" docs="Creates a new DOMProcessingInstruction object. This object is read only. It may be appended to a document, but additional nodes may not be appended to this node until the node is associated with a document. To create a writeable node, use DOMDocument-&gt;createProcessingInstruction()." returns="__construct" ilk="function"/>
       </scope>
-      <scope name="DOMStringExtend">
+      <scope name="DOMStringExtend" ilk="class">
         <scope ilk="function" name="findOffset16" signature="findOffset16()" doc="Undocumented method in class DOMStringExtend"/>
         <scope ilk="function" name="findOffset32" signature="findOffset32()" doc="Undocumented method in class DOMStringExtend"/>
       </scope>
