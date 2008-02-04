@@ -325,6 +325,8 @@ function Open()
             var dirname = document.getElementById('dirname').value;
             if (!dirname)
                 return false;
+            // bug 74664: resolve tilde, if any
+            dirname = osPathSvc.expanduser(dirname);
             filename = osPathSvc.join(dirname, filename);
             if (osPathSvc.exists(filename)) {
                 answer = ko.dialogs.yesNo(
