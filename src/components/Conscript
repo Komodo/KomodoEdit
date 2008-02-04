@@ -238,6 +238,11 @@ $cons->InstallXpcomComponent('koPythonStdLib.py');
 $cons->Install($idlExportDir, 'koIPythonStdLib.idl');
 $cons->BuildAndInstallXpt('koIPythonStdLib.idl');
 
+# koITextUtils
+$cons->InstallXpcomComponent('koTextUtils.py');
+$cons->Install($idlExportDir, 'koITextUtils.idl');
+$cons->BuildAndInstallXpt('koITextUtils.idl');
+
 # koIFeatureStatusService - a service to determine the functional status
 #   of major features within Komodo.
 $cons->Preprocess('koFeatureStatusService.unprocessed.py',

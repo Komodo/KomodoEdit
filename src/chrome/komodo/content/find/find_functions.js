@@ -727,7 +727,7 @@ function _UiForCompletedFindSession(context, msgHandler)
     // Put together an appropriate message.
     var msg = "";
     if (numFinds == 0) {
-        msg += " The search item was not found.";
+        msg += " The pattern was not found.";
     } else if (numReplacements > 0) {
         msg += " " + numReplacements + " of " + numFinds +
                " occurrence(s) were replaced.";
@@ -1153,7 +1153,10 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
             msg = "No "+patternAlias+" were found in "+context.name+".";
         } else {
-            msg = "'"+pattern+"' was not found in "+context.name+".";
+            var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
+                               .getService(Components.interfaces.koITextUtils);
+            var summary = text_utils.one_line_summary_from_text(pattern, 30);
+            msg = "'"+summary+"' was not found in "+context.name+".";
         }
         msgHandler("warn", "find", msg);
     }
@@ -1224,7 +1227,10 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
             msg = "No "+patternAlias+"' were found in "+context.name+".";
         } else {
-            msg = "'"+pattern+"' was not found in "+context.name+".";
+            var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
+                               .getService(Components.interfaces.koITextUtils);
+            var summary = text_utils.one_line_summary_from_text(pattern, 30);
+            msg = "'"+summary+"' was not found in "+context.name+".";
         }
         msgHandler("warn", "find", msg);
     }
@@ -1417,8 +1423,11 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     ko.mru.add("find-patternMru", pattern, true);
     var msg;
     if (numReplacements == 0) {
-        msg = "'"+pattern+"' was not found in "+context.name+
-                  ". No changes were made.";
+        var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
+                           .getService(Components.interfaces.koITextUtils);
+        var summary = text_utils.one_line_summary_from_text(pattern, 30);
+        msg = "'" + summary + "' was not found in " + context.name
+              + ". No changes were made.";
         msgHandler("info", "find", msg);
     } else {
         msg = "Made "+numReplacements+" replacements in "+

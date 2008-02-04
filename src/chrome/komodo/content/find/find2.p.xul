@@ -113,6 +113,9 @@
             <label value="Find what:" control="pattern"
                    accesskey="n"/>
             <deck id="pattern-deck" selectedIndex="0" flex="1">
+              <!-- When on FF3 code base use 'newlines' attr:
+                     http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
+                   to fix issue with getting multiline values from MRU. -->
               <textbox id="pattern"
                        flex="1"
                        type="autocomplete"
@@ -251,6 +254,9 @@
             <label id="repl-lbl" value="Replace with:"
                    control="repl" accesskey="l"/>
             <deck id="repl-deck" selectedIndex="0" flex="1">
+              <!-- When on FF3 code base use 'newlines' attr:
+                     http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
+                   to fix issue with getting multiline values from MRU. -->
               <textbox id="repl"
                        flex="1"
                        type="autocomplete"
