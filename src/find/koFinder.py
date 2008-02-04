@@ -590,7 +590,8 @@ class KoFindService:
     def find(self, url, text, pattern, start, end):
         try:
             regex, dummy = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, None,
+                self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
 
@@ -619,9 +620,10 @@ class KoFindService:
         """
         try:
             regex, munged_repl = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, repl,
+                self.options.patternType,
                 self.options.caseSensitivity,
-                self.options.matchWord, repl)
+                self.options.matchWord)
 
             if self.options.searchBackward:
                 gen = findlib2.find_all_matches_bwd(regex, text,
@@ -658,7 +660,8 @@ class KoFindService:
         """
         try:
             regex, dummy = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, None,
+                self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
 
@@ -704,7 +707,8 @@ class KoFindService:
         """
         try:
             regex, dummy = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, None,
+                self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
 
@@ -740,9 +744,10 @@ class KoFindService:
         try:
             # Build the appropriate regex and replacement.
             regex, munged_repl = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, repl,
+                self.options.patternType,
                 self.options.caseSensitivity,
-                self.options.matchWord, repl)
+                self.options.matchWord)
 
             # Determine a "skip-zone" in the current text. I.e., the area
             # already covered by the user in this replace session.
@@ -863,7 +868,8 @@ class KoFindService:
         #TODO: drop 'resultsView' arg
         try:
             regex, dummy = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, None,
+                self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
         except (re.error, ValueError), ex:
@@ -886,10 +892,10 @@ class KoFindService:
         """TODO: docstring"""
         try:
             regex, munged_repl = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, repl,
+                self.options.patternType,
                 self.options.caseSensitivity,
-                self.options.matchWord,
-                repl)
+                self.options.matchWord)
         except (re.error, ValueError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
@@ -921,7 +927,8 @@ class KoFindService:
         """
         try:
             regex, dummy = _regex_info_from_ko_find_data(
-                pattern, self.options.patternType,
+                pattern, None,
+                self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
         except (re.error, ValueError), ex:
@@ -946,9 +953,10 @@ class KoFindService:
 
 #---- internal support stuff
 
-def _regex_info_from_ko_find_data(pattern, patternType=FOT_SIMPLE,
+def _regex_info_from_ko_find_data(pattern, repl=None,
+                                  patternType=FOT_SIMPLE,
                                   caseSensitivity=FOC_SENSITIVE,
-                                  matchWord=False, repl=None):
+                                  matchWord=False):
     """Build the appropriate regex from the Komodo find/replace system
     data for a find/replace.
     
