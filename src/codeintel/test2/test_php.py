@@ -2211,6 +2211,37 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[2]),
             [("variable", "field"), ("function", "getInstance")])
 
+    @tag("bug74627", "knownfailure")
+    def test_doctags_variable_type_inferencing(self):
+        # Test for ensuring the type inference information can be set
+        # through a phpdoc comment.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug74627_dummy_class {
+                public $field = "";
+                public function callme() {
+                }
+            }
+            class Bug74627 {
+                /**
+                 * View object
+                 * @var Bug74627_dummy_class
+                 */
+                public $dummy;
+            }
+            $bug74627_instance = new Bug74627();
+            $b<1>ug74627_instance-><2>dummy-><3>xxx;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "bug74627_instance")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("variable", "dummy")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("variable", "field"), ("function", "callme")])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
