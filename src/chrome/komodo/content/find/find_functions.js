@@ -449,7 +449,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
             startOffset = startByte;
         }
         replaceResult = findSvc.replace(url, scimoz.text, pattern,
-                                        replacement, startOffset);
+                                        replacement, startOffset, scimoz);
         if (replaceResult) {
             findLog.info("replace result (from FindSvc): s/"+replaceResult.value+
                          "/"+replaceResult.replacement+"/ at "+

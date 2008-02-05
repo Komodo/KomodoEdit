@@ -144,7 +144,8 @@ interface koIFindService : nsISupports {
                              in wstring text,
                              in wstring pattern,
                              in wstring replacement,
-                             in long startOffset);
+                             in long startOffset,
+                             in ISciMoz scimoz);
 
     // A faster alternative to findall() specific to Komodo usage.
     // See the implementation for more docs.

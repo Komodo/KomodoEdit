@@ -69,6 +69,8 @@ FOC_INSENSITIVE = components.interfaces.koIFindOptions.FOC_INSENSITIVE
 FOC_SENSITIVE = components.interfaces.koIFindOptions.FOC_SENSITIVE
 FOC_SMART = components.interfaces.koIFindOptions.FOC_SMART
 
+ISciMoz = components.interfaces.ISciMoz
+
 # services setup in Find Service ctor
 gPrefSvc = None
 gLastErrorSvc = None
@@ -271,6 +273,7 @@ class _ReplacerInFiles(_FindReplaceThread):
                         skip_dupe_dirs=True)
             print
             print "-- s/%s/%s/" % (self.regex.pattern, self.repl)
+            #TODO: EOL normalization of replacements!
             for event in findlib2.replace(self.regex, self.repl, paths,
                                           include_diff_events=True,
                                           dry_run=True):
@@ -582,6 +585,8 @@ class KoFindService:
         gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                        .getService(components.interfaces.koILastErrorService)
 
+        self.eol_re = re.compile(r'\r\n|\r|\n')
+
         # load the find and replace options
         self.options = KoFindOptions()
         
@@ -612,11 +617,13 @@ class KoFindService:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-    def replace(self, url, text, pattern, repl, startOffset):
+    def replace(self, url, text, pattern, repl, startOffset, scimoz):
         """Return a result indicating how to replace the first occurrence
         of `pattern` in `text` with `repl`.
 
         Returns a KoReplaceResult or None.
+
+        TODO: handle EOL-normalization of replacement if this is used.
         """
         try:
             regex, munged_repl = _regex_info_from_ko_find_data(
@@ -632,10 +639,22 @@ class KoFindService:
                 gen = findlib2.find_all_matches(regex, text,
                         start=startOffset)
 
+            # Prepare for normalizing replacement strings with the
+            # target EOL chars.
+            if scimoz.eOLMode == ISciMoz.SC_EOL_CRLF:
+                eol_to_normalize_to = "\r\n"
+            elif scimoz.eOLMode == ISciMoz.SC_EOL_CR:
+                eol_to_normalize_to = "\r"
+            else:
+                eol_to_normalize_to = None
+            eol_re = self.eol_re
+
             for match in gen:
+                repl_str = match.expand(munged_repl)
+                if eol_to_normalize_to:
+                    repl_str = eol_re.sub(eol_to_normalize_to, repl_str)
                 return KoReplaceResult(url, match.start(), match.end(),
-                                       match.group(0),
-                                       match.expand(munged_repl))
+                                       match.group(0), repl_str)
                 break # only want the first one
             else:
                 return None        
@@ -804,6 +823,16 @@ class KoFindService:
                             start=skipZone[0][1], end=skipZone[1][0]),
                 ]
 
+            # Prepare for normalizing replacement strings with the
+            # target EOL chars.
+            if scimoz.eOLMode == ISciMoz.SC_EOL_CRLF:
+                eol_to_normalize_to = "\r\n"
+            elif scimoz.eOLMode == ISciMoz.SC_EOL_CR:
+                eol_to_normalize_to = "\r"
+            else:
+                eol_to_normalize_to = None
+            eol_re = self.eol_re
+
             if resultsView is not None:
                 resultsView = UnwrapObject(resultsView)
             new_text_bits = []
@@ -813,6 +842,8 @@ class KoFindService:
                 num_hits += 1
                 new_text_bits.append(text[curr_pos:match.start()])
                 repl_str = match.expand(munged_repl)
+                if eol_to_normalize_to:
+                    repl_str = eol_re.sub(eol_to_normalize_to, repl_str)
                 new_text_bits.append(repl_str)
                 curr_pos = match.end()
                 #print "replacement %d-%d: %r -> %r"\
@@ -984,9 +1015,9 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
 
     # Massage the pattern, if necessary.
     if patternType == FOT_SIMPLE:
-        pattern = re.escape(pattern)
+        pattern = '\n'.join(re.escape(ln) for ln in pattern.splitlines(0))
     elif patternType == FOT_WILDCARD:    # DEPRECATED
-        pattern = re.escape(pattern)
+        pattern = '\n'.join(re.escape(ln) for ln in pattern.splitlines(0))
         pattern = pattern.replace("\\?", "\w")
         pattern = pattern.replace("\\*", "\w*")
     elif patternType == FOT_REGEX_PYTHON:
@@ -994,6 +1025,8 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
     else:
         raise ValueError("unrecognized find pattern type: %r"
                          % patternType)
+    if '\n' in pattern and '\r' not in pattern:
+        pattern = pattern.replace('\n', '(?:\r\n|\n|\r)')
     if matchWord:
         # Bug 33698: "Match whole word" doesn't work as expected Before
         # this the transformation was "\bPATTERN\b" where \b means:
