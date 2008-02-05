@@ -7,11 +7,11 @@
         <variable ilk="argument" name="var" />
       </scope>
       <variable citdl="int" line="17" name="c" />
-      <scope doc="Function returning a reference:&#xD;//   In this example, the property of the object returned by the find_var&#xD;//   function would be set, not the copy, as it would be without using&#xD;//   reference syntax." ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="find_var(param)">
+      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="find_var(param)">
         <variable ilk="argument" name="param" />
       </scope>
       <variable citdl="find_var()" line="30" name="foo" />
-      <scope doc="Class reference assignment?&#xD;//$bar =&amp; new fooclass();&#xD;// Variable in a class using a reference.&#xD;// From bug: http://bugs.activestate.com/show_bug.cgi?id=73819" ilk="class" line="40" lineend="45" name="Controller">
+      <scope doc="Class reference assignment?&#xA;$bar =&amp; new fooclass();&#xA;Variable in a class using a reference.&#xA;From bug: http://bugs.activestate.com/show_bug.cgi?id=73819" ilk="class" line="40" lineend="45" name="Controller">
         <scope attributes="__ctor__" ilk="function" line="41" lineend="44" name="Controller" signature="Controller()">
           <variable citdl="load_class()" line="43" name="load" />
         </scope>
