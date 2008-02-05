@@ -41,6 +41,7 @@ import os
 import sys
 import re
 import threading
+from pprint import pprint
 import logging
 
 from xpcom import components, nsError, ServerException, COMException
@@ -292,10 +293,6 @@ class koTerminalHandler:
           self._scintilla.modEventMask = eventMask
           self.releaseLock()
 
-    def onClose(self, name):
-        # name is either <stderr> or <stdout>
-        pass
-
     def _moveMarker(self, startMarker, startLine, marker, lastLine):
         if startMarker & (1 << marker) and startLine < lastLine:
             #log.debug("Moving marker %d from %d to %d", marker, startLine, lastLine)
@@ -364,8 +361,8 @@ class KoRunTerminal(koTerminalHandler, TreeView):
         else:
             self._pbbuf = ""
 
-    def onClose(self, name):
-        # name is either <stderr> or <stdout>
+    def endSession(self):
+        koTerminalHandler.endSession(self)
         if self._pbbuf:
             self.parseAndAddLine(self._pbbuf)
             self._pbbuf = ""
@@ -512,7 +509,6 @@ class KoRunTerminal(koTerminalHandler, TreeView):
         self._treeProxy.rowCountChanged(fromIndex, rowsChanged)
 
     def parseAndAddLine(self, line):
-        #print "XXX KoRunTerminal.parseAndAddLine(line=%r)" % line
         if not self._parseRegex:
             return
         try:
@@ -564,7 +560,7 @@ class KoRunTerminal(koTerminalHandler, TreeView):
                 self._updateGroupCounter = 0
 
     def parsedLastLine(self):
-        """Indicates that the last line of data to parse has been send.
+        """Indicates that the last line of data to parse has been sent.
         
         This lets the terminal do any necessary finalization.
         """
