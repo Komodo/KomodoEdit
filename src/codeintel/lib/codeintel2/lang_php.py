@@ -2235,7 +2235,7 @@ class PHPParser:
             return ids, optionals, pos
         return None, None, pos
 
-    def _getIdentifiersFromPos(self, styles, text, pos, identifierStyle=None):
+    def _getOneIdentifierFromPos(self, styles, text, pos, identifierStyle=None):
         if identifierStyle is None:
             identifierStyle = self.PHP_IDENTIFIER
         log.debug("_getIdentifiersFromPos: text: %r", text[pos:])
@@ -2259,6 +2259,29 @@ class PHPParser:
             pos += 1
             last_style = style
         return ids, pos
+
+    def _getIdentifiersFromPos(self, styles, text, pos, identifierStyle=None):
+        typeNames, p = self._getOneIdentifierFromPos(styles, text, pos, identifierStyle)
+        if typeNames:
+            typeNames[0] = self._removeDollarSymbolFromVariableName(typeNames[0])
+        log.debug("p: %d, text left: %r", p, text[p:])
+        # Grab additional fields
+        # Example: $x = $obj<p>->getFields()->field2
+        while p+2 < len(styles) and styles[p] == self.PHP_OPERATOR and \
+              text[p] in (":->"):
+            p += 1
+            log.debug("while:: p: %d, text left: %r", p, text[p:])
+            if styles[p] == self.PHP_IDENTIFIER:
+                additionalNames, p = self._getOneIdentifierFromPos(styles, text, p)
+                log.debug("p: %d, additionalNames: %r", p, additionalNames)
+                if additionalNames:
+                    typeNames.append(additionalNames[0])
+                    if p < len(styles) and \
+                       styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
+                        typeNames[-1] += "()"
+                        p = self._skipPastParenArguments(styles, text, p+1)
+                        log.debug("_skipPastParenArguments:: p: %d, text left: %r", p, text[p:])
+        return typeNames, p
 
     def _skipPastParenArguments(self, styles, text, p):
         paren_count = 1
@@ -2326,25 +2349,6 @@ class PHPParser:
                         typeNames[-1] += "()"
             elif styles[p] == self.PHP_VARIABLE:
                 typeNames, p = self._getIdentifiersFromPos(styles, text, p, self.PHP_VARIABLE)
-                if typeNames:
-                    typeNames[0] = self._removeDollarSymbolFromVariableName(typeNames[0])
-                log.debug("p: %d, text left: %r", p, text[p:])
-                # Grab additional fields
-                # Example: $x = $obj<p>->getFields()->field2
-                while p+2 < len(styles) and styles[p] == self.PHP_OPERATOR and \
-                      text[p] in (":->"):
-                    p += 1
-                    log.debug("while:: p: %d, text left: %r", p, text[p:])
-                    if styles[p] == self.PHP_IDENTIFIER:
-                        additionalNames, p = self._getIdentifiersFromPos(styles, text, p)
-                        log.debug("p: %d, additionalNames: %r", p, additionalNames)
-                        if additionalNames:
-                            typeNames.append(additionalNames[0])
-                            if p < len(styles) and \
-                               styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
-                                typeNames[-1] += "()"
-                                p = self._skipPastParenArguments(styles, text, p+1)
-                                log.debug("_skipPastParenArguments:: p: %d, text left: %r", p, text[p:])
                     
         return typeNames, p
 
@@ -2495,17 +2499,18 @@ class PHPParser:
                 continue
             if name in ("this", "self", ):
                 classVar = True
-                if p+3 < len(styles) and text[p:p+2] in (["-", ">"], [":", ":"]):
-                    namelist, p = self._getIdentifiersFromPos(styles, text, p+2,
-                                                              self.PHP_IDENTIFIER)
-                    log.debug("namelist:%r, p:%d", namelist, p)
-                    if not namelist:
-                        continue
-                    name = namelist[0]
-                else:
+                if len(namelist) <= 1:
                     continue
+                # We don't need the this/self piece of the namelist.
+                namelist = namelist[1:]
+                name = namelist[0]
             if len(namelist) != 1:
-                log.info("warn: invalid variable namelist (ignoring): "
+                log.info("multiple part variable namelist (ignoring): "
+                         "%r, line: %d in file: %r", namelist,
+                         self.lineno, self.filename)
+                continue
+            if name.endswith("()"):
+                log.info("variable is making a method call (ignoring): "
                          "%r, line: %d in file: %r", namelist,
                          self.lineno, self.filename)
                 continue
