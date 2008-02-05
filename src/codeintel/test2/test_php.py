@@ -2189,6 +2189,28 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
             [("variable", "a_pub_var"), ("variable", "c_pub_var")])
 
+    @tag("bug74625", "knownfailure")
+    def test_variable_with_complex_citdl(self):
+        # Need to make sure we properly obtain all the type information
+        # from declared variables.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug74625 {
+                public $field = "";
+                public static function getInstance() {
+                    return new self();
+                }
+            }
+            $bug74625_instance = Bug74625::getInstance();
+            $b<1>ug74625_instance-><2>xxx;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "bug74625_instance")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("variable", "field"), ("function", "getInstance")])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
