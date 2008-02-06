@@ -14,7 +14,7 @@ if (typeof(ko.abbrev)=='undefined') {
 (function() {
 
 /**
- * Finds a snippet to insert based on the last word typed.
+ * Expands the abbreviation at the current cursor position, if any.
  */
 this.expandAbbrev = function expandAbbrev() {
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -40,11 +40,12 @@ this.expandAbbrev = function expandAbbrev() {
 }
 
 /**
- * _expand() : private base function, all other functions in the abbrev. api should call here
- * @param name: name of the snippet to insert
- * @param view: the current view, passed through to ko.projects.snippetInsertImpl
-*/
-
+ * Internal function to do the actual work of expanding an abbreviation.
+ * 
+ * @param name {String} name of the snippet to insert
+ * @param view {koIView} the current view, passed through to
+ *      ko.projects.snippetInsertImpl
+ */
 function _expand(name, view) {
     var project = ko.projects.manager.currentProject;
     var snippet = ko.projects.findPart("snippet", name, "*", project);
