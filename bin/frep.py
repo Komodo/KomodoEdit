@@ -268,7 +268,7 @@ def main_grep(regex, paths, includes, excludes, opts):
     for group in findlib2.grouped_by_path(grepper):
         if not isinstance(group[0], Hit):
             assert len(group) == 1
-            log.info(group[0])
+            log.debug(group[0])
             continue
 
         last_line_nums = None
