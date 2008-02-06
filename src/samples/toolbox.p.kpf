@@ -34,7 +34,7 @@
 &lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a894ae94-0cf4-1e4e-8b3a-78c8a7b7c3e3" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="htp" set_selection="false">
 &lt;p&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="9a2a8b10-3a64-454a-9f41-5f107c1b6f33" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="Ctrl+L" name="htli" set_selection="false">
+<snippet id="9a2a8b10-3a64-454a-9f41-5f107c1b6f33" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="htli" set_selection="false">
 &lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="64881a9e-e88a-8640-87e8-c4d87cc6a539" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="htag" set_selection="false">
 &lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
@@ -510,9 +510,9 @@ $(document).ready(function() {
 &lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="0a36b5ab-8006-4541-8127-78fe74e66168" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htp" set_selection="false">
 &lt;p&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="bd1006a5-dd61-cb4e-b8a7-7cc83857adfc" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="Ctrl+L" name="htli" set_selection="false">
+<snippet id="bd1006a5-dd61-cb4e-b8a7-7cc83857adfc" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htli" set_selection="false">
 &lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="a5defd47-c33e-9144-8baa-93c74ad77209" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="Ctrl+T" name="htag" set_selection="false">
+<snippet id="a5defd47-c33e-9144-8baa-93c74ad77209" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htag" set_selection="false">
 &lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="b2d3b00a-4d3c-4b4b-a704-0b380a9fdec2" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="httxt" set_selection="false">
 &lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
