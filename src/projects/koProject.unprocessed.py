@@ -2860,18 +2860,10 @@ class KoPartService(object):
         log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
         return self.findPart(partType, name, where, self.runningMacro)
 
-    def findPart(self, partType, name, where, macro):
-        """
-        where: is one of
-                "container"
-                "toolbox"
-                "shared toolbox"
-                "toolboxes"
-                "*"
-            where "*" means "current part project, toolbox, shared toolbox"
-        """
-        if macro:
-            container = macro.project
+    def findPart(self, partType, name, where, part):
+        # See koIProject for details.
+        if part:
+            container = part.project
         else:
             container = None
         if where == '*':
@@ -2891,7 +2883,7 @@ class KoPartService(object):
                 if found:
                     return found
         return None
-
+    
     def observe(self, subject, topic, data):
         if topic != 'python_macro':
             return

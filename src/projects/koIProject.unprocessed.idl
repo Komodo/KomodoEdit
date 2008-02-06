@@ -353,20 +353,28 @@ interface koIPartService: nsISupports
     attribute koIProject sharedToolbox;
     attribute koIProject currentProject;
 
-    // findPart will search the toolboxes and the project the provided koIPart
-    // object belongs to for another item defined by type and name.
-    //
-    // where: is one of
-    //        "container"
-    //        "toolbox"
-    //        "shared toolbox"
-    //        "toolboxes"
-    //        "*"
-    //    where "*" means "current part project, toolbox, shared toolbox"
+    /**
+     * Searches the specified koIProjects (e.g. a project, a toolbox)
+     * for a part of the given type and name.
+     *
+     * @param type {string} A part type, e.g. "folder", "snippet",
+     *      "command", etc.
+     * @param name {string} The part name.
+     * @param where {string} Is one of the following:
+     *      "container"         the given `part`s project
+     *      "toolbox"           the toolbox
+     *      "shared toolbox"    the shared toolbox
+     *      "toolboxes"         the toolbox, then the shared toolbox
+     *      "*"                 contain, toolbox, shared toolbox
+     * @param part {Components.interfaces.koIPart} Optional. A koIPart
+     *      whose owning project is search for where=="container". Note
+     *      that a project belongs to itself, so you can pass in a project
+     *      to search the project.
+     */
     koIPart findPart(in wstring type,
                      in wstring name,
                      in wstring where,
-                     in koIPart macro);
+                     in koIPart part);
 
     /* DEPRECATED, DO NOT USE, see findPart above */
     attribute koIPart runningMacro;
