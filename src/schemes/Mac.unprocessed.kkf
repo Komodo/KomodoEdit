@@ -80,6 +80,7 @@ binding cmd_end  End
 binding cmd_end  Meta+Right
 binding cmd_endOfWord Meta+E
 binding cmd_executeLastMacro Ctrl+K _
+binding cmd_expandAbbrev Meta+T
 binding cmd_find Meta+F
 binding cmd_findAllFunctions  Meta+F8
 binding cmd_findInFiles Meta+Shift+F
@@ -165,7 +166,6 @@ binding cmd_toggleButtonText Meta+Shift+B
 binding cmd_toggleInteractiveShell  Meta+Escape
 binding cmd_toggleOvertype  Insert 
 binding cmd_toolsRunCommand Meta+R
-binding cmd_transpose Meta+T
 binding cmd_triggerPrecedingCompletion Meta+J
 binding cmd_undo Meta+Z
 binding cmd_viewBottomPane Ctrl+Shift+O

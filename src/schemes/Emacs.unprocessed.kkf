@@ -246,6 +246,7 @@ binding cmd_killLine Ctrl+K
 binding cmd_openLine Ctrl+O
 binding cmd_deleteBlankLines Ctrl+X Ctrl+O
 binding cmd_rawKey Ctrl+Q
+binding cmd_expandAbbrev Ctrl+T
 
 binding cmd_goToDefinition Escape .
 

@@ -94,7 +94,7 @@ binding cmd_redo Ctrl+Y
 binding cmd_undo Ctrl+Z
 binding cmd_cancel Escape
 binding cmd_editReflow Ctrl+Q
-binding cmd_transpose Ctrl+T
+binding cmd_expandAbbrev Ctrl+T
 binding cmd_toggleOvertype  Insert 
 binding cmd_convertUpperCase Ctrl+U
 binding cmd_convertLowerCase Ctrl+Shift+U
