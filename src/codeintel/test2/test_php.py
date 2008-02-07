@@ -2185,9 +2185,9 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "Reg_Data")])
         self.assertCompletionsInclude2(buf, test_positions[2],
-            [("variable", "b_pub_var")])
+            [("variable", "$b_pub_var")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
-            [("variable", "a_pub_var"), ("variable", "c_pub_var")])
+            [("variable", "$a_pub_var"), ("variable", "$c_pub_var")])
 
     @tag("bug74625")
     def test_variable_with_complex_citdl(self):
