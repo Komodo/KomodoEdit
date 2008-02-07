@@ -1,7 +1,10 @@
 /* Copyright (c) 2006 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
-/* 'Abbreviations': insert toolbox snippets by name */
+/* Abbreviations: insert toolbox snippets by name.
+ *
+ * See KD 196 (TODO: should move to KIPs).
+ */
 
 if (typeof(ko) == 'undefined') {
     var ko = {};
@@ -14,48 +17,182 @@ if (typeof(ko.abbrev)=='undefined') {
 (function() {
 
 /**
- * Expands the abbreviation at the current cursor position, if any.
+ * Expands the abbreviation, if any, at the current cursor position.
+ *
+ * @param abbrev {String} Optional. The abbreviation to expand. If not
+ *      given, then the current selection or word before the cursor is
+ *      used.
+ * @param lang {String} The language name to scope the search. Optional.
+ * @param sublang {String} The sub-language name top scope the search.
+ *      Optional.
+ * @returns {Boolean} True if the snippet was found and inserted, false
+ *      otherwise.
  */
-this.expandAbbrev = function expandAbbrev() {
-    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                        getService(Components.interfaces.koILastErrorService);
-    var view = ko.views.manager.currentView;
-    var scimoz = view.scimoz;
-    if (!scimoz.selText) {
-        scimoz.wordLeftExtend();
+this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
+                                          lang /* =null */,
+                                          sublang /* =null */) {
+    if (typeof(abbrev) == 'undefined') abbrev = null;
+    if (typeof(lang) == 'undefined') lang = null;
+    if (typeof(sublang) == 'undefined') sublang = null;
+
+    var currView = ko.views.manager.currentView;
+    var origPos = null;
+    var origAnchor = null;
+    
+    // Determine the abbrev to look for.
+    var scimoz = currView.scimoz;
+    if (abbrev != null) {
+        // pass
+    } else {
+        if (scimoz.anchor == scimoz.currentPos) {
+            // Only do abbreviation expansion if next to a word char,
+            // i.e. valid abbrev chars.
+            var pos = scimoz.currentPos;
+            if (pos == 0 || !is_abbrev(scimoz.getTextRange(pos-1, pos))) {
+                ko.statusBar.AddMessage(
+                    "No abbreviation at the current position.",
+                    "abbrev", 5000, false);
+                return false;
+            }
+            origPos = pos;
+            origAnchor = scimoz.anchor;
+            scimoz.wordLeftExtend();
+        }
+        abbrev = scimoz.selText;
     }
-    var name = scimoz.selText;
-    scimoz.replaceSel(''); // make sure there is no selection before calling expand?
+
+    // Find the snippet for this abbrev, if any, and insert it.
+    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, lang, sublang);
+    if (snippet) {
+        ko.abbrev.insertAbbrevSnippet(snippet, currView);
+        return true;
+    } else {
+        if (origPos != null) { // Restore state.
+            scimoz.currentPos = origPos;
+            scimoz.anchor = origAnchor;
+        }
+        var msg = "No '"+abbrev+"' abbreviation was found.";
+        ko.statusBar.AddMessage(msg, "abbrev", 5000, true);
+        return false;
+    }
+}
+
+
+/**
+ * Find a snippet for the given abbreviation name.
+ *
+ * Abbreviations used for snippets are in looked for in
+ * "Abbreviations" groups in these places:
+ * 1. the current project (if any)
+ * 2. the toolbox
+ * 3. the shared toolbox (if any)
+ *
+ * And for these languages:
+ * A. the current buffer sub-lang (for multi-lang files)
+ * B. the current buffer lang (if different than A)
+ * C. the "General" lang (i.e. not language-specific)
+ *
+ * @param abbrev {String} The abbreviation name.
+ * @param lang {String} The language name to scope the search. Optional.
+ *      If not given, then the language of the current view is used.
+ *      Specify "General" to *not* search for a lang-specific
+ *      abbreviation.
+ * @param sublang {String} The sub-language name top scope the search.
+ *      This can be relevant for multi-language files (e.g. HTML can have
+ *      HTML and JavaScript and CSS). Optional. If not given, then
+ *      the sub-lang of the current cursor position in the current view is
+ *      used. Specify "General" to *not* search for a sub-lang-specific
+ *      abbreviation.
+ * @returns {Components.interfaces.koIPart_snippet} the relevant snippet,
+ *      or null if no snippet is found.
+ */
+this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
+                                  sublang /* =<curr pos sublang> */) {
+    if (typeof(lang) == 'undefined') lang = null;
+    if (typeof(sublang) == 'undefined') sublang = null;
+    
+    // Determine 'lang' and 'sublang', if not provided.
+    var currView = ko.views.manager.currentView;
+    if (lang == null && currView && currView.document) {
+        lang = currView.document.language;
+    }
+    if (sublang == null && currView && currView.document) {
+        sublang = currView.document.subLanguage;
+    }
+    
+    // The list of sub-folder names under an "Abbreviations" folder in
+    // which to look for the snippet.
+    var subnames = Array();
+    if (sublang) subnames.push(sublang);
+    if (lang && subnames.indexOf(lang) == -1) subnames.push(lang);
+    if (subnames.indexOf("General") == -1) subnames.push("General");
+    
+    // Look in all "Abbreviations" folders for the first appropriate
+    // snippet.
+    var partSvc = Components.classes["@activestate.com/koPartService;1"]
+            .getService(Components.interfaces.koIPartService);
+    var abbrev_folders = partSvc.getParts(
+            "folder", "name", "Abbreviations", "*", partSvc.currentProject,
+            new Object());
+    var subfolder, snippet;
+    for (var i = 0; i < abbrev_folders.length; i++) {
+        var abbrev_folder = abbrev_folders[i];
+        for (var j = 0; j < subnames.length; j++) {
+            subfolder = abbrev_folder.getChildWithTypeAndStringAttribute(
+                "folder", "name", subnames[j], false);
+            if (subfolder) {
+                //dump("findAbbrevSnippet: look in "+abbrev_folder.project.name
+                //     +"/.../Abbreviations/"+subnames[j]);
+                snippet = subfolder.getChildWithTypeAndStringAttribute(
+                    "snippet", "name", abbrev, true);
+                if (snippet) {
+                    //dump(" (found it)\n");
+                    return snippet;
+                } else {
+                    //dump(" (not here)\n");
+                }
+            }
+        }
+    }
+    return null;
+}
+
+
+/**
+ * Insert an abbreviation snippet into a buffer.
+ *
+ * @param snippet {Components.interfaces.koIPart_snippet} The snippet part
+ *      to insert. You can use `ko.abbrev.findAbbrevSnippet()` to get one.
+ * @param view {Components.interfaces.koIView} The buffer view in which to
+ *      insert the snippet. Optional. If not specified then the current
+ *      view is used.
+ */
+this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
+    if (!snippet) {
+        return;
+    }
+    if (typeof(view) == 'undefined' || view == null) {
+        view = ko.views.manager.currentView;
+    }
+
+    var scimoz = view.scimoz;
     scimoz.beginUndoAction();
     try {
-        _expand(name, view);
-    } catch(e) {
-        scimoz.insertText(scimoz.currentPos, name);
-        scimoz.wordRight();
-        var errmsg = lastErrorSvc.getLastErrorMessage();
-        ko.dialogs.alert("Error inserting snippet: " + errmsg);
+        ko.projects.snippetInsertImpl(snippet, view);
     } finally {
         scimoz.endUndoAction();
     }
 }
 
-/**
- * Internal function to do the actual work of expanding an abbreviation.
- * 
- * @param name {String} name of the snippet to insert
- * @param view {koIView} the current view, passed through to
- *      ko.projects.snippetInsertImpl
- */
-function _expand(name, view) {
-    var project = ko.projects.manager.currentProject;
-    var snippet = ko.projects.findPart("snippet", name, "*", project);
-    
-    if (snippet) {
-        ko.projects.snippetInsertImpl(snippet, view);
-    } else {
-        var msg = "No snippet found named " + name;
-        ko.statusBar.AddMessage(msg,"debugger",5000,true);
+
+var _abbrev_valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+function is_abbrev(s) {
+    for (var i = 0; i < s.length; ++i) {
+        if (_abbrev_valid_chars.indexOf(s[i]) == -1) {
+            return false;
+        }
     }
+    return true;
 }
 
 }).apply(ko.abbrev);
