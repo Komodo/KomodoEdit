@@ -85,6 +85,7 @@ def guess_lang_from_path(path):
         ".inc": "PHP",
         ".rb": "Ruby",
         ".rhtml": "RHTML",
+        ".html.erb": "RHTML",
         ".js": "JavaScript",
         ".css": "CSS",
         ".xul": "XUL",

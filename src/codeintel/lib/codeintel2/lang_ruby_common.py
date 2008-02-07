@@ -60,7 +60,7 @@ class RubyCommonBufferMixin:
             role = '.'.join((role_root, aplist[-2]))
         elif (len(aplist) >= 4
               and aplist[-4] == "app" and aplist[-3] == "views"
-              and aplist[-1].endswith(".rhtml")):
+              and aplist[-1].endswith((".html.erb", ".rhtml"))):
             role = '.'.join((role_root, aplist[-3], aplist[-2]))
         elif (aplist[-3] == "db" and aplist[-2] == "migrate"
               and aplist[-1][0].isdigit()

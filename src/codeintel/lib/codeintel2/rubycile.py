@@ -180,7 +180,7 @@ def rails_role_from_path(path):
         role_parts = aplist[-3:]
     elif (len(aplist) >= 4
           and aplist[-4] == "app" and aplist[-3] == "views"
-          and aplist[-1].endswith(".rhtml")):
+          and aplist[-1].endswith((".html.erb", ".rhtml"))):
         role_parts = aplist[-4:]
     elif (aplist[-3] == "db" and
           aplist[-2] == "migrate" and

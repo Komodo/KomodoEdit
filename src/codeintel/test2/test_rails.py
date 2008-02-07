@@ -952,6 +952,38 @@ class MultiLangRailsTestCase(_BaseTestCase):
                                                            pos=main_positions[i + 1]),
                                                targets[i])
     
+    @tag("knownfailure", "bug74706")
+    def test_railsenv_views_basic_html_erb_suffix(self):
+        test_dir = join(self.test_dir, "railsapp01", "app", "views", "layouts")
+        main_filename = "add.html.erb"
+        main_content, main_positions = \
+          unmark_text(self.adjust_content(dedent("""\
+            # Contrived: most layouts are implicit members of this class
+            class Zoomoo < ActionView::<1>Base 
+                Zoomoo.<2>cache_template_extensions
+                Zoomoo.new.<3>form_for
+                "whatever".<4>pluralize
+            end
+            h = {'zounds' => 1, 'ok' => 2}
+            h.<5>keys
+        """)))
+        main_path = join(test_dir, main_filename)
+        writefile(main_path, main_content)
+        main_buf = self.mgr.buf_from_path(main_path)
+        targets = [[("class", "Base"),],
+             [("function", "cache_template_extensions"),],
+             [("function", "form_for"),],
+             [("function", "pluralize"),],
+             [("function", "stringify_keys!"),],
+             ]
+        for i in range(len(targets)):
+            self.assertCompletionsInclude2(main_buf, main_positions[i + 1],
+                                           targets[i])
+            ## Verify we don't get false hits
+            self.assertCompletionsDoNotInclude(markup_text(main_content,
+                                                           pos=main_positions[i + 1]),
+                                               targets[i])
+    
     @tag("global")
     def test_railsenv_views_basic_realistic(self):
         test_dir = join(self.test_dir, "railsapp01", "app", "views", "layouts")
