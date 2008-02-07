@@ -40,8 +40,6 @@ if (typeof(ko)=='undefined') {
 
 
 /**
- * ko.uriparse
- *
  * Functions to convert/parse strings representing URLs, files, etc.
  *
  * This is basically a loose shim around class URIParser in URIlib.py (somewhat
@@ -76,8 +74,6 @@ function _getKoFileEx() {
 
 
 /**
- * localPathToURI
- * 
  * Get the URI representation of the given local file path.
  *
  *  "localPath" must be a local file path.
@@ -104,7 +100,8 @@ this.localPathToURI = function(localPath) {
 
 
 /**
- * fixupURI DEPRECATED, remains for compatibility
+ * Was once used to ensure URI's were properly formatted.
+ * @deprecated since Komodo 4.2.0
  */
 this.fixupURI = function(uri) {
     ko.main.log("DEPRECATED ko.uriparse.fixupURI should not be used");
@@ -112,8 +109,6 @@ this.fixupURI = function(uri) {
 }
 
 /**
- * pathToURI
- * 
  * Get the URI representation of the given local file path or URI
  *
  *  "path" must be a local file path or a URI
@@ -132,8 +127,6 @@ this.pathToURI = function(path) {
 }
 
 /**
- * URIToLocalPath
- * 
  * Get the local file path for the given URI.
  *
  *  "uri" may be a URI for a local file or a local path.
@@ -157,8 +150,6 @@ this.URIToLocalPath = function(uri) {
 }
 
 /**
- * displayPath
- * 
  * Get an appropriate representation of the given URI for display to the user.
  *
  *  "uri", typically, is a URI, though it can be a local filename as well.
@@ -175,8 +166,6 @@ this.displayPath = function(uri) {
 }
 
 /**
- * baseName
- * 
  * Get the basename (a.k.a. leafName) of the given file.
  *
  *  "file" can be a local filename or URI.
@@ -193,8 +182,6 @@ this.baseName = function(file) {
 }
 
 /**
- * dirName
- * 
  * Get the dirname of the given file.
  *
  *  "file" can be a local filename or URI referring to a local file.
@@ -214,8 +201,6 @@ this.dirName = function(file) {
 }
 
 /**
- * ext
- * 
  * Get the extension of the given file.
  *
  *  "file" can be a local filename or URI
@@ -226,6 +211,16 @@ this.ext = function(file) {
     return koFileEx.ext;
 }
 
+/**
+ * Uses the supplied URI to check if there are any special mappings setup
+ * in order to change this URI into another location. If there is a match,
+ * return the new URI, else return the original URI.
+ * 
+ * @param uri {string}  The URI to check.
+ * @param prefs {Components.interfaces.koIPreferenceSet}
+ *        Optional. The preference set to check against.
+ * @returns {string}  The mapped URI or the original if there was no match.
+ */
 this.getMappedURI = function(uri, prefs)
 {
     // XXX project prefs....
@@ -270,7 +265,14 @@ this.getMappedURI = function(uri, prefs)
     return ko.uriparse.pathToURI(newpath);
 }
 
-// used from drag/drop if an unhandled uri is dropped on komodo
+/**
+ * Show the dialog for creating a new mapped URI with the supplied uri and
+ * path arguments.
+ * 
+ * @param uri {string}  The URI to add a mapping for.
+ * @param path {string}  The path the URI will be mapped to.
+ * @returns {boolean}  Returns true if a URI mapping was made, false if not.
+ */
 this.addMappedURI = function(uri, path)
 {
     if (typeof(path) == 'undefined') path=null;
@@ -281,7 +283,7 @@ this.addMappedURI = function(uri, path)
         project_name: null
     };
     if (ko.projects.manager.currentProject) {
-        info.project_name =ko.projects.manager.currentProject.name;
+        info.project_name = ko.projects.manager.currentProject.name;
     }
     window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
     if (!info.uri || !info.path) return false;
@@ -298,6 +300,17 @@ this.addMappedURI = function(uri, path)
     return true;
 }
 
+/**
+ * This is a reverse of getMappedURI. Return a unmapped URI if there is a
+ * pref setup to match the given path, else return whatever was passed in.
+ * Note: If a mapping existed, the return result is *always* a URI.
+ * 
+ * @param path {string}  The path or URI to check for uri mappings.
+ * @param prefs {Components.interfaces.koIPreferenceSet}
+ *        Optional. The preference set to check against.
+ * @returns {string}  The unmapped URI or the original path when
+ *                    there was no match.
+ */
 this.getMappedPath = function(path, prefs)
 {
     // XXX project prefs....
