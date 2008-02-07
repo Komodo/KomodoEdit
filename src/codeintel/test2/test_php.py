@@ -2242,6 +2242,37 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[3]),
             [("variable", "field"), ("function", "callme")])
 
+    @tag("bug70015", "knownfailure")
+    def test_class_and_instance_with_same_name(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug70015 {
+
+                private $Width;
+                private $Height;
+
+                public function __construct() {
+                    $this->Width = 400;
+                    $this->Height = 400;
+                }
+
+                public function setMapDims($w, $h) {
+                    $this->Width = $w;
+                    $this->Height = $h;
+                }
+            }
+            $Bug70015 = new Bug70015();
+            $B<1>ug70015-><2>xxx;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "Bug70015")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("function", "setMapDims")])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
