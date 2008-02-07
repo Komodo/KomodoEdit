@@ -146,6 +146,104 @@ log = logging.getLogger("frep")
 
 #---- internal support stuff
 
+# Recipe: query_custom_answers (1.0)
+def _query_custom_answers(question, answers, default=None):
+    """Ask a question via raw_input() and return the chosen answer.
+    
+    @param question {str} Printed on stdout before querying the user.
+    @param answers {list} A list of acceptable string answers. Particular
+        answers can include '&' before one of its letters to allow a
+        single letter to indicate that answer. E.g., ["&yes", "&no",
+        "&quit"]. All answer strings should be lowercase.
+    @param default {str, optional} A default answer. If no default is
+        given, then the user must provide an answer. With a default,
+        just hitting <Enter> is sufficient to choose. 
+    """
+    prompt_bits = []
+    answer_from_valid_choice = {
+        # <valid-choice>: <answer-without-&>
+    }
+    clean_answers = []
+    for answer in answers:
+        if '&' in answer and not answer.index('&') == len(answer)-1:
+            head, sep, tail = answer.partition('&')
+            prompt_bits.append(head.lower()+tail.lower().capitalize())
+            clean_answer = head+tail
+            shortcut = tail[0].lower()
+        else:
+            prompt_bits.append(answer.lower())
+            clean_answer = answer
+            shortcut = None
+        if default is not None and clean_answer.lower() == default.lower():
+            prompt_bits[-1] += " (default)"
+        answer_from_valid_choice[clean_answer.lower()] = clean_answer
+        if shortcut:
+            answer_from_valid_choice[shortcut] = clean_answer
+        clean_answers.append(clean_answer.lower())
+
+    # This is what it will look like:
+    #   Frob nots the zids? [Yes (default), No, quit] _
+    # Possible alternatives:
+    #   Frob nots the zids -- Yes, No, quit? [y] _
+    #   Frob nots the zids? [*Yes*, No, quit] _
+    #   Frob nots the zids? [_Yes_, No, quit] _
+    #   Frob nots the zids -- (y)es, (n)o, quit? [y] _
+    prompt = " [%s] " % ", ".join(prompt_bits)
+    leader = question + prompt
+    if len(leader) + max(len(c) for c in answer_from_valid_choice) > 78:
+        leader = question + '\n' + prompt.lstrip()
+    leader = leader.lstrip()
+
+    valid_choices = answer_from_valid_choice.keys()
+    admonishment = "Please respond with '%s' or '%s'." \
+                   % ("', '".join(clean_answer[:-1]), clean_answer[-1])
+
+    while 1:
+        sys.stdout.write(leader)
+        choice = raw_input().lower()
+        if default is not None and choice == '':
+            return default
+        elif choice in answer_from_valid_choice:
+            return answer_from_valid_choice[choice]
+        else:
+            sys.stdout.write(admonishment+"\n")
+
+# Recipe: query_yes_no_quit (1.0)
+def _query_yes_no_quit(question, default="yes"):
+    """Ask a yes/no/quit question via raw_input() and return their answer.
+    
+    "question" is a string that is presented to the user.
+    "default" is the presumed answer if the user just hits <Enter>.
+        It must be "yes" (the default), "no", "quit" or None (meaning
+        an answer is required of the user).
+
+    The "answer" return value is one of "yes", "no" or "quit".
+    """
+    valid = {"yes":"yes",   "y":"yes",    "ye":"yes",
+             "no":"no",     "n":"no",
+             "quit":"quit", "qui":"quit", "qu":"quit", "q":"quit"}
+    if default == None:
+        prompt = " [y/n/q] "
+    elif default == "yes":
+        prompt = " [Y/n/q] "
+    elif default == "no":
+        prompt = " [y/N/q] "
+    elif default == "quit":
+        prompt = " [y/n/Q] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while 1:
+        sys.stdout.write(question + prompt)
+        choice = raw_input().lower()
+        if default is not None and choice == '':
+            return default
+        elif choice in valid.keys():
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes', 'no' or 'quit'.\n")
+
+
 class _NoReflowFormatter(optparse.IndentedHelpFormatter):
     """An optparse formatter that does NOT reflow the description."""
     def format_description(self, description):
@@ -297,46 +395,120 @@ def main_grep(regex, paths, includes, excludes, opts):
                 else:
                     _safe_print("%s:%s" % (hit.path, _chomp(lines[0])))
 
-def main_replace(regex, repl, paths, includes, excludes, argv, opts):
+
+def main_replace(regex, repl, paths, includes, excludes, confirm, argv, opts):
     start_time = time.time()
     num_repls = 0
-    journal_id = None
-    include_diff_events = log.isEnabledFor(logging.INFO-1) # if '-v|--verbose'
     dry_run_str = (opts.dry_run and " (dry-run)" or "")
+    show_diffs = log.isEnabledFor(logging.INFO-1) # if '-v|--verbose'
 
-    for event in findlib2.replace(
-                    regex, repl, paths,
-                    include_diff_events=include_diff_events,
-                    includes=includes, excludes=excludes,
-                    dry_run=opts.dry_run):
-        if isinstance(event, StartJournal):
-            journal_id = event.id
-        elif isinstance(event, SkipUnknownLangPath):
-            log.info("Skip `%s' (don't know language).", event.path)
-        elif isinstance(event, ReplaceDiff) and event.diff:
-            sys.stdout.write(event.diff)
-        if not isinstance(event, Hit):
-            continue
-        assert isinstance(event, ReplaceHitGroup)
+    # The confirmation mode is one of:
+    #   None        no confirmation of replacements
+    #   "each"      confirm each path
+    #   "all"       confirm all changes in one batch
+    confirm_mode = None  # None or "each" or "all"
+    if confirm:
+        confirm_mode = "all"
 
-        num_repls += len(event.replace_hits)
-        if not include_diff_events:
-            s_str = (len(event.replace_hits) > 1 and "s" or "")
-            log.info("%s: %s replacement%s%s", event.nicepath, 
-                     len(event.replace_hits), s_str, dry_run_str)
+    if confirm_mode == "all":
+        rgroups = []
+    journal = None
+    try:
+        for event in findlib2.replace(
+                        regex, repl, paths,
+                        includes=includes, excludes=excludes):
+            if isinstance(event, StartJournal):
+                journal = event.journal
+                continue
+            elif isinstance(event, SkipUnknownLangPath):
+                log.debug("Skip `%s' (don't know lang).", event.path)
+                continue
+            elif not isinstance(event, Hit):
+                log.debug(event)
+                continue
+            assert isinstance(event, ReplaceHitGroup)
+
+            if not confirm_mode:
+                if show_diffs and event.diff:
+                    _safe_print(event.diff)
+                if not opts.dry_run:
+                    event.commit()
+                num_repls += event.length
+                if not show_diffs:
+                    s_str = (event.length > 1 and "s" or "")
+                    log.info("%s: %s replacement%s%s", event.nicepath, 
+                             event.length, s_str, dry_run_str)
+
+            elif confirm_mode == "each":
+                _safe_print(event.diff)
+                answer = _query_yes_no_quit(
+                    "Make replacements in `%s'?" % event.nicepath,
+                    default="yes")
+                if answer == "yes":
+                    if not opts.dry_run:
+                        event.commit()
+                    num_repls += event.length
+                    s_str = (event.length > 1 and "s" or "")
+                    log.info("%s: %s replacement%s%s", event.nicepath, 
+                             event.length, s_str, dry_run_str)
+                elif answer == "no":
+                    continue
+                elif answer == "quit":
+                    break
+
+            elif confirm_mode == "all":
+                s_str = (event.length > 1 and "s" or "")
+                log.info("%s: %s replacement%s pending", event.nicepath, 
+                         event.length, s_str)
+                rgroups.append(event)
+
+        if confirm_mode == "all" and rgroups:
+            while True:
+                print
+                answer = _query_custom_answers(
+                    "Make replacements (%d changes in %d files)?"
+                        % (sum(g.length for g in rgroups), len(rgroups)),
+                    ["&yes", "&no", "&diff"],
+                    "yes")
+                if answer == "yes":
+                    log.info("Making replacements.")
+                    for rgroup in rgroups:
+                        #TODO: consider logging each replacement as it is made
+                        if not opts.dry_run:
+                            rgroup.commit()
+                            num_repls += event.length
+                    break
+                elif answer == "no":
+                    log.info("Skipping all replacements. No changes were made.")
+                    break
+                elif answer == "diff":
+                    #TODO: pipe this to `less` if available
+                    _safe_print('')
+                    for rgroup in rgroups:
+                        _safe_print(rgroup.diff)
+    finally:
+        if journal:
+            journal.close()
 
     if num_repls:
-        print
         if log.isEnabledFor(logging.DEBUG):
+            print
             s_str = (num_repls > 1 and "s" or "")
-            log.debug("Completed %d replacement%s in %.2fs%s.", num_repls,
-                      s_str, (time.time() - start_time), dry_run_str)
-        if journal_id is not None:
-            log.info("Use `frep --undo %s' to undo.", journal_id)
-
+            if confirm_mode:
+                log.debug("Made %d replacement%s%s.", num_repls,
+                          s_str, dry_run_str)
+            else:
+                log.debug("Made %d replacement%s in %.2fs%s.", num_repls,
+                          s_str, (time.time() - start_time), dry_run_str)
+        if len(journal):
+            log.info("Use `frep --undo %s' to undo.", journal.id)
 
 def main_undo(opts):
     """Undo the given replacement."""
+    #TODO: START HERE:
+    # - need to purge no-op journals before (a) `frep -u last` and (b)
+    #   `frep -u`
+
     dry_run_str = (opts.dry_run and " (dry-run)" or "")
     
     journal_id = opts.undo
@@ -348,13 +520,12 @@ def main_undo(opts):
         else:
             raise FrepError("there is no last replacement journal to undo")
 
-    for event in findlib2.undo_replace(journal_id, dry_run=opts.dry_run):
-        if not isinstance(event, Hit):
-            continue
-        assert isinstance(event, ReplaceHitGroup)
-        s_str = (len(event.replace_hits) > 1 and "s" or "")
-        log.info("%s: undo %s replacement%s%s", event.nicepath,
-                 len(event.replace_hits), s_str, dry_run_str)
+    #TODO: better logging of undo process
+    for rec in findlib2.undo_replace(journal_id, dry_run=opts.dry_run):
+        assert isinstance(rec, findlib2.JournalReplaceRecord)
+        s_str = (len(rec.rhits) > 1 and "s" or "")
+        log.info("%s: undo %s replacement%s%s", rec.nicepath,
+                 len(rec.rhits), s_str, dry_run_str)
 
 
 def main(argv):
@@ -404,11 +575,16 @@ def main(argv):
         help="Path patterns to exclude. Alternatively, the argument can "
              "be of the form FIELD:VALUE to filter based on textinfo "
              "attributes of a file; for example, '-x encoding:ascii'.")
+    parser.add_option("-f", "--force", dest="confirm", action="store_false",
+        help="Make replacements without confirmation.")
+    parser.add_option("-c", "--confirm", action="store_true",
+        help="Confirm replacements before making any changes on disk "
+             "(the default).")
     parser.add_option("--dry-run", action="store_true",
         help="Do a dry-run replacement.")
     parser.set_defaults(log_level=logging.INFO, recursive=False,
         show_line_number=False, word=False, list=False, context=0,
-        includes=[], excludes=[], dry_run=False)
+        includes=[], excludes=[], confirm=True, dry_run=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
     findlib2.log.setLevel(opts.log_level)
@@ -483,7 +659,8 @@ def main(argv):
             textinfo_includes, textinfo_excludes, opts)
     elif action == "replace":
         return main_replace(regex, repl, paths,
-            textinfo_includes, textinfo_excludes, argv, opts)
+            textinfo_includes, textinfo_excludes, opts.confirm,
+            argv, opts)
     else:
         raise FrepError("unexpected action: %r" % action)
 

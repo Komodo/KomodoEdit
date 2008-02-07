@@ -189,118 +189,67 @@ def grep(regex, paths, files_with_matches=False,
 
 
 
-def replace(regex, repl, paths, include_diff_events=False, 
-            includes=None, excludes=None, dry_run=False):
+def replace(regex, repl, paths, includes=None, excludes=None):
     """Make the given regex replacement in the given paths.
+
+    This generates a stream of `Event`s. The main such event is
+    `ReplaceHitGroup` which is a grouping of all replacements for a
+    single path. **Note:** To actually make you must call
+    `event.commit()` on these hits. This allows one to manage
+    confirmation of replacements.
+    
+    Example usage:
+
+        journal = None
+        try:
+            for event in replace2(re.compile('foo'), 'bar', ['blah.txt']):
+                if isinstance(event, StartJournal):
+                    journal = event.journal
+                elif not isinstance(event, ReplaceHitGroup):
+                    # "SkipPath" events are sent for files with no hits, etc.
+                    log.debug(event)
+                #... possibly confirm replacement with user
+                event.commit()
+        finally:
+            journal.close()
 
     @param regex {regular expression} is the regex with which to search
     @param repl {string} is the replacement string
     @param paths {generator} is the list of paths to process
-    @param include_diff_events {boolean} indicated whether to yield
-        ReplaceDiff events. If true, one of these events is yielded for
-        each changed path *before* the changes are saved.  This will
-        allow for a confirmation process (TODO). False by default
-        because there is a significant perf cost in calculating the diff.
     @param includes {list} is a sequence of 2-tuples defining include
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
-    @param dry_run {boolean} if True will result in going through the
-        motions but not actually saving results (or generating a
-        journal).
     """
     journal = None
-    try:
-        grepper = grep(regex, paths, skip_unknown_lang_paths=True,
-                       includes=includes, excludes=excludes)
-        for group in grouped_by_path(grepper):
-            if not isinstance(group[0], Hit):
-                yield group[0]
-                continue
-            # 'group' is a list of FindHits for a single path.
+    grepper = grep(regex, paths, skip_unknown_lang_paths=True,
+                   includes=includes, excludes=excludes)
+    for fhits in grouped_by_path(grepper):
+        if not isinstance(fhits[0], Hit):
+            yield fhits[0]
+            continue
+        # 'fhits' is a list of FindHits for a single path.
 
-            path = group[0].path
-            encoding = group[0].encoding
+        path = fhits[0].path
+        encoding = fhits[0].encoding
 
-            # Calculate the change.
-            before_text = group[0].accessor.text
-            after_text = regex.sub(repl, before_text)
-            if before_text == after_text:
-                continue
-            accessor = _TextAccessor(after_text)
+        # Calculate the change.
+        before_text = fhits[0].accessor.text
+        after_text = regex.sub(repl, before_text)
+        if before_text == after_text:
+            continue
 
-            if include_diff_events:
-                diff_lines = difflib.unified_diff(
-                        before_text.splitlines(1),
-                        after_text.splitlines(1),
-                        "%s (before)" % path,
-                        "%s (after)" % path)
-                diff = ''.join(diff_lines)
-                #TODO: respond to signal to this event
-                yield ReplaceDiff(path, diff)
+        # If this is the first path, start the journal for this
+        # replacment (for undo).
+        if journal is None:
+            #TODO: this isn't good enough for a summary
+            summary = str_from_regex_info(regex, repl)
+            journal = Journal.create(summary)
+            yield StartJournal(journal)
 
-            # If this is the first path, start the journal for this
-            # replacment (for undo).
-            if not dry_run and journal is None:
-                #TODO: this isn't good enough for a summary
-                summary = str_from_regex_info(regex, repl)
-                journal = Journal.create(summary)
-                yield StartJournal(journal.id)
-
-            # Gather and log (to the journal) the data needed for undo:
-            # - The file encoding (encoding).
-            # - The md5sum of the file before replacements
-            #   (before_md5sum), allows for a sanity check if there
-            #   weren't any subsequent changes.
-            # - The md5sum of the file after replacements
-            #   (after_md5sum), so we can know if we might have
-            #   difficulties undoing later because of subsequent
-            #   changes.
-            # - For each hit: the string replaced (before), the
-            #   replacement string (after), the char pos range
-            #   (start_pos, end_pos), the start line (start_line,
-            #   0-based).
-            before_md5sum = md5.md5(before_text.encode(encoding)).hexdigest()
-            after_md5sum = md5.md5(after_text.encode(encoding)).hexdigest()
-            rhits = []
-            pos_offset = 0
-            line_offset = 0
-            for fhit in group:
-                m = fhit.match
-                before = m.group(0)
-                after = m.expand(repl)
-                start_pos = fhit.start_pos + pos_offset
-                pos_offset += len(after) - len(before)
-                end_pos = fhit.end_pos + pos_offset
-                start_line = fhit.line_num_range[0] + line_offset
-                line_offset += after.count('\n') - before.count('\n')
-
-                rhit = ReplaceHit(path, before, after,
-                                  start_pos, end_pos, start_line,
-                                  fhit, accessor)
-                rhits.append(rhit)
-            group = ReplaceHitGroup(path, encoding, before_md5sum,
-                                    after_md5sum, rhits)
-            if not dry_run:
-                journal.add_replace_group(group)
-
-            # Apply the changes.
-            if not dry_run:
-                #TODO: catch any exception and restore file (or
-                #      create a backup somewhere) if write fails
-                f = codecs.open(path, 'wb', encoding)
-                try:
-                    f.write(after_text)
-                finally:
-                    f.close()
-
-            # Yield the hits.
-            yield group
-    finally:
-        # Ensure the journal gets saved properly: essential for undo.
-        if journal is not None:
-            journal.close()
-
+        yield ReplaceHitGroup(regex, repl, 
+                              path, encoding, before_text,
+                              fhits, after_text, journal)
 
 
 def undo_replace(journal_id, dry_run=False):
@@ -359,7 +308,7 @@ def undo_replace(journal_id, dry_run=False):
         # (b) `lst.append(item)` is much faster than `lst.insert(0, item)`.
         bits = [] # list of tail-end bits of the file
         idx = len(text)
-        for hit in reversed(group.replace_hits):
+        for hit in reversed(group.rhits):
             bits.append(text[hit.end_pos:idx])
             bits.append(hit.before)
             idx = hit.start_pos
@@ -550,10 +499,10 @@ class ReplaceDiff(Event):
 
 class StartJournal(Event):
     """Event signalling the creation of a replacement journal."""
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, journal):
+        self.journal = journal
     def __repr__(self):
-        return "<StartJournal %s>" % self.id
+        return "<StartJournal %s>" % self.journal.id
 
 class Hit(Event):
     path = None
@@ -663,19 +612,28 @@ class ReplaceHit(Hit, _HitWithAccessorMixin):
         return "<ReplaceHit %s -> %s at %s#%s>" \
                % (before_summary, after_summary, self.path, self.start_line+1)
 
+
 class ReplaceHitGroup(Hit):
-    """A group of ReplaceHit's for a single path."""
-    def __init__(self, path, encoding, before_md5sum, after_md5sum,
-                 replace_hits):
+    """A group of ReplaceHit's for a single path. This class knows how
+    to do the actual replacements on disk and to log to the replacement
+    journal.
+    """
+    def __init__(self, regex, repl, path, encoding, before_text,
+                 fhits, after_text, journal):
+        self.regex = regex
+        self.repl = repl
         self.path = abspath(path)           # Need abspath for journal for undo.
         self.encoding = encoding
-        self.before_md5sum = before_md5sum  # MD5 of path before replacements
-        self.after_md5sum = after_md5sum    # MD5 of path after replacements
-        self.replace_hits = replace_hits
+        self.before_text = before_text
+        self.fhits = fhits
+        self.after_text = after_text
+        self.journal = journal
+
+        self._calculated_rhits = False  # whether lazy calculations have been done
 
     def __repr__(self):
         return "<ReplaceHitGroup %s (%d replacements)>" \
-               % (self.nicepath, len(self.replace_hits))
+               % (self.nicepath, self.length)
 
     @property
     def nicepath(self):
@@ -690,9 +648,116 @@ class ReplaceHitGroup(Hit):
         else:
             return a
 
+    @property
+    def length(self):
+        return len(self.fhits)
+
+    _diff_cache = None
+    @property
+    def diff(self):
+        if self._diff_cache is None:
+            diff_lines = difflib.unified_diff(
+                    self.before_text.splitlines(1),
+                    self.after_text.splitlines(1),
+                    "%s (before)" % self.path,
+                    "%s (after)" % self.path)
+            self._diff_cache = ''.join(diff_lines)
+        return self._diff_cache
+
+    def commit(self):
+        """Log changes to the journal and make the replacements."""
+        # Gather and log (to the journal) the data needed for undo:
+        # - The file encoding (encoding).
+        # - The md5sum of the file before replacements
+        #   (before_md5sum), allows for a sanity check if there
+        #   weren't any subsequent changes.
+        # - The md5sum of the file after replacements
+        #   (after_md5sum), so we can know if we might have
+        #   difficulties undoing later because of subsequent
+        #   changes.
+        # - For each hit: the string replaced (before), the
+        #   replacement string (after), the char pos range
+        #   (start_pos, end_pos), the start line (start_line,
+        #   0-based).
+        #TODO: get before_md5sum from the TextInfo
+        before_md5sum = md5.md5(
+            self.before_text.encode(self.encoding)).hexdigest()
+        after_md5sum = md5.md5(
+            self.after_text.encode(self.encoding)).hexdigest()
+
+        self.rhits = []
+        accessor = _TextAccessor(self.after_text)
+        pos_offset = 0
+        line_offset = 0
+        for fhit in self.fhits:
+            m = fhit.match
+            before = m.group(0)
+            #TODO: Need to, at least, do EOL-normalization on 'after'.
+            after = m.expand(self.repl)
+            start_pos = fhit.start_pos + pos_offset
+            pos_offset += len(after) - len(before)
+            end_pos = fhit.end_pos + pos_offset
+            start_line = fhit.line_num_range[0] + line_offset
+            line_offset += after.count('\n') - before.count('\n')
+
+            rhit = ReplaceHit(self.path, before, after,
+                              start_pos, end_pos, start_line,
+                              fhit, accessor)
+            self.rhits.append(rhit)
+
+        self.journal.add_replace_group(self.path, self.encoding,
+            before_md5sum, after_md5sum, self.rhits)
+
+        # Apply the changes.
+        #TODO: catch any exception and restore file (or
+        #      create a backup somewhere) if write fails
+        f = codecs.open(self.path, 'wb', self.encoding)
+        try:
+            f.write(self.after_text)
+        finally:
+            f.close()
+
+    #TODO: Figure out how this works with the other data bits.
+    #      E.g., do we calc the diff before caching?
+    #def cache(self):
+    #    """Can be called to have memory-heavy state be stored to a cache
+    #    area and dropped.
+    #    """
+
 
 
 #---- replace journaling stuff
+
+class JournalReplaceRecord(object):
+    """A record of a replacements to a single path in a Journal.
+    
+    These are pickled in a Journal and are used by `undo_replace()`.
+    """
+    def __init__(self, path, encoding, before_md5sum, after_md5sum,
+                 rhits):
+        self.path = abspath(path)           # Need abspath for journal for undo.
+        self.encoding = encoding
+        self.before_md5sum = before_md5sum  # MD5 of path before replacements
+        self.after_md5sum = after_md5sum    # MD5 of path after replacements
+        self.rhits = rhits
+
+    def __repr__(self):
+        return "<JournalReplaceRecord %s (%d replacements)>" \
+               % (self.nicepath, len(self.rhits))
+
+    @property
+    def nicepath(self):
+        r = _relpath(self.path)
+        a = self.path
+        if not sys.platform == "win32":
+            home = os.environ["HOME"]
+            if a.startswith(home):
+                a = "~" + a[len(home):]
+        if len(r) < len(a):
+            return r
+        else:
+            return a
+
 
 class Journal(list):
     """A replacement journal.
@@ -850,19 +915,38 @@ class Journal(list):
     def __del__(self):
         self.close()
 
-    def add_replace_group(self, group):
+    def add_replace_group(self, path, encoding, before_md5sum, after_md5sum, 
+                          rhits):
         #TODO: Do I need eol-style here as well? Yes, I think so. Add a
         #      test case for this!
-        self.append(group)
+        record = JournalReplaceRecord(path, encoding, before_md5sum,
+                                      after_md5sum, rhits)
+        self.append(record)
 
     def close(self):
         if not self.file.closed:
-            # Dump data to pickle.
-            pickle.dump(list(self), self.file)
-            self.file.close()
+            if len(self):
+                # Dump data to pickle.
+                pickle.dump(list(self), self.file)
+                self.file.close()
+            else:
+                self.file.close()
+                _rm(self.path)
+                _rm(self.summary_path)
 
 
 #---- more generic utils
+
+def _rm(path, log=None):
+    """Forcefully and silently remove the given file, if can."""
+    if log:
+        log("rm `%s'", path)
+    if not exists(path):
+        return
+    try:
+        os.remove(path)
+    except EnvironmentError:
+        pass
 
 # Recipe: regex_from_str (2.2.1)
 def str_from_regex_info(regex, repl=None):
@@ -1360,6 +1444,7 @@ def _splitall(path):
     return allparts
 
 
+#TODO: Make a personal recipe of this.
 def _get_friendly_id():
     """Create an ID string we can recognise.
     (Think Italian or Japanese or Native American.)
