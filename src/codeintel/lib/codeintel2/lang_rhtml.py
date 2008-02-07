@@ -102,15 +102,6 @@ class RHTMLCILEDriver(UDLCILEDriver):
 
 
 
-#---- internal support stuff
-
-def _isident(char):
-    return "a" <= char <= "z" or "A" <= char <= "Z" or char == "_"
-
-def _isdigit(char):
-    return "0" <= char <= "9"
-
-
 
 #---- registration
 
