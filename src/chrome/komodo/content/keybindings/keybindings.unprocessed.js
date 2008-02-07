@@ -1746,18 +1746,33 @@ this.manager.prototype.event2keylabel = function (event, useShift) {
                      (!('originalTarget' in event) || (event.originalTarget.nodeName != "html:input"));
 
         var keypressed = null;
+        var normCharCode = event.charCode;
         if (event.keyCode &&
             event.keyCode in VKCodes &&
             !(event.keyCode in VKModifiers) ) {
             keypressed = VKCodes[event.keyCode];
-        } else if (event.charCode == 32) {
+        } else if (normCharCode == 32) {
             keypressed = 'Space';
-        } else if (event.charCode) {
+        } else if (normCharCode) {
             // Vi needs lowercase/uppercase differentiation
             if (use_vi)
-                keypressed = String.fromCharCode(event.charCode);
+                keypressed = String.fromCharCode(normCharCode);
             else
-                keypressed = String.fromCharCode(event.charCode).toUpperCase();
+            {
+// #if PLATFORM == 'darwin'
+                // Fix bug 74649: map unexpected charCodes to
+                // the value the user intended.
+                // For example, on OSX "Ctrl+[" was generating charCode 27 (ESC),
+                // while on Linux and Windows it generates charCode 91 (ASCII "[")
+                // This happens for these four characters: [ ] \ _
+                // This array hardwires "[]\\_".split().map(lambda(c): ascii(c) - 64)
+                if ([0x1b, 0x1c, 0x1d, 0x1f].indexOf(normCharCode) >= 0) {
+                    normCharCode += 0x40;
+                    // e.g. 0x1b + 0x40 === 27 + 64 = 91 === ord(ESC) + 64 => ord('[')
+                }
+// #endif
+                keypressed = String.fromCharCode(normCharCode).toUpperCase();
+            }
         }
         if (keypressed == null) {
             //dump("NO KEY PRESSED!!!\n");
@@ -1774,19 +1789,19 @@ this.manager.prototype.event2keylabel = function (event, useShift) {
             // if no other modifier, and this is ascii US a-z,
             // add the shift modifier to the keylabel, otherwise, just
             // use the charcode as-is.  
-            if (event.charCode == 0 || // no char code, such as DEL
+            if (normCharCode == 0 || // no char code, such as DEL
                 (useShift && data.length > 0) || // with modifier
 // #if PLATFORM == 'darwin' or PLATFORM == 'win'
                 // ctrl and meta need to always include shift in the label
                 // since the os does not shift the character
                 // exception is win ctrl+shift+2|6 on US kb
-                (data.length > 0 && !event.altKey && event.charCode <= 127) ||
+                (data.length > 0 && !event.altKey && normCharCode <= 127) ||
 // #endif
                 // Vi has no sense of shifted characters, it's uppercase or
                 // lowercase
                 ((!use_vi) &&
-                 ((event.charCode >= 65 && event.charCode <= 90) ||
-                 (event.charCode >= 97 && event.charCode <= 122)))) {
+                 ((normCharCode >= 65 && normCharCode <= 90) ||
+                 (normCharCode >= 97 && normCharCode <= 122)))) {
                     data.push("Shift");
             }
         }
