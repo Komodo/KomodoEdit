@@ -355,7 +355,10 @@ interface koIPartService: nsISupports
 
     /**
      * Searches the specified koIProjects (e.g. a project, a toolbox)
-     * for a part of the given type and name.
+     * for a part.
+     *
+     * Note: Not finding what you are looking for? Try to newer and
+     * slightly more generate getPart().
      *
      * @param type {string} A part type, e.g. "folder", "snippet",
      *      "command", etc.
@@ -376,7 +379,48 @@ interface koIPartService: nsISupports
                      in wstring where,
                      in koIPart part);
 
-    /* DEPRECATED, DO NOT USE, see findPart above */
+    /**
+     * Search the specified koIProjects (e.g. a project, a toolbox)
+     * for a matching koIPart (or list of matching koIParts).
+     *
+     * @param type {string} A part type, e.g. "folder", "snippet",
+     *      "command", etc.
+     * @param attrname {string} The name of string attribute to which
+     *      to compare.
+     * @param attrvalue {string} The attribute's value.
+     * @param where {string} Is one of the following:
+     *      "container"         the given `container`
+     *      "current project"   the current project
+     *      "projects"          all open projects
+     *      "toolbox"           the toolbox
+     *      "shared toolbox"    the shared toolbox
+     *      "toolboxes"         the toolbox, then the shared toolbox
+     *      "*"                 container, toolbox, shared toolbox
+     * @param container {Components.interfaces.koIContainer} Optional.
+     *      A container in which to search, for where=="container".
+     *
+     * Example:
+     * - Search for all folders named "Abbreviations" on the current
+     *   project:
+     *      findParts("folder", "name", "Abbreviations", "container",
+     *                <curr-project>);
+     */    
+    koIPart getPart(
+        in wstring type,
+        in wstring attrname,
+        in wstring attrvalue,
+        in wstring where,
+        in koIContainer container);
+    void getParts(
+        in wstring type,
+        in wstring attrname,
+        in wstring attrvalue,
+        in wstring where,
+        in koIContainer container,
+        out unsigned long count,
+        [retval, array, size_is(count)] out koIPart parts);
+
+    /* DEPRECATED, DO NOT USE, see getPart above */
     attribute koIPart runningMacro;
     koIPart findPartForRunningMacro(in wstring type,
                                     in wstring name,

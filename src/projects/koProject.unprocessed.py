@@ -779,11 +779,10 @@ class koContainerBase(koPart):
 
     def getChildrenByType(self, type, recurse):
         matching_children = []
-
         for child in self.children:
             if child.type == type:
                 matching_children.append(child)
-            elif recurse and hasattr(child, 'children'):
+            if recurse and hasattr(child, 'children'):
                 matching_children += child.getChildrenByType(type, recurse)
         return matching_children
 
@@ -2883,7 +2882,44 @@ class KoPartService(object):
                 if found:
                     return found
         return None
-    
+
+    def getPart(self, type, attrname, attrvalue, where, container):
+        for part in self._genParts(type, attrname, attrvalue,
+                                   where, container):
+            return part
+
+    def getParts(self, type, attrname, attrvalue, where, container):
+        return list(
+            self._genParts(type, attrname, attrvalue, where, container)
+        )
+
+    def _genParts(self, type, attrname, attrvalue, where, container):
+        # Determine what koIProject's to search.
+        if where == '*':
+            places = [container, self._toolbox, self._sharedToolbox]
+        elif where == 'container':
+            places = [container]
+        elif where == 'current project':
+            places = [self._currentProject]
+        elif where == 'projects':
+            places = self._projects
+        elif where == 'toolbox':
+            places = [self._toolbox]
+        elif where == 'shared toolbox':
+            places = [self._sharedToolbox]
+        elif where == 'toolboxes':
+            places = [self._toolbox, self._sharedToolbox]
+
+        # Search them.
+        for place in places:
+            if not place:
+                continue
+            #TODO: Unwrap and use iterators to improve efficiency.
+            #      Currently this can be marshalling lots of koIParts.
+            for part in place.getChildrenByType(type, True):
+                if part.getStringAttribute(attrname) == attrvalue:
+                    yield part
+
     def observe(self, subject, topic, data):
         if topic != 'python_macro':
             return
