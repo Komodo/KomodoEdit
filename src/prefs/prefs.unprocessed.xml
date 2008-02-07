@@ -262,6 +262,7 @@
  '*.vb': 'VisualBasic',
  '*.vbs': 'VBScript',
  '*.vh': 'Verilog',
+ '*.xhtml': 'HTML',
  '*.xml': 'XML',
  '*.xs': 'C++',
  '*.xsl': 'XSLT',
