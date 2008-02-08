@@ -303,22 +303,9 @@ def getMappedPath(path, prefs=None, host=None):
     # now we need a URI of the mappedpath
     return mappeduri + path[len(mappedpath):]
 
-# os.path.commonprefix will find the max number of common CHARACTERS
-# in a path.  This version finds the max number of common DIRECTORIES
-# in a path.
-def commonprefix(path1, path2):
-    p1parts = path1.replace('\\','/').split('/')
-    p2parts = path2.replace('\\','/').split('/')
-    common = []
-    for i in range(min(len(p1parts), len(p2parts))):
-        if p1parts[i] != p2parts[i]:
-            break
-        common.append(p1parts[i])
-    return '/'.join(common)
-
 import URIlib
 
-def RelativizeURL(origbaseurl, origurl, siblings=0):
+def RelativizeURL(origbaseurl, origurl):
     if not origurl or not origbaseurl:
         return origurl
     # ensure the base path ends with a slash
@@ -344,41 +331,7 @@ def RelativizeURL(origbaseurl, origurl, siblings=0):
     if baseURI.URI == fullURI.URI[:len(baseURI.URI)]:
         return fullURI.URI[len(baseURI.URI):]
     
-    # if we don't want to relativize siblings/parents, then just
     # return the original url
-    if not siblings:
-        return origurl
-    
-    # handle files with only part of a common prefix see if there is
-    # any common component of a path.  If there is, we can make a
-    # relative path, otherwise, we just return whatever we were
-    # given
-    common_prefix = commonprefix(baseURI.path, fullURI.path)
-    if common_prefix:
-        # how many directories are beyond the common shared path
-        base_extra = baseURI.path[len(common_prefix):].replace("\\","/")
-        if base_extra[0] == '/':
-            base_extra = base_extra[1:]
-        down = len(base_extra.split('/'))
-        base_dirs = len(baseURI.path.replace("\\","/").split('/'))
-        
-        # the path we want to relativize
-        path = fullURI.path[len(common_prefix):]
-        
-        # if this is a root drive on windows, then we can just build
-        # the path
-        if len(common_prefix) > 1 and common_prefix[1] == ':' and base_dirs == down+1:
-            return "%s%s" %(common_prefix, path)
-        
-        # handle paths that are siblings of a parent directory in the
-        # base path
-        if path[0] in ['/',"\\"]:
-            path = path[1:]
-        if sys.platform.startswith("win"):
-            path = ("..\\"*down)+path
-        else:
-            path = ("../"*down)+path
-        return path
     return origurl
 
 def _UnRelativizeURL(baseurl, path):

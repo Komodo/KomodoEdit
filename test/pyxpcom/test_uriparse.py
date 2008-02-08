@@ -103,20 +103,9 @@ class URIParseTestCase(unittest.TestCase):
                 path = uriparse.URIToLocalPath(test[2])
                 self.failUnlessSamePath(path,test[3])
 
-    def test_commonprefix(self):
-        for base, rel, full, common in self.relative:
-            c = uriparse.commonprefix(base, full)
-            self.failUnlessSamePath(c, common)
-
     def test_relativize(self):
         for base, rel, fullpath, common in self.relative:
             path = uriparse.RelativizeURL(base, fullpath)
-            self.failUnlessSamePath(path, rel)
-
-    def test_fullrelativize(self):
-        relative = self.relative + self.full_relativize
-        for base, rel, fullpath, common in relative:
-            path = uriparse.RelativizeURL(base, fullpath, 1)
             self.failUnlessSamePath(path, rel)
 
     def test_UNrelativize(self):
