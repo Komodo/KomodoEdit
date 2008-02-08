@@ -141,6 +141,7 @@ function VimController() {
         this._inputBuffer_historyPosition = 0; // Where we are up to in history
         this._inputBuffer_savedText = "";      // Saved edited input buffer
 
+        this._lastSearchMatchWord = false;  // the matchWord option for the last search
         this._searchOptions = [];
         this._searchDirection = VimController.SEARCH_FORWARD;
         this._findCharDirection = VimController.SEARCH_FORWARD;
@@ -1333,10 +1334,20 @@ VimController.prototype._setFindSvcContext = function(type)
  * Perform a search on the current buffer
  * @param scimoz - Scintilla object
  * @param searchString {string} String to search for.
- * @param reverseDirection {bool} Reverse the current search direction
+ * @param reverseDirection {bool} Reverse the current search direction.
+ *      Optional. False by default.
+ * @param matchWord {bool} Match a whole word. Optional. If not specified,
+ *      then the value for the last search is used.
  */
 VimController.prototype.performSearch = function (scimoz, searchString,
-                                                  reverseDirection) {
+                                                  reverseDirection /* =false */,
+                                                  matchWord /* =<last> */) {
+    if (typeof reverseDirection == "undefined" || reverseDirection == null) reverseDirection = false;
+    if (typeof matchWord == "undefined" || matchWord == null) {
+        matchWord = this._lastSearchMatchWord;
+    }
+    this._lastSearchMatchWord = matchWord;
+    
     try {
         // Vi starts searching from the position after the cursor/currentPos, so
         // remember currentPos then move past the current position.
@@ -1368,7 +1379,7 @@ VimController.prototype.performSearch = function (scimoz, searchString,
         this._saveFindSvcOptions();
         try {
             this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
-            this._findSvc.options.matchWord = false;
+            this._findSvc.options.matchWord = matchWord;
             this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
             var searchContext = Components.classes["@activestate.com/koFindContext;1"]
                     .createInstance(Components.interfaces.koIFindContext);
@@ -3242,7 +3253,7 @@ function _cmd_vim_findWordUnderCursor_wrapper(scimoz, searchDirection) {
             // Go and find the next sucker then
             gVimController._searchDirection = searchDirection;
             gVimController._searchOptions = [];
-            gVimController.performSearch(scimoz, word);
+            gVimController.performSearch(scimoz, word, null, true /* matchWord */);
         } else {
             ko.statusBar.AddMessage("Search: No word found under the cursor.", 5000, true);
         }
@@ -3431,6 +3442,7 @@ function vim_InputBuffer_KeyPress(event)
                     // cmd_vim_findNext command.
                     ko.mru.add("find-patternMru", searchOptions.value);
                 }
+                gVimController._lastSearchMatchWord = false;
                 vim_doCommand("cmd_vim_findNext");
                 if (gVimController._lastMode == VimController.MODE_VISUAL) {
                     returnToMode = VimController.MODE_VISUAL;
