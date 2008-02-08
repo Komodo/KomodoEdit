@@ -58,6 +58,7 @@ $cons->Preprocess('koRunService.unprocessed.py', 'koRunService.py');
 $cons->InstallXpcomComponent('koRunService.py');
 $cons->Preprocess('koRunTerminal.unprocessed.py', 'koRunTerminal.py');
 $cons->InstallXpcomComponent('koRunTerminal.py');
+$cons->InstallPythonUtility('runutils.py');
 
 $cons->Install($idlExportDir, 'koIAsyncOperations.idl');
 $cons->BuildAndInstallXpt('koIAsyncOperations.idl');
