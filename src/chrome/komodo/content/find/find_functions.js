@@ -128,12 +128,11 @@ function _GetPreviousView(editor, currView)
     var views = editor.ko.views.manager.topView.getViews(true);
     var searchableViews = [];
     for (var i = 0; i < views.length; ++i) {
-        //XXX Should the view grow a getType() method instead of having to do
-        //    this? Does _this_ even work?
-        if (views[i].getAttribute("type") == "editor") {
+        var viewType = views[i].getAttribute("type")
+        if (viewType == "editor") {
             searchableViews.push(views[i]);
         } else {
-            findLog.debug("_GetPreviewView: '"+views[i].type+
+            findLog.debug("_GetPreviousView: '" + viewType +
                           "' view is not searchable");
         }
     }
@@ -1391,7 +1390,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         while (view) {
             viewId = view.document.displayPath;
             if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                findLog.debug("Find_ReplaceAll: have alread searched '"+
+                findLog.debug("Find_ReplaceAll: have already searched '"+
                               viewId+"'\n");
                 break;
             }
