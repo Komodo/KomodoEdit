@@ -875,7 +875,10 @@ class KoFindService:
                         context)
             new_text_bits.append(text[curr_pos:])
 
-            return ''.join(new_text_bits), num_hits
+            if not num_hits:
+                return None, num_hits
+            else:
+                return ''.join(new_text_bits), num_hits
 
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
