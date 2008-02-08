@@ -48,12 +48,26 @@ import uriparse
 
 class URIParseTestCase(unittest.TestCase):
     relative = [
-        # base, relative, full, common
-        (r'c:\test',r'test.txt',r'c:\test\test.txt', r'c:\test'),
-        ('/test','/testing/file.txt','/testing/file.txt', ''),
-        (r'c:\test',r'c:\testing\file.txt',r'c:\testing\file.txt', 'c:'),
-        (r'd:\test',r'c:\testing\file.txt',r'c:\testing\file.txt', ''),
-    ]
+        # base,      relative,               full,                  common
+        (r'c:\atest',   r''        ,            r'c:\atest',            r'c:\atest'),
+        (r'c:\btest',   r'test.txt',            r'c:\btest\test.txt',   r'c:\btest'),
+        ( '/ctest',      '/ctesting/file.txt',    '/ctesting/file.txt',   ''),
+        (r'c:\dtest',   r'c:\dtesting\file.txt', r'c:\dtesting\file.txt', 'c:'),
+        (r'd:\etest',   r'c:\etesting\file.txt', r'c:\etesting\file.txt', ''),
+        # Test perfect match with and without end-slashes
+        (r'c:\ftest',   r'',                    r'c:\ftest',            r'c:\ftest'),
+        ( 'c:\\gtest\\', r'',                   r'c:\gtest',            r'c:\gtest'),
+        ( 'c:\\htest\\', r'',                    'c:\\htest\\',          'c:\\htest\\'),
+        ( 'c:\\h2test', r'',                    'c:\\h2test\\',          'c:\\h2test\\'),
+        ]
+    if sys.platform == "win32":
+        relative += [
+        # Same as previous three, but ignoring case on Windows
+        (r'c:\itest',  r'',                    r'C:\iTest',            r'C:\iTest'),
+        ( 'c:\\jtest\\',r'',                    r'C:\jTest',            r'C:\jTest'),
+        ( 'c:\\ktest\\',r'',                     'C:\\kTest\\',            'C:\\kTest\\'),
+        ( 'c:\\k2test',r'',                     'C:\\k2Test\\',            'C:\\k2Test\\'),
+        ]
     full_relativize = [
         ('/home/shanec/test/somepath','../bad/a:b','/home/shanec/test/bad/a:b','/home/shanec/test'),
         ('/test/a/b','../testing/file.txt','/test/a/testing/file.txt', '/test/a'),
@@ -114,7 +128,11 @@ class URIParseTestCase(unittest.TestCase):
         for base, rel, fullpath, common in relative:
             URI = uriparse.UnRelativizeURL(base, rel)
             fullURI = URIlib.URIParser(URI)
-            self.failUnlessSamePath(fullURI.path, fullpath)
+            # We need to canonicalize the result from unrelativize
+            # compared to the original full path we expect to see.
+            if fullpath[-1] in ('/', '\\'):
+                fullpath = fullpath[:-1]
+            self.failUnlessSamePath(os.path.normcase(fullURI.path), os.path.normcase(fullpath))
             
 
 class _dummyPrefsClass(object):

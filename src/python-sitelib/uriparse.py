@@ -321,16 +321,26 @@ def RelativizeURL(origbaseurl, origurl):
     if not fullURI.scheme == 'file':
         return origurl
 
-    # are the drive letters different?  If so, use the full path.
-    if baseURI.path[1] == ':' and fullURI.path[1] == ':' \
-        and baseURI.path[0] != fullURI.path[0]:
-            return origurl
-
+    # Create normalized strings for comparison purposes.
+    # Results are returned in terms of the original arguments,
+    # not these comparable strings.
+    # Can't use os.path.normcase on a file URI on Windows, as it reverses
+    # slashes. ("file:///C/xyz" => 'file:\\\\\\c\\xyz')
+    if sys.platform == "win32":
+        baseURI_URI_comparable = baseURI.URI.lower()
+        fullURI_URI_comparable = fullURI.URI.lower()
+    else:
+        baseURI_URI_comparable = baseURI.URI
+        fullURI_URI_comparable = fullURI.URI
+        
     # handle files with a common prefix.  This handles a full path
     # that is a subdirectory/path of the base path
-    if baseURI.URI == fullURI.URI[:len(baseURI.URI)]:
-        return fullURI.URI[len(baseURI.URI):]
-    
+    baselen = len(baseURI_URI_comparable)
+    if baseURI_URI_comparable == fullURI_URI_comparable[:baselen]:
+        return fullURI.URI[baselen:]
+    elif baseURI_URI_comparable == fullURI_URI_comparable + "/":
+        return ""
+
     # return the original url
     return origurl
 
