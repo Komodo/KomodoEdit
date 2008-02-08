@@ -325,8 +325,7 @@ class KPFTreeView(TreeView):
         changed = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         changed.URI = uri
-        part = None
-        isOpen = 0
+        matching_parts = []
         #print "   path is [%r] dirname [%r]"%(changed.path, changed.dirName)
 
         if flags & _rebuildFlags:
@@ -336,7 +335,6 @@ class KPFTreeView(TreeView):
             try:
                 for row in self._rows:
                     part = row["node"]
-                    isOpen = row["is-open"]
                     if hasattr(part,'get_liveDirectory'):
                         path = part.get_liveDirectory()
                     else:
@@ -351,32 +349,32 @@ class KPFTreeView(TreeView):
                     #print "row is: %s" % (file.path)
                     if flags & _createdFlags and path == changed.dirName or \
                        path == changed.path:
-                        break
-                    part = None
-                    isOpen = 0
+                        matching_parts.append((part, path))
             finally:
                 self._dataLock.release()
-            if not part:
+            if not matching_parts:
                 return
             if flags & _createdFlags:
-                if path == changed.dirName:
-                    #print "Found parent, refreshing it now"
-                    #print "Before:", row["node"].getChildren()
-                    part.needrefresh = 1
-                    #if isOpen:
-                    self.refresh(part)
-                    #print "After:", row["node"].getChildren()
+                for part, path in matching_parts:
+                    if path == changed.dirName:
+                        #print "Found parent, refreshing it now"
+                        #print "Before:", row["node"].getChildren()
+                        part.needrefresh = 1
+                        self.refresh(part)
+                        #print "After:", row["node"].getChildren()
             elif flags & _rebuildDirFlags:
-                while part and not hasattr(part, "refreshChildren"):
-                    part = part._parent
-                if part:
-                    part.needrefresh = 1
-                    self.refresh(part)
+                for part, path in matching_parts:
+                    while part and not hasattr(part, "refreshChildren"):
+                        part = part._parent
+                    if part:
+                        part.needrefresh = 1
+                        self.refresh(part)
             elif path == changed.path:
-                # file or dir deleted
-                #print "   compare [%r]==[%r]"%(file.path,changed.path)
-                part._parent.removeChild(part)
-                self.refresh(part._parent)
+                for part, path in matching_parts:
+                    # file or dir deleted
+                    #print "   compare [%r]==[%r]"%(file.path,changed.path)
+                    part._parent.removeChild(part)
+                    self.refresh(part._parent)
         else:
             # this is a modification change, just invalidate rows
             self._tree.invalidate()
