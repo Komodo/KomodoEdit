@@ -927,6 +927,7 @@ function _init() {
     var curr_proj = koPartSvc.currentProject;
     if (curr_proj) {
         _collapse_widget(widgets.search_in_curr_project, false);
+        _hide_widget(widgets.search_in_curr_project, false);
         widgets.search_in_curr_project.label
             = "Project ("+curr_proj.name+")";
         _g_curr_project_context = Components.classes["@activestate.com/koCollectionFindContext;1"]
@@ -934,6 +935,7 @@ function _init() {
         _g_curr_project_context.add_koIContainer(curr_proj);
     } else {
         _collapse_widget(widgets.search_in_curr_project, true);
+        _hide_widget(widgets.search_in_curr_project, true);
         _g_curr_project_context = null;
         if (mode == "findincurrproject") {
             msg_warn("No current project.");
@@ -944,12 +946,16 @@ function _init() {
     // - Setup for there a collection having been passed in.
     if (mode == "findincollection") {
         _collapse_widget(widgets.search_in_collection, false);
+        _hide_widget(widgets.search_in_collection, false);
         _collapse_widget(widgets.search_in_collection_sep, false);
+        _hide_widget(widgets.search_in_collection_sep, false);
         widgets.search_in_collection.label = args.collection.desc;
         _g_collection_context = args.collection;
     } else {
         _collapse_widget(widgets.search_in_collection, true);
+        _hide_widget(widgets.search_in_collection, true);
         _collapse_widget(widgets.search_in_collection_sep, true);
+        _hide_widget(widgets.search_in_collection_sep, true);
         _g_collection_context = null;
     }
     switch (mode) {
@@ -1240,6 +1246,15 @@ function _collapse_widget(widget, collapse) {
     } else {
         if (widget.hasAttribute("collapsed"))
             widget.removeAttribute("collapsed");
+    }
+}
+
+function _hide_widget(widget, hide) {
+    if (hide) {
+        widget.setAttribute("hidden", "true");
+    } else {
+        if (widget.hasAttribute("hidden"))
+            widget.removeAttribute("hidden");
     }
 }
 

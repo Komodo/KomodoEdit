@@ -341,12 +341,14 @@
                       <menuitem value="document" label="Current document"/>
                       <menuitem value="selection" label="Selected text"/>
                       <menuitem value="open-files" label="All open files"/>
-                      <menuitem id="search-in-curr-project" collapsed="true"
+                      <menuitem id="search-in-curr-project"
+                                collapsed="true" hidden="true"
                                 value="curr-project" label="Current project"/>
                       <menuitem value="files" label="Text files"/>
                       <menuseparator id="search-in-collection-sep"
                                      collapsed="true" hidden="true"/>
-                      <menuitem id="search-in-collection" collapsed="true"
+                      <menuitem id="search-in-collection"
+                                collapsed="true" hidden="true"
                                 value="collection" label="Collection"
                                 crop="center"/>
                   </menupopup>
