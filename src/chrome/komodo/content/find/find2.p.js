@@ -928,7 +928,7 @@ function _init() {
     if (curr_proj) {
         _collapse_widget(widgets.search_in_curr_project, false);
         widgets.search_in_curr_project.label
-            = "Current Project ("+curr_proj.name+")";
+            = "Project ("+curr_proj.name+")";
         _g_curr_project_context = Components.classes["@activestate.com/koCollectionFindContext;1"]
             .createInstance(Components.interfaces.koICollectionFindContext);
         _g_curr_project_context.add_koIContainer(curr_proj);
