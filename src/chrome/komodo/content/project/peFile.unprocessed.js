@@ -305,7 +305,7 @@ peFile.prototype.doCommand = function(command) {
                 log.warn("unexpected item type for 'cmd_findInPart': "+item.type);
             }
         }
-        ko.launch.findInCollection2(coll);
+        ko.launch.findInCollection(coll);
         break;
     case 'cmd_showInFinder':
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].

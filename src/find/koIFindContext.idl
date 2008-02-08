@@ -83,7 +83,7 @@ interface koIFindInFilesContext : koIFindContext {
  *  // Then, use the normal find JS api...
  *  Find_FindAllInCollection(editor, coll, pattern, ...);
  *  // ...or pass it to the find dialog to fill out the details.
- *  ko.launch.findInCollection2(coll, ...);
+ *  ko.launch.findInCollection(coll, ...);
  */
 [scriptable, uuid(84a0ab4c-b9c0-45c7-aded-7a9e5fb2d0cc)]
 interface koICollectionFindContext : koIFindContext {
