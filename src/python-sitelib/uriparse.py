@@ -318,7 +318,7 @@ def RelativizeURL(origbaseurl, origurl):
     if not baseURI.scheme == 'file':
         return origurl
     fullURI = URIlib.URIParser(origurl)
-    if not baseURI.scheme == 'file':
+    if not fullURI.scheme == 'file':
         return origurl
 
     # are the drive letters different?  If so, use the full path.
