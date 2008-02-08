@@ -1288,6 +1288,20 @@ VimController.prototype.initSearchBackward = function () {
     }
 }
 
+VimController.prototype._saveFindSvcOptions = function() {
+    this._findSvc_searchBackward = this._findSvc.options.searchBackward;
+    this._findSvc_matchWord = this._findSvc.options.matchWord;
+    this._findSvc_patternType = this._findSvc.options.patternType;
+    this._findSvc_caseSensitivity = this._findSvc.options.caseSensitivity;
+}
+
+VimController.prototype._restoreFindSvcOptions = function() {
+    this._findSvc.options.searchBackward = this._findSvc_searchBackward;
+    this._findSvc.options.matchWord = this._findSvc_matchWord;
+    this._findSvc.options.patternType = this._findSvc_patternType;
+    this._findSvc.options.caseSensitivity = this._findSvc_caseSensitivity;
+}
+
 VimController.prototype._setFindSvcContext = function(type)
 {
     // Set to simple search type... maybe regex?
@@ -1351,70 +1365,75 @@ VimController.prototype.performSearch = function (scimoz, searchString,
             return;
         }
 
-        this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
-        this._findSvc.options.matchWord = false;
-        this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
-        var searchContext = Components.classes["@activestate.com/koFindContext;1"]
-                                        .createInstance(Components.interfaces.koIFindContext);
-        searchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
-        this._setFindSvcContext("find");
-        var repeatSearchCount = Math.max(1, this.repeatCount);
-        vimlog.debug("Repeating search: " + repeatSearchCount + " times");
-        var msg = "Search: '" + searchString + "'";
-        // Track how many times the search has looped around the document.
-        var loopcount = 0;
-        var loop_trackingPos = orig_currentPos;
-        var searchString_byteLength = ko.stringutils.bytelength(searchString);
+        this._saveFindSvcOptions();
+        try {
+            this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
+            this._findSvc.options.matchWord = false;
+            this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
+            var searchContext = Components.classes["@activestate.com/koFindContext;1"]
+                    .createInstance(Components.interfaces.koIFindContext);
+            searchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
+            this._setFindSvcContext("find");
+            var repeatSearchCount = Math.max(1, this.repeatCount);
+            vimlog.debug("Repeating search: " + repeatSearchCount + " times");
+            var msg = "Search: '" + searchString + "'";
+            // Track how many times the search has looped around the document.
+            var loopcount = 0;
+            var loop_trackingPos = orig_currentPos;
+            var searchString_byteLength = ko.stringutils.bytelength(searchString);
 
-        // Vi searches can have a repitition count.
-        for (var count=0; count < repeatSearchCount; count++) {
-            var findres = Find_FindNext(window,
-                                        searchContext,
-                                        searchString,
-                                        null,  // mode
-                                        true,  // quiet
-                                        true); // add pattern to find MRU
-            if (findres == false) {
-                msg = "No occurences of '" + searchString + "' was found";
-                // Didn't find anything, ensure we move back to the start position
-                scimoz.currentPos = orig_currentPos;
-                break;
-            } else {
-                // The search engine highlights the selection, we don't want this:
-                //   http://bugs.activestate.com/show_bug.cgi?id=65586
-                var new_currentPos = scimoz.anchor;
-                if ((count+1) < repeatSearchCount) {
-                    // The next search must continue from after the found text.
-                    scimoz.currentPos = new_currentPos + searchString_byteLength;
+            // Vi searches can have a repitition count.
+            for (var count=0; count < repeatSearchCount; count++) {
+                var findres = Find_FindNext(window,
+                                            searchContext,
+                                            searchString,
+                                            null,  // mode
+                                            true,  // quiet
+                                            true); // add pattern to find MRU
+                if (findres == false) {
+                    msg = "No occurences of '" + searchString + "' was found";
+                    // Didn't find anything, ensure we move back to the start position
+                    scimoz.currentPos = orig_currentPos;
+                    break;
                 } else {
-                    scimoz.currentPos = new_currentPos;
-                }
+                    // The search engine highlights the selection, we don't want this:
+                    //   http://bugs.activestate.com/show_bug.cgi?id=65586
+                    var new_currentPos = scimoz.anchor;
+                    if ((count+1) < repeatSearchCount) {
+                        // The next search must continue from after the found text.
+                        scimoz.currentPos = new_currentPos + searchString_byteLength;
+                    } else {
+                        scimoz.currentPos = new_currentPos;
+                    }
 
-                // Check if we've looped around the document.
-                if ((searchDirection == VimController.SEARCH_FORWARD) &&
-                    (new_currentPos < loop_trackingPos)) {
-                    loopcount++;
-                    if (loopcount > 1) {
-                        break;
+                    // Check if we've looped around the document.
+                    if ((searchDirection == VimController.SEARCH_FORWARD) &&
+                        (new_currentPos < loop_trackingPos)) {
+                        loopcount++;
+                        if (loopcount > 1) {
+                            break;
+                        }
+                        msg += " (search hit BOTTOM, continuing at TOP)";
+                    } else if ((searchDirection == VimController.SEARCH_BACKWARD) &&
+                               (new_currentPos > loop_trackingPos)) {
+                        loopcount++;
+                        if (loopcount > 1) {
+                            break;
+                        }
+                        msg += " (search hit TOP, continuing at BOTTOM)";
                     }
-                    msg += " (search hit BOTTOM, continuing at TOP)";
-                } else if ((searchDirection == VimController.SEARCH_BACKWARD) &&
-                           (new_currentPos > loop_trackingPos)) {
-                    loopcount++;
-                    if (loopcount > 1) {
-                        break;
-                    }
-                    msg += " (search hit TOP, continuing at BOTTOM)";
+                    loop_trackingPos = new_currentPos;
                 }
-                loop_trackingPos = new_currentPos;
             }
+            if (loopcount > 1) {
+                // We've looped twice, cancel the search.
+                scimoz.currentPos = orig_currentPos;
+                msg = "Operation cancelled: Search looped around twice";
+            }
+            this.setStatusBarMessage(msg, 5000, true);
+        } finally {
+            this._restoreFindSvcOptions();
         }
-        if (loopcount > 1) {
-            // We've looped twice, cancel the search.
-            scimoz.currentPos = orig_currentPos;
-            msg = "Operation cancelled: Search looped around twice";
-        }
-        this.setStatusBarMessage(msg, 5000, true);
     } catch (e) {
         vimlog.exception(e);
     }
@@ -1441,87 +1460,92 @@ VimController.prototype.performReplace = function (searchString, replaceString,
         findContext.startIndex = startPosition;
         findContext.endIndex = endPosition;
 
-        this._findSvc.options.searchBackward = false;
-        this._findSvc.options.matchWord = false;
-        this._searchOptions = options;
-        this._setFindSvcContext("replace");
-
-        if (options.search('g') >= 0) {
-            // Global replace
-            var findres = Find_FindNext(window,
-                                        findContext,
-                                        searchString,
-                                        null,  // mode, defaults to find
-                                        true,  // quiet
-                                        false); // add pattern to find MRU
-            if (!findres) {
-                this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
-                                         5000, true);
-            } else {
-                Find_ReplaceAll(window,           /* editor */
-                                findContext,      /* context */
-                                searchString,     /* pattern */
-                                replaceString,    /* replacement */
-                                false);           /* showReplaceResults */
-            }
-        } else {
-            // This one is a little trickier, for two reasons:
-            // 1. Need to call Find_FindNext() before Find_Replace (thats how
-            //    the find stuff works.
-            // 2. Vi has to do this once for every line in the given range
-            var numReplacements = 0;
-            var startLine = scimoz.lineFromPosition(startPosition);
-            var endLine = scimoz.lineFromPosition(endPosition);
-            var preLength = scimoz.length;
-            var postLength;
-            for (var lineNum = startLine; lineNum <= endLine; lineNum++) {
-                // Update the real scintilla buffer positions for current line
-                if (lineNum == startLine) {
-                    findContext.startIndex = startPosition;
-                } else {
-                    findContext.startIndex = scimoz.positionFromLine(lineNum);
-                }
-                if (lineNum == endLine) {
-                    findContext.endIndex = endPosition;
-                } else {
-                    findContext.endIndex = scimoz.getLineEndPosition(lineNum);
-                }
+        this._saveFindSvcOptions();
+        try {
+            this._findSvc.options.searchBackward = false;
+            this._findSvc.options.matchWord = false;
+            this._searchOptions = options;
+            this._setFindSvcContext("replace");
+    
+            if (options.search('g') >= 0) {
+                // Global replace
                 var findres = Find_FindNext(window,
                                             findContext,
                                             searchString,
                                             null,  // mode, defaults to find
                                             true,  // quiet
                                             false); // add pattern to find MRU
-                if (findres) {
-                    // Using _ReplaceLastFindResult() to get around having to
-                    // call Find_Replace(), which gives feedback for every
-                    // call made
-                    _ReplaceLastFindResult(window,
-                                           findContext,
-                                           searchString,
-                                           replaceString);
-                    numReplacements += 1;
-
-                    // Need to update the end position, as text has been
-                    // added or removed. See bug:
-                    //   http://bugs.activestate.com/show_bug.cgi?id=72411
-                    postLength = scimoz.length;
-                    endPosition += (postLength - preLength);
-                    preLength = postLength;
-
-                    //Find_Replace(window,          /* editor */
-                    //             findContext,     /* context */
-                    //             searchString,    /* pattern */
-                    //             replaceString);  /* replacement */
+                if (!findres) {
+                    this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
+                                             5000, true);
+                } else {
+                    Find_ReplaceAll(window,           /* editor */
+                                    findContext,      /* context */
+                                    searchString,     /* pattern */
+                                    replaceString,    /* replacement */
+                                    false);           /* showReplaceResults */
                 }
-            }
-            var msg;
-            if (numReplacements == 0) {
-                msg = "'"+searchString+"' was not found in the specified range. No changes were made.";
             } else {
-                msg = "Made "+numReplacements+" replacements in the specified range.";
+                // This one is a little trickier, for two reasons:
+                // 1. Need to call Find_FindNext() before Find_Replace (thats how
+                //    the find stuff works.
+                // 2. Vi has to do this once for every line in the given range
+                var numReplacements = 0;
+                var startLine = scimoz.lineFromPosition(startPosition);
+                var endLine = scimoz.lineFromPosition(endPosition);
+                var preLength = scimoz.length;
+                var postLength;
+                for (var lineNum = startLine; lineNum <= endLine; lineNum++) {
+                    // Update the real scintilla buffer positions for current line
+                    if (lineNum == startLine) {
+                        findContext.startIndex = startPosition;
+                    } else {
+                        findContext.startIndex = scimoz.positionFromLine(lineNum);
+                    }
+                    if (lineNum == endLine) {
+                        findContext.endIndex = endPosition;
+                    } else {
+                        findContext.endIndex = scimoz.getLineEndPosition(lineNum);
+                    }
+                    var findres = Find_FindNext(window,
+                                                findContext,
+                                                searchString,
+                                                null,  // mode, defaults to find
+                                                true,  // quiet
+                                                false); // add pattern to find MRU
+                    if (findres) {
+                        // Using _ReplaceLastFindResult() to get around having to
+                        // call Find_Replace(), which gives feedback for every
+                        // call made
+                        _ReplaceLastFindResult(window,
+                                               findContext,
+                                               searchString,
+                                               replaceString);
+                        numReplacements += 1;
+    
+                        // Need to update the end position, as text has been
+                        // added or removed. See bug:
+                        //   http://bugs.activestate.com/show_bug.cgi?id=72411
+                        postLength = scimoz.length;
+                        endPosition += (postLength - preLength);
+                        preLength = postLength;
+    
+                        //Find_Replace(window,          /* editor */
+                        //             findContext,     /* context */
+                        //             searchString,    /* pattern */
+                        //             replaceString);  /* replacement */
+                    }
+                }
+                var msg;
+                if (numReplacements == 0) {
+                    msg = "'"+searchString+"' was not found in the specified range. No changes were made.";
+                } else {
+                    msg = "Made "+numReplacements+" replacements in the specified range.";
+                }
+                this.setStatusBarMessage(msg, 5000, true);
             }
-            this.setStatusBarMessage(msg, 5000, true);
+        } finally {
+            this._restoreFindSvcOptions();
         }
     } catch (e) {
         vimlog.exception(e);
