@@ -155,7 +155,7 @@ peFolder.prototype.doCommand = function(command) {
         item = ko.projects.manager.getCurrentProject();
         // fall through
     case 'cmd_addFilePart':
-        // XXX FIXME  nothing uses this???
+        // Used via Project right-click|Add|Existing File(s)...
         if (!item) item = ko.projects.active.getSelectedItem();
         ko.projects.addFile(item);
         break;
@@ -350,7 +350,16 @@ this.addNewPart = function peFolder_add(type, partviewerId)
                 ko.projects.addFolder(name, target);
                 break;
             case 'livefolder':
-                dirname = ko.filepicker.getFolder();
+                var starting_dir = null;
+                var curr_target = target;
+                while (curr_target && curr_target.type == "folder") {
+                    // Break out of nested virtual folders
+                    curr_target = curr_target.parent;
+                }
+                if (curr_target) {
+                    starting_dir = curr_target.liveDirectory;
+                }
+                dirname = ko.filepicker.getFolder(starting_dir);
                 if (!dirname) return;
                 ko.projects.addLiveFolder(dirname, target);
                 break;
@@ -392,8 +401,27 @@ this.addFile = function peFolder_addFile(parent_item)
     //XXX todo: Support other resources
 
     var defaultDir = null;
-    if (parent_item && parent_item.url) {
-        defaultDir = ko.uriparse.URIToLocalPath(parent_item.url);
+    try {
+        // project => dirName
+        // anything else: fall back to dirName, since paths
+        // might not be directories.
+        switch (parent_item.type) {
+        case "livefolder":
+            defaultDir = parent_item.getFile().path;
+            break;
+        case "project":
+            defaultDir = parent_item.getFile().dirName;
+            break;
+        default:
+            // For folders and things, start at the project's home dir
+            defaultDir = parent_item.project.getFile().dirName;
+        }
+    } catch(ex) {
+        log.exception(ex, "addFiles to project failed");
+    }
+    if (!defaultDir) {
+        log.error("No default dir for parent_item(" + parent_item + ")");
+        defaultDir = ko.projects.manager.getSelectedProject().getFile().dirName;
     }
     var files = ko.filepicker.openFiles(defaultDir, // default dir
                                      null, // default filename
