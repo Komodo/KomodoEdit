@@ -723,6 +723,11 @@
                               class="menuitem-iconic-wide"
                               observes="cmd_findInFiles"
                               />
+                    <menuitem label="&replaceInFiles.label;"
+                              id="menu_replaceInFiles"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_replaceInFiles"
+                              />
                     <menuitem label="&findInCurrProject.label;"
                               id="menu_findInCurrProject"
                               class="menuitem-iconic-wide"

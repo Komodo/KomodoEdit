@@ -231,6 +231,7 @@ binding cmd_focusSource Ctrl+C Ctrl+S
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_join Ctrl+J
 binding cmd_findInFiles Ctrl+Shift+F
+binding cmd_replaceInFiles Ctrl+Shift+H
 
 binding cmd_transientMarkExchangeWithPoint Ctrl+X Ctrl+X
 binding cmd_transientMarkMoveBack Ctrl+U Ctrl+Space

@@ -139,6 +139,7 @@ binding cmd_findInFiles Ctrl+Shift+F
 binding cmd_findAllFunctions  Ctrl+F8
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_replace Ctrl+H
+binding cmd_replaceInFiles Ctrl+Shift+H
 binding cmd_startIncrementalSearch Ctrl+I
 binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
 

@@ -213,6 +213,7 @@
 <!ENTITY findNextFunction.label "Find Next Function">
 <!ENTITY findPreviousFunction.label "Find Previous Function">
 <!ENTITY findReplace.desc "Find: Replace...">
+<!ENTITY findReplaceInFiles.desc "Find: Replace in Files...">
 <!ENTITY findResults1.label "Find Results 1">
 <!ENTITY findResults2.label "Find Results 2">
 <!ENTITY findToolbarBrowsedirectory.accesskey "y">
@@ -474,6 +475,7 @@
 <!ENTITY removeAllBookmarks.label "Remove All Bookmarks">
 <!ENTITY repeatNextKeystrokeNTimes.label "Repeat Next Keystroke N Times">
 <!ENTITY replace.label "Replace...">
+<!ENTITY replaceInFiles.label "Replace in Files...">
 <!ENTITY revert.label "Revert">
 <!ENTITY revertProject.label "Revert Project">
 <!ENTITY rotateTabGroups.label "Rotate Tab Groups">

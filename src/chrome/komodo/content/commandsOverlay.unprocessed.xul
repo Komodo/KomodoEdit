@@ -323,6 +323,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_findInFiles', event)"
             desc="&findFindInFiles.desc;"/>
         <command
+            id="cmd_replaceInFiles" key="key_cmd_replaceInFiles"
+            interactive="true"
+            oncommand="ko.commands.doCommandAsync('cmd_replaceInFiles', event)"
+            desc="&findReplaceInFiles.desc;"/>
+        <command
             id="cmd_left" key="key_cmd_left"
             oncommand="ko.commands.doCommand('cmd_left')"
             desc="&editorMoveLeftOneCharacter.desc;"/>
