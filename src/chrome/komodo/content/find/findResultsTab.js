@@ -710,10 +710,12 @@ FindResultsTabManager.prototype.searchStarted = function()
     this._searchInProgress = true;
 
     var icon = document.getElementById(this._idprefix+"-icon");
-    if (icon.hasAttribute("collapsed"))
-        icon.removeAttribute("collapsed");
-    if (icon.hasAttribute("hidden"))
-        icon.removeAttribute("hidden");
+    if (icon) {
+        if (icon.hasAttribute("collapsed"))
+            icon.removeAttribute("collapsed");
+        if (icon.hasAttribute("hidden"))
+            icon.removeAttribute("hidden");
+    }
 
     // 'Close Tab' button not necessary with current Find Results tab policy.
     //var closeButton = document.getElementById(this._idprefix+"-closetab-button");
@@ -744,8 +746,10 @@ FindResultsTabManager.prototype.searchFinished = function(
     if (typeof(numFilesSearched) == "undefined") numFilesSearched = null;
 
     var icon = document.getElementById(this._idprefix+"-icon");
-    icon.setAttribute("collapsed", "true");
-    icon.setAttribute("hidden", "true");
+    if (icon) {
+        icon.setAttribute("collapsed", "true");
+        icon.setAttribute("hidden", "true");
+    }
 
     this._searchInProgress = false;
     var jumpToNextButton = document.getElementById(this._idprefix+"-jumptonext-button");
