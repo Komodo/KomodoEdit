@@ -444,6 +444,7 @@ class KoFindOptions:
         self.includeFiletypesPrefName = "find-includeFiletypes"
         self.excludeFiletypesPrefName = "find-excludeFiletypes"
         self.multilinePrefName = "find-multiline"
+        self.confirmReplacementsInFilesPrefName = "find-confirmReplacementsInFiles"
 
         self.patternType = gPrefSvc.prefs.getLongPref(self.patternTypePrefName)
         self.caseSensitivity = gPrefSvc.prefs.getLongPref(self.caseSensitivityPrefName)
@@ -454,6 +455,7 @@ class KoFindOptions:
         self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
         self.cwd = gPrefSvc.prefs.getStringPref(self.cwdPrefName)
         self.multiline = gPrefSvc.prefs.getBooleanPref(self.multilinePrefName)
+        self.confirmReplacementsInFiles = gPrefSvc.prefs.getBooleanPref(self.confirmReplacementsInFilesPrefName)
 
         # In case we run into some alternate dimension where
         #   os.pathsep not in ';:'
@@ -576,6 +578,10 @@ class KoFindOptions:
     def set_multiline(self, value):
         self.multiline = value
         return gPrefSvc.prefs.setBooleanPref(self.multilinePrefName, value)
+
+    def set_confirmReplacementsInFiles(self, value):
+        self.confirmReplacementsInFiles = value
+        return gPrefSvc.prefs.setBooleanPref(self.confirmReplacementsInFilesPrefName, value)
 
 
 class KoFindService:

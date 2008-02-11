@@ -452,6 +452,10 @@
                 style="margin-top: 0px;" collapsed="true"
                 _accesskey="A" uses-accesskey="true"
                 oncommand="replace_all();"/>
+        <checkbox id="confirm-replacements-in-files" label="Confirm"
+                  style="margin-top: 0px;" collapsed="true"
+                  accesskey="m" oncommand="update('confirm-replacements')"
+                  tooltiptext="Confirm replacements before making changes"/>
         <checkbox id="show-replace-all-results" label="Show results"
                   style="margin-top: 0px;" collapsed="true"
                   accesskey="o" oncommand="update('show-replace-all-results')"

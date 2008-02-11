@@ -300,6 +300,7 @@
   <ordered-preference id="find-excludeFiletypes"/>
   <!-- Whether to show multiline text boxes in the find dialog. -->
   <boolean id="find-multiline">0</boolean> 
+  <boolean id="find-confirmReplacementsInFiles">1</boolean> 
 
   <long id="editWrapType">0</long>
   <long id="editWordWrapMarker">0</long>

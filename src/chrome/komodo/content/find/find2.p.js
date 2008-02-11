@@ -279,6 +279,9 @@ function update(changed /* =null */) {
     if (changed == null || changed == "show-replace-all-results") {
         opts.showReplaceAllResults = widgets.show_replace_all_results.checked;
     }
+    if (changed == null || changed == "show-replace-all-results") {
+        opts.confirmReplacementsInFiles = widgets.confirm_replacements_in_files.checked;
+    }
 
     if (mode_changed) {
         reset_find_context();
@@ -824,6 +827,7 @@ function _init_widgets()
     widgets.replace_btn = document.getElementById('replace-btn');
     widgets.find_all_btn = document.getElementById('find-all-btn');
     widgets.replace_all_btn = document.getElementById('replace-all-btn');
+    widgets.confirm_replacements_in_files = document.getElementById('confirm-replacements-in-files');
     widgets.show_replace_all_results = document.getElementById('show-replace-all-results');
     widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
@@ -916,6 +920,7 @@ function _init() {
     widgets.includes.value = args.includes || opts.encodedIncludeFiletypes;
     widgets.excludes.value = args.excludes || opts.encodedExcludeFiletypes;
     widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
+    widgets.confirm_replacements_in_files.checked = opts.confirmReplacementsInFiles;
 
     switch (opts.caseSensitivity) {
     case koIFindOptions.FOC_INSENSITIVE:
@@ -1044,23 +1049,25 @@ function _update_mode_ui() {
         case "curr-project":
         case "collection":
         case "files":
-            // Replace in Files: Replace All, Close, Help
+            // Replace in Files: *Replace All*
             _collapse_widget(widgets.find_prev_btn, true);
             _collapse_widget(widgets.find_next_btn, true);
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
+            _collapse_widget(widgets.confirm_replacements_in_files, false);
             _collapse_widget(widgets.show_replace_all_results, true);
             _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
         default:
-            // Replace: Find Next, Replace*, Replace All, Close, Help
+            // Replace: Find Next, *Replace*, Replace All
             _collapse_widget(widgets.find_prev_btn, true);
             _collapse_widget(widgets.find_next_btn, false);
             _collapse_widget(widgets.replace_btn, false);
             _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
+            _collapse_widget(widgets.confirm_replacements_in_files, true);
             _collapse_widget(widgets.show_replace_all_results, false);
             _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.replace_btn;
@@ -1070,23 +1077,25 @@ function _update_mode_ui() {
         case "curr-project":
         case "collection":
         case "files":
-            // Find in Files: Find All*, Close, Help
+            // Find in Files: *Find All*
             _collapse_widget(widgets.find_prev_btn, true);
             _collapse_widget(widgets.find_next_btn, true);
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
+            _collapse_widget(widgets.confirm_replacements_in_files, true);
             _collapse_widget(widgets.show_replace_all_results, true);
             _collapse_widget(widgets.mark_all_btn, true);
             default_btn = widgets.find_all_btn;
             break
         default:
-            // Find: Find Previous, Find Next*, Find All, Mark All, Close, Help
+            // Find: Find Previous, *Find Next*, Find All, Mark All
             _collapse_widget(widgets.find_prev_btn, false);
             _collapse_widget(widgets.find_next_btn, false);
             _collapse_widget(widgets.replace_btn, true);
             _collapse_widget(widgets.find_all_btn, false);
             _collapse_widget(widgets.replace_all_btn, true);
+            _collapse_widget(widgets.confirm_replacements_in_files, true);
             _collapse_widget(widgets.show_replace_all_results, true);
             _collapse_widget(widgets.mark_all_btn, false);
             default_btn = widgets.find_next_btn;

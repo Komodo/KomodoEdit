@@ -121,6 +121,7 @@ interface koIFindOptions: nsISupports {
 
     // Other stuff:
     attribute boolean multiline;
+    attribute boolean confirmReplacementsInFiles;
 };
 
 
