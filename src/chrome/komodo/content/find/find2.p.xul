@@ -86,12 +86,25 @@
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
         <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
-        <!-- TODO: Cmd+W to close dialog on macosx -->
-        <!-- TODO: Ctrl+O to select "all open files" as context -->
 <!-- #if PLATFORM != "darwin" -->
+        <key key="d" modifiers="control" oncommand="search_in('document')" />
+        <key key="o" modifiers="control" oncommand="search_in('open-files')" />
+        <key key="s" modifiers="control" oncommand="search_in('selection')" />
+        <key key="p" modifiers="control"
+             oncommand="if (!widgets.search_in_curr_project.getAttribute('collapsed')) search_in('curr-project')" />
+        <key key="t" modifiers="control" oncommand="search_in('files')" />
+
         <!--<key key="f" modifiers="control" oncommand="SwitchToPanel('find');" />-->
         <!--<key key="h" modifiers="control" oncommand="SwitchToPanel('replace');" />-->
 <!-- #else -->
+        <key key="d" modifiers="meta" oncommand="search_in('document')" />
+        <key key="o" modifiers="meta" oncommand="search_in('open-files')" />
+        <key key="s" modifiers="meta" oncommand="search_in('selection')" />
+        <key key="p" modifiers="meta"
+             oncommand="if (!widgets.search_in_curr_project.getAttribute('collapsed')) search_in('curr-project')" />
+        <key key="t" modifiers="meta" oncommand="search_in('files')" />
+
+        <key key="W" modifiers="meta" oncommand="window.close();" />
         <!--<key key="F" modifiers="meta" oncommand="SwitchToPanel('find');" />-->
         <!--<key key="=" modifiers="meta" oncommand="SwitchToPanel('replace');" />-->
         <!--<key key="G" modifiers="meta" oncommand="doFindNext();" />-->
@@ -340,7 +353,7 @@
                   <menupopup>
                       <menuitem value="document" label="Current document"/>
                       <menuitem value="selection" label="Selected text"/>
-                      <menuitem value="open-files" label="All open files"/>
+                      <menuitem value="open-files" label="Open files"/>
                       <menuitem id="search-in-curr-project"
                                 collapsed="true" hidden="true"
                                 value="curr-project" label="Current project"/>

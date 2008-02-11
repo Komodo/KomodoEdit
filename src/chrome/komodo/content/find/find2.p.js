@@ -460,6 +460,21 @@ function _msg_not_yet_implemented() {
 
 
 /**
+ * Change the "Search in:" menulist to the given value.
+ */
+function search_in(value)
+{
+    try {
+        widgets.search_in_menu.value = value;
+        update('search-in');
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
+
+
+/**
  * Handle the onfocus event on the 'dirs' textbox.
  */
 function dirs_on_focus(widget, event)
