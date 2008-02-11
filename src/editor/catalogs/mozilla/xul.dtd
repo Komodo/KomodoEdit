@@ -687,7 +687,7 @@
 <!ATTLIST tree
 	%XULElement; 
 	enableColumnDrag (true | false) #IMPLIED
-	hideColumnPicker (true | false) #IMPLIED
+	hidecolumnpicker (true | false) #IMPLIED
 	onselect CDATA #IMPLIED
 	selType (single | multiple) #IMPLIED
 >
@@ -707,6 +707,7 @@
 	crop (start | end | center | none | left | right) "none"
 	cycler (true | false) #IMPLIED
 	fixed (true | false) #IMPLIED
+	hideheader (true | false) #IMPLIED
 	label CDATA #IMPLIED
 	primary (true | false) #IMPLIED
 	sort CDATA #IMPLIED
