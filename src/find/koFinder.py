@@ -83,7 +83,8 @@ class _FindReplaceThread(threading.Thread):
     """A base class for sharing some functionality between the various
     find/replace background thread types.
     """
-    REPORT_CHUNK_SIZE = 50  # The number by which to chunk reporting results.
+    REPORT_EVERY_N_HITS = 50  # The number by which to chunk reporting results.
+    REPORT_EVERY_N_FILES_SEARCHED = 100
     
     def __init__(self, id, name, mode, resultsMgr):
         """Create a find/replace thread.
@@ -149,27 +150,28 @@ class _FindReplaceThread(threading.Thread):
         if self.mode == "replace":
             self._r_replacements.append(replacement)
         
-        if len(self._r_urls) >= self.REPORT_CHUNK_SIZE:
+        if len(self._r_urls) >= self.REPORT_EVERY_N_HITS:
             self._flushResultCache()
 
     def _flushResultCache(self):
-        if not self._r_urls:
-            return
-        
         if self.mode == "find":
             verb = "Found"
-            self.resultsViewProxy.AddFindResults(
-                self._r_urls, self._r_startIndexes, self._r_endIndexes,
-                self._r_values, self._r_fileNames,
-                self._r_lineNums, self._r_columnNums, self._r_contexts)
-            self._resetResultCache()
-        else:  # self.mode == "replace"
+        else:   # self.mode == "replace"
             verb = "Replaced"
-            self.resultsViewProxy.AddReplaceResults(
-                self._r_urls, self._r_startIndexes, self._r_endIndexes,
-                self._r_values, self._r_replacements, self._r_fileNames,
-                self._r_lineNums, self._r_columnNums, self._r_contexts)
-            self._resetResultCache()
+
+        if self._r_urls:
+            if self.mode == "find":
+                self.resultsViewProxy.AddFindResults(
+                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                    self._r_values, self._r_fileNames,
+                    self._r_lineNums, self._r_columnNums, self._r_contexts)
+                self._resetResultCache()
+            else:  # self.mode == "replace"
+                self.resultsViewProxy.AddReplaceResults(
+                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                    self._r_values, self._r_replacements, self._r_fileNames,
+                    self._r_lineNums, self._r_columnNums, self._r_contexts)
+                self._resetResultCache()
 
         # Set a description of the current state for the results tab UI.
         if self.num_paths_searched == 1:
@@ -189,6 +191,8 @@ class _FindReplaceThread(threading.Thread):
 
             if isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
+                if self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0:
+                    self._flushResultCache()
                 continue
             elif not isinstance(event, findlib2.Hit):
                 continue
@@ -197,6 +201,8 @@ class _FindReplaceThread(threading.Thread):
                 self.num_paths_searched += 1
                 self.num_paths_with_hits += 1
                 last_path_with_hits = event.path
+                if self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0:
+                    self._flushResultCache()
             
             self._report_find_hit(event)
 

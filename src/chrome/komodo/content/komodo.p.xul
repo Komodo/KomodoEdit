@@ -2286,6 +2286,17 @@
                     <tabpanel id="findresults1_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
                         <hbox align="center" id="findresults1_tabpanel-toolbarbox">
+<!-- #if PLATFORM != "darwin" -->
+                            <image id="findresults1-icon"
+                                   collapsed="true" hidden="true"
+                                   style="padding-left: 3px;"
+                                   src="chrome://global/skin/throbber/Throbber-small.gif"/>
+<!-- #else -->
+                            <image id="findresults1-icon"
+                                   collapsed="true" hidden="true"
+                                   style="padding-left: 3px;"
+                                   src="chrome://global/skin/icons/loading_16.gif"/>
+<!-- #endif -->
                             <label id="findresults1-desc" style="height: 18px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
@@ -2333,6 +2344,17 @@
                     <tabpanel id="findresults2_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
                         <hbox align="center" id="findresults2_tabpanel-toolbarbox">
+<!-- #if PLATFORM != "darwin" -->
+                            <image id="findresults2-icon"
+                                   collapsed="true" hidden="true"
+                                   style="padding-left: 3px;"
+                                   src="chrome://global/skin/throbber/Throbber-small.gif"/>
+<!-- #else -->
+                            <image id="findresults2-icon"
+                                   collapsed="true" hidden="true"
+                                   style="padding-left: 3px;"
+                                   src="chrome://global/skin/icons/loading_16.gif"/>
+<!-- #endif -->
                             <label id="findresults2-desc" style="height: 15px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
