@@ -455,9 +455,8 @@ function _msg_not_yet_implemented() {
         break;
     }
 
-    msg_error(mode+" isn't yet support -- but it will be for Komodo 4.3 final!");
+    msg_error(mode+" isn't yet supported -- but it will be for Komodo 4.3 final!");
 }
-
 
 /**
  * Change the "Search in:" menulist to the given value.
@@ -471,7 +470,6 @@ function search_in(value)
         log.exception(ex);
     }
 }
-
 
 
 /**
@@ -726,8 +724,7 @@ function replace_all() {
             }
         }
 
-        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION
-            || _g_find_context.type == koIFindContext.FCT_IN_FILES) {
+        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
             _msg_not_yet_implemented();
             return;
         }
@@ -1163,7 +1160,7 @@ function reset_find_context() {
     case "curr-project":
         context = _g_curr_project_context;
         if (widgets.opt_repl.checked) {
-            _msg_not_yet_implemented()
+            _msg_not_yet_implemented();
         } else {
             msg_clear();
         }
@@ -1202,11 +1199,7 @@ function reset_find_context() {
             context.cwd = gFindSvc.options.cwd;
         }
 
-        if (widgets.opt_repl.checked) {
-            _msg_not_yet_implemented();
-        } else {
-            msg_clear();
-        }
+        msg_clear();
         break;
 
     default:
