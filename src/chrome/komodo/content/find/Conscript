@@ -49,12 +49,10 @@ Import(
 $cons->InstallInChrome('find_functions.js');
 $cons->InstallInChrome('findResultsTab.js');
 
-if (1) {
-    $cons->Preprocess('find2.p.js', 'find2.js');
-    $cons->InstallInChrome('find2.js');
-    $cons->Preprocess('find2.p.xul', 'find2.xul');
-    $cons->InstallInChrome('find2.xul');
-}
+$cons->Preprocess('find2.p.js', 'find2.js');
+$cons->InstallInChrome('find2.js');
+$cons->Preprocess('find2.p.xul', 'find2.xul');
+$cons->InstallInChrome('find2.xul');
 
 $cons->InstallInChrome('findtoolbar.js');
 
