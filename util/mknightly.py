@@ -140,7 +140,7 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
     # Figure out what serial number to use (to avoid collisions
     # for multiple builds for same day).
     year, month, day = time.localtime()[:3]
-    upload_dir_pat = join(upload_base_dir, str(year), str(month),
+    upload_dir_pat = join(upload_base_dir, str(year), "%02d" % month,
         "%04d-%02d-%02d-*-%s" % (year, month, day, branch))
     used_serials = []
     for d in buildutils.remote_glob(upload_dir_pat):
@@ -158,7 +158,7 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
                     % serial)
     
     # Do the upload.
-    upload_dir = join(upload_base_dir, str(year), str(month),
+    upload_dir = join(upload_base_dir, str(year), "%02d" % month,
         "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, branch))
     excludes = ["internal", "*RemoteDebugging*"]
     includes = pkg_pats_from_project[project]
