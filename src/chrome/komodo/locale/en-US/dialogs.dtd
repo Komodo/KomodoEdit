@@ -40,7 +40,8 @@
 <!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]] : URL-escaped selection">
 <!ENTITY U.accesskey "U">
-<!ENTITY URIToPathMapping.title "URI to Path Mapping">
+<!ENTITY URIMapping.title "URI Mapping">
+<!ENTITY URI.label "URI:">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]] : URL-escaped selection or word under cursor">
 <!ENTITY addEditPathMapping.label "Add/Edit Path Mapping">
 <!ENTITY addPath.accesskey "A">
@@ -74,6 +75,7 @@
 <!ENTITY internalKomodoError.title "Internal Komodo Error">
 <!ENTITY local.label "Local...">
 <!ENTITY loginAnonymously.label "Login Anonymously">
+<!ENTITY mapsTo.label "Maps to:">
 <!ENTITY nextDiff.label "Next Diff">
 <!ENTITY openOfficeIcons.label "Open Office Icons">
 <!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">

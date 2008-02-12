@@ -47,9 +47,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 
 <dialog id="dialog-editpathmap"
-        title="&URIToPathMapping.title;"
+        title="&URIMapping.title;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
         orient="vertical"
         style="min-width: 35em;"
         buttons="accept,cancel"
@@ -60,6 +59,7 @@
 <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
 <script type="application/x-javascript;version=1.7">
@@ -75,7 +75,12 @@ function onLoad() {
     dialog = document.documentElement;
     if (window.arguments[0]) {
         uri.value = window.arguments[0].uri;
-        path.value = window.arguments[0].path;
+        try {
+            path.value = ko.uriparse.URIToLocalPath(window.arguments[0].path);
+        } catch (ex) {
+            // Could not convert into a local path, leave as is then.
+            path.value = window.arguments[0].path;
+        }
         if (window.arguments[0].project_name) {
             document.getElementById("project_radio").setAttribute('label', "'"+window.arguments[0].project_name+"' Project");
         }
@@ -101,10 +106,12 @@ function updateAccept() {
 function onOK() {
     // set the window arguments for results
     window.arguments[0].uri = document.getElementById('uri').value;
-    window.arguments[0].path = document.getElementById('path').value;
+    // The return (mapped) path needs to be in URI format.
+    window.arguments[0].path = ko.uriparse.pathToURI(document.getElementById('path').value);
     if (document.getElementById('prefchoice'))
         window.arguments[0].project = document.getElementById('prefchoice').selectedItem.value;
 }
+
 function onCancel() {
     // set the window arguments for results so we dont do anything with them
     window.arguments[0].uri = null;
@@ -118,7 +125,7 @@ function browseForDir(elem, remote) {
         ko.filepicker.browseForRemoteDir(elem);
     }
     var path = elem.value;
-    var uri = document.getElementById('uri');
+    var uri = document.getElementById('uri').value;
     if (!uri || uri[uri.length-1] == "/") {
 <!-- # if PLATFORM == "win" -->
         if (!remote && path[path.length-1] != "\\")
@@ -128,9 +135,11 @@ function browseForDir(elem, remote) {
         if (path[path.length-1] != "/")
             document.getElementById('path').value = path +"/";
     }
+    updateAccept();
 }
 ]]>
 </script>
+
 <vbox flex="1">
     <caption label="&addEditPathMapping.label;"/>
     <grid>
@@ -139,15 +148,42 @@ function browseForDir(elem, remote) {
             <column flex="1"/>
         </columns>
         <rows>
-        <row>
-            <label value="URI:" control="varName" class="kopadded"
+        <row align="center">
+            <label value="&URI.label;" control="varName" class="kopadded"
                    style="width: 50px;margin: 5px 1px;"/>
             <textbox id="uri" flex="1" oninput="updateAccept()"/>
         </row>
-        <row>
-            <label value="Path:" control="varValue" class="kopadded"
+        <row align="center">
+            <label value="&mapsTo.label;" control="varValue" class="kopadded"
                    style="width: 50px; margin: 5px 1px;"/>
             <textbox id="path" flex="1" oninput="updateAccept()"/>
+
+            <!-- This would be nicer looking than having the two buttons
+                 below, but it does not work on Linux for drag/drop operations
+                 due to being called in an existing GTK event. To see an example
+                 of this problem, on linux, drag/drop an unmapped url onto
+                 Komodo, say yes to setup a new mapped uri, in the mapped uri
+                 dialog, try and use the mouse right-click context menu to
+                 copy and/or paste.
+            -->
+            <!--
+            <toolbarbutton id="editPathBrowseButton"
+                           tooltiptext="Browse for a local or remote directory"
+                           type="menu"
+                           persist="buttonstyle"
+                           buttonstyle="pictures">
+                <menupopup id="editpathmap_browse_menupopup">
+                    <menuitem id="editpathmap_browse_local_menuitem"
+                              class="menuitem-iconic"
+                              oncommand="browseForDir(document.getElementById('path'), false)"
+                              label="Browse Locally..." />
+                    <menuitem id="editpathmap_browse_remote_menuitem"
+                              class="menuitem-iconic"
+                              oncommand="browseForDir(document.getElementById('path'), true)"
+                              label="Browse Remotely..." />
+                </menupopup>
+            </toolbarbutton>
+            -->
         </row>
         <row>
             <hbox/>

@@ -736,7 +736,7 @@
                 <xul:treecols>
                     <xul:treecol id="name" label="&URI.label;" flex="1"/>
                     <xul:splitter class="tree-splitter"/>
-                    <xul:treecol id="value" label="&localPath.label;" flex="1"/>
+                    <xul:treecol id="value" label="&mapsTo.label;" flex="1"/>
                 </xul:treecols>
                 <xul:treechildren flex="1" alternatingbackground="true" style="min-height: 100px">
                     <children/>
