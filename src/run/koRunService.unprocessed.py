@@ -120,8 +120,19 @@ class _KoRunProcessOpen(process.ProcessOpen):
     # We do this so we can retain the stdout and stderr results on the
     # process object.
     def communicate(self, input=None):
-        self._stdoutData, self._stderrData = \
-                                process.ProcessOpen.communicate(self, input)
+        if input:
+            # Encode the input using the filesystem's default encoding. This
+            # fixes problems where unicode input was not properly passed to
+            # the running process:
+            # http://bugs.activestate.com/show_bug.cgi?id=74750
+            input = input.encode(sys.getfilesystemencoding())
+        stdoutData, stderrData = process.ProcessOpen.communicate(self, input)
+        encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
+                         getService(components.interfaces.koIEncodingServices)
+        # Set our internal stdout, stderr objects, so the caller can get the
+        # results through the getStdout and getStderr methods below.
+        self._stdoutData, enc, bom = encodingSvc.getUnicodeEncodedString(stdoutData)
+        self._stderrData, enc, bom = encodingSvc.getUnicodeEncodedString(stderrData)
         return self._stdoutData, self._stderrData
 
     ##
