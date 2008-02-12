@@ -722,11 +722,13 @@ class MultiLangDirsLib(object):
             blobname, ctlr=ctlr, only_look_in_db=True)
         return dbsubpath is not None
 
-    def get_blob(self, blobname, ctlr=None):
+    def get_blob(self, blobname, ctlr=None, specific_dir=None):
         self._acquire_lock()
         try:
+            if specific_dir:
+                specific_dir = abspath(normpath(expanduser(specific_dir)))
             dbsubpath = self._dbsubpath_from_blobname(
-                blobname, ctlr=ctlr)
+                blobname, ctlr=ctlr, specific_dir=specific_dir)
             if dbsubpath is not None:
                 return self.lang_zone.load_blob(dbsubpath)
             else:
@@ -779,7 +781,7 @@ class MultiLangDirsLib(object):
                                 self.lang, lpath[0], ()):
                 if curr_buf and curr_buf_dir == dir and blobname == curr_blobname:
                     continue
-                blob = self.get_blob(blobname, ctlr=ctlr)
+                blob = self.get_blob(blobname, ctlr=ctlr, specific_dir=dir)
                 try:
                     elem = blob
                     for p in lpath:
@@ -871,7 +873,7 @@ class MultiLangDirsLib(object):
         return self._importables_from_dir_cache[dir]
     
     def _dbsubpath_from_blobname(self, blobname, ctlr=None, 
-                                 only_look_in_db=False):
+                                 only_look_in_db=False, specific_dir=None):
         """Return the subpath to the dbfile for the given blobname,
         or None if not found.
 
@@ -901,6 +903,8 @@ class MultiLangDirsLib(object):
             blobparts = blobname.split(self.import_handler.sep)
             blobbase = blobparts[-1]
             for dir in self.dirs:
+                if specific_dir is not None and dir != specific_dir:
+                    continue
                 if ctlr and ctlr.is_aborted():
                     log.debug("aborting search for blob '%s' on %s: ctlr aborted",
                               blobname, self)

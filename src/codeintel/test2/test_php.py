@@ -2140,7 +2140,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
 
-    @tag("bug71872", "knownfailure")
+    @tag("bug71872")
     def test_completions_on_files_with_the_same_name(self):
         # In PHP, only one of these files would win, but since we include
         # everything in Komodo, we don't know which one it would be so
