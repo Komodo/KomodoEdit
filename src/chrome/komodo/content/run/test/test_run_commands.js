@@ -330,6 +330,27 @@ while len_stdout_written < 65536:\n\
     }
 }
 
+    // * test running with unicode input.
+    //   http://bugs.activestate.com/show_bug.cgi?id=74750
+test_run_commands.prototype.test_unicode_input = function() {
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                    getService(Components.interfaces.koIInfoService);
+    // Only running this command on Linux, as I don't know what applications
+    // are default on OSX and Windows which support passing of unicode input.
+    if (infoSvc.platform.toLowerCase().match(/^linux/)) {
+        var cmd = "tr ' ' _";
+        var input = "My Конференцию command.";
+        var process = this.runSvc.RunAndNotify(cmd, null, null, input);
+        var retval = process.wait(-1);  // Wait forever.
+        this.assertEqual(retval, 0, "Expected retval of 0, got " + retval);
+        // We expect some stdout, but no stderr
+        var stdout = process.getStdout();
+        this.assertEqual(stdout, "My_Конференцию_command.", "Stdout is wrong: '" + stdout + "'");
+        var stderr = process.getStderr();
+        this.assertEqual(stderr, "", "Expected no stderr, got '" + stderr + "'");
+    }
+}
+
 /* TEST SUITE */
 
 // we do not pass an instance of MyTestCase, they are created in MakeSuite
