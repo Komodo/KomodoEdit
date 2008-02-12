@@ -375,7 +375,9 @@ class KoFileStatusService:
                     # Run every 31 seconds, but if there are already more
                     # items to check, process them straight away.
                     time_till_next_run = 31 - (time.time() - last_bg_check_time)
-                    if not self._items_to_check and time_till_next_run > 0:
+                    if not self._items_to_check and \
+                       self._updateReason == self.REASON_BACKGROUND_CHECK and \
+                       time_till_next_run > 0:
                         self._cv.wait(time_till_next_run)
                     items_to_check = list(self._items_to_check)
                     self._items_to_check = set()
