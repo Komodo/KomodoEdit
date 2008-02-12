@@ -35,26 +35,28 @@
  * ***** END LICENSE BLOCK ***** */
 
 /*
- * CSS for the Code Intelligence UI elements.
+ * CSS for some <tree> usage in Komodo.
  */
 
 
-.codeintel-search
+/* Support for checkbox images in a <treecol type="checkbox"> */
+treechildren::-moz-tree-checkbox
 {
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
+    /* unchecked checkbox treecells */
+    list-style-image: none;
 }
-
-.codeintel-search:hover
+treechildren::-moz-tree-checkbox(checked)
 {
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
+    /* checked checkbox treecells */
+    list-style-image: url("chrome://komodo/skin/images/cbox-check.gif");
 }
-
-.codeintel-search[disabled="true"],
-.codeintel-search[disabled="true"]:hover,
-.codeintel-search[disabled="true"]:hover:active
+treechildren::-moz-tree-checkbox(disabled)
 {
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search_disable.gif");
+    /* disabled checkbox treecells */
+    list-style-image: url("chrome://komodo/skin/images/cbox-check-dis.gif");
 }
-
-
+treechildren::-moz-tree-column(sort-column)
+{
+    background: #eee;
+}
 
