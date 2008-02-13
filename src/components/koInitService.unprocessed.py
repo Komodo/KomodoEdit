@@ -916,6 +916,26 @@ class KoInitService:
         """'pylib' subdirectories of installed extensions are appended
         to Komodo's runtime sys.path.
         """
+        # Add the DictD property so the spellchecker can find
+        # the user's own dictionaries.  Consider only directories
+        # that contain the English dictionary, or the Komodo extension
+        # will fail to startup.  (http://bugs.activestate.com/show_bug.cgi?id=74839)
+
+        try:
+            koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+            dictionaryDir = os.path.join(koDirSvc.userDataDir, "dictionaries")
+            if os.path.isdir(dictionaryDir) \
+               and os.path.exists(os.path.join(dictionaryDir, "en-US.dic")) \
+               and os.path.exists(os.path.join(dictionaryDir, "en-US.aff")):
+                profDir_nsFile = components.classes["@mozilla.org/file/local;1"] \
+                        .createInstance(components.interfaces.nsILocalFile)
+                profDir_nsFile.initWithPath(dictionaryDir)
+                directoryService = components.classes["@mozilla.org/file/directory_service;1"]\
+                         .getService(components.interfaces.nsIProperties)
+                directoryService.set("DictD", profDir_nsFile)
+        except:
+            log.error("Failed to set the dictionary property")
+            
         import directoryServiceUtils
         from os.path import join, exists
         for extDir in directoryServiceUtils.getExtensionDirectories():
