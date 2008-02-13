@@ -108,7 +108,7 @@ log = logging.getLogger("langinfo")
 #---- module API
 
 def langinfo_from_lang(lang):
-    return _get_default_database().langinfo_from_lang(lang)
+    return get_default_database().langinfo_from_lang(lang)
 
 
 
@@ -427,7 +427,7 @@ class Database(object):
 #---- internal support stuff
 
 _g_default_database = None
-def _get_default_database():
+def get_default_database():
     global _g_default_database
     if _g_default_database is None:
         _g_default_database = Database()
