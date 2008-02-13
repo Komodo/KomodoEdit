@@ -325,7 +325,7 @@ class KoFileStatusService:
         try:
             reason = self.REASON_FILE_CHANGED
             if forceRefresh:
-                self.REASON_FORCED_CHECK
+                reason = self.REASON_FORCED_CHECK
             for koIFile in koIFiles:
                 uri = koIFile.URI
                 self._items_to_check.add((UnwrapObject(koIFile), uri, reason))
