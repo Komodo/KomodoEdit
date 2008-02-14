@@ -1517,7 +1517,11 @@ class PHPArgs:
 
 
 class PHPVariable:
-    def __init__(self, name, line, vartype='', attributes=''):
+
+    # PHPDoc variable type sniffer.
+    _re_var = re.compile(r'^\s*@var\s+(?P<type>\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+
+    def __init__(self, name, line, vartype='', attributes='', doc=None):
         self.name = name
         self.types = [(line, vartype)]
         self.linestart = line
@@ -1527,6 +1531,7 @@ class PHPVariable:
             self.attributes = ' '.join(attributes)
         else:
             self.attributes = None
+        self.doc = doc
 
     def addType(self, line, type):
         self.types.append((line, type))
@@ -1536,9 +1541,25 @@ class PHPVariable:
                % (self.name, self.linestart, self.types, self.attributes)
 
     def toElementTree(self, cixblob):
-        vartype = None
         # Work out the best vartype
-        if self.types:
+        vartype = None
+        doc = None
+        if self.doc:
+            # We are only storing the doc string for cases where we have an
+            # "@var" phpdoc tag, we should actually store the docs anyway, but
+            # we don't yet have a clean way to ensure the doc is really meant
+            # for this specific variable (i.e. the comment was ten lines before
+            # the variable definition).
+            doc_string = "\n".join(self.doc)
+            if "@var" in doc_string:
+                doc = uncommentDocString(doc_string)
+                # get the variable citdl type set by "@var"
+                all_matches = re.findall(self._re_var, doc)
+                if len(all_matches) >= 1:
+                    #print "all_matches[0]: %r" % (all_matches[0], )
+                    vartype = all_matches[0][0]
+
+        if not vartype and self.types:
             d = {}
             max_count = 0
             for line, vtype in self.types:
@@ -1551,6 +1572,8 @@ class PHPVariable:
                         max_count = count
         cixelement = createCixVariable(cixblob, self.name, vartype=vartype,
                                        attributes=self.attributes)
+        if doc:
+            setCixDoc(cixelement, doc)
         cixelement.attrib["line"] = str(self.linestart)
         return cixelement
 
@@ -2107,7 +2130,8 @@ class PHPParser:
                     log.debug("Class FUNC variable: %r", name)
                     self.currentFunction.variables[name] = PHPVariable(name,
                                                                        self.lineno,
-                                                                       vartype)
+                                                                       vartype,
+                                                                       doc=doc)
                 elif vartype:
                     log.debug("Adding type information for VAR: %r, vartype: %r",
                               name, vartype)
@@ -2118,7 +2142,8 @@ class PHPParser:
                 log.debug("CLASSMBR: %r", name)
                 self.currentClass.members[name] = PHPVariable(name, self.lineno,
                                                               vartype,
-                                                              attributes)
+                                                              attributes,
+                                                              doc=doc)
             elif vartype:
                 log.debug("Adding type information for CLASSMBR: %r, vartype: %r",
                           name, vartype)
@@ -2158,7 +2183,7 @@ class PHPParser:
         if self.currentFunction:
             phpVariable = self.currentFunction.variables.get(name)
             if phpVariable is None:
-                self.currentFunction.variables[name] = PHPVariable(name, self.lineno, vartype, attributes)
+                self.currentFunction.variables[name] = PHPVariable(name, self.lineno, vartype, attributes, doc=doc)
             elif vartype:
                 log.debug("Adding type information for VAR: %r, vartype: %r",
                           name, vartype)
@@ -2172,7 +2197,7 @@ class PHPParser:
         else:
             phpVariable = self.fileinfo.variables.get(name)
             if phpVariable is None:
-                self.fileinfo.variables[name] = PHPVariable(name, self.lineno, vartype, attributes)
+                self.fileinfo.variables[name] = PHPVariable(name, self.lineno, vartype, attributes, doc=doc)
             elif vartype:
                 log.debug("Adding type information for VAR: %r, vartype: %r",
                           name, vartype)

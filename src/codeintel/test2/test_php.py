@@ -2211,7 +2211,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[2]),
             [("variable", "field"), ("function", "getInstance")])
 
-    @tag("bug74627", "knownfailure")
+    @tag("bug74627")
     def test_doctags_variable_type_inferencing(self):
         # Test for ensuring the type inference information can be set
         # through a phpdoc comment.
