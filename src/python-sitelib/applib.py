@@ -129,7 +129,7 @@ def user_cache_dir(appname, owner=None, version=None):
     Typical user data directories are:
         Win XP:     C:\Documents and Settings\USER\Local Settings\Application Data\<owner>\<appname>
         Mac OS X:   ~/Library/Caches/<appname>
-        Unix:       ~/.<lowercased-appname>
+        Unix:       ~/.<lowercased-appname>/caches
 
     For Unix there is no *real* standard here. Note that we are returning
     the *same dir as the user_data_dir()* for Unix. Use accordingly.
@@ -151,7 +151,7 @@ def user_cache_dir(appname, owner=None, version=None):
             basepath = path.FSRefMakePath()
         path = os.path.join(basepath, appname)
     else:
-        path = os.path.expanduser("~/." + appname.lower())
+        path = os.path.expanduser("~/.%s/caches" % appname.lower())
     if version:
         path = os.path.join(path, version)
     return path
