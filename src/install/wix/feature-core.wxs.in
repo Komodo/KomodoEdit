@@ -1324,6 +1324,7 @@
                 <File Id="file2179" Name="CELEME_0.PYD" LongName="cElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\cElementTree.pyd"/>
                 <File Id="file40" Name="CIELEM_0.PYD" LongName="ciElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ciElementTree.pyd"/>
                 <File Id="file1886" Name="DIFFLI_0.PY" LongName="difflibex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\difflibex.py"/>
+                <File Id="file422" LongName="textutils.py" Name="TEXTUT_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\textutils.py" />
                 <File Id="file2291" Name="eollib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\eollib.py"/>
                 <File Id="file2292" Name="FACTOR_0.PY" LongName="factoryStyleSettings.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\factoryStyleSettings.py"/>
                 <File Id="file598" Name="findlib2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\findlib2.py" />
