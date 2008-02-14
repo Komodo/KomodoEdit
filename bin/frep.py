@@ -51,8 +51,6 @@
 #
 # TODOs for frep.py
 # -----------------
-# - See about necessary changes for one-shot confirmation
-#   and other integration issues with Komodo
 # - EOL tests (should use universal newlines?) I'm okay with not
 #   supporting mixed newlines.
 # - unicode content tests
@@ -343,9 +341,9 @@ def main_list_journals(opts):
         if log.isEnabledFor(logging.DEBUG):
             print "-- [%s, %s] %s" % (id, dt, summary)
             j = Journal.load(id)
-            for replace_group in j:
-                print repr(replace_group)
-                for hit in replace_group.replace_hits:
+            for record in j:
+                print repr(record)
+                for hit in record.rhits:
                     print "  %r" % hit
         else:
             print "%s  %s (at %s)" % (id, summary, dt)
@@ -505,10 +503,6 @@ def main_replace(regex, repl, paths, includes, excludes, confirm, argv, opts):
 
 def main_undo(opts):
     """Undo the given replacement."""
-    #TODO: START HERE:
-    # - need to purge no-op journals before (a) `frep -u last` and (b)
-    #   `frep -u`
-
     dry_run_str = (opts.dry_run and " (dry-run)" or "")
     
     journal_id = opts.undo
@@ -520,9 +514,10 @@ def main_undo(opts):
         else:
             raise FrepError("there is no last replacement journal to undo")
 
-    #TODO: better logging of undo process
     for rec in findlib2.undo_replace(journal_id, dry_run=opts.dry_run):
-        assert isinstance(rec, findlib2.JournalReplaceRecord)
+        if not isinstance(rec, findlib2.JournalReplaceRecord):
+            log.debug(rec)
+            continue
         s_str = (len(rec.rhits) > 1 and "s" or "")
         log.info("%s: undo %s replacement%s%s", rec.nicepath,
                  len(rec.rhits), s_str, dry_run_str)
