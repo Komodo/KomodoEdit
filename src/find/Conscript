@@ -61,7 +61,6 @@ $cons->InstallPythonUtility('findlib2.py');
 
 $cons->Install($idlExportDir, 'koIFindResultsView.idl');
 $cons->BuildAndInstallXpt('koIFindResultsView.idl');
-$cons->Preprocess('koFindResultsView.unprocessed.py', 'koFindResultsView.py');
 $cons->InstallXpcomComponent('koFindResultsView.py');
 
 $cons->Install($idlExportDir, 'koIFindContext.idl');
@@ -74,6 +73,5 @@ $cons->InstallXpcomComponent('koFindSession.py');
 
 $cons->Install($idlExportDir, 'koIFindBrowseForDirs.idl');
 $cons->BuildAndInstallXpt('koIFindBrowseForDirs.idl');
-$cons->Preprocess('koFindBrowseForDirs.unprocessed.py', 'koFindBrowseForDirs.py');
 $cons->InstallXpcomComponent('koFindBrowseForDirs.py');
 
