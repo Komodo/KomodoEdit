@@ -46,9 +46,11 @@
 
 <dialog id="dialog-confirm-repl"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_confirm_repl"
         title="Confirm Replacements"
         orient="vertical"
         style="min-width: 40em; max-width: 50em;"
+        persist="height width"
         flex="1"
         onload="on_load()"
         buttons="accept,cancel"

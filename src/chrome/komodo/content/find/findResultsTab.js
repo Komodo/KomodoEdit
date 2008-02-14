@@ -563,10 +563,8 @@ FindResultsTabManager.prototype.undoReplace = function()
         "journal_id": this._journalId
     };
     window.openDialog("chrome://komodo/content/find/undorepl.xul",
-                      "_blank",
-                      //TODO: I want this dialog resizeable but this
-                      //      isn't working.
-                      "chrome,modal,titlebar,resizeable=yes",
+                      "komodo_undo_repl",
+                      "chrome,modal,titlebar,resizable=yes",
                       args);
     var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
     if (args.retval && undoButton) {

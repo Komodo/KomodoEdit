@@ -1534,10 +1534,8 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
             "repl": repl
         };
         window.openDialog("chrome://komodo/content/find/confirmrepl.xul",
-                          "_blank",
-                          //TODO: I want this dialog resizeable but this
-                          //      isn't working.
-                          "chrome,modal,titlebar,resizeable=yes",
+                          "komodo_confirm_repl",
+                          "chrome,modal,titlebar,resizable=yes",
                           args);
         var replacer = args.replacer;
         if (!replacer) {

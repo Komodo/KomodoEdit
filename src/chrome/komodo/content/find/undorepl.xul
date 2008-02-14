@@ -45,9 +45,11 @@
 
 <dialog id="dialog-undo-repl"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_undo_repl"
         title="Undo Replacements"
         orient="vertical"
         style="min-width: 40em; max-width: 50em;"
+        persist="height width"
         flex="1"
         onload="on_load()"
         buttons="accept"
