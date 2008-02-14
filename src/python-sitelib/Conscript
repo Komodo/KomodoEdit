@@ -84,6 +84,7 @@ $cons->InstallPythonUtility('difflibex.py');
 $cons->InstallPythonUtility('sitepyxpcom.py');
 $cons->InstallPythonUtility('directoryServiceUtils.py');
 $cons->InstallPythonUtility('applib.py');
+$cons->InstallPythonUtility('textutils.py');
 
 $cons->InstallPythonUtility('langinfo.py');
 $cons->InstallPythonUtility('langinfo_binary.py');
@@ -93,6 +94,7 @@ $cons->InstallPythonUtility('langinfo_other.py');
 $cons->InstallPythonUtility('langinfo_prog.py');
 $cons->InstallPythonUtility('langinfo_tiny.py');
 $cons->InstallPythonUtility('textinfo.py');
+
 
 if ($platform eq "win") {
     $cons->InstallPythonUtility('wininteg.py');
