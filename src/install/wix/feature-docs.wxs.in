@@ -139,6 +139,7 @@
               <File Id="file446" LongName="tut-intro.html" Name="TUTINT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tut-intro.html" />
               <File Id="file447" LongName="udl.html" Name="UDL_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\udl.html" />
               <File Id="file448" LongName="urls.html" Name="URLS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\urls.html" />
+              <File Id="file423" LongName="unittest.html" Name="UNITTE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\unittest.html" />
               <File Id="file449" LongName="vikeybind.html" Name="VIKEYB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\vikeybind.html" />
               <File Id="file421" LongName="abbreviations.html" Name="ABBREV_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\abbreviations.html" />
               <File Id="file1388" Name="KOMODO_7.HTM" LongName="komodo-js-api.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-js-api.html" />
