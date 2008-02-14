@@ -74,6 +74,12 @@ class KoActionScriptLanguage(KoUDLLanguage):
     namedBlockDescription = 'ActiveScript functions and classes'
     namedBlockRE = r'^[ |\t]*?(?:([\w|\.|_]*?)\s*=\s*function|function\s*([\w|\_]*?)|([\w|\_]*?)\s*:\s*function).*?$'
     supportsSmartIndent = "brace"
+    
+    # Bypass KoUDLLanguage.get_linter, which doesn't know how to find
+    # the ActionScript linter.  The base class does.
+    # Fixes Bug 74835
+    get_linter = KoLanguageBase.get_linter
+
     sample = """function chkrange(elem,minval,maxval) {
     // Comment
     if (elem.value < minval - 1 ||
