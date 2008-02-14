@@ -59,7 +59,10 @@ catch <script> ?<varName>?
 
 cd ?dirName?
 
+clock add <timeval> ?count unit ...? ?-timezone <string>? ?-locale <string>? ?-gmt <boolean>?
 clock format <clockValue> ?-format string? ?-gmt boolean?
+clock microseconds
+clock milliseconds
 clock scan <dateString> ?-base clockVal? ?-gmt boolean?
 clock seconds
 clock clicks ?-milliseconds?
@@ -79,6 +82,7 @@ dde eval <topic> <cmd> ?arg arg ...?
 
 encoding convertfrom ?encoding? <data>
 encoding convertto ?encoding? <string>
+encoding dirs ?directorylist?
 encoding names
 encoding system ?encoding?
 
@@ -169,6 +173,7 @@ info commands ?pattern?
 info complete <command>
 info default <procname> <arg> <varname>
 info exists <varName>
+info frame ?number?
 info globals ?pattern?
 info hostname
 info level ?number?
@@ -187,6 +192,7 @@ interp alias <srcPath> <srcCmd>
 interp alias <srcPath> <srcCmd> {}
 interp alias <srcPath> <srcCmd> <targetPath> <targetCmd> ?arg arg ...?
 interp aliases ?path?
+interp bgerror <path> ?cmdprefix?
 interp create ?-safe? ?--? ?path?
 interp delete ?path ...?
 interp eval <path> <arg> ?arg ...?
@@ -196,6 +202,8 @@ interp hide <path> <exposedCmdName> ?hiddenCmdName?
 interp hidden <path>
 interp invokehidden <path> ?-global? <hiddenCmdName> ?arg ...?
 interp issafe ?path?
+interp limit <path> command ?-option? ?value...?
+interp limit <path> time    ?-option? ?value...?
 interp marktrusted <path>
 interp share <srcPath> <channelId> <destPath>
 interp slaves ?path?
@@ -244,6 +252,9 @@ namespace children ?namespace? ?pattern?
 namespace code <script>
 namespace current
 namespace delete ?namespace namespace ...?
+namespace ensemble configure <command> ?-option? ?<value> ...?
+namespace ensemble create <command> ?-option <value>...?
+namespace ensemble exists <command>
 namespace eval <namespace> <arg> ?arg ...?
 namespace exists <namespace>
 namespace export ?-clear? ?pattern pattern ...?
@@ -252,8 +263,11 @@ namespace import ?-force? ?pattern pattern ...?
 namespace inscope <namespace> <arg> ?arg ...?
 namespace origin <command>
 namespace parent ?namespace?
+namespace path ?namespacelist?
 namespace qualifiers <string>
 namespace tail <string>
+namespace unknown ?script?
+namespace upvar <namespace> <otherVar> <myVar> ?otherVar myVar ...?
 namespace which ?-command? ?-variable? <name>
 
 open <fileName> ?access ?permissions??
@@ -261,6 +275,7 @@ open <fileName> ?access ?permissions??
 package forget <package>
 package ifneeded <package> <version> ?script?
 package names
+package prefer ?latest|stable?
 package present ?-exact? <package> ?version?
 package provide <package> ?version?
 package require ?-exact? <package> ?version?
@@ -338,12 +353,14 @@ string is double ?-strict? ?-failindex varname? <string>
 string is false ?-strict? ?-failindex varname? <string>
 string is graph ?-strict? ?-failindex varname? <string>
 string is integer ?-strict? ?-failindex varname? <string>
+string is list  ?-strict? ?-failindex varname? <string>
 string is lower ?-strict? ?-failindex varname? <string>
 string is print ?-strict? ?-failindex varname? <string>
 string is punct ?-strict? ?-failindex varname? <string>
 string is space ?-strict? ?-failindex varname? <string>
 string is true ?-strict? ?-failindex varname? <string>
 string is upper ?-strict? ?-failindex varname? <string>
+string is wideinteger ?-strict? ?-failindex varname? <string>
 string is wordchar ?-strict? ?-failindex varname? <string>
 string is xdigit ?-strict? ?-failindex varname? <string>
 string last <string1> <string2> ?startIndex?
@@ -353,6 +370,7 @@ string match ?-nocase? <pattern> <string>
 string range <string> <first> <last>
 string repeat <string> <count>
 string replace <string> <first> <last> ?newstring?
+string reverse <string>
 string tolower <string> ?first? ?last?
 string totitle <string> ?first? ?last?
 string toupper <string> ?first? ?last?
