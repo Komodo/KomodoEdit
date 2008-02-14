@@ -141,7 +141,6 @@ function _clear_desc(widget) {
 function _set_desc(widget, text) {
     _clear_desc(widget);
     widget.appendChild(document.createTextNode(text));
-    window.sizeToContent();
 }
 
 

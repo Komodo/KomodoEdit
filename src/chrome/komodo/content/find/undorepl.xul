@@ -76,7 +76,6 @@
           seltype="multiple"
           class="no-border"
           editable="true"
-          rows="10"
           style="margin: 0px;"
           hidecolumnpicker="true">
         <treecols>
