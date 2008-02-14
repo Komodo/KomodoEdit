@@ -105,6 +105,10 @@ class KoDirs:
             #XXX Should this be a warning?
         return os.path.join(self.get_userDataDir(), "host-"+hostname)
 
+    def get_userCacheDir(self):
+        d = applib.user_cache_dir(self._appdatadir_name, "ActiveState")
+        return os.path.join(d, self._ver)
+
     def get_factoryCommonDataDir(self):
         #XXX Would be better called systemCommonDataDir, or
         #    defaultSystemCommonDataDir.

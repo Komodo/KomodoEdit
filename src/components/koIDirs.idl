@@ -43,6 +43,7 @@ interface koIDirs : nsISupports {
     readonly attribute wstring hostUserDataDir; // host-specific dir under userDataDir
     readonly attribute wstring factoryCommonDataDir;
     readonly attribute wstring commonDataDir;
+    readonly attribute wstring userCacheDir;
     // supportDir: Komodo's data support files directory somewhere in
     // the Komodo install tree.
     readonly attribute wstring supportDir;
