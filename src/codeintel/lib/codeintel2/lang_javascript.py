@@ -1917,13 +1917,13 @@ class JavaScriptCiler:
                 if not toScope:
                     # Create a class for it then
                     log.debug("Creating class now: %r", namelist[:-2])
-                    self.addClass(namelist[:-2], doc=doc)
+                    toScope = self.addClass(namelist[:-2], doc=doc)
                     #raise CodeIntelError("Could not find scope for: %r" % (namelist[:-2], ))
                 if varName == "constructor":
                     ctorName = ".".join(typeNames)
                     func = self._locateScopeForName([ctorName], attrlist=("functions", ))
                     if func:
-                        self._convertFunctionToClassContructor(func, self.currentClass)
+                        self._convertFunctionToClassContructor(func, toScope)
                     else:
                         self._addClassPart(ctorName, self.ADD_CLASS_CONSTRUCTOR,
                                            namelist[:-2], doc=doc)
