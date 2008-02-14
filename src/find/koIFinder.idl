@@ -35,11 +35,112 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
+#include "nsITreeView.idl"
 
 interface ISciMoz;
-interface koIFindSession; // forward decl.
-interface koIFindResultsTabManager; // forward decl.
-interface koIFindResultsView; // forward decl.
+interface koIFindSession;
+interface koIFindResultsTabManager;
+interface koIFindResultsView;
+
+
+/**
+ * JS-implemented controller for driving the "Confirm Replacements"
+ * dialog.
+ */
+[scriptable, uuid(9cd5dae7-07f5-49e2-8b7b-d18a6f7a4c53)]
+interface koIConfirmReplaceController : nsISupports {
+    // Called by koIConfirmReplacerInFiles to indicate that all
+    // replacements have been found.
+    void done(in PRUint32 num_hits);
+
+    // Called to report the current status of the search/replace.
+    void report(in PRUint32 num_hits, in PRUint32 num_paths_with_hits,
+                in PRUint32 num_paths_searched);
+};
+
+
+/**
+ * Component that handles a single "replace all in files" session with
+ * confirmation. Typical usage is:
+ *
+ *   replacer = koIFindService.confirmreplaceallinfiles(...);
+ *   replacer.start();
+ */
+[scriptable, uuid(9ad2b49f-b71f-4c32-b2f5-478e5adbc46a)]
+interface koIConfirmReplacerInFiles : nsITreeView {
+    readonly attribute koIConfirmReplaceController controller;
+
+    readonly attribute PRUint32 num_hits;
+    readonly attribute PRUint32 num_paths_with_hits;
+    readonly attribute PRUint32 num_paths_searched;
+    readonly attribute wstring journal_id;  // id to use for 'undo'
+
+    void start();
+    boolean isAlive();
+    void stop();
+
+    void toggle_mark(in PRUint32 row_idx);
+    wstring diff_from_indeces(
+        in PRUint32 count,
+        [array, size_is(count)] in PRUint32 indeces);
+    wstring marked_diff();
+
+    /**
+     * Make the marked replacements and post results to the given
+     * results manager UI.
+     *
+     * @exception ServerException Raises an error and sets a "last error"
+     *      if the replacer thread is still running. I.e. the controller
+     *      must wait until `controller.done()` is called before calling
+     *      commit.
+     */
+    void commit(in koIFindResultsTabManager resultsMgr);
+};
+
+
+/**
+ * JS-implemented controller for driving the "Undo Replacements"
+ * dialog. This is generally driven by a `koIReplaceUndoer` instance.
+ */
+[scriptable, uuid(a47a52dc-f93e-4f0f-ad5e-0ecff91916cc)]
+interface koIUndoReplaceController : nsISupports {
+    void set_summary(in wstring summary);
+
+    /**
+     * Called to report the undo status so far.
+     */
+    void report(in PRUint32 num_hits, in PRUint32 num_paths);
+
+    /**
+     * Called to indicate that the undo was successfully completed.
+     */
+    void done();
+    
+    /**
+     * Called to indicate that the undo failed.
+     *
+     * @param errmsg {string} A failure message.
+     */
+    void error(in wstring errmsg);
+};
+
+
+/**
+ * Component that handles undoing a "replace all in files".
+ * Typical usage is:
+ *
+ *   undoer = koIFindService.undoreplaceallinfiles(...);
+ *   undoer.start();
+ */
+[scriptable, uuid(44e52fe4-a8ee-4877-bc21-61a793f063b3)]
+interface koIReplaceUndoer : nsITreeView {
+    readonly attribute koIUndoReplaceController controller;
+
+    void start();
+    boolean isAlive();
+    void stop();
+};
+
 
 [scriptable, uuid(94366D2F-6C10-455b-90B7-EC077161CDA2)]
 interface koIFindResult : nsISupports {
@@ -201,6 +302,16 @@ interface koIFindService : nsISupports {
             in wstring pattern,
             in wstring repl,
             in koIFindResultsTabManager resultsMgr);
+
+    koIConfirmReplacerInFiles confirmreplaceallinfiles(
+            in wstring pattern,
+            in wstring repl,
+            in wstring cwd,
+            in koIConfirmReplaceController controller);
+    
+    koIReplaceUndoer undoreplaceallinfiles(
+            in wstring journalId,
+            in koIUndoReplaceController controller);
 
     // Asynchronously find all occurences of "pattern" and load those into
     // the "resultsView". Note: the information on which files to search

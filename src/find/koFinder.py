@@ -43,14 +43,17 @@ import sys
 import string, types
 import re
 import logging
+import time
 import threading
-import pprint
+from pprint import pprint
 from itertools import chain
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from koTreeView import TreeView
 import findlib2
+import textutils
 
 
 
@@ -77,7 +80,6 @@ gLastErrorSvc = None
 
 
 #---- Find/Replace in Files backend
-
 
 class _FindReplaceThread(threading.Thread):
     """A base class for sharing some functionality between the various
@@ -239,6 +241,7 @@ class _FindReplaceThread(threading.Thread):
                           hit.match.group(0), hit.path,
                           line_num+1, col_num+1, context)
 
+
 class _ReplacerInFiles(_FindReplaceThread):
     def __init__(self, id, regex, repl, folders, cwd, searchInSubfolders,
                  includeFiletypes, excludeFiletypes, resultsMgr):
@@ -271,6 +274,8 @@ class _ReplacerInFiles(_FindReplaceThread):
                 self.resultsMgrProxy.setDescription(
                     "Phase 1: gathering list of files...", 0)
 
+            #TODO:XXX all of it!
+
             paths = findlib2.paths_from_path_patterns(
                         [self._norm_dir_from_dir(d) for d in self.folders],
                         recursive=self.searchInSubfolders,
@@ -290,9 +295,12 @@ class _ReplacerInFiles(_FindReplaceThread):
             self._flushResultCache() # Add the last chunk of find results
         finally:
             if not self._stop:
+                #TODO: journal id
+                journal_id = None
                 self.resultsMgrProxy.searchFinished(1, self.numResults,
                                                     self.numFiles,
-                                                    self.numSearchedFiles)
+                                                    self.numSearchedFiles,
+                                                    journal_id)
                 if self.numSearchedFiles == 0:
                     self.resultsMgrProxy.setDescription(
                         "No files were found to search in.", 1)
@@ -342,7 +350,7 @@ class _FinderInFiles(_FindReplaceThread):
             if not self._stop:
                 self.resultsMgrProxy.searchFinished(
                     1, self.num_hits, self.num_paths_with_hits,
-                    self.num_paths_searched)
+                    self.num_paths_searched, None)
                 if self.num_paths_searched == 0:
                     self.resultsMgrProxy.setDescription(
                         "No files were found to search in.", 1)
@@ -387,11 +395,368 @@ class _FinderInCollection(_FindReplaceThread):
             if not self._stop:
                 self.resultsMgrProxy.searchFinished(
                     1, self.num_hits, self.num_paths_with_hits,
-                    self.num_paths_searched)
+                    self.num_paths_searched, None)
                 if self.num_paths_searched == 0:
                     self.resultsMgrProxy.setDescription(
                         "No files were found to search in.", 1)
 
+
+class _ConfirmReplacerInFiles(threading.Thread, TreeView):
+    _com_interfaces_ = [components.interfaces.koIConfirmReplacerInFiles]
+    _reg_clsid_ = "{b864c489-6de2-48ad-a965-86b2676e5929}"
+    _reg_contractid_ = "@activestate.com/koConfirmReplacerInFiles;1"
+    _reg_desc_ = "Komodo replacer-in-files thread and tree view"
+
+    # The numbers by which to chunk reporting results.
+    REPORT_EVERY_N_PATHS_WITH_HITS = 5
+    REPORT_EVERY_N_FILES_SEARCHED = 100
+
+    def __init__(self, regex, repl, folders, cwd,
+                 searchInSubfolders, includeFiletypes, excludeFiletypes,
+                 summary, controller):
+        threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
+        #TreeView.__init__(self, debug="confirmrepl") # for debug logging
+        TreeView.__init__(self)
+
+        self.regex = regex
+        self.repl = repl
+        self.folders = folders
+        self.cwd = normpath(expanduser(cwd))
+        self.searchInSubfolders = searchInSubfolders
+        self.includeFiletypes = includeFiletypes
+        self.excludeFiletypes = excludeFiletypes
+        self.summary = summary
+
+        self.controller = controller
+        self.controllerProxy = getProxyForObject(None,
+            components.interfaces.koIConfirmReplaceController,
+            controller, PROXY_ALWAYS | PROXY_SYNC)
+
+        self._stopped = False # when true the processing thread should terminate
+
+        self.journal = None
+        self.journal_id = None
+        self.marked = []  # True/False values for each item in `self.rgroups`
+        self.rgroups = []
+        self.num_hits = 0
+        self.num_paths_with_hits = 0
+        self.num_paths_searched = 0
+        self._last_reported_num_paths_with_hits = 0
+
+    def stop(self):
+        self._stopped = True
+
+    def run(self):
+        # Rule: If self._stop is true then this code MUST NOT use
+        #       self.controllerProxy because it may have been destroyed.
+
+        try:
+            if self._stopped:
+                return
+
+            #TODO: circular symlink safe?!
+            paths = findlib2.paths_from_path_patterns(
+                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        recursive=self.searchInSubfolders,
+                        includes=self.includeFiletypes,
+                        excludes=self.excludeFiletypes,
+                        skip_dupe_dirs=True)
+            for event in findlib2.replace(self.regex, self.repl, paths,
+                                          summary=self.summary):
+                if self._stopped:
+                    return
+                if isinstance(event, findlib2.StartJournal):
+                    self.journal = event.journal
+                    self.journal_id = self.journal.id
+                    continue
+                elif isinstance(event, findlib2.SkipPath):
+                    self.num_paths_searched += 1
+                    if isinstance(event, findlib2.SkipUnknownLangPath):
+                        #XXX:TODO: put these as warning rows in the UI!
+                        log.debug("Skip `%s' (don't know lang).", event.path)
+                    elif isinstance(event, findlib2.SkipBinaryPath):
+                        #TODO: put these as warning rows in the UI?
+                        log.debug("Skip `%s' (binary).", event.path)
+                elif not isinstance(event, findlib2.Hit):
+                    continue
+                else:
+                    self.num_paths_searched += 1
+                    assert isinstance(event, findlib2.ReplaceHitGroup)
+                    self._add_repl_group(event)
+
+                self._report()
+            self._report(flush=True)
+
+        finally:
+            if not self._stopped:
+                self.controllerProxy.done(self.num_hits)
+
+    def toggle_mark(self, row_idx):
+        self.marked[row_idx] = not self.marked[row_idx]
+        if self._tree:
+            self._tree.invalidateRow(row_idx)
+
+    def diff_from_indeces(self, indeces):
+        bits = []
+        for i in indeces:
+            bits.append(self.rgroups[i].diff)
+        return '\n'.join(bits)
+
+    def marked_diff(self):
+        bits = []
+        for marked, rgroup in zip(self.marked, self.rgroups):
+            if marked:
+                bits.append(rgroup.diff)
+        return '\n'.join(bits)
+
+    def commit(self, resultsMgr):
+        if self.isAlive():
+            msg = "cannot commit replacements until done finding them all"
+            gLastErrorSvc.setLastError(0, msg)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
+        if self.journal is None:
+            msg = "cannot commit replacements: none were found (no journal)"
+            gLastErrorSvc.setLastError(0, msg)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
+    
+        num_hits = 0
+        num_paths_with_hits = 0
+        try:
+            for marked, rgroup in zip(self.marked, self.rgroups):
+                # Skip if this path was unchecked in the confirmation
+                # dialog.
+                if not marked:
+                    continue
+
+                # Make the actual changes on disk.
+                rgroup.commit()
+                num_paths_with_hits += 1
+                num_hits += rgroup.length
+
+                # Post the results to the "Find Results" tab.
+                urls = []
+                startIndeces = []
+                endIndeces = []
+                values = []
+                replacements = []
+                lineNums = []
+                columnNums = []
+                contexts = []
+                for rhit in rgroup.rhits:
+                    urls.append(rgroup.path)
+                    startIndeces.append(rhit.start_pos)
+                    endIndeces.append(rhit.end_pos)
+                    match = rhit.find_hit.match
+                    values.append(match.group(0))
+                    replacements.append(match.expand(self.repl))
+                    start_line, start_col = rhit.start_line_and_col_num
+                    lineNums.append(start_line+1)
+                    columnNums.append(start_col+1)
+                    contexts.append('\n'.join(rhit.lines).rstrip())
+        
+                resultsMgr.view.AddReplaceResults(
+                    urls,
+                    startIndeces,
+                    endIndeces,
+                    values,
+                    replacements,
+                    urls,  # fileNames == urls (for now, at least)
+                    lineNums,
+                    columnNums,
+                    contexts)
+
+            resultsMgr.searchFinished(True, num_hits, num_paths_with_hits,
+                                      self.num_paths_searched,
+                                      self.journal.id)
+        
+            fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
+                .getService(components.interfaces.koIFileStatusService)
+            fileStatusSvc.updateStatusForAllFiles(
+                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED)
+        finally:
+            self.journal.close()
+
+    def _report(self, flush=False):
+        """Report current results to the controller.
+        
+        For performance we batch up reporting.
+        """
+        if self._stopped:
+            return
+
+        if (flush
+            or (self.num_paths_with_hits and self.num_paths_with_hits % self.REPORT_EVERY_N_PATHS_WITH_HITS == 0)
+            or self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0):
+            pass        # report
+        else:
+            return      # skip reporting
+
+        if self.num_paths_with_hits > self._last_reported_num_paths_with_hits:
+            if self._tree:
+                self._tree.beginUpdateBatch()
+                self._tree.rowCountChanged(
+                    # Starting at row N...
+                    self._last_reported_num_paths_with_hits,
+                    # ...for M rows.
+                    self.num_paths_with_hits - self._last_reported_num_paths_with_hits)
+                self._tree.invalidate()
+                self._tree.endUpdateBatch()
+            self._last_reported_num_paths_with_hits = self.num_paths_with_hits
+
+        self.controllerProxy.report(self.num_hits,
+                                    self.num_paths_with_hits,
+                                    self.num_paths_searched)
+
+    def _add_repl_group(self, rgroup):
+        self.num_paths_with_hits += 1
+        self.num_hits += rgroup.length
+        self.rgroups.append(rgroup)
+        self.marked.append(True)
+
+    def _norm_dir_from_dir(self, dir):
+        dir = normpath(dir)
+        if dir.startswith("~"):
+            return expanduser(dir)
+        elif not isabs(dir):
+            return join(self.cwd, dir)
+        else:
+            return dir
+
+
+    #---- koITreeView methods
+    def get_rowCount(self):
+        return len(self.rgroups)
+
+    def isEditable(self, row_idx, col):
+        if col.id == "repls-marked":
+            return True
+        else:
+            return False
+    
+    def getCellValue(self, row_idx, col):
+        assert col.id == "repls-marked"
+        return (self.marked[row_idx] and "true" or "false")
+
+    def setCellValue(self, row_idx, col, value):
+        assert col.id == "repls-marked"
+        self.marked[row_idx] = (value == "true" and True or False)
+        if self._tree:
+            self._tree.invalidateCell(row_idx, col)
+
+    def getCellText(self, row_idx, col):
+        if col.id == "repls-marked":
+            return ""
+        assert col.id == "repls-desc"
+        rgroup = self.rgroups[row_idx]
+        return "%s (%d replacements)" % (rgroup.path, rgroup.length)
+
+
+class _ReplaceUndoer(threading.Thread, TreeView):
+    _com_interfaces_ = [components.interfaces.koIReplaceUndoer]
+    _reg_clsid_ = "{19ae78d3-806f-4e75-bc34-4efe75d9966a}"
+    _reg_contractid_ = "@activestate.com/koReplacerUndoer;1"
+    _reg_desc_ = "Komodo thread and tree view to undo a 'replace all in files'"
+
+    # The numbers by which to chunk reporting results.
+    REPORT_EVERY_N_PATHS = 5
+
+    def __init__(self, journal_id, controller):
+        threading.Thread.__init__(self, name="ReplaceUndoer")
+        #TreeView.__init__(self, debug="undorepl") # for debug logging
+        TreeView.__init__(self)
+
+        self.journal_id = journal_id
+        self.controller = controller
+        self.controllerProxy = getProxyForObject(None,
+            components.interfaces.koIUndoReplaceController,
+            controller, PROXY_ALWAYS | PROXY_SYNC)
+
+        self._stopped = False # when true the processing thread should terminate
+        
+        self.records = []
+        self.num_hits = 0
+        self.num_paths = 0
+        self._last_reported_num_paths = 0
+
+    def stop(self):
+        self._stopped = True
+
+    def run(self):
+        try:
+            if self._stopped:
+                return
+
+            #TODO (later): Allow individual file errors, but still continue?
+            for event in findlib2.undo_replace(self.journal_id):
+                if isinstance(event, findlib2.LoadJournal):
+                    self.controllerProxy.set_summary(
+                        "Undo %s in %s files." % (event.journal.summary,
+                                                  len(event.journal)))
+                    continue
+                assert isinstance(event, findlib2.JournalReplaceRecord)
+                self.records.append(event)
+                self.num_paths += 1
+                self.num_hits += event.length
+                self._report()
+                if self._stopped:
+                    break
+
+            self._report(flush=True)
+        except findlib2.FindError, ex:
+            # Note: `_break_up_words` is a hack to ensure that the XUL
+            # <description> in which this message will appear doesn't
+            # screw up wrapping because of a very long token.
+            self.controllerProxy.error(_break_up_words(unicode(ex)))
+        except:
+            # Note: `_break_up_words` is a hack to ensure that the XUL
+            # <description> in which this message will appear doesn't
+            # screw up wrapping because of a very long token.
+            self.controllerProxy.error(_break_up_words(
+                "unexpected error: %s" % _exc_info_summary()))
+        else:
+            self.controllerProxy.done()
+        finally:
+            fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
+                .getService(components.interfaces.koIFileStatusService)
+            fileStatusSvc.updateStatusForAllFiles(
+                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
+
+    def _report(self, flush=False):
+        """Report current results to the controller.
+        
+        For performance we batch up reporting.
+        """
+        if self._stopped:
+            return
+
+        if flush or self.num_paths % self.REPORT_EVERY_N_PATHS == 0:
+            pass        # report
+        else:
+            return      # skip reporting
+
+        if self.num_paths > self._last_reported_num_paths:
+            if self._tree:
+                self._tree.beginUpdateBatch()
+                self._tree.rowCountChanged(
+                    # Starting at row N...
+                    self._last_reported_num_paths,
+                    # ...for M rows.
+                    self.num_paths - self._last_reported_num_paths)
+                self._tree.invalidate()
+                self._tree.endUpdateBatch()
+            self._last_reported_num_paths = self.num_paths
+
+        self.controllerProxy.report(self.num_hits, self.num_paths)
+
+
+    #---- koITreeView methods
+    def get_rowCount(self):
+        return len(self.records)
+
+    def getCellText(self, row_idx, col):
+        assert col.id == "repls-desc"
+        record = self.records[row_idx]
+        return "%s (%d replacements undone)" % (record.path, record.length)
 
 
 
@@ -584,7 +949,7 @@ class KoFindOptions:
         return gPrefSvc.prefs.setBooleanPref(self.confirmReplacementsInFilesPrefName, value)
 
 
-class KoFindService:
+class KoFindService(object):
     _com_interfaces_ = components.interfaces.koIFindService
     _reg_desc_  = "Find and Replace Service"
     _reg_clsid_ = "{3582DE9B-FA36-4787-B3D3-6B9F94EB4AD0}"
@@ -598,6 +963,13 @@ class KoFindService:
                        .getService(components.interfaces.koILastErrorService)
 
         self.eol_re = re.compile(r'\r\n|\r|\n')
+        
+        # Configure where findlib2 stores "replace in files" journals.
+
+        dirSvc = components.classes["@activestate.com/koDirs;1"]\
+                  .getService(components.interfaces.koIDirs)
+        journal_dir = join(dirSvc.userCacheDir, "repl-journals")
+        findlib2.Journal.set_journal_dir(journal_dir)
 
         # load the find and replace options
         self.options = KoFindOptions()
@@ -606,7 +978,7 @@ class KoFindService:
        
     def find(self, url, text, pattern, start, end):
         try:
-            regex, dummy = _regex_info_from_ko_find_data(
+            regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -638,7 +1010,7 @@ class KoFindService:
         TODO: handle EOL-normalization of replacement if this is used.
         """
         try:
-            regex, munged_repl = _regex_info_from_ko_find_data(
+            regex, munged_repl, desc = _regex_info_from_ko_find_data(
                 pattern, repl,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -690,7 +1062,7 @@ class KoFindService:
         No return value.
         """
         try:
-            regex, dummy = _regex_info_from_ko_find_data(
+            regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -737,7 +1109,7 @@ class KoFindService:
         Returns a list of line numbers (0-based).
         """
         try:
-            regex, dummy = _regex_info_from_ko_find_data(
+            regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -774,7 +1146,7 @@ class KoFindService:
         """
         try:
             # Build the appropriate regex and replacement.
-            regex, munged_repl = _regex_info_from_ko_find_data(
+            regex, munged_repl, desc = _regex_info_from_ko_find_data(
                 pattern, repl,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -913,7 +1285,7 @@ class KoFindService:
         """
         #TODO: drop 'resultsView' arg
         try:
-            regex, dummy = _regex_info_from_ko_find_data(
+            regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -937,7 +1309,7 @@ class KoFindService:
     def replaceallinfiles(self, id, pattern, repl, resultsMgr):
         """TODO: docstring"""
         try:
-            regex, munged_repl = _regex_info_from_ko_find_data(
+            regex, munged_repl, desc = _regex_info_from_ko_find_data(
                 pattern, repl,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -958,6 +1330,50 @@ class KoFindService:
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
+    def confirmreplaceallinfiles(self, pattern, repl, cwd, controller):
+        """Start and return a replacement thread that determines
+        replacements (for confirmation) and updates the given confirmation
+        UI manager.
+        
+        @param pattern {str} the search pattern
+        @param repl {str} the replacement string
+        @param cwd {str} the context current working dir (for
+            interpreting relative paths).
+        @param controller {components.interfaces.koIConfirmReplaceController}
+            the "Confirm Replacements" dialog controller.
+        @returns {components.interfaces.koIConfirmReplacerInFiles}
+            the replacer thread and tree view.
+        """
+        try:
+            regex, munged_repl, desc = _regex_info_from_ko_find_data(
+                pattern, repl,
+                self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+        except (re.error, ValueError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        t = _ConfirmReplacerInFiles(
+                regex, munged_repl,
+                self.options.getFolders(),
+                cwd,
+                self.options.searchInSubfolders,
+                self.options.getIncludeFiletypes(),
+                self.options.getExcludeFiletypes(),
+                desc,
+                controller)
+        return t
+
+    def undoreplaceallinfiles(self, journal_id, controller):
+        """Undo the given "Replace All in Files" operation.
+        
+        @param journal_id {str}  Identifies the journal for the op.
+        @param controller {components.interfaces.koIUndoReplaceController}
+            The UI controller.
+        """
+        return _ReplaceUndoer(journal_id, controller)
+
     def findallincollection(self, id, pattern, resultsMgr):
         """Feed all occurrences of "pattern" in the files identified by
         the koICollectionFindContext into the given koIFindResultsView.
@@ -972,7 +1388,7 @@ class KoFindService:
         No return value.
         """
         try:
-            regex, dummy = _regex_info_from_ko_find_data(
+            regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,
                 self.options.patternType,
                 self.options.caseSensitivity,
@@ -999,6 +1415,51 @@ class KoFindService:
 
 #---- internal support stuff
 
+#TODO: put in my recipes
+def _break_up_words(s, max_word_length=50):
+    """Break up words(*) in the given string so no word is longer than
+    `max_word_length`.
+    
+    Here a "word" means any consecutive string of characters not separated
+    by whitespace.
+    
+    @param s {str} The string in which to break up words.
+    @param max_length {int} The max word length. Default is 50.
+    """
+    import re
+    bit_is_word = True
+    bits = []
+    for bit in re.split("(\s+)", s):
+        if bit_is_word:
+            while len(bit) > max_word_length:
+                head, bit = bit[:max_word_length], bit[max_word_length:]
+                bits.append(head)
+                bits.append(' ')
+            bits.append(bit)
+        else:
+            bits.append(bit)
+        bit_is_word = not bit_is_word
+    return ''.join(bits)
+
+#TODO: put in a recipe, use in ifmain-template
+def _exc_info_summary():
+    """Return a user-friendly string summary of the current exception."""
+    import traceback
+    exc_info = sys.exc_info()
+    if hasattr(exc_info[0], "__name__"):
+        exc_class, exc, tb = exc_info
+        exc_str = str(exc_info[1])
+        sep = ('\n' in exc_str and '\n' or ' ')
+        where_str = ""
+        tb_path, tb_lineno, tb_func = traceback.extract_tb(tb)[-1][:3]
+        in_str = (tb_func != "<module>"
+                  and " in %s" % tb_func
+                  or "")
+        where_str = "%s(%s#%s%s)" % (sep, tb_path, tb_lineno, in_str)
+        return exc_str + where_str
+    else:  # string exception
+        return exc_info[0]
+
 def _regex_info_from_ko_find_data(pattern, repl=None,
                                   patternType=FOT_SIMPLE,
                                   caseSensitivity=FOC_SENSITIVE,
@@ -1006,13 +1467,18 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
     """Build the appropriate regex from the Komodo find/replace system
     data for a find/replace.
     
-    Returns (<regex-object>, <massaged-repl>). May raise re.error or
+    Returns (<regex-object>, <massaged-repl>, <desc>). May raise re.error or
     ValueError if there is a problem.
     """
+    orig_pattern = pattern
+    orig_repl = repl
+    desc_flag_bits = []
+    
     # Determine the flags.
     #TODO: should we turn on re.UNICODE all the time?
     flags = re.MULTILINE   # Generally always want line-based searching.
     if caseSensitivity == FOC_INSENSITIVE:
+        desc_flag_bits.append("ignore case")
         flags |= re.IGNORECASE
     elif caseSensitivity == FOC_SENSITIVE:
         pass
@@ -1022,6 +1488,7 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         # all lowercase. I.e. if the search string has an case
         # information then the implication is that a case-sensitive
         # search is desired.
+        desc_flag_bits.append("smart case")
         if pattern == pattern.lower():
             flags |= re.IGNORECASE
     else:
@@ -1049,6 +1516,7 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         # However what is really wanted (and what VS.NET does) is to match
         # if there is NOT a word character to either immediate side of the
         # pattern.
+        desc_flag_bits.append("match word")
         pattern = r"(?<!\w)" + pattern + r"(?!\w)"
     if '$' in pattern:
         # Modifies the pattern such that the '$' anchor will match at
@@ -1074,8 +1542,21 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
                     state == STATE_DEFAULT
         pattern = ''.join(chs)
 
-    # Massage the replacement string, if appropriate.
-    if repl is not None:
+    desc_flag_str = (desc_flag_bits
+                     and (" (%s)" % ', '.join(desc_flag_bits))
+                     or "")
+    if repl is None:
+        desc = "find '%s'%s" % (
+            textutils.one_line_summary_from_text(orig_pattern, 30),
+            desc_flag_str)
+    else:
+        desc = "replace '%s' with '%s'%s" % (
+            textutils.one_line_summary_from_text(orig_pattern, 30),
+            textutils.one_line_summary_from_text(orig_repl, 30),
+            desc_flag_str)
+        
+        # Massage the replacement string, if appropriate.
+
         # For replacement strings not using regexes, backslashes must
         # be escaped to prevent the unlucky "\1" or "\g<foo>" being
         # interpreted as a back-reference.
@@ -1095,7 +1576,8 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
             raise ValueError("trailing backslash in the replacement "
                              "string must be escaped")
 
-    return re.compile(pattern, flags), repl
+
+    return re.compile(pattern, flags), repl, desc
 
 
 

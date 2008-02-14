@@ -1488,18 +1488,32 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
  * Replace all hits in files.
  *
  * ...
+ * Setup (i.e. do all the right things for find-session maintenance) and
+ * find the next occurrence of "pattern".
+ *
+ * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param context {koIFindContext} defines the scope in which to search,
+ *      e.g., in a selection, just the current doc, all open docs.
+ * @param pattern {string} the pattern to search for.
+ * @param repl {string} the replacement string.
+ * @param confirm {boolean} Whether to confirm replacements. Optional,
+ *      true by default.
  * @param msgHandler {callback} is an optional callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
+ * @returns {boolean} True if the operation was successful. False if there
+ *      was an error or replacement was aborted.
  */
 function Find_ReplaceAllInFiles(editor, context, pattern, repl,
+                                confirm /* =true */,
                                 msgHandler /* =<statusbar notifier> */)
 {
+    if (typeof(confirm) == 'undefined' || confirm == null) confirm = true;
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
     }
 
     findLog.info("Find_ReplaceAllInFiles(editor, context, pattern='"+pattern+
-                 "', repl='"+repl+"')");
+                 "', repl='"+repl+"', confirm="+confirm+")");
     if (findSvc == null) {
         findSvc = Components.classes["@activestate.com/koFindService;1"].
                   getService(Components.interfaces.koIFindService);
@@ -1507,24 +1521,78 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
 
     //TODO macro recording stuff for this
 
-    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
-    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
-    if (resultsMgr == null)
-        return false;
-    resultsMgr.configure(pattern, null, repl, context,
-                         findSvc.options);
-    resultsMgr.show();
+    if (confirm) {
+        // Pass off to the "Confirm Replacements" dialog.
+        // This dialog runs the replacer thread and either returns it
+        // (a koIConfirmReplacerInFiles instance) -- with a set of
+        // confirmed replacements to make -- or return null, if the
+        // replacement was aborted.
+        var args = {
+            "editor": editor,
+            "context": context,
+            "pattern": pattern,
+            "repl": repl
+        };
+        window.openDialog("chrome://komodo/content/find/confirmrepl.xul",
+                          "_blank",
+                          //TODO: I want this dialog resizeable but this
+                          //      isn't working.
+                          "chrome,modal,titlebar,resizeable=yes",
+                          args);
+        var replacer = args.replacer;
+        if (!replacer) {
+            // The replacement was aborted.
+            return false;
+        } else if (replacer.num_hits == 0) {
+            // No replacements were found.
+            msgHandler("info", "replace", "No replacements were found.");
+            return false;
+        }
+        
+        // The replacement completed, and there were hits.
+        // I.e., we now have to make those replacements.
+        var resultsMgr = editor.FindResultsTab_GetTab();
+        if (resultsMgr == null) {
+            //TODO: It really isn't a good thing that we can abort the
+            //      "Replace in Files" at this point just because we
+            //      don't have a free "Find Results" tab in which to
+            //      show the results. The *best* fix for this is
+            //      to just have unlimited find results tabs (there is
+            //      a separate bug for this).
+            return false;
+        }
+        resultsMgr.configure(pattern, null, repl, context,
+                             findSvc.options,
+                             true);  // opSupportsUndo
+        resultsMgr.show();
+        replacer.commit(resultsMgr);
+        editor.ko.window.checkDiskFiles(); // Ensure changes *open* files get reloaded.
+        return true;
 
-    try {
-        findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
-                                  resultsMgr, resultsMgr.view);
-    } catch (ex) {
-        _UiForFindServiceError("replace all in files", ex, msgHandler);
-        resultsMgr.clear();
-        return false;
+    } else {
+        //TODO: preferredResultsTab is deprecated. Drop it eventually.
+        var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
+        var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+        if (resultsMgr == null)
+            return false;
+        resultsMgr.configure(pattern, null, repl, context,
+                             findSvc.options,
+                             true); // opSupportsUndo
+        resultsMgr.show();
+    
+        try {
+            findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
+                                      resultsMgr, resultsMgr.view);
+        } catch (ex) {
+            _UiForFindServiceError("replace all in files", ex, msgHandler);
+            resultsMgr.clear();
+            return false;
+        }
     }
+
     return true;
 }
+
 
 
 /**

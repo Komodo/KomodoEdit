@@ -574,6 +574,7 @@
 <!ENTITY undo.label "Undo">
 <!ENTITY undoButton.accesskey "U">
 <!ENTITY undoLastAction.tooltiptext "Undo Last Action">
+<!ENTITY undoReplacements.tooltiptext "Undo Replacements">
 <!ENTITY untabifyRegion.label "Untabify Region">
 <!ENTITY update.label "Update">
 <!ENTITY userInterfaceBrowserPreview.desc "User Interface: Browser Preview">

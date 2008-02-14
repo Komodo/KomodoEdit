@@ -128,8 +128,7 @@ interface koIFindResultsView : nsITreeView {
 //
 // History: This was added because the "Find in Files" functionality is
 // asynchronous and the Python-level and needed a way to callback (I could
-// have used nsIObserverService instead but chose this). The other
-// koIFindService methods do not use this at this time, but may grow into it.
+// have used nsIObserverService instead but chose this).
 [scriptable, uuid(53A53E47-A32E-4BC3-A242-8935D9271CFA)]
 interface koIFindResultsTabManager : nsISupports {
     attribute koIFindResultsView view;
@@ -146,7 +145,8 @@ interface koIFindResultsTabManager : nsISupports {
     void searchFinished(in boolean success,  // terminated normally
                         in long numResults,
                         in long numFiles,
-                        in long numFilesSearched);
+                        in long numFilesSearched,
+                        in wstring journalId);  // for "Replace All in Files" operation
 };
 
 

@@ -35,7 +35,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-"""A start at refactoring of findlib.py."""
+"""A find/replace backend for Komodo."""
 
 import os
 from os.path import (expanduser, join, basename, splitext, exists, dirname,
@@ -189,7 +189,8 @@ def grep(regex, paths, files_with_matches=False,
 
 
 
-def replace(regex, repl, paths, includes=None, excludes=None):
+def replace(regex, repl, paths, includes=None, excludes=None,
+            summary=None):
     """Make the given regex replacement in the given paths.
 
     This generates a stream of `Event`s. The main such event is
@@ -220,6 +221,8 @@ def replace(regex, repl, paths, includes=None, excludes=None):
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
+    @param summary {str} an optional summary string for the replacement
+        journal.
     """
     journal = None
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
@@ -242,8 +245,8 @@ def replace(regex, repl, paths, includes=None, excludes=None):
         # If this is the first path, start the journal for this
         # replacment (for undo).
         if journal is None:
-            #TODO: this isn't good enough for a summary
-            summary = str_from_regex_info(regex, repl)
+            if summary is None:
+                summary = str_from_regex_info(regex, repl)
             journal = Journal.create(summary)
             yield StartJournal(journal)
 
@@ -259,10 +262,12 @@ def undo_replace(journal_id, dry_run=False):
     of the files in the replacement have been subsequently modified.
 
     Undo process:
-    1. Get the journal.
+    1. Get the journal (yields a LoadJournal event with the loaded
+       journal).
     2. Ensure that none of the files to be reverted have been
        subsequently modified (via MD5 check).
-    3. Undo each replacement. 
+    3. Undo each replacement (yields a JournalReplaceRecord event for
+       each replacement).
     4. Sanity check that the undo works (can compare MD5 via journaled
        value).
     5. Remove the journal.
@@ -274,6 +279,7 @@ def undo_replace(journal_id, dry_run=False):
     """
     journal = Journal.load(journal_id)
     log.debug("undo replace `%s'", journal.id)
+    yield LoadJournal(journal)
 
     # 2. Ensure can complete the undo.
     changed_paths = []
@@ -504,6 +510,14 @@ class StartJournal(Event):
     def __repr__(self):
         return "<StartJournal %s>" % self.journal.id
 
+class LoadJournal(Event):
+    """First event emitted by undo_replace() after load of the journal."""
+    def __init__(self, journal):
+        self.journal = journal
+    def __repr__(self):
+        return "<LoadJournal %s>" % self.journal.id
+    
+
 class Hit(Event):
     path = None
 
@@ -629,7 +643,7 @@ class ReplaceHitGroup(Hit):
         self.after_text = after_text
         self.journal = journal
 
-        self._calculated_rhits = False  # whether lazy calculations have been done
+        #self._calculated_rhits = False  # whether lazy calculations have been done
 
     def __repr__(self):
         return "<ReplaceHitGroup %s (%d replacements)>" \
@@ -656,7 +670,8 @@ class ReplaceHitGroup(Hit):
     @property
     def diff(self):
         if self._diff_cache is None:
-            diff_lines = difflib.unified_diff(
+            diff_lines = ["Index: %s\n" % self.path]
+            diff_lines += difflib.unified_diff(
                     self.before_text.splitlines(1),
                     self.after_text.splitlines(1),
                     "%s (before)" % self.path,
@@ -728,7 +743,7 @@ class ReplaceHitGroup(Hit):
 
 #---- replace journaling stuff
 
-class JournalReplaceRecord(object):
+class JournalReplaceRecord(Event):
     """A record of a replacements to a single path in a Journal.
     
     These are pickled in a Journal and are used by `undo_replace()`.
@@ -744,6 +759,10 @@ class JournalReplaceRecord(object):
     def __repr__(self):
         return "<JournalReplaceRecord %s (%d replacements)>" \
                % (self.nicepath, len(self.rhits))
+
+    @property
+    def length(self):
+        return len(self.rhits)
 
     @property
     def nicepath(self):
@@ -786,15 +805,25 @@ class Journal(list):
     summary_path = None
     summary = None   # prose description of the replacement
 
-    @staticmethod
-    def get_journal_dir():
-        try:
-            import applib
-        except ImportError:
-            d = expanduser("~/.frep")
-        else:
-            d = applib.user_cache_dir("frep", "ActiveState")
-        return d
+    _journal_dir = None
+    @classmethod
+    def set_journal_dir(cls, dir):
+        """Call this to configure where the Journal class stores
+        journals.
+        """
+        cls._journal_dir = dir
+
+    @classmethod
+    def get_journal_dir(cls):
+        if cls._journal_dir is None:
+            try:
+                import applib
+            except ImportError:
+                d = expanduser("~/.findlib2")
+            else:
+                d = applib.user_cache_dir("findlib2", "ActiveState")
+            cls._journal_dir = d
+        return cls._journal_dir
 
     @staticmethod
     def get_new_id(journal_dir):

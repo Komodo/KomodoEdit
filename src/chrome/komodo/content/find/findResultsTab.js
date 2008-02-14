@@ -104,8 +104,10 @@ var _gFindResultsTab_managers = {1: null, 2: null};
 // XXX: Am I going to go to the trouble of ensuring synchronicity here? I.e.
 // this "GetTab" method would have to lock out other requests for this one
 // until released. Dunno.
-function FindResultsTab_GetTab(preferredId)
+function FindResultsTab_GetTab(preferredId /* =1 */)
 {
+    if (typeof(preferredId) == "undefined" || preferredId == null) preferredId = 1;
+    
     findResultsLog.debug("FindResultsTab_GetTab(preferredId="+preferredId+")\n");
     try {
         var otherId = null;
@@ -450,7 +452,7 @@ FindResultsTabManager.prototype.clear = function()
     this._searchInProgress = null;
     this._pattern = null;
     this._patternAlias = null;
-    this._replacement = null;
+    this._repl = null;
     this.context_ = null;
     this._options = null;
     this.is_locked = true;
@@ -552,6 +554,27 @@ FindResultsTabManager.prototype.stopSearch = function()
 }
 
 
+FindResultsTabManager.prototype.undoReplace = function()
+{
+    // Pass off to the "Undo Replacements" dialog.
+    // This dialog runs the undo and returns true (success) or false
+    // (failed or aborted).
+    var args = {
+        "journal_id": this._journalId
+    };
+    window.openDialog("chrome://komodo/content/find/undorepl.xul",
+                      "_blank",
+                      //TODO: I want this dialog resizeable but this
+                      //      isn't working.
+                      "chrome,modal,titlebar,resizeable=yes",
+                      args);
+    var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+    if (args.retval && undoButton) {
+        undoButton.setAttribute("disabled", "true");
+    }
+}
+
+
 //XXX Not implemented yet.
 //FindResultsTabManager.prototype.redoSearch = function()
 //{
@@ -632,13 +655,13 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
     // Add a description of the find process.
     var baseDesc = "";
     if (tense == "present") {
-        if (this._replacement != null) {
+        if (this._repl != null) {
             baseDesc += "Replacing all ";
         } else {
             baseDesc += "Finding all ";
         }
     } else if (tense == "past") {
-        if (this._replacement != null) {
+        if (this._repl != null) {
             baseDesc += "Replaced all ";
         } else {
             baseDesc += "Found all ";
@@ -651,8 +674,8 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
     } else {
         baseDesc += this._patternAlias;
     }
-    if (this._replacement != null) {
-        baseDesc += " with '"+this._replacement+"'";
+    if (this._repl != null) {
+        baseDesc += " with '"+this._repl+"'";
     }
     if (this.context_.type == Components.interfaces.koIFindContext.FCT_IN_FILES) {
         if (!this._options.encodedIncludeFiletypes
@@ -678,15 +701,38 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
 }
 
 
+/**
+ * Configure the find results tab with information about the find/replace
+ * operation.
+ *
+ * @param pattern {String} the pattern searched for
+ * @param patternAlias {String} A more user-friendly name for the
+ *      pattern. Optional, null if no alias.
+ * @param repl {String} the replacement pattern. Null if this is just
+ *      a find operation.
+ * @param context {Components.interfaces.koIFindContext} The search
+ *      context for this op. (Dev Note: this is reference to a context
+ *      that can change, so this isn't reliable for 'redo' operations)
+ * @param options {Components.interfaces.koIFindOptions} Holds the find
+ *      options. (Dev Note: this is reference to a context
+ *      that can change, so this isn't reliable for 'redo' operations)
+ * @param opSupportsUndo {Boolean} Indicates in this find/replace
+ *      operation supports undo. Optional, default false.
+ */
 FindResultsTabManager.prototype.configure = function(
-    pattern, patternAlias, replacement, context, options)
+    pattern, patternAlias, repl, context, options,
+    opSupportsUndo /* =false */)
 {
+    if (typeof(opSupportsUndo) == "undefined" || opSupportsUndo == null)
+        opSupportsUndo = false;
+    
     // Cache find data for possible use later.
     this._pattern = pattern;
     this._patternAlias = patternAlias;
-    this._replacement = replacement;
+    this._repl = repl;
     this.context_ = context;  //XXX Need a _clone_ of this for redo to work.
     this._options = options; // XXX Need a _clone_ of this for redo to work.
+    this._opSupportsUndo = opSupportsUndo;
 
     // Add a description of the find process.
     var baseDesc = this._getBaseDescription("present");
@@ -702,6 +748,25 @@ FindResultsTabManager.prototype.configure = function(
     } else {
         filenameCol.setAttribute("hidden", "false");
     }
+    
+    // Make the undo button available if this find/replace operation
+    // supports it.
+    var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+    if (opSupportsUndo) {
+        if (undoButton) { // because "todo"-extension is piggy-backing
+            if (undoButton.hasAttribute("collapsed"))
+                undoButton.removeAttribute("collapsed");
+            if (undoButton.hasAttribute("hidden"))
+                undoButton.removeAttribute("hidden");
+            undoButton.setAttribute("disabled", "true");
+        }
+    } else {
+        if (undoButton) { // because "todo"-extension is piggy-backing
+            undoButton.setAttribute("collapsed", "true");
+            undoButton.setAttribute("disabled", "true");
+            undoButton.setAttribute("hidden", "true");
+        }
+    }
 }
 
 
@@ -710,7 +775,7 @@ FindResultsTabManager.prototype.searchStarted = function()
     this._searchInProgress = true;
 
     var icon = document.getElementById(this._idprefix+"-icon");
-    if (icon) {
+    if (icon) { // because "todo"-extension is piggy-backing
         if (icon.hasAttribute("collapsed"))
             icon.removeAttribute("collapsed");
         if (icon.hasAttribute("hidden"))
@@ -737,13 +802,30 @@ FindResultsTabManager.prototype.isBusy = function()
 }
 
 
+/**
+ * Called to indicated that the search operation has completed.
+ *
+ * @param success {Boolean} Indicates if the find/replace was successful.
+ * @param numResults {Number} The number of find/replace hits.
+ *      Optional, typically only provided for a successful completion.
+ * @param numFiles {Number} The number of paths in which there were hits.
+ *      Optional, typically only provided for a successful completion.
+ * @param numFilesSearched {Number} The number of paths searched.
+ *      Optional, typically only provided for a successful completion.
+ * @param journalId {String} The identifier for the journal for a
+ *      "Replace All in Files" operation. This is used to support undo.
+ *      Null if not applicable.
+ */
 FindResultsTabManager.prototype.searchFinished = function(
     success, numResults /* =null */, numFiles /* =null */,
-    numFilesSearched /* =null */)
+    numFilesSearched /* =null */, journalId /* =null */)
 {
     if (typeof(numResults) == "undefined") numResults = null;
     if (typeof(numFiles) == "undefined") numFiles = null;
     if (typeof(numFilesSearched) == "undefined") numFilesSearched = null;
+    if (typeof(journalId) == "undefined") journalId = null;
+
+    this._journalId = journalId;
 
     var icon = document.getElementById(this._idprefix+"-icon");
     if (icon) {
@@ -771,7 +853,12 @@ FindResultsTabManager.prototype.searchFinished = function(
         var baseDesc = this._getBaseDescription("past");
         var descWidget = document.getElementById(this._idprefix+"-desc");
         descWidget.setAttribute("baseDesc", baseDesc);
-        desc = "Found "+numResults+" occurrences";
+        if (this._repl != null) {
+            desc = "Replaced ";
+        } else {
+            desc = "Found ";
+        }
+        desc += numResults+" occurrences";
         if (numFiles == null && numFilesSearched != null) {
             // in $numFilesSearched file(s)
             desc += " in "+numFilesSearched+" file"
@@ -793,6 +880,14 @@ FindResultsTabManager.prototype.searchFinished = function(
         desc = "Search aborted.";
     }
     this.setDescription(desc, !success);
+    
+    if (this._journalId && success) {
+        var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+        if (undoButton) { // because "todo"-extension is piggy-backing
+            if (undoButton.hasAttribute("disabled"))
+                undoButton.removeAttribute("disabled");
+        }
+    }
 }
 
 

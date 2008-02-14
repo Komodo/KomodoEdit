@@ -54,5 +54,10 @@ $cons->InstallInChrome('find2.js');
 $cons->Preprocess('find2.p.xul', 'find2.xul');
 $cons->InstallInChrome('find2.xul');
 
+$cons->InstallInChrome('confirmrepl.js');
+$cons->InstallInChrome('confirmrepl.xul');
+$cons->InstallInChrome('undorepl.js');
+$cons->InstallInChrome('undorepl.xul');
+
 $cons->InstallInChrome('findtoolbar.js');
 

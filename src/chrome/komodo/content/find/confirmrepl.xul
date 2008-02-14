@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ 
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+ 
+ The Original Code is Komodo code.
+ 
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ ActiveState Software Inc. All Rights Reserved.
+ 
+ Contributor(s):
+   ActiveState Software Inc
+ 
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+ 
+ ***** END LICENSE BLOCK ***** -->
+
+<!-- Dialog to run a "Replace in Files" operation and confirm with the
+     user the replacements to make. -->
+
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/tree.css" type="text/css"?>
+
+
+<dialog id="dialog-confirm-repl"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="Confirm Replacements"
+        orient="vertical"
+        style="min-width: 40em; max-width: 50em;"
+        flex="1"
+        onload="on_load()"
+        buttons="accept,cancel"
+        defaultButton="accept"
+        ondialogaccept="return make_changes();"
+        ondialogcancel="return cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/find/confirmrepl.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox align="center">
+        <image id="dialog-icon" class="question-icon spaced" />
+        <separator orient="vertical" class="thin"/>
+        <description flex="1">
+            Confirm replacements before changes are made. Mark the
+            files you would like to change and click "Make Changes" to
+            commit. Click "Cancel" to cancel without making any
+            changes.
+        </description>
+    </hbox>
+
+    <separator class="thin"/>
+    <notificationbox id="repls-notebox" flex="1">
+        <tree id="repls" flex="1"
+              seltype="multiple"
+              class="no-border"
+              editable="true"
+              rows="10"
+              style="margin: 0px;"
+              hidecolumnpicker="true"
+              onselect="repls_on_select()"
+              onkeypress="return repls_on_keypress(event)">
+            <treecols>
+                <treecol id="repls-marked"
+                         type="checkbox"
+                         fixed="true" hideheader="true"
+                         editable="true"
+                         class="treecol-image"
+                         ignoreincolumnpicker="true"
+                         tooltiptext="Check to apply changes to this file" />
+                <splitter class="tree-splitter"/>
+                <treecol id="repls-desc"
+                         hideheader="true"
+                         persist="width"
+                         crop="center"
+                         flex="1" />
+            </treecols>
+            <treechildren id="repls-body" flex="1"
+                          alternatingbackground="true"/>
+        </tree>
+    </notificationbox>
+
+    <separator class="thin"/>
+    <hbox>
+        <hbox align="center" flex="1">
+            <image id="status-img" />
+            <label id="status-lbl" crop="center" flex="1"/>
+        </hbox>
+        <separator flex="1"/>
+        <button id="show-selected-changes-btn" label="Show Selected Changes"
+                tooltiptext="Show the changes for the selected paths."
+                disabled="true"
+                accesskey="l"
+                oncommand="show_selected_changes();"/>
+        <button id="show-marked-changes-btn" label="Show Marked Changes"
+                tooltiptext="Show the changes for all marked paths."
+                disabled="true"
+                accesskey="k"
+                oncommand="show_marked_changes();"/>
+    </hbox>
+
+    <separator class="thin"/>
+</dialog>
+

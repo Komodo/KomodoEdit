@@ -322,6 +322,22 @@
 }
 
 
+.find-undo-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/undo.png");
+}
+.find-undo-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/undo_hover.png");
+}
+.find-undo-icon[disabled="true"],
+.find-undo-icon[disabled="true"]:hover,
+.find-undo-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
+}
+
+
 /* TODO: disabled versions of these */
 .find-lock-icon
 {

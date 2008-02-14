@@ -751,7 +751,8 @@ function replace_all() {
             gFindSvc.options.cwd = _g_find_context.cwd;
 
             if (Find_ReplaceAllInFiles(opener, _g_find_context,
-                                       pattern, repl, null,
+                                       pattern, repl,
+                                       gFindSvc.options.confirmReplacementsInFiles,
                                        msg_callback)) {
                 window.close();
             }
