@@ -307,7 +307,6 @@ def komodo_to_cix(output_path, p4_edit=False):
     #cix_yui_file = createCixFile(cix_yui, "yui", lang="JavaScript")
     #cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
-    jscile = JavaScriptCiler("komodo")
     komodo_chrome_dir = join(_get_komodo_dev_dir(), "build", "release",
                              "chrome", "komodo", "content")
     for path in _gen_komodo_js_api_files(komodo_chrome_dir):
@@ -315,6 +314,9 @@ def komodo_to_cix(output_path, p4_edit=False):
         #    # This is just a compressed up version of multiple files
         #    continue
         log.info("scanning `%s'" % path)
+        
+        # Need a "clean" JS CILE each time (see bug 74861).
+        jscile = JavaScriptCiler("komodo")
         try:
             # Slight hack to ensure the current filename stays correct for
             # cile logging.
