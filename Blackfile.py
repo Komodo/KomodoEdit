@@ -1597,14 +1597,14 @@ def _PackageKomodoUpdates(cfg):
                 pkg_path, ref_mar_dir, image_dir))
         print "created '%s' (for 'beta' channel)" % pkg_path
     
-    # - For non-betas, want a partial update relative to the last released
-    #   non-beta (for release channel).
-    ver_bits = cfg.komodoVersion.split('-')
-    is_final = len(ver_bits) == 1
+    # - For all builds, want a partial update relative to the last
+    #   released non-beta. This is used for the "release" channel if this
+    #   is a final build (e.g. 4.2.1 -> 4.3.0). For *non-final* releases,
+    #   this is used as a stepping stone into the "beta" and/or "nightly"
+    #   channels (e.g. 4.2.1 user wants to start updating to the latest
+    #   betas -> 4.3.0a2).
     last_final_release_complete_mar = guru.last_final_release_complete_mar
-    if not is_final:
-        pass
-    elif last_final_release_complete_mar is None:
+    if last_final_release_complete_mar is None:
         log.warn("no preceding final release complete .mar package: skipping "
                  "build of partial update package for *release* channel")
     elif last_final_release_complete_mar == last_beta_release_complete_mar:
