@@ -44,21 +44,31 @@ Interface to the Komodo Project Files and their constituent parts.
 """
 
 from __future__ import generators
-import traceback, os, sys, urlparse, string, fnmatch, weakref
+import traceback
+import os
+import sys
+import urlparse
+import string
+import fnmatch
+import weakref
 import re
-from xpcom import components, ServerException, COMException, nsError
-import uriparse
-from URIlib import URIParser, RemoteURISchemeTypes
-from xml.sax import SAXParseException
-from xml.sax.saxutils import escape, unescape, quoteattr
-from xml.dom import pulldom
-from koXMLPrefs import NodeToPrefset
-from xpcom.server import WrapObject, UnwrapObject
-from eollib import newl
-import shutil, tempfile
+import shutil
+import tempfile
 import types
 import time
 import random
+import logging
+from xml.sax import SAXParseException
+from xml.sax.saxutils import escape, unescape, quoteattr
+from xml.dom import pulldom
+
+from xpcom import components, ServerException, COMException, nsError
+from xpcom.server import WrapObject, UnwrapObject
+
+import uriparse
+from URIlib import URIParser, RemoteURISchemeTypes
+from koXMLPrefs import NodeToPrefset
+from eollib import newl
 
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
@@ -69,7 +79,6 @@ gLastProjNum = 1
 ANCHOR_MARKER = '!@#_anchor'
 CURRENTPOS_MARKER = '!@#_currentPos'
 
-import logging, time
 log = logging.getLogger("koProject")
 
 #---- support routines
@@ -112,7 +121,6 @@ def _genFastGuid():
 
 # we use a weak value dictionary to make sure that the id map doesn't end up
 # keeping references alive.
-import weakref
 _idmap = weakref.WeakValueDictionary()
 
 
