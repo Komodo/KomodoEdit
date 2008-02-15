@@ -35,6 +35,16 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Import('cons', 'mozChromeDir');
+Import(
+    'cons', 
+    'mozChromeDir',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'unsiloedPythonExe',
+    'mozVersion',
+);
 
+$cons->Preprocess('global.p.css', 'global.css');
 $cons->InstallInChrome('global.css');
+
