@@ -540,6 +540,8 @@ var _openDialog = window.openDialog;
  * unfortunate side affect of preventing the sheets caused
  * bug 51068.  This is an alternate fix for OSX only, that
  * will be refactored sometime during 4.X.
+ *
+ * Note: this is duplicated in ko.windowManager functions.
  */
 window.openDialog = function openDialogNotSheet() {
     // fix features
