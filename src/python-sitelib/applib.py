@@ -1,8 +1,9 @@
-# Copyright (c) 2005 ActiveState Corp.
+#!/usr/bin/env python
+# Copyright (c) 2005-2008 ActiveState Software Inc.
 # License: MIT
-# Author:  Trent Mick (TrentM@ActiveState.com)
 
-"""Cross-platform application utilities:
+"""Cross-platform application utilities. Mainly this includes some
+method for determining application-specific dirs.
 
 Utility Functions:
     user_data_dir(...)      path to user-specific app data dir
@@ -15,12 +16,16 @@ Utility Functions:
 #
 #TODO:
 # - Add cross-platform versions of other abstracted dir locations, like
-#   a cache dir, prefs dir, something like bundle/Contents/SharedSupport
+#   a prefs dir, something like bundle/Contents/SharedSupport
 #   on OS X, etc.
 #       http://developer.apple.com/documentation/MacOSX/Conceptual/BPRuntimeConfig/Concepts/UserPreferences.html
 #       http://developer.apple.com/documentation/MacOSX/Conceptual/BPFileSystem/index.html
 #       http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/enums/csidl.asp
-#
+
+__version_info__ = (1, 0, 0)
+__version__ = '.'.join(map(str, __version_info__))
+__author__ = "Trent Mick"
+
 
 import sys
 import os
