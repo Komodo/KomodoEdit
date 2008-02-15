@@ -39,21 +39,32 @@ if (typeof(ko) == 'undefined') {
 }
 ko.windowManager = {
     fixupOpenDialogArgs: function(inargs) {
-// #if PLATFORM == "darwin"
-        // fix features
-        if (inargs.length < 2 || !inargs[2]) {
-            inargs[2] = "chrome,dialog=no";
-        } else if (inargs[2].indexOf("dialog") < 0) {
-            inargs[2] = "dialog=no,"+inargs[2];
-        }
-        var args = [];
-        for ( var i=0; i < inargs.length; i++ )
-            args[i]=inargs[i];
+        var args = inargs.slice(); // make a copy
+        args[2] = ko.windowManager.fixupOpenDialogFeatures(inargs[2]);
         return args;
-// #else
-        return inargs;
-// #endif
     },
+
+    /**
+     * Return a "fixed-up" version of the "features" argument for
+     * window.openDialog(). This tweaks the string on Mac OS X to ensure
+     * the dialog is *not* opened as a sheet.
+     *
+     * @param features {String} The features string to fixup. Pass in
+     *      null to get a reasonable default.
+     */
+    fixupOpenDialogFeatures: function(features /* ="" */) {
+        if (typeof(features) == "undefined") features = "";
+    
+// #if PLATFORM == "darwin"
+        if (!features) {
+            features = "chrome,dialog=no";
+        } else if (features.indexOf("dialog") < 0) {
+            features = "dialog=no,"+features;
+        }
+// #endif
+        return features;
+    },
+
     /**
      * Open a window if no windows of windowType exist. Otherwise, bring
      * the window of windowType to the front. Parameters for this function
@@ -83,6 +94,24 @@ ko.windowManager = {
         }
         return window.openDialog.apply(window, ko.windowManager.fixupOpenDialogArgs(newArgs));
     },
+
+    /**
+     * An alternative version of window.openDialog() that does some fixups
+     * that Komodo wants in general.
+     */
+    openDialog: function(/* ... */) {
+        if (arguments.length < 2 || !arguments[2]) {
+            arguments[2] = "chrome,dialog=no";
+        } else if (arguments[2].indexOf("dialog") < 0) {
+            arguments[2] = "dialog=no,"+arguments[2];
+        }
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) {
+            args[i] = arguments[i];
+        }
+        return window.openDialog.apply(window, args);
+    },
+
     /**
      * return a reference to the main Komodo window
      *
