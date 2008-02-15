@@ -223,12 +223,10 @@ this.find = function(pattern /* =null */) {
     // handler on find2.xul, but then you run into problems attempting
     // to focus the pattern textbox. (Or at least I did when experimenting
     // on Windows.)
-    return window.openDialog.apply(window, 
-        ko.windowManager.fixupOpenDialogArgs([
-            "chrome://komodo/content/find/find2.xul",
-            "komodo_find2",
-            "chrome,close=yes"
-        ]));
+    return ko.windowManager.openDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
 }
 
 
@@ -254,12 +252,10 @@ this.replace = function(pattern /* =null */, repl /* =null */) {
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog.apply(window, 
-        ko.windowManager.fixupOpenDialogArgs([
-            "chrome://komodo/content/find/find2.xul",
-            "komodo_find2",
-            "chrome,close=yes"
-        ]));
+    return ko.windowManager.openDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
 }
 
 /**
@@ -284,10 +280,10 @@ this.findInCollection = function(collection, pattern /* =null */) {
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog(
+    return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+        "chrome,close=yes");
 }
 
 /**
@@ -310,10 +306,10 @@ this.findInCurrProject = function(pattern /* =null */) {
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog(
+    return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        ko.windowManager.fixupOpenDialogArgs("chrome,close=yes"));
+        "chrome,close=yes");
 }
 
 /**
@@ -354,12 +350,10 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog.apply(window, 
-        ko.windowManager.fixupOpenDialogArgs([
+    return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes"
-        ]));
+            "chrome,close=yes");
 }
 
 /**
@@ -392,12 +386,10 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
-    return window.openDialog.apply(window, 
-        ko.windowManager.fixupOpenDialogArgs([
+    return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes"
-        ]));
+            "chrome,close=yes");
 }
 
 
