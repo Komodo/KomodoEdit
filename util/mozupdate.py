@@ -758,7 +758,8 @@ def _od_path_from_path(path, od_opts=["-c"]):
     import buildutils
     import which
     from os.path import exists
-    cache_dir = join(applib.user_cache_dir("kodev", "ActiveState"), "od")
+    cache_dir = join(
+        applib.user_cache_dir("komodo-dev", "ActiveState"), "od")
     od_dir = join(cache_dir, md5.new(dirname(path)).hexdigest())
     od_path = join(od_dir, basename(path)+".od")
     if not exists(od_dir):
@@ -780,8 +781,8 @@ def _strings_path_from_path(path):
     import applib
     import buildutils
     from os.path import exists
-    cache_dir = join(applib.user_cache_dir("kodev", "ActiveState"),
-                     "strings")
+    cache_dir = join(
+        applib.user_cache_dir("komodo-dev", "ActiveState"), "strings")
     strings_dir = join(cache_dir, md5.new(dirname(path)).hexdigest())
     strings_path = join(strings_dir, basename(path)+".strings")
     if not exists(strings_dir):

@@ -291,8 +291,8 @@ class KomodoMarCacher(object):
       some shorter paths.
     """
     def __init__(self):
-        self.cache_dir = join(applib.user_cache_dir("kodev", "ActiveState"),
-                              "mar")
+        self.cache_dir = join(
+            applib.user_cache_dir("komodo-dev", "ActiveState"), "mar")
 
     def _cache_mar_path_from_mar_path(self, mar_path):
         return join(self.cache_dir, basename(mar_path))
