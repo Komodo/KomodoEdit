@@ -475,7 +475,7 @@ class KoDocumentService:
         if fname.startswith('/') or (len(fname) > 3 and fname[1] == ':'):
             fullfname = fname
         elif cwd:
-            fullfname = os.path.join(cwd, fname)
+            fullfname = os.path.normpath(os.path.join(cwd, fname))
         else:
             fullfname = fname
         if not os.path.exists(fullfname):
