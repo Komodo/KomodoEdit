@@ -440,7 +440,7 @@ this.diff = function(diff, title /* ="Diff" */, message /* =null */)
     obj.title = title;
     obj.diff = diff;
     obj.message = message;
-    return window.openDialog(
+    return ko.windowManager.openDialog(
         "chrome://komodo/content/dialogs/diff.xul",
         "_blank",
         "chrome,all,close=yes,resizable=yes,scrollbars=yes",
