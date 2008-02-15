@@ -62,6 +62,8 @@ if sys.platform == "win32":
 
 from xpcom import components, nsError, ServerException, COMException
 
+import upgradeutils
+
 import logging
 log = logging.getLogger('koInitService')
 ## without calling basicConfig here, we do not get logging at all from
@@ -74,6 +76,7 @@ log = logging.getLogger('koInitService')
 # if disabled (but you still should check use_timeline so the figures are
 # supressed if necessary.
 import timeline
+
 use_timeline = os.environ.has_key("KO_TIMELINE_PYOS") and timeline.getService() is not None
 xpcom_profiler = os.environ.has_key("KO_PYXPCOM_PROFILE")
 
@@ -670,6 +673,8 @@ class KoInitService:
         """Upgrade any specific info in the user's prefs.xml.
         
         This is called after the new user data dir has been created.
+
+        Dev note: This is also called every time Komodo is started.
         """
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                 .getService(components.interfaces.koIPrefService).prefs
@@ -731,6 +736,9 @@ class KoInitService:
 
             prefs.setStringPref("fileAssociationDiffs", repr(diff))
             prefs.deletePref("fileAssociations")
+
+        if prefs.hasPrefHere("mappedPaths"):
+            upgradeutils.upgrade_mapped_uris_for_prefset(prefs)
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
@@ -864,6 +872,7 @@ class KoInitService:
                                   currHostUserDataDir)
 
     def upgradeUserSettings(self):
+        """Called every time Komodo starts up to initialize the user profile."""
         self._upgradeUserDataDirFiles()
         self._upgradeUserPrefs()
 

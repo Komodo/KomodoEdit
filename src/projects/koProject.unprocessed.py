@@ -66,6 +66,7 @@ from xpcom import components, ServerException, COMException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 
 import uriparse
+import upgradeutils
 from URIlib import URIParser, RemoteURISchemeTypes
 from koXMLPrefs import NodeToPrefset
 from eollib import newl
@@ -1867,6 +1868,9 @@ class koProject(koLiveFolderPart):
                         # is the part id
                         dirtyAtEnd = 1
                         prefset.idref = part.id
+
+                    if prefset.hasPrefHere("mappedPaths"):
+                        upgradeutils.upgrade_mapped_uris_for_prefset(prefset)
 
                     prefset.addObserver(self)
                     self._prefmap[prefset.idref] = prefset

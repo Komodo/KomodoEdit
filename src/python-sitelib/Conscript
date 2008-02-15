@@ -85,6 +85,7 @@ $cons->InstallPythonUtility('sitepyxpcom.py');
 $cons->InstallPythonUtility('directoryServiceUtils.py');
 $cons->InstallPythonUtility('applib.py');
 $cons->InstallPythonUtility('textutils.py');
+$cons->InstallPythonUtility('upgradeutils.py');
 
 $cons->InstallPythonUtility('langinfo.py');
 $cons->InstallPythonUtility('langinfo_binary.py');
