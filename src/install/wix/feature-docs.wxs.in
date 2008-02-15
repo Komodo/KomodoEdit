@@ -339,13 +339,11 @@
               </Component>
               <Directory Id="directory658" Name="top">
                 <Component Id="component603" DiskId="1" Guid="$(autowix.guid)">
-                  <File Id="file237" Name="BOXFEA_0.PNG" LongName="box-features-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-features-bg.png"/>
-                  <File Id="file238" Name="BOXLEF_0.PNG" LongName="box-left-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-left-bg.png"/>
-                  <File Id="file239" Name="BOXRIG_0.PNG" LongName="box-right-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-right-bg.png"/>
-                  <File Id="file278" Name="BOXSAM_0.PNG" LongName="box-sample-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-sample-bg.png"/>
-                  <File Id="file279" Name="BOXTUT_0.PNG" LongName="box-tutorials-bg.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\box-tutorials-bg.png"/>
-                  <File Id="file1402" LongName="community-icon.png" Name="COMMUN_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\community-icon.png" />
-                  <File Id="file1403" LongName="forums-icon.png" Name="FORUMS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\forums-icon.png" />
+                  <File Id="file237" Name="showcase.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\showcase.png" />
+                  <File Id="file238" LongName="background_1.png" Name="BACKGR_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\background_1.png" />
+                  <File Id="file239" LongName="komodo_icon_1.png" Name="KOMODO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\komodo_icon_1.png" />
+                  <File Id="file278" LongName="tutorials.png" Name="TUTORI_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\tutorials.png" />
+                  <File Id="file279" LongName="sample_projects.png" Name="SAMPLE_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\sample_projects.png" />
                 </Component>
               </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img\top -->
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img -->
