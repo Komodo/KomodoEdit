@@ -92,22 +92,16 @@
         <key key="s" modifiers="control" oncommand="search_in('selection')" />
         <key key="p" modifiers="control"
              oncommand="if (!widgets.search_in_curr_project.getAttribute('collapsed')) search_in('curr-project')" />
-        <key key="t" modifiers="control" oncommand="search_in('files')" />
-
-        <!--<key key="f" modifiers="control" oncommand="SwitchToPanel('find');" />-->
-        <!--<key key="h" modifiers="control" oncommand="SwitchToPanel('replace');" />-->
+        <key key="f" modifiers="control" oncommand="search_in('files')" />
 <!-- #else -->
         <key key="d" modifiers="meta" oncommand="search_in('document')" />
         <key key="o" modifiers="meta" oncommand="search_in('open-files')" />
         <key key="s" modifiers="meta" oncommand="search_in('selection')" />
         <key key="p" modifiers="meta"
              oncommand="if (!widgets.search_in_curr_project.getAttribute('collapsed')) search_in('curr-project')" />
-        <key key="t" modifiers="meta" oncommand="search_in('files')" />
+        <key key="f" modifiers="meta" oncommand="search_in('files')" />
 
         <key key="W" modifiers="meta" oncommand="window.close();" />
-        <!--<key key="F" modifiers="meta" oncommand="SwitchToPanel('find');" />-->
-        <!--<key key="=" modifiers="meta" oncommand="SwitchToPanel('replace');" />-->
-        <!--<key key="G" modifiers="meta" oncommand="doFindNext();" />-->
 <!-- #endif -->
     </keyset>
     <popupset>
@@ -357,7 +351,7 @@
                       <menuitem id="search-in-curr-project"
                                 collapsed="true" hidden="true"
                                 value="curr-project" label="Current project"/>
-                      <menuitem value="files" label="Text files"/>
+                      <menuitem value="files" label="Files"/>
                       <menuseparator id="search-in-collection-sep"
                                      collapsed="true" hidden="true"/>
                       <menuitem id="search-in-collection"

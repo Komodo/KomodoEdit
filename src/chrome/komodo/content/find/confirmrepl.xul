@@ -77,41 +77,40 @@
     </hbox>
 
     <separator class="thin"/>
-    <notificationbox id="repls-notebox" flex="1">
-        <tree id="repls" flex="1"
-              seltype="multiple"
-              class="no-border"
-              editable="true"
-              style="margin: 0px;"
-              hidecolumnpicker="true"
-              onselect="repls_on_select()"
-              onkeypress="return repls_on_keypress(event)">
-            <treecols>
-                <treecol id="repls-marked"
-                         type="checkbox"
-                         fixed="true" hideheader="true"
-                         editable="true"
-                         class="treecol-image"
-                         ignoreincolumnpicker="true"
-                         tooltiptext="Check to apply changes to this file" />
-                <splitter class="tree-splitter"/>
-                <treecol id="repls-desc"
-                         hideheader="true"
-                         persist="width"
-                         crop="center"
-                         flex="1" />
-            </treecols>
-            <treechildren id="repls-body" flex="1"
-                          alternatingbackground="true"/>
-        </tree>
-    </notificationbox>
+    <hbox align="center" style="padding: 5px;">
+        <image id="status-img" />
+        <label id="status-lbl" crop="center" flex="1"
+               value="Preparing..."/>
+    </hbox>
+    <tree id="repls" flex="1"
+          seltype="multiple"
+          class="no-border"
+          editable="true"
+          style="margin: 0px;"
+          hidecolumnpicker="true"
+          onselect="repls_on_select()"
+          onkeypress="return repls_on_keypress(event)">
+        <treecols>
+            <treecol id="repls-marked"
+                     type="checkbox"
+                     fixed="true" hideheader="true"
+                     editable="true"
+                     class="treecol-image"
+                     ignoreincolumnpicker="true"
+                     tooltiptext="Check to apply changes to this file" />
+            <splitter class="tree-splitter"/>
+            <treecol id="repls-desc"
+                     hideheader="true"
+                     persist="width"
+                     crop="center"
+                     flex="1" />
+        </treecols>
+        <treechildren id="repls-body" flex="1"
+                      alternatingbackground="true"/>
+    </tree>
 
     <separator class="thin"/>
     <hbox>
-        <hbox align="center" flex="1">
-            <image id="status-img" />
-            <label id="status-lbl" crop="center" flex="1"/>
-        </hbox>
         <separator flex="1"/>
         <button id="show-selected-changes-btn" label="Show Selected Changes"
                 tooltiptext="Show the changes for the selected paths."

@@ -72,10 +72,15 @@
     </hbox>
 
     <separator class="thin"/>
+    <hbox id="status-box" align="center" style="padding: 5px;">
+      <hbox align="start" style="padding-right: 3px;">
+        <image id="status-img"/>
+      </hbox>
+      <description crop="center" id="status-desc" flex="1">Preparing...</description>
+    </hbox>
     <tree id="repls" flex="1"
           seltype="multiple"
           class="no-border"
-          editable="true"
           style="margin: 0px;"
           hidecolumnpicker="true">
         <treecols>
@@ -89,16 +94,6 @@
         <treechildren id="repls-body" flex="1"
                       alternatingbackground="true"/>
     </tree>
-
-    <separator class="thin"/>
-    <hbox>
-        <hbox id="status-box" align="center" flex="1">
-          <hbox align="start" style="padding-right: 3px;">
-            <image id="status-img"/>
-          </hbox>
-          <description crop="center" id="status-desc" flex="1">Preparing...</description>
-        </hbox>
-    </hbox>
 
     <separator class="thin"/>
 </dialog>

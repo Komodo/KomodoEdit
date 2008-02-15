@@ -291,9 +291,9 @@ def undo_replace(journal_id, dry_run=False):
         if md5sum != group.after_md5sum:
             changed_paths.append(group.path)
     if changed_paths:
-        raise FindError("cannot undo replacement '%s' because the following "
+        raise FindError("Cannot undo replacement because the following "
                         "files have been subsequently modified: '%s'" 
-                        % (journal_id, "', '".join(changed_paths)))
+                        % "', '".join(changed_paths))
 
     # 3. Undo each replacement.
     #TODO: Bullet-proof backups to '~/.frep/backups/<id>/<hash>' and

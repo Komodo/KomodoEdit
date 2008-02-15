@@ -252,6 +252,10 @@ function Controller()
 {
     this.log = log;
     this._have_had_first_report_with_hits = false;
+
+    this.num_hits = 0;
+    this.num_paths_with_hits = 0;
+    this.num_paths_searched = 0;
 }
 Controller.prototype.constructor = Controller;
 
@@ -267,6 +271,10 @@ Controller.prototype.report = function(num_hits, num_paths_with_hits,
                                        num_paths_searched)
 {
     try {
+        this.num_hits = num_hits;
+        this.num_paths_with_hits = num_paths_with_hits;
+        this.num_paths_searched = num_paths_searched;
+
         if (!this._have_had_first_report_with_hits && num_hits != 0) {
             // When we have the first hit, select that row.
             widgets.repls.view.selection.select(0);
@@ -286,21 +294,16 @@ Controller.prototype.report = function(num_hits, num_paths_with_hits,
     }
 }
 
-Controller.prototype.done = function(num_hits)
+Controller.prototype.done = function()
 {
     try {
-        widgets.status_img.setAttribute("src",
-            "chrome://famfamfamsilk/skin/icons/information.png");
-        
-        if (num_hits == 0) {
-            widgets.repls_notebox.appendNotification(
-                "The pattern was not found.", // label
-                1, // value
-                "chrome://famfamfamsilk/skin/icons/exclamation.png", // image
-                widgets.repls_notebox.PRIORITY_INFO_MEDIUM, // priority
-                null // buttons
-            );
-            
+        if (this.num_hits == 0) {
+            widgets.status_img.setAttribute("src",
+                "chrome://famfamfamsilk/skin/icons/exclamation.png");
+            widgets.status_lbl.setAttribute("value",
+                "The pattern was not found ("
+                + this.num_paths_searched + " files searched).");
+
             widgets.cancel_btn.setAttribute("label", "Close");
             widgets.cancel_btn.setAttribute("accesskey", "s");
 
@@ -308,6 +311,8 @@ Controller.prototype.done = function(num_hits)
             widgets.cancel_btn.setAttribute("default", "true");
             widgets.dialog.setAttribute("defaultButton", "cancel");
         } else {
+            widgets.status_img.setAttribute("src",
+                "chrome://famfamfamsilk/skin/icons/information.png");
             widgets.accept_btn.removeAttribute("disabled");
         }
     } catch(ex) {

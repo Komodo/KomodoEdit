@@ -188,6 +188,11 @@ Controller.prototype.error = function(errmsg)
             "chrome://famfamfamsilk/skin/icons/exclamation.png");
         _set_desc(widgets.status_desc,
                   "The undo failed.\n"+errmsg);
+        
+        // Dev Note: *Want* to collapse the tree (widgets.repls) but that
+        // just doesn't work. Don't know why <tree>'s are special.
+        //_collapse_widget(widgets.repls);
+        //_hide_widget(widgets.repls);
 
         window.arguments[0].retval = false;
         widgets.accept_btn.removeAttribute("disabled");

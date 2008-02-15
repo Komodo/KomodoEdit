@@ -51,7 +51,7 @@ interface koIFindResultsView;
 interface koIConfirmReplaceController : nsISupports {
     // Called by koIConfirmReplacerInFiles to indicate that all
     // replacements have been found.
-    void done(in PRUint32 num_hits);
+    void done();
 
     // Called to report the current status of the search/replace.
     void report(in PRUint32 num_hits, in PRUint32 num_paths_with_hits,

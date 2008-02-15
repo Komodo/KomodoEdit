@@ -494,7 +494,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
         finally:
             if not self._stopped:
-                self.controllerProxy.done(self.num_hits)
+                self.controllerProxy.done()
 
     def toggle_mark(self, row_idx):
         with self._lock:

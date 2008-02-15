@@ -39,15 +39,10 @@
  * TODO: document usage, esp. allowed 'mode' window.arguments
  *
  * TODOs:
- * - replacement for "Display results in Find Results 2 tab" checkbox
- *   (the plan is the 'pin' option)
- * - replace in files support
  * - better error message handling (perhaps validate with lexregex.py)
- * - undo functionality
  * - all spec'd replace in files guards
- * - find results tab enhancements (pin, grouping/view opts, handling
+ * - find results tab enhancements (grouping/view opts, handling
  *   replacement warnings/errors, filter, redo)
- * - some key mappings (see find2.xul)
  * - prep new docs for Troy
  */
 
