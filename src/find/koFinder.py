@@ -37,6 +37,8 @@
 
 # The implementation of the Komodo Find and Replace service
 
+from __future__ import with_statement
+
 import os
 from os.path import join, isabs, expanduser, normpath
 import sys
@@ -443,6 +445,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self.num_paths_searched = 0
         self._last_reported_num_paths_with_hits = 0
 
+        # A guard for `self.rgroups` and `self.marked`.
+        self._lock = threading.RLock()
+
     def stop(self):
         self._stopped = True
 
@@ -492,7 +497,8 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 self.controllerProxy.done(self.num_hits)
 
     def toggle_mark(self, row_idx):
-        self.marked[row_idx] = not self.marked[row_idx]
+        with self._lock:
+            self.marked[row_idx] = not self.marked[row_idx]
         if self._tree:
             self._tree.invalidateRow(row_idx)
 
@@ -592,15 +598,19 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             return      # skip reporting
 
         if self.num_paths_with_hits > self._last_reported_num_paths_with_hits:
-            if self._tree:
-                self._tree.beginUpdateBatch()
-                self._tree.rowCountChanged(
+            try:
+                self._treeProxy.beginUpdateBatch()
+                self._treeProxy.rowCountChanged(
                     # Starting at row N...
                     self._last_reported_num_paths_with_hits,
                     # ...for M rows.
                     self.num_paths_with_hits - self._last_reported_num_paths_with_hits)
-                self._tree.invalidate()
-                self._tree.endUpdateBatch()
+                self._treeProxy.invalidate()
+                self._treeProxy.endUpdateBatch()
+            except AttributeError, ex:
+                # Ignore if `self._treeProxy` goes away on us during
+                # shutdown of the confirmation dialog.
+                pass
             self._last_reported_num_paths_with_hits = self.num_paths_with_hits
 
         self.controllerProxy.report(self.num_hits,
@@ -610,8 +620,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     def _add_repl_group(self, rgroup):
         self.num_paths_with_hits += 1
         self.num_hits += rgroup.length
-        self.rgroups.append(rgroup)
-        self.marked.append(True)
+        with self._lock:
+            self.rgroups.append(rgroup)
+            self.marked.append(True)
 
     def _norm_dir_from_dir(self, dir):
         dir = normpath(dir)
@@ -624,8 +635,18 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
 
     #---- koITreeView methods
+    def setTree(self, tree):
+        self._tree = tree
+        if tree is not None:
+            self._treeProxy = getProxyForObject(None,
+                components.interfaces.nsITreeBoxObject,
+                self._tree, PROXY_ALWAYS | PROXY_ASYNC)
+        else:
+            self._treeProxy = None
+
     def get_rowCount(self):
-        return len(self.rgroups)
+        with self._lock:
+            return len(self.rgroups)
 
     def isEditable(self, row_idx, col):
         if col.id == "repls-marked":
@@ -635,11 +656,13 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     
     def getCellValue(self, row_idx, col):
         assert col.id == "repls-marked"
-        return (self.marked[row_idx] and "true" or "false")
+        with self._lock:
+            return (self.marked[row_idx] and "true" or "false")
 
     def setCellValue(self, row_idx, col, value):
         assert col.id == "repls-marked"
-        self.marked[row_idx] = (value == "true" and True or False)
+        with self._lock:
+            self.marked[row_idx] = (value == "true" and True or False)
         if self._tree:
             self._tree.invalidateCell(row_idx, col)
 
@@ -647,8 +670,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         if col.id == "repls-marked":
             return ""
         assert col.id == "repls-desc"
-        rgroup = self.rgroups[row_idx]
-        return "%s (%d replacements)" % (rgroup.path, rgroup.length)
+        with self._lock:
+            rgroup = self.rgroups[row_idx]
+            return "%s (%d replacements)" % (rgroup.path, rgroup.length)
 
 
 class _ReplaceUndoer(threading.Thread, TreeView):
@@ -678,6 +702,8 @@ class _ReplaceUndoer(threading.Thread, TreeView):
         self.num_paths = 0
         self._last_reported_num_paths = 0
 
+        self._lock = threading.RLock()  # A guard for `self.records`.
+
     def stop(self):
         self._stopped = True
 
@@ -694,7 +720,8 @@ class _ReplaceUndoer(threading.Thread, TreeView):
                                                   len(event.journal)))
                     continue
                 assert isinstance(event, findlib2.JournalReplaceRecord)
-                self.records.append(event)
+                with self._lock:
+                    self.records.append(event)
                 self.num_paths += 1
                 self.num_hits += event.length
                 self._report()
@@ -735,28 +762,43 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             return      # skip reporting
 
         if self.num_paths > self._last_reported_num_paths:
-            if self._tree:
-                self._tree.beginUpdateBatch()
-                self._tree.rowCountChanged(
+            try:
+                self._treeProxy.beginUpdateBatch()
+                self._treeProxy.rowCountChanged(
                     # Starting at row N...
                     self._last_reported_num_paths,
                     # ...for M rows.
                     self.num_paths - self._last_reported_num_paths)
-                self._tree.invalidate()
-                self._tree.endUpdateBatch()
+                self._treeProxy.invalidate()
+                self._treeProxy.endUpdateBatch()
+            except AttributeError, ex:
+                # Ignore if `self._treeProxy` goes away on us during
+                # shutdown of the confirmation dialog.
+                pass
             self._last_reported_num_paths = self.num_paths
 
         self.controllerProxy.report(self.num_hits, self.num_paths)
 
 
     #---- koITreeView methods
+    def setTree(self, tree):
+        self._tree = tree
+        if tree is not None:
+            self._treeProxy = getProxyForObject(None,
+                components.interfaces.nsITreeBoxObject,
+                self._tree, PROXY_ALWAYS | PROXY_ASYNC)
+        else:
+            self._treeProxy = None
+
     def get_rowCount(self):
-        return len(self.records)
+        with self._lock:
+            return len(self.records)
 
     def getCellText(self, row_idx, col):
         assert col.id == "repls-desc"
-        record = self.records[row_idx]
-        return "%s (%d replacements undone)" % (record.path, record.length)
+        with self._lock:
+            record = self.records[row_idx]
+            return "%s (%d replacements undone)" % (record.path, record.length)
 
 
 
