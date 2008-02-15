@@ -1078,6 +1078,47 @@ class PrototypeTestCase(CodeIntelTestCase):
         #   http://www.sergiopereira.com/articles/prototype.js.html#TryThese
         self.assertCalltipIs("Try(<|>", "Try(...)", env=self.env)
 
+    @tag("bug62767", "knownfailure")
+    def test_complete_names(self):
+        content, positions = unmark_text(dedent("""\
+            var bug62767 = "My bug";
+            function bug62767_function(args) {};
+            function bug62767_class(args) { this.args = args };
+            bug62767_class.prototype.somefunc = function() {};
+
+            bug<1>
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "bug62767"),
+             ("function", "bug62767_function"),
+             ("class", "bug62767_class")])
+
+    @tag("bug62767", "knownfailure")
+    def test_complete_names_for_bultins(self):
+        content, positions = unmark_text(dedent("""\
+            # Test we get global variables like window.
+            var mywindow = win<1>;
+            # Test we get all window defined variables as well.
+            doc<2>;
+            # Check for cplns at different positions.
+            var myvar = 1 + par<3>;
+            1 + (par<4>);
+            x += par<5>;
+            field | par<6>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "window")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "document")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("function", "parseFloat"), ("function", "parseInt")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+            [("function", "parseFloat"), ("function", "parseInt")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+            [("function", "parseFloat"), ("function", "parseInt")])
+        # We should not trigger here.
+        self.assertNoTrigger("window.        doc<|>;")
+
 
 # ext JS framework
 class ExtTestCase(CodeIntelTestCase):
