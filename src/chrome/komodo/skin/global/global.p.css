@@ -100,7 +100,11 @@
 
 .warning-icon
 {
+/* #if PLATFORM == "darwin" */
+    list-style-image : url("chrome://global/skin/icons/warning-large.png");
+/* #else */
     list-style-image : url("chrome://global/skin/icons/Warning.png");
+/* #endif */
     height: 32px;
     width: 32px;
 }
@@ -113,9 +117,14 @@
     width: 16px;
 }
 
+
 .question-icon
 {
+/* #if PLATFORM == "darwin" */
+    list-style-image : url("chrome://global/skin/icons/alert-question.gif");
+/* #else */
     list-style-image : url("chrome://global/skin/icons/Question.png");
+/* #endif */
     height: 32px;
     width: 32px;
 }
