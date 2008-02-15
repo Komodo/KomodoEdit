@@ -260,8 +260,9 @@ this.doCommand = function command_doCommand(command) {
             // if commands.js is included (e.g. in a dialog) but not isearch.js,
             // then ko.isearch.controller is undefined -- we obviously can't be in
             // a 'repeated command' situation
-            if (typeof(ko.isearch) != 'undefined' &&
-                ko.isearch.controller.inRepeatCounterAccumulation) {
+            if (typeof(ko.isearch) != 'undefined'
+                && ko.isearch.controller
+                && ko.isearch.controller.inRepeatCounterAccumulation) {
                 numRepeats = ko.isearch.controller.getCount();
                 ko.isearch.controller.cancelMultiHandler();
             }
