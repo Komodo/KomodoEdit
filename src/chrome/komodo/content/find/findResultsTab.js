@@ -562,10 +562,11 @@ FindResultsTabManager.prototype.undoReplace = function()
     var args = {
         "journal_id": this._journalId
     };
-    window.openDialog("chrome://komodo/content/find/undorepl.xul",
-                      "komodo_undo_repl",
-                      "chrome,modal,titlebar,resizable=yes",
-                      args);
+    ko.windowManager.openDialog(
+        "chrome://komodo/content/find/undorepl.xul",
+        "komodo_undo_repl",
+        "chrome,modal,titlebar,resizable=yes",
+        args);
     var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
     if (args.retval && undoButton) {
         undoButton.setAttribute("disabled", "true");

@@ -71,11 +71,8 @@ function on_load()
         _init_widgets();
         _init();
 
-        if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
-            widgets.dialog.centerWindowOnScreen();
-        } else {
-            widgets.dialog.moveToAlertPosition(); // requires a loaded opener
-        }
+        window.sizeToContent();
+        widgets.dialog.moveToAlertPosition();
     } catch (ex) {
         log.exception(ex);
     }
@@ -275,7 +272,7 @@ Controller.prototype.report = function(num_hits, num_paths_with_hits,
             widgets.repls.view.selection.select(0);
             widgets.repls.focus();
             _enable_widget(widgets.show_marked_changes_btn);
-            this._have_had_first_report_with_hits = false;
+            this._have_had_first_report_with_hits = true;
         }
         
         var hits_s_str = (num_hits == 1 ? "": "s");

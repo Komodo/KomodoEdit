@@ -68,11 +68,8 @@ function on_load()
         _init_widgets();
         _init();
 
-        if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
-            widgets.dialog.centerWindowOnScreen();
-        } else {
-            widgets.dialog.moveToAlertPosition(); // requires a loaded opener
-        }
+        window.sizeToContent();
+        widgets.dialog.moveToAlertPosition();
     } catch (ex) {
         log.exception(ex);
     }

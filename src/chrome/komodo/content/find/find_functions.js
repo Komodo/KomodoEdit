@@ -1533,10 +1533,11 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
             "pattern": pattern,
             "repl": repl
         };
-        window.openDialog("chrome://komodo/content/find/confirmrepl.xul",
-                          "komodo_confirm_repl",
-                          "chrome,modal,titlebar,resizable=yes",
-                          args);
+        ko.windowManager.openDialog(
+            "chrome://komodo/content/find/confirmrepl.xul",
+            "komodo_confirm_repl",
+            "chrome,modal,titlebar,resizable=yes",
+            args);
         var replacer = args.replacer;
         if (!replacer) {
             // The replacement was aborted.
