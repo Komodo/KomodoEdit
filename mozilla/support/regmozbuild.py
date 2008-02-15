@@ -34,8 +34,6 @@
 # the terms of any one of the MPL, the GPL or the LGPL.
 # 
 # ***** END LICENSE BLOCK *****
-# Contributors:
-#   Trent Mick (TrentM@ActiveState.com)
 
 r"""regmozbuild -- a registry of local Mozilla builds
 
@@ -53,12 +51,11 @@ Komodo build system can then use this registry to pick an appropriate
 mozilla build. This module provides the interface to this registry.
 """
 
-__revision__ = "$Id$"
-__version_info__ = (0, 2, 0)
+__version_info__ = (0, 2, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
-from os.path import join, exists
+from os.path import join, exists, abspath, dirname
 import sys
 import optparse
 import logging
@@ -67,7 +64,11 @@ import re
 import shutil
 from glob import glob
 
-import applib
+sys.path.insert(0, join(dirname(dirname(dirname(abspath(__file__)))), "util"))
+try:
+    import applib
+finally:
+    del sys.path[0]
 
 
 
