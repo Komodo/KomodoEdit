@@ -344,6 +344,7 @@
                   <File Id="file239" LongName="komodo_icon_1.png" Name="KOMODO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\komodo_icon_1.png" />
                   <File Id="file278" LongName="tutorials.png" Name="TUTORI_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\tutorials.png" />
                   <File Id="file279" LongName="sample_projects.png" Name="SAMPLE_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\sample_projects.png" />
+                  <File Id="file425" LongName="forums-icon.png" Name="FORUMS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\forums-icon.png" />
                 </Component>
               </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img\top -->
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img -->
