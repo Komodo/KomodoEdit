@@ -415,7 +415,7 @@ $consLocal->Install("$supportDir/html", $exeName);
 
 {
     my @opts = (
-        "--filter", "openkomodo",
+        "--filter", "ide,edit,".$productType."only",
         "--lang", "en-US",
         "--chrome-dir", $mozChromeDir,
         "--miniset-dir", $readmeDir,
