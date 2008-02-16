@@ -350,11 +350,13 @@
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img -->
             <Directory Id="directory534" Name="releases">
               <Component Id="component499" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file301" LongName="openkomodo.html" Name="OPENKO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\openkomodo.html" >
+                <File Id="file301" LongName="ide.html" Name="IDE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide.html" >
                   <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
-                      Name="OPENKO_0.HTM" LongName="Release Notes" />
+                      Name="IDE_0.HTM" LongName="Release Notes" />
                 </File>
-                <File Id="file566" Name="INDEX_0.HTM" LongName="index.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html"/>
+                <File Id="file425" LongName="ide-4.2.html" Name="IDE42_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.2.html" />
+                <File Id="file426" LongName="index.html" Name="INDEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html" />
+                <File Id="file427" LongName="old.html" Name="OLD_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\old.html" />
               </Component>
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\releases -->
             <Directory Id="directory599" Name="tutorial">
