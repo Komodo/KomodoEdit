@@ -44,6 +44,7 @@ ko.dragDrop = {};
 
 (function() {
 var _log = ko.logging.getLogger('ko.dragDrop');
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
 this.dragObserver = {
     canHandleMultipleItems: true,
@@ -197,6 +198,11 @@ this.unpackData = function(flavourData, ret) {
         // strip the line
         ret.text = ret.text.replace(/(^\s*|\s*$)/g, '');
     }
+
+    // Ensure the URI is properly decoded. Fixes bug:
+    // http://bugs.activestate.com/show_bug.cgi?id=72873
+    ret.text = decodeURI(ret.text);
+
     _log.debug('dropped URL is ['+ret.text+']');
     ret.isURL = true;
     // see if this is a mappable url
