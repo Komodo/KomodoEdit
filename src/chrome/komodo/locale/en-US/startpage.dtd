@@ -35,10 +35,12 @@
  ***** END LICENSE BLOCK ***** -->
 
 <!ENTITY checkConfiguration.title "Check Configuration">
+<!ENTITY recentFilesList.label "Recent Files">
 <!ENTITY clearRecentFilesList.tooltiptext "Clear Recent Files List">
+<!ENTITY recentProjectsList.label "Recent Projects">
 <!ENTITY clearRecentProjectsList.tooltiptext "Clear Recent Projects List">
 <!ENTITY hidePane.tooltiptext "Hide Pane">
-<!ENTITY onlineHelp.title "Online Help">
+<!ENTITY onlineHelp.title "Tutorials and Documentation">
 <!ENTITY open.label "Open">
 <!ENTITY openAllSelectedProjectsAndFiles.tooltiptext "Open All Selected Projects and Files">
 <!ENTITY openSampleProject.title "Open Sample Project">

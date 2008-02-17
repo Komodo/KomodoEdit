@@ -37,7 +37,9 @@
 
 <!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
   <!ENTITY % startpageDTD SYSTEM "chrome://komodo/locale/startpage.dtd">
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %startpageDTD;
+  %komodoDTD;
 ]>
 
 <bindings xmlns="http://www.mozilla.org/xbl"
@@ -51,16 +53,10 @@
         <stylesheet src="chrome://komodo/skin/startpage/startpage.css"/>
     </resources>
     <content orient="vertical" xbl:inherits="closed, pref">
-        <xul:vbox style="background-color: #E7E3DE; padding: 1px;" flex="1">
-        <xul:vbox style="background-color: white; padding: 0px;" flex="1">
-            <xul:hbox style="background-color: #E7E3DE;
-                             min-height: 21px;
-                             margin: 1px 1px 0px 1px;"
+        <xul:vbox class="startpage-vbox" flex="1">
+            <xul:hbox class="startpage-header"
                       ondblclick="window.document.getBindingParent(this).toggleBox();"
                       align="center">
-                <xul:label style="font-weight: bold;"
-                           xbl:inherits="value=title"/>
-                <xul:separator flex="1"/>
                 <xul:vbox>
                     <xul:spring flex="1"/>
                     <xul:image class="closebox-icon" tooltiptext="&hidePane.tooltiptext;"
@@ -68,12 +64,12 @@
                                onclick="window.document.getBindingParent(this).toggleBox();"/>
                     <xul:spring flex="1"/>
                 </xul:vbox>
+                <xul:label xbl:inherits="value=title"/>
+                <xul:separator flex="1"/>
             </xul:hbox>
-            <xul:hbox flex="1" anonid="children-box"
-                      style="background-color: #F7F3EF; margin: 1px; padding: 5px;">
+            <xul:hbox flex="1" anonid="children-box" class="children-box">
                 <children/>
             </xul:hbox>
-        </xul:vbox>
         </xul:vbox>
     </content>
 
@@ -337,7 +333,6 @@
     </implementation>
 </binding>
 
-
 <binding id="startpage-bullet" display="xul:box">
     <resources>
         <stylesheet src="chrome://komodo/skin/startpage/startpage.css"/>
@@ -345,11 +340,10 @@
     <content orient="horizontal" align="top">
         <xul:vbox>
             <xul:button xbl:inherits="label=title,image=image"
-                        style="font-weight: bold;"
                         valign="left" halign="top"
-                        class="button-link"
+                        class="button-link header"
                         oncommand="window.document.getBindingParent(this).handleCommand();"/>
-            <xul:vbox style="padding-left: 32px; margin: -6px; padding-bottom: 6px;">
+            <xul:vbox class="bullet-vbox">
                 <children/>
             </xul:vbox>
         </xul:vbox>
@@ -398,32 +392,478 @@
     </implementation>
 </binding>
 
+<binding id="startpage-tree-mru" extends="xul:vbox">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/global/global.css"/>
+        <stylesheet src="chrome://komodo/skin/startpage/startpage.css"/>
+    </resources>
+    <content orient="vertical" flex="1">
+        <xul:tree anonid="mru-tree" flex="1" class="no-border"
+                  hidecolumnpicker="true"
+                  ondblclick="this.parentNode.oncommand(event);"
+                  context="_child">
+            <xul:treecols style="height: 0px">
+            <xul:treecol primary="true" hideheader="true"
+                     id="tree-file"
+                     flex="2"
+                     persist="width"
+                     crop="left"/>
+            <xul:splitter class="tree-splitter"/>
+            <xul:treecol id="tree-date" hideheader="true"
+                     flex="1"
+                     persist="width"
+                     style="width: 5em;"/>
+            </xul:treecols>
+            <xul:treechildren flex="1">
+                <children/>
+            </xul:treechildren>
+            <xul:menupopup>
+            <xul:menuitem anonid="context_open"
+                      label="Open"
+                      class="menuitem-iconic open-file-icon"
+                      oncommand="this.parentNode.parentNode.parentNode.openSelected();"
+                      />
+            <xul:menuitem anonid="context_remove"
+                      label="Remove"
+                      class="menuitem-iconic list-item-remove-icon"
+                      oncommand="this.parentNode.parentNode.parentNode.removeSelected();"
+                      />
+            </xul:menupopup>
+        </xul:tree>
+    </content>
+
+    <implementation implements="nsIObserver">
+        <field name="_osPathSvc">null</field>
+        <field name="_timeSvc">null</field>
+        <field name="_osSvc">null</field>
+        <field name="_lastErrorSvc">null</field>
+        <field name="_dateFormat">true</field>
+        <field name="_projects">null</field>
+        <field name="_files">null</field>
+        <field name="_updateProjectMRUWhenVisible">true</field>
+        <field name="_updateFileMRUWhenVisible">true</field>
+
+        <property name="tree"
+                  onget="return document.getAnonymousNodes(this)[0];"/>
+        <property name="treeView"
+                  onget="return this.tree.view;"/>
+        <property name="treeChildren"
+                  onget="return this.tree.lastChild;"/>
+
+        <method name="init">
+        <body> <![CDATA[
+            this._osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                getService(Components.interfaces.koIOsPath);
+            this._timeSvc = Components.classes["@activestate.com/koTime;1"].
+                getService(Components.interfaces.koITime);
+            this._osSvc = Components.classes["@activestate.com/koOs;1"].
+                getService(Components.interfaces.koIOs);
+            this._lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                getService(Components.interfaces.koILastErrorService);
+            this._dateFormat = gPrefs.getStringPref("defaultDateFormat");
+
+
+            var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+            obSvc.addObserver(this, 'mru_changed', false);
+            gPrefs.addObserver(this); //XXX may want to use pref-specific observers
+
+                //gPrefs.removeObserver(this);
+            window.setTimeout(function (me) {
+                me._projects = me.addTopRow("Recent Projects");
+                me._files = me.addTopRow("Recent Files");
+                me.updateProjectMRUTable();
+                me.updateFileMRUTable();
+            }, 0, this);
+            
+
+        ]]> </body>
+        </method>
+
+        <method name="addTopRow">
+        <parameter name="name"/>
+        <body> <![CDATA[
+            var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+            var item = document.createElementNS(XUL_NS, 'treeitem');
+            item.setAttribute('container', "true");
+            item.setAttribute('open', "true");
+            var row = document.createElementNS(XUL_NS, 'treerow');
+            var nameCell = document.createElementNS(XUL_NS, 'treecell');
+            var dateCell = document.createElementNS(XUL_NS, 'treecell');
+            nameCell.setAttribute('label', name);
+            nameCell.setAttribute('properties', 'header');
+            row.appendChild(nameCell);
+            row.appendChild(dateCell);
+            item.appendChild(row);
+            var children = document.createElementNS(XUL_NS, 'treechildren');
+            item.appendChild(children);
+            this.treeChildren.appendChild(item);
+            return item;
+        ]]> </body>
+        </method>
+
+        <method name="updateFormat">
+        <parameter name="name"/>
+        <body> <![CDATA[
+            this._dateFormat = gPrefs.getStringPref(name);
+            this.updateProjectMRUTable();
+            this.updateFileMRUTable();
+        ]]> </body>
+        </method>
+
+        <method name="oncommand">
+        <parameter name="event"/>
+        <body> <![CDATA[
+            if (event.button == 2) return;
+            var tree = document.getAnonymousElementByAttribute(this, "anonid", "mru-tree");
+            var item = tree.view.getItemAtIndex(tree.currentIndex);
+            var url = item.getAttribute('url');
+            if (url)
+                ko.open.URI(url);
+        ]]> </body>
+        </method>
+
+        <method name="getSelectedItems">
+        <body> <![CDATA[
+            var tree = document.getAnonymousElementByAttribute(this, "anonid", "mru-tree");
+            var start = new Object();
+            var end = new Object();
+            var numRanges = tree.view.selection.getRangeCount();
+            var selection = [];
+            for (var t=0; t<numRanges; t++){
+              tree.view.selection.getRangeAt(t,start,end);
+              for (var v=start.value; v<=end.value; v++){
+                var item = tree.view.getItemAtIndex(v);
+                selection[selection.length] = item;
+              }
+            }
+            return selection;
+        ]]> </body>
+        </method>
+
+        <method name="openSelected">
+        <body> <![CDATA[
+            log.info("openSelected");
+            try {
+                var items = this.getSelectedItems();
+                var urls = new Array();
+                for (var i=0; i< items.length; i++) {
+                    var url = items[i].getAttribute('url');
+                    if (url)
+                        urls.push(url);
+                }
+                if (urls.length > 0)
+                    ko.open.multipleURIs(urls);
+            } catch (ex) {
+                log.error("openSelected error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+        <method name="removeSelected">
+        <body> <![CDATA[
+            log.info("removeSelected");
+            try {
+                // Remove the selected files and projects from their respective MRUs.
+                // - Delete in reverse order so indeces are correct.
+                var items = this.getSelectedItems();
+                var item;
+                for (var i=items.length-1; i >= 0; i--) {
+                    item = items[i];
+                    if (item.parentNode == this._files.lastChild) {
+                        ko.mru.del("mruFileList", item.getAttribute("_index"));
+                    } else {
+                        ko.mru.del("mruProjectList", item.getAttribute("_index"));
+                    }
+                }
+            } catch (ex) {
+                log.error("removeSelected error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+        <method name="clearMRU">
+        <body> <![CDATA[
+            // Verify and then clear the given MRU.
+            //    "mru" is either "project" or "file", indicating which MRU.
+            log.info("clearMRU()");
+            try {
+                var prompt = "Are you sure you want to clear the list "+
+                             "of recent Files and Projects?";
+                var answer = ko.dialogs.okCancel(prompt);
+                if (answer == "OK") {
+                    ko.mru.reset("mruProjectList");
+                    ko.mru.reset("mruFileList");
+                }
+            } catch (ex) {
+                log.error("clearMRU error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+        <method name="updateProjectMRUTable">
+        <body> <![CDATA[
+            log.info("_updateProjectMRUTable()");
+            try {
+                var children = this._projects.lastChild;
+                // Get the MRU info.
+                var projectMRU = null;
+                if (gPrefs.hasPref("mruProjectList")) {
+                    projectMRU = gPrefs.getPref("mruProjectList");
+                }
+
+                // Clear the table (don't clear the header row).
+                while (children.firstChild)  {
+                    children.removeChild(children.firstChild)
+                }
+
+                if (projectMRU && projectMRU.length > 0) {
+                    for (var i=0; i<projectMRU.length; i++) {
+                        var project = projectMRU.getStringPref(i);
+                        this._addMRURow(children, "project", i, project);
+                    }
+                }
+            } catch(ex) {
+                log.exception(ex, "_updateProjectMRUTable error: ");
+            }
+        ]]> </body>
+        </method>
+
+        <method name="updateFileMRUTable">
+        <body> <![CDATA[
+            log.info("_updateFileMRUTable()");
+            try {
+                var children = this._files.lastChild;
+                // Get the MRU info.
+                var fileMRU = null;
+                if (gPrefs.hasPref("mruFileList")) {
+                    fileMRU = gPrefs.getPref("mruFileList");
+                }
+
+                // Clear the table (don't clear the header row).
+                while (children.firstChild)  {
+                    children.removeChild(children.firstChild)
+                }
+
+                if (fileMRU && fileMRU.length > 0) {
+                    for (var i=0; i<fileMRU.length; i++) {
+                        var file = fileMRU.getStringPref(i);
+                        this._addMRURow(children, "file", i, file);
+                    }
+                }
+                
+                
+            } catch(ex) {
+                log.exception(ex, "_updateFileMRUTable error: ");
+            }
+        ]]> </body>
+        </method>
+
+
+        <method name="_addMRURow">
+        <parameter name="children"/>
+        <parameter name="mru"/>
+        <parameter name="index"/>
+        <parameter name="url"/>
+        <body> <![CDATA[
+            log.info("_addMRURow(widgets, mru='"+mru+"', index='"+index+
+                          "', url='"+url+"')");
+            var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+            try {
+                // Add the given project/file URL to the MRU table.
+                //    "mru" is either "project" or "file", indicating which MRU.
+                //    "index" is the zero-based index of the URL in the MRU.
+                //    "url" is the URL to add.
+                // update the file tree mru
+                //<xul:treeitem>
+                //<xul:treerow>
+                //  <xul:treecell label="File 1"/>
+                //  <xul:treecell label="the date"/>
+                //</xul:treerow>
+                //</xul:treeitem>
+
+                // Gather data.
+                var fileName = ko.uriparse.baseName(url);
+                var filePath = ko.uriparse.displayPath(url);
+
+                // Build the XUL.
+                var hbox, checkbox, image, button, label;
+                var item = document.createElementNS(XUL_NS, "treeitem");
+                item.setAttribute('url', url);
+                item.setAttribute('_index', index);
+                var row = document.createElementNS(XUL_NS, "treerow");
+                var fncell = document.createElementNS(XUL_NS, "treecell");
+                fncell.setAttribute("label", fileName);
+                fncell.setAttribute("tooltiptext", filePath);
+                fncell.setAttribute("properties", mru+"-icon");
+                row.appendChild(fncell);
+                var fndate = document.createElementNS(XUL_NS, "treecell");
+                fndate.setAttribute("label", this._getLastModifiedMessage(url));
+                row.appendChild(fndate);
+                item.appendChild(row);
+
+                children.appendChild(item);
+            } catch (ex) {
+                log.error("_addMRURow error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+        <method name="_isToday">
+        <parameter name="secs"/>
+        <body> <![CDATA[
+            log.info("_isToday(secs="+secs+")");
+            try {
+                // Return true iff the given 'secs' (seconds since the epoch) is today.
+                var timeTuple = this._timeSvc.localtime(secs, new Object());
+                var date = this._timeSvc.strftime("%Y %m %d", timeTuple.length, timeTuple);
+
+                var secsNow = this._timeSvc.time();
+                var timeTupleNow = this._timeSvc.localtime(secsNow, new Object());
+                var dateNow = this._timeSvc.strftime("%Y %m %d", timeTupleNow.length, timeTupleNow);
+
+                return date == dateNow;
+            } catch (ex) {
+                log.error("_isToday error: "+ex);
+            }
+            return false;
+        ]]> </body>
+        </method>
+
+        <method name="_getLastModifiedMessage">
+        <parameter name="url"/>
+        <body> <![CDATA[
+            log.info("_getLastModifiedMessage(url='"+url+"')");
+            var msg = "";
+            try {
+                // Return a pretty string describing the last modified time of the given
+                // URL if available.
+                if (url.search(/^(file\:)/) != -1) {
+                    var fname = ko.uriparse.displayPath(url);
+                    var exists = false;
+                    try {
+                        exists = this._osPathSvc.exists(fname)
+                    } catch(e) {
+                        // if we are not in a UTF locale, and the filename has
+                        // characters outside the locale characterset, we will
+                        // get an exception
+                        return "Unknown";
+                    }
+                    if (exists) {
+                        var mode = new Object();
+                        var ino = new Object();
+                        var nlink = new Object();
+                        var uid = new Object();
+                        var gid = new Object();
+                        var size = new Object();
+                        var atime = new Object();
+                        var mtime = new Object();
+                        var ctime = new Object();
+                        try {
+                            this._osSvc.stat(fname, mode, ino, ino, nlink,
+                                             uid, gid, size, atime, mtime,
+                                             ctime);
+                        } catch (ex) {
+                            msg = "Error: " + this._lastErrorSvc.getLastErrorMessage();
+                            log.error("Error stating '"+fname+"': "+ex);
+                        }
+                        if (! msg) {
+                            var timeTuple = this._timeSvc.localtime(mtime.value, new Object());
+                            if (this._isToday(mtime.value)) {
+                                msg = "Today at " + this._timeSvc.strftime(
+                                                        "%H:%M:%S",
+                                                        timeTuple.length,
+                                                        timeTuple);
+                            } else {
+                                msg = this._timeSvc.strftime(this._dateFormat,
+                                                             timeTuple.length,
+                                                             timeTuple);
+                            }
+                        }
+                    } else {
+                        msg = "Does not exist";
+                    }
+
+                } else if (url.search(/^(koremote\:)/) != -1)  {
+                    msg = "Could not determine (Remote File)";
+                } else  {
+                    msg = "Could not determine";
+                }
+            } catch (ex) {
+                log.exception(ex, "_getLastModifiedMessage error");
+            }
+            return msg;
+        ]]> </body>
+        </method>
+
+
+        <method name="observe">
+        <parameter name="subject"/>
+        <parameter name="topic"/>
+        <parameter name="data"/>
+        <body> <![CDATA[
+            log.info("observe(subject="+subject+", topic="+topic+
+                          ", data="+data+")");
+            try {
+                // Observing (1) pref and (2) plain nsIObserver notifications.
+                // Below we key on the notification "name", whose def'n
+                // depends on the type of notification.
+                var name;
+                if (topic == "") {
+                    name = data;  // presumably this is a pref notification
+                } else {
+                    name = topic; // a normal notification
+                }
+
+                switch (name) {
+                case "mru_changed":
+                    var visible = this.parentNode.parentNode.parentNode.parentNode.isCurrent;
+                    if (data == "mruProjectList") {
+                        if (visible) {
+                            this.updateProjectMRUTable();
+                        } else {
+                            this._updateProjectMRUWhenVisible = true;
+                        }
+                    } else if (data == "mruFileList") {
+                        if (visible) {
+                            this.updateFileMRUTable();
+                        } else {
+                            this._updateFileMRUWhenVisible = true;
+                        }
+                    }
+                    break;
+                case "defaultDateFormat":
+                    this.updateFormat(name);
+                    break;
+                }
+            } catch (ex) {
+                log.error("observe error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+    </implementation>
+
+    <handlers>
+        <handler event="DOMMouseScroll" phase="bubbling">
+        <![CDATA[
+            // prevent the whole window scrolling if scrolling the tree
+            event.preventDefault();
+        ]]>
+        </handler>
+    </handlers>
+</binding>
 
 <binding id="view-startpage" display="xul:box"
          extends="chrome://komodo/content/bindings/views.xml#view-base">
     <resources>
+        <stylesheet src="chrome://komodo/skin/global/global.css"/>
         <stylesheet src="chrome://komodo/skin/startpage/startpage.css"/>
     </resources>
     <content>
-        <xul:vbox anonid="startpage-box" flex="1"
-                  style="background-image: url(chrome://komodo/skin/startpage/images/bg.gif);
-                         background-repeat: no-repeat;
-                         background-color: white;
-                         overflow: auto;
-                         padding: 10px;">
-
-
-            <xul:hbox align="center">
-                <xul:image anonid="sp-banner"
-                           src="chrome://komodo/skin/startpage/images/banner.png"
-                           onclick="if (event.ctrlKey &amp;&amp; event.detail == 2) ko.eggs.boing();"/>
-                <xul:spring flex="1"/>
-            </xul:hbox>
-
-            <xul:separator style="height: 10px;"/>
-
+        <xul:vbox anonid="startpage-box" flex="1">
             <xul:box type="startpage" anonid="landingPageBox" title="&whatSNew.title;"
-                     pref="start_page_landing_box_closed"
+                     pref="start_page_landing_box_closed" ordinal="0"
                      onboxopen="
                         var page = event.target.parentNode.parentNode;
                         page.loadLandingPage();
@@ -443,135 +883,55 @@
                          "
                          />
             </xul:box>
-
-            <xul:separator style="height: 10px;"/>
-
-            <xul:vbox>
-                <xul:vbox style="background-color: #E7E3DE; padding: 1px;" flex="1">
-                <xul:vbox style="background-color: white; padding: 0px;" flex="1">
-                    <xul:grid anonid="sp-project-mru-grid">
-                        <xul:columns>
-                            <xul:column flex="1"/> <!-- project name -->
-                            <xul:column flex="1"/> <!-- last modified -->
-                        </xul:columns>
-                        <xul:rows anonid="sp-project-mru-rows">
-                            <xul:row style="margin: 1px;" equalsize="always">
-                                <xul:hbox style="background-color: #E7E3DE; margin-right: 1px;"
-                                          flex="1" align="center" pack="start">
-                                    <xul:checkbox anonid="sp-project-mru-select-checkbox"
-                                                  checked="false"
-                                                  oncommand="window.document.getBindingParent(this).toggleMRUSelection('project');"/>
-                                    <xul:label value="Recent Projects"
-                                               style="font-weight: bold;"/>
-                                </xul:hbox>
-                                <xul:hbox style="background-color: #E7E3DE;"
-                                          flex="1" align="center" pack="start">
-                                    <xul:label value="Last Modified"
-                                               style="font-weight: bold;"/>
-                                    <xul:separator flex="1"/>
-                                    <xul:image class="clear-icon"
-                                               tooltiptext="&clearRecentProjectsList.tooltiptext;"
-                                               onclick="window.document.getBindingParent(this).clearMRU('project');"/>
-                                </xul:hbox>
-                            </xul:row>
-                            <!-- Rows are dynamically added by ._addMRURow()
-                                 or ._addEmptyMRURow() -->
-                        </xul:rows>
-                    </xul:grid>
-                </xul:vbox>
-                </xul:vbox>
-
-                <xul:separator class="thin"/>
-
-                <xul:vbox style="background-color: #E7E3DE; padding: 1px;" flex="1">
-                <xul:vbox style="background-color: white; padding: 0px;" flex="1">
-                    <xul:grid anonid="sp-file-mru-grid">
-                        <xul:columns>
-                            <xul:column flex="1"/> <!-- file name -->
-                            <xul:column flex="1"/> <!-- last modified -->
-                        </xul:columns>
-                        <xul:rows anonid="sp-file-mru-rows">
-                            <xul:row style="margin: 1px;" equalsize="always">
-                                <xul:hbox style="background-color: #E7E3DE; margin-right: 1px;"
-                                          flex="1" align="center" pack="start">
-                                    <xul:checkbox anonid="sp-file-mru-select-checkbox"
-                                                  checked="false"
-                                                  oncommand="window.document.getBindingParent(this).toggleMRUSelection('file');"/>
-                                    <xul:label value="Recent Files"
-                                               style="font-weight: bold;"/>
-                                </xul:hbox>
-                                <xul:hbox style="background-color: #E7E3DE;"
-                                          flex="1" align="center" pack="start">
-                                    <xul:label value="Last Modified"
-                                               style="font-weight: bold;"/>
-                                    <xul:separator flex="1"/>
-                                    <xul:image class="clear-icon"
-                                               tooltiptext="&clearRecentFilesList.tooltiptext;"
-                                               onclick="window.document.getBindingParent(this).clearMRU('file');"/>
-                                </xul:hbox>
-                            </xul:row>
-                            <!-- Rows are dynamically added by ._addMRURow()
-                                 or ._addEmptyMRURow() -->
-                        </xul:rows>
-                    </xul:grid>
-                </xul:vbox>
-                </xul:vbox>
-
-                <xul:separator style="height: 2px;"/>
-
-                <xul:hbox>
-                    <xul:separator flex="1"/>
-                    <xul:button anonid="sp-open-selected-button" class="button-link-a"
-                                style="cursor: pointer; margin-right: 4px; background-color: #F7F3EF;"
-                                disabled="true" label="&open.label;"
-                                oncommand="window.document.getBindingParent(this).openAllSelected();"
-                                tooltiptext="&openAllSelectedProjectsAndFiles.tooltiptext;"/>
-                    <xul:button anonid="sp-remove-selected-button" class="button-link-a"
-                                style="cursor: pointer; background-color: #F7F3EF;"
-                                disabled="true" label="&remove.label;"
-                                oncommand="window.document.getBindingParent(this).removeAllSelected();"
-                                tooltiptext="&removeAllSelectedProjectsAndFilesFromList.tooltiptext;"/>
-                </xul:hbox>
-            </xul:vbox>
-
-            <xul:separator class="thin"/>
-
+            
             <xul:box type="startpage" anonid="quick-links-box" title="&quickLinks.title;"
-                     pref="start_page_quick_links_box_closed">
-                <xul:grid flex="1">
-                    <xul:columns flex="1">
-                        <xul:column flex="1"/>
-                        <xul:column flex="1"/>
-                    </xul:columns>
-                    <xul:rows>
-                        <xul:row equalsize="always">
-                            <xul:box type="startpage-bullet"
-                                     title="&openSampleProject.title;"
-                                     _onbulletcommand="window.document.getBindingParent(this).openSampleProject();"
-                                     onbulletcommand="window.document.getBindingParent(event.target).openSampleProject();"
-                                     image="chrome://komodo/skin/startpage/images/opensample_icon.gif">
-                                <xul:label value="The sample project contains a number of files"/>
-                                <xul:label value="showing many of the features of Komodo."/>
-                            </xul:box>
-                            <xul:box type="startpage-bullet"
-                                     title="&checkConfiguration.title;"
-                                     onbulletcommand="window.document.getBindingParent(event.target).checkConfiguration();"
-                                     image="chrome://komodo/skin/startpage/images/config_icon.gif">
-                                <xul:label value="Check your Komodo and system configuration to"/>
-                                <xul:label value="ensure all Komodo features are working properly."/>
-                            </xul:box>
-                        </xul:row>
-                        <xul:separator class="thin"/>
-                        <xul:row equalsize="always">
-                            <xul:box type="startpage-bullet"
-                                     title="&onlineHelp.title;"
-                                     onbulletcommand="ko.help.open();"
-                                     image="chrome://komodo/skin/startpage/images/help_icon.gif"/>
-                        </xul:row>
-                    </xul:rows>
-                </xul:grid>
+                     pref="start_page_quick_links_box_closed" ordinal="1">
+                <xul:hbox flex="1">
+                        <xul:box type="startpage-bullet"
+                                 title="&openSampleProject.title;"
+                                 _onbulletcommand="window.document.getBindingParent(this).openSampleProject();"
+                                 onbulletcommand="window.document.getBindingParent(event.target).openSampleProject();"
+                                 class="open-sample">
+                            <xul:description width="250px">Contains a number of files
+                            showing many of the features of Komodo.</xul:description>
+                        </xul:box>
+                        <xul:box type="startpage-bullet"
+                                 title="&checkConfiguration.title;"
+                                 onbulletcommand="window.document.getBindingParent(event.target).checkConfiguration();"
+                                 class="properties-icon">
+                            <xul:description width="250px">Checks system configuration to
+                            ensure all Komodo features are working properly.</xul:description>  
+                        </xul:box>
+                </xul:hbox>
             </xul:box>
 
+            <xul:box type="startpage" anonid="mru-box" title="Recent Projects and Files"
+                     pref="start_page_mru_box_closed" flex="1" ordinal="2">
+                <xul:hbox flex="1">
+
+                    <xul:separator/>
+                    <xul:vbox style="padding: 2px 5px 0px 5px">
+                        <xul:label value="Actions:" style="font-weight: bold"/>
+                        <xul:button anonid="menu_file_newFile"
+                                  label="&newFile.label;"
+                                  align="left" pack="center"
+                                  class="button-link new-file-icon"
+                                  observes="cmd_newTemplate"
+                                  />
+                        <xul:button label="&newProject.label;"
+                                  anonid="menu_newProject"
+                                  class="button-link new-project-icon"
+                                  observes="cmd_newProject"
+                                  />
+                        <xul:button label="&newProjectFromTemplate.label;"
+                                  anonid="menu_newProjectFromTemplate"
+                                  class="button-link new-project-icon"
+                                  observes="cmd_newProjectFromTemplate"
+                                  />
+                        <xul:menuseparator anonid="sp-template-mru-rows"/>
+                    </xul:vbox>
+                </xul:hbox>
+            </xul:box>
         </xul:vbox>  <!-- end getting-started-box -->
 
     </content>
@@ -580,15 +940,9 @@
         <property name="title" readonly="true" onget="return 'Start Page';"/>
 
         <field name="widgets">null</field>
-        <field name="_observerSvc">null</field>
-        <field name="_timeSvc">null</field>
-        <field name="_osSvc">null</field>
-        <field name="_osPathSvc">null</field>
-        <field name="_lastErrorSvc">null</field>
 
-        <field name="_updateProjectMRUWhenVisible">true</field>
-        <field name="_updateFileMRUWhenVisible">true</field>
-        <field name="_dateFormat">true</field>
+        <field name="_updateTemplateMRUWhenVisible">true</field>
+        
         <field name="_requestedFeatureStatuses">false</field>
 
         <method name="init">
@@ -598,33 +952,26 @@
             try {
                 this.parentView.setContext(this, "startpageTabContextMenu");
 
-                this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
-                this._timeSvc = Components.classes["@activestate.com/koTime;1"].
-                    getService(Components.interfaces.koITime);
-                this._osSvc = Components.classes["@activestate.com/koOs;1"].
-                    getService(Components.interfaces.koIOs);
-                this._osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
-                    getService(Components.interfaces.koIOsPath);
-                this._lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                    getService(Components.interfaces.koILastErrorService);
 
                 this.widgets = new Object();
-                this.widgets.projectMRURows = document.getAnonymousElementByAttribute(this, "anonid", "sp-project-mru-rows");
-                this.widgets.projectMRUSelectCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "sp-project-mru-select-checkbox");
-                this.widgets.fileMRURows = document.getAnonymousElementByAttribute(this, "anonid", "sp-file-mru-rows");
-                this.widgets.fileMRUSelectCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "sp-file-mru-select-checkbox");
+                this.widgets.mrubox = document.getAnonymousElementByAttribute(this, "anonid", "mru-box");
+                this.widgets.templateMRURows = document.getAnonymousElementByAttribute(this, "anonid", "sp-template-mru-rows");
                 this.widgets.openSelectedButton = document.getAnonymousElementByAttribute(this, "anonid", "sp-open-selected-button");
                 this.widgets.removeSelectedButton = document.getAnonymousElementByAttribute(this, "anonid", "sp-remove-selected-button");
                 this.widgets.quickLinksBox = document.getAnonymousElementByAttribute(this, "anonid", "quick-links-box");
 
-                this._observerSvc.addObserver(this, 'mru_changed', false);
-                gPrefs.addObserver(this); //XXX may want to use pref-specific observers
+                window.setTimeout(function (el) {
+                    var t = document.createElement("mrutree");
+                    el.insertBefore(t, el.firstChild);
+                    t.init(); }, 1, this.widgets.mrubox.firstChild);
+                
+                obSvc.addObserver(this, 'mru_changed', false);
 
                 if (!gPrefs.getBooleanPref("start_page_landing_box_closed")) {
                     this.loadLandingPage();
                 }
-                this._dateFormat = gPrefs.getStringPref("defaultDateFormat");
             } catch(ex) {
                 this.log.error("init error: "+ex);
             }
@@ -642,6 +989,7 @@
                 browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
                 return;
             }
+
             var req = new XMLHttpRequest();
             req.open('HEAD', url, true);
             req._browser = browser;
@@ -711,7 +1059,6 @@
         <body> <![CDATA[
             this.log.info("close");
             try {
-                gPrefs.removeObserver(this);
                 var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
                 obSvc.removeObserver(this, 'mru_changed');
@@ -767,20 +1114,18 @@
             try {
                 // Lazily rebuild the MRU tables, as necessary, when this
                 // view is made visible.
-                this.log.info("setFocus: update project table="+
-                              this._updateProjectMRUWhenVisible+
-                              ", update file table="+
-                              this._updateFileMRUWhenVisible);
-                if (this._updateProjectMRUWhenVisible) {
-                    this._updateProjectMRUTable();
-                    this._updateProjectMRUWhenVisible = false;
+                var mru = this.widgets.mrubox.firstChild.firstChild
+                this.log.info("setFocus: update project table="+mru.nodeName);
+                if (mru.nodeName == "mrutree") {
+                    mru.updateProjectMRUTable();
+                    mru.updateFileMRUTable();
                 }
-                if (this._updateFileMRUWhenVisible) {
-                    this._updateFileMRUTable();
-                    this._updateFileMRUWhenVisible = false;
+                if (this._updateTemplateMRUWhenVisible) {
+                    this._updateTemplateMRU();
+                    this._updateTemplateMRUWhenVisible = false;
                 }
 
-                this.widgets.fileMRUSelectCheckbox.focus();
+                //this.widgets.fileMRUSelectCheckbox.focus();
             } catch(ex) {
                 this.log.error("setFocus error: "+ex);
             }
@@ -812,25 +1157,13 @@
                     //     once. We will regenerate the file list for every opened file which
                     //     means, among other things, that we will stat every file in
                     //     the MRU for every file open.
-                    var visible = this.isCurrent;
-                    if (prefName == "mruProjectList") {
-                        if (visible) {
-                            this._updateProjectMRUTable();
+                    if (prefName == "mruTemplateList") {
+                        if (this.isCurrent) {
+                            this._updateTemplateMRU();
                         } else {
-                            this._updateProjectMRUWhenVisible = true;
-                        }
-                    } else if (prefName == "mruFileList") {
-                        if (visible) {
-                            this._updateFileMRUTable();
-                        } else {
-                            this._updateFileMRUWhenVisible = true;
+                            this._updateTemplateMRUWhenVisible = true;
                         }
                     }
-                    break;
-                case "defaultDateFormat":
-                    this._dateFormat = gPrefs.getStringPref(name);
-                    this._updateProjectMRUTable();
-                    this._updateFileMRUTable();
                     break;
                 }
             } catch (ex) {
@@ -839,486 +1172,69 @@
         ]]> </body>
         </method>
 
-        <method name="toggleMRUSelection">
-        <parameter name="mru"/>
+        <method name="_updateTemplateMRU">
         <body> <![CDATA[
-            // Toggle checked or unchecked all checkboxes for the given mru.
-            //    "mru" is either "project" or "file", indicating which MRU.
-            this.log.info("toggleMRUSelection(mru='"+mru+"')");
-            try {
-                if (mru == "project") {
-                    this._toggleProjectMRUSelections(this.widgets.projectMRUSelectCheckbox.checked);
-                } else if (mru == "file") {
-                    this._toggleFileMRUSelections(this.widgets.fileMRUSelectCheckbox.checked);
-                }
-                this._updateMRUButtons();
-            } catch (ex) {
-                this.log.error("toggleMRUSelection error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="clearMRU">
-        <parameter name="mru"/>
-        <body> <![CDATA[
-            // Verify and then clear the given MRU.
-            //    "mru" is either "project" or "file", indicating which MRU.
-            this.log.info("clearMRU(mru='"+mru+"')");
-            try {
-                var prompt = "Are you sure you want to clear the list "+
-                             "of recent "+mru+"s?";
-                var answer = ko.dialogs.okCancel(prompt);
-                if (answer == "OK") {
-                    if (mru == "project") {
-                        ko.mru.reset("mruProjectList");
-                    } else if (mru == "file") {
-                        ko.mru.reset("mruFileList");
-                    }
-                }
-            } catch (ex) {
-                this.log.error("clearMRU error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_updateProjectMRUTable">
-        <body> <![CDATA[
-            this.log.info("_updateProjectMRUTable()");
+            this.log.info("_updateTemplateMRU()");
             try {
                 // Get the MRU info.
-                var projectMRU = null;
-                if (gPrefs.hasPref("mruProjectList")) {
-                    projectMRU = gPrefs.getPref("mruProjectList");
+                var mru = null;
+                if (gPrefs.hasPref("mruTemplateList")) {
+                    mru = gPrefs.getPref("mruTemplateList");
                 }
 
                 // Clear the table (don't clear the header row).
-                while (this.widgets.projectMRURows.childNodes.length > 1)  {
-                    var row = this.widgets.projectMRURows.firstChild.nextSibling;
-                    this.widgets.projectMRURows.removeChild(row)
+                while (this.widgets.templateMRURows.nextSibling)  {
+                    var row = this.widgets.templateMRURows.nextSibling;
+                    this.widgets.templateMRURows.parentNode.removeChild(row);
                 }
 
-                if (projectMRU && projectMRU.length > 0) {
-                    for (var i=0; i<projectMRU.length; i++) {
-                        var project = projectMRU.getStringPref(i);
-                        this._addMRURow("project", i, project);
+                if (mru && mru.length > 0) {
+                    for (var i=0; i<mru.length; i++) {
+                        this._addMRUButton("template", i, mru.getStringPref(i));
                     }
-                    if (this.widgets.projectMRUSelectCheckbox.hasAttribute("disabled"))
-                        this.widgets.projectMRUSelectCheckbox.removeAttribute("disabled");
-                } else {
-                    this._addEmptyMRURow("project");
-                    this.widgets.projectMRUSelectCheckbox.setAttribute("disabled", true);
                 }
             } catch(ex) {
-                this.log.error("_updateProjectMRUTable error: "+ex);
+                this.log.exception(ex, "_updateTemplateMRU error: ");
             }
         ]]> </body>
         </method>
 
-        <method name="_updateFileMRUTable">
-        <body> <![CDATA[
-            this.log.info("_updateFileMRUTable()");
-            try {
-                // Get the MRU info.
-                var fileMRU = null;
-                if (gPrefs.hasPref("mruFileList")) {
-                    fileMRU = gPrefs.getPref("mruFileList");
-                }
 
-                // Clear the table (don't clear the header row).
-                while (this.widgets.fileMRURows.childNodes.length > 1)  {
-                    var row = this.widgets.fileMRURows.firstChild.nextSibling;
-                    this.widgets.fileMRURows.removeChild(row)
-                }
 
-                if (fileMRU && fileMRU.length > 0) {
-                    for (var i=0; i<fileMRU.length; i++) {
-                        var file = fileMRU.getStringPref(i);
-                        this._addMRURow("file", i, file);
-                    }
-                    if (this.widgets.fileMRUSelectCheckbox.hasAttribute("disabled"))
-                        this.widgets.fileMRUSelectCheckbox.removeAttribute("disabled");
-                } else {
-                    this._addEmptyMRURow("file");
-                    this.widgets.fileMRUSelectCheckbox.setAttribute("disabled", true);
-                }
-            } catch(ex) {
-                this.log.error("_updateFileMRUTable error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="openAllSelected">
-        <body> <![CDATA[
-            this.log.info("openAllSelected");
-            try {
-                var urls = new Array();
-                var i;
-                var checkboxes = this.widgets.projectMRURows.getElementsByTagName("checkbox");
-                for (i = 0; i < checkboxes.length; i++) {
-                    // skip header row's checkbox
-                    if (checkboxes[i].hasAttribute("_url") && checkboxes[i].checked) {
-                        urls.push( checkboxes[i].getAttribute("_url") );
-                    }
-                }
-                this._toggleProjectMRUSelections(false);
-
-                checkboxes = this.widgets.fileMRURows.getElementsByTagName("checkbox");
-                for (i=0; i < checkboxes.length; i++) {
-                    // skip header row's checkbox
-                    if (checkboxes[i].hasAttribute("_url") && checkboxes[i].checked) {
-                        urls.push( checkboxes[i].getAttribute("_url") );
-                    }
-                }
-                this._toggleFileMRUSelections(false);
-
-                ko.open.multipleURIs(urls);
-            } catch (ex) {
-                this.log.error("openAllSelected error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="removeAllSelected">
-        <body> <![CDATA[
-            this.log.info("removeAllSelected");
-            try {
-                // Remove the selected files and projects from their respective MRUs.
-                // - Delete in reverse order so indeces are correct.
-                var i;
-                var indeces = new Array();
-                var checkboxes = this.widgets.projectMRURows.getElementsByTagName("checkbox");
-                for (i = checkboxes.length-1; i >= 0; i--) {
-                    if (checkboxes[i].hasAttribute("_index") && checkboxes[i].checked) {
-                        indeces.push( checkboxes[i].getAttribute("_index") );
-                    }
-                }
-                this._toggleProjectMRUSelections(false);
-                for (i=0; i < indeces.length; i++) {
-                    ko.mru.del("mruProjectList", indeces[i]);
-                }
-
-                indeces = new Array();
-                checkboxes = this.widgets.fileMRURows.getElementsByTagName("checkbox");
-                for (i = checkboxes.length-1; i >= 0; i--) {
-                    if (checkboxes[i].hasAttribute("_index") && checkboxes[i].checked) {
-                        indeces.push( checkboxes[i].getAttribute("_index") );
-                    }
-                }
-                this._toggleFileMRUSelections(false);
-                for (i=0; i < indeces.length; i++) {
-                    ko.mru.del("mruFileList", indeces[i]);
-                }
-
-                this._updateMRUButtons();
-            } catch (ex) {
-                this.log.error("removeAllSelected error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_updateMRUButtons">
-        <body> <![CDATA[
-            this.log.info("_updateMRUButtons");
-            try {
-                var noneChecked = true;
-                var i;
-                var checkboxes = this.widgets.projectMRURows.getElementsByTagName("checkbox");
-                for (i = 0; i < checkboxes.length; i++) {
-                    // Skip the "group-select" checkbox in the title row.
-                    if (checkboxes[i].hasAttribute("_url") && checkboxes[i].checked) {
-                        noneChecked = false;
-                        break;
-                    }
-                }
-                if (noneChecked) {
-                    checkboxes = this.widgets.fileMRURows.getElementsByTagName("checkbox");
-                    for (i = 0; i < checkboxes.length; i++) {
-                        // Skip the "group-select" checkbox in the title row.
-                        if (checkboxes[i].hasAttribute("_url") && checkboxes[i].checked) {
-                            noneChecked = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (noneChecked) {
-                    this.widgets.openSelectedButton.setAttribute("disabled", true);
-                    this.widgets.removeSelectedButton.setAttribute("disabled", true);
-                } else {
-                    if (this.widgets.openSelectedButton.hasAttribute("disabled"))
-                        this.widgets.openSelectedButton.removeAttribute("disabled");
-                    if (this.widgets.removeSelectedButton.hasAttribute("disabled"))
-                        this.widgets.removeSelectedButton.removeAttribute("disabled");
-                }
-            } catch (ex) {
-                this.log.error("_updateMRUButtons error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_toggleFileMRUSelections">
-        <parameter name="checked"/>
-        <body> <![CDATA[
-            this.log.info("_toggleFileMRUSelections");
-            try {
-                var checkboxes = this.widgets.fileMRURows.getElementsByTagName("checkbox");
-                for (var i=0; i < checkboxes.length; i++) {
-                    checkboxes[i].setAttribute("checked", checked);
-                }
-            } catch (ex) {
-                this.log.error("_toggleFileMRUSelections error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_toggleProjectMRUSelections">
-        <parameter name="checked"/>
-        <body> <![CDATA[
-            this.log.info("_toggleProjectMRUSelections");
-            try {
-                var checkboxes = this.widgets.projectMRURows.getElementsByTagName("checkbox");
-                for (var i=0; i < checkboxes.length; i++) {
-                    checkboxes[i].setAttribute("checked", checked);
-                }
-            } catch (ex) {
-                this.log.error("_toggleProjectMRUSelections error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="toggleCheckbox">
-        <parameter name="mru"/>
-        <body> <![CDATA[
-            this.log.info("toggleCheckbox");
-            try {
-                // Do the necessary updates when a user (un)checks the given checkbox.
-                //    "mru" is either "project" or "file", indicating which MRU.
-                var groupSelectCheckbox = document.getAnonymousElementByAttribute(this, "anonid", "sp-"+mru+"-mru-select-checkbox");
-                groupSelectCheckbox.setAttribute('checked', false);
-                this._updateMRUButtons();
-            } catch (ex) {
-                this.log.error("toggleCheckbox error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_addMRURow">
+        <method name="_addMRUButton">
         <parameter name="mru"/>
         <parameter name="index"/>
         <parameter name="url"/>
         <body> <![CDATA[
-            this.log.info("_addMRURow(widgets, mru='"+mru+"', index='"+index+
-                          "', url='"+url+"')");
-            try {
-                // Add the given project/file URL to the MRU table.
-                //    "mru" is either "project" or "file", indicating which MRU.
-                //    "index" is the zero-based index of the URL in the MRU.
-                //    "url" is the URL to add.
-
-                // Gather data.
-                var fileName = ko.uriparse.baseName(url);
-                var filePath = ko.uriparse.displayPath(url);
-
-                // Build the XUL.
-                var hbox, checkbox, image, button, label;
-                var row = document.createElement("row");
-                row.setAttribute("equalsize", "always");
-
-                hbox = document.createElement("hbox");
-                hbox.setAttribute("class", "sp-mru-row sp-not-right-column");
-                hbox.setAttribute("flex", "1");
-                hbox.setAttribute("align", "center");
-                hbox.setAttribute("pack", "start");
-                checkbox = document.createElement("checkbox");
-                checkbox.setAttribute("anonid", "sp-"+mru+"-mru-checkbox-"+index);
-                checkbox.setAttribute("checked", "false");
-                checkbox.setAttribute("label", "");
-                checkbox.setAttribute("oncommand", "window.document.getBindingParent(this).toggleCheckbox('"+mru+"');");
-                checkbox.setAttribute("_url", url); // used by the Open button
-                checkbox.setAttribute("_index", index); // used by the Remove button
-                hbox.appendChild(checkbox);
-                image = document.createElement("image");
-                image.setAttribute("src", "chrome://komodo/skin/startpage/images/"+mru+"_icon_16x16.png");
-                //image.setAttribute("style", "padding-left: 4px;");
-                hbox.appendChild(image);
-                button = document.createElement("button");
-                button.setAttribute("label", fileName);
-                button.setAttribute("class", "button-link sp-mru-row");
-                button.setAttribute("oncommand", "ko.open.URI('"+url+"');");
-                button.setAttribute("crop", "center");
-                button.setAttribute("valign", "center");
-                button.setAttribute("flex", "1"); // CROPCRAP
-                button.setAttribute("tooltiptext", filePath);
-                button.setAttribute("tooltip", "aTooltip");
-                hbox.appendChild(button);
-                var spring = document.createElement("spring"); // CROPCRAP
-                spring.setAttribute("flex", "99"); // CROPCRAP
-                hbox.appendChild(spring); // CROPCRAP
-                row.appendChild(hbox);
-                // CROPCRAP Note: All lines with the "CROPCRAP" token exist
-                // solely to make the crop attribute on the button work without
-                // resulting in the whole filename area getting underlined.
-                hbox = document.createElement("hbox");
-                hbox.setAttribute("class", "sp-mru-row");
-                hbox.setAttribute("flex", "1");
-                hbox.setAttribute("align", "center");
-                hbox.setAttribute("pack", "start");
-                label = document.createElement("label");
-                label.setAttribute("class", "text");
-                label.setAttribute("value", this._getLastModifiedMessage(url));
-                hbox.appendChild(label);
-                row.appendChild(hbox);
-                if (mru == "project") {
-                    this.widgets.projectMRURows.appendChild(row);
-                } else if (mru == "file") {
-                    this.widgets.fileMRURows.appendChild(row);
-                }
-            } catch (ex) {
-                this.log.error("_addMRURow error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
-        <method name="_addEmptyMRURow">
-        <parameter name="mru"/>
-        <body> <![CDATA[
-            this.log.debug("_addEmptyMRURow(mru='"+mru+"')");
+            this.log.debug("_addMRUButton(mru='"+mru+"')");
             try {
                 // Add a "No Recent Files/Projects" row.
                 //    "mru" is either "project" or "file", indicating which MRU.
                 //
                 // One like this:
-                //    <xul:row equalsize="always">
-                //        <xul:hbox class="sp-mru-empty-row sp-not-right-column" flex="1"
-                //                  align="center" pack="start">
-                //            <xul:label value=" No recent projects"
-                //                       style="font-weight: bold;"
-                //                       class="sp-mru-empty-row"/>
-                //        </xul:hbox>
-                //        <xul:hbox class="sp-mru-empty-row"
-                //                  flex="1" align="center" pack="start"/>
-                //    </xul:row>
+                //    <xul:button label="&newProjectFromTemplate.label;"
+                //              anonid="menu_newProjectFromTemplate"
+                //              class="button-link new-project-icon"
+                //              observes="cmd_newProjectFromTemplate"
+                //              />
 
                 var hbox, label;
-                var row = document.createElement("row");
-                row.setAttribute("equalsize", "always");
 
-                hbox = document.createElement("hbox");
-                hbox.setAttribute("class", "sp-mru-empty-row sp-not-right-column");
-                hbox.setAttribute("flex", "1");
-                hbox.setAttribute("align", "center");
-                hbox.setAttribute("pack", "start");
-                label = document.createElement("label");
-                label.setAttribute("class", "sp-mru-empty-row");
-                label.setAttribute("value", " No recent "+mru+"s");
-                hbox.appendChild(label);
-                row.appendChild(hbox);
+                var btn = document.createElement("button");
+                btn.setAttribute("class", "button-link new-file-icon");
+                var name = ko.uriparse.baseName(url);
+                btn.setAttribute("label", name);
 
-                // Add the timestamp cell.
-                hbox = document.createElement("hbox");
-                hbox.setAttribute("class", "sp-mru-empty-row");
-                hbox.setAttribute("flex", "1");
-                hbox.setAttribute("align", "center");
-                hbox.setAttribute("pack", "start");
-                row.appendChild(hbox);
+                btn.setAttribute("oncommand",
+                    "ko.uilayout.newFileFromTemplateOrTrimMRU('"+url+"', '"+name+"',"+index+");");
 
-                if (mru == "project") {
-                    this.widgets.projectMRURows.appendChild(row);
-                } else if (mru == "file") {
-                    this.widgets.fileMRURows.appendChild(row);
-                }
+                this.widgets.templateMRURows.parentNode.appendChild(btn);
             } catch (ex) {
-                this.log.error("_addEmptyMRURow error: "+ex);
+                this.log.error("_addMRUButton error: "+ex);
             }
         ]]> </body>
         </method>
 
-        <method name="_isToday">
-        <parameter name="secs"/>
-        <body> <![CDATA[
-            this.log.info("_isToday(secs="+secs+")");
-            try {
-                // Return true iff the given 'secs' (seconds since the epoch) is today.
-                var timeTuple = this._timeSvc.localtime(secs, new Object());
-                var date = this._timeSvc.strftime("%Y %m %d", timeTuple.length, timeTuple);
-
-                var secsNow = this._timeSvc.time();
-                var timeTupleNow = this._timeSvc.localtime(secsNow, new Object());
-                var dateNow = this._timeSvc.strftime("%Y %m %d", timeTupleNow.length, timeTupleNow);
-
-                return date == dateNow;
-            } catch (ex) {
-                this.log.error("_isToday error: "+ex);
-            }
-            return false;
-        ]]> </body>
-        </method>
-
-        <method name="_getLastModifiedMessage">
-        <parameter name="url"/>
-        <body> <![CDATA[
-            this.log.info("_getLastModifiedMessage(url='"+url+"')");
-            var msg = "";
-            try {
-                // Return a pretty string describing the last modified time of the given
-                // URL if available.
-                if (url.search(/^(file\:)/) != -1) {
-                    var fname = ko.uriparse.displayPath(url);
-                    var exists = false;
-                    try {
-                        exists = this._osPathSvc.exists(fname)
-                    } catch(e) {
-                        // if we are not in a UTF locale, and the filename has
-                        // characters outside the locale characterset, we will
-                        // get an exception
-                        return "Unknown";
-                    }
-                    if (exists) {
-                        var mode = new Object();
-                        var ino = new Object();
-                        var nlink = new Object();
-                        var uid = new Object();
-                        var gid = new Object();
-                        var size = new Object();
-                        var atime = new Object();
-                        var mtime = new Object();
-                        var ctime = new Object();
-                        try {
-                            this._osSvc.stat(fname, mode, ino, ino, nlink,
-                                             uid, gid, size, atime, mtime,
-                                             ctime);
-                        } catch (ex) {
-                            msg = "Error: " + this._lastErrorSvc.getLastErrorMessage();
-                            this.log.error("Error stating '"+fname+"': "+ex);
-                        }
-                        if (! msg) {
-                            var timeTuple = this._timeSvc.localtime(mtime.value, new Object());
-                            if (this._isToday(mtime.value)) {
-                                msg = "Today at " + this._timeSvc.strftime(
-                                                        "%H:%M:%S",
-                                                        timeTuple.length,
-                                                        timeTuple);
-                            } else {
-                                msg = this._timeSvc.strftime(this._dateFormat,
-                                                             timeTuple.length,
-                                                             timeTuple);
-                            }
-                        }
-                    } else {
-                        msg = "Does not exist";
-                    }
-
-                } else if (url.search(/^(koremote\:)/) != -1)  {
-                    msg = "Could not determine (Remote File)";
-                } else  {
-                    msg = "Could not determine";
-                }
-            } catch (ex) {
-                this.log.exception(ex, "_getLastModifiedMessage error");
-            }
-            return msg;
-        ]]> </body>
-        </method>
 
         <method name="openSampleProject">
         <body> <![CDATA[
@@ -1368,38 +1284,9 @@
         ]]> </body>
         </method>
 
-<!-- new method template
-        <method name="XXX">
-        <parameter name="param1"/>
-        <body> <![CDATA[
-            this.log.info("XXX");
-            try {
-                XXX
-            } catch (ex) {
-                this.log.error("XXX error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
--->
-
     </implementation>
 
-    <handlers>
-        <handler event="DOMMouseScroll" phase="capturing">
-        <![CDATA[
-            //XXX Ack! How do you scroll a <vbox>?!
-            // - There is no scrollbar tag to work with.
-            // - window.scrollBy() does not work.
-            // - window.scrollTo() does not work.
-            // - None of .scroll{To|Down|Up|By} exist on 'this' or
-            //   on the 'startpage-box' element.
-            log.debug("Don't know how to manually scroll this vbox!");
-        ]]>
-        </handler>
-    </handlers>
 
 </binding>
 
 </bindings>
-

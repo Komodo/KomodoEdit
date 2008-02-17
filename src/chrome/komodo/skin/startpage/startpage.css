@@ -38,6 +38,14 @@
 
 view[type='startpage']  {
   -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#view-startpage');
+  /*background-image: url(chrome://komodo/skin/startpage/images/bg.gif);*/
+  /*background-repeat: no-repeat;*/
+  background-color: grey;
+  overflow: auto;
+}
+
+mrutree  {
+  -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#startpage-tree-mru');
 }
 
 box[type='startpage']  {
@@ -48,33 +56,48 @@ box[type='startpage-bullet']  {
   -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#startpage-bullet');
 }
 
-
-/* MRU list styles */
-
-label.sp-mru-empty-row {
-    color: #737373;
-    /* HACK to get empty row first column width to match filled row first
-       column with 3/1 flex ratio. */
-    /*padding-right: 100px;*/
-}
-hbox.sp-mru-empty-row {
-    background-color: #F7F3EF;
-    margin-bottom: 1px;
-}
-hbox.sp-mru-row {
-    background-color: #F7F3EF;
-    margin-bottom: 1px;
-}
-hbox.sp-not-right-column {
-    margin-right: 1px;
-}
-button.sp-mru-row {
-    cursor: pointer;
+.startpage-vbox {
 }
 
+.startpage-vbox > .startpage-header {
+  background-color: #E7E3DE;
+  min-height: 21px;
+  margin: 0px;
+}
 
+.startpage-vbox > .startpage-header > label {
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.startpage-vbox > .children-box {
+  background-color: #F7F3EF;
+  margin: 1px 1px 0px 0px;
+}
+.bullet-vbox {
+    padding-left: 32px;
+    padding-bottom: 6px;
+}
 /* Button styles */
+treechildren::-moz-tree-image(file-icon),
+.file-icon {
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+}
+treechildren::-moz-tree-image(project-icon),
+.project-icon {
+  list-style-image: url('chrome://komodo/skin/images/project_icon.png');
+}
 
+.open-sample {
+  list-style-image: url('chrome://komodo/skin/startpage/images/project_icon_16x16.png');
+}
+
+.tutorial-icon {
+    list-style-image: url("chrome://komodo/skin/startpage/images/tutorial_icon.png");
+}
+.config-icon {
+    list-style-image: url("chrome://komodo/skin/startpage/images/config_icon.gif");
+}
 .clear-icon {
     list-style-image : url("chrome://komodo/skin/startpage/images/small-x.png");
     padding: 1px 3px 1px 3px;
@@ -126,4 +149,3 @@ button.sp-mru-row {
 {
     list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
 }
-
