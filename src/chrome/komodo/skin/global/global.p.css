@@ -201,7 +201,12 @@
 
 .configure-icon
 {
-    list-style-image : url("chrome://komodo/skin/global/images/configure.gif");
+    list-style-image : url("chrome://komodo/skin/global/images/cog_edit.png");
+}
+
+.properties-icon
+{
+    list-style-image : url("chrome://komodo/skin/global/images/cog.png");
 }
 
 .small-x-icon

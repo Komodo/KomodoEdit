@@ -45,7 +45,8 @@ $cons->InstallInChrome('upLevel_disable.png');
 
 $cons->InstallInChrome('refresh.png');
 $cons->InstallInChrome('warning_small.png');
-$cons->InstallInChrome('configure.gif');
+$cons->InstallInChrome('cog_edit.png');
+$cons->InstallInChrome('cog.png');
 
 $cons->InstallInChrome('goBack.png');
 $cons->InstallInChrome('goBack_hover.png');
