@@ -40,19 +40,18 @@ Import(
     'cons',
     'mozChromeDir',
     'platform',
+    'productType',
     'buildFlavour',
     'unsiloedPythonExe',
     'mozVersion',
-    'productType',
 );
 
-$cons->Preprocess('disconnected.p.html', 'disconnected.html');
 $cons->InstallInChrome('disconnected.html');
-$cons->InstallInChrome('komodo_start.css');
-$cons->InstallInChrome('help.png');
-$cons->InstallInChrome('learn-workspace.png');
-$cons->InstallInChrome('komodo-start-bg-left.png');
-$cons->InstallInChrome('komodo-start-bg-middle.png');
-$cons->InstallInChrome('komodo-start-bg-right.png');
-$cons->InstallInChrome('komodo-start-bg.png');
+$cons->InstallInChrome('komodo_iframe.css');
+$cons->InstallInChrome('edit_tag.png');
+$cons->InstallInChrome('background_1.png');
+$cons->InstallInChrome('background_2.png');
+$cons->InstallInChrome('middle_piece.png');
+$cons->InstallInChrome('komodo.png');
+$cons->InstallInChrome('resources_icon_1.png');
 
