@@ -1335,22 +1335,19 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-    def findallinfiles(self, id, pattern, resultsMgr, resultsView):
+    def findallinfiles(self, id, pattern, resultsMgr):
         """Feed all occurrences of "pattern" in the files identified by
         the options attribute into the given koIFindResultsView.
 
             "id" is a unique number to distinguish this findallinfiles
                 session from others.
             "resultsMgr" is a koIFindResultsTabManager instance.
-            "resultsView" is a koIFindResultView instance on which
-                the find results should be logged via the Add*() methods.
         
         This process is done asynchronously -- i.e. a separate thread is
         started to do this.
         
         No return value.
         """
-        #TODO: drop 'resultsView' arg
         try:
             regex, dummy, desc = _regex_info_from_ko_find_data(
                 pattern, None,

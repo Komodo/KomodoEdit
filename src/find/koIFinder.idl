@@ -288,9 +288,7 @@ interface koIFindService : nsISupports {
     void findallinfiles(
             in long id, // session id
             in wstring pattern,
-            in koIFindResultsTabManager resultsMgr,
-            //XXX Drop this and put it in koIFindResultsTabManager eventually.
-            in koIFindResultsView resultsView);
+            in koIFindResultsTabManager resultsMgr);
 
     // Asynchronously replace all "pattern" with "repl" and load those
     // into the "resultsView". Note: the information on which files to

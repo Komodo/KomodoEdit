@@ -1471,8 +1471,7 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
     resultsMgr.show();
 
     try {
-        findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr,
-                           resultsMgr.view);
+        findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
     } catch (ex) {
         _UiForFindServiceError("find all in files", ex, msgHandler);
         resultsMgr.clear();
