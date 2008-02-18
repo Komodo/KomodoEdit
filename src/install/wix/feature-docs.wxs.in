@@ -128,7 +128,6 @@
               <File Id="file395" LongName="regex-intro.html" Name="REGEXI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex-intro.html" />
               <File Id="file396" LongName="regex.html" Name="REGEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex.html" />
               <File Id="file397" LongName="run.html" Name="RUN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\run.html" />
-              <File Id="file413" LongName="scc.html" Name="SCC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\scc.html" />
               <File Id="file438" LongName="search.html" Name="SEARCH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\search.html" />
               <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
               <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
