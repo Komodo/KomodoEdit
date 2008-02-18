@@ -152,7 +152,7 @@ class KPFTree:
 
     def matchesFilter(self, child, filterString):
         """Returns a boolean indicating if this node matches the filter."""
-        return child.name.lower().find(filterString.lower()) != -1
+        return fnmatch.fnmatch(child.name, filterString)
 
     def resetLiveRows(self):
         #print "Rows:"
@@ -775,7 +775,6 @@ class KPFTreeView(TreeView):
             filterString = ""
         elif filterString and filterString.find('*') < 0:
             filterString = "*%s*" % filterString
-        filterString = filterString.lower()
         if self._filterString == filterString:
             return
         self._filterString = filterString

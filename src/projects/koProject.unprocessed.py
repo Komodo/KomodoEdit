@@ -725,7 +725,7 @@ class koPart(object):
 
     def matchesFilter(self, filterString):
         """Returns a boolean indicating if this node matches the filter."""
-        return fnmatch.fnmatch(self.get_name().lower(), filterString)
+        return fnmatch.fnmatch(self.get_name(), filterString)
 
     def getFieldValue(self, fieldname):
         text = ""
@@ -1500,7 +1500,10 @@ class koLiveFolderPart(koFolderPart):
         include = prefs.getStringPref("import_include_matches")
         # perf improvement for tree filtering
         if self._filterString:
-            include = "%s;%s" % (include, self._filterString)
+            if not include:
+                include = self._filterString
+            else:
+                include = "%s;%s" % (include, self._filterString)
         exclude = prefs.getStringPref("import_exclude_matches")
         if self._project == self:
             # add project kpf to exclude
@@ -1517,7 +1520,7 @@ class koLiveFolderPart(koFolderPart):
     # are for live folders.  They are used from the package service to do
     # a recursive import of live folders when packaging a project
     def _updateLiveChildren(self, config):
-        #print "refreshChildren for %s:%s" % (self.type,self.get_name())
+        #print "refreshChildren for %s:%s - %r" % (self.type,self.get_name(), config)
         forcerefresh = self.needrefresh
         self.needrefresh = 0
         include = config[0]
