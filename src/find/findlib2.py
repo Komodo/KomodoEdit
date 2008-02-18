@@ -45,7 +45,6 @@ import sys
 import re
 import logging
 import codecs
-import difflib
 from glob import glob
 import cPickle as pickle
 import md5
@@ -57,6 +56,7 @@ except ImportError:
                        "python-sitelib")
     sys.path.insert(0, kopylib_dir)
     import textinfo
+import difflibex
 
 
 
@@ -671,7 +671,7 @@ class ReplaceHitGroup(Hit):
     def diff(self):
         if self._diff_cache is None:
             diff_lines = ["Index: %s\n" % self.path]
-            diff_lines += difflib.unified_diff(
+            diff_lines += difflibex.unified_diff(
                     self.before_text.splitlines(1),
                     self.after_text.splitlines(1),
                     "%s (before)" % self.path,

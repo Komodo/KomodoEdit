@@ -57,6 +57,7 @@ import glob
 import traceback
 import logging
 import optparse
+import difflib
 
 
 
@@ -98,6 +99,26 @@ _g_patterns = {
 
 
 #---- main functions and classes
+
+def unified_diff(a, b, fromfile='', tofile='', fromfiledate='',
+                 tofiledate='', n=3, lineterm='\n'):
+    """An slight extension of `difflib.unified_diff()` that properly
+    handles the compared files not having an end-of-line char at the
+    end of the file and the diff including those lines.
+    """
+    for line in difflib.unified_diff(
+                    a, b,
+                    fromfile=fromfile, tofile=tofile,
+                    fromfiledate=fromfiledate, tofiledate=tofiledate,
+                    n=n, lineterm=lineterm):
+        if not line.endswith(lineterm):
+            # Handle not having an EOL at end of file
+            # (see Komodo Bug 74398).
+            yield line + lineterm
+            yield "\ No newline at end of file" + lineterm
+        else:
+            yield line
+
 
 def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
     """Try to infer an appropriate cwd and strip number given the starting

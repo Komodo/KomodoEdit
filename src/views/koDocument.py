@@ -40,13 +40,15 @@ from xpcom import components, nsError, ServerException, COMException, _xpcom
 from xpcom.server import WrapObject, UnwrapObject
 import xpcom
 import logging
-import eollib
 import md5
 import re
 import sys
 import cStringIO
 import timeline
 import stat, os, time
+
+import eollib
+import difflibex
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
@@ -1389,7 +1391,6 @@ class koDocumentBase:
             pass
         
     def getUnsavedChanges(self):
-        import difflib
         eolStr = eollib.eol2eolStr[self._eol]
         inmemory = self.get_buffer().splitlines(1)
 
@@ -1408,7 +1409,7 @@ class koDocumentBase:
         finally:
             tmpfile.close()        #self.file.open('rb')
 
-        difflines = list(difflib.unified_diff(
+        difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
             self.file.displayPath, self.file.displayPath+" (unsaved)",
             lineterm=eolStr))

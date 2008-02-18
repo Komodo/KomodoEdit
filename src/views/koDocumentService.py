@@ -42,6 +42,7 @@ import re
 import logging
 import threading
 import re
+from pprint import pprint
 import difflib
 
 from xpcom import components, nsError, ServerException, COMException
@@ -50,6 +51,7 @@ from xpcom.client import WeakReference
 import timeline
 
 import eollib
+import difflibex
 
 
 #---- globals and support routines
@@ -618,7 +620,7 @@ class KoDiff:
         if (content1_eol_clean == content2_eol_clean):
             self.diff = ""
         else:
-            difflines = difflib.unified_diff(
+            difflines = difflibex.unified_diff(
                 content1_eol_clean.splitlines(1),
                 content2_eol_clean.splitlines(1),
                 doc1.displayPath,
