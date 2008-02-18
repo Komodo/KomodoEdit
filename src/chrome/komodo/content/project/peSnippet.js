@@ -217,7 +217,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                         getService(Components.interfaces.koILastErrorService);
     try {
         try {
-            this.snippetInsertImpl(snippet, view);
+            ko.projects.snippetInsertImpl(snippet, view);
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
