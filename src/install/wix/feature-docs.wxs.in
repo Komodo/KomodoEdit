@@ -334,7 +334,6 @@
                 <File Id="file558" Name="APPIDE_0.PNG" LongName="app-ide-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide-edit.png"/>
                 <File Id="file559" Name="APPIDE_1.PNG" LongName="app-ide.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide.png"/>
                 <File Id="file560" Name="APPSNA_0.PNG" LongName="app-snapdragon.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-snapdragon.png"/>
-                <File Id="file3" Name="APPOPE_0.PNG" LongName="app-openkomodo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-openkomodo.png"/>
               </Component>
               <Directory Id="directory658" Name="top">
                 <Component Id="component603" DiskId="1" Guid="$(autowix.guid)">
