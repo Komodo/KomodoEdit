@@ -72,7 +72,6 @@ function on_load()
         _init();
 
         window.sizeToContent();
-        widgets.dialog.moveToAlertPosition();
     } catch (ex) {
         log.exception(ex);
     }

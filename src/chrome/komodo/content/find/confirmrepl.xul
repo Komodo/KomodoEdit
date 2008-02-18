@@ -50,6 +50,8 @@
         title="Confirm Replacements"
         orient="vertical"
         style="min-width: 40em; max-width: 50em;"
+        screenX="110"
+        screenY="110"
         persist="height width"
         flex="1"
         onload="on_load()"
