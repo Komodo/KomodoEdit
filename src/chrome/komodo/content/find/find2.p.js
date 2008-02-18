@@ -274,7 +274,7 @@ function update(changed /* =null */) {
     if (changed == null || changed == "show-replace-all-results") {
         opts.showReplaceAllResults = widgets.show_replace_all_results.checked;
     }
-    if (changed == null || changed == "show-replace-all-results") {
+    if (changed == null || changed == "confirm-replacements") {
         opts.confirmReplacementsInFiles = widgets.confirm_replacements_in_files.checked;
     }
 
