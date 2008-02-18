@@ -121,13 +121,11 @@ class _FindReplaceThread(threading.Thread):
         self._stop = 1
 
     def _norm_dir_from_dir(self, dir):
-        dir = normpath(dir)
         if dir.startswith("~"):
-            return expanduser(dir)
+            dir = expanduser(dir)
         elif not isabs(dir):
-            return join(self.cwd, dir)
-        else:
-            return dir
+            dir = join(self.cwd, dir)
+        return normpath(dir)
 
     def _resetResultCache(self):
         self._r_urls = []
@@ -278,11 +276,21 @@ class _ReplacerInFiles(_FindReplaceThread):
 
             #TODO:XXX all of it!
 
+            if self.searchInSubfolders:
+                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
+            else:
+                path_patterns = []
+                for d in self.folders:
+                    d = self._norm_dir_from_dir(d)
+                    path_patterns.append(join(d, "*"))
+                    path_patterns.append(join(d, ".*"))
+
             paths = findlib2.paths_from_path_patterns(
-                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        path_patterns,
                         recursive=self.searchInSubfolders,
                         includes=self.includeFiletypes,
                         excludes=self.excludeFiletypes,
+                        on_error=None,
                         skip_dupe_dirs=True)
             print
             print "-- s/%s/%s/" % (self.regex.pattern, self.repl)
@@ -339,11 +347,21 @@ class _FinderInFiles(_FindReplaceThread):
                 self.resultsMgrProxy.setDescription(
                     "Phase 1: gathering list of files...", 0)
 
+            if self.searchInSubfolders:
+                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
+            else:
+                path_patterns = []
+                for d in self.folders:
+                    d = self._norm_dir_from_dir(d)
+                    path_patterns.append(join(d, "*"))
+                    path_patterns.append(join(d, ".*"))
+
             paths = findlib2.paths_from_path_patterns(
-                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        path_patterns,
                         recursive=self.searchInSubfolders,
                         includes=self.includeFiletypes,
                         excludes=self.excludeFiletypes,
+                        on_error=None,
                         skip_dupe_dirs=True)
             self._grep_paths(paths)
 
@@ -459,12 +477,22 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             if self._stopped:
                 return
 
+            if self.searchInSubfolders:
+                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
+            else:
+                path_patterns = []
+                for d in self.folders:
+                    d = self._norm_dir_from_dir(d)
+                    path_patterns.append(join(d, "*"))
+                    path_patterns.append(join(d, ".*"))
+
             #TODO: circular symlink safe?!
             paths = findlib2.paths_from_path_patterns(
-                        [self._norm_dir_from_dir(d) for d in self.folders],
+                        path_patterns,
                         recursive=self.searchInSubfolders,
                         includes=self.includeFiletypes,
                         excludes=self.excludeFiletypes,
+                        on_error=None,
                         skip_dupe_dirs=True)
             for event in findlib2.replace(self.regex, self.repl, paths,
                                           summary=self.summary):
@@ -625,14 +653,11 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             self.marked.append(True)
 
     def _norm_dir_from_dir(self, dir):
-        dir = normpath(dir)
         if dir.startswith("~"):
-            return expanduser(dir)
+            dir = expanduser(dir)
         elif not isabs(dir):
-            return join(self.cwd, dir)
-        else:
-            return dir
-
+            dir = join(self.cwd, dir)
+        return normpath(dir)
 
     #---- koITreeView methods
     def setTree(self, tree):
