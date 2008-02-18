@@ -353,7 +353,7 @@
                   <Shortcut Id="StartMenuReleaseNotesShortcut" Directory="StartMenuDir"
                       Name="IDE_0.HTM" LongName="Release Notes" />
                 </File>
-                <File Id="file425" LongName="ide-4.2.html" Name="IDE42_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.2.html" />
+                <File Id="file413" LongName="ide-4.2.html" Name="IDE42_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.2.html" />
                 <File Id="file426" LongName="index.html" Name="INDEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html" />
                 <File Id="file427" LongName="old.html" Name="OLD_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\old.html" />
               </Component>
