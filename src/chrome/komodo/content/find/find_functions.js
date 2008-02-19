@@ -1486,13 +1486,10 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
 /**
  * Replace all hits in files.
  *
- * ...
- * Setup (i.e. do all the right things for find-session maintenance) and
- * find the next occurrence of "pattern".
- *
  * @param editor {DOMWindow} the main Komodo window in which to work
- * @param context {koIFindContext} defines the scope in which to search,
- *      e.g., in a selection, just the current doc, all open docs.
+ * @param context {Components.interfaces.koIFindContext} defines the
+ *      scope in which to search, e.g., in a selection, just the current
+ *      doc, all open docs.
  * @param pattern {string} the pattern to search for.
  * @param repl {string} the replacement string.
  * @param confirm {boolean} Whether to confirm replacements. Optional,
@@ -1568,9 +1565,7 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
         return true;
 
     } else {
-        //TODO: preferredResultsTab is deprecated. Drop it eventually.
-        var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
-        var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+        var resultsMgr = editor.FindResultsTab_GetTab();
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, repl, context,
@@ -1580,7 +1575,7 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
     
         try {
             findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
-                                      resultsMgr, resultsMgr.view);
+                                      resultsMgr);
         } catch (ex) {
             _UiForFindServiceError("replace all in files", ex, msgHandler);
             resultsMgr.clear();
@@ -1594,9 +1589,14 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
 
 
 /**
- * Find all hits in files.
+ * Find all hits in files in the given collection.
  *
- * ...
+ * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param context {Components.interfaces.koIFindContext} This holds the
+ *      the collection details (i.e. what to search in).
+ * @param pattern {string} the pattern to search for.
+ * @param patternAlias {string} a name for the pattern (for display to
+ *      the user)
  * @param msgHandler {callback} is an optional callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  */
@@ -1616,8 +1616,7 @@ function Find_FindAllInCollection(editor, context, pattern, patternAlias,
 
     //TODO macro recording stuff for this
 
-    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
-    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+    var resultsMgr = editor.FindResultsTab_GetTab();
     if (resultsMgr == null)
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
