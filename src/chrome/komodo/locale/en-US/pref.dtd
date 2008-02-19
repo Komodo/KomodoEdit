@@ -398,6 +398,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY startOfLine.label "Start of line">
 <!ENTITY startPage.label "Start Page">
 <!ENTITY syntaxChecking.label "Syntax Checking">
+<!ENTITY tabstopDelimiters.label "Tabstop Delimiters">
+<!ENTITY tabstopDelimiters.desc "Characters to use to delimit tabstops in snippets.">
+<!ENTITY tabstopStartCharacter.label "Start character:">
+<!ENTITY tabstopEndCharacter.label "End character:">
+<!ENTITY tabstopRestoreDelimiters.label "Restore Defaults">
 <!ENTITY tPerlTestScript.label ".t: Perl Test Script">
 <!ENTITY templates.label "Templates">
 <!ENTITY theServerNameToConnectToEitherADomainNameOrAIPAddress.tooltiptext "The server name to connect to, either a domain name or a IP address.">

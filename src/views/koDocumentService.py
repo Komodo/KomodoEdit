@@ -454,6 +454,10 @@ class KoDocumentService:
         # SCE_ERR_LUA
         re.compile('at line (?P<lineno>\d+) file (?P<fname>.*?)'),
 
+        # Perl testing error message patterns
+        re.compile(r'^#\s+Test\s+\d+\s+got:.*?\((?P<fname>[^\"\'\[\]\(\)\#]+?)\s+at\s+line\s+(?P<lineno>\d+)\)'),
+        re.compile(r'^#\s*(?P<fname>[^\"\'\[\]\(\)\#]+?)\s+line\s+(?P<lineno>\d+)\s+is:'),  # extra for context
+
         # SCE_ERR_CTAG
         #TODO
         # SCE_ERR_BORLAND

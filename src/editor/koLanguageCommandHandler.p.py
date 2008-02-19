@@ -1545,18 +1545,31 @@ class GenericCommandHandler:
         replace other occurrences of tabstops with the same default value.
         
         Returns True iff a tabstop was found and handled.
+    
+        Default values:
+        
+        Oct   Dec   Hex   Char   Description
+        253   171   \xAB   <<     LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+        273   187   \xBB   >>     RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
         """
         DEBUG = False
         tab_handled = False
         sm = self._view.scimoz
 
+        prefs = self._view.prefs
+        tabstop_start = unichr(prefs.getLongPref("editTabstopDelimiterStart_Value"))
+        # Do sanity checks in case these values were changed by bypassing the UI
+        if not tabstop_start: return
+        tabstop_end = unichr(prefs.getLongPref("editTabstopDelimiterEnd_Value"))
+        if not tabstop_end: return
+
         # First, fill in any duplicate defaults.
-        if self._last_tabstop and self._last_tabstop[1] != u"\xab\xbb" \
+        if self._last_tabstop and self._last_tabstop[1] != (tabstop_start + tabstop_end) \
            and sm.currentPos > self._last_tabstop[0]:
             # Get the last tabstop replaced value.
             value = sm.getTextRange(self._last_tabstop[0], sm.currentPos)
             if value and '\n' not in value and '\r' not in value:
-                if value[0] == u"\xab":
+                if value[0] == tabstop_start:
                     if value == self._last_tabstop[1]:
                         value = value[1:-1]
                     else:
@@ -1575,15 +1588,14 @@ class GenericCommandHandler:
                             if DEBUG:
                                 print "tabstop: found %r at %d" % (sm.selText, loc)
                             sm.selectionStart = loc
-                            sm.selectionEnd = sm.positionAfter(
-                                loc + len(self._last_tabstop[1]) + 1)
+                            sm.selectionEnd = loc + self.sysUtils.byteLength(self._last_tabstop[1])
                             sm.replaceSel(value)
                             tab_handled = True
                             loc = sm.searchNext(0, self._last_tabstop[1])
                     finally:
                         sm.endUndoAction()
                     sm.anchor = 0
-        elif sm.selText == u"\xab\xbb":
+        elif sm.selText == (tabstop_start + tabstop_end):
             sm.replaceSel("")
         self._last_tabstop = None
 
@@ -1605,7 +1617,8 @@ class GenericCommandHandler:
             sm.anchor = 0
             while True:
                 sm.searchAnchor()
-                sloc = sm.searchNext(sm.SCFIND_REGEXP, u"\xab[^\r\n]*\xbb")
+                sloc = sm.searchNext(sm.SCFIND_REGEXP,
+                                     tabstop_start + u"[^\r\n]*" + tabstop_end)
                 if sloc < 0:
                     sm.anchor = sm.currentPos = start_pos
                     return tab_handled
@@ -1616,7 +1629,7 @@ class GenericCommandHandler:
                     continue
                 
                 # This is a tabstop, provided there is no whitespace before '>>'.
-                eloc = sm.searchNext(0, u"\xbb")
+                eloc = sm.searchNext(0, tabstop_end)
                 if sm.getWCharAt(sm.positionBefore(eloc)) in " \t":
                     if DEBUG:
                         print "tabstop: space before '>>' at %d (skip)" % eloc
@@ -1628,14 +1641,14 @@ class GenericCommandHandler:
                 break
 
         else:
-            if sm.getWCharAt(sm.anchor) != u"\xab" and \
-                sm.getWCharAt(sm.currentPos) != u"\xbb":
+            if sm.getWCharAt(sm.anchor) != tabstop_start and \
+                sm.getWCharAt(sm.currentPos) != tabstop_end:
                 return tab_handled
             sloc = sm.anchor
             eloc = sm.currentPos
         
         sm.anchor = sm.selectionStart = sloc
-        sm.selectionEnd = sm.positionAfter(eloc+1)
+        sm.selectionEnd = sm.positionAfter(eloc)
         self._last_tabstop = (sloc, sm.selText)
         if DEBUG:
             print "tabstop: %r" % (self._last_tabstop,)
