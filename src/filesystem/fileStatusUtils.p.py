@@ -225,7 +225,7 @@ class KoDiskFileChecker(KoFileCheckerBase):
             time_now = time.time()
             cache_key = self._norm_uri_cache_key(koIFile.URI)
             if reason == self.REASON_BACKGROUND_CHECK and \
-               (self._lastChecked.get(cache_key, 0) <
+               (self._lastChecked.get(cache_key, 0) >=
                 (time_now - self.backgroundDuration)):
                 return 0
             self._lastChecked[cache_key] = time_now
