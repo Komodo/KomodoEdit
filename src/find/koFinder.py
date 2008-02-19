@@ -125,16 +125,16 @@ class _FindReplaceThread(threading.Thread):
             resultsMgr.view, PROXY_ALWAYS | PROXY_SYNC)
         self._resultsView = UnwrapObject(resultsMgr.view)
 
-        self._stop = 0 # when true the processing thread should terminate
+        self._stopped = False # when true the processing thread should terminate
         self._reset_hit_cache()
 
     def stop(self):
         """Stop processing."""
         log.debug("stopping replace in files thread")
-        self._stop = 1
+        self._stopped = True
 
     def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
+        # Rule: if self._stopped is true then this code MUST NOT use
         #       self.resultsMgrProxy or self.resultsViewProxy, because they
         #       may have been destroyed.
 
@@ -143,7 +143,7 @@ class _FindReplaceThread(threading.Thread):
         self.num_paths_searched = 0
         self.journal = None
         try:
-            if self._stop:
+            if self._stopped:
                 return
 
             self.resultsMgrProxy.setDescription("Preparing...", 0)
@@ -157,7 +157,7 @@ class _FindReplaceThread(threading.Thread):
             if self.journal:
                 journal_id = self.journal.id
                 self.journal.close()
-            if not self._stop:
+            if not self._stopped:
                 self._report(flush=True)
                 self.resultsMgrProxy.searchFinished(
                     True, self.num_hits, self.num_paths_with_hits,
@@ -198,7 +198,7 @@ class _FindReplaceThread(threading.Thread):
     def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
         for event in findlib2.grep(regex, paths):
-            if self._stop:
+            if self._stopped:
                 return
 
             if isinstance(event, findlib2.SkipPath):
@@ -217,7 +217,7 @@ class _FindReplaceThread(threading.Thread):
 
     def _replace_in_paths(self, regex, repl, desc, paths):
         for event in findlib2.replace(regex, repl, paths, summary=desc):
-            if self._stop:
+            if self._stopped:
                 return
             if isinstance(event, findlib2.StartJournal):
                 self.journal = event.journal
@@ -312,7 +312,7 @@ class _FindReplaceThread(threading.Thread):
         
         For performance we batch up reporting.
         """
-        if self._stop:
+        if self._stopped:
             return
 
         # Determine if we should report.
