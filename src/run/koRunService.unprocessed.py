@@ -618,7 +618,9 @@ class KoInterpolationService:
                 if backref:
                     backrefs[backref] = value
             elif code == "tabstop":
-                value = u"\xab%s\xbb" % (defaultValue or "")
+                value = u"%s%s%s" % (unichr(self._prefs.getLongPref("editTabstopDelimiterStart_Value")),
+                                     defaultValue or "",
+                                     unichr(self._prefs.getLongPref("editTabstopDelimiterEnd_Value")))
                 i1s += value
                 if backref:
                     backrefs[backref] = value
