@@ -90,7 +90,7 @@ class _FindReplaceThread(threading.Thread):
     """
     # The number by which to chunk reporting results.
     REPORT_EVERY_N_HITS = 50
-    REPORT_EVERY_N_FILES_SEARCHED = 100
+    REPORT_EVERY_N_PATHS_SEARCHED = 100
     
     MAX_XUL_TREE_CELL_LENGTH = 256
     
@@ -234,7 +234,7 @@ class _FindReplaceThread(threading.Thread):
 
             if isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
-                if self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0:
+                if self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0:
                     self._flushResultCache()
                 continue
             elif not isinstance(event, findlib2.Hit):
@@ -244,7 +244,7 @@ class _FindReplaceThread(threading.Thread):
                 self.num_paths_searched += 1
                 self.num_paths_with_hits += 1
                 last_path_with_hits = event.path
-                if self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0:
+                if self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0:
                     self._flushResultCache()
             
             self._report_find_hit(event)
@@ -346,7 +346,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
     # The numbers by which to chunk reporting results.
     REPORT_EVERY_N_PATHS_WITH_HITS = 5
-    REPORT_EVERY_N_FILES_SEARCHED = 100
+    REPORT_EVERY_N_PATHS_SEARCHED = 100
 
     def __init__(self, regex, repl, desc, paths, controller):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
@@ -513,7 +513,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
         if (flush
             or (self.num_paths_with_hits and self.num_paths_with_hits % self.REPORT_EVERY_N_PATHS_WITH_HITS == 0)
-            or self.num_paths_searched % self.REPORT_EVERY_N_FILES_SEARCHED == 0):
+            or self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0):
             pass        # report
         else:
             return      # skip reporting
