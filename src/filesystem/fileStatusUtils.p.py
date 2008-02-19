@@ -217,9 +217,17 @@ class KoDiskFileChecker(KoFileCheckerBase):
         self.backgroundDurationPrefName = 'diskBackgroundMinutes'
         timeline.leave('KoDiskFileChecker.__init__')
 
+    def isBackgroundCheckingEnabled(self):
+        return True
+
     def updateFileStatus(self, koIFile, reason):
-        if koIFile.isLocal and (reason == self.REASON_FORCED_CHECK or
-             (self._lastChecked.get(self._norm_uri_cache_key(koIFile.URI), 0) <
-              time.time() - (self.backgroundDuration))):
+        if koIFile.isLocal:
+            time_now = time.time()
+            cache_key = self._norm_uri_cache_key(koIFile.URI)
+            if reason == self.REASON_BACKGROUND_CHECK and \
+               (self._lastChecked.get(cache_key, 0) <
+                (time_now - self.backgroundDuration)):
+                return 0
+            self._lastChecked[cache_key] = time_now
             return koIFile.hasChanged
         return 0

@@ -419,7 +419,7 @@ class KoFileStatusService:
 
                 if not items_to_check:
                     # Fall back to background checking of all files.
-                    isBackgroundCheck = True
+                    isBackgroundCheck = (updateReason == self.REASON_BACKGROUND_CHECK)
                     last_bg_check_time = time.time()
                     items_to_check = [ (koIFile, koIFile.URI, updateReason) for
                                        koIFile in all_local_files ]
