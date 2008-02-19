@@ -174,7 +174,7 @@ class KoFileStatusService:
                     createInstance(components.interfaces.koIFileStatusChecker)
                 self.addFileStatusChecker(checker)
             except Exception, e:
-                log.error("Unable to load %r status checker: %r", name, cid)
+                log.exception("Unable to load %r status checker: %r", name, cid)
 
         # Start the file status thread running
         self._tlock.acquire()
