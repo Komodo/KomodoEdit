@@ -292,7 +292,8 @@ interface koIFindService : nsISupports {
 
     // Asynchronously replace all "pattern" with "repl" and load those
     // into the "resultsView". Note: the information on which files to
-    // search are in the "options" attribute.
+    // search are either in `resultsMgr.context_` (if a
+    // koICollectionFindContext) or in the "options" attribute.
     //XXX Need to add a .finalize() to the find service to .stop() and
     //    .join() any replaceallinfiles thread.
     void replaceallinfiles(
@@ -310,14 +311,6 @@ interface koIFindService : nsISupports {
     koIReplaceUndoer undoreplaceallinfiles(
             in wstring journalId,
             in koIUndoReplaceController controller);
-
-    // Asynchronously find all occurences of "pattern" and load those into
-    // the "resultsView". Note: the information on which files to search
-    // are is defined by the find context given earlier to the resultsMgr.
-    void findallincollection(
-            in long id, // session id
-            in wstring pattern,
-            in koIFindResultsTabManager resultsMgr);
 
     // Abort a running findallinfiles, replaceallinfiles or
     // findallincollection session.

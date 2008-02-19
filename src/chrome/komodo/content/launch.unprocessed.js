@@ -287,6 +287,37 @@ this.findInCollection = function(collection, pattern /* =null */) {
 }
 
 /**
+ * Open the find dialog to find & replace in a "collection" of files.
+ *
+ * @param collection {koICollectionFindContext} defines in what to search.
+ * @param pattern {String} The pattern to search for.
+ * @param repl {String} The replacement pattern.
+ */
+this.replaceInCollection = function(collection, pattern /* =null */,
+                                    repl /* =null */) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "collection": collection,
+        "pattern": pattern,
+        "repl": repl,
+        "mode": "replaceincollection"
+    };
+
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // (See above for why.)
+    return ko.windowManager.openDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
+/**
  * Open Find dialog to search in the current project.
  *
  * @param pattern {String}
@@ -302,6 +333,35 @@ this.findInCurrProject = function(pattern /* =null */) {
     ko.launch.find2_dialog_args = {
         "pattern": pattern,
         "mode": "findincurrproject"
+    };
+
+    // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
+    // (See above for why.)
+    return ko.windowManager.openDialog(
+        "chrome://komodo/content/find/find2.xul",
+        "komodo_find2",
+        "chrome,close=yes");
+}
+
+
+/**
+ * Open Find dialog to find & replace in the current project.
+ *
+ * @param pattern {String} The pattern to search for.
+ * @param repl {String} The replacement pattern.
+ */
+this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
+    // Transfer focus to the hidden input buffer to capture keystrokes
+    // from the user while find2.xul is loading. The find dialog will
+    // retrieve these contents when it is ready.
+    ko.inputBuffer.start();
+
+    // Special global to pass info to find2.xul. Passing in via
+    // openDialog() doesn't work if the dialog is already up.
+    ko.launch.find2_dialog_args = {
+        "pattern": pattern,
+        "repl": repl,
+        "mode": "replaceincurrproject"
     };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.

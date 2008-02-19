@@ -43,7 +43,6 @@
  * - all spec'd replace in files guards
  * - find results tab enhancements (grouping/view opts, handling
  *   replacement warnings/errors, filter, redo)
- * - prep new docs for Troy
  */
 
 //---- globals
@@ -430,31 +429,6 @@ function msg_error(msg) {
     }
 }
 
-/**
- * Temporary utility for the upcoming alpha release until replace-in-files
- * is hooked in.
- */
-function _msg_not_yet_implemented() {
-    var mode = "???";
-    
-    if (widgets.opt_repl.checked) {
-        mode = "Replace";
-    } else {
-        mode = "Find";
-    }
-    
-    switch (widgets.search_in_menu.value) {
-    case "collection":
-    case "files":
-        mode += "-in-files";
-        break;
-    case "curr-project":
-        mode += "-in-project";
-        break;
-    }
-
-    msg_error(mode+" isn't yet supported -- but it will be for Komodo 4.3 final!");
-}
 
 /**
  * Change the "Search in:" menulist to the given value.
@@ -576,9 +550,9 @@ function find_all() {
         ko.mru.addFromACTextbox(widgets.pattern);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (Find_FindAllInCollection(opener, _g_find_context,
-                                         pattern, null,
-                                         msg_callback)) {
+            if (Find_FindAllInFiles(opener, _g_find_context,
+                                    pattern, null,
+                                    msg_callback)) {
                 window.close();
             }
             
@@ -631,7 +605,8 @@ function mark_all() {
                 return;
             }
         }
-        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+        if (_g_find_context.type == koIFindContext.FCT_IN_FILES
+            || _g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
             log.warn("'Mark All' in files (i.e. files not open in "
                      + "Komodo) is not supported.");
             return;
@@ -722,11 +697,6 @@ function replace_all() {
             }
         }
 
-        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            _msg_not_yet_implemented();
-            return;
-        }
-
         if (widgets.opt_multiline.checked) {
             widgets.pattern.value = widgets.curr_pattern.value;
             widgets.repl.value = widgets.curr_repl.value;
@@ -736,7 +706,12 @@ function replace_all() {
             ko.mru.addFromACTextbox(widgets.repl);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            //TODO
+            if (Find_ReplaceAllInFiles(opener, _g_find_context,
+                                       pattern, repl,
+                                       gFindSvc.options.confirmReplacementsInFiles,
+                                       msg_callback)) {
+                window.close();
+            }
         } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
@@ -751,7 +726,6 @@ function replace_all() {
                                        msg_callback)) {
                 window.close();
             }
-
         } else {
             var found_some = null;
             var found_some = Find_ReplaceAll(
@@ -950,14 +924,14 @@ function _init() {
         _collapse_widget(widgets.search_in_curr_project, true);
         _hide_widget(widgets.search_in_curr_project, true);
         _g_curr_project_context = null;
-        if (mode == "findincurrproject") {
+        if (mode == "findincurrproject" || mode == "replaceincurrproject") {
             msg_warn("No current project.");
             mode = "find";
         }
     }
     
     // - Setup for there a collection having been passed in.
-    if (mode == "findincollection") {
+    if (mode == "findincollection" || mode == "replaceincollection") {
         _collapse_widget(widgets.search_in_collection, false);
         _hide_widget(widgets.search_in_collection, false);
         _collapse_widget(widgets.search_in_collection_sep, false);
@@ -994,8 +968,16 @@ function _init() {
         widgets.opt_repl.checked = false;
         widgets.search_in_menu.value = "collection";
         break;
+    case "replaceincollection":
+        widgets.opt_repl.checked = true;
+        widgets.search_in_menu.value = "collection";
+        break;
     case "findincurrproject":
         widgets.opt_repl.checked = false;
+        widgets.search_in_menu.value = "curr-project";
+        break;
+    case "replaceincurrproject":
+        widgets.opt_repl.checked = true;
         widgets.search_in_menu.value = "curr-project";
         break;
     default:
@@ -1164,20 +1146,12 @@ function reset_find_context() {
 
     case "curr-project":
         context = _g_curr_project_context;
-        if (widgets.opt_repl.checked) {
-            _msg_not_yet_implemented();
-        } else {
-            msg_clear();
-        }
+        msg_clear();
         break;
 
     case "collection":
         context = _g_collection_context;
-        if (widgets.opt_repl.checked) {
-            _msg_not_yet_implemented();
-        } else {
-            msg_clear();
-        }
+        msg_clear();
         break;
 
     case "open-files":

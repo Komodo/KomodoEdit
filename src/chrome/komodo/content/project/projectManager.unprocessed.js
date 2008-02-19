@@ -567,6 +567,7 @@ projectManager.prototype.registerCommands = function() {
     em.registerCommand("cmd_reimportFromFS_Project",this);
     em.registerCommand("cmd_importPackageToToolbox",this);
     em.registerCommand("cmd_findInCurrProject",this);
+    em.registerCommand("cmd_replaceInCurrProject",this);
 
     em.createMenuItem(Components.interfaces.koIProject,
                                     'Make Active Project','cmd_setActiveProject');
@@ -601,6 +602,7 @@ projectManager.prototype.supportsCommand = function(command, item) {
     case "cmd_importFromFS_Project":
     case "cmd_reimportFromFS_Project":
     case "cmd_findInCurrProject":
+    case "cmd_replaceInCurrProject":
         return true;
     case "cmd_revertProject":
     case "cmd_saveProject":
@@ -639,6 +641,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_reimportFromFS_Project":
         return this.currentProject != null && !this.currentProject.live;
     case "cmd_findInCurrProject":
+    case "cmd_replaceInCurrProject":
     case "cmd_saveProjectAs":
         return this.getSelectedProject() != null;
     }
@@ -717,7 +720,10 @@ projectManager.prototype.doCommand = function(command) {
         }
         break;
     case "cmd_findInCurrProject":
-        ko.launch.findInCurrProject2();
+        ko.launch.findInCurrProject();
+        break;
+    case "cmd_replaceInCurrProject":
+        ko.launch.replaceInCurrProject();
         break;
     }
     return;

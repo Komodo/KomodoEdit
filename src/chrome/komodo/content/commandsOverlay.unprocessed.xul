@@ -1287,6 +1287,11 @@
             disabled="true"
             oncommand="ko.commands.doCommandAsync('cmd_findInCurrProject', event)"
             desc="&findFindInCurrProject.desc;"/>
+        <command
+            id="cmd_replaceInCurrProject" key="key_cmd_replaceInCurrProject"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_replaceInCurrProject', event)"
+            desc="&findReplaceInCurrProject.desc;"/>
     </commandset>
 
     <!-- Commands that need updating based on changes in non-editor

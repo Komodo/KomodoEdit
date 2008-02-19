@@ -1442,7 +1442,11 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
 /**
  * Find all hits in files.
  *
- * ...
+ * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param context {Components.interfaces.koIFindContext}
+ * @param pattern {string} the pattern to search for.
+ * @param patternAlias {string} a name for the pattern (for display to
+ *      the user)
  * @param msgHandler {callback} is an optional callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  */
@@ -1462,8 +1466,7 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
 
     //TODO macro recording stuff for this
 
-    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
-    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+    var resultsMgr = editor.FindResultsTab_GetTab();
     if (resultsMgr == null)
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
@@ -1478,8 +1481,6 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
         return false;
     }
     return true;
-//XXX Perhaps this should be done here? Or in the dialog.
-//    ko.mru.add("find-patternMru", pattern, true);
 }
 
 
@@ -1583,52 +1584,5 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
         }
     }
 
-    return true;
-}
-
-
-
-/**
- * Find all hits in files in the given collection.
- *
- * @param editor {DOMWindow} the main Komodo window in which to work
- * @param context {Components.interfaces.koIFindContext} This holds the
- *      the collection details (i.e. what to search in).
- * @param pattern {string} the pattern to search for.
- * @param patternAlias {string} a name for the pattern (for display to
- *      the user)
- * @param msgHandler {callback} is an optional callback for displaying a
- *      message to the user. See Find_FindNext documentation for details.
- */
-function Find_FindAllInCollection(editor, context, pattern, patternAlias,
-                                  msgHandler /* =<statusbar notifier> */)
-{
-    if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
-    }
-
-    findLog.info("Find_FindAllInCollection(editor, context, pattern='"+pattern+
-                 "', patternAlias='"+patternAlias+"')");
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
-
-    //TODO macro recording stuff for this
-
-    var resultsMgr = editor.FindResultsTab_GetTab();
-    if (resultsMgr == null)
-        return false;
-    resultsMgr.configure(pattern, patternAlias, null, context,
-                         findSvc.options);
-    resultsMgr.show();
-
-    try {
-        findSvc.findallincollection(resultsMgr.id, pattern, resultsMgr);
-    } catch (ex) {
-        _UiForFindServiceError("find all in collection", ex, msgHandler);
-        resultsMgr.clear();
-        return false;
-    }
     return true;
 }

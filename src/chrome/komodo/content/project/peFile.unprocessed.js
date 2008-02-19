@@ -78,6 +78,7 @@ peFile.prototype.registerCommands = function() {
     em.registerCommand("cmd_copy",this);
     em.registerCommand("cmd_paste",this);
     em.registerCommand("cmd_findInPart",this);
+    em.registerCommand("cmd_replaceInPart",this);
     em.registerCommand("cmd_showInFinder",this);
     em.registerCommand("cmd_renameFile",this);
 }
@@ -112,6 +113,8 @@ peFile.prototype.registerMenus = function() {
                                     'Compare Files...','cmd_compareFiles');
     em.createMenuItem(Components.interfaces.koIPart,
                                     'Find...','cmd_findInPart');
+    em.createMenuItem(Components.interfaces.koIPart,
+                                    'Replace...','cmd_replaceInPart');
 // #if PLATFORM == "win"
     em.createMenuItem(Components.interfaces.koIPart,
                                     'Show In Explorer','cmd_showInFinder');
@@ -176,6 +179,7 @@ peFile.prototype.supportsCommand = function(command, item) {
         }
         return false;
     case 'cmd_findInPart':
+    case 'cmd_replaceInPart':
         for (i = 0; i < items.length; i++) {
             var type = items[i].type;
             if (type == 'file' && items[i].getFile().isLocal) {
@@ -286,6 +290,7 @@ peFile.prototype.doCommand = function(command) {
         ko.open.multipleURIs(paths);
         break;
     case 'cmd_findInPart':
+    case 'cmd_replaceInPart':
         var coll = Components.classes["@activestate.com/koCollectionFindContext;1"]
                 .createInstance(Components.interfaces.koICollectionFindContext);
         for (i = 0; i < items.length; i++) {
@@ -305,7 +310,11 @@ peFile.prototype.doCommand = function(command) {
                 log.warn("unexpected item type for 'cmd_findInPart': "+item.type);
             }
         }
-        ko.launch.findInCollection(coll);
+        if (command == "cmd_findInPart") {
+            ko.launch.findInCollection(coll);
+        } else {  // command == "cmd_replaceInPart"
+            ko.launch.replaceInCollection(coll);
+        }
         break;
     case 'cmd_showInFinder':
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].

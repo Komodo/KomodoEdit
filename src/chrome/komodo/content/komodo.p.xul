@@ -700,23 +700,11 @@
                               accesskey="&menuFind.accesskey;"
                               observes="cmd_find"
                               />
-                    <menuitem label="&findNext.label;"
-                              id="menu_findNext"
-                              class="menuitem-iconic-wide"
-                              accesskey="&menuFindNext.accesskey;"
-                              observes="cmd_findNext"
-                              />
                     <menuitem label="&replace.label;"
                               id="menu_replace"
                               class="menuitem-iconic-wide"
                               accesskey="&menuReplace.accesskey;"
                               observes="cmd_replace"
-                              />
-                    <menuitem label="&incrementalSearch.label;"
-                              id="menu_startIncrementalSearch"
-                              class="menuitem-iconic-wide"
-                              accesskey="&menuStartIncrementalSearch.accesskey;"
-                              observes="cmd_startIncrementalSearch"
                               />
                     <menuitem label="&findInFiles.label;"
                               id="menu_findInFiles"
@@ -732,6 +720,23 @@
                               id="menu_findInCurrProject"
                               class="menuitem-iconic-wide"
                               observes="cmd_findInCurrProject"
+                              />
+                    <menuitem label="&replaceInCurrProject.label;"
+                              id="menu_replaceInCurrProject"
+                              class="menuitem-iconic-wide"
+                              observes="cmd_replaceInCurrProject"
+                              />
+                    <menuitem label="&findNext.label;"
+                              id="menu_findNext"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuFindNext.accesskey;"
+                              observes="cmd_findNext"
+                              />
+                    <menuitem label="&incrementalSearch.label;"
+                              id="menu_startIncrementalSearch"
+                              class="menuitem-iconic-wide"
+                              accesskey="&menuStartIncrementalSearch.accesskey;"
+                              observes="cmd_startIncrementalSearch"
                               />
                     <menuseparator/>
                     <!-- mozilla magic...menu_preferences id makes the preference

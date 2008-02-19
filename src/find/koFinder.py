@@ -74,6 +74,7 @@ FOC_INSENSITIVE = components.interfaces.koIFindOptions.FOC_INSENSITIVE
 FOC_SENSITIVE = components.interfaces.koIFindOptions.FOC_SENSITIVE
 FOC_SMART = components.interfaces.koIFindOptions.FOC_SMART
 
+koIFindContext = components.interfaces.koIFindContext
 ISciMoz = components.interfaces.ISciMoz
 
 # services setup in Find Service ctor
@@ -1243,12 +1244,15 @@ class KoFindService(object):
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
     def findallinfiles(self, id, pattern, resultsMgr):
-        """Feed all occurrences of "pattern" in the files identified by
-        the options attribute into the given koIFindResultsView.
+        """Find all hits of 'pattern' in a set of files.
 
-            "id" is a unique number to distinguish this findallinfiles
-                session from others.
-            "resultsMgr" is a koIFindResultsTabManager instance.
+        *What* files to search are either defined on `resultsMgr.context_`
+        (if it is a `koICollectionFindContext`) or by `self.options`
+        values.
+        
+        Dev Note: this is a little messy and should eventually change to
+        be consistent in the usage of find "options" and "context" to
+        carry what information.
         
         This process is done asynchronously -- i.e. a separate thread is
         started to do this.
@@ -1265,8 +1269,16 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        paths = _paths_from_ko_info(self.options,
-                                    cwd=resultsMgr.context_.cwd)
+        # This is either a "Replace in Files" with path info in
+        # `self.options` or a "Replace in Collection" with path info
+        # on the koICollectionFindContext instance.
+        context = resultsMgr.context_
+        if context.type == koIFindContext.FCT_IN_COLLECTION:
+            paths = UnwrapObject(context).paths
+        else:
+            assert context.type == koIFindContext.FCT_IN_FILES
+            paths = _paths_from_ko_info(self.options,
+                                        cwd=resultsMgr.context_.cwd)
 
         t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr)
         self._threadMap[id] = t
@@ -1275,7 +1287,9 @@ class KoFindService(object):
 
     def replaceallinfiles(self, id, pattern, repl, resultsMgr):
         """Start a thread that replaces all instances of 'pattern' with
-        'repl' in the koIFindService.options context.
+        'repl' in a set of files.
+
+        See `findallinfiles` for a discussion of what files are searched.
         
         @param id {str} is a unique number to distinguish this
             thread from others (for use by `stopfindreplaceinfiles(id)`).
@@ -1297,8 +1311,16 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        paths = _paths_from_ko_info(self.options,
-                                    cwd=resultsMgr.context_.cwd)
+        # This is either a "Replace in Files" with path info in
+        # `self.options` or a "Replace in Collection" with path info
+        # on the koICollectionFindContext instance.
+        context = resultsMgr.context_
+        if context.type == koIFindContext.FCT_IN_COLLECTION:
+            paths = UnwrapObject(context).paths
+        else:
+            assert context.type == koIFindContext.FCT_IN_FILES
+            paths = _paths_from_ko_info(self.options,
+                                        cwd=resultsMgr.context_.cwd)
 
         t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
                                resultsMgr)
@@ -1310,7 +1332,9 @@ class KoFindService(object):
         """Start and return a replacement thread that determines
         replacements (for confirmation) and updates the given confirmation
         UI manager.
-        
+
+        See `findallinfiles` for a discussion of what files are searched.
+
         @param pattern {str} the search pattern
         @param repl {str} the replacement string
         @param cwd {str} the context current working dir (for
@@ -1330,7 +1354,16 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        paths = _paths_from_ko_info(self.options, cwd=cwd)
+        # This is either a "Replace in Files" with path info in
+        # `self.options` or a "Replace in Collection" with path info
+        # on the koICollectionFindContext instance.
+        context = resultsMgr.context_
+        if context.type == koIFindContext.FCT_IN_COLLECTION:
+            paths = UnwrapObject(context).paths
+        else:
+            assert context.type == koIFindContext.FCT_IN_FILES
+            paths = _paths_from_ko_info(self.options,
+                                        cwd=resultsMgr.context_.cwd)
 
         t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
                                     controller)
@@ -1344,36 +1377,6 @@ class KoFindService(object):
             The UI controller.
         """
         return _ReplaceUndoer(journal_id, controller)
-
-    def findallincollection(self, id, pattern, resultsMgr):
-        """Feed all occurrences of "pattern" in the files identified by
-        the koICollectionFindContext into the given koIFindResultsView.
-
-            "id" is a unique number to distinguish this findallinfiles
-                session from others.
-            "resultsMgr" is a koIFindResultsTabManager instance.
-        
-        This process is done asynchronously -- i.e. a separate thread is
-        started to do this.
-        
-        No return value.
-        """
-        try:
-            regex, dummy, desc = _regex_info_from_ko_find_data(
-                pattern, None,
-                self.options.patternType,
-                self.options.caseSensitivity,
-                self.options.matchWord)
-        except (re.error, ValueError), ex:
-            gLastErrorSvc.setLastError(0, str(ex))
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
-
-        paths = UnwrapObject(resultsMgr.context_).paths
-        t = _FindReplaceThread(id, regex, None, desc, paths,
-                               resultsMgr)
-        self._threadMap[id] = t
-        resultsMgr.searchStarted()
-        self._threadMap[id].start()
 
     def stopfindreplaceinfiles(self, id):
         #XXX Do I need a lock-guard around usage of self._threadMap?
