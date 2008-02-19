@@ -206,6 +206,7 @@
 <!ENTITY donTAutoIndent.label "Don't auto-indent">
 <!ENTITY donTShowFoldMarks.label "Don't show fold marks">
 <!ENTITY doubleSlash.label "//">
+<!ENTITY droppingURL.label "When dropping a URL on Komodo:">
 <!ENTITY edgeLineBackgroundColorOfTextTooFar.label "Edge Line / Background Color of Text Too Far">
 <!ENTITY edit.label "Edit...">
 <!ENTITY editAssociations.label "&quot;Edit&quot; Associations">
