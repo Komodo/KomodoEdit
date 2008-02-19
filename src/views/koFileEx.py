@@ -87,8 +87,14 @@ class koFileEx:
                 return getattr(self,attr)
             raise AttributeError, attr
         handler = self.__get_handler()
-        if handler is not None and hasattr(handler, attr):
-            return getattr(handler, attr)
+        if handler is not None:
+            # XXX - This is hack to avoid updating the stats via 'hasChanged',
+            #       as the hasattr(handler, 'hasChanged') will actually update
+            #       stat information inadvertently, causing the getattr to then
+            #       always return False (no file change). See bug:
+            #       http://bugs.activestate.com/show_bug.cgi?id=73435
+            if hasattr(handler.__class__, attr) or hasattr(handler, attr):
+                return getattr(handler, attr)
         if self._URI is not None and hasattr(self._URI, attr):
             return getattr(self._URI, attr)
         raise AttributeError, attr
