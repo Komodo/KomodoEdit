@@ -348,20 +348,14 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     REPORT_EVERY_N_PATHS_WITH_HITS = 5
     REPORT_EVERY_N_FILES_SEARCHED = 100
 
-    def __init__(self, regex, repl, folders, cwd,
-                 searchInSubfolders, includeFiletypes, excludeFiletypes,
-                 summary, controller):
+    def __init__(self, regex, repl, desc, paths, controller):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
         TreeView.__init__(self)
 
         self.regex = regex
         self.repl = repl
-        self.folders = folders
-        self.cwd = normpath(expanduser(cwd))
-        self.searchInSubfolders = searchInSubfolders
-        self.includeFiletypes = includeFiletypes
-        self.excludeFiletypes = excludeFiletypes
-        self.summary = summary
+        self.desc = desc
+        self.paths = paths
 
         self.controller = controller
         self.controllerProxy = getProxyForObject(None,
@@ -393,27 +387,8 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             if self._stopped:
                 return
 
-            #TODO: share this setting up the 'paths' generator code
-            #      with here, findallinfiles, and replaceallinfiles
-            if self.searchInSubfolders:
-                path_patterns = [_norm_dir_from_dir(d, self.cwd) for d in self.folders]
-            else:
-                path_patterns = []
-                for d in self.folders:
-                    d = _norm_dir_from_dir(d, self.cwd)
-                    path_patterns.append(join(d, "*"))
-                    path_patterns.append(join(d, ".*"))
-
-            #TODO: circular symlink safe?!
-            paths = findlib2.paths_from_path_patterns(
-                        path_patterns,
-                        recursive=self.searchInSubfolders,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        on_error=None,
-                        skip_dupe_dirs=True)
-            for event in findlib2.replace(self.regex, self.repl, paths,
-                                          summary=self.summary):
+            for event in findlib2.replace(self.regex, self.repl,
+                                          self.paths, summary=self.desc):
                 if self._stopped:
                     return
                 if isinstance(event, findlib2.StartJournal):
@@ -1269,26 +1244,8 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        # Setup the generator of paths to search.
-        dirs = self.options.getFolders()
-        cwd = resultsMgr.context_.cwd
-        if cwd:
-            cwd = normpath(expanduser(resultsMgr.context_.cwd))
-        if self.options.searchInSubfolders:
-            path_patterns = [_norm_dir_from_dir(d, cwd) for d in dirs]
-        else:
-            path_patterns = []
-            for d in dirs:
-                d = _norm_dir_from_dir(d, cwd)
-                path_patterns.append(join(d, "*"))
-                path_patterns.append(join(d, ".*"))
-        paths = findlib2.paths_from_path_patterns(
-                    path_patterns,
-                    recursive=self.options.searchInSubfolders,
-                    includes=self.options.getIncludeFiletypes(),
-                    excludes=self.options.getExcludeFiletypes(),
-                    on_error=None,
-                    skip_dupe_dirs=True)  
+        paths = _paths_from_ko_info(self.options,
+                                    cwd=resultsMgr.context_.cwd)
 
         t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr)
         self._threadMap[id] = t
@@ -1319,26 +1276,8 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        # Setup the generator of paths to search.
-        dirs = self.options.getFolders()
-        cwd = resultsMgr.context_.cwd
-        if cwd:
-            cwd = normpath(expanduser(resultsMgr.context_.cwd))
-        if self.options.searchInSubfolders:
-            path_patterns = [_norm_dir_from_dir(d, cwd) for d in dirs]
-        else:
-            path_patterns = []
-            for d in dirs:
-                d = _norm_dir_from_dir(d, cwd)
-                path_patterns.append(join(d, "*"))
-                path_patterns.append(join(d, ".*"))
-        paths = findlib2.paths_from_path_patterns(
-                    path_patterns,
-                    recursive=self.options.searchInSubfolders,
-                    includes=self.options.getIncludeFiletypes(),
-                    excludes=self.options.getExcludeFiletypes(),
-                    on_error=None,
-                    skip_dupe_dirs=True)  
+        paths = _paths_from_ko_info(self.options,
+                                    cwd=resultsMgr.context_.cwd)
 
         t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
                                resultsMgr)
@@ -1370,15 +1309,10 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        t = _ConfirmReplacerInFiles(
-                regex, munged_repl,
-                self.options.getFolders(),
-                cwd,
-                self.options.searchInSubfolders,
-                self.options.getIncludeFiletypes(),
-                self.options.getExcludeFiletypes(),
-                desc,
-                controller)
+        paths = _paths_from_ko_info(self.options, cwd=cwd)
+
+        t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
+                                    controller)
         return t
 
     def undoreplaceallinfiles(self, journal_id, controller):
@@ -1442,6 +1376,34 @@ def _norm_dir_from_dir(dir, cwd=None):
         else:
             dir = abspath(dir)
     return normpath(dir)
+
+def _paths_from_ko_info(options, cwd=None):
+    """Return a generator of paths to search from the Komodo
+    find system data.
+    
+    @param options {components.interfaces.koIFindOptions}
+    @param cwd {string} the current working dir for interpreting
+        relative paths, or None if no appropriate cwd.
+    """
+    dirs = options.getFolders()
+    if cwd:
+        cwd = normpath(expanduser(cwd))
+    if options.searchInSubfolders:
+        path_patterns = [_norm_dir_from_dir(d, cwd) for d in dirs]
+    else:
+        path_patterns = []
+        for d in dirs:
+            d = _norm_dir_from_dir(d, cwd)
+            path_patterns.append(join(d, "*"))
+            path_patterns.append(join(d, ".*"))
+    #XXX:TODO: circular symlink safe?!
+    return findlib2.paths_from_path_patterns(
+                path_patterns,
+                recursive=options.searchInSubfolders,
+                includes=options.getIncludeFiletypes(),
+                excludes=options.getExcludeFiletypes(),
+                on_error=None,
+                skip_dupe_dirs=True)
 
 #TODO: put in my recipes
 def _break_up_words(s, max_word_length=50):
