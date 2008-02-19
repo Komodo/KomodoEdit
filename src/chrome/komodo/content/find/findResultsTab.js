@@ -880,11 +880,16 @@ FindResultsTabManager.prototype.searchFinished = function(
     }
     this.setDescription(desc, !success);
     
-    if (this._journalId && success) {
-        var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
-        if (undoButton) { // because "todo"-extension is piggy-backing
-            if (undoButton.hasAttribute("disabled"))
-                undoButton.removeAttribute("disabled");
+    if (this._journalId) {
+        // Ensure changes *open* files get reloaded.
+        ko.window.checkDiskFiles();
+        
+        if (success) {
+            var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+            if (undoButton) { // because "todo"-extension is piggy-backing
+                if (undoButton.hasAttribute("disabled"))
+                    undoButton.removeAttribute("disabled");
+            }
         }
     }
 }

@@ -84,25 +84,36 @@ gLastErrorSvc = None
 #---- Find/Replace in Files backend
 
 class _FindReplaceThread(threading.Thread):
-    """A base class for sharing some functionality between the various
-    find/replace background thread types.
+    """A thread for doing find/replace operations in the background and
+    reporting results to a "results manager" (a JS-implemented handlers
+    for a "Find Results" tab in the Komodo UI.
     """
-    REPORT_EVERY_N_HITS = 50  # The number by which to chunk reporting results.
+    # The number by which to chunk reporting results.
+    REPORT_EVERY_N_HITS = 50
     REPORT_EVERY_N_FILES_SEARCHED = 100
     
-    def __init__(self, id, name, mode, resultsMgr):
+    MAX_XUL_TREE_CELL_LENGTH = 256
+    
+    def __init__(self, id, regex, repl, desc, paths, resultsMgr):
         """Create a find/replace thread.
         
-        @param id {string} is the ID for this find/replace session.
-        @param name {string} is a name for this thread.
-        @param mode {string} must be one of "find" or "replace". Used
-            to control some of the base functionality.
-        @param resultsMgr {koIFindResultsTabManager}
+        @param id {string} the ID for this find/replace session
+        @param name {string} a name for this thread
+        @param regex {regex} the regular expression to search for
+        @param repl {string} the replacement string, or None if this
+            is just a find operation
+        @param desc {string} a readable string description of the
+            find/replace operation
+        @param paths {list|generator} a list or generator of paths to
+            consider
+        @param resultsMgr {components.interfaces.koIFindResultsTabManager}
         """
-        assert mode in ("find", "replace")
-        threading.Thread.__init__(self, name=name)
+        threading.Thread.__init__(self, name="Find/Replace Thread %s" % id)
         self.id = id
-        self.mode = mode
+        self.regex = regex
+        self.repl = repl
+        self.desc = desc
+        self.paths = paths
         self.resultsMgr = resultsMgr
 
         self.resultsMgrProxy = getProxyForObject(None,
@@ -120,12 +131,42 @@ class _FindReplaceThread(threading.Thread):
         log.debug("stopping replace in files thread")
         self._stop = 1
 
-    def _norm_dir_from_dir(self, dir):
-        if dir.startswith("~"):
-            dir = expanduser(dir)
-        elif not isabs(dir):
-            dir = join(self.cwd, dir)
-        return normpath(dir)
+    def run(self):
+        # Rule: if self._stop is true then this code MUST NOT use
+        #       self.resultsMgrProxy or self.resultsViewProxy, because they
+        #       may have been destroyed.
+        self._resetResultCache()
+        self.num_hits = 0
+        self.num_paths_with_hits = 0
+        self.num_paths_searched = 0
+        self.journal = None
+        try:
+            if self._stop:
+                return
+
+            self.resultsMgrProxy.setDescription("Preparing...", 0)
+            if self.repl is None:
+                self._find_in_paths(self.regex, self.paths)
+            else:
+                self._replace_in_paths(self.regex, self.repl, self.desc,
+                                       self.paths)
+            self._flushResultCache() # Add the last chunk of find results
+        finally:
+            journal_id = None
+            if self.journal:
+                journal_id = self.journal.id
+                self.journal.close()
+            if not self._stop:
+                self.resultsMgrProxy.searchFinished(
+                    True, self.num_hits, self.num_paths_with_hits,
+                    self.num_paths_searched, journal_id)
+                if self.num_paths_searched == 0:
+                    self.resultsMgrProxy.setDescription(
+                        "No files were found to search in.", 1)
+            fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
+                .getService(components.interfaces.koIFileStatusService)
+            fileStatusSvc.updateStatusForAllFiles(
+                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
 
     def _resetResultCache(self):
         self._r_urls = []
@@ -136,7 +177,7 @@ class _FindReplaceThread(threading.Thread):
         self._r_lineNums = []
         self._r_columnNums = []
         self._r_contexts = []
-        if self.mode == "replace":
+        if self.repl is not None:
             self._r_replacements = []
 
     def _cacheResult(self, url, startIndex, endIndex, value, fileName,
@@ -149,26 +190,26 @@ class _FindReplaceThread(threading.Thread):
         self._r_lineNums.append(lineNum)
         self._r_columnNums.append(columnNum)
         self._r_contexts.append(context)
-        if self.mode == "replace":
+        if self.repl is not None:
             self._r_replacements.append(replacement)
         
         if len(self._r_urls) >= self.REPORT_EVERY_N_HITS:
             self._flushResultCache()
 
     def _flushResultCache(self):
-        if self.mode == "find":
+        if self.repl is None:
             verb = "Found"
-        else:   # self.mode == "replace"
+        else:
             verb = "Replaced"
 
         if self._r_urls:
-            if self.mode == "find":
+            if self.repl is None:
                 self.resultsViewProxy.AddFindResults(
                     self._r_urls, self._r_startIndexes, self._r_endIndexes,
                     self._r_values, self._r_fileNames,
                     self._r_lineNums, self._r_columnNums, self._r_contexts)
                 self._resetResultCache()
-            else:  # self.mode == "replace"
+            else:
                 self.resultsViewProxy.AddReplaceResults(
                     self._r_urls, self._r_startIndexes, self._r_endIndexes,
                     self._r_values, self._r_replacements, self._r_fileNames,
@@ -185,9 +226,9 @@ class _FindReplaceThread(threading.Thread):
                   files_str)
         self.resultsMgrProxy.setDescription(desc, 0)
 
-    def _grep_paths(self, paths):
+    def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
-        for event in findlib2.grep(self.regex, paths):
+        for event in findlib2.grep(regex, paths):
             if self._stop:
                 return
 
@@ -208,9 +249,70 @@ class _FindReplaceThread(threading.Thread):
             
             self._report_find_hit(event)
 
+    def _replace_in_paths(self, regex, repl, desc, paths):
+        for event in findlib2.replace(regex, repl, paths, summary=desc):
+            if self._stop:
+                return
+            if isinstance(event, findlib2.StartJournal):
+                self.journal = event.journal
+                continue
+            elif isinstance(event, findlib2.SkipPath):
+                self.num_paths_searched += 1
+                if isinstance(event, findlib2.SkipUnknownLangPath):
+                    #XXX:TODO: put these as warning rows in the UI!
+                    log.debug("Skip `%s' (don't know lang).", event.path)
+                elif isinstance(event, findlib2.SkipBinaryPath):
+                    #TODO: put these as warning rows in the UI?
+                    log.debug("Skip `%s' (binary).", event.path)
+            elif not isinstance(event, findlib2.Hit):
+                continue
+            else:
+                assert isinstance(event, findlib2.ReplaceHitGroup)
+                self.num_paths_searched += 1
+                self.num_paths_with_hits += 1
+                self.num_hits += event.length
+                # Note: we must `event.commit()` before
+                # `self._report_replace_hits()` because the former
+                # determines `event.rhits` that the latter needs
+                event.commit()
+                self._report_replace_hits(event, self.repl)
+
     def _report_find_hit(self, hit):
-        """Report/cache this findlib2 Hit."""
-        context = '\n'.join(hit.lines)
+        context = self._prepare_context(hit.lines)
+        start_line, start_col = hit.start_line_and_col_num
+        self._cacheResult(
+            hit.path, # url
+            hit.start_pos, # startIndex
+            hit.end_pos, # endIndex
+            hit.match.group(0), # value
+            hit.path, # fileName
+            start_line + 1, # lineNum (0-based -> 1-based)
+            start_col + 1, # columnNum (0-based -> 1-based)
+            context # context
+        )
+
+    def _report_replace_hits(self, rgroup, repl):
+        for rhit in rgroup.rhits:
+            match = rhit.find_hit.match
+            start_line, start_col = rhit.start_line_and_col_num
+            context = self._prepare_context(rhit.lines)
+            self._cacheResult(
+                rgroup.path, # url
+                rhit.start_pos, # startIndex
+                rhit.end_pos, # endIndex
+                match.group(0), # value
+                rgroup.path, # fileName
+                start_line + 1, # lineNum (0-based -> 1-based)
+                start_col + 1, # columnNum (0-based -> 1-based)
+                context, # context
+                match.expand(repl) # replacement
+            )
+
+    def _prepare_context(self, lines):
+        """Do some common processing of the "context" for a find- or
+        replace-result.
+        """
+        context = '\n'.join(lines)
 
         # Don't want to see black boxes for EOLs in find results tab.
         context = context.rstrip('\r\n')
@@ -219,206 +321,21 @@ class _FindReplaceThread(threading.Thread):
         # which the occassional exceptional situation will cause
         # (e.g.  Komodo's own webdata.js). Trim the "content"
         # find result length.
-        MAX_CONTENT_LENGTH = 256
-        if len(context) > MAX_CONTENT_LENGTH:
-            context = context[:MAX_CONTENT_LENGTH]
+        if len(context) > self.MAX_XUL_TREE_CELL_LENGTH:
+            context = context[:self.MAX_XUL_TREE_CELL_LENGTH]
 
         # When the context gets passed to AddFindResults pyxpcom will
         # convert it into a unicode string automatically. However, if we
         # happened to get a result on a binary file, that will fail and we
         # will not see any results. protect against that by trying to make
-        # the string unicode, and failing that, repr it, then limit its
-        # length as it could be *very* long.
+        # the string unicode, and failing that, repr it.
         if type(context) != types.UnicodeType:
             try:
                 context = unicode(context)
             except UnicodeError, ex:
-                context = context[:MAX_CONTENT_LENGTH]
                 context = repr(context)[1:-1]
-
-        line_num, col_num = hit.start_line_and_col_num
-        self._cacheResult(hit.path, hit.start_pos, hit.end_pos,
-                          hit.match.group(0), hit.path,
-                          line_num+1, col_num+1, context)
-
-
-class _ReplacerInFiles(_FindReplaceThread):
-    def __init__(self, id, regex, repl, folders, cwd, searchInSubfolders,
-                 includeFiletypes, excludeFiletypes, resultsMgr):
-        _FindReplaceThread.__init__(self, id, "ReplacerInFiles <%s>" % id,
-                                    "replace", resultsMgr)
-
-        self.regex = regex
-        self.repl = repl
-        self.folders = folders
-        self.cwd = normpath(expanduser(cwd))
-        self.searchInSubfolders = searchInSubfolders
-        self.includeFiletypes = includeFiletypes
-        self.excludeFiletypes = excludeFiletypes
-
-    def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
-        #       self.resultsMgrProxy or self.resultsViewProxy, because they
-        #       may have been destroyed.
-
-        # optimization: delay reporting of results, store them here
-        self._resetResultCache()
-
-        self.numResults = 0
-        self.numFiles = 0
-        self.numSearchedFiles = 0
-        try:
-            if self._stop:
-                return
-            else:
-                self.resultsMgrProxy.setDescription(
-                    "Phase 1: gathering list of files...", 0)
-
-            #TODO:XXX all of it!
-
-            if self.searchInSubfolders:
-                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
-            else:
-                path_patterns = []
-                for d in self.folders:
-                    d = self._norm_dir_from_dir(d)
-                    path_patterns.append(join(d, "*"))
-                    path_patterns.append(join(d, ".*"))
-
-            paths = findlib2.paths_from_path_patterns(
-                        path_patterns,
-                        recursive=self.searchInSubfolders,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        on_error=None,
-                        skip_dupe_dirs=True)
-            print
-            print "-- s/%s/%s/" % (self.regex.pattern, self.repl)
-            #TODO: EOL normalization of replacements!
-            for event in findlib2.replace(self.regex, self.repl, paths,
-                                          include_diff_events=True,
-                                          dry_run=True):
-                if self._stop:
-                    return
-                print repr(event)
-
-            self._flushResultCache() # Add the last chunk of find results
-        finally:
-            if not self._stop:
-                #TODO: journal id
-                journal_id = None
-                self.resultsMgrProxy.searchFinished(1, self.numResults,
-                                                    self.numFiles,
-                                                    self.numSearchedFiles,
-                                                    journal_id)
-                if self.numSearchedFiles == 0:
-                    self.resultsMgrProxy.setDescription(
-                        "No files were found to search in.", 1)
-
-
-
-class _FinderInFiles(_FindReplaceThread):
-    def __init__(self, id, regex, folders, cwd, searchInSubfolders,
-                 includeFiletypes, excludeFiletypes, resultsMgr):
-        _FindReplaceThread.__init__(self, id, "FinderInFiles <%s>" % id,
-                                    "find", resultsMgr)
-
-        self.regex = regex
-        self.folders = folders
-        self.cwd = normpath(expanduser(cwd))
-        self.searchInSubfolders = searchInSubfolders
-        self.includeFiletypes = includeFiletypes
-        self.excludeFiletypes = excludeFiletypes
-
-    def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
-        #       self.resultsMgrProxy or self.resultsViewProxy, because they
-        #       may have been destroyed.
-
-        self._resetResultCache()
-
-        self.num_hits = 0
-        self.num_paths_with_hits = 0
-        self.num_paths_searched = 0
-        try:
-            if self._stop:
-                return
-            else:
-                self.resultsMgrProxy.setDescription(
-                    "Phase 1: gathering list of files...", 0)
-
-            if self.searchInSubfolders:
-                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
-            else:
-                path_patterns = []
-                for d in self.folders:
-                    d = self._norm_dir_from_dir(d)
-                    path_patterns.append(join(d, "*"))
-                    path_patterns.append(join(d, ".*"))
-
-            paths = findlib2.paths_from_path_patterns(
-                        path_patterns,
-                        recursive=self.searchInSubfolders,
-                        includes=self.includeFiletypes,
-                        excludes=self.excludeFiletypes,
-                        on_error=None,
-                        skip_dupe_dirs=True)
-            self._grep_paths(paths)
-
-            self._flushResultCache() # Add the last chunk of find results
-        finally:
-            if not self._stop:
-                self.resultsMgrProxy.searchFinished(
-                    1, self.num_hits, self.num_paths_with_hits,
-                    self.num_paths_searched, None)
-                if self.num_paths_searched == 0:
-                    self.resultsMgrProxy.setDescription(
-                        "No files were found to search in.", 1)
-
-
-
-
-class _FinderInCollection(_FindReplaceThread):
-    def __init__(self, id, regex, resultsMgr):
-        _FindReplaceThread.__init__(self, id,
-                                    "FinderInCollection <%s>" % id,
-                                    "find", resultsMgr)
-        self.regex = regex
-        self.context = resultsMgr.context_
-
-    def run(self):
-        # Rule: if self._stop is true then this code MUST NOT use
-        #       self.resultsMgrProxy or self.resultsViewProxy, because they
-        #       may have been destroyed.
-
-        self._resetResultCache()
-
-        self.num_hits = 0
-        self.num_paths_with_hits = 0
-        self.num_paths_searched = 0
-        try:
-            if self._stop:
-                return
-            else:
-                self.resultsMgrProxy.setDescription(
-                    "Phase 1: gathering list of files...", 0)
-
-            coll = UnwrapObject(self.context)
-            #print
-            #print "-- find in collection: %r" % self.context
-            #for path in coll.paths:
-            #    print "...", path
-
-            self._grep_paths(coll.paths)
-            self._flushResultCache() # Add the last chunk of find results
-        finally:
-            if not self._stop:
-                self.resultsMgrProxy.searchFinished(
-                    1, self.num_hits, self.num_paths_with_hits,
-                    self.num_paths_searched, None)
-                if self.num_paths_searched == 0:
-                    self.resultsMgrProxy.setDescription(
-                        "No files were found to search in.", 1)
+        
+        return context
 
 
 class _ConfirmReplacerInFiles(threading.Thread, TreeView):
@@ -435,7 +352,6 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                  searchInSubfolders, includeFiletypes, excludeFiletypes,
                  summary, controller):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
-        #TreeView.__init__(self, debug="confirmrepl") # for debug logging
         TreeView.__init__(self)
 
         self.regex = regex
@@ -470,19 +386,21 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self._stopped = True
 
     def run(self):
-        # Rule: If self._stop is true then this code MUST NOT use
+        # Rule: If self._stopped is true then this code MUST NOT use
         #       self.controllerProxy because it may have been destroyed.
 
         try:
             if self._stopped:
                 return
 
+            #TODO: share this setting up the 'paths' generator code
+            #      with here, findallinfiles, and replaceallinfiles
             if self.searchInSubfolders:
-                path_patterns = [self._norm_dir_from_dir(d) for d in self.folders]
+                path_patterns = [_norm_dir_from_dir(d, self.cwd) for d in self.folders]
             else:
                 path_patterns = []
                 for d in self.folders:
-                    d = self._norm_dir_from_dir(d)
+                    d = _norm_dir_from_dir(d, self.cwd)
                     path_patterns.append(join(d, "*"))
                     path_patterns.append(join(d, ".*"))
 
@@ -651,13 +569,6 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         with self._lock:
             self.rgroups.append(rgroup)
             self.marked.append(True)
-
-    def _norm_dir_from_dir(self, dir):
-        if dir.startswith("~"):
-            dir = expanduser(dir)
-        elif not isabs(dir):
-            dir = join(self.cwd, dir)
-        return normpath(dir)
 
     #---- koITreeView methods
     def setTree(self, tree):
@@ -1358,20 +1269,46 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        t = _FinderInFiles(
-                id, regex,
-                self.options.getFolders(),
-                resultsMgr.context_.cwd,
-                self.options.searchInSubfolders,
-                self.options.getIncludeFiletypes(),
-                self.options.getExcludeFiletypes(),
-                resultsMgr)
+        # Setup the generator of paths to search.
+        dirs = self.options.getFolders()
+        cwd = resultsMgr.context_.cwd
+        if cwd:
+            cwd = normpath(expanduser(resultsMgr.context_.cwd))
+        if self.options.searchInSubfolders:
+            path_patterns = [_norm_dir_from_dir(d, cwd) for d in dirs]
+        else:
+            path_patterns = []
+            for d in dirs:
+                d = _norm_dir_from_dir(d, cwd)
+                path_patterns.append(join(d, "*"))
+                path_patterns.append(join(d, ".*"))
+        paths = findlib2.paths_from_path_patterns(
+                    path_patterns,
+                    recursive=self.options.searchInSubfolders,
+                    includes=self.options.getIncludeFiletypes(),
+                    excludes=self.options.getExcludeFiletypes(),
+                    on_error=None,
+                    skip_dupe_dirs=True)  
+
+        t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
     def replaceallinfiles(self, id, pattern, repl, resultsMgr):
-        """TODO: docstring"""
+        """Start a thread that replaces all instances of 'pattern' with
+        'repl' in the koIFindService.options context.
+        
+        @param id {str} is a unique number to distinguish this
+            thread from others (for use by `stopfindreplaceinfiles(id)`).
+            Typically this is the number of the Find Results tab to which
+            results are logged.
+        @param pattern {str} the search pattern
+        @param repl {str} the replacement string
+        @param resultsMgr {components.interfaces.koIFindResultsTabManager}
+            The JS-implemented manager for the "Find Results" tab to
+            which results are written.
+        """
         try:
             regex, munged_repl, desc = _regex_info_from_ko_find_data(
                 pattern, repl,
@@ -1382,14 +1319,29 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        t = _ReplacerInFiles(
-                id, regex, munged_repl,
-                self.options.getFolders(),
-                resultsMgr.context_.cwd,
-                self.options.searchInSubfolders,
-                self.options.getIncludeFiletypes(),
-                self.options.getExcludeFiletypes(),
-                resultsMgr)
+        # Setup the generator of paths to search.
+        dirs = self.options.getFolders()
+        cwd = resultsMgr.context_.cwd
+        if cwd:
+            cwd = normpath(expanduser(resultsMgr.context_.cwd))
+        if self.options.searchInSubfolders:
+            path_patterns = [_norm_dir_from_dir(d, cwd) for d in dirs]
+        else:
+            path_patterns = []
+            for d in dirs:
+                d = _norm_dir_from_dir(d, cwd)
+                path_patterns.append(join(d, "*"))
+                path_patterns.append(join(d, ".*"))
+        paths = findlib2.paths_from_path_patterns(
+                    path_patterns,
+                    recursive=self.options.searchInSubfolders,
+                    includes=self.options.getIncludeFiletypes(),
+                    excludes=self.options.getExcludeFiletypes(),
+                    on_error=None,
+                    skip_dupe_dirs=True)  
+
+        t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
+                               resultsMgr)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1461,7 +1413,9 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-        t = _FinderInCollection(id, regex, resultsMgr)
+        paths = UnwrapObject(resultsMgr.context_).paths
+        t = _FindReplaceThread(id, regex, None, desc, paths,
+                               resultsMgr)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1478,6 +1432,16 @@ class KoFindService(object):
 
 
 #---- internal support stuff
+
+def _norm_dir_from_dir(dir, cwd=None):
+    if dir.startswith("~"):
+        dir = expanduser(dir)
+    elif not isabs(dir):
+        if cwd:
+            dir = join(cwd, dir)
+        else:
+            dir = abspath(dir)
+    return normpath(dir)
 
 #TODO: put in my recipes
 def _break_up_words(s, max_word_length=50):
