@@ -211,6 +211,7 @@
  '*.hpp': 'C++',
  '*.htm': 'HTML',
  '*.html': 'HTML',
+ '*.html.erb': 'RHTML',
  '*.hxx': 'C++',
  '*.idl': 'IDL',
  '*.inc': 'PHP',
