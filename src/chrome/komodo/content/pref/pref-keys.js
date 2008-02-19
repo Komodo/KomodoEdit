@@ -338,6 +338,7 @@ function newConfiguration()
         ko.dialogs.alert("Scheme names must contain alphanumeric characters, spaces or underscores only.  Please choose another name.");
     }
     newSchemeName = dialog.gKeybindingMgr.makeNewConfiguration(newSchemeName, dialog.prefset);
+    updateConfigMenu();
     switchConfig(newSchemeName);
     return true;
 }
