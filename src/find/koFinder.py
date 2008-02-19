@@ -90,8 +90,9 @@ class _FindReplaceThread(threading.Thread):
     """
     # The number by which to chunk reporting results.
     REPORT_EVERY_N_HITS = 50
+    REPORT_EVERY_N_PATHS_WITH_HITS = 5
     REPORT_EVERY_N_PATHS_SEARCHED = 100
-    
+
     MAX_XUL_TREE_CELL_LENGTH = 256
     
     def __init__(self, id, regex, repl, desc, paths, resultsMgr):
@@ -125,6 +126,7 @@ class _FindReplaceThread(threading.Thread):
         self._resultsView = UnwrapObject(resultsMgr.view)
 
         self._stop = 0 # when true the processing thread should terminate
+        self._reset_hit_cache()
 
     def stop(self):
         """Stop processing."""
@@ -135,7 +137,7 @@ class _FindReplaceThread(threading.Thread):
         # Rule: if self._stop is true then this code MUST NOT use
         #       self.resultsMgrProxy or self.resultsViewProxy, because they
         #       may have been destroyed.
-        self._resetResultCache()
+
         self.num_hits = 0
         self.num_paths_with_hits = 0
         self.num_paths_searched = 0
@@ -150,13 +152,13 @@ class _FindReplaceThread(threading.Thread):
             else:
                 self._replace_in_paths(self.regex, self.repl, self.desc,
                                        self.paths)
-            self._flushResultCache() # Add the last chunk of find results
         finally:
             journal_id = None
             if self.journal:
                 journal_id = self.journal.id
                 self.journal.close()
             if not self._stop:
+                self._report(flush=True)
                 self.resultsMgrProxy.searchFinished(
                     True, self.num_hits, self.num_paths_with_hits,
                     self.num_paths_searched, journal_id)
@@ -168,7 +170,7 @@ class _FindReplaceThread(threading.Thread):
             fileStatusSvc.updateStatusForAllFiles(
                 components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
 
-    def _resetResultCache(self):
+    def _reset_hit_cache(self):
         self._r_urls = []
         self._r_startIndexes = []
         self._r_endIndexes = []
@@ -180,8 +182,8 @@ class _FindReplaceThread(threading.Thread):
         if self.repl is not None:
             self._r_replacements = []
 
-    def _cacheResult(self, url, startIndex, endIndex, value, fileName,
-                     lineNum, columnNum, context, replacement=None):
+    def _cache_hit(self, url, startIndex, endIndex, value, fileName,
+                   lineNum, columnNum, context, replacement=None):
         self._r_urls.append(url)
         self._r_startIndexes.append(startIndex)
         self._r_endIndexes.append(endIndex)
@@ -192,39 +194,6 @@ class _FindReplaceThread(threading.Thread):
         self._r_contexts.append(context)
         if self.repl is not None:
             self._r_replacements.append(replacement)
-        
-        if len(self._r_urls) >= self.REPORT_EVERY_N_HITS:
-            self._flushResultCache()
-
-    def _flushResultCache(self):
-        if self.repl is None:
-            verb = "Found"
-        else:
-            verb = "Replaced"
-
-        if self._r_urls:
-            if self.repl is None:
-                self.resultsViewProxy.AddFindResults(
-                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
-                    self._r_values, self._r_fileNames,
-                    self._r_lineNums, self._r_columnNums, self._r_contexts)
-                self._resetResultCache()
-            else:
-                self.resultsViewProxy.AddReplaceResults(
-                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
-                    self._r_values, self._r_replacements, self._r_fileNames,
-                    self._r_lineNums, self._r_columnNums, self._r_contexts)
-                self._resetResultCache()
-
-        # Set a description of the current state for the results tab UI.
-        if self.num_paths_searched == 1:
-            files_str = "1 file"
-        else:
-            files_str = str(self.num_paths_searched) + " files"
-        desc = "%s %d occurrences in %d of %s so far."\
-               % (verb, self.num_hits, self.num_paths_with_hits,
-                  files_str)
-        self.resultsMgrProxy.setDescription(desc, 0)
 
     def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
@@ -234,20 +203,17 @@ class _FindReplaceThread(threading.Thread):
 
             if isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
-                if self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0:
-                    self._flushResultCache()
                 continue
             elif not isinstance(event, findlib2.Hit):
                 continue
-            self.num_hits += 1
-            if event.path != last_path_with_hits:
-                self.num_paths_searched += 1
-                self.num_paths_with_hits += 1
-                last_path_with_hits = event.path
-                if self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0:
-                    self._flushResultCache()
-            
-            self._report_find_hit(event)
+            else:
+                self.num_hits += 1
+                if event.path != last_path_with_hits:
+                    self.num_paths_searched += 1
+                    self.num_paths_with_hits += 1
+                    last_path_with_hits = event.path
+                self._cache_find_hit(event)
+            self._report()
 
     def _replace_in_paths(self, regex, repl, desc, paths):
         for event in findlib2.replace(regex, repl, paths, summary=desc):
@@ -272,15 +238,16 @@ class _FindReplaceThread(threading.Thread):
                 self.num_paths_with_hits += 1
                 self.num_hits += event.length
                 # Note: we must `event.commit()` before
-                # `self._report_replace_hits()` because the former
+                # `self._cache_replace_hits()` because the former
                 # determines `event.rhits` that the latter needs
                 event.commit()
-                self._report_replace_hits(event, self.repl)
+                self._cache_replace_hits(event, self.repl)
+            self._report()
 
-    def _report_find_hit(self, hit):
+    def _cache_find_hit(self, hit):
         context = self._prepare_context(hit.lines)
         start_line, start_col = hit.start_line_and_col_num
-        self._cacheResult(
+        self._cache_hit(
             hit.path, # url
             hit.start_pos, # startIndex
             hit.end_pos, # endIndex
@@ -291,12 +258,12 @@ class _FindReplaceThread(threading.Thread):
             context # context
         )
 
-    def _report_replace_hits(self, rgroup, repl):
+    def _cache_replace_hits(self, rgroup, repl):
         for rhit in rgroup.rhits:
             match = rhit.find_hit.match
             start_line, start_col = rhit.start_line_and_col_num
             context = self._prepare_context(rhit.lines)
-            self._cacheResult(
+            self._cache_hit(
                 rgroup.path, # url
                 rhit.start_pos, # startIndex
                 rhit.end_pos, # endIndex
@@ -336,6 +303,60 @@ class _FindReplaceThread(threading.Thread):
                 context = repr(context)[1:-1]
         
         return context
+
+    _last_report_num_hits = 0
+    _last_report_num_paths_searched = 0
+    _last_report_num_paths_with_hits = 0
+    def _report(self, flush=False):
+        """Report current results to the `resultsMgr`.
+        
+        For performance we batch up reporting.
+        """
+        if self._stop:
+            return
+
+        # Determine if we should report.
+        if flush:
+            pass    # report
+        elif (self.num_hits != self._last_report_num_hits
+              and self.num_hits % self.REPORT_EVERY_N_HITS == 0):
+            pass    # report
+        elif (self.num_paths_searched != self._last_report_num_paths_searched
+              and self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0):
+            pass    # report
+        elif (self.num_paths_with_hits != self._last_report_num_paths_with_hits
+              and self.num_paths_with_hits % self.REPORT_EVERY_N_PATHS_WITH_HITS == 0):
+            pass    # report
+        else:
+            return  # skip reporting
+
+        if self.repl is None:
+            verb = "Found"
+        else:
+            verb = "Replaced"
+
+        if self._r_urls:
+            if self.repl is None:
+                self.resultsViewProxy.AddFindResults(
+                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                    self._r_values, self._r_fileNames,
+                    self._r_lineNums, self._r_columnNums, self._r_contexts)
+            else:
+                self.resultsViewProxy.AddReplaceResults(
+                    self._r_urls, self._r_startIndexes, self._r_endIndexes,
+                    self._r_values, self._r_replacements, self._r_fileNames,
+                    self._r_lineNums, self._r_columnNums, self._r_contexts)
+            self._reset_hit_cache()
+
+        # Set a description of the current state for the results tab UI.
+        if self.num_paths_searched == 1:
+            files_str = "1 file"
+        else:
+            files_str = str(self.num_paths_searched) + " files"
+        desc = "%s %d occurrences in %d of %s so far."\
+               % (verb, self.num_hits, self.num_paths_with_hits,
+                  files_str)
+        self.resultsMgrProxy.setDescription(desc, 0)
 
 
 class _ConfirmReplacerInFiles(threading.Thread, TreeView):
