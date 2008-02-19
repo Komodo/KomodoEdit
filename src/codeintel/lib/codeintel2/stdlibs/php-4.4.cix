@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 4.4.8" description="Cix data for PHP 4.4.8" file="php-4.4.cix">
-  <file lang="PHP" mtime="1203398171" path="php-4.4.cix">
+  <file lang="PHP" mtime="1203388750" path="php-4.4.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="include" signature="include(file_path)" doc="includes and evaluates the specified file, produces a warning on error." ilk="function"/>
       <scope name="require" signature="require(file_path)" doc="includes and evaluates the specified file, produces a Fatal Error on error." ilk="function"/>

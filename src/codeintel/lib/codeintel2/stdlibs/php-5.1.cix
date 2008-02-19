@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.1.6" description="Cix data for PHP 5.1.6" file="php-5.1.cix">
-  <file lang="PHP" mtime="1203398174" path="php-5.1.cix">
+  <file lang="PHP" mtime="1203388751" path="php-5.1.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -31,11 +31,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="ErrorException"/>
-        <variable name="code" class="ErrorException"/>
-        <variable name="file" class="ErrorException"/>
-        <variable name="line" class="ErrorException"/>
-        <variable name="severity" class="ErrorException"/>
       </scope>
       <scope name="XMLWriter" ilk="class">
         <scope ilk="function" name="openUri" signature="openUri()"/>
@@ -85,10 +80,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="DOMException"/>
-        <variable name="code" class="DOMException"/>
-        <variable name="file" class="DOMException"/>
-        <variable name="line" class="DOMException"/>
       </scope>
       <scope name="DOMStringList" ilk="class">
         <scope ilk="function" name="item" signature="item()"/>
@@ -518,28 +509,6 @@
         <scope name="setRelaxNGSchemaSource" signature="setRelaxNGSchemaSource(string source)" doc="Sets the string that the the XMLReader will parse" ilk="function" src="php_xmlreader.c" returns="boolean"/>
         <scope name="XML" signature="XML(string source)" doc="Sets the string that the the XMLReader will parse" ilk="function" src="php_xmlreader.c" returns="boolean"/>
         <scope name="expand" signature="expand()" doc="Moves the position of the current instance to the next&amp;#xA;node in the stream" ilk="function" src="php_xmlreader.c" returns="boolean"/>
-        <variable name="NONE" citdl="integer" ilk="constant"/>
-        <variable name="ELEMENT" citdl="integer" ilk="constant"/>
-        <variable name="ATTRIBUTE" citdl="integer" ilk="constant"/>
-        <variable name="TEXT" citdl="integer" ilk="constant"/>
-        <variable name="CDATA" citdl="integer" ilk="constant"/>
-        <variable name="ENTITY_REF" citdl="integer" ilk="constant"/>
-        <variable name="ENTITY" citdl="integer" ilk="constant"/>
-        <variable name="PI" citdl="integer" ilk="constant"/>
-        <variable name="COMMENT" citdl="integer" ilk="constant"/>
-        <variable name="DOC" citdl="integer" ilk="constant"/>
-        <variable name="DOC_TYPE" citdl="integer" ilk="constant"/>
-        <variable name="DOC_FRAGMENT" citdl="integer" ilk="constant"/>
-        <variable name="NOTATION" citdl="integer" ilk="constant"/>
-        <variable name="WHITESPACE" citdl="integer" ilk="constant"/>
-        <variable name="SIGNIFICANT_WHITESPACE" citdl="integer" ilk="constant"/>
-        <variable name="END_ELEMENT" citdl="integer" ilk="constant"/>
-        <variable name="END_ENTITY" citdl="integer" ilk="constant"/>
-        <variable name="XML_DECLARATION" citdl="integer" ilk="constant"/>
-        <variable name="LOADDTD" citdl="integer" ilk="constant"/>
-        <variable name="DEFAULTATTRS" citdl="integer" ilk="constant"/>
-        <variable name="VALIDATE" citdl="integer" ilk="constant"/>
-        <variable name="SUBST_ENTITIES" citdl="integer" ilk="constant"/>
       </scope>
       <scope name="__PHP_Incomplete_Class" ilk="class"/>
       <scope name="php_user_filter" ilk="class">
@@ -944,11 +913,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="PDOException"/>
-        <variable name="code" class="PDOException"/>
-        <variable name="file" class="PDOException"/>
-        <variable name="line" class="PDOException"/>
-        <variable name="errorInfo" class="PDOException"/>
       </scope>
       <scope name="PDO" ilk="class">
         <scope name="__construct" signature="__construct(string dsn, string username, string passwd [, array options])" doc="" ilk="function" src="pdo_dbh.c" returns="void"/>
@@ -967,73 +931,6 @@
         <scope name="__wakeup" signature="__wakeup()" doc="Prevents use of a PDO instance that has been&amp;#xA;unserialized" ilk="function" src="pdo_dbh.c" returns="int"/>
         <scope name="__sleep" signature="__sleep()" doc="Prevents serialization of a PDO instance" ilk="function" src="pdo_dbh.c" returns="int"/>
         <scope ilk="function" name="getAvailableDrivers" signature="getAvailableDrivers()"/>
-        <variable name="PARAM_BOOL" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_NULL" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_INT" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_STR" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_LOB" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_STMT" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_INPUT_OUTPUT" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_ALLOC" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_FREE" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_EXEC_PRE" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_EXEC_POST" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_FETCH_PRE" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_FETCH_POST" citdl="integer" ilk="constant"/>
-        <variable name="PARAM_EVT_NORMALIZE" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_LAZY" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ASSOC" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_NUM" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_BOTH" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_OBJ" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_BOUND" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_COLUMN" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_CLASS" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_INTO" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_FUNC" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_GROUP" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_UNIQUE" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_CLASSTYPE" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_SERIALIZE" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_NAMED" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_AUTOCOMMIT" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_PREFETCH" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_TIMEOUT" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_ERRMODE" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_SERVER_VERSION" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_CLIENT_VERSION" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_SERVER_INFO" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_CONNECTION_STATUS" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_CASE" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_CURSOR_NAME" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_CURSOR" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_ORACLE_NULLS" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_PERSISTENT" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_STATEMENT_CLASS" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_FETCH_TABLE_NAMES" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_FETCH_CATALOG_NAMES" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_DRIVER_NAME" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_STRINGIFY_FETCHES" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_MAX_COLUMN_LEN" citdl="integer" ilk="constant"/>
-        <variable name="ATTR_EMULATE_PREPARES" citdl="integer" ilk="constant"/>
-        <variable name="ERRMODE_SILENT" citdl="integer" ilk="constant"/>
-        <variable name="ERRMODE_WARNING" citdl="integer" ilk="constant"/>
-        <variable name="ERRMODE_EXCEPTION" citdl="integer" ilk="constant"/>
-        <variable name="CASE_NATURAL" citdl="integer" ilk="constant"/>
-        <variable name="CASE_LOWER" citdl="integer" ilk="constant"/>
-        <variable name="CASE_UPPER" citdl="integer" ilk="constant"/>
-        <variable name="NULL_NATURAL" citdl="integer" ilk="constant"/>
-        <variable name="NULL_EMPTY_STRING" citdl="integer" ilk="constant"/>
-        <variable name="NULL_TO_STRING" citdl="integer" ilk="constant"/>
-        <variable name="ERR_NONE" citdl="string" ilk="constant"/>
-        <variable name="FETCH_ORI_NEXT" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ORI_PRIOR" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ORI_FIRST" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ORI_LAST" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ORI_ABS" citdl="integer" ilk="constant"/>
-        <variable name="FETCH_ORI_REL" citdl="integer" ilk="constant"/>
-        <variable name="CURSOR_FWDONLY" citdl="integer" ilk="constant"/>
-        <variable name="CURSOR_SCROLL" citdl="integer" ilk="constant"/>
       </scope>
       <scope name="PDOStatement" ilk="class">
         <scope name="execute" signature="execute([array $bound_input_params])" doc="Execute a prepared statement optionally binding&amp;#xA;parameters" ilk="function" src="pdo_stmt.c" returns="bool"/>
@@ -1057,7 +954,6 @@
         <scope name="debugDumpParams" signature="debugDumpParams()" doc="A utility for internals hackers to debug parameter&amp;#xA;internals" ilk="function" src="pdo_stmt.c" returns="void"/>
         <scope name="__wakeup" signature="__wakeup()" doc="Prevents use of a PDOStatement instance that has been&amp;#xA;unserialized" ilk="function" src="pdo_stmt.c" returns="int"/>
         <scope name="__sleep" signature="__sleep()" doc="Prevents serialization of a PDOStatement instance" ilk="function" src="pdo_stmt.c" returns="int"/>
-        <variable name="queryString" class="PDOStatement"/>
       </scope>
       <scope name="PDORow" ilk="class"/>
       <scope name="SQLiteDatabase" ilk="class">
@@ -1116,10 +1012,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="SQLiteException"/>
-        <variable name="code" class="SQLiteException"/>
-        <variable name="file" class="SQLiteException"/>
-        <variable name="line" class="SQLiteException"/>
       </scope>
       <scope name="ReflectionException" ilk="class" classrefs="Exception">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -1131,10 +1023,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="ReflectionException"/>
-        <variable name="code" class="ReflectionException"/>
-        <variable name="file" class="ReflectionException"/>
-        <variable name="line" class="ReflectionException"/>
       </scope>
       <scope name="Reflection" ilk="class">
         <scope name="getModifierNames" signature="getModifierNames(int modifiers)" doc="Returns an array of modifier names" ilk="function" src="php_reflection.c" returns="array"/>
@@ -1160,8 +1048,6 @@
         <scope name="getNumberOfParameters" signature="getNumberOfParameters()" doc="Gets the number of required parameters" ilk="function" src="php_reflection.c" returns="bool"/>
         <scope name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()" doc="Gets the number of required parameters" ilk="function" src="php_reflection.c" returns="bool"/>
         <scope name="isDeprecated" signature="isDeprecated()" doc="Returns whether this function is deprecated" ilk="function" src="php_reflection.c" returns="bool"/>
-        <variable name="IS_DEPRECATED" citdl="integer" ilk="constant"/>
-        <variable name="name" class="ReflectionFunction"/>
       </scope>
       <scope name="ReflectionParameter" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -1177,7 +1063,6 @@
         <scope name="isOptional" signature="isOptional()" doc="Returns whether this parameter is an optional parameter" ilk="function" src="php_reflection.c" returns="bool"/>
         <scope name="isDefaultValueAvailable" signature="isDefaultValueAvailable()" doc="Returns whether the default value of this parameter is&amp;#xA;available" ilk="function" src="php_reflection.c" returns="bool"/>
         <scope name="getDefaultValue" signature="getDefaultValue()" doc="Returns the default value of this parameter or throws&amp;#xA;an exception" ilk="function" src="php_reflection.c" returns="bool"/>
-        <variable name="name" class="ReflectionParameter"/>
       </scope>
       <scope name="ReflectionMethod" ilk="class" classrefs="ReflectionFunction">
         <scope name="export" signature="export(mixed class, string name [, bool return])" doc="throws ReflectionException Exports a reflection object&amp;#xA;Returns the output if TRUE is specified for return&amp;#xA;printing it otherwise" ilk="function" src="php_reflection.c" returns="mixed"/>
@@ -1210,15 +1095,6 @@
         <scope ilk="function" name="getNumberOfParameters" signature="getNumberOfParameters()"/>
         <scope ilk="function" name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()"/>
         <scope ilk="function" name="isDeprecated" signature="isDeprecated()"/>
-        <variable name="IS_DEPRECATED" citdl="integer" ilk="constant"/>
-        <variable name="IS_STATIC" citdl="integer" ilk="constant"/>
-        <variable name="IS_PUBLIC" citdl="integer" ilk="constant"/>
-        <variable name="IS_PROTECTED" citdl="integer" ilk="constant"/>
-        <variable name="IS_PRIVATE" citdl="integer" ilk="constant"/>
-        <variable name="IS_ABSTRACT" citdl="integer" ilk="constant"/>
-        <variable name="IS_FINAL" citdl="integer" ilk="constant"/>
-        <variable name="name" class="ReflectionMethod"/>
-        <variable name="class" class="ReflectionMethod"/>
       </scope>
       <scope name="ReflectionClass" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -1261,10 +1137,6 @@
         <scope name="implementsInterface" signature="implementsInterface(string" doc="Returns whether this class is a subclass of another&amp;#xA;class" ilk="function" src="php_reflection.c" returns="bool"/>
         <scope name="getExtension" signature="getExtension()" doc="Returns NULL or the extension the class belongs to" ilk="function" src="php_reflection.c" returns="ReflectionExtension"/>
         <scope name="getExtensionName" signature="getExtensionName()" doc="Returns false or the name of the extension the class&amp;#xA;belongs to" ilk="function" src="php_reflection.c" returns="string"/>
-        <variable name="IS_IMPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-        <variable name="IS_EXPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-        <variable name="IS_FINAL" citdl="integer" ilk="constant"/>
-        <variable name="name" class="ReflectionClass"/>
       </scope>
       <scope name="ReflectionObject" ilk="class" classrefs="ReflectionClass">
         <scope name="export" signature="export(mixed argument [, bool return])" doc="throws ReflectionException Exports a reflection object&amp;#xA;Returns the output if TRUE is specified for return&amp;#xA;printing it otherwise" ilk="function" src="php_reflection.c" returns="mixed"/>
@@ -1307,10 +1179,6 @@
         <scope ilk="function" name="implementsInterface" signature="implementsInterface()"/>
         <scope ilk="function" name="getExtension" signature="getExtension()"/>
         <scope ilk="function" name="getExtensionName" signature="getExtensionName()"/>
-        <variable name="IS_IMPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-        <variable name="IS_EXPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-        <variable name="IS_FINAL" citdl="integer" ilk="constant"/>
-        <variable name="name" class="ReflectionObject"/>
       </scope>
       <scope name="ReflectionProperty" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -1328,12 +1196,6 @@
         <scope name="getModifiers" signature="getModifiers()" doc="Returns a bitfield of the access modifiers for this&amp;#xA;property" ilk="function" src="php_reflection.c" returns="int"/>
         <scope name="getDeclaringClass" signature="getDeclaringClass()" doc="Get the declaring class" ilk="function" src="php_reflection.c" returns="ReflectionClass"/>
         <scope name="getDocComment" signature="getDocComment()" doc="Returns the doc comment for this property" ilk="function" src="php_reflection.c" returns="string"/>
-        <variable name="IS_STATIC" citdl="integer" ilk="constant"/>
-        <variable name="IS_PUBLIC" citdl="integer" ilk="constant"/>
-        <variable name="IS_PROTECTED" citdl="integer" ilk="constant"/>
-        <variable name="IS_PRIVATE" citdl="integer" ilk="constant"/>
-        <variable name="name" class="ReflectionProperty"/>
-        <variable name="class" class="ReflectionProperty"/>
       </scope>
       <scope name="ReflectionExtension" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -1348,7 +1210,6 @@
         <scope name="getClasses" signature="getClasses()" doc="Returns an array containing ReflectionClass objects for&amp;#xA;all classes of this extension" ilk="function" src="php_reflection.c" returns="ReflectionClass[]"/>
         <scope name="getClassNames" signature="getClassNames()" doc="Returns an array containing all names of all classes of&amp;#xA;this extension" ilk="function" src="php_reflection.c" returns="array"/>
         <scope name="getDependencies" signature="getDependencies()" doc="Returns an array containing all names of all extensions&amp;#xA;this extension depends on" ilk="function" src="php_reflection.c" returns="array"/>
-        <variable name="name" class="ReflectionExtension"/>
       </scope>
       <scope name="PHPInterpParser" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()"/>
@@ -1361,8 +1222,6 @@
         <scope ilk="function" name="getFunctions" signature="getFunctions()"/>
         <scope ilk="function" name="Stats" signature="Stats()"/>
         <scope ilk="function" name="Save" signature="Save()"/>
-        <variable name="interp_data" class="PHPInterpParser"/>
-        <variable name="dbfile" class="PHPInterpParser"/>
       </scope>
       <scope classrefs="CachingIterator" ilk="class" interfacerefs="RecursiveIterator" line="3" lineend="51" name="CachingRecursiveIterator">
         <scope attributes="__ctor__" ilk="function" line="8" lineend="11" name="__construct" signature="__construct()"/>

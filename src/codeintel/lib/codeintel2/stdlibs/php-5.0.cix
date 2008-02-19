@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.0.5" description="Cix data for PHP 5.0.5" file="php-5.0.cix">
-  <file lang="PHP" mtime="1203398172" path="php-5.0.cix">
+  <file lang="PHP" mtime="1203388750" path="php-5.0.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -30,10 +30,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="Exception"/>
-        <variable name="code" class="Exception"/>
-        <variable name="file" class="Exception"/>
-        <variable name="line" class="Exception"/>
       </scope>
       <scope name="Reflection" ilk="class">
         <scope name="getModifierNames" signature="getModifierNames(int modifiers)" doc="Returns an array of modifier names" ilk="function" src="zend_reflection_api.c" returns="array"/>
@@ -57,7 +53,6 @@
         <scope ilk="function" name="getParameters" signature="getParameters()"/>
         <scope name="getNumberOfParameters" signature="getNumberOfParameters()" doc="Gets the number of required parameters" ilk="function" src="zend_reflection_api.c" returns="bool"/>
         <scope name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()" doc="Gets the number of required parameters" ilk="function" src="zend_reflection_api.c" returns="bool"/>
-        <variable name="name" class="ReflectionFunction"/>
       </scope>
       <scope name="ReflectionParameter" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -71,7 +66,6 @@
         <scope name="isOptional" signature="isOptional()" doc="Returns whether this parameter is an optional parameter" ilk="function" src="zend_reflection_api.c" returns="bool"/>
         <scope name="isDefaultValueAvailable" signature="isDefaultValueAvailable()" doc="Returns whether the default value of this parameter is&amp;#xA;available" ilk="function" src="zend_reflection_api.c" returns="bool"/>
         <scope name="getDefaultValue" signature="getDefaultValue()" doc="Returns the default value of this parameter or throws&amp;#xA;an exception" ilk="function" src="zend_reflection_api.c" returns="bool"/>
-        <variable name="name" class="ReflectionParameter"/>
       </scope>
       <scope name="ReflectionMethod" ilk="class" classrefs="ReflectionFunction">
         <scope name="export" signature="export(mixed class, string name [, bool return])" doc="throws ReflectionException Exports a reflection object&amp;#xA;Returns the output if TRUE is specified for return&amp;#xA;printing it otherwise" ilk="function" src="zend_reflection_api.c" returns="mixed"/>
@@ -101,8 +95,6 @@
         <scope ilk="function" name="getParameters" signature="getParameters()"/>
         <scope ilk="function" name="getNumberOfParameters" signature="getNumberOfParameters()"/>
         <scope ilk="function" name="getNumberOfRequiredParameters" signature="getNumberOfRequiredParameters()"/>
-        <variable name="name" class="ReflectionFunction"/>
-        <variable name="class" class="ReflectionMethod"/>
       </scope>
       <scope name="ReflectionClass" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -139,7 +131,6 @@
         <scope name="implementsInterface" signature="implementsInterface(string" doc="Returns whether this class is a subclass of another&amp;#xA;class" ilk="function" src="zend_reflection_api.c" returns="bool"/>
         <scope name="getExtension" signature="getExtension()" doc="Returns NULL or the extension the class belongs to" ilk="function" src="zend_reflection_api.c" returns="ReflectionExtension"/>
         <scope name="getExtensionName" signature="getExtensionName()" doc="Returns false or the name of the extension the class&amp;#xA;belongs to" ilk="function" src="zend_reflection_api.c" returns="string"/>
-        <variable name="name" class="ReflectionClass"/>
       </scope>
       <scope name="ReflectionObject" ilk="class" classrefs="ReflectionClass">
         <scope name="export" signature="export(mixed argument [, bool return])" doc="throws ReflectionException Exports a reflection object&amp;#xA;Returns the output if TRUE is specified for return&amp;#xA;printing it otherwise" ilk="function" src="zend_reflection_api.c" returns="mixed"/>
@@ -176,7 +167,6 @@
         <scope ilk="function" name="implementsInterface" signature="implementsInterface()"/>
         <scope ilk="function" name="getExtension" signature="getExtension()"/>
         <scope ilk="function" name="getExtensionName" signature="getExtensionName()"/>
-        <variable name="name" class="ReflectionClass"/>
       </scope>
       <scope name="ReflectionProperty" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -193,8 +183,6 @@
         <scope name="isDefault" signature="isDefault()" doc="Returns whether this property is default declared at&amp;#xA;compilation time" ilk="function" src="zend_reflection_api.c" returns="bool"/>
         <scope name="getModifiers" signature="getModifiers()" doc="Returns a bitfield of the access modifiers for this&amp;#xA;property" ilk="function" src="zend_reflection_api.c" returns="int"/>
         <scope name="getDeclaringClass" signature="getDeclaringClass()" doc="Get the declaring class" ilk="function" src="zend_reflection_api.c" returns="ReflectionClass"/>
-        <variable name="name" class="ReflectionProperty"/>
-        <variable name="class" class="ReflectionProperty"/>
       </scope>
       <scope name="ReflectionExtension" ilk="class">
         <scope ilk="function" name="__clone" signature="__clone()"/>
@@ -208,7 +196,6 @@
         <scope name="getINIEntries" signature="getINIEntries()" doc="Returns an associative array containing this&amp;#xA;extension's INI entries and their values" ilk="function" src="zend_reflection_api.c" returns="array"/>
         <scope name="getClasses" signature="getClasses()" doc="Returns an array containing ReflectionClass objects for&amp;#xA;all classes of this extension" ilk="function" src="zend_reflection_api.c" returns="ReflectionClass[]"/>
         <scope name="getClassNames" signature="getClassNames()" doc="Returns an array containing all names of all classes of&amp;#xA;this extension" ilk="function" src="zend_reflection_api.c" returns="array"/>
-        <variable name="name" class="ReflectionExtension"/>
       </scope>
       <scope name="__PHP_Incomplete_Class" ilk="class"/>
       <scope name="php_user_filter" ilk="class">
@@ -275,10 +262,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="Exception"/>
-        <variable name="code" class="Exception"/>
-        <variable name="file" class="Exception"/>
-        <variable name="line" class="Exception"/>
       </scope>
       <scope doc="@file recursiveiteratoriterator.inc&#13;&#10;@ingroup SPL&#13;&#10;@brief class RecursiveIteratorIterator&#13;&#10;@author  Marcus Boerger&#13;&#10;@date    2003 - 2005&#13;&#10;&#13;&#10;SPL - Standard PHP Library&#13;&#10;/&#10;/**&#13;&#10;@brief   Iterates through recursive iterators&#13;&#10;@author  Marcus Boerger&#13;&#10;@version 1.2&#13;&#10;@since PHP 5.0&#13;&#10;&#13;&#10;The objects of this class are created by instances of RecursiveIterator. &#13;&#10;Elements of those iterators may be traversable themselves. If so these &#13;&#10;sub elements are recursed into." ilk="class" interfacerefs="OuterIterator" line="22" lineend="235" name="RecursiveIteratorIterator">
         <scope attributes="__ctor__" doc="Construct from RecursiveIterator&#13;&#10;&#13;&#10;@param it     RecursiveIterator to iterate&#13;&#10;@param mode   Operation mode (one of):&#13;&#10;              - LEAVES_ONLY only show leaves&#13;&#10;              - SELF_FIRST  show parents prior to their childs&#13;&#10;              - CHILD_FIRST show all children prior to their parent&#13;&#10;@param flags  Control flags, zero or any combination of the following&#13;&#10;              (since PHP 5.1).&#13;&#10;              - CATCH_GET_CHILD which catches exceptions during&#13;&#10;                getChildren() calls and simply jumps to the next &#13;&#10;                element." ilk="function" line="53" lineend="58" name="__construct" signature="__construct(RecursiveIterator, Operation, Control)"/>
@@ -465,10 +448,6 @@
         <scope ilk="function" name="getTrace" signature="getTrace()"/>
         <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()"/>
         <scope ilk="function" name="__toString" signature="__toString()"/>
-        <variable name="message" class="Exception"/>
-        <variable name="code" class="Exception"/>
-        <variable name="file" class="Exception"/>
-        <variable name="line" class="Exception"/>
       </scope>
       <scope name="DOMStringList" ilk="class">
         <scope ilk="function" name="item" signature="item()"/>
@@ -883,8 +862,6 @@
         <scope ilk="function" name="getFunctions" signature="getFunctions()"/>
         <scope ilk="function" name="Stats" signature="Stats()"/>
         <scope ilk="function" name="Save" signature="Save()"/>
-        <variable name="interp_data" class="PHPInterpParser"/>
-        <variable name="dbfile" class="PHPInterpParser"/>
       </scope>
       <scope classrefs="Exception" doc="@ingroup SPL&#10;@brief Exception that represents error in the program logic.&#10;@since PHP 5.1&#10;&#10;This kind of exceptions should directly leed to a fix in your code." ilk="class" line="339" lineend="341" name="LogicException"/>
       <scope classrefs="LogicException" doc="@ingroup SPL&#10;@brief Exception thrown when a function call was illegal.&#10;@since PHP 5.1" ilk="class" line="347" lineend="349" name="BadFunctionCallException"/>
