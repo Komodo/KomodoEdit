@@ -743,7 +743,13 @@ class CplnTestCase(CodeIntelTestCase):
         content, positions = unmark_text(php_markup("""\
             $e = new Exception(<1>'error name', 0);
        """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "__construct(string message, int code)\nException constructor")
+        expected_calltip = """__construct(message=NULL, code=0)
+Construct an exception
+
+@param $message Some text describing the exception
+@param $code    Some code describing the exception"""
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             expected_calltip)
 
     ##
     # Import handling
