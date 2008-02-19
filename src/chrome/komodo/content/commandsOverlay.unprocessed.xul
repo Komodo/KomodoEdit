@@ -1412,9 +1412,16 @@
         <!--    id="cmd_copyLine" key="key_cmd_copyLine"-->
         <!--    oncommand="ko.commands.doCommand('cmd_copyLine')"-->
         <!--    desc="Editor: Copy current line"/>-->
+        <!-- cmd_delete bug 65750, because html:input implements cmd_delete
+             as a backspace rather than delete to right, we have to special
+             case to get correct behaviour.  -->
         <command
             id="cmd_delete" key="key_cmd_delete"
-            oncommand="ko.commands.doCommand('cmd_delete')"
+            oncommand="if (event.originalTarget.nodeName=='html:input') {
+                        ko.commands.doCommand('cmd_deleteCharForward');
+                        } else {
+                        ko.commands.doCommand('cmd_delete');
+                        }"
             disabled="true"
             desc="&editorDelete.desc;"/>
     </commandset>
