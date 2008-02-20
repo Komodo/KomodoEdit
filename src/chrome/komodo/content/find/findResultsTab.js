@@ -896,12 +896,12 @@ FindResultsTabManager.prototype.searchFinished = function(
 
 
 FindResultsTabManager.prototype.addReplaceResult = function(
-    url, startIndex, endIndex, value, replacement, fileName, lineNum,
-    columnNum, context)
+    type, url, startIndex, endIndex, value, replacement, fileName,
+    lineNum, columnNum, context)
 {
     findResultsLog.info("FindResultsTabManager.addReplaceResult(...)");
     //XXX should raise exception if not in replace all "mode"
-    this.view.AddReplaceResult(url, startIndex, endIndex, value,
+    this.view.AddReplaceResult(type, url, startIndex, endIndex, value,
                                replacement, fileName, lineNum,
                                columnNum, context);
     var descWidget = document.getElementById(this._idprefix+"-desc");
@@ -966,6 +966,12 @@ FindResultsTabManager.prototype._doubleClick = function()
         // Open and/or switch to the appropriate file.
         var treeWidget = document.getElementById(this._idprefix);
         var i = treeWidget.currentIndex;
+
+        var eventType = this.view.GetType(i);
+        if (eventType != "hit") {
+            return;
+        }
+
         //XXX Note that "url" is the current (bad) name for the view ID, which
         //    itself is poorly represented by the display path of the file. Note
         //    that this may not translate to a valid URL if the view is untitled.

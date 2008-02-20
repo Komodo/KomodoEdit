@@ -58,6 +58,10 @@ class KoFindResultsView(TreeView):
         self._sortedBy = None
         self.id = None
 
+        atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                  getService(components.interfaces.nsIAtomService)
+        self._warning_atom = atomSvc.getAtom("warning")
+
     def get_rowCount(self):
         return len(self._data)
 
@@ -76,6 +80,19 @@ class KoFindResultsView(TreeView):
             datum = str(datum)
         return datum
 
+    def getCellProperties(self, row_idx, col, properties):
+        # Only for the "Content" column cells.
+        if not col.id.endswith("-context"):
+            return
+        datum = self._data[row_idx]
+        if datum["type"] == "warning":
+            properties.AppendElement(self._warning_atom)
+
+    def getRowProperties(self, row_idx, properties):
+        datum = self._data[row_idx]
+        if datum["type"] == "warning":
+            properties.AppendElement(self._warning_atom)
+
     def Clear(self):
         length = len(self._data)
         self._data = []
@@ -85,9 +102,10 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()
         self._tree.endUpdateBatch()
 
-    def AddFindResult(self, url, startIndex, endIndex, value, fileName,
-                      lineNum, columnNum, context):
-        datum = {"url": url,
+    def AddFindResult(self, type, url, startIndex, endIndex, value,
+                      fileName, lineNum, columnNum, context):
+        datum = {"type": type,
+                 "url": url,
                  "startIndex": startIndex,
                  "endIndex": endIndex,
                  "value": value,
@@ -96,6 +114,8 @@ class KoFindResultsView(TreeView):
                  "findresults%d-filename" % self.id: fileName,
                  "findresults%d-linenum" % self.id: lineNum,
                  "findresults%d-context" % self.id: context}
+        if type == "warning":
+            datum["findresults%d-linenum" % self.id] = "-"
         self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
@@ -103,13 +123,14 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
-    def AddFindResults(self, urls, startIndexs, endIndexs, values, fileNames,
-                       lineNums, columnNums, contexts):
-        for (url, startIndex, endIndex, value, fileName, lineNum,
-             columnNum, context) in zip(urls, startIndexs, endIndexs, values,
-                                        fileNames, lineNums, columnNums,
-                                        contexts):
-            datum = {"url": url,
+    def AddFindResults(self, types, urls, startIndexs, endIndexs, values,
+                       fileNames, lineNums, columnNums, contexts):
+        for (type, url, startIndex, endIndex, value, fileName, lineNum,
+             columnNum, context) in zip(types, urls, startIndexs, endIndexs,
+                                        values, fileNames, lineNums,
+                                        columnNums, contexts):
+            datum = {"type": type,
+                     "url": url,
                      "startIndex": startIndex,
                      "endIndex": endIndex,
                      "value": value,
@@ -118,6 +139,8 @@ class KoFindResultsView(TreeView):
                      "findresults%d-filename" % self.id: fileName,
                      "findresults%d-linenum" % self.id: lineNum,
                      "findresults%d-context" % self.id: context}
+            if type == "warning":
+                datum["findresults%d-linenum" % self.id] = "-"
             self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
@@ -125,9 +148,11 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
-    def AddReplaceResult(self, url, startIndex, endIndex, value, replacement,
-                         fileName, lineNum, columnNum, context):
-        datum = {"url": url,
+    def AddReplaceResult(self, type, url, startIndex, endIndex, value,
+                         replacement, fileName, lineNum, columnNum,
+                         context):
+        datum = {"type": type,
+                 "url": url,
                  "startIndex": startIndex,
                  "endIndex": endIndex,
                  "value": value,
@@ -137,6 +162,8 @@ class KoFindResultsView(TreeView):
                  "findresults%d-filename" % self.id: fileName,
                  "findresults%d-linenum" % self.id: lineNum,
                  "findresults%d-context" % self.id: context}
+        if type == "warning":
+            datum["findresults%d-linenum" % self.id] = "-"
         self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
@@ -144,14 +171,16 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
-    def AddReplaceResults(self, urls, startIndexs, endIndexs,
+    def AddReplaceResults(self, types, urls, startIndexs, endIndexs,
                           values, replacements, fileNames,
                           lineNums, columnNums, contexts):
-        for (url, startIndex, endIndex, value, replacement,
+        for (type, url, startIndex, endIndex, value, replacement,
              fileName, lineNum, columnNum, context
-             ) in zip(urls, startIndexs, endIndexs, values, replacements,
-                      fileNames, lineNums, columnNums, contexts):
-            datum = {"url": url,
+             ) in zip(types, urls, startIndexs, endIndexs, values,
+                      replacements, fileNames, lineNums, columnNums,
+                      contexts):
+            datum = {"type": type,
+                     "url": url,
                      "startIndex": startIndex,
                      "endIndex": endIndex,
                      "value": value,
@@ -161,6 +190,8 @@ class KoFindResultsView(TreeView):
                      "findresults%d-filename" % self.id: fileName,
                      "findresults%d-linenum" % self.id: lineNum,
                      "findresults%d-context" % self.id: context}
+            if type == "warning":
+                datum["findresults%d-linenum" % self.id] = "-"
             self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
@@ -168,6 +199,8 @@ class KoFindResultsView(TreeView):
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
+    def GetType(self, index):
+        return self._data[index]["type"]
     def GetUrl(self, index):
         return self._data[index]["url"]
     def GetStartIndex(self, index):
@@ -213,6 +246,8 @@ class KoFindResultsView(TreeView):
     def GetNumUrls(self):
         urlDict = {}
         for datum in self._data:
+            if datum["type"] != "hit":
+                continue
             urlDict[datum["url"]] = 1
         return len(urlDict.keys())
 

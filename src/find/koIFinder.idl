@@ -41,7 +41,7 @@ interface ISciMoz;
 interface koIFindSession;
 interface koIFindResultsTabManager;
 interface koIFindResultsView;
-
+interface koIFindContext;
 
 /**
  * JS-implemented controller for driving the "Confirm Replacements"
@@ -54,8 +54,10 @@ interface koIConfirmReplaceController : nsISupports {
     void done();
 
     // Called to report the current status of the search/replace.
-    void report(in PRUint32 num_hits, in PRUint32 num_paths_with_hits,
-                in PRUint32 num_paths_searched);
+    void report(in PRUint32 num_hits,
+                in PRUint32 num_paths_with_hits,
+                in PRUint32 num_paths_searched,
+                in PRUint32 num_paths_skipped);
 };
 
 
@@ -305,7 +307,7 @@ interface koIFindService : nsISupports {
     koIConfirmReplacerInFiles confirmreplaceallinfiles(
             in wstring pattern,
             in wstring repl,
-            in wstring cwd,
+            in koIFindContext context_,
             in koIConfirmReplaceController controller);
     
     koIReplaceUndoer undoreplaceallinfiles(

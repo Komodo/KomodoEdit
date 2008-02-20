@@ -1369,6 +1369,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         for (i = 0; i < rrs.length; ++ i) {
             rr = rrs[i];
             resultsMgr.addReplaceResult(
+                "hit",
                 rr.url, rr.start, rr.end, rr.value, rr.replacement, rr.url,
                 rr.line, rr.column, rr.context_);
         }

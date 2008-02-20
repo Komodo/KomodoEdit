@@ -50,7 +50,8 @@ interface koIFindResultsView : nsITreeView {
     void Clear();
 
     // Add a single find/replace result.
-    void AddFindResult(in wstring url,
+    void AddFindResult(in wstring type,
+                       in wstring url,
                        in PRUint32 startIndex,
                        in PRUint32 endIndex,
                        in wstring value,
@@ -58,7 +59,8 @@ interface koIFindResultsView : nsITreeView {
                        in PRUint32 lineNum,
                        in PRUint32 columnNum,
                        in wstring context_);
-    void AddReplaceResult(in wstring url,
+    void AddReplaceResult(in wstring type,
+                          in wstring url,
                           in PRUint32 startIndex,
                           in PRUint32 endIndex,
                           in wstring value,
@@ -69,7 +71,9 @@ interface koIFindResultsView : nsITreeView {
                           in wstring context_);
 
     // Optimization: add multiple find/replace results at once.
-    void AddFindResults(in unsigned long url_count,
+    void AddFindResults(in unsigned long type_count,
+                        [array, size_is(type_count)] in wstring type,
+                        in unsigned long url_count,
                         [array, size_is(url_count)] in wstring url,
                         in unsigned long startIndex_count,
                         [array, size_is(startIndex_count)] in PRUint32 startIndex,
@@ -86,6 +90,8 @@ interface koIFindResultsView : nsITreeView {
                         in unsigned long context_count,
                         [array, size_is(context_count)] in wstring context_);
     void AddReplaceResults(
+            in unsigned long type_count,
+            [array, size_is(type_count)] in wstring type,
             in unsigned long url_count,
             [array, size_is(url_count)] in wstring url,
             in unsigned long startIndex_count,
@@ -106,6 +112,7 @@ interface koIFindResultsView : nsITreeView {
             [array, size_is(context_count)] in wstring context_);
 
     // Extract part of the find result data at a specific index.
+    wstring GetType(in PRUint32 index);
     wstring GetUrl(in PRUint32 index);
     PRUint32 GetStartIndex(in PRUint32 index);
     PRUint32 GetEndIndex(in PRUint32 index);

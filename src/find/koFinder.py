@@ -142,6 +142,7 @@ class _FindReplaceThread(threading.Thread):
         self.num_hits = 0
         self.num_paths_with_hits = 0
         self.num_paths_searched = 0
+        self.num_paths_skipped = 0
         self.journal = None
         try:
             if self._stopped:
@@ -172,6 +173,7 @@ class _FindReplaceThread(threading.Thread):
                 components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
 
     def _reset_hit_cache(self):
+        self._r_types = []
         self._r_urls = []
         self._r_startIndexes = []
         self._r_endIndexes = []
@@ -183,8 +185,9 @@ class _FindReplaceThread(threading.Thread):
         if self.repl is not None:
             self._r_replacements = []
 
-    def _cache_hit(self, url, startIndex, endIndex, value, fileName,
+    def _cache_hit(self, type, url, startIndex, endIndex, value, fileName,
                    lineNum, columnNum, context, replacement=None):
+        self._r_types.append(type)
         self._r_urls.append(url)
         self._r_startIndexes.append(startIndex)
         self._r_endIndexes.append(endIndex)
@@ -226,8 +229,8 @@ class _FindReplaceThread(threading.Thread):
             elif isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
                 if isinstance(event, findlib2.SkipUnknownLangPath):
-                    #XXX:TODO: put these as warning rows in the UI!
-                    log.debug("Skip `%s' (don't know lang).", event.path)
+                    self.num_paths_skipped += 1
+                    self._cache_skipped_path(event)
                 elif isinstance(event, findlib2.SkipBinaryPath):
                     #TODO: put these as warning rows in the UI?
                     log.debug("Skip `%s' (binary).", event.path)
@@ -249,6 +252,7 @@ class _FindReplaceThread(threading.Thread):
         context = self._prepare_context(hit.lines)
         start_line, start_col = hit.start_line_and_col_num
         self._cache_hit(
+            "hit", # type
             hit.path, # url
             hit.start_pos, # startIndex
             hit.end_pos, # endIndex
@@ -265,6 +269,7 @@ class _FindReplaceThread(threading.Thread):
             start_line, start_col = rhit.start_line_and_col_num
             context = self._prepare_context(rhit.lines)
             self._cache_hit(
+                "hit", # type
                 rgroup.path, # url
                 rhit.start_pos, # startIndex
                 rhit.end_pos, # endIndex
@@ -275,6 +280,20 @@ class _FindReplaceThread(threading.Thread):
                 context, # context
                 match.expand(repl) # replacement
             )
+
+    def _cache_skipped_path(self, event):
+        self._cache_hit(
+            "warning", # type
+            event.path, # url
+            0, # startIndex
+            0, # endIndex
+            None, # value
+            event.path, # fileName
+            0, # lineNum (0-based -> 1-based)
+            0, # columnNum (0-based -> 1-based)
+            "skipped (%s)" % event.reason, # context
+            None # replacement
+        )
 
     def _prepare_context(self, lines):
         """Do some common processing of the "context" for a find- or
@@ -339,11 +358,13 @@ class _FindReplaceThread(threading.Thread):
         if self._r_urls:
             if self.repl is None:
                 self.resultsViewProxy.AddFindResults(
+                    self._r_types,
                     self._r_urls, self._r_startIndexes, self._r_endIndexes,
                     self._r_values, self._r_fileNames,
                     self._r_lineNums, self._r_columnNums, self._r_contexts)
             else:
                 self.resultsViewProxy.AddReplaceResults(
+                    self._r_types,
                     self._r_urls, self._r_startIndexes, self._r_endIndexes,
                     self._r_values, self._r_replacements, self._r_fileNames,
                     self._r_lineNums, self._r_columnNums, self._r_contexts)
@@ -358,6 +379,10 @@ class _FindReplaceThread(threading.Thread):
                % (verb, self.num_hits, self.num_paths_with_hits,
                   files_str)
         self.resultsMgrProxy.setDescription(desc, 0)
+
+        self._last_report_num_hits = self.num_hits
+        self._last_report_num_paths_with_hits = self.num_paths_with_hits
+        self._last_report_num_paths_searched = self.num_paths_searched
 
 
 class _ConfirmReplacerInFiles(threading.Thread, TreeView):
@@ -388,15 +413,17 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
         self.journal = None
         self.journal_id = None
-        self.marked = []  # True/False values for each item in `self.rgroups`
-        self.rgroups = []
+        self.events = []
         self.num_hits = 0
         self.num_paths_with_hits = 0
+        self.num_paths_skipped = 0
         self.num_paths_searched = 0
-        self._last_reported_num_paths_with_hits = 0
+        self._lock = threading.RLock()  # a guard for `self.events`
 
-        # A guard for `self.rgroups` and `self.marked`.
-        self._lock = threading.RLock()
+        atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                  getService(components.interfaces.nsIAtomService)
+        self._warning_atom = atomSvc.getAtom("warning")
+
 
     def stop(self):
         self._stopped = True
@@ -420,8 +447,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 elif isinstance(event, findlib2.SkipPath):
                     self.num_paths_searched += 1
                     if isinstance(event, findlib2.SkipUnknownLangPath):
-                        #XXX:TODO: put these as warning rows in the UI!
-                        log.debug("Skip `%s' (don't know lang).", event.path)
+                        self._add_skipped_path(event)
                     elif isinstance(event, findlib2.SkipBinaryPath):
                         #TODO: put these as warning rows in the UI?
                         log.debug("Skip `%s' (binary).", event.path)
@@ -441,22 +467,27 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
     def toggle_mark(self, row_idx):
         with self._lock:
-            self.marked[row_idx] = not self.marked[row_idx]
+            self.events[row_idx]._marked = not self.events[row_idx]._marked
         if self._tree:
             self._tree.invalidateRow(row_idx)
 
     def diff_from_indeces(self, indeces):
-        bits = []
-        for i in indeces:
-            bits.append(self.rgroups[i].diff)
-        return '\n'.join(bits)
+        rgroups = []
+        with self._lock:
+            for i in indeces:
+                rgroup = self.events[i]
+                if isinstance(rgroup, findlib2.ReplaceHitGroup):
+                    rgroups.append(rgroup)
+        return '\n'.join(rgroup.diff for rgroup in rgroups)
 
     def marked_diff(self):
-        bits = []
-        for marked, rgroup in zip(self.marked, self.rgroups):
-            if marked:
-                bits.append(rgroup.diff)
-        return '\n'.join(bits)
+        rgroups = []
+        with self._lock:
+            for rgroup in self.events:
+                if isinstance(rgroup, findlib2.ReplaceHitGroup) \
+                   and rgroup._marked:
+                    rgroups.append(rgroup)
+        return '\n'.join(rgroup.diff for rgroup in rgroups)
 
     def commit(self, resultsMgr):
         if self.isAlive():
@@ -471,10 +502,25 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         num_hits = 0
         num_paths_with_hits = 0
         try:
-            for marked, rgroup in zip(self.marked, self.rgroups):
+            for event in self.events:
+                if not isinstance(event, findlib2.ReplaceHitGroup):
+                    resultsMgr.view.AddReplaceResult(
+                        "warning", # type
+                        event.path, # url
+                        0, # startIndex
+                        0, # endIndex
+                        None, # value
+                        None, # replacement
+                        event.path,  # fileNames == urls (for now, at least)
+                        0, # lineNum
+                        0, # columnNum
+                        "skipped (%s)" % event.reason) # context
+                    continue
+
                 # Skip if this path was unchecked in the confirmation
                 # dialog.
-                if not marked:
+                rgroup = event
+                if not rgroup._marked:
                     continue
 
                 # Make the actual changes on disk.
@@ -483,6 +529,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 num_hits += rgroup.length
 
                 # Post the results to the "Find Results" tab.
+                types = []
                 urls = []
                 startIndeces = []
                 endIndeces = []
@@ -492,6 +539,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 columnNums = []
                 contexts = []
                 for rhit in rgroup.rhits:
+                    types.append("hit")
                     urls.append(rgroup.path)
                     startIndeces.append(rhit.start_pos)
                     endIndeces.append(rhit.end_pos)
@@ -504,6 +552,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                     contexts.append('\n'.join(rhit.lines).rstrip())
         
                 resultsMgr.view.AddReplaceResults(
+                    types,
                     urls,
                     startIndeces,
                     endIndeces,
@@ -525,6 +574,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         finally:
             self.journal.close()
 
+    _last_report_num_paths_with_hits = 0
+    _last_report_num_paths_searched = 0
+    _last_report_num_tree_rows = 0
     def _report(self, flush=False):
         """Report current results to the controller.
         
@@ -533,39 +585,54 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         if self._stopped:
             return
 
-        if (flush
-            or (self.num_paths_with_hits and self.num_paths_with_hits % self.REPORT_EVERY_N_PATHS_WITH_HITS == 0)
-            or self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0):
-            pass        # report
+        # Determine if we should report.
+        if flush:
+            pass    # report
+        elif (self.num_paths_searched != self._last_report_num_paths_searched
+              and self.num_paths_searched % self.REPORT_EVERY_N_PATHS_SEARCHED == 0):
+            pass    # report
+        elif (self.num_paths_with_hits != self._last_report_num_paths_with_hits
+              and self.num_paths_with_hits % self.REPORT_EVERY_N_PATHS_WITH_HITS == 0):
+            pass    # report
         else:
-            return      # skip reporting
+            return  # skip reporting
 
-        if self.num_paths_with_hits > self._last_reported_num_paths_with_hits:
+        with self._lock:
+            num_tree_rows = len(self.events)
+        if num_tree_rows > self._last_report_num_tree_rows:
             try:
                 self._treeProxy.beginUpdateBatch()
                 self._treeProxy.rowCountChanged(
                     # Starting at row N...
-                    self._last_reported_num_paths_with_hits,
+                    self._last_report_num_tree_rows,
                     # ...for M rows.
-                    self.num_paths_with_hits - self._last_reported_num_paths_with_hits)
+                    num_tree_rows - self._last_report_num_tree_rows)
                 self._treeProxy.invalidate()
                 self._treeProxy.endUpdateBatch()
             except AttributeError, ex:
                 # Ignore if `self._treeProxy` goes away on us during
                 # shutdown of the confirmation dialog.
                 pass
-            self._last_reported_num_paths_with_hits = self.num_paths_with_hits
+            self._last_report_num_tree_rows = num_tree_rows
 
         self.controllerProxy.report(self.num_hits,
                                     self.num_paths_with_hits,
-                                    self.num_paths_searched)
+                                    self.num_paths_searched,
+                                    self.num_paths_skipped)
+        self._last_report_num_paths_with_hits = self.num_paths_with_hits
+        self._last_report_num_paths_searched = self.num_paths_searched
 
     def _add_repl_group(self, rgroup):
         self.num_paths_with_hits += 1
         self.num_hits += rgroup.length
         with self._lock:
-            self.rgroups.append(rgroup)
-            self.marked.append(True)
+            rgroup._marked = True
+            self.events.append(rgroup)
+
+    def _add_skipped_path(self, event):
+        self.num_paths_skipped += 1
+        with self._lock:
+            self.events.append(event)
 
     #---- koITreeView methods
     def setTree(self, tree):
@@ -579,7 +646,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
     def get_rowCount(self):
         with self._lock:
-            return len(self.rgroups)
+            return len(self.events)
 
     def isEditable(self, row_idx, col):
         if col.id == "repls-marked":
@@ -590,12 +657,19 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     def getCellValue(self, row_idx, col):
         assert col.id == "repls-marked"
         with self._lock:
-            return (self.marked[row_idx] and "true" or "false")
+            rgroup = self.events[row_idx]
+            if not isinstance(rgroup, findlib2.ReplaceHitGroup):
+                return "false"
+            else:
+                return (rgroup._marked and "true" or "false")
 
     def setCellValue(self, row_idx, col, value):
         assert col.id == "repls-marked"
         with self._lock:
-            self.marked[row_idx] = (value == "true" and True or False)
+            rgroup = self.events[row_idx]
+            if not isinstance(rgroup, findlib2.ReplaceHitGroup):
+                return
+            rgroup._marked = (value == "true" and True or False)
         if self._tree:
             self._tree.invalidateCell(row_idx, col)
 
@@ -604,8 +678,26 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             return ""
         assert col.id == "repls-desc"
         with self._lock:
-            rgroup = self.rgroups[row_idx]
-            return "%s (%d replacements)" % (rgroup.path, rgroup.length)
+            event = self.events[row_idx]
+            if isinstance(event, findlib2.ReplaceHitGroup):
+                return "%s (%d replacements)" % (event.path, event.length)
+            else:
+                return str(event)
+
+    def getCellProperties(self, row_idx, col, properties):
+        if col.id != "repls-desc":
+            return
+        with self._lock:
+            event = self.events[row_idx]
+        if isinstance(event, findlib2.SkipPath):
+            properties.AppendElement(self._warning_atom)
+
+    def getRowProperties(self, row_idx, properties):
+        with self._lock:
+            event = self.events[row_idx]
+        if isinstance(event, findlib2.SkipPath):
+            properties.AppendElement(self._warning_atom)
+
 
 
 class _ReplaceUndoer(threading.Thread, TreeView):
@@ -633,7 +725,6 @@ class _ReplaceUndoer(threading.Thread, TreeView):
         self.records = []
         self.num_hits = 0
         self.num_paths = 0
-        self._last_reported_num_paths = 0
 
         self._lock = threading.RLock()  # A guard for `self.records`.
 
@@ -681,6 +772,7 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             fileStatusSvc.updateStatusForAllFiles(
                 components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
 
+    _last_report_num_paths = 0
     def _report(self, flush=False):
         """Report current results to the controller.
         
@@ -694,23 +786,23 @@ class _ReplaceUndoer(threading.Thread, TreeView):
         else:
             return      # skip reporting
 
-        if self.num_paths > self._last_reported_num_paths:
+        if self.num_paths > self._last_report_num_paths:
             try:
                 self._treeProxy.beginUpdateBatch()
                 self._treeProxy.rowCountChanged(
                     # Starting at row N...
-                    self._last_reported_num_paths,
+                    self._last_report_num_paths,
                     # ...for M rows.
-                    self.num_paths - self._last_reported_num_paths)
+                    self.num_paths - self._last_report_num_paths)
                 self._treeProxy.invalidate()
                 self._treeProxy.endUpdateBatch()
             except AttributeError, ex:
                 # Ignore if `self._treeProxy` goes away on us during
                 # shutdown of the confirmation dialog.
                 pass
-            self._last_reported_num_paths = self.num_paths
 
         self.controllerProxy.report(self.num_hits, self.num_paths)
+        self._last_report_num_paths = self.num_paths
 
 
     #---- koITreeView methods
@@ -1063,6 +1155,7 @@ class KoFindService(object):
                 #TODO: consider batching this (.AddFindResults()) for
                 #      perf for a large number of hits.
                 resultsView.AddFindResult(
+                    "hit",
                     url, startByteIndex, endByteIndex, value,
                     url, # fileName (currently url/viewId is the displayName)
                     startLineNum + 1,
@@ -1225,6 +1318,7 @@ class KoFindService(object):
                     contextEndPos = scimoz.getLineEndPosition(endLineNum)
                     context = scimoz.getTextRange(contextStartPos, contextEndPos)
                     resultsView.AddReplaceResult(
+                        "hit",
                         url, startByteIndex, endByteIndex,
                         match.group(), # value
                         repl_str, # replacement string
@@ -1328,7 +1422,7 @@ class KoFindService(object):
         resultsMgr.searchStarted()
         self._threadMap[id].start()
 
-    def confirmreplaceallinfiles(self, pattern, repl, cwd, controller):
+    def confirmreplaceallinfiles(self, pattern, repl, context, controller):
         """Start and return a replacement thread that determines
         replacements (for confirmation) and updates the given confirmation
         UI manager.
@@ -1337,8 +1431,9 @@ class KoFindService(object):
 
         @param pattern {str} the search pattern
         @param repl {str} the replacement string
-        @param cwd {str} the context current working dir (for
-            interpreting relative paths).
+        @param context {components.interfaces.koIFindContext} the context
+            in which to search (defines some info for what paths to
+            search).
         @param controller {components.interfaces.koIConfirmReplaceController}
             the "Confirm Replacements" dialog controller.
         @returns {components.interfaces.koIConfirmReplacerInFiles}
@@ -1357,13 +1452,11 @@ class KoFindService(object):
         # This is either a "Replace in Files" with path info in
         # `self.options` or a "Replace in Collection" with path info
         # on the koICollectionFindContext instance.
-        context = resultsMgr.context_
         if context.type == koIFindContext.FCT_IN_COLLECTION:
             paths = UnwrapObject(context).paths
         else:
             assert context.type == koIFindContext.FCT_IN_FILES
-            paths = _paths_from_ko_info(self.options,
-                                        cwd=resultsMgr.context_.cwd)
+            paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
                                     controller)

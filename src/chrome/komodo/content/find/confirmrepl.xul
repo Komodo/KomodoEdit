@@ -38,11 +38,10 @@
 <!-- Dialog to run a "Replace in Files" operation and confirm with the
      user the replacements to make. -->
 
-
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/tree.css" type="text/css"?>
-
+<?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
 <dialog id="dialog-confirm-repl"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -108,7 +107,8 @@
                      flex="1" />
         </treecols>
         <treechildren id="repls-body" flex="1"
-                      alternatingbackground="true"/>
+                      alternatingbackground="true"
+                      class="confirmrepl"/>
     </tree>
 
     <separator class="thin"/>

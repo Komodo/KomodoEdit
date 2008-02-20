@@ -212,7 +212,7 @@ function _init()
     var args = window.arguments[0];
     _g_controller = new Controller();
     _g_replacer = _g_find_svc.confirmreplaceallinfiles(
-        args.pattern, args.repl, args.context.cwd, _g_controller);
+        args.pattern, args.repl, args.context, _g_controller);
     widgets.repls.treeBoxObject.view = _g_replacer;
     _g_replacer.start();
 }
@@ -255,6 +255,7 @@ function Controller()
     this.num_hits = 0;
     this.num_paths_with_hits = 0;
     this.num_paths_searched = 0;
+    this.num_paths_skipped = 0;
 }
 Controller.prototype.constructor = Controller;
 
@@ -267,12 +268,14 @@ Controller.prototype.QueryInterface = function(iid) {
 }
 
 Controller.prototype.report = function(num_hits, num_paths_with_hits,
-                                       num_paths_searched)
+                                       num_paths_searched,
+                                       num_paths_skipped)
 {
     try {
         this.num_hits = num_hits;
         this.num_paths_with_hits = num_paths_with_hits;
         this.num_paths_searched = num_paths_searched;
+        this.num_paths_skipped = num_paths_skipped;
 
         if (!this._have_had_first_report_with_hits && num_hits != 0) {
             // When we have the first hit, select that row.
@@ -284,10 +287,14 @@ Controller.prototype.report = function(num_hits, num_paths_with_hits,
         
         var hits_s_str = (num_hits == 1 ? "": "s");
         var paths_s_str = (num_paths_searched == 1 ? "": "s");
-        widgets.status_lbl.setAttribute("value",
-            num_hits + " replacement" + hits_s_str
-            + " in " + num_paths_with_hits + " of "
-            + num_paths_searched + " file" + paths_s_str + " searched");
+        var status = num_hits + " replacement" + hits_s_str
+                + " in " + num_paths_with_hits + " of "
+                + num_paths_searched + " file" + paths_s_str + " searched";
+        if (num_paths_skipped > 0) {
+            var skipped_s_str = (num_paths_skipped == 1 ? "": "s");
+            status += " ("+num_paths_skipped+" path"+skipped_s_str+" skipped)";
+        }
+        widgets.status_lbl.setAttribute("value", status);
     } catch(ex) {
         this.log.exception(ex);
     }
