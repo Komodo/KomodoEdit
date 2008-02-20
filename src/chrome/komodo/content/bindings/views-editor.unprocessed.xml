@@ -819,7 +819,6 @@
             return false;
         }
         try {
-            var oldDocument = this.document;
             this.document.docSettingsMgr.applyViewSettingsToDocument(this);
             var newdocument = this.__docsvc.createDocumentFromURI(uri);
             if (newdocument.file.exists && newdocument.file.isReadOnly) {
@@ -839,39 +838,16 @@
             currentPos = this.scimoz.currentPos;
             xOffset = this.scimoz.xOffset;
             fvl = this.scimoz.firstVisibleLine;
-            var langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistryService;1"]
-                        .getService(Components.interfaces.koILanguageRegistryService);
-                        
-            var transfer_type = (!langRegistrySvc.suggestLanguageForFile(this.document.file.leafName)
-                                 && !langRegistrySvc.suggestLanguageForFile(oldDocument.file.leafName));
-            if (transfer_type) {
-                // Bug 71648
-                // For unmapped extensions where the type is recognized by scanning the
-                // contents, no language was discovered doing setBufferAndEncoding,
-                // and the lexer is out of sync with the rest of the language service.
-                // 
-                // We need to use the previous buffer's language, or we'll
-                // end up with the plain text-lexer after setBufferAndEncoding
-                //
-                // Note that if we're saving a file with an extension Komodo knows
-                // about into a file with an unknown extension, we'll end up with
-                // plain text again.  This code here fixes the more common case where a
-                // user saves an XML file (with an extension != ".xml") into the
-                // same extension.
-                newdocument.language = oldDocument.language;
-            }
             newdocument.setBufferAndEncoding(this.document.buffer, this.document.encoding.python_encoding_name);
             var codePage = this.document.codePage;
             this.document = newdocument;
             this.document.codePage = codePage;
-            if (!transfer_type) {
-                this.document.language = ''; // trigger a re-guessing of lang
-            }
+            this.document.language = ''; // trigger a re-guessing of lang
             this._doSave();
             this.scimoz.anchor = anchor;
             this.scimoz.currentPos = currentPos;
             this.scimoz.xOffset = xOffset;
-            this.scimoz.lineScroll(0, fvl - this.scimoz.firstVisibleLine);
+            this.scimoz.lineScroll(0, fvl-this.scimoz.firstVisibleLine);
             window.updateCommands('SCC');
             window.updateCommands('previewability_changed');
             this.lintBuffer.request("save as");
