@@ -145,6 +145,7 @@ function VimController() {
         this._searchOptions = [];
         this._searchDirection = VimController.SEARCH_FORWARD;
         this._findCharDirection = VimController.SEARCH_FORWARD;
+        this._find_error_occurred = false;
         // Command history
         this._commandHistory = [];            // Array of past command strings
         //this._commandHistoryPosition = 0;   // Where we are up to in history, unsed for undo/redo
@@ -1305,8 +1306,7 @@ VimController.prototype._restoreFindSvcOptions = function() {
 
 VimController.prototype._setFindSvcContext = function(type)
 {
-    // Set to simple search type... maybe regex?
-    this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
+    this._findSvc.options.patternType = this._findSvc.options.FOT_REGEX_PYTHON;
 
     // Specified options override the current settings
     if ((type == "replace") && (this._searchOptions.indexOf('i') >= 0)) {
@@ -1327,6 +1327,23 @@ VimController.prototype._setFindSvcContext = function(type)
         } else {
             this._findSvc.options.caseSensitivity = this._findSvc.options.FOC_SENSITIVE;
         }
+    }
+}
+
+VimController._find_msg_callback = function (level, context, msg) {
+    switch (level) {
+        case "info":
+            gVimController.setStatusBarMessage(msg, 5000, true);
+            break;
+        case "warn":
+            gVimController.setStatusBarMessage(msg, 5000, true);
+            break;
+        case "error":
+            gVimController.setStatusBarMessage(msg, 5000, true);
+            gVimController._find_error_occurred = true;
+            break;
+        default:
+            vimlog.error("unexpected msg level: "+level);
     }
 }
 
@@ -1380,7 +1397,6 @@ VimController.prototype.performSearch = function (scimoz, searchString,
         try {
             this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
             this._findSvc.options.matchWord = matchWord;
-            this._findSvc.options.patternType = this._findSvc.options.FOT_SIMPLE;
             var searchContext = Components.classes["@activestate.com/koFindContext;1"]
                     .createInstance(Components.interfaces.koIFindContext);
             searchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
@@ -1392,6 +1408,8 @@ VimController.prototype.performSearch = function (scimoz, searchString,
             var loopcount = 0;
             var loop_trackingPos = orig_currentPos;
             var searchString_byteLength = ko.stringutils.bytelength(searchString);
+            // No errors yet.
+            this._find_error_occurred = false;
 
             // Vi searches can have a repitition count.
             for (var count=0; count < repeatSearchCount; count++) {
@@ -1399,9 +1417,14 @@ VimController.prototype.performSearch = function (scimoz, searchString,
                                             searchContext,
                                             searchString,
                                             null,  // mode
-                                            true,  // quiet
-                                            true); // add pattern to find MRU
-                if (findres == false) {
+                                            false, // quiet
+                                            true,  // add pattern to find MRU
+                                            VimController._find_msg_callback);
+                if (this._find_error_occurred) {
+                    // Do nothing, the error has already been displayed.
+                    scimoz.currentPos = orig_currentPos;
+                    return;
+                } else if (findres == false) {
                     msg = "No occurences of '" + searchString + "' was found";
                     // Didn't find anything, ensure we move back to the start position
                     scimoz.currentPos = orig_currentPos;
@@ -1477,16 +1500,22 @@ VimController.prototype.performReplace = function (searchString, replaceString,
             this._findSvc.options.matchWord = false;
             this._searchOptions = options;
             this._setFindSvcContext("replace");
-    
+            // No errors yet.
+            this._find_error_occurred = false;
+
             if (options.search('g') >= 0) {
                 // Global replace
                 var findres = Find_FindNext(window,
                                             findContext,
                                             searchString,
                                             null,  // mode, defaults to find
-                                            true,  // quiet
-                                            false); // add pattern to find MRU
-                if (!findres) {
+                                            false,  // quiet
+                                            false,  // add pattern to find MRU
+                                            VimController._find_msg_callback);
+                if (this._find_error_occurred) {
+                    // Do nothing, the error has already been displayed.
+                    return;
+                } else if (!findres) {
                     this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
                                              5000, true);
                 } else {
@@ -1522,8 +1551,13 @@ VimController.prototype.performReplace = function (searchString, replaceString,
                                                 findContext,
                                                 searchString,
                                                 null,  // mode, defaults to find
-                                                true,  // quiet
-                                                false); // add pattern to find MRU
+                                                false,  // quiet
+                                                false,  // add pattern to find MRU
+                                                VimController._find_msg_callback);
+                    if (this._find_error_occurred) {
+                        // Do nothing, the error has already been displayed.
+                        return;
+                    }
                     if (findres) {
                         // Using _ReplaceLastFindResult() to get around having to
                         // call Find_Replace(), which gives feedback for every
