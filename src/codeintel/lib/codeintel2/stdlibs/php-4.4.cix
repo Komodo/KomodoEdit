@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 4.4.8" description="Cix data for PHP 4.4.8" file="php-4.4.cix">
-  <file lang="PHP" mtime="1203457976" path="php-4.4.cix">
+  <file lang="PHP" mtime="1203470383" path="php-4.4.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="chown" signature="chown ( string filename, mixed user )" doc="Changes file owner" ilk="function"/>
       <scope name="isset" signature="bool isset ( mixed var [, mixed var [, ...]] )" doc="Determine whether a variable is set" ilk="function"/>
@@ -184,7 +184,7 @@
       <scope name="dba_optimize" signature="dba_optimize(resource handle)" returns="bool" doc="Optimizes e g clean up vacuum database" ilk="function" src="dba.c"/>
       <scope name="dba_sync" signature="dba_sync(resource handle)" returns="bool" doc="Synchronizes database" ilk="function" src="dba.c"/>
       <scope name="dba_handlers" signature="dba_handlers([bool full_info])" returns="array" doc="List configured database handlers" ilk="function" src="dba.c"/>
-      <scope name="()" signature="func_get_args" returns="array" doc="Get an array of the arguments that were passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="dba_list" signature="dba_list()" returns="array" doc="List opened databases" ilk="function" src="dba.c"/>
       <scope name="dbase_open" signature="dbase_open(string name, int mode)" returns="int" doc="Opens a dBase-format database file" ilk="function" src="dbase.c"/>
       <scope name="dbase_close" signature="dbase_close(int identifier)" returns="bool" doc="Closes an open dBase-format database file" ilk="function" src="dbase.c"/>
       <scope name="dbase_numrecords" signature="dbase_numrecords(int identifier)" returns="int" doc="Returns the number of records in the database" ilk="function" src="dbase.c"/>
@@ -248,6 +248,7 @@
       <scope name="domxml_node_attributes" signature="domxml_node_attributes(void)" returns="array" doc="Returns list of attributes of node" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_node_new_child" signature="domxml_node_new_child(string name, string content)" returns="object" doc="Adds child node to parent node" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_node_set_content" signature="domxml_node_set_content(string content)" returns="bool" doc="Sets content of a node" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_node_get_content" signature="domxml_node_get_content()" returns="string" doc="Gets content of a node Read the value of a node this&#10;can be either the text carried directly by" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_notation_public_id" signature="domxml_notation_public_id(void)" returns="string" doc="Returns public id of notation node" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_notation_system_id" signature="domxml_notation_system_id(void)" returns="string" doc="Returns system ID of notation node" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_element" signature="domxml_element(string name)" returns="object" doc="Constructor of DomElement" ilk="function" src="php_domxml.c"/>
@@ -296,7 +297,10 @@
       <scope name="domxml_set_root" signature="domxml_set_root(int domnode)" returns="bool" doc="Sets root node of document" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_doc_validate" signature="domxml_doc_validate(array &amp;error)" returns="bool" doc="Validates a DomDocument according to his DTD" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_new_xmldoc" signature="domxml_new_xmldoc(string version)" returns="object" doc="Creates new xmldoc" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_doc_free_doc" signature="domxml_doc_free_doc()" returns="bool" doc="Frees xmldoc and removed objects from hash" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser" signature="domxml_parser([string buf[,string filename]])" returns="object" doc="Creates new xmlparser" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_parser_start_document" signature="domxml_parser_start_document()" returns="bool" doc="starts a document" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_parser_end_document" signature="domxml_parser_end_document()" returns="bool" doc="ends a document" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_start_element" signature="domxml_parser_start_element(string tagname, array attributes)" returns="bool" doc="Starts an element and adds attributes" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_end_element" signature="domxml_parser_end_element(string tagname)" returns="bool" doc="Ends an element" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_comment" signature="domxml_parser_comment(string comment)" returns="bool" doc="Adds a comment" ilk="function" src="php_domxml.c"/>
@@ -307,6 +311,7 @@
       <scope name="domxml_parser_namespace_decl" signature="domxml_parser_namespace_decl(string href, string prefix)" returns="bool" doc="Adds namespace declaration" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_add_chunk" signature="domxml_parser_add_chunk(string chunk)" returns="bool" doc="adds xml-chunk to parser" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_end" signature="domxml_parser_end([string chunk])" returns="object" doc="Ends parsing and returns DomDocument" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_parser_get_document" signature="domxml_parser_get_document()" returns="object" doc="Returns DomDocument from parser" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_parser_set_keep_blanks" signature="domxml_parser_set_keep_blanks(bool mode)" returns="bool" doc="Determines how to handle blanks" ilk="function" src="php_domxml.c"/>
       <scope name="node_namespace" signature="node_namespace([int node])" returns="int" doc="Returns list of namespaces" ilk="function" src="php_domxml.c"/>
       <scope name="node_children" signature="node_children([int node])" returns="int" doc="Returns list of children nodes" ilk="function" src="php_domxml.c"/>
@@ -319,6 +324,7 @@
       <scope name="xpath_register_ns" signature="xpath_register_ns([object xpathctx_handle,] string namespace_prefix, string namespace_uri)" returns="bool" doc="Registeres the given namespace in the passed XPath&#10;context" ilk="function" src="php_domxml.c"/>
       <scope name="xptr_eval" signature="xptr_eval([int xpathctx_handle,] string str)" returns="int" doc="Evaluates the XPtr Location Path in the given string" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_version" signature="domxml_version(void)" returns="string" doc="Get XML library version" ilk="function" src="php_domxml.c"/>
+      <scope name="domxml_doc_xinclude" signature="domxml_doc_xinclude()" returns="int" doc="Substitutues xincludes in a DomDocument" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_xslt_stylesheet" signature="domxml_xslt_stylesheet(string xsltstylesheet)" returns="object" doc="Creates XSLT Stylesheet object from string" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_xslt_stylesheet_doc" signature="domxml_xslt_stylesheet_doc(object xmldoc)" returns="object" doc="Creates XSLT Stylesheet object from DOM Document object" ilk="function" src="php_domxml.c"/>
       <scope name="domxml_xslt_stylesheet_file" signature="domxml_xslt_stylesheet_file(string filename)" returns="object" doc="Creates XSLT Stylesheet object from file" ilk="function" src="php_domxml.c"/>
@@ -431,6 +437,7 @@
       <scope name="filepro_retrieve" signature="filepro_retrieve(int row_number, int field_number)" returns="string" doc="Retrieves data from a filePro database" ilk="function" src="filepro.c"/>
       <scope name="fribidi_log2vis" signature="fribidi_log2vis(string logical_str, long direction, long charset)" returns="string" doc="Convert a logical string to a visual one" ilk="function" src="fribidi.c"/>
       <scope name="fribidi_charset_info" signature="fribidi_charset_info(int charset)" returns="array" doc="Returns an array containing information about the&#10;specified charset" ilk="function" src="fribidi.c"/>
+      <scope name="fribidi_get_charsets" signature="fribidi_get_charsets()" returns="array" doc="Returns an array containing available charsets" ilk="function" src="fribidi.c"/>
       <scope name="ftp_connect" signature="ftp_connect(string host [, int port [, int timeout]])" returns="resource" doc="Opens a FTP stream" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_ssl_connect" signature="ftp_ssl_connect(string host [, int port [, int timeout]])" returns="resource" doc="Opens a FTP-SSL stream" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_login" signature="ftp_login(resource stream, string username, string password)" returns="bool" doc="Logs into the FTP server" ilk="function" src="php_ftp.c"/>
@@ -461,6 +468,7 @@
       <scope name="ftp_close" signature="ftp_close(resource stream)" returns="void" doc="Closes the FTP stream" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_set_option" signature="ftp_set_option(resource stream, int option, mixed value)" returns="bool" doc="Sets an FTP option" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_get_option" signature="ftp_get_option(resource stream, int option)" returns="mixed" doc="Gets an FTP option" ilk="function" src="php_ftp.c"/>
+      <scope name="gd_info" signature="gd_info()" returns="array" doc="" ilk="function" src="gd.c"/>
       <scope name="imageloadfont" signature="imageloadfont(string filename)" returns="int" doc="Load a new font" ilk="function" src="gd.c"/>
       <scope name="imagesetstyle" signature="imagesetstyle(resource im, array styles)" returns="bool" doc="Set the line drawing styles for use with imageline and&#10;IMG COLOR STYLED" ilk="function" src="gd.c"/>
       <scope name="imagecreatetruecolor" signature="imagecreatetruecolor(int x_size, int y_size)" returns="resource" doc="Create a new true color image" ilk="function" src="gd.c"/>
@@ -640,6 +648,8 @@
       <scope name="hwapi_dbstat" signature="hwapi_dbstat(array parameters)" returns="string" doc="Returns information about hgserver" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_ftstat" signature="hwapi_ftstat(array parameters)" returns="string" doc="Returns information about ftserver" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_info" signature="hwapi_info(array parameters)" returns="string" doc="Returns information about server" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_object_new" signature="hwapi_object_new()" returns="string" doc="Creates new HW API Object" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_object_count" signature="hwapi_object_count()" returns="string" doc="Counts number of attributes of an HW API Object" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_title" signature="hwapi_object_title(string language)" returns="string" doc="Returns title of HW API Object for given language" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_attreditable" signature="hwapi_object_attreditable(int attr, string username, bool is_system)" returns="string" doc="Hyperwave object attreditable function" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_assign" signature="hwapi_object_assign(int object)" returns="object" doc="Hyperwave object assign function" ilk="function" src="hwapi.cpp"/>
@@ -648,10 +658,16 @@
       <scope name="hwapi_object_remove" signature="hwapi_object_remove(string name)" returns="string" doc="Removes HW API Attribute with given name from HW API&#10;Object" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_value" signature="hwapi_object_value(string name)" returns="string" doc="Returns attribute value of given attribute" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_attribute_new" signature="hwapi_attribute_new([string name][, string value])" returns="string" doc="Creates new HW API Attribute" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_attribute_key" signature="hwapi_attribute_key()" returns="string" doc="Returns key of an hwapi attribute" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_attribute_value" signature="hwapi_attribute_value()" returns="string" doc="Returns value of hw api attribute" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_attribute_values" signature="hwapi_attribute_values()" returns="string" doc="Returns all values of an attribute as an array" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_attribute_langdepvalue" signature="hwapi_attribute_langdepvalue(string language)" returns="string" doc="Returns value of attribute with givenn language" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_content_new" signature="hwapi_content_new([string name][, string value])" returns="string" doc="Creates new HW API Content" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_content_read" signature="hwapi_content_read(string buffer, int length)" returns="string" doc="Reads length bytes from content" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_content_mimetype" signature="hwapi_content_mimetype()" returns="string" doc="Returns MimeType of document" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_error_count" signature="hwapi_error_count()" returns="string" doc="Counts number of reasons of an HW API Error" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_error_reason" signature="hwapi_error_reason(int index)" returns="string" doc="Returns a reason of an HW API Error" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_reason_type" signature="hwapi_reason_type()" returns="string" doc="Returns the type of HW API Reason" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_reason_description" signature="hwapi_reason_description(string language)" returns="string" doc="Returns description of HW API Reason" ilk="function" src="hwapi.cpp"/>
       <scope name="hw_connect" signature="hw_connect(string host, int port [string username [, string password]])" returns="int" doc="Connect to the Hyperwave server" ilk="function" src="hw.c"/>
       <scope name="hw_pconnect" signature="hw_pconnect(string host, int port [, string username [, string password]])" returns="int" doc="Connect to the Hyperwave server persistent" ilk="function" src="hw.c"/>
@@ -1249,6 +1265,7 @@
       <scope name="udm_free_agent" signature="udm_free_agent(int agent)" returns="int" doc="Free mnoGoSearch session" ilk="function" src="php_mnogo.c"/>
       <scope name="udm_errno" signature="udm_errno(int agent)" returns="int" doc="Get mnoGoSearch error number" ilk="function" src="php_mnogo.c"/>
       <scope name="udm_error" signature="udm_error(int agent)" returns="string" doc="Get mnoGoSearch error message" ilk="function" src="php_mnogo.c"/>
+      <scope name="udm_api_version" signature="udm_api_version()" returns="int" doc="Get mnoGoSearch API version" ilk="function" src="php_mnogo.c"/>
       <scope name="udm_cat_list" signature="udm_cat_list(int agent, string category)" returns="array" doc="Get mnoGoSearch categories list with the same root" ilk="function" src="php_mnogo.c"/>
       <scope name="udm_cat_path" signature="udm_cat_path(int agent, string category)" returns="array" doc="Get mnoGoSearch categories path from the root to the&#10;given catgory" ilk="function" src="php_mnogo.c"/>
       <scope name="udm_get_doc_count" signature="udm_get_doc_count(int agent)" returns="int" doc="Get total number of documents in database" ilk="function" src="php_mnogo.c"/>
@@ -1809,6 +1826,9 @@
       <scope name="pdf_set_border_color" signature="pdf_set_border_color(int pdfdoc, float red, float green, float blue)" returns="void" doc="Sets color of box surounded all kinds of annotations&#10;and links" ilk="function" src="pdf.c"/>
       <scope name="pdf_set_border_dash" signature="pdf_set_border_dash(int pdfdoc, float black, float white)" returns="void" doc="Sets the border dash style of all kinds of annotations&#10;and links" ilk="function" src="pdf.c"/>
       <scope name="pdf_add_annotation" signature="pdf_add_annotation(int pdfdoc, float xll, float yll, float xur, float xur, string title, string text)" returns="void" doc="Sets annotation depreciated use pdf add note instead" ilk="function" src="pdf.c"/>
+      <scope name="pdf_new" signature="pdf_new()" returns="int" doc="Creates a new PDF object" ilk="function" src="pdf.c"/>
+      <scope name="pdf_get_majorversion" signature="pdf_get_majorversion()" returns="int" doc="Returns the major version number of the PDFlib" ilk="function" src="pdf.c"/>
+      <scope name="pdf_get_minorversion" signature="pdf_get_minorversion()" returns="int" doc="Returns the minor version number of the PDFlib" ilk="function" src="pdf.c"/>
       <scope name="pdf_delete" signature="pdf_delete(int pdfdoc)" returns="bool" doc="Deletes the PDF object" ilk="function" src="pdf.c"/>
       <scope name="pdf_open_file" signature="pdf_open_file(int pdfdoc [, char filename])" returns="int" doc="Opens a new PDF document If filename is NULL document&#10;is created in memory This is not yet fully supported" ilk="function" src="pdf.c"/>
       <scope name="pdf_get_buffer" signature="pdf_get_buffer(int pdfdoc)" returns="int" doc="Fetches the full buffer containig the generated PDF&#10;data" ilk="function" src="pdf.c"/>
@@ -1839,6 +1859,9 @@
       <scope name="pdf_initgraphics" signature="pdf_initgraphics(int pdf)" returns="void" doc="Reset all implicit color and graphics state parameters&#10;to their defaults" ilk="function" src="pdf.c"/>
       <scope name="pdf_add_thumbnail" signature="pdf_add_thumbnail(int pdf, int image)" returns="void" doc="Add an existing image as thumbnail for the current page" ilk="function" src="pdf.c"/>
       <scope name="pdf_setmatrix" signature="pdf_setmatrix(int pdf, float a, float b, float c, float d, float e, float f)" returns="void" doc="Explicitly set the current transformation matrix" ilk="function" src="pdf.c"/>
+      <scope name="pfpro_version" signature="pfpro_version()" returns="string" doc="Returns the version of the Payflow Pro library" ilk="function" src="pfpro.c"/>
+      <scope name="pfpro_init" signature="pfpro_init()" returns="void" doc="Initializes the Payflow Pro library" ilk="function" src="pfpro.c"/>
+      <scope name="pfpro_cleanup" signature="pfpro_cleanup()" returns="void" doc="Shuts down the Payflow Pro library" ilk="function" src="pfpro.c"/>
       <scope name="pfpro_process_raw" signature="pfpro_process_raw(string parmlist [, string hostaddress [, int port, [, int timeout [, string proxyAddress [, int proxyPort [, string proxyLogon [, string proxyPassword]]]]]]])" returns="string" doc="Raw Payflow Pro transaction processing" ilk="function" src="pfpro.c"/>
       <scope name="pfpro_process" signature="pfpro_process(array parmlist [, string hostaddress [, int port, [, int timeout [, string proxyAddress [, int proxyPort [, string proxyLogon [, string proxyPassword]]]]]]])" returns="array" doc="Payflow Pro transaction processing using arrays" ilk="function" src="pfpro.c"/>
       <scope name="pg_connect" signature="pg_connect(string connection_string[, int connect_type]" returns="resource" doc="Open a PostgreSQL connection" ilk="function" src="pgsql.c"/>
@@ -1959,6 +1982,7 @@
       <scope name="pspell_config_repl" signature="pspell_config_repl(int conf, string repl)" returns="int" doc="Use a personal dictionary with replacement pairs for&#10;this config" ilk="function" src="pspell.c"/>
       <scope name="pspell_config_save_repl" signature="pspell_config_save_repl(int conf, bool save)" returns="int" doc="Save replacement pairs when personal list is saved for&#10;this config" ilk="function" src="pspell.c"/>
       <scope name="qdom_tree" signature="qdom_tree( string )" returns="object" doc="creates a tree of an xml string" ilk="function" src="qtdom.c"/>
+      <scope name="qdom_error" signature="qdom_error()" returns="string" doc="Returns the error string from the last QDOM operation&#10;or FALSE if no errors occured" ilk="function" src="qtdom.c"/>
       <scope name="readline" signature="readline([string prompt])" returns="string" doc="Reads a line" ilk="function" src="readline.c"/>
       <scope name="readline_info" signature="readline_info([string varname] [, string newvalue])" returns="mixed" doc="Gets sets various internal readline variables" ilk="function" src="readline.c"/>
       <scope name="readline_add_history" signature="readline_add_history([string prompt])" returns="void" doc="Adds a line to the history" ilk="function" src="readline.c"/>
@@ -1976,6 +2000,7 @@
       <scope name="session_set_save_handler" signature="session_set_save_handler(string open, string close, string read, string write, string destroy, string gc)" returns="void" doc="Sets user-level functions" ilk="function" src="session.c"/>
       <scope name="session_save_path" signature="session_save_path([string newname])" returns="string" doc="Return the current save path passed to module name If&#10;newname is given the save path is replaced with newname" ilk="function" src="session.c"/>
       <scope name="session_id" signature="session_id([string newid])" returns="string" doc="Return the current session id If newid is given the&#10;session id is replaced with newid" ilk="function" src="session.c"/>
+      <scope name="session_regenerate_id" signature="session_regenerate_id()" returns="bool" doc="Update the current session id with a newly generated&#10;one" ilk="function" src="session.c"/>
       <scope name="session_cache_limiter" signature="session_cache_limiter([string new_cache_limiter])" returns="string" doc="Return the current cache limiter If new cache limited&#10;is given the current cache limiter is replaced with new&#10;cache" ilk="function" src="session.c"/>
       <scope name="session_cache_expire" signature="session_cache_expire([int new_cache_expire])" returns="int" doc="Return the current cache expire If new cache expire is&#10;given the current cache expire is replaced with new&#10;cache" ilk="function" src="session.c"/>
       <scope name="session_register" signature="session_register(mixed var_names [, mixed ...])" returns="bool" doc="Adds varname s to the list of variables which are&#10;freezed at the session end" ilk="function" src="session.c"/>
@@ -2006,6 +2031,7 @@
       <scope name="snmp3_real_walk" signature="snmp3_real_walk(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])" returns="int" doc="Fetch the value of a SNMP object" ilk="function" src="snmp.c"/>
       <scope name="snmp3_set" signature="snmp3_set(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id, string type, mixed value [, int timeout [, int retries]])" returns="int" doc="Fetch the value of a SNMP object" ilk="function" src="snmp.c"/>
       <scope name="snmp_set_valueretrieval" signature="snmp_set_valueretrieval(int method)" returns="int" doc="Specify the method how the SNMP values will be returned" ilk="function" src="snmp.c"/>
+      <scope name="snmp_get_valueretrieval" signature="snmp_get_valueretrieval()" returns="int" doc="Return the method how the SNMP values will be returned" ilk="function" src="snmp.c"/>
       <scope name="socket_select" signature="socket_select(array &amp;read_fds, array &amp;write_fds, &amp;array except_fds, int tv_sec[, int tv_usec])" returns="int" doc="Runs the select system call on the sets mentioned with&#10;a timeout specified by tv sec and tv usec" ilk="function" src="sockets.c"/>
       <scope name="socket_create_listen" signature="socket_create_listen(int port[, int backlog])" returns="resource" doc="Opens a socket on port to accept connections" ilk="function" src="sockets.c"/>
       <scope name="socket_accept" signature="socket_accept(resource socket)" returns="resource" doc="Accepts a connection on the listening socket fd" ilk="function" src="sockets.c"/>
@@ -2137,6 +2163,8 @@
       <scope name="ini_set" signature="ini_set(string varname, string newvalue)" returns="string" doc="Set a configuration option returns false on error and&#10;the old value of the configuration option on success" ilk="function" src="basic_functions.c"/>
       <scope name="ini_restore" signature="ini_restore(string varname)" returns="void" doc="Restore the value of a configuration option specified&#10;by varname" ilk="function" src="basic_functions.c"/>
       <scope name="set_include_path" signature="set_include_path(string new_include_path)" returns="string" doc="Sets the include path configuration option" ilk="function" src="basic_functions.c"/>
+      <scope name="get_include_path" signature="get_include_path()" returns="string" doc="Get the current include path configuration option" ilk="function" src="basic_functions.c"/>
+      <scope name="restore_include_path" signature="restore_include_path()" returns="void" doc="Restore the value of the include path configuration&#10;option" ilk="function" src="basic_functions.c"/>
       <scope name="print_r" signature="print_r(mixed var [, bool return])" returns="bool" doc="Prints out or returns information about the specified&#10;variable" ilk="function" src="basic_functions.c"/>
       <scope name="connection_aborted" signature="connection_aborted(void)" returns="int" doc="Returns true if client disconnected" ilk="function" src="basic_functions.c"/>
       <scope name="connection_status" signature="connection_status(void)" returns="int" doc="Returns the connection status bitfield" ilk="function" src="basic_functions.c"/>
@@ -2285,6 +2313,7 @@
       <scope name="php_ini_scanned_files" signature="php_ini_scanned_files(void)" returns="string" doc="Return comma-separated string of ini files parsed from&#10;the additional ini dir" ilk="function" src="info.c"/>
       <scope name="iptcembed" signature="iptcembed(string iptcdata, string jpeg_file_name [, int spool])" returns="array" doc="Embed binary IPTC data into a JPEG image" ilk="function" src="iptc.c"/>
       <scope name="iptcparse" signature="iptcparse(string iptcdata)" returns="array" doc="Parse binary IPTC-data into associative array" ilk="function" src="iptc.c"/>
+      <scope name="lcg_value" signature="lcg_value()" returns="float" doc="Returns a value from the combined linear congruential&#10;generator" ilk="function" src="lcg.c"/>
       <scope name="levenshtein" signature="levenshtein(string str1, string str2)" returns="int" doc="Calculate Levenshtein distance between two strings" ilk="function" src="levenshtein.c"/>
       <scope name="readlink" signature="readlink(string filename)" returns="string" doc="Return the target of a symbolic link" ilk="function" src="link.c"/>
       <scope name="linkinfo" signature="linkinfo(string filename)" returns="int" doc="Returns the st dev field of the UNIX C stat structure&#10;describing the link" ilk="function" src="link.c"/>
@@ -2451,6 +2480,7 @@
       <scope name="var_export" signature="var_export(mixed var [, bool return])" returns="mixed" doc="Outputs or returns a string representation of a&#10;variable" ilk="function" src="var.c"/>
       <scope name="serialize" signature="serialize(mixed variable)" returns="string" doc="Returns a string representation of variable which can&#10;later be unserialized" ilk="function" src="var.c"/>
       <scope name="unserialize" signature="unserialize(string variable_representation)" returns="mixed" doc="Takes a string representation of variable and recreates&#10;it" ilk="function" src="var.c"/>
+      <scope name="memory_get_usage" signature="memory_get_usage()" returns="int" doc="Returns the allocated by PHP memory" ilk="function" src="var.c"/>
       <scope name="version_compare" signature="version_compare(string ver1, string ver2 [, string oper])" returns="int" doc="Compares two PHP-standardized version number strings" ilk="function" src="versioning.c"/>
       <scope name="swf_openfile" signature="swf_openfile(string name, float xsize, float ysize, float framerate, float r, float g, float b)" returns="void" doc="Create a Shockwave Flash file given by name with width&#10;xsize and height ysize at a frame rate of framerate" ilk="function" src="swf.c"/>
       <scope name="swf_closefile" signature="swf_closefile(void)" returns="void" doc="Close a Shockwave flash file that was opened with swf&#10;openfile" ilk="function" src="swf.c"/>
@@ -2620,6 +2650,9 @@
       <scope name="xslt_set_object" signature="xslt_set_object(resource parser, object obj)" returns="int" doc="sets the object in which to resolve callback functions" ilk="function" src="sablot.c"/>
       <scope name="xslt_setopt" signature="xslt_setopt(resource processor, int newmask)" returns="int" doc="Set options on a given xsl processor" ilk="function" src="sablot.c"/>
       <scope name="xslt_getopt" signature="xslt_getopt(resource processor)" returns="int" doc="Get options on a given xsl processor" ilk="function" src="sablot.c"/>
+      <scope name="xslt_backend_version" signature="xslt_backend_version()" returns="string" doc="Returns the version number of Sablotron if available" ilk="function" src="sablot.c"/>
+      <scope name="xslt_backend_name" signature="xslt_backend_name()" returns="string" doc="Returns the name of the Backend here Sablotron" ilk="function" src="sablot.c"/>
+      <scope name="xslt_backend_info" signature="xslt_backend_info()" returns="string" doc="Returns the information on the compilation settings of&#10;the backend" ilk="function" src="sablot.c"/>
       <scope name="yaz_connect" signature="yaz_connect(string zurl [ array options])" returns="int" doc="Create target with given zurl Returns positive id if&#10;successful" ilk="function" src="php_yaz.c"/>
       <scope name="yaz_close" signature="yaz_close(int id)" returns="int" doc="Destory and close target" ilk="function" src="php_yaz.c"/>
       <scope name="yaz_search" signature="yaz_search(int id, string type, string query)" returns="int" doc="Specify query of type for search - returns true if&#10;successful" ilk="function" src="php_yaz.c"/>
@@ -2649,6 +2682,7 @@
       <scope name="yp_next" signature="yp_next(string domain, string map, string key)" returns="array" doc="Returns an array with var key and the the line as the&#10;value" ilk="function" src="yp.c"/>
       <scope name="yp_all" signature="yp_all(string domain, string map, string callback)" returns="void" doc="Traverse the map and call a function on each entry" ilk="function" src="yp.c"/>
       <scope name="yp_cat" signature="yp_cat(string domain, string map)" returns="array" doc="Return an array containing the entire map" ilk="function" src="yp.c"/>
+      <scope name="yp_errno" signature="yp_errno()" returns="int" doc="Returns the error code from the last call or if no&#10;error occured" ilk="function" src="yp.c"/>
       <scope name="yp_err_string" signature="yp_err_string(int errorcode)" returns="string" doc="Returns the corresponding error string for the given&#10;error code" ilk="function" src="yp.c"/>
       <scope name="zip_open" signature="zip_open(string filename)" returns="resource" doc="Open a new zip archive for reading" ilk="function" src="zip.c"/>
       <scope name="zip_read" signature="zip_read(resource zip)" returns="resource" doc="Returns the next file in the archive" ilk="function" src="zip.c"/>
@@ -2702,6 +2736,7 @@
       <scope name="zend_version" signature="zend_version(void)" returns="string" doc="Get the version of the Zend Engine" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="func_num_args" signature="func_num_args(void)" returns="int" doc="Get the number of arguments that were passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="func_get_arg" signature="func_get_arg(int arg_num)" returns="mixed" doc="Get the arg num'th argument that was passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="func_get_args" signature="func_get_args()" returns="array" doc="Get an array of the arguments that were passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strlen" signature="strlen(string str)" returns="int" doc="Get string length" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strcmp" signature="strcmp(string str1, string str2)" returns="int" doc="Binary safe string comparison" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strncmp" signature="strncmp(string str1, string str2, int len)" returns="int" doc="Binary safe string comparison" ilk="function" src="zend_builtin_functions.c"/>
@@ -3448,6 +3483,11 @@
       <variable name="HTTP_SERVER_VARS" citdl="array"/>
       <variable name="HTTP_SESSION_VARS" citdl="array"/>
       <variable name="GLOBALS" citdl="array"/>
+      <variable name="__LINE__" citdl="string" ilk="constant"/>
+      <variable name="__FILE__" citdl="string" ilk="constant"/>
+      <variable name="__FUNCTION__" citdl="string" ilk="constant"/>
+      <variable name="__CLASS__" citdl="string" ilk="constant"/>
+      <variable name="__METHOD__" citdl="string" ilk="constant"/>
       <variable name="E_ERROR" citdl="integer" ilk="constant"/>
       <variable name="E_WARNING" citdl="integer" ilk="constant"/>
       <variable name="E_PARSE" citdl="integer" ilk="constant"/>

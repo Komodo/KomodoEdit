@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.1.6" description="Cix data for PHP 5.1.6" file="php-5.1.cix">
-  <file lang="PHP" mtime="1203457978" path="php-5.1.cix">
+  <file lang="PHP" mtime="1203470385" path="php-5.1.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -1438,7 +1438,7 @@
       <scope name="easter_date" signature="easter_date([int year])" returns="int" doc="Return the timestamp of midnight on Easter of a given&#10;year defaults to current year" ilk="function" src="easter.c"/>
       <scope name="easter_days" signature="easter_days([int year, [int method]])" returns="int" doc="Return the number of days after March that Easter falls&#10;on for a given year defaults to current year" ilk="function" src="easter.c"/>
       <scope name="com_get_active_object" signature="com_get_active_object(string progid [, int code_page ])" returns="object" doc="Returns a handle to an already running instance of a&#10;COM object" ilk="function" src="com_com.c"/>
-      <scope name="()" signature="get_declared_interfaces" returns="array" doc="Returns an array of all declared interfaces" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="com_create_guid" signature="com_create_guid()" returns="string" doc="Generate a globally unique identifier GUID" ilk="function" src="com_com.c"/>
       <scope name="com_event_sink" signature="com_event_sink(object comobject, object sinkobject [, mixed sinkinterface])" returns="bool" doc="Connect events from a COM object to a PHP object" ilk="function" src="com_com.c"/>
       <scope name="com_print_typeinfo" signature="com_print_typeinfo(object comobject" returns="bool" doc="Print out a PHP class definition for a dispatchable&#10;interface" ilk="function" src="com_com.c"/>
       <scope name="com_message_pump" signature="com_message_pump([int timeoutms])" returns="bool" doc="Process COM messages sleeping for up to timeoutms&#10;milliseconds" ilk="function" src="com_com.c"/>
@@ -1511,6 +1511,7 @@
       <scope name="localtime" signature="localtime([int timestamp [, bool associative_array]])" returns="array" doc="Returns the results of the C system call localtime as&#10;an associative array if the associative array argument&#10;is set" ilk="function" src="php_date.c"/>
       <scope name="getdate" signature="getdate([int timestamp])" returns="array" doc="Get date time information" ilk="function" src="php_date.c"/>
       <scope name="date_default_timezone_set" signature="date_default_timezone_set(string timezone_identifier)" returns="bool" doc="Sets the default timezone used by all date time&#10;functions in a script" ilk="function" src="php_date.c"/>
+      <scope name="date_default_timezone_get" signature="date_default_timezone_get()" returns="string" doc="Gets the default timezone used by all date time&#10;functions in a script" ilk="function" src="php_date.c"/>
       <scope name="date_sunrise" signature="date_sunrise(mixed time [, int format [, float latitude [, float longitude [, float zenith [, float gmt_offset]]]]])" returns="mixed" doc="Returns time of sunrise for a given day and location" ilk="function" src="php_date.c"/>
       <scope name="date_sunset" signature="date_sunset(mixed time [, int format [, float latitude [, float longitude [, float zenith [, float gmt_offset]]]]])" returns="mixed" doc="Returns time of sunset for a given day and location" ilk="function" src="php_date.c"/>
       <scope name="date_sun_info" signature="date_sun_info(long time, float latitude, float longitude)" returns="array" doc="Returns an array with information about sun set rise&#10;and twilight begin end" ilk="function" src="php_date.c"/>
@@ -1528,6 +1529,7 @@
       <scope name="dba_optimize" signature="dba_optimize(resource handle)" returns="bool" doc="Optimizes e g clean up vacuum database" ilk="function" src="dba.c"/>
       <scope name="dba_sync" signature="dba_sync(resource handle)" returns="bool" doc="Synchronizes database" ilk="function" src="dba.c"/>
       <scope name="dba_handlers" signature="dba_handlers([bool full_info])" returns="array" doc="List configured database handlers" ilk="function" src="dba.c"/>
+      <scope name="dba_list" signature="dba_list()" returns="array" doc="List opened databases" ilk="function" src="dba.c"/>
       <scope name="dbase_open" signature="dbase_open(string name, int mode)" returns="int" doc="Opens a dBase-format database file" ilk="function" src="dbase.c"/>
       <scope name="dbase_close" signature="dbase_close(int identifier)" returns="bool" doc="Closes an open dBase-format database file" ilk="function" src="dbase.c"/>
       <scope name="dbase_numrecords" signature="dbase_numrecords(int identifier)" returns="int" doc="Returns the number of records in the database" ilk="function" src="dbase.c"/>
@@ -1540,12 +1542,14 @@
       <scope name="dbase_get_record_with_names" signature="dbase_get_record_with_names(int identifier, int record)" returns="array" doc="Returns an associative array representing a record from&#10;the database" ilk="function" src="dbase.c"/>
       <scope name="dbase_create" signature="dbase_create(string filename, array fields)" returns="bool" doc="Creates a new dBase-format database file" ilk="function" src="dbase.c"/>
       <scope name="dbase_get_header_info" signature="dbase_get_header_info(int database_handle)" returns="array" doc="" ilk="function" src="dbase.c"/>
+      <scope name="dom_attr_is_id" signature="dom_attr_is_id()" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html Attr-isId Since DOM Level" ilk="function" src="attr.c"/>
       <scope name="dom_characterdata_substring_data" signature="dom_characterdata_substring_data(int offset, int count)" returns="string" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- BCCF Since" ilk="function" src="characterdata.c"/>
       <scope name="dom_characterdata_append_data" signature="dom_characterdata_append_data(string arg)" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- A F Since" ilk="function" src="characterdata.c"/>
       <scope name="dom_characterdata_insert_data" signature="dom_characterdata_insert_data(int offset, string arg)" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- EDB F Since" ilk="function" src="characterdata.c"/>
       <scope name="dom_characterdata_delete_data" signature="dom_characterdata_delete_data(int offset, int count)" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- C Since" ilk="function" src="characterdata.c"/>
       <scope name="dom_characterdata_replace_data" signature="dom_characterdata_replace_data(int offset, int count, string arg)" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-E CBA FB Since" ilk="function" src="characterdata.c"/>
       <scope name="dom_document_create_element" signature="dom_document_create_element(string tagName [, string value])" returns="DOMElement" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="document.c"/>
+      <scope name="dom_document_create_document_fragment" signature="dom_document_create_document_fragment()" returns="DOMDocumentFragment" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- CB B Since" ilk="function" src="document.c"/>
       <scope name="dom_document_create_text_node" signature="dom_document_create_text_node(string data)" returns="DOMText" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="document.c"/>
       <scope name="dom_document_create_comment" signature="dom_document_create_comment(string data)" returns="DOMComment" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="document.c"/>
       <scope name="dom_document_create_cdatasection" signature="dom_document_create_cdatasection(string data)" returns="DOMCdataSection" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-D C AF Since" ilk="function" src="document.c"/>
@@ -1559,12 +1563,14 @@
       <scope name="dom_document_get_elements_by_tag_name_ns" signature="dom_document_get_elements_by_tag_name_ns(string namespaceURI, string localName)" returns="DOMNodeList" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-getElBTNNS Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_get_element_by_id" signature="dom_document_get_element_by_id(string elementId)" returns="DOMElement" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-getElBId Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_adopt_node" signature="dom_document_adopt_node(DOMNode source)" returns="DOMNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Document -adoptNode Since DOM Level" ilk="function" src="document.c"/>
+      <scope name="dom_document_normalize_document" signature="dom_document_normalize_document()" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Document -normalizeDocument Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_rename_node" signature="dom_document_rename_node(node n, string namespaceURI, string qualifiedName)" returns="DOMNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Document -renameNode Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_load" signature="dom_document_load(string source [, int options])" returns="DOMNode" doc="URL http www w org TR DOM-Level- -LS load-save html&#10;LS-DocumentLS-load Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_loadxml" signature="dom_document_loadxml(string source [, int options])" returns="DOMNode" doc="URL http www w org TR DOM-Level- -LS load-save html&#10;LS-DocumentLS-loadXML Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_save" signature="dom_document_save(string file)" returns="int" doc="Convenience method to save to file" ilk="function" src="document.c"/>
       <scope name="dom_document_savexml" signature="dom_document_savexml([node n])" returns="string" doc="URL http www w org TR DOM-Level- -LS load-save html&#10;LS-DocumentLS-saveXML Since DOM Level" ilk="function" src="document.c"/>
       <scope name="dom_document_xinclude" signature="dom_document_xinclude([int options])" returns="int" doc="Substitutues xincludes in a DomDocument" ilk="function" src="document.c"/>
+      <scope name="dom_document_validate" signature="dom_document_validate()" returns="boolean" doc="Since DOM extended" ilk="function" src="document.c"/>
       <scope name="dom_document_schema_validate_file" signature="dom_document_schema_validate_file(string filename)" returns="boolean" doc="" ilk="function" src="document.c"/>
       <scope name="dom_document_schema_validate" signature="dom_document_schema_validate(string source)" returns="boolean" doc="" ilk="function" src="document.c"/>
       <scope name="dom_document_relaxNG_validate_file" signature="dom_document_relaxNG_validate_file(string filename)" returns="boolean" doc="" ilk="function" src="document.c"/>
@@ -1572,6 +1578,7 @@
       <scope name="dom_document_load_html_file" signature="dom_document_load_html_file(string source)" returns="DOMNode" doc="Since DOM extended" ilk="function" src="document.c"/>
       <scope name="dom_document_load_html" signature="dom_document_load_html(string source)" returns="DOMNode" doc="Since DOM extended" ilk="function" src="document.c"/>
       <scope name="dom_document_save_html_file" signature="dom_document_save_html_file(string file)" returns="int" doc="Convenience method to save to file as html" ilk="function" src="document.c"/>
+      <scope name="dom_document_save_html" signature="dom_document_save_html()" returns="string" doc="Convenience method to output as html" ilk="function" src="document.c"/>
       <scope name="dom_domconfiguration_set_parameter" signature="dom_domconfiguration_set_parameter(string name, domuserdata value)" returns="dom_void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html DOMConfiguration-property Since" ilk="function" src="domconfiguration.c"/>
       <scope name="dom_domconfiguration_get_parameter" signature="dom_domconfiguration_get_parameter(string name)" returns="domdomuserdata" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html DOMConfiguration-getParameter Since" ilk="function" src="domconfiguration.c"/>
       <scope name="dom_domconfiguration_can_set_parameter" signature="dom_domconfiguration_can_set_parameter(string name, domuserdata value)" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html DOMConfiguration-canSetParameter Since" ilk="function" src="domconfiguration.c"/>
@@ -1615,8 +1622,11 @@
       <scope name="dom_node_replace_child" signature="dom_node_replace_child(DomNode newChild, DomNode oldChild)" returns="DomNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="node.c"/>
       <scope name="dom_node_remove_child" signature="dom_node_remove_child(DomNode oldChild)" returns="DomNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="node.c"/>
       <scope name="dom_node_append_child" signature="dom_node_append_child(DomNode newChild)" returns="DomNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- E Since" ilk="function" src="node.c"/>
+      <scope name="dom_node_has_child_nodes" signature="dom_node_has_child_nodes()" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- Since" ilk="function" src="node.c"/>
       <scope name="dom_node_clone_node" signature="dom_node_clone_node(boolean deep)" returns="DomNode" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- A ED A Since" ilk="function" src="node.c"/>
+      <scope name="dom_node_normalize" signature="dom_node_normalize()" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-normalize Since" ilk="function" src="node.c"/>
       <scope name="dom_node_is_supported" signature="dom_node_is_supported(string feature, string version)" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Level- -Core-Node-supports Since DOM Level" ilk="function" src="node.c"/>
+      <scope name="dom_node_has_attributes" signature="dom_node_has_attributes()" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID-NodeHasAttrs Since DOM Level" ilk="function" src="node.c"/>
       <scope name="dom_node_compare_document_position" signature="dom_node_compare_document_position(DomNode other)" returns="short" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html Node -compareDocumentPosition Since DOM Level" ilk="function" src="node.c"/>
       <scope name="dom_node_is_same_node" signature="dom_node_is_same_node(DomNode other)" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html Node -isSameNode Since DOM Level" ilk="function" src="node.c"/>
       <scope name="dom_node_lookup_prefix" signature="dom_node_lookup_prefix(string namespaceURI)" returns="string" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html Node -lookupNamespacePrefix Since DOM Level" ilk="function" src="node.c"/>
@@ -1631,6 +1641,7 @@
       <scope name="dom_string_extend_find_offset16" signature="dom_string_extend_find_offset16(int offset32)" returns="int" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html i n-methods-StringExtend-findOffset Since" ilk="function" src="string_extend.c"/>
       <scope name="dom_string_extend_find_offset32" signature="dom_string_extend_find_offset32(int offset16)" returns="int" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html i n-methods-StringExtend-findOffset Since" ilk="function" src="string_extend.c"/>
       <scope name="dom_text_split_text" signature="dom_text_split_text(int offset)" returns="DOMText" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-ID- C D Since" ilk="function" src="text.c"/>
+      <scope name="dom_text_is_whitespace_in_element_content" signature="dom_text_is_whitespace_in_element_content()" returns="boolean" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Text -isWhitespaceInElementContent Since DOM&#10;Level" ilk="function" src="text.c"/>
       <scope name="dom_text_replace_whole_text" signature="dom_text_replace_whole_text(string content)" returns="DOMText" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html core-Text -replaceWholeText Since DOM Level" ilk="function" src="text.c"/>
       <scope name="dom_userdatahandler_handle" signature="dom_userdatahandler_handle(short operation, string key, domobject data, node src, node dst)" returns="dom_void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html ID-handleUserDataEvent Since" ilk="function" src="userdatahandler.c"/>
       <scope name="dom_xpath_register_ns" signature="dom_xpath_register_ns(string prefix, string uri)" returns="boolean" doc="" ilk="function" src="xpath.c"/>
@@ -1773,6 +1784,7 @@
       <scope name="ftp_close" signature="ftp_close(resource stream)" returns="bool" doc="Closes the FTP stream" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_set_option" signature="ftp_set_option(resource stream, int option, mixed value)" returns="bool" doc="Sets an FTP option" ilk="function" src="php_ftp.c"/>
       <scope name="ftp_get_option" signature="ftp_get_option(resource stream, int option)" returns="mixed" doc="Gets an FTP option" ilk="function" src="php_ftp.c"/>
+      <scope name="gd_info" signature="gd_info()" returns="array" doc="" ilk="function" src="gd.c"/>
       <scope name="imageloadfont" signature="imageloadfont(string filename)" returns="int" doc="Load a new font" ilk="function" src="gd.c"/>
       <scope name="imagesetstyle" signature="imagesetstyle(resource im, array styles)" returns="bool" doc="Set the line drawing styles for use with imageline and&#10;IMG COLOR STYLED" ilk="function" src="gd.c"/>
       <scope name="imagecreatetruecolor" signature="imagecreatetruecolor(int x_size, int y_size)" returns="resource" doc="Create a new true color image" ilk="function" src="gd.c"/>
@@ -1969,6 +1981,8 @@
       <scope name="hwapi_dbstat" signature="hwapi_dbstat(array parameters)" returns="object" doc="Returns information about hgserver" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_ftstat" signature="hwapi_ftstat(array parameters)" returns="object" doc="Returns information about ftserver" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_info" signature="hwapi_info(array parameters)" returns="array" doc="Returns information about server" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_object_new" signature="hwapi_object_new()" returns="object" doc="Creates new HW API Object" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_object_count" signature="hwapi_object_count()" returns="int" doc="Counts number of attributes of an HW API Object" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_title" signature="hwapi_object_title(string language)" returns="string" doc="Returns title of HW API Object for given language" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_attreditable" signature="hwapi_object_attreditable(int attr, string username, bool is_system)" returns="bool" doc="Hyperwave object attreditable function" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_object_assign" signature="hwapi_object_assign(int object)" returns="bool" doc="Hyperwave object assign function" ilk="function" src="hwapi.cpp"/>
@@ -1984,6 +1998,7 @@
       <scope name="hwapi_content_new" signature="hwapi_content_new([string name][, string value])" returns="object" doc="Creates new HW API Content" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_content_read" signature="hwapi_content_read(string buffer, int length)" returns="int" doc="Reads length bytes from content" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_content_mimetype" signature="hwapi_content_mimetype(void)" returns="string" doc="Returns MimeType of document" ilk="function" src="hwapi.cpp"/>
+      <scope name="hwapi_error_count" signature="hwapi_error_count()" returns="int" doc="Counts number of reasons of an HW API Error" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_error_reason" signature="hwapi_error_reason(int index)" returns="object" doc="Returns a reason of an HW API Error" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_reason_type" signature="hwapi_reason_type(void)" returns="int" doc="Returns the type of HW API Reason" ilk="function" src="hwapi.cpp"/>
       <scope name="hwapi_reason_description" signature="hwapi_reason_description(string language)" returns="string" doc="Returns description of HW API Reason" ilk="function" src="hwapi.cpp"/>
@@ -2191,6 +2206,9 @@
       <scope name="ldap_8859_to_t61" signature="ldap_8859_to_t61(string value)" returns="string" doc="Translate characters to t characters" ilk="function" src="ldap.c"/>
       <scope name="libxml_set_streams_context" signature="libxml_set_streams_context(resource streams_context)" returns="void" doc="Set the streams context for the next libxml document&#10;load or write" ilk="function" src="libxml.c"/>
       <scope name="libxml_use_internal_errors" signature="libxml_use_internal_errors(boolean use_errors)" returns="void" doc="Disable libxml errors and allow user to fetch error&#10;information as needed" ilk="function" src="libxml.c"/>
+      <scope name="libxml_get_last_error" signature="libxml_get_last_error()" returns="object" doc="Retrieve last error from libxml" ilk="function" src="libxml.c"/>
+      <scope name="libxml_get_errors" signature="libxml_get_errors()" returns="object" doc="Retrieve array of errors" ilk="function" src="libxml.c"/>
+      <scope name="libxml_clear_errors" signature="libxml_clear_errors()" returns="void" doc="Clear last error from libxml" ilk="function" src="libxml.c"/>
       <scope name="mb_language" signature="mb_language([string language])" returns="string" doc="Sets the current language or Returns the current&#10;language as a string" ilk="function" src="mbstring.c"/>
       <scope name="mb_internal_encoding" signature="mb_internal_encoding([string encoding])" returns="string" doc="Sets the current internal encoding or Returns the&#10;current internal encoding as a string" ilk="function" src="mbstring.c"/>
       <scope name="mb_http_input" signature="mb_http_input([string type])" returns="mixed" doc="Returns the input encoding" ilk="function" src="mbstring.c"/>
@@ -2213,6 +2231,7 @@
       <scope name="mb_strtoupper" signature="mb_strtoupper(string sourcestring [, string encoding])" returns="string" doc="Returns a uppercased version of sourcestring" ilk="function" src="mbstring.c"/>
       <scope name="mb_strtolower" signature="mb_strtolower(string sourcestring [, string encoding])" returns="string" doc="Returns a lowercased version of sourcestring" ilk="function" src="mbstring.c"/>
       <scope name="mb_detect_encoding" signature="mb_detect_encoding(string str [, mixed encoding_list [, bool strict]])" returns="string" doc="Encodings of the given string is returned as a string" ilk="function" src="mbstring.c"/>
+      <scope name="mb_list_encodings" signature="mb_list_encodings()" returns="array" doc="Returns an array of all supported encodings" ilk="function" src="mbstring.c"/>
       <scope name="mb_encode_mimeheader" signature="mb_encode_mimeheader(string str [, string charset [, string transfer-encoding [, string linefeed [, int indent]]]])" returns="string" doc="Converts the string to MIME encoded-word in the format&#10;of charset B" ilk="function" src="mbstring.c"/>
       <scope name="mb_decode_mimeheader" signature="mb_decode_mimeheader(string string)" returns="string" doc="Decodes the MIME encoded-word in the string" ilk="function" src="mbstring.c"/>
       <scope name="mb_convert_kana" signature="mb_convert_kana(string str [, string option] [, string encoding])" returns="string" doc="Conversion between full-width character and half-width&#10;character Japanese" ilk="function" src="mbstring.c"/>
@@ -2640,20 +2659,28 @@
       <scope name="oci_define_by_name" signature="oci_define_by_name(resource stmt, string name, mixed &amp;var [, int type])" returns="bool" doc="Define a PHP variable to an Oracle column by name" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_bind_by_name" signature="oci_bind_by_name(resource stmt, string name, mixed &amp;var, [, int maxlength [, int type]])" returns="bool" doc="Bind a PHP variable to an Oracle placeholder by name" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_bind_array_by_name" signature="oci_bind_array_by_name(resource stmt, string name, array &amp;var, int max_table_length [, int max_item_length [, int type ]])" returns="bool" doc="Bind a PHP array to an Oracle PL SQL type by name" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_free_descriptor" signature="oci_free_descriptor()" returns="bool" doc="Deletes large object description" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_save" signature="oci_lob_save( string data [, int offset ])" returns="bool" doc="Saves a large object" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_import" signature="oci_lob_import( string filename )" returns="bool" doc="Loads file into a LOB" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_load" signature="oci_lob_load()" returns="string" doc="Loads a large object" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_read" signature="oci_lob_read( int length )" returns="string" doc="Reads particular part of a large object" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_eof" signature="oci_lob_eof()" returns="bool" doc="Checks if EOF is reached" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_tell" signature="oci_lob_tell()" returns="int" doc="Tells LOB pointer position" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_rewind" signature="oci_lob_rewind()" returns="bool" doc="Rewind pointer of a LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_seek" signature="oci_lob_seek( int offset [, int whence ])" returns="bool" doc="Moves the pointer of a LOB" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_size" signature="oci_lob_size()" returns="int" doc="Returns size of a large object" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_write" signature="oci_lob_write( string string [, int length ])" returns="int" doc="Writes data to current position of a LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_append" signature="oci_lob_append( object lob )" returns="bool" doc="Appends data from a LOB to another LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_truncate" signature="oci_lob_truncate( [ int length ])" returns="bool" doc="Truncates a LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_erase" signature="oci_lob_erase( [ int offset [, int length ] ] )" returns="int" doc="Erases a specified portion of the internal LOB starting&#10;at a specified offset" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_flush" signature="oci_lob_flush( [ int flag ] )" returns="bool" doc="Flushes the LOB buffer" ilk="function" src="oci8_interface.c"/>
       <scope name="ocisetbufferinglob" signature="ocisetbufferinglob( boolean flag )" returns="bool" doc="Enables disables buffering for a LOB" ilk="function" src="oci8_interface.c"/>
+      <scope name="ocigetbufferinglob" signature="ocigetbufferinglob()" returns="bool" doc="Returns current state of buffering for a LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_copy" signature="oci_lob_copy( object lob_to, object lob_from [, int length ] )" returns="bool" doc="Copies data from a LOB to another LOB" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_is_equal" signature="oci_lob_is_equal( object lob1, object lob2 )" returns="bool" doc="Tests to see if two LOB FILE locators are equal" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_export" signature="oci_lob_export([string filename [, int start [, int length]]])" returns="bool" doc="Writes a large object into a file" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_lob_write_temporary" signature="oci_lob_write_temporary(string var [, int lob_type])" returns="bool" doc="Writes temporary blob" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_lob_close" signature="oci_lob_close()" returns="bool" doc="Closes lob descriptor" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_new_descriptor" signature="oci_new_descriptor(resource connection [, int type])" returns="object" doc="Initialize a new empty descriptor LOB FILE LOB is&#10;default" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_rollback" signature="oci_rollback(resource connection)" returns="bool" doc="Rollback the current context" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_commit" signature="oci_commit(resource connection)" returns="bool" doc="Commit the current context" ilk="function" src="oci8_interface.c"/>
@@ -2689,10 +2716,13 @@
       <scope name="oci_server_version" signature="oci_server_version(resource connection)" returns="string" doc="Return a string containing server version information" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_statement_type" signature="oci_statement_type(resource stmt)" returns="string" doc="Return the query type of an OCI statement" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_num_rows" signature="oci_num_rows(resource stmt)" returns="int" doc="Return the row count of an OCI statement" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_free_collection" signature="oci_free_collection()" returns="bool" doc="Deletes collection object" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_collection_append" signature="oci_collection_append(string value)" returns="bool" doc="Append an object to the collection" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_collection_element_get" signature="oci_collection_element_get(int ndx)" returns="string" doc="Retrieve the value at collection index ndx" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_collection_assign" signature="oci_collection_assign(object from)" returns="bool" doc="Assign a collection from another existing collection" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_collection_element_assign" signature="oci_collection_element_assign(int index, string val)" returns="bool" doc="Assign element val to collection at index ndx" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_collection_size" signature="oci_collection_size()" returns="int" doc="Return the size of a collection" ilk="function" src="oci8_interface.c"/>
+      <scope name="oci_collection_max" signature="oci_collection_max()" returns="int" doc="Return the max value of a collection For a varray this&#10;is the maximum length of the array" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_collection_trim" signature="oci_collection_trim(int num)" returns="bool" doc="Trim num elements from the end of a collection" ilk="function" src="oci8_interface.c"/>
       <scope name="oci_new_collection" signature="oci_new_collection(resource connection, string tdo [, string schema])" returns="object" doc="Initialize a new collection" ilk="function" src="oci8_interface.c"/>
       <scope name="birdstep_connect" signature="birdstep_connect(string server, string user, string pass)" returns="int" doc="" ilk="function" src="birdstep.c"/>
@@ -2802,6 +2832,7 @@
       <scope name="preg_split" signature="preg_split(string pattern, string subject [, int limit [, int flags]])" returns="array" doc="Split string into an array using a perl-style regular&#10;expression as a delimiter" ilk="function" src="php_pcre.c"/>
       <scope name="preg_quote" signature="preg_quote(string str, string delim_char)" returns="string" doc="Quote regular expression characters plus an optional&#10;character" ilk="function" src="php_pcre.c"/>
       <scope name="preg_grep" signature="preg_grep(string regex, array input)" returns="array" doc="Searches array and returns entries which match regex" ilk="function" src="php_pcre.c"/>
+      <scope name="pdo_drivers" signature="pdo_drivers()" returns="array" doc="Return array of available PDO drivers" ilk="function" src="pdo_dbh.c"/>
       <scope name="pg_connect" signature="pg_connect(string connection_string[, int connect_type]" returns="resource" doc="Open a PostgreSQL connection" ilk="function" src="pgsql.c"/>
       <scope name="pg_pconnect" signature="pg_pconnect(string connection_string" returns="resource" doc="Open a persistent PostgreSQL connection" ilk="function" src="pgsql.c"/>
       <scope name="pg_close" signature="pg_close([resource connection])" returns="bool" doc="Close a PostgreSQL connection" ilk="function" src="pgsql.c"/>
@@ -2945,6 +2976,8 @@
       <scope name="readline_write_history" signature="readline_write_history([string filename])" returns="bool" doc="Writes the history" ilk="function" src="readline.c"/>
       <scope name="readline_completion_function" signature="readline_completion_function(string funcname)" returns="bool" doc="Readline completion function" ilk="function" src="readline.c"/>
       <scope name="readline_callback_handler_install" signature="readline_callback_handler_install(string prompt, mixed callback)" returns="void" doc="Initializes the readline callback interface and&#10;terminal prints the prompt and returns immediately" ilk="function" src="readline.c"/>
+      <scope name="readline_callback_read_char" signature="readline_callback_read_char()" returns="void" doc="Informs the readline callback interface that a&#10;character is ready for input" ilk="function" src="readline.c"/>
+      <scope name="readline_callback_handler_remove" signature="readline_callback_handler_remove()" returns="bool" doc="Removes a previously installed callback handler and&#10;restores terminal settings" ilk="function" src="readline.c"/>
       <scope name="readline_redisplay" signature="readline_redisplay(void)" returns="void" doc="Ask readline to redraw the display" ilk="function" src="readline.c"/>
       <scope name="readline_on_new_line" signature="readline_on_new_line(void)" returns="void" doc="Inform readline that the cursor has moved to a new line" ilk="function" src="readline.c"/>
       <scope name="recode_string" signature="recode_string(string request, string str)" returns="string" doc="Recode string str according to request string" ilk="function" src="recode.c"/>
@@ -2993,6 +3026,7 @@
       <scope name="snmp3_real_walk" signature="snmp3_real_walk(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])" returns="int" doc="Fetch the value of a SNMP object" ilk="function" src="snmp.c"/>
       <scope name="snmp3_set" signature="snmp3_set(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id, string type, mixed value [, int timeout [, int retries]])" returns="int" doc="Fetch the value of a SNMP object" ilk="function" src="snmp.c"/>
       <scope name="snmp_set_valueretrieval" signature="snmp_set_valueretrieval(int method)" returns="int" doc="Specify the method how the SNMP values will be returned" ilk="function" src="snmp.c"/>
+      <scope name="snmp_get_valueretrieval" signature="snmp_get_valueretrieval()" returns="int" doc="Return the method how the SNMP values will be returned" ilk="function" src="snmp.c"/>
       <scope name="snmp_read_mib" signature="snmp_read_mib(string filename)" returns="int" doc="Reads and parses a MIB file into the active MIB tree" ilk="function" src="snmp.c"/>
       <scope name="socket_select" signature="socket_select(array &amp;read_fds, array &amp;write_fds, &amp;array except_fds, int tv_sec[, int tv_usec])" returns="int" doc="Runs the select system call on the sets mentioned with&#10;a timeout specified by tv sec and tv usec" ilk="function" src="sockets.c"/>
       <scope name="socket_create_listen" signature="socket_create_listen(int port[, int backlog])" returns="resource" doc="Opens a socket on port to accept connections" ilk="function" src="sockets.c"/>
@@ -3021,6 +3055,7 @@
       <scope name="socket_clear_error" signature="socket_clear_error([resource socket])" returns="void" doc="Clears the error on the socket or the last error code" ilk="function" src="sockets.c"/>
       <scope name="class_parents" signature="class_parents(object instance)" returns="array" doc="Return an array containing the names of all parent&#10;classes" ilk="function" src="php_spl.c"/>
       <scope name="class_implements" signature="class_implements(mixed what [, bool autoload ])" returns="array" doc="Return all classes and interfaces implemented by SPL" ilk="function" src="php_spl.c"/>
+      <scope name="spl_classes" signature="spl_classes()" returns="array" doc="Return an array containing the names of all clsses and&#10;interfaces defined in SPL" ilk="function" src="php_spl.c"/>
       <scope name="spl_autoload" signature="spl_autoload(string class_name [, string file_extensions])" returns="void" doc="Default implementation for autoload" ilk="function" src="php_spl.c"/>
       <scope name="spl_autoload_extensions" signature="spl_autoload_extensions([string file_extensions])" returns="string" doc="Register and return default file extensions for spl&#10;autoload" ilk="function" src="php_spl.c"/>
       <scope name="spl_autoload_call" signature="spl_autoload_call(string class_name)" returns="void" doc="Try all registerd autoload function to load the&#10;requested class" ilk="function" src="php_spl.c"/>
@@ -3045,6 +3080,8 @@
       <scope name="sqlite_fetch_single" signature="sqlite_fetch_single(resource result [, bool decode_binary])" returns="string" doc="Fetches the first column of a result set as a string" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_current" signature="sqlite_current(resource result [, int result_type [, bool decode_binary]])" returns="array" doc="Fetches the current row from a result set as an array" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_column" signature="sqlite_column(resource result, mixed index_or_name [, bool decode_binary])" returns="mixed" doc="Fetches a column from the current row of a result set" ilk="function" src="sqlite.c"/>
+      <scope name="sqlite_libversion" signature="sqlite_libversion()" returns="string" doc="Returns the version of the linked SQLite library" ilk="function" src="sqlite.c"/>
+      <scope name="sqlite_libencoding" signature="sqlite_libencoding()" returns="string" doc="Returns the encoding iso or UTF- of the linked SQLite&#10;library" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_changes" signature="sqlite_changes(resource db)" returns="int" doc="Returns the number of rows that were changed by the&#10;most recent SQL statement" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_last_insert_rowid" signature="sqlite_last_insert_rowid(resource db)" returns="int" doc="Returns the rowid of the most recently inserted row" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_num_rows" signature="sqlite_num_rows(resource result)" returns="int" doc="Returns the number of rows in a buffered result set" ilk="function" src="sqlite.c"/>
@@ -3171,6 +3208,8 @@
       <scope name="ini_set" signature="ini_set(string varname, string newvalue)" returns="string" doc="Set a configuration option returns false on error and&#10;the old value of the configuration option on success" ilk="function" src="basic_functions.c"/>
       <scope name="ini_restore" signature="ini_restore(string varname)" returns="void" doc="Restore the value of a configuration option specified&#10;by varname" ilk="function" src="basic_functions.c"/>
       <scope name="set_include_path" signature="set_include_path(string new_include_path)" returns="string" doc="Sets the include path configuration option" ilk="function" src="basic_functions.c"/>
+      <scope name="get_include_path" signature="get_include_path()" returns="string" doc="Get the current include path configuration option" ilk="function" src="basic_functions.c"/>
+      <scope name="restore_include_path" signature="restore_include_path()" returns="void" doc="Restore the value of the include path configuration&#10;option" ilk="function" src="basic_functions.c"/>
       <scope name="print_r" signature="print_r(mixed var [, bool return])" returns="mixed" doc="Prints out or returns information about the specified&#10;variable" ilk="function" src="basic_functions.c"/>
       <scope name="connection_aborted" signature="connection_aborted(void)" returns="int" doc="Returns true if client disconnected" ilk="function" src="basic_functions.c"/>
       <scope name="connection_status" signature="connection_status(void)" returns="int" doc="Returns the connection status bitfield" ilk="function" src="basic_functions.c"/>
@@ -3308,6 +3347,7 @@
       <scope name="php_ini_scanned_files" signature="php_ini_scanned_files(void)" returns="string" doc="Return comma-separated string of ini files parsed from&#10;the additional ini dir" ilk="function" src="info.c"/>
       <scope name="iptcembed" signature="iptcembed(string iptcdata, string jpeg_file_name [, int spool])" returns="array" doc="Embed binary IPTC data into a JPEG image" ilk="function" src="iptc.c"/>
       <scope name="iptcparse" signature="iptcparse(string iptcdata)" returns="array" doc="Parse binary IPTC-data into associative array" ilk="function" src="iptc.c"/>
+      <scope name="lcg_value" signature="lcg_value()" returns="float" doc="Returns a value from the combined linear congruential&#10;generator" ilk="function" src="lcg.c"/>
       <scope name="levenshtein" signature="levenshtein(string str1, string str2)" returns="int" doc="Calculate Levenshtein distance between two strings" ilk="function" src="levenshtein.c"/>
       <scope name="readlink" signature="readlink(string filename)" returns="string" doc="Return the target of a symbolic link" ilk="function" src="link.c"/>
       <scope name="linkinfo" signature="linkinfo(string filename)" returns="int" doc="Returns the st dev field of the UNIX C stat structure&#10;describing the link" ilk="function" src="link.c"/>
@@ -3395,6 +3435,8 @@
       <scope name="stream_get_contents" signature="stream_get_contents(resource source [, long maxlen [, long offset]])" returns="long" doc="Reads all remaining bytes or up to maxlen bytes from a&#10;stream and returns them as a string" ilk="function" src="streamsfuncs.c"/>
       <scope name="stream_copy_to_stream" signature="stream_copy_to_stream(resource source, resource dest [, long maxlen [, long pos]])" returns="long" doc="Reads up to maxlen bytes from source stream and writes&#10;them to dest stream" ilk="function" src="streamsfuncs.c"/>
       <scope name="stream_get_meta_data" signature="stream_get_meta_data(resource fp)" returns="resource" doc="Retrieves header meta data from streams file pointers" ilk="function" src="streamsfuncs.c"/>
+      <scope name="stream_get_transports" signature="stream_get_transports()" returns="array" doc="Retrieves list of registered socket transports" ilk="function" src="streamsfuncs.c"/>
+      <scope name="stream_get_wrappers" signature="stream_get_wrappers()" returns="array" doc="Retrieves list of registered stream wrappers" ilk="function" src="streamsfuncs.c"/>
       <scope name="stream_select" signature="stream_select(array &amp;read_streams, array &amp;write_streams, array &amp;except_streams, int tv_sec[, int tv_usec])" returns="int" doc="Runs the select system call on the sets of streams with&#10;a timeout specified by tv sec and tv usec" ilk="function" src="streamsfuncs.c"/>
       <scope name="stream_context_get_options" signature="stream_context_get_options(resource context" returns="array" doc="Retrieve options for a stream wrapper context" ilk="function" src="streamsfuncs.c"/>
       <scope name="stream_context_set_option" signature="stream_context_set_option(resource context" returns="bool" doc="Set an option for a wrapper" ilk="function" src="streamsfuncs.c"/>
@@ -3514,6 +3556,7 @@
       <scope name="var_export" signature="var_export(mixed var [, bool return])" returns="mixed" doc="Outputs or returns a string representation of a&#10;variable" ilk="function" src="var.c"/>
       <scope name="serialize" signature="serialize(mixed variable)" returns="string" doc="Returns a string representation of variable which can&#10;later be unserialized" ilk="function" src="var.c"/>
       <scope name="unserialize" signature="unserialize(string variable_representation)" returns="mixed" doc="Takes a string representation of variable and recreates&#10;it" ilk="function" src="var.c"/>
+      <scope name="memory_get_usage" signature="memory_get_usage()" returns="int" doc="Returns the allocated by PHP memory" ilk="function" src="var.c"/>
       <scope name="version_compare" signature="version_compare(string ver1, string ver2 [, string oper])" returns="int" doc="Compares two PHP-standardized version number strings" ilk="function" src="versioning.c"/>
       <scope name="sybase_connect" signature="sybase_connect([string host [, string user [, string password [, string charset [, string appname]]]]])" returns="int" doc="Open Sybase server connection" ilk="function" src="php_sybase_ct.c"/>
       <scope name="sybase_pconnect" signature="sybase_pconnect([string host [, string user [, string password [, string charset [, string appname]]]]])" returns="int" doc="Open persistent Sybase connection" ilk="function" src="php_sybase_ct.c"/>
@@ -3558,11 +3601,26 @@
       <scope name="shm_remove_var" signature="shm_remove_var(int id, int variable_key)" returns="bool" doc="Removes variable from shared memory" ilk="function" src="sysvshm.c"/>
       <scope name="tidy_parse_string" signature="tidy_parse_string(string input [, mixed config_options [, string encoding]])" returns="bool" doc="Parse a document stored in a string" ilk="function" src="tidy.c"/>
       <scope name="tidy_get_error_buffer" signature="tidy_get_error_buffer([boolean detailed])" returns="string" doc="Return warnings and errors which occured parsing the&#10;specified document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_output" signature="tidy_get_output()" returns="string" doc="Return a string representing the parsed tidy markup" ilk="function" src="tidy.c"/>
       <scope name="tidy_parse_file" signature="tidy_parse_file(string file [, mixed config_options [, string encoding [, bool use_include_path]]])" returns="boolean" doc="Parse markup in file or URI" ilk="function" src="tidy.c"/>
+      <scope name="tidy_clean_repair" signature="tidy_clean_repair()" returns="boolean" doc="Execute configured cleanup and repair operations on&#10;parsed markup" ilk="function" src="tidy.c"/>
       <scope name="tidy_repair_string" signature="tidy_repair_string(string data [, mixed config_file [, string encoding]])" returns="boolean" doc="Repair a string using an optionally provided&#10;configuration file" ilk="function" src="tidy.c"/>
       <scope name="tidy_repair_file" signature="tidy_repair_file(string filename [, mixed config_file [, string encoding [, bool use_include_path]]])" returns="boolean" doc="Repair a file using an optionally provided&#10;configuration file" ilk="function" src="tidy.c"/>
+      <scope name="tidy_diagnose" signature="tidy_diagnose()" returns="boolean" doc="Run configured diagnostics on parsed and repaired&#10;markup" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_release" signature="tidy_get_release()" returns="string" doc="Get release date version for Tidy library" ilk="function" src="tidy.c"/>
       <scope name="tidy_get_opt_doc" signature="tidy_get_opt_doc(tidy resource, string optname)" returns="string" doc="Returns the documentation for the given option name" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_config" signature="tidy_get_config()" returns="array" doc="Get current Tidy configuarion" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_status" signature="tidy_get_status()" returns="int" doc="Get status of specfied document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_html_ver" signature="tidy_get_html_ver()" returns="int" doc="Get the Detected HTML version for the specified&#10;document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_is_xhtml" signature="tidy_is_xhtml()" returns="boolean" doc="Indicates if the document is a generic non HTML XHTML&#10;XML document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_error_count" signature="tidy_error_count()" returns="int" doc="Returns the Number of Tidy errors encountered for&#10;specified document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_warning_count" signature="tidy_warning_count()" returns="int" doc="Returns the Number of Tidy warnings encountered for&#10;specified document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_access_count" signature="tidy_access_count()" returns="int" doc="Returns the Number of Tidy accessibility warnings&#10;encountered for specified document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_config_count" signature="tidy_config_count()" returns="int" doc="Returns the Number of Tidy configuration errors&#10;encountered for specified document" ilk="function" src="tidy.c"/>
       <scope name="tidy_getopt" signature="tidy_getopt(string option)" returns="mixed" doc="Returns the value of the specified configuration option&#10;for the tidy document" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_root" signature="tidy_get_root()" returns="TidyNode" doc="Returns a TidyNode Object representing the root of the&#10;tidy parse tree" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_html" signature="tidy_get_html()" returns="TidyNode" doc="Returns a TidyNode Object starting from the HTML tag of&#10;the tidy parse tree" ilk="function" src="tidy.c"/>
+      <scope name="tidy_get_head" signature="tidy_get_head()" returns="TidyNode" doc="Returns a TidyNode Object starting from the HEAD tag of&#10;the tidy parse tree" ilk="function" src="tidy.c"/>
       <scope name="tidy_get_body" signature="tidy_get_body(resource tidy)" returns="TidyNode" doc="Returns a TidyNode Object starting from the BODY tag of&#10;the tidy parse tree" ilk="function" src="tidy.c"/>
       <scope name="token_get_all" signature="token_get_all(string source)" returns="array" doc="" ilk="function" src="tokenizer.c"/>
       <scope name="token_name" signature="token_name(int type)" returns="string" doc="" ilk="function" src="tokenizer.c"/>
@@ -3647,6 +3705,7 @@
       <scope name="xmlwriter_end_dtd_entity" signature="xmlwriter_end_dtd_entity(resource xmlwriter)" returns="bool" doc="End current DTD Entity - returns FALSE on error" ilk="function" src="php_xmlwriter.c"/>
       <scope name="xmlwriter_write_dtd_entity" signature="xmlwriter_write_dtd_entity(resource xmlwriter, string name, string content)" returns="bool" doc="Write full DTD Entity tag - returns FALSE on error" ilk="function" src="php_xmlwriter.c"/>
       <scope name="xmlwriter_open_uri" signature="xmlwriter_open_uri(resource xmlwriter, string source)" returns="resource" doc="Create new xmlwriter using source uri for output" ilk="function" src="php_xmlwriter.c"/>
+      <scope name="xmlwriter_open_memory" signature="xmlwriter_open_memory()" returns="resource" doc="Create new xmlwriter using memory for string output" ilk="function" src="php_xmlwriter.c"/>
       <scope name="xmlwriter_output_memory" signature="xmlwriter_output_memory(resource xmlwriter [,bool flush])" returns="string" doc="Output current buffer as string" ilk="function" src="php_xmlwriter.c"/>
       <scope name="xmlwriter_flush" signature="xmlwriter_flush(resource xmlwriter [,bool empty])" returns="mixed" doc="Output current buffer" ilk="function" src="php_xmlwriter.c"/>
       <scope name="xsl_xsltprocessor_import_stylesheet" signature="xsl_xsltprocessor_import_stylesheet(domdocument doc)" returns="void" doc="URL http www w org TR WD-DOM-Level- -Core- DOM -Core&#10;html Since" ilk="function" src="xsltprocessor.c"/>
@@ -3656,6 +3715,8 @@
       <scope name="xsl_xsltprocessor_set_parameter" signature="xsl_xsltprocessor_set_parameter(string namespace, mixed name [, string value])" returns="bool" doc="" ilk="function" src="xsltprocessor.c"/>
       <scope name="xsl_xsltprocessor_get_parameter" signature="xsl_xsltprocessor_get_parameter(string namespace, string name)" returns="string" doc="" ilk="function" src="xsltprocessor.c"/>
       <scope name="xsl_xsltprocessor_remove_parameter" signature="xsl_xsltprocessor_remove_parameter(string namespace, string name)" returns="bool" doc="" ilk="function" src="xsltprocessor.c"/>
+      <scope name="xsl_xsltprocessor_register_php_functions" signature="xsl_xsltprocessor_register_php_functions()" returns="void" doc="" ilk="function" src="xsltprocessor.c"/>
+      <scope name="xsl_xsltprocessor_has_exslt_support" signature="xsl_xsltprocessor_has_exslt_support()" returns="bool" doc="" ilk="function" src="xsltprocessor.c"/>
       <scope name="gzfile" signature="gzfile(string filename [, int use_include_path])" returns="array" doc="Read und uncompress entire gz-file into an array" ilk="function" src="zlib.c"/>
       <scope name="gzopen" signature="gzopen(string filename, string mode [, int use_include_path])" returns="resource" doc="Open a gz-file and return a gz-file pointer" ilk="function" src="zlib.c"/>
       <scope name="readgzfile" signature="readgzfile(string filename [, int use_include_path])" returns="int" doc="Output a gz-file" ilk="function" src="zlib.c"/>
@@ -3696,14 +3757,26 @@
       <scope name="apache_get_modules" signature="apache_get_modules(void)" returns="array" doc="Get a list of loaded Apache modules" ilk="function" src="php_apache.c"/>
       <scope name="apache_reset_timeout" signature="apache_reset_timeout(void)" returns="bool" doc="Reset the Apache write timer" ilk="function" src="php_apache.c"/>
       <scope name="apache_getenv" signature="apache_getenv(string variable [, bool walk_to_top])" returns="bool" doc="Get an Apache subprocess env variable" ilk="function" src="php_functions.c"/>
+      <scope name="apache_request_headers_in" signature="apache_request_headers_in()" returns="array" doc="fetch all incoming request headers" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_headers_out" signature="apache_request_headers_out([{string name" returns="array" doc="fetch all outgoing request headers" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_err_headers_out" signature="apache_request_err_headers_out([{string name" returns="array" doc="fetch all headers that go out in case of an error or a&#10;subrequest" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_server_port" signature="apache_request_server_port()" returns="int" doc="" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_remote_host" signature="apache_request_remote_host([int type])" returns="int" doc="" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_update_mtime" signature="apache_request_update_mtime([int dependency_mtime])" returns="long" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_set_etag" signature="apache_request_set_etag()" returns="void" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_set_last_modified" signature="apache_request_set_last_modified()" returns="void" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_meets_conditions" signature="apache_request_meets_conditions()" returns="long" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_discard_request_body" signature="apache_request_discard_request_body()" returns="long" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_satisfies" signature="apache_request_satisfies()" returns="long" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_is_initial_req" signature="apache_request_is_initial_req()" returns="bool" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_some_auth_required" signature="apache_request_some_auth_required()" returns="bool" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_auth_type" signature="apache_request_auth_type()" returns="string" doc="" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_auth_name" signature="apache_request_auth_name()" returns="string" doc="" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_log_error" signature="apache_request_log_error(string message, [long facility])" returns="boolean" doc="" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_sub_req_lookup_uri" signature="apache_request_sub_req_lookup_uri(string uri)" returns="object" doc="Returns sub-request for the specified uri You would&#10;need to run it yourself with run" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_sub_req_lookup_file" signature="apache_request_sub_req_lookup_file(string file)" returns="object" doc="Returns sub-request for the specified file You would&#10;need to run it yourself with run" ilk="function" src="php_apache.c"/>
       <scope name="apache_request_sub_req_method_uri" signature="apache_request_sub_req_method_uri(string method, string uri)" returns="object" doc="Returns sub-request for the specified file You would&#10;need to run it yourself with run" ilk="function" src="php_apache.c"/>
+      <scope name="apache_request_run" signature="apache_request_run()" returns="long" doc="This is a wrapper for ap sub run req and ap destory sub&#10;req It takes sub request runs it" ilk="function" src="php_apache.c"/>
       <scope name="smfi_setflags" signature="smfi_setflags(long flags)" returns="string" doc="Sets the flags describing the actions the filter may&#10;take" ilk="function" src="php_milter.c"/>
       <scope name="smfi_settimeout" signature="smfi_settimeout(long timeout)" returns="string" doc="Sets the number of seconds libmilter will wait for an&#10;MTA connection before timing out a socket" ilk="function" src="php_milter.c"/>
       <scope name="smfi_getsymval" signature="smfi_getsymval(string macro)" returns="string" doc="Returns the value of the given macro or NULL if the&#10;macro is not defined" ilk="function" src="php_milter.c"/>
@@ -3719,6 +3792,7 @@
       <scope name="zend_version" signature="zend_version(void)" returns="string" doc="Get the version of the Zend Engine" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="func_num_args" signature="func_num_args(void)" returns="int" doc="Get the number of arguments that were passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="func_get_arg" signature="func_get_arg(int arg_num)" returns="mixed" doc="Get the arg num'th argument that was passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="func_get_args" signature="func_get_args()" returns="array" doc="Get an array of the arguments that were passed to the&#10;function" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strlen" signature="strlen(string str)" returns="int" doc="Get string length" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strcmp" signature="strcmp(string str1, string str2)" returns="int" doc="Binary safe string comparison" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="strncmp" signature="strncmp(string str1, string str2, int len)" returns="int" doc="Binary safe string comparison" ilk="function" src="zend_builtin_functions.c"/>
@@ -3747,6 +3821,8 @@
       <scope name="restore_error_handler" signature="restore_error_handler(void)" returns="void" doc="Restores the previously defined error handler function" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="set_exception_handler" signature="set_exception_handler(callable exception_handler)" returns="string" doc="Sets a user-defined exception handler function Returns&#10;the previously defined exception handler or false on&#10;error" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="restore_exception_handler" signature="restore_exception_handler(void)" returns="void" doc="Restores the previously defined exception handler&#10;function" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="get_declared_classes" signature="get_declared_classes()" returns="array" doc="Returns an array of all declared classes" ilk="function" src="zend_builtin_functions.c"/>
+      <scope name="get_declared_interfaces" signature="get_declared_interfaces()" returns="array" doc="Returns an array of all declared interfaces" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="get_defined_functions" signature="get_defined_functions(void)" returns="array" doc="Returns an array of all defined functions" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="get_defined_vars" signature="get_defined_vars(void)" returns="array" doc="Returns an associative array of names and values of all&#10;currently defined variable names variables in the&#10;current scope" ilk="function" src="zend_builtin_functions.c"/>
       <scope name="create_function" signature="create_function(string args, string code)" returns="string" doc="Creates an anonymous function and returns its name&#10;funny eh" ilk="function" src="zend_builtin_functions.c"/>
@@ -3804,29 +3880,12 @@
       <scope name="key_exists" signature="key_exists(mixed key, array search)" doc="Checks if the given key or index exists in the array&amp;#xa;key_exists is an alias to array_key_exists" ilk="function" returns="bool"/>
       <scope name="get_required_files" signature="get_required_files(void)" doc="Returns an array with the file names that were include&#10;once 'd&amp;#xa;get_required_files is an alias to get_included_files" ilk="function" returns="array"/>
       <scope name="user_error" signature="user_error(string messsage [, int error_type])" doc="Generates a user-level error warning notice message&amp;#xa;user_error is an alias to trigger_error" ilk="function" returns="void"/>
-      <scope name="func_get_args" signature="func_get_args()" ilk="function"/>
-      <scope name="get_declared_classes" signature="get_declared_classes()" ilk="function"/>
-      <scope name="get_declared_interfaces" signature="get_declared_interfaces()" ilk="function"/>
-      <scope name="xmlwriter_open_memory" signature="xmlwriter_open_memory()" ilk="function"/>
-      <scope name="libxml_get_last_error" signature="libxml_get_last_error()" ilk="function"/>
-      <scope name="libxml_clear_errors" signature="libxml_clear_errors()" ilk="function"/>
-      <scope name="libxml_get_errors" signature="libxml_get_errors()" ilk="function"/>
       <scope name="htmlspecialchars_decode" signature="htmlspecialchars_decode()" ilk="function"/>
       <scope name="convert_uuencode" signature="convert_uuencode()" ilk="function"/>
       <scope name="convert_uudecode" signature="convert_uudecode()" ilk="function"/>
       <scope name="sys_getloadavg" signature="sys_getloadavg()" ilk="function"/>
-      <scope name="get_include_path" signature="get_include_path()" ilk="function"/>
-      <scope name="restore_include_path" signature="restore_include_path()" ilk="function"/>
-      <scope name="stream_get_wrappers" signature="stream_get_wrappers()" ilk="function"/>
-      <scope name="stream_get_transports" signature="stream_get_transports()" ilk="function"/>
-      <scope name="lcg_value" signature="lcg_value()" ilk="function"/>
       <scope name="ob_list_handlers" signature="ob_list_handlers()" ilk="function"/>
-      <scope name="spl_classes" signature="spl_classes()" ilk="function"/>
       <scope name="spl_autoload_functions" signature="spl_autoload_functions()" ilk="function"/>
-      <scope name="pdo_drivers" signature="pdo_drivers()" ilk="function"/>
-      <scope name="sqlite_libversion" signature="sqlite_libversion()" ilk="function"/>
-      <scope name="sqlite_libencoding" signature="sqlite_libencoding()" ilk="function"/>
-      <scope name="date_default_timezone_get" signature="date_default_timezone_get()" ilk="function"/>
       <variable name="_COOKIE" citdl="array"/>
       <variable name="_ENV" citdl="array"/>
       <variable name="_FILES" citdl="array"/>
@@ -3843,6 +3902,11 @@
       <variable name="HTTP_SERVER_VARS" citdl="array"/>
       <variable name="HTTP_SESSION_VARS" citdl="array"/>
       <variable name="GLOBALS" citdl="array"/>
+      <variable name="__LINE__" citdl="string" ilk="constant"/>
+      <variable name="__FILE__" citdl="string" ilk="constant"/>
+      <variable name="__FUNCTION__" citdl="string" ilk="constant"/>
+      <variable name="__CLASS__" citdl="string" ilk="constant"/>
+      <variable name="__METHOD__" citdl="string" ilk="constant"/>
       <variable name="E_ERROR" citdl="integer" ilk="constant"/>
       <variable name="E_WARNING" citdl="integer" ilk="constant"/>
       <variable name="E_PARSE" citdl="integer" ilk="constant"/>
