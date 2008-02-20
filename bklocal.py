@@ -1141,12 +1141,15 @@ class KomodoDefaultUserInstallDir(black.configure.Datum):
         prettyProductType = black.configure.items["prettyProductType"].Get()
         name_bits = (productType == "openkomodo" and [prettyProductType]
                      or ["Komodo", prettyProductType])
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
         if platform == "win":
-            self.value = "C:\\Program Files\\%s" % ' '.join(name_bits)
+            self.value = "C:\\Program Files\\ActiveState %s %s" \
+                         % (' '.join(name_bits), majorVer)
         elif platform == 'darwin':
             self.value = '/Applications/%s.app' % ' '.join(name_bits)
         elif platform in ("linux", "solaris"):
-            self.value = "~/%s" % '-'.join(name_bits)
+            self.value = "~/%s-%s" % ('-'.join(name_bits), majorVer)
         else:
             self.value = None
         self.determined = 1
@@ -2714,7 +2717,7 @@ class MSIProductName(black.configure.Datum):
                        or "Komodo %s" % prettyProductType)
         komodoPrettyVersion = black.configure.items["komodoPrettyVersion"].Get()
         buildNum = black.configure.items["buildNum"].Get()
-        self.value = "%s %s" % (productName, komodoPrettyVersion)
+        self.value = "ActiveState %s %s" % (productName, komodoPrettyVersion)
         self.determined = 1
 
 class MSIInstallName(black.configure.Datum):
@@ -2731,9 +2734,11 @@ class MSIInstallName(black.configure.Datum):
         prettyProductType = black.configure.items["prettyProductType"].Get()
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
-        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "%s %s" % (productName, komodoMarketingShortVersion)
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
+        self.value = "ActiveState %s %s" % (productName, majorVer)
         self.determined = 1
+
 
 class MSIKomodoVersion(black.configure.Datum):
     def __init__(self):
