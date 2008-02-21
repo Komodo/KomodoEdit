@@ -304,22 +304,20 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     // Do the indentation, if necessary.
     if (relativeIndent) {
         var i;
-        var indentSize = scimoz.selectionStart
-                - scimoz.positionFromLine(scimoz.lineFromPosition(
-                scimoz.selectionStart));
+        // Work out the current line indentation.
+        var indentSize = scimoz.getColumn(scimoz.selectionStart);
         var indent = '';
-        var tabWidth;
-        var useTabs = view.prefs.getBooleanPref("useTabs");
         for (i = 0; i < indentSize; i++) {
             indent += ' ';
         }
+        // Work out the equivalent number of spaces to use for each tab.
         var tabequivalent = '';
-        if (useTabs) {
-            tabWidth = view.prefs.getLongPref("tabWidth");
-            for (i = 0; i < tabWidth; i++) {
-                tabequivalent += ' ';
-            }
+        var useTabs = view.prefs.getBooleanPref("useTabs");
+        var tabWidth = view.prefs.getLongPref("tabWidth");
+        for (i = 0; i < tabWidth; i++) {
+            tabequivalent += ' ';
         }
+
         var lines = text.split(eol_str);
         var splits, newindent, rest;
         for (i = 0; i < lines.length; i++) {
@@ -327,16 +325,38 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                 && lines[i].length != 0 // Do not indent empty lines.
                 && lines[i] != "<!@#_end>"
                 && lines[i] != "<!@#_start>")
-            {  
+            {
+                // Turn the snippet tabs into a space-equivalent value,
+                // we only need to do this for starting whitespace though.
+                var match = lines[i].match(/^(\s+)(.*)/);
+                if (match) {
+                    var whitespace = match[1];
+                    var tab_pos = whitespace.search("\t");
+                    // If we have tabs in the preceeding whitespace of the
+                    // snippet, we need to convert them into spaces.
+                    while (tab_pos >= 0) {
+                        if (tab_pos % tabWidth) {
+                            // Ick, the tab does not align according to the
+                            // user's tabWidth preference, so we have to fix it.
+                            var s = '';
+                            for (var j=0; j < tabWidth - (tab_pos % tabWidth); j++) {
+                                s += ' ';
+                            }
+                            whitespace = whitespace.substr(0, tab_pos) + s +
+                                         whitespace.substr(tab_pos+1);
+                        } else {
+                            whitespace = whitespace.replace('\t', tabequivalent);
+                        }
+                        tab_pos = whitespace.search("\t");
+                    }
+                    lines[i] = whitespace + match[2];
+                }
                 lines[i] = indent + lines[i];
                 if (useTabs) {
                     newindent = '';
-                    // This is ugly but I don't know a better way to
-                    // do this in JS.
                     rest = lines[i].replace(/^\s*/, '');
                     newindent = lines[i].slice(0, lines[i].length-rest.length);
-                    newindent = newindent.replace(tabequivalent,
-                                                  '\t', 'g');
+                    newindent = newindent.replace(tabequivalent, '\t', 'g');
                     lines[i] = newindent + rest;
                 }
             }
