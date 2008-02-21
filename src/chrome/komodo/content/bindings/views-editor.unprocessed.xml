@@ -848,6 +848,7 @@
             this.scimoz.currentPos = currentPos;
             this.scimoz.xOffset = xOffset;
             this.scimoz.lineScroll(0, fvl-this.scimoz.firstVisibleLine);
+            this.document.docSettingsMgr.applyDocumentSettingsToView(this);
             window.updateCommands('SCC');
             window.updateCommands('previewability_changed');
             this.lintBuffer.request("save as");
