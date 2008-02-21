@@ -56,6 +56,10 @@ box[type='startpage-bullet']  {
   -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#startpage-bullet');
 }
 
+button.tutorial-button {
+  margin: -4px 16px -4px 16px;
+}
+
 .startpage-vbox {
 }
 
