@@ -297,41 +297,30 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     var errmsg;
 
     // Read the template.
-    var doc = this.docSvc.createDocumentFromURI(uri);
+    var doc = null;
     try {
-        doc.load();
+        if (saveto) {
+            doc = this.docSvc.createFileFromTemplateURI(uri, saveto, false);
+        } else {
+            doc = this.docSvc.createDocumentFromTemplateURI(uri, name, ext);
+        }
     } catch (ex) {
         errmsg = lastErrorSvc.getLastErrorMessage();
         log.exception(ex, errmsg);
         ko.dialogs.internalError("Error opening template.",
                              "Error loading template '"+
                              uri+"'.\n\n"+ko.logging.getStack());
-        return null;
+        // even though there is an error, continue opening the
+        // file so the user gets *something*
     }
-    var content = doc.buffer;
-    var encodingName = doc.encoding.python_encoding_name;
-
-    // Warn about backward in-compatibility in template codes.
-    var pattern = /\[\s*komodo-variable: \$(\w+)\s*\]/;
-    if (content.match(pattern)) {
-        ko.dialogs.alert("It looks like this template is using Komodo's old "+
-            "system of special template codes.  This mechanism is "+
-            "deprecated and will be removed in the next version of Komodo.  "+
-            "You should upgrade your templates to use the new, more "+
-            "capable, mechanism (see 'Interpolation Shortcuts' in Help).",
-            null, "Deprecated Template Codes", "old_template_codes");
-        content = this.docSvc.deprecatedInterpolateTemplate(content);
-    }
-
     // Interpolate any codes.
-    var icontent = null;
     try {
         var istrings = ko.interpolate.interpolate(
                           window,
                           [], // codes are not bracketed
-                          [content], // codes are bracketed
+                          [doc.buffer], // codes are bracketed
                           "Template '"+name+"' Query");
-        icontent = istrings[0];
+        doc.buffer = istrings[0];
     } catch (ex) {
         var errno = lastErrorSvc.getLastErrorCode();
         if (errno == Components.results.NS_ERROR_ABORT) {
@@ -346,19 +335,14 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
                                  "Error interpolating template '"+
                                  uri+"'.\n\n"+ko.logging.getStack());
         }
-        // bug 74378 -- don't give up if interpolation fails
-        icontent = content;
     }
 
     // Load the template.
     ko.mru.addURL("mruTemplateList", uri);
     if (saveto) {
-        doc = this.docSvc.createNewDocumentFromTemplate(icontent, encodingName,
-                                                        saveto, true);
-    } else {
-        doc = this.docSvc.createDocumentFromTemplate(icontent, encodingName,
-                                                     name, ext);
+        doc.save(1);
     }
+    doc.isDirty = false;
     var view;
     if (viewList) {
         view = viewList.createViewFromDocument(doc, viewType);

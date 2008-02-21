@@ -252,18 +252,9 @@ class KoDocumentService:
             encoding = prefs.getStringPref('encodingDefault')
         return encoding
 
-    def createNewDocumentFromTemplate(self, content, encodingName, uri, savenow):
-        document = self.createDocumentFromURI(uri)
-        document.setBufferAndEncoding(content, encodingName)
-        if savenow:
-            document.save(1)
-        return document
-
-    def createDocumentFromTemplate(self, content, encodingName, name, ext):
-        name = name or "Untitled"
-        ext = ext or ""
-        
-        # Convert to the user's preferred line terminators.
+    def _fixupEOL(self, doc):
+        """fixupEOL is used when creating new files from templates in order
+           to set the document's EOL"""
         eolPref = self._globalPrefsvc.prefs.getStringPref("endOfLine")
         try:
             eol = eollib.eolPref2eol[eolPref]
@@ -271,16 +262,31 @@ class KoDocumentService:
             # Be paranoid: stay with system default if pref value is bogus.
             log.exception("unexpected 'endOfLine' pref value: %r", eolPref)
             eol = eollib.EOL_PLATFORM
-        eolStr = eollib.eol2eolStr[eol]
-        content = eolStr.join(content.splitlines(0))
+        doc.existing_line_endings = eol
+        doc.new_line_endings = eol
+        doc.isDirty = 0
         
+    def createNewDocumentFromTemplate(self, content, encodingName, uri, savenow):
+        document = self.createDocumentFromURI(uri)
+        document.setBufferAndEncoding(content, encodingName)
+        #print "createNewDocumentFromTemplate %s" % (document.encoding.python_encoding_name,)
+        if savenow:
+            document.save(1)
+        return document
+
+    def createDocumentFromTemplate(self, content, encodingName, name, ext):
+        name = name or "Untitled"
+        ext = ext or ""
+
         document = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
         title = "%s-%d%s" % (name, self.get_doc_counter(name), ext)
+        if not encodingName:
+            encodingName = self._getEncodingFromFilename(title)
         document.initUntitled(title, encodingName)
         document.setBufferAndEncoding(content, encodingName)
-        document.new_line_endings = eol
-        document.isDirty = 0
+        #print "createDocumentFromTemplate %s" % (document.encoding.python_encoding_name,)
+        self._fixupEOL(document)
         self._cDoc.acquire()
         try:
             self._documents[document.displayPath] = WeakReference(document)
@@ -288,6 +294,32 @@ class KoDocumentService:
             self._cDoc.release()
         return document
     
+    def createDocumentFromTemplateURI(self, uri, name, ext):
+        log.info("creating document with URI: %s", uri)
+        name = name or "Untitled"
+        ext = ext or ""
+        doc = components.classes["@activestate.com/koDocumentBase;1"]\
+            .createInstance(components.interfaces.koIDocument)
+        title = "%s-%d%s" % (name, self.get_doc_counter(name), ext)
+        doc.initUntitled(title, self._getEncodingFromFilename(title))
+        doc.loadFromURI(uri)
+        self._fixupEOL(doc)
+        self._cDoc.acquire()
+        try:
+            self._documents[doc.displayPath] = WeakReference(doc)
+        finally:
+            self._cDoc.release()
+        return doc
+
+    def createFileFromTemplateURI(self, uri, saveto, force):
+        log.info("creating document with URI: %s", uri)
+        doc = self.createDocumentFromURI(saveto)
+        doc.loadFromURI(uri)
+        self._fixupEOL(doc)
+        if force:
+            doc.save(1)
+        return doc
+
     def getUntitledNameForLanguage(self, language):
         if not language:
             if self._globalPrefsvc.hasPref('fileDefaultNew'):
@@ -488,81 +520,6 @@ class KoDocumentService:
             log.warn("parseHotspotLine(line=%r, ...): filename %r "
                      "does not exist", line, fullfname)
         return [fullfname, lineNo]
-
-
-    #---- Deprecated template replacement methods.
-    # To be remove after Komodo 2.5.
-    def _getGuid(self):
-        uuidGenerator = components.classes["@mozilla.org/uuid-generator;1"].getService(components.interfaces.nsIUUIDGenerator)
-        guid = uuidGenerator.generateUUID()
-        # must convert nsIDPtr to string first
-        return str(guid)[1:-1] # strip off the {}'s
-
-    def _interpolate(self, match, vars):
-        variable = match.group(1).lower()  # case-insensitive
-        try:
-            return vars[variable]
-        except KeyError, ex:
-            if variable == "guid":
-                return self._getGuid()
-            elif variable.startswith("guid"):
-                vars[variable] = self._getGuid()
-                return vars[variable]
-            else:
-                return '[komodo-variable "%s" not supported]' % variable
-
-    def deprecatedInterpolateTemplate(self, content):
-        import time
-        (year, month, day, hour, minute, second, weekday, julian_day,
-         dst_flag) = time.localtime()
-        vars = {'local_year' : str(year),
-                'local_month' : str(month),
-                'local_day' : str(day),
-                'local_hour' : str(hour),
-                'local_minute' : str(minute),
-                'local_second' : str(second),
-                'local_weekday' : str(weekday),
-                'local_julian_day' : str(julian_day)}
-
-        return re.sub(r'\[komodo-variable:\s*\$(.*?)\s*\]',
-                      lambda m, vars=vars: self._interpolate(m, vars),
-                      content)
-
-    def _getAppropriateEOF(self, lines):
-        eof = None
-
-        try:
-            # Try to infer from first given line.
-            line = lines[0]
-            if line.endswith("\r\n"):
-                eof = "\r\n"
-            elif line.endswith("\n"):
-                eof = "\n"
-            elif line.endswith("\r"):
-                eof = "\r"
-        except IndexError, ex:
-            pass
-
-        if eof is None:
-            # Fallback to setting for this platform.
-            prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                      .getService(components.interfaces.koIPrefService)
-            eofCode = prefSvc.prefs.getStringPref("endOfLine")
-            eofCode2eof = {"CRLF": "\r\n", "LF": "\r", "CR": "\n"}
-            try:
-                eof = eofCode2eof[eofCode]
-            except KeyError, ex:
-                log.warn("unexpected 'endOfLine' pref value: '%s'", eofCode)
-                # Paranoia: Fallback to a reasonable platform default.
-                if sys.platform.startswith("win"):
-                    eof = "\r\n"
-                elif sys.platform.startwith("mac"):
-                    eof = "\r"
-                else:
-                    eof = "\n"
-
-        return eof
-
 
 class KoDiff:
     _com_interfaces_ = [components.interfaces.koIDiff]

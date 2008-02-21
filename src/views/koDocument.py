@@ -335,11 +335,20 @@ class koDocumentBase:
         self._language = language
         timeline.leave('koDocumentBase._guessLanguage')
 
+    def loadFromURI(self, uri):
+        filesvc = components.classes["@activestate.com/koFileService;1"] \
+                        .createInstance(components.interfaces.koIFileService)
+        file = filesvc.getFileFromURI(uri)
+        self._loadFromFile(file)
+        
     def load(self):
         if self.isUntitled or self.file.URI.startswith('chrome://'):
             return
-        timeline.enter('koDocumentBase.load')
-        self._loadfile(self.file)
+        self._loadFromFile(self.file)
+        
+    def _loadFromFile(self, file):
+        timeline.enter('koDocumentBase._loadFromFile')
+        self._loadfile(file)
         self._guessLanguage()
         self._initCIBuf() # need a new codeintel Buffer for this lang
         eolpref = self.prefs.getStringPref('endOfLine')
@@ -351,7 +360,7 @@ class koDocumentBase:
                 current_eol = eollib.eolPref2eol[eolpref]
         self.set_new_line_endings(current_eol)
             
-        timeline.leave('koDocumentBase.load')
+        timeline.leave('koDocumentBase._loadFromFile')
 
     def _loadfile(self, file):
         timeline.enter('koDocumentBase._loadfile')
@@ -670,7 +679,7 @@ class koDocumentBase:
         encoding = self.encodingServices.get_encoding_info(encoding_name)\
                        .python_encoding_name
         tryencoding = self._getStringPref('encoding')
-        if tryencoding is None:
+        if tryencoding is None or tryencoding == encoding_name:
             tryencoding = self._getEncodingFromName(self.get_baseName())
         tryxmldecl = self._getBooleanPref('encodingXMLDec')
         trymeta = self._getBooleanPref('encodingHTML')
@@ -697,7 +706,13 @@ class koDocumentBase:
         log.info("""_detectEncoding
     encodingDefault: %s
            encoding: %s
-        tryencoding: %s""", encoding_name, encoding, tryencoding);
+        tryencoding: %s
+         tryxmldecl: %r
+            trymeta: %r
+        trymodeline: %r
+         autodetect: %r""",
+         encoding_name, encoding, tryencoding,
+         tryxmldecl, trymeta, trymodeline, autodetect)
         
 
         #    tryencoding = None
@@ -764,7 +779,13 @@ class koDocumentBase:
 
     def setBufferAndEncoding(self, buffer, encoding_name):
         self._set_buffer_encoded('')
-        self.setEncodingFromEncodingName(encoding_name)
+        if encoding_name:
+            self.setEncodingFromEncodingName(encoding_name)
+        else:
+            encoded_buffer, encoding_name, bom = self._detectEncoding(buffer)
+            self.encoding.python_encoding_name =\
+                self.encodingServices.get_canonical_python_encoding_name(encoding_name)
+            self.encoding.use_byte_order_marker = bom
         self._set_buffer_encoded(buffer)
 
     def set_encoding(self, encoding, errors="strict"):
