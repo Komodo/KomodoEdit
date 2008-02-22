@@ -679,6 +679,7 @@ class _TerminalReader(threading.Thread):
         except Exception, ex:
             log.exception("_TerminalReader:: exception during %r socket read "
                           "for cmd: %r", name, self.__cmd)
+        self.__terminal.parsedLastLine()
         log.debug("_TerminalReader finished reading %r for cmd: %r",
                   name, self.__cmd)
 
