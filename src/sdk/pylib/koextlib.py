@@ -484,90 +484,106 @@ def build_ext(base_dir, log=None):
                          "'install.rdf' file (run `koext startext' first)"
                          % base_dir)
 
-    build_dir = normpath(join(base_dir, "build"))
-    if exists(build_dir):
-        _rm(build_dir, log.info)
-    
-    ext_info = ExtensionInfo(base_dir)
-    ko_info = KomodoInfo()
-    xpi_manifest = ["install.rdf"]
-    
-    # Make the chrome jar.
-    chrome_dirs = [d for d in ("content", "skin", "locale") if isdir(d)]
-    if chrome_dirs:
-        assert exists("chrome.manifest"), \
-            "you have chrome dirs ('%s') but no 'chrome.manifest' file" \
-            % "', '".join(chrome_dirs)
-        jar_build_dir = join(build_dir, "jar")
-        _mkdir(jar_build_dir, log.info)
-        for d in chrome_dirs:
-            _cp(d, join(jar_build_dir, d), log.info)
-        _trim_files_in_dir(jar_build_dir, [".svn", ".hg", "CVS"], log.info)
-        _run_in_dir("zip -r %s.jar *" % ext_info.codename, jar_build_dir,
-                    log.info)
-
-        xpi_manifest += [
-            join(jar_build_dir, ext_info.codename+".jar"),
-            "chrome.manifest",
-        ]
-
-    # Handle any PyXPCOM components and idl.
-    if isdir("components"):
-        components_build_dir = join(build_dir, "components")
-        _mkdir(components_build_dir, log.info)
-        for path in glob(join("components", "*.py")):
-            _cp(path, components_build_dir, log.info)
-        xpi_manifest.append(components_build_dir)
+    # Dev Note: Parts of the following don't work unless the source
+    # dir is the current one. The easiest solution for now is to just
+    # chdir there.
+    orig_dir = None
+    if base_dir != os.curdir:
+        orig_base_dir = base_dir
+        orig_dir = os.getcwd()
+        log.info("cd %s", base_dir)
+        os.chdir(base_dir)
+        base_dir = os.curdir
+    try:
+        build_dir = normpath(join(base_dir, "build"))
+        if exists(build_dir):
+            _rm(build_dir, log.info)
         
-        idl_build_dir = join(build_dir, "idl")
-        idl_paths = glob(join("components", "*.idl"))
-        if idl_paths:
-            _mkdir(idl_build_dir, log.info)
-            for idl_path in glob(join("components", "*.idl")):
-                _cp(idl_path, idl_build_dir, log.info)
-                xpt_path = join(components_build_dir,
-                    splitext(basename(idl_path))[0] + ".xpt")
-                _xpidl(idl_path, xpt_path, ko_info, log.info)
-            xpi_manifest.append(idl_build_dir)
+        ext_info = ExtensionInfo(base_dir)
+        ko_info = KomodoInfo()
+        xpi_manifest = ["install.rdf"]
+        
+        # Make the chrome jar.
+        chrome_dirs = [d for d in ("content", "skin", "locale") if isdir(d)]
+        if chrome_dirs:
+            assert exists("chrome.manifest"), \
+                "you have chrome dirs ('%s') but no 'chrome.manifest' file" \
+                % "', '".join(chrome_dirs)
+            jar_build_dir = join(build_dir, "jar")
+            _mkdir(jar_build_dir, log.info)
+            for d in chrome_dirs:
+                _cp(d, join(jar_build_dir, d), log.info)
+            _trim_files_in_dir(jar_build_dir, [".svn", ".hg", "CVS"], log.info)
+            _run_in_dir("zip -r %s.jar *" % ext_info.codename, jar_build_dir,
+                        log.info)
+    
+            xpi_manifest += [
+                join(jar_build_dir, ext_info.codename+".jar"),
+                "chrome.manifest",
+            ]
+    
+        # Handle any PyXPCOM components and idl.
+        if isdir("components"):
+            components_build_dir = join(build_dir, "components")
+            _mkdir(components_build_dir, log.info)
+            for path in glob(join("components", "*.py")):
+                _cp(path, components_build_dir, log.info)
+            xpi_manifest.append(components_build_dir)
+            
+            idl_build_dir = join(build_dir, "idl")
+            idl_paths = glob(join("components", "*.idl"))
+            if idl_paths:
+                _mkdir(idl_build_dir, log.info)
+                for idl_path in glob(join("components", "*.idl")):
+                    _cp(idl_path, idl_build_dir, log.info)
+                    xpt_path = join(components_build_dir,
+                        splitext(basename(idl_path))[0] + ".xpt")
+                    _xpidl(idl_path, xpt_path, ko_info, log.info)
+                xpi_manifest.append(idl_build_dir)
+    
+        # Handle any UDL lexer compilation.
+        lexers_dir = join(build_dir, "lexers")
+        for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
+            if not exists(lexers_dir):
+                _mkdir(lexers_dir, log.info)
+            _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
+        if exists(lexers_dir):
+            xpi_manifest.append(lexers_dir)
+    
+        # Remaining hook dirs that are just included verbatim in the XPI.
+        for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
+                      "project-templates"):
+            if isdir(dname):
+                xpi_manifest.append(dname)
+    
+        # Handle XML catalogs (**for compatibility with Komodo <=4.2.1**)
+        # Komodo version <=4.2.1 only looked for 'catalog.xml' files for
+        # XML autocomplete in the *top-level* of extension dirs. In Komodo
+        # versions >=4.2.2 this has moved to 'xmlcatalogs/catalog.xml'
+        # (although for a transition period Komodo looks in both areas).
+        if isdir("xmlcatalogs"):
+            for path in glob(join("xmlcatalogs", "*")):
+                xpi_manifest.append(path)
+    
+        # Make the xpi.
+        #pprint(xpi_manifest)
+        xpi_build_dir = join(build_dir, "xpi")
+        _mkdir(xpi_build_dir, log.info)
+        for src in xpi_manifest:
+            if isdir(src):
+                _cp(src, join(xpi_build_dir, basename(src)), log.info)
+            else:
+                _cp(src, xpi_build_dir, log.info)
+        _trim_files_in_dir(xpi_build_dir, [".svn", ".hg", "CVS"], log.info)
+        _run_in_dir("zip -r %s *" % ext_info.pkg_name, xpi_build_dir, log.info)
+        _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
+    finally:
+        if orig_dir:
+            log.info("cd %s", orig_dir)
+            os.chdir(orig_dir)
+            base_dir = orig_base_dir
 
-    # Handle any UDL lexer compilation.
-    lexers_dir = join(build_dir, "lexers")
-    for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
-        if not exists(lexers_dir):
-            _mkdir(lexers_dir, log.info)
-        _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
-    if exists(lexers_dir):
-        xpi_manifest.append(lexers_dir)
-
-    # Remaining hook dirs that are just included verbatim in the XPI.
-    for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
-                  "project-templates"):
-        if isdir(dname):
-            xpi_manifest.append(dname)
-
-    # Handle XML catalogs (**for compatibility with Komodo <=4.2.1**)
-    # Komodo version <=4.2.1 only looked for 'catalog.xml' files for
-    # XML autocomplete in the *top-level* of extension dirs. In Komodo
-    # versions >=4.2.2 this has moved to 'xmlcatalogs/catalog.xml'
-    # (although for a transition period Komodo looks in both areas).
-    if isdir("xmlcatalogs"):
-        for path in glob(join("xmlcatalogs", "*")):
-            xpi_manifest.append(path)
-
-    # Make the xpi.
-    #pprint(xpi_manifest)
-    xpi_build_dir = join(build_dir, "xpi")
-    _mkdir(xpi_build_dir, log.info)
-    for src in xpi_manifest:
-        if isdir(src):
-            _cp(src, join(xpi_build_dir, basename(src)), log.info)
-        else:
-            _cp(src, xpi_build_dir, log.info)
-    _trim_files_in_dir(xpi_build_dir, [".svn", ".hg", "CVS"], log.info)
-    _run_in_dir("zip -r %s *" % ext_info.pkg_name, xpi_build_dir, log.info)
-    _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
-    print "'%s' created." % ext_info.pkg_name
-
+    print "'%s' created." % join(base_dir, ext_info.pkg_name)
 
 
 
