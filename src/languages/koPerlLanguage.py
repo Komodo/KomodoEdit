@@ -188,7 +188,8 @@ oranges 3
             self._interpreter = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].getService()
         return self._interpreter
 
-    _keywords = ["abs",
+    _keywords = [
+                 "abs",
                  "accept",
                  "alarm",
                  "and",
