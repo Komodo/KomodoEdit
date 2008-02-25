@@ -267,6 +267,7 @@
       <ComponentRef Id="component297"/>
       <ComponentRef Id="component10"/>
       <ComponentRef Id="component11"/>
+      <ComponentRef Id="component604"/>
       <ComponentRef Id="component605"/>
       <ComponentRef Id="component606"/>
       <ComponentRef Id="component541"/>
@@ -3617,6 +3618,11 @@
             <File Id="file3674" Name="prefs.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\prefs.xml"/>
           </Component>
           <Directory Id="directory657" Name="DEFAUL_1" LongName="default-project-templates">
+            <Directory Id="directory659" Name="COMMO_15" LongName="Common">
+              <Component Id="component604" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file2360" Name="RUBYON_0.KPZ" LongName="Ruby on Rails.kpz" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-project-templates\Common\Ruby on Rails.kpz"/>
+              </Component>
+            </Directory> <!-- lib\support\default-project-templates\Common -->
             <Directory Id="directory660" Name="KOMODO_0" LongName="Komodo">
               <Component Id="component605" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file2361" Name="KOMODO_0.KPZ" LongName="Komodo Extension.kpz" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-project-templates\Komodo\Komodo Extension.kpz"/>
