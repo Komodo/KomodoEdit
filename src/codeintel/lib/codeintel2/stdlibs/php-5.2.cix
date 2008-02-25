@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.2.4" description="Cix data for PHP 5.2.4" file="php-5.2.cix">
-  <file lang="PHP" mtime="1203470386" path="php-5.2.cix">
+  <file lang="PHP" mtime="1203969848" path="php-5.2.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -1521,6 +1521,7 @@
       <scope name="declare" signature="declare(directive)" doc="set execution directives for a block of code." ilk="function"/>
       <scope name="switch" signature="switch(var)" doc="evaluate a series of conditions on the same expression." ilk="function"/>
       <scope name="array" signature="array(&lt;list&gt;)" doc="create a PHP array." ilk="function"/>
+      <scope name="xdebug_break" signature="xdebug_break()" doc="force an xdebug breakpoint here." ilk="function"/>
       <scope name="bcadd" signature="bcadd(string left_operand, string right_operand [, int scale])" returns="string" doc="Returns the sum of two arbitrary precision numbers" ilk="function" src="bcmath.c"/>
       <scope name="bcsub" signature="bcsub(string left_operand, string right_operand [, int scale])" returns="string" doc="Returns the difference between two arbitrary precision&#10;numbers" ilk="function" src="bcmath.c"/>
       <scope name="bcmul" signature="bcmul(string left_operand, string right_operand [, int scale])" returns="string" doc="Returns the multiplication of two arbitrary precision&#10;numbers" ilk="function" src="bcmath.c"/>
