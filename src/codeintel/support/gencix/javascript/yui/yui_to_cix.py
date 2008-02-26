@@ -52,7 +52,7 @@
       * http://sourceforge.net/projects/yui
 
     Tested with yui versions:
-      * Version 2.4.0     (2007-12-05)
+      * Version 2.4.1     (2007-12-20)
       * Version 2.3.1     (2007-12-05)
       * Version 2.2.2     (2007-06-11)
       * Version 0.12.0    (2006-11-30)
@@ -73,8 +73,8 @@ from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
 
 yui_data = {
-    "2.4.0": {
-        "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.4.0.zip",
+    "2.4.1": {
+        "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.4.1.zip",
     },
     "2.3.1": {
         "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.3.1.zip",
@@ -90,7 +90,7 @@ yui_data = {
     },
 }
 
-yui_version = "2.4.0"
+yui_version = "2.4.1"
 yui_major_minor_version = yui_version.rsplit(".", 1)[0]
 yui_info = yui_data[yui_version]
 

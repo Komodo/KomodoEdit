@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<codeintel description="Yahoo! User Interface Library - v2.4.0" name="YUI-2.4" version="2.0">
+<codeintel description="Yahoo! User Interface Library - v2.4.1" name="YUI-2.4" version="2.0">
   <file lang="JavaScript" path="yui">
     <scope ilk="blob" lang="JavaScript" name="yui" src="yui">
       <variable citdl="Object" doc="SWFObject v1.5: Flash Player detection and embed - http://blog.deconcept.com/swfobject/&#xA;&#xA;SWFObject is (c) 2007 Geoff Stearns and is released under the MIT License:&#xA;http://www.opensource.org/licenses/mit-license.php" line="14" name="deconcept">
@@ -1910,7 +1910,7 @@
             </scope>
           </scope>
           <scope ilk="class" line="430" lineend="699" name="Event">
-            <variable citdl="Object" line="430" lineend="1914" name="Event">
+            <variable citdl="Object" line="430" lineend="1918" name="Event">
               <variable attributes="__static__ constant" citdl="Number" doc="STATIC CONSTANT: The number of times we should look for elements that are not&#xA;in the DOM at the time the event is requested after the document&#xA;has been loaded.  The default is 4000@amp;10 ms, so it will poll&#xA;for 40 seconds or until all outstanding handlers are bound&#xA;(whichever comes first)." line="543" name="POLL_RETRYS" />
               <variable attributes="__static__ constant" citdl="Number" doc="STATIC CONSTANT: The poll interval in milliseconds" line="552" name="POLL_INTERVAL" />
               <variable attributes="__static__ constant" citdl="Number" doc="STATIC CONSTANT: Element to bind, int constant" line="561" name="EL" />
@@ -2138,7 +2138,7 @@
                 <variable attributes="__local__ private" citdl="searchLists[j]" line="1695" name="searchList" />
                 <variable attributes="__local__ private" citdl="searchList[i]" line="1698" name="l" />
               </scope>
-              <scope attributes="private __static__" doc="PRIVATE STATIC: Removes all listeners registered by pe.event.  Called&#xA;automatically during the unload event." ilk="function" line="1724" lineend="1797" name="_unload" signature="_unload(e)">
+              <scope attributes="private __static__" doc="PRIVATE STATIC: Removes all listeners registered by pe.event.  Called&#xA;automatically during the unload event." ilk="function" line="1724" lineend="1801" name="_unload" signature="_unload(e)">
                 <variable ilk="argument" name="e" />
                 <variable citdl="Event" name="this" />
                 <variable attributes="__local__ private" citdl="j" line="1726" name="index" />
@@ -2149,22 +2149,22 @@
                 <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="1726" name="EU" />
                 <variable attributes="__local__ private" citdl="window" line="1732" name="scope" />
               </scope>
-              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns scrollLeft" ilk="function" line="1805" lineend="1807" name="_getScrollLeft" returns="this._getScroll()[1]" signature="_getScrollLeft()">
+              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns scrollLeft" ilk="function" line="1809" lineend="1811" name="_getScrollLeft" returns="this._getScroll()[1]" signature="_getScrollLeft()">
                 <variable citdl="Event" name="this" />
               </scope>
-              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns scrollTop" ilk="function" line="1815" lineend="1817" name="_getScrollTop" returns="this._getScroll()[0]" signature="_getScrollTop()">
+              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns scrollTop" ilk="function" line="1819" lineend="1821" name="_getScrollTop" returns="this._getScroll()[0]" signature="_getScrollTop()">
                 <variable citdl="Event" name="this" />
               </scope>
-              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns the scrollTop and scrollLeft.  Used to calculate the&#xA;pageX and pageY in Internet Explorer" ilk="function" line="1826" lineend="1835" name="_getScroll" returns="Array" signature="_getScroll()">
+              <scope attributes="private __static__" doc="PRIVATE STATIC: Returns the scrollTop and scrollLeft.  Used to calculate the&#xA;pageX and pageY in Internet Explorer" ilk="function" line="1830" lineend="1839" name="_getScroll" returns="Array" signature="_getScroll()">
                 <variable citdl="Event" name="this" />
-                <variable attributes="__local__ private" citdl="document.documentElement" line="1827" name="dd" />
-                <variable attributes="__local__ private" citdl="document.body" line="1827" name="db" />
+                <variable attributes="__local__ private" citdl="document.documentElement" line="1831" name="dd" />
+                <variable attributes="__local__ private" citdl="document.body" line="1831" name="db" />
               </scope>
-              <scope attributes="deprecated private __static__" doc="DEPRECATED PRIVATE STATIC: Used by old versions of CustomEvent, restored for backwards&#xA;compatibility" ilk="function" line="1845" lineend="1847" name="regCE" signature="regCE()">
+              <scope attributes="deprecated private __static__" doc="DEPRECATED PRIVATE STATIC: Used by old versions of CustomEvent, restored for backwards&#xA;compatibility" ilk="function" line="1849" lineend="1851" name="regCE" signature="regCE()">
                 <variable citdl="Event" name="this" />
               </scope>
-              <variable attributes="private __static__" doc="PRIVATE STATIC: Adds a DOM event directly without the caching, cleanup, scope adj, etc" line="1876" name="_simpleAdd" />
-              <variable attributes="private __static__" doc="PRIVATE STATIC: Basic remove listener" line="1901" name="_simpleRemove" />
+              <variable attributes="private __static__" doc="PRIVATE STATIC: Adds a DOM event directly without the caching, cleanup, scope adj, etc" line="1880" name="_simpleAdd" />
+              <variable attributes="private __static__" doc="PRIVATE STATIC: Basic remove listener" line="1905" name="_simpleRemove" />
             </variable>
           </scope>
           <scope ilk="class" line="463" lineend="603" name="AnimMgr">
@@ -3326,143 +3326,143 @@
               <variable citdl="UserAction" name="this" />
             </scope>
           </variable>
-          <scope ilk="function" line="1937" lineend="2177" name="YUILoader" signature="YUILoader(o)">
+          <scope ilk="function" line="1939" lineend="2175" name="YUILoader" signature="YUILoader(o)">
             <variable ilk="argument" name="o" />
             <variable citdl="util" name="this" />
-            <variable attributes="__local__ private" citdl="this" doc="Provides the information used to skin the skinnable components.&#xA;The following skin definition would result in &apos;skin1&apos; and &apos;skin2&apos;&#xA;being loaded for calendar (if calendar was requested), and&#xA;&apos;sam&apos; for all other skinnable components:&#xA;&#xA;&lt;code&gt;&#xA;skin: {&#xA;&#xA;// The default skin, which is automatically applied if not&#xA;// overriden by a component-specific skin definition.&#xA;// Change this in to apply a different skin globally&#xA;defaultSkin: &apos;sam&apos;,&#xA;&#xA;// This is combined with the loader base property to get&#xA;// the default root directory for a skin. ex:&#xA;// http://yui.yahooapis.com/2.3.0/build/assets/skins/sam/&#xA;base: &apos;assets/skins/&apos;,&#xA;&#xA;// The name of the rollup css file for the skin&#xA;path: &apos;skin.css&apos;,&#xA;&#xA;// The number of skinnable components requested that are&#xA;// required before using the rollup file rather than the&#xA;// individual component css files&#xA;rollup: 3,&#xA;&#xA;// Any component-specific overrides can be specified here,&#xA;// making it possible to load different skins for different&#xA;// components.  It is possible to load more than one skin&#xA;// for a given component as well.&#xA;overrides: {&#xA;calendar: [&apos;skin1&apos;, &apos;skin2&apos;]&#xA;}&#xA;}&#xA;&lt;/code&gt;" line="2164" name="self" />
+            <variable attributes="__local__ private" citdl="this" doc="Provides the information used to skin the skinnable components.&#xA;The following skin definition would result in &apos;skin1&apos; and &apos;skin2&apos;&#xA;being loaded for calendar (if calendar was requested), and&#xA;&apos;sam&apos; for all other skinnable components:&#xA;&#xA;&lt;code&gt;&#xA;skin: {&#xA;&#xA;// The default skin, which is automatically applied if not&#xA;// overriden by a component-specific skin definition.&#xA;// Change this in to apply a different skin globally&#xA;defaultSkin: &apos;sam&apos;,&#xA;&#xA;// This is combined with the loader base property to get&#xA;// the default root directory for a skin. ex:&#xA;// http://yui.yahooapis.com/2.3.0/build/assets/skins/sam/&#xA;base: &apos;assets/skins/&apos;,&#xA;&#xA;// The name of the rollup css file for the skin&#xA;path: &apos;skin.css&apos;,&#xA;&#xA;// The number of skinnable components requested that are&#xA;// required before using the rollup file rather than the&#xA;// individual component css files&#xA;rollup: 3,&#xA;&#xA;// Any component-specific overrides can be specified here,&#xA;// making it possible to load different skins for different&#xA;// components.  It is possible to load more than one skin&#xA;// for a given component as well.&#xA;overrides: {&#xA;calendar: [&apos;skin1&apos;, &apos;skin2&apos;]&#xA;}&#xA;}&#xA;&lt;/code&gt;" line="2162" name="self" />
           </scope>
-          <variable attributes="private" doc="PRIVATE: Internal callback to handle multiple internal insert() calls&#xA;so that css is inserted prior to js" line="1945" name="_internalCallback" />
-          <variable attributes="private" citdl="Boolean" doc="PRIVATE: Use the YAHOO environment listener to detect script load.  This&#xA;is only switched on for Safari 2.x and below." line="1953" name="_useYahooListener" />
-          <variable citdl="Function" doc="Callback that will be executed when the loader is finished&#xA;with an insert" line="1961" name="onSuccess" />
-          <variable citdl="Function" doc="Callback that will be executed if there is a failure" line="1968" name="onFailure" />
-          <variable citdl="Function" doc="Callback that will be executed each time a new module is loaded" line="1975" name="onProgress" />
-          <variable citdl="this" doc="The execution scope for all callbacks" line="1982" name="scope" />
-          <variable doc="Data that is passed to all callbacks" line="1988" name="data" />
-          <variable citdl="String" doc="The name of the variable in a sandbox or script node&#xA;(for external script support in Safari 2.x and earlier)&#xA;to reference when the load is complete.  If this variable&#xA;is not available in the specified scripts, the operation will&#xA;fail." line="1999" name="varName" />
-          <variable citdl="String" doc="The base directory." line="2007" name="base" />
-          <variable citdl="Array" doc="A list of modules that should not be loaded, even if&#xA;they turn up in the dependency tree" line="2015" name="ignore" />
-          <variable citdl="String" doc="A list of modules that should always be loaded, even&#xA;if they have already been inserted into the page." line="2023" name="force" />
-          <variable citdl="Boolean" doc="Should we allow rollups" line="2031" name="allowRollup" />
-          <scope classrefs="Object" doc="EventProvider is designed to be used with YAHOO.augment to wrap&#xA;CustomEvents in an interface that allows events to be subscribed to&#xA;and fired by name.  This makes it possible for implementing code to&#xA;subscribe to an event that either has not been created yet, or will&#xA;not be created at all." ilk="class" line="2054" lineend="2263" name="EventProvider">
-            <scope attributes="__ctor__" doc="EventProvider is designed to be used with YAHOO.augment to wrap&#xA;CustomEvents in an interface that allows events to be subscribed to&#xA;and fired by name.  This makes it possible for implementing code to&#xA;subscribe to an event that either has not been created yet, or will&#xA;not be created at all." ilk="function" line="2054" lineend="2054" name="EventProvider" signature="EventProvider()">
+          <variable attributes="private" doc="PRIVATE: Internal callback to handle multiple internal insert() calls&#xA;so that css is inserted prior to js" line="1947" name="_internalCallback" />
+          <variable attributes="private" citdl="Boolean" doc="PRIVATE: Use the YAHOO environment listener to detect script load.  This&#xA;is only switched on for Safari 2.x and below." line="1955" name="_useYahooListener" />
+          <variable citdl="Function" doc="Callback that will be executed when the loader is finished&#xA;with an insert" line="1963" name="onSuccess" />
+          <variable citdl="Function" doc="Callback that will be executed if there is a failure" line="1970" name="onFailure" />
+          <variable citdl="Function" doc="Callback that will be executed each time a new module is loaded" line="1977" name="onProgress" />
+          <variable citdl="this" doc="The execution scope for all callbacks" line="1984" name="scope" />
+          <variable doc="Data that is passed to all callbacks" line="1990" name="data" />
+          <variable citdl="String" doc="The name of the variable in a sandbox or script node&#xA;(for external script support in Safari 2.x and earlier)&#xA;to reference when the load is complete.  If this variable&#xA;is not available in the specified scripts, the operation will&#xA;fail." line="2001" name="varName" />
+          <variable citdl="String" doc="The base directory." line="2009" name="base" />
+          <variable citdl="Array" doc="A list of modules that should not be loaded, even if&#xA;they turn up in the dependency tree" line="2017" name="ignore" />
+          <variable citdl="String" doc="A list of modules that should always be loaded, even&#xA;if they have already been inserted into the page." line="2025" name="force" />
+          <variable citdl="Boolean" doc="Should we allow rollups" line="2033" name="allowRollup" />
+          <scope classrefs="Object" doc="EventProvider is designed to be used with YAHOO.augment to wrap&#xA;CustomEvents in an interface that allows events to be subscribed to&#xA;and fired by name.  This makes it possible for implementing code to&#xA;subscribe to an event that either has not been created yet, or will&#xA;not be created at all." ilk="class" line="2058" lineend="2267" name="EventProvider">
+            <scope attributes="__ctor__" doc="EventProvider is designed to be used with YAHOO.augment to wrap&#xA;CustomEvents in an interface that allows events to be subscribed to&#xA;and fired by name.  This makes it possible for implementing code to&#xA;subscribe to an event that either has not been created yet, or will&#xA;not be created at all." ilk="function" line="2058" lineend="2058" name="EventProvider" signature="EventProvider()">
               <variable citdl="EventProvider" name="this" />
             </scope>
-            <variable attributes="private" citdl="Array" doc="PRIVATE: Private storage of custom events" line="2064" name="__yui_events" />
-            <variable attributes="private" citdl="Array" doc="PRIVATE: Private storage of custom event subscribers" line="2072" name="__yui_subscribers" />
-            <scope doc="Subscribe to a CustomEvent by event type" ilk="function" line="2085" lineend="2101" name="subscribe" signature="subscribe(p_type, p_fn, p_obj, p_override)">
+            <variable attributes="private" citdl="Array" doc="PRIVATE: Private storage of custom events" line="2068" name="__yui_events" />
+            <variable attributes="private" citdl="Array" doc="PRIVATE: Private storage of custom event subscribers" line="2076" name="__yui_subscribers" />
+            <scope doc="Subscribe to a CustomEvent by event type" ilk="function" line="2089" lineend="2105" name="subscribe" signature="subscribe(p_type, p_fn, p_obj, p_override)">
               <variable citdl="String" doc="the type, or name of the event" ilk="argument" name="p_type" />
               <variable citdl="Function" doc="the function to exectute when the event fires" ilk="argument" name="p_fn" />
               <variable citdl="Object" doc="An object to be passed along when the event&#xA;fires" ilk="argument" name="p_obj" />
               <variable citdl="Boolean" doc="If true, the obj passed in becomes the&#xA;execution scope of the listener" ilk="argument" name="p_override" />
               <variable citdl="EventProvider" name="this" />
-              <variable attributes="__local__ private" citdl="this.__yui_events[p_type]" line="2088" name="ce" />
-              <variable attributes="__local__ private" citdl="this.__yui_subscribers" line="2094" name="subs" />
+              <variable attributes="__local__ private" citdl="this.__yui_events[p_type]" line="2092" name="ce" />
+              <variable attributes="__local__ private" citdl="this.__yui_subscribers" line="2098" name="subs" />
             </scope>
-            <scope doc="Unsubscribes one or more listeners the from the specified event" ilk="function" line="2118" lineend="2137" name="unsubscribe" returns="Boolean" signature="unsubscribe(p_type, p_fn, p_obj)">
+            <scope doc="Unsubscribes one or more listeners the from the specified event" ilk="function" line="2122" lineend="2141" name="unsubscribe" returns="Boolean" signature="unsubscribe(p_type, p_fn, p_obj)">
               <variable citdl="String" doc="The type, or name of the event.  If the type&#xA;is not specified, it will attempt to remove&#xA;the listener from all hosted events." ilk="argument" name="p_type" />
               <variable citdl="Function" doc="The subscribed function to unsubscribe, if not&#xA;supplied, all subscribers will be removed." ilk="argument" name="p_fn" />
               <variable citdl="Object" doc="The custom object passed to subscribe.  This is&#xA;optional, but if supplied will be used to&#xA;disambiguate multiple listeners that are the same&#xA;(e.g., you subscribe many object using a function&#xA;that lives on the prototype)" ilk="argument" name="p_obj" />
               <variable citdl="EventProvider" name="this" />
-              <variable attributes="__local__ private" citdl="this.__yui_events" line="2120" name="evts" />
-              <variable attributes="__local__ private" citdl="evts[p_type]" line="2122" name="ce" />
-              <variable attributes="__local__ private" citdl="Boolean" line="2127" name="ret" />
+              <variable attributes="__local__ private" citdl="this.__yui_events" line="2124" name="evts" />
+              <variable attributes="__local__ private" citdl="evts[p_type]" line="2126" name="ce" />
+              <variable attributes="__local__ private" citdl="Boolean" line="2131" name="ret" />
             </scope>
-            <scope doc="Removes all listeners from the specified event.  If the event type&#xA;is not specified, all listeners from all hosted custom events will&#xA;be removed." ilk="function" line="2146" lineend="2148" name="unsubscribeAll" returns="this.unsubscribe()" signature="unsubscribeAll(p_type)">
+            <scope doc="Removes all listeners from the specified event.  If the event type&#xA;is not specified, all listeners from all hosted custom events will&#xA;be removed." ilk="function" line="2150" lineend="2152" name="unsubscribeAll" returns="this.unsubscribe()" signature="unsubscribeAll(p_type)">
               <variable citdl="String" doc="The type, or name of the event" ilk="argument" name="p_type" />
               <variable citdl="EventProvider" name="this" />
             </scope>
-            <scope doc="Creates a new custom event of the specified type.  If a custom event&#xA;by that name already exists, it will not be re-created.  In either&#xA;case the custom event is returned." ilk="function" line="2180" lineend="2211" name="createEvent" returns="CustomEvent" signature="createEvent(p_type, p_config)">
+            <scope doc="Creates a new custom event of the specified type.  If a custom event&#xA;by that name already exists, it will not be re-created.  In either&#xA;case the custom event is returned." ilk="function" line="2184" lineend="2215" name="createEvent" returns="CustomEvent" signature="createEvent(p_type, p_config)">
               <variable citdl="String" doc="the type, or name of the event" ilk="argument" name="p_type" />
               <variable citdl="Object" doc="optional config params.  Valid properties are:&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;scope: defines the default execution scope.  If not defined&#xA;the default scope will be this instance.&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;silent: if true, the custom event will not generate log messages.&#xA;This is false by default.&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;onSubscribeCallback: specifies a callback to execute when the&#xA;event has a new subscriber.  This will fire immediately for&#xA;each queued subscriber if any exist prior to the creation of&#xA;the event.&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;" ilk="argument" name="p_config" />
               <variable citdl="EventProvider" name="this" />
-              <variable attributes="__local__ private" citdl="p_config" line="2183" name="opts" />
-              <variable attributes="__local__ private" citdl="this.__yui_events" line="2184" name="events" />
-              <variable attributes="__local__ private" citdl="opts.scope" line="2189" name="scope" />
-              <variable attributes="__local__ private" line="2190" name="silent" />
-              <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="2193" name="ce" />
-              <variable attributes="__local__ private" citdl="this.__yui_subscribers[p_type]" line="2201" name="qs" />
+              <variable attributes="__local__ private" citdl="p_config" line="2187" name="opts" />
+              <variable attributes="__local__ private" citdl="this.__yui_events" line="2188" name="events" />
+              <variable attributes="__local__ private" citdl="opts.scope" line="2193" name="scope" />
+              <variable attributes="__local__ private" line="2194" name="silent" />
+              <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="2197" name="ce" />
+              <variable attributes="__local__ private" citdl="this.__yui_subscribers[p_type]" line="2205" name="qs" />
             </scope>
-            <scope doc="Fire a custom event by name.  The callback functions will be executed&#xA;from the scope specified when the event was created, and with the&#xA;following parameters:&#xA;&lt;ul&gt;&#xA;&lt;li&gt;The first argument fire() was executed with&lt;/li&gt;&#xA;&lt;li&gt;The custom object (if any) that was passed into the subscribe()&#xA;method&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;If the custom event has not been explicitly created, it will be&#xA;created now with the default config, scoped to the host object" ilk="function" line="2232" lineend="2246" name="fireEvent" returns="Boolean" signature="fireEvent(p_type, arg1, arg2, etc)">
+            <scope doc="Fire a custom event by name.  The callback functions will be executed&#xA;from the scope specified when the event was created, and with the&#xA;following parameters:&#xA;&lt;ul&gt;&#xA;&lt;li&gt;The first argument fire() was executed with&lt;/li&gt;&#xA;&lt;li&gt;The custom object (if any) that was passed into the subscribe()&#xA;method&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;If the custom event has not been explicitly created, it will be&#xA;created now with the default config, scoped to the host object" ilk="function" line="2236" lineend="2250" name="fireEvent" returns="Boolean" signature="fireEvent(p_type, arg1, arg2, etc)">
               <variable citdl="String" doc="the type, or name of the event" ilk="argument" name="p_type" />
               <variable ilk="argument" name="arg1" />
               <variable ilk="argument" name="arg2" />
               <variable ilk="argument" name="etc" />
               <variable citdl="EventProvider" name="this" />
-              <variable attributes="__local__ private" citdl="this.__yui_events[p_type]" line="2235" name="ce" />
-              <variable attributes="__local__ private" citdl="Array" line="2241" name="args" />
+              <variable attributes="__local__ private" citdl="this.__yui_events[p_type]" line="2239" name="ce" />
+              <variable attributes="__local__ private" citdl="Array" line="2245" name="args" />
             </scope>
-            <scope doc="Returns true if the custom event of the provided type has been created&#xA;with createEvent." ilk="function" line="2254" lineend="2261" name="hasEvent" returns="Boolean" signature="hasEvent(type)">
+            <scope doc="Returns true if the custom event of the provided type has been created&#xA;with createEvent." ilk="function" line="2258" lineend="2265" name="hasEvent" returns="Boolean" signature="hasEvent(type)">
               <variable citdl="String" doc="the type, or name of the event" ilk="argument" name="type" />
               <variable citdl="EventProvider" name="this" />
             </scope>
           </scope>
-          <variable citdl="String" doc="Filter to apply to result url.  This filter will modify the default&#xA;path for all modules.  The default path for the YUI library is the&#xA;minified version of the files (e.g., event-min.js).  The filter property&#xA;can be a predefined filter or a custom filter.  The valid predefined&#xA;filters are:&#xA;&lt;dl&gt;&#xA;&lt;dt&gt;debug&lt;/dt&gt;&#xA;&lt;dd&gt;Selects the debug versions of the library (e.g., event-debug.js).&#xA;This option will automatically include the logger widget&lt;/dd&gt;&#xA;&lt;dt&gt;raw&lt;/dt&gt;&#xA;&lt;dd&gt;Selects the non-minified version of the library (e.g., event.js).&#xA;&lt;/dl&gt;&#xA;You can also define a custom filter, which must be an object literal&#xA;containing a search expression and a replace string:&#xA;&lt;pre&gt;&#xA;myFilter: &amp;#123;&#xA;&apos;searchExp&apos;: &quot;-min\\.js&quot;,&#xA;&apos;replaceStr&apos;: &quot;-debug.js&quot;&#xA;&amp;#125;&#xA;&lt;/pre&gt;&#xA;Note: the default base path for the YUI library is http://yui.yahooapis.com.&#xA;Only the minified versions of the components are available on this host,&#xA;so if you choose to use the raw or debug versions of the files, you will&#xA;have to host these files locally, and change the &quot;base&quot; property." line="2061" name="filter" />
-          <variable citdl="Boolean" doc="The list of requested modules" line="2068" lineend="2068" name="required" />
-          <variable citdl="lang.merge()" doc="The library metadata" line="2074" name="moduleInfo" />
-          <variable doc="List of rollup files found in the library metadata" line="2080" name="rollups" />
-          <variable citdl="Boolean" doc="Whether or not to load optional dependencies for&#xA;the requested modules" line="2089" name="loadOptional" />
-          <variable citdl="Array" doc="All of the derived dependencies in sorted order, which&#xA;will be populated when either calculate() or insert()&#xA;is called" line="2098" name="sorted" />
-          <variable citdl="Boolean" doc="Set when beginning to compute the dependency tree.&#xA;Composed of what YAHOO reports to be loaded combined&#xA;with what has been loaded by the tool" line="2107" lineend="2107" name="loaded" />
-          <variable citdl="Boolean" doc="Flag to indicate the dependency tree needs to be recomputed&#xA;if insert is called again." line="2116" name="dirty" />
-          <variable citdl="Boolean" doc="List of modules inserted by the utility" line="2123" lineend="2123" name="inserted" />
-          <variable citdl="lang.merge()" line="2173" name="skin" />
-          <scope ilk="class" line="2295" lineend="2358" name="KeyListener">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: KeyListener is a utility that provides an easy interface for listening for&#xA;keydown/keyup events fired against DOM elements." ilk="function" line="2295" lineend="2437" name="KeyListener" signature="KeyListener(attachTo, keyData, handler, event)">
+          <variable citdl="String" doc="A filter to apply to result urls.  This filter will modify the default&#xA;path for all modules.  The default path for the YUI library is the&#xA;minified version of the files (e.g., event-min.js).  The filter property&#xA;can be a predefined filter or a custom filter.  The valid predefined&#xA;filters are:&#xA;&lt;dl&gt;&#xA;&lt;dt&gt;DEBUG&lt;/dt&gt;&#xA;&lt;dd&gt;Selects the debug versions of the library (e.g., event-debug.js).&#xA;This option will automatically include the logger widget&lt;/dd&gt;&#xA;&lt;dt&gt;RAW&lt;/dt&gt;&#xA;&lt;dd&gt;Selects the non-minified version of the library (e.g., event.js).&#xA;&lt;/dl&gt;&#xA;You can also define a custom filter, which must be an object literal&#xA;containing a search expression and a replace string:&#xA;&lt;pre&gt;&#xA;myFilter: &amp;#123;&#xA;&apos;searchExp&apos;: &quot;-min\\.js&quot;,&#xA;&apos;replaceStr&apos;: &quot;-debug.js&quot;&#xA;&amp;#125;&#xA;&lt;/pre&gt;" line="2059" name="filter" />
+          <variable citdl="Boolean" doc="The list of requested modules" line="2066" lineend="2066" name="required" />
+          <variable citdl="lang.merge()" doc="The library metadata" line="2072" name="moduleInfo" />
+          <variable doc="List of rollup files found in the library metadata" line="2078" name="rollups" />
+          <variable citdl="Boolean" doc="Whether or not to load optional dependencies for&#xA;the requested modules" line="2087" name="loadOptional" />
+          <variable citdl="Array" doc="All of the derived dependencies in sorted order, which&#xA;will be populated when either calculate() or insert()&#xA;is called" line="2096" name="sorted" />
+          <variable citdl="Boolean" doc="Set when beginning to compute the dependency tree.&#xA;Composed of what YAHOO reports to be loaded combined&#xA;with what has been loaded by the tool" line="2105" lineend="2105" name="loaded" />
+          <variable citdl="Boolean" doc="Flag to indicate the dependency tree needs to be recomputed&#xA;if insert is called again." line="2114" name="dirty" />
+          <variable citdl="Boolean" doc="List of modules inserted by the utility" line="2121" lineend="2121" name="inserted" />
+          <variable citdl="lang.merge()" line="2171" name="skin" />
+          <scope ilk="class" line="2299" lineend="2362" name="KeyListener">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: KeyListener is a utility that provides an easy interface for listening for&#xA;keydown/keyup events fired against DOM elements." ilk="function" line="2299" lineend="2441" name="KeyListener" signature="KeyListener(attachTo, keyData, handler, event)">
               <variable citdl="String" doc="The element or element ID to which the key&#xA;event should be attached" ilk="argument" name="attachTo" />
               <variable citdl="Object" doc="The object literal representing the key(s)&#xA;to detect. Possible attributes are&#xA;shift(boolean), alt(boolean), ctrl(boolean)&#xA;and keys(either an int or an array of ints&#xA;representing keycodes)." ilk="argument" name="keyData" />
               <variable citdl="Object" doc="An object literal representing the handler." ilk="argument" name="handler" />
               <variable citdl="String" doc="Optional. The event (keydown or keyup) to&#xA;listen for. Defaults automatically to keydown." ilk="argument" name="event" />
               <variable citdl="KeyListener" name="this" />
-              <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" doc="PRIVATE: The CustomEvent fired internally when a key is pressed" line="2314" name="keyEvent" />
-              <scope attributes="__local__ private" doc="PRIVATE: Handles the key event when a key is pressed." ilk="function" line="2355" lineend="2394" name="handleKeyPress" signature="handleKeyPress(e, obj)">
+              <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" doc="PRIVATE: The CustomEvent fired internally when a key is pressed" line="2318" name="keyEvent" />
+              <scope attributes="__local__ private" doc="PRIVATE: Handles the key event when a key is pressed." ilk="function" line="2359" lineend="2398" name="handleKeyPress" signature="handleKeyPress(e, obj)">
                 <variable citdl="DOMEvent" doc="The keypress DOM event" ilk="argument" name="e" />
                 <variable citdl="Object" doc="The DOM event scope object" ilk="argument" name="obj" />
-                <variable citdl="Object" line="2357" name="keyData">
-                  <variable citdl="Boolean" line="2357" name="shift" />
-                  <variable citdl="Boolean" line="2360" name="alt" />
-                  <variable citdl="Boolean" line="2363" name="ctrl" />
+                <variable citdl="Object" line="2361" name="keyData">
+                  <variable citdl="Boolean" line="2361" name="shift" />
+                  <variable citdl="Boolean" line="2364" name="alt" />
+                  <variable citdl="Boolean" line="2367" name="ctrl" />
                 </variable>
-                <variable attributes="__local__ private" citdl="keyData.keys[i]" line="2371" name="dataItem" />
+                <variable attributes="__local__ private" citdl="keyData.keys[i]" line="2375" name="dataItem" />
               </scope>
             </scope>
-            <variable citdl="YAHOO.util.CustomEvent" doc="The CustomEvent fired when the KeyListener is enabled via the enable()&#xA;function" line="2325" name="enabledEvent" />
-            <variable citdl="YAHOO.util.CustomEvent" doc="The CustomEvent fired when the KeyListener is disabled via the&#xA;disable() function" line="2336" name="disabledEvent" />
-            <scope doc="Enables the KeyListener by attaching the DOM event listeners to the&#xA;target DOM element" ilk="function" line="2401" lineend="2412" name="enable" signature="enable()">
+            <variable citdl="YAHOO.util.CustomEvent" doc="The CustomEvent fired when the KeyListener is enabled via the enable()&#xA;function" line="2329" name="enabledEvent" />
+            <variable citdl="YAHOO.util.CustomEvent" doc="The CustomEvent fired when the KeyListener is disabled via the&#xA;disable() function" line="2340" name="disabledEvent" />
+            <scope doc="Enables the KeyListener by attaching the DOM event listeners to the&#xA;target DOM element" ilk="function" line="2405" lineend="2416" name="enable" signature="enable()">
               <variable citdl="KeyListener" name="this" />
             </scope>
-            <variable citdl="Boolean" doc="Boolean indicating the enabled/disabled state of the Tooltip" line="2411" name="enabled" />
-            <scope doc="Disables the KeyListener by removing the DOM event listeners from the&#xA;target DOM element" ilk="function" line="2419" lineend="2425" name="disable" signature="disable()">
+            <variable citdl="Boolean" doc="Boolean indicating the enabled/disabled state of the Tooltip" line="2415" name="enabled" />
+            <scope doc="Disables the KeyListener by removing the DOM event listeners from the&#xA;target DOM element" ilk="function" line="2423" lineend="2429" name="disable" signature="disable()">
               <variable citdl="KeyListener" name="this" />
             </scope>
-            <scope doc="Returns a String representation of the object." ilk="function" line="2432" lineend="2435" name="toString" returns="String" signature="toString()">
+            <scope doc="Returns a String representation of the object." ilk="function" line="2436" lineend="2439" name="toString" returns="String" signature="toString()">
               <variable citdl="KeyListener" name="this" />
             </scope>
-            <variable attributes="__static__ constant" citdl="String" doc="STATIC CONSTANT: Constant representing the DOM &quot;keydown&quot; event." line="2446" name="KEYDOWN" />
-            <variable attributes="__static__ constant" citdl="String" doc="STATIC CONSTANT: Constant representing the DOM &quot;keyup&quot; event." line="2455" name="KEYUP" />
-            <variable attributes="__static__ constant" citdl="Object" doc="STATIC CONSTANT: keycode constants for a subset of the special keys" line="2463" lineend="2487" name="KEY">
-              <variable citdl="Number" line="2464" name="ALT" />
-              <variable citdl="Number" line="2465" name="BACK_SPACE" />
-              <variable citdl="Number" line="2466" name="CAPS_LOCK" />
-              <variable citdl="Number" line="2467" name="CONTROL" />
-              <variable citdl="Number" line="2468" name="DELETE" />
-              <variable citdl="Number" line="2469" name="DOWN" />
-              <variable citdl="Number" line="2470" name="END" />
-              <variable citdl="Number" line="2471" name="ENTER" />
-              <variable citdl="Number" line="2472" name="ESCAPE" />
-              <variable citdl="Number" line="2473" name="HOME" />
-              <variable citdl="Number" line="2474" name="LEFT" />
-              <variable citdl="Number" line="2475" name="META" />
-              <variable citdl="Number" line="2476" name="NUM_LOCK" />
-              <variable citdl="Number" line="2477" name="PAGE_DOWN" />
-              <variable citdl="Number" line="2478" name="PAGE_UP" />
-              <variable citdl="Number" line="2479" name="PAUSE" />
-              <variable citdl="Number" line="2480" name="PRINTSCREEN" />
-              <variable citdl="Number" line="2481" name="RIGHT" />
-              <variable citdl="Number" line="2482" name="SCROLL_LOCK" />
-              <variable citdl="Number" line="2483" name="SHIFT" />
-              <variable citdl="Number" line="2484" name="SPACE" />
-              <variable citdl="Number" line="2485" name="TAB" />
-              <variable citdl="Number" line="2486" name="UP" />
+            <variable attributes="__static__ constant" citdl="String" doc="STATIC CONSTANT: Constant representing the DOM &quot;keydown&quot; event." line="2450" name="KEYDOWN" />
+            <variable attributes="__static__ constant" citdl="String" doc="STATIC CONSTANT: Constant representing the DOM &quot;keyup&quot; event." line="2459" name="KEYUP" />
+            <variable attributes="__static__ constant" citdl="Object" doc="STATIC CONSTANT: keycode constants for a subset of the special keys" line="2467" lineend="2491" name="KEY">
+              <variable citdl="Number" line="2468" name="ALT" />
+              <variable citdl="Number" line="2469" name="BACK_SPACE" />
+              <variable citdl="Number" line="2470" name="CAPS_LOCK" />
+              <variable citdl="Number" line="2471" name="CONTROL" />
+              <variable citdl="Number" line="2472" name="DELETE" />
+              <variable citdl="Number" line="2473" name="DOWN" />
+              <variable citdl="Number" line="2474" name="END" />
+              <variable citdl="Number" line="2475" name="ENTER" />
+              <variable citdl="Number" line="2476" name="ESCAPE" />
+              <variable citdl="Number" line="2477" name="HOME" />
+              <variable citdl="Number" line="2478" name="LEFT" />
+              <variable citdl="Number" line="2479" name="META" />
+              <variable citdl="Number" line="2480" name="NUM_LOCK" />
+              <variable citdl="Number" line="2481" name="PAGE_DOWN" />
+              <variable citdl="Number" line="2482" name="PAGE_UP" />
+              <variable citdl="Number" line="2483" name="PAUSE" />
+              <variable citdl="Number" line="2484" name="PRINTSCREEN" />
+              <variable citdl="Number" line="2485" name="RIGHT" />
+              <variable citdl="Number" line="2486" name="SCROLL_LOCK" />
+              <variable citdl="Number" line="2487" name="SHIFT" />
+              <variable citdl="Number" line="2488" name="SPACE" />
+              <variable citdl="Number" line="2489" name="TAB" />
+              <variable citdl="Number" line="2490" name="UP" />
             </variable>
           </scope>
           <scope classrefs="YAHOO.util.DragDrop" ilk="class" line="2638" lineend="2642" name="DD">
@@ -6252,7 +6252,7 @@
             <variable attributes="private" citdl="String" doc="PRIVATE: The URL of the SWF file." line="287" name="_swfURL" />
             <variable attributes="private" citdl="YAHOO.util.Dom.get()" doc="PRIVATE: A reference to the embedded SWF file." line="294" name="_swf" />
             <scope doc="Public accessor to the unique name of the FlashAdapter instance." ilk="function" line="319" lineend="321" name="toString" returns="String" signature="toString()" />
-            <scope attributes="private" doc="PRIVATE: Embeds the SWF in the page and associates it with this instance." ilk="function" line="330" lineend="355" name="_embedSWF" signature="_embedSWF(swfURL, containerID, swfID, version, backgroundColor, expressInstall)">
+            <scope attributes="private" doc="PRIVATE: Embeds the SWF in the page and associates it with this instance." ilk="function" line="330" lineend="359" name="_embedSWF" signature="_embedSWF(swfURL, containerID, swfID, version, backgroundColor, expressInstall)">
               <variable ilk="argument" name="swfURL" />
               <variable ilk="argument" name="containerID" />
               <variable ilk="argument" name="swfID" />
@@ -6260,24 +6260,24 @@
               <variable ilk="argument" name="backgroundColor" />
               <variable ilk="argument" name="expressInstall" />
               <variable attributes="__local__ private" citdl="deconcept.SWFObject" line="332" name="swfObj" />
-              <variable attributes="__local__ private" citdl="YAHOO.util.Dom.get()" line="346" name="container" />
-              <variable attributes="__local__ private" citdl="swfObj.write()" line="347" name="result" />
+              <variable attributes="__local__ private" citdl="YAHOO.util.Dom.get()" line="350" name="container" />
+              <variable attributes="__local__ private" citdl="swfObj.write()" line="351" name="result" />
             </scope>
-            <variable citdl="this" line="353" name="owner" />
-            <scope attributes="private" doc="PRIVATE: Handles or re-dispatches events received from the SWF." ilk="function" line="364" lineend="381" name="_eventHandler" signature="_eventHandler(event)">
+            <variable citdl="this" line="357" name="owner" />
+            <scope attributes="private" doc="PRIVATE: Handles or re-dispatches events received from the SWF." ilk="function" line="368" lineend="385" name="_eventHandler" signature="_eventHandler(event)">
               <variable citdl="Event" ilk="argument" name="event" />
-              <variable attributes="__local__ private" citdl="event.type" line="365" name="type" />
+              <variable attributes="__local__ private" citdl="event.type" line="369" name="type" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Called when the SWF has been initialized." ilk="function" line="390" lineend="396" name="_loadHandler" signature="_loadHandler()" />
-            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="405" lineend="417" name="_initAttributes" signature="_initAttributes(attributes)">
+            <scope attributes="private" doc="PRIVATE: Called when the SWF has been initialized." ilk="function" line="394" lineend="400" name="_loadHandler" signature="_loadHandler()" />
+            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="409" lineend="421" name="_initAttributes" signature="_initAttributes(attributes)">
               <variable ilk="argument" name="attributes" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for swfURL attribute." ilk="function" line="426" lineend="428" name="_getSWFURL" returns="this._swfURL" signature="_getSWFURL()" />
-            <scope attributes="private __static__" doc="PRIVATE STATIC: Receives event messages from SWF and passes them to the correct instance&#xA;of FlashAdapter." ilk="function" line="440" lineend="448" name="eventHandler" signature="eventHandler(elementID, event)">
+            <scope attributes="private" doc="PRIVATE: Getter for swfURL attribute." ilk="function" line="430" lineend="432" name="_getSWFURL" returns="this._swfURL" signature="_getSWFURL()" />
+            <scope attributes="private __static__" doc="PRIVATE STATIC: Receives event messages from SWF and passes them to the correct instance&#xA;of FlashAdapter." ilk="function" line="444" lineend="452" name="eventHandler" signature="eventHandler(elementID, event)">
               <variable ilk="argument" name="elementID" />
               <variable citdl="Event" ilk="argument" name="event" />
               <variable citdl="FlashAdapter" name="this" />
-              <variable attributes="__local__ private" citdl="YAHOO.util.Dom.get()" line="441" name="loadedSWF" />
+              <variable attributes="__local__ private" citdl="YAHOO.util.Dom.get()" line="445" name="loadedSWF" />
             </scope>
           </scope>
           <scope attributes="__ctor__" doc="CONSTRUCTOR: Provides a rich toolbar widget based on the button and menu widgets" ilk="function" line="332" lineend="376" name="Toolbar" signature="Toolbar(el, attrs)">
@@ -6673,80 +6673,80 @@
             </scope>
             <scope doc="Returns a string representing the toolbar." ilk="function" line="1955" lineend="1957" name="toString" returns="String" signature="toString()" />
           </scope>
-          <scope classrefs="YAHOO.widget.FlashAdapter" ilk="class" line="473" lineend="569" name="Chart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: The Charts widget provides a Flash control for displaying data&#xA;graphically by series across A-grade browsers with Flash Player installed." ilk="function" line="473" lineend="569" name="Chart" signature="Chart(type, containerId, dataSource, attributes)">
+          <scope classrefs="YAHOO.widget.FlashAdapter" ilk="class" line="477" lineend="573" name="Chart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: The Charts widget provides a Flash control for displaying data&#xA;graphically by series across A-grade browsers with Flash Player installed." ilk="function" line="477" lineend="573" name="Chart" signature="Chart(type, containerId, dataSource, attributes)">
               <variable citdl="String" doc="The char type. May be &quot;line&quot;, &quot;column&quot;, &quot;bar&quot;, or &quot;pie&quot;" ilk="argument" name="type" />
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="Chart" name="this" />
             </scope>
-            <variable attributes="private" citdl="String" doc="PRIVATE: The type of this chart instance." line="579" name="_type" />
-            <variable attributes="private" citdl="Number" doc="PRIVATE: The id returned from the DataSource&apos;s setInterval function." line="587" name="_pollingID" />
-            <variable attributes="private" citdl="Number" doc="PRIVATE: The time, in ms, between requests for data." line="595" name="_pollingInterval" />
-            <scope doc="Public accessor to the unique name of the Chart instance." ilk="function" line="604" lineend="606" name="toString" returns="String" signature="toString()" />
-            <scope doc="Sets a single style value on the Chart instance." ilk="function" line="616" lineend="621" name="setStyle" signature="setStyle(name, value)">
+            <variable attributes="private" citdl="String" doc="PRIVATE: The type of this chart instance." line="583" name="_type" />
+            <variable attributes="private" citdl="Number" doc="PRIVATE: The id returned from the DataSource&apos;s setInterval function." line="591" name="_pollingID" />
+            <variable attributes="private" citdl="Number" doc="PRIVATE: The time, in ms, between requests for data." line="599" name="_pollingInterval" />
+            <scope doc="Public accessor to the unique name of the Chart instance." ilk="function" line="608" lineend="610" name="toString" returns="String" signature="toString()" />
+            <scope doc="Sets a single style value on the Chart instance." ilk="function" line="620" lineend="625" name="setStyle" signature="setStyle(name, value)">
               <variable citdl="String" doc="Name of the Chart style value to change." ilk="argument" name="name" />
               <variable citdl="Object" doc="New value to pass to the Chart style." ilk="argument" name="value" />
             </scope>
-            <scope doc="Resets all styles on the Chart instance." ilk="function" line="630" lineend="635" name="setStyles" signature="setStyles(styles)">
+            <scope doc="Resets all styles on the Chart instance." ilk="function" line="634" lineend="639" name="setStyles" signature="setStyles(styles)">
               <variable citdl="Object" doc="Initializer for all Chart styles." ilk="argument" name="styles" />
             </scope>
-            <scope doc="Sets the styles on all series in the Chart." ilk="function" line="644" lineend="652" name="setSeriesStyles" signature="setSeriesStyles(styles)">
+            <scope doc="Sets the styles on all series in the Chart." ilk="function" line="648" lineend="656" name="setSeriesStyles" signature="setSeriesStyles(styles)">
               <variable citdl="Array" doc="Initializer for all Chart series styles." ilk="argument" name="styles" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="661" lineend="756" name="_initAttributes" signature="_initAttributes(attributes)">
+            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="665" lineend="760" name="_initAttributes" signature="_initAttributes(attributes)">
               <variable ilk="argument" name="attributes" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Called when the SWF is ready for communication. Sets the type, initializes&#xA;the styles, and sets the DataSource." ilk="function" line="766" lineend="782" name="_loadHandler" signature="_loadHandler()">
-              <variable attributes="__local__ private" citdl="this._attributes.style" line="772" name="style" />
+            <scope attributes="private" doc="PRIVATE: Called when the SWF is ready for communication. Sets the type, initializes&#xA;the styles, and sets the DataSource." ilk="function" line="770" lineend="786" name="_loadHandler" signature="_loadHandler()">
+              <variable attributes="__local__ private" citdl="this._attributes.style" line="776" name="style" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Sends the request to the DataSource." ilk="function" line="791" lineend="809" name="_refreshData" signature="_refreshData()" />
-            <scope attributes="private" doc="PRIVATE: Called when the DataSource receives new data. The series definitions are used&#xA;to build a data provider for the SWF chart." ilk="function" line="819" lineend="875" name="_loadDataHandler" signature="_loadDataHandler(request, response, error)">
+            <scope attributes="private" doc="PRIVATE: Sends the request to the DataSource." ilk="function" line="795" lineend="813" name="_refreshData" signature="_refreshData()" />
+            <scope attributes="private" doc="PRIVATE: Called when the DataSource receives new data. The series definitions are used&#xA;to build a data provider for the SWF chart." ilk="function" line="823" lineend="879" name="_loadDataHandler" signature="_loadDataHandler(request, response, error)">
               <variable ilk="argument" name="request" />
               <variable ilk="argument" name="response" />
               <variable ilk="argument" name="error" />
-              <variable attributes="__local__ private" citdl="Boolean" line="825" name="styleChanged" />
-              <variable attributes="__local__ private" citdl="Array" line="829" name="dataProvider" />
-              <variable attributes="__local__ private" citdl="Number" line="830" name="seriesCount" />
-              <variable attributes="__local__ private" citdl="this._seriesDefs[i]" line="836" name="currentSeries" />
-              <variable attributes="__local__ private" citdl="Object" line="837" lineend="837" name="clonedSeries">
-                <variable citdl="YAHOO.lang.JSON.stringify()" line="843" name="style" />
+              <variable attributes="__local__ private" citdl="Boolean" line="829" name="styleChanged" />
+              <variable attributes="__local__ private" citdl="Array" line="833" name="dataProvider" />
+              <variable attributes="__local__ private" citdl="Number" line="834" name="seriesCount" />
+              <variable attributes="__local__ private" citdl="this._seriesDefs[i]" line="840" name="currentSeries" />
+              <variable attributes="__local__ private" citdl="Object" line="841" lineend="841" name="clonedSeries">
+                <variable citdl="YAHOO.lang.JSON.stringify()" line="847" name="style" />
               </variable>
-              <variable attributes="__local__ private" citdl="Object" line="870" lineend="870" name="series">
-                <variable citdl="response.results" line="870" name="dataProvider" />
-                <variable citdl="this._type" line="870" name="type" />
+              <variable attributes="__local__ private" citdl="Object" line="874" lineend="874" name="series">
+                <variable citdl="response.results" line="874" name="dataProvider" />
+                <variable citdl="this._type" line="874" name="type" />
               </variable>
             </scope>
-            <variable attributes="private" citdl="String" doc="PRIVATE: Storage for the request attribute." line="883" name="_request" />
-            <scope attributes="private" doc="PRIVATE: Getter for the request attribute." ilk="function" line="892" lineend="894" name="_getRequest" returns="this._request" signature="_getRequest()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the request attribute." ilk="function" line="903" lineend="906" name="_setRequest" signature="_setRequest(value)">
+            <variable attributes="private" citdl="String" doc="PRIVATE: Storage for the request attribute." line="887" name="_request" />
+            <scope attributes="private" doc="PRIVATE: Getter for the request attribute." ilk="function" line="896" lineend="898" name="_getRequest" returns="this._request" signature="_getRequest()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the request attribute." ilk="function" line="907" lineend="910" name="_setRequest" signature="_setRequest(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the dataSource attribute." line="914" name="_dataSource" />
-            <scope attributes="private" doc="PRIVATE: Getter for the dataSource attribute." ilk="function" line="923" lineend="925" name="_getDataSource" returns="this._dataSource" signature="_getDataSource()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the dataSource attribute." ilk="function" line="934" lineend="937" name="_setDataSource" signature="_setDataSource(value)">
+            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the dataSource attribute." line="918" name="_dataSource" />
+            <scope attributes="private" doc="PRIVATE: Getter for the dataSource attribute." ilk="function" line="927" lineend="929" name="_getDataSource" returns="this._dataSource" signature="_getDataSource()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the dataSource attribute." ilk="function" line="938" lineend="941" name="_setDataSource" signature="_setDataSource(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the series attribute." line="945" name="_seriesDefs" />
-            <scope attributes="private" doc="PRIVATE: Getter for the series attribute." ilk="function" line="954" lineend="956" name="_getSeriesDefs" returns="this._seriesDefs" signature="_getSeriesDefs()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the series attribute." ilk="function" line="965" lineend="967" name="_setSeriesDefs" signature="_setSeriesDefs(value)">
+            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the series attribute." line="949" name="_seriesDefs" />
+            <scope attributes="private" doc="PRIVATE: Getter for the series attribute." ilk="function" line="958" lineend="960" name="_getSeriesDefs" returns="this._seriesDefs" signature="_getSeriesDefs()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the series attribute." ilk="function" line="969" lineend="971" name="_setSeriesDefs" signature="_setSeriesDefs(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the categoryNames attribute." ilk="function" line="976" lineend="978" name="_getCategoryNames" returns="this._swf.getCategoryNames()" signature="_getCategoryNames()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the categoryNames attribute." ilk="function" line="987" lineend="989" name="_setCategoryNames" signature="_setCategoryNames(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the categoryNames attribute." ilk="function" line="980" lineend="982" name="_getCategoryNames" returns="this._swf.getCategoryNames()" signature="_getCategoryNames()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the categoryNames attribute." ilk="function" line="991" lineend="993" name="_setCategoryNames" signature="_setCategoryNames(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the dataTipFunction attribute." line="997" name="_dataTipFunction" />
-            <scope attributes="private" doc="PRIVATE: Getter for the dataTipFunction attribute." ilk="function" line="1006" lineend="1008" name="_getDataTipFunction" returns="this._dataTipFunction" signature="_getDataTipFunction()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the dataTipFunction attribute." ilk="function" line="1017" lineend="1020" name="_setDataTipFunction" signature="_setDataTipFunction(value)">
+            <variable attributes="private" citdl="value" doc="PRIVATE: Storage for the dataTipFunction attribute." line="1001" name="_dataTipFunction" />
+            <scope attributes="private" doc="PRIVATE: Getter for the dataTipFunction attribute." ilk="function" line="1010" lineend="1012" name="_getDataTipFunction" returns="this._dataTipFunction" signature="_getDataTipFunction()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the dataTipFunction attribute." ilk="function" line="1021" lineend="1024" name="_setDataTipFunction" signature="_setDataTipFunction(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the polling attribute." ilk="function" line="1029" lineend="1031" name="_getPolling" returns="this._pollingInterval" signature="_getPolling()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the polling attribute." ilk="function" line="1040" lineend="1043" name="_setPolling" signature="_setPolling(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the polling attribute." ilk="function" line="1033" lineend="1035" name="_getPolling" returns="this._pollingInterval" signature="_getPolling()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the polling attribute." ilk="function" line="1044" lineend="1047" name="_setPolling" signature="_setPolling(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <variable attributes="private __static__ constant" citdl="String" doc="PRIVATE STATIC CONSTANT: Storage for the dataTipFunction attribute." line="1055" name="SWFURL" />
+            <variable attributes="private __static__ constant" citdl="String" doc="PRIVATE STATIC CONSTANT: Storage for the dataTipFunction attribute." line="1059" name="SWFURL" />
           </scope>
           <variable citdl="Object" doc="YAHOO.widget.DateMath is used for simple date manipulation. The class is a static utility&#xA;used for adding, subtracting, and comparing dates." line="689" lineend="984" name="DateMath">
             <variable attributes="__static__ constant" citdl="String" doc="STATIC CONSTANT: Constant field representing Day" line="697" name="DAY" />
@@ -7968,22 +7968,22 @@
               <variable citdl="Calendar" name="this" />
             </scope>
           </scope>
-          <scope classrefs="YAHOO.widget.Chart" ilk="class" line="1069" lineend="1071" name="PieChart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: PieChart class for the YUI Charts widget." ilk="function" line="1069" lineend="1071" name="PieChart" signature="PieChart(containerId, dataSource, attributes)">
+          <scope classrefs="YAHOO.widget.Chart" ilk="class" line="1073" lineend="1075" name="PieChart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: PieChart class for the YUI Charts widget." ilk="function" line="1073" lineend="1075" name="PieChart" signature="PieChart(containerId, dataSource, attributes)">
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="PieChart" name="this" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="1082" lineend="1116" name="_initAttributes" signature="_initAttributes(attributes)">
+            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="1086" lineend="1120" name="_initAttributes" signature="_initAttributes(attributes)">
               <variable ilk="argument" name="attributes" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the dataField attribute." ilk="function" line="1125" lineend="1127" name="_getDataField" returns="this._swf.getDataField()" signature="_getDataField()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the dataField attribute." ilk="function" line="1136" lineend="1138" name="_setDataField" signature="_setDataField(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the dataField attribute." ilk="function" line="1129" lineend="1131" name="_getDataField" returns="this._swf.getDataField()" signature="_getDataField()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the dataField attribute." ilk="function" line="1140" lineend="1142" name="_setDataField" signature="_setDataField(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the categoryField attribute." ilk="function" line="1147" lineend="1149" name="_getCategoryField" returns="this._swf.getCategoryField()" signature="_getCategoryField()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the categoryField attribute." ilk="function" line="1158" lineend="1160" name="_setCategoryField" signature="_setCategoryField(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the categoryField attribute." ilk="function" line="1151" lineend="1153" name="_getCategoryField" returns="this._swf.getCategoryField()" signature="_getCategoryField()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the categoryField attribute." ilk="function" line="1162" lineend="1164" name="_setCategoryField" signature="_setCategoryField(value)">
               <variable ilk="argument" name="value" />
             </scope>
           </scope>
@@ -8004,91 +8004,91 @@
             <variable attributes="private" citdl="Boolean" doc="PRIVATE: Informs the drag and drop util that the offsets should remain when&#xA;resetting the constraints.  This preserves the slider value when&#xA;the constraints are reset" line="1142" name="maintainOffset" />
             <variable attributes="private" citdl="Boolean" doc="PRIVATE: Turns off the autoscroll feature in drag and drop" line="1151" name="scroll" />
           </scope>
-          <scope classrefs="YAHOO.widget.Chart" ilk="class" line="1176" lineend="1178" name="CartesianChart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: CartesianChart class for the YUI Charts widget." ilk="function" line="1176" lineend="1178" name="CartesianChart" signature="CartesianChart(type, containerId, dataSource, attributes)">
+          <scope classrefs="YAHOO.widget.Chart" ilk="class" line="1180" lineend="1182" name="CartesianChart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: CartesianChart class for the YUI Charts widget." ilk="function" line="1180" lineend="1182" name="CartesianChart" signature="CartesianChart(type, containerId, dataSource, attributes)">
               <variable citdl="String" doc="The char type. May be &quot;line&quot;, &quot;column&quot;, or &quot;bar&quot;" ilk="argument" name="type" />
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="CartesianChart" name="this" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="1189" lineend="1243" name="_initAttributes" signature="_initAttributes(attributes)">
+            <scope attributes="private" doc="PRIVATE: Initializes the attributes." ilk="function" line="1193" lineend="1247" name="_initAttributes" signature="_initAttributes(attributes)">
               <variable ilk="argument" name="attributes" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the xField attribute." ilk="function" line="1252" lineend="1254" name="_getXField" returns="this._swf.getHorizontalField()" signature="_getXField()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the xField attribute." ilk="function" line="1263" lineend="1265" name="_setXField" signature="_setXField(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the xField attribute." ilk="function" line="1256" lineend="1258" name="_getXField" returns="this._swf.getHorizontalField()" signature="_getXField()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the xField attribute." ilk="function" line="1267" lineend="1269" name="_setXField" signature="_setXField(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the yField attribute." ilk="function" line="1274" lineend="1276" name="_getYField" returns="this._swf.getVerticalField()" signature="_getYField()" />
-            <scope attributes="private" doc="PRIVATE: Setter for the yField attribute." ilk="function" line="1285" lineend="1287" name="_setYField" signature="_setYField(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the yField attribute." ilk="function" line="1278" lineend="1280" name="_getYField" returns="this._swf.getVerticalField()" signature="_getYField()" />
+            <scope attributes="private" doc="PRIVATE: Setter for the yField attribute." ilk="function" line="1289" lineend="1291" name="_setYField" signature="_setYField(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Setter for the xAxis attribute." ilk="function" line="1296" lineend="1298" name="_setXAxis" signature="_setXAxis(value)">
+            <scope attributes="private" doc="PRIVATE: Setter for the xAxis attribute." ilk="function" line="1300" lineend="1302" name="_setXAxis" signature="_setXAxis(value)">
               <variable ilk="argument" name="value" />
             </scope>
-            <scope attributes="private" doc="PRIVATE: Getter for the yAxis attribute." ilk="function" line="1307" lineend="1309" name="_setYAxis" signature="_setYAxis(value)">
+            <scope attributes="private" doc="PRIVATE: Getter for the yAxis attribute." ilk="function" line="1311" lineend="1313" name="_setYAxis" signature="_setYAxis(value)">
               <variable ilk="argument" name="value" />
             </scope>
           </scope>
-          <scope ilk="class" line="1324" lineend="1326" name="LineChart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: LineChart class for the YUI Charts widget." ilk="function" line="1324" lineend="1326" name="LineChart" signature="LineChart(containerId, dataSource, attributes)">
+          <scope ilk="class" line="1328" lineend="1330" name="LineChart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: LineChart class for the YUI Charts widget." ilk="function" line="1328" lineend="1330" name="LineChart" signature="LineChart(containerId, dataSource, attributes)">
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="LineChart" name="this" />
             </scope>
           </scope>
-          <scope ilk="class" line="1342" lineend="1344" name="ColumnChart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: ColumnChart class for the YUI Charts widget." ilk="function" line="1342" lineend="1344" name="ColumnChart" signature="ColumnChart(containerId, dataSource, attributes)">
+          <scope ilk="class" line="1346" lineend="1348" name="ColumnChart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: ColumnChart class for the YUI Charts widget." ilk="function" line="1346" lineend="1348" name="ColumnChart" signature="ColumnChart(containerId, dataSource, attributes)">
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="ColumnChart" name="this" />
             </scope>
           </scope>
-          <scope ilk="class" line="1360" lineend="1362" name="BarChart">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: BarChart class for the YUI Charts widget." ilk="function" line="1360" lineend="1362" name="BarChart" signature="BarChart(containerId, dataSource, attributes)">
+          <scope ilk="class" line="1364" lineend="1366" name="BarChart">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: BarChart class for the YUI Charts widget." ilk="function" line="1364" lineend="1366" name="BarChart" signature="BarChart(containerId, dataSource, attributes)">
               <variable citdl="HTMLElement" doc="Container element for the Flash Player instance." ilk="argument" name="containerId" />
               <variable citdl="YAHOO.util.DataSource" doc="DataSource instance." ilk="argument" name="dataSource" />
               <variable citdl="Object" doc="(optional) Object literal of configuration values." ilk="argument" name="attributes" />
               <variable citdl="BarChart" name="this" />
             </scope>
           </scope>
-          <scope classrefs="Object" ilk="class" line="1374" lineend="1419" name="Axis">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: Defines a CartesianChart&apos;s vertical or horizontal axis." ilk="function" line="1374" lineend="1375" name="Axis" signature="Axis()">
+          <scope classrefs="Object" ilk="class" line="1378" lineend="1423" name="Axis">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: Defines a CartesianChart&apos;s vertical or horizontal axis." ilk="function" line="1378" lineend="1379" name="Axis" signature="Axis()">
               <variable citdl="Axis" name="this" />
             </scope>
-            <variable citdl="String" doc="The type of axis." line="1385" name="type" />
-            <variable citdl="String" doc="The direction in which the axis is drawn. May be &quot;horizontal&quot; or &quot;vertical&quot;." line="1393" name="orientation" />
-            <variable citdl="Boolean" doc="If true, the items on the axis will be drawn in opposite direction." line="1401" name="reverse" />
-            <variable citdl="String" doc="A string reference to the globally-accessible function that may be called to&#xA;determine each of the label values for this axis." line="1410" name="labelFunction" />
-            <variable citdl="Boolean" doc="If true, labels that overlap previously drawn labels on the axis will be hidden." line="1418" name="hideOverlappingLabels" />
+            <variable citdl="String" doc="The type of axis." line="1389" name="type" />
+            <variable citdl="String" doc="The direction in which the axis is drawn. May be &quot;horizontal&quot; or &quot;vertical&quot;." line="1397" name="orientation" />
+            <variable citdl="Boolean" doc="If true, the items on the axis will be drawn in opposite direction." line="1405" name="reverse" />
+            <variable citdl="String" doc="A string reference to the globally-accessible function that may be called to&#xA;determine each of the label values for this axis." line="1414" name="labelFunction" />
+            <variable citdl="Boolean" doc="If true, labels that overlap previously drawn labels on the axis will be hidden." line="1422" name="hideOverlappingLabels" />
           </scope>
-          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1429" lineend="1431" name="NumericAxis">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis whose units are measured in numeric values." ilk="function" line="1429" lineend="1431" name="NumericAxis" signature="NumericAxis()">
+          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1433" lineend="1435" name="NumericAxis">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis whose units are measured in numeric values." ilk="function" line="1433" lineend="1435" name="NumericAxis" signature="NumericAxis()">
               <variable citdl="NumericAxis" name="this" />
             </scope>
-            <variable citdl="String" line="1435" name="type" />
-            <variable citdl="Number" doc="The minimum value drawn by the axis. If not set explicitly, the axis minimum&#xA;will be calculated automatically." line="1444" name="minimum" />
-            <variable citdl="Number" doc="The maximum value drawn by the axis. If not set explicitly, the axis maximum&#xA;will be calculated automatically." line="1453" name="maximum" />
-            <variable citdl="Number" doc="The spacing between major intervals on this axis." line="1461" name="majorUnit" />
-            <variable citdl="Number" doc="The spacing between minor intervals on this axis." line="1469" name="minorUnit" />
-            <variable citdl="Boolean" doc="If true, the labels, ticks, gridlines, and other objects will snap to&#xA;the nearest major or minor unit. If false, their position will be based&#xA;on the minimum value." line="1479" name="snapToUnits" />
-            <variable citdl="Boolean" doc="If true, and the bounds are calculated automatically, either the minimum or&#xA;maximum will be set to zero." line="1488" name="alwaysShowZero" />
-            <variable citdl="String" doc="The scaling algorithm to use on this axis. May be &quot;linear&quot; or &quot;logarithmic&quot;." line="1496" name="scale" />
+            <variable citdl="String" line="1439" name="type" />
+            <variable citdl="Number" doc="The minimum value drawn by the axis. If not set explicitly, the axis minimum&#xA;will be calculated automatically." line="1448" name="minimum" />
+            <variable citdl="Number" doc="The maximum value drawn by the axis. If not set explicitly, the axis maximum&#xA;will be calculated automatically." line="1457" name="maximum" />
+            <variable citdl="Number" doc="The spacing between major intervals on this axis." line="1465" name="majorUnit" />
+            <variable citdl="Number" doc="The spacing between minor intervals on this axis." line="1473" name="minorUnit" />
+            <variable citdl="Boolean" doc="If true, the labels, ticks, gridlines, and other objects will snap to&#xA;the nearest major or minor unit. If false, their position will be based&#xA;on the minimum value." line="1483" name="snapToUnits" />
+            <variable citdl="Boolean" doc="If true, and the bounds are calculated automatically, either the minimum or&#xA;maximum will be set to zero." line="1492" name="alwaysShowZero" />
+            <variable citdl="String" doc="The scaling algorithm to use on this axis. May be &quot;linear&quot; or &quot;logarithmic&quot;." line="1500" name="scale" />
           </scope>
-          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1507" lineend="1509" name="TimeAxis">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis whose units are measured in time-based values." ilk="function" line="1507" lineend="1509" name="TimeAxis" signature="TimeAxis()">
+          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1511" lineend="1513" name="TimeAxis">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis whose units are measured in time-based values." ilk="function" line="1511" lineend="1513" name="TimeAxis" signature="TimeAxis()">
               <variable citdl="TimeAxis" name="this" />
             </scope>
-            <variable citdl="String" line="1513" name="type" />
-            <variable citdl="Date" doc="The minimum value drawn by the axis. If not set explicitly, the axis minimum&#xA;will be calculated automatically." line="1522" name="minimum" />
-            <variable citdl="Number" doc="The maximum value drawn by the axis. If not set explicitly, the axis maximum&#xA;will be calculated automatically." line="1531" name="maximum" />
-            <variable citdl="Number" doc="The spacing between major intervals on this axis." line="1539" name="majorUnit" />
-            <variable citdl="String" doc="The time unit used by the majorUnit." line="1547" name="majorTimeUnit" />
-            <variable citdl="Number" doc="The spacing between minor intervals on this axis." line="1555" name="minorUnit" />
-            <variable citdl="String" doc="The time unit used by the minorUnit." line="1563" name="minorTimeUnit" />
-            <variable citdl="Boolean" doc="If true, the labels, ticks, gridlines, and other objects will snap to&#xA;the nearest major or minor unit. If false, their position will be based&#xA;on the minimum value." line="1573" name="snapToUnits" />
+            <variable citdl="String" line="1517" name="type" />
+            <variable citdl="Date" doc="The minimum value drawn by the axis. If not set explicitly, the axis minimum&#xA;will be calculated automatically." line="1526" name="minimum" />
+            <variable citdl="Number" doc="The maximum value drawn by the axis. If not set explicitly, the axis maximum&#xA;will be calculated automatically." line="1535" name="maximum" />
+            <variable citdl="Number" doc="The spacing between major intervals on this axis." line="1543" name="majorUnit" />
+            <variable citdl="String" doc="The time unit used by the majorUnit." line="1551" name="majorTimeUnit" />
+            <variable citdl="Number" doc="The spacing between minor intervals on this axis." line="1559" name="minorUnit" />
+            <variable citdl="String" doc="The time unit used by the minorUnit." line="1567" name="minorTimeUnit" />
+            <variable citdl="Boolean" doc="If true, the labels, ticks, gridlines, and other objects will snap to&#xA;the nearest major or minor unit. If false, their position will be based&#xA;on the minimum value." line="1577" name="snapToUnits" />
           </scope>
           <variable attributes="__static__" citdl="Object" doc="STATIC: The singleton Logger class provides core log management functionality. Saves&#xA;logs written through the global YAHOO.log function or written by a LogWriter&#xA;instance. Provides access to logs for reading by a LogReader instance or&#xA;native browser console such as the Firebug extension to Firefox or Safari&apos;s&#xA;JavaScript console through integration with the console.log() method." line="1535" lineend="1547" name="Logger">
             <variable citdl="Boolean" line="1537" name="loggerEnabled" />
@@ -8179,52 +8179,52 @@
               <variable citdl="Logger" name="this" />
             </scope>
           </variable>
-          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1584" lineend="1586" name="CategoryAxis">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis that displays items in categories." ilk="function" line="1584" lineend="1586" name="CategoryAxis" signature="CategoryAxis()">
+          <scope classrefs="YAHOO.widget.Axis" ilk="class" line="1588" lineend="1590" name="CategoryAxis">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: A type of axis that displays items in categories." ilk="function" line="1588" lineend="1590" name="CategoryAxis" signature="CategoryAxis()">
               <variable citdl="CategoryAxis" name="this" />
             </scope>
-            <variable citdl="String" line="1590" name="type" />
-            <variable citdl="Array" doc="A list of category names to display along this axis." line="1598" name="categoryNames" />
+            <variable citdl="String" line="1594" name="type" />
+            <variable citdl="Array" doc="A list of category names to display along this axis." line="1602" name="categoryNames" />
           </scope>
-          <scope classrefs="Object" ilk="class" line="1608" lineend="1614" name="Series">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: Series class for the YUI Charts widget." ilk="function" line="1608" lineend="1608" name="Series" signature="Series()">
+          <scope classrefs="Object" ilk="class" line="1612" lineend="1618" name="Series">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: Series class for the YUI Charts widget." ilk="function" line="1612" lineend="1612" name="Series" signature="Series()">
               <variable citdl="Series" name="this" />
             </scope>
-            <variable line="1612" name="type" />
-            <variable line="1613" name="displayName" />
+            <variable line="1616" name="type" />
+            <variable line="1617" name="displayName" />
           </scope>
-          <scope classrefs="YAHOO.widget.Series" ilk="class" line="1624" lineend="1626" name="CartesianSeries">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: CartesianSeries class for the YUI Charts widget." ilk="function" line="1624" lineend="1626" name="CartesianSeries" signature="CartesianSeries()">
+          <scope classrefs="YAHOO.widget.Series" ilk="class" line="1628" lineend="1630" name="CartesianSeries">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: CartesianSeries class for the YUI Charts widget." ilk="function" line="1628" lineend="1630" name="CartesianSeries" signature="CartesianSeries()">
               <variable citdl="CartesianSeries" name="this" />
             </scope>
-            <variable line="1630" name="xField" />
-            <variable line="1631" name="yField" />
+            <variable line="1634" name="xField" />
+            <variable line="1635" name="yField" />
           </scope>
-          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1642" lineend="1644" name="ColumnSeries">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: ColumnSeries class for the YUI Charts widget." ilk="function" line="1642" lineend="1644" name="ColumnSeries" signature="ColumnSeries()">
+          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1646" lineend="1648" name="ColumnSeries">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: ColumnSeries class for the YUI Charts widget." ilk="function" line="1646" lineend="1648" name="ColumnSeries" signature="ColumnSeries()">
               <variable citdl="ColumnSeries" name="this" />
             </scope>
-            <variable citdl="String" line="1649" name="type" />
+            <variable citdl="String" line="1653" name="type" />
           </scope>
-          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1659" lineend="1661" name="LineSeries">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: LineSeries class for the YUI Charts widget." ilk="function" line="1659" lineend="1661" name="LineSeries" signature="LineSeries()">
+          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1663" lineend="1665" name="LineSeries">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: LineSeries class for the YUI Charts widget." ilk="function" line="1663" lineend="1665" name="LineSeries" signature="LineSeries()">
               <variable citdl="LineSeries" name="this" />
             </scope>
-            <variable citdl="String" line="1666" name="type" />
+            <variable citdl="String" line="1670" name="type" />
           </scope>
-          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1677" lineend="1679" name="BarSeries">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: BarSeries class for the YUI Charts widget." ilk="function" line="1677" lineend="1679" name="BarSeries" signature="BarSeries()">
+          <scope classrefs="YAHOO.widget.CartesianSeries" ilk="class" line="1681" lineend="1683" name="BarSeries">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: BarSeries class for the YUI Charts widget." ilk="function" line="1681" lineend="1683" name="BarSeries" signature="BarSeries()">
               <variable citdl="BarSeries" name="this" />
             </scope>
-            <variable citdl="String" line="1684" name="type" />
+            <variable citdl="String" line="1688" name="type" />
           </scope>
-          <scope classrefs="YAHOO.widget.Series" ilk="class" line="1695" lineend="1697" name="PieSeries">
-            <scope attributes="__ctor__" doc="CONSTRUCTOR: PieSeries class for the YUI Charts widget." ilk="function" line="1695" lineend="1697" name="PieSeries" signature="PieSeries()">
+          <scope classrefs="YAHOO.widget.Series" ilk="class" line="1699" lineend="1701" name="PieSeries">
+            <scope attributes="__ctor__" doc="CONSTRUCTOR: PieSeries class for the YUI Charts widget." ilk="function" line="1699" lineend="1701" name="PieSeries" signature="PieSeries()">
               <variable citdl="PieSeries" name="this" />
             </scope>
-            <variable citdl="String" line="1701" name="type" />
-            <variable line="1702" name="dataField" />
-            <variable line="1703" name="categoryField" />
+            <variable citdl="String" line="1705" name="type" />
+            <variable line="1706" name="dataField" />
+            <variable line="1707" name="categoryField" />
           </scope>
           <scope classrefs="YAHOO.widget.Node" ilk="class" line="1779" lineend="1786" name="TextNode">
             <scope attributes="__ctor__" doc="CONSTRUCTOR: The default node presentation.  The first parameter should be&#xA;either a string that will be used as the node&apos;s label, or an object&#xA;that has a string propery called label.  By default, the clicking the&#xA;label will toggle the expanded/collapsed state of the node.  By&#xA;changing the href property of the instance, this behavior can be&#xA;changed so that the label will go to the specified href." ilk="function" line="1779" lineend="1786" name="TextNode" signature="TextNode(oData, oParent, expanded)">
