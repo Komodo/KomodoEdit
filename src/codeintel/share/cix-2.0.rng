@@ -74,10 +74,6 @@ that is evaluated to figure out what type a variable is. Examples:
     foo()      # the result of calling function foo
     foo.bar    # member 'bar' of symbol 'foo'
 
-I have no idea if the "value" attribute on <attribute> is legal Relax NG, but
-tough, the authors of the RelaxNG spec strove for obtusness. You know what I
-mean.
-
 Why 'ilk' for scope type? Ilk is a synonym for "type", but "type" is
 overloaded. It is short (good for space savings), it is weird (people won't
 think this is related to type inferencing info) and it is rare (good for
