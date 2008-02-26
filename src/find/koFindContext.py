@@ -40,7 +40,7 @@
 import sys
 import os
 from os.path import basename
-from pprint import pprint
+from pprint import pprint, pformat, PrettyPrinter
 import logging
 
 from xpcom import components, ServerException, nsError
@@ -152,32 +152,17 @@ class KoCollectionFindContext(KoFindContext):
                 if path is not None:
                     yield path
             elif type == "container":
-                for path in _local_paths_from_container(item):
-                    yield path
+                container = UnwrapObject(item)
+                for path in container.genLocalPaths():
+                    yield path                
 
 
 #---- internal support stuff
 
-def _local_paths_from_container(container_comp):
-    #TODO: currently this only returns project urls that the project has
-    #  lazily determined. Not enough.
-    container = UnwrapObject(container_comp)
-    for part in container.getChildren():
-        part_type = part.type
-        if part_type == "file":
-            path = _local_path_from_url(part.get_url())
-            if path is not None:
-                yield path
-        elif part_type in ("project", "folder", "livefolder"):
-            for path in _local_paths_from_container(part):
-                yield path
-
-
 def _local_path_from_url(url):
     try:
-        #TODO: check UNC paths, the docs for URIToLocalPath
-        #      say an UNC ends up as a file:// URL, which is
-        #      just wrong (and unhelpful here).
+        #TODO: The docs for URIToLocalPath say an UNC ends up as a file://
+        #      URL, which is not the case. Fix those docs.
         return uriparse.URIToLocalPath(url)
     except ValueError:
         # The url isn't a local path.

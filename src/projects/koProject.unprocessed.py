@@ -56,6 +56,7 @@ import shutil
 import tempfile
 import types
 import time
+from pprint import pprint
 import random
 import logging
 from xml.sax import SAXParseException
@@ -70,6 +71,8 @@ import upgradeutils
 from URIlib import URIParser, RemoteURISchemeTypes
 from koXMLPrefs import NodeToPrefset
 from eollib import newl
+from findlib2 import paths_from_path_patterns
+
 
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
@@ -999,6 +1002,10 @@ class koFilePart(koPart):
     def __str__(self):
         return "<koPart_file, url=%s>" % self._attributes.get('url', 'None')
 
+    def __repr__(self):
+        return "<koFilePart %s (id=%r)>" % (
+            self._attributes.get("name"), self._attributes["id"])
+
     def getDragData(self):
         return self.getStringAttribute('url')
 
@@ -1346,6 +1353,11 @@ class koFolderPart(koContainer):
     _iconurl = 'chrome://komodo/skin/images/folder-closed.png'
     primaryInterface = 'koIPart_folder'
 
+    def __repr__(self):
+        return "<koFolderPart %s (%d children, id=%r)>" % (
+            self._attributes.get("name"), len(self.children),
+            self._attributes["id"])
+
     def getLanguageFolder(self, language):
         for child in self.children:
             if child.hasAttribute('language') and child.getStringAttribute('language') == language:
@@ -1401,6 +1413,21 @@ class koFolderPart(koContainer):
             self.flavors.insert(0,'text/x-moz-url')
         return self.flavors
 
+    def genLocalPaths(self):
+        """Generate all contained local paths."""
+        for child in self.getChildren():
+            type = child.type
+            name = child.getStringAttribute("name")
+            if type == "file":
+                url = child.getStringAttribute("url")
+                path = _local_path_from_url(url)
+                if path is not None:
+                    yield path
+            elif type in ("folder", "livefolder"):
+                for path in child.genLocalPaths():
+                    yield path
+
+
 class koLiveFolderPart(koFolderPart):
     _com_interfaces_ = [components.interfaces.koIPart_livefolder,
                         components.interfaces.koIPart_folder]
@@ -1414,6 +1441,11 @@ class koLiveFolderPart(koFolderPart):
         self.live = 1
         self.needrefresh = 1
         self._lastfetch = set([])
+
+    def __repr__(self):
+        return "<koLiveFolderPart %s (%d children, id=%r)>" % (
+            self._attributes.get("name"), len(self.children),
+            self._attributes["id"])
 
     # prefs observer
     def observe(self, subject, topic, message):
@@ -1479,6 +1511,10 @@ class koLiveFolderPart(koFolderPart):
             if prefs.hasPrefHere("import_dirname"):
                 path = prefs.getStringPref("import_dirname")
             if not path:
+                if not self._uri:
+                    # Has the side-effect of setting `self._uri` and
+                    # `self._url` from `_attributes["url"]`.
+                    self.get_url()
                 if not self._path:
                     self._setPathAndName()
                 if self._project == self:
@@ -1596,6 +1632,110 @@ class koLiveFolderPart(koFolderPart):
             self.refreshChildren()
         return self.children
 
+    def genLocalPaths(self):
+        """Generate all contained local paths.
+
+        Limitations:
+        - Komodo currently allows the import_* prefs in a live folder
+          tree to *change at any level* in the tree. This currently
+          isn't supported here. Either it should be or Komodo's projects
+          should disallow this facility.
+        
+        TODO: Most of this implementation is identical to
+              `koProject.genLocalPaths`. They should share.
+        """
+        from os.path import join, dirname, basename
+        
+        # `self._childmap`, unfortunately mixes in "live" children with
+        # "static" ones. E.g.:
+        #   Project foo.kpf (live):
+        #       File foo.txt (in foo.kpf's live import)
+        #       File bar.txt (*not* in foo.kpf's live import, added manually)
+        # So, we'll track the immediate children that we've yielded here
+        # to ensure we don't emit the same one twice.
+        already_yielded_child_name_set = set()
+
+        # Handle live elements.
+        # Need to do the live bits first, because these are used to
+        # distinguish if elements from `self._childmap` are live or
+        # static.
+        prefset = self.get_prefset()
+        is_live = (prefset.hasBooleanPref("import_live")
+                   and prefset.getBooleanPref("import_live"))
+        if is_live:
+            base_dir = self.get_liveDirectory()
+            recursive = prefset.getBooleanPref("import_recursive")
+            excludes = [p for p in prefset.getStringPref("import_exclude_matches").split(';') if p]
+            includes = [p for p in prefset.getStringPref("import_include_matches").split(';') if p]
+            excludes.append("*.kpf")  # Live folders always exclude .kpf files.
+            if recursive:
+                path_patterns = [base_dir]
+            else:
+                path_patterns = [join(base_dir, "*"),
+                                 join(base_dir, ".*")]
+            
+            base_dir_length = len(base_dir)
+            for path in paths_from_path_patterns(
+                    path_patterns,
+                    recursive=recursive,
+                    includes=includes,
+                    excludes=excludes,
+                    on_error=None,
+                    follow_symlinks=True,
+                    skip_dupe_dirs=False):
+                sep_idx = path.find(os.sep, base_dir_length+1)
+                if sep_idx == -1:
+                    already_yielded_child_name_set.add(basename(path))
+                else:
+                    already_yielded_child_name_set.add(path[base_dir_length+1:sep_idx])
+                yield path
+
+        # Handle all "static" elements added to the project.
+        childmap = self._project._childmap  #WARNING: accessing internal `_childmap`
+        id = self._attributes["id"]
+        for child in childmap[id]:
+            name = child.getStringAttribute("name")
+            type = child.type
+            if type == "file":
+                if name in already_yielded_child_name_set:
+                    continue
+                url = child.getStringAttribute("url")
+                if not url.startswith("file://"):
+                    # Only want local files.
+                    continue
+                yield _local_path_from_url(url)
+            elif type == "folder":
+                for path in child.genLocalPaths():
+                    yield path
+            elif type == "livefolder":
+                if name in already_yielded_child_name_set:
+                    # Komodo projects allow groups (aka static folders)
+                    # in a live folder. If so, this shows up in
+                    # `self._childmap`. We walk the child map to see
+                    # if there are <koFolderPart>s under this tree.
+                    #
+                    # Note: We are punting on looking for static files
+                    # and separate live folder bases under this live
+                    # folder. Komodo projects *allow* these, but they
+                    # shouldn't: it is crazy.
+                    descendant_ids_to_trace = [child.getStringAttribute("id")]
+                    while descendant_ids_to_trace:
+                        descendant_id = descendant_ids_to_trace.pop()
+                        if descendant_id not in childmap:
+                            continue
+                        for c in childmap[descendant_id]:
+                            t = c.type
+                            if t == "folder":
+                                for path in c.genLocalPaths():
+                                    yield path
+                            elif t == "livefolder":
+                                descendant_ids_to_trace.append(
+                                    c.getStringAttribute("id"))
+                else:
+                    for path in child.genLocalPaths():
+                        yield path
+
+
 def Folder(url, name, project, live=0):
     """Construct a koIPart_folder from URL and name."""
     assert project is not None
@@ -1683,6 +1823,16 @@ class koProject(koLiveFolderPart):
         if not self._partSvc:
             self._partSvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
+
+    def __repr__(self):
+        curr_str = self._active and "current, " or ""
+        prefset = self.get_prefset()
+        is_live = (prefset.hasBooleanPref("import_live")
+                   and prefset.getBooleanPref("import_live"))
+        live_str = is_live and "live, " or ""
+        return "<koProject %s (%s%s%d children, id=%r)>" % (
+            self._attributes.get("name"), curr_str, live_str,
+            len(self.children), self._attributes["id"])
 
     def isCurrent(self):
         return self._active
@@ -2309,7 +2459,29 @@ class koProject(koLiveFolderPart):
         del self._urlmap
         self.destroy()
 
+
+
 #---- Utility routines
+
+def _norm_dir_from_dir(dir, cwd=None):
+    from os.path import normpath, isabs, abspath
+    if dir.startswith("~"):
+        dir = expanduser(dir)
+    elif not isabs(dir):
+        if cwd:
+            dir = join(cwd, dir)
+        else:
+            dir = abspath(dir)
+    return normpath(dir)
+
+def _local_path_from_url(url):
+    try:
+        #TODO: The docs for URIToLocalPath say an UNC ends up as a file://
+        #      URL, which is not the case. Fix those docs.
+        return uriparse.URIToLocalPath(url)
+    except ValueError:
+        # The url isn't a local path.
+        return None
 
 # Code used to group filenames in language groups.
 def _initKoLanguageRegistryService():
