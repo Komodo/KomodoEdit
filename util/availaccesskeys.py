@@ -84,7 +84,7 @@ def avail_accesskeys(xul_path):
     for quote, accesskey in accesskey_re.findall(content):
         norm_accesskey = accesskey.lower()
         if norm_accesskey not in avail:
-            log.warn("%r accesskey is a duplicate in `%s'",
+            log.warn("%r accesskey is a potential duplicate in `%s'",
                      accesskey, basename(xul_path))
         avail.discard(norm_accesskey)
 
