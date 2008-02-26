@@ -1139,7 +1139,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
     return (re.compile(pattern, flags), repl)
 
 
-# Recipe: paths_from_path_patterns (0.4)
+# Recipe: paths_from_path_patterns (0.5)
 def _should_include_path(path, includes, excludes):
     """Return True iff the given path should be included."""
     from os.path import basename
@@ -1169,10 +1169,73 @@ def _should_include_path(path, includes, excludes):
             return False
     return True
 
+def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
+    """A version of `os.walk()` with a couple differences regarding symlinks.
+    
+    1. follow_symlinks=False (the default): A symlink to a dir is
+       returned as a *non*-dir. In `os.walk()`, a symlink to a dir is
+       returned in the *dirs* list, but it is not recursed into.
+    2. follow_symlinks=True: A symlink to a dir is returned in the
+       *dirs* list (as with `os.walk()`) but it *is conditionally*
+       recursed into (unlike `os.walk()`).
+       
+       A symlinked dir is only recursed into if it is to a deeper dir
+       within the same tree. This is my understanding of how `find -L
+       DIR` works.
+
+    TODO: put as a separate recipe
+    """
+    from os.path import join, isdir, islink, abspath
+
+    # We may not have read permission for top, in which case we can't
+    # get a list of the files the directory contains.  os.path.walk
+    # always suppressed the exception then, rather than blow up for a
+    # minor reason when (say) a thousand readable directories are still
+    # left to visit.  That logic is copied here.
+    try:
+        names = os.listdir(top)
+    except OSError, err:
+        if onerror is not None:
+            onerror(err)
+        return
+
+    dirs, nondirs = [], []
+    if follow_symlinks:
+        for name in names:
+            if isdir(join(top, name)):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+    else:
+        for name in names:
+            path = join(top, name)
+            if islink(path):
+                nondirs.append(name)
+            elif isdir(path):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for name in dirs:
+        path = join(top, name)
+        if follow_symlinks and islink(path):
+            # Only walk this path if it links deeper in the same tree.
+            top_abs = abspath(top)
+            link_abs = abspath(join(top, os.readlink(path)))
+            if not link_abs.startswith(top_abs + os.sep):
+                continue
+        for x in _walk(path, topdown, onerror, follow_symlinks=follow_symlinks):
+            yield x
+    if not topdown:
+        yield top, dirs, nondirs
+
 _NOT_SPECIFIED = ("NOT", "SPECIFIED")
 def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               skip_dupe_dirs=False,
+                              follow_symlinks=False,
                               on_error=_NOT_SPECIFIED):
     """paths_from_path_patterns([<path-patterns>, ...]) -> file paths
 
@@ -1198,6 +1261,13 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
             (Note: This is slightly different than GNU grep's --exclude
             option which only excludes *files*.  I.e. you cannot exclude
             a ".svn" dir.)
+        "skip_dupe_dirs" can be set True to watch for and skip
+            descending into a dir that has already been yielded. Note
+            that this currently does not dereference symlinks.
+        "follow_symlinks" is a boolean indicating whether to follow
+            symlinks (default False). To guard against infinite loops
+            with circular dir symlinks, only dir symlinks to *deeper*
+            are followed.
         "on_error" is an error callback called when a given path pattern
             matches nothing:
                 on_error(PATH_PATTERN)
@@ -1243,8 +1313,11 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
         script -r PATH* # yield files and dirs matching PATH* and recursively
                         # under dirs; if none, call on_error(PATH*)
                         # callback
+
+    TODO: perf improvements (profile, stat just once)
     """
-    from os.path import basename, exists, isdir, join, normpath, abspath
+    from os.path import basename, exists, isdir, join, normpath, abspath, \
+                        lexists, islink, realpath
     from glob import glob
 
     assert not isinstance(path_patterns, basestring), \
@@ -1261,7 +1334,10 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 paths = glob(path_pattern)
                 break
         else:
-            paths = exists(path_pattern) and [path_pattern] or []
+            if follow_symlinks:
+                paths = exists(path_pattern) and [path_pattern] or []
+            else:
+                paths = lexists(path_pattern) and [path_pattern] or []
         if not paths:
             if on_error is None:
                 pass
@@ -1274,9 +1350,11 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 on_error(path_pattern)
 
         for path in paths:
-            if isdir(path):
+            if (follow_symlinks or not islink(path)) and isdir(path):
                 if skip_dupe_dirs:
                     canon_path = normpath(abspath(path))
+                    if follow_symlinks:
+                        canon_path = realpath(canon_path)
                     if canon_path in searched_dirs:
                         continue
                     else:
@@ -1293,12 +1371,15 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 # not:
                 #   script -r --include="*.py" DIR
                 if recursive and _should_include_path(path, [], excludes):
-                    for dirpath, dirnames, filenames in os.walk(path):
+                    for dirpath, dirnames, filenames in _walk(path, 
+                            follow_symlinks=follow_symlinks):
                         dir_indeces_to_remove = []
                         for i, dirname in enumerate(dirnames):
                             d = join(dirpath, dirname)
                             if skip_dupe_dirs:
                                 canon_d = normpath(abspath(d))
+                                if follow_symlinks:
+                                    canon_d = realpath(canon_d)
                                 if canon_d in searched_dirs:
                                     dir_indeces_to_remove.append(i)
                                     continue
@@ -1319,6 +1400,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
 
             elif files and _should_include_path(path, includes, excludes):
                 yield path
+
 
 
 
