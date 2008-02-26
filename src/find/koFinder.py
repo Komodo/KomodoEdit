@@ -207,7 +207,6 @@ class _FindReplaceThread(threading.Thread):
 
             if isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
-                continue
             elif not isinstance(event, findlib2.Hit):
                 continue
             else:
