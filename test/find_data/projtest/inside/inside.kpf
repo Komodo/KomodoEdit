@@ -5,10 +5,18 @@
 </folder>
 <file id="335c1ef1-83da-4b43-b3a2-86849414fada" idref="04192be4-dbf4-4a49-a0c0-571337fa636c" name="Blackfile.py" url="file:///C:/trentm/as/openkomodo/Blackfile.py">
 </file>
+<livefolder id="f3cdf891-c3e5-4997-a1ae-fc7ab77227c4" idref="04192be4-dbf4-4a49-a0c0-571337fa636c" name="find" url="file:///C:/trentm/as/openkomodo/src/find">
+</livefolder>
 <file id="1eade1a8-c746-4825-addd-e1e99bb3c276" idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea" name="outsidefile.txt" url="file:///C:/trentm/as/openkomodo/test/find_data/projtest/outside/outsidefile.txt">
 </file>
 <livefolder id="2df2ec89-32b6-48d0-a53f-3115e16a6bea/outsidedir" idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea" name="outsidedir" url="file:///C:/trentm/as/openkomodo/test/find_data/projtest/outside/outsidedir">
 </livefolder>
+<file id="525be1f3-2e29-48dd-a028-a63baefafa18" idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea" name="Blackfile.py" url="scp://skink/home/trentm/as/openkomodo/Blackfile.py">
+</file>
+<livefolder id="2df2ec89-32b6-48d0-a53f-3115e16a6bea/uncdir" idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea" name="uncdir" url="file://crimper/apps/Komodo/support/test/find_data/uncdir">
+</livefolder>
+<file id="504b14e9-942d-4f65-93a4-bf2b6c3e7cb5" idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea" name="uncfile.txt" url="file://crimper/apps/Komodo/support/test/find_data/uncfile.txt">
+</file>
 <preference-set idref="2df2ec89-32b6-48d0-a53f-3115e16a6bea">
   <boolean id="import_live">1</boolean>
 </preference-set>
