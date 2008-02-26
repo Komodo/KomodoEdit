@@ -198,7 +198,9 @@ below.
          module, the JS code in an HTML file. -->
     <define name="Blob">
         <element name="scope">
-            <attribute name="ilk" value="blob"/>
+            <attribute name="ilk">
+                <value>blob</value>
+            </attribute>
             <!-- The name of the module. The file extension should be left on
                  if the file extension is used for importing by that language's
                  import statement. -->
@@ -291,7 +293,9 @@ below.
 
     <define name="Class">
         <element name="scope">
-            <attribute name="ilk" value="class"/>
+            <attribute name="ilk">
+                <value>class</value>
+            </attribute>
             <attribute name="name"/>
             <optional> <attribute name="line"/> </optional>
             <optional> <attribute name="lineend"/> </optional>
@@ -320,7 +324,9 @@ below.
 
     <define name="Namespace">
         <element name="scope">
-            <attribute name="ilk" value="namespace"/>
+            <attribute name="ilk">
+                <value>namespace</value>
+            </attribute>
             <attribute name="name"/>
             <optional> <attribute name="line"/> </optional>
             <optional> <attribute name="lineend"/> </optional>
@@ -346,7 +352,9 @@ below.
 
     <define name="Interface">
         <element name="scope">
-            <attribute name="ilk" value="interface"/>
+            <attribute name="ilk">
+                <value>interface</value>
+            </attribute>
             <attribute name="name"/>
             <optional> <attribute name="line"/> </optional>
             <optional> <attribute name="lineend"/> </optional>
@@ -368,7 +376,9 @@ below.
 
     <define name="Function">
         <element name="scope">
-            <attribute name="ilk" value="function"/>
+            <attribute name="ilk">
+                <value>function</value>
+            </attribute>
             <attribute name="name"/>
             <optional> <attribute name="line"/> </optional>
             <optional> <attribute name="lineend"/> </optional>
@@ -452,7 +462,9 @@ below.
       -->
     <define name="Argument">
         <element name="variable">
-            <attribute name="ilk" value="argument"/>
+            <attribute name="ilk">
+                <value>argument</value>
+            </attribute>
             <attribute name="name"/>
             <!-- XXX Consider adding a __block__ or __ruby_block__
                  attribute at some point for Ruby block params.
