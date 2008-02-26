@@ -178,9 +178,9 @@ class YUIBaseTests(object):
         self._check_module_list(module_list)
 
 def get_tree_from_cix(yui_version):
-    cix_file = glob("%s%syui_v%s.cix" % (join(dirname(abspath(__file__)),
-                                              "apicatalogs"),
-                                         os.sep, yui_version))[0]
+    cix_file = glob("%s%syui_%s.cix" % (join(dirname(abspath(__file__)),
+                                             "apicatalogs"),
+                                        os.sep, yui_version))[0]
     try:
         return ET.parse(cix_file).getroot()
     except:
@@ -239,6 +239,53 @@ class YUI_v24_TestCase(unittest.TestCase, YUIBaseTests):
         ]
         self._check_module_list(module_list)
 
+class YUI_v25_TestCase(YUI_v24_TestCase):
+    version = "2.5"
+    cix_tree = get_tree_from_cix(version)
+
+    def test_module_cookie(self):
+        # cookie utility - new in 2.5
+        module_list = [
+            "YAHOO.util.Cookie",
+        ]
+        self._check_module_list(module_list)
+
+    def test_module_imagecropper(self):
+        # image cropper - new in 2.5
+        module_list = [
+            "YAHOO.widget.ImageCropper",
+        ]
+        self._check_module_list(module_list)
+
+    def test_module_layout(self):
+        # layout - new in 2.5
+        module_list = [
+            "YAHOO.widget.Layout",
+        ]
+        self._check_module_list(module_list)
+
+    def test_module_profiler(self):
+        # profiler - new in 2.4
+        # profiler viewer - new in 2.5
+        module_list = [
+            "YAHOO.tool.Profiler",
+            "YAHOO.widget.ProfilerViewer",
+        ]
+        self._check_module_list(module_list)
+
+    def test_module_resize(self):
+        # uploader - new in 2.5
+        module_list = [
+            "YAHOO.util.Resize",
+        ]
+        self._check_module_list(module_list)
+
+    def test_module_uploader(self):
+        # uploader - new in 2.5
+        module_list = [
+            "YAHOO.widget.Uploader",
+        ]
+        self._check_module_list(module_list)
 
 
 if __name__ == "__main__":
