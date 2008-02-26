@@ -52,6 +52,8 @@
       * http://sourceforge.net/projects/yui
 
     Tested with yui versions:
+      * Version 2.4.0     (2007-12-05)
+      * Version 2.3.1     (2007-12-05)
       * Version 2.2.2     (2007-06-11)
       * Version 0.12.0    (2006-11-30)
       * Version 0.11.3    (2006-08-28)
@@ -71,6 +73,12 @@ from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
 
 yui_data = {
+    "2.4.0": {
+        "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.4.0.zip",
+    },
+    "2.3.1": {
+        "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.3.1.zip",
+    },
     "2.2.2": {
         "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.2.2.zip",
     },
@@ -82,7 +90,8 @@ yui_data = {
     },
 }
 
-yui_version = "2.2.2"
+yui_version = "2.4.0"
+yui_major_minor_version = yui_version.rsplit(".", 1)[0]
 yui_info = yui_data[yui_version]
 
 def getYUIFilesFromWebpage():
@@ -121,7 +130,8 @@ def updateCix(filename, content, updatePerforce=False):
             print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
 
 def main(cix_filename, updatePerforce=False):
-    cix_yui = createCixRoot(name="YUI", description="Yahoo! User Interface Library - v%s" % (yui_version))
+    cix_yui = createCixRoot(name="YUI-%s" % (yui_major_minor_version, ),
+                            description="Yahoo! User Interface Library - v%s" % (yui_version))
     #cix_yui_file = createCixFile(cix_yui, "yui", lang="JavaScript")
     #cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
@@ -154,7 +164,7 @@ if __name__ == '__main__':
                       action="store_true", help="edit perforce cix for this file")
     (opts, args) = parser.parse_args()
 
-    cix_filename = "yui.cix"
+    cix_filename = "yui_v%s.cix" % (yui_major_minor_version, )
     if opts.update_perforce:
         scriptpath = os.path.dirname(sys.argv[0])
         if not scriptpath:
