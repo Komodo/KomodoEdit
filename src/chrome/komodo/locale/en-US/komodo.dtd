@@ -172,6 +172,7 @@
 <!ENTITY editorSelectToPreviousLine.desc "Editor: Select to Previous Line">
 <!ENTITY editorSelectToTopOfDocument.desc "Editor: Select to Top of Document">
 <!ENTITY editorSetMark.desc "Editor: Set Mark">
+<!ENTITY editorTabstopClear.desc "Editor: Clear Current Tabstop State">
 <!ENTITY editorToggleBookmark.desc "Editor: Toggle Bookmark">
 <!ENTITY editorToggleOvertypeInsertMode.desc "Editor: Toggle Overtype/Insert Mode">
 <!ENTITY editorTransposeCurrentAndPreviousCharacters.desc "Editor: Transpose Current and Previous Characters">

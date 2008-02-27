@@ -1591,6 +1591,7 @@ class GenericCommandHandler:
                             sm.selectionEnd = loc + self.sysUtils.byteLength(self._last_tabstop[1])
                             sm.replaceSel(value)
                             tab_handled = True
+                            sm.searchAnchor()
                             loc = sm.searchNext(0, self._last_tabstop[1])
                     finally:
                         sm.endUndoAction()
@@ -1653,6 +1654,9 @@ class GenericCommandHandler:
         if DEBUG:
             print "tabstop: %r" % (self._last_tabstop,)
         return True
+    
+    def _do_cmd_tabstopClear(self):
+        self._last_tabstop = None
 
     def _do_cmd_indent(self):
         view = self._view

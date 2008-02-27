@@ -81,7 +81,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             // Only do abbreviation expansion if next to a word char,
             // i.e. valid abbrev chars.
             var pos = scimoz.currentPos;
-            if (pos == 0 || !is_abbrev(scimoz.getTextRange(pos-1, pos))) {
+            if (pos == 0 || !is_abbrev(scimoz.getTextRange(scimoz.positionBefore(pos), pos))) {
                 ko.statusBar.AddMessage(
                     "No abbreviation at the current position.",
                     "abbrev", 5000, false);
@@ -114,7 +114,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
 /**
  * Find a snippet for the given abbreviation name.
  *
- * Abbreviations used for snippets are in looked for in
+ * Abbreviations used for snippets are looked for in
  * "Abbreviations" groups in these places:
  * 1. the current project (if any)
  * 2. the toolbox
@@ -155,7 +155,7 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     
     // The list of sub-folder names under an "Abbreviations" folder in
     // which to look for the snippet.
-    var subnames = Array();
+    var subnames = [];
     if (sublang) subnames.push(sublang);
     if (lang && subnames.indexOf(lang) == -1) subnames.push(lang);
     if (subnames.indexOf("General") == -1) subnames.push("General");
@@ -218,14 +218,8 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
 }
 
 
-var _abbrev_valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 function is_abbrev(s) {
-    for (var i = 0; i < s.length; ++i) {
-        if (_abbrev_valid_chars.indexOf(s[i]) == -1) {
-            return false;
-        }
-    }
-    return true;
+    return !/\W/.test(s);
 }
 
 }).apply(ko.abbrev);

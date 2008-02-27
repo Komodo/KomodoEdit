@@ -993,6 +993,11 @@
             disabled="true"
             desc="&editorIncreaseLineIndent.desc;"/>
         <command
+            id="cmd_tabstopClear" key="key_cmd_tabstopClear"
+            oncommand="ko.commands.doCommand('cmd_tabstopClear')"
+            disabled="true"
+            desc="&editorTabstopClear.desc;"/>
+        <command
             id="cmd_dedent" key="key_cmd_dedent"
             oncommand="ko.commands.doCommand('cmd_dedent')"
             disabled="true"
