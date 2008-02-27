@@ -1,35 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="69941f56-c540-4b4d-9340-2c5b72b4a17b" kpf_version="4" name="Ruby on Rails.kpf">
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="a9fcc5d4-1211-4abf-b953-3001e26d34d4" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="will_paginate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+<folder id="c9760047-cb56-41da-a048-efb713bd4505" idref="06a3dadd-41d1-4583-8e52-bb1aa2942633" name="Views">
+</folder>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/script.png" id="18d83122-e6b6-43f9-9357-5f77c6031575" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="controller" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
     var project = (Components.classes["@activestate.com/koPartService;1"].getService().
                        runningMacro.project);
     macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    as_rails_macros.installPlugin(this, project,
-                                  'svn://errtheblog.com/svn/plugins/will_paginate');
+    as_rails_macros.generateRailsObject(this,
+                                        {'.rb':null}, // extensions
+                                        'controller');
 } catch(ex) {
     alert(ex + "\n");
 }
 </macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="0133a64e-755e-458c-8b25-c6a282e342c0" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="in-place-editor" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/script_lightning.png" id="3250f0d3-5dbc-475c-8708-d5e26fd9599f" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="scaffold" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
     var project = (Components.classes["@activestate.com/koPartService;1"].getService().
                        runningMacro.project);
     macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    as_rails_macros.installPlugin(this, project,
-                                  'http://svn.rubyonrails.org/rails/plugins/in_place_editing/');
-} catch(ex) {
-    alert(ex + "\n");
-}
-</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="d640ef8e-c7cb-4665-b497-0cbc4e2d96ed" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="autocomplete" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    as_rails_macros.installPlugin(this, project,
-                                  'http://svn.rubyonrails.org/rails/plugins/auto_complete');
+    as_rails_macros.generateRailsObject(this,
+                                        {'.rb':null, '.rhtml':null, '.html.erb':null}, // extensions
+                                        'scaffold',
+                                        ['model', 'controller']);
 } catch(ex) {
     alert(ex + "\n");
 }
@@ -45,18 +39,6 @@ try {
 } catch(ex) {
     alert(ex + "\n");
 }</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/script.png" id="18d83122-e6b6-43f9-9357-5f77c6031575" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="controller" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    as_rails_macros.generateRailsObject(this,
-                                        {'.rb':null}, // extensions
-                                        'controller');
-} catch(ex) {
-    alert(ex + "\n");
-}
-</macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_edit.png" id="b914b66f-5afc-4e81-893b-2c0bb5eb6e96" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="migration" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
     var project = (Components.classes["@activestate.com/koPartService;1"].getService().
@@ -68,19 +50,6 @@ try {
 } catch(ex) {
     alert(ex + "\n");
 }</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/script_lightning.png" id="3250f0d3-5dbc-475c-8708-d5e26fd9599f" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="scaffold" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    as_rails_macros.generateRailsObject(this,
-                                        {'.rb':null, '.rhtml':null, '.html.erb':null}, // extensions
-                                        'scaffold',
-                                        ['model', 'controller']);
-} catch(ex) {
-    alert(ex + "\n");
-}
-</macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/script_edit.png" id="f7c05926-f4c5-483c-86f6-2efef08d70a0" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="controller-method" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
     var project = (Components.classes["@activestate.com/koPartService;1"].getService().
@@ -94,43 +63,8 @@ try {
     alert(ex + "\n");
 }
 </macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/sum.png" id="21f7353c-6044-4109-9497-29f2475ed9c0" idref="94b25b9c-adf5-4719-8364-4a04eb93ad36" keyboard_shortcut="" language="JavaScript" name="Stats" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    var obj = {base: 'rake', ruby: null, rake:null, env:null};
-    as_rails_macros.setup_associated_paths_env(obj);
-    var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
-              runningMacro.project.getFile().dirName),
-        env: obj.env,
-        __END__ : null
-    };
-    as_rails_macros.runCommand(this, obj.rake + ' stats', options);
-} catch(ex) {
-    alert(ex + "\n");
-}
-</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_delete.png" id="2c06c935-6335-46c8-b63f-ab5504dffdfb" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" keyboard_shortcut="" language="JavaScript" name="Delete Databases" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-(function() {    
-    function deleteDatabases() {
-        var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-        macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-	as_rails_macros.manageDatabases(this, 'delete', 'deletion');
-    };
-    try {
-        deleteDatabases();
-    } catch(ex) {
-	if (ex.message == "You cancelled.") {
-	    return;
-	}
-        var msg = ex + "\n";
-	if ('stack' in ex) msg += ex.stack + "\n";
-        alert(msg);
-    }
-})();</macro>
+<folder id="06a3dadd-41d1-4583-8e52-bb1aa2942633" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Snippets">
+</folder>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_add.png" id="26fee9ae-bfb9-4e67-9075-081a7b75e5a3" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" keyboard_shortcut="" language="JavaScript" name="Create Databases" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 (function() {
     function populateDatabases() {
@@ -152,33 +86,95 @@ try {
 })();</macro>
 <folder id="2ba70ba4-2177-43c1-a167-02ae5a040634" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Generators">
 </folder>
-<folder id="8298ccca-9dd7-4355-9183-f4fb7e55d655" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="~Internal">
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_delete.png" id="2c06c935-6335-46c8-b63f-ab5504dffdfb" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" keyboard_shortcut="" language="JavaScript" name="Delete Databases" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+(function() {    
+    function deleteDatabases() {
+        var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+        macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+	as_rails_macros.manageDatabases(this, 'delete', 'deletion');
+    };
+    try {
+        deleteDatabases();
+    } catch(ex) {
+	if (ex.message == "You cancelled.") {
+	    return;
+	}
+        var msg = ex + "\n";
+	if ('stack' in ex) msg += ex.stack + "\n";
+        alert(msg);
+    }
+})();</macro>
+<folder id="5ebc7fee-0104-433b-be59-4699796f1d7d" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Test">
 </folder>
 <folder id="5ed2ace9-ea87-4e6a-bce6-4b9c09c6468b" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Migrate">
 </folder>
-<folder id="b2a306df-1c4d-4a2b-a24c-0d9b876b7cf7" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Run">
-</folder>
-<folder id="5ebc7fee-0104-433b-be59-4699796f1d7d" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Test">
-</folder>
-<folder id="06a3dadd-41d1-4583-8e52-bb1aa2942633" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Snippets">
+<folder id="8298ccca-9dd7-4355-9183-f4fb7e55d655" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="~Internal">
 </folder>
 <folder id="94b25b9c-adf5-4719-8364-4a04eb93ad36" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="~ Misc">
 </folder>
 <folder id="9d4d054b-1569-4857-b189-eb6f9a33623b" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Plugins">
 </folder>
-<snippet id="25dc35b2-0605-4fe1-9991-7e04b7396af2" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for x in names" set_selection="true">
-&lt;% for [[%tabstop:name]] in [[%tabstop:name]]s %&gt;
-  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]] %&gt;
-&lt;% end %&gt;</snippet>
-<snippet id="3dbd9afc-e4e8-47e9-8a66-e383648b43dc" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for-x-in-obj.xs" set_selection="true">
-&lt;% for [[%tabstop:name]] in [[%tabstop:object]].[[%tabstop:name]]s %&gt;
-  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]].[[%tabstop:attribute]] %&gt;
-&lt;% end %&gt;</snippet>
-<snippet id="84b1ebdb-470f-41c2-bcf2-a1c49f06df3d" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="false" keyboard_shortcut="" name="xhtml-transitional" set_selection="true">
-&lt;!DOCTYPE html 
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
-!@#_currentPos!@#_anchor</snippet>
+<folder id="b2a306df-1c4d-4a2b-a24c-0d9b876b7cf7" idref="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" name="Run">
+</folder>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/sport_tennis.png" id="136bd0dd-7922-4cb8-ae97-baad1413471d" idref="5ebc7fee-0104-433b-be59-4699796f1d7d" keyboard_shortcut="" language="JavaScript" name="Unit Tests" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    var obj = {base: 'rake', ruby: null, rake:null, env:null};
+    as_rails_macros.setup_associated_paths_env(obj);
+    var options = {
+        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+              runningMacro.project.getFile().dirName),
+        env: obj.env,
+        __END__ : null
+    };
+    as_rails_macros.runCommand(this, obj.rake + ' test:units', options);
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_lightning.png" id="a7c9736b-7374-48a4-bc64-d2d6848af55e" idref="5ed2ace9-ea87-4e6a-bce6-4b9c09c6468b" keyboard_shortcut="" language="JavaScript" name="db:migrate-to-version" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    var obj = {base: 'rake', ruby: null, rake:null, env:null};
+    as_rails_macros.setup_associated_paths_env(obj);
+    var options = {
+        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+              runningMacro.project.getFile().dirName),
+        env: obj.env,
+        __END__ : null
+    };
+    var version = dialog_prompt("migrate to which version (blank=current)? ");
+    var cmd = obj.rake + ' db:migrate';
+    if (version &amp;&amp; /^\d+$/.test(version)) {
+        cmd += " VERSION=" + version;
+    }
+    as_rails_macros.runCommand(this, cmd, options);
+} catch(ex) {
+    alert(ex + "\n");
+}</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_refresh.png" id="d73c40ee-5f2c-4502-bd36-51063deb6de1" idref="5ed2ace9-ea87-4e6a-bce6-4b9c09c6468b" keyboard_shortcut="" language="JavaScript" name="db:migrate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    var obj = {base: 'rake', ruby:null, rake:null, env:null};
+    as_rails_macros.setup_associated_paths_env(obj);
+    var options = {
+        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+              runningMacro.project.getFile().dirName),
+        env: obj.env,
+        __END__ : null
+    };
+    as_rails_macros.runCommand(this, obj.rake + ' db:migrate', options);
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
 <folder id="5d5cfbe2-21ec-46d0-8a2e-e76af0aa75cf" idref="69941f56-c540-4b4d-9340-2c5b72b4a17b" name="Rails Tools">
 </folder>
 <macro async="0" id="b2c2b3f3-627c-4cd5-bed0-a9529403d3a5" idref="69941f56-c540-4b4d-9340-2c5b72b4a17b" keyboard_shortcut="" language="JavaScript" name="oncreate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
@@ -344,7 +340,7 @@ try {
             return;
         }
         // Rails 2 uses sqlite by default, so get the choice of DB from the user
-        var db_list = ["sqlite3", "mysql", "oracle", "postgresql", "sqlite2"];
+        var db_list = ["sqlite3", "mysql", "postgresql", "oracle", "sqlite2"];
         var database = ko.dialogs.selectFromList(
             "Select a database", // title,
             "Which database do you want to use for this project?", // prompt,
@@ -469,6 +465,25 @@ try {
                           operateOnSelection, doNotOpenOutputWindow,
                           runIn, parseOutput, parseRegex, showParsedOutputList,
                           name, clearOutputWindow, terminationCallback);
+        // While the command is running, update the test-plan preferences
+        // to point at this directory.
+        updateTestPlanDirectories(project, projectDirPath);
+    }
+    function updateTestPlanDirectories(project, projectDirPath) {
+        var prefset = project.prefset;
+        if (!prefset.hasPrefHere('testPlans')) {
+            return;
+        }
+        var testPlanPrefs = prefset.getPref('testPlans');
+        var testPlanNames = {};
+        testPlanPrefs.getPrefIds(testPlanNames, {});
+        testPlanNames = testPlanNames.value;
+        for (var i = 0; i &lt; testPlanNames.length; i++) {
+            var testPlanName = testPlanNames[i];
+            var testPlanPref = testPlanPrefs.getPref(testPlanName);
+            ko.sleuth.manager.setPrefToDir(testPlanPref,
+                                           projectDirPath);
+        }
     }
     try {
         runRailsCommand();
@@ -476,66 +491,6 @@ try {
         alert(ex + "\n");
     }
 })();
-</macro>
-<folder id="c9760047-cb56-41da-a048-efb713bd4505" idref="06a3dadd-41d1-4583-8e52-bb1aa2942633" name="Views">
-</folder>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_refresh.png" id="d73c40ee-5f2c-4502-bd36-51063deb6de1" idref="5ed2ace9-ea87-4e6a-bce6-4b9c09c6468b" keyboard_shortcut="" language="JavaScript" name="db:migrate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    var obj = {base: 'rake', ruby:null, rake:null, env:null};
-    as_rails_macros.setup_associated_paths_env(obj);
-    var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
-              runningMacro.project.getFile().dirName),
-        env: obj.env,
-        __END__ : null
-    };
-    as_rails_macros.runCommand(this, obj.rake + ' db:migrate', options);
-} catch(ex) {
-    alert(ex + "\n");
-}
-</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/database_lightning.png" id="a7c9736b-7374-48a4-bc64-d2d6848af55e" idref="5ed2ace9-ea87-4e6a-bce6-4b9c09c6468b" keyboard_shortcut="" language="JavaScript" name="db:migrate-to-version" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    var obj = {base: 'rake', ruby: null, rake:null, env:null};
-    as_rails_macros.setup_associated_paths_env(obj);
-    var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
-              runningMacro.project.getFile().dirName),
-        env: obj.env,
-        __END__ : null
-    };
-    var version = dialog_prompt("migrate to which version (blank=current)? ");
-    var cmd = obj.rake + ' db:migrate';
-    if (version &amp;&amp; /^\d+$/.test(version)) {
-        cmd += " VERSION=" + version;
-    }
-    as_rails_macros.runCommand(this, cmd, options);
-} catch(ex) {
-    alert(ex + "\n");
-}</macro>
-<macro async="0" icon="chrome://famfamfamsilk/skin/icons/sport_tennis.png" id="136bd0dd-7922-4cb8-ae97-baad1413471d" idref="5ebc7fee-0104-433b-be59-4699796f1d7d" keyboard_shortcut="" language="JavaScript" name="Unit Tests" rank="100" trigger="trigger_postopen" trigger_enabled="0">
-try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
-                       runningMacro.project);
-    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
-    var obj = {base: 'rake', ruby: null, rake:null, env:null};
-    as_rails_macros.setup_associated_paths_env(obj);
-    var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
-              runningMacro.project.getFile().dirName),
-        env: obj.env,
-        __END__ : null
-    };
-    as_rails_macros.runCommand(this, obj.rake + ' test:units', options);
-} catch(ex) {
-    alert(ex + "\n");
-}
 </macro>
 <macro async="0" id="5a126170-d3a0-4f35-8565-c034d4b6708c" idref="8298ccca-9dd7-4355-9183-f4fb7e55d655" keyboard_shortcut="" language="JavaScript" name="rails_init" rank="100" trigger="trigger_startup" trigger_enabled="0">
 if (typeof(as_rails_macros) == "undefined"
@@ -1068,6 +1023,57 @@ if (typeof(as_rails_macros) == "undefined"
 } else {
     // dump("as_rails_macros already exists, type = " + typeof(as_rails_macros) + "\n");
 }</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/sum.png" id="21f7353c-6044-4109-9497-29f2475ed9c0" idref="94b25b9c-adf5-4719-8364-4a04eb93ad36" keyboard_shortcut="" language="JavaScript" name="Stats" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    var obj = {base: 'rake', ruby: null, rake:null, env:null};
+    as_rails_macros.setup_associated_paths_env(obj);
+    var options = {
+        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+              runningMacro.project.getFile().dirName),
+        env: obj.env,
+        __END__ : null
+    };
+    as_rails_macros.runCommand(this, obj.rake + ' stats', options);
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="0133a64e-755e-458c-8b25-c6a282e342c0" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="in-place-editor" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    as_rails_macros.installPlugin(this, project,
+                                  'http://svn.rubyonrails.org/rails/plugins/in_place_editing/');
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="a9fcc5d4-1211-4abf-b953-3001e26d34d4" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="will_paginate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    as_rails_macros.installPlugin(this, project,
+                                  'svn://errtheblog.com/svn/plugins/will_paginate');
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="d640ef8e-c7cb-4665-b497-0cbc4e2d96ed" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="autocomplete" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+                       runningMacro.project);
+    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));
+    as_rails_macros.installPlugin(this, project,
+                                  'http://svn.rubyonrails.org/rails/plugins/auto_complete');
+} catch(ex) {
+    alert(ex + "\n");
+}
+</macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/bug_go.png" id="8f2de52d-89db-433d-a8e4-d2f73527226f" idref="b2a306df-1c4d-4a2b-a24c-0d9b876b7cf7" keyboard_shortcut="" language="JavaScript" name="debug rails app" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 (function() {
     function launchDebugger(editor, project, host, port, rbpath) {
@@ -1179,7 +1185,48 @@ if (typeof(as_rails_macros) == "undefined"
        alert(ex + "\n");
    }
 })();</macro>
+<snippet id="25dc35b2-0605-4fe1-9991-7e04b7396af2" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for x in names" set_selection="true">
+&lt;% for [[%tabstop:name]] in [[%tabstop:name]]s %&gt;
+  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]] %&gt;
+&lt;% end %&gt;</snippet>
+<snippet id="3dbd9afc-e4e8-47e9-8a66-e383648b43dc" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for-x-in-obj.xs" set_selection="true">
+&lt;% for [[%tabstop:name]] in [[%tabstop:object]].[[%tabstop:name]]s %&gt;
+  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]].[[%tabstop:attribute]] %&gt;
+&lt;% end %&gt;</snippet>
+<snippet id="84b1ebdb-470f-41c2-bcf2-a1c49f06df3d" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="false" keyboard_shortcut="" name="xhtml-transitional" set_selection="true">
+&lt;!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+!@#_currentPos!@#_anchor</snippet>
 <preference-set idref="69941f56-c540-4b4d-9340-2c5b72b4a17b">
   <boolean id="import_live">1</boolean>
+  <string id="lastTestPlanName_pref">test:plugins</string>
+<preference-set id="testPlans">
+<preference-set id="test all">
+  <string id="command_line">rake test</string>
+  <string relative="url" id="directory"></string>
+  <string id="language">Ruby</string>
+</preference-set>
+<preference-set id="test:functionals">
+  <string id="command_line">rake test:functionals</string>
+  <string relative="url" id="directory"></string>
+  <string id="language">Ruby</string>
+</preference-set>
+<preference-set id="test:integration">
+  <string id="command_line">rake test:integration</string>
+  <string relative="url" id="directory"></string>
+  <string id="language">Ruby</string>
+</preference-set>
+<preference-set id="test:plugins">
+  <string id="command_line">rake test:plugins</string>
+  <string relative="url" id="directory"></string>
+  <string id="language">Ruby</string>
+</preference-set>
+<preference-set id="test:units">
+  <string id="command_line">rake test:units</string>
+  <string relative="url" id="directory"></string>
+  <string id="language">Ruby</string>
+</preference-set>
+</preference-set>
 </preference-set>
 </project>
