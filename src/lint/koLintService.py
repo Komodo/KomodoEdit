@@ -234,14 +234,16 @@ class KoLintService:
         then an exception is raised.
         """
         if linterCID not in self._linterCache:
-            try:
-                linter = components.classes[linterCID].createInstance(components.interfaces.koILinter)
-            except COMException, ex:
-                errmsg = "Internal Error creating a linter with CID '%s': %s"\
-                         % (linterCID, ex)
-                raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
+            if linterCID not in components.classes.keys():
+                linter = None
             else:
-                self._linterCache[linterCID] = linter
+                try:
+                    linter = components.classes[linterCID].createInstance(components.interfaces.koILinter)
+                except COMException, ex:
+                    errmsg = "Internal Error creating a linter with CID '%s': %s"\
+                        % (linterCID, ex)
+                    raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
+            self._linterCache[linterCID] = linter
 
         return self._linterCache[linterCID]
 
