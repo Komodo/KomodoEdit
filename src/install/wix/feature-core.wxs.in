@@ -1472,6 +1472,7 @@
                     <File Id="file223" Name="yui.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\yui.cix" />
                     <File Id="file1384" Name="komodo.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\komodo.cix" />
                     <File Id="file287" Name="jquery.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\jquery.cix" />
+                    <File Id="file3" Name="ext.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\ext.cix" />
                   </Component>
                 </Directory> <!-- lib\mozilla\python\komodo\codeintel2\catalogs -->
                 <Directory Id="directory404" Name="stdlibs">
