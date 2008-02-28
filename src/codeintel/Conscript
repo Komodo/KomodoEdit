@@ -168,6 +168,7 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/pywin32.cix",
     "lib/codeintel2/catalogs/rails.cix",
     "lib/codeintel2/catalogs/jquery.cix",
+    "lib/codeintel2/catalogs/ext.cix",
     #TODO: "lib/codeintel2/catalogs/pecl.cix",
     #TODO: "lib/codeintel2/catalogs/drupal.cix",
 );
