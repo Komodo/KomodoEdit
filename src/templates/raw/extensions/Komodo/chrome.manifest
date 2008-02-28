@@ -1,0 +1,2 @@
+content %extension_name% jar:%extension_name%.jar!/content/ xpcnativewrappers=yes
+overlay chrome://komodo/content/komodo.xul chrome://%extension_name%/content/overlay.xul

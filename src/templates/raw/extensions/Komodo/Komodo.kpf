@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="1ef0d2ff-fa8c-b641-934e-2520a1cf19af" kpf_version="4" name="Komodo.kpf">
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/wrench.png" id="21962c37-c9b9-5446-8e4c-b30591c731b1" idref="0b6d4c70-d82b-674b-9a91-54785cc0cf40" keyboard_shortcut="" language="JavaScript" name="oncreate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+
+var libPart = ko.projects.findPart('macro', 'extension_lib', 'container');
+eval(libPart.value);
+
+var koExt = new extensionLib();
+
+var project = ko.macros.current.project;
+
+var setupWin = project.getChildByAttributeValue('name','setup.xul', 1);
+var rdf = project.getChildByAttributeValue('name','install.rdf', 1);
+var data = {};
+
+var prefset = project.prefset;
+
+if(prefset.hasPrefHere('configured')) {
+    var rdf_xml = koExt.readFile(rdf.getFile().URI);
+    data = {
+        'valid': false,
+        'configured': true,
+        'vars': koExt.getRdfVars(rdf_xml)
+    };
+    data.vars['ext_name'] = koExt.getNiceName(data.vars.name);
+} else { // init data
+    data = {
+        'valid': false,
+        'configured': false,
+        'vars': {
+            'id': '',
+            'name': 'My Extension',
+            'creator': 'Me',
+            'version': '0.1',
+            'description': '',
+            'homepageURL': '',
+            'ext_name': ''
+        }
+    };
+}
+
+window.openDialog(
+    setupWin.getFile().URI,
+    "_blank",
+    "centerscreen,chrome,resizable,scrollbars,dialog=no,close,modal=yes",
+    data
+);
+
+if(data.valid) {
+    if(koExt.updateProject(data.vars)) {
+        prefset.setBooleanPref('configured', true);
+        var part = project.getChildByAttributeValue('name', 'oncreate',1);
+        if(part) { part.name = 'Configure'; }
+        var msg = 'Extension Project '+data.vars.name+' configured!';
+        ko.statusBar.AddMessage(msg, 'project', 3000, true);
+    } else {
+        alert('Error encountered: '+koExt.error+"\nConfiguration aborted.");
+    }
+}
+
+} catch(e) {
+    alert(e);
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/brick.png" id="455b824b-f176-8b41-8343-336ffe59f46f" idref="0b6d4c70-d82b-674b-9a91-54785cc0cf40" keyboard_shortcut="" language="JavaScript" name="extension_lib" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    
+var extensionLib = function() {
+    this.os = Components.classes['@activestate.com/koOs;1'].
+        getService(Components.interfaces.koIOs);
+    this.error = false;
+}
+
+extensionLib.prototype.getPath = function(relative) {
+    try {
+        var prj_path = ko.interpolate.interpolateStrings('%p');
+        path = this.os.path.join(prj_path, relative);
+        return path;
+    } catch(e) {
+        alert(e+"\narg name: "+name);
+    }
+}
+
+extensionLib.prototype.readFile = function(filename) {
+    // read the template file
+    try {
+        var fileEx = Components.classes["@activestate.com/koFileEx;1"]
+                .createInstance(Components.interfaces.koIFileEx);
+        fileEx.URI = filename;
+        fileEx.open('rb');
+        var content = fileEx.readfile();
+        fileEx.close();
+        return content;
+    } catch(e) {
+        alert(e+"\narg filename: "+filename);
+    }
+}
+
+extensionLib.prototype.writeFile = function(filename, content) {
+    try {
+        var fileEx = Components.classes["@activestate.com/koFileEx;1"]
+                .createInstance(Components.interfaces.koIFileEx);
+        fileEx.URI = filename;
+        fileEx.open('wb+');
+        fileEx.puts(content);
+        fileEx.close();
+    } catch(e) {
+        alert(e+"\narg filename: "+filename);
+    }
+}
+
+extensionLib.prototype.getRdfVars = function(txt) {
+    try {
+        var Rx = /\&lt;em\:([\w]+)[\ \S]*\&gt;([\S\ ]+?)\&lt;\//g;
+        var ext_vars = {};
+        while(results = Rx.exec(txt)) {
+            var idRx = /type|min|max|\{/;
+            if(!idRx.test(results[0])) { // filter out stuff we don't want
+                ext_vars[results[1]] = results[2];
+            }
+        }
+        return ext_vars;
+    } catch(e) {
+        alert(e+"\narg rdf_path: "+rdf_path);
+    }
+}
+
+extensionLib.prototype.getManifestVars = function(txt) {
+    try {
+        var rx1 = /content ([\S]+?) jar\:([\S]+?)\.jar/g;
+        var res1 = rx1.exec(txt);
+        var rx2 = /chrome:\/\/([\S]+?)\/content\/overlay\.xul/g;
+        var res2 = rx2.exec(txt);
+        return new Array(res1[1], res1[2], res2[1]);
+    } catch(e) {
+        alert(e+"\narg path: "+path);
+    }
+}
+
+extensionLib.prototype.getOverlayVars = function(txt) {
+    try {
+        var rx1 = /&lt;overlay id="([\S]+?)"/g;
+        var res1 = rx1.exec(txt);
+        var rx2 = /&lt;menuitem id="([\S]+?)"[\s]+?label="([\S\ ]+?)"/g;
+        var res2 = rx2.exec(txt);
+        return [res1[1], res2[1], res2[2]];
+    } catch(e) {
+        alert(e+"\narg path: "+path);
+    }
+}
+
+extensionLib.prototype.updateProject = function(vars) {
+    try {
+        var overlayPath = this.getPath('content/overlay.xul');
+        if(this.os.path.exists(overlayPath)) {
+            var ovl_str = this.readFile(overlayPath);
+            var ov_vars = this.getOverlayVars(ovl_str);
+            var ovl_new = [vars.ext_name+'Overlay', 'menu_'+vars.ext_name, vars.name];
+            this.writeFile(overlayPath, this.replaceAll(ov_vars, ovl_new, ovl_str));
+        } else { this.error = "Doesn't exist: "+overlayPath; return false; }
+        
+        var manifestPath = this.getPath('chrome.manifest');
+        if(this.os.path.exists(manifestPath)) {
+            var man_str = this.readFile(manifestPath);
+            var man_vars = this.getManifestVars(man_str);
+            var man_new = [vars.ext_name, vars.ext_name, vars.ext_name];
+            this.writeFile(manifestPath, this.replaceAll(man_vars, man_new, man_str));
+        } else { this.error = "Doesn't exist: "+overlayPath; return false; }
+        
+        var rdf_path = this.getPath('install.rdf');
+        if(this.os.path.exists(rdf_path)) {
+            var rdf_str = this.readFile(rdf_path);
+            var rdf_vars = this.getRdfVars(rdf_str);
+            this.writeFile(rdf_path, this.replaceAll(rdf_vars, vars, rdf_str));
+        } else { this.error = "Doesn't exist: "+overlayPath; return false; }
+        
+    } catch(e) {
+        this.error = e;
+        return false;
+    }
+    return true;
+}
+
+extensionLib.prototype.replaceAll = function(orig_vars, new_vars, str) {
+    try {
+        var out = str;
+        for(v in orig_vars) {
+            out = out.replace(orig_vars[v], new_vars[v]);
+        }
+        return out;
+    } catch(e) {
+        alert(e);
+    }
+}
+
+extensionLib.prototype.getNiceName = function(name) {
+    return this.trim(name).replace(/[\W]/g,'').toLowerCase();
+}
+
+extensionLib.prototype.trim = function(str) {
+    return str.replace(/^\s*/, '').replace(/\s*$/, '');
+}
+
+extensionLib.prototype.clone = function(obj) {
+    var newobj = {}; for(i in obj) {
+        newobj[i] = obj[i];
+    } return newobj;
+}
+
+extensionLib.prototype._dump = function(obj) {
+    var str = ''; for(i in obj) {
+        str += i+': '+obj[i]+'\n';
+    } return(str);
+}
+
+extensionLib.prototype._keys = function(obj) {
+  var out = new Array(); for(i in obj) {
+    out.push(i);
+  } return out;
+}
+
+} catch(e) {
+    allert(e);
+}
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/lightning_go.png" id="1cd35baf-130f-8d4d-90a7-948e4e5d9677" idref="0b6d4c70-d82b-674b-9a91-54785cc0cf40" keyboard_shortcut="" language="JavaScript" name="Build" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+/**
+ * Script to build an xpi, running koext build in the current project root.
+ */
+
+var os = Components.classes['@activestate.com/koOs;1'].
+  getService(Components.interfaces.koIOs);
+
+var sharedDir = ko.interpolate.interpolateStrings('%(path:supportDir)');
+var projectDir = ko.interpolate.interpolateStrings('%p');
+var path_arr = [sharedDir, 'sdk', 'bin', 'koext'];
+var app = os.path.joinlist(path_arr.length, path_arr);
+var cmd = '"' + app + '" build -d '+projectDir;
+
+ko.run.runEncodedCommand(window, cmd, function() {
+  alert('Build complete?');
+});
+</macro>
+<file id="34e0ddc6-7758-424e-bf92-13c1f6d7a8ea" idref="0b6d4c70-d82b-674b-9a91-54785cc0cf40" name="setup.xul" url="_prj_internal_/setup.xul">
+</file>
+<folder id="0b6d4c70-d82b-674b-9a91-54785cc0cf40" idref="1ef0d2ff-fa8c-b641-934e-2520a1cf19af" name="Project">
+</folder>
+<preference-set idref="1ef0d2ff-fa8c-b641-934e-2520a1cf19af">
+  <string id="import_type">useFolders</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store;_prj_internal_</string>
+  <string id="import_include_matches"></string>
+  <boolean id="import_recursive">1</boolean>
+  <boolean id="import_live">1</boolean>
+</preference-set>
+</project>

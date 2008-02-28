@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<dialog
+  id="test"
+  title="Firefox Extension configuration"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  onload="setup()"
+  width="400px"
+  height="480px"
+  buttons="accept,cancel"
+  buttonlabelcancel="Cancel"
+  buttonlabelaccept="Save"
+  ondialogaccept="return teardown();"
+  ondialogcancel="return cancel();"
+  defaultButton="accept"
+  buttonalign="horizontal"
+  buttonorient="horizontal"
+  orient="vertical"
+  >
+  
+<script type="application/x-javascript">
+<![CDATA[
+
+var data = {};
+var ext_name = '';
+
+function get_id(strId) { return document.getElementById(strId); }
+function get_val(strId) { return get_id(strId).value; }
+function set_val(strId, val) { get_id(strId).value = val; }
+function get_nice_name(name) { return trim(name).replace(/[\W]/g,'').toLowerCase(); }
+function trim(str) { return str.replace(/^\s*/, '').replace(/\s*$/, ''); }
+
+function setup() {
+  try {
+    if(typeof(window.arguments) == 'undefined') {
+      alert('Error: No Window arguments?');
+    } else {
+      data = window.arguments[0];
+      var vars = data.vars;
+      for(i in vars) {
+        if(i == 'id' || i == 'ext_name') {
+          //pass
+        } else {
+          set_val(i, vars[i]);
+        }
+      }
+      if(vars['id']) {
+        var arr = vars.id.split('@');
+        if(arr.length < 2) {
+          alert('Extension Id is not in the correct format?');
+          return;
+        }
+        set_val('author-domain', arr[1]);
+      }
+      update_id();
+      if(!data.vars['homepageUrl']) {
+        update_url();
+      }
+    }
+  } catch(e) { alert(e); }
+}
+
+function update_url() {
+  var domain = get_id('author-domain').value;
+  var ext_name = get_nice_name(get_val('name'));
+  set_val('homepageURL', 'http://'+domain+'/'+ext_name);
+}
+
+function update_id() {
+  try {
+    var name = get_val('name');
+    data.vars.ext_name = get_nice_name(name);
+    
+    var domain = get_id('author-domain').value;
+    var newId = data.vars.ext_name+'@'+domain;
+    
+    get_id('id').value = newId;
+  } catch(e) {
+    alert(e);
+  }
+}
+
+function teardown() {
+  try {
+    for(i in data.vars) {
+      if(i != 'ext_name') {
+        data.vars[i] = get_val(i);
+      }
+    }
+    data.vars.ext_name = get_nice_name(data.vars.name);
+    data.valid = true;
+    data.configured = true;
+    return true;
+  } catch(e) {
+    alert(e);
+    return false;
+  }
+}
+
+function cancel() {
+  return confirm('Cancel Configuration?');
+}
+
+function keys(obj) {
+  var out = new Array(); for(i in obj) {
+    out.push(i);
+  } return out;
+}
+
+]]>
+</script>
+
+
+<commandset id="koext_commands">
+  <command id="update_id" oncommand="update_id();"/>
+</commandset>
+
+<vbox flex="1">
+  <caption label="Extension Options"/>
+  <grid flex="1">
+    <columns>
+      <column/>
+      <column flex="1"/>
+    </columns>
+    <rows>
+      <row align="center">
+        <label value="Name:"/>
+        <textbox id="name" type="timed" timeout="1000" command="update_id"/>
+      </row>
+      <row align="center">
+        <label value="Version:"/>
+        <textbox id="version"/>
+      </row>
+      <row align="top">
+          <label value="Description:"/>
+          <textbox id="description" multiline="true" value=""/>
+      </row>
+      <row align="center">
+          <label value="Author:"/>
+          <textbox id="creator" value=""/>
+      </row>
+      <row align="center">
+          <label value="Domain:"/>
+          <textbox id="author-domain" value="yourdomain.org"  type="timed" timeout="1000" command="update_id"/>
+      </row>
+      <row align="center">
+          <label value="Home Page:"/>
+          <textbox id="homepageURL" value=""/>
+      </row>
+      <row align="center">
+          <label value="Extension Id:"/>
+          <label style="font-weight: bolder;" id="id"/>
+      </row>
+    </rows>
+  </grid>
+</vbox>
+  
+</dialog>
