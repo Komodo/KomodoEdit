@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.2.4" description="Cix data for PHP 5.2.4" file="php-5.2.cix">
-  <file lang="PHP" mtime="1203969848" path="php-5.2.cix">
+  <file lang="PHP" mtime="1204161110" path="php-5.2.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -39,19 +39,19 @@
       </scope>
       <scope name="XMLWriter" ilk="class">
         <scope ilk="function" name="openUri" signature="openUri()"/>
-        <scope name="openMemory" ilk="function" signature="openMemory ( void  )" docs="Creates a new XMLWriter using memory for string output."/>
-        <scope name="setIndent" ilk="function" signature="setIndent ( bool $indent  )" docs="Toggles indentation on or off."/>
-        <scope name="setIndentString" ilk="function" signature="setIndentString ( string $indentString  )" docs="The indentation string."/>
-        <scope name="startComment" ilk="function" signature="startComment ( void  )" docs="Starts a comment."/>
-        <scope name="endComment" ilk="function" signature="endComment ( void  )" docs="Ends the current comment."/>
-        <scope name="startAttribute" ilk="function" signature="startAttribute ( string $name  )" docs="Starts an attribute."/>
-        <scope name="endAttribute" ilk="function" signature="endAttribute ( void  )" docs="Ends the current attribute."/>
-        <scope name="writeAttribute" ilk="function" signature="writeAttribute ( string $name  , string $value  )" docs="Writes a full attribute."/>
-        <scope name="startElement" ilk="function" signature="startElement ( string $name  )" docs="Starts an element."/>
-        <scope name="endElement" ilk="function" signature="endElement ( void  )" docs="Ends the current element."/>
-        <scope name="fullEndElement" ilk="function" signature="fullEndElement ( void  )" docs="undocumented"/>
+        <scope name="openMemory" ilk="function" signature="openMemory ( void  )" doc="Creates a new XMLWriter using memory for string output."/>
+        <scope name="setIndent" ilk="function" signature="setIndent ( bool $indent  )" doc="Toggles indentation on or off."/>
+        <scope name="setIndentString" ilk="function" signature="setIndentString ( string $indentString  )" doc="Sets the string which will be used to indent each element/attribute of the resulting xml."/>
+        <scope name="startComment" ilk="function" signature="startComment ( void  )" doc="Starts a comment."/>
+        <scope name="endComment" ilk="function" signature="endComment ( void  )" doc="Ends the current comment."/>
+        <scope name="startAttribute" ilk="function" signature="startAttribute ( string $name  )" doc="Starts an attribute."/>
+        <scope name="endAttribute" ilk="function" signature="endAttribute ( void  )" doc="Ends the current attribute."/>
+        <scope name="writeAttribute" ilk="function" signature="writeAttribute ( string $name  , string $value  )" doc="Writes a full attribute."/>
+        <scope name="startElement" ilk="function" signature="startElement ( string $name  )" doc="Starts an element."/>
+        <scope name="endElement" ilk="function" signature="endElement ( void  )" doc="Ends the current element."/>
+        <scope name="fullEndElement" ilk="function" signature="fullEndElement ( void  )" doc="End the current xml element. Writes an end tag even if the element is empty."/>
         <scope ilk="function" name="startElementNs" signature="startElementNs()"/>
-        <scope name="writeElement" ilk="function" signature="writeElement ( string $name  [, string $content ] )" docs="Writes a full element tag."/>
+        <scope name="writeElement" ilk="function" signature="writeElement ( string $name  [, string $content ] )" doc="Writes a full element tag."/>
         <scope ilk="function" name="writeElementNs" signature="writeElementNs()"/>
         <scope ilk="function" name="startPi" signature="startPi()"/>
         <scope ilk="function" name="endPi" signature="endPi()"/>
@@ -59,11 +59,11 @@
         <scope ilk="function" name="startCdata" signature="startCdata()"/>
         <scope ilk="function" name="endCdata" signature="endCdata()"/>
         <scope ilk="function" name="writeCdata" signature="writeCdata()"/>
-        <scope name="text" ilk="function" signature="text ( string $content  )" docs="Writes a text."/>
-        <scope name="writeRaw" ilk="function" signature="writeRaw ( string $content  )" docs="Writes a raw xml text."/>
-        <scope name="startDocument" ilk="function" signature="startDocument ([ string $version  [, string $encoding  [, string $standalone ]]] )" docs="Starts a document."/>
-        <scope name="endDocument" ilk="function" signature="endDocument ( void  )" docs="Ends the current document."/>
-        <scope name="writeComment" ilk="function" signature="writeComment ( string $content  )" docs="Writes a full comment."/>
+        <scope name="text" ilk="function" signature="text ( string $content  )" doc="Writes a text."/>
+        <scope name="writeRaw" ilk="function" signature="writeRaw ( string $content  )" doc="Writes a raw xml text."/>
+        <scope name="startDocument" ilk="function" signature="startDocument ([ string $version  [, string $encoding  [, string $standalone ]]] )" doc="Starts a document."/>
+        <scope name="endDocument" ilk="function" signature="endDocument ( void  )" doc="Ends the current document."/>
+        <scope name="writeComment" ilk="function" signature="writeComment ( string $content  )" doc="Writes a full comment."/>
         <scope ilk="function" name="startDtd" signature="startDtd()"/>
         <scope ilk="function" name="endDtd" signature="endDtd()"/>
         <scope ilk="function" name="writeDtd" signature="writeDtd()"/>
@@ -76,8 +76,8 @@
         <scope ilk="function" name="startDtdEntity" signature="startDtdEntity()"/>
         <scope ilk="function" name="endDtdEntity" signature="endDtdEntity()"/>
         <scope ilk="function" name="writeDtdEntity" signature="writeDtdEntity()"/>
-        <scope name="outputMemory" ilk="function" signature="outputMemory ([ bool $flush ] )" docs="Returns the current buffer."/>
-        <scope name="flush" ilk="function" signature="flush ([ bool $empty ] )" docs="Flushes the current buffer."/>
+        <scope name="outputMemory" ilk="function" signature="outputMemory ([ bool $flush ] )" doc="Returns the current buffer."/>
+        <scope name="flush" ilk="function" signature="flush ([ bool $empty ] )" doc="Flushes the current buffer."/>
       </scope>
       <scope name="LibXMLError" ilk="class"/>
       <scope name="DOMException" ilk="class" classrefs="Exception">
@@ -1139,37 +1139,37 @@
       <scope name="PDORow" ilk="class"/>
       <scope name="SQLiteDatabase" ilk="class">
         <scope ilk="function" name="__construct" signature="__construct()"/>
-        <scope name="query" ilk="function" signature="query ( string $query  [, int $result_type  [, string &amp;$error_msg ]] )" docs="The query to be executed."/>
-        <scope name="queryExec" ilk="function" signature="queryExec ( string $query  [, string &amp;$error_msg ] )" docs="The query to be executed."/>
-        <scope name="arrayQuery" ilk="function" signature="arrayQuery ( string $query  [, int $result_type  [, bool $decode_binary ]] )" docs="The query to be executed."/>
-        <scope name="singleQuery" ilk="function" signature="singleQuery ( string $query  [, bool $first_row_only  [, bool $decode_binary ]] )" docs="undocumented"/>
-        <scope name="unbufferedQuery" ilk="function" signature="unbufferedQuery ( string $query  [, int $result_type  [, string &amp;$error_msg ]] )" docs="The query to be executed."/>
-        <scope name="lastInsertRowid" ilk="function" signature="lastInsertRowid ( void  )" docs="undocumented"/>
-        <scope name="changes" ilk="function" signature="changes ( void  )" docs="undocumented"/>
-        <scope name="createAggregate" ilk="function" signature="createAggregate ( string $function_name  , callback $step_func  , callback $finalize_func  [, int $num_args ] )" docs="The name of the function used in SQL statements."/>
-        <scope name="createFunction" ilk="function" signature="createFunction ( string $function_name  , callback $callback  [, int $num_args ] )" docs="The name of the function used in SQL statements."/>
-        <scope name="busyTimeout" ilk="function" signature="busyTimeout ( int $milliseconds  )" docs="No value is returned."/>
-        <scope name="lastError" ilk="function" signature="lastError ( void  )" docs="undocumented"/>
-        <scope name="fetchColumnTypes" ilk="function" signature="fetchColumnTypes ( string $table_name  [, int $result_type ] )" docs="The table name to query."/>
+        <scope name="query" ilk="function" signature="query ( string $query  [, int $result_type  [, string &amp;$error_msg ]] )" doc="Executes an SQL statement given by the query against a given database handle."/>
+        <scope name="queryExec" ilk="function" signature="queryExec ( string $query  [, string &amp;$error_msg ] )" doc="Executes an SQL statement given by the query against a given database handle (specified by the dbhandle  parameter)."/>
+        <scope name="arrayQuery" ilk="function" signature="arrayQuery ( string $query  [, int $result_type  [, bool $decode_binary ]] )" doc="sqlite_array_query() executes the given query and returns an array of the entire result set. It is similar to calling  sqlite_query() and then sqlite_fetch_array() for each row in the result set. sqlite_array_query() is significantly faster than the aforementioned."/>
+        <scope name="singleQuery" ilk="function" signature="singleQuery ( string $query  [, bool $first_row_only  [, bool $decode_binary ]] )" doc="undocumented"/>
+        <scope name="unbufferedQuery" ilk="function" signature="unbufferedQuery ( string $query  [, int $result_type  [, string &amp;$error_msg ]] )" doc="sqlite_unbuffered_query() is identical to sqlite_query() except that the result that is returned is a sequential forward-only result set that can only be used to read each row, one after the other."/>
+        <scope name="lastInsertRowid" ilk="function" signature="lastInsertRowid ( void  )" doc="Returns the rowid of the row that was most recently inserted into the database dbhandle, if it was created as an auto-increment field."/>
+        <scope name="changes" ilk="function" signature="changes ( void  )" doc="Returns the numbers of rows that were changed by the most recent SQL statement executed against the dbhandle database handle."/>
+        <scope name="createAggregate" ilk="function" signature="createAggregate ( string $function_name  , callback $step_func  , callback $finalize_func  [, int $num_args ] )" doc="sqlite_create_aggregate() is similar to sqlite_create_function() except that it registers functions that can be used to calculate a result aggregated across all the rows of a query."/>
+        <scope name="createFunction" ilk="function" signature="createFunction ( string $function_name  , callback $callback  [, int $num_args ] )" doc="sqlite_create_function() allows you to register a PHP function with SQLite as an UDF (User Defined Function), so that it can be called from within your SQL statements."/>
+        <scope name="busyTimeout" ilk="function" signature="busyTimeout ( int $milliseconds  )" doc="Set the maximum time, in milliseconds, that SQLite will wait for a dbhandle to become ready for use."/>
+        <scope name="lastError" ilk="function" signature="lastError ( void  )" doc="Returns the error code from the last operation performed on dbhandle (the database handle), or 0 when no error occurred. A human readable description of the error code can be retrieved using sqlite_error_string()."/>
+        <scope name="fetchColumnTypes" ilk="function" signature="fetchColumnTypes ( string $table_name  [, int $result_type ] )" doc="sqlite_fetch_column_types() returns an array of column data types from the specified table_name table."/>
       </scope>
       <scope name="SQLiteResult" ilk="class">
-        <scope name="fetch" ilk="function" signature="fetch ([ int $result_type  [, bool $decode_binary ]] )" docs="undocumented"/>
-        <scope name="fetchObject" ilk="function" signature="fetchObject ([ string $class_name  [, array $ctor_params  [, bool $decode_binary ]]] )" docs="undocumented"/>
-        <scope name="fetchSingle" ilk="function" signature="fetchSingle ([ bool $decode_binary ] )" docs="undocumented"/>
-        <scope name="fetchAll" ilk="function" signature="fetchAll ([ int $result_type  [, bool $decode_binary ]] )" docs="undocumented"/>
-        <scope name="column" ilk="function" signature="column ( mixed $index_or_name  [, bool $decode_binary ] )" docs="The column index or name to fetch."/>
-        <scope name="numFields" ilk="function" signature="numFields ( void  )" docs="undocumented"/>
-        <scope name="fieldName" ilk="function" signature="fieldName ( int $field_index  )" docs="The ordinal column number in the result set."/>
-        <scope name="current" ilk="function" signature="current ([ int $result_type  [, bool $decode_binary ]] )" docs="undocumented"/>
-        <scope name="key" ilk="function" signature="key ( void  )" docs="undocumented"/>
-        <scope name="next" ilk="function" signature="next ( void  )" docs="undocumented"/>
-        <scope name="valid" ilk="function" signature="valid ( void  )" docs="Finds whether more rows are available from the given result handle."/>
-        <scope name="rewind" ilk="function" signature="rewind ( void  )" docs="undocumented"/>
+        <scope name="fetch" ilk="function" signature="fetch ([ int $result_type  [, bool $decode_binary ]] )" doc="Fetches the next row from the given result handle. If there are no more rows, returns FALSE, otherwise returns an associative array representing the row data."/>
+        <scope name="fetchObject" ilk="function" signature="fetchObject ([ string $class_name  [, array $ctor_params  [, bool $decode_binary ]]] )" doc="undocumented"/>
+        <scope name="fetchSingle" ilk="function" signature="fetchSingle ([ bool $decode_binary ] )" doc="sqlite_fetch_single() is identical to sqlite_fetch_array() except that it returns the value of the first column of the rowset."/>
+        <scope name="fetchAll" ilk="function" signature="fetchAll ([ int $result_type  [, bool $decode_binary ]] )" doc="sqlite_fetch_all() returns an array of the entire result set from the result resource. It is similar to calling sqlite_query() (or sqlite_unbuffered_query()) and then sqlite_fetch_array() for each row in the result set."/>
+        <scope name="column" ilk="function" signature="column ( mixed $index_or_name  [, bool $decode_binary ] )" doc="Fetches the value of a column named index_or_name (if it is a string), or of the ordinal column numbered index_or_name (if it is an integer) from the current row of the query result handle result."/>
+        <scope name="numFields" ilk="function" signature="numFields ( void  )" doc="Returns the number of fields in the result set."/>
+        <scope name="fieldName" ilk="function" signature="fieldName ( int $field_index  )" doc="Given the ordinal column number, field_index, sqlite_field_name() returns the name of that field in the result set result."/>
+        <scope name="current" ilk="function" signature="current ([ int $result_type  [, bool $decode_binary ]] )" doc="sqlite_current() is identical to sqlite_fetch_array() except that it does not advance to the next row prior to returning the data; it returns the data from the current position only."/>
+        <scope name="key" ilk="function" signature="key ( void  )" doc="sqlite_key() returns the current row index of the buffered result set result."/>
+        <scope name="next" ilk="function" signature="next ( void  )" doc="sqlite_next() advances the result handle result to the next row."/>
+        <scope name="valid" ilk="function" signature="valid ( void  )" doc="Finds whether more rows are available from the given result handle."/>
+        <scope name="rewind" ilk="function" signature="rewind ( void  )" doc="sqlite_rewind() seeks back to the first row in the given result set."/>
         <scope ilk="function" name="count" signature="count()"/>
-        <scope name="prev" ilk="function" signature="prev ( void  )" docs="undocumented"/>
-        <scope name="hasPrev" ilk="function" signature="hasPrev ( void  )" docs="Find whether there are more previous rows from the given result handle."/>
-        <scope name="numRows" ilk="function" signature="numRows ( void  )" docs="undocumented"/>
-        <scope name="seek" ilk="function" signature="seek ( int $rownum  )" docs="undocumented"/>
+        <scope name="prev" ilk="function" signature="prev ( void  )" doc="sqlite_prev() seeks back the  result handle to the previous row."/>
+        <scope name="hasPrev" ilk="function" signature="hasPrev ( void  )" doc="Find whether there are more previous rows from the given result handle."/>
+        <scope name="numRows" ilk="function" signature="numRows ( void  )" doc="Returns the number of rows in the buffered result set."/>
+        <scope name="seek" ilk="function" signature="seek ( int $rownum  )" doc="sqlite_seek() seeks to the row given by the parameter rownum."/>
       </scope>
       <scope name="SQLiteUnbuffered" ilk="class">
         <scope ilk="function" name="fetch" signature="fetch()"/>
@@ -3128,12 +3128,12 @@
       <scope name="sqlite_close" signature="sqlite_close(resource db)" returns="void" doc="Closes an open sqlite database" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_unbuffered_query" signature="sqlite_unbuffered_query(string query, resource db [ , int result_type [, string &amp;error_message]])" returns="resource" doc="Executes a query that does not prefetch and buffer all&#10;data" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_fetch_column_types" signature="sqlite_fetch_column_types(string table_name, resource db [, int result_type])" returns="resource" doc="Return an array of column types from a particular table" ilk="function" src="sqlite.c"/>
-      <scope name="sqlite_query" signature="sqlite_query(string query, resource db [, int result_type [, string &amp;error_message]])" returns="resource" doc="Executes a query against a given database and returns a&#10;result handle" ilk="function" src="sqlite.c"/>
-      <scope name="sqlite_exec" signature="sqlite_exec(string query, resource db[, string &amp;error_message])" returns="boolean" doc="Executes a result-less query against a given database" ilk="function" src="sqlite.c"/>
+      <scope name="sqlite_query" ilk="function" signature="sqlite_query ( resource $dbhandle , string $query [, int $result_type [, string &amp;$error_msg ]] )&#10;sqlite_query ( string $query , resource $dbhandle [, int $result_type [, string &amp;$error_msg ]] )" doc="Executes an SQL statement given by the query against a given database handle."/>
+      <scope name="sqlite_exec" ilk="function" signature="sqlite_exec ( resource $dbhandle , string $query [, string &amp;$error_msg ] )&#10;sqlite_exec ( string $query , resource $dbhandle )" doc="Executes an SQL statement given by the query against a given database handle (specified by the dbhandle  parameter)."/>
       <scope name="sqlite_fetch_all" signature="sqlite_fetch_all(resource result [, int result_type [, bool decode_binary]])" returns="array" doc="Fetches all rows from a result set as an array of&#10;arrays" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_fetch_array" signature="sqlite_fetch_array(resource result [, int result_type [, bool decode_binary]])" returns="array" doc="Fetches the next row from a result set as an array" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_fetch_object" signature="sqlite_fetch_object(resource result [, string class_name [, NULL" returns="object" doc="Fetches the next row from a result set as an object" ilk="function" src="sqlite.c"/>
-      <scope name="sqlite_array_query" signature="sqlite_array_query(resource db, string query [ , int result_type [, bool decode_binary]])" returns="array" doc="Executes a query against a given database and returns&#10;an array of arrays" ilk="function" src="sqlite.c"/>
+      <scope name="sqlite_array_query" ilk="function" signature="sqlite_array_query ( resource $dbhandle , string $query [, int $result_type [, bool $decode_binary ]] )&#10;sqlite_array_query ( string $query , resource $dbhandle [, int $result_type [, bool $decode_binary ]] )" doc="sqlite_array_query() executes the given query and returns an array of the entire result set. It is similar to calling  sqlite_query() and then sqlite_fetch_array() for each row in the result set. sqlite_array_query() is significantly faster than the aforementioned."/>
       <scope name="sqlite_single_query" signature="sqlite_single_query(resource db, string query [, bool first_row_only [, bool decode_binary]])" returns="array" doc="Executes a query and returns either an array for one&#10;single column or the value of the first row" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_fetch_single" signature="sqlite_fetch_single(resource result [, bool decode_binary])" returns="string" doc="Fetches the first column of a result set as a string" ilk="function" src="sqlite.c"/>
       <scope name="sqlite_current" signature="sqlite_current(resource result [, int result_type [, bool decode_binary]])" returns="array" doc="Fetches the current row from a result set as an array" ilk="function" src="sqlite.c"/>
