@@ -346,16 +346,6 @@ for root, dirs, files in os.walk([[%tabstop:dirname]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="7b66b90e-bbbb-3a4a-a969-35b192c981d6" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
 """ [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
-<folder id="c8f1d283-cd17-a945-8e6d-3ff263a7445a" idref="f7caea8b-b764-5642-a037-f0be737f31a8" name="PHP">
-</folder>
-<folder id="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" idref="f7caea8b-b764-5642-a037-f0be737f31a8" name="Python">
-</folder>
-<folder id="872e4941-14eb-1a4a-a221-b9418d2ecfcc" idref="f7caea8b-b764-5642-a037-f0be737f31a8" name="JavaScript">
-</folder>
-<folder id="d4a1226d-2952-e948-8ecb-e8b33bab80de" idref="f7caea8b-b764-5642-a037-f0be737f31a8" name="HTML">
-</folder>
-<folder id="8a978713-b931-c549-8338-65993d26e8b2" idref="f7caea8b-b764-5642-a037-f0be737f31a8" name="XUL">
-</folder>
 <snippet id="20df15d8-0e8f-1c4e-993a-3d7cd4b0cd47" idref="d0b71e98-e11a-eb4d-980a-81a5f5fd148c" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
 #!/bin/env [[%tabstop:bash]]
 # [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
@@ -646,20 +636,6 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 (function() {
     [[%tabstop:]]
 }).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
-<folder id="47b5cfe3-424c-6d4f-9885-17008f81c39c" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" name="jQuery">
-</folder>
-<folder id="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="PHP">
-</folder>
-<folder id="fcdb9b2b-4fc8-ac41-8573-7bad68188d98" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="Python">
-</folder>
-<folder id="92a484b9-70c7-f94e-9817-07d5b2163b51" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="JavaScript">
-</folder>
-<folder id="8c5f47a6-7e31-3e43-a4ef-c4434a691279" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="HTML">
-</folder>
-<folder id="52c655f6-496f-994e-b5d5-d2252f82905d" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="XUL">
-</folder>
-<folder id="3edd7751-efcb-c84b-b33c-1b7438b0ca50" idref="441aaf8d-901b-b849-ad97-1c3a526f23cc" name="General">
-</folder>
 <snippet id="7d4faf7d-2ab2-3744-8470-d0fdad332b46" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
 &lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="776b75fe-dc47-4a44-b43e-6f356509eb21" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
@@ -906,24 +882,27 @@ function [[%tabstop:example]]_uninstall() {
 http://slashdot.org/</URL>
 <snippet id="7f91b75b-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
 !@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos</snippet>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f91c797-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Start Browser" operateOnSelection="0" runIn="no-console">
+<!-- #if PLATFORM == "win" -->
+<command insertOutput="0" keyboard_shortcut="" name="Start Browser" operateOnSelection="0" id="7f91c797-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="no-console">
 %(browser)</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f91de63-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" id="7f91de63-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 attrib -R "%F"</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f91f3ec-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for modules)" operateOnSelection="0" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for modules)" operateOnSelection="0" id="7f91f3ec-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 "%(perl)" -e print &amp;&amp; perldoc -u %w | pod2html &gt; "c:\temp\pod.html" &amp;&amp; %(browser) c:\temp\pod.html</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f9205dd-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for builtin functions)" operateOnSelection="0" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name="Perldoc on selection (for builtin functions)" operateOnSelection="0" id="7f9205dd-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 "%(perl)" -e print &amp;&amp; perldoc -u -f %w | pod2html &gt; "c:\temp\pod.html" &amp;&amp; %(browser) c:\temp\pod.html</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f921695-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="pod2html current file" operateOnSelection="0" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name="pod2html current file" operateOnSelection="0" id="7f921695-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 "%(perl)" -e print &amp;&amp; pod2html "%F" &gt; "c:\temp\pod.html" &amp;&amp; %(browser) c:\temp\pod.html</command>
-<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="7f9229c9-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+<command insertOutput="0" keyboard_shortcut="" showParsedOutputList="1" name="Find in Files" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" id="7f9229c9-3304-11db-a53a-000d935d3368" operateOnSelection="0" cwd="%(ask:Start Directory:%D)" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" parseOutput="1" runIn="command-output-window">
 findstr /s /n /c:"%(w:orask:Search Term)" %(ask:File Pattern:*.*)</command>
-<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="7f92369c-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+<!-- #else -->
+<command insertOutput="0" keyboard_shortcut="" showParsedOutputList="1" name="Find in Files" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" id="7f92369c-3304-11db-a53a-000d935d3368" operateOnSelection="0" cwd="%(ask:Start Directory:%D)" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" parseOutput="1" runIn="command-output-window">
 find . -name "%(ask:File Pattern:*)" | xargs -l grep -nH "%(w:orask:Search Term)"</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f9253a6-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" id="7f9253a6-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 chmod +w %F</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="7f925d3b-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" runIn="command-output-window">
+<command insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" id="7f925d3b-3304-11db-a53a-000d935d3368" env="" doNotOpenOutputWindow="0" idref="7f803f0e-3304-11db-a53a-000d935d3368" cwd="" runIn="command-output-window">
 wc -w</command>
+<!-- #endif -->
 <folder id="7f9266e1-3304-11db-a53a-000d935d3368" idref="7f803f0e-3304-11db-a53a-000d935d3368" name="HTML">
 </folder>
 <folder id="4205fa9a-61df-184c-be6b-f713c7153c56" idref="7f803f0e-3304-11db-a53a-000d935d3368" name="Abbreviations">
@@ -1076,8 +1055,6 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 (function() {
     [[%tabstop:]]
 }).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
-<folder id="b7fb330a-0bca-f943-a28f-359c6542210c" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" name="jQuery">
-</folder>
 <snippet id="b8756540-3877-674e-bd54-f55bfadc04d8" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="comment" set_selection="true">
 /**
   *  !@#_currentPos!@#_anchor 
@@ -1146,8 +1123,6 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
   }
 }
 ?&gt;!@#_currentPos!@#_anchor</snippet>
-<folder id="cc89a9b3-59dc-9d47-8e39-e45cb28408d3" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" name="Drupal">
-</folder>
 <snippet id="ab882379-abb8-0549-b15c-6ef25ff7c08f" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" indent_relative="true" keyboard_shortcut="" name="phpcom" set_selection="true">
 /**
   *  !@#_currentPos!@#_anchor 
@@ -1218,8 +1193,6 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
   $args = (object) array_shift($argv);
   
 }!@#_currentPos!@#_anchor</snippet>
-<folder id="334a97a1-e483-404c-94ff-2a4b4a4d8039" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" name="Drupal">
-</folder>
 <folder id="46e31deb-246e-aa4b-acea-066ec357c572" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="PHP">
 </folder>
 <folder id="de7a7689-49ec-3a4d-94f5-dd654164711e" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="Python">
