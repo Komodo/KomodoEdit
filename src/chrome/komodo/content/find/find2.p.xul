@@ -301,7 +301,7 @@
                         tooltiptext="Match whole words"
                         oncommand="update('word')"/>
               <checkbox id="opt-multiline" label="Multiline"
-                        accesskey="M" oncommand="update('multiline')"/>
+                        accesskey="t" oncommand="update('multiline')"/>
               <checkbox id="opt-repl" label="Replace"
                         accesskey="p" oncommand="update('replace')"/>
             </hbox>
