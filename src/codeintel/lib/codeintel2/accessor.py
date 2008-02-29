@@ -361,27 +361,31 @@ class KoDocumentAccessor(SciMozAccessor):
         return _xpcom.getProxyForObject(1, components.interfaces.ISciMoz,
             scimoz, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
         
+    def _get_scimoz_ref(self):
+        try:
+            view = self.doc().getView()
+        except (COMException, AttributeError), ex:
+            # Race conditions on file opening in Komodo can result
+            # in self.doc() being None or an error in .getView().
+            raise NoBufferAccessorError(str(ex))
+        scimoz_proxy = self._scimoz_proxy_from_scimoz(view.scimoz)
+        self.style_mask = (1 << scimoz_proxy.styleBits) - 1
+        self._scimoz_weak_ref = WeakReference(view.scimoz)
+        return scimoz_proxy
+        
     def scimoz(self):
         # Defer getting the scimoz until first need. This is required
         # because a koIDocument does not have its koIScintillaView at
         # creation time.
         # SIDE-EFFECT: Set self.style_mask on first access.
         if self._scimoz_weak_ref is None:
-            try:
-                view = self.doc().getView()
-            except (COMException, AttributeError), ex:
-                # Race conditions on file opening in Komodo can result
-                # in self.doc() being None or an error in .getView().
-                raise NoBufferAccessorError(str(ex))
-            scimoz_proxy = self._scimoz_proxy_from_scimoz(view.scimoz)
-            self.style_mask = (1 << scimoz_proxy.styleBits) - 1
-            self._scimoz_weak_ref = WeakReference(view.scimoz)
-            return scimoz_proxy
+            return self._get_scimoz_ref()
         scimoz = self._scimoz_weak_ref()
         if scimoz:
             return self._scimoz_proxy_from_scimoz(scimoz)
         else:
-            return None
+            # Weakref is invalid, try to get a new weakref. bug 73020
+            return self._get_scimoz_ref()
 
 
 class AccessorCache:
