@@ -247,6 +247,7 @@ class KoInterpolationService:
         """
         code = "(%s)" % interp
         prefName = interp+"DefaultInterpreter"
+        path = None
         if self._prefs.hasStringPref(prefName):
             path = self._prefs.getStringPref(prefName)
         if not path:
