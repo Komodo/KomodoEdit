@@ -64,14 +64,14 @@ from codeintel2.gencix_utils import *
 
 
 library_alternatives = {
-    "1.2.2": {
-        "download_url": "http://www.exfer.net/jquery/createjQueryXMLDocs.py?version=1.2.2",
+    "1.2.3": {
+        "download_url": "http://www.exfer.net/jquery/createjQueryXMLDocs.py?version=1.2.3",
         "xml_filename": "jquery-docs-xml.xml",
     },
 }
 
 library_name = "jQuery"
-library_version = "1.2.2"
+library_version = "1.2.3"
 library_major_minor_version = library_version.rsplit(".", 1)[0]
 library_info = library_alternatives[library_version]
 base_filepath = os.path.dirname(os.path.abspath(__file__))
