@@ -1205,6 +1205,81 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 </folder>
 <folder id="d0b71e98-e11a-eb4d-980a-81a5f5fd148c" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="General">
 </folder>
+<snippet id="808c6c97-be5c-304c-8174-15fd5a1d619c" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while {[[%tabstop:EXPR]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="0dbcfd71-dcaf-1c48-aa6a-4a71b23c5259" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
+for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="6b744c11-d400-bb42-a31e-331d3c8a2083" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
+proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="a6169623-bc5b-d141-8142-2fcfbdbdf3fa" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach [[%tabstop:VAR]] [[%tabstop]] {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="94f4af19-462b-eb46-a0dc-357d1a198bc7" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
+switch [[%tabstop:STRING]] {
+    [[%tabstop:PATTERN]] {
+	[[%tabstop:ACTION]]
+    }
+    [[%tabstop:PATTERN2]]
+	[[%tabstop:ACTION2]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="d930cd3f-a095-d649-b6b6-620aa06a21a5" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="97f1d277-f151-b84e-939c-f9b5b6a7b96a" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
+if ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+   }
+elsif ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+else {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="91278317-24c3-9d46-8dca-69686124ff22" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="b719cdb9-ca34-5547-80fa-4e5140a62bad" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
+#![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="d69aa705-67f7-dc44-a8b8-36ec1c3d80c1" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
+%[[%tabstop:name]] (
+    [[%tabstop]]	=&gt; [[%tabstop]],
+    [[%tabstop]]	=&gt; [[%tabstop]],
+)!@#_currentPos!@#_anchor</snippet>
+<snippet id="a77072f0-56a7-3544-a6c2-bfd4810d6bd7" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+class [[%tabstop:name]]
+  def [[%tabstop]]
+    [[%tabstop]]
+  end
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="ca95e380-6a8d-8548-9270-dfad75abb520" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
+def [[%tabstop:name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="63976f93-63d6-1c4f-a163-bb8e55253f81" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
+collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="0dc01797-6a30-844c-9dd7-69a18464f194" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="each" set_selection="false">
+each { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="1ec38e9a-89ed-ea42-9eaa-357902905684" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="mod" set_selection="false">
+module [[%tabstop:Name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<folder id="b7845555-f013-cd46-b7b5-d06affba3368" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="Perl">
+</folder>
+<folder id="229ff5f3-7e68-7441-baf7-12e08cbdb860" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="Ruby">
+</folder>
+<folder id="986aa9f8-2b59-704d-944d-50231c783b1e" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="Tcl">
+</folder>
 <preference-set idref="7f803f0e-3304-11db-a53a-000d935d3368">
 </preference-set>
 </project>
