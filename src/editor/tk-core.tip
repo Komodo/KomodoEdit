@@ -48,7 +48,7 @@ focus -displayof <window>
 focus -force <window>
 focus -lastfor <window>
 
-font actual <font> ?-displayof window? ?option?
+font actual <font> ?-displayof window? ?option? ?char?
 font configure <fontname> ?option? ?value option value ...?
 font create ?fontname? ?option value ...?
 font delete <fontname> ?fontname ...?
@@ -65,6 +65,7 @@ grab release <window>
 grab set ?-global? <window>
 grab status <window>
 
+grid anchor <master> ?nw|n|ne|e|se|s|sw|w|c?
 grid <slave> ?slave ...? ?options?
 grid bbox <master> ?column row? ?column2 row2?
 grid columnconfigure <master> <index> ?-option value...?
@@ -143,6 +144,7 @@ text <pathName> ?options?
 tk appname ?newName?
 tk scaling ?-displayof window? ?number?
 tk useinputmethods ?-displayof window? ?boolean?
+tk inactive ?-displayof window? ?reset?
 
 tk_setPalette <background>
 tk_setPalette <name> <value> ?name value ...?
@@ -161,7 +163,7 @@ tk_focusFollowsMouse
 tk_getOpenFile ?option value ...?
 tk_getSaveFile ?option value ...?
 
-tk_messageBox ?-default name? ?-icon iconImage? ?-message string? ?-parent window? ?-title titleString? ?-type type?
+tk_messageBox ?-default name? ?-icon iconImage? ?-message string? ?-parent window? ?-title titleString? ?-type type? ?-detail string?
 
 tk_optionMenu <w> <varName> <value> ?value value ...?
 
@@ -225,6 +227,7 @@ wm colormapwindows <window> ?windowList?
 wm command <window> ?value?
 wm deiconify <window>
 wm focusmodel <window> ?active|passive?
+wm forget <window>
 wm frame <window>
 wm geometry <window> ?newGeometry?
 wm grid <window> ?baseWidth baseHeight widthInc heightInc?
@@ -233,8 +236,10 @@ wm iconbitmap <window> ?bitmap?
 wm iconify <window>
 wm iconmask <window> ?bitmap?
 wm iconname <window> ?newName?
+wm iconphoto <window> ?-default? image ?image ...?
 wm iconposition <window> ?x y?
 wm iconwindow <window> ?pathName?
+wm manage <window>
 wm maxsize <window> ?width height?
 wm minsize <window> ?width height?
 wm overrideredirect <window> ?boolean?
@@ -246,3 +251,21 @@ wm state <window> ?newstate?
 wm title <window> ?string?
 wm transient <window> ?master?
 wm withdraw <window>
+
+ttk::button <pathName> ?options?
+ttk::checkbutton <pathName> ?options?
+ttk::combobox <pathName> ?options?
+ttk::entry <pathName> ?options?
+ttk::frame <pathName> ?options?
+ttk::labelframe <pathName> ?options?
+ttk::label <pathName> ?options?
+ttk::menubutton <pathName> ?options?
+ttk::notebook <pathName> ?options?
+ttk::panedwindow <pathName> ?options?
+ttk::progressbar <pathName> ?options?
+ttk::radiobutton <pathName> ?options?
+ttk::scrollbar <pathName> ?options?
+ttk::separator <pathName> ?options?
+ttk::sizegrip <pathName> ?options?
+ttk::style <pathName> ?options?
+ttk::treeview <pathName> ?options?

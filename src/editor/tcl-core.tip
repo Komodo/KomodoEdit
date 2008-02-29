@@ -21,6 +21,8 @@ after info ?id?
 
 append <varName> ?value value value ...?
 
+apply <lambda> ?arg ...?
+
 array anymore <arrayName> <searchId>
 array donesearch <arrayName> <searchId>
 array exists <arrayName>
@@ -56,14 +58,36 @@ binary scan <string> <formatString> ?<varName> <varName> ...?
 break
 
 catch <script> ?<varName>?
+catch <script> ?<varName>? ?<optionsArray>?
 
 cd ?dirName?
 
+chan blocked <channelId>
+chan close <channelId>
+chan configure <channelId> ?name ?value ?name value ...???
+chan copy <inchan> <outchan> ?-size size? ?-command callback?
+chan create {read|write ...} cmdPrefix
+chan eof <channelId>
+chan event <channelId> readable|writable ?script?
+chan flush <channelId>
+chan gets <channelId> ?<varName>?
+chan names ?pattern?
+chan pending input|output  <channelId>
+chan postevent <channelId> {read|write ...}
+chan puts ?-nonewline? ?channelId? <string>
+chan read ?-nonewline? <channelId>
+chan read <channelId> <numChars>
+chan seek <channelId> <offset> ?start|current|end?
+chan tell <channelId>
+chan truncate <channelId> ?length?
+
 clock add <timeval> ?count unit ...? ?-timezone <string>? ?-locale <string>? ?-gmt <boolean>?
 clock format <clockValue> ?-format string? ?-gmt boolean?
+clock format <clockValue> ?-locale name? ?-timezone timeZone? ?-format string?
 clock microseconds
 clock milliseconds
 clock scan <dateString> ?-base clockVal? ?-gmt boolean?
+clock scan <dateString> ?-format format? ?-locale name? ?-timezone timeZone?
 clock seconds
 clock clicks ?-milliseconds?
 
@@ -80,6 +104,31 @@ dde request <service> <topic> <item>
 dde services <service> <topic>
 dde eval <topic> <cmd> ?arg arg ...?
 
+dict append dictionaryVariable key ?string ...? 
+dict create ?key value ...? 
+dict exists <dictionaryValue> key ?key ...? 
+dict filter <dictionaryValue> filterType arg ?arg ...?
+
+dict filter <dictionaryValue> key globPattern 
+dict filter <dictionaryValue> script {keyVar valueVar} script 
+dict filter <dictionaryValue> value globPattern 
+
+dict for {keyVar valueVar} <dictionaryValue> body 
+dict get <dictionaryValue> ?key ...? 
+dict incr dictionaryVariable key ?increment? 
+dict info <dictionaryValue> 
+dict keys <dictionaryValue> ?globPattern? 
+dict lappend dictionaryVariable key ?value ...? 
+dict merge ?<dictionaryValue> ...? 
+dict remove <dictionaryValue> ?key ...? 
+dict replace <dictionaryValue> ?key value ...? 
+dict set dictionaryVariable key ?key ...? value 
+dict size <dictionaryValue> 
+dict unset dictionaryVariable key ?key ...? 
+dict update dictionaryVariable key varName ?key varName ...? body 
+dict values <dictionaryValue> ?globPattern? 
+dict with dictionaryVariable ?key ...? body 
+
 encoding convertfrom ?encoding? <data>
 encoding convertto ?encoding? <string>
 encoding dirs ?directorylist?
@@ -92,7 +141,7 @@ error <message> ?info? ?code?
 
 eval <script> ?script ...?
 
-exec ?-keepnewline? ?--? <arg> ?arg ...?
+exec ?-keepnewline? ?-ignorestderr? ?--? <arg> ?arg ...?
 
 exit ?returnCode?
 
@@ -117,6 +166,8 @@ file isdirectory <name>
 file isfile <name>
 file join <name> ?name ...?
 file lstat <name> <varName>
+file link ?-symbolic|-hard? linkName ?target?
+file normalize <path>
 file mkdir <dir> ?dir ...?
 file mtime <name> ?time?
 file nativename <name>
@@ -127,9 +178,11 @@ file readlink <name>
 file rename ?-force? ?--? <source> <target>
 file rename ?-force? ?--? <source> ?source ...? <targetDir>
 file rootname <name>
+file separator ?path?
 file size <name>
 file split <name>
 file stat <name> <varName>
+file system <path>
 file tail <name>
 file type <name>
 file volumes
@@ -200,7 +253,7 @@ interp exists <path>
 interp expose <path> <hiddenName> ?exposedCmdName?
 interp hide <path> <exposedCmdName> ?hiddenCmdName?
 interp hidden <path>
-interp invokehidden <path> ?-global? <hiddenCmdName> ?arg ...?
+interp invokehidden <path> ?-global? ?-namespace namespace? <hiddenCmdName> ?arg ...?
 interp issafe ?path?
 interp limit <path> command ?-option? ?value...?
 interp limit <path> time    ?-option? ?value...?
@@ -217,6 +270,7 @@ lappend <varName> ?value value value ...?
 lindex <list> <index>
 
 linsert <list> <index> <element> ?element element ...?
+lassign <list> varname ?varname ...?
 
 list ?arg arg ...?
 
@@ -226,7 +280,9 @@ load <fileName> ?packageName ?interp??
 
 lrange <list> <first> <last>
 
+lrepeat <number> element ?element ...?
 lreplace <list> <first> <last> ?element element ...?
+lreverse <list>
 
 lsearch ?options? <list> <pattern>
 
@@ -277,12 +333,15 @@ package ifneeded <package> <version> ?script?
 package names
 package prefer ?latest|stable?
 package present ?-exact? <package> ?version?
+package present <package> ?requirement ...?
 package provide <package> ?version?
 package require ?-exact? <package> ?version?
+package require <package> ?requirement ...?
 package unknown ?command?
 package vcompare <version1> <version2>
 package versions <package>
 package vsatisfies <version1> <version2>
+package vsatisfies <version> requirement ...
 
 pid ?fileId?
 
@@ -321,7 +380,7 @@ resource read <resourceType> <resourceId> ?resourceRef?
 resource types ?resourceRef?
 resource write ?-id resourceId? ?-name resourceName? ?-file resourceRef? ?-force? <resourceType> <data>
 
-return ?-code code? ?-errorinfo info? ?-errorcode code? ?string?
+return ?-code code? ?-errorinfo info? ?-errorcode code? ?-level level? -errorline line? ?string?
 
 scan <string> <format> ?<varName> <varName> ...?
 
@@ -335,6 +394,7 @@ socket -server <command> ?options? <port>
 source <fileName>
 source -rsrc <resourceName> ?fileName?
 source -rsrcid <resourceId> ?fileName?
+source -encoding encoding <fileName>
 
 split <string> ?splitChars?
 
@@ -395,6 +455,10 @@ trace vinfo <name>
 
 unknown <cmdName> ?arg arg ...?
 
+unload ?-keeplibrary? ?-nocomplain? ?--? fileName
+unload ?-keeplibrary? ?-nocomplain? ?--? fileName packageName
+unload ?-keeplibrary? ?-nocomplain? ?--? fileName packageName interp
+
 unset ?--? ?-nocomplain? ?name name name ...?
 
 update ?idletasks?
@@ -446,3 +510,17 @@ http::size <token>
 http::cleanup <token>
 http::register <proto> <port> <command>
 http::unregister <proto>
+
+tcl::tm::path add <path>
+tcl::tm::path remove <path>
+tcl::tm::path list
+tcl::tm::roots <pathlist>
+
+platform::generic
+platform::identify
+platform::patterns <id>
+
+platform::shell::generic <shellpath>
+platform::shell::identify <shellpath>
+platform::shell::platform <shellpath>
+
