@@ -300,6 +300,8 @@ class KoInterpolationService:
             'pythonw': lambda interp='pythonw', lang='Python': self._GetInterpreter(interp, lang),
 # #endif
             'ruby':   lambda interp='ruby',   lang='Ruby':   self._GetInterpreter(interp, lang),
+            'tclsh':  lambda interp='tclsh',  lang='Tcl':    self._GetInterpreter(interp, lang),
+            'wish':   lambda interp='wish',   lang='Tcl':    self._GetInterpreter(interp, lang),
             'guid':   self._getGuid,
 
             # The code are handled specially in _doInterpolate1().
