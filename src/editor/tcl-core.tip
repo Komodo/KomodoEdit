@@ -278,6 +278,8 @@ llength <list>
 
 load <fileName> ?packageName ?interp??
 
+lset listvar ?index ...? <newValue>
+
 lrange <list> <first> <last>
 
 lrepeat <number> element ?element ...?
