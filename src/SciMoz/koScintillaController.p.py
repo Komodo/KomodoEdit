@@ -208,7 +208,7 @@ class koScintillaController:
             sm.copy()
             sm.sendUpdateCommands("select")
             sm.sendUpdateCommands("clipboard")
-            sm.currentPos = sm.selectionStart = sm.selectionEnd
+            sm.currentPos = sm.selectionEnd = sm.selectionStart
             sm.chooseCaretX()
             self._lastcutposition = None 
         elif command_name == 'cmd_cut':
