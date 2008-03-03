@@ -354,10 +354,14 @@ class Parser:
                             if self.classifier.is_identifier(tok2, True) and tok2.text != "Tcl":
                                 curr_node.imports.append(Name_LineNum(tok2.text, tok.start_line))
                 elif text == "global":
+                    # XXX: all tokens following 'global' should be declared vars
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_identifier(tok, True):
                         curr_globals[tok.text] = None
                 elif text == "set":
+                    # XXX: Needs to handle lappend, append, incr, variable
+                    # XXX: possibly dict set, array set, upvar, lassign,
+                    # XXX: foreach, regsub (non-inline)
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_identifier(tok, True):
                         if curr_globals.has_key(tok.text):

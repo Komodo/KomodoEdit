@@ -38,8 +38,8 @@ array unset <arrayName> ?pattern?
 auto_execok <cmd>
 auto_import <pattern>
 auto_load <cmd>
-auto_mkindex <dir> <pattern> <pattern> ...
-auto_mkindex_old <dir> <pattern> <pattern> ...
+auto_mkindex <dir> <pattern> ?<pattern> ...?
+auto_mkindex_old <dir> <pattern> ?<pattern> ...?
 auto_qualify <command> <namespace>
 auto_reset
 tcl_findLibrary <basename> <version> <patch> <initScript> <enVarName> <varName>
@@ -57,7 +57,6 @@ binary scan <string> <formatString> ?<varName> <varName> ...?
 
 break
 
-catch <script> ?<varName>?
 catch <script> ?<varName>? ?<optionsArray>?
 
 cd ?dirName?
@@ -97,37 +96,37 @@ concat ?arg arg ...?
 
 continue
 
-dde servername ?topic?
+dde servername ?-force? ?-handler proc? ?--? ?topic?
 dde execute <service> <topic> <data>
 dde poke <service> <topic> <item> <data>
 dde request <service> <topic> <item>
 dde services <service> <topic>
 dde eval <topic> <cmd> ?arg arg ...?
 
-dict append dictionaryVariable key ?string ...? 
-dict create ?key value ...? 
-dict exists <dictionaryValue> key ?key ...? 
-dict filter <dictionaryValue> filterType arg ?arg ...?
+dict append <dictionaryVariable> <key> ?string ...?
+dict create ?key value ...?
+dict exists <dictionaryValue> <key> ?key ...?
+dict filter <dictionaryValue> <filterType> <arg> ?arg ...?
 
-dict filter <dictionaryValue> key globPattern 
-dict filter <dictionaryValue> script {keyVar valueVar} script 
-dict filter <dictionaryValue> value globPattern 
+dict filter <dictionaryValue> <key> <globPattern>
+dict filter <dictionaryValue> <script> {keyVar valueVar} <script>
+dict filter <dictionaryValue> <value> <globPattern>
 
-dict for {keyVar valueVar} <dictionaryValue> body 
-dict get <dictionaryValue> ?key ...? 
-dict incr dictionaryVariable key ?increment? 
-dict info <dictionaryValue> 
-dict keys <dictionaryValue> ?globPattern? 
-dict lappend dictionaryVariable key ?value ...? 
-dict merge ?<dictionaryValue> ...? 
-dict remove <dictionaryValue> ?key ...? 
-dict replace <dictionaryValue> ?key value ...? 
-dict set dictionaryVariable key ?key ...? value 
-dict size <dictionaryValue> 
-dict unset dictionaryVariable key ?key ...? 
-dict update dictionaryVariable key varName ?key varName ...? body 
-dict values <dictionaryValue> ?globPattern? 
-dict with dictionaryVariable ?key ...? body 
+dict for {keyVar valueVar} <dictionaryValue> <body>
+dict get <dictionaryValue> ?key ...?
+dict incr <dictionaryVariable> <key> ?increment?
+dict info <dictionaryValue>
+dict keys <dictionaryValue> ?globPattern?
+dict lappend <dictionaryVariable> <key> ?value ...?
+dict merge ?<dictionaryValue> ...?
+dict remove <dictionaryValue> ?key ...?
+dict replace <dictionaryValue> ?key value ...?
+dict set <dictionaryVariable> <key> ?key ...? <value>
+dict size <dictionaryValue>
+dict unset <dictionaryVariable> <key> ?key ...?
+dict update <dictionaryVariable> <key> <varName> ?key varName ...? <body>
+dict values <dictionaryValue> ?globPattern?
+dict with <dictionaryVariable> ?key ...? <body>
 
 encoding convertfrom ?encoding? <data>
 encoding convertto ?encoding? <string>
@@ -201,7 +200,7 @@ format <formatString> ?arg arg ...?
 
 gets <channelId> ?<varName>?
 
-glob ?-directory directory? ?-join? ?-nocomplain? ?-path pathPrefix? ?-types typeList? ?--? pattern ?pattern ...?
+glob ?-directory directory? ?-join? ?-nocomplain? ?-path pathPrefix? ?-tails? ?-types typeList? ?--? <pattern> ?pattern ...?
 
 global <varname> ?varname ...?
 
@@ -227,6 +226,7 @@ info complete <command>
 info default <procname> <arg> <varname>
 info exists <varName>
 info frame ?number?
+info functions ?pattern? 
 info globals ?pattern?
 info hostname
 info level ?number?
@@ -258,6 +258,7 @@ interp issafe ?path?
 interp limit <path> command ?-option? ?value...?
 interp limit <path> time    ?-option? ?value...?
 interp marktrusted <path>
+interp recursionlimit <path> ?newlimit? 
 interp share <srcPath> <channelId> <destPath>
 interp slaves ?path?
 interp target <path> <alias>
@@ -267,10 +268,11 @@ join <list> ?joinString?
 
 lappend <varName> ?value value value ...?
 
+lassign <list> <varname> ?varname ...?
+
 lindex <list> <index>
 
 linsert <list> <index> <element> ?element element ...?
-lassign <list> varname ?varname ...?
 
 list ?arg arg ...?
 
@@ -278,15 +280,15 @@ llength <list>
 
 load <fileName> ?packageName ?interp??
 
-lset listvar ?index ...? <newValue>
-
 lrange <list> <first> <last>
 
-lrepeat <number> element ?element ...?
+lrepeat <number> <element> ?element ...?
 lreplace <list> <first> <last> ?element element ...?
 lreverse <list>
 
 lsearch ?options? <list> <pattern>
+
+lset <listvar> ?index ...? <newValue>
 
 lsort ?options? <list>
 
@@ -362,6 +364,7 @@ read <channelId> <numChars>
 
 regexp ?switches? exp <string> ?matchVar? ?subMatchVar subMatchVar ...?
 
+registry broadcast <keyName> ?-timeout milliseconds?
 registry delete <keyName> ?valueName?
 registry get <keyName> <valueName>
 registry keys <keyName> ?pattern?
@@ -382,7 +385,7 @@ resource read <resourceType> <resourceId> ?resourceRef?
 resource types ?resourceRef?
 resource write ?-id resourceId? ?-name resourceName? ?-file resourceRef? ?-force? <resourceType> <data>
 
-return ?-code code? ?-errorinfo info? ?-errorcode code? ?-level level? -errorline line? ?string?
+return ?-code code? ?-errorinfo info? ?-errorcode code? ?-errorline line? ?-level level? ?-options options? ?string?
 
 scan <string> <format> ?<varName> <varName> ...?
 
@@ -451,21 +454,29 @@ tell <channelId>
 
 time <script> ?count?
 
-trace variable <name> rwu <command>
-trace vdelete <name> rwu <command>
-trace vinfo <name>
+trace add command <name> <ops> <commandPrefix>
+trace add execution <name> <ops> <commandPrefix>
+trace add variable <varName> <ops> <commandPrefix>
+trace remove command <name> <ops> <commandPrefix>
+trace remove execution <name> <ops> <commandPrefix>
+trace remove variable <varName> <ops> <commandPrefix>
+trace info command <name>
+trace info execution <name>
+trace info variable <varName>
+trace variable <varName> rwu <command>
+trace vdelete <varName> rwu <command>
+trace vinfo <varName>
 
 unknown <cmdName> ?arg arg ...?
 
-unload ?-keeplibrary? ?-nocomplain? ?--? fileName
-unload ?-keeplibrary? ?-nocomplain? ?--? fileName packageName
-unload ?-keeplibrary? ?-nocomplain? ?--? fileName packageName interp
+unload ?-keeplibrary? ?-nocomplain? ?--? <fileName> ?packageName ?interp??
 
-unset ?--? ?-nocomplain? ?name name name ...?
+unset ?-nocomplain? ?--? ?name name name ...?
 
-update ?idletasks?
+update
+update idletasks
 
-uplevel ?level? arg ?arg ...?
+uplevel ?level? <arg> ?arg ...?
 
 upvar ?level? <otherVar> <myVar> ?otherVar myVar ...?
 

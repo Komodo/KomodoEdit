@@ -65,8 +65,8 @@ grab release <window>
 grab set ?-global? <window>
 grab status <window>
 
-grid anchor <master> ?nw|n|ne|e|se|s|sw|w|c?
 grid <slave> ?slave ...? ?options?
+grid anchor <master> ?nw|n|ne|e|se|s|sw|w|c?
 grid bbox <master> ?column row? ?column2 row2?
 grid columnconfigure <master> <index> ?-option value...?
 grid configure <slave> ?slave ...? ?options?
@@ -91,6 +91,8 @@ image width <name>
 
 label <pathName> ?options?
 
+labelframe <pathName> ?options?
+
 listbox <pathName> ?options?
 
 safe::loadTk <slave> ?-use windowId? ?-display displayName?
@@ -108,12 +110,14 @@ option clear
 option get <window> <name> <class>
 option readfile <fileName> ?priority?
 
-pack slave ?slave ...? ?options?
+pack <slave> ?slave ...? ?options?
 pack configure <slave> ?slave ...? ?options?
 pack forget <slave> ?slave ...?
 pack info <slave>
 pack propagate <master> ?boolean?
 pack slaves <master>
+
+panedwindow <pathName> ?options?
 
 place <window> option value ?option value ...?
 place configure <window> option value ?option value ...?
@@ -142,9 +146,11 @@ spinbox <pathName> ?options?
 text <pathName> ?options?
 
 tk appname ?newName?
+tk caret <window> ?-x x? ?-y y? ?-height height?
+tk inactive ?-displayof window? ?reset?
 tk scaling ?-displayof window? ?number?
 tk useinputmethods ?-displayof window? ?boolean?
-tk inactive ?-displayof window? ?reset?
+tk windowingsystem
 
 tk_setPalette <background>
 tk_setPalette <name> <value> ?name value ...?
@@ -170,6 +176,35 @@ tk_optionMenu <w> <varName> <value> ?value value ...?
 tk_popup <menu> <x> <y> ?entry?
 
 toplevel <pathName> ?options?
+
+ttk::button <pathName> ?options?
+ttk::checkbutton <pathName> ?options?
+ttk::combobox <pathName> ?options?
+ttk::entry <pathName> ?options?
+ttk::frame <pathName> ?options?
+ttk::label <pathName> ?options?
+ttk::labelframe <pathName> ?options?
+ttk::menubutton <pathName> ?options?
+ttk::notebook <pathName> ?options?
+ttk::panedwindow <pathName> ?options?
+ttk::progressbar <pathName> ?options?
+ttk::radiobutton <pathName> ?options?
+ttk::scrollbar <pathName> ?options?
+ttk::separator <pathName> ?options?
+ttk::sizegrip <pathName> ?options?
+ttk::treeview <pathName> ?options?
+
+ttk::style configure <style> ?-option ?value option value...? ?
+ttk::style map <style> ?-option { statespec value... }?
+ttk::style lookup <style> -option ?state ?default??
+ttk::style layout <style> ?layoutSpec?
+ttk::style element create <elementName> <type> ?args...?
+ttk::style element names
+ttk::style element options <element>
+ttk::style theme create <themeName> ?-parent basedon? ?-settings script... ?
+ttk::style theme settings <themeName> <script>
+ttk::style theme names
+ttk::style theme use <themeName>
 
 winfo atom ?-displayof window? <name>
 winfo atomname ?-displayof window? <id>
@@ -222,6 +257,7 @@ winfo x <window>
 winfo y <window>
 
 wm aspect <window> ?minNumer minDenom maxNumer maxDenom?
+wm attributes <window> ?option ?value ?option value...???
 wm client <window> ?name?
 wm colormapwindows <window> ?windowList?
 wm command <window> ?value?
@@ -247,25 +283,8 @@ wm positionfrom <window> ?who?
 wm protocol <window> ?name? ?command?
 wm resizable <window> ?width height?
 wm sizefrom <window> ?who?
+wm stackorder <window> ?isabove|isbelow window?
 wm state <window> ?newstate?
 wm title <window> ?string?
 wm transient <window> ?master?
 wm withdraw <window>
-
-ttk::button <pathName> ?options?
-ttk::checkbutton <pathName> ?options?
-ttk::combobox <pathName> ?options?
-ttk::entry <pathName> ?options?
-ttk::frame <pathName> ?options?
-ttk::labelframe <pathName> ?options?
-ttk::label <pathName> ?options?
-ttk::menubutton <pathName> ?options?
-ttk::notebook <pathName> ?options?
-ttk::panedwindow <pathName> ?options?
-ttk::progressbar <pathName> ?options?
-ttk::radiobutton <pathName> ?options?
-ttk::scrollbar <pathName> ?options?
-ttk::separator <pathName> ?options?
-ttk::sizegrip <pathName> ?options?
-ttk::style <pathName> ?options?
-ttk::treeview <pathName> ?options?
