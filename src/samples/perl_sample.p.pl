@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Copyright (c) 2000-2006 ActiveState Software Inc.
+# Copyright (c) 2000-2008 ActiveState Software Inc.
 
 # Use this sample script to explore some of Komodo's Perl features.
 
@@ -46,6 +46,17 @@ print_total(@prices);
 #---- Autocomplete and calltips
 #     - Add a 'use'-statement.
 #     - Re-enter a call to "print_total()".
+
+#---- Abbreviations:
+#     - Snippets from the Abbreviations folder in projects and toolboxes
+#       can be inserted by typing the snippet name followed by
+#       'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
+#       Toolbox contains some default abbreviation snippets to get you
+#       started.
+#    
+#     Try this below with the 'fore' Perl snippet. An empty foreach
+#     block is created with "Tabstop" placeholders for the variable and
+#     expression.
 
 #    More:
 #    - Press 'F1' to view the Komodo User Guide.

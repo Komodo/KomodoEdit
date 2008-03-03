@@ -1,4 +1,4 @@
-<!-- # Copyright (c) 2000-2004 ActiveState Corp. -->
+<!-- # Copyright (c) 2000-2008 ActiveState Corp. -->
 
 <!-- Use this sample script to explore some of Komodo's PHP features. -->
 
@@ -65,6 +65,16 @@ $x = 1;
 #   - On a blank line below, enter "pri".
 #   - When you type the "i", Komodo lists functions starting with "pri".
 #   - Press 'Tab' to complete the function name.
+
+#---- Abbreviations:
+#     - Snippets from the Abbreviations folder in projects and toolboxes
+#       can be inserted by typing the snippet name followed by
+#       'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
+#       Toolbox contains some default abbreviation snippets to get you
+#       started.
+#    
+#     Try this below with the 'class' PHP snippet. An empty class
+#     block is created with "Tabstop" placeholders in handy places.
 
 # CallTips
 #   - On a blank line below, type "print_r", followed by an open parenthesis

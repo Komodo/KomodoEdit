@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2000-2006 ActiveState Software Inc.
+# Copyright (c) 2000-2008 ActiveState Software Inc.
 
 # Use this sample script to explore some of Komodo's Python features.
 
@@ -43,6 +43,16 @@ printStrings(mylist)
 import string
 print string.split("hello there pete", " ")
 
+#---- Abbreviations:
+#     - Snippets from the Abbreviations folder in projects and toolboxes
+#       can be inserted by typing the snippet name followed by
+#       'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
+#       Toolbox contains some default abbreviation snippets to get you
+#       started.
+#    
+#     Try this below with the 'class' Python snippet. A class block is
+#     created with "Tabstop" placeholders for the class name and body
+#     code.
 
 # More:
 #   - Press 'F1' to view the Komodo User Guide.

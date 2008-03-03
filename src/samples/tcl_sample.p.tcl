@@ -1,5 +1,5 @@
 #!tclsh
-# Copyright (c) 2000-2006 ActiveState Software Inc.
+# Copyright (c) 2000-2008 ActiveState Software Inc.
 package require Tcl 8
 
 # Use this sample script to explore some of Komodo's Tcl features.
@@ -41,6 +41,16 @@ set val [expr $feather + 5];
 #   - Methods beginning with "str" are displayed.
 #   - Press 'Tab' to insert the selected method.
 
+#---- Abbreviations:
+#     - Snippets from the Abbreviations folder in projects and toolboxes
+#       can be inserted by typing the snippet name followed by
+#       'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
+#       Toolbox contains some default abbreviation snippets to get you
+#       started.
+#    
+#     Try this below with the 'for' Tcl snippet. An empty for loop
+#     is created with "Tabstop" placeholders for the start condition,
+#     test, next command and body code.
 
 # CallTips
 #   - On a blank line below, enter "if", and then press the space bar.
@@ -50,3 +60,4 @@ set val [expr $feather + 5];
 # More:
 #   - Press 'F1' to view the Komodo User Guide.
 #   - Select Help|Tutorial|Tcl Tutorial for more about Komodo and Tcl.
+

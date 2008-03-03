@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <!--
-    by JeffG, Copyright (c) 2000-2007 ActiveState Software Inc.
+    by JeffG, Copyright (c) 2000-2008 ActiveState Software Inc.
 
     HTML code features autocomplete based on the doctype declaration you
     provide at the top of your page. If you don't declare a doctype, Komodo
@@ -20,7 +20,8 @@
 //<![CDATA[
 /*
     * JavaScript code blocks include syntax highlighting, autocomplete and
-    * calltips
+    * calltips. See the javascript_sample.js file for more JavaScript
+    * features.
 */
 
 /* mini js library */
@@ -142,9 +143,19 @@ a:hover { text-decoration: underline; }
 </head>
 <body>
 <!--
-    
+  Editing Feature: Abbreviations
+    Snippets from the Abbreviations folder in projects and toolboxes can
+    be inserted by typing the snippet name followed by 'Ctrl'+'T'
+    ('Cmd'+'T' on OS X). The Samples folder in the Toolbox contains
+    some default abbreviation snippets to get you started.
+  
+    Try this below with the 'ul' HTML snippet. An unordered list block
+    is created with "Tabstop" placeholders for the id attribute and list
+    item content.
 -->
+
 <h1>Komodo HTML Sample</h1>
+
 <form id="test-form" onsubmit="return hack()">
 <div id="form-items">
     <label>Type some text:
