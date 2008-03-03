@@ -1036,15 +1036,9 @@
             target = target.parentNode;
         }
         if (!url) return;
-        if (url[0] == "#") {
-            switch (url) {
-            case "#workspace":
-                ko.help.open('the_komodo_workspace');
-                return;
-            case "#help":
-                ko.help.open(null);
-                return;
-            }
+        if (url.match(/^\komododoc:/)) {
+            ko.help.open(url.substring(10));
+            return;
         }
         if (!url.match(/^\w+:\/\//)) {
             var browser = document.getAnonymousElementByAttribute(this, "anonid", "landingPage");
