@@ -114,6 +114,7 @@
         <columns>
           <column style="width: 7em;"/>
           <column flex="1" style="max-width: 30em;"/>
+          <column />  <!-- buttons, if any, for the widget in the prev column -->
         </columns>
         <rows>
           <row align="center">
@@ -139,122 +140,124 @@
                        onfocus="this.setSelectionRange(0, this.value.length);"
                        oninput="update('pattern');"/>
             </deck>
-            <!-- TODO: prettier shortcuts button -->
-            <button type="menu" id="pattern-shortcuts"
-                    tooltiptext="Regular Expression Shortcuts"
-                    class="rightarrow-button">
-              <menupopup popupanchor="topright">
-                <menuitem label="&escapeRegexSpecialCharacters.label;"
-                          oncommand="regex_escape();"/>
-                <menuseparator/>
-                <menuitem label="&anyCharacterExceptANewline.label;"
-                          shortcut="."
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&dAnyDecimalDigit.label;"
-                          shortcut="\d"
-                          tooltiptext="&equivalentTo09.tooltiptext;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&DAnyNonDigit.label;"
-                          shortcut="\D"
-                          tooltiptext="&equivalentTo09.tooltiptext;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&sAnyWhitespaceCharacter.label;"
-                          shortcut="\s"
-                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&SAnyNonWhitespaceCharacter.label;"
-                          shortcut="\S"
-                          tooltiptext="&equivalentToTNRFV.tooltiptext;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&wAnyAlphanumericCharacter.label;"
-                          shortcut="\w"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&WAnyNonAlphanumericCharacter.label;"
-                          shortcut="\W"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&numberTheContentsOfTheGroupOfTheGivenNumber.label;"
-                          shortcut="\number"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&PNameTheContentsOfTheGroupOfTheGivenName.label;"
-                          shortcut="(?P=name)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuseparator/>
-                <menuitem label="&zeroOrMoreOfThePrecedingBlock.label;"
-                          shortcut="*"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&zeroOrMoreOfThePrecedingBlockNonGreedy.label;"
-                          shortcut="*?"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&oneOrMoreOfThePrecedingBlock.label;"
-                          shortcut="+"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&oneOrMoreOfThePrecedingBlockNonGreedy.label;"
-                          shortcut="+?"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&zeroOrOneOfThePrecedingBlock.label;"
-                          shortcut="?"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&zeroOrOneOfThePrecedingBlockNonGreedy.label;"
-                          shortcut="??"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&mExactlyMCopiesOfThePrecedingBlock.label;"
-                          shortcut="{m}"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&mNMToNCopiesOfThePrecedingBlock.label;"
-                          shortcut="{m,n}"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&mNMToNCopiesOfThePrecedingBlockNonGreedy.label;"
-                          shortcut="{m,n}?"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuseparator/>
-                <menuitem label="&beginningOfLine.label;"
-                          shortcut="^"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&endOfLine.label;"
-                          shortcut="$"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&bTheBeginningOrEndOfAWord.label;"
-                          shortcut="\b"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&BAnythingBUTTheBeginningOrEndOfAWord.label;"
-                          shortcut="\B"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&ABeginningOfTheString.label;"
-                          shortcut="\A"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&ZEndOfTheString.label;"
-                          shortcut="\Z"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuseparator/>
-                <menuitem label="&group.label;"
-                          shortcut="(...)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="(?P&lt;name&gt;...) : named group"
-                          shortcut="(?P&lt;name&gt;...)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&nonGroupingGroup.label;"
-                          shortcut="(?:...)"
-                          tooltiptext="&theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="&aCommentTheContentsAreIgnored.label;"
-                          shortcut="(?#...)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="(?=...) : matches if &lt;...&gt; matches next, but does not consume the string"
-                          shortcut="(?=...)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string"
-                          shortcut="(?!...)"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="(?&lt;=...) : positive lookbehind assertion"
-                          shortcut="(?&lt;=...)"
-                          tooltiptext="matches if the current position is immediately preceded by a match for &lt;...&gt;"
-                          oncommand="regex_insert_shortcut(this);"/>
-                <menuitem label="(?&lt;!...) : negative lookbehind assertion"
-                          shortcut="(?&lt;!...)"
-                          tooltiptext="matches if the current position is NOT immediately preceded by a match for &lt;...&gt;"
-                          oncommand="regex_insert_shortcut(this);"/>
-              </menupopup>
-            </button>
+            <hbox>
+              <!-- TODO: prettier shortcuts button -->
+              <button type="menu" id="pattern-shortcuts"
+                      tooltiptext="Regular Expression Shortcuts"
+                      class="rightarrow-button">
+                <menupopup popupanchor="topright">
+                  <menuitem label="&escapeRegexSpecialCharacters.label;"
+                            oncommand="regex_escape();"/>
+                  <menuseparator/>
+                  <menuitem label="&anyCharacterExceptANewline.label;"
+                            shortcut="."
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&dAnyDecimalDigit.label;"
+                            shortcut="\d"
+                            tooltiptext="&equivalentTo09.tooltiptext;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&DAnyNonDigit.label;"
+                            shortcut="\D"
+                            tooltiptext="&equivalentTo09.tooltiptext;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&sAnyWhitespaceCharacter.label;"
+                            shortcut="\s"
+                            tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&SAnyNonWhitespaceCharacter.label;"
+                            shortcut="\S"
+                            tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&wAnyAlphanumericCharacter.label;"
+                            shortcut="\w"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&WAnyNonAlphanumericCharacter.label;"
+                            shortcut="\W"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&numberTheContentsOfTheGroupOfTheGivenNumber.label;"
+                            shortcut="\number"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&PNameTheContentsOfTheGroupOfTheGivenName.label;"
+                            shortcut="(?P=name)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuseparator/>
+                  <menuitem label="&zeroOrMoreOfThePrecedingBlock.label;"
+                            shortcut="*"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&zeroOrMoreOfThePrecedingBlockNonGreedy.label;"
+                            shortcut="*?"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&oneOrMoreOfThePrecedingBlock.label;"
+                            shortcut="+"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&oneOrMoreOfThePrecedingBlockNonGreedy.label;"
+                            shortcut="+?"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&zeroOrOneOfThePrecedingBlock.label;"
+                            shortcut="?"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&zeroOrOneOfThePrecedingBlockNonGreedy.label;"
+                            shortcut="??"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&mExactlyMCopiesOfThePrecedingBlock.label;"
+                            shortcut="{m}"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&mNMToNCopiesOfThePrecedingBlock.label;"
+                            shortcut="{m,n}"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&mNMToNCopiesOfThePrecedingBlockNonGreedy.label;"
+                            shortcut="{m,n}?"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuseparator/>
+                  <menuitem label="&beginningOfLine.label;"
+                            shortcut="^"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&endOfLine.label;"
+                            shortcut="$"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&bTheBeginningOrEndOfAWord.label;"
+                            shortcut="\b"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&BAnythingBUTTheBeginningOrEndOfAWord.label;"
+                            shortcut="\B"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&ABeginningOfTheString.label;"
+                            shortcut="\A"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&ZEndOfTheString.label;"
+                            shortcut="\Z"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuseparator/>
+                  <menuitem label="&group.label;"
+                            shortcut="(...)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="(?P&lt;name&gt;...) : named group"
+                            shortcut="(?P&lt;name&gt;...)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&nonGroupingGroup.label;"
+                            shortcut="(?:...)"
+                            tooltiptext="&theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="&aCommentTheContentsAreIgnored.label;"
+                            shortcut="(?#...)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="(?=...) : matches if &lt;...&gt; matches next, but does not consume the string"
+                            shortcut="(?=...)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string"
+                            shortcut="(?!...)"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="(?&lt;=...) : positive lookbehind assertion"
+                            shortcut="(?&lt;=...)"
+                            tooltiptext="matches if the current position is immediately preceded by a match for &lt;...&gt;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                  <menuitem label="(?&lt;!...) : negative lookbehind assertion"
+                            shortcut="(?&lt;!...)"
+                            tooltiptext="matches if the current position is NOT immediately preceded by a match for &lt;...&gt;"
+                            oncommand="regex_insert_shortcut(this);"/>
+                </menupopup>
+              </button>
+            </hbox>
           </row>
 
           <row id="repl-row" align="center">
@@ -378,10 +381,10 @@
                      completeselectedindex="true"
                      onfocus="dirs_on_focus(this, event);"
                      oninput="update('dirs');"/>
-            <!--<button label="..." accesskey="."-->
-            <!--        style="min-width: 0px; margin: 0px 6px 0px 0px;"-->
-            <!--        tooltiptext="Edit list of directories to search"-->
-            <!--        oncommand="BrowseForDirectories();"/>-->
+            <button label="..." accesskey="."
+                    style="min-width: 0px;"
+                    tooltiptext="Edit list of directories to search"
+                    oncommand="browse_for_dirs();"/>
           </row>
           <row id="subdirs-row">
             <box/>

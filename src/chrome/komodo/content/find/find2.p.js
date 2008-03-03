@@ -466,6 +466,26 @@ function dirs_on_focus(widget, event)
 }
 
 
+function browse_for_dirs() {
+    try {
+        var obj = new Object();
+        obj.encodedFolders = widgets.dirs.value;
+        var origWindow = ko.windowManager.getMainWindow();
+        obj.cwd = origWindow.ko.window.getCwd();
+        window.openDialog("chrome://komodo/content/find/browseForDirs.xul",
+                          "_blank",
+                          "chrome,modal,titlebar,resizable",
+                          obj);
+        if (obj.retval != "Cancel") {
+            widgets.dirs.value = obj.encodedFolders;
+            update("dirs");
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
+
 function find_prev() {
     find_next(true);
 }
