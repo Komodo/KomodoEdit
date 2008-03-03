@@ -1,0 +1,129 @@
+#!/usr/local/bin/perl
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+# 
+# The contents of this file are subject to the Mozilla Public License
+# Version 1.1 (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+# License for the specific language governing rights and limitations
+# under the License.
+# 
+# The Original Code is Komodo code.
+# 
+# The Initial Developer of the Original Code is ActiveState Software Inc.
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2008
+# ActiveState Software Inc. All Rights Reserved.
+# 
+# Contributor(s):
+#   ActiveState Software Inc
+# 
+# Alternatively, the contents of this file may be used under the terms of
+# either the GNU General Public License Version 2 or later (the "GPL"), or
+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+# 
+# ***** END LICENSE BLOCK *****
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'supportDir',
+    'buildFlavour',
+    'platform',
+    'productType',
+    'mozVersion',
+    'komodoShortVersion',
+    'mozExtensionDir',
+);
+
+# The Plan:
+# - installer builds:
+#   Nothing. While there *is* code here for installer (aka "full") builds
+#   the Conscript is excluded in Construct for full builds.
+# - dev builds:
+#   Install the kotcllint extension by default.
+#   Note: this part is spread out over "src/modules/kotcllint/...Conscript".
+
+my $ext_name = "kotcllint";
+my $ext_dir = "$mozExtensionDir/$ext_name\@ActiveState.com";
+
+if ($buildFlavour eq "full") {
+  $cons->InstallAs("$ext_dir/install.rdf", 'install.rdf');
+  $cons->InstallAs("$ext_dir/chrome.manifest", 'devbuild.manifest');
+  $cons->Install("$ext_dir/chrome/locale/en-US", "locale/en-US/kotcllint.dtd");
+  $cons->Install("$ext_dir/components", "components/koTclLinter.py");
+  $cons->BuildXpt('components/koITclInfoEx.idl');
+  $cons->Install("$ext_dir/idl", 'components/koITclInfoEx.idl');
+  $cons->Install("$ext_dir/components", 'components/koITclInfoEx.xpt');
+  $cons->Install("$ext_dir/components", 'components/koTclInfoEx.py');
+
+  if ($platform eq "win") {
+    $cons->Install("$ext_dir/platform/WINNT", "platform/WINNT/kotcllint.exe");
+  } elsif ($platform eq "darwin") {
+    $cons->Install("$ext_dir/platform/Darwin", "platform/Darwin/kotcllint");
+  } elsif ($platform eq "linux") {
+    $cons->Install("$ext_dir/platform/Linux", "platform/Linux/kotcllint");
+  }
+} else {
+  # create the jar and then the xpi file
+  $cons->BuildXpt('components/koITclInfoEx.idl');
+
+  $cons->Command(
+      ["kotcllint.xpi", "kotcllint.jar"],
+      # needed for 1.8 extensions
+      "install.rdf",
+      "chrome.manifest",
+      # chrome files
+      "content/overlay-koprefs.xul",
+      "content/pref-tcl.xul",
+      "content/pref-tcl.js",
+      "content/pref-tcl-lint.xul",
+      "content/pref-tcl-lint.js",
+      "locale/en-US/kotcllint.dtd",
+      # components and other miscellaneous files.
+      "components/koTclLinter.py",
+      "components/koTclInfoEx.py",
+      "components/koITclInfoEx.idl",
+      "platform/WINNT/kotcllint.exe",
+      "platform/Darwin/kotcllint",
+      "platform/Linux/kotcllint",
+      qq(
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr kotcllint.jar content locale
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip kotcllint.xpi kotcllint.jar install.rdf chrome.manifest -r components platform
+      )
+  );
+
+  # It's not available yet, so don't install by default.
+  $cons->Install("$ext_dir", 'install.rdf');
+  $cons->Install("$ext_dir", 'chrome.manifest');
+  $cons->Install("$ext_dir", 'kotcllint.jar');
+  $cons->Install("$ext_dir/idl", 'components/koITclInfoEx.idl');
+  $cons->Install("$ext_dir/components", 'components/koITclInfoEx.xpt');
+  $cons->Install("$ext_dir/components", 'components/koTclInfoEx.py');
+  $cons->Install("$ext_dir/components", 'components/koTclLinter.py');
+  $cons->Install("$ext_dir/platform/WINNT", "platform/WINNT/kotcllint.exe");
+  $cons->Install("$ext_dir/platform/Darwin", "platform/Darwin/kotcllint");
+  $cons->Install("$ext_dir/platform/Linux", "platform/Linux/kotcllint");
+}

@@ -1,0 +1,263 @@
+<!ENTITY accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.label "Access mode must include either rdonly, wronly, or rdwr (badMode)">
+<!ENTITY accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.tooltiptext "Access mode must include either rdonly, wronly, or rdwr (badMode)">
+<!ENTITY additionalTclIncludeDirectories.label "Additional Tcl Include Directories">
+<!ENTITY ambiguousSwitchExpectWarnAmbiguous.label "Ambiguous switch (expect::warnAmbiguous)">
+<!ENTITY ambiguousSwitchExpectWarnAmbiguous.tooltiptext "Ambiguous switch (expect::warnAmbiguous)">
+<!ENTITY arrayVariableReadAsIfAScalarArrayReadAsScalar.label "Array variable  read as if a scalar (arrayReadAsScalar)">
+<!ENTITY arrayVariableReadAsIfAScalarArrayReadAsScalar.tooltiptext "Array variable  read as if a scalar (arrayReadAsScalar)">
+<!ENTITY autoImportPatternIsUsedToRestrictLoadingInLaterVersionsOfTclWarnAIPattern.label "Auto_import pattern is used to restrict loading in later versions of tcl. (warnAIPattern)">
+<!ENTITY autoImportPatternIsUsedToRestrictLoadingInLaterVersionsOfTclWarnAIPattern.tooltiptext "Auto_import pattern is used to restrict loading in later versions of tcl. (warnAIPattern)">
+<!ENTITY badFormatForBinaryCommandBadBinaryFmt.label "Bad format for binary command (badBinaryFmt)">
+<!ENTITY badFormatForBinaryCommandBadBinaryFmt.tooltiptext "Bad format for binary command (badBinaryFmt)">
+<!ENTITY badFormatForFormatCommandBadFormatFmt.label "Bad format for format command (badFormatFmt)">
+<!ENTITY badFormatForFormatCommandBadFormatFmt.tooltiptext "Bad format for format command (badFormatFmt)">
+<!ENTITY badRegexpPatternBadRegexp.label "Bad regexp pattern (badRegexp)">
+<!ENTITY badRegexpPatternBadRegexp.tooltiptext "Bad regexp pattern (badRegexp)">
+<!ENTITY badSerialModeBadSerialMode.label "Bad serial mode (badSerialMode)">
+<!ENTITY badSerialModeBadSerialMode.tooltiptext "Bad serial mode (badSerialMode)">
+<!ENTITY behaviourHasChangedWarnBehaviour.label "Behaviour has changed,  (warnBehaviour)">
+<!ENTITY behaviourHasChangedWarnBehaviour.tooltiptext "Behaviour has changed,  (warnBehaviour)">
+<!ENTITY behaviourOfCommandHasChangedWarnBehaviourCmd.label "Behaviour of command has changed,  (warnBehaviourCmd)">
+<!ENTITY behaviourOfCommandHasChangedWarnBehaviourCmd.tooltiptext "Behaviour of command has changed,  (warnBehaviourCmd)">
+<!ENTITY bindScriptContainsUnknownPlaceholdersBadBindSubst.label "Bind script contains unknown &#37;-placeholders (badBindSubst)">
+<!ENTITY bindScriptContainsUnknownPlaceholdersBadBindSubst.tooltiptext "Bind script contains unknown &#37;-placeholders (badBindSubst)">
+<!ENTITY callingProtectedProcIncrTclProcProtected.label "Calling protected proc (incrTcl::procProtected)">
+<!ENTITY callingProtectedProcIncrTclProcProtected.tooltiptext "Calling protected proc (incrTcl::procProtected)">
+<!ENTITY cannotDetermineMasterWindowBadGridMaster.label "Cannot determine master window (badGridMaster)">
+<!ENTITY cannotDetermineMasterWindowBadGridMaster.tooltiptext "Cannot determine master window (badGridMaster)">
+<!ENTITY cannotSetAsyncOptionForServerSocketsSocketAsync.label "Cannot set -async option for server sockets (socketAsync)">
+<!ENTITY cannotSetAsyncOptionForServerSocketsSocketAsync.tooltiptext "Cannot set -async option for server sockets (socketAsync)">
+<!ENTITY cannotSetAsyncOptionForServerSocketsSocketServer.label "Cannot set -async option for server sockets (socketServer)">
+<!ENTITY cannotSetAsyncOptionForServerSocketsSocketServer.tooltiptext "Cannot set -async option for server sockets (socketServer)">
+<!ENTITY commandDeprecatedAndIsNoLongerValidIncrTclWarnUnsupported.label "Command deprecated and is no longer valid (incrTcl::warnUnsupported)">
+<!ENTITY commandDeprecatedAndIsNoLongerValidIncrTclWarnUnsupported.tooltiptext "Command deprecated and is no longer valid (incrTcl::warnUnsupported)">
+<!ENTITY commandOnlyDefinedInClassBodyIncrTclClassOnly.label "Command only defined in class body (incrTcl::classOnly)">
+<!ENTITY commandOnlyDefinedInClassBodyIncrTclClassOnly.tooltiptext "Command only defined in class body (incrTcl::classOnly)">
+<!ENTITY commandOnlyDefinedInClassOrNamespaceBodyIncrTclNsOrClassOnly.label "Command only defined in class or namespace body (incrTcl::nsOrClassOnly)">
+<!ENTITY commandOnlyDefinedInClassOrNamespaceBodyIncrTclNsOrClassOnly.tooltiptext "Command only defined in class or namespace body (incrTcl::nsOrClassOnly)">
+<!ENTITY commandOnlyDefinedInNamespaceBodyIncrTclNsOnly.label "Command only defined in namespace body (incrTcl::nsOnly)">
+<!ENTITY commandOnlyDefinedInNamespaceBodyIncrTclNsOnly.tooltiptext "Command only defined in namespace body (incrTcl::nsOnly)">
+<!ENTITY conflictBetweenRequestedAndActuallyCheckedVersionPkgVConflict.label "Conflict between requested and actually checked version. (pkgVConflict)">
+<!ENTITY conflictBetweenRequestedAndActuallyCheckedVersionPkgVConflict.tooltiptext "Conflict between requested and actually checked version. (pkgVConflict)">
+<!ENTITY deprecatedUsageUseElseOrElseifWarnIfKeyword.label "Deprecated usage, use else or elseif (warnIfKeyword)">
+<!ENTITY deprecatedUsageUseElseOrElseifWarnIfKeyword.tooltiptext "Deprecated usage, use else or elseif (warnIfKeyword)">
+<!ENTITY deprecatedUsageUseInsteadWarnDeprecated.label "Deprecated usage, use  instead (warnDeprecated)">
+<!ENTITY deprecatedUsageUseInsteadWarnDeprecated.tooltiptext "Deprecated usage, use  instead (warnDeprecated)">
+<!ENTITY exportPatternsShouldNotBeQualifiedWarnExportPat.label "Export patterns should not be qualified (warnExportPat)">
+<!ENTITY exportPatternsShouldNotBeQualifiedWarnExportPat.tooltiptext "Export patterns should not be qualified (warnExportPat)">
+<!ENTITY forceCheckingForSpecificTclTkVersion.label "Force checking for specific Tcl/Tk Version:">
+<!ENTITY globalIntoANamespaceIsUndefinedWarnGlobalNsNonsense.label "Global into a namespace is undefined (warnGlobalNsNonsense)">
+<!ENTITY globalIntoANamespaceIsUndefinedWarnGlobalNsNonsense.tooltiptext "Global into a namespace is undefined (warnGlobalNsNonsense)">
+<!ENTITY globCharsInWrongPortionOfPatternWarnNamespacePat.label "Glob chars in wrong portion of pattern (warnNamespacePat)">
+<!ENTITY globCharsInWrongPortionOfPatternWarnNamespacePat.tooltiptext "Glob chars in wrong portion of pattern (warnNamespacePat)">
+<!ENTITY hasNoMeaningWarnNotSpecial.label "Has no meaning. (warnNotSpecial)">
+<!ENTITY hasNoMeaningWarnNotSpecial.tooltiptext "Has no meaning. (warnNotSpecial)">
+<!ENTITY httpWwwActiveStateComProductsASPNTcl.label "http://www.ActiveState.com/Products/ASPN_Tcl/">
+<!ENTITY internalErrorInternalError.label "Internal error (internalError)">
+<!ENTITY internalErrorInternalError.tooltiptext "Internal error (internalError)">
+<!ENTITY interpreters.label "Interpreters">
+<!ENTITY invalidActionMustBeStartChildrenEndOrAllXmlActBadXMLaction.label "Invalid action, must be start children, end, or all (xmlAct::badXMLaction)">
+<!ENTITY invalidActionMustBeStartChildrenEndOrAllXmlActBadXMLaction.tooltiptext "Invalid action, must be start children, end, or all (xmlAct::badXMLaction)">
+<!ENTITY invalidArrayIndexBadArrayIndex.label "Invalid array index  (badArrayIndex)">
+<!ENTITY invalidArrayIndexBadArrayIndex.tooltiptext "Invalid array index  (badArrayIndex)">
+<!ENTITY invalidBooleanValueBadBoolean.label "Invalid boolean value (badBoolean)">
+<!ENTITY invalidBooleanValueBadBoolean.tooltiptext "Invalid boolean value (badBoolean)">
+<!ENTITY invalidColorNameBadColorFormat.label "Invalid color name (badColorFormat)">
+<!ENTITY invalidColorNameBadColorFormat.tooltiptext "Invalid color name (badColorFormat)">
+<!ENTITY invalidCursorSpecBadCursor.label "Invalid cursor spec (badCursor)">
+<!ENTITY invalidCursorSpecBadCursor.tooltiptext "Invalid cursor spec (badCursor)">
+<!ENTITY invalidEventTypeOrKeysymBadEvent.label "Invalid event type or keysym (badEvent)">
+<!ENTITY invalidEventTypeOrKeysymBadEvent.tooltiptext "Invalid event type or keysym (badEvent)">
+<!ENTITY invalidExprOperatorBadMathOp.label "Invalid expr operator  (badMathOp)">
+<!ENTITY invalidExprOperatorBadMathOp.tooltiptext "Invalid expr operator  (badMathOp)">
+<!ENTITY invalidFloatingPointValueBadFloat.label "Invalid floating-point value (badFloat)">
+<!ENTITY invalidFloatingPointValueBadFloat.tooltiptext "Invalid floating-point value (badFloat)">
+<!ENTITY invalidGeometrySpecifierBadGeometry.label "Invalid geometry specifier (badGeometry)">
+<!ENTITY invalidGeometrySpecifierBadGeometry.tooltiptext "Invalid geometry specifier (badGeometry)">
+<!ENTITY invalidIntegerBadInt.label "Invalid integer (badInt)">
+<!ENTITY invalidIntegerBadInt.tooltiptext "Invalid integer (badInt)">
+<!ENTITY invalidIntegerRangeBltBadIntRange.label "Invalid integer range (blt::badIntRange)">
+<!ENTITY invalidIntegerRangeBltBadIntRange.tooltiptext "Invalid integer range (blt::badIntRange)">
+<!ENTITY invalidKeywordBadKey.label "Invalid keyword (badKey)">
+<!ENTITY invalidKeywordBadKey.tooltiptext "Invalid keyword (badKey)">
+<!ENTITY invalidLevelBadLevel.label "Invalid level (badLevel)">
+<!ENTITY invalidLevelBadLevel.tooltiptext "Invalid level (badLevel)">
+<!ENTITY invalidListBadList.label "Invalid list (badList)">
+<!ENTITY invalidListBadList.tooltiptext "Invalid list (badList)">
+<!ENTITY invalidMnemonicSignalBltBadSignal.label "Invalid mnemonic signal (blt::badSignal)">
+<!ENTITY invalidMnemonicSignalBltBadSignal.tooltiptext "Invalid mnemonic signal (blt::badSignal)">
+<!ENTITY invalidNumberShouldBeBetween0And255BadByteNum.label "Invalid number, should be between 0 and 255 (badByteNum)">
+<!ENTITY invalidNumberShouldBeBetween0And255BadByteNum.tooltiptext "Invalid number, should be between 0 and 255 (badByteNum)">
+<!ENTITY invalidOperationShouldBeOneOrMoreOfRwuBadTraceOp.label "Invalid operation: should be one or more of rwu (badTraceOp)">
+<!ENTITY invalidOperationShouldBeOneOrMoreOfRwuBadTraceOp.tooltiptext "Invalid operation: should be one or more of rwu (badTraceOp)">
+<!ENTITY invalidOptionBadOption.label "Invalid option (badOption)">
+<!ENTITY invalidOptionBadOption.tooltiptext "Invalid option (badOption)">
+<!ENTITY invalidOptionMustBeAsyncMyaddrMyportOrServerSocketBadOpt.label "Invalid option, must be -async, -myaddr, -myport, or -server (socketBadOpt)">
+<!ENTITY invalidOptionMustBeAsyncMyaddrMyportOrServerSocketBadOpt.tooltiptext "Invalid option, must be -async, -myaddr, -myport, or -server (socketBadOpt)">
+<!ENTITY invalidOracleConnectStringOratclBadConnectStr.label "Invalid oracle connect string (oratcl::badConnectStr)">
+<!ENTITY invalidOracleConnectStringOratclBadConnectStr.tooltiptext "Invalid oracle connect string (oratcl::badConnectStr)">
+<!ENTITY invalidOracleSubstitutionCharacterOratclBadSubstChar.label "Invalid oracle substitution character (oratcl::badSubstChar)">
+<!ENTITY invalidOracleSubstitutionCharacterOratclBadSubstChar.tooltiptext "Invalid oracle substitution character (oratcl::badSubstChar)">
+<!ENTITY invalidPaletteSpecBadPalette.label "Invalid palette spec (badPalette)">
+<!ENTITY invalidPaletteSpecBadPalette.tooltiptext "Invalid palette spec (badPalette)">
+<!ENTITY invalidPixelValueBadPixel.label "Invalid pixel value (badPixel)">
+<!ENTITY invalidPixelValueBadPixel.tooltiptext "Invalid pixel value (badPixel)">
+<!ENTITY invalidPriorityKeywordOrValueBadPriority.label "Invalid priority keyword or value (badPriority)">
+<!ENTITY invalidPriorityKeywordOrValueBadPriority.tooltiptext "Invalid priority keyword or value (badPriority)">
+<!ENTITY invalidResourceNameBadResource.label "Invalid resource name (badResource)">
+<!ENTITY invalidResourceNameBadResource.tooltiptext "Invalid resource name (badResource)">
+<!ENTITY invalidScreenValueBadScreen.label "Invalid screen value (badScreen)">
+<!ENTITY invalidScreenValueBadScreen.tooltiptext "Invalid screen value (badScreen)">
+<!ENTITY invalidSignalIntegerShouldBeBetween1And32BltBadSignalInt.label "Invalid signal integer, should be between 1 and 32 (blt::badSignalInt)">
+<!ENTITY invalidSignalIntegerShouldBeBetween1And32BltBadSignalInt.tooltiptext "Invalid signal integer, should be between 1 and 32 (blt::badSignalInt)">
+<!ENTITY invalidStickynessValueShouldBeZeroOrMoreOfNsweBadSticky.label "Invalid stickyness value: should be zero or more of nswe (badSticky)">
+<!ENTITY invalidStickynessValueShouldBeZeroOrMoreOfNsweBadSticky.tooltiptext "Invalid stickyness value: should be zero or more of nswe (badSticky)">
+<!ENTITY invalidSwitchBadSwitch.label "Invalid switch  (badSwitch)">
+<!ENTITY invalidSwitchBadSwitch.tooltiptext "Invalid switch  (badSwitch)">
+<!ENTITY invalidSybaseSubstitutionCharacterSybtclBadSubstChar.label "Invalid sybase substitution character (sybtcl::badSubstChar)">
+<!ENTITY invalidSybaseSubstitutionCharacterSybtclBadSubstChar.tooltiptext "Invalid sybase substitution character (sybtcl::badSubstChar)">
+<!ENTITY invalidTabJustificationMustBeLeftRightCenterOrNumericBadTabJust.label "Invalid tab justification: must be left right center or numeric (badTabJust)">
+<!ENTITY invalidTabJustificationMustBeLeftRightCenterOrNumericBadTabJust.tooltiptext "Invalid tab justification: must be left right center or numeric (badTabJust)">
+<!ENTITY invalidTabListBadTab.label "Invalid tab list (badTab)">
+<!ENTITY invalidTabListBadTab.tooltiptext "Invalid tab list (badTab)">
+<!ENTITY invalidValueMustBeAnInteger0BadNatNum.label "Invalid value: must be an integer &gt; 0 (badNatNum)">
+<!ENTITY invalidValueMustBeAnInteger0BadNatNum.tooltiptext "Invalid value: must be an integer &gt; 0 (badNatNum)">
+<!ENTITY invalidValueMustBeAPositiveIntegerBadWholeNum.label "Invalid value: must be a positive integer (badWholeNum)">
+<!ENTITY invalidValueMustBeAPositiveIntegerBadWholeNum.tooltiptext "Invalid value: must be a positive integer (badWholeNum)">
+<!ENTITY invalidVersionNumberBadVersion.label "Invalid version number (badVersion)">
+<!ENTITY invalidVersionNumberBadVersion.tooltiptext "Invalid version number (badVersion)">
+<!ENTITY invalidVisualBadVisual.label "Invalid visual (badVisual)">
+<!ENTITY invalidVisualBadVisual.tooltiptext "Invalid visual (badVisual)">
+<!ENTITY invalidVisualDepthBadVisualDepth.label "Invalid visual depth (badVisualDepth)">
+<!ENTITY invalidVisualDepthBadVisualDepth.tooltiptext "Invalid visual depth (badVisualDepth)">
+<!ENTITY isAValidEscapeSequenceInLaterVersionsOfTclWarnEscapeChar.label "Is a valid escape sequence in later versions of tcl (warnEscapeChar)">
+<!ENTITY isAValidEscapeSequenceInLaterVersionsOfTclWarnEscapeChar.tooltiptext "Is a valid escape sequence in later versions of tcl (warnEscapeChar)">
+<!ENTITY keywordIsReservedWarnReserved.label "Keyword is reserved (warnReserved)">
+<!ENTITY keywordIsReservedWarnReserved.tooltiptext "Keyword is reserved (warnReserved)">
+<!ENTITY label.73 "7.3">
+<!ENTITY label.74 "7.4">
+<!ENTITY label.75 "7.5">
+<!ENTITY label.76 "7.6">
+<!ENTITY label.80 "8.0">
+<!ENTITY label.81 "8.1">
+<!ENTITY label.82 "8.2">
+<!ENTITY label.83 "8.3">
+<!ENTITY label.84 "8.4">
+<!ENTITY label.85 "8.5">
+<!ENTITY memoryIsDebuggingCommandWarnMemoryCmd.label "Memory is debugging command (warnMemoryCmd)">
+<!ENTITY memoryIsDebuggingCommandWarnMemoryCmd.tooltiptext "Memory is debugging command (warnMemoryCmd)">
+<!ENTITY missingAnExpressionNoExpr.label "Missing an expression (noExpr)">
+<!ENTITY missingAnExpressionNoExpr.tooltiptext "Missing an expression (noExpr)">
+<!ENTITY missingArgumentForSwitchNoSwitchArg.label "Missing argument for  switch (noSwitchArg)">
+<!ENTITY missingArgumentForSwitchNoSwitchArg.tooltiptext "Missing argument for  switch (noSwitchArg)">
+<!ENTITY missingAScriptAfterNoScript.label "Missing a script after  (noScript)">
+<!ENTITY missingAScriptAfterNoScript.tooltiptext "Missing a script after  (noScript)">
+<!ENTITY missingClassSpecifierForBodyDeclarationIncrTclBadMemberName.label "Missing class specifier for body declaration (incrTcl::badMemberName)">
+<!ENTITY missingClassSpecifierForBodyDeclarationIncrTclBadMemberName.tooltiptext "Missing class specifier for body declaration (incrTcl::badMemberName)">
+<!ENTITY mustSpecifyWindowBeforeShortcutBadGridRel.label "Must specify window before shortcut (badGridRel)">
+<!ENTITY mustSpecifyWindowBeforeShortcutBadGridRel.tooltiptext "Must specify window before shortcut (badGridRel)">
+<!ENTITY namespaceVariableMayCollideWithGlobalVariableOfSameNameWarnGlobalVarColl.label "Namespace variable  may collide with global variable of same name (warnGlobalVarColl)">
+<!ENTITY namespaceVariableMayCollideWithGlobalVariableOfSameNameWarnGlobalVarColl.tooltiptext "Namespace variable  may collide with global variable of same name (warnGlobalVarColl)">
+<!ENTITY noArgumentGivenForOptionSocketArgOpt.label "No argument given for option (socketArgOpt)">
+<!ENTITY noArgumentGivenForOptionSocketArgOpt.tooltiptext "No argument given for option (socketArgOpt)">
+<!ENTITY noEventsSpecifiedInBindingNoEvent.label "No events specified in binding (noEvent)">
+<!ENTITY noEventsSpecifiedInBindingNoEvent.tooltiptext "No events specified in binding (noEvent)">
+<!ENTITY nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.label "Non-default arg specified after default (nonDefAfterDef)">
+<!ENTITY nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.tooltiptext "Non-default arg specified after default (nonDefAfterDef)">
+<!ENTITY nonGlobalUpvarIntoANamespaceIsUndefinedWarnUpvarNsNonsense.label "Non-global upvar into a namespace is undefined (warnUpvarNsNonsense)">
+<!ENTITY nonGlobalUpvarIntoANamespaceIsUndefinedWarnUpvarNsNonsense.tooltiptext "Non-global upvar into a namespace is undefined (warnUpvarNsNonsense)">
+<!ENTITY nonPortableColorNameNonPortColor.label "Non-portable color name (nonPortColor)">
+<!ENTITY nonPortableColorNameNonPortColor.tooltiptext "Non-portable color name (nonPortColor)">
+<!ENTITY nonPortableCursorUsageNonPortCursor.label "Non-portable cursor usage (nonPortCursor)">
+<!ENTITY nonPortableCursorUsageNonPortCursor.tooltiptext "Non-portable cursor usage (nonPortCursor)">
+<!ENTITY obsoleteUsageUseInsteadObsoleteCmd.label "Obsolete usage, use  instead (obsoleteCmd)">
+<!ENTITY obsoleteUsageUseInsteadObsoleteCmd.tooltiptext "Obsolete usage, use  instead (obsoleteCmd)">
+<!ENTITY optionMyportIsNotValidForServersServerAndPort.label "Option -myport is not valid for servers (serverAndPort)">
+<!ENTITY optionMyportIsNotValidForServersServerAndPort.tooltiptext "Option -myport is not valid for servers (serverAndPort)">
+<!ENTITY optionNotValidWhenTurningOffProfilingTclXBadProfileOpt.label "Option not valid when turning off profiling (tclX::badProfileOpt)">
+<!ENTITY optionNotValidWhenTurningOffProfilingTclXBadProfileOpt.tooltiptext "Option not valid when turning off profiling (tclX::badProfileOpt)">
+<!ENTITY packageRequireHasExactButNoVersionSpecifiedPkgBadExactRq.label "Package require has -exact, but no version specified (pkgBadExactRq)">
+<!ENTITY packageRequireHasExactButNoVersionSpecifiedPkgBadExactRq.tooltiptext "Package require has -exact, but no version specified (pkgBadExactRq)">
+<!ENTITY parseErrorParse.label "Parse error (parse)">
+<!ENTITY parseErrorParse.tooltiptext "Parse error (parse)">
+<!ENTITY possibleUnexpectedSubstitutionInPatternWarnPattern.label "Possible unexpected substitution in pattern (warnPattern)">
+<!ENTITY possibleUnexpectedSubstitutionInPatternWarnPattern.tooltiptext "Possible unexpected substitution in pattern (warnPattern)">
+<!ENTITY procOnlyDefinedInClassIncrTclProcOutScope.label "Proc only defined in class (incrTcl::procOutScope)">
+<!ENTITY procOnlyDefinedInClassIncrTclProcOutScope.tooltiptext "Proc only defined in class (incrTcl::procOutScope)">
+<!ENTITY shadowingAPreviousDefinitionWarnShadowVar.label "Shadowing a previous definition (warnShadowVar)">
+<!ENTITY shadowingAPreviousDefinitionWarnShadowVar.tooltiptext "Shadowing a previous definition (warnShadowVar)">
+<!ENTITY stringMapListShouldHaveAnEvenNumberOfElementsBadCharMap.label "String map list should have an even number of elements (badCharMap)">
+<!ENTITY stringMapListShouldHaveAnEvenNumberOfElementsBadCharMap.tooltiptext "String map list should have an even number of elements (badCharMap)">
+<!ENTITY syntaxChecking.label "Syntax Checking">
+<!ENTITY syntaxChecking.label "Syntax Checking">
+<!ENTITY tcl.label "Tcl">
+<!ENTITY tclVersionConfictPkgTclConflict.label "Tcl version confict (pkgTclConflict)">
+<!ENTITY tclVersionConfictPkgTclConflict.tooltiptext "Tcl version confict (pkgTclConflict)">
+<!ENTITY theBracketExpressionIsMissingACloseBracketErrBadBrktExp.label "The bracket expression is missing a close bracket (errBadBrktExp)">
+<!ENTITY theBracketExpressionIsMissingACloseBracketErrBadBrktExp.tooltiptext "The bracket expression is missing a close bracket (errBadBrktExp)">
+<!ENTITY theSpecifiedOptionsCannotBeUsedInTandemMismatchOptions.label "The specified options cannot be used in tandem (mismatchOptions)">
+<!ENTITY theSpecifiedOptionsCannotBeUsedInTandemMismatchOptions.tooltiptext "The specified options cannot be used in tandem (mismatchOptions)">
+<!ENTITY tooManyFieldsInArgumentSpecifierTooManyFieldArg.label "Too many fields in argument specifier (tooManyFieldArg)">
+<!ENTITY tooManyFieldsInArgumentSpecifierTooManyFieldArg.tooltiptext "Too many fields in argument specifier (tooManyFieldArg)">
+<!ENTITY undefinedProcedureWarnUndefProc.label "Undefined procedure (warnUndefProc)">
+<!ENTITY undefinedProcedureWarnUndefProc.tooltiptext "Undefined procedure (warnUndefProc)">
+<!ENTITY unexpectedOptionTclXOptionRequired.label "Unexpected option (tclX::optionRequired)">
+<!ENTITY unexpectedOptionTclXOptionRequired.tooltiptext "Unexpected option (tclX::optionRequired)">
+<!ENTITY unknownMathFunctionWarnUndefFunc.label "Unknown math function (warnUndefFunc)">
+<!ENTITY unknownMathFunctionWarnUndefFunc.tooltiptext "Unknown math function (warnUndefFunc)">
+<!ENTITY unmatchedClosingCharacterWarnExtraClose.label "Unmatched closing character (warnExtraClose)">
+<!ENTITY unmatchedClosingCharacterWarnExtraClose.tooltiptext "Unmatched closing character (warnExtraClose)">
+<!ENTITY unsupportedCommandOptionOrVariableUseWarnUnsupported.label "Unsupported command, option or variable: use  (warnUnsupported)">
+<!ENTITY unsupportedCommandOptionOrVariableUseWarnUnsupported.tooltiptext "Unsupported command, option or variable: use  (warnUnsupported)">
+<!ENTITY upvarDVariableMissingInCallerScopeWarnUndefinedUpvar.label "Upvar'd variable  missing in caller scope (warnUndefinedUpvar)">
+<!ENTITY upvarDVariableMissingInCallerScopeWarnUndefinedUpvar.tooltiptext "Upvar'd variable  missing in caller scope (warnUndefinedUpvar)">
+<!ENTITY usageOfInternalCommandMayChangeWithoutNoticeWarnInternalCmd.label "Usage of internal command, may change without notice (warnInternalCmd)">
+<!ENTITY usageOfInternalCommandMayChangeWithoutNoticeWarnInternalCmd.tooltiptext "Usage of internal command, may change without notice (warnInternalCmd)">
+<!ENTITY usageOfInternalConsoleCommandMayChangeWithoutNoticeWarnConsoleCmd.label "Usage of internal console command, may change without notice (warnConsoleCmd)">
+<!ENTITY usageOfInternalConsoleCommandMayChangeWithoutNoticeWarnConsoleCmd.tooltiptext "Usage of internal console command, may change without notice (warnConsoleCmd)">
+<!ENTITY usageOfInternalTkCommandMayChangeWithoutNoticeWarnTkCmd.label "Usage of internal tk command, may change without notice (warnTkCmd)">
+<!ENTITY usageOfInternalTkCommandMayChangeWithoutNoticeWarnTkCmd.tooltiptext "Usage of internal tk command, may change without notice (warnTkCmd)">
+<!ENTITY useCurlyBracesToAvoidDoubleSubstitutionWarnExpr.label "Use curly braces to avoid double substitution (warnExpr)">
+<!ENTITY useCurlyBracesToAvoidDoubleSubstitutionWarnExpr.tooltiptext "Use curly braces to avoid double substitution (warnExpr)">
+<!ENTITY useOfNonPortableBitmapNonPortBitmap.label "Use of non-portable bitmap (nonPortBitmap)">
+<!ENTITY useOfNonPortableBitmapNonPortBitmap.tooltiptext "Use of non-portable bitmap (nonPortBitmap)">
+<!ENTITY useOfNonPortableCommandNonPortCmd.label "Use of non-portable command (nonPortCmd)">
+<!ENTITY useOfNonPortableCommandNonPortCmd.tooltiptext "Use of non-portable command (nonPortCmd)">
+<!ENTITY useOfNonPortableFileDescriptorUseInsteadNonPortChannel.label "Use of non-portable file descriptor, use  instead (nonPortChannel)">
+<!ENTITY useOfNonPortableFileDescriptorUseInsteadNonPortChannel.tooltiptext "Use of non-portable file descriptor, use  instead (nonPortChannel)">
+<!ENTITY useOfNonPortableKeysymNonPortKeysym.label "Use of non-portable keysym (nonPortKeysym)">
+<!ENTITY useOfNonPortableKeysymNonPortKeysym.tooltiptext "Use of non-portable keysym (nonPortKeysym)">
+<!ENTITY useOfNonPortableOptionNonPortOption.label "Use of non-portable option (nonPortOption)">
+<!ENTITY useOfNonPortableOptionNonPortOption.tooltiptext "Use of non-portable option (nonPortOption)">
+<!ENTITY useOfNonPortableVariableNonPortVar.label "Use of non-portable variable (nonPortVar)">
+<!ENTITY useOfNonPortableVariableNonPortVar.tooltiptext "Use of non-portable variable (nonPortVar)">
+<!ENTITY useOfPrivateVariableNonPublicVar.label "Use of private variable (nonPublicVar)">
+<!ENTITY useOfPrivateVariableNonPublicVar.tooltiptext "Use of private variable (nonPublicVar)">
+<!ENTITY useOfUndefinedVariableWarnUndefinedVar.label "Use of undefined variable  (warnUndefinedVar)">
+<!ENTITY useOfUndefinedVariableWarnUndefinedVar.tooltiptext "Use of undefined variable  (warnUndefinedVar)">
+<!ENTITY variableIsConsideredReadOnlyWarnReadonlyVar.label "Variable is considered read-only (warnReadonlyVar)">
+<!ENTITY variableIsConsideredReadOnlyWarnReadonlyVar.tooltiptext "Variable is considered read-only (warnReadonlyVar)">
+<!ENTITY variableRedefinedWarnRedefine.label "Variable redefined (warnRedefine)">
+<!ENTITY variableRedefinedWarnRedefine.tooltiptext "Variable redefined (warnRedefine)">
+<!ENTITY variableReferenceUsedWhereVariableNameExpectedWarnVarRef.label "Variable reference used where variable name expected (warnVarRef)">
+<!ENTITY variableReferenceUsedWhereVariableNameExpectedWarnVarRef.tooltiptext "Variable reference used where variable name expected (warnVarRef)">
+<!ENTITY varnameMustBePrecededByOratclMissingColon.label "Varname must be preceded by ':' (oratcl::missingColon)">
+<!ENTITY varnameMustBePrecededByOratclMissingColon.tooltiptext "Varname must be preceded by ':' (oratcl::missingColon)">
+<!ENTITY virtualEventIsBadlyFormedBadVirtual.label "Virtual event is badly formed (badVirtual)">
+<!ENTITY virtualEventIsBadlyFormedBadVirtual.tooltiptext "Virtual event is badly formed (badVirtual)">
+<!ENTITY virtualEventNotAllowedInDefinitionOfAnotherVirtualEventNoVirtual.label "Virtual event not allowed in definition of another virtual event (noVirtual)">
+<!ENTITY virtualEventNotAllowedInDefinitionOfAnotherVirtualEventNoVirtual.tooltiptext "Virtual event not allowed in definition of another virtual event (noVirtual)">
+<!ENTITY willNotCheckCommandsProvidedByThisPackagePkgUnchecked.label "Will not check commands provided by this package (pkgUnchecked)">
+<!ENTITY willNotCheckCommandsProvidedByThisPackagePkgUnchecked.tooltiptext "Will not check commands provided by this package (pkgUnchecked)">
+<!ENTITY windowNameCannotBeAnEmptyStringWinNotNull.label "Window name cannot be an empty string (winNotNull)">
+<!ENTITY windowNameCannotBeAnEmptyStringWinNotNull.tooltiptext "Window name cannot be an empty string (winNotNull)">
+<!ENTITY windowNameCannotBeginWithACapitalLetterWinAlpha.label "Window name cannot begin with a capital letter (winAlpha)">
+<!ENTITY windowNameCannotBeginWithACapitalLetterWinAlpha.tooltiptext "Window name cannot begin with a capital letter (winAlpha)">
+<!ENTITY wrongArgsForClassConstructorIncrTclClassNumArgs.label "Wrong # args for class constructor: (incrTcl::classNumArgs)">
+<!ENTITY wrongArgsForClassConstructorIncrTclClassNumArgs.tooltiptext "Wrong # args for class constructor: (incrTcl::classNumArgs)">
+<!ENTITY wrongArgsForUserDefinedProcProcNumArgs.label "Wrong # args for user-defined proc  (procNumArgs)">
+<!ENTITY wrongArgsForUserDefinedProcProcNumArgs.tooltiptext "Wrong # args for user-defined proc  (procNumArgs)">
+<!ENTITY wrongArgsNumArgs.label "Wrong # args (numArgs)">
+<!ENTITY wrongArgsNumArgs.tooltiptext "Wrong # args (numArgs)">
+<!ENTITY wrongOfListElementsNumListElts.label "Wrong # of list elements (numListElts)">
+<!ENTITY wrongOfListElementsNumListElts.tooltiptext "Wrong # of list elements (numListElts)">

@@ -1,0 +1,3 @@
+content kotcllint jar:kotcllint.jar!/content/ xpcnativewrappers=yes
+locale kotcllint en-US jar:kotcllint.jar!/locale/en-US/
+overlay chrome://komodo/content/pref/pref.xul chrome://kotcllint/content/overlay-koprefs.xul

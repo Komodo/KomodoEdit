@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ 
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+ 
+ The Original Code is Komodo code.
+ 
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ ActiveState Software Inc. All Rights Reserved.
+ 
+ Contributor(s):
+   ActiveState Software Inc
+ 
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+ 
+ ***** END LICENSE BLOCK ***** -->
+
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+  <!ENTITY % kotcllintPrefDTD SYSTEM "chrome://kotcllint/locale/kotcllint.dtd">
+  %kotcllintPrefDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="PrefTcl_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://kotcllint/content/pref-tcl.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+
+    <groupbox orient="vertical">
+        <caption label="&interpreters.label;"/>
+        <vbox id="no-avail-wish-interps-message" collapsed="true" flex="1"
+              align="center">
+            <description id="no-avail-wish-interps-message"
+                         style="font-weight: bold;">No wish interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install ActiveState Tcl Dev Kit or ActiveTcl.</description>
+            <button label="&httpWwwActiveStateComProductsASPNTcl.label;"
+                class="button-link-a" style="cursor:pointer;"
+                oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ASPN_Tcl/');"/>
+        </vbox>
+        <label value="Use this Wish interpreter"/>
+        <hbox align="center">
+            <menulist id="wishDefaultInterpreter"
+                flex="1"
+                pref="true"
+                prefstring="wishDefaultInterpreter">
+                <menupopup id="avail-interp-list"/>
+            </menulist>
+            <button label="&browse.label;" oncommand="loadWishExecutable();"/>
+        </hbox>
+        <vbox id="no-avail-tclsh-interps-message" collapsed="true" flex="1"
+              align="center">
+            <description id="no-avail-tclsh-interps-message"
+                         style="font-weight: bold;">No tclsh interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install ActiveState Tcl Dev Kit or ActiveTcl.</description>
+            <button label="&httpWwwActiveStateComProductsASPNTcl.label;"
+                class="button-link-a" style="cursor:pointer;"
+                oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ASPN_Tcl/');"/>
+        </vbox>
+        <label value="Use this Tclsh interpreter" />
+        <hbox align="center">
+            <menulist id="tclshDefaultInterpreter"
+                flex="1"
+                pref="true"
+                prefstring="tclshDefaultInterpreter">
+                <menupopup id="avail-interp-list"/>
+            </menulist>
+            <button label="&browse.label;" oncommand="loadTclExecutable();"/>
+        </hbox>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&additionalTclIncludeDirectories.label;"/>
+        <description>
+            Specify any additional directories that you want Komodo to
+            add to the Tcl path when debugging, syntax checking or
+            in the interactive shell.
+        </description>
+	<pathlist
+		id="tclExtraPaths"
+                flex="1"
+                seltype="multiple"
+                rows="4"
+		pref="true" prefwidget="true"
+                prefstring="tclExtraPaths"/>
+    </groupbox>
+</window>
+

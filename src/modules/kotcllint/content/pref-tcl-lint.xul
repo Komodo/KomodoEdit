@@ -1,0 +1,918 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ 
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+ 
+ The Original Code is Komodo code.
+ 
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ ActiveState Software Inc. All Rights Reserved.
+ 
+ Contributor(s):
+   ActiveState Software Inc
+ 
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+ 
+ ***** END LICENSE BLOCK ***** -->
+
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  %prefDTD;
+  <!ENTITY % kotcllintPrefDTD SYSTEM "chrome://kotcllint/locale/kotcllint.dtd">
+  %kotcllintPrefDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="PrefTclLint_OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://kotcllint/content/pref-tcl-lint.js" type="application/x-javascript;version=1.7"/>
+
+    <groupbox orient="vertical">
+        <caption label="&syntaxChecking.label;"/>
+        <label value="Warning messages to suppress"/>
+        <listbox rows="5">
+            <listitem label="&globalIntoANamespaceIsUndefinedWarnGlobalNsNonsense.label;"
+                      type="checkbox"
+                      tooltiptext="&globalIntoANamespaceIsUndefinedWarnGlobalNsNonsense.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnGlobalNsNonsense"
+                      />
+            <listitem label="&namespaceVariableMayCollideWithGlobalVariableOfSameNameWarnGlobalVarColl.label;"
+                      type="checkbox"
+                      tooltiptext="&namespaceVariableMayCollideWithGlobalVariableOfSameNameWarnGlobalVarColl.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnGlobalVarColl"
+                      />
+            <listitem label="&useOfNonPortableFileDescriptorUseInsteadNonPortChannel.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableFileDescriptorUseInsteadNonPortChannel.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortChannel"
+                      />
+            <listitem label="&useOfNonPortableCommandNonPortCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableCommandNonPortCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortCmd"
+                      />
+            <listitem label="&nonPortableColorNameNonPortColor.label;"
+                      type="checkbox"
+                      tooltiptext="&nonPortableColorNameNonPortColor.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortColor"
+                      />
+            <listitem label="&nonPortableCursorUsageNonPortCursor.label;"
+                      type="checkbox"
+                      tooltiptext="&nonPortableCursorUsageNonPortCursor.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortCursor"
+                      />
+            <listitem label="Use of non-portable file name, use &quot;file join&quot; (nonPortFile)"
+                      type="checkbox"
+                      tooltiptext="Use of non-portable file name, use &quot;file join&quot; (nonPortFile)"
+                      pref="true"
+                      prefstring="tcllint_nonPortFile"
+                      />
+            <listitem label="&useOfNonPortableOptionNonPortOption.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableOptionNonPortOption.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortOption"
+                      />
+            <listitem label="&useOfNonPortableVariableNonPortVar.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableVariableNonPortVar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortVar"
+                      />
+            <listitem label="&useOfPrivateVariableNonPublicVar.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfPrivateVariableNonPublicVar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPublicVar"
+                      />
+            <listitem label="&shadowingAPreviousDefinitionWarnShadowVar.label;"
+                      type="checkbox"
+                      tooltiptext="&shadowingAPreviousDefinitionWarnShadowVar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnShadowVar"
+                      />
+            <listitem label="&upvarDVariableMissingInCallerScopeWarnUndefinedUpvar.label;"
+                      type="checkbox"
+                      tooltiptext="&upvarDVariableMissingInCallerScopeWarnUndefinedUpvar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUndefinedUpvar"
+                      />
+            <listitem label="&useOfUndefinedVariableWarnUndefinedVar.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfUndefinedVariableWarnUndefinedVar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUndefinedVar"
+                      />
+            <listitem label="&nonGlobalUpvarIntoANamespaceIsUndefinedWarnUpvarNsNonsense.label;"
+                      type="checkbox"
+                      tooltiptext="&nonGlobalUpvarIntoANamespaceIsUndefinedWarnUpvarNsNonsense.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUpvarNsNonsense"
+                      />
+            <listitem label="&behaviourHasChangedWarnBehaviour.label;"
+                      type="checkbox"
+                      tooltiptext="&behaviourHasChangedWarnBehaviour.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnBehaviour"
+                      />
+            <listitem label="&behaviourOfCommandHasChangedWarnBehaviourCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&behaviourOfCommandHasChangedWarnBehaviourCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnBehaviourCmd"
+                      />
+            <listitem label="&deprecatedUsageUseInsteadWarnDeprecated.label;"
+                      type="checkbox"
+                      tooltiptext="&deprecatedUsageUseInsteadWarnDeprecated.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnDeprecated"
+                      />
+            <listitem label="&exportPatternsShouldNotBeQualifiedWarnExportPat.label;"
+                      type="checkbox"
+                      tooltiptext="&exportPatternsShouldNotBeQualifiedWarnExportPat.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnExportPat"
+                      />
+            <listitem label="&useCurlyBracesToAvoidDoubleSubstitutionWarnExpr.label;"
+                      type="checkbox"
+                      tooltiptext="&useCurlyBracesToAvoidDoubleSubstitutionWarnExpr.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnExpr"
+                      />
+            <listitem label="&unmatchedClosingCharacterWarnExtraClose.label;"
+                      type="checkbox"
+                      tooltiptext="&unmatchedClosingCharacterWarnExtraClose.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnExtraClose"
+                      />
+            <listitem label="&deprecatedUsageUseElseOrElseifWarnIfKeyword.label;"
+                      type="checkbox"
+                      tooltiptext="&deprecatedUsageUseElseOrElseifWarnIfKeyword.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnIfKeyword"
+                      />
+            <listitem label="&usageOfInternalCommandMayChangeWithoutNoticeWarnInternalCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&usageOfInternalCommandMayChangeWithoutNoticeWarnInternalCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnInternalCmd"
+                      />
+            <listitem label="&globCharsInWrongPortionOfPatternWarnNamespacePat.label;"
+                      type="checkbox"
+                      tooltiptext="&globCharsInWrongPortionOfPatternWarnNamespacePat.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnNamespacePat"
+                      />
+            <listitem label="&possibleUnexpectedSubstitutionInPatternWarnPattern.label;"
+                      type="checkbox"
+                      tooltiptext="&possibleUnexpectedSubstitutionInPatternWarnPattern.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnPattern"
+                      />
+            <listitem label="&variableIsConsideredReadOnlyWarnReadonlyVar.label;"
+                      type="checkbox"
+                      tooltiptext="&variableIsConsideredReadOnlyWarnReadonlyVar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnReadonlyVar"
+                      />
+            <listitem label="&variableRedefinedWarnRedefine.label;"
+                      type="checkbox"
+                      tooltiptext="&variableRedefinedWarnRedefine.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnRedefine"
+                      />
+            <listitem label="&keywordIsReservedWarnReserved.label;"
+                      type="checkbox"
+                      tooltiptext="&keywordIsReservedWarnReserved.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnReserved"
+                      />
+            <listitem label="&unknownMathFunctionWarnUndefFunc.label;"
+                      type="checkbox"
+                      tooltiptext="&unknownMathFunctionWarnUndefFunc.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUndefFunc"
+                      />
+            <listitem label="&undefinedProcedureWarnUndefProc.label;"
+                      type="checkbox"
+                      tooltiptext="&undefinedProcedureWarnUndefProc.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUndefProc"
+                      />
+            <listitem label="&unsupportedCommandOptionOrVariableUseWarnUnsupported.label;"
+                      type="checkbox"
+                      tooltiptext="&unsupportedCommandOptionOrVariableUseWarnUnsupported.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnUnsupported"
+                      />
+            <listitem label="&variableReferenceUsedWhereVariableNameExpectedWarnVarRef.label;"
+                      type="checkbox"
+                      tooltiptext="&variableReferenceUsedWhereVariableNameExpectedWarnVarRef.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnVarRef"
+                      />
+            <listitem label="&tclVersionConfictPkgTclConflict.label;"
+                      type="checkbox"
+                      tooltiptext="&tclVersionConfictPkgTclConflict.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_pkgTclConflict"
+                      />
+            <listitem label="&willNotCheckCommandsProvidedByThisPackagePkgUnchecked.label;"
+                      type="checkbox"
+                      tooltiptext="&willNotCheckCommandsProvidedByThisPackagePkgUnchecked.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_pkgUnchecked"
+                      />
+            <listitem label="&conflictBetweenRequestedAndActuallyCheckedVersionPkgVConflict.label;"
+                      type="checkbox"
+                      tooltiptext="&conflictBetweenRequestedAndActuallyCheckedVersionPkgVConflict.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_pkgVConflict"
+                      />
+            <listitem label="&autoImportPatternIsUsedToRestrictLoadingInLaterVersionsOfTclWarnAIPattern.label;"
+                      type="checkbox"
+                      tooltiptext="&autoImportPatternIsUsedToRestrictLoadingInLaterVersionsOfTclWarnAIPattern.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnAIPattern"
+                      />
+            <listitem label="&isAValidEscapeSequenceInLaterVersionsOfTclWarnEscapeChar.label;"
+                      type="checkbox"
+                      tooltiptext="&isAValidEscapeSequenceInLaterVersionsOfTclWarnEscapeChar.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnEscapeChar"
+                      />
+            <listitem label="&memoryIsDebuggingCommandWarnMemoryCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&memoryIsDebuggingCommandWarnMemoryCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnMemoryCmd"
+                      />
+            <listitem label="&hasNoMeaningWarnNotSpecial.label;"
+                      type="checkbox"
+                      tooltiptext="&hasNoMeaningWarnNotSpecial.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnNotSpecial"
+                      />
+            <listitem label="&quot; in bracket expressions are treated as quotes (warnQuoteChar)"
+                      type="checkbox"
+                      tooltiptext="&quot; in bracket expressions are treated as quotes (warnQuoteChar)"
+                      pref="true"
+                      prefstring="tcllint_warnQuoteChar"
+                      />
+            <listitem label="&quot;%y&quot; generates a year without a century. consider using &quot;%Y&quot; to avoid y2k errors. (warnY2K)"
+                      type="checkbox"
+                      tooltiptext="&quot;%y&quot; generates a year without a century. consider using &quot;%Y&quot; to avoid y2k errors. (warnY2K)"
+                      pref="true"
+                      prefstring="tcllint_warnY2K"
+                      />
+            <listitem label="&useOfNonPortableBitmapNonPortBitmap.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableBitmapNonPortBitmap.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortBitmap"
+                      />
+            <listitem label="&useOfNonPortableKeysymNonPortKeysym.label;"
+                      type="checkbox"
+                      tooltiptext="&useOfNonPortableKeysymNonPortKeysym.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_nonPortKeysym"
+                      />
+            <listitem label="&usageOfInternalConsoleCommandMayChangeWithoutNoticeWarnConsoleCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&usageOfInternalConsoleCommandMayChangeWithoutNoticeWarnConsoleCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnConsoleCmd"
+                      />
+            <listitem label="&usageOfInternalTkCommandMayChangeWithoutNoticeWarnTkCmd.label;"
+                      type="checkbox"
+                      tooltiptext="&usageOfInternalTkCommandMayChangeWithoutNoticeWarnTkCmd.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_warnTkCmd"
+                      />
+            <listitem label="&ambiguousSwitchExpectWarnAmbiguous.label;"
+                      type="checkbox"
+                      tooltiptext="&ambiguousSwitchExpectWarnAmbiguous.tooltiptext;"
+                      pref="true"
+                      prefstring="tcllint_expect_warnAmbiguous"
+                      />
+        </listbox>
+        <separator class="thin"/>
+        <label value="Error messages to suppress"/>
+        <listbox rows="5">
+            <listitem label="Argument specified after &quot;args&quot; (argAfterArgs)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Argument specified after &quot;args&quot; (argAfterArgs)"
+                      prefstring="tcllint_argAfterArgs"
+                      />
+            <listitem label="&quot;args&quot; cannot be defaulted (argsNotDefault)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&quot;args&quot; cannot be defaulted (argsNotDefault)"
+                      prefstring="tcllint_argsNotDefault"
+                      />
+            <listitem label="&arrayVariableReadAsIfAScalarArrayReadAsScalar.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&arrayVariableReadAsIfAScalarArrayReadAsScalar.tooltiptext;"
+                      prefstring="tcllint_arrayReadAsScalar"
+                      />
+            <listitem label="&invalidArrayIndexBadArrayIndex.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidArrayIndexBadArrayIndex.tooltiptext;"
+                      prefstring="tcllint_badArrayIndex"
+                      />
+            <listitem label="&invalidBooleanValueBadBoolean.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidBooleanValueBadBoolean.tooltiptext;"
+                      prefstring="tcllint_badBoolean"
+                      />
+            <listitem label="&invalidNumberShouldBeBetween0And255BadByteNum.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidNumberShouldBeBetween0And255BadByteNum.tooltiptext;"
+                      prefstring="tcllint_badByteNum"
+                      />
+            <listitem label="&invalidColorNameBadColorFormat.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidColorNameBadColorFormat.tooltiptext;"
+                      prefstring="tcllint_badColorFormat"
+                      />
+            <listitem label="&invalidCursorSpecBadCursor.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidCursorSpecBadCursor.tooltiptext;"
+                      prefstring="tcllint_badCursor"
+                      />
+            <listitem label="&invalidFloatingPointValueBadFloat.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidFloatingPointValueBadFloat.tooltiptext;"
+                      prefstring="tcllint_badFloat"
+                      />
+            <listitem label="Invalid index: should be integer or &quot;end&quot; (badIndex)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid index: should be integer or &quot;end&quot; (badIndex)"
+                      prefstring="tcllint_badIndex"
+                      />
+            <listitem label="Invalid index: should be integer or &quot;end&quot; or &quot;end-integer&quot; (badIndexExpr)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid index: should be integer or &quot;end&quot; or &quot;end-integer&quot; (badIndexExpr)"
+                      prefstring="tcllint_badIndexExpr"
+                      />
+            <listitem label="&invalidIntegerBadInt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidIntegerBadInt.tooltiptext;"
+                      prefstring="tcllint_badInt"
+                      />
+            <listitem label="&invalidKeywordBadKey.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidKeywordBadKey.tooltiptext;"
+                      prefstring="tcllint_badKey"
+                      />
+            <listitem label="&invalidLevelBadLevel.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidLevelBadLevel.tooltiptext;"
+                      prefstring="tcllint_badLevel"
+                      />
+            <listitem label="&invalidListBadList.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidListBadList.tooltiptext;"
+                      prefstring="tcllint_badList"
+                      />
+            <listitem label="&invalidExprOperatorBadMathOp.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidExprOperatorBadMathOp.tooltiptext;"
+                      prefstring="tcllint_badMathOp"
+                      />
+            <listitem label="&accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.tooltiptext;"
+                      prefstring="tcllint_badMode"
+                      />
+            <listitem label="&invalidValueMustBeAnInteger0BadNatNum.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidValueMustBeAnInteger0BadNatNum.tooltiptext;"
+                      prefstring="tcllint_badNatNum"
+                      />
+            <listitem label="&invalidOptionBadOption.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidOptionBadOption.tooltiptext;"
+                      prefstring="tcllint_badOption"
+                      />
+            <listitem label="&invalidPixelValueBadPixel.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidPixelValueBadPixel.tooltiptext;"
+                      prefstring="tcllint_badPixel"
+                      />
+            <listitem label="&invalidResourceNameBadResource.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidResourceNameBadResource.tooltiptext;"
+                      prefstring="tcllint_badResource"
+                      />
+            <listitem label="&invalidSwitchBadSwitch.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidSwitchBadSwitch.tooltiptext;"
+                      prefstring="tcllint_badSwitch"
+                      />
+            <listitem label="&invalidVersionNumberBadVersion.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidVersionNumberBadVersion.tooltiptext;"
+                      prefstring="tcllint_badVersion"
+                      />
+            <listitem label="&invalidValueMustBeAPositiveIntegerBadWholeNum.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidValueMustBeAPositiveIntegerBadWholeNum.tooltiptext;"
+                      prefstring="tcllint_badWholeNum"
+                      />
+            <listitem label="&internalErrorInternalError.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&internalErrorInternalError.tooltiptext;"
+                      prefstring="tcllint_internalError"
+                      />
+            <listitem label="Invalid usage, use  instead&quot; (invalidUsage)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid usage, use  instead&quot; (invalidUsage)"
+                      prefstring="tcllint_invalidUsage"
+                      />
+            <listitem label="&theSpecifiedOptionsCannotBeUsedInTandemMismatchOptions.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&theSpecifiedOptionsCannotBeUsedInTandemMismatchOptions.tooltiptext;"
+                      prefstring="tcllint_mismatchOptions"
+                      />
+            <listitem label="&missingAnExpressionNoExpr.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&missingAnExpressionNoExpr.tooltiptext;"
+                      prefstring="tcllint_noExpr"
+                      />
+            <listitem label="&missingAScriptAfterNoScript.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&missingAScriptAfterNoScript.tooltiptext;"
+                      prefstring="tcllint_noScript"
+                      />
+            <listitem label="&missingArgumentForSwitchNoSwitchArg.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&missingArgumentForSwitchNoSwitchArg.tooltiptext;"
+                      prefstring="tcllint_noSwitchArg"
+                      />
+            <listitem label="&nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.tooltiptext;"
+                      prefstring="tcllint_nonDefAfterDef"
+                      />
+            <listitem label="&wrongArgsNumArgs.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&wrongArgsNumArgs.tooltiptext;"
+                      prefstring="tcllint_numArgs"
+                      />
+            <listitem label="&wrongOfListElementsNumListElts.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&wrongOfListElementsNumListElts.tooltiptext;"
+                      prefstring="tcllint_numListElts"
+                      />
+            <listitem label="&obsoleteUsageUseInsteadObsoleteCmd.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&obsoleteUsageUseInsteadObsoleteCmd.tooltiptext;"
+                      prefstring="tcllint_obsoleteCmd"
+                      />
+            <listitem label="&parseErrorParse.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&parseErrorParse.tooltiptext;"
+                      prefstring="tcllint_parse"
+                      />
+            <listitem label="&wrongArgsForUserDefinedProcProcNumArgs.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&wrongArgsForUserDefinedProcProcNumArgs.tooltiptext;"
+                      prefstring="tcllint_procNumArgs"
+                      />
+            <listitem label="&tooManyFieldsInArgumentSpecifierTooManyFieldArg.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&tooManyFieldsInArgumentSpecifierTooManyFieldArg.tooltiptext;"
+                      prefstring="tcllint_tooManyFieldArg"
+                      />
+            <listitem label="&windowNameCannotBeginWithACapitalLetterWinAlpha.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&windowNameCannotBeginWithACapitalLetterWinAlpha.tooltiptext;"
+                      prefstring="tcllint_winAlpha"
+                      />
+            <listitem label="Window name must begin with &quot;.&quot; (winBeginDot)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Window name must begin with &quot;.&quot; (winBeginDot)"
+                      prefstring="tcllint_winBeginDot"
+                      />
+            <listitem label="&windowNameCannotBeAnEmptyStringWinNotNull.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&windowNameCannotBeAnEmptyStringWinNotNull.tooltiptext;"
+                      prefstring="tcllint_winNotNull"
+                      />
+            <listitem label="&invalidIntegerRangeBltBadIntRange.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidIntegerRangeBltBadIntRange.tooltiptext;"
+                      prefstring="tcllint_blt_badIntRange"
+                      />
+            <listitem label="&invalidMnemonicSignalBltBadSignal.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidMnemonicSignalBltBadSignal.tooltiptext;"
+                      prefstring="tcllint_blt_badSignal"
+                      />
+            <listitem label="&invalidSignalIntegerShouldBeBetween1And32BltBadSignalInt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidSignalIntegerShouldBeBetween1And32BltBadSignalInt.tooltiptext;"
+                      prefstring="tcllint_blt_badSignalInt"
+                      />
+            <listitem label="&badFormatForBinaryCommandBadBinaryFmt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&badFormatForBinaryCommandBadBinaryFmt.tooltiptext;"
+                      prefstring="tcllint_badBinaryFmt"
+                      />
+            <listitem label="&stringMapListShouldHaveAnEvenNumberOfElementsBadCharMap.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&stringMapListShouldHaveAnEvenNumberOfElementsBadCharMap.tooltiptext;"
+                      prefstring="tcllint_badCharMap"
+                      />
+            <listitem label="&badFormatForFormatCommandBadFormatFmt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&badFormatForFormatCommandBadFormatFmt.tooltiptext;"
+                      prefstring="tcllint_badFormatFmt"
+                      />
+            <listitem label="&badRegexpPatternBadRegexp.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&badRegexpPatternBadRegexp.tooltiptext;"
+                      prefstring="tcllint_badRegexp"
+                      />
+            <listitem label="&badSerialModeBadSerialMode.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&badSerialModeBadSerialMode.tooltiptext;"
+                      prefstring="tcllint_badSerialMode"
+                      />
+            <listitem label="&invalidOperationShouldBeOneOrMoreOfRwuBadTraceOp.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidOperationShouldBeOneOrMoreOfRwuBadTraceOp.tooltiptext;"
+                      prefstring="tcllint_badTraceOp"
+                      />
+            <listitem label="&theBracketExpressionIsMissingACloseBracketErrBadBrktExp.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&theBracketExpressionIsMissingACloseBracketErrBadBrktExp.tooltiptext;"
+                      prefstring="tcllint_errBadBrktExp"
+                      />
+            <listitem label="&packageRequireHasExactButNoVersionSpecifiedPkgBadExactRq.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&packageRequireHasExactButNoVersionSpecifiedPkgBadExactRq.tooltiptext;"
+                      prefstring="tcllint_pkgBadExactRq"
+                      />
+            <listitem label="&optionMyportIsNotValidForServersServerAndPort.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&optionMyportIsNotValidForServersServerAndPort.tooltiptext;"
+                      prefstring="tcllint_serverAndPort"
+                      />
+            <listitem label="&noArgumentGivenForOptionSocketArgOpt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&noArgumentGivenForOptionSocketArgOpt.tooltiptext;"
+                      prefstring="tcllint_socketArgOpt"
+                      />
+            <listitem label="&cannotSetAsyncOptionForServerSocketsSocketAsync.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&cannotSetAsyncOptionForServerSocketsSocketAsync.tooltiptext;"
+                      prefstring="tcllint_socketAsync"
+                      />
+            <listitem label="&invalidOptionMustBeAsyncMyaddrMyportOrServerSocketBadOpt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidOptionMustBeAsyncMyaddrMyportOrServerSocketBadOpt.tooltiptext;"
+                      prefstring="tcllint_socketBadOpt"
+                      />
+            <listitem label="&cannotSetAsyncOptionForServerSocketsSocketServer.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&cannotSetAsyncOptionForServerSocketsSocketServer.tooltiptext;"
+                      prefstring="tcllint_socketServer"
+                      />
+            <listitem label="&bindScriptContainsUnknownPlaceholdersBadBindSubst.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&bindScriptContainsUnknownPlaceholdersBadBindSubst.tooltiptext;"
+                      prefstring="tcllint_badBindSubst"
+                      />
+            <listitem label="Invalid colormap: must be &quot;new&quot; or a window name (badColormap)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid colormap: must be &quot;new&quot; or a window name (badColormap)"
+                      prefstring="tcllint_badColormap"
+                      />
+            <listitem label="&invalidEventTypeOrKeysymBadEvent.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidEventTypeOrKeysymBadEvent.tooltiptext;"
+                      prefstring="tcllint_badEvent"
+                      />
+            <listitem label="&invalidGeometrySpecifierBadGeometry.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidGeometrySpecifierBadGeometry.tooltiptext;"
+                      prefstring="tcllint_badGeometry"
+                      />
+            <listitem label="&cannotDetermineMasterWindowBadGridMaster.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&cannotDetermineMasterWindowBadGridMaster.tooltiptext;"
+                      prefstring="tcllint_badGridMaster"
+                      />
+            <listitem label="&mustSpecifyWindowBeforeShortcutBadGridRel.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&mustSpecifyWindowBeforeShortcutBadGridRel.tooltiptext;"
+                      prefstring="tcllint_badGridRel"
+                      />
+            <listitem label="&invalidPaletteSpecBadPalette.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidPaletteSpecBadPalette.tooltiptext;"
+                      prefstring="tcllint_badPalette"
+                      />
+            <listitem label="&invalidPriorityKeywordOrValueBadPriority.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidPriorityKeywordOrValueBadPriority.tooltiptext;"
+                      prefstring="tcllint_badPriority"
+                      />
+            <listitem label="&invalidScreenValueBadScreen.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidScreenValueBadScreen.tooltiptext;"
+                      prefstring="tcllint_badScreen"
+                      />
+            <listitem label="&invalidStickynessValueShouldBeZeroOrMoreOfNsweBadSticky.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidStickynessValueShouldBeZeroOrMoreOfNsweBadSticky.tooltiptext;"
+                      prefstring="tcllint_badSticky"
+                      />
+            <listitem label="&invalidTabListBadTab.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidTabListBadTab.tooltiptext;"
+                      prefstring="tcllint_badTab"
+                      />
+            <listitem label="&invalidTabJustificationMustBeLeftRightCenterOrNumericBadTabJust.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidTabJustificationMustBeLeftRightCenterOrNumericBadTabJust.tooltiptext;"
+                      prefstring="tcllint_badTabJust"
+                      />
+            <listitem label="&virtualEventIsBadlyFormedBadVirtual.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&virtualEventIsBadlyFormedBadVirtual.tooltiptext;"
+                      prefstring="tcllint_badVirtual"
+                      />
+            <listitem label="&invalidVisualBadVisual.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidVisualBadVisual.tooltiptext;"
+                      prefstring="tcllint_badVisual"
+                      />
+            <listitem label="&invalidVisualDepthBadVisualDepth.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidVisualDepthBadVisualDepth.tooltiptext;"
+                      prefstring="tcllint_badVisualDepth"
+                      />
+            <listitem label="&noEventsSpecifiedInBindingNoEvent.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&noEventsSpecifiedInBindingNoEvent.tooltiptext;"
+                      prefstring="tcllint_noEvent"
+                      />
+            <listitem label="&virtualEventNotAllowedInDefinitionOfAnotherVirtualEventNoVirtual.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&virtualEventNotAllowedInDefinitionOfAnotherVirtualEventNoVirtual.tooltiptext;"
+                      prefstring="tcllint_noVirtual"
+                      />
+            <listitem label="&missingClassSpecifierForBodyDeclarationIncrTclBadMemberName.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&missingClassSpecifierForBodyDeclarationIncrTclBadMemberName.tooltiptext;"
+                      prefstring="tcllint_incrTcl_badMemberName"
+                      />
+            <listitem label="&wrongArgsForClassConstructorIncrTclClassNumArgs.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&wrongArgsForClassConstructorIncrTclClassNumArgs.tooltiptext;"
+                      prefstring="tcllint_incrTcl_classNumArgs"
+                      />
+            <listitem label="&commandOnlyDefinedInClassBodyIncrTclClassOnly.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&commandOnlyDefinedInClassBodyIncrTclClassOnly.tooltiptext;"
+                      prefstring="tcllint_incrTcl_classOnly"
+                      />
+            <listitem label="&commandOnlyDefinedInNamespaceBodyIncrTclNsOnly.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&commandOnlyDefinedInNamespaceBodyIncrTclNsOnly.tooltiptext;"
+                      prefstring="tcllint_incrTcl_nsOnly"
+                      />
+            <listitem label="&commandOnlyDefinedInClassOrNamespaceBodyIncrTclNsOrClassOnly.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&commandOnlyDefinedInClassOrNamespaceBodyIncrTclNsOrClassOnly.tooltiptext;"
+                      prefstring="tcllint_incrTcl_nsOrClassOnly"
+                      />
+            <listitem label="&procOnlyDefinedInClassIncrTclProcOutScope.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&procOnlyDefinedInClassIncrTclProcOutScope.tooltiptext;"
+                      prefstring="tcllint_incrTcl_procOutScope"
+                      />
+            <listitem label="&callingProtectedProcIncrTclProcProtected.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&callingProtectedProcIncrTclProcProtected.tooltiptext;"
+                      prefstring="tcllint_incrTcl_procProtected"
+                      />
+            <listitem label="&commandDeprecatedAndIsNoLongerValidIncrTclWarnUnsupported.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&commandDeprecatedAndIsNoLongerValidIncrTclWarnUnsupported.tooltiptext;"
+                      prefstring="tcllint_incrTcl_warnUnsupported"
+                      />
+            <listitem label="&invalidOracleConnectStringOratclBadConnectStr.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidOracleConnectStringOratclBadConnectStr.tooltiptext;"
+                      prefstring="tcllint_oratcl_badConnectStr"
+                      />
+            <listitem label="Invalid &quot;on&quot; or &quot;off&quot; value (oratcl::badOnOff)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid &quot;on&quot; or &quot;off&quot; value (oratcl::badOnOff)"
+                      prefstring="tcllint_oratcl_badOnOff"
+                      />
+            <listitem label="&invalidOracleSubstitutionCharacterOratclBadSubstChar.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidOracleSubstitutionCharacterOratclBadSubstChar.tooltiptext;"
+                      prefstring="tcllint_oratcl_badSubstChar"
+                      />
+            <listitem label="&varnameMustBePrecededByOratclMissingColon.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&varnameMustBePrecededByOratclMissingColon.tooltiptext;"
+                      prefstring="tcllint_oratcl_missingColon"
+                      />
+            <listitem label="&invalidSybaseSubstitutionCharacterSybtclBadSubstChar.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidSybaseSubstitutionCharacterSybtclBadSubstChar.tooltiptext;"
+                      prefstring="tcllint_sybtcl_badSubstChar"
+                      />
+            <listitem label="Invalid index: should be integer, &quot;len&quot; or &quot;end&quot; (tclX::badLIndex)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="Invalid index: should be integer, &quot;len&quot; or &quot;end&quot; (tclX::badLIndex)"
+                      prefstring="tcllint_tclX_badLIndex"
+                      />
+            <listitem label="&optionNotValidWhenTurningOffProfilingTclXBadProfileOpt.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&optionNotValidWhenTurningOffProfilingTclXBadProfileOpt.tooltiptext;"
+                      prefstring="tcllint_tclX_badProfileOpt"
+                      />
+            <listitem label="The filename must have a &quot;.tlib&quot; suffix (tclX::badTlibFile)"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="The filename must have a &quot;.tlib&quot; suffix (tclX::badTlibFile)"
+                      prefstring="tcllint_tclX_badTlibFile"
+                      />
+            <listitem label="&unexpectedOptionTclXOptionRequired.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&unexpectedOptionTclXOptionRequired.tooltiptext;"
+                      prefstring="tcllint_tclX_optionRequired"
+                      />
+            <listitem label="&invalidActionMustBeStartChildrenEndOrAllXmlActBadXMLaction.label;"
+                      type="checkbox"
+                      pref="true"
+                      tooltiptext="&invalidActionMustBeStartChildrenEndOrAllXmlActBadXMLaction.tooltiptext;"
+                      prefstring="tcllint_xmlAct_badXMLaction"
+                      />
+        </listbox>
+        <separator class="thin"/>
+        <label value="Additional options (e.g. custom --suppress arguments)"/>
+        <textbox pref="true" prefstring="tcllint_extra"/>
+        <separator class="thin"/>
+        <hbox align="center">
+            <checkbox label="&forceCheckingForSpecificTclTkVersion.label;"
+                      pref="true"
+                      id="force_tcllint_version"
+                      prefstring="force_tcllint_version"
+                      oncommand="PrefTcl_UpdateUI('force_tcllint_verson')"
+                      />
+            <hbox align="center">
+                <menulist id="tcllint_version" pref="true" prefattribute="data">
+                    <menupopup>
+                        <menuitem data="7.3" label="&label.73;"/>
+                        <menuitem data="7.4" label="&label.74;"/>
+                        <menuitem data="7.5" label="&label.75;"/>
+                        <menuitem data="7.6" label="&label.76;"/>
+                        <menuitem data="8.0" label="&label.80;"/>
+                        <menuitem data="8.1" label="&label.81;"/>
+                        <menuitem data="8.2" label="&label.82;"/>
+                        <menuitem data="8.3" label="&label.83;"/>
+                        <menuitem data="8.4" label="&label.84;"/>
+                        <menuitem data="8.5" label="&label.85;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </hbox>
+    </groupbox>
+</window>
+
