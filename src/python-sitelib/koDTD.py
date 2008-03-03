@@ -442,6 +442,8 @@ class DTD:
         groupedNamesRe = collector.res["groupedNamesSplitter"]
         names = [n for n in groupedNamesRe.split(d['name']) if n]
         for name in names:
+            if self.casename:
+                name = name.lower()
             d['name'] = name
             if name in self.dataset.elements:
                 el = self.dataset.elements[name]
