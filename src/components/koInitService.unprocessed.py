@@ -780,15 +780,6 @@ class KoInitService:
         hostFilesToUpgrade = {  # files under "host-$HOST" dir to upgrade
             "breakpoints.pickle": "breakpoints.pickle",
         }
-        # Dictionary, filename to upgrade and the function to do the upgrade
-        hostXREFilesToUpgrade_v40 = {
-            "signons.txt": self._upgradeRemoteServerSignons
-        }
-        # In Komodo 4.1, the Mozilla nsIPasswordManager changed the filename
-        # and format of the signons.txt, now calling it "signons2.txt"
-        hostXREFilesToUpgrade_v41 = {
-            "signons2.txt": self._upgradeRemoteServerSignons
-        }
 
         # First determine if we need to upgrade at all.
         # If any of the above exist in the current version's user data
@@ -858,68 +849,32 @@ class KoInitService:
         self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
         hostBaseName = basename(currHostUserDataDir)
         prevHostUserDataDir = join(prevUserDataDir, hostBaseName)
+        if prevVer >= (4,0):
+            # Upgrade from 4.0 or newer, this keeps the remote files server
+            # preferences intact.
+            hostFilesToUpgrade.update({
+                join("XRE", "key3.db"): join("XRE", "key3.db"),
+                join("XRE", "cert8.db"): join("XRE", "cert8.db"),
+                join("XRE", "secmod.db"): join("XRE", "secmod.db"),
+            })
+            if prevVer >= (4,1):
+                # In Komodo 4.1, the Mozilla nsIPasswordManager changed the
+                # filename and format of the signons.txt, now calling it
+                # "signons2.txt".
+                hostFilesToUpgrade.update({
+                    join("XRE", "signons2.txt"): join("XRE", "signons2.txt"),
+                })
+            else:
+                hostFilesToUpgrade.update({
+                    join("XRE", "signons.txt"): join("XRE", "signons.txt"),
+                })
         self._upgradeFiles(hostFilesToUpgrade, prevHostUserDataDir,
                            currHostUserDataDir)
-        if prevVer >= (4,1):
-            # Upgrade from 4.1 or newer
-            self._upgradeXREFiles(hostXREFilesToUpgrade_v41,
-                                  prevHostUserDataDir,
-                                  currHostUserDataDir)
-        elif prevVer >= (4,0):
-            # Upgrade from 4.0
-            self._upgradeXREFiles(hostXREFilesToUpgrade_v40,
-                                  prevHostUserDataDir,
-                                  currHostUserDataDir)
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
         self._upgradeUserDataDirFiles()
         self._upgradeUserPrefs()
-
-    # serverList is a list of string values (length 7)
-    def _saveRemoteServerList(self, serverList):
-        #print "_saveRemoteServerList:", serverList
-        passwordmanager = components.classes["@mozilla.org/passwordmanager;1"].getService(components.interfaces.nsIPasswordManager);
-        for server in serverList:
-            # decode the password
-            # add to the password manager
-            hostdata = "%s:%s:%s:%s:%s" % tuple(server[:5])
-            username = server[5]
-            password = server[6]
-            #print "%s [%s,%s] " % (hostdata,username, password)
-            passwordmanager.addUser(hostdata, username, password)
-        
-        # debug info
-        #e = passwordmanager.enumerator
-        #while e.hasMoreElements():
-        #    print "dumping password manager data"
-        #    # server is nsIPassword, which has host, user and password members
-        #    server = e.getNext().QueryInterface(components.interfaces.nsIPassword)
-        #    print "    %s [%s,%s] " % (server.host, server.user, server.password)
-
-    # Function is used to upgrade a 4.x user's remote server list
-    # Note: The upgrade cannot get the username or password information, only
-    #       the details of the server.
-    def _upgradeRemoteServerSignons(self, fromPath):
-        f = file(fromPath, "r")
-        #print "\n\n_upgradeRemoteServerSignons\n"
-        nextLineIsServerDetails = False
-        serverList = []
-        username = '<unknown>'
-        password = ''
-        for line in f.readlines():
-            if nextLineIsServerDetails:
-                nextLineIsServerDetails = False
-                serverInfo = line.rstrip("\r\n").split(":")
-                #print "serverInfo: %r" % (serverInfo)
-                if len(serverInfo) == 5:
-                    #print "Adding to list"
-                    serverList.append(serverInfo + [username, password])
-            elif line.strip() == ".":
-                nextLineIsServerDetails = True
-        if len(serverList) > 0:
-            self._saveRemoteServerList(serverList)
-        #print "\n"
 
     def initExtensions(self):
         """'pylib' subdirectories of installed extensions are appended
