@@ -56,7 +56,16 @@ interface koITime : nsISupports {
     
     // XXX Other possibly useful ones:
     //     .sleep()
+    
+    //---- Extra methods not strictly part of the Python 'time' module.
+    
+    /* Return a pretty string giving the approximate time since the
+     * given path was last modified.
+     */
+    wstring nice_modtime_from_path(in wstring path);
 };
+
+
 
 [scriptable, uuid(862D0CE5-B99E-4eea-9355-56EDB28E6AB6)]
 interface koIShUtil : nsISupports {

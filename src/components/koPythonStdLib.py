@@ -40,7 +40,9 @@ A place for light PyXPCOM interfaces to parts of Python's std library.
 """
 
 import time
+import os
 import shutil
+import datetime
 import glob
 from xpcom import components, nsError, ServerException, COMException
 
@@ -58,6 +60,17 @@ class KoTime:
         return time.time()
     def strftime(self, format, timetuple):
         return time.strftime(format, timetuple)
+
+    def nice_modtime_from_path(self, path):
+        if not os.path.exists(path):
+            return "does not exist"
+        try:
+            mtime = os.stat(path).st_mtime
+        except EnvironmentError, ex:
+            return "could not determine (%s)" % ex
+        mtime_dt = datetime.datetime.fromtimestamp(mtime)
+        return timesince(mtime_dt)
+        
 
 class KoShUtil:
     _com_interfaces_ = [components.interfaces.koIShUtil]
@@ -122,3 +135,56 @@ class KoGlob:
     def glob(self, expression):
         return glob.glob(expression)
 
+
+#---- internal support stuff
+
+def timesince(d, now=None):
+    """Adapted from django's django/utils/timesince.py"""
+    def noopgettext(single, plural=None, n=1):
+        if plural is None:
+            return single
+        elif n == 1:
+            return single
+        else:
+            return plural
+
+    chunks = (
+      (60 * 60 * 24 * 365, lambda n: noopgettext('year', 'years', n)),
+      (60 * 60 * 24 * 30, lambda n: noopgettext('month', 'months', n)),
+      (60 * 60 * 24 * 7, lambda n: noopgettext('week', 'weeks', n)),
+      (60 * 60 * 24, lambda n : noopgettext('day', 'days', n)),
+      (60 * 60, lambda n: noopgettext('hour', 'hours', n)),
+      (60, lambda n: noopgettext('minute', 'minutes', n))
+    )
+    # Convert datetime.date to datetime.datetime for comparison
+    if d.__class__ is not datetime.datetime:
+        d = datetime.datetime(d.year, d.month, d.day)
+    if now:
+        t = now.timetuple()
+    else:
+        t = time.localtime()
+    if d.tzinfo:
+        tz = LocalTimezone(d)
+    else:
+        tz = None
+    now = datetime.datetime(t[0], t[1], t[2], t[3], t[4], t[5], tzinfo=tz)
+
+    # ignore microsecond part of 'd' since we removed it from 'now'
+    delta = now - (d - datetime.timedelta(0, 0, d.microsecond))
+    since = delta.days * 24 * 60 * 60 + delta.seconds
+    if since <= 0:
+        # d is in the future compared to now, stop processing.
+        return "just now"
+    for i, (seconds, name) in enumerate(chunks):
+        count = since // seconds
+        if count != 0:
+            break
+    
+    type = name(count)
+    if count == 0 and type == "minutes":
+        s = "seconds ago"
+    elif count == 1 and type.startswith("day"):
+        s = "yesterday"
+    else:
+        s = '%(number)d %(type)s ago' % {'number': count, 'type': type}
+    return s

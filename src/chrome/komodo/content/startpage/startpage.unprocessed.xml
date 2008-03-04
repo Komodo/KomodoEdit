@@ -739,51 +739,10 @@
                 // Return a pretty string describing the last modified time of the given
                 // URL if available.
                 if (url.search(/^(file\:)/) != -1) {
-                    var fname = ko.uriparse.displayPath(url);
-                    var exists = false;
-                    try {
-                        exists = this._osPathSvc.exists(fname)
-                    } catch(e) {
-                        // if we are not in a UTF locale, and the filename has
-                        // characters outside the locale characterset, we will
-                        // get an exception
-                        return "Unknown";
-                    }
-                    if (exists) {
-                        var mode = new Object();
-                        var ino = new Object();
-                        var nlink = new Object();
-                        var uid = new Object();
-                        var gid = new Object();
-                        var size = new Object();
-                        var atime = new Object();
-                        var mtime = new Object();
-                        var ctime = new Object();
-                        try {
-                            this._osSvc.stat(fname, mode, ino, ino, nlink,
-                                             uid, gid, size, atime, mtime,
-                                             ctime);
-                        } catch (ex) {
-                            msg = "Error: " + this._lastErrorSvc.getLastErrorMessage();
-                            log.error("Error stating '"+fname+"': "+ex);
-                        }
-                        if (! msg) {
-                            var timeTuple = this._timeSvc.localtime(mtime.value, new Object());
-                            if (this._isToday(mtime.value)) {
-                                msg = "Today at " + this._timeSvc.strftime(
-                                                        "%H:%M:%S",
-                                                        timeTuple.length,
-                                                        timeTuple);
-                            } else {
-                                msg = this._timeSvc.strftime(this._dateFormat,
-                                                             timeTuple.length,
-                                                             timeTuple);
-                            }
-                        }
-                    } else {
-                        msg = "Does not exist";
-                    }
-
+                    var timeSvc = Components.classes["@activestate.com/koTime;1"].
+                                 getService(Components.interfaces.koITime);
+                    var path = ko.uriparse.displayPath(url);
+                    return timeSvc.nice_modtime_from_path(path);
                 } else if (url.search(/^(koremote\:)/) != -1)  {
                     msg = "Could not determine (Remote File)";
                 } else  {
