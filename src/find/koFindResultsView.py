@@ -53,6 +53,7 @@ class KoFindResultsView(TreeView):
 
     def __init__(self):
         TreeView.__init__(self, debug=0)
+        #TODO: lock guard for this data
         self._data = []
         self._tree = None
         self._sortedBy = None
@@ -125,6 +126,7 @@ class KoFindResultsView(TreeView):
 
     def AddFindResults(self, types, urls, startIndexs, endIndexs, values,
                        fileNames, lineNums, columnNums, contexts):
+        len_before = len(self._data)
         for (type, url, startIndex, endIndex, value, fileName, lineNum,
              columnNum, context) in zip(types, urls, startIndexs, endIndexs,
                                         values, fileNames, lineNums,
@@ -144,7 +146,7 @@ class KoFindResultsView(TreeView):
             self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(0, len(urls))
+        self._tree.rowCountChanged(len_before, len(urls))
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
@@ -174,6 +176,7 @@ class KoFindResultsView(TreeView):
     def AddReplaceResults(self, types, urls, startIndexs, endIndexs,
                           values, replacements, fileNames,
                           lineNums, columnNums, contexts):
+        len_before = len(self._data)
         for (type, url, startIndex, endIndex, value, replacement,
              fileName, lineNum, columnNum, context
              ) in zip(types, urls, startIndexs, endIndexs, values,
@@ -195,7 +198,7 @@ class KoFindResultsView(TreeView):
             self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(0, len(urls))
+        self._tree.rowCountChanged(len_before, len(urls))
         self._tree.invalidate()  #XXX invalidating too much here?
         self._tree.endUpdateBatch()
 
