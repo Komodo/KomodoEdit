@@ -53,6 +53,10 @@ interface koIDirs : nsISupports {
     readonly attribute wstring mozBinDir;
     readonly attribute wstring binDir;
 
+    // Path to siloed Python. This is needed for Komodo macros to be
+    // able to run the SDK scripts.
+    readonly attribute wstring pythonExe;
+
     // DBGP-related directories.
     readonly attribute wstring binDBGPDir;
     readonly attribute wstring perlDBGPDir;

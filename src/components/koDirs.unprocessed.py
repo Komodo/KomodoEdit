@@ -240,6 +240,37 @@ class KoDirs:
 ##    def get_etcDir(self):
 ##    def get_docDir(self):
 
+    def get_pythonExe(self):
+        if sys.platform == "darwin":
+            # mozBinDir:
+            #   $mozSrc/mozilla/dist/Komodo.app/Contents/MacOS (dev build)
+            #   $installDir/Contents/MacOS (installation)
+            # pythonExe:
+            #   $mozSrc/mozilla/dist/Komodo.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python (dev build)
+            #   $installDir/Contents/Frameworks/Python.framework/Versions/Current/bin/python (installation)
+            pythonExe = join(dirname(self.get_mozBinDir()),
+                             "Frameworks", "Python.framework",
+                             "Versions", "Current", "bin", "python")
+        elif sys.platform == "win32":
+            # mozBinDir:
+            #   $mozSrc/mozilla/dist/bin (dev build)
+            #   $installDir/lib/mozilla (installation)
+            # pythonExe:
+            #   $mozSrc/mozilla/dist/python/python.exe (dev build)
+            #   $installDir/lib/python/python.exe (installation)
+            pythonExe = join(dirname(self.get_mozBinDir()),
+                             "python", "python.exe")
+        else:
+            # mozBinDir:
+            #   $mozSrc/mozilla/dist/bin (dev build)
+            #   $installDir/lib/mozilla (installation)
+            # pythonExe:
+            #   $mozSrc/mozilla/dist/python/bin/python (dev build)
+            #   $installDir/lib/python/bin/python (installation)
+            pythonExe = join(dirname(self.get_mozBinDir()),
+                             "python", "bin", "python")
+        return pythonExe
+
     def get_binDBGPDir(self):
         return os.path.join(self.get_supportDir(), "dbgp", "bin")
     def get_perlDBGPDir(self):
