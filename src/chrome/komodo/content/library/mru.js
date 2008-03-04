@@ -304,16 +304,19 @@ this.get = function MRU_get(prefName, index /* =0 */)
     return retval;
 }
 
-this.del = function MRU_del(prefName, index)
+this.del = function MRU_del(prefName, index, notify)
 {
     _log.info("MRU_del(prefName="+prefName+", index="+index+")");
+    if (typeof(notify) == 'undefined')
+        notify = true;
     // Remove the identified entry from the MRU list.
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
     if (prefSvc.prefs.hasPref(prefName)) {
         var mruList = prefSvc.prefs.getPref(prefName);
         mruList.deletePref(index);
-        _notifyOfMRUChange(prefName);
+        if (notify)
+            _notifyOfMRUChange(prefName);
     }
 }
 
