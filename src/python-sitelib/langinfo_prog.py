@@ -86,6 +86,8 @@ class PHPLangInfo(LangInfo):
         (0, "string", "<?php"),
         (0, "regex", re.compile(r'\A#!.*php.*$', re.I | re.M)),
     ]
+    #TODO: PHP files should inherit the HTML "<meta> charset" check
+    #      and the XML prolog encoding check.
 
 
 class TclLangInfo(LangInfo):
