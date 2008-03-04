@@ -36,12 +36,6 @@
 
 """LangInfo definitions for some document languages."""
 
-#TODO:
-# - some XML langs to add:  DocBook, Atom, Dita,
-#   RDF, RSS (various versions?), RelaxNG, XML Schema, XSLT.
-#   ODF, UBL (these mentioned by Tim Bray, http://www.tbray.org/ongoing/When/200x/2006/01/08/No-New-XML-Languages)
-#   others?
-
 import re
 from langinfo import LangInfo
 
@@ -108,6 +102,16 @@ class XMLLangInfo(LangInfo):
         (0, "string", "<?xml"),
     ]
 
+class XSLTLangInfo(LangInfo):
+    name = "XSLT"
+    conforms_to_bases = ["XML"]
+    exts = ['.xsl', '.xslt']
+    #PERF: Only want to include this if necessary (for perf), i.e. if
+    #      `exts` isn't sufficient.
+    #magic_numbers = [
+    #    (0, "regex", re.compile(r'^<xsl:stylesheet ', re.M))
+    #]
+
 class XULLangInfo(LangInfo):
     name = "XUL"
     conforms_to_bases = ["XML"]
@@ -131,6 +135,19 @@ class XBLLangInfo(LangInfo):
          "http://www.mozilla.org/xbl"),
     ]
 
+
+class SGMLLangInfo(LangInfo):
+    name = "SGML"
+    conforms_to_bases = ["Text"]
+    exts = ['.sgml', '.ent']
+    magic_numbers = [
+        (0, "string", "<!subdoc"), #TODO: should be case-insensitive
+        #TODO: How to get these to have lower precedence than HTML
+        #      doctype
+        #(0, "string", "<!doctype"), #TODO: should be case-insensitive
+        #(0, "string", "<!--"),
+    ]
+
 class YAMLLangInfo(LangInfo):
     name = "YAML"
     conforms_to_bases = ["Text"]
@@ -150,22 +167,85 @@ class DTDLangInfo(LangInfo):
 class PODLangInfo(LangInfo):
     """Plain Old Documentation format common in the Perl world."""
     name = "POD"
-    #TODO: does POD conform-to Perl?
     conforms_to_bases = ["Text"]
     exts = [".pod"]
     # http://search.cpan.org/~nwclark/perl-5.8.8/pod/perlpod.pod
     encoding_decl_pattern = re.compile(r"^=encoding\s+(?P<encoding>[-\w.]+)", re.M)
 
-class RHTMLLangInfo(LangInfo):
-    name = "RHTML"
+class ASN1LangInfo(LangInfo):
+    name = "ASN.1"
+    komodo_name = "ASN1"
     conforms_to_bases = ["Text"]
-    exts = [".rhtml"]
+    exts = [".asn1"]
 
-#TODO: how to handle the ext collision with HTML?!
-#class DjangoHTMLTemplateLangInfo(LangInfo):
-#    name = "Django HTML Template"
-#    conforms_to_bases = ["Text"]
-#    exts = [".html"]
+class PostScriptLangInfo(LangInfo):
+    name = "PostScript"
+    conforms_to_bases = ["Text"]
+    exts = [".ps"]
 
 
+class TeXLangInfo(LangInfo):
+    name = "TeX"
+    conforms_to_bases = ["Text"]
+    #TODO: who should win .tex? TeX or LaTeX?
+    #exts = [".tex"]
+
+class LaTeXLangInfo(LangInfo):
+    name = "LaTeX"
+    conforms_to_bases = ["Text"]
+    exts = [".tex"]
+
+class ConTeXLangInfo(LangInfo):
+    name = "ConTeX"
+    conforms_to_bases = ["Text"]
+
+class GettextPOLangInfo(LangInfo):
+    """GNU Gettext PO
+
+    http://www.gnu.org/software/gettext/manual/gettext.html#PO-Files
+    """
+    name = "PO"
+    conforms_to_bases = ["Text"]
+    exts = [".po"]
+    default_encoding = "utf-8"
+
+class ReStructureTextLangInfo(LangInfo):
+    name = "reStructuredText"
+    conforms_to_bases = ["Text"]
+    exts = [".rst"]
+
+class MarkdownLangInfo(LangInfo):
+    """'A text-to-HTML conversion tool [and format] for web writers'
+
+    http://daringfireball.net/projects/markdown/
+    """
+    name = "Markdown"
+    conforms_to_bases = ["Text"]
+    exts = [".markdown"]
+
+class RichTextFormatLangInfo(LangInfo):
+    """Rich Text Format"""
+    name = "RTF"
+    conforms_to_bases = ["Text"]
+    exts = [".rtf"]
+    magic_numbers = [
+        (0, "string", r"{\rtf"),
+    ]
+
+
+class TroffLangInfo(LangInfo):
+    """'the Text Processor for Typesetters'
+
+    This is the format of man pages on Un*x.
+    http://www.troff.org/
+    """
+    name = "troff"
+    conforms_to_bases = ["Text"]
+    magic_numbers = [
+        (0, "string", '.\\"'),
+        (0, "string", "'\\\""),
+        (0, "string", "'.\\\""),
+        (0, "string", "\\\""),
+        (0, "string", "'''"),
+    ]
 
