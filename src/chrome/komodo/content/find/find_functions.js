@@ -70,6 +70,16 @@ var gFindSession = Components.classes["@activestate.com/koFindSession;1"]
 
 //--- internal support routines that Komodo's view system should have
 
+function _IsViewSearchable(view) {
+    var scimoz = null;
+    try {
+        scimoz = view && view.scintilla && view.scintilla.scimoz;
+    } catch (ex) {
+        return false;
+    }
+    return scimoz != null;
+}
+
 // Return the view after this one appropriate for searching. If there is no
 // such view (e.g. only one view), then return null.
 //
@@ -102,6 +112,9 @@ function _GetNextView(editor, currView)
             if (searchableViews[currIndex].document.displayPath == currDisplayPath)
                 break;
         }
+    }
+    if (currIndex == searchableViews.length) {
+        currIndex = -1;
     }
 
     // Find the next one.
@@ -145,6 +158,9 @@ function _GetPreviousView(editor, currView)
             if (searchableViews[currIndex].document.displayPath == currDisplayPath)
                 break;
         }
+    }
+    if (currIndex == searchableViews.length) {
+        currIndex = -1;
     }
 
     // Find the next one.
@@ -211,6 +227,19 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     var view = editor.ko.views.manager.currentView;
     if (view == null) {
         return null;
+    }
+
+    if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS
+        && ! _IsViewSearchable(view))
+    {
+        if (findSvc.options.searchBackward) {
+            view = _GetPreviousView(editor, view);
+        } else {
+            view = _GetNextView(editor, view);
+        }
+        if (view == null) {
+            return null;
+        }
     }
 
     // Get the necessary data (context may be other than the whole file).
@@ -423,6 +452,9 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
     // Replace the last find result in the current find session, if there is
     // one and if it is genuine and current. No return value.
     var view = editor.ko.views.manager.currentView;
+    if (! _IsViewSearchable(view)) {
+        return;
+    }
     var scimoz = view.scintilla.scimoz;
     var url = view.document.displayPath;
     var replaceResult = null;
@@ -1114,16 +1146,18 @@ function Find_FindAll(editor, context, pattern, patternAlias,
             var viewId;
             numFilesSearched = 0;
             while (view) {
-                viewId = view.document.displayPath;
-                if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                    findLog.debug("Find_FindAll: have already searched '"+
-                                  viewId+"'\n");
-                    break;
+                if (_IsViewSearchable(view)) {
+                    viewId = view.document.displayPath;
+                    if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
+                        findLog.debug("Find_FindAll: have already searched '"+
+                                      viewId+"'\n");
+                        break;
+                    }
+    
+                    findLog.debug("Find_FindAll: find all in '"+viewId+"'\n");
+                    _FindAllInView(editor, view, context, pattern, resultsMgr.view);
+                    numFilesSearched += 1;
                 }
-
-                findLog.debug("Find_FindAll: find all in '"+viewId+"'\n");
-                _FindAllInView(editor, view, context, pattern, resultsMgr.view);
-                numFilesSearched += 1;
 
                 if (findSvc.options.searchBackward) {
                     view = _GetPreviousView(editor, view);
@@ -1389,21 +1423,23 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         var viewId;
         numFiles = numFilesSearched = 0;
         while (view) {
-            viewId = view.document.displayPath;
-            if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                findLog.debug("Find_ReplaceAll: have already searched '"+
-                              viewId+"'\n");
-                break;
+            if (_IsViewSearchable(view)) {
+                viewId = view.document.displayPath;
+                if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
+                    findLog.debug("Find_ReplaceAll: have already searched '"+
+                                  viewId+"'\n");
+                    break;
+                }
+    
+                findLog.debug("Find_ReplaceAll: replace all in '"+viewId+"'\n");
+                nr = _ReplaceAllInView(editor, view, context, pattern,
+                                       replacement, resultsView);
+                numReplacements += nr;
+                if (nr) {
+                    numFiles += 1;
+                }
+                numFilesSearched += 1;
             }
-
-            findLog.debug("Find_ReplaceAll: replace all in '"+viewId+"'\n");
-            nr = _ReplaceAllInView(editor, view, context, pattern,
-                                   replacement, resultsView);
-            numReplacements += nr;
-            if (nr) {
-                numFiles += 1;
-            }
-            numFilesSearched += 1;
 
             if (findSvc.options.searchBackward) {
                 view = _GetPreviousView(editor, view);

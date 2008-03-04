@@ -85,8 +85,11 @@ function on_unload() {
 }
 
 function on_focus(event) {
+    //TODO: Change to only do this for one phase. Currently this is
+    //      calling reset_find_context() for AT_TARGET and BUBBLING_PHASE
+    //      phases.
     if (event.target == document) {  // focus of the *Window*
-        reset_find_context();
+        reset_find_context("on_focus");
     }
 }
 
@@ -278,7 +281,7 @@ function update(changed /* =null */) {
     }
 
     if (mode_changed) {
-        reset_find_context();
+        reset_find_context("update: mode_changed");
         _update_mode_ui();
     }
     if (mode_changed || ui_changed) {
@@ -507,7 +510,7 @@ function find_next(backward /* =false */) {
             // Make one attempt to get the context again: state in the
             // main editor may have changed such that getting a context is
             // possible.
-            reset_find_context();
+            reset_find_context("find_next");
             if (! _g_find_context) {
                 return;
             }
@@ -558,7 +561,7 @@ function find_all() {
             // Make one attempt to get the context again: state in the
             // main editor may have changed such that getting a context is
             // possible.
-            reset_find_context();
+            reset_find_context("find_all");
             if (! _g_find_context) {
                 return;
             }
@@ -620,7 +623,7 @@ function mark_all() {
             // Make one attempt to get the context again: state in the
             // main editor may have changed such that getting a context is
             // possible.
-            reset_find_context();
+            reset_find_context("mark_all");
             if (! _g_find_context) {
                 return;
             }
@@ -667,7 +670,7 @@ function replace() {
             // Make one attempt to get the context again: state in the
             // main editor may have changed such that getting a context is
             // possible.
-            reset_find_context();
+            reset_find_context("replace");
             if (! _g_find_context) {
                 return;
             }
@@ -711,7 +714,7 @@ function replace_all() {
             // Make one attempt to get the context again: state in the
             // main editor may have changed such that getting a context is
             // possible.
-            reset_find_context();
+            reset_find_context("replace_all");
             if (! _g_find_context) {
                 return;
             }
@@ -839,8 +842,11 @@ function _init() {
     var use_selection_as_pattern = false;
     var use_selection_as_context = false;
     try {
-        scimoz = opener.ko.views.manager.currentView.scintilla.scimoz;
-        selection = scimoz.selText;
+        var curr_view = opener.ko.views.manager.currentView;
+        if (curr_view && curr_view.scintilla) {
+            scimoz = curr_view.scintilla.scimoz;
+            selection = scimoz.selText;
+        }
     } catch(ex) {
         /* pass: just don't have a current editor view */
     }
@@ -1134,19 +1140,42 @@ function _update_mode_ui() {
 /**
  * Determine an appropriate koIFindContext instance for
  * searching/replacing, and set it to the `_g_find_context` global.
+ *
+ * @param reason {string} gives the reason for resetting the find context.
+ *      This is only used for debugging.
  * 
  * Can return null if an appropriate context could not be determined.
  */
-function reset_find_context() {
+function reset_find_context(reason /* =null */) {
+    if (typeof(reason) == "undefined" || reason == null) reason = "(no reason given)";
+    
     var context = null;
     msg_clear();
 
     switch (widgets.search_in_menu.value) {
     case "document":
-        context = Components.classes["@activestate.com/koFindContext;1"]
-            .createInstance(Components.interfaces.koIFindContext);
-        context.type = koIFindContext.FCT_CURRENT_DOC;
-        //TODO: warn and return null if no curr file in which can search
+        var curr_view = opener.ko.views.manager.currentView;
+        if (curr_view == null) {
+            msg_warn("No current file in which to search.");
+        } else {
+            var type = curr_view.getAttribute("type");
+            switch (type) {
+            case "startpage":
+                msg_warn("Cannot search in the Start Page.");
+                break;
+            case "browser":
+                msg_warn("Cannot search in a Browser Preview tab.");
+                break;
+            case "editor":
+            case "buffer":
+            case "diff":
+            default:
+                context = Components.classes["@activestate.com/koFindContext;1"]
+                    .createInstance(Components.interfaces.koIFindContext);
+                context.type = koIFindContext.FCT_CURRENT_DOC;
+                break;
+            }
+        }
         break;
 
     case "selection":
