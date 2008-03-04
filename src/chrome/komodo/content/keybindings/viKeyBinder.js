@@ -2382,12 +2382,16 @@ VimController.command_mappings = {
     "cmd_vim_join" :                [ "cmd_join",                   VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
-    "cmd_vim_undo" :                [ "cmd_undo",                   VimController.NO_REPEAT_ACTION ],
-    "cmd_vim_redo" :                [ "cmd_redo",                   VimController.NO_REPEAT_ACTION ],
+    "cmd_vim_undo" :                [ "cmd_undo",                   VimController.NO_REPEAT_ACTION |
+                                                                    VimController.CHOOSE_CARET_X ],
+    "cmd_vim_redo" :                [ "cmd_redo",                   VimController.NO_REPEAT_ACTION |
+                                                                    VimController.CHOOSE_CARET_X ],
     "cmd_vim_cancel" :              [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
-                                                                    VimController.CANCELS_VISUAL_MODE ],
-    "cmd_vim_repeatLastCommand" :   [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
+                                                                    VimController.CANCELS_VISUAL_MODE |
+                                                                    VimController.CHOOSE_CARET_X ],
+    "cmd_vim_repeatLastCommand" :   [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
+                                                                    VimController.CHOOSE_CARET_X ],
     "cmd_vim_enterCommandMode" :    [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_indent" :              [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
