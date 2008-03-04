@@ -73,12 +73,84 @@ class CIXLangInfo(LangInfo):
     exts = [".cix"]
 
 class DiffLangInfo(LangInfo):
-    name = "diff"
+    name = "Diff"
     conforms_to_bases = ["Text"]
     exts = [".patch", ".diff"]
 
 class IDLLangInfo(LangInfo):
+    #TODO: clarify if this is the math thing or the COM-IDL thing
     name = "IDL"
     conforms_to_bases = ["Text"]
     exts = [".idl"]
+
+class ApacheConfigLangInfo(LangInfo):
+    name = "Apache Config"
+    komodo_name = "Apache"
+    conforms_to_bases = ["Text"]
+    exts = [".conf"]
+    filename_patterns = [".htaccess"]
+
+class APDLLangInfo(LangInfo):
+    """ANSYS Parametric Design Language
+
+    http://www.mece.ualberta.ca/tutorials/ansys/AT/APDL/APDL.html
+    """
+    name = "APDL"
+    conforms_to_bases = ["Text"]
+    exts = [".mac"]
+
+class POVRayLangInfo(LangInfo):
+    """The "Persistence of Vision Raytracer"
+    http://www.povray.org
+    """
+    name = "POVRay"
+    conforms_to_bases = ["Text"]
+    exts = [".pov"]
+
+
+class SQLLangInfo(LangInfo):
+    #TODO: describe: what SQL spec does this conform to?
+    #TODO: should we have other SQL langs? E.g. for MySQL, PostgreSQL, etc.?
+    name = "SQL"
+    conforms_to_bases = ["Text"]
+    exts = [".sql"]
+
+class PLSQLLangInfo(LangInfo):
+    #TODO: describe how different from SQLLangInfo
+    name = "PL-SQL"
+    conforms_to_bases = ["Text"]
+    #exts = [".sql"]
+
+class MSSQLLangInfo(LangInfo):
+    #TODO: describe how diff from SQLLangInfo
+    name = "MSSQL"
+    conforms_to_bases = ["Text"]
+
+
+class NSISLangInfo(LangInfo):
+    """Nullsoft Scriptable Install System
+    http://nsis.sourceforge.net/
+    """
+    name = "NSIS"
+    komodo_name = "Nsis"
+    conforms_to_bases = ["Text"]
+    exts = [".nsi"]
+
+
+class VimLangInfo(LangInfo):
+    """Vim configuration"""
+    name = "Vim"
+    conforms_to_bases = ["Text"]
+    exts = [".vim"]
+    filename_patterns = [".vimrc"]
+
+class INILangInfo(LangInfo):
+    name = "INI"
+    conforms_to_bases = ["Text"]
+    exts = [".ini"]
+
+class LogLangInfo(LangInfo):
+    name = "log"
+    conforms_to_bases = ["Text"]
+    exts = [".log"]
 
