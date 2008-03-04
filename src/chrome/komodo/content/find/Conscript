@@ -51,7 +51,10 @@ $cons->InstallInChrome('findResultsTab.js');
 
 $cons->Preprocess('find2.p.js', 'find2.js');
 $cons->InstallInChrome('find2.js');
-$cons->Preprocess('find2.p.xul', 'find2.xul');
+$cons->Preprocess('find2.p.xul', 'find2.xul',
+                  # Third arg to turn on substitution (of internal
+                  # defines:
+                  {"BOOGABOOGA" => "BOOGABOOGA"});
 $cons->InstallInChrome('find2.xul');
 
 $cons->InstallInChrome('confirmrepl.js');
