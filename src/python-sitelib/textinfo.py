@@ -451,9 +451,17 @@ class TextInfo(object):
         8. Vi[m]-style "fileencoding" local var.
         9. Lang-specific fallback. E.g., UTF-8 for XML, ascii for Python.
         10. Heuristic checks for UTF-16 without BOM.
-        11. locale.getpreferredencoding()
+        11. Give UTF-8 a try, it is a pretty common fallback.
+            We must do this before a possible 8-bit
+            `locale.getpreferredencoding()` because any UTF-8 encoded
+            document will decode with an 8-bit encoding (i.e. will decode,
+            just with bogus characters).
         12. chardet (http://chardet.feedparser.org/)
-        13. Give UTF-8 a try (it is a pretty common fallback).
+        13. locale.getpreferredencoding()
+        14. iso8859-1 (in case `locale.getpreferredencoding()` is UTF-8
+            we must have an 8-bit encoding attempt).
+            TODO: Is there a worry for a lot of false-positives for
+            binary files.
 
         Notes:
         - A la Universal Feed Parser, if some
@@ -670,20 +678,12 @@ class TextInfo(object):
                 self.encoding = utf16_encoding
                 return
 
-        # 11. locale.getpreferredencoding()
-        # Typical values for this:
-        #   Windows:    cp1252 (aka windows-1252)
-        #   Mac OS X:   mac-roman
-        #   Linux:      UTF-8 (modern Linux anyway)
-        #   Solaris 8:  464 (aka ASCII)
-        locale_encoding = locale.getpreferredencoding()
-        if locale_encoding:
-            norm_locale_encoding = _norm_encoding(locale_encoding)
-            if self._accessor.decode(norm_locale_encoding):
-                log.debug("encoding: locale preferred encoding: %r",
-                          locale_encoding)
-                self.encoding = norm_locale_encoding
-                return
+        # 11. Give UTF-8 a try.
+        norm_utf8_encoding = _norm_encoding("utf-8")
+        if self._accessor.decode(norm_utf8_encoding):
+            log.debug("UTF-8 encoding: %r", norm_utf8_encoding)
+            self.encoding = norm_utf8_encoding
+            return   
 
         # 12. chardet (http://chardet.feedparser.org/)
         # Note: I'm leary of using this b/c (a) it's a sizeable perf
@@ -709,13 +709,28 @@ class TextInfo(object):
                         log.debug("chardet encoding: %r", chardet_encoding)
                         self.encoding = norm_chardet_encoding
                         return
+     
+        # 13. locale.getpreferredencoding()
+        # Typical values for this:
+        #   Windows:    cp1252 (aka windows-1252)
+        #   Mac OS X:   mac-roman
+        #   Linux:      UTF-8 (modern Linux anyway)
+        #   Solaris 8:  464 (aka ASCII)
+        locale_encoding = locale.getpreferredencoding()
+        if locale_encoding:
+            norm_locale_encoding = _norm_encoding(locale_encoding)
+            if self._accessor.decode(norm_locale_encoding):
+                log.debug("encoding: locale preferred encoding: %r",
+                          locale_encoding)
+                self.encoding = norm_locale_encoding
+                return
 
-        # 13. Give UTF-8 a try (it is a pretty common fallback).
-        norm_utf8_encoding = _norm_encoding("utf-8")
-        if self._accessor.decode(norm_utf8_encoding):
-            log.debug("fallback encoding: %r", norm_utf8_encoding)
-            self.encoding = norm_utf8_encoding
-            return        
+        # 14. iso8859-1
+        norm_fallback8bit_encoding = _norm_encoding("iso8859-1")
+        if self._accessor.decode(norm_fallback8bit_encoding):
+            log.debug("fallback 8-bit encoding: %r", fallback8bit_encoding)
+            self.encoding = norm_fallback8bit_encoding
+            return
 
         # We couldn't find an encoding that works. Give up and presume
         # this is binary content.
