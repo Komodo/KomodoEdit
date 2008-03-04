@@ -104,6 +104,7 @@ class TclLangInfo(LangInfo):
         (0, "regex", re.compile(r'\A#!.*^exec [^\r\n|\n|\r]*?(tclsh|wish|expect)',
                                 re.I | re.M | re.S)),
     ]
+    _magic_number_precedence = ("Bourne shell", -1) # check before "Bourne shell"
 
 class RubyLangInfo(LangInfo):
     name = "Ruby"
@@ -159,6 +160,27 @@ class BashLangInfo(LangInfo):
     name = "Bash"
     conforms_to_bases = ["Text"]
     exts = [".sh"]
+    filename_patterns = [".bash_profile", ".bashrc", ".bash_logout"]
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*/\bbash\b$', re.I | re.M)),
+    ]
+
+class SHLangInfo(LangInfo):
+    name = "Bourne shell"
+    conforms_to_bases = ["Text"]
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*/\bsh\b$', re.I | re.M)),
+    ]
+    
+
+class TCSHLangInfo(LangInfo):
+    name = "tcsh"
+    conforms_to_bases = ["Text"]
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*/\btcsh\b$', re.M)),
+    ]
+    filename_patterns = ["csh.cshrc", "csh.login", "csh.logout",
+                         ".tcshrc", ".cshrc", ".login", ".logout"]
 
 class CSharpLangInfo(LangInfo):
     name = "C#"
@@ -205,4 +227,98 @@ class SmalltalkLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".st"]
 
+class ActionScriptLangInfo(LangInfo):
+    """ActionScript source code
+
+    http://en.wikipedia.org/wiki/Adobe_Flash#Related_file_formats_and_extensions
+    """
+    name = "ActionScript"
+    conforms_to_bases = ["Text"]
+    exts = [".as", ".asc"]
+
+class AssemblerLangInfo(LangInfo):
+    name = "Assembler"
+    conforms_to_bases = ["Text"]
+    exts = [".asm"]
+
+class EiffelLangInfo(LangInfo):
+    name = "Eiffel"
+    conforms_to_bases = ["Text"]
+    exts = [".e"]
+
+class HaskellLangInfo(LangInfo):
+    name = "Haskell"
+    conforms_to_bases = ["Text"]
+    exts = [".hs"]
+
+class SchemeLangInfo(LangInfo):
+    name = "Scheme"
+    conforms_to_bases = ["Text"]
+    exts = [".scm"]
+
+class VHDLLangInfo(LangInfo):
+    """TODO: desc, reference"""
+    name = "VHDL"
+    conforms_to_bases = ["Text"]
+    exts = [".vhdl"]
+
+class VerilogLangInfo(LangInfo):
+    """TODO: desc, reference"""
+    name = "Verilog"
+    conforms_to_bases = ["Text"]
+
+
+
+#---- "Basic"-based languages
+
+class _BasicLangInfo(LangInfo):
+    conforms_to_bases = ["Text"]
+
+class FreeBasicLangInfo(_BasicLangInfo):
+    """http://www.freebasic.net/"""
+    name = "FreeBASIC"
+    komodo_name = "FreeBasic"
+    exts = [".bas"]
+
+class PureBasicLangInfo(_BasicLangInfo):
+    """http://www.purebasic.com/"""
+    name = "PureBasic"
+    exts = [".pb"]
+
+class PowerBasicLangInfo(_BasicLangInfo):
+    """TOOD: ref?
+    TODO: which if this and PureBasic should win '.pb' ext? 
+    """
+    name = "PowerBasic"
+    exts = [".pb"]
+
+class BlitzBasicLangInfo(_BasicLangInfo):
+    """http://www.blitzbasic.com/Products/blitzmax.php"""
+    name = "BlitzBasic"
+    exts = [".bb"]
+
+
+class VisualBasicLangInfo(_BasicLangInfo):
+    name = "VisualBasic"  #TODO: should name be "Visual Basic"?
+    exts = [".vb"]
+
+class VBScriptLangInfo(_BasicLangInfo):
+    name = "VBScript"
+    exts = [".vbs"]
+
+
+
+#---- less common languages (AFAICT)
+
+class BaanLangInfo(LangInfo):
+    """Baan is the scripting language used for the Baan ERP system
+    (currently known as SSA ERP according to the Wikipedia article
+    below).
+
+    http://en.wikipedia.org/wiki/Baan
+    http://baan.ittoolbox.com/
+    """
+    name = "Baan"
+    conforms_to_bases = ["Text"]
+    exts = [".bc"]
 

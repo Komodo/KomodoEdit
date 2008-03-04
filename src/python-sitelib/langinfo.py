@@ -70,6 +70,23 @@ allow Komodo extensions to add/override language info.)
 
 # TODO:
 # - add other Komodo languages
+# - langinfo_komodo.py, langinfo_apple.py, langinfo_microsoft.py, 
+#   langinfo_adobe.py
+# - Python: .pth, .egg-info
+# - some XML langs to add:  DocBook, Atom, Dita,
+#   RDF, RSS (various versions?), RelaxNG, XML Schema, XSLT.
+#   ODF, UBL (these mentioned by Tim Bray, http://www.tbray.org/ongoing/When/200x/2006/01/08/No-New-XML-Languages)
+#   others?
+#TODO: .wiki (for google code)
+#TODO: .*rc files?
+#TODO: .cvsignore
+#TODO: .pyx? .pxd? .pyd?  (see tm/check/contrib/pyyaml/ext/)
+#TODO: .deb, .rpm
+# - .phpt (in PHP tree)
+#TODO: http://en.wikipedia.org/wiki/Adobe_Flash#Related_file_formats_and_extensions
+#TODO: text .nib's, .plist, .pbxuser, .pbxproj, .m, .strings,
+#TODO: "/Library/Application Support/Apple/Developer Tools/Quartz Composer/Clips/Cubic.qtz"
+#      not recognized as "data", but it *is* by `file`.
 
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -86,6 +103,7 @@ import optparse
 import types
 import struct
 import warnings
+import operator
 
 
 
@@ -133,6 +151,12 @@ class LangInfo(object):
     # other than `name', that identify lang.
     emacs_modes = None
     vi_filetypes = None
+
+    # An optional key for specifying precedence for `magic_numbers`
+    # usage. If not given the key is `(name, 0)`. Then, for example,
+    # to ensure magic number checks before Python, one could set
+    #   _magic_number_precedence = ('Python', -1)
+    _magic_number_precedence = None 
 
     # Some languages mandate a default encoding, e.g. for Python it is
     # ASCII, for XML UTF-8.
@@ -291,7 +315,7 @@ class Database(object):
         if self._magic_table is None:
             self._build_tables()
 
-        for magic_number, li in self._magic_table:
+        for magic_number, li, sort_key in self._magic_table:
             try:
                 start, format, pattern = magic_number
             except ValueError:
@@ -348,7 +372,7 @@ class Database(object):
         self._langinfo_from_ext = {}
         self._langinfo_from_filename = {}
         self._langinfo_from_filename_re = {}
-        self._magic_table = []  # list of (<magic-tuple>, <langinfo>)
+        self._magic_table = []  # list of (<magic-tuple>, <langinfo>, <sort-key>)
         self._li_from_doctype_public_id = {}
         self._li_from_doctype_system_id = {}
         self._li_from_emacs_mode = {}
@@ -374,8 +398,9 @@ class Database(object):
                     else:
                         self._langinfo_from_filename_re[pat] = li
             if li.magic_numbers:
+                sort_key = li._magic_number_precedence or (li.name, 0)
                 for mn in li.magic_numbers:
-                    self._magic_table.append((mn, li))
+                    self._magic_table.append((mn, li, sort_key))
             if li.doctypes:
                 for dt in li.doctypes:
                     try:
@@ -394,6 +419,8 @@ class Database(object):
             if li.vi_filetypes:
                 for em in li.vi_filetypes:
                     self._li_from_vi_filetypes[em] = li
+
+        self._magic_table.sort(key=operator.itemgetter(2))
 
     def _norm_lang_from_lang(self, lang):
         return lang.lower()
@@ -418,8 +445,9 @@ class Database(object):
                 continue
             for name in dir(module):
                 attr = getattr(module, name)
-                if isinstance(attr, (types.ClassType, types.TypeType)) \
-                   and issubclass(attr, LangInfo) and attr is not LangInfo:
+                if (not name.startswith("_")   # skip internal bases
+                    and isinstance(attr, (types.ClassType, types.TypeType))
+                    and issubclass(attr, LangInfo) and attr is not LangInfo):
                     norm_lang = self._norm_lang_from_lang(attr.name)
                     self._langinfo_from_norm_lang[norm_lang] = attr(self)
 
