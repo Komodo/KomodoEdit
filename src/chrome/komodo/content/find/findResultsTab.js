@@ -991,8 +991,10 @@ FindResultsTabManager.prototype._doubleClick = function()
         // Try to find the match or replacement result. If it cannot be
         // found then just go to the start of the line where it used to be.
         // XXX Could try and be more sophisticated in the search.
-        var start = this.view.GetStartIndex(i);
-        var end = this.view.GetEndIndex(i);
+        var startCharIdx = this.view.GetStartIndex(i);
+        var start = scimoz.positionAtChar(0, startCharIdx); // a *byte* offset
+        var endCharIdx = this.view.GetEndIndex(i);
+        var end = scimoz.positionAtChar(0, endCharIdx); // a *byte* offset
         var value = this.view.GetValue(i);
         var replacement = this.view.GetReplacement(i);
         // - first try the original indeces (if the file has not changed the result

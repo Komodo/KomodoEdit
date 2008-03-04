@@ -1155,10 +1155,10 @@ class KoFindService(object):
                 #      perf for a large number of hits.
                 resultsView.AddFindResult(
                     "hit",
-                    url, startByteIndex, endByteIndex, value,
+                    url, startCharIndex, endCharIndex, value,
                     url, # fileName (currently url/viewId is the displayName)
-                    startLineNum + 1,
-                    startByteIndex - scimoz.positionFromLine(startLineNum),
+                    startLineNum + 1, # 1-based line
+                    startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
                     context)            
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
@@ -1318,12 +1318,12 @@ class KoFindService(object):
                     context = scimoz.getTextRange(contextStartPos, contextEndPos)
                     resultsView.AddReplaceResult(
                         "hit",
-                        url, startByteIndex, endByteIndex,
+                        url, startCharIndex, endCharIndex,
                         match.group(), # value
                         repl_str, # replacement string
                         url, # fileName (currently url/viewId is the displayName)
-                        startLineNum + 1, # 0-based -> 1-based
-                        startByteIndex - scimoz.positionFromLine(startLineNum),
+                        startLineNum + 1, # 1-based line
+                        startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
                         context)
             new_text_bits.append(text[curr_pos:])
 
