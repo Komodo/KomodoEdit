@@ -163,14 +163,8 @@ class CatalogsZone(object):
         log.debug("_res_ids_from_selections: res_ids=%r", res_ids)
         return tuple(res_ids), missing_selections
 
-    def get_lib(self, lang, selections=None, attempt_load_if_necessary=False):
-        """Return a CatalogLib for the given lang and selections.
-
-            ...
-            "attempt_load_if_necessary" (optional, default False) is a
-                boolean indicating if an attempt should be made to load
-                available catalogs for missing selections.
-        """
+    def get_lib(self, lang, selections=None):
+        """Return a CatalogLib for the given lang and selections."""
         assert not isinstance(selections, basestring),\
             "catalog lib 'selections' must be None or a sequence, not %r: %r"\
             % (type(selections), selections)
@@ -180,7 +174,7 @@ class CatalogsZone(object):
         if selections is not None:
             selection_res_ids, missing_selections \
                 = self._res_ids_from_selections(selections)
-            if missing_selections and attempt_load_if_necessary:
+            if missing_selections:
                 self.update(missing_selections)
                 selection_res_ids, missing_selections \
                     = self._res_ids_from_selections(selections)

@@ -350,8 +350,7 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
             try:
                 framework_name = framework_parts[0]
                 catalog_selections = [framework_name]
-                new_lib = self.mgr.db.get_catalog_lib("Ruby",
-                                                      catalog_selections, True)
+                new_lib = self.mgr.db.get_catalog_lib("Ruby", catalog_selections)
                 if new_lib:
                     node = new_lib.get_blob(framework_name)
                     framework_sc = (node, [])

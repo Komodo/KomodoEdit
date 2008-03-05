@@ -845,8 +845,7 @@ class Database(object):
             self._catalogs_zone = CatalogsZone(self.mgr, self.catalog_dirs)
         return self._catalogs_zone
 
-    def get_catalog_lib(self, lang, selections=None,
-                        attempt_load_if_necessary=False):
+    def get_catalog_lib(self, lang, selections=None):
         """Get a lang-specific handler for the catalog of loaded CIX files.
         
             "lang" is the language.
@@ -856,12 +855,8 @@ class Database(object):
                 this language are used. Otherwise only the selected
                 catalogs are used. A catalog "name" is the
                 (case-normalized) basename of the .cix file.
-            "attempt_load_if_necessary" (optional, default False) is a
-                boolean indicating if an attempt should be made to load
-                available catalogs for missing selections.
         """
-        return self.get_catalogs_zone().get_lib(lang, selections,
-                                                attempt_load_if_necessary)
+        return self.get_catalogs_zone().get_lib(lang, selections)
 
     def get_stdlibs_zone(self):
         if self._stdlibs_zone is None:
