@@ -139,14 +139,15 @@ def genpad(output_dir=None):
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
         "$PAD_PAD_BASENAME": pad_basename,
     }
-    eula_path = join(bkconfig.readmeDir, "license.txt")
+    eula_path = join(dirname(__file__), "..", "license_text", "LICENSE.txt")
     if not exists(eula_path):
-        log.warn("`%s' doesn't exist for PAD EULA (run `bk build`)", eula_path)
+        log.error("`%s' doesn't exist for PAD EULA (run `bk build`)", eula_path)
+        num_errors += 1
     else:
         pad_info["$PAD_EULA"] = open(eula_path).read()
     if DEBUG:
         pad_info_summary = pad_info.copy()
-        pad_info_summary["$PAD_EULA"] = pad_info_summary["$PAD_EULA"][:50] + "..."
+        pad_info_summary["$PAD_EULA"] = pad_info_summary.get("$PAD_EULA", "")[:50] + "..."
         pprint(pad_info_summary)
 
     # Preprocess the template.
