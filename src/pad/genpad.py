@@ -80,7 +80,7 @@ class GenPadError(Exception):
 #---- main functionality
 
 def genpad(output_dir=None):
-    DEBUG = True
+    DEBUG = False
     if output_dir is None:
         output_dir = dirname(__file__)
     num_errors = 0
