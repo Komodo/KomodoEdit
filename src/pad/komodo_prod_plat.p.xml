@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XML_DIZ_INFO>
+	<MASTER_PAD_VERSION_INFO>
+		<MASTER_PAD_VERSION>3.01</MASTER_PAD_VERSION>
+		<MASTER_PAD_EDITOR>PADGen 3.0.1.35 http://www.padgen.org</MASTER_PAD_EDITOR>
+		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+	</MASTER_PAD_VERSION_INFO>
+	<Company_Info>
+		<Company_Name>ActiveState Software Inc.</Company_Name>
+		<Address_1>1700 - 409 Granville Street</Address_1>
+		<Address_2 />
+		<City_Town>Vancouver</City_Town>
+		<State_Province>BC</State_Province>
+		<Zip_Postal_Code>V6C 1T2</Zip_Postal_Code>
+		<Country>Canada</Country>
+		<Company_WebSite_URL>http://www.activestate.com/</Company_WebSite_URL>
+		<Contact_Info>
+			<Author_First_Name>Cindy</Author_First_Name>
+			<Author_Last_Name>Wu</Author_Last_Name>
+			<Author_Email>cindyw@activestate.com</Author_Email>
+			<Contact_First_Name>Cindy</Contact_First_Name>
+			<Contact_Last_Name>Wu</Contact_Last_Name>
+			<Contact_Email>cindyw@activestate.com</Contact_Email>
+		</Contact_Info>
+		<Support_Info>
+			<Sales_Email />
+			<Support_Email />
+			<General_Email />
+			<Sales_Phone>1.778.786.1103</Sales_Phone>
+			<Support_Phone />
+			<General_Phone>1.778.786.1100</General_Phone>
+			<Fax_Phone>1.778.786.1133</Fax_Phone>
+		</Support_Info>
+	</Company_Info>
+	<Program_Info>
+		<Program_Name>$PAD_PROGRAM_NAME</Program_Name>
+		<Program_Version>$PAD_VERSION</Program_Version>
+		<Program_Release_Month>$PAD_RELEASE_MONTH</Program_Release_Month>
+		<Program_Release_Day>$PAD_RELEASE_DAY</Program_Release_Day>
+		<Program_Release_Year>$PAD_RELEASE_YEAR</Program_Release_Year>
+		<Program_Cost_Dollars>295.00</Program_Cost_Dollars>
+		<Program_Cost_Other_Code />
+		<Program_Cost_Other />
+		<Program_Type>Commercial</Program_Type>
+		<Program_Release_Status>$PAD_RELEASE_STATUS</Program_Release_Status>
+		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
+		<Program_OS_Support>$PAD_OS_SUPPORT</Program_OS_Support>
+		<Program_Language>English</Program_Language>
+		<Program_Change_Info>$PAD_CHANGE_INFO</Program_Change_Info>
+		<Program_Specific_Category>Development Tools</Program_Specific_Category>
+		<Program_Category_Class>Development::Other</Program_Category_Class>
+		<Program_System_Requirements>$PAD_SYSREQ</Program_System_Requirements>
+		<File_Info>
+			<File_Size_Bytes>$PAD_SIZE_BYTES</File_Size_Bytes>
+			<File_Size_K>$PAD_SIZE_K</File_Size_K>
+			<File_Size_MB>$PAD_SIZE_MB</File_Size_MB>
+		</File_Info>
+		<Expire_Info>
+			<Has_Expire_Info>N</Has_Expire_Info>
+			<Expire_Count />
+			<Expire_Based_On>Days</Expire_Based_On>
+			<Expire_Other_Info />
+			<Expire_Month />
+			<Expire_Day />
+			<Expire_Year />
+		</Expire_Info>
+	</Program_Info>
+	<Program_Descriptions>
+		<English>
+			<Keywords>$PAD_KEYWORDS</Keywords>
+			<Char_Desc_45>$PAD_DESC_45</Char_Desc_45>
+			<Char_Desc_80>$PAD_DESC_80</Char_Desc_80>
+			<Char_Desc_250>$PAD_DESC_250</Char_Desc_250>
+			<Char_Desc_450>$PAD_DESC_450</Char_Desc_450>
+			<Char_Desc_2000>$PAD_DESC_2000</Char_Desc_2000>
+		</English>
+	</Program_Descriptions>
+	<Web_Info>
+		<Application_URLs>
+			<Application_Info_URL>http://www.activestate.com/Products/komodo_ide/</Application_Info_URL>
+			<Application_Order_URL>http://www.activestate.com/store/komodo_ide/</Application_Order_URL>
+			<Application_Screenshot_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_4.2_js_code.png</Application_Screenshot_URL>
+			<Application_Icon_URL>http://www.activestate.com/komodo_ide/ActiveState.Komodo-icon-32x32-8bit.gif</Application_Icon_URL>
+			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_ide_windows.xml</Application_XML_File_URL>
+		</Application_URLs>
+		<Download_URLs>
+			<Primary_Download_URL>http://downloads.activestate.com/Komodo/Windows/4.2/Komodo-IDE-4.2.0-281898.msi</Primary_Download_URL>
+			<Secondary_Download_URL />
+			<Additional_Download_URL_1 />
+			<Additional_Download_URL_2 />
+		</Download_URLs>
+	</Web_Info>
+	<Permissions>
+		<Distribution_Permissions />
+		<EULA>ActiveState® Komodo® IDE License Agreement
+
+Please read carefully: THIS IS A LICENSE AND NOT AN AGREEMENT FOR SALE. By using and installing ActiveState's Software or, where applicable, choosing the "I ACCEPT..." option at the end of the License you indicate that you have read, understood, and accepted the terms and conditions of the License. IF YOU DO NOT AGREE WITH THE TERMS AND CONDITIONS, YOU SHOULD NOT ATTEMPT TO INSTALL THE SOFTWARE. If the Software is already downloaded or installed, you should promptly cease using the Software in any manner and destroy all copies of the Software in your possession. You, the user, assume all responsibility for the selection of the Software to achieve your intended results and for the installation, use and results obtained from the Software. If you have any questions concerning this, you may contact ActiveState via email.
+
+This ActiveState License ("License") is made between ActiveState Software Inc. ("ActiveState") as licensor, and you, as licensee, as of the date of your use of the Software (the Software is in use on a computer when it is loaded into the RAM or installed into the permanent memory (e.g., hard disk or other storage device) of that computer.).
+
+This License reflects ActiveState's intent to retain full ownership of and control of the use and distribution of ActiveState Komodo, the License Key (as hereinafter defined) and other applicable software (collectively the "Software").
+
+   1. License Grant. Subject to the terms and conditions of this License, ActiveState grants to you a personal, non-exclusive, non-transferable, and limited license to use the Software solely to create, compile, test and deploy, in source or object code form, your own application programs ("Works"). You may create redistributable applications based on your unique development work using the Software and you may sublicense to end users of such Works ("End Users") the personal, non-exclusive, non-transferable right to install and execute the files, and/or libraries that are necessary to use the Works created using the Software. Use of such files and/or libraries by such End Users is limited to runtime purposes only. You may not provide any End User with access to the development or interactive capabilities of the Software libraries or technology, nor may you expose the base programming language(s) as a scripting language within the Works to any such End User. When you pay the license fee established by ActiveState, you will receive a license key (the "License Key") from ActiveState that authorizes you to use the Software only in the following specific contexts:
+         1. Commercial Use. If your License Key authorizes Commercial Use, you may use the software on more than one computer or on a network so long as you are the sole user of the Software. (A "network" is any combination of two or more computers that are electronically linked and capable of sharing the use of a single software program.) You will obtain a separate license for each additional user of the Software (whether or not such users are connected on a network). You are not permitted to sell, lease, distribute, transfer, sublicense, or otherwise dispose of the Software, in whole or in part, for any form of actual or potential commercial gain or consideration.
+         2. Evaluation (Trial) Use. If your License Key authorizes Evaluation (Trial) Use you may use the software only for evaluation purposes without payment of the License Fee for a period of no more than twenty-one (21) days from the date of download.
+         3. Non-commercial Use. If your License Key authorizes Non-commercial Use, you may use the software in a teaching or learning environment only. You are not permitted to sell, lease, distribute, transfer, sublicense, or otherwise dispose of the Software, in whole or in part, for any form of actual or potential commercial gain or consideration.
+         4. Other Use. Any use of the software other than the uses specified above requires a separate license from ActiveState and the payment of additional license fees as determined by ActiveState. Such additional redistribution options are available, at ActiveState�s sole discretion, on a case-by-case basis. Contact Sales@ActiveState to discuss any redistribution options not covered by this license agreement. ActiveState reserves all rights not expressly granted to you herein.
+   2. Termination. This License Agreement is effective until terminated. ActiveState may terminate this License immediately and without prior notice if you breach any term of this License or for any other commercially reasonable ground. In the event of any termination or expiration, you agree to immediately destroy and/or erase the original and all copies of the Software, any accompanying documentation and License Keys and to discontinue their use and you will not retain or store the Software or any copies thereof, in any form or medium.
+   3. Proprietary Rights. The Software is licensed, not sold, to you. ActiveState reserves all rights not expressly granted to you. Ownership of the Software and its associated proprietary rights, including but not limited to patent and patent applications, are retained by ActiveState. The Software is protected by the copyright laws of Canada and the United States and by international treaties. Therefore, you must comply with such laws and treaties in your use of the Software. You agree not to remove any of ActiveState�s copyright, trademarks and other proprietary notices from the Software.
+   4. Distribution. Except as may be expressly allowed in Section 1, or as otherwise agreed to in a written agreement signed by both you and ActiveState, you will not distribute the Software, either in whole or in part, in any form or medium.
+   5. Transfer and Use Restrictions. You may not sell, license, sub-license, lend, lease, rent, share, assign, transmit, telecommunicate, export, distribute or otherwise transfer the Software to others, except as expressly permitted in this License Agreement or in another agreement with ActiveState. In order to use the Software you will be required to obtain a License Key and agree to this License Agreement for the use of the Software. You will not disclose or provide access to your License Key to any other person or entity. You must comply with all applicable Canadian and other export control laws in your use of the Software. Except as may be expressly permitted above, you may not modify, reverse engineer, decompile, decrypt, extract or otherwise disassemble the Software.
+   6. NO WARRANTY. ACTIVESTATE MAKES NO WARRANTIES WHATSOEVER REGARDING THE SOFTWARE AND IN PARTICULAR, DOES NOT WARRANT THAT THE SOFTWARE WILL FUNCTION IN ACCORDANCE WITH THE ACCOMPANYING DOCUMENTATION IN EVERY COMBINATION OF HARDWARE PLATFORM OR SOFTWARE ENVIRONMENT OR CONFIGURATION, OR BE COMPATIBLE WITH EVERY COMPUTER SYSTEM. IF THE SOFTWARE IS DEFECTIVE FOR ANY REASON, YOU WILL ASSUME THE ENTIRE COST OF ALL NECESSARY REPAIRS OR REPLACEMENTS.
+   7. DISCLAIMER. ACTIVESTATE DOES NOT WARRANT THAT THE SOFTWARE IS FREE FROM BUGS, DEFECTS, ERRORS OR OMISSIONS. THE SOFTWARE IS PROVIDED ON AN "AS IS" BASIS AND ACTIVESTATE MAKES NO OTHER WARRANTIES OR CONDITIONS, EXPRESS OR IMPLIED, WITH RESPECT TO THE SOFTWARE OR ANY ACCOMPANYING ITEMS INCLUDING WITHOUT LIMITATION THE IMPLIED WARRANTIES OR CONDITIONS OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, IN WHICH CASE THE ABOVE EXCLUSIONS MAY NOT APPLY TO YOU.
+   8. LIMITATION OF LIABILITY. ACTIVESTATE WILL HAVE NO LIABILITY OR OBLIGATION FOR ANY DAMAGES OR REMEDIES, INCLUDING, WITHOUT LIMITATION, THE COST OF SUBSTITUTE GOODS, LOST DATA, LOST PROFITS, LOST REVENUES OR ANY OTHER DIRECT, INDIRECT, INCIDENTAL, SPECIAL, GENERAL, PUNITIVE OR CONSEQUENTIAL DAMAGES, ARISING OUT OF THIS LICENSE OR THE USE OR INABILITY TO USE THE SOFTWARE. IN NO EVENT WILL ACTIVESTATE�S TOTAL AGGREGATE LIABILITY (WHETHER IN CONTRACT (INCLUDING FUNDAMENTAL BREACH), WARRANTY, TORT (INCLUDING NEGLIGENCE), PRODUCT LIABILITY, INTELLECTUAL PROPERTY INFRINGEMENT OR OTHER LEGAL THEORY) WITH REGARD TO THE SOFTWARE AND/OR THIS LICENSE EXCEED THE LICENSE FEE PAID BY YOU TO ACTIVESTATE. FURTHER, ACTIVESTATE WILL NOT BE LIABLE FOR ANY DELAY OR FAILURE TO PERFORM ITS OBLIGATIONS UNDER THIS LICENSE AS A RESULT OF ANY CAUSES OR CONDITIONS BEYOND ACTIVESTATE�S REASONABLE CONTROL.
+   9. U.S. Government Restricted Rights Legend. If the Software is acquired by any agency or other part of the U.S. government in a transaction subject to the Federal Acquisition Regulations or the Defense Federal Acquisition Regulations, the Software is furnished with Restricted Rights. Use, duplication, or disclosure of the Software by the U.S. government is subject to all applicable restrictions set forth in such Regulations, as amended from time to time, including subparagraphs (c)(1) and (2) of the Commercial Computer Software - Restricted Rights clause at Section 48 C.F.R. 52.227-19.
+  10. Entire Agreement. This License and the Usage License Agreement constitutes the entire agreement between you and ActiveState regarding the Software and all accompanying documentation. If any provision is found to be invalid by a court of competent jurisdiction, the balance of the provisions will remain in full force and effect. This License will be governed by and construed in accordance with the laws of the Province of British Columbia, Canada, excluding its conflict of laws rules. The parties hereby attorn to the jurisdiction of the courts of the Province of British Columbia in the event of any dispute hereunder. The provisions of the U.N. Convention on Contracts For The International Sale of Goods (1980) and any successor Convention, will not apply to this License.
+  11. Inurement. The rights, restrictions, limitations, disclaimers and remedies granted to, retained by, or for the benefit of ActiveState will inure to the benefit of and will be enforceable by ActiveState and its licensors, successors and assigns. You may not assign your rights, obligations and interest in and to this License without the prior written consent of ActiveState. The obligations, covenants and rights which apply to you will inure to your benefit and will be binding on you and your permitted successors and assigns.
+
+BY INSTALLING THE SOFTWARE, OR, WHERE APPLICABLE, CHOOSING THE "I ACCEPT..." OPTION, YOU INDICATE THAT YOU HAVE READ, UNDERSTOOD AND ACCEPT THE TERMS AND CONDITIONS OF THE LICENSE. IF YOU DO NOT AGREE WITH THE TERMS AND CONDITIONS, YOU SHOULD NOT ATTEMPT TO INSTALL THE SOFTWARE. </EULA>
+	</Permissions>
+	<Affiliates>
+		<Affiliates_FORM>Y</Affiliates_FORM>
+		<Affiliates_VERSION>1.2</Affiliates_VERSION>
+		<Affiliates_URL>http://www.asp-shareware.org/pad/extensions/Affiliates.htm</Affiliates_URL>
+		<Affiliates_Information_Page />
+		<Affiliates_Avangate_Order_Page />
+		<Affiliates_Avangate_Vendor_ID />
+		<Affiliates_Avangate_Product_ID />
+		<Affiliates_Avangate_Maximum_Commission_Rate />
+		<Affiliates_BMTMicro_Order_Page />
+		<Affiliates_BMTMicro_Vendor_ID />
+		<Affiliates_BMTMicro_Product_ID />
+		<Affiliates_BMTMicro_Maximum_Commission_Rate />
+		<Affiliates_clixGalore_Order_Page />
+		<Affiliates_clixGalore_Vendor_ID />
+		<Affiliates_clixGalore_Product_ID />
+		<Affiliates_clixGalore_Maximum_Commission_Rate />
+		<Affiliates_CommissionJunction_Order_Page />
+		<Affiliates_CommissionJunction_Vendor_ID />
+		<Affiliates_CommissionJunction_Product_ID />
+		<Affiliates_CommissionJunction_Maximum_Commission_Rate />
+		<Affiliates_DigiBuy_Order_Page />
+		<Affiliates_DigiBuy_Vendor_ID />
+		<Affiliates_DigiBuy_Product_ID />
+		<Affiliates_DigiBuy_Maximum_Commission_Rate />
+		<Affiliates_DigitalCandle_Order_Page />
+		<Affiliates_DigitalCandle_Vendor_ID />
+		<Affiliates_DigitalCandle_Product_ID />
+		<Affiliates_DigitalCandle_Maximum_Commission_Rate />
+		<Affiliates_Emetrix_Order_Page />
+		<Affiliates_Emetrix_Vendor_ID />
+		<Affiliates_Emetrix_Product_ID />
+		<Affiliates_Emetrix_Maximum_Commission_Rate />
+		<Affiliates_eSellerate_Order_Page />
+		<Affiliates_eSellerate_Vendor_ID />
+		<Affiliates_eSellerate_Product_ID />
+		<Affiliates_eSellerate_Maximum_Commission_Rate />
+		<Affiliates_Kagi_Order_Page />
+		<Affiliates_Kagi_Vendor_ID />
+		<Affiliates_Kagi_Product_ID />
+		<Affiliates_Kagi_Maximum_Commission_Rate />
+		<Affiliates_LinkShare_Order_Page />
+		<Affiliates_LinkShare_Vendor_ID />
+		<Affiliates_LinkShare_Product_ID />
+		<Affiliates_LinkShare_Maximum_Commission_Rate />
+		<Affiliates_NorthStarSol_Order_Page />
+		<Affiliates_NorthStarSol_Vendor_ID />
+		<Affiliates_NorthStarSol_Product_ID />
+		<Affiliates_NorthStarSol_Maximum_Commission_Rate />
+		<Affiliates_Order1_Order_Page />
+		<Affiliates_Order1_Vendor_ID />
+		<Affiliates_Order1_Product_ID />
+		<Affiliates_Order1_Maximum_Commission_Rate />
+		<Affiliates_Osolis_Order_Page />
+		<Affiliates_Osolis_Vendor_ID />
+		<Affiliates_Osolis_Product_ID />
+		<Affiliates_Osolis_Maximum_Commission_Rate />
+		<Affiliates_Plimus_Order_Page />
+		<Affiliates_Plimus_Vendor_ID />
+		<Affiliates_Plimus_Product_ID />
+		<Affiliates_Plimus_Maximum_Commission_Rate />
+		<Affiliates_Regnet_Order_Page />
+		<Affiliates_Regnet_Vendor_ID />
+		<Affiliates_Regnet_Product_ID />
+		<Affiliates_Regnet_Maximum_Commission_Rate />
+		<Affiliates_Regnow_Order_Page />
+		<Affiliates_Regnow_Vendor_ID />
+		<Affiliates_Regnow_Product_ID />
+		<Affiliates_Regnow_Maximum_Commission_Rate />
+		<Affiliates_Regsoft_Order_Page />
+		<Affiliates_Regsoft_Vendor_ID />
+		<Affiliates_Regsoft_Product_ID />
+		<Affiliates_Regsoft_Maximum_Commission_Rate />
+		<Affiliates_ShareIt_Order_Page />
+		<Affiliates_ShareIt_Vendor_ID />
+		<Affiliates_ShareIt_Product_ID />
+		<Affiliates_ShareIt_Maximum_Commission_Rate />
+		<Affiliates_Shareasale_Order_Page />
+		<Affiliates_Shareasale_Vendor_ID />
+		<Affiliates_Shareasale_Product_ID />
+
+		<Affiliates_Shareasale_Maximum_Commission_Rate />
+		<Affiliates_SWReg_Order_Page />
+		<Affiliates_SWReg_Vendor_ID />
+		<Affiliates_SWReg_Product_ID />
+		<Affiliates_SWReg_Maximum_Commission_Rate />
+		<Affiliates_V-Share_Order_Page />
+		<Affiliates_V-Share_Vendor_ID />
+		<Affiliates_V-Share_Product_ID />
+		<Affiliates_V-Share_Maximum_Commission_Rate />
+		<Affiliates_VFree_Order_Page />
+		<Affiliates_VFree_Vendor_ID />
+		<Affiliates_VFree_Product_ID />
+		<Affiliates_VFree_Maximum_Commission_Rate />
+		<Affiliates_Yaskifo_Order_Page />
+		<Affiliates_Yaskifo_Vendor_ID />
+		<Affiliates_Yaskifo_Product_ID />
+		<Affiliates_Yaskifo_Maximum_Commission_Rate />
+	</Affiliates>
+	<ASP>
+		<ASP_FORM>Y</ASP_FORM>
+		<ASP_Member>N</ASP_Member>
+		<ASP_Member_Number />
+	</ASP>
+</XML_DIZ_INFO>
