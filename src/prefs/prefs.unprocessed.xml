@@ -432,7 +432,7 @@
       <boolean id="Perl/newBOM">0</boolean>
     </preference-set>
     <preference-set id="languages/Python">
-      <string id="Python/newEncoding">Default Encoding</string>
+      <string id="Python/newEncoding">ascii</string>
       <boolean id="Python/newBOM">0</boolean>
     </preference-set>
     <preference-set id="languages/Ruby">
