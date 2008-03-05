@@ -62,6 +62,12 @@ g_sysreqs_from_os = {
      "macosx": "Mac Intel processor or PowerPC G4, 256 MB RAM, 90 MB hard disk space",
 }
 
+g_os_support_from_os = {
+    "win32": "Windows2000,WinXP,Windows Vista Starter,Windows Vista Home Basic,Windows Vista Home Premium,Windows Vista Business,Windows Vista Enterprise,Windows Vista Ultimate,Windows Vista Home Basic x64,Windows Vista Home Premium x64,Windows Vista Business x64,Windows Vista Enterprise x64,Windows Vista Ultimate x64",
+    "macosx": "Mac OS X,Mac OS X 10.3,Mac OS X 10.4,Mac OS X 10.5",
+    "linux": "Linux",
+}
+
 
 class GenPadError(Exception):
     pass
@@ -96,13 +102,8 @@ def genpad():
     else:
         release_status = "Minor Update"
     platname = bkconfig.buildPlatform
-    if platname.startswith("win"):
-        os_support = "Windows2000,WinXP,Windows Vista Starter,Windows Vista Home Basic,Windows Vista Home Premium,Windows Vista Business,Windows Vista Enterprise,Windows Vista Ultimate,Windows Vista Home Basic x64,Windows Vista Home Premium x64,Windows Vista Business x64,Windows Vista Enterprise x64,Windows Vista Ultimate x64"
-    elif platname.startswith("macosx"):
-        os_support = "Mac OS X,Mac OS X 10.3,Mac OS X 10.4,Mac OS X 10.5"
-    elif platname.startswith("linux"):
-        os_support = "Linux"
-    else:
+    os_support = g_os_support_from_os.get(pi.os)
+    if os_support is None:
         raise GenPadError("what is appropriate PAD <Program_OS_Support> "
                           "for %r (see http://www.asp-shareware.org/pad/specs.php)"
                           % platname)
