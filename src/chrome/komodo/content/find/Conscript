@@ -57,6 +57,10 @@ $cons->Preprocess('find2.p.xul', 'find2.xul',
                   {"BOOGABOOGA" => "BOOGABOOGA"});
 $cons->InstallInChrome('find2.xul');
 
+$cons->Preprocess('browseForDirs.p.js', 'browseForDirs.js');
+$cons->InstallInChrome('browseForDirs.js');
+$cons->InstallInChrome('browseForDirs.xul');
+
 $cons->InstallInChrome('confirmrepl.js');
 $cons->InstallInChrome('confirmrepl.xul');
 $cons->InstallInChrome('undorepl.js');
