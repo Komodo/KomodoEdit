@@ -76,8 +76,10 @@ class GenPadError(Exception):
 
 #---- main functionality
 
-def genpad():
+def genpad(output_dir=None):
     DEBUG = True
+    if output_dir is None:
+        output_dir = dirname(__file__)
     num_errors = 0
 
     top_dir = _get_top_dir()
@@ -144,7 +146,7 @@ def genpad():
     # Preprocess the template.
     template_path = join(dirname(__file__), "komodo_pad.p.xml")
     plat = bkconfig.buildPlatform.replace('-', '_')
-    output_path = join(dirname(__file__), "komodo_edit_%s.xml" % (prefix, plat))
+    output_path = join(output_dir, "komodo_edit_%s.xml" % plat)
     log.info("genpad `%s'", output_path)
     preprocess.preprocess(template_path, outfile=output_path,
                           defines=pad_info, substitute=True)
@@ -246,6 +248,20 @@ def _ver_info_from_long_ver_str(long_ver_str):
 
 #---- mainline
 
+def main(argv):
+    usage = "usage: %prog [OPTIONS]"
+    version = "%prog "+__version__
+    parser = optparse.OptionParser(usage=usage,
+        version=version, description=__doc__)
+    parser.add_option("-d", "--output-dir",
+                      help="output dir for generate PAD file")
+    opts, args = parser.parse_args()
+    if args:
+        raise GenPadError("no args at accepted by genpad")
+    return genpad(output_dir=opts.output_dir)
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    sys.exit( genpad() )
+    sys.exit( main(sys.argv) )
+
