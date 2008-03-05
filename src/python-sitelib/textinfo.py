@@ -729,7 +729,7 @@ class TextInfo(object):
         # 14. iso8859-1
         norm_fallback8bit_encoding = _norm_encoding("iso8859-1")
         if self._accessor.decode(norm_fallback8bit_encoding):
-            log.debug("fallback 8-bit encoding: %r", fallback8bit_encoding)
+            log.debug("fallback 8-bit encoding: %r", norm_fallback8bit_encoding)
             self.encoding = norm_fallback8bit_encoding
             return
 
