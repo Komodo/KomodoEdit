@@ -38,7 +38,7 @@
 		<Program_Release_Month>$PAD_RELEASE_MONTH</Program_Release_Month>
 		<Program_Release_Day>$PAD_RELEASE_DAY</Program_Release_Day>
 		<Program_Release_Year>$PAD_RELEASE_YEAR</Program_Release_Year>
-		<Program_Cost_Dollars>295.00</Program_Cost_Dollars>
+		<Program_Cost_Dollars>0.00</Program_Cost_Dollars>
 		<Program_Cost_Other_Code />
 		<Program_Cost_Other />
 		<Program_Type>Commercial</Program_Type>
@@ -46,7 +46,7 @@
 		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
 		<Program_OS_Support>$PAD_OS_SUPPORT</Program_OS_Support>
 		<Program_Language>English</Program_Language>
-		<Program_Change_Info>XXX</Program_Change_Info>
+		<Program_Change_Info>Find/Replace system improvements, Replace in Files, Find in Project, Multi-line Find/Replace, Abbreviations, Improved PHP autocomplete, Perl 5.10 support, Tcl 8.5 support</Program_Change_Info>
 		<Program_Specific_Category>Development Tools</Program_Specific_Category>
 		<Program_Category_Class>Development::Other</Program_Category_Class>
 		<Program_System_Requirements>$PAD_SYSREQ</Program_System_Requirements>
@@ -81,12 +81,20 @@ Other features include Vi emulation, Emacs keybindings, code folding and code sn
 	</Program_Descriptions>
 	<Web_Info>
 		<Application_URLs>
-			<Application_Info_URL>http://www.activestate.com/Products/komodo_ide/</Application_Info_URL>
-			<Application_Order_URL>http://www.activestate.com/store/komodo_ide/</Application_Order_URL>
+			<Application_Info_URL>http://www.activestate.com/Products/komodo_edit/</Application_Info_URL>
+			<Application_Order_URL>http://www.activestate.com/store/komodo_edit/</Application_Order_URL>
 			<Application_Screenshot_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_4.2_js_code.png</Application_Screenshot_URL>
 			<Application_Icon_URL>http://www.activestate.com/komodo_ide/ActiveState.Komodo-icon-32x32-8bit.gif</Application_Icon_URL>
 			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_ide_windows.xml</Application_XML_File_URL>
 		</Application_URLs>
+
+        <Application_URLs>
+            <Application_Info_URL>http://www.activestate.com/Products/komodo_edit/</Application_Info_URL>
+            <Application_Order_URL>http://www.activestate.com/store/komodo_edit/</Application_Order_URL>
+            <Application_Screenshot_URL>http://www.activestate.com/_images/product-assets/komodo_edit/boxshot_h125.png</Application_Screenshot_URL>
+            <Application_Icon_URL>http://www.activestate.com/komodo_edit/ActiveState.Komodo-icon-32x32-8bit.gif</Application_Icon_URL>
+            <Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_PAD_BASENAME</Application_XML_File_URL>
+        </Application_URLs>
 		<Download_URLs>
 			<Primary_Download_URL>http://downloads.activestate.com/Komodo/releases/$PAD_RELEASES_VER/$PAD_INSTALLER_PKG_NAME</Primary_Download_URL>
 			<Secondary_Download_URL />

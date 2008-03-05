@@ -36,6 +36,9 @@
 # ***** END LICENSE BLOCK *****
 
 """Generate a PAD file for distribution on sites for this Komodo build."""
+#TODO:
+# - need a new screenshot URL
+# - should Program_Type be "Commercial" for Komodo Edit?
 
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -63,9 +66,9 @@ g_sysreqs_from_os = {
 }
 
 g_os_support_from_os = {
-    "win32": "Windows2000,WinXP,Windows Vista Starter,Windows Vista Home Basic,Windows Vista Home Premium,Windows Vista Business,Windows Vista Enterprise,Windows Vista Ultimate,Windows Vista Home Basic x64,Windows Vista Home Premium x64,Windows Vista Business x64,Windows Vista Enterprise x64,Windows Vista Ultimate x64",
-    "macosx": "Mac OS X,Mac OS X 10.3,Mac OS X 10.4,Mac OS X 10.5",
-    "linux": "Linux",
+    "win32": "Windows2000, Windows2003, WinXP, Windows Vista Starter, Windows Vista Home Basic, Windows Vista Home Premium, Windows Vista Business, Windows Vista Enterprise, Windows Vista Ultimate, Windows Vista Home Basic x64, Windows Vista Home Premium x64, Windows Vista Business x64, Windows Vista Enterprise x64, Windows Vista Ultimate x64",
+    "macosx": "Mac OS X, Mac OS X 10.3, Mac OS X 10.4, Mac OS X 10.5",
+    "linux": "Linux, Linux Gnome",
 }
 
 
@@ -118,12 +121,14 @@ def genpad(output_dir=None):
     else:
         size_bytes = os.stat(install_pkg_path).st_size
     short_ver = _short_ver_str_from_ver_info(ver_info)
+    pad_basename = "komodo_%s_%s.xml" % (
+        bkconfig.productType, bkconfig.buildPlatform.replace('-', '_'))
     pad_info = {
         "$PAD_PROGRAM_NAME": "Komodo %s" % bkconfig.prettyProductType,
         "$PAD_VERSION": bkconfig.komodoShortVersion,
         "$PAD_RELEASE_YEAR": today.year,
-        "$PAD_RELEASE_MONTH": today.month,
-        "$PAD_RELEASE_DAY": today.day,
+        "$PAD_RELEASE_MONTH": "%02d" % today.month,
+        "$PAD_RELEASE_DAY": "%02d" % today.day,
         "$PAD_RELEASE_STATUS": release_status,
         "$PAD_OS_SUPPORT": os_support,
         "$PAD_SYSREQ": g_sysreqs_from_os[pi.os],
@@ -132,6 +137,7 @@ def genpad(output_dir=None):
         "$PAD_SIZE_MB": "%.1f" % (float(size_bytes) / 1024.0 / 1024.0),
         "$PAD_RELEASES_VER": short_ver,
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
+        "$PAD_PAD_BASENAME": pad_basename,
     }
     eula_path = join(bkconfig.readmeDir, "license.txt")
     if not exists(eula_path):
@@ -145,8 +151,7 @@ def genpad(output_dir=None):
 
     # Preprocess the template.
     template_path = join(dirname(__file__), "komodo_pad.p.xml")
-    plat = bkconfig.buildPlatform.replace('-', '_')
-    output_path = join(output_dir, "komodo_edit_%s.xml" % plat)
+    output_path = join(output_dir, pad_basename)
     log.info("genpad `%s'", output_path)
     preprocess.preprocess(template_path, outfile=output_path,
                           defines=pad_info, substitute=True)
