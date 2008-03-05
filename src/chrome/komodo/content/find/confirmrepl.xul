@@ -87,7 +87,7 @@
           seltype="multiple"
           class="no-border"
           editable="true"
-          style="margin: 0px;"
+          style="margin: 0px; height: 200px;"
           hidecolumnpicker="true"
           onselect="repls_on_select()"
           onkeypress="return repls_on_keypress(event)">
