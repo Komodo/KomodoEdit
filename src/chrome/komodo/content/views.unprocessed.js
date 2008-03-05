@@ -2116,10 +2116,6 @@ function _view_checkDiskFiles(event) {
             file = view.document.file;
             // onFocus: Don't check file changed for remote files
             if (!file.isLocal) continue;
-            hasChanged = file.hasChanged;
-            if (file.exists && hasChanged) {
-                obSvc.notifyObservers(this, 'file_changed', file.URI);
-            }
             item = new Object;
             item.type = 'view';
             item.view = view;
