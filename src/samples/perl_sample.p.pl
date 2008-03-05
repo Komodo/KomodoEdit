@@ -6,6 +6,12 @@
 # Turn on strict mode to make Perl check for common mistakes.
 use strict;
 
+#---- Incremental search:
+#    - Use 'Ctrl'+'I' ('Cmd'+'I' on OS X) to start an incremental search.
+#    - Begin typing the characters you want to find. 
+#    - As you type, the cursor moves to the first match after the current
+#      cursor position. Press 'Esc' to cancel.
+
 #---- Code Folding:
 #    - Click the "+" and "-" symbols in the left margin.
 #    - Use View|Fold to collapse or expand all blocks.

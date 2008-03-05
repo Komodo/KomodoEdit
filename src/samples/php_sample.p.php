@@ -4,6 +4,12 @@
 
 <?php
 
+# Incremental search:
+#   - Use 'Ctrl'+'I' ('Cmd'+'I' on OS X) to start an incremental search.
+#   - Begin typing the characters you want to find. 
+#   - As you type, the cursor moves to the first match after the current
+#     cursor position. Press 'Esc' to cancel.
+
 # Code Folding:
 #   - Click the "+" and "-" symbols in the left margin.
 #   - Use View|Fold to collapse or expand all block
@@ -66,12 +72,12 @@ $x = 1;
 #   - When you type the "i", Komodo lists functions starting with "pri".
 #   - Press 'Tab' to complete the function name.
 
-#---- Abbreviations:
-#     - Snippets from the Abbreviations folder in projects and toolboxes
-#       can be inserted by typing the snippet name followed by
-#       'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
-#       Toolbox contains some default abbreviation snippets to get you
-#       started.
+# Abbreviations:
+#   - Snippets from the Abbreviations folder in projects and toolboxes
+#     can be inserted by typing the snippet name followed by
+#     'Ctrl'+'T' ('Cmd'+'T' on OS X). The Samples folder in the
+#     Toolbox contains some default abbreviation snippets to get you
+#     started.
 #    
 #     Try this below with the 'class' PHP snippet. An empty class
 #     block is created with "Tabstop" placeholders in handy places.

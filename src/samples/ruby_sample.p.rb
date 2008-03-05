@@ -3,6 +3,12 @@
 
 # Use this sample script to explore some of Komodo's Ruby features.
 
+#---- Incremental search:
+#    - Use 'Ctrl'+'I' ('Cmd'+'I' on OS X) to start an incremental search.
+#    - Begin typing the characters you want to find. 
+#    - As you type, the cursor moves to the first match after the current
+#      cursor position. Press 'Esc' to cancel.
+
 #---- Auto-Indent
 #     - Note that most Ruby programmers, and programs, use 2-space
 #       indentation, so you should probably make sure Komodo is set
