@@ -55,6 +55,7 @@ if(data.valid) {
         if(part) { part.name = 'Configure'; }
         var msg = 'Extension Project '+data.vars.name+' configured!';
         ko.statusBar.AddMessage(msg, 'project', 3000, true);
+        ko.projects.manager.saveProject(project);
     } else {
         alert('Error encountered: '+koExt.error+"\nConfiguration aborted.");
     }
@@ -230,17 +231,41 @@ extensionLib.prototype._keys = function(obj) {
  * Script to build an xpi, running koext build in the current project root.
  */
 
+var project = ko.macros.current.project;
+
 var os = Components.classes['@activestate.com/koOs;1'].
   getService(Components.interfaces.koIOs);
 
-var sharedDir = ko.interpolate.interpolateStrings('%(path:supportDir)');
+var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
+  getService(Components.interfaces.koISysUtils);
+
+var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
+  getService(Components.interfaces.nsIXULRuntime);
+
+var koDirs = Components.classes['@activestate.com/koDirs;1'].
+  getService(Components.interfaces.koIDirs);
+
+var pythonExe = koDirs.pythonExe;
 var projectDir = ko.interpolate.interpolateStrings('%p');
-var path_arr = [sharedDir, 'sdk', 'bin', 'koext'];
-var app = os.path.joinlist(path_arr.length, path_arr);
-var cmd = '"' + app + '" build -d '+projectDir;
+var scriptName = 'koext';
+
+if (appInfo.OS == 'WINNT') {
+  scriptName += ".py"; 
+}
+
+var arr = [koDirs.sdkDir, 'bin', scriptName]
+var app = os.path.joinlist(arr.length, arr);
+var cmd = '"'+pythonExe+'" "'+app+'" build -d "'+projectDir+'"';
+
+if (appInfo.OS == 'WINNT') {
+  cmd = '"' + cmd + '"';
+}
+var cwd = koDirs.mozBinDir;
+cmd += " {'cwd': u'"+cwd+"'}";
 
 ko.run.runEncodedCommand(window, cmd, function() {
-  alert('Build complete?');
+  ko.statusBar.AddMessage('Build complete', 'projects', 5000, true);
+  ko.projects.manager.saveProject(project);
 });
 </macro>
 <file id="34e0ddc6-7758-424e-bf92-13c1f6d7a8ea" idref="0b6d4c70-d82b-674b-9a91-54785cc0cf40" name="setup.xul" url="_prj_internal_/setup.xul">
@@ -250,8 +275,8 @@ ko.run.runEncodedCommand(window, cmd, function() {
 <preference-set idref="1ef0d2ff-fa8c-b641-934e-2520a1cf19af">
   <string id="import_type">useFolders</string>
   <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store;_prj_internal_</string>
-  <string id="import_include_matches"></string>
   <boolean id="import_recursive">1</boolean>
+  <string id="import_include_matches"></string>
   <boolean id="import_live">1</boolean>
 </preference-set>
 </project>

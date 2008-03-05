@@ -6,17 +6,41 @@
  * Script to build an xpi, running koext build in the current project root.
  */
 
+var project = ko.macros.current.project;
+
 var os = Components.classes['@activestate.com/koOs;1'].
   getService(Components.interfaces.koIOs);
 
-var sharedDir = ko.interpolate.interpolateStrings('%(path:supportDir)');
+var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
+  getService(Components.interfaces.koISysUtils);
+
+var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
+  getService(Components.interfaces.nsIXULRuntime);
+
+var koDirs = Components.classes['@activestate.com/koDirs;1'].
+  getService(Components.interfaces.koIDirs);
+
+var pythonExe = koDirs.pythonExe;
 var projectDir = ko.interpolate.interpolateStrings('%p');
-var path_arr = [sharedDir, 'sdk', 'bin', 'koext'];
-var app = os.path.joinlist(path_arr.length, path_arr);
-var cmd = '"' + app + '" build -d '+projectDir;
+var scriptName = 'koext';
+
+if (appInfo.OS == 'WINNT') {
+  scriptName += ".py"; 
+}
+
+var arr = [koDirs.sdkDir, 'bin', scriptName]
+var app = os.path.joinlist(arr.length, arr);
+var cmd = '"'+pythonExe+'" "'+app+'" build -d "'+projectDir+'"';
+
+if (appInfo.OS == 'WINNT') {
+  cmd = '"' + cmd + '"';
+}
+var cwd = koDirs.mozBinDir;
+cmd += " {'cwd': u'"+cwd+"'}";
 
 ko.run.runEncodedCommand(window, cmd, function() {
-  alert('Build complete?');
+  ko.statusBar.AddMessage('Build complete', 'projects', 5000, true);
+  ko.projects.manager.saveProject(project);
 });
 </macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/brick.png" id="d569ddb9-5942-2948-ae0e-91cd0f293509" idref="816d09c1-8ccb-4548-851c-039a65ecd8df" keyboard_shortcut="" language="JavaScript" name="extension_lib" rank="100" trigger="trigger_postopen" trigger_enabled="0">
@@ -234,6 +258,7 @@ if(data.valid) {
         if(part) { part.name = 'Configure'; }
         var msg = 'Extension Project '+data.vars.name+' configured!';
         ko.statusBar.AddMessage(msg, 'project', 3000, true);
+        ko.projects.manager.saveProject(project);
     } else {
         alert('Error encountered: '+koExt.error+"\nConfiguration aborted.");
     }
@@ -250,8 +275,8 @@ if(data.valid) {
 <preference-set idref="1d1d3081-c2f8-9044-a896-556e33876937">
   <string id="import_type">useFolders</string>
   <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store;_prj_internal_</string>
-  <string id="import_include_matches"></string>
   <boolean id="import_recursive">1</boolean>
+  <string id="import_include_matches"></string>
   <boolean id="import_live">1</boolean>
 </preference-set>
 </project>
