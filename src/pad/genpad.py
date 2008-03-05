@@ -79,7 +79,7 @@ class GenPadError(Exception):
 
 #---- main functionality
 
-def genpad(output_dir=None):
+def genpad(license_text_path=None, output_dir=None):
     DEBUG = False
     if output_dir is None:
         output_dir = dirname(__file__)
@@ -139,12 +139,14 @@ def genpad(output_dir=None):
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
         "$PAD_PAD_BASENAME": pad_basename,
     }
-    eula_path = join(dirname(__file__), "..", "license_text", "LICENSE.txt")
-    if not exists(eula_path):
-        log.error("`%s' doesn't exist for PAD EULA (run `bk build`)", eula_path)
+    if not license_text_path:
+        log.error("no path given for license text (use `-L` option)")
+        num_errors += 1
+    elif not exists(license_text_path):
+        log.error("given license text path doesn't exist: %s", license_text_path)
         num_errors += 1
     else:
-        pad_info["$PAD_EULA"] = open(eula_path).read()
+        pad_info["$PAD_EULA"] = open(license_text_path).read()
     if DEBUG:
         pad_info_summary = pad_info.copy()
         pad_info_summary["$PAD_EULA"] = pad_info_summary.get("$PAD_EULA", "")[:50] + "..."
@@ -261,10 +263,13 @@ def main(argv):
         version=version, description=__doc__)
     parser.add_option("-d", "--output-dir",
                       help="output dir for generate PAD file")
+    parser.add_option("-L", "--license-text-path",
+                      help="path to License text to use")
     opts, args = parser.parse_args()
     if args:
         raise GenPadError("no args at accepted by genpad")
-    return genpad(output_dir=opts.output_dir)
+    return genpad(license_text_path=opts.license_text_path,
+                  output_dir=opts.output_dir)
 
 
 if __name__ == '__main__':
