@@ -51,6 +51,7 @@ import datetime
 from pprint import pprint
 import traceback
 import optparse
+import codecs
 import logging
 
 
@@ -156,11 +157,13 @@ def genpad(license_text_path=None, output_dir=None):
     template_path = join(dirname(__file__), "komodo_pad.p.xml")
     output_path = join(output_dir, pad_basename)
     log.info("genpad `%s'", output_path)
-    preprocess.preprocess(template_path, outfile=output_path,
+    output_file = codecs.open(output_path, 'w', "utf-8")
+    preprocess.preprocess(template_path, outfile=output_file,
                           defines=pad_info, substitute=True)
+    output_file.close()
     
     # Sanity check that add "$PAD_*" vars were handled.
-    content = open(output_path, 'r').read()
+    content = codecs.open(output_path, 'r', "utf-8").read()
     if "$PAD" in content:
         pad_pat = re.compile(r"\$PAD_\w+\b")
         for hit in pad_pat.findall(content):
