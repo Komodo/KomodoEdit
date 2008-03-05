@@ -1280,6 +1280,48 @@ end!@#_currentPos!@#_anchor</snippet>
 </folder>
 <folder id="986aa9f8-2b59-704d-944d-50231c783b1e" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="Tcl">
 </folder>
+<folder id="a37e510f-1fa2-4f21-80e0-239c90acde13" idref="4205fa9a-61df-184c-be6b-f713c7153c56" name="RHTML">
+</folder>
+<snippet id="1abfc3eb-5c33-4d8d-b36f-77f03320c3a2" idref="a37e510f-1fa2-4f21-80e0-239c90acde13" indent_relative="true" keyboard_shortcut="" name="lia" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="9cb1990d-dd70-40bd-a080-d5672bbe15d3" idref="a37e510f-1fa2-4f21-80e0-239c90acde13" indent_relative="false" keyboard_shortcut="" name="liai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:edit]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="4566c1b7-8702-4faa-9215-4fb1d3a60d86" idref="a37e510f-1fa2-4f21-80e0-239c90acde13" indent_relative="true" keyboard_shortcut="" name="lic" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="0f85d0b4-59c1-4d40-b876-fa52fd38e58f" idref="a37e510f-1fa2-4f21-80e0-239c90acde13" indent_relative="true" keyboard_shortcut="" name="lica" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="74e2ceaa-8396-49ab-be99-11cc3f39e450" idref="a37e510f-1fa2-4f21-80e0-239c90acde13" indent_relative="true" keyboard_shortcut="" name="licai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="ecd1f701-366e-40b4-8d2a-167d2f52aa6f" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="ac" set_selection="false">
+add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="984cd6e2-4c9f-4fb9-b336-8a688a7cf9ba" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="tc" set_selection="false">
+t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="543c18eb-c35d-4d2b-ab2f-a01992faa3d6" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="ai" set_selection="false">
+add_index [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="bf01e1cb-3a2b-4268-a4ba-b3c69392ee1a" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="ct" set_selection="false">
+create_table(:[[%tabstop:table]]) do |t|
+  [[%tabstop:]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="a0bf9036-e804-4fc8-958b-d1e19bf896d3" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="false" keyboard_shortcut="" name="rc" set_selection="false">
+remove_column [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="62d8624e-cb52-466e-ae8a-367419fa83a6" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="rnc" set_selection="false">
+rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="8fa73e72-78dd-40db-b72c-a2bf5f3d628b" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="habtm" set_selection="false">
+has_and_belongs_to_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="ae5c6914-5cbf-4e33-9d81-c3511e996e69" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="hm" set_selection="false">
+has_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="9d0c9491-32d5-4e55-ba40-ea1c0590ad08" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="ho" set_selection="false">
+has_one :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="62d84e87-50d4-499b-b18d-95ecf6c7b8d5" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="emf" set_selection="false">
+error_messages_for [[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="499e6811-3519-450d-a680-5c98b7443903" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="bt" set_selection="false">
+belongs_to :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="6737e472-5f4e-4b90-a1eb-a9a1d588a045" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="reai" set_selection="false">
+redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="11646c3c-bce1-4144-8819-027d9cffc3ae" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="rec" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="b16776d5-d0c4-47f5-9a44-13c6d59f9961" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]], :action =&gt; "[[%tabstop:action]]"!@#_currentPos!@#_anchor</snippet>
 <preference-set idref="7f803f0e-3304-11db-a53a-000d935d3368">
 </preference-set>
 </project>
