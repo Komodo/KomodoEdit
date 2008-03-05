@@ -484,6 +484,16 @@ def build_ext(base_dir, log=None):
                          "'install.rdf' file (run `koext startext' first)"
                          % base_dir)
 
+    # Need a zip executable for building. On Windows we ship one. It
+    # should be the only platform that doesn't have one handy.
+    if sys.platform == "win32":
+        zip_exe = join(dirname(dirname(abspath(__file__))), "bin", "zip.exe")
+        if not exists(zip_exe):
+            # We are running in Komodo source tree.
+            zip_exe = "zip"
+    else:
+        zip_exe = "zip"
+
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
     # chdir there.
@@ -514,8 +524,8 @@ def build_ext(base_dir, log=None):
             for d in chrome_dirs:
                 _cp(d, join(jar_build_dir, d), log.info)
             _trim_files_in_dir(jar_build_dir, [".svn", ".hg", "CVS"], log.info)
-            _run_in_dir("zip -r %s.jar *" % ext_info.codename, jar_build_dir,
-                        log.info)
+            _run_in_dir('"%s" -r %s.jar *' % (zip_exe, ext_info.codename),
+                        jar_build_dir, log.info)
     
             xpi_manifest += [
                 join(jar_build_dir, ext_info.codename+".jar"),
@@ -575,7 +585,8 @@ def build_ext(base_dir, log=None):
             else:
                 _cp(src, xpi_build_dir, log.info)
         _trim_files_in_dir(xpi_build_dir, [".svn", ".hg", "CVS"], log.info)
-        _run_in_dir("zip -r %s *" % ext_info.pkg_name, xpi_build_dir, log.info)
+        _run_in_dir('"%s" -r %s *' % (zip_exe, ext_info.pkg_name),
+                    xpi_build_dir, log.info)
         _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
     finally:
         if orig_dir:
@@ -739,7 +750,8 @@ class ExtensionInfo(object):
             info["id"] = id = id_pat.search(install_rdf).group(1)
             codename_pat = re.compile("(.*?)@(.*?)")
             try:
-                info["codename"] = codename_pat.search(id).group(1)
+                info["codename"] = codename_pat.search(id).group(1) \
+                                    .replace(' ', '_')
             except AttributeError:
                 raise KoExtError("couldn't extract extension code name from "
                                  "the id, '%s': you must use an id of the "
