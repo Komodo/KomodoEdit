@@ -1718,6 +1718,7 @@ def PackageKomodo(cfg, argv):
         docs            a zip-up of the Komodo docs
         mozpatches      a zip of the Mozilla patches for the used moz build
         updates         update package(s) for the autoupdate system
+        pad             PAD file
 
     Sets of packages:
         std             (the default) The standard set of packages for
@@ -1727,9 +1728,9 @@ def PackageKomodo(cfg, argv):
     """
     args = argv[1:] or ["std"]
     if "all" in args:
-        packages = ["installer", "docs", "mozpatches", "updates"]
+        packages = ["installer", "pad", "docs", "mozpatches", "updates"]
     elif "std" in args:
-        packages = ["installer"]
+        packages = ["installer", "pad"]
         if cfg.productType == "ide":
             if sys.platform == "win32":
                 # Only build the doc packages on Windows: only need one
@@ -1764,6 +1765,8 @@ def PackageKomodo(cfg, argv):
                 retval = _PackageKomodoDMG(cfg) 
             else:
                 retval = _PackageKomodoASPackage(cfg)
+        elif package == "pad":
+            retval = _PackageKomodoPAD(cfg)
         elif package == "updates":
             retval = _PackageKomodoUpdates(cfg)
         else:
@@ -1771,6 +1774,16 @@ def PackageKomodo(cfg, argv):
         if retval:
             raise Error("error packaging '%s': retval=%r" % (package, retval))
 
+
+def _PackageKomodoPAD(cfg):
+    genpad_path = join("src", "pad", "genpad.py")
+    output_dir = join(cfg.packagesAbsDir, "internal", "pad")
+    license_text_path = join("src", "license_text", "LICENSE.mpl.txt")
+    if not exists(output_dir):
+        os.makedirs(output_dir)
+    cmd = 'python %s -d "%s" -L "%s"' % (
+        genpad_path, output_dir, license_text_path)
+    _run(cmd)
 
 def _PackageKomodoDocs(cfg):
     """The Komodo "doc" package is just a simple packaging up of the
