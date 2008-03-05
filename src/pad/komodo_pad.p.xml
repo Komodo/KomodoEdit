@@ -80,14 +80,6 @@ Other features include Vi emulation, Emacs keybindings, code folding and code sn
 		</English>
 	</Program_Descriptions>
 	<Web_Info>
-		<Application_URLs>
-			<Application_Info_URL>http://www.activestate.com/Products/komodo_edit/</Application_Info_URL>
-			<Application_Order_URL>http://www.activestate.com/store/komodo_edit/</Application_Order_URL>
-			<Application_Screenshot_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_4.2_js_code.png</Application_Screenshot_URL>
-			<Application_Icon_URL>http://www.activestate.com/komodo_ide/ActiveState.Komodo-icon-32x32-8bit.gif</Application_Icon_URL>
-			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_ide/komodo_ide_windows.xml</Application_XML_File_URL>
-		</Application_URLs>
-
         <Application_URLs>
             <Application_Info_URL>http://www.activestate.com/Products/komodo_edit/</Application_Info_URL>
             <Application_Order_URL>http://www.activestate.com/store/komodo_edit/</Application_Order_URL>
