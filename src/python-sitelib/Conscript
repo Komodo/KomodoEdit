@@ -93,6 +93,7 @@ $cons->InstallPythonUtility('langinfo_doc.py');
 $cons->InstallPythonUtility('langinfo_komodo.py');
 $cons->InstallPythonUtility('langinfo_other.py');
 $cons->InstallPythonUtility('langinfo_prog.py');
+$cons->InstallPythonUtility('langinfo_template.py');
 $cons->InstallPythonUtility('langinfo_tiny.py');
 $cons->InstallPythonUtility('textinfo.py');
 
