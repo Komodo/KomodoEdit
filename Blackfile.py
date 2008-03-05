@@ -65,6 +65,7 @@ import time
 from os.path import join, dirname, exists, isfile, basename, abspath, \
                     isdir, splitext
 from posixpath import join as urljoin
+from fnmatch import fnmatch
 import pprint
 import glob
 import md5
@@ -1694,9 +1695,11 @@ def UploadKomodoPackages(cfg, argv):
     upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds", d)
 
     for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
-        reldir = _relpath(dirpath, cfg.packagesRelDir)
+        reldir = _relpath(dirpath, cfg.packagesRelDir).replace('\\', '/')
         for filename in filenames:
-            if str(buildNum) not in filename:
+            if fnmatch(filename, "komodo_*.xml"):
+                pass
+            elif str(buildNum) not in filename:
                 continue
             src = join(dirpath, filename)
             dst = unormpath(ujoin(upload_dir, reldir, filename))
