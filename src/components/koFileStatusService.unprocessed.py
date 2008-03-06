@@ -85,10 +85,14 @@ log = logging.getLogger('koFileStatusService')
 # Sort according to directory v's file.
 # Each item a/b is a tuple of (koIFile, uri, reason)
 def sortFileStatus(a, b):
-    if a[0].isDirectory and not b[0].isDirectory:
-        return 1
-    if b[0].isDirectory and not a[0].isDirectory:
-        return -1
+    try:
+        if a[0].isDirectory and not b[0].isDirectory:
+            return 1
+        if b[0].isDirectory and not a[0].isDirectory:
+            return -1
+    except:
+        # koIFile can have problems with some unicode paths
+        log.exception("unexpected error from koIFile.isDirectory")
     return cmp(a[1], b[1])
 
 class KoFileStatusService:
@@ -380,6 +384,8 @@ class KoFileStatusService:
                        time_till_next_run > 0:
                         self._cv.wait(time_till_next_run)
                     items_to_check = list(self._items_to_check)
+                    if not items_to_check:
+                        last_bg_check_time = time.time()
                     self._items_to_check = set()
                     # Sort the items.
                     items_to_check.sort(sortFileStatus)
@@ -397,7 +403,14 @@ class KoFileStatusService:
                 # Maintenance cleanup and addition of observed files.
                 #print "doing file status update"
                 # XXX - Do we really need to unwrap these puppies?
-                all_local_files = [UnwrapObject(koIFile) for koIFile in self._fileSvc.getAllFiles() if koIFile.isLocal and koIFile.isFile ]
+                all_local_files = []
+                for koIFile in self._fileSvc.getAllFiles():
+                    try:
+                        if koIFile.isLocal and koIFile.isFile:
+                            all_local_files.append(UnwrapObject(koIFile))
+                    except:
+                        log.exception("unexpected error from koIFile.isLocal or koIFile.isFile")
+                        continue # skip status update for this file
                 set_all_local_urls = set([koIFile.URI for koIFile in all_local_files ])
                 for uri in set_all_local_urls.difference(self._monitoredUrls):
                     # Newly added files.
@@ -420,7 +433,6 @@ class KoFileStatusService:
                 if not items_to_check:
                     # Fall back to background checking of all files.
                     isBackgroundCheck = (updateReason == self.REASON_BACKGROUND_CHECK)
-                    last_bg_check_time = time.time()
                     items_to_check = [ (koIFile, koIFile.URI, updateReason) for
                                        koIFile in all_local_files ]
                     #print "updateStatus reason: Background check"
@@ -509,6 +521,10 @@ class KoFileStatusService:
                 #    koIFile.dofileupdate = 0
 
             except:
+                # Ensure there is no tight infinite loop on the periodic
+                # background checking.
+                last_bg_check_time = time.time()
+                
                 # we catch any exception so we can clear our thread variable
                 # this allows us to restart the thread again later
                 # we re raise the exception
