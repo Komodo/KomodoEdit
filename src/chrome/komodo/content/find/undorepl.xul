@@ -81,7 +81,7 @@
     <tree id="repls" flex="1"
           seltype="multiple"
           class="no-border"
-          style="margin: 0px;"
+          style="margin: 0px; height: 200px;"
           hidecolumnpicker="true">
         <treecols>
             <treecol id="repls-desc"
