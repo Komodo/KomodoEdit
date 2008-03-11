@@ -330,6 +330,22 @@ class P4Branch(Branch):
         p4 = p4lib.P4()
         return p4.opened(path) and True or False
 
+    def commit_summary(self, changenum):
+        """Return a short single-line summary of a commit with the
+        given changenum suitable for posting to a bug log.
+        
+        Currently ActiveState's bugzilla has auto-linking for the
+        following patterns:
+            change \d+          -> ActiveState perforce change link
+            r\d+                -> svn.activestate.com revision link
+            openkomodo r\d+     -> svn.openkomodo.com revision link
+        so we try to accomodate that.
+        
+        Template: PROJECT-NAME change CHANGENUM
+        """
+        project_name = basename(self.base_dir)
+        return "%s change %s" % (project_name, changenum)
+
     def setup_to_commit(self, changenum, user, desc, src_branch, paths,
                         interactive):
         # Create a changelist with the changes.
@@ -346,6 +362,7 @@ class P4Branch(Branch):
                 px diff -du -c %d | less""") \
         % (change["change"], changenum, src_branch.name,
            change["change"], change["change"], change["change"])
+        return self.commit_summary(change["change"])
 
 class SVNBranch(Branch):
     scc_type = "svn"
@@ -362,6 +379,15 @@ class SVNBranch(Branch):
             import which
             self._svn_exe_cache = which.which('svn')
         return self._svn_exe_cache
+
+    def _svn_info(self, target):
+        stdout = _capture_stdout([self._svn_exe, 'info', target])
+        info = {}
+        for line in stdout.splitlines(0):
+            if not line.strip(): continue
+            key, value = line.split(":", 1)
+            info[key.strip()] = value.strip()
+        return info
 
     _svn_log_header_re = re.compile(r"""
         ^r(?P<revision>\d+)\s\|\s(?P<author>.*?)\s\|
@@ -649,17 +675,19 @@ class SVNBranch(Branch):
 
             # Setup to commit the integration: i.e. create a pending
             # changelist (p4), provide a good checkin message.
+            commit_summaries = [self.commit_summary(changenum)]
             for dst_branch in dst_branches:
                 dst_paths = dst_paths_from_branch_name[dst_branch.name]
-                dst_branch.setup_to_commit(changenum, change["author"],
-                                           change["desc"], self,
-                                           dst_paths, interactive)
-            
-            #TODO: This kind of summary:
-            #    komodo r16109 (trunk)
-            #    openkomodo r1102 (trunk)
-            #    komodo r16117 (4.3.x branch)
-            #    openkomodo r1103 (4.3.x branch)
+                commit_summary = dst_branch.setup_to_commit(
+                    changenum, change["author"], change["desc"], self,
+                    dst_paths, interactive)
+                if commit_summary:
+                    commit_summaries.append(commit_summary)
+
+            # Print a summary of commits for use in a bugzilla comment.
+            print "\n\n-- Check-in summary (for bugzilla comment):"
+            for s in commit_summaries:
+                print s
         finally:
             if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
                 shutil.rmtree(tmp_dir)
@@ -671,8 +699,45 @@ class SVNBranch(Branch):
         else:
             return False
 
+    def commit_summary(self, changenum):
+        """Return a short single-line summary of a commit with the
+        given changenum suitable for posting to a bug log.
+
+        Currently ActiveState's bugzilla has auto-linking for the
+        following patterns:
+            change \d+          -> ActiveState perforce change link
+            r\d+                -> svn.activestate.com revision link
+            openkomodo r\d+     -> svn.openkomodo.com revision link
+        so we try to accomodate that.
+        
+        Template: PROJECT-NAME rCHANGENUM (BRANCH-NAME)
+        """
+        from urlparse import urlparse
+        url = self._svn_info(self.base_dir)["URL"]
+        path = urlparse(url)[2]
+        bits = path.split('/')
+        if bits[-1] == "trunk":
+            branch_name = "trunk"
+            project_name = bits[-2]
+        elif bits[-2] == "branches":
+            branch_name = "%s branch" % bits[-1]
+            project_name = bits[-3]
+        elif bits[-2] == "tags":
+            branch_name = "%s tag" % bits[-1]
+            project_name = bits[-3]
+        else:
+            branch_name = None
+            project_name = bits[-1]
+        if branch_name is None:
+            return "%s r%s" % (project_name, changenum)
+        else:
+            return "%s r%s (%s)" % (project_name, changenum, branch_name)
+
     def setup_to_commit(self, changenum, user, desc, src_branch, paths,
                         interactive):
+        """Returns a (string) commit summary if a commit was done,
+        else returns None.
+        """
         rel_paths = [p[len(self.base_dir)+1:] for p in paths]
         msg = "Integrate change %d by %s from %r branch:\n%s" \
               % (changenum, user, src_branch.name, desc.rstrip())
@@ -695,6 +760,14 @@ class SVNBranch(Branch):
             if stderr or retval:
                 raise Error("error commiting: %s\n%s"
                             % (retval, _indent(stderr)))
+            revision_re = re.compile(r'Committed revision (\d+)\.')
+            try:
+                revision = revision_re.search(stdout).group(1)
+            except AttributeError:
+                log.warn("Couldn't determine commited revision from "
+                         "'svn commit' output: %r", stdout)
+                revision = "???"
+            return self.commit_summary(revision)
         else:
             print textwrap.dedent("""
                 ***
