@@ -38,7 +38,7 @@
 """
 Usage:
     cd SOURCE-BRANCH-DIR
-    kointegrate CHANGENUM TARGET-BRANCH-NAME
+    kointegrate CHANGENUM TARGET-BRANCH-NAMES...
 
 Easily integrate a change from its branch or tree to other active
 Komodo branches. This will perform the necessary "p4|svn integrate"s,
@@ -128,8 +128,13 @@ class P4Branch(Branch):
         v = p4.delete(path)
         assert v, "`p4 delete %s` failed" % path
     
-    def integrate(self, changenum, dst_branch, interactive,
+    def integrate(self, changenum, dst_branches, interactive,
                   exclude_outside_paths, excludes=[], force=False):
+        if len(dst_branches) > 1:
+            raise Error("Don't yet support integrating from Perforce "
+                        "to *multiple* branches.")
+        dst_branch = dst_branches[0]
+        
         import p4lib
         p4 = p4lib.P4()
 
@@ -171,6 +176,7 @@ class P4Branch(Branch):
         else:
             print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
         if interactive:
+            print
             answer = _query_yes_no("Continue integrating this change?")
             if answer != "yes":
                 return False
@@ -426,7 +432,7 @@ class SVNBranch(Branch):
             path = join(self.base_dir, path)
         _patchRun([self._svn_exe, "delete", path])
 
-    def integrate(self, changenum, dst_branch, interactive,
+    def integrate(self, changenum, dst_branches, interactive,
                   exclude_outside_paths, excludes=[], force=False):
         # Gather some info about the change to integrate.
         change = self._svn_log_rev(changenum)
@@ -441,7 +447,10 @@ class SVNBranch(Branch):
         for i in reversed(indeces_to_del):
             del change["files"][i]
         rel_paths = [f["rel_path"] for f in change["files"]]
-        dst_paths = [join(dst_branch.base_dir, p) for p in rel_paths]
+        dst_paths_from_branch_name = {}
+        for dst_branch in dst_branches:
+            dst_paths_from_branch_name[dst_branch.name] \
+                = [join(dst_branch.base_dir, p) for p in rel_paths]
 
         # Check if there is anything to integrate.
         if not change["files"]:
@@ -453,7 +462,14 @@ class SVNBranch(Branch):
         print "  change: %s" % changenum
         print "    desc: %s" % _one_line_summary_from_text(change["desc"], 60)
         print "      by: %s" % change["author"]
-        print "      to: %s" % dst_branch.base_dir
+        if len(dst_branches) == 1:
+            print "      to: %s" % dst_branch.base_dir
+        else:
+            for i, dst_branch in enumerate(dst_branches):
+                if i == 0:
+                    print "      to: %d. %s (%s)" % (i+1, dst_branch.base_dir, dst_branch.name)
+                else:
+                    print "          %d. %s (%s)" % (i+1, dst_branch.base_dir, dst_branch.name)
         if len(rel_paths) > 7:
             ellipsis = '...and %d other files' % (len(rel_paths)-7)
             print "   files: %s" \
@@ -461,17 +477,22 @@ class SVNBranch(Branch):
         else:
             print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
         if interactive:
+            print
             answer = _query_yes_no("Continue integrating this change?")
             if answer != "yes":
                 return False
         print
 
         # Ensure that none of the target files are modified/opened.
-        modified_paths = [p for p in dst_paths if
-                          dst_branch.is_modified_or_open(p)
-                          # Dirs give false positives, and we abort
-                          # handling dirs below anyway.
-                          and not isdir(p)]
+        modified_paths = [
+            p
+            for dst_branch in dst_branches
+            for p in dst_paths_from_branch_name[dst_branch.name]
+            if dst_branch.is_modified_or_open(p)
+               # Dirs give false positives, and we abort handling dirs
+               # below anyway.
+               and not isdir(p)
+        ]
         if modified_paths:
             print textwrap.dedent("""
                 ***
@@ -511,99 +532,113 @@ class SVNBranch(Branch):
     
             # - do a dry-run attempt to patch (abort if any fail)
             patch_exe = _getPatchExe()
-            for f in change["files"]:
-                if "patch_path" not in f:
-                    continue
-                try:
-                    _assertCanApplyPatch(patch_exe, f["patch_path"],
-                                         dst_branch.base_dir)
-                except Error, ex:
-                    if force:
-                        log.warn(str(ex))
-                    else:
-                        raise
+            patching_failures = []
+            for dst_branch in dst_branches:
+                for f in change["files"]:
+                    if "patch_path" not in f:
+                        continue
+                    try:
+                        _assertCanApplyPatch(patch_exe, f["patch_path"],
+                                             dst_branch.base_dir)
+                    except Error, ex:
+                        if force:
+                            log.warn(str(ex))
+                        else:
+                            patching_failures.append(str(ex))
+            if patching_failures:
+                raise Error("During a dry-run patching attempt there were "
+                            "the following failures:\n    %s\n\n"
+                            "You could use the `-x SUBPATH` option to skip "
+                            "a particular file."
+                            % ("\n    ".join(patching_failures)))
     
             # - apply the edits
             changes_made = []
-            for f in change["files"]:
-                if "patch_path" not in f:
-                    continue
-                patch_path = f["patch_path"]
-                dst_path = join(dst_branch.base_dir, f["rel_path"])
-                dst_branch.edit(dst_path)
-                eol_before = eol.eol_info_from_path(dst_path)[0]
-                try:
-                    applied = _applyPatch(patch_exe, dirname(patch_path),
-                                          basename(patch_path),
-                                          dst_branch.base_dir)
-                except Error, ex:
-                    if force:
-                        log.warn(str(ex))
-                        applied = True
-                    else:
-                        raise
-                eol_after = eol.eol_info_from_path(dst_path)[0]
-                if eol_after != eol_before:
-                    assert eol_before != None
-                    log.info("restore EOLs for `%s' (damaged by patch)",
-                             dst_path)
-                    eol.convert_path_eol(dst_path, eol_before)
-                if applied:
-                    changes_made.append("patched `%s'" % f["rel_path"])
+            for dst_branch in dst_branches:
+                print "--- making changes to '%s' branch ---" % dst_branch.name
+                for f in change["files"]:
+                    if "patch_path" not in f:
+                        continue
+                    patch_path = f["patch_path"]
+                    dst_path = join(dst_branch.base_dir, f["rel_path"])
+                    dst_branch.edit(dst_path)
+                    eol_before = eol.eol_info_from_path(dst_path)[0]
+                    try:
+                        applied = _applyPatch(patch_exe, dirname(patch_path),
+                                              basename(patch_path),
+                                              dst_branch.base_dir)
+                    except Error, ex:
+                        if force:
+                            log.warn(str(ex))
+                            applied = True
+                        else:
+                            raise
+                    eol_after = eol.eol_info_from_path(dst_path)[0]
+                    if eol_after != eol_before:
+                        assert eol_before != None
+                        log.info("restore EOLs for `%s' (damaged by patch)",
+                                 dst_path)
+                        eol.convert_path_eol(dst_path, eol_before)
+                    if applied:
+                        changes_made.append("patched `%s' (%s)" % (
+                            f["rel_path"], dst_branch.name))
             
-            # - do deletes and adds
-            for f in change["files"]:
-                action = f["action"]
-                rel_path = f["rel_path"]
-                if action == "D":
-                    dst_branch.delete(rel_path)
-                    changes_made.append("delete `%s'" % rel_path)
-                elif action == "A":
-                    src_path = join(self.base_dir, rel_path)
-                    if isdir(src_path):
-                        dst_branch.add(rel_path, isdir=True)
-                        changes_made.append("mkdir `%s'" % rel_path)
+                # - do deletes and adds
+                for f in change["files"]:
+                    action = f["action"]
+                    rel_path = f["rel_path"]
+                    if action == "D":
+                        dst_branch.delete(rel_path)
+                        changes_made.append("delete `%s' (%s)" % (
+                            rel_path, dst_branch.name))
+                    elif action == "A":
+                        src_path = join(self.base_dir, rel_path)
+                        if isdir(src_path):
+                            dst_branch.add(rel_path, isdir=True)
+                            changes_made.append("mkdir `%s' (%s)" % (
+                                rel_path, dst_branch.name))
+                        else:
+                            dst_path = join(dst_branch.base_dir, rel_path)
+                            argv = [self._svn_exe, 'cat', '-r', str(changenum),
+                                    src_path]
+                            log.debug("running: %s", argv)
+                            p = subprocess.Popen(argv,
+                                                 stderr=subprocess.PIPE,
+                                                 stdout=subprocess.PIPE)
+                            stdout = p.stdout.read()
+                            retval = p.wait()
+                            if retval:
+                                stderr = p.stderr.read()
+                                extra = ""
+                                if "has no URL" in stderr:
+                                    extra = "\n***\n%s\n***\n" % textwrap.fill(
+                                        "The 'svn: ... has no URL' "
+                                        "error from subversion typically indicates "
+                                        "that you are trying to integrate a file "
+                                        "that has since be deleted from the "
+                                        "current repo. I know of no easy way to "
+                                        "get the original file contents with 'svn' "
+                                        "-- hence this file cannot be integrated "
+                                        "with this script. You could consider "
+                                        "using the '-x' option to exclude this "
+                                        "file from the change to integrate.")
+                                raise Error("error running `svn cat`:\n"
+                                            "argv: %r\n"
+                                            "stderr:\n%s%s"
+                                            % (argv, _indent(stderr), extra))
+                            fout = open(dst_path, 'wb')
+                            fout.write(stdout)
+                            fout.close()
+                            assert exists(dst_path), \
+                                "`%s' couldn't be retrieved from svn" % dst_path
+                            dst_branch.add(rel_path)
+                            changes_made.append("add `%s' (%s)" % (
+                                rel_path, dst_branch.name))
+                    elif action == "M":
+                        pass # already handled above
                     else:
-                        dst_path = join(dst_branch.base_dir, rel_path)
-                        argv = [self._svn_exe, 'cat', '-r', str(changenum),
-                                src_path]
-                        log.debug("running: %s", argv)
-                        p = subprocess.Popen(argv,
-                                             stderr=subprocess.PIPE,
-                                             stdout=subprocess.PIPE)
-                        stdout = p.stdout.read()
-                        retval = p.wait()
-                        if retval:
-                            stderr = p.stderr.read()
-                            extra = ""
-                            if "has no URL" in stderr:
-                                extra = "\n***\n%s\n***\n" % textwrap.fill(
-                                    "The 'svn: ... has no URL' "
-                                    "error from subversion typically indicates "
-                                    "that you are trying to integrate a file "
-                                    "that has since be deleted from the "
-                                    "current repo. I know of no easy way to "
-                                    "get the original file contents with 'svn' "
-                                    "-- hence this file cannot be integrated "
-                                    "with this script. You could consider "
-                                    "using the '-x' option to exclude this "
-                                    "file from the change to integrate.")
-                            raise Error("error running `svn cat`:\n"
-                                        "argv: %r\n"
-                                        "stderr:\n%s%s"
-                                        % (argv, _indent(stderr), extra))
-                        fout = open(dst_path, 'wb')
-                        fout.write(stdout)
-                        fout.close()
-                        assert exists(dst_path), \
-                            "`%s' couldn't be retrieved from svn" % dst_path
-                        dst_branch.add(rel_path)
-                        changes_made.append("add `%s'" % rel_path)
-                elif action == "M":
-                    pass # already handled above
-                else:
-                    raise Error("don't know how to handle integrating "
-                                "'%s' action" % action)
+                        raise Error("don't know how to handle integrating "
+                                    "'%s' action" % action)
 
             # Abort if no actual changes made.
             if not changes_made:
@@ -614,9 +649,17 @@ class SVNBranch(Branch):
 
             # Setup to commit the integration: i.e. create a pending
             # changelist (p4), provide a good checkin message.
-            dst_branch.setup_to_commit(changenum, change["author"],
-                                       change["desc"], self,
-                                       dst_paths, interactive)
+            for dst_branch in dst_branches:
+                dst_paths = dst_paths_from_branch_name[dst_branch.name]
+                dst_branch.setup_to_commit(changenum, change["author"],
+                                           change["desc"], self,
+                                           dst_paths, interactive)
+            
+            #TODO: This kind of summary:
+            #    komodo r16109 (trunk)
+            #    openkomodo r1102 (trunk)
+            #    komodo r16117 (4.3.x branch)
+            #    openkomodo r1103 (4.3.x branch)
         finally:
             if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
                 shutil.rmtree(tmp_dir)
@@ -633,15 +676,15 @@ class SVNBranch(Branch):
         rel_paths = [p[len(self.base_dir)+1:] for p in paths]
         msg = "Integrate change %d by %s from %r branch:\n%s" \
               % (changenum, user, src_branch.name, desc.rstrip())
-        print "\nReady to commit:"
+        print "\n\nReady to commit to '%s' branch:" % self.name
         print _indent(msg, 2)
 
         auto_commit = True
         if interactive:
-            answer = _query_yes_no("\nWould you like "
-                                   "this script to automatically \n"
-                                   "commit this integration?",
-                                   default=None)
+            answer = _query_yes_no(
+                "\nWould you like this script to automatically commit\n"
+                "this integration to the '%s' branch?" % self.name,
+                default=None)
             if answer != "yes":
                 auto_commit = False
         
@@ -701,7 +744,7 @@ cfg = Configuration()
 
 #---- main functionality
 
-def kointegrate(changenum, dst_branch_name, interactive=True,
+def kointegrate(changenum, dst_branch_names, interactive=True,
                 exclude_outside_paths=False, excludes=None,
                 force=False):
     """Returns True if successfully setup the integration."""
@@ -710,13 +753,15 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
                     "See `kointegrate.py --help-ini' for help on "
                     "configuring this script.")
 
-    try:
-        dst_branch = cfg.branches[dst_branch_name]
-    except KeyError:
-        raise Error("`%s' is an unknown active Komodo branch name "
-                    "(known branches are: '%s')"
-                    % (dst_branch_name,
-                       "', '".join(cfg.branches.keys())))
+    dst_branches = []
+    for dst_branch_name in dst_branch_names:
+        try:
+            dst_branches.append(cfg.branches[dst_branch_name])
+        except KeyError:
+            raise Error("`%s' is an unknown active Komodo branch name "
+                        "(known branches are: '%s')"
+                        % (dst_branch_name,
+                           "', '".join(cfg.branches.keys())))
 
     # Figure out what source branch we are taking about.
     src_branch = None
@@ -734,12 +779,14 @@ def kointegrate(changenum, dst_branch_name, interactive=True,
             branch working copy directory.
             """))
 
-    log.info("integrate change %s from %r -> %r",
-             changenum, src_branch.name, dst_branch.name)
+    log.debug("integrate change %s from %r -> '%s'",
+              changenum, src_branch.name,
+              "', '".join(b.name for b in dst_branches))
     return src_branch.integrate(
-        changenum, dst_branch, interactive=interactive,
+        changenum, dst_branches, interactive=interactive,
         exclude_outside_paths=exclude_outside_paths,
         excludes=excludes, force=force)
+        
 
 
 
@@ -1040,7 +1087,7 @@ def main(argv=sys.argv):
             [b for (n,b) in sorted(cfg.branches.items())]))
     desc += "\n\nUse `kointegrate --help-ini' for help on configuring.\n"
 
-    parser = optparse.OptionParser(prog="kointegrate", usage="",
+    parser = optparse.OptionParser(usage="",
         version=version, description=desc,
         formatter=_NoReflowFormatter())
     parser.add_option("--help-ini", action="store_true",
@@ -1092,7 +1139,7 @@ def main(argv=sys.argv):
         """ % cfg.cfg_path)
         return
 
-    if len(args) != 2:
+    if len(args) < 2:
         log.error("incorrect number of arguments: %s", args)
         log.error("(See 'kointegrate --help'.)")
         return 1
@@ -1102,10 +1149,10 @@ def main(argv=sys.argv):
         log.error("<changenum> must be an integer: %r", args[0])
         log.error("(See 'kointegrate --help'.)")
         return 1
-    dst_branch_name = args[1]
+    dst_branch_names = args[1:]
 
     integrated = kointegrate(
-        changenum, dst_branch_name, interactive=opts.interactive,
+        changenum, dst_branch_names, interactive=opts.interactive,
         exclude_outside_paths=opts.exclude_outside_paths,
         excludes=opts.excludes, force=opts.force)
     if integrated:
