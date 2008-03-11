@@ -92,6 +92,18 @@ class ProcessOpen(Popen):
             # no arguments, resulting in an unknown command.
             shell = True
         if sys.platform.startswith("win"):
+            # On Windows, cmd requires some special handling of multiple quoted
+            # arguments, as this is what cmd will do:
+            #    See if the first character is a quote character and if so,
+            #    strip the leading character and remove the last quote character
+            #    on the command line, preserving any text after the last quote
+            #    character.
+            if cmd and shell and cmd.count('"') > 2:
+                if not cmd.startswith('""') or not cmd.endswith('""'):
+                    # Needs to be a re-quoted with additional double quotes.
+                    # http://bugs.activestate.com/show_bug.cgi?id=75467
+                    cmd = '"%s"' % (cmd, )
+
             # XXX - subprocess needs to be updated to use the wide string API.
             # subprocess uses a Windows API that does not accept unicode, so
             # we need to convert all the environment variables to strings
