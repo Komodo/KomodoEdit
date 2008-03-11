@@ -1364,7 +1364,8 @@ def _PackageKomodoDMG(cfg):
 
     productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
                    or "Komodo-%s" % cfg.prettyProductType)
-    template = "%s-%s" % (productName, cfg.komodoMarketingShortVersion)
+    majorVer = cfg.komodoVersion.split('.', 1)[0]
+    template = "%s-%s" % (productName, majorVer)
     pkgPath = cfg.komodoInstallerPackage
     if exists(pkgPath):
         _run("rm %s" % pkgPath)
