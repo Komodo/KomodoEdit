@@ -250,10 +250,10 @@ class Maker(object):
                 need_to_remake = True
             else:
                 need_to_remake = False
-                oldest_output_mtime = min([o.mtime for o in outputs])
+                oldest_output_mtime = min([os.stat(o).st_mtime for o in outputs])
                 for dep in deps:
                     yougest_dep_mtime = max(
-                        [o.mtime for o in self.get_outputs(dep)])
+                        [os.stat(o).st_mtime for o in self.get_outputs(dep)])
                     if yougest_dep_mtime > oldest_output_mtime: # 4.
                         word = "newer"
                         need_to_remake = True
