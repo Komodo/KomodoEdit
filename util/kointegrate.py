@@ -62,6 +62,7 @@ import re
 import fnmatch
 import subprocess
 import shutil
+from urlparse import urlparse
 from ConfigParser import SafeConfigParser
 
 import applib
@@ -89,6 +90,10 @@ class Branch(object):
     def __init__(self, name, base_dir):
         self.name = name
         self.base_dir = normpath(base_dir)
+    
+    @property
+    def desc(self):
+        return self.name
 
 class NonExistantBranch(Branch):
     def __repr__(self):
@@ -102,6 +107,10 @@ class P4Branch(Branch):
                % (self.name, self.base_dir)
     def __str__(self):
         return "%r branch at '%s' (p4)" % (self.name, self.base_dir)
+
+    @property
+    def desc(self):
+        return basename(self.base_dir)
 
     def edit(self, path):
         log.info("p4 edit %s", path)
@@ -352,8 +361,8 @@ class P4Branch(Branch):
         import p4lib
         p4 = p4lib.P4()
         change = p4.change(paths,
-                           "Integrate change %d by %s from %r branch:\n%s"
-                           % (changenum, user, src_branch.name, desc))
+                           "Integrate change %d by %s from %s:\n%s"
+                           % (changenum, user, src_branch.desc, desc))
         print textwrap.dedent("""
             Created change %d integrating change %d from %r branch.
             Use 'p4 submit -c %d' to submit this integration.
@@ -371,6 +380,31 @@ class SVNBranch(Branch):
                % (self.name, self.base_dir)
     def __str__(self):
         return "%r branch at '%s' (svn)" % (self.name, self.base_dir)
+
+    _desc_cache = None
+    @property
+    def desc(self):
+        if self._desc_cache is None:
+            url = self._svn_info(self.base_dir)["URL"]
+            path = urlparse(url)[2]
+            bits = path.split('/')
+            if bits[-1] == "trunk":
+                branch_name = "trunk"
+                project_name = bits[-2]
+            elif bits[-2] == "branches":
+                branch_name = "%s branch" % bits[-1]
+                project_name = bits[-3]
+            elif bits[-2] == "tags":
+                branch_name = "%s tag" % bits[-1]
+                project_name = bits[-3]
+            else:
+                branch_name = None
+                project_name = bits[-1]
+            if branch_name is None:
+                self._desc_cache = project_name
+            else:
+                self._desc_cache = "%s (%s)" % (project_name, branch_name)
+        return self._desc_cache
 
     _svn_exe_cache = None
     @property
@@ -712,7 +746,6 @@ class SVNBranch(Branch):
         
         Template: PROJECT-NAME rCHANGENUM (BRANCH-NAME)
         """
-        from urlparse import urlparse
         url = self._svn_info(self.base_dir)["URL"]
         path = urlparse(url)[2]
         bits = path.split('/')
@@ -739,8 +772,8 @@ class SVNBranch(Branch):
         else returns None.
         """
         rel_paths = [p[len(self.base_dir)+1:] for p in paths]
-        msg = "Integrate change %d by %s from %r branch:\n%s" \
-              % (changenum, user, src_branch.name, desc.rstrip())
+        msg = "Integrate change %d by %s from %s:\n%s" \
+              % (changenum, user, src_branch.desc, desc.rstrip())
         print "\n\nReady to commit to '%s' branch:" % self.name
         print _indent(msg, 2)
 
