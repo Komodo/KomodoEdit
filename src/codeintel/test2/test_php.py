@@ -54,11 +54,12 @@ from codeintel2.tree_php import (php_magic_global_method_data,
                                  php_magic_class_method_data)
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, writefile
+from citestsupport import CodeIntelTestCase, writefile, init_xml_catalogs
 
 
 
 log = logging.getLogger("test")
+HTML_DOCTYPE = '''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\n'''
 
 
 def php_markup(s):
@@ -531,6 +532,22 @@ class TriggerTestCase(CodeIntelTestCase):
 class CplnTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
+    _ci_env_prefs_ = {
+        "defaultHTMLDecl": "-//W3C//DTD HTML 4.01//EN",
+    }
+
+    def setUp(self):
+        super(CplnTestCase, self).setUp()
+        init_xml_catalogs()
+
+    @tag("bug75490")
+    def test_html_markup_completion(self):
+        self.assertTriggerMatches("<<|>",
+            name="html-complete-tags-and-namespaces")
+        self.assertCompletionsInclude(HTML_DOCTYPE+"<<|>",
+            [("element", "html")])
+        self.assertCompletionsInclude("<<|>",
+            [("element", "html")])
 
     def test_class_inheritance(self):
         content, positions = unmark_text(dedent(php_markup("""\

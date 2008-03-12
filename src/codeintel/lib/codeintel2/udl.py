@@ -384,9 +384,9 @@ class XMLParsingBufferMixin(object):
         if self._xml_default_dataset_info is None:
             import koXMLDatasetInfo
             datasetSvc = koXMLDatasetInfo.getService()
-            self._xml_default_dataset_info = (datasetSvc.getDefaultPublicId(self.lang, self.env),
+            self._xml_default_dataset_info = (datasetSvc.getDefaultPublicId(self.m_lang, self.env),
                                             None,
-                                            datasetSvc.getDefaultNamespace(self.lang, self.env))
+                                            datasetSvc.getDefaultNamespace(self.m_lang, self.env))
         return self._xml_default_dataset_info
 
     def xml_tree_handler(self, node=None):
