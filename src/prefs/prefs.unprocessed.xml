@@ -275,7 +275,10 @@
  'Makefile': 'Makefile',
  'Makefile.*': 'Makefile',
  'makefile': 'Makefile',
- 'makefile.*': 'Makefile'}</string>
+ 'makefile.*': 'Makefile',
+ 'Rakefile': 'Ruby',
+ 'rakefile': 'Ruby'
+}</string>
 
   <string id="fileDefaultNew">Text</string>
   <long id="gui_port">11010</long> <!-- port to be used in socket communication -->
