@@ -2482,7 +2482,7 @@ class NormSCCBranch(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         sccBranch = black.configure.items["sccBranch"].Get()
-        self.value = re.sub(r'[^\w]', '_', sccBranch).lower()
+        self.value = re.sub(r'[^\w\.]', '_', sccBranch).lower()
         self.determined = 1
 
 
