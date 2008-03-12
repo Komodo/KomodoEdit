@@ -51,6 +51,7 @@ import urlparse
 import string
 import fnmatch
 import weakref
+import operator
 import re
 import shutil
 import tempfile
@@ -1847,13 +1848,20 @@ class koProject(koLiveFolderPart):
         # serialize all children and prefs we know about, because we don't want
         # to lose our orphans (children in live folders that have not been
         # opened).
-        for idref,children in self._childmap.items():
-            for child in children:
+        for idref in sorted(self._childmap):
+            try:
+                children = self._childmap[idref]
+            except KeyError:
+                continue
+            for child in sorted(children, key=operator.attrgetter('id')):
                 child.serialize(writer)
-
-        for idref,prefset in self._prefmap.items():
+                
+        for idref in sorted(self._prefmap):
             # unwrap so we can use cStringIO
-            prefset = UnwrapObject(prefset)
+            try:
+                prefset = UnwrapObject(self._prefmap[idref])
+            except KeyError:
+                continue
             if not hasattr(prefset,'idref'):
                 prefset.idref = idref
             prefset.serialize(writer, self._relativeBasedir)

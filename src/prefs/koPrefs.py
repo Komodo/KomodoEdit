@@ -494,7 +494,11 @@ class koPreferenceSet:
         if self.id:
             attrs.append('id="%s"' % cgi.escape(self.id))
         stream.write('<preference-set %s>%s' % (' '.join(attrs), newl))
-        for (prefName, (pref, pref_type)) in self.prefs.items():
+        for prefName in sorted(self.prefs):
+            try:
+                pref, pref_type = self.prefs[prefName]
+            except KeyError:
+                continue
             # projects need unwrapped prefs to serialize
             if pref_type == 'object':
                 pref = UnwrapObject(pref)
