@@ -189,12 +189,6 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
         _lintSvc.cancelPendingRequests(this.view.uid);
         this._clearResults();
 
-        // avoid linting zero length documents
-        if (typeof(this.view.scimoz) != 'undefined' &&
-            this.view.scimoz.length < 1) {
-            return;
-        }
-
         // Increment this here instead of in ._issueRequest() to ensure that
         // a request issued at time T1 is not considered current when its
         // results are reported at time T2 if the buffer has changed between
