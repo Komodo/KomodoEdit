@@ -165,7 +165,7 @@ class koFileNotificationService:
                 log.debug("URI initialised okay.")
             except COMException, e:
                 log.debug("Could not initialise file with URI")
-                raise ServerException(nsError.NS_ERROR_FILE_UNRECOGNIZED_PATH,
+                raise ServerException(nsError.NS_ERROR_FAILURE,
                                       "Invalid path format")
         return (uri, nsIFile)
 
@@ -202,19 +202,19 @@ class koFileNotificationService:
         uri, nsIFile = self._getUriAndNSIFileForPath(path)
 
         if not nsIFile.exists():
-            raise ServerException(nsError.NS_ERROR_FILE_INVALID_PATH,
+            raise ServerException(nsError.NS_ERROR_FAILURE,
                                   "Invalid path, was unable to locate.")
         if watch_type == components.interfaces.koIFileNotificationService.WATCH_FILE:
             if not nsIFile.isFile():
-                raise ServerException(nsError.NS_ERROR_FILE_INVALID_PATH,
+                raise ServerException(nsError.NS_ERROR_FAILURE,
                                       "The path for a WATCH_FILE type, must be a file.")
             if not flags & self.available_file_flags:
-                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                raise ServerException(nsError.NS_ERROR_FAILURE,
                                       "A WATCH_FILE type must specify flags as a combination of FS_FILE_CREATED, FS_FILE_DELETED, FS_FILE_MODIFIED.")
         else:
             # WATCH_DIR or WATCH_DIR_RECURSIVE
             if not nsIFile.isDirectory():
-                raise ServerException(nsError.NS_ERROR_FILE_NOT_DIRECTORY,
+                raise ServerException(nsError.NS_ERROR_FAILURE,
                                       "The path for a WATCH_DIR type, must be a directory.")
 
         # Try using os file notifications, if that fails, then use polling
