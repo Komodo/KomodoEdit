@@ -104,7 +104,7 @@ scc_repo_name_from_project = {
 
 #---- module API
 
-def mknightly(project, branch="trunk", upload_base_dir=None,
+def mknightly(project, branch="trunk", ver=None, upload_base_dir=None,
               dry_run=True, can_link=False):
     """Make the latest Komodo IDE/Edit devbuild a nightly.
     
@@ -112,6 +112,10 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
         make a nightly.
     @param branch {str} is the source tree branch whose builds to use
         (is "trunk" be default).
+    @param ver {str} is a short-form Komodo version to consider (e.g.,
+        "4.4.0b1". This determines from which version-dir on the file
+        share devbuilds are sought. Default is the latest such version-dir
+        on the file share.
     @param upload_base_dir {str} an override for the default hardcoded
         base dir for the given project name.
     @param dry_run {boolean} can be used to just go through the motions.
@@ -119,6 +123,7 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
         if the devbuilds dir and downloads dir are on the same server.
     """
     from posixpath import join, basename, dirname
+    norm_branch = norm_branch_from_branch(branch)
     
     if upload_base_dir is None:
         upload_base_dir = upload_base_dir_from_project[project]
@@ -127,7 +132,7 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
     assert buildutils.is_remote_path(upload_base_dir)
 
     # Get the source packages dir.
-    devbuilds_dir = _get_devbuilds_dir(project, branch)
+    devbuilds_dir = _get_devbuilds_dir(project, norm_branch, ver=ver)
     log.info("mknightly %s %s", devbuilds_dir, upload_base_dir)
 
     # Sanity guard: the project dir on the upload site must exist
@@ -137,11 +142,35 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
         raise Error("`%s' does not exist: as a sanity check you must "
                     "make the project dir manually" % upload_base_dir)
 
+    # Sanity guard: if the current "latest", if any, is the same build
+    # id as the current one, then don't bother. Beyond
+    latest_dir = join(upload_base_dir, "latest-" + norm_branch)
+    komodo_pkg_re = re.compile("([\w-]+)-(\d+\.\d+\.\d+(-\w+\d)?-\d+).*")
+    for p in buildutils.remote_glob(join(latest_dir, "Komodo-*.*")):
+        m = komodo_pkg_re.match(basename(p))
+        if p:
+            latest_ver_str = m.group(2)
+            latest_ver_info = _split_full_ver(latest_ver_str)
+            
+            for p in buildutils.remote_glob(join(devbuilds_dir, "Komodo-*.*")):
+                m = komodo_pkg_re.match(basename(p))
+                if p:
+                    new_ver_str = m.group(2)
+                    new_ver_info = _split_full_ver(new_ver_str)
+                    if latest_ver_info == new_ver_info:
+                        log.info("latest nightly is already the latest: "
+                                 "%s (skipping)", latest_ver_str)
+                        return
+                    break
+            else:
+                raise Error("couldn't determine new ver: `%s'" % devbuilds_dir)
+            break
+
     # Figure out what serial number to use (to avoid collisions
     # for multiple builds for same day).
     year, month, day = time.localtime()[:3]
     upload_dir_pat = join(upload_base_dir, str(year), "%02d" % month,
-        "%04d-%02d-%02d-*-%s" % (year, month, day, branch))
+        "%04d-%02d-%02d-*-%s" % (year, month, day, norm_branch))
     used_serials = []
     for d in buildutils.remote_glob(upload_dir_pat):
         try:
@@ -159,7 +188,7 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
     
     # Do the upload.
     upload_dir = join(upload_base_dir, str(year), "%02d" % month,
-        "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, branch))
+        "%04d-%02d-%02d-%02d-%s" % (year, month, day, serial, norm_branch))
     excludes = ["internal", "*RemoteDebugging*"]
     includes = pkg_pats_from_project[project]
     _upload(devbuilds_dir, upload_dir,
@@ -170,8 +199,8 @@ def mknightly(project, branch="trunk", upload_base_dir=None,
     _mk_mar_md5sums(join(upload_dir, "updates"))
     
     # Symlinks.
-    # latest-$branch -> $upload_dir
-    dst = join(upload_base_dir, "latest-" + branch)
+    # latest-$norm_branch -> $upload_dir
+    dst = join(upload_base_dir, "latest-" + norm_branch)
     if not dry_run and buildutils.remote_exists(dst):
         buildutils.remote_rm(dst)
     src_relpath = buildutils.remote_relpath(upload_dir, dirname(dst))
@@ -254,11 +283,11 @@ def _upload(src_dir, dst_dir, includes=None, excludes=[],
                 buildutils.remote_cp(src, dst, log.debug,
                                      hard_link_if_can=can_link)
 
-def _get_devbuilds_dir(project, branch, ver=None, build_num=None):
+def _get_devbuilds_dir(project, norm_branch, ver=None, build_num=None):
     from posixpath import join, basename
     
     base_dir = devbuilds_base_dir_from_project[project]
-        
+
     # Find the appropriate version dir.
     if ver:
         ver_dir = join(base_dir, ver)
@@ -268,24 +297,26 @@ def _get_devbuilds_dir(project, branch, ver=None, build_num=None):
         vers = []
         for d in buildutils.remote_glob(join(base_dir, "*")):
             try:
-                vers.append((_split_short_ver(basename(d), intify=True), d))
+                vers.append((_split_short_ver(basename(d), intify=True,
+                                              sortable=True),
+                             d))
             except ValueError:
                 pass
         assert vers, "no devbuilds in '%s'" % base_dir
         vers.sort()
         ver_dir = vers[-1][1]
-    
+
     # Find the appropriate build dir.
     # Individual build dirs are of the form: SCCNAME-BRANCH-BUILDNUM
     scc_repo_name = scc_repo_name_from_project[project]
     if build_num:
         build_dir = join(ver_dir, "DevBuilds",
-                         "%s-%s-%s" % (scc_repo_name, branch, build_num))
+                         "%s-%s-%s" % (scc_repo_name, norm_branch, build_num))
         assert buildutils.remote_exists(ver_dir), \
             "'%s' does not exist" % ver_dir
     else:
         builds = []
-        pat = join(ver_dir, "DevBuilds", "%s-%s-*" % (scc_repo_name, branch))
+        pat = join(ver_dir, "DevBuilds", "%s-%s-*" % (scc_repo_name, norm_branch))
         for d in buildutils.remote_glob(pat):
             try:
                 build_num = int(basename(d).split('-')[2])
@@ -298,13 +329,18 @@ def _get_devbuilds_dir(project, branch, ver=None, build_num=None):
         build_dir = builds[-1][1]
     return build_dir
 
+
+def norm_branch_from_branch(branch):
+    # Should match the logic for `bklocal.py::NormSCCBranch`.
+    return re.sub(r'[^\w\.]', '_', branch).lower()
+
 def _intify(s):
     try:
         return int(s)
     except ValueError:
         return s
     
-# Recipe: ver (1.0.1)
+# Recipe: ver (1.0.1+)
 def _split_full_ver(ver_str):
     """Split a full version string to component bits.
 
@@ -352,13 +388,22 @@ def _split_full_ver(ver_str):
     return tuple(bits)
 
 _short_ver_re = re.compile("(\d+)(\.\d+)*([a-z](\d+)?)?")
-def _split_short_ver(ver_str, intify=False, pad_zeros=None):
+def _split_short_ver(ver_str, intify=False, pad_zeros=None,
+                     sortable=False):
     """Parse the given version into a tuple of "significant" parts.
 
     @param intify {bool} indicates if numeric parts should be converted
         to integers.
     @param pad_zeros {int} is a number of numeric parts before any
         "quality" letter (e.g. 'a' for alpha).
+    @param sortable {bool} indicates that the "quality" bit should be
+        set to 'c' for a final build (i.e. one that doesn't include a
+        quality letter). This is useful for sorting a list of split
+        short vers *if and only if* 'a' and 'b' are the only quality
+        monikers used. Default false.
+
+        Note for "ver" recipe: Don't include this. A better solution is
+        a "VersionInfo" class that deals with the sorting more naturally.
    
     >>> _split_short_ver("4.1.0")
     ('4', '1', '0')
@@ -372,6 +417,8 @@ def _split_short_ver(ver_str, intify=False, pad_zeros=None):
     (1, 3, 0)
     >>> _split_short_ver("1", pad_zeros=3)
     ('1', '0', '0')
+    >>> _split_short_ver("1", intify=3, sortable=True)
+    (1, 0, 0, 'c')
     """
     def isint(s):
         try:
@@ -404,6 +451,8 @@ def _split_short_ver(ver_str, intify=False, pad_zeros=None):
     if pad_zeros and not hit_quality_bit:
         while len(bits) < pad_zeros:
             bits.append(not intify and "0" or 0)
+    if sortable and not hit_quality_bit:
+        bits.append('c')
     return tuple(bits)
 
 def _join_short_ver(ver_tuple, pad_zeros=None):
@@ -522,8 +571,10 @@ def main(argv):
                       help="do a dry-run")
     parser.add_option("-b", "--branch",
         help="Komodo source tree branch builds to use (default is 'trunk')")
+    parser.add_option("-V", dest="ver",
+        help="Komodo (short-form) version to consider")
     parser.set_defaults(log_level=logging.INFO, dry_run=False,
-                        branch="trunk")
+                        branch="trunk", ver=None)
     opts, projects = parser.parse_args()
     log.setLevel(opts.log_level)
 
@@ -531,8 +582,8 @@ def main(argv):
         log.info("You probably want to specify some projects. "
                  "(See `mknightly -h'.)")
     for project in projects:
-        mknightly(project, branch=opts.branch, dry_run=opts.dry_run,
-                  can_link=True)
+        mknightly(project, branch=opts.branch, ver=opts.ver,
+                  dry_run=opts.dry_run, can_link=True)
 
 
 if __name__ == "__main__":
