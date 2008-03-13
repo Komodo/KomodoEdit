@@ -467,7 +467,9 @@ try {
                           name, clearOutputWindow, terminationCallback);
         // While the command is running, update the test-plan preferences
         // to point at this directory.
-        updateTestPlanDirectories(project, projectDirPath);
+        if ('sleuth' in ko &amp;&amp; ko.sleuth) {
+            updateTestPlanDirectories(project, projectDirPath);
+        }
     }
     function updateTestPlanDirectories(project, projectDirPath) {
         var prefset = project.prefset;
