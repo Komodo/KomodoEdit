@@ -1149,7 +1149,8 @@ class Parser:
 
     def get_for_vars(self):
         tok = self.tokenizer.get_next_token()
-        if self.classifier.is_keyword(tok, 'my'):
+        if (tok.style == ScintillaConstants.SCE_PL_WORD
+            and tok.text in ('my', 'state')):
             tlineNo = tok.start_line
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_variable(tok):
@@ -1352,7 +1353,7 @@ class Parser:
     # end look_for_object_var_assignment
 
     # Handle arrays, hashes, typeglobs, but don't bother figuring out a type.
-    # No 'my', 'our', or 'use vars' given
+    # No 'my', 'our', 'state, or 'use vars' given
     def look_for_var_assignment(self, tok1):
         # First make sure this var hasn't already been defined
         # Is it an implicit global?
@@ -1468,7 +1469,9 @@ class Parser:
                     self.start_process_sub_definition(False); # Is outer sub
                 elif tval in ['BEGIN', 'END', 'AUTOLOAD']:
                     self.skip_anon_sub_contents()
-                elif tval in ['our', 'my']:
+                elif tval in ['our', 'my', 'state']:
+                    if tval == 'state':
+                        tval = 'my'
                     self.get_our_vars('global', tval)
                     # Small warning: vars defined at this lexical level belong to
                     # the containing package, but are visible without
@@ -1574,9 +1577,11 @@ class Parser:
                     self.skip_to_end_of_stmt()
             elif ttype == self.classifier.style_word:
                 tlineNo = tok.start_line
-                if tval == 'my':
+                if tval in ('my', 'state'):
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_operator(tok, '('):
+                        # Treat 'state' variables as 'my', as both
+                        # are only visible locally.
                         self.collect_multiple_args(tlineNo, 'local', 'my')
                     elif self.classifier.is_variable(tok):
                         self.collect_single_arg(tok.text, tlineNo, 'local', 'my')

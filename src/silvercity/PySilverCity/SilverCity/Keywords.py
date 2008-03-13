@@ -21,7 +21,7 @@ doxygen_keywords = \
 
 perl_keywords = \
     "__FILE__ __LINE__ __PACKAGE__ __DATA__ __END__ AUTOLOAD "\
-    "BEGIN CORE DESTROY END INIT CHECK UNITCHECK abs accept "\
+    "BEGIN CHECK CORE DESTROY END INIT CHECK UNITCHECK abs accept "\
     "alarm and atan2 bind binmode bless break caller chdir chmod chomp chop "\
     "chown chr chroot close closedir cmp connect continue cos crypt "\
     "dbmclose dbmopen default defined delete die do dump each else elsif endgrent "\
@@ -31,11 +31,12 @@ perl_keywords = \
     "gethostent getlogin getnetbyaddr getnetbyname getnetent getpeername "\
     "getpgrp getppid getpriority getprotobyname getprotobynumber getprotoent "\
     "getpwent getpwnam getpwuid getservbyname getservbyport getservent "\
-    "getsockname getsockopt given glob gmtime goto grep gt hex if index "\
+    "getsockname getsockopt given glob gmtime goto grep gt hex if import "\
+    "include index "\
     "int ioctl join keys kill last lc lcfirst le length link listen "\
     "local localtime lock log lstat lt m map mkdir msgctl msgget msgrcv "\
-    "msgsnd my ne next no not oct open opendir or ord our pack package "\
-    "pipe pop pos print printf prototype push q qq qr quotemeta qu "\
+    "msgsnd my ne new next no not oct open opendir or ord our pack package "\
+    "pipe pop pos print printf prototype push q qq qr quotemeta "\
     "qw qx rand read readdir readline readlink readpipe recv redo "\
     "ref rename require reset return reverse rewinddir rindex rmdir "\
     "s say scalar seek seekdir select semctl semget semop send setgrent "\
