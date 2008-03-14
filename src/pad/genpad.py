@@ -72,6 +72,16 @@ g_os_support_from_os = {
     "linux": "Linux, Linux Gnome",
 }
 
+g_pretty_platname_from_platname = {
+    "win32-x86": "Windows",
+    "macosx": "Mac OS X",
+    "macosx-x86": "Mac OS X/Intel",
+    "macosx-powerpc": "Mac OS X/PowerPC",
+    "linux-x86": "Linux/x86",
+    "linux-libcpp5-x86": "Linux/x86 libstdc++5",
+    "linux-libcpp6-x86": "Linux/x86 libstdc++6",
+}
+
 
 class GenPadError(Exception):
     pass
@@ -124,8 +134,10 @@ def genpad(license_text_path=None, output_dir=None):
     short_ver = _short_ver_str_from_ver_info(ver_info)
     pad_basename = "komodo_%s_%s.xml" % (
         bkconfig.productType, bkconfig.buildPlatform.replace('-', '_'))
+    pretty_platname = g_pretty_platname_from_platname[platname]
     pad_info = {
-        "$PAD_PROGRAM_NAME": "Komodo %s" % bkconfig.prettyProductType,
+        "$PAD_PROGRAM_NAME": "Komodo %s (%s)" % (
+            bkconfig.prettyProductType, pretty_platname),
         "$PAD_VERSION": bkconfig.komodoShortVersion,
         "$PAD_RELEASE_YEAR": today.year,
         "$PAD_RELEASE_MONTH": "%02d" % today.month,
