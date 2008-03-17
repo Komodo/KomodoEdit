@@ -74,10 +74,6 @@ if ($buildFlavour eq "full") {
   $cons->InstallAs("$ext_dir/chrome.manifest", 'devbuild.manifest');
   $cons->Install("$ext_dir/chrome/locale/en-US", "locale/en-US/kotcllint.dtd");
   $cons->Install("$ext_dir/components", "components/koTclLinter.py");
-  $cons->BuildXpt('components/koITclInfoEx.idl');
-  $cons->Install("$ext_dir/idl", 'components/koITclInfoEx.idl');
-  $cons->Install("$ext_dir/components", 'components/koITclInfoEx.xpt');
-  $cons->Install("$ext_dir/components", 'components/koTclInfoEx.py');
 
   if ($platform eq "win") {
     $cons->Install("$ext_dir/platform/WINNT", "platform/WINNT/kotcllint.exe");
@@ -87,8 +83,6 @@ if ($buildFlavour eq "full") {
     $cons->Install("$ext_dir/platform/Linux", "platform/Linux/kotcllint");
   }
 } else {
-  # create the jar and then the xpi file
-  $cons->BuildXpt('components/koITclInfoEx.idl');
 
   $cons->Command(
       ["kotcllint.xpi", "kotcllint.jar"],
@@ -104,8 +98,6 @@ if ($buildFlavour eq "full") {
       "locale/en-US/kotcllint.dtd",
       # components and other miscellaneous files.
       "components/koTclLinter.py",
-      "components/koTclInfoEx.py",
-      "components/koITclInfoEx.idl",
       "platform/WINNT/kotcllint.exe",
       "platform/Darwin/kotcllint",
       "platform/Linux/kotcllint",
@@ -119,9 +111,6 @@ if ($buildFlavour eq "full") {
   $cons->Install("$ext_dir", 'install.rdf');
   $cons->Install("$ext_dir", 'chrome.manifest');
   $cons->Install("$ext_dir", 'kotcllint.jar');
-  $cons->Install("$ext_dir/idl", 'components/koITclInfoEx.idl');
-  $cons->Install("$ext_dir/components", 'components/koITclInfoEx.xpt');
-  $cons->Install("$ext_dir/components", 'components/koTclInfoEx.py');
   $cons->Install("$ext_dir/components", 'components/koTclLinter.py');
   $cons->Install("$ext_dir/platform/WINNT", "platform/WINNT/kotcllint.exe");
   $cons->Install("$ext_dir/platform/Darwin", "platform/Darwin/kotcllint");

@@ -622,3 +622,35 @@
 <!ENTITY workspace.label "Workspace">
 <!ENTITY workspaceToolbar.label "Workspace Toolbar">
 <!ENTITY workspaceToolbar.tooltiptext "Workspace Toolbar">
+
+<!ENTITY helpForLanguages.label "Help for Languages">
+<!ENTITY helpLanguagesMenu.accesskey "L">
+<!ENTITY helpPerlMailingLists.desc "Help: Perl Mailing Lists">
+<!ENTITY helpPerlReferenceLocal.desc "Help: Perl Reference (Local)">
+<!ENTITY helpPerlReferenceWeb.desc "Help: Perl Reference (Web)">
+<!ENTITY helpPythonMailingLists.desc "Help: Python Mailing Lists">
+<!ENTITY helpPythonReferenceLocal.desc "Help: Python Reference (Local)">
+<!ENTITY helpPythonReferenceWeb.desc "Help: Python Reference (Web)">
+<!ENTITY helpPHPMailingLists.desc "Help: PHP Mailing Lists">
+<!ENTITY helpPHPReferenceWeb.desc "Help: PHP Reference (Web)">
+<!ENTITY helpRubyMailingLists.desc "Help: Ruby Mailing Lists">
+<!ENTITY helpRubyReferenceWeb.desc "Help: Ruby Reference (Web)">
+<!ENTITY helpTclMailingLists.desc "Help: Tcl Mailing Lists">
+<!ENTITY helpTclReferenceLocal.desc "Help: Tcl Reference (Local)">
+<!ENTITY helpTclReferenceWeb.desc "Help: Tcl Reference (Web)">
+<!ENTITY helpXSLTMailingLists.desc "Help: XSLT Mailing Lists">
+
+<!ENTITY perlMailingLists.label "Perl Mailing Lists">
+<!ENTITY perlReferenceLocal.label "Perl Reference (local)">
+<!ENTITY perlReferenceWeb.label "Perl Reference (web)">
+<!ENTITY pythonMailingLists.label "Python Mailing Lists">
+<!ENTITY pythonReferenceLocal.label "Python Reference (local)">
+<!ENTITY pythonReferenceWeb.label "Python Reference (web)">
+<!ENTITY PHPMailingLists.label "PHP Mailing Lists">
+<!ENTITY PHPReferenceWeb.label "PHP Reference (web)">
+<!ENTITY rubyMailingLists.label "Ruby Mailing Lists">
+<!ENTITY rubyReferenceWeb.label "Ruby Reference (web)">
+<!ENTITY tclMailingLists.label "Tcl Mailing Lists">
+<!ENTITY tclReferenceLocal.label "Tcl Reference (local)">
+<!ENTITY tclReferenceWeb.label "Tcl Reference (web)">
+<!ENTITY XSLTMailingLists.label "XSLT Mailing Lists">

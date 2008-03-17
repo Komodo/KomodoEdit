@@ -125,3 +125,14 @@ interface koIRubyInfoEx : koIAppInfoEx {
                                 size_is(count)] out wstring strs);
 };
 
+[scriptable, uuid(7f582dbf-b88a-407e-a3b5-726b3e766afa)]
+interface koITclInfoEx : koIAppInfoEx {
+    // Try to select a Tcl installation (falling back to just
+    // the first one found). "installationPath" is set to this installation
+    // as a side-effect. It is set to None if no TclPro can be found.
+    // Returns true if an installation was found.
+    boolean selectDefault();
+    
+    readonly attribute wstring tclsh_path;
+    readonly attribute wstring wish_path;
+};

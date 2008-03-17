@@ -190,6 +190,62 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpShowKeybindings', event)"
             desc="&helpShowKeybindings.desc;"/>
         <command
+            id="cmd_helpPerlRef_Local" key="key_cmd_helpPerlRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Local', event);"
+            desc="&helpPerlReferenceLocal.desc;"/>
+        <command
+            id="cmd_helpPerlRef_Web" key="key_cmd_helpPerlRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Web', event);"
+            desc="&helpPerlReferenceWeb.desc;"/>
+        <command
+            id="cmd_helpPerlMailingLists" key="key_cmd_helpPerlMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPerlMailingLists', event);"
+            desc="&helpPerlMailingLists.desc;"/>
+        <command
+            id="cmd_helpPythonRef_Local" key="key_cmd_helpPythonRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Local', event);"
+            desc="&helpPythonReferenceLocal.desc;"/>
+        <command
+            id="cmd_helpPythonRef_Web" key="key_cmd_helpPythonRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Web', event);"
+            desc="&helpPythonReferenceWeb.desc;"/>
+        <command
+            id="cmd_helpPythonMailingLists" key="key_cmd_helpPythonMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPythonMailingLists', event);"
+            desc="&helpPythonMailingLists.desc;"/>
+        <command
+            id="cmd_helpPHPRef_Web" key="key_cmd_helpPHPRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPHPRef_Web', event);"
+            desc="&helpPHPReferenceWeb.desc;"/>
+        <command
+            id="cmd_helpPHPMailingLists" key="key_cmd_helpPHPMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPHPMailingLists', event);"
+            desc="&helpPHPMailingLists.desc;"/>
+        <command
+            id="cmd_helpRubyRef_Web" key="key_cmd_helpRubyRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpRubyRef_Web', event);"
+            desc="&helpRubyReferenceWeb.desc;"/>
+        <command
+            id="cmd_helpRubyMailingLists" key="key_cmd_helpRubyMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpRubyMailingLists', event);"
+            desc="&helpRubyMailingLists.desc;"/>
+        <command
+            id="cmd_helpTclRef_Local" key="key_cmd_helpTclRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Local', event);"
+            desc="&helpTclReferenceLocal.desc;"/>
+        <command
+            id="cmd_helpTclRef_Web" key="key_cmd_helpTclRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Web', event);"
+            desc="&helpTclReferenceWeb.desc;"/>
+        <command
+            id="cmd_helpTclMailingLists" key="key_cmd_helpTclMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpTclMailingLists', event);"
+            desc="&helpTclMailingLists.desc;"/>
+        <command
+            id="cmd_helpXSLTMailingLists" key="key_cmd_helpXSLTMailingLists"
+            oncommand="ko.commands.doCommandAsync('cmd_helpXSLTMailingLists', event);"
+            desc="&helpXSLTMailingLists.desc;"/>
+        <command
             id="cmd_helpKomodoMailLists" key="key_cmd_helpKomodoMailLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpKomodoMailLists', event)"
             desc="&helpKomodoDiscussMailingListArchives.desc;"/>
@@ -792,18 +848,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_browserPreview', event)"
             disabled="true"
             desc="&userInterfaceBrowserPreview.desc;"/>
-    </commandset>
-
-
-    <commandset
-        id="cmdset_codebrowse_for_current_editor"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="currentview_is_editor,codebrowser"
-        >
-        <command id="cmd_codeBrowserLocate" key="key_cmd_codeBrowserLocate"
-                 oncommand="ko.commands.doCommandAsync('cmd_codeBrowserLocate', event)"
-                 desc="&codeBrowserLocateCurrentScope.desc;"/>
     </commandset>
 
     <!-- Commands that need to be updated when focus goes from

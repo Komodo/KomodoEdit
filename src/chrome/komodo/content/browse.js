@@ -143,6 +143,82 @@ this.showCommandIds = function browse_ShowCommandIds()
 }
 
 /**
+ * show the url defined in "localHelpFile" in an instance of koIAppInfoEx
+ *
+ * @param {String} app the app identifier from the CID of a koIAppInfoEx
+ *                 implementation (eg. @activestate.com/koAppInfoEx?app=Perl)
+ */
+this.localHelp = function(app) {
+    var info = Components.classes["@activestate.com/koAppInfoEx?app="+app+";1"]
+                      .getService(Components.interfaces.koIAppInfoEx);
+    ko.browse.openUrlInDefaultBrowser(info.localHelpFile);
+}
+
+/**
+ * show the url defined in "webHelpURL" in an instance of koIAppInfoEx
+ *
+ * @param {String} app the app identifier from the CID of a koIAppInfoEx
+ *                 implementation (eg. @activestate.com/koAppInfoEx?app=Perl)
+ */
+this.webHelp = function(app) {
+    var info = Components.classes["@activestate.com/koAppInfoEx?app="+app+";1"]
+                      .getService(Components.interfaces.koIAppInfoEx);
+    ko.browse.openUrlInDefaultBrowser(info.webHelpURL);
+}
+
+/**
+ * show mailing list archives on ASPN that are related to the topic
+ *
+ * @param {String} topic
+ */
+this.aspnMailingList = function(topic) {
+    var url = "http://aspn.activestate.com/ASPN/Mail?topic="+topic;
+    ko.browse.openUrlInDefaultBrowser(url);
+}
+
+/**
+ * Hide or show the local help entries in the Help->Languages popup
+ * depending on whether an actual help file to launch can be found.
+ */
+this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
+    var perlInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Perl;1'].
+                      getService(Components.interfaces.koIAppInfoEx);
+    var perlWidget = document.getElementById("menu_helpPerlRef_Local");
+    var perlHelpFile = perlInfoSvc.localHelpFile;
+    if (perlHelpFile) {
+        perlWidget.removeAttribute("hidden");
+        perlWidget.removeAttribute("collapsed");
+    } else {
+        perlWidget.setAttribute("hidden", true);
+        perlWidget.setAttribute("collapsed", true);
+    }
+
+    var pythonInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Python;1'].
+                        getService(Components.interfaces.koIAppInfoEx);
+    var pythonWidget = document.getElementById("menu_helpPythonRef_Local");
+    var pythonHelpFile = pythonInfoSvc.localHelpFile;
+    if (pythonHelpFile) {
+        pythonWidget.removeAttribute("hidden");
+        pythonWidget.removeAttribute("collapsed");
+    } else {
+        pythonWidget.setAttribute("hidden", true);
+        pythonWidget.setAttribute("collapsed", true);
+    }
+
+    var tclInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Tcl;1'].
+                     getService(Components.interfaces.koIAppInfoEx);
+    var tclWidget = document.getElementById("menu_helpTclRef_Local");
+    var tclHelpFile = tclInfoSvc.localHelpFile;
+    if (tclHelpFile) {
+        tclWidget.removeAttribute("hidden");
+        tclWidget.removeAttribute("collapsed");
+    } else {
+        tclWidget.setAttribute("hidden", true);
+        tclWidget.setAttribute("collapsed", true);
+    }
+}
+
+/**
  * show our about dialog
  * XXX DEPRECATE, this should be dialog.about or ko.about
  */
@@ -154,9 +230,10 @@ this.about = function browse_About() {
 
 // XXX move these to a properties file or prefs.js
 var tag2uri = {
-    'community': "http://www.openkomodo.com/",
-    'mailLists': "http://lists.openkomodo.com/mailman/listinfo",
-    'bugs': "http://bugs.activestate.com/query.cgi?format=specific&product=OpenKomodo"
+    'mailLists': "http://aspn.activestate.com/ASPN/Mail/Browse/Threaded/komodo-discuss",
+    'community': "http://community.activestate.com/products/Komodo",
+    
+    'bugs': "http://bugs.activestate.com/query.cgi?format=specific&product=Komodo"
 };
 
 /**
