@@ -112,14 +112,14 @@
 
       <grid flex="1">
         <columns>
-          <column style="width: 7em;"/>
-          <column flex="1" style="max-width: 30em;"/>
+          <column />
+          <column flex="1" style="min-width: 30em;"/>
           <column />  <!-- buttons, if any, for the widget in the prev column -->
         </columns>
         <rows>
           <row align="center">
             <label value="Find what:" control="pattern"
-                   accesskey="n"/>
+                   accesskey="n" style="padding-left: 22px;"/>
             <deck id="pattern-deck" selectedIndex="0" flex="1">
               <!-- When on FF3 code base use 'newlines' attr:
                      http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
@@ -261,8 +261,8 @@
           </row>
 
           <row id="repl-row" align="center">
-            <label id="repl-lbl" value="Replace with:"
-                   control="repl" accesskey="l"/>
+            <checkbox id="opt-repl" label="Replace with:"
+                      accesskey="p" oncommand="update('replace')"/>
             <deck id="repl-deck" selectedIndex="0" flex="1">
               <!-- When on FF3 code base use 'newlines' attr:
                      http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
@@ -305,8 +305,6 @@
                         oncommand="update('word')"/>
               <checkbox id="opt-multiline" label="Multiline"
                         accesskey="t" oncommand="update('multiline')"/>
-              <checkbox id="opt-repl" label="Replace"
-                        accesskey="p" oncommand="update('replace')"/>
             </hbox>
           </row>
 

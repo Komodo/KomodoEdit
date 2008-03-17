@@ -154,7 +154,13 @@ function update(changed /* =null */) {
     // "Replace" checkbox state changed.
     if (changed == null || changed == "replace") {
         var repl = widgets.opt_repl.checked;
-        _collapse_widget(widgets.repl_row, !repl);
+        if (repl) {
+            _enable_widget(widgets.repl, !repl);
+            _enable_widget(widgets.multiline_repl, !repl);
+        } else {
+            _disable_widget(widgets.repl, !repl);
+            _disable_widget(widgets.multiline_repl, !repl);
+        }
 
         // Don't muck with the focus for dialog init (changed=null)
         // because we want the pattern widget to get the focus, even
@@ -785,7 +791,6 @@ function _init_widgets()
     widgets.multiline_pattern = document.getElementById('multiline-pattern');
     widgets.curr_pattern = widgets.pattern;
     widgets.repl_row = document.getElementById('repl-row');
-    widgets.repl_lbl = document.getElementById('repl-lbl');
     widgets.repl_deck = document.getElementById('repl-deck');
     widgets.repl = document.getElementById('repl');
     widgets.multiline_repl = document.getElementById('multiline-repl');
