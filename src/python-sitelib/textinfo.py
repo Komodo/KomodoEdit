@@ -186,6 +186,7 @@ def textinfo_from_path(path, encoding=None):
 #---- main TextInfo class
 
 class TextInfo(object):
+    path = None
     file_type_name = None # e.g. "regular file", "directory", ...
     file_type = None      # stat.S_IFMT(os.stat(path).st_mode)
     file_mode = None      # stat.S_IMODE(os.stat(path).st_mode)
@@ -773,7 +774,7 @@ class TextInfo(object):
         # Try to extract more info from the prolog.
         match = self._xml_prolog_pat.match(head_bytes)
         if not match:
-            log.debug("`%s' could not match XML prolog: '%s'", path,
+            log.debug("`%s': could not match XML prolog: '%s'", self.path,
                       _one_line_summary_from_text(head_bytes, 40))
             return (False, None, None)
         xml_version = match.group("ver")
