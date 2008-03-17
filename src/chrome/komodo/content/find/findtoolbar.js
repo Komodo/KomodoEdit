@@ -183,14 +183,12 @@ function Findtoolbar_FindTextboxKeyPress(field, event) {
                 } else {
                     ko.mru.addFromACTextbox(field);
                     if (event.shiftKey) {
-                        findSvc.options.searchBackward = !findSvc.options.searchBackward;
-                        Find_FindNext(window, gFindTextboxContext, field.value,
-                                      "find", false, false);
-                        findSvc.options.searchBackward = !findSvc.options.searchBackward;
+                        findSvc.options.searchBackward = true;
                     } else {
-                        Find_FindNext(window, gFindTextboxContext, field.value,
-                                      "find", false, false);
+                        findSvc.options.searchBackward = false;
                     }
+                    Find_FindNext(window, gFindTextboxContext, field.value,
+                                  "find", false, false);
                 }
                 event.stopPropagation();
                 break;

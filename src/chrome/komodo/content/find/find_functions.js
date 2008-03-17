@@ -708,14 +708,15 @@ function _DisplayFindResult(editor, findResult)
     var scimoz = editor.ko.views.manager.currentView.scintilla.scimoz;
     // Unfortunately this is going to be very slow -- I can't come up with a
     // way around this that will actually work without rewriting the find subsystem.
-    var s = stringutils_bytelength(scimoz.text.slice(0, findResult.start));
-    scimoz.setSel(s, s + stringutils_bytelength(findResult.value));
+    var startByteIndex = stringutils_bytelength(scimoz.text.slice(0, findResult.start));
+    var endByteIndex = startByteIndex + stringutils_bytelength(findResult.value);
+    scimoz.setSel(startByteIndex, endByteIndex);
 
     // Ensure folded lines are expanded. We *could* conceivably have search
     // results that span lines so should ensure that the whole selection is
     // visible. XXX should include every line in btwn here
-    scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(findResult.start))
-    scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(findResult.end))
+    scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(startByteIndex));
+    scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(endByteIndex));
 
     scimoz.chooseCaretX();
 }

@@ -526,7 +526,6 @@ function find_next(backward /* =false */) {
         //      an argument to the Find_* functions. The macro versions
         //      of the Find_* functions have to do this same save/restore
         //      dance.
-        var old_searchBackward = gFindSvc.options.searchBackward;
         gFindSvc.options.searchBackward = backward;
     
         var mode = (widgets.opt_repl.checked ? "replace" : "find");
@@ -534,7 +533,8 @@ function find_next(backward /* =false */) {
                                       false,         // quiet
                                       true,          // useMRU
                                       msg_callback); // msgHandler
-        gFindSvc.options.searchBackward = old_searchBackward;
+        // Bug 75574: never want to save searchBackward=true to prefs.
+        gFindSvc.options.searchBackward = false;
     
         if (!found_one) {
             // If no match was hilighted then it is likely that the user will
@@ -684,6 +684,7 @@ function replace() {
         if (repl)
             ko.mru.addFromACTextbox(widgets.repl);
     
+        gFindSvc.options.searchBackward = false;
         var found_one = Find_Replace(opener, _g_find_context,
                 pattern, repl, msg_callback);
         if (!found_one) {

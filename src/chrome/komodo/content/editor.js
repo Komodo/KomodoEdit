@@ -120,6 +120,7 @@ editor_editorController.prototype.do_cmd_findNextSelected = function() {
     var context = Components.classes["@activestate.com/koFindContext;1"]
         .createInstance(Components.interfaces.koIFindContext);
     context.type = findSvc.options.preferredContextType;
+    findSvc.options.searchBackward = false;
     Find_FindNext(window, context, pattern);
 }
 

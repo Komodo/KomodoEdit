@@ -1179,6 +1179,7 @@ viewManager.prototype.do_cmd_findNext = function() {
             "@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
         context.type = findSvc.options.preferredContextType;
+        findSvc.options.searchBackward = false;
         Find_FindNext(window, context, pattern);
     } else {
         ko.launch.find();
@@ -1204,11 +1205,8 @@ viewManager.prototype.do_cmd_findPrevious = function() {
         var context = Components.classes["@activestate.com/koFindContext;1"]
                       .createInstance(Components.interfaces.koIFindContext);
         context.type = findSvc.options.preferredContextType;
-        // go in the opposite direction from the current setting
-        findSvc.options.searchBackward = !findSvc.options.searchBackward;
+        findSvc.options.searchBackward = true;
         Find_FindNext(window, context, pattern);
-        // restore the direction setting
-        findSvc.options.searchBackward = !findSvc.options.searchBackward;
     } else {
         ko.launch.find();
     }
