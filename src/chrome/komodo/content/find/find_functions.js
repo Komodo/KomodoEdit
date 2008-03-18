@@ -475,9 +475,9 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
         var findText = scimoz.getTextRange(startByte, endByte);
         var startOffset;
         if (findSvc.options.searchBackward) {
-            startOffset = endByte;
+            startOffset = findResult.end;
         } else {
-            startOffset = startByte;
+            startOffset = findResult.start;
         }
         replaceResult = findSvc.replace(url, scimoz.text, pattern,
                                         replacement, startOffset, scimoz);
