@@ -287,9 +287,12 @@ function MacroEventHandler() {
 }
 
 function _macro_ranking(mac1, mac2) {
-    if (! mac1.hasAttribute('rank')) return 1;
+    // Sort ascending; sort unranked macros after ranked
+    if (! mac1.hasAttribute('rank')) {
+        return ! mac2.hasAttribute('rank') ? 0 : 1;
+    }
     if (! mac2.hasAttribute('rank')) return -1;
-    return mac1.getLongAttribute('rank') < mac2.getLongAttribute('rank');
+    return mac1.getLongAttribute('rank') - mac2.getLongAttribute('rank');
 }
 
 MacroEventHandler.prototype.callHookedMacros = function(trigger) {
