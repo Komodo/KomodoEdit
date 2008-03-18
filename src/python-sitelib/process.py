@@ -125,15 +125,18 @@ class ProcessOpen(Popen):
         else:
             # subprocess raises an exception otherwise.
             flags = 0
-        Popen.__init__(self, cmd, cwd=cwd, env=env, shell=shell,
-                       stdin=stdin, stdout=stdout, stderr=stderr,
-                       universal_newlines=universal_newlines,
-                       creationflags=flags)
 
         # Internal attributes.
         self.__cmd = cmd
         self.__retval = None
         self.__hasTerminated = threading.Condition()
+
+        # Launch the process.
+        Popen.__init__(self, cmd, cwd=cwd, env=env, shell=shell,
+                       stdin=stdin, stdout=stdout, stderr=stderr,
+                       universal_newlines=universal_newlines,
+                       creationflags=flags)
+
 
     # Override the returncode handler (used by subprocess.py), this is so
     # we can notify any listeners when the process has finished.
