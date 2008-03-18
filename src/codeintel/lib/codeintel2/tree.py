@@ -610,12 +610,12 @@ class TreeEvaluator(CitadelEvaluator):
 
         path = blob.get("src", None)
         name = elem.get("name", None)
-        line = elem.get("line", None)
+        line = elem.get("line", 1) # e.g. for an import, just use the first line
         if line is not None:
             try:
                 line = int(line)
             except ValueError:
-                line = None
+                line = 1
         ilk = elem.get("ilk") or elem.tag
         citdl = elem.get("citdl", None)
         doc = elem.get("doc", None)
