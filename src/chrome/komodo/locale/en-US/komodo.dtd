@@ -56,7 +56,6 @@
 <!ENTITY closeAll.label "Close All">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY code.label "Code">
-<!ENTITY codeBrowserLocateCurrentScope.desc "Code Browser: Locate current scope...">
 <!ENTITY collapse.label "Collapse">
 <!ENTITY collapseAll.label "Collapse All">
 <!ENTITY collapseRecursively.label "Collapse Recursively">
