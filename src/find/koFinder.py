@@ -1512,13 +1512,13 @@ def _paths_from_ko_info(options, cwd=None):
             d = _norm_dir_from_dir(d, cwd)
             path_patterns.append(join(d, "*"))
             path_patterns.append(join(d, ".*"))
-    #XXX:TODO: circular symlink safe?!
     return findlib2.paths_from_path_patterns(
                 path_patterns,
                 recursive=options.searchInSubfolders,
                 includes=options.getIncludeFiletypes(),
                 excludes=options.getExcludeFiletypes(),
                 on_error=None,
+                follow_symlinks=True,
                 skip_dupe_dirs=True)
 
 #TODO: put in my recipes
