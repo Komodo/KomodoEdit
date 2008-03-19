@@ -36,9 +36,6 @@
 # ***** END LICENSE BLOCK *****
 
 """Generate a PAD file for distribution on sites for this Komodo build."""
-#TODO:
-# - need a new screenshot URL
-# - should Program_Type be "Commercial" for Komodo Edit?
 
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -151,6 +148,8 @@ def genpad(license_text_path=None, output_dir=None):
         "$PAD_RELEASES_VER": short_ver,
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
         "$PAD_PAD_BASENAME": pad_basename,
+        "$PAD_SCREENSHOT_BASENAME": "komodo_%s_%s.png" % (bkconfig.productType, pi.os),
+        "$PAD_ICON_BASENAME": "komodo_%s_icon.png" % bkconfig.productType,
     }
     if not license_text_path:
         log.error("no path given for license text (use `-L` option)")
