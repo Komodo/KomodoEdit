@@ -73,7 +73,18 @@ class ManualTestCase(unittest.TestCase):
         self.assert_(".py" in py.exts)
         self.assert_(py.is_text)
 
+    def test_komodo_name(self):
+        lidb = langinfo.Database()
+        li = lidb.langinfo_from_lang("Django HTML Template")
+        li_ko = lidb.langinfo_from_komodo_lang("Django")
+        self.assertEqual(li, li_ko)
+        self.assertEqual(li_ko.name, "Django HTML Template")
 
+    def test_komodo_name_nada(self):
+        lidb = langinfo.Database()
+        self.assertRaises(langinfo.LangInfoError,
+                          lidb.langinfo_from_komodo_lang,
+                          "Nada")
 
 
 #---- mainline

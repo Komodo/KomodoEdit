@@ -245,6 +245,7 @@ class Database(object):
         self._li_from_doctype_system_id = None
         self._li_from_emacs_mode = None
         self._li_from_vi_filetype = None
+        self._li_from_norm_komodo_lang = None
 
         self._load()
         if dirs is None:
@@ -262,6 +263,22 @@ class Database(object):
         if norm_lang not in self._langinfo_from_norm_lang:
             raise LangInfoError("no info on %r lang" % lang)
         return self._langinfo_from_norm_lang[norm_lang]
+
+    def langinfo_from_komodo_lang(self, komodo_lang):
+        """Return a langinfo for the given Komodo language name.
+        
+        There are some minor differences in Komodo language names and
+        those in langinfo (e.g. "Django" in Komodo vs "Django HTML
+        Template" in langinfo).
+        """
+        if self._li_from_norm_komodo_lang is None:
+            self._build_tables()
+        norm_komodo_lang = self._norm_lang_from_lang(komodo_lang)
+        if norm_komodo_lang in self._li_from_norm_komodo_lang:
+            return self._li_from_norm_komodo_lang[norm_komodo_lang]
+        elif norm_komodo_lang in self._langinfo_from_norm_lang:
+            return self._langinfo_from_norm_lang[norm_komodo_lang]
+        raise LangInfoError("no info on %r komodo lang" % komodo_lang)
 
     def langinfo_from_emacs_mode(self, emacs_mode):
         if self._li_from_emacs_mode is None:
@@ -377,6 +394,7 @@ class Database(object):
         self._li_from_doctype_system_id = {}
         self._li_from_emacs_mode = {}
         self._li_from_vi_filetype = {}
+        self._li_from_norm_komodo_lang = {}
 
         for li in self._langinfo_from_norm_lang.values():
             if li.exts:
@@ -419,6 +437,9 @@ class Database(object):
             if li.vi_filetypes:
                 for em in li.vi_filetypes:
                     self._li_from_vi_filetypes[em] = li
+            if hasattr(li, "komodo_name"):
+                norm_komodo_lang = self._norm_lang_from_lang(li.komodo_name)
+                self._li_from_norm_komodo_lang[norm_komodo_lang] = li
 
         self._magic_table.sort(key=operator.itemgetter(2))
 
