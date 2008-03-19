@@ -1698,7 +1698,7 @@ def UploadKomodoPackages(cfg, argv):
     for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
         reldir = _relpath(dirpath, cfg.packagesRelDir).replace('\\', '/')
         for filename in filenames:
-            if fnmatch(filename, "komodo_*.xml"):
+            if "pad" in reldir.split('/'):
                 pass
             elif str(buildNum) not in filename:
                 continue
