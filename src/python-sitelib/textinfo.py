@@ -219,7 +219,8 @@ class TextInfo(object):
     @classmethod
     def init_from_path(cls, path, encoding=None, lidb=None,
                        follow_symlinks=False,
-                       quick_determine_lang=False):
+                       quick_determine_lang=False,
+                       env=None):
         """Create an instance using the filename and stat/read info
         from the given path to initialize.
 
@@ -229,6 +230,10 @@ class TextInfo(object):
         @param quick_determine_lang {boolean} can be set to True to have
             processing stop as soon as the language has been determined.
             Note that this means some fields will not be populated.
+        @param env {runtime environment} A "runtime environment" class
+            whose behaviour is used to influence processing. Currently
+            it is just used to provide a hook for lang determination
+            by filename (for Komodo).
         """
         if lidb is None:
             lidb = get_default_lidb()
@@ -246,7 +251,7 @@ class TextInfo(object):
             #TODO: add 'pref:treat_as_text' a la TextMate (or
             #      perhaps that is handled in _classify_from_filename())
 
-            self._classify_from_filename(lidb)
+            self._classify_from_filename(lidb, env)
             if self.is_text is False:
                 return self
 
@@ -1136,12 +1141,21 @@ class TextInfo(object):
         else:
             return (False, None, None)
 
-    def _classify_from_filename(self, lidb):
+    def _classify_from_filename(self, lidb, env):
         """Classify from the path *filename* only.
         
         Sets `lang' and `langinfo', if can be determined.
         """
         filename = basename(self.path)
+        
+        if env is not None:
+            li = env.langinfo_from_filename(filename)
+            if li:
+                log.debug("lang from env: `%s' -> `%s'", filename, li.name)
+                self.langinfo = li
+                self.lang = li.name
+                self.is_text = li.is_text
+                return
 
         # ...from the ext
         idx = 0
@@ -1419,6 +1433,7 @@ class PathAccessor(Accessor):
 
 #---- internal support stuff
 
+#TODO: drop this an just use `langinfo.get_default_database()`
 _default_lidb = None
 def get_default_lidb():
     global _default_lidb

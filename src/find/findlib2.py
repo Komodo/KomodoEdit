@@ -73,7 +73,7 @@ log = logging.getLogger("findlib2")
 
 #---- primary API methods
 
-def find(paths, includes=None, excludes=None):
+def find(paths, includes=None, excludes=None, env=None):
     """List paths matching the given filters (a la GNU find).
 
     @param paths {sequence|iterator} is a sequence of paths to search.
@@ -81,6 +81,7 @@ def find(paths, includes=None, excludes=None):
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
+    @param env {runtime environment}
     """
     if not includes and not excludes: # Quick case.
         for path in paths:
@@ -96,7 +97,8 @@ def find(paths, includes=None, excludes=None):
         for path in paths:
             ti = textinfo.TextInfo.init_from_path(path, lidb=lidb,
                     follow_symlinks=True,
-                    quick_determine_lang=quick_determine_lang)
+                    quick_determine_lang=quick_determine_lang,
+                    env=env)
 
             if includes:
                 unmatched_includes = [field for field, value in includes
@@ -120,7 +122,8 @@ def find(paths, includes=None, excludes=None):
 def grep(regex, paths, files_with_matches=False,
          treat_binary_files_as_text=False,
          skip_unknown_lang_paths=False,
-         includes=None, excludes=None):
+         includes=None, excludes=None,
+         env=None):
     """Grep for `regex` in the given paths.
 
     @param regex {regex} is the regular expression to search for.
@@ -139,13 +142,15 @@ def grep(regex, paths, files_with_matches=False,
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
+    @param env {runtime environment}
     """
     if log.isEnabledFor(logging.DEBUG):
         log.debug("grep %r", str_from_regex_info(regex))
 
     for path in paths:
         path = normpath(path)
-        ti = textinfo.textinfo_from_path(path, follow_symlinks=True)
+        ti = textinfo.TextInfo.init_from_path(path,
+                follow_symlinks=True, env=env)
 
         if skip_unknown_lang_paths and ti.lang is None:
             yield SkipUnknownLangPath(path)
@@ -192,7 +197,7 @@ def grep(regex, paths, files_with_matches=False,
 
 
 def replace(regex, repl, paths, includes=None, excludes=None,
-            summary=None):
+            summary=None, env=None):
     """Make the given regex replacement in the given paths.
 
     This generates a stream of `Event`s. The main such event is
@@ -225,10 +230,11 @@ def replace(regex, repl, paths, includes=None, excludes=None,
         filters on textinfo data: (<textinfo-field>, <value>).
     @param summary {str} an optional summary string for the replacement
         journal.
+    @param env {runtime environment}
     """
     journal = None
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
-                   includes=includes, excludes=excludes)
+                   includes=includes, excludes=excludes, env=env)
     for fhits in grouped_by_path(grepper):
         if not isinstance(fhits[0], Hit):
             yield fhits[0]

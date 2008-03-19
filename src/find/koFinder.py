@@ -56,6 +56,7 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObjec
 from koTreeView import TreeView
 import findlib2
 import textutils
+import langinfo
 
 
 
@@ -82,6 +83,51 @@ gPrefSvc = None
 gLastErrorSvc = None
 
 
+
+#---- Runtime Environment
+# This is a customization of the "runtime environment" API used by
+# findlib2/textinfo for the Komodo runtime environment.
+#TODO: Eventually hook in `runtimeenv.RuntimeEnv` stuff (see checklib)
+#      when more fully using that facility.
+
+class KomodoRuntimeEnv(object):
+    def __init__(self):
+        self.lidb = langinfo.get_default_database()
+
+        langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
+            .getService(components.interfaces.koILanguageRegistryService)
+        self._langRegSvc = getProxyForObject(None,
+            components.interfaces.koILanguageRegistryService,
+            langRegSvc, PROXY_ALWAYS | PROXY_SYNC)
+
+    def langinfo_from_filename(self, filename):
+        """Return a `LangInfo` appropriate for the given filename based
+        on Komodo file association prefs.
+        
+        If there is no Komodo file association for this filename, then
+        return None. If there *is* a file association but the langinfo
+        system has no appropriate `LangInfo` class, then return the
+        base `TextLangInfo`. This works because for the purposes of
+        Find/Replace in Files we just need to know if a given file is
+        text or binary and all associable Komodo languages are text.
+
+        This API is used by `textinfo._classify_filename` to attempt to
+        determine filetype (aka "lang") from the filename. Here we hook
+        that into Komodo's file-association prefs.
+        """
+        komodo_lang = self._langRegSvc.suggestLanguageForFile(filename)
+        if not komodo_lang:
+            return None
+
+        # Komodo has a file association for this filename. Find an
+        # appropriate LangInfo for this Komodo language name.
+        try:
+            li = self.lidb.langinfo_from_komodo_lang(komodo_lang)
+        except langinfo.LangInfoError:
+            li = self.lidb.langinfo_from_lang("Text")
+        return li
+
+
 #---- Find/Replace in Files backend
 
 class _FindReplaceThread(threading.Thread):
@@ -96,7 +142,7 @@ class _FindReplaceThread(threading.Thread):
 
     MAX_XUL_TREE_CELL_LENGTH = 256
     
-    def __init__(self, id, regex, repl, desc, paths, resultsMgr):
+    def __init__(self, id, regex, repl, desc, paths, resultsMgr, env):
         """Create a find/replace thread.
         
         @param id {string} the ID for this find/replace session
@@ -109,6 +155,8 @@ class _FindReplaceThread(threading.Thread):
         @param paths {list|generator} a list or generator of paths to
             consider
         @param resultsMgr {components.interfaces.koIFindResultsTabManager}
+        @param env {runtime environment} the Komodo Runtime Environment
+            to pass to findlib2.
         """
         threading.Thread.__init__(self, name="Find/Replace Thread %s" % id)
         self.id = id
@@ -117,6 +165,7 @@ class _FindReplaceThread(threading.Thread):
         self.desc = desc
         self.paths = paths
         self.resultsMgr = resultsMgr
+        self.env = env
 
         self.resultsMgrProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsTabManager,
@@ -201,7 +250,7 @@ class _FindReplaceThread(threading.Thread):
 
     def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
-        for event in findlib2.grep(regex, paths):
+        for event in findlib2.grep(regex, paths, env=self.env):
             if self._stopped:
                 return
 
@@ -219,7 +268,8 @@ class _FindReplaceThread(threading.Thread):
             self._report()
 
     def _replace_in_paths(self, regex, repl, desc, paths):
-        for event in findlib2.replace(regex, repl, paths, summary=desc):
+        for event in findlib2.replace(regex, repl, paths, summary=desc,
+                                      env=self.env):
             if self._stopped:
                 return
             if isinstance(event, findlib2.StartJournal):
@@ -394,7 +444,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     REPORT_EVERY_N_PATHS_WITH_HITS = 5
     REPORT_EVERY_N_PATHS_SEARCHED = 100
 
-    def __init__(self, regex, repl, desc, paths, controller):
+    def __init__(self, regex, repl, desc, paths, controller, env):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
         TreeView.__init__(self)
 
@@ -402,6 +452,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self.repl = repl
         self.desc = desc
         self.paths = paths
+        self.env = env
 
         self.controller = controller
         self.controllerProxy = getProxyForObject(None,
@@ -436,7 +487,8 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 return
 
             for event in findlib2.replace(self.regex, self.repl,
-                                          self.paths, summary=self.desc):
+                                          self.paths, summary=self.desc,
+                                          env=self.env):
                 if self._stopped:
                     return
                 if isinstance(event, findlib2.StartJournal):
@@ -1041,7 +1093,9 @@ class KoFindService(object):
         self.options = KoFindOptions()
         
         self._threadMap = {}
-       
+        
+        self.env = KomodoRuntimeEnv()
+
     def find(self, url, text, pattern, start, end):
         try:
             regex, dummy, desc = _regex_info_from_ko_find_data(
@@ -1373,7 +1427,8 @@ class KoFindService(object):
             paths = _paths_from_ko_info(self.options,
                                         cwd=resultsMgr.context_.cwd)
 
-        t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr)
+        t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr,
+                               self.env)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1416,7 +1471,7 @@ class KoFindService(object):
                                         cwd=resultsMgr.context_.cwd)
 
         t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
-                               resultsMgr)
+                               resultsMgr, self.env)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1458,7 +1513,7 @@ class KoFindService(object):
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
-                                    controller)
+                                    controller, self.env)
         return t
 
     def undoreplaceallinfiles(self, journal_id, controller):
