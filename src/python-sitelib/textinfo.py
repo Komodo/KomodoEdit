@@ -173,13 +173,14 @@ def textinfo_from_filename(path):
     """
     return TextInfo.init_from_filename(path)
 
-def textinfo_from_path(path, encoding=None):
+def textinfo_from_path(path, encoding=None, follow_symlinks=False):
     """Determine text info for the given path.
     
     This raises EnvironmentError if the path doesn't not exist or could
     not be read.
     """
-    return TextInfo.init_from_path(path, encoding=encoding)
+    return TextInfo.init_from_path(path, encoding=encoding, 
+                                   follow_symlinks=follow_symlinks)
 
 
 
@@ -217,10 +218,14 @@ class TextInfo(object):
 
     @classmethod
     def init_from_path(cls, path, encoding=None, lidb=None,
+                       follow_symlinks=False,
                        quick_determine_lang=False):
         """Create an instance using the filename and stat/read info
         from the given path to initialize.
 
+        @param follow_symlinks {boolean} can be set to True to have
+            the textinfo returned for a symlink be for linked-to file. By
+            default the textinfo is for the symlink itself.
         @param quick_determine_lang {boolean} can be set to True to have
             processing stop as soon as the language has been determined.
             Note that this means some fields will not be populated.
@@ -229,7 +234,7 @@ class TextInfo(object):
             lidb = get_default_lidb()
         self = cls()
         self.path = path
-        self._accessor = PathAccessor(path)
+        self._accessor = PathAccessor(path, follow_symlinks=follow_symlinks)
         try:
             #TODO: pref: Is a preference specified for this path?
 
@@ -1286,8 +1291,9 @@ class PathAccessor(Accessor):
     _bytes = None
     _bytes_tail = None
 
-    def __init__(self, path):
+    def __init__(self, path, follow_symlinks=False):
         self.path = path
+        self.follow_symlinks = follow_symlinks
 
     def __str__(self):
         return "path `%s'" % self.path 
@@ -1296,7 +1302,10 @@ class PathAccessor(Accessor):
     @property
     def stat(self):
         if self._stat_cache is None:
-            self._stat_cache = os.lstat(self.path)
+            if self.follow_symlinks:
+                self._stat_cache = os.stat(self.path)
+            else:
+                self._stat_cache = os.lstat(self.path)
         return self._stat_cache
 
     @property
@@ -1312,6 +1321,8 @@ class PathAccessor(Accessor):
 
     def _read(self, state):
         """Read up to at least `state`."""
+        #TODO: If `follow_symlinks` is False and this is a symlink we
+        #      must use os.readlink() here.
         # It is the job of the caller to only call _read() if necessary.
         assert self._read_state < state
 
@@ -1854,6 +1865,10 @@ def main(argv):
                       help="quieter output")
     parser.add_option("-r", "--recursive", action="store_true",
                       help="recursively descend into given paths")
+    parser.add_option("-L", "--dereference", dest="follow_symlinks",
+                      action="store_true",
+                      help="follow symlinks, i.e. show info about linked-to "
+                           "files and descend into linked dirs when recursive")
     parser.add_option("--encoding", help="suggested encoding for input files")
     parser.add_option("-f", "--format",
                       help="format of output: summary (default), dict")
@@ -1862,7 +1877,8 @@ def main(argv):
         help="path pattern to exclude for recursive search (by default SCC "
              "control dirs are skipped)")
     parser.set_defaults(log_level=logging.INFO, encoding=None, recursive=False,
-                        format="summary", excludes=[".svn", "CVS", ".hg"])
+                        follow_symlinks=False, format="summary",
+                        excludes=[".svn", "CVS", ".hg"])
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
     if opts.log_level > logging.INFO:
@@ -1882,8 +1898,9 @@ def main(argv):
     for path in _paths_from_path_patterns(path_patterns, excludes=opts.excludes,
                     recursive=opts.recursive, 
                     dirs="if-not-recursive",
-                    follow_symlinks=False):
-        ti = textinfo_from_path(path, encoding=opts.encoding)
+                    follow_symlinks=opts.follow_symlinks):
+        ti = textinfo_from_path(path, encoding=opts.encoding,
+                                follow_symlinks=opts.follow_symlinks)
         if opts.format == "summary":
             print ti.as_summary()
         elif opts.format == "dict":

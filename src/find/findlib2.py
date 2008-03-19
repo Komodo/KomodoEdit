@@ -48,6 +48,7 @@ import codecs
 from glob import glob
 import cPickle as pickle
 import md5
+from pprint import pprint, pformat
 
 try:
     import textinfo
@@ -94,6 +95,7 @@ def find(paths, includes=None, excludes=None):
         lidb = textinfo.get_default_lidb()
         for path in paths:
             ti = textinfo.TextInfo.init_from_path(path, lidb=lidb,
+                    follow_symlinks=True,
                     quick_determine_lang=quick_determine_lang)
 
             if includes:
@@ -143,7 +145,7 @@ def grep(regex, paths, files_with_matches=False,
 
     for path in paths:
         path = normpath(path)
-        ti = textinfo.textinfo_from_path(path)
+        ti = textinfo.textinfo_from_path(path, follow_symlinks=True)
 
         if skip_unknown_lang_paths and ti.lang is None:
             yield SkipUnknownLangPath(path)
