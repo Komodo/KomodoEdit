@@ -1781,13 +1781,26 @@ def PackageKomodo(cfg, argv):
 
 def _PackageKomodoPAD(cfg):
     genpad_path = join("src", "pad", "genpad.py")
-    output_dir = join(cfg.packagesAbsDir, "internal", "pad")
+    output_dir = join(cfg.packagesAbsDir, "internal", "pad",
+                      "komodo_%s" % cfg.productType)
     license_text_path = join("src", "license_text", "LICENSE.mpl.txt")
     if not exists(output_dir):
         os.makedirs(output_dir)
+
+    # The PAD file.
     cmd = 'python %s -d "%s" -L "%s"' % (
         genpad_path, output_dir, license_text_path)
     _run(cmd)
+
+    # The screenshot file.
+    plat_os = cfg.buildPlatform.split('-', 1)[0]
+    _cp(join("src", "pad", "komodo_%s_%s.png" % (cfg.productType, plat_os)),
+        output_dir)
+
+    # The icon file.
+    _cp(join("src", "main", "komodo32.%s.png" % cfg.productType),
+        join(output_dir, "komodo_%s_icon.png" % cfg.productType))
+
 
 def _PackageKomodoDocs(cfg):
     """The Komodo "doc" package is just a simple packaging up of the
