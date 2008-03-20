@@ -191,23 +191,10 @@ static inline bool isSafeAlnum(char ch) {
     return ((unsigned int) ch >= 128) || isalnum(ch) || ch == '_';
 }
 
-// precondition: pos > 0 && styler[pos - 1] == '('
-// returns: the point after the ")", if it ends a
-// simple key, or 0 if there is no simple key.
-static int getSimpleKeyExtent(unsigned int pos,
-			       unsigned int lengthDoc,
-			       Accessor &styler) {
-    if (pos == lengthDoc || !isSafeAlnum(styler[(int) pos])) {
-	// require at least one char before the closing paren
-	return 0;
-    }
-    // assert styler[pos - 1] == '(';
-    while (++pos < lengthDoc) {
-	char ch = styler[(int) pos];
-	if (ch == ')') return pos + 1;
-	else if (!isSafeAlnum(ch)) return 0;
-    }
-    return 0;
+static inline void advanceOneChar(unsigned int& i, char&ch, char& chNext, char chNext2) {
+    i++;
+    ch = chNext;
+    chNext = chNext2;
 }
 
 static void ColouriseTclDoc(unsigned int startPos,
@@ -336,9 +323,17 @@ static void ColouriseTclDoc(unsigned int startPos,
 		heldLineInfo.visibleChars = visibleChars;
 	    } else if (ch == '$') {
 		colourString(i-1, state, styler);
-		state = SCE_TCL_VARIABLE;
-		// note whether this is a braced simple or array var
-		varBraced = false;
+		if (chNext == '{') {
+		    varBraced = true;
+		    advanceOneChar(i, ch, chNext, styler.SafeGetCharAt(i + 1));
+		    state = SCE_TCL_VARIABLE;
+		} else if (iswordchar(chNext)) {
+		    varBraced = false;
+		    state = SCE_TCL_VARIABLE;
+		} else {
+		    colourString(i, SCE_TCL_OPERATOR, styler);
+		    // Stay in default mode.
+		}
 	    } else if (isTclOperator(ch) || ch == ':') {
 		if (ch == '-' && isascii(chNext) && isalpha(chNext)) {
 		    colourString(i-1, state, styler);
@@ -384,56 +379,31 @@ static void ColouriseTclDoc(unsigned int startPos,
 		 * $a$b           ;# multiple vars
 		 * ${a(def)(def)} ;# all one var
 		 * ${abc}(def)    ;# (def) is not part of the var name now
-		 * Dropped post Komodo 4.2.1:
-		 * Old: $a(def)(ghi)   ;# (def) is array key, (ghi) is just chars
-		 * New: $a(def)(ghi)   ;# ( and ) are operators, def and ghi are chars
-		 *   This is because array keys can be complex.
-		 *   Special case: $xx([a-zA-Z0-9_]+) is colored as a variable
+		 * Previous to Komodo 4.2.1:
+		 * $a(def)(ghi)   ;# (def) is array key, (ghi) is just chars
+		 * ${a...}(def)(ghi)   ;# ( and ) are operators, def and ghi are chars
 		 */
-		if (!iswordchar(ch)) {
-		    int endPoint = 0; // Assume no ending
+		if (!iswordchar(chNext)) {
+		    bool varEndsHere = false;
+		    int endPoint = 0;
 		    if (varBraced) {
-			if (ch == '}') {
+			if (chNext == '}') {
 			    varBraced = false;
-			    endPoint = i;
+			    colourString(i + 1, state, styler);
+			    state = SCE_TCL_DEFAULT;
+			    advanceOneChar(i, ch, chNext, styler.SafeGetCharAt(i + 2));
 			}
-		    } else if (ch == ':' && chNext == ':') {
+			// else continue building a var-braced string
+		    } else if (chNext == ':' && styler.SafeGetCharAt(i + 2) == ':') {
 			// continue, it's part of a simple name, but advance
 			// so we don't stumble on the second colon
-			i++;
-			ch = chNext;
-			chNext = styler.SafeGetCharAt(i + 1);
-		    } else if (ch == '{' && chPrev == '$') {
-			varBraced = true;
-		    } else if (ch == '(') {
-			endPoint = getSimpleKeyExtent(i + 1, lengthDoc, styler);
-			if (endPoint > 0) {
-			    // Fabricate all the items, and continue
-			    // after the close-paren.
-			    // endPoint points one past the location of the
-			    // close-paren
-			    colourString(endPoint - 1, state, styler);
-			    state = SCE_TCL_DEFAULT;
-			    i = endPoint - 1;
-			    chNext = styler.SafeGetCharAt(endPoint);
-			    ch = styler[i];
-			    continue;
-			} else {
-			    endPoint = i - 1;
-			}
+			advanceOneChar(i, ch, chNext, ':');
 		    } else {
-			// Switch state and retry with this char
-			endPoint = i - 1;
+			varEndsHere = true;
 		    }
-		    if (endPoint > 0) {
-			colourString(endPoint, state, styler);
+		    if (varEndsHere) {
+			colourString(i, state, styler);
 			state = SCE_TCL_DEFAULT;
-			if (endPoint == (int) i - 1) {
-			    // retry current character in default state
-			    --i;
-			    chNext = ch;
-			    ch = chPrev;
-			}
 		    }
 		}
 	    } else if (state == SCE_TCL_OPERATOR) {
