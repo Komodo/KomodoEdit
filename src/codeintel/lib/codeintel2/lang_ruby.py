@@ -1416,7 +1416,7 @@ class RubyImportHandler(ImportHandler):
         if "RUBYLIB_PREFIX" in env: del env["RUBYLIB_PREFIX"]
 
         p = process.ProcessOpen(argv, env=env, stdin=None)
-        output, stderr = p.communicate(info_cmd)
+        output, stderr = p.communicate()
         retval = p.returncode
         path = output.splitlines(0)
         if sys.platform == "win32":
