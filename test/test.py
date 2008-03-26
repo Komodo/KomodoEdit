@@ -54,6 +54,17 @@ testdir_from_ns = {
 
 
 def setup():
+    # Get the process.py from src/python-sitelib (incompatibilities
+    # introduced in the new src/python-sitelib/process.py for Komodo
+    # 4.3.0).
+    pylib_dir = join(dirname(dirname(abspath(__file__))),
+                     "src", "python-sitelib")
+    sys.path.insert(0, pylib_dir)
+    try:
+        import process
+    finally:
+        del sys.path[0]
+    
     codeintel_test_dir = join(dirname(dirname(abspath(__file__))),
                               "src", "codeintel", "test2")
     sys.path.insert(0, codeintel_test_dir)
