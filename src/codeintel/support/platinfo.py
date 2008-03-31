@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 8, 6)
+__version_info__ = (0, 8, 7)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -579,6 +579,7 @@ class PlatInfo(object):
             "suse": re.compile("^SuSE Linux ([\d\.]+)"),
             "opensuse": re.compile("^openSUSE ([\d\.]+)"),
             "debian": re.compile("^([\d\.]+)"),
+            "slackware": re.compile("^Slackware ([\d\.]+)"),
             "gentoo": re.compile("^Gentoo Base System release ([\d\.]+)"),
         }
 
