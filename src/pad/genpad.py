@@ -135,7 +135,7 @@ def genpad(license_text_path=None, output_dir=None):
     pad_info = {
         "$PAD_PROGRAM_NAME": "Komodo %s (%s)" % (
             bkconfig.prettyProductType, pretty_platname),
-        "$PAD_VERSION": bkconfig.komodoShortVersion,
+        "$PAD_VERSION": bkconfig.komodoVersion,
         "$PAD_RELEASE_YEAR": today.year,
         "$PAD_RELEASE_MONTH": "%02d" % today.month,
         "$PAD_RELEASE_DAY": "%02d" % today.day,
