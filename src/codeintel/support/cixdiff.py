@@ -54,12 +54,18 @@ from ciElementTree import parse
 def report_missing(elem, names):
     for name in sorted(names):
         childElem = elem.names[name]
-        print "  missing %-10s %r" % (childElem.get("ilk") or childElem.tag, name)
+        elem_type = childElem.get("ilk") or childElem.tag
+        if elem_type == "variable" and len(childElem):
+            elem_type = "namespace"
+        print "  missing %-10s %r" % (elem_type, name)
 
 def report_additional(elem, names):
     for name in sorted(names):
         childElem = elem.names[name]
-        print "  additional %-10s %r" % (childElem.get("ilk") or childElem.tag, name)
+        elem_type = childElem.get("ilk") or childElem.tag
+        if elem_type == "variable" and len(childElem):
+            elem_type = "namespace"
+        print "  additional %-10s %r" % (elem_type, name)
 
 def report_missing_attributes(elem, names):
     for name in sorted(names):
@@ -97,6 +103,9 @@ def diffElements(opts, lpath, e1, e2):
     if opts.diff_attributes:
         e1_attrs = set(e1.attrib.keys())
         e2_attrs = set(e2.attrib.keys())
+        if opts.ignore_attributes:
+            e1_attrs.difference_update(opts.ignore_attributes)
+            e2_attrs.difference_update(opts.ignore_attributes)
         attrs_in_e1_only = e1_attrs.difference(e2_attrs)
         attrs_in_e2_only = e2_attrs.difference(e1_attrs)
         for attr in e1_attrs.intersection(e2_attrs):
@@ -162,6 +171,9 @@ def main(argv=None):
     parser.add_option("-n", "--ignore-with-attribute", dest="ignore_with_attributes",
                       action="append",
                       help="Ignore element differences that use this attribute.")
+    parser.add_option("-x", "--ignore-attribute", dest="ignore_attributes",
+                      action="append",
+                      help="Ignore these attribute differences.")
     (opts, args) = parser.parse_args()
     if len(args) != 2:
         parser.print_usage()
