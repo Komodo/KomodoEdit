@@ -886,6 +886,27 @@ class DojoTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
             "byId(id, doc)", env=env)
 
+    @tag("bug75069")
+    def test_toplevel(self):
+        """Test the handling of dojo.extend"""
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
+        content, positions = unmark_text(dedent("""\
+            function class_bug75069 {
+                this.name = 'bug75069';
+            }
+            dojo.extend(class_bug75069, {
+                extended_fn: function() {
+                    // Do something
+                }
+            });
+            var inst_bug75069 = new class_bug75069();
+            inst_bug75069.<1>
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "name"),
+             ("function", "extended_fn")],
+            env=env)
+
 
 class YUITestCase(CodeIntelTestCase):
     lang = "JavaScript"
