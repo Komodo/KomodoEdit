@@ -887,7 +887,7 @@ class DojoTestCase(CodeIntelTestCase):
             "byId(id, doc)", env=env)
 
     @tag("bug75069")
-    def test_toplevel(self):
+    def test_dojo_extend(self):
         """Test the handling of dojo.extend"""
         env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
         content, positions = unmark_text(dedent("""\
@@ -905,6 +905,42 @@ class DojoTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "name"),
              ("function", "extended_fn")],
+            env=env)
+
+    @tag("bug75069")
+    def test_dojo_declare(self):
+        """Test the handling of dojo.declare"""
+        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
+        content, positions = unmark_text(dedent("""\
+            // Same code from the Dojo wiki documentation:
+            // http://manual.dojotoolkit.org/WikiHome/DojoDotBook/Book20
+            dojo.declare("Person_bug75069", null, {
+                    //acts like a java constructor
+                    initializer: function(name, age, currentResidence){
+                    this.name=name;
+                    this.age=age;
+                    this.currentResidence=currentResidence;
+                    },
+            
+                    moveToNewCity: function(newState) 
+                    {
+                        this.currentResidence=newState;
+                    } 
+            });
+            var matt_bug75069 = new Person_bug75069(<1>'Matt', 25, 'New Mexico');
+            matt_bug75069.<2>moveToNewCity(<3>
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+            "Person_bug75069(name, age, currentResidence)",
+            env=env)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "name"),
+             ("variable", "age"),
+             ("variable", "currentResidence"),
+             ("function", "moveToNewCity")],
+            env=env)
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+            "moveToNewCity(newState)",
             env=env)
 
 
