@@ -914,12 +914,13 @@ class DojoTestCase(CodeIntelTestCase):
         content, positions = unmark_text(dedent("""\
             // Same code from the Dojo wiki documentation:
             // http://manual.dojotoolkit.org/WikiHome/DojoDotBook/Book20
+            // Note: Dojo (0.9+) uses "constructor" instead of "initializer"
             dojo.declare("Person_bug75069", null, {
                     //acts like a java constructor
-                    initializer: function(name, age, currentResidence){
-                    this.name=name;
-                    this.age=age;
-                    this.currentResidence=currentResidence;
+                    constructor: function(name, age, currentResidence) {
+                        this.name=name;
+                        this.age=age;
+                        this.currentResidence=currentResidence;
                     },
             
                     moveToNewCity: function(newState) 
