@@ -2036,6 +2036,24 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
             "Fish(GENUS) -> scaly thing\nGood eatin'")
         
+    @tag("bug76056", "knownfailure")
+    def test_logging_module(self):
+        # Ensure we get completeions on "logging" module classes, as this is
+        # commonly used in many Python programs.
+        content, positions = unmark_text(dedent(r'''
+            import logging
+            log = logging.getLogger('some_name')
+            log.<1>
+        '''))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+            [("function", "exception"),
+             ("function", "fatal"),
+             ("function", "critical"),
+             ("function", "error"),
+             ("function", "warn"),
+             ("function", "debug"),
+             ("function", "getEffectiveLevel"),
+            ])
 
 
 
