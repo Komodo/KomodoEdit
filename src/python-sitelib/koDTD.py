@@ -219,16 +219,17 @@ class dtd_element:
         stream.write("    CHILDREN %r\n" % self.elements)
 
 class dtd_attlist:
-    _attr_line = re.compile('(?P<name>\w+)\s+(?P<type>[A-Za-z]+|\(.*?\))\s+(?P<default>#REQUIRED|#IMPLIED|(?:#FIXED)?((?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')))\s*(?:--(?P<comment>.*?)--)?', re.S|re.U)
-    def __init__(self, d, el=None):
+    _attr_line = re.compile('(?P<name>\w+)\s+(?P<type>[A-Za-z]+|\(.*?\))\s+(?P<default>#REQUIRED|#IMPLIED|\w+|(?:#FIXED)?((?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')))\s*(?:--(?P<comment>.*?)--)?', re.S|re.U)
+    def __init__(self, d, el=None, casename=False):
         self.name = d['name']
         self.data = d
+        self.casename = casename
         if el:
             self.addAttributes(el)
 
     def addAttributes(self, el):
         for m in self._attr_line.finditer(self.data['content']):
-            a = dtd_attr(m.groupdict())
+            a = dtd_attr(m.groupdict(), self.casename)
             if a.name not in el.attributes:
                 el.attributes[a.name] = a
         
@@ -236,13 +237,15 @@ class dtd_attlist:
         pass
 
 class dtd_attr:
-    def __init__(self, d):
+    def __init__(self, d, casename=False):
         self.name = d['name']
         self.values = []
         self.type = 'CDATA'
         if d['type'][0] == '(':
             groupedNamesRe = collector.res["groupedNamesSplitter"]
             self.values = [n for n in groupedNamesRe.split(d['type']) if n]
+            if casename:
+                self.values = [v.lower() for v in self.values]
         else:
             self.type = d['type']
         self.default = d['default']
@@ -449,7 +452,7 @@ class DTD:
                 el = self.dataset.elements[name]
             else:
                 el = None
-            t = dtd_attlist(d, el)
+            t = dtd_attlist(d, el, self.casename)
             self.dataset.attlist[name] = t
         return ""
 
@@ -478,10 +481,11 @@ if __name__=="__main__":
         #dtd = DTD('/Users/shanec/src/dtd/dita/dtd/concept.dtd')
         #print dtd.dataset.root
         #print dtd.dataset.possible_children("related-links")
-        dtd = DTD(filename)
+        dtd = DTD(filename, casename=True)
         print dtd.dataset.root
-        print dtd.dataset.possible_children("table")
-        #print dtd.dataset.possible_attributes("body")
+        #print dtd.dataset.possible_children("table")
+        print dtd.dataset.possible_attributes("input")
+        print dtd.dataset.possible_attribute_values("input", "type")
         #print dtd.dataset.possible_children("head")
         #dtd.dataset.dump(sys.stdout)
         #sys.exit(0)
