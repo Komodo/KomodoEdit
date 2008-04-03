@@ -715,9 +715,10 @@ class koRemoteSSH(koRFConnection):
             self.log.warn("do_authenticateWithPassword::paramiko.BadAuthenticationType: %s", e)
             for auth_type in e.allowed_types:
                 self.log.debug("SSH server allows authorizaton using: %s", auth_type)
-            if 'keyboard-interactive' not in e.allowed_types:
+            if 'keyboard-interactive' not in e.allowed_types and \
+               'password' not in e.allowed_types:
                 # Password authentication not allowed on this server
-                self._raiseServerException("Remote SSH server does not allow password authentication.")
+                self._raiseServerException("Remote SSH server does not allow password authentication. Allowed types are: %r" % (", ".join(e.allowed_types)))
             # else, bad username/password
         except paramiko.SSHException, e:
             # Username/Password failed
