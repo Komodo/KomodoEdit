@@ -373,6 +373,7 @@ class KoFileStatusService:
                 koIFile = None
                 set_all_local_urls = None
                 updated_items = None
+                items_need_to_check = None
 
                 self._cv.acquire()
                 try:
@@ -456,13 +457,23 @@ class KoFileStatusService:
                         log.debug("Skipping %s, no background checking",
                                   checker.name)
                         continue
-                    
+
+                    # Invalidate paths first so they can be re-cached. This
+                    # builds a list of files's that we can actually update.
+                    items_need_to_check = []
+                    for file_item in items_to_check:
+                        koIFile, uri, reason = file_item
+                        log.debug("examing %r: uri: %r", checker.name, uri)
+                        if not checker.needsToReCheckFileStatus(koIFile,
+                                                                reason):
+                            log.debug("%s: no need to update yet", checker.name)
+                            continue
+                        items_need_to_check.append(file_item)
+
                     # updated - list of files updated by this status checker
                     updated_items = []
 
-                    # invalidate paths first so they can be re-cached.
-                    # build a list of files's that we can actually update
-                    for file_item in items_to_check:
+                    for file_item in items_need_to_check:
                         # Between urls, check that we're still running and that
                         # the checker is still enabled.
                         if self.shutdown:
@@ -475,7 +486,8 @@ class KoFileStatusService:
                             break
 
                         koIFile, uri, reason = file_item
-                        log.debug("examing %r: uri: %r", checker.name, uri)
+                        log.debug("%r updating status of uri: %r",
+                                  checker.name, uri)
 
                         # check the status of the koIFile
                         try:

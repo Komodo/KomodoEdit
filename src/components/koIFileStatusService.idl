@@ -63,6 +63,18 @@ interface koIFileStatusChecker : nsISupports {
     void shutdown();
 
     /**
+     * Check if this file needs it status updated.This function is called
+     * by the file status service and when this returns true, the file status
+     * service will then later call the updateFileStatus method. In the case of
+     * the file needs it's status ipdated, this method should remove all cached
+     * information so that the updateFileStatus works correctly.
+     * @param file         - The file to be updated.
+     * @param updateReason - Why this file is being checked for updates.
+     * @returns {boolean}  - True when the status has changed, false otherwise.
+     */
+    boolean needsToReCheckFileStatus(in koIFileEx file, in long updateReason);
+
+    /**
      * Check and update the file status. This function is called by the file
      * status service and when this returns true, a 'file_status_changed'
      * notification event will be sent by the file status service in order

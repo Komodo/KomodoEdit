@@ -194,6 +194,10 @@ class KoFileCheckerBase:
         return False
 
     #  Interface method
+    def needsToReCheckFileStatus(self, koIFile, reason):
+        return True
+
+    #  Interface method
     def updateFileStatus(self, koIFile, reason):
         return None
 
