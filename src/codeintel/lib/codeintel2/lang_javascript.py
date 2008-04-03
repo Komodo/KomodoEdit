@@ -2705,6 +2705,54 @@ class JavaScriptCiler:
                 self._copyObjectToAnother(self.objectArguments[0][1], jsclass)
         #log.setLevel(logging.WARN)
 
+    def _handleDojoExtension(self, type, styles, text, p):
+        if p+4 < len(styles) and text[p] == "(" and len(self.objectArguments) == 1:
+            if type=='declare':
+                extendClassNamelist = self._unquoteJsString(text[p+1]).split('.')
+                p+=2
+                parentClassNamelist, p = self._getIdentifiersFromPos(styles, text, p+1)
+                if len(extendClassNamelist)>1:
+                    scope = self._findOrCreateScope(extendClassNamelist[:-1], ('variables', 'classes', 'functions'))
+                else:
+                    scope = self.currentScope
+                #TODO: should use the lineno of dojo.declare rather than self.objectArguments[0][1].line below
+                jsclass = JSClass(extendClassNamelist[-1], scope, self.objectArguments[0][1].line, self.depth)
+                scope.classes[jsclass.name] = jsclass
+                if parentClassNamelist:
+                    jsclass = self._addClassPart(".".join(parentClassNamelist), self.ADD_CLASS_PARENT, extendClassNamelist)
+                else:
+                    args,p = self._getParenArguments(styles,text,p,'[')
+                    parentClassNamelists=['']
+                    for arg in args[1:-1]:
+                        if arg=='{': #super class is null
+                        	break
+                        if arg==',':
+                            parentClassNamelists.append('')
+                            continue
+                        parentClassNamelists[-1] += arg
+                    if len(parentClassNamelists[0]):
+                        self._addClassPart(' '.join(parentClassNamelists), self.ADD_CLASS_PARENT, extendClassNamelist)
+
+            else: #extend
+                extendClassNamelist, p = self._getIdentifiersFromPos(styles, text, p+1)
+                jsclass = self._locateScopeForName(extendClassNamelist, attrlist=("classes", "functions", "variables", ))
+                if not jsclass:
+                    return
+                if isinstance(jsclass, JSFunction):
+                    jsclass=self._convertFunctionToClass(jsclass)
+
+            if jsclass:
+                obj=self.objectArguments[0][1]
+                self._copyObjectToAnother(obj, jsclass)
+                for f in jsclass.functions:
+                    jsclass.functions[f]._class = jsclass
+                # Change function constructor name to the class name so that it
+                # is correctly recognized by Komodo as the constructor.
+                if jsclass.functions.has_key('constructor'):
+                    func=jsclass.functions.pop('constructor')
+                    func.name=jsclass.name
+                    jsclass.functions[jsclass.name]=func
+
     def _removeObjectFromScope(self, jsobject):
         removename = jsobject.name
         parent = jsobject.parent
@@ -2800,6 +2848,9 @@ class JavaScriptCiler:
                namelist[1:] in (["extend"], ["lang", "extend"]):
                 # XXX - Should YAHOO API catalog be enabled then?
                 self._handleYAHOOExtension(styles, text, p)
+            elif namelist and namelist[0] == "dojo" and \
+               namelist[1:] in (["extend"], ["declare"]):
+                self._handleDojoExtension(namelist[1], styles, text, p)
         elif firstStyle == self.JS_OPERATOR:
             if text[:4] == [")", ".", "apply", "("]:
                 # Special case for function apply
