@@ -499,8 +499,8 @@ class KoFileStatusService:
                                 if e.errno == nsError.NS_ERROR_FAILURE:
                                     # noone is listening, we get an exception
                                     pass
-                        except Exception, e:
-                            log.exception("Unknown Exception %s" % repr(e))
+                        except Exception:
+                            log.exception("Exception checking uri: %r", uri)
                         
                     # on every checker we notify, since a particular checker
                     # can take some time
