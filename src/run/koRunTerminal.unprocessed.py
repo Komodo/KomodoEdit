@@ -298,7 +298,12 @@ class koTerminalHandler:
             #log.debug("Moving marker %d from %d to %d", marker, startLine, lastLine)
             self._scintilla.markerDelete(startLine, marker)
             self._scintilla.markerAdd(lastLine, marker)
-        
+
+    def notifyEOF(self, channel_name):
+        """Notification that there is no more data coming for this io channel.
+        This lets the terminal do any necessary finalization.
+        """
+        pass
 
 
 class KoRunTerminal(koTerminalHandler, TreeView):
@@ -366,8 +371,7 @@ class KoRunTerminal(koTerminalHandler, TreeView):
         if self._pbbuf:
             self.parseAndAddLine(self._pbbuf)
             self._pbbuf = ""
-        self.parsedLastLine()
-        
+
     def setParseRegex(self, parseRegex):
         try:
             self._parseRegex = re.compile(parseRegex)
@@ -559,9 +563,8 @@ class KoRunTerminal(koTerminalHandler, TreeView):
                     self._updateGroupCounter)
                 self._updateGroupCounter = 0
 
-    def parsedLastLine(self):
-        """Indicates that the last line of data to parse has been sent.
-        
+    def notifyEOF(self, channel_name):
+        """Notification that there is no more data coming for this io channel.
         This lets the terminal do any necessary finalization.
         """
         if self._updateGroupCounter:
@@ -679,7 +682,7 @@ class _TerminalReader(threading.Thread):
         except Exception, ex:
             log.exception("_TerminalReader:: exception during %r socket read "
                           "for cmd: %r", name, self.__cmd)
-        self.__terminal.parsedLastLine()
+        self.__terminal.notifyEOF(name)
         log.debug("_TerminalReader finished reading %r for cmd: %r",
                   name, self.__cmd)
 
