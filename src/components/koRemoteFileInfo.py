@@ -106,10 +106,18 @@ class koRemoteFileInfo:
         return stat.S_ISDIR(self.st_mode)
     def isSymlink(self):
         return stat.S_ISLNK(self.st_mode)
+
+    # For read and write permissions we do not know which group the user belongs
+    # to, so we combine all of the u/g/o permissions and if one of these are
+    # read/writeable, then we assume the user has read/write permissions.
+    # http://bugs.activestate.com/show_bug.cgi?id=76018
+    ANY_READABLE  = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+    ANY_WRITEABLE = stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH
     def isReadable(self):
-        return (self.st_mode & stat.S_IREAD) == stat.S_IREAD
+        return (self.st_mode & self.ANY_READABLE)
     def isWriteable(self):
-        return (self.st_mode & stat.S_IWRITE) == stat.S_IWRITE
+        return (self.st_mode & self.ANY_WRITEABLE)
+
     def isExecutable(self):
         return (self.st_mode & stat.S_IEXEC) == stat.S_IEXEC
     def isHidden(self): # Hmmm...
