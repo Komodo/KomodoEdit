@@ -623,8 +623,10 @@ class TreeEvaluator(CitadelEvaluator):
         attributes = elem.get("attributes", None)
         returns = elem.get("returns", None)
 
-        if path and sys.platform == "win32":
-            path = path.replace('/', '\\') # unnormalize path
+        if path:
+            if sys.platform == "win32":
+                path = path.replace('/', '\\') # unnormalize path
+            path = normpath(path)  # remove possible '.' and '..' elements
         defn = Definition(blob.get("lang"), path, blob.get("name"), lpath,
                           name, line, ilk, citdl, doc,
                           signature, attributes, returns)
