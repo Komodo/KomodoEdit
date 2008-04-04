@@ -161,6 +161,20 @@ function update(changed /* =null */) {
             _disable_widget(widgets.repl, !repl);
             _disable_widget(widgets.multiline_repl, !repl);
         }
+
+        // Don't muck with the focus for dialog init (changed=null)
+        // because we want the pattern widget to get the focus, even
+        // in replace mode.
+        if (changed == "replace") {
+            if (repl) {
+                //HACK: Not sure why this needs to be in setTimeout to work.
+                window.setTimeout(
+                    function() { widgets.curr_repl.focus(); },
+                    100);
+            } else {
+                widgets.curr_pattern.focus();
+            }
+        }
         mode_changed = true;
     }
 
