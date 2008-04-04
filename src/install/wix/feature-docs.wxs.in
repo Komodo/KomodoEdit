@@ -145,6 +145,16 @@
               <File Id="file4397" Name="KOMODO_0.RDF" LongName="komodohelp.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodohelp.rdf"/>
               <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
               <File Id="file4398" Name="LIC_CO_1.HTM" LongName="lic_copy.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\lic_copy.html"/>
+              <File Id="file429" Name="DEBUGG_0.HTM" LongName="debugger.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugger.html"/>
+              <File Id="file430" Name="DEBUGJ_0.HTM" LongName="debugjs.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugjs.html"/>
+              <File Id="file431" Name="DEBUGP_0.HTM" LongName="debugperl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugperl.html"/>
+              <File Id="file432" Name="DEBUGP_1.HTM" LongName="debugphp.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugphp.html"/>
+              <File Id="file433" Name="DEBUGP_2.HTM" LongName="debugpython.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugpython.html"/>
+              <File Id="file434" Name="DEBUGR_0.HTM" LongName="debugruby.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugruby.html"/>
+              <File Id="file435" Name="DEBUGT_0.HTM" LongName="debugtcl.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugtcl.html"/>
+              <File Id="file436" Name="DEBUGX_0.HTM" LongName="debugxslt.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugxslt.html"/>
+              <File Id="file450" Name="SCC_0.HTM" LongName="scc.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\scc.html"/>
+              <File Id="file451" Name="TORTOI_0.HTM" LongName="tortoisesvn_icon_license.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tortoisesvn_icon_license.html"/>
             </Component>
             <Directory Id="directory530" Name="css">
               <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
