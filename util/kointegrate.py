@@ -361,8 +361,8 @@ class P4Branch(Branch):
         import p4lib
         p4 = p4lib.P4()
         change = p4.change(paths,
-                           "Integrate change %d by %s from %s:\n%s"
-                           % (changenum, user, src_branch.desc, desc))
+                           "%s\n\n(integrated from %s change %d by %s)"
+                           % (desc.rstrip(), src_branch.desc, changenum, user))
         print textwrap.dedent("""
             Created change %d integrating change %d from %r branch.
             Use 'p4 submit -c %d' to submit this integration.
@@ -772,8 +772,8 @@ class SVNBranch(Branch):
         else returns None.
         """
         rel_paths = [p[len(self.base_dir)+1:] for p in paths]
-        msg = "Integrate change %d by %s from %s:\n%s" \
-              % (changenum, user, src_branch.desc, desc.rstrip())
+        msg = "%s\n\n(integrated from %s change %d by %s)" % (
+              desc.rstrip(), src_branch.desc, changenum, user)
         print "\n\nReady to commit to '%s' branch:" % self.name
         print _indent(msg, 2)
 
