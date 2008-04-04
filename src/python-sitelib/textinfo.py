@@ -1914,8 +1914,12 @@ def main(argv):
                     recursive=opts.recursive, 
                     dirs="if-not-recursive",
                     follow_symlinks=opts.follow_symlinks):
-        ti = textinfo_from_path(path, encoding=opts.encoding,
-                                follow_symlinks=opts.follow_symlinks)
+        try:
+            ti = textinfo_from_path(path, encoding=opts.encoding,
+                                    follow_symlinks=opts.follow_symlinks)
+        except OSError, ex:
+            log.error("%s: %s", path, ex)
+            continue
         if opts.format == "summary":
             print ti.as_summary()
         elif opts.format == "dict":
