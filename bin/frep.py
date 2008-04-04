@@ -637,6 +637,7 @@ def main(argv):
     # Dispatch to the appropriate action.
     paths = findlib2.paths_from_path_patterns(
                 path_patterns, recursive=recursive,
+                follow_symlinks=True,
                 includes=path_includes, excludes=path_excludes)
     if log.isEnabledFor(logging.DEBUG):
         def log_it_first(paths):
