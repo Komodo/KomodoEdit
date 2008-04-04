@@ -149,8 +149,12 @@ def grep(regex, paths, files_with_matches=False,
 
     for path in paths:
         path = normpath(path)
-        ti = textinfo.TextInfo.init_from_path(path,
-                follow_symlinks=True, env=env)
+        try:
+            ti = textinfo.TextInfo.init_from_path(path,
+                    follow_symlinks=True, env=env)
+        except EnvironmentError, ex:
+            yield SkipPath(path, "error determining file info: %s" % ex)
+            continue
 
         if skip_unknown_lang_paths and ti.lang is None:
             yield SkipUnknownLangPath(path)

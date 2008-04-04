@@ -188,6 +188,7 @@ class _FindReplaceThread(threading.Thread):
         #       self.resultsMgrProxy or self.resultsViewProxy, because they
         #       may have been destroyed.
 
+        errmsg = None
         self.num_hits = 0
         self.num_paths_with_hits = 0
         self.num_paths_searched = 0
@@ -203,6 +204,10 @@ class _FindReplaceThread(threading.Thread):
             else:
                 self._replace_in_paths(self.regex, self.repl, self.desc,
                                        self.paths)
+        except Exception, ex:
+            # Log this error to the Komodo UI.
+            errmsg = "unexpected error: %s (details in log file)" % ex
+            raise
         finally:
             journal_id = None
             if self.journal:
@@ -213,7 +218,9 @@ class _FindReplaceThread(threading.Thread):
                 self.resultsMgrProxy.searchFinished(
                     True, self.num_hits, self.num_paths_with_hits,
                     self.num_paths_searched, journal_id)
-                if self.num_paths_searched == 0:
+                if errmsg is not None:
+                    self.resultsMgrProxy.setDescription(errmsg, True)
+                elif self.num_paths_searched == 0:
                     self.resultsMgrProxy.setDescription(
                         "No files were found to search in.", 1)
             fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
