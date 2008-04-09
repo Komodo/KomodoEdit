@@ -497,20 +497,20 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
         except self._SCPExceptions, e:
             self._raiseWithException(e)
 
-    def _getNullByteAcknowledgement(self, channel):
-        received_ack = False
-        while 1:
-            scp_response = self._readFromChannel(channel)
-            if not scp_response:
-                break
-            if scp_response.rfind('\0') >= 0:
-                received_ack = True
-                break
-            # Keep reading then
-            # XXX - this can loop forever if a login shell keeps outputting
-            #       information. Does that happen and do we catch this??
-        if not received_ack:
-            raise self.ConnectionException("_scpWriteFile: Invalid SCP response received: '" + scp_response + "'")
+    def _getAcknowledgement(self, channel):
+        scp_response = self._readFromChannel(channel)
+        if not scp_response:
+            raise self.ConnectionException("No SCP response was received")
+        status_code = scp_response[0]
+        if status_code == '\0':
+            # All is good.
+            return
+        # Else, it's an error, see if we can format the error a little...
+        error_message = scp_response[1:]
+        error_split = error_message.split(":", 1)
+        if len(error_split) > 1:
+            error_message = error_split[1]
+        raise self.ConnectionException(error_message.strip())
 
     def _scpWriteFile(self, filename, permissions, data):
         channel = self._connection.open_session()
@@ -519,16 +519,16 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             time.sleep(0.1)
         try:
             channel.exec_command('scp -t %s' % (self._escapePath(filename)))
-            # Wait for the acknowledgement (need to receive a null byte)
-            self._getNullByteAcknowledgement(channel)
+            # Wait for the acknowledgement
+            self._getAcknowledgement(channel)
 
             # Send the file information now
             filedata = "C%s %d %s\n" % (permissions, len(data), os.path.basename(filename))
             channel.send(filedata)
 
             # Remote scp will send an ack when they have received file info and
-            # it is ready to receive the file data. Wait for this ack (null byte).
-            self._getNullByteAcknowledgement(channel)
+            # it is ready to receive the file data.
+            self._getAcknowledgement(channel)
 
             # Send all the file data now
             channel.sendall(data)
