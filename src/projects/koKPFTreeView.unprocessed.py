@@ -296,6 +296,10 @@ class KPFTreeView(TreeView):
         self._observerSvc.addObserver(self, "file_status",0)
 
     def observe(self, subject, topic, data):
+        if not self._tree:
+            # No tree, Komodo is likely shutting down.
+            return
+
         if topic == "file_status":
             # find the row for the file and invalidate it
             files = data.split("\n")
@@ -322,6 +326,11 @@ class KPFTreeView(TreeView):
     # the addition of observers will occur during generateRows
     def fileNotification(self, uri, flags):
         #print "got notification [%s] flags %d"%(uri,flags)
+
+        if not self._tree:
+            # No tree, Komodo is likely shutting down.
+            return
+
         changed = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         changed.URI = uri
