@@ -387,7 +387,7 @@ class XSLTTestCase(XMLTestCase):
         self.assertCompletionsInclude(xslt_prefix+"<<|>",
             [("element", "xsl:template")])
         self.assertCompletionsInclude(xslt_prefix+"<xsl:template match='asdf'>\n<html><<|>",
-            [("element", "BODY")])
+            [("element", "body")])
     def test_curr_calltip_arg_range(self):
         raise TestSkipped("no calltips in XSLT")
     def test_calltips(self):
