@@ -199,7 +199,9 @@ function _updateLintMessage(view) {
 function _updateSelectionInformation(view) {
     var selectionLabel = "";
     if (view.scintilla) {
-        var msg = [];  // Used to create the selectionLabel
+        /**
+         * @type view {Components.interfaces.ISciMoz}
+         */
         var scimoz = view.scintilla.scimoz;
         var selectionStart = scimoz.anchor;
         var selectionEnd = scimoz.currentPos;
@@ -215,10 +217,7 @@ function _updateSelectionInformation(view) {
         var count = 0;
         var selection;
         var lineStart, lineEnd;
-        if (selectionMode == scimoz.SC_SEL_STREAM) {
-            count = selectionEnd - selectionStart;
-            selection = scimoz.getTextRange(selectionStart, selectionEnd);
-        } else if (selectionMode == scimoz.SC_SEL_RECTANGLE) {
+        if (selectionMode == scimoz.SC_SEL_RECTANGLE) {
             // Block selection mode uses different settings from scimoz API
             selection = [];
             lineStart = scimoz.lineFromPosition(selectionStart);
@@ -237,22 +236,33 @@ function _updateSelectionInformation(view) {
                 selectionEnd = selectionStart + 1;
             }
         } else {
-            // Line selection mode uses different settings from scimoz API
             lineStart = scimoz.lineFromPosition(selectionStart);
-            lineEnd = scimoz.lineFromPosition(selectionEnd);
-            selectionStart = scimoz.getLineSelStartPosition(lineStart);
-            selectionEnd = scimoz.getLineSelEndPosition(lineEnd);
-            msg.push((Math.abs(lineEnd - lineStart) + 1) + " lines");
+            //Components.interfaces.ISciMoz
+            if (selectionMode == scimoz.SC_SEL_LINES) {
+                // Line selection mode uses different settings from scimoz API
+                lineEnd = scimoz.lineFromPosition(selectionEnd);
+                selectionStart = scimoz.getLineSelStartPosition(lineStart);
+                selectionEnd = scimoz.getLineSelEndPosition(lineEnd);
+            } else {
+                // With stream selection, need to check from the position
+                // before the end character in order to get the line numbering
+                // correct when the cursor is at the start of a line (but the
+                // selection does not include this line!)
+                lineEnd = scimoz.lineFromPosition(scimoz.positionBefore(selectionEnd));
+            }
             count = selectionEnd - selectionStart;
             selection = scimoz.getTextRange(selectionStart, selectionEnd);
         }
 
         if (selectionStart != selectionEnd) {
-            msg.push(selection.length + " chars");
+            // character count
+            selectionLabel = "Sel: " + selection.length + " ch";
             if (selection.length != count) {
-                msg.push(count + " bytes");
+                // byte count
+                selectionLabel += ", " + count + " by";
             }
-            selectionLabel = "Sel: " + msg.join(",  ");
+            // line count
+            selectionLabel += ", " + (Math.abs(lineEnd - lineStart) + 1) + " ln";
         }
     }
     document.getElementById("statusbar-selection").label = selectionLabel;
