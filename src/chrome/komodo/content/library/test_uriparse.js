@@ -81,51 +81,80 @@ test_library_uriparse.prototype.test_getMappedURI = function() {
             "file:///f.c":                  "file:///f.c",
             "sftp://remote/tmp/file3.txt":  "sftp://remote/tmp/file3.txt"
         },
-        "http://server/tmp##/tmp::sftp://remote##/remote": {
+        "http://server/tmp##file:///tmp::sftp://remote##file:///remote": {
             "file:///tmp/file1.txt":        "file:///tmp/file1.txt",
             "http://server/tmp/file2.txt":  "file:///tmp/file2.txt",
             "file:///f.c":                  "file:///f.c",
             "sftp://remote/tmp/file3.txt":  "file:///remote/tmp/file3.txt"
         }
     }
-    for (var mappedPathPref in mappingdata_for_mappedPaths) {
-        var mappingData = mappingdata_for_mappedPaths[mappedPathPref];
+
+    var mappedPathPref;
+    var mappingData;
+    var prefs;
+    var mapped_uri;
+    var uri;
+    var expected_uri;
+
+    for (mappedPathPref in mappingdata_for_mappedPaths) {
+        mappingData = mappingdata_for_mappedPaths[mappedPathPref];
         prefs = new _dummyPrefsClass({"mappedPaths": mappedPathPref});
-        for (var uri in mappingData) {
-            var expected_uri = mappingData[uri];
+        for (uri in mappingData) {
+            expected_uri = mappingData[uri];
             mapped_uri = ko.uriparse.getMappedURI(uri, prefs);
             this.failUnlessEqual(mapped_uri, expected_uri,
-                                 "Mapped URI was not expected: %r != %r" %
-                                 (mapped_uri, expected_uri));
+                                 "Mapped URI was not expected: '" + mapped_uri +
+                                 "' != '" + expected_uri + "'");
         }
     }
 }
 
 test_library_uriparse.prototype.test_getMappedPath = function() {
-    mappingdata_for_mappedPaths = {
+    var mappingdata_for_mappedPaths = {
+        // Test when using a path for the getMappedPath() call.
         "": {
             "/tmp/file1.txt":         "/tmp/file1.txt",
             "/server/tmp/file2.txt":  "/server/tmp/file2.txt",
             "/f.c":                   "/f.c",
             "/remote/tmp/file3.txt":  "/remote/tmp/file3.txt"
         },
-        "http://server/tmp##/tmp::sftp://remote##/remote": {
+        "http://server/tmp##file:///tmp::sftp://remote##file:///remote": {
             "/tmp/file1.txt":         "http://server/tmp/file1.txt",
             "/server/tmp/file2.txt":  "/server/tmp/file2.txt",
             "/f.c":                   "/f.c",
             "/remote/tmp/file3.txt":  "sftp://remote/tmp/file3.txt"
+        },
+        // Test when using a URI for the getMappedPath() call.
+        "file:///dummy##http://dummy": {
+            "file:///tmp/file1.txt":         "file:///tmp/file1.txt",
+            "file:///server/tmp/file2.txt":  "file:///server/tmp/file2.txt",
+            "file:///f.c":                   "file:///f.c",
+            "file:///remote/tmp/file3.txt":  "file:///remote/tmp/file3.txt"
+        },
+        "http://server/tmp##file:///tmp::sftp://remote##file:///remote::file:///dummy##http://dummy": {
+            "file:///tmp/file1.txt":         "http://server/tmp/file1.txt",
+            "file:///server/tmp/file2.txt":  "file:///server/tmp/file2.txt",
+            "file:///f.c":                   "file:///f.c",
+            "file:///remote/tmp/file3.txt":  "sftp://remote/tmp/file3.txt"
         }
     }
-    
-    for (var mappedPathPref in mappingdata_for_mappedPaths) {
-        var mappingData = mappingdata_for_mappedPaths[mappedPathPref];
+
+    var mappedPathPref;
+    var mappingData;
+    var prefs;
+    var mapped_uri;
+    var path;
+    var expected_uri;
+
+    for (mappedPathPref in mappingdata_for_mappedPaths) {
+        mappingData = mappingdata_for_mappedPaths[mappedPathPref];
         prefs = new _dummyPrefsClass({"mappedPaths": mappedPathPref});
-        for (var path in mappingData) {
-            var expected_uri = mappingData[path];
+        for (path in mappingData) {
+            expected_uri = mappingData[path];
             mapped_uri = ko.uriparse.getMappedPath(path, prefs);
             this.failUnlessEqual(mapped_uri, expected_uri,
-                                 "Mapped URI was not expected: %r != %r" %
-                                 (mapped_uri, expected_uri));
+                                 "Mapped URI was not expected: '" + mapped_uri +
+                                 "' != '" + expected_uri + "'");
         }
     }
 }
