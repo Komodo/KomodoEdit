@@ -335,9 +335,18 @@ this.getMappedPath = function(path, prefs)
     // eg.
     // http://test/a/ -> /test/a
     // http://test/a/b -> /test/b
+
+    // The path must be in a URI format to work correctly with Komodo's
+    // stored mapped URI preferences.
+    var uri = ko.uriparse.pathToURI(path);
+
     for (var i = 0; i < paths.length; i++) {
         var data = paths[i].split('##');
-        if (path.indexOf(data[1]) == 0) {
+        if (data.length < 2) {
+            // Invalid mapped path data.
+            continue;
+        }
+        if (uri.indexOf(data[1]) == 0) {
             if (data[1].length > mappedpath.length) {
                 mappeduri = data[0];
                 mappedpath = data[1];
@@ -351,7 +360,7 @@ this.getMappedPath = function(path, prefs)
         return path;
     }
     // now we need a URI of the mappedpath
-    return mappeduri + path.slice(mappedpath.length);
+    return mappeduri + uri.slice(mappedpath.length);
 }
 }).apply(ko.uriparse);
 
