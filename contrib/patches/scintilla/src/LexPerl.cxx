@@ -611,7 +611,7 @@ static int prevNonNewlinePos(int line,
 }
 
 /*
- * This is implementation just walks back up the
+ * This implementation just walks back up the
  * buffer, since looking at line levels is way too error-prone.
  * In Perl you can have long runs of blocks that are all at the
  * same level given non-standard code formatting, like
@@ -1466,6 +1466,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                             } else {
                                 switch (prevStyle) {
                                     case SCE_PL_OPERATOR:
+                                    case SCE_PL_VARIABLE_INDEXER:
                                         // Make sure it isn't a space colored as op
                                         // due to context.
                                         iprevChar = styler.SafeGetCharAt(iprev);
@@ -1478,6 +1479,9 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                                     case SCE_PL_WORD:
                                     case SCE_PL_IDENTIFIER:
                                         // Assume word|ident << string starts a here-doc
+                                    case SCE_PL_HERE_DELIM:
+                                        // Two here-docs in a row that aren't stacked
+                                        // (see bug 76004).
                                         couldBeHereDoc = true;
                                         break;
                                     
