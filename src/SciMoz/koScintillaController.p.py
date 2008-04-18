@@ -202,10 +202,22 @@ class koScintillaController:
             # Hmm -- I think I'll leave the cursor at the beginning of the copied line for now.
             oldCurrentPos = sm.currentPos
             lineStart = sm.lineFromPosition(sm.currentPos)
-            nextLineStartPos = self._getNextLineWithExtraNewline(sm, lineStart)
-            sm.selectionStart = sm.positionFromLine(lineStart)
-            sm.selectionEnd = nextLineStartPos
-            sm.copy()
+            lineStartPos = sm.positionFromLine(lineStart)
+            nextLineStartPos = sm.positionFromLine(lineStart + 1)
+            sm.selectionStart = lineStartPos
+            if sm.getLineEndPosition(lineStart) == nextLineStartPos:
+                # At last line of doc, buffer doesn't end with an EOL
+                line = sm.getTextRange(lineStartPos, nextLineStartPos)
+                import eollib
+                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+                finalLine = line + eol
+                finalLineLength = (components.classes["@activestate.com/koSysUtils;1"].
+                                   getService(components.interfaces.koISysUtils).
+                                   byteLength(finalLine))
+                sm.copyText(finalLineLength, finalLine)
+            else:
+                sm.selectionEnd = nextLineStartPos
+                sm.copy()
             sm.sendUpdateCommands("select")
             sm.sendUpdateCommands("clipboard")
             sm.currentPos = sm.selectionEnd = sm.selectionStart
@@ -226,7 +238,14 @@ class koScintillaController:
             # We're cutting a line -- either the first, or possibly a subsequent one
             lineNo = sm.lineFromPosition(sm.currentPos)
             lineStart = sm.positionFromLine(lineNo)
-            nextLineStartPos = self._getNextLineWithExtraNewline(sm, lineNo)
+            nextLineStartPos = sm.positionFromLine(lineNo + 1)
+            if sm.getLineEndPosition(lineNo) == nextLineStartPos:
+                # At last line of doc, buffer doesn't end with an EOL
+                # Unlike copy, here we can append a newline
+                import eollib
+                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+                sm.insertText(sm.length, eol)
+                nextLineStartPos += len(eol)
             self._doSmartCut(lineStart, nextLineStartPos)
             return
         methname= '_do_'+command_name
@@ -251,16 +270,6 @@ class koScintillaController:
         if old_sel_exists != new_sel_exists:
             sm.sendUpdateCommands("select")
 
-    def _getNextLineWithExtraNewline(self, sm, lineStart):
-        nextLineStartPos = sm.positionFromLine(lineStart + 1)
-        if sm.getLineEndPosition(lineStart) == nextLineStartPos:
-            # Append a newline
-            import eollib
-            eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
-            sm.insertText(sm.length, eol)
-            nextLineStartPos += len(eol)
-        return nextLineStartPos
-        
     def _doSmartCut(self, start, end):
         sm = self.scimoz()
         sm.targetStart = start
