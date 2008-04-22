@@ -28,7 +28,7 @@ Build steps on Windows:
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
-    python build.py configure -k 4.3 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
+    python build.py configure -k 4.4 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -42,7 +42,7 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 4.3 --moz-src=cvs:1.8 --release \
+    python build.py configure -k 4.4 --moz-src=cvs:1.8 --release \
         --no-strip --shared --tools
     python build.py distclean all
     cd ..
@@ -249,11 +249,11 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 4.3 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
+        python build.py configure -k 4.4 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
 
    On other platforms:
    
-        python build.py configure -k 4.3 --moz-src=cvs:1.8 --release \
+        python build.py configure -k 4.4 --moz-src=cvs:1.8 --release \
             --no-strip --shared --tools
 
    What this configure-step does is create a "config.py" file that guides
@@ -261,7 +261,7 @@ for Komodo, you should only need to do this once (in a while).
    "./configure; make; make install" build trinity.
    
    What this configuration is saying is:
-   - configure for a Komodo Edit 4.3.x build
+   - configure for a Komodo Edit 4.4.x build
    - use the latest Mozilla CVS sources from the 1.8 branch
    - do a release (i.e. non-debug) build
    - don't strip symbol information from binaries (i.e. *don't* put
@@ -304,9 +304,9 @@ Step 3: Building Komodo
    If you built Mozilla above for a Komodo version other than the version
    mentioned in "src/version.txt", then you may have to specify your
    version. E.g. if you configured above with
-   "python configure.py -k 4.3 ..." then you'd want something like:
+   "python configure.py -k 4.4 ..." then you'd want something like:
    
-        bk configure -V 4.3.0-devel
+        bk configure -V 4.4.0-devel
 
    Run `bk help configure` for a (somewhat sparse) listing of available
    options.
