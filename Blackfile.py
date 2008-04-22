@@ -2275,7 +2275,8 @@ def BuildQuickBuildDB(cfg, argv):
     print "Building 'bk build quick' cache from installed copy."
     _addFiles(cfg, sourceSubdir='src/chrome/',
               targetSubdir=os.path.join(cfg.mozBin, 'chrome'),
-              extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png', 'html', 'rdf'],
+              extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png',
+                          'html', 'rdf', 'properties'],
               preserveSubtrees=1)
     _addExtensionFiles(cfg, sourceSubdir='src/modules/',
               targetSubdir=os.path.join(cfg.mozBin, 'extensions'),
