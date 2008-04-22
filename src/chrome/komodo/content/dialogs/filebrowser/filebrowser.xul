@@ -77,7 +77,7 @@
 <menupopup id="dialogTooltip" />
 <menupopup id="edit_menu">
     <menuitem id="menu_delete_entry" label="&delete.label;" oncommand="doDelete();"/>
-    <menuitem id="menu_delete_entry" label="&rename.label;" oncommand="doRename();"/>
+    <menuitem id="menu_rename_entry" label="&rename.label;" oncommand="doRename();"/>
 </menupopup>
 
 <grid style="margin-top: 5px">
