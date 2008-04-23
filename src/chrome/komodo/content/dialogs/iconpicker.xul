@@ -75,7 +75,7 @@
       </menupopup>
     </menulist>
     <separator class="thin"/>
-    <iframe src="chrome://komodo/content/dialogs/iconlist.html" id="iframe" flex="1" style="border: thin inset;"/>
+    <iframe src="chrome://openoffice/content/industrial.html" id="iframe" flex="1" style="border: thin inset;"/>
     <separator class="thin"/>
     <hbox>
         <image id="icon32" style="width: 32px; height: 32px;"/>
