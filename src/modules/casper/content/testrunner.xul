@@ -152,83 +152,83 @@
             </tabpanel>
             <tabpanel orient="vertical" style="padding: 0px;  margin: 0px;">
                 <toolbar id="run-toolbar">
-                <toolbarbutton label="Run Tests" onclick="runTests()"
-                               class="text-button"/>
+                    <toolbarbutton label="Run Tests" onclick="runTests()"
+                                   class="text-button"/>
                 </toolbar>
                 <vbox flex="1">
-                <groupbox>
-                    <caption label="Results"/>
-                  
-                    <grid>
-                        <columns>
-                            <column/>
-                            <column flex="1"/>
-                            <column/>
-                            <column flex="1"/>
-                        </columns>
-                        <rows>
-                            <row>
-                                <label value="Total Test Suites:"/>
-                                <label id="totalSuites"/>
-                                <label value="Total OK:"/>
-                                <label id="totalOK"/>
-                            </row>
-                            <row>
-                                <label value="Total Test Cases:"/>
-                                <label id="totalCases"/>
-                                <label value="Total FAIL:"/>
-                                <label id="totalFAIL"/>
-                            </row>
-                            <row>
-                                <label value="Total Tests:"/>
-                                <label id="totalTests"/>
-                                <label value="Total BREAK:"/>
-                                <label id="totalBREAK"/>
-                            </row>
-                        </rows>
-                    </grid>
-                </groupbox>
-                <hbox flex="1">
-                <groupbox flex="1">    
-                  <caption label="Tests"/>
-                    <tree id="treeResults" onselect="unittest.testRunner.showDetails();" flex="1">
-                        <treecols>
-                            <treecol id="treecolNameComment" label="Name" flex="5" primary="true"/>
-                            <splitter class="tree-splitter"/>
-                            <treecol id="treecolResult" label="Result" flex="2"/>
-                        </treecols>
-                        <treechildren id="treechildrenResults"/>
-                    </tree>
-                </groupbox>
-                    <splitter/>
-                <groupbox flex="1">    
-                  <caption label="Details"/>
-                    <vbox flex="1">
-                    <grid>
-                        <columns>
-                            <column/>
-                            <column/>
-                        </columns>
-                        <rows>
-                            <row>
-                                <label value="Type: "/>
-                                <description id="labelDetailType"/>
-                            </row>
-                            <row>
-                                <label value="Name: "/>
-                                <description id="labelDetailNameComment"/>
-                            </row>
-                            <row>
-                                <label value="Result: "/>
-                                <description id="labelDetailResult"/>
-                            </row>
-                        </rows>
-                    </grid>
-                    <label value="Detail: "/>
-                    <textbox id="labelDetailBreakMessage" multiline="true" flex="1"/>
-                    </vbox>
-                </groupbox>
-                </hbox>
+                    <groupbox>
+                        <caption label="Results"/>
+                      
+                        <grid>
+                            <columns>
+                                <column/>
+                                <column flex="1"/>
+                                <column/>
+                                <column flex="1"/>
+                            </columns>
+                            <rows>
+                                <row>
+                                    <label value="Total Test Suites:"/>
+                                    <label id="totalSuites"/>
+                                    <label value="Total OK:"/>
+                                    <label id="totalOK"/>
+                                </row>
+                                <row>
+                                    <label value="Total Test Cases:"/>
+                                    <label id="totalCases"/>
+                                    <label value="Total FAIL:"/>
+                                    <label id="totalFAIL"/>
+                                </row>
+                                <row>
+                                    <label value="Total Tests:"/>
+                                    <label id="totalTests"/>
+                                    <label value="Total BREAK:"/>
+                                    <label id="totalBREAK"/>
+                                </row>
+                            </rows>
+                        </grid>
+                    </groupbox>
+                    <hbox flex="1">
+                        <groupbox flex="1">    
+                          <caption label="Tests"/>
+                            <tree id="treeResults" onselect="unittest.testRunner.showDetails();" flex="1">
+                                <treecols>
+                                    <treecol id="treecolNameComment" label="Name" flex="5" primary="true"/>
+                                    <splitter class="tree-splitter"/>
+                                    <treecol id="treecolResult" label="Result" flex="2"/>
+                                </treecols>
+                                <treechildren id="treechildrenResults"/>
+                            </tree>
+                        </groupbox>
+                            <splitter/>
+                        <groupbox flex="1">    
+                          <caption label="Details"/>
+                            <vbox flex="1">
+                                <grid>
+                                    <columns>
+                                        <column/>
+                                        <column/>
+                                    </columns>
+                                    <rows>
+                                        <row>
+                                            <label value="Type: "/>
+                                            <description id="labelDetailType"/>
+                                        </row>
+                                        <row>
+                                            <label value="Name: "/>
+                                            <description id="labelDetailNameComment"/>
+                                        </row>
+                                        <row>
+                                            <label value="Result: "/>
+                                            <description id="labelDetailResult"/>
+                                        </row>
+                                    </rows>
+                                </grid>
+                                <label value="Detail: "/>
+                                <textbox id="labelDetailBreakMessage" multiline="true" flex="1"/>
+                            </vbox>
+                        </groupbox>
+                    </hbox>
                 </vbox>
             </tabpanel>
         </tabpanels>
