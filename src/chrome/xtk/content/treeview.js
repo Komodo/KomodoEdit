@@ -319,6 +319,10 @@ xtk.dataTreeView.prototype = {
     cycleHeader : function(col) {
         this.sortByColumn(col.element);
     },
+    /* The three functions below are used for tree cell checkboxes */
+    isEditable : function(row, column) {return false;},
+    getCellValue : function(row, column) {},
+    setCellValue : function(row, column, value) {},
 
     /* Own defined methods */
 
