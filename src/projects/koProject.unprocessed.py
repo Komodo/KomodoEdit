@@ -85,6 +85,7 @@ ANCHOR_MARKER = '!@#_anchor'
 CURRENTPOS_MARKER = '!@#_currentPos'
 
 log = logging.getLogger("koProject")
+#log.setLevel(logging.DEBUG)
 
 #---- support routines
 
@@ -2459,9 +2460,14 @@ class koProject(koLiveFolderPart):
         for toolbar in toolbars:
             self._getObserverSvc().notifyObservers(toolbar, 'toolbar_remove', 'toolbar_remove')
 
+    def unloadMacros(self):
+        for macro in self.getChildrenByType('macro', 1):
+            self._getObserverSvc().notifyObservers(macro, 'macro-unload', '')
+
     def close(self):
         if self._active:
             self.deactivate()
+        self.unloadMacros()
 
         self.set_isDirty(0)
         del self._urlmap
