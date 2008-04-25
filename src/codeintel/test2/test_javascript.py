@@ -761,6 +761,38 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "toLowerCase"),
              ("function", "indexOf")])
 
+    @tag("bug76504")
+    def test_function_completions(self):
+        # Ensure we get completions on actual function hits.
+        # http://bugs.activestate.com/show_bug.cgi?id=76504
+        content, positions = unmark_text(dedent("""\
+            function func_bug76504() { }
+            func_bug76504.<1>xxx;
+
+            var var_to_func_bug76504 = func_bug76504;
+            var_to_func_bug76504.<2>xxx;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "constructor"),
+             ("variable", "length"),
+             ("variable", "prototype"),
+             ("variable", "length"),
+             ("function", "apply"),
+             ("function", "call"),
+             ("function", "toString"),
+             ("function", "valueOf"),
+            ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "constructor"),
+             ("variable", "length"),
+             ("variable", "prototype"),
+             ("variable", "length"),
+             ("function", "apply"),
+             ("function", "call"),
+             ("function", "toString"),
+             ("function", "valueOf"),
+            ])
+
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 
