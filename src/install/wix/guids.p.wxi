@@ -38,11 +38,11 @@
 
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
-    <?define ProductCode = "2f60dd96-aceb-4ace-a85e-bdbfcad0c958" ?>
-    <?define UpgradeCode = "b25fe6ed-a30d-4205-bea2-abc0bb62a1d6" ?>
+    <?define ProductCode = "a8ea45a5-b551-42f0-9199-ba661cf58b8c" ?>
+    <?define UpgradeCode = "759a826c-d9c7-489a-bde0-af2f3380ed7b" ?>
 <!-- #elif PRODUCT_TYPE == "openkomodo" -->
-    <?define ProductCode = "92d4565f-f09f-414f-af45-bd44ee7463f1" ?>
-    <?define UpgradeCode = "15da3b9e-39f5-4b38-ba41-3bd736792b04" ?>
+    <?define ProductCode = "ed6a6dd7-fed3-4247-ae8f-357941d876b3" ?>
+    <?define UpgradeCode = "9f8b1d89-a196-417d-816a-f52af7a92aff" ?>
 <!-- #else -->
 <!-- #error "Invalid product type." -->
 <!-- #endif -->
