@@ -244,6 +244,9 @@ if ($komodoVersion =~ /alpha/) {
 }
 $cons->InstallAs("$imagesDir/about.png", $aboutSrc);
 
+# Bordered checkbox icons.
+$cons->Install($imagesDir, "icons/checkbox_bordered_checked.png");
+$cons->Install($imagesDir, "icons/checkbox_bordered_unchecked.png");
 
 # install famfamfam extension
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfam/silkicons.jar');
