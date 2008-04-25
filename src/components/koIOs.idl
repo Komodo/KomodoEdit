@@ -58,6 +58,8 @@ interface koIOsPath : nsISupports {
 
     //---- the following methods are more than Python's standard os.path funcs.
     wstring commonprefix(in wstring path1, in wstring path2);
+    wstring commonprefixlist(in PRUint32 count,
+                             [array, size_is(count)] in wstring paths);
     wstring relpath(in wstring path, in wstring relativeTo);
     // Strip 'n' dir elements from the start of the given path.
     wstring lstrippath(in wstring path, in PRUint32 n);

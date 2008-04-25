@@ -200,6 +200,9 @@ class koOsPath:
     def commonprefix(self, path1, path2):
         return _commonprefix([path1, path2])
     
+    def commonprefixlist(self, paths):
+        return _commonprefix(paths)
+    
     def relpath(self, path, relativeTo):
         return _relpath(path, relativeTo)
     
