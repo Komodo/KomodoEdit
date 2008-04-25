@@ -234,6 +234,16 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             # this class shouldn't see the ctor.
             skip_js_ctor = (elem.tag == "scope" and elem.get("ilk") == "class")
 
+            if elem.get("ilk") == "function":
+                # Functions have an implicit citdl type of "Function". See bug:
+                # http://bugs.activestate.com/show_bug.cgi?id=76504
+                try:
+                    subhits = self._hits_from_type_inference("Function", scope)
+                    members.update(self._members_from_hits(subhits))
+                except CodeIntelError:
+                    pass  # Ignore if Function was not found
+                continue
+
             for child in elem:
                 # Only add locals when the current scope is the same
                 # as the variable scope.
