@@ -89,7 +89,22 @@ this.isWordCharacter = function Interpolate_isWordCharacter(ch)
     return /^\w/.test(ch);
 }
 
+/**
+ * Return the current word from the current scimoz character position.
+ * @param scimoz {Components.interfaces.ISciMoz}
+ *        (Optional) The scimoz editor to retireive the word from.
+ * @returns {string}  The word under the cusror.
+ */
 this.getWordUnderCursor = function Interpolate_getWordUnderCursor(scimoz) {
+    if (!scimoz) {
+        var view = ko.views.manager.currentView;
+        if (view.document) {
+            scimoz = view.scimoz;
+        }
+    }
+    if (!scimoz) {
+        throw new Error("There is no current editor to retrieve the word from.");
+    }
     var start = scimoz.wordStartPosition(scimoz.currentPos, true);
     var end = scimoz.wordEndPosition(scimoz.currentPos, true);
     return scimoz.getTextRange(start, end);
