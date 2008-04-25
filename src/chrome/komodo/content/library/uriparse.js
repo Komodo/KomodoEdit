@@ -211,6 +211,39 @@ this.ext = function(file) {
     return koFileEx.ext;
 }
 
+ /**
+ * Return the common URI prefix of the given list of URIs.
+ *
+ * @param uris {array}
+ * @returns string
+ */
+this.commonURIPrefixFromURIs = function(uris) {
+    if (!uris) {
+        return "";
+    }
+    var commonprefix = uris[0];
+    var commonsplit = commonprefix.split("/");
+    var j;
+    /**
+     * @type string
+     */
+    var uri;
+    var urisplit;
+    for (var i=1; i < uris.length; i++) {
+        uri = uris[i];
+        var urisplit = uri.split("/");
+        for (j=0; j < urisplit.length && j < commonprefix.length; j++) {
+            if (urisplit[j] != commonsplit[j])
+                break;
+        }
+        if (j < commonprefix.length) {
+            commonsplit = commonsplit.slice(0, j);
+            commonprefix = commonsplit.join("/");
+        }
+    }
+    return commonprefix;
+}
+
 /**
  * Uses the supplied URI to check if there are any special mappings setup
  * in order to change this URI into another location. If there is a match,
