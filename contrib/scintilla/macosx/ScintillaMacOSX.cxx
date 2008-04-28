@@ -373,6 +373,11 @@ void ScintillaMacOSX::StartDrag() {
                 rcSel.bottom = pt.y;
         }
     }
+    // protect against word wrap causing left < right
+    if (rcSel.left > rcSel.right) {
+        rcSel.left = client.left;
+        rcSel.right = client.right;
+    }
 
     // must convert to global coordinates for drag regions, but also save the
     // image rectangle for further calculations and copy operations
