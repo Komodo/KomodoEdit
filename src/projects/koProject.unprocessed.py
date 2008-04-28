@@ -3002,7 +3002,7 @@ class KoPartService(object):
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
         try:
-            obsSvc.notifyObservers(project, 'current_project_changed', 0)
+            obsSvc.notifyObservers(project, 'current_project_changed', '')
         except:
             pass
 
@@ -3015,7 +3015,7 @@ class KoPartService(object):
             obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                            getService(components.interfaces.nsIObserverService)
             try:
-                obsSvc.notifyObservers(project, 'project_added', 0)
+                obsSvc.notifyObservers(project, 'project_added', '')
             except:
                 pass
 
@@ -3025,7 +3025,7 @@ class KoPartService(object):
             obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                            getService(components.interfaces.nsIObserverService)
             try:
-                obsSvc.notifyObservers(project, 'project_removed', 0)
+                obsSvc.notifyObservers(project, 'project_removed', '')
             except:
                 pass
 
