@@ -503,7 +503,7 @@
     <deck id="vim-deck"
           selectedIndex="0"
           flex="1"
-          insertbefore="statusbar-check">
+          insertafter="vim-statusbar-mode">
         <statusbarpanel id="statusbar-message"
                         label="&ready.label;"
                         crop="right"
