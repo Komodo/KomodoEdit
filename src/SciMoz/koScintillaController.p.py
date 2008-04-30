@@ -85,6 +85,7 @@ command_map = {
     'cmd_lineScrollDown' : 'lineScrollDown',
     'cmd_lineCut' : 'lineCut',
     'cmd_lineDelete' : 'lineDelete',
+    'cmd_lineDuplicate' : 'lineDuplicate',
 #    'cmd_lineTranspose' : 'lineTranspose',  # commented out because its undo behavior is wrong.
     'cmd_fontZoomIn' : 'zoomIn',
     'cmd_fontZoomOut' : 'zoomOut',
@@ -99,6 +100,7 @@ command_map = {
 undoable_commands = {
     'cmd_lineCut' : 1,
     'cmd_lineDelete' : 1,
+    'cmd_lineDuplicate' : 1,
     'cmd_lineTranspose' : 1,
     'cmd_deleteWordLeft' : 1,
     'cmd_deleteWordRight' : 1,

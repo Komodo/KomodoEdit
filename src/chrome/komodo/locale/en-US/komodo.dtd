@@ -100,6 +100,7 @@
 <!ENTITY editorDeleteLine.desc "Editor: Delete Line">
 <!ENTITY editorDeleteWordLeft.desc "Editor: Delete Word Left">
 <!ENTITY editorDeleteWordRight.desc "Editor: Delete Word Right">
+<!ENTITY editorDuplicateLine.desc "Editor: Duplicate Line">
 <!ENTITY editorEndOfLine.desc "Editor: End of Line">
 <!ENTITY editorExchangeCurrentPointAndMark.desc "Editor: Exchange Current Point and Mark">
 <!ENTITY editorGoToBeginningOfWord.desc "Editor: Go to Beginning of word">

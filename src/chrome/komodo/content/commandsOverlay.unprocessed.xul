@@ -1013,6 +1013,11 @@
             oncommand="ko.commands.doCommand('cmd_lineDelete')"
             desc="&editorDeleteLine.desc;"/>
         <command
+            id="cmd_lineDuplicate" key="key_cmd_lineDuplicate"
+            disabled="true"
+            oncommand="ko.commands.doCommand('cmd_lineDuplicate')"
+            desc="&editorDuplicateLine.desc;"/>
+        <command
             id="cmd_lineTranspose" key="key_cmd_lineTranspose"
             disabled="true"
             oncommand="ko.commands.doCommand('cmd_lineTranspose')"
