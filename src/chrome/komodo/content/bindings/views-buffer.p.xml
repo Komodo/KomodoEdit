@@ -1047,6 +1047,7 @@
         <body><![CDATA[return true;]]></body>
         </method>
 
+        <field name="_mouseButton">-1</field>
         <method name="onMarginClick">
         <parameter name="modifiers"/>
         <parameter name="position"/>
@@ -1076,6 +1077,18 @@
                     s.toggleFold(lineClicked);
                 }
             }
+            else if (margin == 2 && this._mouseButton == 1) {
+                // toggle bookmark
+                var markerState = this.scintilla.scimoz.markerGet(lineClicked);
+                if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
+                    this.scintilla.scimoz.markerDelete(lineClicked, ko.markers.MARKNUM_BOOKMARK);
+                } else {
+                    this.scintilla.scimoz.markerAdd(lineClicked, ko.markers.MARKNUM_BOOKMARK);
+                }
+            }
+
+
+            this._mouseButton = -1;
         ]]>
         </body>
         </method>
@@ -1113,6 +1126,11 @@
             /* code common to setFocus and the focus event needs
                to be in doFocus. */
             this.doFocus(event);
+            ]]>
+        </handler>
+        <handler event="mousedown" phase="capturing">
+            <![CDATA[
+            this._mouseButton = event.button;
             ]]>
         </handler>
         <handler event="click" phase="capturing">
