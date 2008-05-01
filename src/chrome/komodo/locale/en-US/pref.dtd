@@ -269,6 +269,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY incrementalSearch.label "Incremental Search">
 <!ENTITY indentToFirstNonEmptyColumn.label "Indent to first non-empty column">
 <!ENTITY indentation.label "Indentation">
+<!ENTITY indentation-language.label "Language Settings">
 <!ENTITY internationalization.label "Internationalization">
 <!ENTITY invisible.label "Invisible">
 <!ENTITY javaScript.label "JavaScript">

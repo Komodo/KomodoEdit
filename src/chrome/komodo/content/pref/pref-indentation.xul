@@ -48,11 +48,126 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="kodialog"
         orient="vertical"
-        onload="parent.initPanel();">
+        onload="MyOnload();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+var log = ko.logging.getLogger("pref-indent");
+var langData = {};
+var langPrefs = null;
+var curLang = null;
+function MyOnload() {
+        // register with preferences
+        parent.hPrefWindow.onpageload();
+    
+}
+function OnPreferencePageInitalize(prefset) {
+    log.info("OnPreferencePageInitalize");
+    try {
+        var langToUse;
+        // set up the prefs
+        langPrefs = prefset.getPref('languages');
+        langPrefs.parent = prefset;
+        var view = parent.opener.ko.views.manager.currentView;
+        if (view)
+            langToUse = view.document.language;
+        else   // default
+            langToUse = "Text";
+
+        changeNewLanguage(null, langToUse);
+    } catch(ex) {
+        log.error(ex);
+    }
+}
+function OnPreferencePageOK(prefset)  {
+    log.info("OnPreferencePageOK");
+    // save any updated prefs
+    try {
+        changeNewLanguage(null,null);
+        langPrefs = prefset.getPref('languages');
+        for (var language in langData) {
+            var prefs = langPrefs.getPref('languages/'+language);
+            var o = langData[language];
+            if (o.useTabs != o.defaults.useTabs)
+                o.prefs.setBooleanPref('useTabs', o.useTabs);
+            if (o.tabWidth != o.defaults.tabWidth)
+                o.prefs.setLongPref('tabWidth', o.tabWidth);
+            if (o.indentWidth != o.defaults.indentWidth)
+                o.prefs.setLongPref('indentWidth', o.indentWidth);
+        }
+        return true;
+    } catch(e) {
+        log.exception(e);
+    }
+    return false;
+}
+
+function _getCurrentLangPrefs(language) {
+    var prefs;
+    if (!langPrefs.hasPref('languages/'+language)) {
+        // create a prefset for this
+        prefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+        prefs.id = 'languages/'+language;
+        langPrefs.setPref(prefs.id, prefs);
+    } else {
+        prefs = langPrefs.getPref('languages/'+language);
+    }
+    
+    prefs.parent = langPrefs;
+    return prefs;
+}
+
+function getPrefsForLanguage(name) {
+    if (name in langData) {
+        return langData[name];
+    }
+    var o = {};
+    o.name = name;
+    o.prefs = _getCurrentLangPrefs(name);
+    // get the defaults
+    o.defaults = {};
+    o.useTabs = o.defaults.useTabs = o.prefs.parent.getBooleanPref('useTabs');
+    o.tabWidth = o.defaults.tabWidth = o.prefs.parent.getLongPref('tabWidth');
+    o.indentWidth = o.defaults.indentWidth = o.prefs.parent.getLongPref('indentWidth');
+    
+    if (o.prefs.hasPref('useTabs'))  {
+        o.useTabs = o.defaults.useTabs = o.prefs.getBooleanPref('useTabs');
+    }
+    if (o.prefs.hasPref('tabWidth'))  {
+        o.tabWidth = o.defaults.tabWidth = o.prefs.getLongPref('tabWidth');
+    }
+    if (o.prefs.hasPref('indentWidth'))  {
+        o.indentWidth = o.defaults.indentWidth = o.prefs.getLongPref('indentWidth');
+    }
+    langData[name] = o;
+    return o;
+}
+function changeNewLanguage(item, name)  {
+    var encoding;
+    var langlist = document.getElementById("langList");
+
+    if (!name) name = langlist.selection;
+    else if (item == null) langlist.selection = name;
+
+    // store old data
+    if (curLang) {
+        curLang.useTabs = document.getElementById('useTabsLang').value;
+        curLang.tabWidth = document.getElementById('tabWidthLang').value;
+        curLang.indentWidth = document.getElementById('indentWidthLang').value;
+    }
+    curLang = getPrefsForLanguage(name);
+
+    // set new data
+    document.getElementById('useTabsLang').value = curLang.useTabs;
+    document.getElementById('tabWidthLang').value = curLang.tabWidth;
+    document.getElementById('indentWidthLang').value = curLang.indentWidth;
+}
+
+]]>
+    </script>
 
   <groupbox orient="vertical">
       <caption label="&indentation.label;"/>
@@ -106,4 +221,19 @@
 
   </groupbox>
 
+    <groupbox orient="vertical">
+        <caption label="&indentation-language.label;"/>
+        <langlist id="langList" class="lang-menulist"
+                  oncommand="changeNewLanguage(this, null)"/>
+        <checkbox id="useTabsLang"
+                  label="&preferTabCharactersOverSpaces.label;"/>
+        <hbox align="center">
+            <textbox id="indentWidthLang" size="3"/>
+            <text value="Number of spaces per indent"/>
+        </hbox>
+        <hbox align="center">
+            <textbox id="tabWidthLang" size="3"/>
+            <text value="Width of each Tab character"/>
+        </hbox>
+    </groupbox>
 </window>

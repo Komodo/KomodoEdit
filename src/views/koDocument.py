@@ -276,6 +276,18 @@ class koDocumentBase:
             return prefset.getStringPref(prefname).split(os.pathsep)
         return []
 
+    def _setLangPrefs(self):
+        lprefs = self._globalPrefs.getPref("languages")
+        if lprefs.hasPref("languages/"+self._language):
+            prefs = lprefs.getPref("languages/"+self._language)
+        else:
+            prefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+            prefs.id = 'languages/'+language;
+            lprefs.setPref(prefs.id, prefs);
+            
+        self.prefs.parent = prefs
+        prefs.parent = self._globalPrefs
+
     def _guessLanguage(self):
         """Guess and set this document's language."""
         timeline.enter('koDocumentBase._guessLanguage')
@@ -284,6 +296,7 @@ class koDocumentBase:
         # then just use that.
         if self.prefs.hasPrefHere('language'):
             self._language = self.prefs.getStringPref('language')
+            self._setLangPrefs()
             log.info("_guessLanguage: use set preference: '%s'",
                      self._language)
             return
@@ -333,6 +346,7 @@ class koDocumentBase:
                 language = fileNameLanguage
             log.info("_guessLanguage: '%s' (content)", language)
         self._language = language
+        self._setLangPrefs()
         timeline.leave('koDocumentBase._guessLanguage')
 
     def loadFromURI(self, uri):
@@ -476,6 +490,7 @@ class koDocumentBase:
             self._guessLanguage()
         else:
             self.prefs.setStringPref('language', language)
+        self._setLangPrefs()
 
         self._initCIBuf() # need a new codeintel Buffer for this lang
 
@@ -1225,6 +1240,7 @@ class koDocumentBase:
 
     # we want to watch for changes in the prefs we derive from
     def observe(self, subject, topic, data):
+        #print "%r %s %r" % (subject, topic, data)
         if topic == 'useTabs':
             self._useTabs = self.prefs.getBooleanPref('useTabs')
         elif topic == 'indentWidth':

@@ -441,6 +441,12 @@
     <preference-set id="languages/Ruby">
       <string id="Ruby/newEncoding">Default Encoding</string>
       <boolean id="Ruby/newBOM">0</boolean>
+      <long id="indentWidth">2</long>
+    </preference-set>
+    <preference-set id="languages/RHTML">
+      <string id="RHTML/newEncoding">Default Encoding</string>
+      <boolean id="RHTML/newBOM">0</boolean>
+      <long id="indentWidth">2</long>
     </preference-set>
     <preference-set id="languages/SQL">
       <string id="SQL/newEncoding">Default Encoding</string>
