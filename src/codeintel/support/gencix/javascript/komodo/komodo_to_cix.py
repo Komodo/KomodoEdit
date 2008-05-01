@@ -325,7 +325,8 @@ def komodo_to_cix(output_path, p4_edit=False):
             jscile.scan_puretext(file(path).read(), updateAllScopeNames=False)
         except Exception, e:
             # Report the file that had problems scanning.
-            print "komodo_to_cix:: failed, exception scanning: %r" % (path)
+            print "komodo_to_cix:: failed, exception scanning: %r, " \
+                  "near line: %r" % (path, jscile.lineno)
             raise
     # Restore the filename before converting to CIX.
     jscile.cile.name = "komodo"
