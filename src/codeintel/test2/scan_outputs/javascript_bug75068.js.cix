@@ -1,17 +1,26 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_closure_bug75068.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_closure_bug75068.js" src="scan_inputs/javascript_closure_bug75068.js">
-      <scope ilk="function" line="5" lineend="10" name="case1" signature="case1()">
-        <variable attributes="__local__ private" citdl="Number" line="3" name="case1_xyz" />
-        <variable attributes="__local__ private" citdl="Function" line="6" name="c" />
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_bug75068.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_bug75068.js" src="scan_inputs/javascript_bug75068.js">
+      <scope ilk="function" line="5" lineend="10" name="case0" signature="case0()">
+        <variable attributes="__local__ private" citdl="Number" line="6" name="case0_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="7" lineend="9" name="b" signature="b()" />
       </scope>
-      <scope ilk="function" line="13" lineend="18" name="case2" signature="case2()">
-        <variable attributes="__local__ private" citdl="Number" line="14" name="case2_xyz" />
-        <variable attributes="__local__ private" citdl="Function" line="6" name="c" />
+      <scope ilk="function" line="13" lineend="18" name="case1" signature="case1()">
+        <variable attributes="__local__ private" citdl="Number" line="14" name="case1_xyz" />
+        <variable attributes="__local__ private" line="17" name="c" />
       </scope>
-      <scope ilk="function" line="21" lineend="26" name="case3" signature="case3(xyz)">
-        <variable ilk="argument" name="case3_xyz" />
-        <variable attributes="__local__ private" line="22" name="b" />
+      <scope ilk="function" line="21" lineend="26" name="case2" signature="case2()">
+        <variable attributes="__local__ private" citdl="Number" line="22" name="case2_xyz" />
+      </scope>
+      <scope ilk="function" line="29" lineend="35" name="case3" signature="case3(case3_xyz)">
+        <variable citdl="Number" ilk="argument" name="case3_xyz" />
+        <variable attributes="__local__ private" line="34" name="b" />
+      </scope>
+      <scope ilk="function" line="38" lineend="42" name="case4" signature="case4(case4_xyz)">
+        <variable citdl="Number" ilk="argument" name="case4_xyz" />
+      </scope>
+      <scope ilk="function" line="45" lineend="47" name="case5" signature="case5(case5_xyz)">
+        <variable citdl="Number" ilk="argument" name="case5_xyz" />
       </scope>
     </scope>
   </file>
