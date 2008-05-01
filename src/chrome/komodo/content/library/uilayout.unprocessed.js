@@ -722,7 +722,7 @@ function _setCheckedLanguage(language)
             child.setAttribute('checked', 'false');
         }
     }
-    childnodes = document.getElementById('context-filetype-menu').getElementsByTagName('menuitem');
+    childnodes = document.getElementById('statusbar-filetype-menu').getElementsByTagName('menuitem');
     for (i = 0; i < childnodes.length; i++) {
         child = childnodes[i];
         id = child.getAttribute('id');
@@ -862,6 +862,7 @@ function _buildMenuTree(hdata, hierarchy, toplevel) {
             menu2 = document.createElementNS(XUL_NS, 'menu');
             menupopup2 = document.createElementNS(XUL_NS, 'menupopup');
             menu2.setAttribute('label', hierarchy.name);
+            menu2.setAttribute("class", "statusbar-label");
 
             for (j=0;j<viewAs_menuitems.length;j++)  {
                 menupopup.appendChild(viewAs_menuitems[j]);
@@ -887,6 +888,7 @@ function _buildMenuTree(hdata, hierarchy, toplevel) {
         menuitem2 = document.createElementNS(XUL_NS, 'menuitem');
         menuitem2.setAttribute("accesskey", hierarchy.key);
         menuitem2.setAttribute("label", hierarchy.name);
+        menuitem2.setAttribute("class", "statusbar-label");
         menuitem2.setAttribute("type", "checkbox");
         menuitem2.setAttribute("name", "current_language");
         menuitem2.setAttribute("observes", "cmd_viewAs"+languageNameNospaces);
@@ -921,7 +923,7 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     var cmd, menuitem, menuitem2;
     hdata.commandset = document.getElementById("cmdset_viewAs");
     hdata.viewAsMenu = document.getElementById("popup_viewAsLanguage");
-    hdata.statusbarContextMenu = document.getElementById('context-filetype-menu');
+    hdata.statusbarContextMenu = document.getElementById('statusbar-filetype-menu');
     hdata.language = null;
     if (ko.views.manager.currentView &&
         ko.views.manager.currentView.document &&
@@ -950,6 +952,7 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     menuitem2 = document.createElementNS(XUL_NS, 'menuitem');
     menuitem2.setAttribute("id", "menu_viewAsGuessedLanguage");
     menuitem2.setAttribute("label", "Reset to best guess");
+    menuitem2.setAttribute("class", "statusbar-label");
     menuitem2.setAttribute("observes", "cmd_viewAsGuessedLanguage");
     hdata.statusbarContextMenu.appendChild(menuitem2);
     ko.trace.get().leave('ko.uilayout.buildViewAsLanguageMenu');

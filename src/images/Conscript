@@ -55,6 +55,8 @@ Import(
 
 my $imagesDir = "$mozChromeDir/komodo/skin/images";
 
+$cons->Install($imagesDir, "icons/menupopup_arrows.png");
+
 # Code Intelligence system icons
 $cons->Install($imagesDir, "icons/codeintel_search.gif");
 $cons->Install($imagesDir, "icons/codeintel_search_disable.gif");

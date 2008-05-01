@@ -164,12 +164,6 @@
 
     <popupset id="extensionPopupSet"/>
 
-    <menupopup
-        style="height: 250px;"
-        id = "context-filetype-menu"
-        onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
-        />
-
     <menu
         collapsed="true"
         class="menu-iconic-wide"
@@ -402,21 +396,6 @@
         <menupopup id="hidden-toolbox-popup"/>
     </menu>
 
-
-    <menupopup id="context_lint">
-        <menuitem id="context_doLint"
-                  label="&checkSyntaxNow.label;"
-                  observes="cmd_lintNow"
-                  />
-        <menuitem id="context_describeResults"
-                  label="&jumpToNextResult.label;"
-                  observes="cmd_nextLintResult"
-                  />
-        <menuitem id="context_clearResults"
-                  label="&clearWarningErrorSquigglies.label;"
-                  observes="cmd_lintClearResults"
-                  />
-    </menupopup>
 
     <toolbox id="toolbox_main"  type="reflow"
              context="context-toolbox-menu"
@@ -2529,13 +2508,35 @@
                class="chromeclass-status"
                style="min-height: 1.5em;">
         <statusbarpanel id="statusbar-message" label="&ready.label;" crop="right" flex="1"/>
-        <statusbarpanel id="statusbar-check"
-                        class="statusbarpanel-iconic"
-                        tooltiptext="&syntaxCheckingStatus.tooltiptext;"
-                        onclick="ko.lint.doClick(event);"
-                        ondblclick="ko.lint.jumpToNextLintResult();"
-                        context="context_lint"
-                        style="width: 30px;"/>
+        <statusbarpanel id="statusbar-checker"
+                        style="width: 30px;">
+            <toolbarbutton id="statusbar-check"
+                           tooltiptext="&syntaxCheckingStatus.tooltiptext;"
+                           type="menu-button"
+                           persist="buttonstyle"
+                           buttonstyle="pictures"
+                           onclick="if (event.button == 2)
+                            ko.lint.jumpToNextLintResult();"
+                           oncommand="this.firstChild.showPopup(this, -1,-1);">
+                <menupopup id="context_lint">
+                    <menuitem id="context_doLint"
+                              class="statusbar-label"
+                              label="&checkSyntaxNow.label;"
+                              observes="cmd_lintNow"
+                              />
+                    <menuitem id="context_describeResults"
+                              class="statusbar-label"
+                              label="&jumpToNextResult.label;"
+                              observes="cmd_nextLintResult"
+                              />
+                    <menuitem id="context_clearResults"
+                              class="statusbar-label"
+                              label="&clearWarningErrorSquigglies.label;"
+                              observes="cmd_lintClearResults"
+                              />
+                </menupopup>
+            </toolbarbutton>
+        </statusbarpanel>
         <statusbarpanel id="statusbar-encoding"
                         tooltiptext="&fileEncoding.tooltiptext;"
                         style="min-width: 6em;"/>
@@ -2550,8 +2551,16 @@
         <statusbarpanel id="statusbar-language"
                         context="context-filetype-menu"
                         tooltiptext="&fileType.tooltiptext;"
-                        style="min-width: 8em; max-width: 12em;"
-			/>
+                        style="min-width: 8em; max-width: 12em;">
+            <menu class="statusbar-label"
+                  id="statusbar-language-menu">
+                <menupopup
+                    style="height: 250px;"
+                    id = "statusbar-filetype-menu"
+                    onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
+                    />
+            </menu>
+        </statusbarpanel>
     </statusbar>
     <commandset id="allcommands"/>
     <keyset id="widekeyset" persist="persisted_kb" persisted_kb="false"/>

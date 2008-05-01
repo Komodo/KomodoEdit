@@ -432,13 +432,10 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
         if (view.lintBuffer.errorString) {
             ko.dialogs.alert(view.lintBuffer.errorString);
         } else if (!lintResults) {
-            if (view.prefs.getBooleanPref("editUseLinting")) {
-                ko.dialogs.alert("Syntax checking is currently in progress.");
-            } else {
-                ko.dialogs.alert("Automatic syntax checking disabled: shift-click on the icon to start.");                
-            }
+            ko.statusBar.AddMessage("Running syntax check...", "lint", 1000, true);
+            ko.lint.doRequest();
         } else if (! lintResults.getNumResults()) {
-            ko.dialogs.alert("There are no syntax errors.");
+            ko.statusBar.AddMessage("There are no syntax errors.", "lint", 3000, true);
         } else {
             // Determine the current position.
             var next = lintResults.getNextResult(view.currentLine,

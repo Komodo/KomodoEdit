@@ -106,6 +106,22 @@ statusbarpanel[highlite="true"] > label {
   padding: 1px 10px 2px 10px;
 }
 
+menu.statusbar-label,
+menuitem.statusbar-label > label
+{
+  font: status-bar;
+}
+statusbarpanel > toolbarbutton[type="menu-button"],
+statusbarpanel > toolbarbutton[type="menu-button"] > toolbarbutton {
+  padding: 0px;
+  margin: 0px;
+}
+statusbarpanel > toolbarbutton[type="menu-button"] > dropmarker,
+statusbarpanel > menu > .menu-right {
+  list-style-image: url("chrome://komodo/skin/images/menupopup_arrows.png");
+}
+
+
 .primary_menu_item {
     font-weight: bold;
 }
