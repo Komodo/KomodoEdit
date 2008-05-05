@@ -2525,7 +2525,7 @@ class DefnTestCase(CodeIntelTestCase):
             $bug_76676_instance-><1>xxx;
        """)))
         # Single base class
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "foo"),
              ("function", "bar"),
             ])
