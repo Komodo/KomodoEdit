@@ -2487,6 +2487,27 @@ class DefnTestCase(CodeIntelTestCase):
             [("variable", "$s1"), ("variable", "$s2"),
              ("function", "bar"), ("function", "foo")])
 
+    @tag("bug76676", "knownfailure")
+    def test_phpdoc_overriding_variable_citdls(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug_76676_phpdoc_override {
+                var $foo;
+                function bar() {}
+            }
+            
+            function bug_76676_makeInstance($class) {
+              return new $class;
+            }
+            
+            $bug_76676_instance = bug_76676_makeInstance('bug_76676_phpdoc_override');
+            /* @var bug_76676_phpdoc_override */
+            $bug_76676_instance-><1>xxx;
+       """)))
+        # Single base class
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "foo"),
+             ("function", "bar"),
+            ])
 
 
 #---- mainline
