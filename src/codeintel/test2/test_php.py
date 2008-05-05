@@ -2530,6 +2530,57 @@ class DefnTestCase(CodeIntelTestCase):
              ("function", "bar"),
             ])
 
+    @tag("bug72960", "knownfailure")
+    def test_phpdoc_class_property(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=72960
+        # @property shows a "magic" property variable that is found inside the
+        # class.
+        content, positions = unmark_text(php_markup(dedent("""\
+            /**
+             * show off @property, @property-read, @property-write
+             *
+             * @property mixed $regular regular read/write property
+             * @property-read int $foo the foo prop
+             * @property-write string $bar the bar prop
+             */
+            class Magician
+            {
+                private $_thingy;
+                private $_bar;
+             
+                function __get($var)
+                {
+                    switch ($var) {
+                        case 'foo' :
+                            return 45;
+                        case 'regular' :
+                            return $this->_thingy;
+                    }
+                }
+                
+                function __set($var, $val)
+                {
+                    switch ($var) {
+                        case 'bar' :
+                            $this->_bar = $val;
+                            break;
+                        case 'regular' :
+                            if (is_string($val)) {
+                                $this->_thingy = $val;
+                            }
+                    }
+                }
+            }
+            $magical = new Magician();
+            $magical-><1>xxx;
+        """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "regular"),
+             ("variable", "foo"),
+             ("variable", "bar"),
+            ])
+
 
 #---- mainline
 
