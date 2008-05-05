@@ -2296,6 +2296,27 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[2]),
             [("function", "setMapDims")])
 
+    @tag("bug76677", "knownfailure")
+    def test_3char_trigger_includes_classes(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            define("Bug76677_const", 100);
+            function Bug76677_func() { }
+            class Bug76677_class {
+                var $my_var;
+                public static function my_func() { }
+            }
+            Bug<1>;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("constant", "Bug76677_const"),
+             ("function", "Bug76677_func"),
+             ("class", "Bug76677_class"),
+            ])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
