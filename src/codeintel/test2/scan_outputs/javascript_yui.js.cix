@@ -46,6 +46,12 @@
           </scope>
         </variable>
       </variable>
+      <scope attributes="__local__ private __ctor__" doc="CONSTRUCTOR: The Menu class creates a container that holds a vertical list representing&#xA;a set of options or commands.  Menu is the base class for all&#xA;menu containers." ilk="function" line="81" lineend="105" name="(anonymous)" signature="(anonymous)()">
+        <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="86" name="CustomEvent" />
+        <variable attributes="__local__ private" citdl="YAHOO.lang" line="86" name="Lang" />
+        <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="86" name="Event" />
+        <variable attributes="__local__ private" citdl="YAHOO.util.Dom" line="86" name="Dom" />
+      </scope>
     </scope>
   </file>
 </codeintel>

@@ -827,6 +827,7 @@ class JSObject:
         self.members = {} # all private member variables used in class
         self.variables = {} # all variables used in class
         self.functions = {}
+        self.anonymous_functions = [] # anonymous functions declared in scope
         self.attributes = []    # Special attributes for object
         self.returnTypes = []    # List of possible return values
         self.constructor = None
@@ -861,6 +862,9 @@ class JSObject:
         if self.doc:
             # Turn the doc list into a JSDoc object
             self.jsdoc = JSDoc("".join(self.doc))
+
+    def isAnonymous(self):
+        return self.name == "(anonymous)"
 
     def addVariable(self, name, lineno, depth, typeNames=None, doc=None,
                     isLocal=False):
@@ -1040,7 +1044,8 @@ class JSObject:
 
         # Sort and include contents
         allValues = self.functions.values() + self.members.values() + \
-                    self.classes.values() + self.variables.values()
+                    self.classes.values() + self.variables.values() + \
+                    self.anonymous_functions
         for v in sortByLine(allValues):
             if not v.isHidden:
                 v.toElementTree(cixobject)
@@ -1090,6 +1095,7 @@ class JSFile:
         self.mtime = mtime
 
         self.functions = {} # functions declared in file
+        self.anonymous_functions = [] # anonymous functions declared in file
         self.classes = {} # classes declared in file
         self.variables = {} # all variables used in file
         self.includes = {} # files included into this file
@@ -1106,6 +1112,9 @@ class JSFile:
                     if not v.isHidden:
                         r.append("    %r" % v)
         return '\n'.join(r)
+
+    def isAnonymous(self):
+        return False
 
     def outline(self):
         result = ["File: %r" % (self.name) ]
@@ -1266,7 +1275,8 @@ class JSFile:
 
         # Sort and include contents
         allValues = self.functions.values() + self.variables.values() + \
-                    self.interfaces.values() + self.classes.values()
+                    self.interfaces.values() + self.classes.values() + \
+                    self.anonymous_functions
         for v in sortByLine(allValues):
             if not v.isHidden:
                 v.toElementTree(cixmodule)
@@ -1556,6 +1566,20 @@ class JavaScriptCiler:
             jsclass.jsdoc = None
 
     ##
+    # Create an anonymous JSFunction and add it to the current scope.
+    # @param args {list} list of arguments for the function
+    # @param doc {list} list of comment strings for given scope
+    #
+    def addAnonymousFunction(self, args=None, doc=None, isHidden=False):
+        log.debug("addAnonymousFunction: (%s)", args)
+        toScope = self.currentScope
+        fn = JSFunction("(anonymous)", toScope, args, self.lineno, self.depth,
+                        doc=doc, isLocal=True, isHidden=isHidden)
+        toScope.anonymous_functions.append(fn)
+        self.currentScope = fn
+        return fn
+
+    ##
     # Create a JSFunction and add it to the current scope
     # @param namelist {list} list of names for the function
     # @param args {list} list of arguments for the function
@@ -1700,7 +1724,7 @@ class JavaScriptCiler:
                 self.currentScope = v
 
         # Special case - classes and anonymous functions
-        elif isinstance(scope, JSClass) or scope.name == "":
+        elif isinstance(scope, JSClass) or scope.isAnonymous():
             v = scope.addMemberVariable(memberName, self.lineno, self.depth,
                                         typeNames, doc=doc, isLocal=isLocal)
             if assignAsCurrentScope:
@@ -1815,8 +1839,12 @@ class JavaScriptCiler:
                       funcName, jsclass.name)
             jsclass.functions[funcName] = jsfunc
             # Update references
-            parentScope.functions.pop(funcName)
-            parentScope.classes[funcName] = jsclass
+            if jsfunc.isAnonymous():
+                parentScope.anonymous_functions.remove(jsfunc)
+                parentScope.anonymous_functions.append(jsclass)
+            else:
+                parentScope.functions.pop(funcName)
+                parentScope.classes[funcName] = jsclass
             # Fix starting line number
             if jsfunc.line < jsclass.line:
                 jsclass.line = jsfunc.line
@@ -2476,11 +2504,6 @@ class JavaScriptCiler:
         obj = JSObject(None, None, self.lineno, self.depth, "Object")
         return obj
 
-    def createFunctionArgument(self, styles, text):
-        log.debug("createFunctionArgument")
-        return JSFunction(None, None, None, self.lineno, self.depth,
-                          isHidden=True)
-
     def _addCodePiece(self, styles, text, pos=0):
         if pos >= len(styles):
             return
@@ -2516,8 +2539,7 @@ class JavaScriptCiler:
                     # We shall add the function, but without a name as it does
                     # not really have one... it's anonymous.
                     args, p = self._getArgumentsFromPos(styles, text, p)
-                    self.addFunction([""], args, doc=self.comment,
-                                     isLocal=isLocal, isHidden=True)
+                    self.addAnonymousFunction(args, doc=self.comment)
             elif keyword == "this":
                 # Member variable of current object
                 p = pos+1
@@ -2672,6 +2694,8 @@ class JavaScriptCiler:
                         jsobj.attributes.remove("__local__")
                     if "private" in jsobj.attributes:
                         jsobj.attributes.remove("private")
+                if fieldname == 'functions' and jsobj._class:
+                    jsobj._class = jsobj.parent
             d_oth.update(d_obj)
         # Ensure the variables are not already known as member variables.
         d_members = getattr(jsother, "members", {})
@@ -2746,6 +2770,8 @@ class JavaScriptCiler:
                 self._copyObjectToAnother(obj, jsclass)
                 for f in jsclass.functions:
                     jsclass.functions[f]._class = jsclass
+                for f in jsclass.anonymous_functions:
+                    f._class = jsclass
                 # Change function constructor name to the class name so that it
                 # is correctly recognized by Komodo as the constructor.
                 if jsclass.functions.has_key('constructor'):
@@ -2766,6 +2792,8 @@ class JavaScriptCiler:
                     log.debug("Removing %r from scope: %s in %r",
                               removename, scopeName, parent.name)
                     scope.pop(removename)
+            if jsobject in parent.anonymous_functions:
+                parent.anonymous_functions.remove(jsobject)
 
     def _handleFunctionApply(self, namelist=None):
         """Everything in the function is applied to the supplied scope/namelist"""
@@ -2992,8 +3020,7 @@ class JavaScriptCiler:
                                 # need to create a JSFunction scope for this,
                                 # as various information may be needed, i.e.
                                 # a getter function return type.
-                                obj = self.createFunctionArgument(styles, text)
-                                self.currentScope = obj
+                                obj = self.addAnonymousFunction(isHidden=True)
                                 self.objectArguments.append((self.argumentPosition, obj))
                                 self._pushAndSetState(S_DEFAULT)
                             elif len(self.text) >= 2 and \
