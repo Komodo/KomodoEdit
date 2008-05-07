@@ -1503,6 +1503,21 @@ class XPCOMTestCase(CodeIntelTestCase):
              ("function", "exists"),
              ("function", "initWithPath")])
 
+    @tag("bug73872", "knownfailure")
+    def test_xpcom_classes_array_cplns(self):
+        content, positions = unmark_text(dedent("""\
+            var observerCls = Components.classes["<1>@mozilla.org/observer-service;1"];
+            observerCls.<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "@mozilla.org/observer-service;1"),
+             ("variable", "@mozilla.org/embedcomp/prompt-service;1")])
+        # If the array items in the "classes" elem had the correct citdl:
+        #self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+        #    [("function", "getService"),
+        #     ("function", "createInstance")])
+
+
 #---- mainline
 
 if __name__ == "__main__":
