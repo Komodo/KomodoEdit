@@ -281,7 +281,7 @@ class koDocumentBase:
         if lprefs.hasPref("languages/"+self._language):
             prefs = lprefs.getPref("languages/"+self._language)
         else:
-            prefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+            prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
             prefs.id = 'languages/'+language;
             lprefs.setPref(prefs.id, prefs);
             
