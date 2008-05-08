@@ -240,6 +240,7 @@
  '*.pl': 'Perl',
  '*.plex': 'Perl',
  '*.plx': 'Perl',
+ '*.plsql': 'PL-SQL',
  '*.pm': 'Perl',
  '*.pov': 'POVRay',
  '*.ps': 'PostScript',
