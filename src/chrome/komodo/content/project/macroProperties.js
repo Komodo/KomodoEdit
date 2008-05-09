@@ -47,6 +47,27 @@ var gOKButton, gApplyButton;
 var _gPrefSvc = Components.classes["@activestate.com/koPrefService;1"].
             getService(Components.interfaces.koIPrefService);
 
+function _getTriggerProperties(item) {
+    var obj = {};
+    try {
+        if (item.hasAttribute('trigger_enabled')) {
+            obj.trigger_enabled = item.getBooleanAttribute('trigger_enabled');
+            if (obj.trigger_enabled) {
+                obj.trigger = item.getStringAttribute('trigger');
+                obj.rank = item.getLongAttribute('rank');
+            }
+        } else {
+            obj.trigger_enabled = false;
+        }
+    } catch(e) {
+        log.exception(e);
+        obj.trigger_enabled = false;
+    }
+    return obj;
+}
+
+var _gOldTriggerProperties;
+
 function onLoad() {
     try {
         scintillaOverlayOnLoad();
@@ -129,6 +150,7 @@ function onLoad() {
         UpdateField('background', true);
         gPartname.focus();
         gPartname.select();
+        _gOldTriggerProperties = _getTriggerProperties(gPart);
     } catch (e) {
         log.exception(e);
     }
@@ -147,6 +169,10 @@ function OK(event)  {
         if (typeof(parent)=='undefined' || !parent)
             parent = opener.ko.projects.active.getSelectedItem();
         opener.ko.projects.addItem(gPart,parent);
+    } else if (window.arguments[0].task == 'edit') {
+        //XXX Should be done through an observer.
+        //XXX Reviewers: should this be done in Apply?
+        opener.ko.macros.eventHandler.updateMacroHooks(gPart, _gOldTriggerProperties, _getTriggerProperties(gPart));
     }
     window.arguments[0].res = true;
     return true;

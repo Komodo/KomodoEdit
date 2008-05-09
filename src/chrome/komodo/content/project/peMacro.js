@@ -171,7 +171,7 @@ this.executeMacro = function macro_executeMacro(part, async)
             window.setTimeout('ko.projects.executeMacroById("' + part.id +
                               '", ' + async + ')', 10);
         } else {
-            return _executeMacro(part, async)
+            return _executeMacro(part, async);
         }
     } catch (e) {
         log.exception(e);
@@ -274,7 +274,14 @@ this.macroProperties = function macro_editProperties(item)
 (function() {
 
 function MacroEventHandler() {
-    this._hookedMacros = [];
+    this._hookedMacrosByTrigger = {
+        'trigger_startup' : [],
+        'trigger_postopen' : [],
+        'trigger_presave' : [],
+        'trigger_postsave' : [],
+        'trigger_preclose' : [],
+        'trigger_postclose' : [],
+        'trigger_quit' : [] };
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'macro-load', false);
@@ -301,42 +308,122 @@ MacroEventHandler.prototype.callHookedMacros = function(trigger) {
     if (!prefs.getBooleanPref("triggering_macros_enabled")) {
         return false;
     }
-    this._hookedMacros.sort(_macro_ranking);
-    var macro;
-    for (var i = 0; i < this._hookedMacros.length; i++) {
-        macro = this._hookedMacros[i];
-        if (macro.hasAttribute('trigger_enabled') &&
-            macro.getBooleanAttribute('trigger_enabled') &&
-            macro.getStringAttribute('trigger') == trigger) {
-            if (ko.projects.executeMacro(macro, false)) {
-                return true;
-            }
+    var macro_list = this._hookedMacrosByTrigger[trigger];
+    for (var macro, i = 0; macro = macro_list[i]; i++) {
+        if (ko.projects.executeMacro(macro, false)) {
+            return true;
         }
     }
     return false;
 }
 
+MacroEventHandler.prototype._findMacro = function(macro_list, macropart) {
+    for (var i = 0; i < macro_list.length; i++) {
+        if (macro_list[i].id == macropart.id) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+// Sort ascending; sort unranked macros after ranked, 
+// and preserve temporal order -- new macros appear after
+// equivalently ordered old ones.
+
+MacroEventHandler.prototype._insertNewMacro = function(macro_list, new_macro) {
+    if (!new_macro.hasAttribute('rank')) {
+        // The newest unranked macro goes on the end.
+        macro_list.push(new_macro);
+        return;
+    }
+    var new_rank_val = new_macro.getLongAttribute('rank');
+    var pos = macro_list.length; // A.splice(A.len, 0, item) === A.push(item)
+    for (var curr_macro, i = 0; curr_macro=macro_list[i]; i++) {
+        if (!curr_macro.hasAttribute('rank')) {
+            pos = i;
+            break;
+        }
+        if (new_rank_val < curr_macro.getLongAttribute('rank')) {
+            pos = i;
+            break;
+        }
+    }
+    macro_list.splice(pos, 0, new_macro);
+}
+
 MacroEventHandler.prototype.addMacro = function(macropart) {
     // A macro has been added -- we should find out if it
     // has any 'hooks'
-    for (var i = 0; i < this._hookedMacros.length; i++) {
-        if (this._hookedMacros[i] == macropart) {
-            this.log.error("Couldn't add macro " + macropart.id + " to list of hooked macros: it was already in the list.");
+    if (macropart.hasAttribute('trigger_enabled') &&
+        macropart.getBooleanAttribute('trigger_enabled')) {
+        var trigger = macropart.getStringAttribute('trigger');
+        var macro_list = this._hookedMacrosByTrigger[trigger];
+        var idx = this._findMacro(macro_list, macropart);
+        if (idx >= 0) {
+            // This routinely happens when a toolbox or project containing
+            // trigger macros is reloaded.
+            this.log.info("Couldn't add macro "
+                          + macropart.id
+                          + " ("
+                          + macropart.name
+                          + ") to list of hooked macros for trigger "
+                          + trigger
+                          + ": it was already in the list.");
             return;
         }
+        this._insertNewMacro(macro_list, macropart);
+    } else {
+        this.log.debug("Macro " + macropart.name + " has no trigger");
     }
-    this._hookedMacros.push(macropart);
 }
 
-MacroEventHandler.prototype.removeMacro = function(macropart) {
+MacroEventHandler.prototype.updateMacroHooks = function(item, old_props, new_props) {
+    if (!old_props.trigger_enabled) {
+        if (new_props.trigger_enabled) {
+            this.addMacro(item);
+        }
+    } else if (!new_props.trigger_enabled) {
+        this.removeMacro(item, old_props.trigger);
+    } else if (old_props.trigger != new_props.trigger) {
+        this.removeMacro(item, old_props.trigger);
+        this.addMacro(item);
+    } else if (old_props.rank != new_props.rank) {
+        dump("Changing rank for trigger type "
+             + item.getStringAttribute('trigger')
+             + "\n");
+        var macro_list = this._hookedMacrosByTrigger[new_props.trigger];
+        var idx = this._findMacro(macro_list, macropart);
+        if (idx >= 0) {
+            macro_list.splice(idx, 1); // remove it
+        } else {
+            dump("Expected to find macro "
+                          + item.name
+                          + " on the list for "
+                          + new_props.trigger
+                          + ", but didn't\n.");
+        }
+        this._insertNewMacro(macro_list, item);
+    }
+};
+
+MacroEventHandler.prototype.removeMacro = function(macropart, trigger) {
     // A macro has been removed -- we should remove it from
     // the list of hooks
     try {
-        for (var i = 0; i < this._hookedMacros.length; i++) {
-            if (this._hookedMacros[i].id == macropart.id) {
-                this._hookedMacros.splice(i, 1); // remove it
+        if (typeof(trigger) == "undefined") {
+            // See if we have this macro in a list
+            if (macropart.hasAttribute('trigger_enabled') &&
+                macropart.getBooleanAttribute('trigger_enabled')) {
+                trigger = macropart.getStringAttribute('trigger');
+            } else {
                 return;
             }
+        }
+        var macro_list = this._hookedMacrosByTrigger[trigger];
+        var idx = this._findMacro(macro_list, macropart);
+        if (idx >= 0) {
+            macro_list.splice(idx, 1); // remove it
+            return;
         }
     } catch (e) {
         this.log.exception(e);
