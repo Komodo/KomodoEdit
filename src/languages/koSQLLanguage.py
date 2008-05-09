@@ -80,7 +80,7 @@ class koCommonSQLLanguage(KoLanguageBase):
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_SQL)
             self._lexer.setKeywords(0, self._keywords)
-            self._lexer.supportsFolding = 0
+            self._lexer.supportsFolding = 1
         return self._lexer
 
 class koSQLLanguage(koCommonSQLLanguage):
