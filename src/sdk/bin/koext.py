@@ -277,9 +277,10 @@ class KoExtShell(cmdln.Cmdln):
                 "project-templates/Common/ILoveChocolate.kpz" will result
                 in a new project template called "ILoveChocolate" in the
                 "Common" folder of the "New Project from Template" dialog.
+                Note: You must put templates in a $category sub-folder.
                 
                 source files:
-                    project-templates/
+                    project-templates/$category
 
             lexers
                 Komodo User-Defined Languages (UDL) system provides a
