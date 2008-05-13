@@ -57,6 +57,7 @@ from SilverCity import ScintillaConstants
 from codeintel2.common import *
 from codeintel2.citadel import ImportHandler, CitadelBuffer, CitadelEvaluator
 from codeintel2.citadel_common import ScanRequest
+from codeintel2.indexer import PreloadLibRequest
 from codeintel2.parseutil import urlencode_path
 from codeintel2 import perlcile
 from codeintel2.util import isident, isdigit, banner, indent, markup_text

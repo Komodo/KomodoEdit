@@ -71,7 +71,7 @@ from codeintel2.citadel import ImportHandler
 from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, XMLParsingBufferMixin
 from codeintel2.common import *
 from codeintel2 import util
-from codeintel2.indexer import PreloadBufLibsRequest
+from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
 from codeintel2.gencix_utils import *
 from codeintel2.tree_php import PHPTreeEvaluator
 from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,

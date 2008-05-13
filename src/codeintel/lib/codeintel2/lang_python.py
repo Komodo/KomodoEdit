@@ -55,6 +55,7 @@ from SilverCity.Keywords import python_keywords
 
 from codeintel2.common import *
 from codeintel2.citadel import CitadelBuffer, CitadelEvaluator, ImportHandler
+from codeintel2.indexer import PreloadLibRequest
 from codeintel2 import pythoncile
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
 from codeintel2 import tree
