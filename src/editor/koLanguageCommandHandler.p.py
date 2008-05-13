@@ -1581,7 +1581,7 @@ class GenericCommandHandler:
                 if value:
                     sm.anchor = 0
                     sm.searchAnchor()
-                    loc = sm.searchNext(0, self._last_tabstop[1])
+                    loc = sm.searchNext(sm.SCFIND_MATCHCASE, self._last_tabstop[1])
                     sm.beginUndoAction()
                     try:
                         while loc >= 0:
@@ -1592,7 +1592,7 @@ class GenericCommandHandler:
                             sm.replaceSel(value)
                             tab_handled = True
                             sm.searchAnchor()
-                            loc = sm.searchNext(0, self._last_tabstop[1])
+                            loc = sm.searchNext(sm.SCFIND_MATCHCASE, self._last_tabstop[1])
                     finally:
                         sm.endUndoAction()
                     sm.anchor = 0
