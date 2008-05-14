@@ -194,8 +194,10 @@ class KoRubyLanguage(KoLanguageBase):
     _dedenters = ['break', 'redo', 'next', 'raise', 'retry', 'return']
     _limited_openers = ['begin', 'class', 'def', 'for', 'module', 'case',
                         'if', 'unless', 'until', 'while']
-    _openers = _limited_openers + ['do']  # Don't emit 'end lines' on 'do'
+    _ending_openers = ['do']
+    _openers = _limited_openers + _ending_openers
     _enders = ['end']
+    _loop_kwds = ('for', 'while', 'until')
     
     _keyword_letters = string.letters
 
@@ -314,6 +316,81 @@ end section
             tokens.append(Token(prev_style, curr_text, prev_pos))
         return tokens
 
+    def _do_preceded_by_looper(self, tokens, do_style, style_info):
+        # Don't process 'noise' do words -- if this 'do' is preceded
+        # by one of 'for' 'while' 'until' do nothing
+        # tokens ends with the token before the 'do' that triggered this
+        check_for_rhtml = do_style == sci_constants.SCE_UDL_SSL_WORD
+        for tok in reversed(tokens):
+            (style, text, tok_pos) = tok.explode()
+            if style in style_info._keyword_styles and text in self._loop_kwds:
+                return True
+            elif style in style_info._lineup_styles and text == ";":
+                # Hit the end of a previous statement on one line
+                return False
+            elif (check_for_rhtml
+                  and (style < sci_constants.SCE_UDL_SSL_DEFAULT
+                       or style > sci_constants.SCE_UDL_SSL_VARIABLE)):
+                return False
+        return False
+
+    def _have_significant_ending_do(self, scimoz, style_info, lineStartPos, initialPos):
+        tokens = self._get_line_tokens(scimoz, lineStartPos, initialPos, style_info)
+        try:
+            (style, text, tok_pos) = tokens[-1].explode()
+        except IndexError:
+            return False
+        if not (style in style_info._keyword_styles and text == 'do'):
+            return False
+        return not self._do_preceded_by_looper(tokens[:-1], style, style_info)
+
+    def _check_for_do(self, ch, scimoz, style_info, initialPos):
+        initialLine = scimoz.lineFromPosition(initialPos)
+        lineStartPos = scimoz.positionFromLine(initialLine)
+        if self._have_significant_ending_do(scimoz, style_info, lineStartPos, initialPos):
+            self._insert_end_keyword(scimoz, ch, initialLine, lineStartPos)
+
+    def _insert_end_keyword(self, scimoz, ch, initialLine, lineStartPos):
+        # Look to see if we need to follow it with an 'end'
+        curr_indent = self._getActualIndent(scimoz, initialLine, lineStartPos)
+        if self._startsNewBlock(scimoz, initialLine, curr_indent):
+            if ch == "\n" or ch == "\r":
+                # The character caused a newline to be inserted,
+                # so we need to insert the 'end' line below the
+                # newly inserted line.
+                if scimoz.lineFromPosition(scimoz.length) == initialLine + 1:
+                    new_pos = scimoz.length
+                    curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
+                else:
+                    new_pos = scimoz.positionFromLine(initialLine + 2)
+            elif scimoz.lineFromPosition(scimoz.length) == initialLine:
+                # Bug 41788:
+                # If the end of the buffer is on the current line
+                # prepend another newline sequence to the generated
+                # text.
+                new_pos = scimoz.length
+                curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
+            else:
+                new_pos = scimoz.positionFromLine(initialLine + 1)
+            generated_line = curr_indent + "end" + eol2eolStr[scimozEOL2eol[scimoz.eOLMode]]
+            # log.debug("Inserting [%s] at posn %d (line %d)", generated_line, new_pos, scimoz.lineFromPosition(new_pos))
+            scimoz.insertText(new_pos, generated_line)
+
+    def _lineStartIsDefault(self, scimoz, style_info, lineStartPos, currentPos):
+        style1 = getActualStyle(scimoz, lineStartPos)
+        if style1 in (list(style_info._default_styles)
+                      + list(style_info._keyword_styles)):
+            return True
+        # Are we in RHTML, and the line-start is TPL or HTML?
+        style2 = getActualStyle(scimoz, currentPos)
+        if ((style1 < sci_constants.SCE_UDL_SSL_DEFAULT
+             or style1 > sci_constants.SCE_UDL_SSL_VARIABLE)
+            and (sci_constants.SCE_UDL_SSL_DEFAULT <= style2 <= sci_constants.SCE_UDL_SSL_VARIABLE)):
+            # This breaks if we have [Ruby]%> <%= <kwd>] - tough
+            return True
+        return False
+
+
     def _checkForSlider(self, ch, scimoz, style_info):
         # Looking for a reason to adjust indentation on a slider or ender
         # Successful shifting requires 14 scimoz calls
@@ -356,17 +433,17 @@ end section
         log.debug("_checkForSlider, line-start(%d), curr-pos(%d), line-end(%d)" % (lineStartPos, currentPos, lineEndPos))
         # 3 calls to verify we have ^[def]...[kwd]<|>[non-kwd]
         if (currentPos == lineStartPos or
-            (not at_EOL and lineEndPos > currentPos + 1) or
-            getActualStyle(scimoz, lineStartPos) not in \
-                list(style_info._default_styles) + list(style_info._keyword_styles)):
+            (not at_EOL and lineEndPos > currentPos + 1)):
             return
+        if not self._lineStartIsDefault(scimoz, style_info, lineStartPos, currentPos):
+            return self._check_for_do(ch, scimoz, style_info, initialPos)
         
         # Verify we match ^\s*(\w+)$
         # Last call to scimoz
         line = scimoz.getTextRange(lineStartPos, currentPos)
         wmatch = self.only_optws_word.match(line)
         if wmatch is None:
-            return
+            return self._check_for_do(ch, scimoz, style_info, initialPos)
 
         leading_ws, leading_kwd = wmatch.group(1, 2)
         do_smart_indenting = True
@@ -380,30 +457,7 @@ end section
         
         if leading_kwd not in self._dedent_sliders and do_smart_indenting:
             if leading_kwd in self._limited_openers:
-                # Look to see if we need to follow it with an 'end'
-                curr_indent = self._getActualIndent(scimoz, initialLine, lineStartPos)
-                if self._startsNewBlock(scimoz, initialLine, curr_indent):
-                    if ch == "\n" or ch == "\r":
-                        # The character caused a newline to be inserted,
-                        # so we need to insert the 'end' line below the
-                        # newly inserted line.
-                        if scimoz.lineFromPosition(scimoz.length) == initialLine + 1:
-                            new_pos = scimoz.length
-                            curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
-                        else:
-                            new_pos = scimoz.positionFromLine(initialLine + 2)
-                    elif scimoz.lineFromPosition(scimoz.length) == initialLine:
-                        # Bug 41788:
-                        # If the end of the buffer is on the current line
-                        # prepend another newline sequence to the generated
-                        # text.
-                        new_pos = scimoz.length
-                        curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
-                    else:
-                        new_pos = scimoz.positionFromLine(initialLine + 1)
-                    generated_line = curr_indent + "end" + eol2eolStr[scimozEOL2eol[scimoz.eOLMode]]
-                    # log.debug("Inserting [%s] at posn %d (line %d)", generated_line, new_pos, scimoz.lineFromPosition(new_pos))
-                    scimoz.insertText(new_pos, generated_line)
+                self._insert_end_keyword(scimoz, ch, initialLine, lineStartPos)
             return
         
         parentLine = self._getParentLine(scimoz, initialLine)
@@ -745,7 +799,7 @@ end section
                 elif style in style_info._keyword_styles:
                     this_delta = self._calc_keywords_change(tokens, idx, text, style_info)
                     if this_delta != 0:
-                        log.debug("_calcIndentLevel: moving from del %d => %d on %s" % (indent_delta, indent_delta + this_delta, text))
+                        log.debug("_calcIndentLevel: line %d: moving from del %d => %d on %s" % (curr_line, indent_delta, indent_delta + this_delta, text))
                     indent_delta += this_delta
                 elif (style in style_info._multiline_styles
                       and idx == 0
@@ -900,7 +954,14 @@ end section
                     # Don't dedent if we *might* be modifying the line
                     return 0
             return -1
-        elif curr_text in self._openers:
+        elif curr_text in self._limited_openers:
+            return +1
+        elif curr_text in self._ending_openers:
+            # Don't add an indent if this is a "noise" keyword
+            if self._do_preceded_by_looper(tokens[:idx],
+                                           tokens[idx].style, style_info):
+                # We'll count the indent when we reach the 'looper'
+                return 0
             return +1
         return 0
 
