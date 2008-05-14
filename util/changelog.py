@@ -106,7 +106,7 @@ def changelog_html(start_rev, end_rev):
 def _svnview_base_url():
     stdout = _capture_stdout(['svn', 'info', dirname(__file__)])
     for line in stdout.splitlines(0):
-        if line.startswith("Repository Root:"):
+        if line.startswith("Repository Root"):
             root = line.split(':', 1)[1].strip()
             if '//svn.openkomodo.com' in root:
                 return "http://svn.openkomodo.com/openkomodo"
