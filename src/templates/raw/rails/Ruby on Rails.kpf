@@ -1198,27 +1198,27 @@ try {
 <preference-set id="test all">
   <string id="command_line">rake test</string>
   <string relative="url" id="directory"></string>
-  <string id="language">Ruby</string>
+  <string id="language">Ruby - Rake tests</string>
 </preference-set>
 <preference-set id="test:functionals">
   <string id="command_line">rake test:functionals</string>
   <string relative="url" id="directory"></string>
-  <string id="language">Ruby</string>
+  <string id="language">Ruby - Rake tests</string>
 </preference-set>
 <preference-set id="test:integration">
   <string id="command_line">rake test:integration</string>
   <string relative="url" id="directory"></string>
-  <string id="language">Ruby</string>
+  <string id="language">Ruby - Rake tests</string>
 </preference-set>
 <preference-set id="test:plugins">
   <string id="command_line">rake test:plugins</string>
   <string relative="url" id="directory"></string>
-  <string id="language">Ruby</string>
+  <string id="language">Ruby - Rake tests</string>
 </preference-set>
 <preference-set id="test:units">
   <string id="command_line">rake test:units</string>
   <string relative="url" id="directory"></string>
-  <string id="language">Ruby</string>
+  <string id="language">Ruby - Rake tests</string>
 </preference-set>
 </preference-set>
 </preference-set>
