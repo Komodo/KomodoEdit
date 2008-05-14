@@ -159,7 +159,7 @@ this.addMacro = function peMacro_addMacro(/*koIPart*/ parent)
         "chrome,centerscreen,close=yes,dependent=no,resizable=yes", obj);
 }
 
-this.executeMacro = function macro_executeMacro(part, async)
+this.executeMacro = function macro_executeMacro(part, async, observer_arguments)
 {
     log.info("executeMacro part.id:"+part.id);
     try {
@@ -167,11 +167,14 @@ this.executeMacro = function macro_executeMacro(part, async)
         var language = part.getStringAttribute('language').toLowerCase();
         if (typeof(async) == "undefined")
             async = part.getBooleanAttribute('async');
-        if (language == 'javascript' && async) {
-            window.setTimeout('ko.projects.executeMacroById("' + part.id +
-                              '", ' + async + ')', 10);
+        if (async
+            && (language == 'javascript'
+                || typeof(observer_arguments) != "undefined")) {
+            // Python notification observers use this technique.
+            setTimeout(_executeMacro, 10,
+                       part, false, observer_arguments);
         } else {
-            return _executeMacro(part, async);
+            return _executeMacro(part, async, observer_arguments);
         }
     } catch (e) {
         log.exception(e);
@@ -193,7 +196,7 @@ this.executeMacroById = function macro_executeMacroById(id, asynchronous) {
     return false;
 }
 
-function _executeMacro(part, asynchronous) {
+function _executeMacro(part, asynchronous, observer_arguments) {
     // Returns true if there was a problem running the macro
     // The synchronous flag is not used for JavaScript, since the timeout
     // has already occurred by the time we get called here.  JS execution
@@ -211,7 +214,8 @@ function _executeMacro(part, asynchronous) {
         switch (language) {
             case 'javascript':
                 try {
-                    retval = ko.macros.evalAsJavaScript(part.value, part);
+                    retval = ko.macros.evalAsJavaScript(part.value, part,
+                                                        observer_arguments);
                 } catch (e) {
                     exception = String(e);
                 }
@@ -227,9 +231,19 @@ function _executeMacro(part, asynchronous) {
                     if (view && view.getAttribute('type') == 'editor' && view.scimoz) {
                         editor = view.scimoz;
                     }
-                    retval = part.evalAsPython(document, window, editor,
-                                               doc, view,
-                                               part.value, asynchronous);
+                    if (typeof(observer_arguments) == "undefined") {
+                        retval = part.evalAsPython(document, window, editor,
+                                                   doc, view,
+                                                   part.value, asynchronous);
+                    } else {
+                        retval = part.evalAsPythonObserver(document, window, editor,
+                                                   doc, view,
+                                                   part.value,
+                                                   false,
+                                                   observer_arguments['subject'],
+                                                   observer_arguments['topic'],
+                                                   observer_arguments['data']);
+                    }
                 } catch (e) {
                     log.exception(e);
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -281,7 +295,9 @@ function MacroEventHandler() {
         'trigger_postsave' : [],
         'trigger_preclose' : [],
         'trigger_postclose' : [],
-        'trigger_quit' : [] };
+        'trigger_quit' : [] ,
+        'trigger_observer' : []
+        };
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'macro-load', false);
@@ -291,26 +307,47 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'command-docommand',false);
     this.log = ko.logging.getLogger('macros.eventHandler');
     //this.log.setLevel(ko.logging.LOG_DEBUG);
+    this._trigger_observers = {};
 }
 
-function _macro_ranking(mac1, mac2) {
-    // Sort ascending; sort unranked macros after ranked
-    if (! mac1.hasAttribute('rank')) {
-        return ! mac2.hasAttribute('rank') ? 0 : 1;
-    }
-    if (! mac2.hasAttribute('rank')) return -1;
-    return mac1.getLongAttribute('rank') - mac2.getLongAttribute('rank');
-}
-
-MacroEventHandler.prototype.callHookedMacros = function(trigger) {
+MacroEventHandler.prototype._triggersAreEnabled = function() {
     var prefs = Components.classes["@activestate.com/koPrefService;1"].
-                    getService(Components.interfaces.koIPrefService).prefs;
-    if (!prefs.getBooleanPref("triggering_macros_enabled")) {
+    getService(Components.interfaces.koIPrefService).prefs;
+    return prefs.getBooleanPref("triggering_macros_enabled");
+};
+
+MacroEventHandler.prototype._triggerWrapper = {
+    observe : function(subject, topic, data) {
+        // 'this' isn't 'me', so call the global singleton
+        if (!ko.macros.eventHandler._triggersAreEnabled()) {
+            dump("_triggersAreEnabled? no\n");
+            return false;
+        }
+        var observer_arguments = {
+            subject: subject,
+            topic  : topic,
+            data   : data
+        }
+        var macro_list = ko.macros.eventHandler._hookedMacrosByTrigger['trigger_observer'];
+        for (var macro, i = 0; macro = macro_list[i]; i++) {
+            if (macro.hasAttribute("trigger_observer_topic")
+                && macro.getStringAttribute("trigger_observer_topic") == topic
+                && ko.projects.executeMacro(macro, macro.getBooleanAttribute('async'),
+                                            observer_arguments)) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+    
+MacroEventHandler.prototype.callHookedMacros = function(trigger) {
+    if (!this._triggersAreEnabled()) {
         return false;
     }
     var macro_list = this._hookedMacrosByTrigger[trigger];
     for (var macro, i = 0; macro = macro_list[i]; i++) {
-        if (ko.projects.executeMacro(macro, false)) {
+        if (ko.projects.executeMacro(macro, macro.getBooleanAttribute('async'))) {
             return true;
         }
     }
@@ -372,41 +409,89 @@ MacroEventHandler.prototype.addMacro = function(macropart) {
             return;
         }
         this._insertNewMacro(macro_list, macropart);
+        if (trigger == 'trigger_observer') {
+            this._addObserverMacro(macropart);
+        }
     } else {
         this.log.debug("Macro " + macropart.name + " has no trigger");
     }
 }
 
+MacroEventHandler.prototype._addObserverMacro = function(macropart) {
+    var topic = macropart.getStringAttribute('trigger_observer_topic');
+    if (!(topic in this._trigger_observers)) {
+        this._trigger_observers[topic] = 1;
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+               getService(Components.interfaces.nsIObserverService);
+        obsSvc.addObserver(this._triggerWrapper, topic, false);
+        // Put it on the ActiveState observer service as well
+        obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+               getService(Components.interfaces.nsIObserverService);
+        obsSvc.addObserver(this._triggerWrapper, topic, false);
+    } else {
+        this._trigger_observers[topic] += 1;
+    }
+};
+
+MacroEventHandler.prototype._removeObserverMacro = function(macropart, topic) {
+    if (!(topic in this._trigger_observers)) {
+        this.log.warn("Unexpected precondition failure: "
+                      + "Removing an unused observer ("
+                      + topic
+                      + "), macro "
+                      + macropart.name
+                      + ", project "
+                      + macropart.project.url
+                      + "\n");
+        return;
+    }
+    this._trigger_observers[topic] -= 1;
+    if (this._trigger_observers[topic] <= 0) {
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+               getService(Components.interfaces.nsIObserverService);
+        obsSvc.removeObserver(this._triggerWrapper, topic);
+        obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+               getService(Components.interfaces.nsIObserverService);
+        obsSvc.removeObserver(this._triggerWrapper, topic);
+        delete this._trigger_observers[topic];
+    }
+};
+
 MacroEventHandler.prototype.updateMacroHooks = function(item, old_props, new_props) {
+    var trigger_topic = (old_props.trigger == 'trigger_observer'
+                         ? old_props.trigger_observer_topic : null);
     if (!old_props.trigger_enabled) {
         if (new_props.trigger_enabled) {
             this.addMacro(item);
         }
     } else if (!new_props.trigger_enabled) {
-        this.removeMacro(item, old_props.trigger);
+        this.removeMacro(item, old_props.trigger, trigger_topic);
     } else if (old_props.trigger != new_props.trigger) {
-        this.removeMacro(item, old_props.trigger);
+        this.removeMacro(item, old_props.trigger, trigger_topic);
+        this.addMacro(item);
+    } else if (new_props.trigger == 'trigger_observer'
+               && (old_props.trigger_observer_topic
+                   != new_props.trigger_observer_topic)) {
+        this.removeMacro(item, old_props.trigger, trigger_topic);
         this.addMacro(item);
     } else if (old_props.rank != new_props.rank) {
-        dump("Changing rank for trigger type "
-             + item.getStringAttribute('trigger')
-             + "\n");
         var macro_list = this._hookedMacrosByTrigger[new_props.trigger];
-        var idx = this._findMacro(macro_list, macropart);
+        var idx = this._findMacro(macro_list, item);
         if (idx >= 0) {
             macro_list.splice(idx, 1); // remove it
         } else {
-            dump("Expected to find macro "
+            this.log.info("Expected to find macro "
                           + item.name
                           + " on the list for "
                           + new_props.trigger
                           + ", but didn't\n.");
         }
         this._insertNewMacro(macro_list, item);
+        // No updates needed for notification triggers
     }
 };
 
-MacroEventHandler.prototype.removeMacro = function(macropart, trigger) {
+MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     // A macro has been removed -- we should remove it from
     // the list of hooks
     try {
@@ -423,6 +508,20 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger) {
         var idx = this._findMacro(macro_list, macropart);
         if (idx >= 0) {
             macro_list.splice(idx, 1); // remove it
+            if (trigger == 'trigger_observer') {
+                if (typeof(topic) == "undefined") {
+                    topic = ((macropart.getStringAttribute("trigger_observer_topic"))
+                             ? macropart.getStringAttribute("trigger_observer_topic") : null);
+                }
+                if (topic) {
+                    this._removeObserverMacro(macropart, topic);
+                } else {
+                    this.log.warn("Can't find a topic for observer "
+                                  + macropart.name
+                                  + " in project "
+                                  + macropart.project.name);
+                }
+            }
             return;
         }
     } catch (e) {
@@ -547,10 +646,16 @@ function(macro)
     _partSvc.runningMacro = macro;
 });
 
-this.evalAsJavaScript = function macro_evalAsJavascript(__code, part /* = null */) {
+this.evalAsJavaScript = function macro_evalAsJavascript(__code,
+                                                        part, /* = null */
+                                                        __observer_arguments /* = null */
+                                                        ) {
     try {
         if (typeof(part) == 'undefined') {
             part = null;
+        }
+        if (typeof(__observer_arguments) == 'undefined') {
+            __observer_arguments = null;
         }
         var view = null;
         if (ko.views.manager.currentView) {
@@ -560,10 +665,19 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code, part /* = null *
         ko.macros.current = part;
         var komodo = new _KomodoJSMacroAPI(part, view);
         var __retcode = -1;
+        var __header = (__observer_arguments ? "subject, topic, data" : "");
         try {
-            var __compiled_func = eval("(function() { \n" + __code + "\n })");
+            var __compiled_func = (__observer_arguments
+                                   ? new Function('komodo', 'subject', 'topic', 'data', __code)
+                                   : new Function('komodo', __code));
+            // eval("(function(" + __header + ") { \n" + __code + "\n })");
             try {
-                __retcode = __compiled_func();
+                __retcode = (__header
+                             ? __compiled_func(komodo,
+                                               __observer_arguments.subject,
+                                               __observer_arguments.topic,
+                                               __observer_arguments.data)
+                             : __compiled_func(komodo));
             } catch(rex) {
                 _macro_error(rex, "running", part);
             }

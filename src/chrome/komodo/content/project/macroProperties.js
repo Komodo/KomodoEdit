@@ -39,7 +39,9 @@ var gDefaultPartIconURL = null;
 var gTriggerGroup, gRank, gLanguage, gTriggerCheckbox, gRunInBackground;
 var log = ko.logging.getLogger("macroproperties");
 var gTriggerTypes = ['trigger_startup', 'trigger_postopen', 'trigger_presave', 'trigger_postsave',
-                   'trigger_preclose', 'trigger_postclose', 'trigger_quit'];
+                     'trigger_preclose', 'trigger_postclose', 'trigger_quit',
+                     'trigger_observer'];
+var gTriggerObserverNotification, gTriggerObserverRunsInBackground;
 var gPartNameLabelKeybinding;
 var gPartNameLabelTrigger;
 var gMacroContents;
@@ -55,6 +57,11 @@ function _getTriggerProperties(item) {
             if (obj.trigger_enabled) {
                 obj.trigger = item.getStringAttribute('trigger');
                 obj.rank = item.getLongAttribute('rank');
+                if (obj.trigger == 'trigger_observer') {
+                    obj.trigger_observer_topic = (item.hasAttribute('trigger_observer_topic')
+                                                  ? item.getStringAttribute('trigger_observer_topic')
+                                                  : "");
+                }
             }
         } else {
             obj.trigger_enabled = false;
@@ -131,6 +138,14 @@ function onLoad() {
             // just setting something for the sake of setting something.
             gTriggerGroup.selectedItem = document.getElementById('trigger_postopen');
         }
+        gTriggerObserverNotification = document.getElementById('trigger_observer_name');
+        if (gPart.hasAttribute('trigger_observer_topic')
+            && gPart.getStringAttribute('trigger_observer_topic')) {
+            gTriggerObserverNotification.value = gPart.getStringAttribute('trigger_observer_topic');
+            gTriggerObserverRunsInBackground = (gPart.hasAttribute('async')
+                                                && gPart.getBooleanAttribute('async'));
+        }
+
         if (! _gPrefSvc.prefs.getBooleanPref("triggering_macros_enabled")) {
             gTriggerCheckbox.setAttribute('disabled', 'true');
             gTriggerCheckbox.setAttribute('tooltiptext', "Triggering of macros on events has been disabled in Edit/Preferences/Workspace...");
@@ -139,12 +154,16 @@ function onLoad() {
             gPart.getBooleanAttribute('trigger_enabled')) {
             gTriggerCheckbox.setAttribute('checked', 'true');
             gTriggerGroup.removeAttribute('disabled');
+            gTriggerObserverNotification.removeAttribute('disabled');
         } else {
             gTriggerCheckbox.removeAttribute('checked');
             gTriggerGroup.setAttribute('disabled', 'true');
+            gTriggerObserverNotification.setAttribute('disabled', 'true');
         }
         if (gPart.hasAttribute('async')) {
             gRunInBackground.checked = gPart.getBooleanAttribute('async');
+        } else {
+            gRunInBackground.checked = false;
         }
         UpdateField('do_trigger', true);
         UpdateField('background', true);
@@ -194,6 +213,16 @@ function _Apply()  {
         var elt, trueOrFalse;
         if (gTriggerCheckbox.hasAttribute('checked')) {
             gPart.setBooleanAttribute('trigger_enabled', true);
+            if (gTriggerGroup.selectedItem.id == 'trigger_observer') {
+                var notificationTopic = 
+                    gTriggerObserverNotification.value.match(/^\s*(.*?)\s*$/)[1];
+                if (!notificationTopic) {
+                    alert("A value is required for notification triggers");
+                    gTriggerObserverNotification.focus();
+                    return false;
+                }
+                gPart.setStringAttribute('trigger_observer_topic', notificationTopic);
+            }
         } else {
             gPart.setBooleanAttribute('trigger_enabled', false);
         }
@@ -288,37 +317,56 @@ function UpdateField(field, initializing /* =false */)
                 var enabled = (_gPrefSvc.prefs.getBooleanPref("triggering_macros_enabled") &&
                             gTriggerCheckbox.getAttribute('checked') == 'true');
                 if (enabled) {
+                    gTriggerGroup.removeAttribute('disabled');
                     for (var i = 0; i < gTriggerTypes.length; i++) {
                         document.getElementById(gTriggerTypes[i]).removeAttribute('disabled');
                     }
                     gRank.removeAttribute('disabled');
+                    gTriggerObserverNotification.removeAttribute('disabled');
                     if (typeof(gTriggerGroup.selectedItem) == 'undefined') {
                         var presave = document.getElementById('trigger_presave')
                         gTriggerGroup.selectedItem = presave;
                     }
                     UpdateField('trigger_type', 0);
-                    gRunInBackground.setAttribute('disabled', 'true');
-                    gRunInBackground.removeAttribute('checked');
                 } else {
+                    gTriggerGroup.setAttribute('disabled', 'true');
                     for (var i = 0; i < gTriggerTypes.length; i++) {
                         document.getElementById(gTriggerTypes[i]).setAttribute('disabled', 'true');
                     }
                     gRank.setAttribute('disabled', 'true');
+                    gTriggerObserverNotification.setAttribute('disabled', 'true');
                     gRunInBackground.removeAttribute('disabled');
                 }
                 break;
             case 'trigger_type':
-                //gRunInBackground.removeAttribute('disabled');
                 switch (gTriggerGroup.selectedItem.id) {
+                    case 'trigger_observer':
+                        gRunInBackground.removeAttribute('disabled');
+                        UpdateField('trigger_observer', false);
+                        break;
                     case 'trigger_presave':
                     case 'trigger_preclose':
                     case 'trigger_quit':
+                        gRunInBackground.setAttribute('disabled', 'true');
                         gRunInBackground.removeAttribute('checked');
                         break;
                     default:
+                        gRunInBackground.setAttribute('disabled', 'true');
                         gRunInBackground.setAttribute('checked', 'true');
                 }
                 //ko.trace.get().dumpDOM(gRunInBackground);
+                break;
+            case 'trigger_observer':
+                if (gTriggerObserverRunsInBackground) {
+                    gRunInBackground.setAttribute('checked', 'true');
+                } else {
+                    gRunInBackground.removeAttribute('checked');
+                }
+                break;
+            case 'background':
+                if (gTriggerGroup.selectedItem.id == 'trigger_observer') {
+                    gTriggerObserverRunsInBackground = gRunInBackground.checked;
+                }
         }
         if (!initializing && changed) {
             updateOK();
@@ -352,6 +400,13 @@ function update_icon(URI)
     }
 }
 
+function selectTriggerObserver() {
+    if (gTriggerGroup.selectedItem != document.getElementById("trigger_observer")) {
+        gTriggerGroup.selectedItem = document.getElementById("trigger_observer");
+        UpdateField('trigger_type', true);
+    }
+}
+
 function pick_icon(useDefault /* false */)
 {
     try {
@@ -381,14 +436,7 @@ function SwitchLanguage(language)
 function setupTriggers() {
     // This function fills in the UI w.r.t. what triggers the macro
     // based on the part attributes.
-    var elt, setting;
-    for (var i = 0; i < gTriggerTypes.length; i++) {
-        elt = document.getElementById(gTriggerTypes[i]);
-        if (gPart.hasAttribute(gTriggerTypes[i]) &&
-            gPart.getBooleanAttribute(gTriggerTypes[i])) {
-            elt.setAttribute('checked', 'true');
-        }
-    }
+
     var rank = 100;
     if (gPart.hasAttribute('rank')) {
         rank = gPart.getLongAttribute('rank');

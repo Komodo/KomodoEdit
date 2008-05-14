@@ -74,6 +74,7 @@
 <!ENTITY maintainSelectedTextOrCursorPositionAfterInsertion.label "Maintain selected text or cursor position after insertion">
 <!ENTITY makeAFolderPerLanguage.label "Make a folder per language">
 <!ENTITY makeOneFlatList.label "Make one flat list">
+<!ENTITY onASystemNotification.label "On a system notification:">
 <!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the macro can return true to prevent shutdown)">
 <!ENTITY onStartup.label "On startup">
 <!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
@@ -101,5 +102,7 @@
 <!ENTITY triggerPresave.accesskey "s">
 <!ENTITY triggerQuit.accesskey "q">
 <!ENTITY triggerStartup.accesskey "t">
+<!ENTITY triggerSystemNotification.accesskey "f">
+<!ENTITY triggerSystemNotificationName.accesskey "n">
 <!ENTITY triggers.label "Triggers">
 <!ENTITY wSelectionOrWordUnderCursor.label "[[&#37;w]]: selection or word under cursor">

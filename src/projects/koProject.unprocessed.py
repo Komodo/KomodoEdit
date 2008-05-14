@@ -1188,10 +1188,11 @@ class koMacroPart(koPart):
             except OSError:
                 log.warn("Couldn't read the macro: %r, skipping conversion", fname)
                 return
-        try:
-            self._getObserverSvc().notifyObservers(self,'macro-load','')
-        except:
-            pass # no listener
+        if not self._project._quiet:
+            try:
+                self._getObserverSvc().notifyObservers(self,'macro-load','')
+            except:
+                pass # no listener
         koPart.added(self)
 
     def removed(self, previous_parent):
@@ -1201,16 +1202,26 @@ class koMacroPart(koPart):
             pass # no listener
         koPart.removed(self, previous_parent)
 
-    def evalAsPython(self, domdocument, window, scimoz, document,
-                     view, code, async):
+    def _asyncMacroCheck(self, async):
         if async:
             lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                 .getService(components.interfaces.koILastErrorService)
             err = "Asynchronous python macros not yet implemented"
             lastErrorSvc.setLastError(1, err)
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
+
+    def evalAsPython(self, domdocument, window, scimoz, document,
+                     view, code, async):
+        self._asyncMacroCheck(async)
         evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
                         domdocument, window, scimoz, document, view, code)
+        
+    def evalAsPythonObserver(self, domdocument, window, scimoz, document,
+                             view, code, async, subject, topic, data):
+        self._asyncMacroCheck(async)
+        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
+                        domdocument, window, scimoz, document, view, code,
+                        subject, topic, data)
 
 # See factory functions below
 class koWebServicePart(koURLPart):
@@ -2901,7 +2912,8 @@ def macro_openURI(uri):
           getService(components.interfaces.nsIObserverService);
     obsvc.notifyObservers(None, 'open-url', uri);
 
-def evalPythonMacro(part, domdocument, window, scimoz, document, view, code):
+def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
+                    subject=None, topic="", data=""):
     lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
         .getService(components.interfaces.koILastErrorService)
     lastErrorSvc.setLastError(0, '')
@@ -2917,6 +2929,10 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code):
     macroGlobals = {}
     macroGlobals['komodo'] = komodo
     macroGlobals['window'] = window
+    if topic:
+        macroGlobals['subject'] = subject
+        macroGlobals['topic'] = topic
+        macroGlobals['data'] = data
 
     _partSvc = components.classes["@activestate.com/koPartService;1"]\
         .getService(components.interfaces.koIPartService)
@@ -3122,9 +3138,11 @@ class KoPartService(object):
                     yield part
 
     def observe(self, subject, topic, data):
+        #XXX This routine is never invoked from within Komodo
         if topic != 'python_macro':
             return
         window = self.wm.getMostRecentWindow('Komodo');
+        #XXX Wrong number of arguments in this call
         evalPythonMacro(None, None, window, None, data)
 
 class koProjectPackageService:

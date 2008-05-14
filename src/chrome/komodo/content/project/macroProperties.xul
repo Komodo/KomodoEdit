@@ -248,6 +248,18 @@
                                oncommand="UpdateField('trigger_type')"
                                label="&onShutdownTheMacroCanReturnTrueToPreventShutdown.label;"/>
                         </hbox>
+                        <hbox align="center">
+                            <radio id="trigger_observer"
+                               accesskey="&triggerSystemNotification.accesskey;"
+                               oncommand="UpdateField('trigger_type')"
+                               label="&onASystemNotification.label;"/>
+                            <textbox id="trigger_observer_name"
+                                     accesskey="&triggerSystemNotificationName.accesskey;"
+                                     size="40"
+                                     onkeydown="selectTriggerObserver();"
+                                     />
+                        </hbox>
+                        
                     </radiogroup>
                     <spacer height="10"/>
                     <hbox align="center">

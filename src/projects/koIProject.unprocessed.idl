@@ -304,7 +304,7 @@ interface koIPart_URL: koIPart {
 interface koIPart_webservice: koIPart {
 };
 
-[scriptable, uuid(BFAC0E16-3B01-409a-96D8-E2CAC9AA302B)]
+[scriptable, uuid(4EC408EA-4B0C-4519-805E-9CDB3C3596B9)]
 interface koIPart_macro: koIPart {
     wstring evalAsPython(in nsIDOMDocument domdocument,
                          in nsIDOMWindowInternal window,
@@ -313,6 +313,18 @@ interface koIPart_macro: koIPart {
                          in koIView view,
                          in wstring code,
                          in boolean asynchronous);
+    wstring evalAsPythonObserver(in nsIDOMDocument domdocument,
+                                 in nsIDOMWindowInternal window,
+                                 in ISciMoz scimoz,
+                                 in koIDocument document,
+                                 in koIView view,
+                                 in wstring code,
+                                 in boolean asynchronous,
+                                 // These three args are same as
+                                 // nsIObserver.observe
+                                 in nsISupports subject,
+                                 in string      topic,
+                                 in wstring     data );
 };
 
 [scriptable, uuid(1DE1C350-5975-4E6E-A4F7-7182223CE180)]
