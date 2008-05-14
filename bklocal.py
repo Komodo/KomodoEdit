@@ -2463,7 +2463,7 @@ class SCCBranch(black.configure.Datum):
     def _get_repo_url(self, dir):
         stdout = _capture_stdout(['svn', 'info', dir])
         for line in stdout.splitlines(0):
-            if line.startswith("URL:"):
+            if re.compile(r"^URL\s*:").match(line):
                 return line.split(':', 1)[1].strip()
 
     def _Determine_Do(self):
