@@ -248,16 +248,35 @@ def merge_cix_elements(elem1, elem2, appendChildrenAsPrivate=False):
         elem2.remove(child)
         elem1.append(child)
 
-def merge_module_scopes(mod, root, tree):
+def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
     # Find the right blob name to merge with.
     root_file = root.find("file")
     tree_file = tree.find("file")
+    if log:
+        print "mod: %r" % (mod, )
+        print "root_file names"
+        print root_file.names[mod]
+        print
+        print "tree names"
+        print tree_file.names
+        print
     lastname = mod.split(".")[-1]
     try:
-        merge_cix_elements(root_file.names[mod], tree_file.names[lastname],
-                           appendChildrenAsPrivate=True)
+        try:
+            merge_cix_elements(root_file.names[mod], tree_file.names[lastname],
+                               appendChildrenAsPrivate=True)
+        except KeyError:
+            print "%r not found in tree" % (mod, ),
+            if not use_init_fallback:
+                raise
+            print ", trying '__init__'",
+            # Try the "__init__" package name then.
+            # http://bugs.activestate.com/show_bug.cgi?id=76056
+            merge_cix_elements(root_file.names[mod], tree_file.names["__init__"],
+                               appendChildrenAsPrivate=True)
+            print ", found it"
     except KeyError:
-        #print "merge_module_scopes:: scope not found: %r" % (mod, )
+        print ", *not found*"
         pass
 
 def merge_trees(tree1, tree2):
@@ -280,7 +299,7 @@ def process_module_list(module_list, fname, catalog_name=None,
 
     print "Generating CIX Info: ",
     for mod in module_list:
-        print mod,
+        print mod
         sys.stdout.flush()
         try:
             # Introspect the module.
@@ -292,11 +311,14 @@ def process_module_list(module_list, fname, catalog_name=None,
             if mod_path and os.path.splitext(mod_path)[1] == ".py":
                 cix = pythoncile.scan(file(mod_path, "r").read(), mod_path)
                 tree = tree_from_cix(cix)
-                merge_module_scopes(mod, root, tree)
+                merge_module_scopes(mod, root, tree, use_init_fallback=
+                                          (mod_path.endswith("__init__.py")),
+                                    log=False)
         except Exception, e:
+            import traceback
             print "\nEXCEPTION:", e, "when processing", mod
+            traceback.print_exc()
 
-    os.system('p4 edit %s' % fname)
     gencix.writeCixFileForElement(fname, root)
 
     print 'Removing references to 0xF...'
