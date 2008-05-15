@@ -303,6 +303,7 @@ fold "case" SSL_WORD +
 fold "module" SSL_WORD +
 fold "class" SSL_WORD +
 fold "def" SSL_WORD +
+fold "do" SSL_WORD +
 fold "end" SSL_WORD -
 
 
