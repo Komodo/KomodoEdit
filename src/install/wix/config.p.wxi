@@ -69,6 +69,7 @@
   <?else ?>
     <?define ProductURL = "http://www.activestate.com/products/komodo_ide/" ?>
   <?endif ?>
+  <?define UninstallText = "Modify or Uninstall Komodo PP_VER_MAJOR.PP_VER_MINOR" ?>
 
 
   <?if $(var.IsPreReleaseVersion) = "yes" ?>

@@ -333,7 +333,7 @@
               Icon="$(var.KomodoId).exe" IconIndex="0" />
         </File>
         <Shortcut Id="StartMenuUninstallShortcut" Directory="StartMenuDir"
-            Name="UNINST" LongName="Modify or Uninstall Komodo"
+            Name="UNINST" LongName="$(var.UninstallText)"
             Target="[SystemFolder]msiexec.exe"
             Arguments="/i{$(var.ProductCode)}"/>
       </Component>

@@ -75,6 +75,9 @@ Import(
 # Build installer-support files.
 if ($buildFlavour eq "full") {
     if ($platform eq "win") {
+        $komodoVersion =~ /(\d+)\.(\d+)\.(\d+)/;
+        my $majorVer = $1;
+        my $minorVer = $2;
         my $isPreReleaseVersion = ($komodoVersion =~ /-/ ? "yes" : "no");
         my $msiWithCrypto = ($withCrypto ? "yes" : "no");
         $cons->Preprocess(
@@ -90,6 +93,8 @@ if ($buildFlavour eq "full") {
                 "PP_MSI_KOMODO_ID" => $msiKomodoId,
                 "PP_MSI_KOMODO_PRETTY_ID" => $msiKomodoPrettyId,
                 "PP_MSI_KOMODO_VERSION" => $msiKomodoVersion,
+                "PP_VER_MAJOR" => $majorVer,
+                "PP_VER_MINOR" => $minorVer,
 
                 # Using "AVEC" instead of "WITH" to not collide with the
                 # standard "WITH_*" defines for Komodo's preprocessing
