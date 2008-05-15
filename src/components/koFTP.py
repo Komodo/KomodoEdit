@@ -89,21 +89,30 @@ class koFTP(ftplib.FTP):
         if host: self.host = host
         if port: self.port = port
         msg = "getaddrinfo returns an empty list"
-        for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
+        af = None
+        for af_type in (socket.AF_UNSPEC, socket.AF_INET):
             try:
-                self.sock = socket.socket(af, socktype, proto)
-                # Start: added for Komodo socket timeouts
-                if timeout is not None:
-                    self.sock.settimeout(timeout)
-                # End
-                self.sock.connect(sa)
+                address_info = socket.getaddrinfo(self.host, self.port, af_type, socket.SOCK_STREAM)
             except socket.error, msg:
-                if self.sock:
-                    self.sock.close()
-                self.sock = None
+                log_koFTP.warn("socket.getaddrinfo raised exception: %r", msg)
                 continue
-            break
+            for res in address_info:
+                af, socktype, proto, canonname, sa = res
+                try:
+                    self.sock = socket.socket(af, socktype, proto)
+                    # Start: added for Komodo socket timeouts
+                    if timeout is not None:
+                        self.sock.settimeout(timeout)
+                    # End
+                    self.sock.connect(sa)
+                except socket.error, msg:
+                    if self.sock:
+                        self.sock.close()
+                    self.sock = None
+                    continue
+                break
+            if self.sock:
+                break
         if not self.sock:
             raise socket.error, msg
         self.af = af
@@ -133,7 +142,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
     def __del__(self):
         try:
             self.log.debug("__del__: koFTP deleted")
-            if self._connection:
+            if self._connection and self._connection.sock:
                 self._connection.quit()
         except self._FTPExceptions, e:
             #self.log.error("FTP CLOSE ERROR: %s", e)

@@ -352,6 +352,36 @@ class koRFConnection:
                 filepath = filepath.encode(encoding)
         return filepath
 
+    # Open socket functionality taken from connect() method in ftplib.py
+    def _get_and_open_socket(self):
+        s = None
+        msg = "getaddrinfo returns an empty list"
+        # Try unspecified protocol type, then try falling back in IPv4 (AF_INET)
+        # http://bugs.activestate.com/show_bug.cgi?id=76602
+        for af_type in (socket.AF_UNSPEC, socket.AF_INET):
+            try:
+                address_info = socket.getaddrinfo(self.server, self.port, af_type, socket.SOCK_STREAM)
+            except socket.error, msg:
+                self.log.warn("socket.getaddrinfo raised exception: %r", msg)
+                continue
+            for res in address_info:
+                af, socktype, proto, canonname, sa = res
+                try:
+                    s = socket.socket(af, socktype, proto)
+                    s.settimeout(self._socket_timeout)
+                    s.connect(sa)
+                except socket.error, msg:
+                    if s:
+                        s.close()
+                    s = None
+                    continue
+                break
+            if s is not None:
+                break
+        if not s:
+            raise socket.error, msg
+        return s
+
     #
     # XPcom methods, available through koIFTPConnection interface
     #
@@ -736,26 +766,6 @@ class koRemoteSSH(koRFConnection):
             # else, problem logging in
         self.log.warn("SSH error: Invalid username/password")
         return 0
-
-    # Open socket functionality taken from connect() method in ftplib.py
-    def _get_and_open_socket(self):
-        s = None
-        msg = "getaddrinfo returns an empty list"
-        for res in socket.getaddrinfo(self.server, self.port, 0, socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
-            try:
-                s = socket.socket(af, socktype, proto)
-                s.settimeout(self._socket_timeout)
-                s.connect(sa)
-            except socket.error, msg:
-                if s:
-                    s.close()
-                s = None
-                continue
-            break
-        if not s:
-            raise socket.error, msg
-        return s
 
     def do_openSocket(self):
         """Open the SSH connection to the remote site."""
