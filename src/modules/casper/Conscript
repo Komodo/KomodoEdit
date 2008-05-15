@@ -66,9 +66,6 @@ Import(
 #   Install the casper extension by default.
 #   Note: this part is spread out over "src/modules/casper/...Conscript".
 
-$cons->Preprocess('install.p.rdf', 'install.rdf',
-                  {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
-
 if ($buildFlavour ne "full") {
     $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/install.rdf", 'install.rdf');
     $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome.manifest", 'devbuild.manifest');
