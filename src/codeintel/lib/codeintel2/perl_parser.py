@@ -1353,7 +1353,7 @@ class Parser:
     # end look_for_object_var_assignment
 
     # Handle arrays, hashes, typeglobs, but don't bother figuring out a type.
-    # No 'my', 'our', 'state, or 'use vars' given
+    # No 'my', 'our', 'state', or 'use vars' given
     def look_for_var_assignment(self, tok1):
         # First make sure this var hasn't already been defined
         # Is it an implicit global?
