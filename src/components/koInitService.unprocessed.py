@@ -776,6 +776,7 @@ class KoInitService:
             "doc-state.xmlc": "doc-state.xmlc", 
             "view-state.xmlc": "view-state.xmlc", 
             "apicatalogs": "apicatalogs",
+            "dictionaries": "dictionaries",
         }
         hostFilesToUpgrade = {  # files under "host-$HOST" dir to upgrade
             "breakpoints.pickle": "breakpoints.pickle",
