@@ -129,6 +129,7 @@
               <File Id="file396" LongName="regex.html" Name="REGEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex.html" />
               <File Id="file397" LongName="run.html" Name="RUN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\run.html" />
               <File Id="file438" LongName="search.html" Name="SEARCH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\search.html" />
+              <File Id="file452" LongName="sections_list.html" Name="SECTIO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\sections_list.html" />
               <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
               <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
               <File Id="file551" Name="TABSTO_0.HTM" LongName="tabstops.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tabstops.html"/>
@@ -209,6 +210,7 @@
                 <File Id="file277" LongName="rx_button.png" Name="RX_BUT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_button.png" />
                 <File Id="file4752" Name="rx_match.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_match.gif"/>
                 <File Id="file4753" Name="RX_MAT_1.GIF" LongName="rx_matches.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_matches.gif"/>
+                <File Id="file453" LongName="sections_list.png" Name="SECTIO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sections_list.png" />
                 <File Id="file4756" Name="SHARED_1.GIF" LongName="shared_toolbox_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\shared_toolbox_tab.gif"/>
                 <File Id="file4758" Name="SINGLE_1.GIF" LongName="single_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\single_line.gif"/>
                 <File Id="file303" LongName="start_page.png" Name="START__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\start_page.png" />
