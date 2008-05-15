@@ -259,13 +259,10 @@ class KoFileStatusService:
     
             self._cv.acquire()
             try:
-                if topic in ("file_added", "file_status_now"):
-                    self._items_to_check.add((UnwrapObject(subject), data, self.REASON_FORCED_CHECK))
-                    log.debug("Forced recheck of uri: %r", data)
-                elif topic in ("file_changed"):
+                if topic in ("file_added", "file_changed", "file_status_now"):
                     # This notification can come with just about anything for
                     # the subject element, so we need to find the matching
-                    # koIFile for the given uri.
+                    # koIFile for the given uri, supplied by the "data" arg.
                     koIFile = self._fileSvc.getFileFromURI(data)
                     self._items_to_check.add((UnwrapObject(koIFile), data, self.REASON_FILE_CHANGED))
                     log.debug("Forced recheck of uri: %r", data)
