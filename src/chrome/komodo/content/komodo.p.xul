@@ -2508,8 +2508,7 @@
                class="chromeclass-status"
                style="min-height: 1.5em;">
         <statusbarpanel id="statusbar-message" label="&ready.label;" crop="right" flex="1"/>
-        <statusbarpanel id="statusbar-checker"
-                        style="width: 30px;">
+        <statusbarpanel id="statusbar-checker">
             <toolbarbutton id="statusbar-check"
                            tooltiptext="&syntaxCheckingStatus.tooltiptext;"
                            type="menu-button"
@@ -2550,15 +2549,13 @@
                         insertafter="statusbar-line-col"/>
         <statusbarpanel id="statusbar-language"
                         context="context-filetype-menu"
-                        tooltiptext="&fileType.tooltiptext;"
                         style="min-width: 8em; max-width: 12em;">
             <menu class="statusbar-label"
-                  id="statusbar-language-menu">
-                <menupopup
-                    style="height: 250px;"
-                    id = "statusbar-filetype-menu"
-                    onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
-                    />
+                  id="statusbar-language-menu"
+                  tooltiptext="&fileType.tooltiptext;"
+                  flex="1">
+                <menupopup id="statusbar-filetype-menu"
+                    onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();" />
             </menu>
         </statusbarpanel>
     </statusbar>
