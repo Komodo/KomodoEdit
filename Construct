@@ -353,6 +353,7 @@ Build(
     "prebuilt/Conscript",
       
     "$build/modules/spellcheck/Conscript",
+    "$build/modules/zendframework/Conscript",
 
     # 3rd-party contributed code in contrib/...
     "$contribBuild/Conscript",

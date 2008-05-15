@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="7a8b836f-8bb0-1344-bcc4-f84f36210e54" kpf_version="4" name="Zend_MVC_Project.kpf">
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/application_form_add.png" id="493f7a22-58db-794b-8970-df8a41d73681" idref="13114078-bd63-4a43-8f28-00a6b71e53fc" keyboard_shortcut="" language="JavaScript" name="New View" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+/*
+ * @fileoverview create a new View stub in the current project
+ * to customize the format of the controller class stub that is created, edit
+ * the 'Controller' snippet in this project
+ *
+ */
+
+zendutils.addView();
+</macro>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/brick_add.png" id="5205608b-545b-0f4d-b9dd-e352a9df2d5d" idref="13114078-bd63-4a43-8f28-00a6b71e53fc" keyboard_shortcut="" language="JavaScript" name="New Controller" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+/*
+ * @fileoverview create a new Controller stub in the current project
+ * to customize the format of the controller class stub that is created, edit
+ * the 'Controller' snippet in this project
+ *
+ */
+
+zendutils.addController();
+</macro>
+<folder id="d88165a6-b59b-b04d-9228-a16cf5aba5c9" idref="13114078-bd63-4a43-8f28-00a6b71e53fc" name="Abbreviations">
+</folder>
+<macro async="0" icon="chrome://famfamfamsilk/skin/icons/wrench.png" id="ec2f7c86-7012-794a-a228-47f5bb60f266" idref="13114078-bd63-4a43-8f28-00a6b71e53fc" keyboard_shortcut="" language="JavaScript" name="oncreate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+if (typeof(zendutils) !== 'undefined') {
+  var project = ko.projects.manager.currentProject;
+  var projectPath = project.liveDirectory;
+  var hasProjectFS = zendutils.isZendProject(projectPath);
+  var args = {
+    'path': projectPath,
+    'hasFS': hasProjectFS,
+    'scaffold': false,
+    'zendFwPath': false
+  };
+  zendutils.openZendWizard(args);
+  
+  if (args.scaffold == true) {
+    zendutils.setLiveDir(args.projPath);
+    zendutils.scaffold(args.projPath);
+  }
+  
+  if(args.zendFwPath) {
+    zendutils.addReplaceZendFwPath(args.zendFwPath);
+  }
+  var part = project.getChildByAttributeValue('name', 'oncreate',1);
+  if(part) { part.name = 'Configure'; }
+  
+}
+</macro>
+<snippet id="59ef3368-054a-644f-8ab6-609edb83d12c" idref="51474ec9-2ba0-2146-b210-2933a98077b9" indent_relative="false" keyboard_shortcut="" name="IndexStub" set_selection="false">
+&lt;?php 
+require('../application/bootstrap.php');!@#_currentPos!@#_anchor</snippet>
+<snippet id="b2cf5be1-ddc5-b348-ba0f-c30cfcf98c3f" idref="51474ec9-2ba0-2146-b210-2933a98077b9" indent_relative="true" keyboard_shortcut="" name="ZendController" set_selection="false">
+&lt;?php 
+
+require_once('Zend/Controller/Action.php');
+
+/**
+ * Class [[%tabstop:Name]]Controller
+ */
+ 
+class [[%tabstop:Name]]Controller extends Zend_Controller_Action {
+
+    /**
+     * [[%tabstop:name]]Action
+     */
+
+    public function [[%tabstop:name]]Action() {
+        
+    } 
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="e5416e13-18d5-fb4b-b579-892a4ef30c4f" idref="51474ec9-2ba0-2146-b210-2933a98077b9" indent_relative="true" keyboard_shortcut="" name="ZendView" set_selection="false">
+&lt;\!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt; 
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt; 
+&lt;head&gt; 
+  &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt; 
+  &lt;title&gt;[[%tabstop:Name]]&lt;/title&gt; 
+&lt;/head&gt; 
+&lt;body&gt; 
+  &lt;h1&gt;[[%tabstop:Name]]&lt;/h1&gt; 
+  &lt;?php if($this-&gt;values): ?&gt; 
+    &lt;h3&gt;You just submitted the following values:&lt;/h3&gt; 
+    &lt;ul&gt; 
+      &lt;?php foreach ($this-&gt;values as $value) :?&gt; 
+        &lt;li&gt; &lt;?php echo $this-&gt;escape($value); ?&gt;&lt;/li&gt; 
+      &lt;?php endforeach; ?&gt; 
+    &lt;/ul&gt; 
+  &lt;?php endif; ?&gt; 
+  &lt;?php echo $this-&gt;form; ?&gt; 
+&lt;/body&gt; 
+&lt;/html&gt; !@#_currentPos!@#_anchor</snippet>
+<snippet id="ff7aeeeb-eb98-8b44-b28c-6eb79a475065" idref="51474ec9-2ba0-2146-b210-2933a98077b9" indent_relative="false" keyboard_shortcut="" name="BootstrapStub" set_selection="false">
+&lt;?php 
+ 
+error_reporting(E_ALL | E_STRICT);  
+ini_set('display_startup_errors', 1);  
+ini_set('display_errors', 1); 
+ 
+set_include_path('../library' . PATH_SEPARATOR . get_include_path());  
+ 
+require_once "Zend/Loader.php"; 
+Zend_Loader::registerAutoload(); 
+ 
+$frontController = Zend_Controller_Front::getInstance(); 
+$frontController-&gt;throwExceptions(true); 
+$frontController-&gt;setControllerDirectory('../application/controllers'); 
+$frontController-&gt;dispatch();!@#_currentPos!@#_anchor</snippet>
+<folder id="13114078-bd63-4a43-8f28-00a6b71e53fc" idref="7a8b836f-8bb0-1344-bcc4-f84f36210e54" name="Project">
+</folder>
+<folder id="51474ec9-2ba0-2146-b210-2933a98077b9" idref="d88165a6-b59b-b04d-9228-a16cf5aba5c9" name="PHP">
+</folder>
+<preference-set idref="7a8b836f-8bb0-1344-bcc4-f84f36210e54">
+  <boolean id="import_live">1</boolean>
+</preference-set>
+</project>

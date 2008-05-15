@@ -1,0 +1,2 @@
+content zendframework jar:zendframework.jar!/content/ xpcnativewrappers=yes
+overlay chrome://komodo/content/komodo.xul chrome://zendframework/content/overlay.xul

@@ -1,0 +1,72 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'build',
+    'mozChromeDir',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
+    'jarring',
+    'mozMajorVersion',
+    'mozMinorVersion',
+    'mozBin',
+    'supportDir',
+    'buildFlavour',
+    'buildAbsDir',
+    'buildType',
+    'platform',
+    'productType',
+    'mozVersion',
+    'komodoShortVersion',
+    'mozExtensionDir',
+);
+
+# The Plan:
+# - installer builds:
+#   Nothing. While there *is* code here for installer (aka "full") builds
+#   the Conscript is excluded in Construct for full builds.
+# - dev builds:
+#   Install the domviewer extension by default.
+#   Note: this part is spread out over "src/modules/domviewer/...Conscript".
+
+my $extDir = "$mozExtensionDir/zendframework\@ActiveState.com";
+
+if ($buildFlavour ne "full") {
+  $cons->InstallAs("$extDir/install.rdf", 'install.rdf');
+  $cons->InstallAs("$extDir/chrome.manifest", 'devbuild.manifest');
+  $cons->InstallAs("$extDir/content/overlay.xul", 'content/overlay.xul');
+  $cons->InstallAs("$extDir/content/zendMVCWizard.xul", 'content/zendMVCWizard.xul');
+  $cons->InstallAs("$extDir/content/zendutils.js", 'content/zendutils.js');
+} else {
+  $cons->Command(
+      ["zendframework.xpi", "zendframework.jar"],
+      # needed for 1.8 extensions
+      "install.rdf",
+      "chrome.manifest",
+      # extension files
+      "content/overlay.xul",
+      "content/zendutils.js",
+      "content/zendMVCWizard.xul",
+      qq(
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr zendframework.jar content 
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates -x .svn
+      )
+  );
+
+  # It's not available yet, so don't install by default.
+  $cons->Install("$extDir", "zendframework.jar");
+  $cons->Install("$extDir", "install.rdf");
+  $cons->Install("$extDir", "chrome.manifest");
+  $cons->Install("$supportDir/modules", 'zendframework.xpi');
+}
+
+$cons->InstallAs("$extDir/project-templates/Zend\ Framework/Zend_MVC_Project.kpz",
+                 "project-templates/Zend\ Framework/Zend_MVC_Project.kpz");
+
+
