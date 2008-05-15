@@ -347,6 +347,27 @@ class koRemoteConnectionService:
         finally:
             self._lock.release()
 
+    # Return the connection object for the given server alias.
+    def getConnectionUsingServerAlias(self, server_alias):
+        self._lock.acquire()
+        try:
+            server_prefs = self._getServerPrefSettings(server_alias)
+            if server_prefs:
+                protocol = server_prefs[0]
+                #aliasname = server_prefs[1]
+                hostname = server_prefs[2]
+                port     = server_prefs[3]
+                username = server_prefs[4]
+                password = server_prefs[5]
+                path     = server_prefs[6]
+                return self._getConnection(protocol, hostname, port,
+                                           username, password, path)
+            raise ServerException(nsError.NS_ERROR_FAILURE,
+                                  "No server found for alias: %r" % (
+                                        server_alias))
+        finally:
+            self._lock.release()
+
     # Set the session information for this key
     def saveSessionInfo(self, key, data):
         self._lock.acquire()

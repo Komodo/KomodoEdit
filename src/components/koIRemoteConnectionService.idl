@@ -79,6 +79,10 @@ interface koIRemoteConnectionService : nsISupports {
     void getConnectionUsingUri(in wstring uri,
                                [retval] out koIFTPConnection connection);
 
+    // Return the connection object for the given server alias.
+    void getConnectionUsingServerAlias(in wstring server_alias,
+                                       [retval] out koIFTPConnection connection);
+
     // Return the server details for the given URI, array list
     //   0-protocol, 1-server alias, 2-hostname, 3-port,
     //   4-username, 5-password, 6-path
