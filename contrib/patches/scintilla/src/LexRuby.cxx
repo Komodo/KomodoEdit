@@ -1567,6 +1567,7 @@ static bool keywordIsModifier(const char *word,
 
 #define WHILE_BACKWARDS "elihw"
 #define UNTIL_BACKWARDS "litnu"
+#define FOR_BACKWARDS "rof"
 
 // Nothing fancy -- look to see if we follow a while/until somewhere
 // on the current line
@@ -1604,7 +1605,8 @@ static bool keywordDoStartsLoop(int pos,
             *dst = 0;
             // Did we see our keyword?
             if (!strcmp(prevWord, WHILE_BACKWARDS)
-                || !strcmp(prevWord, UNTIL_BACKWARDS)) {
+                || !strcmp(prevWord, UNTIL_BACKWARDS)
+                || !strcmp(prevWord, FOR_BACKWARDS)) {
                 return true;
             }
             // We can move pos to the beginning of the keyword, and then
@@ -1617,6 +1619,8 @@ static bool keywordDoStartsLoop(int pos,
             //      <- loop decrement
             //     ^  # pointing to end of word1 is fine
             pos = start_word;
+        } else if (style == SCE_RB_OPERATOR && styler[pos] == ';') {
+            return false;
         }
     }
     return false;
@@ -1731,7 +1735,8 @@ static void FoldRbDoc(unsigned int startPos, int length, int initStyle,
                        || !strcmp(prevWord, "module")
                        || !strcmp(prevWord, "begin")
                        || !strcmp(prevWord, "case")
-                       || !strcmp(prevWord, "do")
+                       || (!strcmp(prevWord, "do")
+                           && keywordDoStartsLoop(i, styler))
                        || !strcmp(prevWord, "while")
                        || !strcmp(prevWord, "unless")
                        || !strcmp(prevWord, "until")
