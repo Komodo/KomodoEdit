@@ -354,6 +354,17 @@ PHP_KEYWORDS_LOOKUP = util.make_short_name_dict(keywords, length=2)
 class PHPLexer(UDLLexer):
     lang = lang
 
+def _walk_php_symbols(elem, _prefix=None):
+    if _prefix:
+        lpath = _prefix + (elem.get("name"), )
+    else:
+        lpath = (elem.get("name"), )
+    yield lpath
+    if not (elem.tag == "scope" and elem.get("ilk") == "function"):
+        for child in elem:
+            for child_lpath in _walk_php_symbols(child, lpath):
+                yield child_lpath
+
 class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
@@ -1053,6 +1064,15 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
             libs += self._buf_indep_libs_from_env(env)
             cache[buf] = libs
         return cache[buf]
+
+    def lpaths_from_blob(self, blob):
+        """Return <lpaths> for this blob
+        where,
+            <lpaths> is a set of externally referencable lookup-paths, e.g.
+                [("MyOwnClass",), ("MyOwnClass", "function1"), ...]
+        """
+        return set(lpath for child in blob
+                   for lpath in _walk_php_symbols(child))
 
     def _php_from_env(self, env):
         import which
