@@ -682,8 +682,9 @@ class GnomeDesktopShortcutName(black.configure.Datum):
         productType = black.configure.items["productType"].Get()
         name = (productType == "openkomodo" and "openkomodo"
                 or "komodo-"+productType)
-        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "%s-%s.desktop" % (name, komodoMarketingShortVersion)
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
+        self.value = "%s-%s.desktop" % (name, majorVer)
         self.determined = 1
 
 class GnomeDesktopName(black.configure.Datum):
@@ -699,11 +700,12 @@ class GnomeDesktopName(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         productType = black.configure.items["productType"].Get()
-        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
         prettyProductType = black.configure.items["prettyProductType"].Get()
         name = (productType == "openkomodo" and prettyProductType
                 or "Komodo %s" % prettyProductType)
-        self.value = "%s %s" % (name, komodoMarketingShortVersion)
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
+        self.value = "%s %s" % (name, majorVer)
         self.determined = 1
 
 class GnomeDesktopGenericName(black.configure.Datum):
@@ -2696,9 +2698,9 @@ class MSIKomodoPrettyId(black.configure.Datum):
         prettyProductType = black.configure.items["prettyProductType"].Get()
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
-        komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        prettyProductType = black.configure.items["prettyProductType"].Get()
-        self.value = "%s %s" % (productName, komodoMarketingShortVersion)
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
+        self.value = "%s %s" % (productName, majorVer)
         self.determined = 1
 
 class MSIProductName(black.configure.Datum):
