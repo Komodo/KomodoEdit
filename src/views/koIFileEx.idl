@@ -165,8 +165,6 @@ interface koIFileService: nsISupports
                      [array, size_is(count)] out koIFileEx files,
                      out PRUint32 count);
 
-    readonly attribute nsIObserverService observerService;
-    
     wstring makeTempName(in wstring suffix); 
     wstring makeTempNameInDir(in wstring dir, in wstring suffix); 
     koIFileEx makeTempFile(in wstring suffix, in string mode);

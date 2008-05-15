@@ -95,6 +95,23 @@ def sortFileStatus(a, b):
         log.exception("unexpected error from koIFile.isDirectory")
     return cmp(a[1], b[1])
 
+def collate_directories_from_uris(uris):
+    """Return a dictionary whose keys are the directories from the uri's
+    in the uris list, and whose value is a list of all the uri's with the
+    same directory value.
+    """
+    collatedUris = {}
+    os_path_dirname = os.path.dirname
+    for uri in uris:
+        #print "uri: %r" % (uri, )
+        diruri = os_path_dirname(uri)
+        uris = collatedUris.get(diruri)
+        if not uris:
+            collatedUris[diruri] = [uri]
+        else:
+            collatedUris[diruri].append(uri)
+    return collatedUris
+
 class KoFileStatusService:
     _com_interfaces_ = [components.interfaces.koIFileStatusService,
                         components.interfaces.nsIObserver,
@@ -103,8 +120,7 @@ class KoFileStatusService:
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
 
-    monitoredFileNotifications = ("file_update_now", "file_status_now",
-                                  "file_changed", )
+    monitoredFileNotifications = ("file_update_now", "file_status_now")
 
     def __init__(self):
         timeline.enter('koFileStatusService.__init__')
@@ -114,7 +130,7 @@ class KoFileStatusService:
             getService(components.interfaces.nsIObserverService)
         self._observerProxy = self._proxyMgr.getProxyForObject(None,
             components.interfaces.nsIObserverService, self._observerSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
+            PROXY_ALWAYS | PROXY_ASYNC)
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         self._fileSvc = \
@@ -123,7 +139,11 @@ class KoFileStatusService:
         self._fileNotificationSvc = \
             components.classes["@activestate.com/koFileNotificationService;1"].\
             getService(components.interfaces.koIFileNotificationService)
+        self._fileNotificationSvcAsyncProxy = self._proxyMgr.getProxyForObject(None,
+            components.interfaces.koIFileNotificationService,
+            self._fileNotificationSvc, PROXY_ALWAYS | PROXY_ASYNC)
         self.FNS_WATCH_FILE = components.interfaces.koIFileNotificationService.WATCH_FILE
+        self.FNS_WATCH_DIR = components.interfaces.koIFileNotificationService.WATCH_DIR
         self.FNS_NOTIFY_ALL = components.interfaces.koIFileNotificationService.FS_NOTIFY_ALL
         self.FNS_FILE_DELETED = components.interfaces.koIFileNotificationService.FS_FILE_DELETED
 
@@ -158,7 +178,6 @@ class KoFileStatusService:
         for notification in self.monitoredFileNotifications:
             self._observerSvc.addObserver(self, notification, 0)
         self._observerSvc.addObserver(self, 'xpcom-shutdown', 1)
-        self._fileSvc.observerService.addObserver(self, '', 0)
 
         # Add file status checker services
         self.addFileStatusChecker(KoDiskFileChecker())
@@ -233,9 +252,13 @@ class KoFileStatusService:
                 if uri in self._monitoredUrls:
                     self._monitoredUrls.remove(uri)
             else:
-                self._items_to_check.add((UnwrapObject(self._fileSvc.getFileFromURI(uri)),
-                                          uri, self.REASON_FILE_CHANGED))
-            self._cv.notify()
+                # We only want to trigger background checking for the files we
+                # are actually monitoring. Other file modifications should be
+                # ignored.
+                if uri in self._monitoredUrls:
+                    self._items_to_check.add((UnwrapObject(self._fileSvc.getFileFromURI(uri)),
+                                              uri, self.REASON_FILE_CHANGED))
+                    self._cv.notify()
         finally:
             self._cv.release()
 
@@ -253,13 +276,12 @@ class KoFileStatusService:
     
             # These are other possible topics, they just force the
             # file status service to update itself immediately
-            #elif topic == "file_added":
             #elif topic == "file_changed":
             #elif topic == "file_update_now":
     
             self._cv.acquire()
             try:
-                if topic in ("file_added", "file_changed", "file_status_now"):
+                if topic in ("file_changed", "file_status_now"):
                     # This notification can come with just about anything for
                     # the subject element, so we need to find the matching
                     # koIFile for the given uri, supplied by the "data" arg.
@@ -303,12 +325,6 @@ class KoFileStatusService:
     
         for notification in self.monitoredFileNotifications:
             self._removeObserver(notification)
-
-        try:
-            self._fileSvc.observerService.removeObserver(self,'')
-        except:
-            # file service shutdown before us?
-            log.debug("Unable to remove file service observers")
 
     def updateStatusForAllFiles(self, updateReason):
         self._cv.acquire()
@@ -359,6 +375,8 @@ class KoFileStatusService:
         #print "starting file status background thread"
         last_bg_check_time = time.time()
         while not self.shutdown:
+            # Give at least a brief respite between loops.
+            time.sleep(0.1)
             try:
                 # Initialize the working variables, this ensures we don't hold
                 # on to any koIFileEx references between runs, allowing the
@@ -398,6 +416,8 @@ class KoFileStatusService:
                     log.info("file status thread shutting down")
                     return
 
+                log.info("_process:: starting file status check")
+
                 # Maintenance cleanup and addition of observed files.
                 #print "doing file status update"
                 # XXX - Do we really need to unwrap these puppies?
@@ -410,22 +430,43 @@ class KoFileStatusService:
                         log.exception("unexpected error from koIFile.isLocal or koIFile.isFile")
                         continue # skip status update for this file
                 set_all_local_urls = set([koIFile.URI for koIFile in all_local_files ])
-                for uri in set_all_local_urls.difference(self._monitoredUrls):
-                    # Newly added files.
-                    log.debug("Adding a file observer for uri: %r", uri)
+
+                # We keep track of all the local files by using the file
+                # notificiation service (FNS). We add one directory watcher,
+                # for each file Komodo's file service knows about, this can
+                # give additional notifications for file's we are not watching,
+                # but we gain a speedup due to only having to add one directory
+                # watcher (for all files onder that directory) instead of adding
+                # one file watcher for each and every file.
+
+                all_local_dirs_dict = collate_directories_from_uris(set_all_local_urls)
+                all_monitored_dirs_dict = collate_directories_from_uris(self._monitoredUrls)
+
+                newDirs = set(all_local_dirs_dict.keys()).difference(all_monitored_dirs_dict.keys())
+                for diruri in newDirs:
+                    # Newly added directories.
+                    log.info("Adding directory observer for uri: %r", diruri)
                     try:
-                        self._fileNotificationSvc.addObserver(self, uri,
-                                                              self.FNS_WATCH_FILE,
+                        self._fileNotificationSvcAsyncProxy.addObserver(self, diruri,
+                                                              self.FNS_WATCH_DIR,
                                                               self.FNS_NOTIFY_ALL)
                     except COMException, ex:
                         # Likely the path does not exist anymore.
-                        # Ensure we remove the uri, this way if it does come
-                        # into existance, we can start monitoring it again.
-                        log.debug("Could not monitor file uri: %r", uri)
-                        set_all_local_urls.remove(uri)
-                for uri in self._monitoredUrls.difference(set_all_local_urls):
-                    # Removed unused files.
-                    self._fileNotificationSvc.removeObserver(self, uri)
+                        # Ensure we remove all the uris for this directory,
+                        # this way if it does come into existance in the
+                        # future, we will start monitoring it again.
+                        log.info("Could not monitor dir uri: %r", diruri)
+                        for uri in all_local_dirs_dict[diruri]:
+                            set_all_local_urls.remove(uri)
+
+                expiredDirs = set(all_monitored_dirs_dict.keys()).difference(all_local_dirs_dict.keys())
+                for diruri in expiredDirs:
+                    # Removed unused directories.
+                    log.info("Removing directory observer for uri: %r", diruri)
+                    self._fileNotificationSvc.removeObserver(self, diruri)
+
+                # Must keep track of all the local urls we are monitoring, so
+                # we can correctly add/remove items in the next process loop.
                 self._monitoredUrls = set_all_local_urls
 
                 if not items_to_check:
@@ -466,6 +507,7 @@ class KoFileStatusService:
                             log.debug("%s: no need to update yet", checker.name)
                             continue
                         items_need_to_check.append(file_item)
+                    #print "  got %d urls" % (len(items_need_to_check))
 
                     # updated - list of files updated by this status checker
                     updated_items = []
@@ -504,6 +546,8 @@ class KoFileStatusService:
                                     tmpurllist = [file_item[1] for file_item in updated_items[-10:]]
                                     self._observerProxy.notifyObservers(None, 'file_status',
                                                                         '\n'.join(tmpurllist))
+                                    #for uri in tmpurllist:
+                                    #    print "  %r changed %r" % (checker.name, uri)
                             except COMException, e:
                                 if e.errno == nsError.NS_ERROR_FAILURE:
                                     # noone is listening, we get an exception
@@ -521,11 +565,16 @@ class KoFileStatusService:
                                 #print "file_status sent for:\n  %s" % ('\n  '.join(tmpurllist), )
                                 self._observerProxy.notifyObservers(None, 'file_status',
                                                                     '\n'.join(tmpurllist))
+                                #for uri in tmpurllist:
+                                #    print "  %r changed %r" % (checker.name, uri)
                         except COMException, e:
                             if e.errno == nsError.NS_ERROR_FAILURE:
                                 # noone is listening, we get an exception
                                 pass
-                
+                        log.info("process:: %s: Notified file_status for uris:\n%s",
+                                 checker.name,
+                                 "\n".join([file_item[1] for file_item in updated_items]))
+
                 #for koIFile in files:
                 #    koIFile.dofileupdate = 0
 

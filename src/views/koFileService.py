@@ -46,7 +46,7 @@ import logging
 log = logging.getLogger('koFileService')
 
 # Temp File support
-class koFileService:
+class koFileService(object):
     _com_interfaces_ = [components.interfaces.koIFileService,
                         components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo File Service Component"
@@ -56,13 +56,17 @@ class koFileService:
     def __init__(self):
         self._files = {}
         self._tmpfiles = {}
-        self.observerService = components.classes['@activestate.com/koObserverService;1'].\
-                                createInstance(components.interfaces.nsIObserverService)
         self._uriParser = URIParser()
-
         self.obsSvc = components.classes["@mozilla.org/observer-service;1"].getService(components.interfaces.nsIObserverService)
         self.obsSvc.addObserver(WrapObject(self,components.interfaces.nsIObserver), "xpcom-shutdown", 0)
-        
+        self._fileStatusSvc = None
+
+    @property
+    def fileStatusSvc(self):
+        if self._fileStatusSvc is None:
+            self._fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"].\
+                    getService(components.interfaces.koIFileStatusService)
+        return self._fileStatusSvc
 
     #koIFileEx getFileFromURI(in wstring URI);
     def getFileFromURI(self, uri):
@@ -88,10 +92,7 @@ class koFileService:
         self._files[uri] = WeakReference(file)
 
         if doNotification:
-            try:
-                self.observerService.notifyObservers(file,'file_added',uri)
-            except COMException, e:
-                pass # no one is listening!
+            self.fileStatusSvc.updateStatusForFiles([file], components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK)
         
         return file
     
