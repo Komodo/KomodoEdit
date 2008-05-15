@@ -314,7 +314,7 @@ class KPFTreeView(TreeView):
                 self._dataLock.release()
             if invalidRows:
                 self._tree.beginUpdateBatch()
-                self._tree.invalidateRange(invalidRows[0],invalidRows[-1])
+                map(self._tree.invalidateRow, invalidRows)
                 self._tree.endUpdateBatch()
 
     # row generator interface
@@ -348,7 +348,9 @@ class KPFTreeView(TreeView):
                         path = part.get_liveDirectory()
                     else:
                         if "file" not in row:
-                            row["file"] = part.getFile()
+                            # Item has not yet been lazily loaded, so we don't
+                            # need to compare this item.
+                            continue
                         file = row["file"]
                         if not file:
                             continue
@@ -367,10 +369,10 @@ class KPFTreeView(TreeView):
                 for part, path in matching_parts:
                     if path == changed.dirName:
                         #print "Found parent, refreshing it now"
-                        #print "Before:", row["node"].getChildren()
+                        #print "Before:", part.getChildren()
                         part.needrefresh = 1
                         self.refresh(part)
-                        #print "After:", row["node"].getChildren()
+                        #print "After:", part.getChildren()
             elif flags & _rebuildDirFlags:
                 for part, path in matching_parts:
                     while part and not hasattr(part, "refreshChildren"):
@@ -382,8 +384,9 @@ class KPFTreeView(TreeView):
                 for part, path in matching_parts:
                     # file or dir deleted
                     #print "   compare [%r]==[%r]"%(file.path,changed.path)
-                    part._parent.removeChild(part)
-                    self.refresh(part._parent)
+                    parent = part._parent
+                    parent.removeChild(part)
+                    self.refresh(parent)
         else:
             # this is a modification change, just invalidate rows
             self._tree.invalidate()
@@ -964,10 +967,12 @@ class KPFTreeView(TreeView):
         try:
             if index >= len(self._rows) or index < 0: return 0
             try:
+                current_level = self._rows[index]['level']
                 for n in self._rows[afterIndex + 1:]:
-                    if self._rows[index]['level'] > n['level']:
+                    n_level = n['level']
+                    if n_level < current_level:
                         return 0
-                    if self._rows[index]['level'] == n['level']:
+                    elif n_level == current_level:
                         return 1
             except IndexError, e:
                 pass
