@@ -1736,7 +1736,7 @@ static void FoldRbDoc(unsigned int startPos, int length, int initStyle,
                        || !strcmp(prevWord, "begin")
                        || !strcmp(prevWord, "case")
                        || (!strcmp(prevWord, "do")
-                           && keywordDoStartsLoop(i, styler))
+                           && !keywordDoStartsLoop(i, styler))
                        || !strcmp(prevWord, "while")
                        || !strcmp(prevWord, "unless")
                        || !strcmp(prevWord, "until")
