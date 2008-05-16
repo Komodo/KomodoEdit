@@ -63,7 +63,6 @@ if ($buildFlavour ne "full") {
   $cons->Install("$extDir", "zendframework.jar");
   $cons->Install("$extDir", "install.rdf");
   $cons->Install("$extDir", "chrome.manifest");
-  $cons->Install("$supportDir/modules", 'zendframework.xpi');
 }
 
 $cons->InstallAs("$extDir/project-templates/Zend\ Framework/Zend_MVC_Project.kpz",
