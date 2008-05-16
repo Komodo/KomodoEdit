@@ -360,7 +360,7 @@ class Manager(threading.Thread, Queue):
             buf = buf_class(self, accessor, env, path, encoding)
         return buf
 
-    def buf_from_path(self, path, lang=None, encoding=None, env=None):
+    def buf_from_path(self, path, lang=None, env=None, encoding=None):
         if lang is None:
             import textinfo
             ti = textinfo.textinfo_from_path(path, encoding=encoding,
