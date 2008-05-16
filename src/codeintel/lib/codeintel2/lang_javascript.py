@@ -2178,7 +2178,7 @@ class JavaScriptCiler:
                         # Check if this is an xpcom component.
                         if citdl in  (["CC"], ["Cc"],
                                       ["Components", "classes"]) and \
-                           p < (len(styles) + 2) and \
+                           (p+2) < len(styles) and \
                            text[p] == "." and \
                            text[p+1] in ("getService", "createInstance") and \
                            text[p+2] == "(":
