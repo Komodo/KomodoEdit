@@ -65,7 +65,7 @@ from SilverCity.ScintillaConstants import (
     SCE_UDL_CSL_REGEX, SCE_UDL_CSL_STRING, SCE_UDL_CSL_WORD,
 )
 
-from codeintel2.citadel import CitadelBuffer, ImportHandler
+from codeintel2.citadel import CitadelBuffer, ImportHandler, CitadelLangIntel
 from codeintel2.buffer import Buffer
 from codeintel2.tree_javascript import JavaScriptTreeEvaluator
 from codeintel2 import util
@@ -77,7 +77,7 @@ from codeintel2.gencix_utils import *
 from codeintel2.database.langlib import LangDirsLib
 from codeintel2.udl import UDLBuffer, is_udl_csl_style
 from codeintel2.accessor import AccessorCache
-from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
+from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
 
@@ -172,9 +172,11 @@ class UDLJavaScriptStyleClassifier:
 pureJSClassifier = PureJavaScriptStyleClassifier()
 udlJSClassifier = UDLJavaScriptStyleClassifier()
 
-class JavaScriptLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
+class JavaScriptLangIntel(CitadelLangIntel,
+                          ParenStyleCalltipIntelMixin,
                           ProgLangTriggerIntelMixin,
                           PythonCITDLExtractorMixin):
+    lang = "JavaScript"
 
     # The way namespacing is done with variables in JS means that grouping
     # global vars is just annoying.
@@ -189,7 +191,7 @@ class JavaScriptLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
         """Use the 'namespace' image in the Code Browser for a variable
         acting as one.
         """
-        data = LangIntel.cb_variable_data_from_elem(self, elem)
+        data = CitadelLangIntel.cb_variable_data_from_elem(self, elem)
         if len(elem) and data["img"].startswith("variable"):
             data["img"] = data["img"].replace("variable", "namespace")
         return data

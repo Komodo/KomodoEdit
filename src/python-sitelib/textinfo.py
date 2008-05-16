@@ -139,6 +139,8 @@ import optparse
 import codecs
 import locale
 
+import langinfo
+
 
 
 #---- exceptions and warnings
@@ -210,7 +212,7 @@ class TextInfo(object):
     def init_from_filename(cls, path, lidb=None):
         """Create an instance using only the filename to initialize."""
         if lidb is None:
-            lidb = get_default_lidb()
+            lidb = langinfo.get_default_database()
         self = cls()
         self.path = path
         self._classify_from_filename(lidb)
@@ -236,7 +238,7 @@ class TextInfo(object):
             by filename (for Komodo).
         """
         if lidb is None:
-            lidb = get_default_lidb()
+            lidb = langinfo.get_default_database()
         self = cls()
         self.path = path
         self._accessor = PathAccessor(path, follow_symlinks=follow_symlinks)
@@ -1432,16 +1434,6 @@ class PathAccessor(Accessor):
 
 
 #---- internal support stuff
-
-#TODO: drop this an just use `langinfo.get_default_database()`
-_default_lidb = None
-def get_default_lidb():
-    global _default_lidb
-    if _default_lidb is None:
-        import langinfo
-        _default_lidb = langinfo.Database()
-    return _default_lidb
-
 
 # Recipe: regex_from_encoded_pattern (1.0)
 def _regex_from_encoded_pattern(s):

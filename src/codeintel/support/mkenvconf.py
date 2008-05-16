@@ -39,8 +39,7 @@ r"""Make an 'envconf' shell script for codeintel dev work.
 
 Codeintel development works like this:
 1. Get the codeintel source.
-        p4 sync //depot/main/Apps/Komodo-devel/...
-        cd .../Komodo-devel/src/codeintel
+        cd .../komodo/src/codeintel
 2. Setup build environment:
         bin\setenv.bat          # Windows
         . bin\setenv.sh         # other plats
@@ -116,8 +115,11 @@ def mkenvconf():
     pythonpaths = [
         join(CODEINTEL_SRC, "lib"),
         join(CODEINTEL_SRC, "support"),
-        # 'python-sitelib' need for XML completion support stuff
+        # 'python-sitelib' needed for XML completion support stuff
+        # and textinfo/langinfo system
         join(komodo_src_dir, "src", "python-sitelib"),
+        # 'find' needed for findlib2.py
+        join(komodo_src_dir, "src", "find"),
         # 'util' needed for testlib.py
         join(komodo_src_dir, "util"),
     ]

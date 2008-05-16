@@ -207,7 +207,10 @@ _symbolType2Name = {
     ST_ARGUMENT: "argument"
 }
 
+
+
 #---- common codeintel base classes
+
 class Trigger(object):
     if _xpcom_:
         _com_interfaces_ = [components.interfaces.koICodeIntelTrigger]
@@ -284,7 +287,7 @@ class Definition(object):
     blobname = None    # e.g. "sys"
     lpath = None       # lookup tuple in blob, e.g. ["MyClass", "afunc"]
     name = None        # e.g. "path"
-    line = None        # e.g. 345
+    line = None        # e.g. 345 (1-based)
     ilk = None         # e.g. "function"
     citdl = None       # e.g. "int"
     signature = None   # e.g. "function xyz(...)"

@@ -40,10 +40,12 @@ from os.path import dirname, join, abspath, normpath, basename
 import sys
 import re
 import operator
+import bisect
 from pprint import pprint, pformat
 import logging
 from cStringIO import StringIO
 import traceback
+import md5
 
 import SilverCity
 from SilverCity import ScintillaConstants
@@ -133,6 +135,13 @@ class Buffer(object):
         if self._langintel_cache is None:
             self._langintel_cache = self.mgr.langintel_from_lang(self.lang)
         return self._langintel_cache
+
+    _langinfo_cache = None
+    @property
+    def langinfo(self):
+        if self._langinfo_cache is None:
+            self._langinfo_cache = self.mgr.lidb.langinfo_from_lang(self.lang)
+        return self._langinfo_cache
 
     def lang_from_pos(self, pos):
         return self.lang
@@ -295,6 +304,17 @@ class Buffer(object):
         """
         return self.langintel.curr_calltip_arg_range(self, trg_pos, calltip,
                                                      curr_pos, DEBUG=DEBUG)
+
+    def text_chunks_from_lang(self, lang):
+        """Generate a list of text chunks of the given language content.
+
+        For a single-language buffer this is trivial: 1 chunk of the whole
+        buffer. For multi-language buffers, less so.
+
+        Generates 2-tuples:
+            (POSITION-OFFSET, TEXT-CHUNK)
+        """
+        yield 0, self.accessor.text
 
     @property
     def libs(self):
@@ -622,6 +642,24 @@ div.code .tags        { color: red; }
                 for style_name in state_map.get(style_class, [])
             ]
         return self.__number_styles
+
+
+class ImplicitBuffer(Buffer):
+    """A buffer for a language that is not explicitly registered as
+    a codeintel language.
+    """
+    def __init__(self, lang, mgr, accessor, env=None, path=None):
+        self.lang = lang
+        Buffer.__init__(self, mgr, accessor, env=env, path=path)
+
+    #TODO: Is there a need/use in possibly determining scintilla styles
+    #      for this language?
+    def string_styles(self):
+        return []
+    def comment_styles(self):
+        return []
+    def number_styles(self):
+        return []
 
 
 

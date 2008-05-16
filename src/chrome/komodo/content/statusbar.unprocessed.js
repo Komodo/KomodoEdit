@@ -284,7 +284,6 @@ function _updateLineCol(view) {
 
     _updateSelectionInformation(view);
 
-
     // Add the lint message updating in a timeout
     if (_updateLintMessageTimer) {
         // Clear the old timer and then we'll start a new one
@@ -593,8 +592,8 @@ window.addEventListener("unload", function() {
     _messageStack = null;
 }, false);
 
-//---- public functions
 
+//---- public functions
 
 /**
  * dump
@@ -602,12 +601,14 @@ window.addEventListener("unload", function() {
  * dump the current message stack to stdout
  */
 this.dump = function() { _messageStack.Dump(); }
+
 /**
  * ClearCheck
  *
  * clear the syntax checking status
  */
 this.ClearCheck = function() { _clearCheck(); }
+
 /**
  * AddMessage
  *
@@ -641,6 +642,7 @@ this.ClearCheck = function() { _clearCheck(); }
  */
 this.AddMessage = function(msg, category, timeout, highlight, interactive)
     { _addMessage(msg, category, timeout, highlight, interactive); }
+
 /**
  * Clear
  *
@@ -649,6 +651,7 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive)
 this.Clear = function() { _clear(); }
 
 }).apply(ko.statusBar);
+
 
 // backwards compatible APIs
 var StatusBar = ko.statusBar;

@@ -1,0 +1,32 @@
+diff
+
+Allow one to use <textbox type="autocomplete" sizetopopup="none"/> to
+specify that the popup tree's width should NOT be set to that of the
+textbox. When using this, one must manually set the width on the
+popup widget.
+
+See: https://bugzilla.mozilla.org/show_bug.cgi?id=416250
+
+--- toolkit/content/widgets/autocomplete.xml.original	Sun Sep 10 10:20:32 2006
++++ toolkit/content/widgets/autocomplete.xml	Mon Apr 21 10:17:47 2008
+@@ -289,7 +289,8 @@
+ 
+       <method name="openPopup">
+         <body><![CDATA[
+-          this.popup.openPopup(this, -1, -1, this.boxObject.width);
++          this.popup.openPopup(this, -1, -1,
++              this.getAttribute("sizetopopup") == "none" ? null : this.boxObject.width);
+         ]]></body>
+       </method>
+ 
+@@ -553,7 +554,9 @@
+             this.showCommentColumn = this.mInput.showCommentColumn;
+             
+             this.removeAttribute("hidden");
+-            this.setAttribute("width", aWidth < 100 ? 100 : aWidth);
++            if (aWidth != null) {
++              this.setAttribute("width", aWidth < 100 ? 100 : aWidth);
++            }
+ 
+             document.popupNode = null;
+             if (aY == -1) {

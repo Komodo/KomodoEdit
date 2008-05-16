@@ -48,12 +48,11 @@ import SilverCity
 from SilverCity.Lexer import Lexer
 from SilverCity import ScintillaConstants
 
-from codeintel2.citadel import ImportHandler, CitadelBuffer
+from codeintel2.citadel import ImportHandler, CitadelBuffer, CitadelLangIntel
 from codeintel2.citadel_common import ScanRequest
 from codeintel2.common import *
 from codeintel2.parseutil import urlencode_path
 from codeintel2.tree import tree_from_cix
-from codeintel2.langintel import LangIntel
 
 
 #---- globals
@@ -111,7 +110,9 @@ class TclBuffer(CitadelBuffer):
     cb_show_if_empty = True
 
 
-class TclLangIntel(LangIntel):
+class TclLangIntel(CitadelLangIntel):
+    lang = "Tcl"
+
     def cb_import_data_from_elem(self, elem):
         #XXX Not handling symbol and alias
         module = elem.get("module")

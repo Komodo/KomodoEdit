@@ -54,13 +54,14 @@ from SilverCity import ScintillaConstants
 from SilverCity.Keywords import python_keywords
 
 from codeintel2.common import *
-from codeintel2.citadel import CitadelBuffer, CitadelEvaluator, ImportHandler
+from codeintel2.citadel import (CitadelBuffer, CitadelEvaluator, ImportHandler,
+                                CitadelLangIntel)
 from codeintel2.indexer import PreloadLibRequest
 from codeintel2 import pythoncile
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
 from codeintel2 import tree
 from codeintel2.tree_python import PythonTreeEvaluator
-from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
+from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
 
@@ -145,11 +146,10 @@ class PythonImportsEvaluator(Evaluator):
             self.ctlr.done("success")
 
 
-class PythonLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
+class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                       ProgLangTriggerIntelMixin,
                       PythonCITDLExtractorMixin):
-    def __init__(self, mgr):
-        LangIntel.__init__(self, mgr)
+    lang = "Python"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos().
     trg_chars = tuple(" (.")

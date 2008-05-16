@@ -60,7 +60,6 @@ class DjangoBuffer(UDLBuffer, XMLParsingBufferMixin):
     m_lang = "HTML"
     css_lang = "CSS"
     csl_lang = "JavaScript"
-    ssl_lang = "Python"
 
     # Characters that should close an autocomplete UI:
     # - wanted for XML completion: ">'\" "
@@ -69,7 +68,6 @@ class DjangoBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping ':' because I think that may be a problem for XML tag
     #   completion with namespaces (not sure of that though)
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
-    # - TODO: adjust for Python
     cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
 
 

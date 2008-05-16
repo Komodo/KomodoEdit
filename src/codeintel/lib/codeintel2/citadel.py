@@ -61,6 +61,7 @@ import codeintel2
 from codeintel2.buffer import Buffer
 from codeintel2.common import *
 from codeintel2.indexer import ScanRequest
+from codeintel2.langintel import LangIntel
 #from codeintel2.scheduler import BatchUpdater
 
 
@@ -73,6 +74,13 @@ log = logging.getLogger("codeintel.citadel")
 
 
 #---- module interface
+
+class CitadelLangIntel(LangIntel):
+    """Shared smarts for "citadel"-language content.
+
+    "Citadel" languages are those whose scanning and completion
+    evaluation is based on CIDB/CITDL/CIX.
+    """
 
 
 class CitadelBuffer(Buffer):

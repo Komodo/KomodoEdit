@@ -392,6 +392,8 @@ StraightCSSStyleClassifier = _StraightCSSStyleClassifier()
 UDLCSSStyleClassifier      = _UDLCSSStyleClassifier()
 
 class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
+    lang = "CSS"
+
     # CSS attributes:
     #     key (string) is the css property (attribute) name
     #     value (list) is the possible css property (attribute) values

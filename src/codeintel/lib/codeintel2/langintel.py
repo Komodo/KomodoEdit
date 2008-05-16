@@ -50,28 +50,37 @@ TODO:
 - document what interfaces a particular LangIntel is meant to provide
 
 Dev Notes:
-- Usage of LangIntel objects in code should always use 'langintel'.
+- Usage of LangIntel objects in code should always use 'langintel' in
+  the variable name.
 """
 
 import operator
-from pprint import pformat
+from pprint import pformat, pprint
 
 from codeintel2.common import *
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
-from codeintel2.udl import is_udl_ssl_style
+
+
 
 class LangIntel(object):
-    """Smarts about a given language.
+    """Smarts about content of a given language.
     
-    Note: Currently there aren't any std attributes common to all
-    languages here. However, there probably eventually will be. Also
-    note that common Buffer implementations defer to a language's
-    LangIntel for handling various things.
-
-    Also, see the mixins below.
+    Typically the Buffer implementations defer to a language's LangIntel
+    class for handling stuff specific to that language content. This is
+    how multi-language buffers are handled.
     """
+    # All "leaf" LangIntel subclasses must set the `lang` attribute.
+    lang = None
+
     def __init__(self, mgr):
         self.mgr = mgr
+
+    _langinfo_cache = None
+    @property
+    def langinfo(self):
+        if self._langinfo_cache is None:
+            self._langinfo_cache = self.mgr.lidb.langinfo_from_komodo_lang(self.lang)
+        return self._langinfo_cache
 
     # Code Browser integration.
     cb_import_group_title = "Imports"
@@ -205,6 +214,11 @@ class LangIntel(object):
         else:
             return {"name": repr(elem)}
 
+
+class ImplicitLangIntel(LangIntel):
+    def __init__(self, lang, mgr):
+        self.lang = lang
+        LangIntel.__init__(self, mgr)
 
 
 class ParenStyleCalltipIntelMixin(object):

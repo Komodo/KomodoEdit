@@ -42,6 +42,7 @@ from os.path import dirname, join, abspath, normpath, basename
 import sys
 import re
 import logging
+import operator
 import traceback
 
 import SilverCity
@@ -199,6 +200,53 @@ class UDLBuffer(CitadelBuffer):
     def lang_from_pos(self, pos):
         style = self.accessor.style_at_pos(pos)
         return self.lang_from_style(style)
+
+    def text_chunks_from_lang(self, lang):
+        """Generate a list of text chunks of the given language content.
+
+        For a single-language buffer this is trivial: 1 chunk of the whole
+        buffer. For multi-language buffers, less so.
+
+        Generates 2-tuples:
+            (POSITION-OFFSET, TEXT-CHUNK)
+        """
+        langs = [self.m_lang, self.css_lang, self.csl_lang,
+                 self.ssl_lang, self.tpl_lang]
+        langs = [L for L in langs if L is not None]
+        if len(langs) == 1:
+            yield 0, self.accessor.text
+        elif lang not in langs:
+            pass
+        else:
+            min_style, max_style = {
+                self.m_lang:   (ScintillaConstants.SCE_UDL_M_DEFAULT,
+                                ScintillaConstants.SCE_UDL_M_COMMENT),
+                self.css_lang: (ScintillaConstants.SCE_UDL_CSS_DEFAULT,
+                                ScintillaConstants.SCE_UDL_CSS_OPERATOR),
+                self.csl_lang: (ScintillaConstants.SCE_UDL_CSL_DEFAULT,
+                                ScintillaConstants.SCE_UDL_CSL_REGEX),
+                self.ssl_lang: (ScintillaConstants.SCE_UDL_SSL_DEFAULT,
+                                ScintillaConstants.SCE_UDL_SSL_VARIABLE),
+                self.tpl_lang: (ScintillaConstants.SCE_UDL_TPL_DEFAULT,
+                                ScintillaConstants.SCE_UDL_TPL_VARIABLE),
+            }[lang]
+
+            in_chunk = False
+            pos_offset = None
+            text = self.accessor.text
+            for token in self.accessor.gen_tokens():
+                if in_chunk:
+                    if not (min_style <= token["style"] <= max_style):
+                        # SilverCity indeces are inclusive at the end.
+                        end_index = token["end_index"] + 1 
+                        yield pos_offset, text[pos_offset:end_index]
+                        in_chunk = False
+                else:
+                    if min_style <= token["style"] <= max_style:
+                        in_chunk = True
+                        pos_offset = token["start_index"]
+            if in_chunk:
+                yield pos_offset, text[pos_offset:]
 
     def scoperef_from_pos(self, pos):
         """Return the scoperef for the given position in this buffer.

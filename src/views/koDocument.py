@@ -154,10 +154,7 @@ class koDocumentBase:
     def _initCIBuf(self):
         codeIntelSvc = components.classes['@activestate.com/koCodeIntelService;1'] \
                         .getService(components.interfaces.koICodeIntelService)
-        if codeIntelSvc.is_registered_lang(self._language):
-            self.ciBuf = codeIntelSvc.buf_from_koIDocument(self)
-        elif self.ciBuf is not None:
-            self.ciBuf = None
+        self.ciBuf = codeIntelSvc.buf_from_koIDocument(self)
 
     def initWithFile(self, file, untitled):
         timeline.enter('koDocumentBase.initWithFile')

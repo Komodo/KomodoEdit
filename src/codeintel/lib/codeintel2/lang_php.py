@@ -67,14 +67,14 @@ from SilverCity.ScintillaConstants import (SCE_UDL_SSL_DEFAULT,
 
 from codeintel2.parseutil import *
 from codeintel2.phpdoc import phpdoc_tags
-from codeintel2.citadel import ImportHandler
+from codeintel2.citadel import ImportHandler, CitadelLangIntel
 from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, XMLParsingBufferMixin
 from codeintel2.common import *
 from codeintel2 import util
 from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
 from codeintel2.gencix_utils import *
 from codeintel2.tree_php import PHPTreeEvaluator
-from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
+from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
 from codeintel2.accessor import AccessorCache
 
@@ -365,8 +365,10 @@ def _walk_php_symbols(elem, _prefix=None):
             for child_lpath in _walk_php_symbols(child, lpath):
                 yield child_lpath
 
-class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
+class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
+    lang = lang
+
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@ ')
     calltip_trg_chars = tuple('( ')
@@ -383,7 +385,7 @@ class PHPLangIntel(LangIntel, ParenStyleCalltipIntelMixin,
     def cb_variable_data_from_elem(self, elem):
         """Use the 'constant' image in the Code Browser for a variable constant.
         """
-        data = LangIntel.cb_variable_data_from_elem(self, elem)
+        data = CitadelLangIntel.cb_variable_data_from_elem(self, elem)
         if elem.get("ilk") == "constant":
             data["img"] = "constant"
         return data

@@ -75,6 +75,7 @@ def safe_lang_from_lang(lang):
         return safe_lang
 
 
+# @deprecated: Manager.buf_from_path now uses textinfo to guess lang.
 def guess_lang_from_path(path):
     lang_from_ext = {
         ".py": "Python",
@@ -87,6 +88,7 @@ def guess_lang_from_path(path):
         ".rhtml": "RHTML",
         ".html.erb": "RHTML",
         ".js": "JavaScript",
+        ".java": "Java",
         ".css": "CSS",
         ".xul": "XUL",
         ".xbl": "XBL",
@@ -96,6 +98,7 @@ def guess_lang_from_path(path):
         ".django.html": "Django",
         ".mason.html": "Mason",
         ".ttkt.html": "TemplateToolkit",
+        ".cxx": "C++",
     }
     idx = 0
     base = basename(path)

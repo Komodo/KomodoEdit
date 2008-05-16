@@ -59,11 +59,15 @@ from SilverCity import ScintillaConstants
 from codeintel2.common import *
 from codeintel2.accessor import *
 from codeintel2.citadel import Citadel
+from codeintel2.buffer import ImplicitBuffer
+from codeintel2.langintel import ImplicitLangIntel
 from codeintel2.database.database import Database
 from codeintel2.environment import DefaultEnvironment
 from codeintel2 import indexer
 from codeintel2.util import guess_lang_from_path
 from codeintel2.udl import XMLParsingBufferMixin, UDLBuffer
+
+import langinfo
 
 try:
     from xpcom import components
@@ -141,6 +145,7 @@ class Manager(threading.Thread, Queue):
                            event_reporter=db_event_reporter,
                            import_everything_langs=db_import_everything_langs)
         self.idxr = indexer.Indexer(self, on_scan_complete)
+        self.lidb = langinfo.get_default_database()
 
     def upgrade(self):
         """Upgrade the database, if necessary.
@@ -315,8 +320,13 @@ class Manager(threading.Thread, Queue):
 
     def langintel_from_lang(self, lang):
         if lang not in self._langintel_from_lang_cache:
-            self._langintel_from_lang_cache[lang] \
-                = self.langintel_class_from_lang[lang](self)
+            try:
+                langintel_class = self.langintel_class_from_lang[lang]
+            except KeyError:
+                langintel = ImplicitLangIntel(lang, self)
+            else:
+                langintel = langintel_class(self)
+            self._langintel_from_lang_cache[lang] = langintel
         return self._langintel_from_lang_cache[lang] 
 
     #XXX
@@ -329,20 +339,38 @@ class Manager(threading.Thread, Queue):
             path = join("<Unsaved>", path)
         accessor = KoDocumentAccessor(doc,
             self.silvercity_lexer_from_lang.get(lang))
-        buf = self.buf_class_from_lang[lang](self, accessor, env, path)
+        try:
+            buf_class = self.buf_class_from_lang[lang]
+        except KeyError:
+            buf = ImplicitBuffer(lang, self, accessor, env, path)
+        else:
+            buf = buf_class(self, accessor, env, path)
         return buf
 
     def buf_from_content(self, content, lang, env=None, path=None):
         #XXX Need 'encoding' argument?
         lexer = self.silvercity_lexer_from_lang.get(lang)
         accessor = SilverCityAccessor(lexer, content)
-        buf = self.buf_class_from_lang[lang](self, accessor, env, path)
+        try:
+            buf_class = self.buf_class_from_lang[lang]
+        except KeyError:
+            buf = ImplicitBuffer(lang, self, accessor, env, path)
+        else:
+            buf = buf_class(self, accessor, env, path)
         return buf
 
-    def buf_from_path(self, path, lang=None, env=None):
+    def buf_from_path(self, path, lang=None, encoding=None, env=None):
         if lang is None:
-            lang = guess_lang_from_path(path)
-        content = open(path, 'rb').read() #XXX i18n handling, guess encoding?
+            import textinfo
+            ti = textinfo.textinfo_from_path(path, encoding=encoding,
+                    follow_symlinks=True)
+            lang = ti.lang
+            encoding = ti.encoding
+            content = ti.text
+        elif encoding:
+            content = codecs.open(path, 'rb', encoding).read()
+        else:
+            content = open(path, 'rb').read()
 
         #TODO: Re-instate this when have solution for CILE test failures
         #      that this causes.

@@ -55,7 +55,8 @@ from SilverCity.Lexer import Lexer
 from SilverCity import ScintillaConstants
 
 from codeintel2.common import *
-from codeintel2.citadel import ImportHandler, CitadelBuffer, CitadelEvaluator
+from codeintel2.citadel import (ImportHandler, CitadelBuffer,
+                                CitadelEvaluator, CitadelLangIntel)
 from codeintel2.citadel_common import ScanRequest
 from codeintel2.indexer import PreloadLibRequest
 from codeintel2.parseutil import urlencode_path
@@ -64,7 +65,7 @@ from codeintel2.util import isident, isdigit, banner, indent, markup_text
 from codeintel2.tree_perl import (PerlTreeEvaluator,
                                   PerlPackageSubsTreeEvaluator,
                                   PerlPackageMembersTreeEvaluator)
-from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
+from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
 
 try:
@@ -129,9 +130,11 @@ class PerlImportsEvaluator(Evaluator):
             self.ctlr.done("success")
 
 
-class PerlLangIntel(LangIntel,
+class PerlLangIntel(CitadelLangIntel,
                     ParenStyleCalltipIntelMixin,
                     ProgLangTriggerIntelMixin):
+    lang = "Perl"
+
     # Add '=' to the default set for Perl. For example:
     #   my $foo =
     #     ^     ^

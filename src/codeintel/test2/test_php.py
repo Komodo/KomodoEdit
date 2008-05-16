@@ -711,6 +711,7 @@ class CplnTestCase(CodeIntelTestCase):
        """))
         self.assertCalltipIs(markedup_content, "require(file_path)\nincludes and evaluates the specified file, produces a Fatal Error on error.")
 
+    @tag("php5")
     def test_complete_object_members_for_builtins(self):
         markedup_content = php_markup(dedent("""\
             $e = new Exception("New exception");
@@ -734,6 +735,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markedup_content,
             [("variable", "GLOBALS"), ])
 
+    @tag("php5")
     def test_complete_classes_for_builtins_using_new(self):
         markedup_content = php_markup(dedent("""\
             $e = new <|>Exception("Error", 1);
@@ -748,6 +750,7 @@ class CplnTestCase(CodeIntelTestCase):
     #    self.assertCompletionsInclude(markedup_content,
     #        [("class", "Exception")])
 
+    @tag("php5")
     def test_php5_complete_object_members_for_builtins(self):
         markedup_content = php_markup(dedent("""\
             $e = new Exception("New exception");
@@ -756,6 +759,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markedup_content,
             [("function", "getMessage"), ("function", "getLine")])
 
+    @tag("php5")
     def test_php5_calltip_call_signature_for_classes(self):
         content, positions = unmark_text(php_markup("""\
             $e = new Exception(<1>'error name', 0);

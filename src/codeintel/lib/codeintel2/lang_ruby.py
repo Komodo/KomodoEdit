@@ -59,14 +59,15 @@ from SilverCity.ScintillaConstants import (
 from SilverCity.Keywords import ruby_keywords
 
 from codeintel2.common import *
-from codeintel2.citadel import ImportHandler, CitadelBuffer, CitadelEvaluator
+from codeintel2.citadel import (ImportHandler, CitadelBuffer, CitadelEvaluator,
+                                CitadelLangIntel)
 from codeintel2.citadel_common import ScanRequest
 from codeintel2.indexer import PreloadLibRequest
 from codeintel2.parseutil import urlencode_path
 from codeintel2.udl import UDLBuffer
 from codeintel2.accessor import AccessorCache
 from codeintel2 import rubycile
-from codeintel2.langintel import (LangIntel, ParenStyleCalltipIntelMixin,
+from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
 
 from codeintel2.lang_ruby_common import RubyCommonBufferMixin
@@ -296,9 +297,10 @@ class _UDLStyleClassifier(_CommonStyleClassifier):
     ignoreStyles =  (ScintillaConstants.SCE_UDL_SSL_DEFAULT,
                      ScintillaConstants.SCE_UDL_SSL_COMMENT)
 
-class RubyLangIntel(LangIntel,
+class RubyLangIntel(CitadelLangIntel,
                     ParenStyleCalltipIntelMixin,
                     ProgLangTriggerIntelMixin):
+    lang = "Ruby"
 
     calltip_region_terminators = tuple(']});\r\n')
     # newlines are for ending calltips triggered on a space

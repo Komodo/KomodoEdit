@@ -127,7 +127,7 @@ class KoTACResult:
         self.matches = []
 
     def setIgnored(self):
-        """Indicate and invalid search string."""
+        """Indicate an invalid search string."""
         self.searchResult = components.interfaces.nsIAutoCompleteResult.RESULT_IGNORED
 
     def setFailed(self, errorDescription):
