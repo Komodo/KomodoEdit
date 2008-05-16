@@ -1225,8 +1225,8 @@ class PerlBuffer(CitadelBuffer):
     cpln_fillup_chars = "~`!@#$%^&*(=+}[]|\\;'\",.<>?/ "
     cpln_stop_chars = "-~`!@#$%^&*()=+{}[]|\\;:'\",.<>?/ "
 
-    def __init__(self, mgr, accessor, env=None, path=None):
-        CitadelBuffer.__init__(self, mgr, accessor, env, path)
+    def __init__(self, *args, **kwargs):
+        CitadelBuffer.__init__(self, *args, **kwargs)
 
         # Some Perl styles in addition to the usual comment and string styles
         # in which completion triggering should not happen.

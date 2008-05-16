@@ -72,8 +72,8 @@ class RHTMLLexer(UDLLexer):
 # - curr_calltip_arg_range (will need to pass in trigger when get to
 #    this point)
 class RHTMLBuffer(UDLBuffer, XMLParsingBufferMixin, RubyCommonBufferMixin):
-    def __init__(self, mgr, accessor, env=None, path=None):
-        UDLBuffer.__init__(self, mgr, accessor, env, path)
+    def __init__(self, *args, **kwargs):
+        UDLBuffer.__init__(self, *args, **kwargs)
         self.check_for_rails_app_path(path)
         
     lang = lang
