@@ -891,6 +891,8 @@ class koDocumentBase:
                 make_dirty = make_dirty or self.encoding.use_byte_order_marker != encoding.use_byte_order_marker
                 self.encoding = encoding
 
+                self._initCIBuf()
+
                 self.prefs.setStringPref("encoding",
                                          self.encoding.python_encoding_name)
 

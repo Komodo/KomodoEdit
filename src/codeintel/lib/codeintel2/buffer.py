@@ -110,11 +110,12 @@ class Buffer(object):
     # name.
     _style_name_from_style_num_from_lang = {}
 
-    def __init__(self, mgr, accessor, env=None, path=None):
+    def __init__(self, mgr, accessor, env=None, path=None, encoding=None):
         self.mgr = mgr
         self.accessor = accessor # an Accessor instance
         self._env = env
         self.path = path
+        self.encoding = encoding
 
         self.implicit_completion_skip_styles = dict(
             (s, True) for s in self.comment_styles() + self.string_styles())
@@ -648,9 +649,11 @@ class ImplicitBuffer(Buffer):
     """A buffer for a language that is not explicitly registered as
     a codeintel language.
     """
-    def __init__(self, lang, mgr, accessor, env=None, path=None):
+    def __init__(self, lang, mgr, accessor, env=None, path=None,
+                 encoding=None):
         self.lang = lang
-        Buffer.__init__(self, mgr, accessor, env=env, path=path)
+        Buffer.__init__(self, mgr, accessor, env=env, path=path,
+                        encoding=encoding)
 
     #TODO: Is there a need/use in possibly determining scintilla styles
     #      for this language?

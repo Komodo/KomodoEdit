@@ -339,24 +339,25 @@ class Manager(threading.Thread, Queue):
             path = join("<Unsaved>", path)
         accessor = KoDocumentAccessor(doc,
             self.silvercity_lexer_from_lang.get(lang))
+        encoding = doc.encoding.python_encoding_name
         try:
             buf_class = self.buf_class_from_lang[lang]
         except KeyError:
-            buf = ImplicitBuffer(lang, self, accessor, env, path)
+            buf = ImplicitBuffer(lang, self, accessor, env, path, encoding)
         else:
-            buf = buf_class(self, accessor, env, path)
+            buf = buf_class(self, accessor, env, path, encoding)
         return buf
 
-    def buf_from_content(self, content, lang, env=None, path=None):
-        #XXX Need 'encoding' argument?
+    def buf_from_content(self, content, lang, env=None, path=None,
+                         encoding=None):
         lexer = self.silvercity_lexer_from_lang.get(lang)
         accessor = SilverCityAccessor(lexer, content)
         try:
             buf_class = self.buf_class_from_lang[lang]
         except KeyError:
-            buf = ImplicitBuffer(lang, self, accessor, env, path)
+            buf = ImplicitBuffer(lang, self, accessor, env, path, encoding)
         else:
-            buf = buf_class(self, accessor, env, path)
+            buf = buf_class(self, accessor, env, path, encoding)
         return buf
 
     def buf_from_path(self, path, lang=None, encoding=None, env=None):
@@ -377,7 +378,7 @@ class Manager(threading.Thread, Queue):
         #if not isabs(path) and not path.startswith("<Unsaved>"):
         #    path = abspath(path)
 
-        return self.buf_from_content(content, lang, env, path)
+        return self.buf_from_content(content, lang, env, path, encoding)
 
     
     #---- Completion Evaluation Session/Queue handling
