@@ -623,7 +623,8 @@ class TreeEvaluator(CitadelEvaluator):
         attributes = elem.get("attributes", None)
         returns = elem.get("returns", None)
 
-        if path:
+        # Only fixup paths that do not look like URIs.
+        if path and not re.match(r"^\w+:\/\/", path):
             if sys.platform == "win32":
                 path = path.replace('/', '\\') # unnormalize path
             path = normpath(path)  # remove possible '.' and '..' elements
