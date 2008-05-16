@@ -305,7 +305,10 @@ class CitadelBuffer(Buffer):
         If no relevant scope is found (e.g. for example, in markup
         content in PHP) then None is returned.
         """
-        blob = self.blob_from_lang[self.lang]
+        try:
+            blob = self.blob_from_lang[self.lang]
+        except KeyError:
+            return None
         line = self.accessor.line_from_pos(pos) + 1 # convert to 1-based
         return self.scoperef_from_blob_and_line(blob, line)
 
