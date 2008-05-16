@@ -304,6 +304,8 @@
       <ComponentRef Id="component287"/>
       <ComponentRef Id="component296"/>
       <ComponentRef Id="component298"/>
+      <ComponentRef Id="component211"/>
+      <ComponentRef Id="component212"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1299,6 +1301,20 @@
                 </Directory> <!-- lib\mozilla\extensions\xul_language@ActiveState.com\templates\Mozilla Development -->
               </Directory> <!-- lib\mozilla\extensions\xul_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\xul_language@ActiveState.com -->
+            <Directory Id="directory233" Name="ZENDFR_0.COM" LongName="zendframework@ActiveState.com">
+              <Component Id="component211" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file454" Name="CHROME_1.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\zendframework@ActiveState.com\chrome.manifest"/>
+                <File Id="file455" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\zendframework@ActiveState.com\install.rdf"/>
+                <File Id="file456" Name="ZENDFR_0.JAR" LongName="zendframework.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\zendframework@ActiveState.com\zendframework.jar"/>
+              </Component>
+              <Directory Id="directory234" Name="PROJEC_0" LongName="project-templates">
+                <Directory Id="directory235" Name="ZENDFR_0" LongName="Zend Framework">
+                  <Component Id="component212" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file457" Name="ZEND_M_0.KPZ" LongName="Zend_MVC_Project.kpz" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\zendframework@ActiveState.com\project-templates\Zend Framework\Zend_MVC_Project.kpz"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\project-templates\Zend Framework -->
+              </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\project-templates -->
+            </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com -->
           </Directory> <!-- lib\mozilla\extensions -->
           <Directory Id="directory65" Name="greprefs">
             <Component Id="component59" DiskId="1" Guid="$(autowix.guid)">
