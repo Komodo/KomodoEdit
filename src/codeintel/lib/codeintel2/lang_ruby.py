@@ -188,8 +188,8 @@ class RubyBuffer(CitadelBuffer, RubyCommonBufferMixin):
     cpln_fillup_chars = "~`@#$%^&*(+}[]|\\;:,<>/ "
     cpln_stop_chars = cpln_fillup_chars + "'\"."
 
-    def __init__(self, *args, **kwargs):
-        CitadelBuffer.__init__(self, *args, **kwargs)
+    def __init__(self, mgr, accessor, env=None, path=None, *args, **kwargs):
+        CitadelBuffer.__init__(self, mgr, accessor, env, path, *args, **kwargs)
         self.check_for_rails_app_path(path)
 
         # Skip styles are a bit different for Ruby:
