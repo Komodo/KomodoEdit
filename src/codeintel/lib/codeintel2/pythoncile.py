@@ -1220,7 +1220,9 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
     conforming the the Code Intelligence XML format.
     
-        "content" is the Python content to scan
+        "content" is the Python content to scan. This should be an
+            encoded string: must be a string for `md5.new` and
+            `compiler.parse` -- see bug 73461.
         "filename" is the source of the Python content (used in the
             generated output).
         "md5sum" (optional) if the MD5 hexdigest has already been calculated

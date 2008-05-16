@@ -1006,7 +1006,10 @@ class PythonCILEDriver(CILEDriver):
 
     def scan_purelang(self, buf):
         #log.warn("TODO: python cile that uses elementtree")
-        cix = pythoncile.scan(buf.accessor.text, buf.path)
+        content = buf.accessor.text
+        if isinstance(content, unicode):
+            content = content.encode(buf.encoding or "utf-8")
+        cix = pythoncile.scan(content, buf.path)
         from codeintel2.tree import tree_from_cix
         return tree_from_cix(cix)
 
