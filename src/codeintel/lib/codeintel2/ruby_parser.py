@@ -58,7 +58,7 @@ from codeintel2.parser_data import VAR_KIND_UNKNOWN, VAR_KIND_GLOBAL, \
 
 import logging
 log = logging.getLogger("ruby_parser")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 # Parse Ruby code
 
@@ -228,6 +228,13 @@ def get_inflector():
     return _inflector
 
 class Parser:
+    # New names could be added to Rails post Rails 2.0,
+    # for database-specific types like 'blob'
+    _rails_migration_types = ('binary', 'boolean', 'date',
+                              'datetime', 'decimal', 'float',
+                              'string', 'integer',
+                              )
+        
     def __init__(self, tokenizer, lang):
         self.tokenizer = tokenizer
         self.block_stack = []
@@ -431,6 +438,7 @@ class Parser:
         tok = self.tokenizer.get_next_token()
         if not self.classifier.is_operator(tok, "|"):
             return
+        add_entry = False
         while True:
             tok = self.tokenizer.get_next_token()
             if tok.style == shared_lexer.EOF_STYLE:
@@ -442,22 +450,42 @@ class Parser:
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "."):
                     tok = self.tokenizer.get_next_token()
-                    if self.classifier.is_identifier(tok) and tok.text == 'column':
+                    if self.classifier.is_identifier(tok):
                         line_num = tok.start_line
-                        tok = self.tokenizer.get_next_token()
-                        if self.classifier.is_symbol(tok) or self.classifier.is_string(tok):
-                            column_name = self._actual_string_from_string_or_symbol(tok)
+                        if tok.text == 'column':
                             tok = self.tokenizer.get_next_token()
-                            if self.classifier.is_operator(tok, ','):
+                            if self.classifier.is_symbol(tok) or self.classifier.is_string(tok):
+                                column_name = self._actual_string_from_string_or_symbol(tok)
                                 tok = self.tokenizer.get_next_token()
-                                if self.classifier.is_symbol(tok) or self.classifier.is_string(tok):
-                                    column_type = self._actual_string_from_string_or_symbol(tok)
-                                else:
-                                    column_type = ""
-                                # Whew, we made it
-                                rails_migration_info.columns.append((column_name, column_type, line_num))
-                                rails_migration_info.endLine = line_num + 1
-                                continue
+                                if self.classifier.is_operator(tok, ','):
+                                    tok = self.tokenizer.get_next_token()
+                                    if self.classifier.is_symbol(tok) or self.classifier.is_string(tok):
+                                        column_type = self._actual_string_from_string_or_symbol(tok)
+                                    else:
+                                        column_type = ""
+                                    add_entry = True
+                        elif tok.text in self._rails_migration_types:
+                            column_type = tok.text
+                            tok = self.tokenizer.get_next_token()
+                            log.debug("Migration: add %s:%s",
+                                      tok.text, column_type)
+                            if self.classifier.is_symbol(tok) or self.classifier.is_string(tok):
+                                column_name = self._actual_string_from_string_or_symbol(tok)
+                                add_entry = True
+                        elif tok.text == "timestamps":
+                            # Rails 2.0 migration syntax in these two blocks:
+                            # create_table :objects do |t|
+                            #   t.<type> :<name>
+                            column_type = 'datetime'
+                            rails_migration_info.columns.append(('created_at', column_type, line_num))
+                            rails_migration_info.endLine = line_num + 1
+                            column_name = 'updated_at'
+                            add_entry = True
+                        if add_entry:
+                            rails_migration_info.columns.append((column_name, column_type, line_num))
+                            rails_migration_info.endLine = line_num + 1
+                            add_entry = False
+                            continue
             # Sanity check any token we have here
             if (tok.style == ScintillaConstants.SCE_RB_WORD and
                 tok.text in ('class', 'def')):

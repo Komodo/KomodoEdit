@@ -756,6 +756,105 @@ class PureRailsTestCase(_BaseTestCase):
         self.assertCompletionsDoNotInclude2(model_buf, model_positions[1],
                                        [("function", "bet"),
                                        ])
+    
+    books_and_dishes_migration = dedent("""\
+        class Book < ActiveRecord::Migration
+          def self.up
+            create_table :dishes do |t|
+              t.integer 'year'
+              t.string :manufacturer
+              t.timestamps
+            end
+            create_table :books do |t|
+              t.string 'title'
+              t.string :author
+              t.string "publisher"
+            end
+            create_table :books do |t|
+              t.column 'isbn', :string
+            end
+          end
+          def self.down
+          end
+        end
+     """)
+    
+    @tag("bug75440")
+    def test_model_sees_rails2_migrations_1(self):
+        dirs1 = [self.test_dir, "bug75440", "app"]
+        test_model_dir = join(*(dirs1 + ["models"]))
+        book_path = join(test_model_dir, "book.rb")
+        
+        dirs2 = [self.test_dir, "bug75440", "db", "migrate"]
+        migrate_dir = join(*dirs2)
+        migrate_table_create_path = join(migrate_dir, "001_create_books_and_dishes.rb")
+        model_content, model_positions = \
+          unmark_text(self.adjust_content(dedent("""\
+                 class Book < ActiveRecord::Base
+                   def get_title(a)
+                       return self.<1>title
+                   end
+                 end
+        """)))
+        manifest = [
+            (migrate_table_create_path, self.books_and_dishes_migration),
+            (book_path, model_content),
+        ]
+        for path, content in manifest:
+            writefile(path, content)
+        model_buf = self.mgr.buf_from_path(book_path)
+        self.assertCompletionsInclude2(model_buf, model_positions[1],
+                                       [("function", "title"),
+                                        ("function", "author"),
+                                        ("function", "publisher"),
+                                        ("function", "isbn"),
+                                       ])
+        self.assertCompletionsDoNotInclude2(model_buf, model_positions[1],
+                                       [("function", "bet"),
+                                        ("function", "manufacturer"),
+                                        ("function", "created_at"),
+                                        ("function", "updated_at"),
+                                       ])
+
+
+    @tag("bug75440")
+    def test_model_sees_rails2_migrations_2(self):
+        dirs1 = [self.test_dir, "bug75440b", "app"]
+        test_model_dir = join(*(dirs1 + ["models"]))
+        book_path = join(test_model_dir, "dish.rb")
+        
+        dirs2 = [self.test_dir, "bug75440b", "db", "migrate"]
+        migrate_dir = join(*dirs2)
+        migrate_table_create_path = join(migrate_dir, "001_create_books_and_dishes.rb")
+        model_content, model_positions = \
+          unmark_text(self.adjust_content(dedent("""\
+                 class Dish < ActiveRecord::Base
+                   def get_plate(a)
+                       return self.<1>year
+                   end
+                 end
+        """)))
+        manifest = [
+            (migrate_table_create_path, self.books_and_dishes_migration),
+            (book_path, model_content),
+        ]
+        for path, content in manifest:
+            writefile(path, content)
+        model_buf = self.mgr.buf_from_path(book_path)
+        # log.error("model_buf=%s", model_buf)
+        self.assertCompletionsInclude2(model_buf, model_positions[1],
+                                       [("function", "year"),
+                                        ("function", "manufacturer"),
+                                        ("function", "created_at"),
+                                        ("function", "updated_at"),
+                                       ])
+        self.assertCompletionsDoNotInclude2(model_buf, model_positions[1],
+                                       [("function", "shamroobah"),
+                                        ("function", "author"),
+                                        ("function", "publisher"),
+                                        ("function", "title"),
+                                       ])
+
 
     def test_controller_sees_migrations(self):
         dirs1 = [self.test_dir, "bug68997", "app"]
