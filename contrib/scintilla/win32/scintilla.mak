@@ -149,6 +149,7 @@ LEXOBJS=\
 	$(DIR_O)\LexLisp.obj \
 	$(DIR_O)\LexLout.obj \
 	$(DIR_O)\LexLua.obj \
+	$(DIR_O)\LexMagik.obj \
 	$(DIR_O)\LexMatlab.obj \
 	$(DIR_O)\LexMetapost.obj \
 	$(DIR_O)\LexMMIXAL.obj \
@@ -162,6 +163,7 @@ LEXOBJS=\
 	$(DIR_O)\LexPerl.obj \
 	$(DIR_O)\LexPLM.obj \
 	$(DIR_O)\LexPOV.obj \
+	$(DIR_O)\LexPowerShell.obj \
 	$(DIR_O)\LexProgress.obj \
 	$(DIR_O)\LexPS.obj \
 	$(DIR_O)\LexPython.obj \
@@ -375,6 +377,8 @@ $(DIR_O)\LexLout.obj: ..\src\LexLout.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexLua.obj: ..\src\LexLua.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexMagik.obj: ..\src\LexMagik.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexMatlab.obj: ..\src\LexMatlab.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexMetapost.obj: ..\src\LexMetapost.cxx $(LEX_HEADERS)
@@ -400,6 +404,8 @@ $(DIR_O)\LexPerl.obj: ..\src\LexPerl.cxx $(LEX_HEADERS)
 $(DIR_O)\LexPLM.obj: ..\src\LexPLM.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPOV.obj: ..\src\LexPOV.cxx $(LEX_HEADERS)
+
+$(DIR_O)\LexPowerShell.obj: ..\src\LexPowerShell.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexProgress.obj: ..\src\LexProgress.cxx $(LEX_HEADERS)
 

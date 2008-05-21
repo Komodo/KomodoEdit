@@ -68,8 +68,8 @@ if ($buildType eq 'debug') {
 my @lexers = ("Ada", "APDL", "Asn1", "AU3", "Abaqus", "Asm", "ASY", "AVE", "Baan", "Bash", "Basic",
     "Bullant", "Caml", "Conf", "CPP", "CSS", "CLW", "Cmake", "Crontab", "Csound", "D", "Eiffel", "EScript",
     "Erlang", "Flagship", "Forth", "Fortran", "GAP", "Gui4Cli", "Haskell", "HTML", "Inno", "Kix", "Lisp", "Lout",
-    "Lua", "Matlab", "Metapost", "MMIXAL", "MPT", "MSSQL", "Nsis", "Opal", "Others",
-    "PB", "PLM", "Pascal", "Perl", "PS", "Python", "POV", "Progress", "R", "Rebol", "Ruby", "Scriptol", "Smalltalk",
+    "Lua", "Magik", "Matlab", "Metapost", "MMIXAL", "MPT", "MSSQL", "Nsis", "Opal", "Others",
+    "PB", "PLM", "Pascal", "Perl", "PowerShell", "PS", "Python", "POV", "Progress", "R", "Rebol", "Ruby", "Scriptol", "Smalltalk",
     "Specman", "SQL", "Spice", "TADS3", "TeX", "Tcl", "UDL", "VB", "Verilog", "VHDL", "XSLT", "YAML");
 
 my @args = (

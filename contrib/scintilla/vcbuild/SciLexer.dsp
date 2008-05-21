@@ -290,6 +290,10 @@ SOURCE=..\src\LexLua.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\LexMagik.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\LexMatlab.cxx
 # End Source File
 # Begin Source File
@@ -339,6 +343,10 @@ SOURCE=..\src\LexPLM.cxx
 # Begin Source File
 
 SOURCE=..\src\LexPOV.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\LexPowerShell.cxx
 # End Source File
 # Begin Source File
 

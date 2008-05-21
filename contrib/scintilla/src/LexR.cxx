@@ -210,4 +210,4 @@ static const char * const RWordLists[] = {
 
 
 
-LexerModule lmr(SCLEX_R, ColouriseRDoc, "r", FoldRDoc, RWordLists);
+LexerModule lmR(SCLEX_R, ColouriseRDoc, "r", FoldRDoc, RWordLists);

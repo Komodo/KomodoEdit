@@ -26,12 +26,12 @@
  # Type of modification and the action which caused the modification.
  # These are defined as a bit mask to make it easy to specify which notifications are wanted.
 @@ -1991,6 +2009,9 @@
- val SCLEX_ABAQUS=84
- val SCLEX_ASYMPTOTE=85
  val SCLEX_R=86
-+val SCLEX_XSLT=87
+ val SCLEX_MAGIK=87
+ val SCLEX_POWERSHELL=88
++val SCLEX_XSLT=89
 +# User-defined languages
-+val SCLEX_UDL=88
++val SCLEX_UDL=90
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
