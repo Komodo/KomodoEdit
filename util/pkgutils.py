@@ -71,14 +71,12 @@ class KomodoReleasesGuru(object):
         "openkomodo": "OpenKomodo", # DEPRECATED
     }
     pkg_base_dir_from_project = {
-        "komodoedit": "crimper:/home/apps/Komodo",
-        "komodoide": "crimper:/home/apps/Komodo",
-        "openkomodo": "crimper:/home/apps/OpenKomodo", # DEPRECATED
+        "komodoedit": "nas:/data/komodo/builds",
+        "komodoide": "nas:/data/komodo/builds",
     }
     nightly_base_dir_from_project = {
         "komodoedit": "box17:/data/download/komodoedit/nightly",
-        "komodoide": "crimper:/home/apps/Komodo/fakey-downloads/komodoide/nightly",
-        "openkomodo": "box17:/data/download/openkomodo/nightly",  # DEPRECATED
+        "komodoide": "nas:/data/komodo/builds/fakey-downloads/komodoide/nightly",
     }
     
     def __init__(self, project, platname, full_ver):
@@ -131,7 +129,7 @@ class KomodoReleasesGuru(object):
         """Generate the list of Komodo releases (lastest first).
         
         A Komodo "release" counts if there is a ver dir in
-        "crimper:/home/apps/Komodo" with a GoldBits directory.
+        the Komodo builds share with a GoldBits directory.
 
         Returns 3-tuples:
             (<parsed-version-tuple>, <version-string>, <is-beta>)

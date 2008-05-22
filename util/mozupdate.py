@@ -198,7 +198,7 @@ class Shell(cmdln.Cmdln):
             manifest.append('patch "%s" "%s"' % (patch_pkg_path, pkg_path))
 
     @cmdln.option("-o", "--offline", action="store_true",
-                  help="offline from activestate.com (crimper and p4)")
+                  help="offline from activestate.com (NAS and svn)")
     @cmdln.option("-d", "--diff",
                   help="show included .patch diffs, filtered on given "
                        "pattern (use '-' to show all diffs)")

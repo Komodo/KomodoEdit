@@ -84,7 +84,7 @@ log = logging.getLogger("mknightly")
 #      `KomodoReleasesGuru.nightly_base_dir_from_project`.
 upload_base_dir_from_project = {
     "komodoedit": "box17:/data/download/",
-    "komodoide": "crimper:/home/apps/Komodo/fakey-downloads",
+    "komodoide": "komodo-build@nas:/data/komodo/builds/fakey-downloads",
 }
 pkg_pats_from_project = {
     "komodoedit": ["Komodo-Edit-*"],
@@ -92,8 +92,8 @@ pkg_pats_from_project = {
 }
 
 devbuilds_base_dir_from_project = {
-    "komodoide": "crimper:/home/apps/Komodo",
-    "komodoedit": "crimper:/home/apps/Komodo",
+    "komodoide": "nas:/data/komodo/builds",
+    "komodoedit": "nas:/data/komodo/builds",
 }
 scc_repo_name_from_project = {
     "komodoide": "assvn",  # ActiveState SVN
