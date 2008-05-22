@@ -138,7 +138,7 @@ $cons->Command(
     "../src/LexLisp.cxx",
     "../src/LexLout.cxx",
     "../src/LexLua.cxx",
-    "../src/LexMagic.cxx",
+    "../src/LexMagik.cxx",
     "../src/LexMatlab.cxx",
     "../src/LexMetapost.cxx",
     "../src/LexMMIXAL.cxx",
