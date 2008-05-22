@@ -431,7 +431,6 @@ if ($platform eq "win") {
         "ISciDoc.h",
         "$scintillaBuildDir/bin/SciLexer.dll",
         qq(
-            pwd || exit 0
             cl /nologo $CXXFLAGS /Fo%1:b.obj /c %1
             link /nologo $LDFLAGS /out:%0 %1:b.obj
         )
