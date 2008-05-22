@@ -1010,7 +1010,7 @@ if __name__=="__main__":
     URI = URIParser()
     #URI.path = r'c:\test\path\to\somefile.txt'
     #URI.path = 'c:\\'
-    #URI.URI = "file://crimper/apps/Komodo/Naming Rules for Tarballs.txt"
+    #URI.URI = "file://netshare/apps/Komodo/Naming Rules for Tarballs.txt"
     #URI.URI = 'ftp://somesite.com/web/info.php'
     URI.URI = r'ftp://somesite.com/web/info.php'
     #URI.URI = r'sftp://test:tesuser@somesite.com:22/web/info.php'
