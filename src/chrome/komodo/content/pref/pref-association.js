@@ -131,6 +131,29 @@ function OnPreferencePageClosing(prefset, ok) {
 }
 
 
+function OnPreferencePageOK(prefset) {
+    var pattern = dialog.addPatternTextfield.value;
+    if (pattern) {
+        var sampleName = pattern.replace(/\*/g, "sample");
+        if (!gLangRegistry.suggestLanguageForFile(sampleName)) {
+            var resp = ko.dialogs.yesNoCancel("Would you like to add an association for "
+                                              + pattern
+                                              + " and language "
+                                              + dialog.addLanguageList.selection
+                                              + "?",
+                                              "Yes", // not current behavior
+                                              null, // text field
+                                              "Unadded New File Association");
+            if (resp == "Yes") {
+                onAddAssociation();
+            } else if (resp == "Cancel") {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 // Return an array of Association objects, built from the fileAssociations
 // preference.
 // REFACTOR: s/FromPreference//
