@@ -182,7 +182,7 @@ class KoPythonLinter:
                    and cwd.startswith("\\\\"):
                     # Don't try to switch to a UNC path because pycompile.py
                     # ends up spitting out:
-                    #     CMD.EXE was started with '\\crimper\apps\Komodo\stuff' as the current directory
+                    #     CMD.EXE was started with '\\netshare\apps\Komodo\stuff' as the current directory
                     #     path.  UNC paths are not supported.  Defaulting to Windows directory.
                     # XXX Could perhaps try to ensure that command is not
                     #     run via "cmd.exe /c", but don't know if that would
