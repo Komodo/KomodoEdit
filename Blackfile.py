@@ -460,34 +460,7 @@ def _cp(src, dst):
 
 
 def _isdir(dirname):
-    r"""os.path.isdir() doesn't work for UNC mount points. Fake it.
-    
-    # For an existing mount point (want: _isdir() == 1)
-    os.path.ismount(r"\\crimper\apps") -> 1
-    os.path.exists(r"\\crimper\apps") -> 0
-    os.path.isdir(r"\\crimper\apps") -> 0
-    os.listdir(r"\\crimper\apps") -> [...contents...]
-    # For a non-existant mount point (want: _isdir() == 0)
-    os.path.ismount(r"\\crimper\foo") -> 1
-    os.path.exists(r"\\crimper\foo") -> 0
-    os.path.isdir(r"\\crimper\foo") -> 0
-    os.listdir(r"\\crimper\foo") -> WindowsError
-    # For an existing dir under a mount point (want: _isdir() == 1)
-    os.path.mount(r"\\crimper\apps\Komodo") -> 0
-    os.path.exists(r"\\crimper\apps\Komodo") -> 1
-    os.path.isdir(r"\\crimper\apps\Komodo") -> 1
-    os.listdir(r"\\crimper\apps\Komodo") -> [...contents...]
-    # For a non-existant dir/file under a mount point (want: _isdir() == 0)
-    os.path.ismount(r"\\crimper\apps\foo") -> 0
-    os.path.exists(r"\\crimper\apps\foo") -> 0
-    os.path.isdir(r"\\crimper\apps\foo") -> 0
-    os.listdir(r"\\crimper\apps\foo") -> []  # as if empty contents
-    # For an existing file under a mount point (want: _isdir() == 0)
-    os.path.ismount(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 0
-    os.path.exists(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 1
-    os.path.isdir(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 0
-    os.listdir(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> WindowsError
-    """
+    r"""os.path.isdir() doesn't work for UNC mount points. Fake it."""
     if sys.platform[:3] == 'win' and dirname[:2] == r'\\':
         if os.path.exists(dirname):
             return os.path.isdir(dirname)
@@ -1739,7 +1712,7 @@ def PackageKomodo(cfg, argv):
             if sys.platform == "win32":
                 # Only build the doc packages on Windows: only need one
                 # and multiples cause collisions when uploading to
-                # network share (crimper).
+                # network share.
                 packages.append("docs")
                 packages.append("mozpatches")
             # Put this *after* the possible doc packages, because building
