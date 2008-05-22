@@ -2507,7 +2507,11 @@ static void setNewDelimiter(Transition      *p_TranBlock,
 
 static void ColouriseTemplate1Doc(unsigned int startPos,
                                   int length,
-                                  int initStyle,
+                                  int
+#if 0
+				  initStyle
+#endif
+				  ,
                                   WordList *keywordlists[],
                                   Accessor &styler)
 {
@@ -2537,6 +2541,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         // don't need a message.
         
         //fprintf(stderr, "udl: ColouriseTemplate1Doc: no sublanguage\n");
+        styler.ColourTo(length, 0);
         return;
     }
     
@@ -2639,7 +2644,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 // that iLine + 1 exceeds the document boundary.
                 int lineEndPos = styler.LineStart(iLine + 1) - 1;
                 int oldLineState = styler.GetLineState(iLine);
-                int baseLineState = actual_style(styler.StyleAt(lineEndPos));
                 int currStackSize = p_MainInfo->StateStackSize();
                 int newLineState = create_line_state(currStackSize,
                                                      istate);
@@ -2845,7 +2849,11 @@ static void getToken(int 	curr_style,
 }
 
 
-static void FoldUDLDoc(unsigned int startPos, int length, int initStyle,
+static void FoldUDLDoc(unsigned int startPos, int length, int
+#if 0
+		       initStyle
+#endif
+		       ,
                       WordList *keywordlists[], Accessor &styler)
 {
 #if 0
