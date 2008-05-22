@@ -62,30 +62,30 @@ def isdir(dirname):
     r"""os.path.isdir() doesn't work for UNC mount points. Fake it.
     
     # For an existing mount point (want: isdir() == 1)
-    os.path.ismount(r"\\crimper\apps") -> 1
-    os.path.exists(r"\\crimper\apps") -> 0
-    os.path.isdir(r"\\crimper\apps") -> 0
-    os.listdir(r"\\crimper\apps") -> [...contents...]
+    os.path.ismount(r"\\netshare\apps") -> 1
+    os.path.exists(r"\\netshare\apps") -> 0
+    os.path.isdir(r"\\netshare\apps") -> 0
+    os.listdir(r"\\netshare\apps") -> [...contents...]
     # For a non-existant mount point (want: isdir() == 0)
-    os.path.ismount(r"\\crimper\foo") -> 1
-    os.path.exists(r"\\crimper\foo") -> 0
-    os.path.isdir(r"\\crimper\foo") -> 0
-    os.listdir(r"\\crimper\foo") -> WindowsError
+    os.path.ismount(r"\\netshare\foo") -> 1
+    os.path.exists(r"\\netshare\foo") -> 0
+    os.path.isdir(r"\\netshare\foo") -> 0
+    os.listdir(r"\\netshare\foo") -> WindowsError
     # For an existing dir under a mount point (want: isdir() == 1)
-    os.path.mount(r"\\crimper\apps\Komodo") -> 0
-    os.path.exists(r"\\crimper\apps\Komodo") -> 1
-    os.path.isdir(r"\\crimper\apps\Komodo") -> 1
-    os.listdir(r"\\crimper\apps\Komodo") -> [...contents...]
+    os.path.mount(r"\\netshare\apps\Komodo") -> 0
+    os.path.exists(r"\\netshare\apps\Komodo") -> 1
+    os.path.isdir(r"\\netshare\apps\Komodo") -> 1
+    os.listdir(r"\\netshare\apps\Komodo") -> [...contents...]
     # For a non-existant dir/file under a mount point (want: isdir() == 0)
-    os.path.ismount(r"\\crimper\apps\foo") -> 0
-    os.path.exists(r"\\crimper\apps\foo") -> 0
-    os.path.isdir(r"\\crimper\apps\foo") -> 0
-    os.listdir(r"\\crimper\apps\foo") -> []  # as if empty contents
+    os.path.ismount(r"\\netshare\apps\foo") -> 0
+    os.path.exists(r"\\netshare\apps\foo") -> 0
+    os.path.isdir(r"\\netshare\apps\foo") -> 0
+    os.listdir(r"\\netshare\apps\foo") -> []  # as if empty contents
     # For an existing file under a mount point (want: isdir() == 0)
-    os.path.ismount(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 0
-    os.path.exists(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 1
-    os.path.isdir(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> 0
-    os.listdir(r"\\crimper\apps\Komodo\latest.komodo-devel.txt") -> WindowsError
+    os.path.ismount(r"\\netshare\apps\Komodo\latest.komodo-devel.txt") -> 0
+    os.path.exists(r"\\netshare\apps\Komodo\latest.komodo-devel.txt") -> 1
+    os.path.isdir(r"\\netshare\apps\Komodo\latest.komodo-devel.txt") -> 0
+    os.listdir(r"\\netshare\apps\Komodo\latest.komodo-devel.txt") -> WindowsError
     """
     if sys.platform[:3] == 'win' and dirname[:2] == r'\\':
         if os.path.exists(dirname):
