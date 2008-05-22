@@ -22,7 +22,7 @@ Utility Functions:
 #       http://developer.apple.com/documentation/MacOSX/Conceptual/BPFileSystem/index.html
 #       http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/enums/csidl.asp
 
-__version_info__ = (1, 0, 0)
+__version_info__ = (1, 0, 1)
 __version__ = '.'.join(map(str, __version_info__))
 __author__ = "Trent Mick"
 
@@ -182,6 +182,7 @@ def _get_win_folder_from_registry(csidl_name):
     key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
         r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
     dir, type = _winreg.QueryValueEx(key, shell_folder_name)
+    return dir
 
 def _get_win_folder_with_pywin32(csidl_name):
     from win32com.shell import shellcon, shell
