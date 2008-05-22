@@ -283,12 +283,13 @@ if ($platform eq "win") {
                    qq(
                     cd %1:d && ./configure --enable-shared=no --enable-utf8 --enable-unicode-properties $build_env && make
                     ranlib %1:d/.libs/libpcre.a
-		    cp %1:d/.libs/libpcre.a $scintilla_dir/$scintilla_plat_dir/libpcre.a
+                    cp %1:d/.libs/libpcre.a $scintilla_dir/$scintilla_plat_dir/libpcre.a
                     cp %1:d/pcre.h $scintilla_dir/include/pcre.h
                     cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
                     ranlib $silvercity_dir/libpcre.a
                    ));
-    $cons->DependsRecursive($landmark, "pcre", ('\.svn'));
+    $cons->DependsRecursive($landmark, "pcre",
+                            ('\.svn', 'doc', 'testdata'));
 }
 
 
@@ -322,6 +323,7 @@ $cons->InstallPythonUtility("inflector/Rules/__init__.py", "inflector/Rules");
 $cons->InstallPythonUtility("inflector/Rules/Base.py", "inflector/Rules");
 $cons->InstallPythonUtility("inflector/Rules/English.py", "inflector/Rules");
 $cons->InstallPythonUtility("inflector/Rules/Spanish.py", "inflector/Rules");
+
 
 #---- htmltidy 
 {
