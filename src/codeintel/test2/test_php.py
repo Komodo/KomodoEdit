@@ -501,7 +501,7 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertPrecedingTriggerMatches(markup_text(content),
                                   name="php-complete-functions", pos=trg_pos)
 
-    @tag("bug54667", "knownfailure")
+    @tag("bug54667")
     def test_trigger_heredoc_strings(self):
         # assert no trig in heredoc
         self.assertNoTrigger(php_markup("""$str = <<<EOD
