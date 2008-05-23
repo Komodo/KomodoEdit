@@ -188,6 +188,7 @@ toolboxBaseManager.prototype.close = function(sortdir) {
         if (this.toolbox && !this.toolbox.getFile().isReadOnly) {
             this.save();
             this.toolbox.close();
+            this.viewMgr.view.toolbox = null;
         }
     } catch (e) {
         log.exception(e);
