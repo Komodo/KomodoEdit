@@ -1123,7 +1123,10 @@
                 else if (rows == NSUIEvent.SCROLL_PAGE_DOWN ||
                     (rows > 0 && event.ctrlKey))
                     rows = this.scimoz.linesOnScreen;
-                this.scimoz.lineScroll(0,rows);
+                else if (event.shiftKey)
+                    this.scimoz.lineScroll(rows,0);
+                else
+                    this.scimoz.lineScroll(0,rows);
             }
             ]]>
             </handler>
