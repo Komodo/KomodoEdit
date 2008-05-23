@@ -242,6 +242,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpTclMailingLists', event);"
             desc="&helpTclMailingLists.desc;"/>
         <command
+            id="cmd_helpXSLTRef_Web" key="key_cmd_helpXSLTRef_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpXSLTRef_Web', event);"
+            desc="&helpXSLTReferenceWeb.desc;"/>
+        <command
             id="cmd_helpXSLTMailingLists" key="key_cmd_helpXSLTMailingLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpXSLTMailingLists', event);"
             desc="&helpXSLTMailingLists.desc;"/>

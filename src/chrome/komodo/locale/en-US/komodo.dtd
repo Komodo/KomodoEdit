@@ -639,6 +639,7 @@
 <!ENTITY helpTclReferenceLocal.desc "Help: Tcl Reference (Local)">
 <!ENTITY helpTclReferenceWeb.desc "Help: Tcl Reference (Web)">
 <!ENTITY helpXSLTMailingLists.desc "Help: XSLT Mailing Lists">
+<!ENTITY helpXSLTReferenceWeb.desc "Help: XSLT Reference (Web)">
 
 <!ENTITY perlMailingLists.label "Perl Mailing Lists">
 <!ENTITY perlReferenceLocal.label "Perl Reference (local)">
@@ -654,3 +655,4 @@
 <!ENTITY tclReferenceLocal.label "Tcl Reference (local)">
 <!ENTITY tclReferenceWeb.label "Tcl Reference (web)">
 <!ENTITY XSLTMailingLists.label "XSLT Mailing Lists">
+<!ENTITY XSLTReferenceWeb.label "XSLT Reference (Web)">

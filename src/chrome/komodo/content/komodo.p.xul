@@ -1449,6 +1449,11 @@
                             />
                             <menuseparator/>
                             <menuitem
+                                id="menu_helpXSLTRef_Web"
+                                label="&XSLTReferenceWeb.label;"
+                                observes="cmd_helpXSLTRef_Web"
+                            />
+                            <menuitem
                                 id="menu_helpXSLTMailingLists"
                                 label="&XSLTMailingLists.label;"
                                 observes="cmd_helpXSLTMailingLists"

@@ -83,6 +83,7 @@ var handlers = {
     'cmd_helpTclRef_Web': 'ko.browse.webHelp("Tcl")',
     'cmd_helpTclMailingLists': 'ko.browse.aspnMailingList("Tcl")',
     'cmd_helpXSLTMailingLists': 'ko.browse.aspnMailingList("XSLT")',
+    'cmd_helpXSLTRef_Web': 'ko.browse.openUrlInDefaultBrowser("http://developer.mozilla.org/en/docs/XSLT")',
     'cmd_helpKomodoMailLists': 'ko.browse.browseTag("mailLists")',
     'cmd_helpCommunity': 'ko.browse.browseTag("community")',
     'cmd_helpViewBugs': 'ko.browse.browseTag("bugs")',
