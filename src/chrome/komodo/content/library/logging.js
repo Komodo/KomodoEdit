@@ -388,9 +388,9 @@ this.dumpEvent = function dumpEvent(event)
         'targetXPath',
         'originalTargetXPath'
                 ];
-    for (var name in names) {
-        if (name in event) {
-            dump(name+": "+event[name]+"\n");
+    for (var i in names) {
+        if (names[i] in event) {
+            dump(names[i]+": "+event[names[i]]+"\n");
         }
     }
     dump('-------------------------------------\n');
