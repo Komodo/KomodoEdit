@@ -183,7 +183,7 @@ toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
     return "An unknown exception occurred";
 }
 
-toolboxBaseManager.prototype.close = function(sortdir) {
+toolboxBaseManager.prototype.close = function() {
     try {
         if (this.toolbox && !this.toolbox.getFile().isReadOnly) {
             this.save();
