@@ -73,9 +73,9 @@ class TestURIParser(unittest.TestCase):
         filelist.append(["file:///c:/", 'c:\\', '', '', 'c:\\'])
         filelist.append(["file:///c:", 'c:', '', '', 'c:'])
 
-    filelist.append(["file://crimper/apps/Komodo/Naming Rules for Tarballs.txt",
-                     '//crimper/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
-                     'Naming Rules for Tarballs.txt', '//crimper/apps/Komodo'])
+    filelist.append(["file://netshare/apps/Komodo/Naming Rules for Tarballs.txt",
+                     '//netshare/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
+                     'Naming Rules for Tarballs.txt', '//netshare/apps/Komodo'])
     urllist = list(filelist)
     urllist.append(["http://server.com/test/path/to/somefile.txt",
                     r'/test/path/to/somefile.txt', 'somefile.txt',
@@ -144,9 +144,9 @@ class TestURIParser(unittest.TestCase):
 
     def test_assignNetscapeUNC(self):
         URI = URIParser()
-        URI.URI = 'file://///crimper/apps/Komodo/Naming Rules for Tarballs.txt'
-        assert URI.URI == 'file://crimper/apps/Komodo/Naming Rules for Tarballs.txt'
-        self.failUnlessSamePath(URI.path, r'\\crimper\apps\Komodo\Naming Rules for Tarballs.txt')
+        URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+        assert URI.URI == 'file://netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+        self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
 
     def test_md5name(self):
         filename = os.path.normpath(os.path.join(tempfile.gettempdir(),'testwrite.py.txt'))
