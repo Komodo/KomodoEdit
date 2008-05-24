@@ -71,12 +71,12 @@ class KomodoReleasesGuru(object):
         "openkomodo": "OpenKomodo", # DEPRECATED
     }
     pkg_base_dir_from_project = {
-        "komodoedit": "nas:/data/komodo/builds",
-        "komodoide": "nas:/data/komodo/builds",
+        "komodoedit": "komodo-build@nas:/data/komodo/builds",
+        "komodoide": "komodo-build@nas:/data/komodo/builds",
     }
     nightly_base_dir_from_project = {
         "komodoedit": "box17:/data/download/komodoedit/nightly",
-        "komodoide": "nas:/data/komodo/builds/fakey-downloads/komodoide/nightly",
+        "komodoide": "komodo-build@nas:/data/komodo/builds/fakey-downloads/komodoide/nightly",
     }
     
     def __init__(self, project, platname, full_ver):
