@@ -88,6 +88,7 @@ this.onload = function Toolbox_onLoad()
 
 function toolboxBaseManager() {
     ko.main.addCanQuitHandler(this.save, this);
+    ko.main.addWillQuitHandler(this.savePrefs, this);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -417,6 +418,18 @@ toolboxBaseManager.prototype.save = function() {
         _obSvc.notifyObservers(this, 'file_changed', this.toolbox.url);
     } catch(e) { /* exception if no listeners */ }
     return true;
+}
+
+toolboxBaseManager.prototype.savePrefs = function() {
+    if (this.toolbox) {
+        try {
+            // Save folding-related information, which change doesn't
+            // dirty a project.
+            this.viewMgr.view.savePrefs(this.viewMgr.view.toolbox);
+        } catch(ex) {
+            log.exception(ex);
+        }
+    }
 }
 
 toolboxBaseManager.prototype.__defineGetter__("currentProject",
