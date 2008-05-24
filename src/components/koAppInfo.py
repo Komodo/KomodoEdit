@@ -189,7 +189,7 @@ class KoPerlInfoEx(KoAppInfoEx):
 
     def get_webHelpURL(self):
         """Return a web URL for help on this app, else return None."""
-        return "http://aspn.activestate.com/ASPN/Products/ASPNTOC-ACTIVEPERL"
+        return "http://aspn.activestate.com/ASPN/docs/ActivePerl/5.8/perlmain.html"
     
     # koIPerlInfoEx routines
     def haveModules(self, modules):
@@ -455,7 +455,7 @@ class KoRubyInfoEx(KoAppInfoEx):
 
     def get_webHelpURL(self):
         """Return a web URL for help on this app, else return None."""
-        return "http://www.google.ca/search?q=ruby%20documentation"
+        return "http://www.ruby-doc.org/"
 
     def FindInstallationPaths(self):
         if sys.platform.startswith('win'):
@@ -600,7 +600,7 @@ class KoTclInfoEx(KoAppInfoEx):
         return None
 
     def get_webHelpURL(self):
-        return "http://aspn.activestate.com/ASPN/Products/ASPNTOC-ACTIVETCL_"
+        return "http://aspn.activestate.com/ASPN/docs/ActiveTcl/8.4/at.welcome.html"
 
     def getInstallationPathFromBinary(self, binaryPath):
         return os.path.dirname(os.path.dirname(binaryPath))
@@ -846,7 +846,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
         return None
 
     def get_webHelpURL(self):
-        return "http://aspn.ActiveState.com/ASPN/PHP/Reference"
+        return "http://www.php.net/docs.php"
 
     # additional koIPHPInfoEx routines
     # XXX php takes a directory as an argument to define where to find
