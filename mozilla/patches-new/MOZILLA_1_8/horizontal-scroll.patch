@@ -1,10 +1,10 @@
-Index: /Users/shanec/svn/komodo/mozilla/build/cvs1.8-ko4.30/mozilla/content/events/src/nsEventStateManager.cpp
+Index: content/events/src/nsEventStateManager.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/content/events/src/nsEventStateManager.cpp,v
 retrieving revision 1.595.2.28
 diff -u -r1.595.2.28 nsEventStateManager.cpp
---- nsEventStateManager.cpp	21 Nov 2006 05:21:38 -0000	1.595.2.28
-+++ nsEventStateManager.cpp	23 May 2008 21:41:43 -0000
+--- content/events/src/nsEventStateManager.cpp	21 Nov 2006 05:21:38 -0000	1.595.2.28
++++ content/events/src/nsEventStateManager.cpp	23 May 2008 21:41:43 -0000
 @@ -1856,7 +1861,8 @@
                                 aEvent->refPoint.x, aEvent->refPoint.y,
                                 aEvent->point.x,    aEvent->point.y,
