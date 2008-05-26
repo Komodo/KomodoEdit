@@ -2070,6 +2070,30 @@ function _itemStringifier(item)
 }
 
 var _gInCheckDiskFiles = false;
+
+// #if PLATFORM == "linux"
+if (window == ko.windowManager.getMainWindow())
+    window.addEventListener("focus", ko.window.checkDiskFiles, false);
+// #else
+function _checkFilesObserver() {
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                    getService(Components.interfaces.nsIObserverService);
+    observerSvc.addObserver(this, "application-activated",false);
+};
+_checkFilesObserver.prototype = {
+    observe: function(subject, topic, data)
+    {
+        if (topic == 'application-activated'){
+            var activated = subject.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
+            if (activated) {
+                ko.window.checkDiskFiles();
+            }
+        }
+    }
+}
+var _gCheckFilesObserver = new _checkFilesObserver();
+// #endif
+
 /**
  * view_checkDiskFiles is only called from the window's focus handler,
  * located in komodo.xul.  it handles checking if any files have changed.
@@ -2079,6 +2103,8 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
     if (_gInCheckDiskFiles || !ko.views.manager || ko.views.manager.batchMode) {
         return true;
     }
+    if (event && event.eventPhase != event.AT_TARGET) return true;
+
     var checkDisk = (gPrefs.hasBooleanPref("checkDiskFile") &&
                      gPrefs.getBooleanPref("checkDiskFile"));
     if (!checkDisk) return true;

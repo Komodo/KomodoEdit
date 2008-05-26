@@ -74,7 +74,6 @@
         screenY="20"
         onclose="return canQuitApplication(); /* handle os close controls */"
         persist="screenX screenY width height"
-        onfocus="if (event.eventPhase == event.AT_TARGET) {ko.window.checkDiskFiles(event)}"
         ondragover="ko.dragDrop.dragObserver.doDragOverEvent(event);return true;"
         ondragdrop="ko.dragDrop.dragObserver.doDropEvent(event);return true;"
         >
