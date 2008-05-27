@@ -93,7 +93,7 @@ _g_patterns = {
     "unified hunk header":
         # E.g., '@@ -296,7 +296,8 @@'
         re.compile(r"^@@ -(?P<beforestartline>\d+),(\d+) "
-                    "\+(?P<afterstartline>\d+),(\d+) @@.*$"),
+                    "\+(?P<afterstartline>\d+),(\d+) @@"),
 }
 
 
