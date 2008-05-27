@@ -118,6 +118,11 @@ class KoFileCheckerBase:
             return uri.lower()
         return uri
 
+    ##
+    # Helper function to ensure the cache is completely cleared.
+    def _invalidateAllCaches(self):
+        self._lastChecked = {}
+
     #  Interface method
     def initialize(self):
         prefObserverSvc = self._globalPrefs.prefObserverService
@@ -147,30 +152,36 @@ class KoFileCheckerBase:
     # @private
     def observe(self, subject, topic, data):
         self.log.debug("observing event %s:%s" % (topic, data))
-        if not data or topic != self._globalPrefs.id:
+        if not topic:
             return
 
         # data is actually the pref name that was changed.
-        if data == self.executablePrefName:
-            executable = self._globalPrefs.getStringPref(data)
+        if topic == self.executablePrefName:
+            executable = self._globalPrefs.getStringPref(topic)
             if executable != self.executable:
                 self.setExecutable(executable)
-                # XXX - Notify the file status service to start checking
-        elif data == self.enabledPrefName:
+                self._invalidateAllCaches()
+                fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"].\
+                                    getService(components.interfaces.koIFileStatusService)
+                fileStatusSvc.updateStatusForAllFiles(self.REASON_ONFOCUS_CHECK)
+        elif topic == self.enabledPrefName:
             enabled = self._globalPrefs.getBooleanPref(self.enabledPrefName)
             if enabled != self.enabled:
                 self.enabled = enabled
-                # XXX - Notify the file status service to start checking
-        elif data == self.backgroundEnabledPrefName:
-            backgroundEnabled = self._globalPrefs.getBooleanPref(data)
+                self._invalidateAllCaches()
+                fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"].\
+                                    getService(components.interfaces.koIFileStatusService)
+                fileStatusSvc.updateStatusForAllFiles(self.REASON_ONFOCUS_CHECK)
+        elif topic == self.backgroundEnabledPrefName:
+            backgroundEnabled = self._globalPrefs.getBooleanPref(topic)
             if backgroundEnabled != self.backgroundEnabled:
                 self.backgroundEnabled = backgroundEnabled
-        elif data == self.backgroundDurationPrefName:
-            backgroundDuration = self._globalPrefs.getBooleanPref(data) * 60
+        elif topic == self.backgroundDurationPrefName:
+            backgroundDuration = self._globalPrefs.getBooleanPref(topic) * 60
             if backgroundDuration != self.backgroundDuration:
                 self.backgroundDuration = backgroundDuration
-        elif data == self.recursivePrefName:
-            self.recursive =  self._globalPrefs.getBooleanPref(data)
+        elif topic == self.recursivePrefName:
+            self.recursive =  self._globalPrefs.getBooleanPref(topic)
 
     #  Interface method
     def shutdown(self):

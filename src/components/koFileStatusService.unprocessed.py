@@ -374,6 +374,7 @@ class KoFileStatusService:
     def _process(self):
         #print "starting file status background thread"
         last_bg_check_time = time.time()
+        active_checker_names = []
         while not self.shutdown:
             # Give at least a brief respite between loops.
             time.sleep(0.1)
@@ -484,13 +485,24 @@ class KoFileStatusService:
                 # invalidate old status information
                 # we do this seperately so that the scc modules can
                 # catch full directories of urls
+                last_active_checker_names = active_checker_names
+                active_checker_names = []
                 for checker in self._statusCheckers:
                     #print "checker: %s - %s, active: %s" % (checker.type, checker.name, checker.isActive())
                     #log.debug("try %s", checker.name)
                     # do we need to run this checker?
+                    allowCheckerToRunDisabled = False
                     if not checker.isActive():
-                        log.debug("Skipping %s, not active"%checker.name)
-                        continue
+                        if checker.name in last_active_checker_names:
+                            # We let this go through the status checking once
+                            # more in order to clean out any old information.
+                            allowCheckerToRunDisabled = True
+                            log.debug("%s, not active, allowing last cleanup check."%checker.name)
+                        else:
+                            log.debug("Skipping %s, not active"%checker.name)
+                            continue
+                    else:
+                        active_checker_names.append(checker.name)
                     if isBackgroundCheck and not checker.isBackgroundCheckingEnabled():
                         log.debug("Skipping %s, no background checking",
                                   checker.name)
@@ -519,7 +531,8 @@ class KoFileStatusService:
                             log.info("file status thread shutting down")
                             return
                         # Check this between files as it may have changed
-                        if not checker.isActive():
+                        if not checker.isActive() and \
+                           not allowCheckerToRunDisabled:
                             log.debug("Checker %s became disabled mid run.",
                                       checker.name)
                             break
