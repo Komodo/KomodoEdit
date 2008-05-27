@@ -359,12 +359,16 @@ var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
 
 var _canQuitObservers = [];
 var canQuitListener = {
+    ignoreRequest : false,
     observe: function(subject, topic, data) {
         var cancelQuit = subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
         cancelQuit.data = canQuitListener.cancelQuit();
         //_log.warn("observe cancelQuit? "+cancelQuit.data);
     },
     cancelQuit: function() {
+        if (this.ignoreRequest) {
+            return false;
+        }
         for (var i=_canQuitObservers.length-1; i >= 0 ; i--) {
             try {
                 var callback = _canQuitObservers[i];
@@ -374,6 +378,7 @@ var canQuitListener = {
                           "' shutdown handler (object='"+callback.object+"':");
             }
         }
+        this.ignoreRequest = true;
         return false;
     }
 }
@@ -399,11 +404,15 @@ this.addCanQuitHandler = function(handler, object /*=null*/) {
 
 var _willQuitObservers = [];
 var willQuitListener = {
+    ignoreRequest : false,
     observe: function(subject, topic, data) {
         //_log.warn("willQuitListener called");
         willQuitListener.doQuit();
     },
     doQuit: function() {
+        if (this.ignoreRequest) {
+            return;
+        }
         for (var i=0; i < _willQuitObservers.length; i++) {
             try {
                 var callback = _willQuitObservers[i];
@@ -413,6 +422,7 @@ var willQuitListener = {
                           "' shutdown handler (object='"+callback.object+"':");
             }
         }
+        this.ignoreRequest = true;
     }
 }
 observerSvc.addObserver(willQuitListener, "quit-application-granted",false);
