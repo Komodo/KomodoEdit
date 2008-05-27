@@ -1905,7 +1905,6 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[13],
             [("function", "howRed")])
 
-    @tag("knownfailure")
     def test_base_class_members(self):
         content, positions = unmark_text(dedent(r'''
             class NonModuleScope:
@@ -2036,7 +2035,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
             "Fish(GENUS) -> scaly thing\nGood eatin'")
         
-    @tag("bug76056", "knownfailure")
+    @tag("bug76056")
     def test_logging_module(self):
         # Ensure we get completeions on "logging" module classes, as this is
         # commonly used in many Python programs.
