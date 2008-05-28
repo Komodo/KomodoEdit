@@ -140,8 +140,10 @@ class PHPTreeEvaluator(TreeEvaluator):
         if trg.type == "variables":
             return self._variables_from_scope(self.expr, start_scope)
         elif trg.type == "functions":
+            # The 3-character trigger, which not actually specific to functions.
             retval = self._functions_from_scope(self.expr, start_scope) + \
-                     self._constants_from_scope(self.expr, start_scope)
+                     self._constants_from_scope(self.expr, start_scope) + \
+                     self._classes_from_scope(self.expr, start_scope)
             #if self.ctlr.is_aborted():
             #    return None
             return retval
