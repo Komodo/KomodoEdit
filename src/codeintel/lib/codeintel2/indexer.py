@@ -484,7 +484,7 @@ class Indexer(threading.Thread):
         if self.isAlive():
             self.add_request(IndexerStopRequest())
             try:
-                self.join()
+                self.join(1) # see bug 77284
             except AssertionError:
                 pass # thread was not started
 
