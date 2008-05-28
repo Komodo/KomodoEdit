@@ -329,110 +329,114 @@ class CatalogsZone(object):
                 and <value> is an integer between 0 and 100 indicating the
                 level of completeness.
         """
-        self._have_updated_at_least_once = True
-
-        # Figure out what updates need to be done...
-        if progress_cb:
-            try:    progress_cb("Determining necessary catalog updates...", 5)
-            except: log.exception("error in progress_cb (ignoring)")
-        res_name_from_res_path = dict(  # this is our checklist
-            (p, v[2]) for p,v in self.res_index.items())
-        todos = []
-        log.info("updating %s: %d catalog dir(s)", self,
-                 len(self.catalog_dirs))
-        for catalog_info in self.avail_catalogs(selections):
-            cix_path = catalog_info["cix_path"]
-            res = AreaResource(cix_path)
-            # check that the update-time is the mtime (i.e. up-to-date)
-            try:
-                res_id, last_updated, name, res_data \
-                    = self.res_index[res.area_path]
-            except KeyError:
-                # add this new CIX file
-                todos.append(("add", res, catalog_info["name"]))
-            else:
-                mtime = os.stat(cix_path).st_mtime
-                if last_updated != mtime: # epsilon? '>=' instead of '!='?
-                    # update with newer version
-                    todos.append(("update", res, catalog_info["name"]))
-                #else:
-                #    log.debug("not updating '%s' catalog: mtime is unchanged",
-                #              catalog_info["name"])
-                del res_name_from_res_path[res.area_path] # tick it off
-
-        for res_area_path, res_name in res_name_from_res_path.items():
-            # remove this obsolete CIX file
-            try:
-                todos.append( ("remove", AreaResource(res_area_path), res_name) )
-            except ValueError, ex:
-                # Skip resources in unknown areas. This is primarily to
-                # allow debugging/testing (when the set of registered
-                # path_areas may not include the set when running in
-                # Komodo.)
-                pass
-
-        # Filter todos on selections, if any.
-        if selections is not None:
-            selection_from_selector = self._selection_from_selector(selections)
-            before = todos[:]
-            todos = [todo for todo in todos
-                if todo[2].lower() in selection_from_selector
-                or normpath(normcase(todo[1].path)) in selection_from_selector
-            ]
-
-        # ... and then do them.
-        if not todos:
-            return
-        for i, (action, res, name) in enumerate(todos):
-            log.debug("%s `%s' catalog (%s)", action, name, res)
-            try:
-                if action == "add":
-                    desc = "Adding '%s' API catalog" % basename(res.subpath)
-                    self.db.report_event(desc)
-                    if progress_cb:
-                        try:    progress_cb(desc, (5 + 95/len(todos)*i))
-                        except: log.exception("error in progress_cb (ignoring)")
-                    self._add_res(res)
-                elif action == "remove":
-                    desc = "Removing '%s' API catalog" % basename(res.subpath)
-                    self.db.report_event(desc)
-                    if progress_cb:
-                        try:    progress_cb(desc, (5 + 95/len(todos)*i))
-                        except: log.exception("error in progress_cb (ignoring)")
-                    self._remove_res(res)
-                elif action == "update":
-                    desc = "Updating '%s' API catalog" % basename(res.subpath)
-                    self.db.report_event(desc)
-                    if progress_cb:
-                        try:    progress_cb(desc, (5 + 95/len(todos)*i))
-                        except: log.exception("error in progress_cb (ignoring)")
-                    #XXX Bad for filesystem. Change this to do it
-                    #    more intelligently if possible.
-                    self._remove_res(res)
-                    self._add_res(res)
-            except DatabaseError, ex:
-                log.warn("%s (skipping)" % ex)
-
-        if progress_cb:
-            try:    progress_cb("Saving catalog indeces...", 95)
-            except: log.exception("error in progress_cb (ignoring)")
-        self._res_ids_from_selector_cache = None # invalidate this cache
-        if self._res_index is not None:
-            self.db.save_pickle(
-                join(self.base_dir, "res_index"),
-                self._res_index)
-        if self._blob_index is not None:
-            self.db.save_pickle(
-                join(self.base_dir, "blob_index"),
-                self._blob_index)
-        if self._toplevelname_index is not None:
-            self.db.save_pickle(
-                join(self.base_dir, "toplevelname_index"),
-                self._toplevelname_index)
-        if self._toplevelprefix_index is not None:
-            self.db.save_pickle(
-                join(self.base_dir, "toplevelprefix_index"),
-                self._toplevelprefix_index)
+        self._lock.acquire()
+        try:
+            self._have_updated_at_least_once = True
+    
+            # Figure out what updates need to be done...
+            if progress_cb:
+                try:    progress_cb("Determining necessary catalog updates...", 5)
+                except: log.exception("error in progress_cb (ignoring)")
+            res_name_from_res_path = dict(  # this is our checklist
+                (p, v[2]) for p,v in self.res_index.items())
+            todos = []
+            log.info("updating %s: %d catalog dir(s)", self,
+                     len(self.catalog_dirs))
+            for catalog_info in self.avail_catalogs(selections):
+                cix_path = catalog_info["cix_path"]
+                res = AreaResource(cix_path)
+                # check that the update-time is the mtime (i.e. up-to-date)
+                try:
+                    res_id, last_updated, name, res_data \
+                        = self.res_index[res.area_path]
+                except KeyError:
+                    # add this new CIX file
+                    todos.append(("add", res, catalog_info["name"]))
+                else:
+                    mtime = os.stat(cix_path).st_mtime
+                    if last_updated != mtime: # epsilon? '>=' instead of '!='?
+                        # update with newer version
+                        todos.append(("update", res, catalog_info["name"]))
+                    #else:
+                    #    log.debug("not updating '%s' catalog: mtime is unchanged",
+                    #              catalog_info["name"])
+                    del res_name_from_res_path[res.area_path] # tick it off
+    
+            for res_area_path, res_name in res_name_from_res_path.items():
+                # remove this obsolete CIX file
+                try:
+                    todos.append( ("remove", AreaResource(res_area_path), res_name) )
+                except ValueError, ex:
+                    # Skip resources in unknown areas. This is primarily to
+                    # allow debugging/testing (when the set of registered
+                    # path_areas may not include the set when running in
+                    # Komodo.)
+                    pass
+    
+            # Filter todos on selections, if any.
+            if selections is not None:
+                selection_from_selector = self._selection_from_selector(selections)
+                before = todos[:]
+                todos = [todo for todo in todos
+                    if todo[2].lower() in selection_from_selector
+                    or normpath(normcase(todo[1].path)) in selection_from_selector
+                ]
+    
+            # ... and then do them.
+            if not todos:
+                return
+            for i, (action, res, name) in enumerate(todos):
+                log.debug("%s `%s' catalog (%s)", action, name, res)
+                try:
+                    if action == "add":
+                        desc = "Adding '%s' API catalog" % basename(res.subpath)
+                        self.db.report_event(desc)
+                        if progress_cb:
+                            try:    progress_cb(desc, (5 + 95/len(todos)*i))
+                            except: log.exception("error in progress_cb (ignoring)")
+                        self._add_res(res)
+                    elif action == "remove":
+                        desc = "Removing '%s' API catalog" % basename(res.subpath)
+                        self.db.report_event(desc)
+                        if progress_cb:
+                            try:    progress_cb(desc, (5 + 95/len(todos)*i))
+                            except: log.exception("error in progress_cb (ignoring)")
+                        self._remove_res(res)
+                    elif action == "update":
+                        desc = "Updating '%s' API catalog" % basename(res.subpath)
+                        self.db.report_event(desc)
+                        if progress_cb:
+                            try:    progress_cb(desc, (5 + 95/len(todos)*i))
+                            except: log.exception("error in progress_cb (ignoring)")
+                        #XXX Bad for filesystem. Change this to do it
+                        #    more intelligently if possible.
+                        self._remove_res(res)
+                        self._add_res(res)
+                except DatabaseError, ex:
+                    log.warn("%s (skipping)" % ex)
+    
+            if progress_cb:
+                try:    progress_cb("Saving catalog indeces...", 95)
+                except: log.exception("error in progress_cb (ignoring)")
+            self._res_ids_from_selector_cache = None # invalidate this cache
+            if self._res_index is not None:
+                self.db.save_pickle(
+                    join(self.base_dir, "res_index"),
+                    self._res_index)
+            if self._blob_index is not None:
+                self.db.save_pickle(
+                    join(self.base_dir, "blob_index"),
+                    self._blob_index)
+            if self._toplevelname_index is not None:
+                self.db.save_pickle(
+                    join(self.base_dir, "toplevelname_index"),
+                    self._toplevelname_index)
+            if self._toplevelprefix_index is not None:
+                self.db.save_pickle(
+                    join(self.base_dir, "toplevelprefix_index"),
+                    self._toplevelprefix_index)
+        finally:
+            self._lock.release()
 
     _existing_res_ids_cache = None
     _new_res_id_counter = 0
@@ -565,9 +569,10 @@ class CatalogsZone(object):
                 = self.blob_index.setdefault(lang, {})
             assert blobname not in dbfile_and_res_id_from_blobname, \
                    ("codeintel: %s %r blob in `%s' collides "
-                    "with existing %s %r blob in catalog: "
-                    "XXX haven't decided how to deal with that yet"
-                    % (lang, blobname, cix_path, lang, blobname))
+                    "with existing %s %r blob (from res_id %r) in catalog: "
+                    "(XXX haven't decided how to deal with that yet)"
+                    % (lang, blobname, cix_path, lang, blobname,
+                       dbfile_and_res_id_from_blobname[blobname][1]))
             dbfile = self.db.bhash_from_blob_info(cix_path, lang, blobname)
             dbfile_and_res_id_from_blobname[blobname] = (dbfile, res_id)
 
