@@ -1080,7 +1080,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
 class CSSBuffer(Buffer):
     lang = "CSS"
     sce_prefixes = ["SCE_CSS_"]
-    cpln_fillup_chars = ""  # none for now, should probably add some
+    cpln_fillup_chars = " ('\";},.>"
     cpln_stop_chars = " ('\";},.>"
 
 

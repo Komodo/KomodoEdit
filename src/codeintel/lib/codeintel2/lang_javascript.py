@@ -524,7 +524,7 @@ class JavaScriptBuffer(CitadelBuffer):
     lang = "JavaScript"
 
     # Fillup chars for JavaScript: basically, any non-identifier char.
-    cpln_fillup_chars = "" #XXX todo: add apropriate set, copy from Python?
+    cpln_fillup_chars = "~`!#%^&*()-=+{}[]|\\;:'\",.<>?/ "
     cpln_stop_chars = "~`!@#%^&*()-=+{}[]|\\;:'\",.<>?/ "
     sce_prefixes = ["SCE_C_"]
 

@@ -1267,10 +1267,8 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
 
     cb_show_if_empty = True
 
-    #cpln_fillup_chars = "" #XXX none for now, should probably add some.
     # Fillup chars for PHP: basically, any non-identifier char.
-    #cpln_fillup_chars = "("
-    cpln_fillup_chars = ""
+    cpln_fillup_chars = "~`!@#$%^&*()-=+{}[]|\\;:'\",.<>?/ "
     #TODO: c.f. cpln_stop_chars stuff in lang_html.py
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
     cpln_stop_chars = "~`!@#$%^&*()-=+{}]|\\;:'\",.<>?/ "
