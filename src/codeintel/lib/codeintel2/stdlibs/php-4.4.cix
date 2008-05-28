@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 4.4.8" description="Cix data for PHP 4.4.8" file="php-4.4.cix">
-  <file lang="PHP" mtime="1205190635" path="php-4.4.cix">
+  <file lang="PHP" mtime="1212001557" path="php-4.4.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="chown" signature="chown ( string filename, mixed user )" doc="Changes file owner" ilk="function"/>
       <scope name="isset" signature="bool isset ( mixed var [, mixed var [, ...]] )" doc="Determine whether a variable is set" ilk="function"/>
@@ -2822,7 +2822,6 @@
       <variable name="_GET" citdl="array"/>
       <variable name="_POST" citdl="array"/>
       <variable name="_REQUEST" citdl="array"/>
-      <variable name="_SERVER" citdl="array"/>
       <variable name="_SESSION" citdl="array"/>
       <variable name="HTTP_COOKIE_VARS" citdl="array"/>
       <variable name="HTTP_ENV_VARS" citdl="array"/>
@@ -2837,6 +2836,39 @@
       <variable name="__FUNCTION__" citdl="string" ilk="constant"/>
       <variable name="__CLASS__" citdl="string" ilk="constant"/>
       <variable name="__METHOD__" citdl="string" ilk="constant"/>
+      <variable name="_SERVER" citdl="array">
+        <variable name="HTTP_HOST" citdl="string"/>
+        <variable name="HTTP_USER_AGENT" citdl="string"/>
+        <variable name="HTTP_ACCEPT" citdl="string"/>
+        <variable name="HTTP_ACCEPT_LANGUAGE" citdl="string"/>
+        <variable name="HTTP_ACCEPT_ENCODING" citdl="string"/>
+        <variable name="HTTP_ACCEPT_CHARSET" citdl="string"/>
+        <variable name="HTTP_KEEP_ALIVE" citdl="string"/>
+        <variable name="HTTP_CONNECTION" citdl="string"/>
+        <variable name="HTTP_COOKIE" citdl="string"/>
+        <variable name="HTTP_CACHE_CONTROL" citdl="string"/>
+        <variable name="PATH" citdl="string"/>
+        <variable name="SERVER_SIGNATURE" citdl="string"/>
+        <variable name="SERVER_SOFTWARE" citdl="string"/>
+        <variable name="SERVER_NAME" citdl="string"/>
+        <variable name="SERVER_ADDR" citdl="string"/>
+        <variable name="SERVER_PORT" citdl="string"/>
+        <variable name="REMOTE_ADDR" citdl="string"/>
+        <variable name="DOCUMENT_ROOT" citdl="string"/>
+        <variable name="SERVER_ADMIN" citdl="string"/>
+        <variable name="SCRIPT_FILENAME" citdl="string"/>
+        <variable name="REMOTE_PORT" citdl="string"/>
+        <variable name="GATEWAY_INTERFACE" citdl="string"/>
+        <variable name="SERVER_PROTOCOL" citdl="string"/>
+        <variable name="REQUEST_METHOD" citdl="string"/>
+        <variable name="QUERY_STRING" citdl="string"/>
+        <variable name="REQUEST_URI" citdl="string"/>
+        <variable name="SCRIPT_NAME" citdl="string"/>
+        <variable name="PHP_SELF" citdl="string"/>
+        <variable name="REQUEST_TIME" citdl="string"/>
+        <variable name="argv" citdl="string"/>
+        <variable name="argc" citdl="string"/>
+      </variable>
       <variable name="E_ERROR" citdl="integer" ilk="constant"/>
       <variable name="E_WARNING" citdl="integer" ilk="constant"/>
       <variable name="E_PARSE" citdl="integer" ilk="constant"/>
