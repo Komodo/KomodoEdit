@@ -2534,7 +2534,7 @@ class DefnTestCase(CodeIntelTestCase):
              ("function", "bar"),
             ])
 
-    @tag("bug72960", "knownfailure")
+    @tag("bug72960")
     def test_phpdoc_class_property(self):
         # http://bugs.activestate.com/show_bug.cgi?id=72960
         # @property shows a "magic" property variable that is found inside the
