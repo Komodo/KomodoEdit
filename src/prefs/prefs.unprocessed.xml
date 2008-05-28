@@ -194,6 +194,7 @@
  '*.cron': 'nnCrontab',
  '*.cs': 'C#',
  '*.css': 'CSS',
+ '*.ctp': 'PHP,'
  '*.cxx': 'C++',
  '*.diff': 'Diff',
  '*.e': 'Eiffel',
@@ -237,6 +238,7 @@
  '*.patch': 'Diff',
  '*.pb': 'PowerBasic',
  '*.php': 'PHP',
+ '*.phtml': 'PHP',
  '*.pl': 'Perl',
  '*.plex': 'Perl',
  '*.plx': 'Perl',
