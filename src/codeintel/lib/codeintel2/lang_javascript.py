@@ -105,7 +105,9 @@ keywords = ["abstract", "boolean", "break", "byte", "case", "catch",
             "int", "interface", "long", "native", "new", "null", "package",
             "private", "protected", "public", "return", "short",
             "static", "super", "switch", "synchronized", "this", "throw",
-            "throws", "transient", "true", "try", "typeof", "var", "void",
+            "throws", "transient", "true", "try", "typeof",
+            "undefined", # bug 77291
+            "var", "void",
             "while", "with"]
 
 # States used by JavaScriptScanner when parsing information
