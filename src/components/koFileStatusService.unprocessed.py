@@ -218,7 +218,14 @@ class KoFileStatusService:
         try:
             log.info("addFileStatusChecker:: added %r", checkerInstance.name)
             checkerInstance.initialize()
-            self._statusCheckers.append(checkerInstance)
+            for i in range(len(self._statusCheckers)):
+                checker = self._statusCheckers[i]
+                if checkerInstance.ranking_weight < checker.ranking_weight:
+                    self._statusCheckers.insert(i, checkerInstance)
+                    break
+            else:
+                self._statusCheckers.append(checkerInstance)
+            #print "Order now: %r" % ([x.name for x in self._statusCheckers])
         finally:
             self._tlock.release()
 

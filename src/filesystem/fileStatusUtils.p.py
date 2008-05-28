@@ -224,6 +224,8 @@ class KoDiskFileChecker(KoFileCheckerBase):
     #     ("category-komodo-file-status",      "disk"),
     #     ]
 
+    ranking_weight = 5
+
     def __init__(self):
         timeline.enter('KoDiskFileChecker.__init__')
         KoFileCheckerBase.__init__(self, 'disk', 'Disk')

@@ -44,6 +44,13 @@ interface koIFileStatusChecker : nsISupports {
     attribute wstring type;               // "disk" or "scc"
     attribute wstring name;               // unique name of the checker
 
+    // To control the order in which the status checkers will be run. The
+    // checker with the lowest ranking weight will be run first. The expected
+    // range will be from 0 to 100. Checkers that will be relatively quick and
+    // inexpensive to run should be below 50, whilst slower checkers have weight
+    // values above 50.
+    attribute long ranking_weight;
+
     // Used to see if the checker is enabled
     boolean isActive();
 
