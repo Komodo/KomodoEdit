@@ -1857,6 +1857,8 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
 this.viewManager = viewManager;
 
 var _manager = null;
+var _gCheckFilesObserver = null;
+
 /**
  * Get the view manager.
  * @type ko.views.viewManager
@@ -1873,6 +1875,29 @@ this.onload = function views_onload() {
     var viewSvc = Components.classes['@activestate.com/koViewService;1'].getService(
                     Components.interfaces.koIViewService);
     viewSvc.setViewMgr(_manager);
+
+// #if PLATFORM == "linux"
+    if (window == ko.windowManager.getMainWindow())
+        window.addEventListener("focus", ko.window.checkDiskFiles, false);
+// #else
+    function _checkFilesObserver() {
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                        getService(Components.interfaces.nsIObserverService);
+        observerSvc.addObserver(this, "application-activated",false);
+    };
+    _checkFilesObserver.prototype = {
+        observe: function(subject, topic, data)
+        {
+            if (topic == 'application-activated'){
+                var activated = subject.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
+                if (activated) {
+                    ko.window.checkDiskFiles();
+                }
+            }
+        }
+    }
+    _gCheckFilesObserver = new _checkFilesObserver();
+// #endif
 };
 
 /* convert an offset in character coordinates to an offset in
@@ -2070,29 +2095,6 @@ function _itemStringifier(item)
 }
 
 var _gInCheckDiskFiles = false;
-
-// #if PLATFORM == "linux"
-if (window == ko.windowManager.getMainWindow())
-    window.addEventListener("focus", ko.window.checkDiskFiles, false);
-// #else
-function _checkFilesObserver() {
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                    getService(Components.interfaces.nsIObserverService);
-    observerSvc.addObserver(this, "application-activated",false);
-};
-_checkFilesObserver.prototype = {
-    observe: function(subject, topic, data)
-    {
-        if (topic == 'application-activated'){
-            var activated = subject.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
-            if (activated) {
-                ko.window.checkDiskFiles();
-            }
-        }
-    }
-}
-var _gCheckFilesObserver = new _checkFilesObserver();
-// #endif
 
 /**
  * view_checkDiskFiles is only called from the window's focus handler,
