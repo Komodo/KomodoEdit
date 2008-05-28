@@ -1708,7 +1708,7 @@ static void FoldRbDoc(unsigned int startPos, int length, int initStyle,
             if (foldComment && stylePrev != SCE_RB_COMMENTLINE) {
                 if (chNext == '{') {
                     levelCurrent++;
-				} else if (chNext == '}' && levelCurrent > 0) {
+                } else if (chNext == '}' && levelCurrent > 0) {
                     levelCurrent--;
                 }
             }
