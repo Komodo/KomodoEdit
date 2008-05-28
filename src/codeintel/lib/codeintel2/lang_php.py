@@ -1539,11 +1539,12 @@ class PHPArgs:
 class PHPVariable:
 
     # PHPDoc variable type sniffer.
-    _re_var = re.compile(r'^\s*@var\s+(?P<type>\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
 
-    def __init__(self, name, line, vartype='', attributes='', doc=None):
+    def __init__(self, name, line, vartype='', attributes='', doc=None,
+                 fromPHPDoc=False):
         self.name = name
-        self.types = [(line, vartype)]
+        self.types = [(line, vartype, fromPHPDoc)]
         self.linestart = line
         if attributes:
             if not isinstance(attributes, list):
@@ -1553,8 +1554,8 @@ class PHPVariable:
             self.attributes = None
         self.doc = doc
 
-    def addType(self, line, type):
-        self.types.append((line, type))
+    def addType(self, line, type, fromPHPDoc=False):
+        self.types.append((line, type, fromPHPDoc))
 
     def __repr__(self):
         return "var %s line %s type %s attributes %s\n"\
@@ -1577,13 +1578,17 @@ class PHPVariable:
                 all_matches = re.findall(self._re_var, doc)
                 if len(all_matches) >= 1:
                     #print "all_matches[0]: %r" % (all_matches[0], )
-                    vartype = all_matches[0][0]
+                    vartype = all_matches[0][2]
 
         if not vartype and self.types:
             d = {}
             max_count = 0
-            for line, vtype in self.types:
+            for line, vtype, fromPHPDoc in self.types:
                 if vtype:
+                    if fromPHPDoc:
+                        # The doc gets priority.
+                        vartype = vtype
+                        break
                     count = d.get(vtype, 0) + 1
                     d[vtype] = count
                     if count > max_count:
@@ -2198,16 +2203,19 @@ class PHPParser:
             # shouldn't ever get here
             pass
 
-    def addVariable(self, name, vartype='', attributes=None, doc=None):
+    def addVariable(self, name, vartype='', attributes=None, doc=None,
+                    fromPHPDoc=False):
         log.debug("VAR: %r type: %r on line %d", name, vartype, self.lineno)
+        phpVariable = None
+        already_existed = True
         if self.currentFunction:
             phpVariable = self.currentFunction.variables.get(name)
             if phpVariable is None:
-                self.currentFunction.variables[name] = PHPVariable(name, self.lineno, vartype, attributes, doc=doc)
-            elif vartype:
-                log.debug("Adding type information for VAR: %r, vartype: %r",
-                          name, vartype)
-                phpVariable.addType(self.lineno, vartype)
+                phpVariable = PHPVariable(name, self.lineno, vartype,
+                                          attributes, doc=doc,
+                                          fromPHPDoc=fromPHPDoc)
+                self.currentFunction.variables[name] = phpVariable
+                already_existed = False
         elif self.currentClass:
             pass
             # XXX this variable is local to a class method, what to do with it?
@@ -2217,11 +2225,23 @@ class PHPParser:
         else:
             phpVariable = self.fileinfo.variables.get(name)
             if phpVariable is None:
-                self.fileinfo.variables[name] = PHPVariable(name, self.lineno, vartype, attributes, doc=doc)
-            elif vartype:
+                phpVariable = PHPVariable(name, self.lineno, vartype,
+                                          attributes, doc=doc,
+                                          fromPHPDoc=fromPHPDoc)
+                self.fileinfo.variables[name] = phpVariable
+                already_existed = False
+
+        if phpVariable and already_existed:
+            if doc:
+                if phpVariable.doc:
+                    phpVariable.doc += doc
+                else:
+                    phpVariable.doc = doc
+            if vartype:
                 log.debug("Adding type information for VAR: %r, vartype: %r",
                           name, vartype)
-                phpVariable.addType(self.lineno, vartype)
+                phpVariable.addType(self.lineno, vartype, fromPHPDoc=fromPHPDoc)
+        return phpVariable
 
     def addConstant(self, name, vartype='', doc=None):
         """Add a constant at the global scope level."""
@@ -2504,6 +2524,36 @@ class PHPParser:
                         self.addVariable(name, attributes=attributes)
             p += 1
 
+    def _handleVariableComment(self, namelist, comment):
+        """Determine any necessary information from the provided comment.
+        Returns true when the comment was used to apply variable info, false
+        otherwise.
+        """
+        log.debug("_handleVariableComment:: namelist: %r, comment: %r",
+                  namelist, comment)
+        doc_string = "\n".join(comment)
+        if "@var" in doc_string:
+            doc = uncommentDocString(doc_string)
+            # get the variable citdl type set by "@var"
+            all_matches = re.findall(PHPVariable._re_var, doc)
+            if len(all_matches) >= 1:
+                #print all_matches[0]
+                varname = all_matches[0][1]
+                vartype = all_matches[0][2]
+                php_variable = None
+                if varname and varname[0] == "$":
+                    # Optional, defines the variable this is applied to.
+                    php_variable = self.addVariable(varname, vartype,
+                                                    doc=comment,
+                                                    fromPHPDoc=True)
+                    return True
+                elif namelist:
+                    php_variable = self.addVariable(namelist[0], vartype,
+                                                    doc=comment,
+                                                    fromPHPDoc=True)
+                    return True
+        return False
+
     def _variableHandler(self, styles, text, p, attributes, doc=None,
                          style="variable"):
         log.debug("_variableHandler:: style: %r, text: %r, attributes: %r",
@@ -2550,11 +2600,21 @@ class PHPParser:
                 namelist = namelist[1:]
                 name = namelist[0]
             if len(namelist) != 1:
+                # Example:  "item->foo;"  translates to namelist: [item, foo]
+                if self.comment:
+                    # We may be able to get some PHPDoc out of the comment.
+                    if self._handleVariableComment(namelist, self.comment):
+                        self.comment = []
                 log.info("multiple part variable namelist (ignoring): "
                          "%r, line: %d in file: %r", namelist,
                          self.lineno, self.filename)
                 continue
             if name.endswith("()"):
+                # Example:  "foo(x);"  translates to namelist: [foo()]
+                if self.comment:
+                    # We may be able to get some PHPDoc out of the comment.
+                    if self._handleVariableComment(namelist, self.comment):
+                        self.comment = []
                 log.info("variable is making a method call (ignoring): "
                          "%r, line: %d in file: %r", namelist,
                          self.lineno, self.filename)

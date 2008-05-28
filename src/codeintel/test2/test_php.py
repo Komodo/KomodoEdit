@@ -2512,7 +2512,7 @@ class DefnTestCase(CodeIntelTestCase):
             [("variable", "$s1"), ("variable", "$s2"),
              ("function", "bar"), ("function", "foo")])
 
-    @tag("bug76676", "knownfailure")
+    @tag("bug76676")
     def test_phpdoc_overriding_variable_citdls(self):
         content, positions = unmark_text(php_markup(dedent("""\
             class bug_76676_phpdoc_override {
