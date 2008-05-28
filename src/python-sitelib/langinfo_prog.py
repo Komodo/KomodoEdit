@@ -81,7 +81,8 @@ class PerlLangInfo(LangInfo):
 class PHPLangInfo(LangInfo):
     name = "PHP"
     conforms_to_bases = ["Text"]
-    exts = [".php", ".inc"]
+    exts = [".php", ".inc",
+            ".phtml"]  # .phtml commonly used for Zend Framework view files
     magic_numbers = [
         (0, "string", "<?php"),
         (0, "regex", re.compile(r'\A#!.*php.*$', re.I | re.M)),

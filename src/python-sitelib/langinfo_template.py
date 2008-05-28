@@ -78,3 +78,15 @@ class TemplateToolkitLangInfo(LangInfo):
     komodo_name = "TemplateToolkit"
     conforms_to_bases = ["Text"]
 
+
+class CakePHPTemplate(LangInfo):
+    """CakePHP view template files.
+    
+    CakePHP is a PHP framework with an MVC system. By convention "view"
+    files (they are PHP) use the .ctp extension.
+    http://book.cakephp.org/view/22/cakephp-conventions#view-conventions-26
+    """
+    name = "CakePHP Template"
+    conforms_to_bases = ["PHP"]
+    exts = [".ctp"]
+
