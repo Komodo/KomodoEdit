@@ -88,8 +88,8 @@ _g_patterns = {
                     "(?P<type>[acd])"
                     "(?P<afterstartline>\d+)(,\d+)?$"),
     "context hunk header":
-        # E.g., '*** 32,37 ****', '--- 32,39 ----'
-        re.compile(r"^([\*-]){3} (?P<startline>\d+),(?P<endline>\d+) \1{4}$"),
+        # E.g., '*** 32,37 ****', '--- 32,39 ----', '*** 1 ****'
+        re.compile(r"^([\*-]){3} (?P<startline>\d+)(,(?P<endline>\d+))? \1{4}$"),
     "unified hunk header":
         # E.g., '@@ -296,7 +296,8 @@'
         re.compile(r"^@@ -(?P<beforestartline>\d+),(\d+) "
