@@ -175,6 +175,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                     self.log("Allowing protected parent members")
                     return list(self._members_from_hit(hit, allowProtected=True,
                                                        allowPrivate=False))
+                elif self.trg.type == "array-members":
+                    return list(self._members_from_array_hit(hit, self.trg.extra.get('trg_char')))
                 else:
                     return list(self._members_from_hit(hit))
 
@@ -386,6 +388,22 @@ class PHPTreeEvaluator(TreeEvaluator):
                 name = node.get("name")
                 self.log("_calltip_from_class:: no ctor in class %r", name)
                 return "%s()" % (name)
+
+    def _members_from_array_hit(self, hit, trg_char):
+        """Retrieve members from the given array element.
+
+        @param hit {tuple} (elem, scoperef)
+        @param trg_char {string}  The character that triggered the event.
+        """
+        self.log("_members_from_array_hit:: %r", hit)
+        elem, scoperef = hit
+        members = set()
+        for child in elem:
+            # Should look like:  SERVER_NAME']
+            members.add( (child.get("ilk") or child.tag,
+                          #"%s%s]" % (child.get("name"), trg_char)) )
+                          child.get("name")) )
+        return members
 
     def _members_from_elem(self, elem, name_prefix=''):
         """Return the appropriate set of autocomplete completions for
@@ -830,6 +848,10 @@ class PHPTreeEvaluator(TreeEvaluator):
         citdl = elem.get("citdl")
         if not citdl:
             raise CodeIntelError("no type-inference info for %r" % elem)
+        if citdl == 'array' and self.trg.type == "array-members":
+            self.log("_hit_from_variable_type_inference:: elem %r is an array",
+                     elem, )
+            return (elem, scoperef)
         self.log("_hit_from_variable_type_inference:: resolve '%s' type inference for %r:", citdl, elem)
         return self._hit_from_citdl(citdl, scoperef)
 

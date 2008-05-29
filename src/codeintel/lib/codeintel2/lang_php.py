@@ -370,7 +370,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     lang = lang
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
-    trg_chars = tuple('$>:(,@ ')
+    trg_chars = tuple('$>:(,@"\' ')
     calltip_trg_chars = tuple('( ')
 
     # named styles used by the class
@@ -379,6 +379,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     identifier_style = SCE_UDL_SSL_IDENTIFIER
     keyword_style    = SCE_UDL_SSL_WORD
     variable_style   = SCE_UDL_SSL_VARIABLE
+    string_style     = SCE_UDL_SSL_STRING
     comment_styles   = (SCE_UDL_SSL_COMMENT, SCE_UDL_SSL_COMMENTBLOCK)
     comment_styles_or_whitespace = comment_styles + (whitespace_style, )
 
@@ -690,6 +691,21 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 # Nothing found in the specified range
                 if DEBUG:
                     print "No phpdoc, ran out of characters to look at."
+
+            # Array completions
+            elif last_style == self.string_style and last_char in '\'"':
+                if prev_char != '[':
+                    if prev_style in self.comment_styles_or_whitespace:
+                        # Look back further.
+                        prev_pos, prev_char, prev_style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles_or_whitespace)
+                if prev_char == '[':
+                    # We're good to go.
+                    if DEBUG:
+                        print "Matched trigger for array completions"
+                    return Trigger("PHP", TRG_FORM_CPLN,
+                                   "array-members", pos, implicit,
+                                   bracket_pos=prev_pos,
+                                   trg_char=last_char)
 
             elif DEBUG:
                 print "trg_from_pos: no handle for style: %d" % last_style
@@ -1004,6 +1020,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 3   # 3-char trigger, skip over it
             elif trg.type == "variables":
                 i = trg.pos + 1   # triggered on the $, skip over it
+            elif trg.type == "array-members":
+                i = trg.extra.get("bracket_pos")   # triggered on foo['
             else:
                 i = trg.pos - 2 # skip past the trigger char
             return self._citdl_expr_from_pos(buf, i, trg.implicit, DEBUG=DEBUG)

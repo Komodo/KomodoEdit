@@ -528,6 +528,25 @@ class TriggerTestCase(CodeIntelTestCase):
         """))
         self.assertCalltipIs(markup_text(content, pos=positions[1]), "func_foo(x, y)")
 
+    @tag("bug67367")
+    def test_complete_array_members(self):
+        # Triggers after foo['
+        #
+        #    Samples:
+        #        $_SERVER['    =>   [ 'SERVER_NAME', 'SERVER_ADDR', ...]
+        name = "php-complete-array-members"
+        self.assertTriggerMatches(php_markup("$_SERVER['<|>SERVER_NAME']"),
+                                  name=name, pos=16)
+        self.assertTriggerMatches(php_markup('$_SERVER["<|>SERVER_NAME"]'),
+                                  name=name, pos=16)
+        # Try with some additional spacing...
+        self.assertTriggerMatches(php_markup("$_SERVER[  \n'<|>SERVER_NAME']"),
+                                  name=name, pos=19)
+        # No trigger before or after the correct position
+        self.assertNoTrigger(php_markup('$_SERVER[<|>"SERVER_NAME"]'))
+        # No trigger on a string.
+        self.assertNoTrigger(php_markup('a"<|>SERVER_NAME"]'))
+
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -1730,6 +1749,18 @@ EOD;
             [("variable", "simple_variable")])
         self.assertCompletionsAre2(buf, test_positions[3],
             [("constant", "simple_constant")])
+
+    @tag("bug67367")
+    def test_complete_array_members(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=67367
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            $_SERVER["<1>SERVER_NAME"];
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("variable", 'SERVER_ADDR'),
+                 ("variable", 'SERVER_NAME'),
+                ])
 
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
