@@ -457,7 +457,7 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
     var lineEnd = scimoz.lineFromPosition(endByte);
     var ISciMoz = Components.interfaces.ISciMoz;
     var eol = (scimoz.eOLMode == ISciMoz.SC_EOL_CRLF ? "\r\n" :
-               scimoz.eOLMode == ISciMoz.SC_EOL ? "\n" : "\r");
+               scimoz.eOLMode == ISciMoz.SC_EOL_LF ? "\n" : "\r");
     var eol_re = new RegExp(eol, 'g');
     var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
     if (numLinesInReplacement != (lineEnd - lineStart)) {
