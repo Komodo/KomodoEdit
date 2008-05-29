@@ -5,14 +5,20 @@ retrieving revision 1.1503.2.111
 diff -d -u -r1.1503.2.111 configure.in
 --- configure.in	26 Mar 2008 19:03:05 -0000	1.1503.2.111
 +++ configure.in	23 May 2008 22:51:58 -0000
-@@ -6801,6 +6817,12 @@
+@@ -6801,6 +6817,17 @@
        PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_VERSION)
        MOZ_CAIRO_CFLAGS=$CAIRO_CFLAGS
        MOZ_CAIRO_LIBS=$CAIRO_LIBS
 +      if test "$MOZ_X11"; then
-+          PKG_CHECK_MODULES(CAIRO_XRENDER, cairo-xlib-xrender >= $CAIRO_VERSION)
++        ## New versions of cairo require libxrender linking flags, check
++        ## if the user's cairo installation requires this.
++        PKG_CHECK_MODULES(CAIRO, cairo >= 1.6.0,[
++          PKG_CHECK_MODULES(CAIRO_XRENDER, cairo-xlib-xrender >= $CAIRO_VERSION)    
 +          MOZ_CAIRO_LIBS="$MOZ_CAIRO_LIBS $XLDFLAGS $CAIRO_XRENDER_LIBS"
 +          MOZ_CAIRO_CFLAGS="$MOZ_CAIRO_CFLAGS $CAIRO_XRENDER_CFLAGS"
++        ],[
++          CAIRO_XRENDER=
++        ])
 +      fi
-+
     fi
+ fi
