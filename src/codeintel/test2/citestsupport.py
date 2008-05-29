@@ -145,7 +145,8 @@ class CodeIntelTestCase(unittest.TestCase):
         return buf, trg
 
     def assertCITDLExprUnderPosIs(self, markedup_content, citdl_expr, lang=None,
-                          prefix_filter=None, implicit=True, trigger_name=None):
+                          prefix_filter=None, implicit=True, trigger_name=None,
+                          **fields):
         """Assert that the CITDL expression at the current position
         is as expected.
 
@@ -168,13 +169,15 @@ class CodeIntelTestCase(unittest.TestCase):
 
         if lang == "Perl":
             trg = Trigger(lang, TRG_FORM_DEFN, trigger_name,
-                          data["pos"], implicit=implicit, length=0)
+                          data["pos"], implicit=implicit, length=0,
+                          **fields)
             actual_citdl_expr, actual_prefix_filter \
                 = langintel.citdl_expr_and_prefix_filter_from_trg(buf, trg)
         else:
             #actual_citdl_expr = langintel.citdl_expr_under_pos(buf, data["pos"])
             trg = Trigger(lang, TRG_FORM_DEFN, trigger_name,
-                          data["pos"], implicit=implicit)
+                          data["pos"], implicit=implicit,
+                          **fields)
             actual_citdl_expr = langintel.citdl_expr_from_trg(buf, trg)
         self.assertEqual(actual_citdl_expr, citdl_expr,
                          "unexpected actual %s CITDL expr under pos:\n"
@@ -706,7 +709,8 @@ class CodeIntelTestCase(unittest.TestCase):
             #pprint(matching_logs)
 
     def assertCITDLExprIs(self, markedup_content, citdl_expr, lang=None,
-                          prefix_filter=None, implicit=True, trigger_name=None):
+                          prefix_filter=None, implicit=True, trigger_name=None,
+                          **fields):
         """Assert that the preceding CITDL expression at the current position
         is as expected.
         
@@ -733,12 +737,14 @@ class CodeIntelTestCase(unittest.TestCase):
             else:
                 length = 1
             trg = Trigger(lang, TRG_FORM_CPLN, trigger_name,
-                          data["pos"], implicit=implicit, length=length)
+                          data["pos"], implicit=implicit, length=length,
+                          **fields)
             actual_citdl_expr, actual_prefix_filter \
                 = langintel.citdl_expr_and_prefix_filter_from_trg(buf, trg)
         else:
             trg = Trigger(lang, TRG_FORM_CPLN, trigger_name,
-                          data["pos"], implicit=implicit)
+                          data["pos"], implicit=implicit,
+                          **fields)
             actual_citdl_expr = langintel.citdl_expr_from_trg(buf, trg)
         self.assertEqual(actual_citdl_expr, citdl_expr,
                          "unexpected actual %s CITDL expr preceding trigger:\n"
