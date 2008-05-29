@@ -732,7 +732,11 @@ class PythonCITDLExtractorMixin(object):
                 return expr.rstrip(".")
             return expr
         else:
-            pos = trg.pos - 2   # skip ahead of the trigger char
+            if trg.type == 'array-members':
+                # Get everything before the bracket position.
+                pos = trg.extra.get('bracket_pos') - 1
+            else:
+                pos = trg.pos - 2   # skip ahead of the trigger char
             return self._citdl_expr_from_pos(buf, pos, trg.implicit, DEBUG)
 
 

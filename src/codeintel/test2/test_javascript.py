@@ -134,6 +134,35 @@ class TriggerTestCase(CodeIntelTestCase):
             "alert(<$>document<|>",
             name="javascript-calltip-call-signature", pos=6)
 
+    @tag("bug76711")
+    def test_complete_array_members(self):
+        # Triggers after foo['
+        #
+        #    Samples:
+        #        $_SERVER['    =>   [ 'SERVER_NAME', 'SERVER_ADDR', ...]
+        name = "javascript-complete-array-members"
+        type = "array-members"
+        self.assertTriggerMatches("_SERVER['<|>SERVER_NAME']",
+                                  name=name, pos=9)
+        self.assertTriggerMatches('_SERVER["<|>SERVER_NAME"]',
+                                  name=name, pos=9)
+        # Try with some additional spacing...
+        self.assertTriggerMatches("_SERVER[  \n'<|>SERVER_NAME']",
+                                  name=name, pos=12)
+        # No trigger before or after the correct position
+        self.assertNoTrigger('_SERVER[<|>"SERVER_NAME"]')
+        self.assertNoTrigger('_SERVER["S<|>ERVER_NAME"]')
+        # No trigger at the end of the string.
+        self.assertNoTrigger('_SERVER["SERVER_NAME"<|>]')
+
+        # Test the expression retrieval.
+        self.assertCITDLExprIs("foo['<|>item']", "foo",
+                               trigger_name=type, bracket_pos=3)
+        self.assertCITDLExprIs("foo.bar['<|>item']", "foo.bar",
+                               trigger_name=type, bracket_pos=7)
+        # This one is a little advanced, maybe one day...
+        #self.assertCITDLExprIs("foo.bar['item'].<|>", "foo.bar.item")
+
 class CplnTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     test_dir = join(os.getcwd(), "tmp")
@@ -806,6 +835,23 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "toString"),
              ("function", "valueOf"),
             ])
+
+    @tag("bug76711")
+    def test_hash_completions(self):
+        content, positions = unmark_text(dedent("""\
+            var test_bug76711 = {
+              'property' : value,
+              'name': value
+            }
+            test_bug76711["<1>"];
+            test_bug76711['<2>'];
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "name"),
+             ("variable", "property"), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "name"),
+             ("variable", "property"), ])
 
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"

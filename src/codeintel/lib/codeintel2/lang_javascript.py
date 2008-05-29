@@ -186,7 +186,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
     # global vars is just annoying.
     cb_group_global_vars = False
     # Define the trigger chars we use, used by ProgLangTriggerIntelMixin
-    trg_chars = tuple(".(@ ")
+    trg_chars = tuple(".(@'\" ")
     calltip_trg_chars = tuple('( ')
     # Define literal mapping to citdl member, used in PythonCITDLExtractorMixin
     citdl_from_literal_type = {"string": "String"}
@@ -441,6 +441,24 @@ class JavaScriptLangIntel(CitadelLangIntel,
                         return None
                 return Trigger("JavaScript", TRG_FORM_CALLTIP,
                                "call-signature", pos, implicit)
+
+        elif last_style in jsClassifier.string_styles and last_char in "\"'":
+            prev_pos = last_pos - 1
+            prev_char = accessor.char_at_pos(prev_pos)
+            if prev_char != '[':
+                prev_style = accessor.style_at_pos(prev_pos)
+                ac = AccessorCache(accessor, prev_pos)
+                if prev_style in jsClassifier.ignore_styles:
+                    # Look back further.
+                    prev_pos, prev_char, prev_style = ac.getPrevPosCharStyle(ignore_styles=jsClassifier.ignore_styles)
+            if prev_char == '[':
+                # We're good to go.
+                if DEBUG:
+                    print "Matched trigger for array completions"
+                return Trigger("JavaScript", TRG_FORM_CPLN,
+                               "array-members", pos, implicit,
+                               bracket_pos=prev_pos, trg_char=last_char)
+
         return None
 
     def preceding_trg_from_pos(self, buf, pos, curr_pos,
@@ -666,6 +684,12 @@ class JavaScriptBuffer(CitadelBuffer):
     lang = "JavaScript"
 
     # Fillup chars for JavaScript: basically, any non-identifier char.
+    # XXX - '@' removed in order to better support XPCOM completions:
+    #           Components.interfaces['@mozilla.]
+    #       Whilst not an ideal solution, as when the '.' is hit we run into the
+    #       same problem again... the ideal solution would be to override the
+    #       cpln_fillup_chars to be only "\"'" for the 'array-members' trigger
+    #       event. But this is not yet possible...
     cpln_fillup_chars = "~`!#%^&*()-=+{}[]|\\;:'\",.<>?/ "
     cpln_stop_chars = "~`!@#%^&*()-=+{}[]|\\;:'\",.<>?/ "
     sce_prefixes = ["SCE_C_"]
