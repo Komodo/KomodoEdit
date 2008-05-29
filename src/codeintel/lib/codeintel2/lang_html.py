@@ -133,7 +133,7 @@ class HTMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
     # - TODO: might want to drop '-' because causes problem with CSS and XML
     #   (ditto for other XML-y langs)
-    cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\,.<>?/"
+    cpln_stop_chars = "'\" ;,~`!@#%^&*()-=+{}]|\\,.<>?/"
 
 
 
