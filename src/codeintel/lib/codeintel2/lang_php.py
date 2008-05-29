@@ -707,6 +707,15 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                    bracket_pos=prev_pos,
                                    trg_char=last_char)
 
+            # Variable completions inside of comments
+            elif prev_char == "$" and last_style in self.comment_styles:
+                if DEBUG:
+                    print "Comment variable style"
+                # Completion for variables (builtins and user defined variables),
+                # must occur after a "$" character.
+                return Trigger(lang, TRG_FORM_CPLN, "comment-variables",
+                               pos-1, implicit)
+
             elif DEBUG:
                 print "trg_from_pos: no handle for style: %d" % last_style
 
@@ -809,7 +818,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             evalr = PHPTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
             buf.mgr.request_eval(evalr)
 
-    def _citdl_expr_from_pos(self, buf, pos, implicit=True,
+    def _citdl_expr_from_pos(self, trg, buf, pos, implicit=True,
                              include_forwards=False, DEBUG=False):
         #DEBUG = True
         #PERF: Would dicts be faster for all of these?
@@ -820,7 +829,10 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         EXTRA_STOPOPS_PRECEDING_IDENT = BLOCKCLOSES # Might be others.
 
         #TODO: This style picking is a problem for the LangIntel move.
-        if implicit:
+        if trg.type == "comment-variables":
+            # Dev note: skip_styles in the other cases below will be a dict.
+            skip_styles = set()
+        elif implicit:
             skip_styles = buf.implicit_completion_skip_styles
         else:
             skip_styles = buf.completion_skip_styles
@@ -1018,21 +1030,22 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1
             elif trg.type == "functions":
                 i = trg.pos + 3   # 3-char trigger, skip over it
-            elif trg.type == "variables":
+            elif trg.type in ("variables", "comment-variables"):
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
             else:
                 i = trg.pos - 2 # skip past the trigger char
-            return self._citdl_expr_from_pos(buf, i, trg.implicit, DEBUG=DEBUG)
+            return self._citdl_expr_from_pos(trg, buf, i, trg.implicit,
+                                             DEBUG=DEBUG)
         elif trg.form == TRG_FORM_DEFN:
-            return self.citdl_expr_under_pos(buf, trg.pos, DEBUG)
+            return self.citdl_expr_under_pos(trg, buf, trg.pos, DEBUG)
         else:   # trg.form == TRG_FORM_CALLTIP:
             # (<|>
-            return self._citdl_expr_from_pos(buf, trg.pos-1, trg.implicit,
+            return self._citdl_expr_from_pos(trg, buf, trg.pos-1, trg.implicit,
                                              DEBUG=DEBUG)
 
-    def citdl_expr_under_pos(self, buf, pos, DEBUG=False):
+    def citdl_expr_under_pos(self, trg, buf, pos, DEBUG=False):
         """Return a PHP CITDL expression around the given pos.
 
         Similar to citdl_expr_from_trg(), but looks forward to grab additional
@@ -1053,7 +1066,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             Fo<|>o(arg1, arg2)::bar->   Foo
         """
         #DEBUG = True
-        expr = self._citdl_expr_from_pos(buf, pos-1, implicit=True,
+        expr = self._citdl_expr_from_pos(trg, buf, pos-1, implicit=True,
                                          include_forwards=True, DEBUG=DEBUG)
         if expr:
             # Chop off any trailing "." characters

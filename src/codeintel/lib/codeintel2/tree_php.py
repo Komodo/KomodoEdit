@@ -132,6 +132,18 @@ class PHPTreeEvaluator(TreeEvaluator):
             self._libs = self.langintel.libs_from_buf(self.buf)
         return self._libs
 
+    def get_next_scoperef(self, scoperef):
+        blob, lpath  = scoperef
+        elem = self._elem_from_scoperef(scoperef)
+        linenum = self.line + 1 # convert to 1-based
+        for subelem in elem.getchildren():
+            start = int(subelem.get("line"))
+            if start > linenum:
+                if subelem.tag == "scope":
+                    lpath.append(subelem.get("name"))
+                break
+        return (blob, lpath)
+
     def eval_cplns(self):
         self.log_start()
         self._imported_blobs = {}
@@ -139,6 +151,9 @@ class PHPTreeEvaluator(TreeEvaluator):
         trg = self.trg
         if trg.type == "variables":
             return self._variables_from_scope(self.expr, start_scope)
+        elif trg.type == "comment-variables":
+            next_scope = self.get_next_scoperef(start_scope)
+            return self._comment_variables_from_scope(self.expr, next_scope)
         elif trg.type == "functions":
             # The 3-character trigger, which not actually specific to functions.
             retval = self._functions_from_scope(self.expr, start_scope) + \
@@ -298,6 +313,20 @@ class PHPTreeEvaluator(TreeEvaluator):
             # Already global scope, so get to see them all
             scope_chain = ("locals", "globals", "imports", )
         # XXX - TODO: Move to 3 char trigger (if we want/need to)
+        vars = self._element_names_from_scope_starting_with_expr(None,
+                            scoperef,
+                            "variable",
+                            scope_chain,
+                            self.variable_names_from_elem)
+        # XXX - TODO: Use VARIABLE_TRIGGER_LEN instead of hard coding 1
+        expr = expr[:1]
+        return [ (ilk, name) for ilk, name in vars if name.startswith(expr) ]
+
+    def _comment_variables_from_scope(self, expr, scoperef):
+        """Return all available local variable names beginning with expr"""
+        blob, lpath = scoperef
+        # Only care about the local variables.
+        scope_chain = ("locals", )
         vars = self._element_names_from_scope_starting_with_expr(None,
                             scoperef,
                             "variable",

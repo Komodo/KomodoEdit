@@ -888,6 +888,51 @@ Construct an exception
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              phpdoc_tags["param"])
 
+    def test_variable_completions_in_doctags(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            
+            /**
+             * Testing variable. $n<1>xxx
+             */
+            $named_test_var1 = 1;
+            /**
+             * My Testing Function.
+             * @param string $n<2>ame Name of user.
+             * @param string $f<3>xxx Fields.
+             */
+            function MyTestFunc($name, $fields) {}
+            /**
+             * Testing variable. $n<4>xxx
+             */
+            $named_test_var2 = 2;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "named_test_var1"),
+             ("variable", "named_test_var2")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+            [("variable", "name"),
+             ("variable", "name"),
+             ("variable", "fields")])
+
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "name"),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+            [("variable", "named_test_var1"),
+             ("variable", "named_test_var2")])
+
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("variable", "fields"),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+            [("variable", "named_test_var1"),
+             ("variable", "named_test_var2")])
+
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+            [("variable", "named_test_var1"),
+             ("variable", "named_test_var2")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[4]),
+            [("variable", "name"),
+             ("variable", "fields")])
+
     ##
     # Specific bug tests
 
