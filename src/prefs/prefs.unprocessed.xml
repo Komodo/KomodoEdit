@@ -194,7 +194,7 @@
  '*.cron': 'nnCrontab',
  '*.cs': 'C#',
  '*.css': 'CSS',
- '*.ctp': 'PHP,'
+ '*.ctp': 'PHP',
  '*.cxx': 'C++',
  '*.diff': 'Diff',
  '*.e': 'Eiffel',
