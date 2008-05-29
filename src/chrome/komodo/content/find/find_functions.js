@@ -446,6 +446,58 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     return null;
 }
 
+function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength) {
+    scimoz.targetStart = startByte;
+    scimoz.targetEnd = endByte;
+    scimoz.replaceTarget(byteLength, replacementText);
+}
+
+function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength) {
+    var lineStart = scimoz.lineFromPosition(startByte);
+    var lineEnd = scimoz.lineFromPosition(endByte);
+    var ISciMoz = Components.interfaces.ISciMoz;
+    var eol = (scimoz.eOLMode == ISciMoz.SC_EOL_CRLF ? "\r\n" :
+               scimoz.eOLMode == ISciMoz.SC_EOL ? "\n" : "\r");
+    var eol_re = new RegExp(eol, 'g');
+    var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
+    if (numLinesInReplacement != (lineEnd - lineStart)) {
+        // Lines differ, do quick repl
+        return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+    }
+    var nextMarkerLine = scimoz.markerNext(lineStart, 0xffff); // -1 if no more markers
+    if (nextMarkerLine == -1 || nextMarkerLine > lineEnd) {
+        return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+    }
+    var replacementLines = replacementText.split(eol_re);
+    var j, currText, replText;
+    // possible optimization by moving backwards:
+    // no need to update scintilla coordinates until we're done.
+    scimoz.beginUndoAction();
+    try {
+        for (i = lineEnd, j = replacementLines.length - 1; i >= lineStart; i--, j--) {
+            var currLineStartPos = scimoz.positionFromLine(i);
+            var currLineEndPos = scimoz.getLineEndPosition(i);
+            // If we're in a selection, the start and ends of the selections
+            // might not span entire lines.
+            if (i == lineEnd) {
+                currLineEndPos = endByte;
+            }
+            if (i == lineStart) {
+                currLineStartPos = startByte;
+            }
+            var currText = scimoz.getTextRange(currLineStartPos, currLineEndPos);
+            replText = replacementLines[j];
+            if (currText != replText) {
+                scimoz.targetStart = currLineStartPos;
+                scimoz.targetEnd = currLineEndPos;
+                scimoz.replaceTarget(stringutils_bytelength(replText), replText);
+            }
+        }
+    } finally {
+        scimoz.endUndoAction();
+    }
+    return null;  // stifle js
+}
 
 function _ReplaceLastFindResult(editor, context, pattern, replacement)
 {
@@ -498,9 +550,9 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                 replaceResult.end-replaceResult.start);
             var byteLength = stringutils_bytelength(replaceResult.replacement);
 
-            scimoz.targetStart = startByte;
-            scimoz.targetEnd = endByte;
-            scimoz.replaceTarget(byteLength, replaceResult.replacement);
+            _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
+                                           replaceResult.replacement,
+                                           byteLength);
             scimoz.anchor = startByte;
             scimoz.currentPos = startByte + byteLength;
 
@@ -647,18 +699,24 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
 
     if (replacementText != null) {
         if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-            scimoz.targetStart = scimoz.positionAtChar(0, context.startIndex);
-            scimoz.targetEnd = scimoz.positionAtChar(0, context.endIndex);
-            scimoz.replaceTarget(-1, replacementText);
+            _doMarkerPreservingReplacement(editor,
+                                           scimoz,
+                                           scimoz.positionAtChar(0, context.startIndex),
+                                           scimoz.positionAtChar(0, context.endIndex),
+                                           replacementText,
+                                           -1);
             // Restore the selection.
             scimoz.currentPos = scimoz.positionAtChar(0, context.startIndex);
             scimoz.anchor = scimoz.positionAtChar(0, context.startIndex)
                 + stringutils_bytelength(replacementText);
         } else {
             var line = scimoz.lineFromPosition(scimoz.currentPos);
-            scimoz.targetStart = 0;
-            scimoz.targetEnd = stringutils_bytelength(text);
-            scimoz.replaceTarget(-1, replacementText);
+            _doMarkerPreservingReplacement(editor,
+                                           scimoz,
+                                           0,
+                                           stringutils_bytelength(text),
+                                           replacementText,
+                                           -1);
             // Put the cursor on the same line as before replacement.
             scimoz.anchor = scimoz.currentPos = scimoz.positionFromLine(line);
         }
