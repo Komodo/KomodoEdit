@@ -158,7 +158,8 @@ class PureJavaScriptStyleClassifier:
                                  SCE_C_COMMENTDOCKEYWORD,
                                  SCE_C_COMMENTDOCKEYWORDERROR)
         self.string_styles    = (SCE_C_STRING, SCE_C_CHARACTER)
-        self.ignore_styles    = self.comment_styles + (SCE_C_DEFAULT, )
+        self.whitespace_style = SCE_C_DEFAULT
+        self.ignore_styles    = self.comment_styles + (self.whitespace_style, )
 
 class UDLJavaScriptStyleClassifier:
     def __init__(self):
@@ -169,7 +170,8 @@ class UDLJavaScriptStyleClassifier:
         self.comment_styles   = (SCE_UDL_CSL_COMMENT,
                                  SCE_UDL_CSL_COMMENTBLOCK,)
         self.string_styles    = (SCE_UDL_CSL_STRING, )
-        self.ignore_styles    = self.comment_styles + (SCE_UDL_CSL_DEFAULT, )
+        self.whitespace_style = SCE_UDL_CSL_DEFAULT
+        self.ignore_styles    = self.comment_styles + (self.whitespace_style, )
 
 pureJSClassifier = PureJavaScriptStyleClassifier()
 udlJSClassifier = UDLJavaScriptStyleClassifier()
@@ -305,6 +307,75 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 print "No jsdoc, ran out of characters to look at."
 
         elif last_char not in ".(":
+            # Check if this could be a 'complete-names' trigger, this is
+            # an implicit 3-character trigger i.e. " win<|>" or an explicit
+            # trigger on 3 or more characters. We cannot support less than than
+            # 3-chars without involving a big penalty hit (as our codeintel
+            # database uses a 3-char index).
+            if last_pos >= 2 and (last_style == jsClassifier.identifier_style or
+                                  last_style == jsClassifier.keyword_style):
+                if DEBUG:
+                    print "Checking for 'names' three-char-trigger"
+                # The previous two characters must be the same style.
+                p = last_pos - 1
+                min_p = max(0, p - 1)
+                citdl_expr = [last_char]
+                while p >= min_p:
+                    if accessor.style_at_pos(p) != last_style:
+                        if DEBUG:
+                            print "No 'names' trigger, inconsistent style: " \
+                                  "%d, pos: %d" % (accessor.style_at_pos(p), p)
+                        break
+                    citdl_expr += accessor.char_at_pos(p)
+                    p -= 1
+                else:
+                    # Now check the third character back.
+                    # "p < 0" is for when we are at the start of a document.
+                    if p >= 0:
+                        ac = None
+                        style = accessor.style_at_pos(p)
+                        if style == last_style:
+                            if implicit:
+                                if DEBUG:
+                                    print "No 'names' trigger, third char " \
+                                          "style: %d, pos: %d" % (style, p)
+                                return None
+                            else:
+                                # explicit can be longer than 3-chars, skip over
+                                # the rest of the word/identifier.
+                                ac = AccessorCache(accessor, p)
+                                p, ch, style = ac.getPrecedingPosCharStyle(last_style,
+                                                    jsClassifier.ignore_styles,
+                                                    max_look_back=80)
+
+                        # Now we know that we are three identifier characters
+                        # preceeded by something different, which is not that
+                        # common, we now need to be a little more cpu-intensive
+                        # with our search to ensure we're not preceeded by a
+                        # dot ".", as this would mean a different cpln type!
+
+                        if style == jsClassifier.whitespace_style:
+                            # Find out what occurs before the whitespace,
+                            # ignoring whitespace and comments.
+                            if ac is None:
+                                ac = AccessorCache(accessor, p)
+                            p, ch, style = ac.getPrecedingPosCharStyle(style,
+                                                jsClassifier.ignore_styles,
+                                                max_look_back=80)
+                        if style is not None:
+                            ch = accessor.char_at_pos(p)
+                            if ch == ".":
+                                if DEBUG:
+                                    print "No 'names' trigger, third char " \
+                                          "is a dot"
+                                return None
+                    if DEBUG:
+                        print "triggering 'javascript-complete-names' at " \
+                              "pos: %d" % (last_pos - 2, )
+                                
+                    return Trigger("JavaScript", TRG_FORM_CPLN,
+                                   "names", last_pos - 2, implicit,
+                                   citdl_expr="".join(reversed(citdl_expr)))
             if DEBUG:
                 print "trg_from_pos: no: %r is not in '.('" % last_char
             return None
@@ -372,6 +443,71 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                "call-signature", pos, implicit)
         return None
 
+    def preceding_trg_from_pos(self, buf, pos, curr_pos,
+                               preceding_trg_terminators=None, DEBUG=False):
+        DEBUG = False
+        if DEBUG:
+            print "pos: %d" % (pos, )
+            print "ch: %r" % (buf.accessor.char_at_pos(pos), )
+            print "curr_pos: %d" % (curr_pos, )
+
+        # Check if we can match on either of the 3-character trigger or on the
+        # normal preceding_trg_terminators.
+
+        # Try the default preceding_trg_from_pos handler
+        if pos != curr_pos and self._last_trg_type == "names":
+            # The last trigger type was a 3-char trigger "names", we must try
+            # triggering from the same point as before to get other available
+            # trigger types defined at the same poisition or before.
+            trg = ProgLangTriggerIntelMixin.preceding_trg_from_pos(
+                    self, buf, pos+2, curr_pos, preceding_trg_terminators,
+                    DEBUG=DEBUG)
+        else:
+            trg = ProgLangTriggerIntelMixin.preceding_trg_from_pos(
+                    self, buf, pos, curr_pos, preceding_trg_terminators,
+                    DEBUG=DEBUG)
+
+        # Now try the 3-char trigger, if we get two triggers, take the closest
+        # match.
+        names_trigger = None
+        if isinstance(buf, UDLBuffer):
+            jsClassifier = udlJSClassifier
+        else:
+            jsClassifier = pureJSClassifier
+
+        if pos > 0:
+            accessor = buf.accessor
+            if pos == curr_pos:
+                # We actually care about whats left of the cursor.
+                pos -= 1
+            style = accessor.style_at_pos(pos)
+            if style in (jsClassifier.identifier_style, jsClassifier.keyword_style):
+                ac = AccessorCache(accessor, pos)
+                prev_pos, prev_ch, prev_style = ac.getPrecedingPosCharStyle(style)
+                if prev_style is not None and (pos - prev_pos) > 3:
+                    # We need at least 3 character for proper completion handling.
+                    names_trigger = self.trg_from_pos(buf, prev_pos + 4, implicit=False)
+
+        if DEBUG:
+            print "trg: %r" % (trg, )
+            print "names_trigger: %r" % (names_trigger, )
+            print "last_trg_type: %r" % (self._last_trg_type, )
+
+        if names_trigger:
+            if not trg:
+                trg = names_trigger
+            # Two triggers, choose the best one.
+            elif trg.pos == names_trigger.pos:
+                if self._last_trg_type != "names":
+                    # The names trigger gets priority over the other trigger
+                    # types, unless the previous trigger was also a names trg.
+                    trg = names_trigger
+            elif trg.pos < names_trigger.pos:
+                trg = names_trigger
+        if trg:
+            self._last_trg_type = trg.type
+        return trg
+
     _jsdoc_cplns = [ ("variable", t) for t in sorted(jsdoc_tags) ]
 
     def async_eval_at_trg(self, buf, trg, ctlr):
@@ -402,6 +538,10 @@ class JavaScriptLangIntel(CitadelLangIntel,
         if trg.type == "literal-members":
             # We could leave this to citdl_expr_from_trg, but this is a
             # little bit faster, since we already know the citdl expr.
+            citdl_expr = trg.extra.get("citdl_expr")
+        elif trg.type == "names":
+            # We could leave this to citdl_expr_from_trg, but since we already
+            # know the citdl expr, use it.
             citdl_expr = trg.extra.get("citdl_expr")
         else:
             try:

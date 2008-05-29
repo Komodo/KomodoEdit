@@ -69,7 +69,7 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name="javascript-complete-object-members",
                                   pos=4)
         self.assertNoTrigger("abc.d<|>ef")
-        self.assertNoTrigger("abc<|>.def")
+        self.assertNoTrigger("abcd<|>.def")
         # assert no trig in strings or comments
         self.assertNoTrigger('var s = "abc.<|>def";')
         self.assertNoTrigger("var s = 'abc.<|>def';r")
@@ -119,6 +119,20 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertPrecedingTriggerMatches(
             "c.command2k<$><|>",
             name="javascript-complete-object-members", pos=2)
+
+    @tag("bug62767")
+    def test_trigger_names(self):
+        self.assertTriggerMatches("abc<|>",
+                                  name="javascript-complete-names",
+                                  pos=0)
+        self.assertNoTrigger("ab<|>")
+        self.assertNoTrigger("abcd<|>")
+        self.assertPrecedingTriggerMatches(
+            "alert(document<$><|>",
+            name="javascript-complete-names", pos=6)
+        self.assertPrecedingTriggerMatches(
+            "alert(<$>document<|>",
+            name="javascript-calltip-call-signature", pos=6)
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "JavaScript"
@@ -1168,7 +1182,7 @@ class PrototypeTestCase(CodeIntelTestCase):
         #   http://www.sergiopereira.com/articles/prototype.js.html#TryThese
         self.assertCalltipIs("Try(<|>", "Try(...)", env=self.env)
 
-    @tag("bug62767", "knownfailure")
+    @tag("bug62767")
     def test_complete_names(self):
         content, positions = unmark_text(dedent("""\
             var bug62767 = "My bug";
@@ -1183,7 +1197,7 @@ class PrototypeTestCase(CodeIntelTestCase):
              ("function", "bug62767_function"),
              ("class", "bug62767_class")])
 
-    @tag("bug62767", "knownfailure")
+    @tag("bug62767")
     def test_complete_names_for_bultins(self):
         content, positions = unmark_text(dedent("""\
             # Test we get global variables like window.

@@ -71,6 +71,8 @@ class LangIntel(object):
     """
     # All "leaf" LangIntel subclasses must set the `lang` attribute.
     lang = None
+    # Used by `preceding_trg_from_pos` for 3-char triggering for some langs.
+    _last_trg_type = None 
 
     def __init__(self, mgr):
         self.mgr = mgr

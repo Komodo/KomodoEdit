@@ -94,14 +94,20 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
         _add_xpcom_blob(self.built_in_blob)
-        hits = self._hits_from_citdl(self.expr, start_scoperef)
-        if not hits:
-            raise CodeIntelError("No completions found")
+
+        if self.trg.type == "names":
+            cplns = list(self._completion_names_from_scope(self.expr,
+                                                           start_scoperef))
+        else:
+            hits = self._hits_from_citdl(self.expr, start_scoperef)
+            cplns = list(self._members_from_hits(hits))
         # For logging messages every call
         #print indent('\n'.join("%s: %s" % (lvl, m)
         #                for lvl,m in self.ctlr.log))
-        #print indent('\n'.join(["Hit: %r" % (hit, ) for hit in hits]))
-        return list(self._members_from_hits(hits))
+        #print indent('\n'.join(["Hit: %r" % (cpln, ) for cpln in cplns]))
+        if not cplns:
+            raise CodeIntelError("No completions found")
+        return cplns
 
     def eval_calltips(self):
         self.log_start()
@@ -169,6 +175,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             # JS stdlib is always the last one.
             self._built_in_blob = self.libs[-1].get_blob("*")
         return self._built_in_blob
+
+    ## Specific element completions ##
 
     def _hit_from_first_token(self, token, scoperef):
         """Find the token at the given or a parent scope.
@@ -666,6 +674,58 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             nconsumed = 1
 
         return hits, nconsumed
+
+    ## n-char trigger completions ##
+
+    def _completion_names_from_scope(self, expr, scoperef):
+        """Return all available element names beginning with expr"""
+        self.log("_completion_names_from_scope:: %r, scoperef: %r",
+                 expr, scoperef)
+        #global_blob = self._elem_from_scoperef(self._get_global_scoperef(scoperef))
+        # Get all of the imports
+
+        # Keep a dictionary of completions.
+        all_completions = {}
+
+        # From the local scope, walk up the parent chain including matches as
+        # we go.
+        # XXX - Can we skip the global (stdlib) blob in here?
+        while scoperef and scoperef[0] is not None:
+            # Iterate over the contents of the scope.
+            self.log("_completion_names_from_scope:: checking scoperef: %r",
+                     scoperef)
+            elem = self._elem_from_scoperef(scoperef)
+            if elem is None:
+                continue
+            for name in elem.names:
+                #self.log("_completion_names_from_scope:: checking name: %r",
+                #         name)
+                if name and name.startswith(expr):
+                    if name not in all_completions:
+                        hit_elem = elem.names[name]
+                        all_completions[name] = hit_elem.get("ilk") or hit_elem.tag
+            # Continue walking up the scope chain...
+            scoperef = self.parent_scoperef_from_scoperef(scoperef)
+
+        # Builtins
+        stdlib = self.buf.stdlib
+        # Find the matching names (or all names if no expr)
+        cplns = stdlib.toplevel_cplns(prefix=expr)
+        for ilk, name in cplns:
+            if name not in all_completions:
+                all_completions[name] = ilk
+
+        # "Import everything", iterate over all known libs
+        for lib in self.libs:
+            # Find the matching names (or all names if no expr)
+            self.log("_completion_names_from_scope:: include everything from "
+                     "lib: %r", lib)
+            cplns = lib.toplevel_cplns(prefix=expr)
+            for ilk, name in cplns:
+                if name not in all_completions:
+                    all_completions[name] = ilk
+
+        return [(ilk, name) for name, ilk in all_completions.items()]
 
 
 #####################################
