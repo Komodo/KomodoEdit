@@ -1008,7 +1008,12 @@ class PythonCILEDriver(CILEDriver):
         #log.warn("TODO: python cile that uses elementtree")
         content = buf.accessor.text
         if isinstance(content, unicode):
-            content = content.encode(buf.encoding or "utf-8")
+            encoding = buf.encoding or "utf-8"
+            try:
+                content = content.encode(buf.encoding or "utf-8")
+            except UnicodeError, ex:
+                raise CodeIntelError("cannot encode Python content as %r (%s)"
+                                     % (encoding, ex))
         cix = pythoncile.scan(content, buf.path)
         from codeintel2.tree import tree_from_cix
         return tree_from_cix(cix)
