@@ -998,11 +998,11 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
         if trg.form == TRG_FORM_CPLN:
             # "->" or "::"
-            if trg.type in ("classes"):
+            if trg.type == "classes":
                 i = trg.pos + 1
-            elif trg.type in ("functions"):
+            elif trg.type == "functions":
                 i = trg.pos + 3   # 3-char trigger, skip over it
-            elif trg.type in ("variables"):
+            elif trg.type == "variables":
                 i = trg.pos + 1   # triggered on the $, skip over it
             else:
                 i = trg.pos - 2 # skip past the trigger char
