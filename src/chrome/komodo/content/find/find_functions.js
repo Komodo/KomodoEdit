@@ -459,21 +459,44 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
     var eol = (scimoz.eOLMode == ISciMoz.SC_EOL_CRLF ? "\r\n" :
                scimoz.eOLMode == ISciMoz.SC_EOL_LF ? "\n" : "\r");
     var eol_re = new RegExp(eol, 'g');
-    var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
-    if (numLinesInReplacement != (lineEnd - lineStart)) {
-        // Lines differ, do quick repl
-        return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
-    }
-    var nextMarkerLine = scimoz.markerNext(lineStart, 0xffff); // -1 if no more markers
-    if (nextMarkerLine == -1 || nextMarkerLine > lineEnd) {
-        return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
-    }
-    var replacementLines = replacementText.split(eol_re);
-    var j, currText, replText;
-    // possible optimization by moving backwards:
-    // no need to update scintilla coordinates until we're done.
     scimoz.beginUndoAction();
     try {
+        // HACK: Make a no-op replacement to the char preceding the current
+        // cursor position so that if this "Replace" operation is undone
+        // the cursor will be restored to its starting place (with the
+        // exception of starting at pos=0 -- in which case it'll end up
+        // at pos=1). Bug 75059.
+        var restoreLine = null;
+        var restoreCol = null;
+        if (scimoz.length != 0) {
+            var restorePos = scimoz.currentPos;
+            if (scimoz.currentPos == 0) {
+                restorePos = scimoz.positionAfter(0);
+            }
+            restoreLine = scimoz.lineFromPosition(restorePos);
+            restoreCol = scimoz.getColumn(restorePos);
+            var prevPos = scimoz.positionBefore(restorePos);
+            var prevChar = scimoz.getTextRange(prevPos, restorePos);
+            
+            scimoz.targetStart = prevPos;
+            scimoz.targetEnd = restorePos;
+            scimoz.replaceTarget(restorePos - prevPos, prevChar);
+        }
+        
+        var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
+        if (numLinesInReplacement != (lineEnd - lineStart)) {
+            // Lines differ, do quick repl
+            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+        }
+        var nextMarkerLine = scimoz.markerNext(lineStart, 0xffff); // -1 if no more markers
+        if (nextMarkerLine == -1 || nextMarkerLine > lineEnd) {
+            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+        }
+        var replacementLines = replacementText.split(eol_re);
+        var j, currText, replText;
+
+        // possible optimization by moving backwards:
+        // no need to update scintilla coordinates until we're done.
         for (i = lineEnd, j = replacementLines.length - 1; i >= lineStart; i--, j--) {
             var currLineStartPos = scimoz.positionFromLine(i);
             var currLineEndPos = scimoz.getLineEndPosition(i);
@@ -493,7 +516,19 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
                 scimoz.replaceTarget(stringutils_bytelength(replText), replText);
             }
         }
+        
     } finally {
+        // Continue the HACK above to restore position after a possible
+        // *redo*.
+        if (restoreLine != null) {
+            var restorePos = scimoz.positionAtColumn(restoreLine, restoreCol);
+            var prevPos = scimoz.positionBefore(restorePos);
+            var prevChar = scimoz.getTextRange(prevPos, restorePos);
+            scimoz.targetStart = prevPos;
+            scimoz.targetEnd = restorePos;
+            scimoz.replaceTarget(restorePos - prevPos, prevChar);
+        }
+
         scimoz.endUndoAction();
     }
     return null;  // stifle js
