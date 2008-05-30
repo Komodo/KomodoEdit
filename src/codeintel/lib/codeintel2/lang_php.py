@@ -1302,7 +1302,8 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
     cpln_fillup_chars = "~`!@#$%^&*()-=+{}[]|\\;:'\",.<>?/ "
     #TODO: c.f. cpln_stop_chars stuff in lang_html.py
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
-    cpln_stop_chars = "~`!@#$%^&*()-=+{}]|\\;:'\",.<>?/ "
+    # - dropping '#' because we need it for $form['#foo']
+    cpln_stop_chars = "~`!@$%^&*()-=+{}]|\\;:'\",.<>?/ "
 
     def __init__(self, *args, **kwargs):
         super(PHPBuffer, self).__init__(*args, **kwargs)
