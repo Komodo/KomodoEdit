@@ -207,6 +207,14 @@ class KoInterpolationQuery:
                % (self.id, self.question, answer_str)
 
 
+#---- global regexes
+
+_eol_re = re.compile(r'(?:\r?\n|\r)')
+_eol_re_capture = re.compile(r'(\r?\n|\r)')
+_last_eol_cr_re = re.compile(r'.*[\r\n]+', re.S)
+_ws_re_capture = re.compile(r'([ \t]+)')
+
+
 class KoInterpolationService:
     _com_interfaces_ = components.interfaces.koIInterpolationService
     _reg_desc_ = "Interpolation Service"
@@ -434,7 +442,7 @@ class KoInterpolationService:
         return codeRes
 
     def _doInterpolate1(self, s, codeMap, codeRes, prefSet, queries,
-                        backrefs):
+                        backrefs, indentReplacement=False):
         """Do the first step interpolation on string "s". Return the result
         and add queries to "queries".
 
@@ -680,11 +688,47 @@ class KoInterpolationService:
                         replacement = default
                     else:
                         raise replacement
-                i1s += replacement
+                if indentReplacement:
+                    i1s +=  self._indentLines(replacement, s, match.start())
+                else:
+                    i1s += replacement
                 if backref:
                     backrefs[backref] = replacement
             idx = match.end()
         return i1s
+
+    def _indentLines(self, replacement, source, idx):
+        """
+        If we interpolate multiple lines into a context like
+        if (test) {
+            [[%s]]
+        }
+        then we need to make sure every line in the replacement of %s
+        is indented, not just the first.
+        
+        Terminology: find the current indentation on the current line in *source*
+        Apply it to every line but the first in *replacement*
+        """
+        m = _eol_re_capture.search(replacement)
+        if m is None:
+            # No newlines in the replacement, so nothing to do
+            return replacement
+        eol = m.group(1)
+
+        # Replacement and source could have different eol's
+        m = _last_eol_cr_re.match(source[:idx])
+        if m is None:
+            line_start = 0
+        else:
+            line_start = m.end()
+        m = _ws_re_capture.match(source[line_start:idx])
+        if m is None:
+            # No leading white space on this line in the source
+            return replacement
+        ws = m.group(1)
+        lines = re.split(_eol_re, replacement)
+        lines = [lines[0]] + [ws + x for x in lines[1:]]
+        return eol.join(lines)
 
     def Interpolate1(self, strings, bracketedStrings, fileName, lineNum, word, selection,
                      projectFile, prefSet):
@@ -709,12 +753,14 @@ class KoInterpolationService:
                 i1strings = []
                 for s in strings:
                     i1s = self._doInterpolate1(s, codeMap, codeRes, prefSet,
-                                               queries, backrefs)
+                                               queries, backrefs,
+                                               indentReplacement=False)
                     i1strings.append(i1s)
                     i1strings.append(i1s) # see NOTE in koIRunService on doubling strings
                 for s in bracketedStrings:
                     i1s = self._doInterpolate1(s, codeMap, bracketedCodeRes, prefSet,
-                                               queries, backrefs)
+                                               queries, backrefs,
+                                               indentReplacement=True)
                     i1strings.append(i1s)
                     i1strings.append(i1s) # see NOTE in koIRunService on doubling strings
             except ValueError, ex:

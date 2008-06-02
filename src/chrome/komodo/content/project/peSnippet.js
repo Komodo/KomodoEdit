@@ -301,15 +301,9 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                         viewData);
     text = istrings[0];
 
+    var oldInsertionPoint;
     // Do the indentation, if necessary.
     if (relativeIndent) {
-        var i;
-        // Work out the current line indentation.
-        var indentSize = scimoz.getColumn(scimoz.selectionStart);
-        var indent = '';
-        for (i = 0; i < indentSize; i++) {
-            indent += ' ';
-        }
         // Work out the equivalent number of spaces to use for each tab.
         var tabequivalent = '';
         var useTabs = view.prefs.getBooleanPref("useTabs");
@@ -318,51 +312,85 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
             tabequivalent += ' ';
         }
 
+        var initialCurrentPos = scimoz.currentPos;
+        var initialAnchor = scimoz.anchor;
+
+        // Sometimes the snippet will absorb the current selection,
+        // so we don't want to keep it.
+        var zapSelection = initialCurrentPos != initialAnchor;
+        if (zapSelection) {
+            scimoz.replaceSel("");
+            initialCurrentPos = initialAnchor = scimoz.currentPos;
+        }
+        oldInsertionPoint = initialCurrentPos;
+        var selectionEndLine = scimoz.lineFromPosition(initialCurrentPos);
+        var selectionEndPoint = scimoz.getLineEndPosition(selectionEndLine);
+        var remainingText = scimoz.getTextRange(initialAnchor, selectionEndPoint);
+        scimoz.targetStart = initialCurrentPos;
+        scimoz.targetEnd = selectionEndPoint;
+        scimoz.replaceTarget(0, "");
+
+        // Figure out what the base indentation for the snippet should be
+        scimoz.lineEnd();
+        ko.commands.doCommand('cmd_newline');
+        var createdLine = selectionEndLine + 1;
+        var newLineStart = scimoz.positionFromLine(createdLine);
+        var newLineEnd = scimoz.getLineEndPosition(createdLine);
+        var baseIndentation = scimoz.getTextRange(newLineStart, newLineEnd);
+
+        // Now get rid of the inserted blank line
+        scimoz.targetStart = initialCurrentPos;
+        scimoz.targetEnd = newLineEnd;
+        scimoz.replaceTarget(0, "");
+        scimoz.gotoPos(initialCurrentPos);
+
         var lines = text.split(eol_str);
-        var splits, newindent, rest;
-        for (i = 0; i < lines.length; i++) {
-            if (i != 0
-                && lines[i].length != 0 // Do not indent empty lines.
-                && lines[i] != "<!@#_end>"
-                && lines[i] != "<!@#_start>")
-            {
-                // Turn the snippet tabs into a space-equivalent value,
-                // we only need to do this for starting whitespace though.
-                var match = lines[i].match(/^(\s+)(.*)/);
-                if (match) {
-                    var whitespace = match[1];
-                    var tab_pos = whitespace.search("\t");
-                    // If we have tabs in the preceeding whitespace of the
-                    // snippet, we need to convert them into spaces.
-                    while (tab_pos >= 0) {
-                        if (tab_pos % tabWidth) {
-                            // Ick, the tab does not align according to the
-                            // user's tabWidth preference, so we have to fix it.
-                            var s = '';
-                            for (var j=0; j < tabWidth - (tab_pos % tabWidth); j++) {
-                                s += ' ';
-                            }
-                            whitespace = whitespace.substr(0, tab_pos) + s +
-                                         whitespace.substr(tab_pos+1);
-                        } else {
-                            whitespace = whitespace.replace('\t', tabequivalent);
+        scimoz.lineEnd();
+        var leading_ws_re = /^(\s+)(.*)/;
+        for (i = 1; i < lines.length; i++) {
+            // Turn the snippet tabs into a space-equivalent value,
+            // we only need to do this for starting whitespace though.
+            var match = lines[i].match(leading_ws_re);
+            if (match) {
+                var whitespace = baseIndentation + match[1];
+                var rest = match[2];
+                var tab_pos = whitespace.search("\t");
+                // If we have tabs in the preceeding whitespace of the
+                // snippet, we need to convert them into spaces.
+                //XXX: Take into account tabs in baseIndentation as well.
+                while (tab_pos >= 0) {
+                    if (tab_pos % tabWidth) {
+                        // Ick, the tab does not align according to the
+                        // user's tabWidth preference, so we have to fix it.
+                        var s = '';
+                        for (var j=0; j < tabWidth - (tab_pos % tabWidth); j++) {
+                            s += ' ';
                         }
-                        tab_pos = whitespace.search("\t");
+                        whitespace = whitespace.substr(0, tab_pos) + s +
+                            whitespace.substr(tab_pos+1);
+                    } else {
+                        whitespace = whitespace.replace('\t', tabequivalent);
                     }
-                    lines[i] = whitespace + match[2];
+                    tab_pos = whitespace.search("\t");
                 }
-                lines[i] = indent + lines[i];
-                if (useTabs) {
-                    newindent = '';
-                    rest = lines[i].replace(/^\s*/, '');
-                    newindent = lines[i].slice(0, lines[i].length-rest.length);
-                    newindent = newindent.replace(tabequivalent, '\t', 'g');
-                    lines[i] = newindent + rest;
-                }
+                lines[i] = whitespace + match[2];
+            } else {
+                lines[i] = baseIndentation + lines[i];
+            }
+            if (useTabs) {
+                var newindent = '';
+                var rest = lines[i].replace(/^\s*/, '');
+                newindent = lines[i].slice(0, lines[i].length-rest.length);
+                newindent = newindent.replace(tabequivalent, '\t', 'g');
+                lines[i] = newindent + rest;
             }
         }
-        text = lines.join(eol_str);
+        text = lines.join(eol_str) + remainingText;
+    } else {
+        scimoz.replaceSel("");
+        oldInsertionPoint = scimoz.currentPos;
     }
+
 
     // Determine and set the selection and cursor position.
     var anchor = text.indexOf(ANCHOR_MARKER);
@@ -383,8 +411,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         anchor = 0;
         currentPos = 0;
     }
-    scimoz.replaceSel("");
-    var oldInsertionPoint = scimoz.currentPos;
     scimoz.insertText(oldInsertionPoint, text);
     
     if (setSelection) {
