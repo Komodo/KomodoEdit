@@ -63,6 +63,7 @@ ko.uriparse = {};
 (function() {
 
 var _koFileEx = null; // koFileEx singleton instance
+var _osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
 function _getKoFileEx() {
     if (_koFileEx == null) {
         _koFileEx = Components.classes["@activestate.com/koFileEx;1"]
@@ -79,7 +80,7 @@ function _getKoFileEx() {
  *  "localPath" must be a local file path.
  *
  * Returns the URI for the given path or raises an exception if "localPath" is
- * not a local path.
+ * not a local path.  Returned URIs are normalized ("x/./y" => "x/y", etc.)
  *
  * Examples:
  *  D:\trentm\foo.txt -> file:///D:/trentm/foo.txt
@@ -90,13 +91,33 @@ function _getKoFileEx() {
 this.localPathToURI = function(localPath) {
     var koFileEx = _getKoFileEx();
     koFileEx.path = localPath;
-    var os = Components.classes["@activestate.com/koOs;1"].getService();
-    if (os.path.normpath(koFileEx.path) != os.path.normpath(localPath)) {
+    if (_osPathSvc.normpath(koFileEx.path) != _osPathSvc.normpath(localPath)) {
         // ...then this was not a proper local path (probably a URI)
         throw("'"+localPath+"' does not appear to be a proper local path");
     }
-    return koFileEx.URI;
+    return this._normalizedPathToURI(localPath, koFileEx);
 }
+
+this._normalizedPathToURI = function(localPath, koFileEx) {
+    var fixedPath = _osPathSvc.normpath(localPath);
+    if (fixedPath != localPath) {
+        if (koFileEx.isDirectory) {
+            // Bug 77205: Mapped URIs where the local part ends with a slash
+            // lose that trailing slash due to normpath.
+            var endsWithSlash_re = /([\\\/])$/;
+            var trailingSlash = endsWithSlash_re.test(localPath) ? RegExp.$1 : "";
+            if (trailingSlash && !endsWithSlash_re.test(fixedPath)) {
+                fixedPath += trailingSlash;
+            }
+            if (fixedPath != localPath) {
+                koFileEx.path = fixedPath;
+            }
+        } else {
+            koFileEx.path = fixedPath;
+        }
+    }
+    return koFileEx.URI;
+};
 
 
 /**
@@ -114,6 +135,7 @@ this.fixupURI = function(uri) {
  *  "path" must be a local file path or a URI
  *
  * Returns the URI for the given path or the URI if one was passed in.
+ * Returned URIs are normalized ("x/./y" => "x/y", etc.)
  *
  * Examples:
  *  D:\trentm\foo.txt -> file:///D:/trentm/foo.txt
@@ -123,7 +145,15 @@ this.fixupURI = function(uri) {
 this.pathToURI = function(path) {
     var koFileEx = _getKoFileEx();
     koFileEx.path = path;
-    return koFileEx.URI;
+    if (koFileEx.scheme != "file" || path.indexOf("file:/") == 0) {
+        // Don't give normpath a URI
+        return koFileEx.URI;
+    }
+    // Bug 76156
+    // Normalize paths, but don't try to change case.
+    // Lookup routines like findViewsForURI and getViewsByTypeAndURI
+    // in views.unprocessed.xml need to ignore case when appropriate.
+    return this._normalizedPathToURI(path, koFileEx);
 }
 
 /**
