@@ -1,0 +1,11 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php_type_casting_bug76553.php">
+    <scope ilk="blob" lang="PHP" name="php_type_casting_bug76553.php" src="scan_inputs/php_type_casting_bug76553.php">
+      <variable citdl="int" line="3" name="a" />
+      <variable citdl="int" line="4" name="b" />
+      <variable citdl="boolean" line="5" name="c" />
+      <variable citdl="boolean" line="6" name="d" />
+      <variable citdl="int" line="7" name="e" />
+    </scope>
+  </file>
+</codeintel>
