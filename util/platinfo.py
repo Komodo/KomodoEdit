@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 8, 7)
+__version_info__ = (0, 9, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -84,6 +84,7 @@ import tempfile
 import logging
 from pprint import pprint
 from os.path import exists
+import warnings
 
 
 log = logging.getLogger("platinfo")
@@ -106,6 +107,10 @@ class InternalError(Error):
 * any addition information you think might be relevant. Thanks!       *
 * -- Trent                                                            *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"""
+
+class LinuxDistroVersionWarning(RuntimeWarning):
+    pass
+warnings.simplefilter("once", LinuxDistroVersionWarning)
 
 
 
@@ -558,6 +563,8 @@ class PlatInfo(object):
         except EnvironmentError:
             return {}
 
+        # A good list of release-files for various Linux distros is
+        # here: http://linuxmafia.com/faq/Admin/release-files.html
         d = {}
         release_file_pat = re.compile(r'(\w+)[-_](release|version)')
         candidate_etc_files = []
@@ -601,15 +608,22 @@ class PlatInfo(object):
             if d:
                 break
         else:            
-            raise InternalError("Could not determine distro & release from %s."
-                                % " or ".join(errmsgs))
+            # If we have a release-file, just fill in "distro_family"
+            # and "distro" and move on. For example, Arch Linux's
+            # release file is *empty*.
+            if candidate_etc_files:
+                d["distro_family"] = distro_family = candidate_etc_files[0][0]
+                d["distro"] = distro_family.lower()
+                warnings.warn("could not determine linux distro_ver %s"
+                                % " or ".join(errmsgs),
+                              LinuxDistroVersionWarning)
         return d
 
     def _set_linux_distro_info(self):
         """Determine the following Linux distribution information:
 
             distro
-            distro_ver
+            distro_ver (maybe)
             distro_family (maybe)
                 Distro families are "redhat", "debian", and "suse". For
                 example, Mandrake Linux is a member of the "redhat"
@@ -634,7 +648,7 @@ class PlatInfo(object):
         # Then try to find a release/version file in "/etc".
         # - Algorithm borrows from platform.py.
         d = self._get_linux_release_file_info()
-        if "distro" in d and "distro_ver" in d:
+        if "distro" in d:
             for k, v in d.items():
                 setattr(self, k, v)
             return
@@ -978,7 +992,10 @@ more information."""
     pi = PlatInfo()
     WIDTH=75
     if opts.format is None:
-        print "%s (%s)" % (pi.name(*rules), pi.fullname())
+        if rules:
+            print pi.name(*rules)
+        else:
+            print "%s (%s)" % (pi.name(), pi.fullname())
     if opts.format == "name":
         print pi.name(*rules)
     if opts.format == "fullname":
