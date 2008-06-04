@@ -1739,7 +1739,7 @@ EOD;
               ("constant", "base_constant"),
               ("function", "somefunc") ])
 
-        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [ ("constant", "MAXSIZE") ])
 
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),
