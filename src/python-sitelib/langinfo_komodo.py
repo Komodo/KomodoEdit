@@ -46,6 +46,7 @@ class KomodoProjectLangInfo(LangInfo):
 
 class UDLLangInfo(LangInfo):
     name = "UDL"
+    komodo_name = "Luddite"
     exts = [".udl"]
     conforms_to_bases = ["Text"]
 
