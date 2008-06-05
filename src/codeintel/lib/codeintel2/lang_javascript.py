@@ -954,17 +954,26 @@ def sortByLine(seq):
 class JSArgs:
     def __init__(self, arglist):
         self.args = arglist
+        # We don't initially know the argument types.
+        self.types = [None] * len(arglist)
         self.argline = ", ".join(arglist)
-    
+
     def __repr__(self):
         args = []
         for arg in self.args:
             args.append(repr(arg))
         return string.join(args, ', ')
 
+    def addTypeForArgument(self, argname, typename):
+        try:
+            idx = self.args.index(argname)
+        except ValueError:
+            pass
+        else:
+            self.types[idx] = typename
+
     def toElementTree(self, cixelement, jsdoc=None):
-        for arg in self.args:
-            typename = None
+        for arg, typename in zip(self.args, self.types):
             doc = None
             # Use the jsdoc for assistance, type and doc information
             if jsdoc:
@@ -1053,6 +1062,7 @@ class JSObject:
                           "function argument exists with the same name")
         # Else if there is no citdl type yet, assign it the given type
         elif typeNames and not v.type:
+            log.debug("existing VAR:%s, setting type: %r", name, typeNames)
             v.type = ".".join(typeNames)
         return v
 
@@ -1069,6 +1079,7 @@ class JSObject:
             self.members[name] = v
         # Else if there is no citdl type yet, assign it the given type
         elif typeNames and not v.type:
+            log.debug("existing VAR:%s, setting type: %r", name, typeNames)
             v.type = ".".join(typeNames)
         return v
 
@@ -1430,6 +1441,7 @@ class JSFile:
             self.variables[name] = v
         # Else if there is no citdl type yet, assign it the given type
         elif typeNames and not v.type:
+            log.debug("existing VAR:%s, setting type: %r", name, typeNames)
             v.type = ".".join(typeNames)
         return v
 
@@ -2037,6 +2049,7 @@ class JavaScriptCiler:
         jsfunc.parent = jsclass
 
     def _convertFunctionToClass(self, jsfunc):
+        """Convert the provided JSFunction into a JSClass and return it."""
         funcName = jsfunc.name
         log.debug("Creating class %r, from function %r", funcName, funcName)
         jsclass = JSClass(funcName, jsfunc.parent, jsfunc.line, self.depth - 1, jsfunc.doc)
@@ -2092,6 +2105,19 @@ class JavaScriptCiler:
             fromScope = scope
         return fromScope
 
+    def _findFunctionScopeWithArgument(self, argname, scope=None):
+        # Check whether argname is a function argument for the given scope or
+        # one of its parent scopes.
+        if scope is None:
+            scope = self.currentScope
+
+        while isinstance(scope, JSObject):
+            if isinstance(scope, JSFunction):
+                if scope.args and argname in scope.args.args:
+                    return scope
+            scope = scope.parent
+        return None
+
     def addVariable(self, namelist, typeNames, toScope=None, doc=None,
                     assignAsCurrentScope=False, isLocal=False):
         log.debug("addVariable: %r, typeNames:%r, isLocal: %r",
@@ -2100,10 +2126,13 @@ class JavaScriptCiler:
         if toScope is None:
             toScope = self.currentScope
 
-        if isinstance(self.currentScope, JSFunction) and \
-           self.currentScope.args and \
-           namelist[0] in self.currentScope.args.args:
-            log.debug("Not adding variable, function has argument with same name: %r, line: %d", namelist, self.lineno)
+        func = self._findFunctionScopeWithArgument(namelist[0], scope=toScope)
+        if func is not None:
+            log.debug("Not adding var %r, line: %d. Function %r has an arg "
+                      "with the same name.", namelist, self.lineno, func.name)
+            # If there is a known type, assign it to the argument.
+            if typeNames and len(namelist) == 1:
+                func.args.addTypeForArgument(namelist[0], ".".join(typeNames))
             return
 
         if len(namelist) > 1:
@@ -2126,7 +2155,6 @@ class JavaScriptCiler:
                 return
             else:
                 # Find or create the parent scope
-                # Don't create it if it's an argument in a function...??
                 toScope = self._findOrCreateScope(namelist[:-1],
                                                   ('variables', 'classes',
                                                    'functions'),
@@ -3057,6 +3085,35 @@ class JavaScriptCiler:
                     # Applied to the global namespace
                     self._handleFunctionApply()
 
+    def _findScopeFromContext(self, styles, text):
+        """Determine from the text (a namelist) what scope the text is referring
+        to. Returns the scope found or None.
+        """
+        log.debug("_findScopeFromContext: %r" % (text, ))
+        scope = None
+        try:
+            idx = text.index("prototype")
+        except ValueError:
+            pass
+        else:
+            # We have a class prototype, find the class and return with that
+            # as the current scope. If it's a function that is not part of a
+            # class, then convert the function into a class.
+            if idx >= 2 and text[idx-1] == ".":
+                namelist, p = self._getIdentifiersFromPos(styles[:idx-1], text[:idx-1], 0)
+                if namelist:
+                    scope = self._locateScopeForName(namelist, attrlist=("classes", ))
+                    if not scope:
+                        self._locateScopeForName(namelist, attrlist=("functions", ))
+                        if isinstance(scope, JSFunction):
+                            # Scope is a function, it should be a class,
+                            # convert it now.
+                            scope = self._convertFunctionToClass(scope)
+                    if scope:
+                        log.debug("_findScopeFromContext: found %s %r",
+                                  scope.cixname, scope.name)
+        return scope
+
     def _resetState(self, newstate=S_DEFAULT):
         self.state = newstate
         self.bracket_depth = 0
@@ -3158,7 +3215,14 @@ class JavaScriptCiler:
                         if self.bracket_depth == 0:
                             # We can start defining arguments now
                             log.debug("Entering S_IN_ARGS state, line: %d, col: %d", start_line, start_column)
+                            newscope = self._findScopeFromContext(self.styles, self.text)
                             self._pushAndSetState(S_IN_ARGS)
+                            if newscope and self.currentScope != newscope:
+                                log.debug("Adjusting scope to: %r %r",
+                                          newscope.cixname, newscope.name)
+                                # Need to temporarily adjust the scope to deal
+                                # with getters, setters and class prototypes.
+                                self.currentScope = newscope
                             self.argumentTextPosition = len(self.text)
                         self.bracket_depth += 1
                     elif op == ")":
