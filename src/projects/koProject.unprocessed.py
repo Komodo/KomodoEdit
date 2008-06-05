@@ -2938,9 +2938,16 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
         .getService(components.interfaces.koIPartService)
     _partSvc.runningMacro = part
 
-    lines = code.splitlines(1)
-    lines = ['\t' + line + '\n' for line in lines]
-    code = 'def _code():\n' + ''.join(lines) + '\n\n\n'
+    # Put the Python macro code in a "_code()" function and eval it.
+    #
+    # Note: This has the potential to be problematic if the Python
+    # macro uses a syntax at the top-level that isn't allow inside
+    # a Python function. For example, "from foo import *" in a function
+    # with Python 2.5 generates:
+    #   bar.py:2: SyntaxWarning: import * only allowed at module level
+    #       def _code():
+    # Not sure if that will be made an *error* in future Python versions.
+    code = "def _code():\n%s\n\n\n" % _indent(code)
     try:
         exec code in macroGlobals, macroGlobals
         retval = eval('_code()', macroGlobals, macroGlobals)
@@ -3467,4 +3474,22 @@ class koProjectPackageService:
         dirs = dirs.keys()
         dirs.sort()
         return dirs
+
+
+
+#---- internal support stuff
+
+# Recipe: indent (0.2.1)
+def _indent(s, width=4, skip_first_line=False):
+    """_indent(s, [width=4]) -> 's' indented by 'width' spaces
+
+    The optional "skip_first_line" argument is a boolean (default False)
+    indicating if the first line should NOT be indented.
+    """
+    lines = s.splitlines(1)
+    indentstr = ' '*width
+    if skip_first_line:
+        return indentstr.join(lines)
+    else:
+        return indentstr + indentstr.join(lines)
 
