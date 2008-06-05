@@ -2404,6 +2404,19 @@ class PHPParser:
             p += 1
         return p
 
+    _citdl_type_from_cast = {
+        "int":       "int",
+        "integer":   "int",
+        "bool":      "boolean",
+        "boolean":   "boolean",
+        "float":     "int",
+        "double":    "int",
+        "real":      "int",
+        "string":    "string",
+        "binary":    "string",
+        "array":     "array()",   # array(), see bug 32896.
+        "object":    "object",
+    }
     def _getVariableType(self, styles, text, p, assignmentChar="="):
         """Set assignmentChar to None to skip over looking for this char first"""
 
@@ -2423,6 +2436,16 @@ class PHPParser:
                 p += 1
                 if p+1 >= len(styles):
                     return typeNames, p
+
+            elif p+3 <= len(styles) and styles[p] == self.PHP_OPERATOR and \
+                 text[p+2] == ')' and text[p+1] in self._citdl_type_from_cast:
+                # Looks like a casting:
+                # http://ca.php.net/manual/en/language.types.type-juggling.php#language.types.typecasting
+                #   $bar = (boolean) $foo;
+                typeNames = [self._citdl_type_from_cast.get(text[p+1])]
+                log.debug("_getVariableType: casted to type: %r", typeNames)
+                p += 3
+                return typeNames, p
 
             if styles[p] == self.PHP_WORD:
                 # Keyword
@@ -2665,10 +2688,12 @@ class PHPParser:
 
             assignChar = text[p]
             typeNames = []
+            mustCreateVariable = False
             # Work out the citdl
             if p+1 < len(styles) and styles[p] == self.PHP_OPERATOR and \
                                          assignChar in "=":
                 # Assignment to the variable
+                mustCreateVariable = True
                 typeNames, p = self._getVariableType(styles, text, p, assignChar)
                 log.debug("typeNames: %r", typeNames)
                 # Skip over paren arguments from class, function calls.
@@ -2677,8 +2702,9 @@ class PHPParser:
                     p = self._skipPastParenArguments(styles, text, p+1)
 
             # Create the variable cix information.
-            if p < len(styles) and styles[p] == self.PHP_OPERATOR and \
-                                         text[p] in ",;":
+            if mustCreateVariable or (p < len(styles) and
+                                      styles[p] == self.PHP_OPERATOR and \
+                                      text[p] in ",;"):
                 log.debug("Line %d, variable definition: %r",
                          self.lineno, namelist)
                 if style == "const":
