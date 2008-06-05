@@ -1843,8 +1843,10 @@ def target_silo_python(argv=["silo_python"]):
     if sys.platform == "darwin":
         # The siloed Python framework goes in the app's "Frameworks"
         # dir.
+        komodo_app_name = "Komodo%s" % (config.buildType == 'debug'
+                                        and 'debug' or '')
         frameworks_subpath_from_mozApp = {
-            "komodo": ["Komodo.app", "Contents", "Frameworks"],
+            "komodo": ["%s.app" % komodo_app_name, "Contents", "Frameworks"],
             "browser": ["Firefox.app", "Contents", "Frameworks"],
             "xulrunner": ["XUL.framework", "Frameworks"],
             "suite": ["SeaMonkey.app", "Contents", "Frameworks"],
