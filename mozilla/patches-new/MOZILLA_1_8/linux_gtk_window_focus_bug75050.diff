@@ -1,0 +1,36 @@
+The fix comes from Mozilla 1.9 branch, to address the focus handling bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=295447
+
+This is a patch to fix the Komodo Window focus bug with Mozilla 1.8 builds:
+http://bugs.activestate.com/show_bug.cgi?id=75050
+
+Index: mozilla/widget/src/gtk2/nsWindow.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/gtk2/nsWindow.cpp,v
+retrieving revision 1.152
+diff -u -p -8 -r1.152 nsWindow.cpp
+--- widget/src/gtk2/nsWindow.cpp	29 Nov 2005 20:12:29 -0000	1.152
++++ widget/src/gtk2/nsWindow.cpp	8 Dec 2005 07:58:07 -0000
+@@ -692,16 +692,22 @@ nsWindow::SetFocus(PRBool aRaise)
+ 
+     nsWindow  *owningWindow = get_window_for_gtk_widget(owningWidget);
+     if (!owningWindow)
+         return NS_ERROR_FAILURE;
+ 
+     if (!GTK_WIDGET_HAS_FOCUS(owningWidget)) {
+         LOGFOCUS(("  grabbing focus for the toplevel [%p]\n", (void *)this));
+         owningWindow->mContainerBlockFocus = PR_TRUE;
++        
++        // Set focus to the window
++        if (gRaiseWindows && aRaise && toplevelWidget &&
++            !GTK_WIDGET_HAS_FOCUS(toplevelWidget))
++          gtk_window_present(GTK_WINDOW(owningWindow->mShell));
++        
+         gtk_widget_grab_focus(owningWidget);
+         owningWindow->mContainerBlockFocus = PR_FALSE;
+ 
+         DispatchGotFocusEvent();
+ 
+         // unset the activate flag
+         if (owningWindow->mActivatePending) {
+             owningWindow->mActivatePending = PR_FALSE;
