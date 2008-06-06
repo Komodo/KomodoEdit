@@ -140,7 +140,8 @@ my @toExport = (
     'msiKomodoPrettyId',
     'komodoUpdateManualURL',
 
-    'macKomodoAppName',
+    'macKomodoAppInstallName',
+    'macKomodoAppBuildName',
 
     'gnomeDesktopName',
     'gnomeDesktopGenericName',

@@ -731,7 +731,8 @@ configuration = {
     "msiKomodoVersion": MSIKomodoVersion(),                         #   3.10.0 (XXX need to have more differentiation here!)
     "msiKomodoId": MSIKomodoId(),                                   #   Komod310 (XXX has to be max 8 chars!)
     "msiRegistryId": MSIRegistryId(),                               #   3.10-ide
-    "macKomodoAppName": MacKomodoAppName(),   # e.g. "Komodo.app", "Komodo IDE.app"
+    "macKomodoAppBuildName": MacKomodoAppBuildName(),               # e.g. "Komodo.app"
+    "macKomodoAppInstallName": MacKomodoAppInstallName(),           # e.g. "Komodo IDE.app"
     "msiKomodoPrettyId": MSIKomodoPrettyId(),
 
     "komodoPackageBase": KomodoPackageBase(),
@@ -927,14 +928,14 @@ def ImageKomodo(cfg, argv):
         if sys.platform == "win32":
             return ipkgpath("feature-core", "INSTALLDIR", "lib", "mozilla", *parts)
         elif sys.platform == "darwin":
-            return ipkgpath(cfg.macKomodoAppName, "Contents", "MacOS", *parts)
+            return ipkgpath(cfg.macKomodoAppInstallName, "Contents", "MacOS", *parts)
         else:
             return ipkgpath("INSTALLDIR", "lib", "mozilla", *parts)
     def iipylibpath(*parts):
         if sys.platform == "win32":
             return ipkgpath("feature-core", "INSTALLDIR", "lib", "python", "Lib", *parts)
         elif sys.platform == "darwin":
-            return ipkgpath(cfg.macKomodoAppName,
+            return ipkgpath(cfg.macKomodoAppInstallName,
                             "Contents/Frameworks/Python.framework/Versions",
                             "%s/lib/python%s" % (cfg.siloedPyVer, cfg.siloedPyVer),
                             *parts)
@@ -955,13 +956,13 @@ def ImageKomodo(cfg, argv):
         if sys.platform == "win32":
             return ipkgpath("feature-core", "INSTALLDIR", *parts)
         elif sys.platform == "darwin":
-            return ipkgpath(cfg.macKomodoAppName, "Contents", "bin", *parts)
+            return ipkgpath(cfg.macKomodoAppInstallName, "Contents", "bin", *parts)
         else:
             return ipkgpath("INSTALLDIR", "bin", *parts)
     def iisupportpath(*parts):
         """Image image dir for the Komodo 'support' bits."""
         if sys.platform == "darwin":
-            return iicorepath(cfg.macKomodoAppName, "Contents",
+            return iicorepath(cfg.macKomodoAppInstallName, "Contents",
                               "SharedSupport", *parts)
         else:
             return iicorepath("lib", "support", *parts)
@@ -992,7 +993,7 @@ def ImageKomodo(cfg, argv):
         if sys.platform == "win32":     # ...in the root install dir
             return ipkgpath("feature-core", "INSTALLDIR", *parts)
         elif sys.platform == "darwin":  # ...in the .app bundle Resources dir
-            return ipkgpath(cfg.macKomodoAppName, "Contents", "Resources", *parts)
+            return ipkgpath(cfg.macKomodoAppInstallName, "Contents", "Resources", *parts)
         else:                           # ...in the root doc area
             return ipkgpath("INSTALLDIR", "share", "doc", *parts)
 
@@ -1011,7 +1012,7 @@ def ImageKomodo(cfg, argv):
         # *self-referential* symlinks that *cannot* be followed and we
         # want to keep. Grr. HACK around this.
         ibits += [
-            ("hack-cp", mozdistpath("Komodo.app"), ipkgpath(cfg.macKomodoAppName)),
+            ("hack-cp", mozdistpath(cfg.macKomodoAppBuildName), ipkgpath(cfg.macKomodoAppInstallName)),
         ]
     else:
         ibits += [
@@ -1323,7 +1324,7 @@ def _PackageKomodoDMG(cfg):
         "'DMG' build on non-Mac OS X doesn't make sense"
 
     # Make sure "bk image" has been run.
-    landmark = join(cfg.installRelDir, cfg.macKomodoAppName)
+    landmark = join(cfg.installRelDir, cfg.macKomodoAppInstallName)
     assert exists(landmark),\
         "no install image, run 'bk image': '%s' does not exist" % landmark
 
@@ -1458,7 +1459,7 @@ def _PackageKomodoUpdates(cfg):
         landmark = join(cfg.installRelDir, "feature-core", "INSTALLDIR",
                         "lib", "mozilla", "komodo.exe")
     elif sys.platform == "darwin":
-        landmark = join(cfg.installRelDir, cfg.macKomodoAppName)
+        landmark = join(cfg.installRelDir, cfg.macKomodoAppInstallName)
     else:
         landmark = join(cfg.installRelDir, "INSTALLDIR", "lib",
                         "mozilla", "komodo")
@@ -1875,7 +1876,7 @@ def JarChrome(chromeTree, cfg, argv):
 
     if hasattr(cfg, "installerType"):
         if sys.platform == 'darwin':
-            chromeDir = os.path.join(cfg.installAbsDir, "Komodo.app",
+            chromeDir = os.path.join(cfg.installAbsDir, cfg.macKomodoAppBuildName,
                                        "Contents", "MacOS", "chrome", chromeTree)
         else:
             chromeDir = os.path.join(cfg.installAbsDir, "INSTALLDIR",
@@ -2169,12 +2170,11 @@ def TestKomodoPerf(cfg, argv):
     # and call perf.py.
     import tmShUtil
     cmd = "python perf.py %s" % " ".join(argv[1:])
-    import bkconfig
     if sys.platform == 'darwin':
-        testDir = os.path.join(bkconfig.installAbsDir, "Komodo.app", "Contents",
-                               "SharedSupport", "test")
+        testDir = os.path.join(cfg.installAbsDir, cfg.macKomodoAppBuildName,
+                               "Contents", "SharedSupport", "test")
     else:
-        testDir = os.path.join(bkconfig.installAbsDir, "INSTALLDIR", "test")
+        testDir = os.path.join(cfg.installAbsDir, "INSTALLDIR", "test")
     return tmShUtil.RunInContext(cfg.envScriptName,
                                  [ 'cd "%s"' % testDir, cmd ])
 
@@ -2242,7 +2242,7 @@ def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     
 def BuildQuickBuildDB(cfg, argv):
     if sys.platform == 'darwin':
-        sharedSupportRelDir = "Komodo.app/Contents/SharedSupport"
+        sharedSupportRelDir = "%s/Contents/SharedSupport" % cfg.macKomodoAppBuildName
     else:
         sharedSupportRelDir = "INSTALLDIR"
     print "Building 'bk build quick' cache from installed copy."

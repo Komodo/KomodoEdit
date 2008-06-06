@@ -312,8 +312,9 @@ class SiloedPythonInstallDir(black.configure.std.Datum):
         else:
             mozDist = black.configure.items["mozDist"].Get()
             if sys.platform == "darwin":
-                self.value = join(mozDist, "Komodo.app", "Contents",
-                                  "Frameworks")
+                macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
+                self.value = join(mozDist, macKomodoAppBuildName,
+                    "Contents", "Frameworks")
             else:
                 self.value = join(mozDist, "python")
         self.determined = 1
@@ -576,10 +577,15 @@ class ProductType(black.configure.Datum):
         self.determined = 1
 
 
-class MacKomodoAppName(black.configure.Datum):
+class MacKomodoAppInstallName(black.configure.Datum):
+    """The .app directory name for the *installed* Komodo on Mac OS X.
+    Note that this is different than the *build* name: for both Komodo
+    IDE and Edit the .app dir name during the build doesn't include the
+    product-type (see `macKomodoAppBuildName`).
+    """
     def __init__(self):
-        black.configure.Datum.__init__(self, "macKomodoAppName",
-            desc="the basename of the Komodo app path on Mac OS X")
+        black.configure.Datum.__init__(self, "macKomodoAppInstallName",
+            desc="the Komodo .app dir name on Mac OS X (for installation)")
 
     def _Determine_Sufficient(self):
         if self.value is None:
@@ -595,6 +601,26 @@ class MacKomodoAppName(black.configure.Datum):
         self.value = name + ".app"
         self.determined = 1
 
+class MacKomodoAppBuildName(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "macKomodoAppBuildName",
+            desc="the Komodo .app dir name on Mac OS X (during the build)")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(
+                "Could not determine %s." % self.desc)
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        buildType = black.configure.items["buildType"].Get()
+        if buildType == "release":
+            self.value = "Komodo.app"
+        elif buildType == "debug":
+            self.value = "KomodoDebug.app"
+        else:
+            raise ValueError("unexpected value of buildType: %r" % buildType)
+        self.determined = 1
 
 class ProductType(black.configure.Datum):
     def __init__(self):
@@ -1450,21 +1476,6 @@ class UniversalApp(black.configure.Datum):
                 self.value = 0
         self.determined = 1
 
-def _getKomodoDistDir():
-    # if we're building with xulrunner, this will be our own directory
-    # in komodo-devel, otherwise, it is the objdir/dist directory
-    xulrunner = black.configure.items["xulrunner"].Get()
-    if xulrunner:
-        baseDir = black.configure.items["komodoDevDir"].Get()
-        return os.path.join(baseDir, "instdir")
-    return black.configure.items['mozDevelDist'].Get()
-
-def _getKomodoAppDir():
-    baseDir = _getKomodoDistDir()
-    if sys.platform.startswith('darwin'):
-        # EVERYTHING goes under Contents, so just go there now
-        return os.path.join(baseDir, "Komodo.app")
-    return baseDir
 
 class MozResourcesDir(black.configure.Datum):
     """The resource directory is where chrome, components, etc. go"""
@@ -1481,11 +1492,13 @@ class MozResourcesDir(black.configure.Datum):
         self.applicable = 1
         xulrunner = black.configure.items["xulrunner"].Get()
         if xulrunner:
-            baseDir = _getKomodoAppDir()
+            mozDist = black.configure.items['mozDist'].Get()
             if sys.platform.startswith('darwin'):
-                self.value = os.path.join(baseDir, "Contents", "Resources")
+                macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
+                self.value = os.path.join(mozDist, macKomodoAppBuildName,
+                                          "Contents", "Resources")
             else:
-                self.value = baseDir
+                self.value = mozDist
         else:
             self.value = black.configure.items["mozBin"].Get()
         self.determined = 1
@@ -2042,7 +2055,15 @@ class MozDist(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = _getKomodoDistDir()
+        xulrunner = black.configure.items["xulrunner"].Get()
+        if xulrunner:
+            # If we're building with xulrunner, this will be our own
+            # directory in komodo-devel, otherwise, it is the objdir/dist
+            # directory.
+            baseDir = black.configure.items["komodoDevDir"].Get()
+            self.value = os.path.join(baseDir, "instdir")
+        else:
+            self.value = black.configure.items['mozDevelDist'].Get()
         self.determined = 1
 
 class MozBin(black.configure.Datum):
@@ -2058,12 +2079,13 @@ class MozBin(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        ver = black.configure.items["mozVersionNumber"].Get()
-        baseDir = _getKomodoAppDir()
+        mozDist = black.configure.items['mozDist'].Get()
         if sys.platform.startswith('darwin'):
-            self.value = os.path.join(baseDir, "Contents", "MacOS")
+            macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
+            self.value = os.path.join(mozDist, macKomodoAppBuildName,
+                                      "Contents", "MacOS")
         else:
-            self.value = os.path.join(baseDir, 'bin')
+            self.value = os.path.join(mozDist, 'bin')
         self.determined = 1
 
 class MozApp(black.configure.Datum):
@@ -2079,10 +2101,12 @@ class MozApp(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
+        buildType = black.configure.items['buildType'].Get()
         if sys.platform == 'darwin':
             # we 'open Komodo.app' rather than execute the komodo binary
             mozDist = black.configure.items['mozDist'].Get()
-            self.value = os.path.join(mozDist, 'Komodo.app')
+            macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
+            self.value = os.path.join(mozDist, macKomodoAppBuildName)
         else:
             mozBin = black.configure.items['mozBin'].Get()
             if sys.platform.startswith("win"):
@@ -3562,3 +3586,5 @@ class SetupCompiler(black.configure.Datum):
             # var to the config file, and then Cons starts barfing.
             self.value = ''
         self.determined = 1
+
+
