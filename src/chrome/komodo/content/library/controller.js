@@ -82,7 +82,7 @@ var handlers = {
     'cmd_helpTclRef_Local': 'ko.browse.localHelp("Tcl")',
     'cmd_helpTclRef_Web': 'ko.browse.webHelp("Tcl")',
     'cmd_helpTclMailingLists': 'ko.browse.aspnMailingList("Tcl")',
-    'cmd_helpXSLTMailingLists': 'ko.browse.aspnMailingList("XSLT")',
+    'cmd_helpXSLTMailingLists': 'ko.browse.openUrlInDefaultBrowser("http://www.biglist.com/lists/xsl-list/archives/")',
     'cmd_helpXSLTRef_Web': 'ko.browse.openUrlInDefaultBrowser("http://developer.mozilla.org/en/docs/XSLT")',
     'cmd_helpKomodoMailLists': 'ko.browse.browseTag("mailLists")',
     'cmd_helpCommunity': 'ko.browse.browseTag("community")',
