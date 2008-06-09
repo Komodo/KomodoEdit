@@ -138,7 +138,6 @@ if ($withJSLib or $buildFlavour eq "dev") {
     #   wget http://www.mozdevgroup.com/dropbox/jslib/signed/jslib_current_signed.xpi
     #   unzip jslib_current_signed.xpi
     #   rm -f jslib_current_signed.xpi
-    #   mv install.rdf install.p.rdf   # will be preprocessed later
     #   patch -p0 < patches/jslib_komodo_rdf.patch
     #   px diff -sn ./... | px -x - add
     #   p4 diff -se ./... | p4 -x - edit
