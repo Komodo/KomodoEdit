@@ -56,9 +56,14 @@ Dev Notes:
 
 import operator
 from pprint import pformat, pprint
+import logging
 
 from codeintel2.common import *
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
+import langinfo
+
+
+log = logging.getLogger("codeintel.langintel")
 
 
 
@@ -81,7 +86,11 @@ class LangIntel(object):
     @property
     def langinfo(self):
         if self._langinfo_cache is None:
-            self._langinfo_cache = self.mgr.lidb.langinfo_from_komodo_lang(self.lang)
+            try:
+                self._langinfo_cache = self.mgr.lidb.langinfo_from_komodo_lang(self.lang)
+            except langinfo.LangInfoError, ex:
+                self._langinfo_cache = None
+                log.exception("error getting langinfo for '%s'", self.lang)
         return self._langinfo_cache
 
     # Code Browser integration.
