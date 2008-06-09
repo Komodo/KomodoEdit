@@ -9,7 +9,7 @@
 +      <Description>
 +        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
 +        <em:minVersion>3.5</em:minVersion>
-+        <em:maxVersion>KOMODO_SHORT_VERSION</em:maxVersion>
++        <em:maxVersion>4.*</em:maxVersion>
 +      </Description>
 +    </em:targetApplication>
 +    
