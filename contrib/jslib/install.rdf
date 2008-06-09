@@ -38,7 +38,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>1.0+</em:minVersion>
-        <em:maxVersion>2.0.0.*</em:maxVersion>
+        <em:maxVersion>3.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
@@ -89,7 +89,10 @@
     <em:contributor>Neil Deakin</em:contributor>
     <em:contributor>Brian King</em:contributor>
     <em:homepageURL>http://jslib.mozdev.org/</em:homepageURL>
+    <!-- As long as we're working with a patched jslib, don't point
+         to the standard library for updates.
     <em:updateURL>http://jslib.mozdev.org/update.rdf</em:updateURL>
+    -->
 
     <!-- Front End Integration Hooks (used by Extension Manager)-->
     <!-- <em:optionsURL>javascript:alert("No Options for jslib");</em:optionsURL>-->
@@ -113,7 +116,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>1.0+</em:minVersion>
-        <em:maxVersion>2.0.0.*</em:maxVersion>
+        <em:maxVersion>3.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 

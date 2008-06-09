@@ -150,9 +150,6 @@ if ($withJSLib or $buildFlavour eq "dev") {
     # the .xpi in the install tree for installer builds because jslib is
     # only required for dev testing bits (e.g. Casper).
 
-    $cons->Preprocess('jslib/install.p.rdf', 'jslib/install.rdf',
-                      {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
-
     if ($buildFlavour eq "dev") {
         # install into komodo dev build
         my $baseDir = "$mozExtensionDir/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
