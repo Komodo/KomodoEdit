@@ -81,6 +81,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             // Only do abbreviation expansion if next to a word char,
             // i.e. valid abbrev chars.
             var pos = scimoz.currentPos;
+            var ch = scimoz.getTextRange(scimoz.positionBefore(pos), pos);
             if (pos == 0 || !is_abbrev(scimoz.getTextRange(scimoz.positionBefore(pos), pos))) {
                 ko.statusBar.AddMessage(
                     "No abbreviation at the current position.",
@@ -89,6 +90,10 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             }
             origPos = pos;
             origAnchor = scimoz.anchor;
+            // Note: If we want to support the full range of TextMate-style
+            // snippet tab-triggers, then 'wordLeftExtend' isn't
+            // sufficient. There is the (rare) TextMate tabTrigger that
+            // mixes word and non-word chars.
             scimoz.wordLeftExtend();
         }
         abbrev = scimoz.selText;
@@ -218,8 +223,9 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
 }
 
 
+// Currently don't allow triggering at a whitespace char.
 function is_abbrev(s) {
-    return !/\W/.test(s);
+    return !/\s/.test(s);
 }
 
 }).apply(ko.abbrev);
