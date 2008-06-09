@@ -1365,18 +1365,22 @@ class KoFindService(object):
                 if resultsView is not None:
                     startCharIndex = match.start() + contextOffset
                     endCharIndex = startCharIndex + len(repl_str)
-    
                     # Convert indices to *byte* offsets (as in scintilla) from
                     # *char* offsets (which is what the Python regex engine
                     # searching is using).
                     startByteIndex = scimoz.positionAtChar(0, startCharIndex)
                     endByteIndex = scimoz.positionAtChar(0, endCharIndex)
-    
-                    startLineNum = scimoz.lineFromPosition(startCharIndex)
-                    endLineNum = scimoz.lineFromPosition(endCharIndex)
+                    startLineNum = scimoz.lineFromPosition(startByteIndex)
+
+                    # The 'context' is about the text before the
+                    # replacement -- this changes the end point.
+                    contextEndCharIndex = match.end() + contextOffset
+                    contextEndByteIndex = scimoz.positionAtChar(0, contextEndCharIndex)
+                    contextEndLineNum = scimoz.lineFromPosition(contextEndByteIndex)
                     contextStartPos = scimoz.positionFromLine(startLineNum)
-                    contextEndPos = scimoz.getLineEndPosition(endLineNum)
+                    contextEndPos = scimoz.getLineEndPosition(contextEndLineNum)
                     context = scimoz.getTextRange(contextStartPos, contextEndPos)
+
                     resultsView.AddReplaceResult(
                         "hit",
                         url, startCharIndex, endCharIndex,
