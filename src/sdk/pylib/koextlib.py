@@ -112,14 +112,6 @@ _install_rdf_template = """<?xml version="1.0"?>
     <em:homepageURL>%(homepage)s</em:homepageURL>
     <em:type>2</em:type> <!-- type=extension --> 
 
-    <em:targetApplication>
-            <Description>
-                    <!-- Komodo Snapdragon uuid -->
-                    <em:id>{2cb9d397-8ec9-4211-bd89-7fea34120af6}</em:id>
-                    <em:minVersion>0</em:minVersion>
-                    <em:maxVersion>1.*</em:maxVersion>
-            </Description>
-    </em:targetApplication>
     <em:targetApplication> <!-- Komodo IDE -->
       <Description>
         <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>

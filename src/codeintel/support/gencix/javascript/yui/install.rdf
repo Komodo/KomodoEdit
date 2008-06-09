@@ -29,14 +29,6 @@
 				<em:maxVersion>4.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
-		<em:targetApplication>
-			<Description>
-				<!-- Komodo Snapdragon uuid -->
-				<em:id>{2cb9d397-8ec9-4211-bd89-7fea34120af6}</em:id>
-				<em:minVersion>0</em:minVersion>
-				<em:maxVersion>1.*</em:maxVersion>
-			</Description>
-		</em:targetApplication>
 	</Description>
 
 </RDF>
