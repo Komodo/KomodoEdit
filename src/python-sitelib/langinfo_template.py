@@ -79,6 +79,14 @@ class TemplateToolkitLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
 
 
+class SmartyLangInfo(LangInfo):
+    """http://www.smarty.net/"""
+    name = "Smarty Template"
+    komodo_name = "Smarty"
+    conforms_to_bases = ["Text"]
+    exts = [".tpl"]
+
+
 class CakePHPTemplate(LangInfo):
     """CakePHP view template files.
     
