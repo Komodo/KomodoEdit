@@ -536,8 +536,11 @@ def build_ext(base_dir, log=None):
         if isdir("components"):
             components_build_dir = join(build_dir, "components")
             _mkdir(components_build_dir, log.info)
-            for path in glob(join("components", "*.py")):
+            for path in glob(join("components", "*")):
                 _cp(path, components_build_dir, log.info)
+            _trim_files_in_dir(components_build_dir,
+                               [".svn", ".hg", "CVS", "*.pyc", "*.pyo"],
+                               log.info)
             xpi_manifest.append(components_build_dir)
             
             idl_build_dir = join(build_dir, "idl")
@@ -1064,7 +1067,7 @@ def _trim_files_in_dir(dir, patterns, log=None):
                     _rmtree(join(dirpath, d))
                     dirnames.remove(d)
                     break
-        for f in dirnames[:]:
+        for f in filenames[:]:
             for pat in patterns:
                 if fnmatch(f, pat):
                     os.remove(join(dirpath, f))
