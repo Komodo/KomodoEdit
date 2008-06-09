@@ -459,7 +459,8 @@ class KoFileStatusService:
                                                               self.FNS_WATCH_DIR,
                                                               self.FNS_NOTIFY_ALL)
                     except COMException, ex:
-                        # Likely the path does not exist anymore.
+                        # Likely the path does not exist anymore or this diruri
+                        # is somehow invalid.
                         # Ensure we remove all the uris for this directory,
                         # this way if it does come into existance in the
                         # future, we will start monitoring it again.
@@ -471,7 +472,11 @@ class KoFileStatusService:
                 for diruri in expiredDirs:
                     # Removed unused directories.
                     log.info("Removing directory observer for uri: %r", diruri)
-                    self._fileNotificationSvc.removeObserver(self, diruri)
+                    try:
+                        self._fileNotificationSvc.removeObserver(self, diruri)
+                    except COMException, ex:
+                        # Likely this diruri is somehow invalid.
+                        pass
 
                 # Must keep track of all the local urls we are monitoring, so
                 # we can correctly add/remove items in the next process loop.

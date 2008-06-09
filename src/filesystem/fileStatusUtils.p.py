@@ -119,6 +119,11 @@ class KoFileCheckerBase:
         return uri
 
     ##
+    # Helper function to check if the nsIURI object has a UNC path.
+    def _is_nsURI_UNC(self, nsUri):
+        return (self._is_windows and nsUri.scheme == 'file' and nsUri.host)
+
+    ##
     # Helper function to ensure the cache is completely cleared.
     def _invalidateAllCaches(self):
         self._lastChecked = {}
