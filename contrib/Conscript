@@ -152,12 +152,11 @@ if ($withJSLib or $buildFlavour eq "dev") {
     if ($buildFlavour eq "dev") {
         # install into komodo dev build
         my $baseDir = "$mozExtensionDir/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
-        $cons->Install($baseDir, "jslib/install.rdf");
         $cons->InstallRecursive(
             $baseDir,
             #XXX must be absolute path (bug in InstallRecursive)
             cwd()."/contrib/jslib",
-            (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
+            (".consign", "jslib.xpi", '\.svn'));
 
         # install into firefox
         # XXX FIXME The following installrecursive does not work.  why?
@@ -180,7 +179,7 @@ if ($withJSLib or $buildFlavour eq "dev") {
         "jslib/jslib.xpi",
         "jslib/install.rdf",
         qq(
-            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r %0:f "*" -x install.p.rdf .consign chrome/.consign chrome/jsliblive/.consign components/.consign META-INF/.consign
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r %0:f "*" -x .consign chrome/.consign chrome/jsliblive/.consign components/.consign META-INF/.consign
         ));
     $cons->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign", '\.svn'));
     $cons->Install("$supportDir/modules", 'jslib/jslib.xpi');
