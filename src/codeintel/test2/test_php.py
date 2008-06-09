@@ -2397,6 +2397,35 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("class", "Bug76677_class"),
             ])
 
+    @tag("bug76746")
+    def test_ignore_unhelpful_variable_types(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug76746_dummyDB {
+                public $connection;
+            }
+
+            class bug76746_dummyclass {
+                /**
+                * This variable contains the instance of the database class.
+                * @var object
+                */
+                private $objDB;
+                function __construct() {
+                    $this->objDB = new bug76746_dummyDB();
+                }
+
+                function foo() {
+                    $this->objDB-><1>xxx;
+                }
+            }
+        """)))
+
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("variable", "connection"), ])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"

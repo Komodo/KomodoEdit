@@ -1573,6 +1573,7 @@ class PHPVariable:
 
     # PHPDoc variable type sniffer.
     _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
                  fromPHPDoc=False):
@@ -1612,6 +1613,10 @@ class PHPVariable:
                 if len(all_matches) >= 1:
                     #print "all_matches[0]: %r" % (all_matches[0], )
                     vartype = all_matches[0][2]
+                    if vartype and vartype.lower() in self._ignored_php_types:
+                        # Ignore these PHP types, they don't help codeintel.
+                        # http://bugs.activestate.com/show_bug.cgi?id=77602
+                        vartype = None
 
         if not vartype and self.types:
             d = {}
@@ -1619,6 +1624,9 @@ class PHPVariable:
             for line, vtype, fromPHPDoc in self.types:
                 if vtype:
                     if fromPHPDoc:
+                        if vtype.lower() in self._ignored_php_types:
+                            # Ignore these PHP types, they don't help codeintel.
+                            continue
                         # The doc gets priority.
                         vartype = vtype
                         break
