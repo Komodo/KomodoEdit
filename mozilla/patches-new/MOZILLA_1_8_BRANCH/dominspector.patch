@@ -5,18 +5,10 @@ retrieving revision 1.15
 diff -u -r1.15 extensions/inspector/install.rdf
 --- extensions/inspector/install.rdf	29 Aug 2007 18:05:30 -0000	1.15
 +++ extensions/inspector/install.rdf	6 Nov 2007 21:46:32 -0000
-@@ -9,6 +9,31 @@
+@@ -9,6 +9,23 @@
      <em:version>@EXTENSION_VERSION@</em:version>
  
      <em:targetApplication>
-+      <!-- Open Komodo -->
-+      <Description>
-+        <em:id>{2cb9d397-8ec9-4211-bd89-7fea34120af6}</em:id>
-+        <em:minVersion>0</em:minVersion>
-+        <em:maxVersion>1.*</em:maxVersion>
-+      </Description>
-+    </em:targetApplication>
-+    <em:targetApplication>
 +      <!-- Komodo IDE -->
 +      <Description>
 +        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
