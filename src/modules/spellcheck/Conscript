@@ -56,7 +56,6 @@ Import(
     'platform',
     'productType',
     'mozVersion',
-    'komodoShortVersion',
     'mozExtensionDir',
 );
 
@@ -66,10 +65,6 @@ Import(
 
 my $ext_name = "komodospellchecker";
 my $ext_dir = "$mozExtensionDir/$ext_name\@ActiveState.com";
-
-
-$cons->Preprocess('install.p.rdf', 'install.rdf',
-                  {'KOMODO_SHORT_VERSION' => $komodoShortVersion});
 
 if ($buildFlavour eq "full") {
     $cons->Command(
