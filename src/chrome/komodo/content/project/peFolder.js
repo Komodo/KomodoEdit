@@ -206,7 +206,7 @@ peFolder.prototype.doCommand = function(command) {
         if (ko.projects.active.manager.name == "projectManager") {
             removeText = "&Remove from Project";
         } else {
-            removeText = "&Remove from Toolbox";
+            removeText = "&Remove from " + ko.projects.active.manager.prettyName;
         }
         var haveLive = false;
         if (havemultiple) {
