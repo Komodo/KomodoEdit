@@ -22,8 +22,8 @@
 
   <menubar id="menubar_main">
     <menu id="menu_developer_test"
-          label="&test.label;"
-          accesskey="&menuDeveloperTest.accesskey;"
+          label="Test"
+          accesskey="s"
           ordinal="9997"
           insertafter="help_menu">
       <menupopup id="popup_test">
@@ -35,176 +35,154 @@
                   oncommand="ko.launch.findInFiles();"/>
         <menuitem label="Replace in Files 2"
                   oncommand="ko.launch.replaceInFiles();"/>
-        <menuitem label="&javaScriptConsole.label;"
+        <menuitem label="JavaScript Console"
                 oncommand="ko.windowManager.openOrFocusDialog('chrome://global/content/console.xul',
                  'global:console',
                  'chrome,all,resizable');"/>
-        <menuitem label="&DOMInspector.label;"
+        <menuitem label="DOM Inspector"
                 oncommand="ko.windowManager.openOrFocusDialog('chrome://inspector/content/',
                  'navigator:inspector',
                  'chrome,all,resizable');"/>
-        <menuitem label="&componentViewer.label;"
+        <menuitem label="Component Viewer"
                 oncommand="ko.windowManager.openOrFocusDialog('chrome://cview/content/',
                  'navigator:cview',
                  'chrome,all,resizable');"/>
-        <menuitem label="&javaScriptDebugger.label;"
+        <menuitem label="Venkman JavaScript Debugger"
                 oncommand="ko.windowManager.openOrFocusDialog('chrome://venkman/content/',
                  'navigator:venkman',
                  'chrome,all,resizable');"/>
-        <menuitem label="&javaScriptTelnet.label;"
+        <menuitem label="JavaScript Telnet (jssh)"
                 oncommand="ko.windowManager.openOrFocusDialog('chrome://jssh/content/configure.xul',
                  'navigator:jssh',
                  'chrome,all,resizable');"/>
         <menuseparator/>
-        <menuitem label="&XULBindingsTest.label;" oncommand="window.openDialog('chrome://komodo/content/bindings/test/top.xul',
+        <menuitem label="XUL Bindings Test" oncommand="window.openDialog('chrome://komodo/content/bindings/test/top.xul',
                  'navigator:browser',
                  'chrome,all,resizable');"/>
-        <menuitem label="&XULReferenceWebsite.label;" oncommand="window.openDialog('http://www.hevanet.com/acorbin/xul/top.xul',
+        <menuitem label="XUL Reference Site" oncommand="window.openDialog('http://www.hevanet.com/acorbin/xul/top.xul',
                  'navigator:browser',
                  'chrome,all,resizable');"/>
         <menuseparator/>
-        <menuitem label="&testFirefoxAutoComplete.label;"
-                  accesskey="&testFirefoxAutoComplete.accesskey;"
+        <menuitem label="Test Firefox Textbox Autocomplete"
+                  accesskey="A"
                   oncommand="test_firefoxAutoComplete();"/>
-        <menuitem label="&testDebugSessionTab.label;"
-                  accesskey="&testDebugSessionTab.accesskey;"
+        <menuitem label="Test Debug Session Tab"
+                  accesskey="S"
                   oncommand="test_debugSessionTab();"/>
-        <menuitem label="&openFile.label;"
+        <menuitem label="Open File"
                   oncommand="ko.open.filePicker();"/>
-        <menuitem label="&splitView.label;"
+        <menuitem label="Split View"
                   oncommand="ko.open.filePicker('spliteditor');"/>
-        <menuitem label="&browserView.label;"
+        <menuitem label="Browser View"
                   oncommand="ko.views.manager.loadViewFromURI('http://www.mozilla.org','browser');"/>
-        <menuitem label="&XULView.label;" accesskey="&XULView.accesskey;"
+        <menuitem label="XUL View" accesskey="X"
                   oncommand="ko.open.filePicker('xul');"/>
-        <menuitem label="&multieditorView.label;"
+        <menuitem label="Multi-editor View"
                   oncommand="ko.open.filePicker('multieditor');"/>
-        <menuitem label="&loggingControl.label;"
-            accesskey="&loggingControl.accesskey;"
+        <menuitem label="Logging Control"
+            accesskey="L"
             oncommand="window.openDialog('chrome://komodo/content/library/logging_control.xul', 'Komodo:LoggingControl', 'titlebar,chrome,resizable,close');"/>
-        <menuitem label="&startUIUnitTests.label;"
+        <menuitem label="Start UI Unit Tests"
                   oncommand="test_startUIUnitTests()"/>
-        <menu label="&prefs.label;" accesskey="&prefs.accesskey;">
+        <menu label="Prefs" accesskey="P">
           <menupopup id="popup_test_prefs">
-            <menuitem label="&editGlobalPrefs.label;"
-                      accesskey="&editGlobalPrefs.accesskey;"
+            <menuitem label="Edit Global Prefs"
+                      accesskey="G"
                       oncommand="test_editGlobalPrefs();"/>
-            <menuitem label="&editCurrentViewPrefs.label;"
-                      accesskey="&editCurrentViewPrefs.accesskey;"
+            <menuitem label="Edit Current View Prefs"
+                      accesskey="V"
                       oncommand="test_editCurrentViewPrefs();"/>
           </menupopup>
         </menu>
-        <menuitem label="&testKeyHandling.label;"
-            accesskey="&testKeyHandling.accesskey;"
+        <menuitem label="Test Key Handling"
+            accesskey="K"
             oncommand="window.openDialog('chrome://komodo/content/testkeys.xul', 'Komodo:TestKeys',
                       'titlebar,chrome,resizable,close');"/>
-        <menuitem label="&testScintillaSizing.label;"
-            accesskey="&testScintillaSizing.accesskey;"
+        <menuitem label="Test Scintilla Sizing"
+            accesskey="Z"
             oncommand="window.openDialog('chrome://komodo/content/testscintilla.xul', 'Komodo:TestScintilla',
                       'titlebar,chrome,resizable,close');"/>
-        <menu label="&invalidLicense.label;" accesskey="&invalidLicense.accesskey;">
+        <menu label="Invalid License">
           <menupopup id="popup_test_KomodLicenseCheck">
-            <menuitem label="&siloedNonExpiringLicense.label;"
+            <menuitem label="Siloed Non-expiring License"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
-            <menuitem label="&siloedExpiredLicense.label;"
+            <menuitem label="Siloed Expired License"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
-            <menuitem label="&siloedExpiringLicense.label;"
+            <menuitem label="Siloed Expiring License"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
-            <menuitem label="&nonFinalBuildWithoutLicense.label;"
+            <menuitem label="Non-final Build Without License"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
-            <menuitem label="&finalBuildWithoutLicense.label;"
+            <menuitem label="Final Build Without License"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
-            <menuitem label="&bogusMode.label;"
+            <menuitem label="Bogus Mode"
                       oncommand="test_KomodoLicenseCheck(event.target.getAttribute('label'));"/>
           </menupopup>
         </menu>
-        <menu label="&dialogs.label;" accesskey="&dialogs.accesskey;">
+        <menu label="Dialogs" accesskey="D">
           <menupopup id="popup_test_dialogs">
-            <menuitem label="&progress.label;"
-                      accesskey="&progress.accesskey;"
+            <menuitem label="progress"
                       oncommand="test_dialog_progress();"/>
-            <menuitem label="&pickPreview.label;"
-                      accesskey="&pickPreview.accesskey;"
+            <menuitem label="pickPreview"
                       oncommand="test_dialog_pickPreview();"/>
-            <menuitem label="&editEnvVar.label;"
-                      accesskey="&editEnvVar.accesskey;"
+            <menuitem label="editEnvVar"
                       oncommand="test_dialog_editEnvVar();"/>
-            <menuitem label="&customButtons.label;"
-                      accesskey="&customButtons.accesskey;"
+            <menuitem label="customButtons"
                       oncommand="test_dialog_customButtons();"/>
-            <menuitem label="&selectURLs.label;"
-                      accesskey="&selectURLs.accesskey;"
+            <menuitem label="selectFromList"
                       oncommand="test_dialog_selectFromList();"/>
-            <menuitem label="&authenticate.label;"
-                      accesskey="&authenticate.accesskey;"
+            <menuitem label="authenticate"
                       oncommand="test_dialog_authenticate();"/>
-            <menuitem label="&alert.label;"
+            <menuitem label="alert"
                       oncommand="test_dialog_alert();"/>
-            <menuitem label="&okCancel.label;"
-                      accesskey="&okCancel.accesskey;"
+            <menuitem label="okCancel"
                       oncommand="test_dialog_okCancel();"/>
-            <menuitem label="&yesNo.label;"
-                      accesskey="&yesNo.accesskey;"
+            <menuitem label="yesNo"
                       oncommand="test_dialog_yesNo();"/>
-            <menuitem label="&yesNoCancel.label;"
-                      accesskey="&yesNoCancel.accesskey;"
+            <menuitem label="yesNoCancel"
                       oncommand="test_dialog_yesNoCancel();"/>
-            <menuitem label="&prompt.label;"
-                      accesskey="&prompt.accesskey;"
+            <menuitem label="prompt"
                       oncommand="test_dialog_prompt();"/>
-            <menuitem label="&internalError.label;"
-                      accesskey="&internalError.accesskey;"
+            <menuitem label="internalError"
                       oncommand="test_dialog_internalError();"/>
-            <menuitem label="&templatesNewFileDialog.label;"
-                      accesskey="&templatesNewFileDialog.accesskey;"
+            <menuitem label="templates ('New File...' dialog)"
                       oncommand="test_templates();"/>
-            <menuitem label="&pickIcon.label;"
-                      accesskey="&pickIcon.accesskey;"
+            <menuitem label="pickIcon"
                       oncommand="test_dialog_pickicon();"/>
-            <menuitem label="&waitForCommandTermination.label;"
-                      accesskey="&waitForCommandTermination.accesskey;"
+            <menuitem label="Wait for command termination"
                       oncommand="test_dialog_waitfortermination();"/>
           </menupopup>
         </menu>
-        <menuitem label="&uriparseJs.label;"
-                  accesskey="&uriparseJs.accesskey;"
+        <menuitem label="uriparse.js"
                   oncommand="test_uriparse();"/>
-        <menu label="&filePickers.label;" accesskey="&filePickers.accesskey;">
+        <menu label="File Pickers" accesskey="F">
           <menupopup id="popup_test_filepickers">
-            <menuitem label="&rawTestWithoutUsingFilepickersJsCaching.label;"
-                      accesskey="&rawTestWithoutUsingFilepickersJsCaching.accesskey;"
+            <menuitem label="raw test (without using filepickers.js caching)"
                       oncommand="test_ko.filepicker.raw();"/>
-            <menuitem label="&getFolder.label;"
-                      accesskey="&getFolder.accesskey;"
+            <menuitem label="getFolder"
                       oncommand="test_ko.filepicker.getFolder();"/>
-            <menuitem label="&openFiles.label;"
+            <menuitem label="openFiles"
                       oncommand="test_ko.filepicker.openFiles();"/>
-            <menuitem label="&saveFile.label;"
-                      accesskey="&saveFile.accesskey;"
+            <menuitem label="saveFile"
                       oncommand="test_ko.filepicker.saveFile();"/>
-            <menuitem label="&openFile.label;"
-                      accesskey="&openFile.accesskey;"
+            <menuitem label="openFile"
                       oncommand="test_ko.filepicker.openFile();"/>
-            <menuitem label="&openExeFile.label;"
-                      accesskey="&openExeFile.accesskey;"
+            <menuitem label="openExeFile"
                       oncommand="test_ko.filepicker.openExeFile();"/>
           </menupopup>
         </menu>
-        <menuitem label="&getEventCommandMap.label;"
-                  accesskey="&getEventCommandMap.accesskey;"
+        <menuitem label="Get Event/Command Map"
                   oncommand="test_createEventCommandMap();"/>
-        <menuitem label="&timeCommands.label;"
-                  accesskey="&timeCommands.accesskey;"
+        <menuitem label="Time Commands"
+                  accesskey="C"
                   oncommand="test_TimeCommands();"/>
-        <menuitem label="&timeEvents.label;"
-                  accesskey="&timeEvents.accesskey;"
+        <menuitem label="Time Events"
+                  accesskey="E"
                   oncommand="test_TimeEvents();"/>
-        <menuitem label="&dumpCurrentView.label;" accesskey="&dumpCurrentView.accesskey;"
+        <menuitem label="Dump Current View" accesskey="V"
                   oncommand="ko.trace.get().dumpView(ko.views.manager.currentView);"/>
-        <menuitem label="&sciMozTests.label;"
-                  accesskey="&sciMozTests.accesskey;"
+        <menuitem label="SciMoz Tests"
                   oncommand="test_scimoz();"/>
-        <menuitem label="&generateCommandIdTable.label;"
+        <menuitem label="Generate Command ID Table"
                   oncommand="ko.browse.showCommandIds()"
                   />
     </menupopup>

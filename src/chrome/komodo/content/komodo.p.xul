@@ -57,7 +57,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
 <?xul-overlay href="chrome://komodo/content/commandsOverlay.xul"?>
-<!-- #if False and BUILD_FLAVOUR == "dev" -->
+<!-- #if BUILD_FLAVOUR == "dev" -->
 <?xul-overlay href="chrome://komodo/content/test/overlay.xul"?>
 <!-- #endif -->
 
