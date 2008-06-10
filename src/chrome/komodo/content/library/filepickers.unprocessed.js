@@ -768,7 +768,7 @@ this.getFolder = function filepicker_getFolder(defaultDirectory /* =null */,
                               prompt /* =null */)
 {
     if (typeof(defaultDirectory) == 'undefined') defaultDirectory = null;
-    if (typeof(title) == 'undefined' || prompt == null) prompt = null;
+    if (typeof(prompt) == 'undefined') prompt = null;
     var fp = _getGetFolderPicker(prompt);
 
     if (defaultDirectory) {
