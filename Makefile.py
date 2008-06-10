@@ -12,6 +12,7 @@ from os.path import join, dirname, normpath, abspath, isabs, exists, \
 import re
 import sys
 from pprint import pprint
+from collections import defaultdict
 
 from mklib import Task, Configuration, Alias, include
 from mklib import sh
@@ -43,11 +44,9 @@ class todo(Task):
         os.system('grep -nH "%s" "%s"' % (pattern, path))
 
 
-class lscolornames(Task):
-    """List color names used in the Mozilla toolkit themes."""
+class lscolors(Task):
+    """List colors used in the Mozilla toolkit themes."""
     def make(self):
-        print self.cfg.mozBin
-        print self.cfg.mozSrc
         themes_dir = join(self.cfg.mozSrc, "mozilla", "toolkit", "themes")
         
         color_names = set()
@@ -70,3 +69,58 @@ class lscolornames(Task):
                 color = color.rsplit(None, 1)[0]
             yield color
 
+
+class lsunusedentities(Task):
+    """List unused entities in Komodo's chrome/locale/en-US.
+    
+    This isn't yet doing the match up of which XUL files pull in which
+    DTD files, so the results aren't perfect.
+    """
+    dtd_paths_from_entity = None
+    duplicate_entities = None
+    
+    def make(self):
+        en_us_dir = join(dirname(__file__), "src", "chrome", "komodo",
+                         "locale", "en-US")
+        content_dir = join(dirname(__file__), "src", "chrome", "komodo",
+                           "content")
+        
+        entities = self.entities_from_locale_dir(en_us_dir)
+        if self.duplicate_entities:
+            self.log.warn("have %d entities with the same name",
+                          len(self.duplicate_entities))
+
+        entity_use_re = re.compile("&(.*?);")
+        for xul_path in utils.paths_from_path_patterns(
+                            [content_dir], includes=["*.xul"]):
+            xul = open(xul_path, 'r').read()
+            for entity in entity_use_re.findall(xul):
+                entities.discard(entity)
+        for entity in entities:
+            print entity
+        if entities:
+            self.log.info("%d unused entities", len(entities))
+    
+    def entities_from_locale_dir(self, locale_dir):
+        self.duplicate_entities = set()
+        self.dtd_paths_from_entity = defaultdict(set)
+        entities = set()
+        for dtd_path in utils.paths_from_path_patterns(
+                            [locale_dir], includes=["*.dtd"]):
+            for entity in self._entities_from_dtd_path(dtd_path):
+                self.dtd_paths_from_entity[entity].add(dtd_path)
+                if entity in entities:
+                    self.duplicate_entities.add(entity)
+                    #self.log.warn("duplicate entity: %r (one defn in `%s')",
+                    #              entity, dtd_path)
+                else:
+                    entities.add(entity)
+        return entities
+    
+    _dtd_entity_re = re.compile('<!ENTITY ([\.\w]+) ".*?">')
+    def _entities_from_dtd_path(self, dtd_path):
+        #print "\n-- ", dtd_path
+        dtd = open(dtd_path, 'r').read()
+        for hit in self._dtd_entity_re.findall(dtd):
+            #print hit
+            yield hit
