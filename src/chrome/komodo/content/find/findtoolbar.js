@@ -267,7 +267,6 @@ function Findtoolbar_FindFilesKeyPress(field, event) {
                     gFindFilesTextboxContext.cwd = ko.window.getCwd();
                     Find_FindAllInFiles(window,
                                         gFindFilesTextboxContext,
-                                        findTerm,
                                         findTerm);
                 }
                 event.stopPropagation();

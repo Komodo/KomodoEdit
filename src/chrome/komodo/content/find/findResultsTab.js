@@ -49,28 +49,6 @@ var gFindResultsView_Bound = false; // Is the nsITreeView instance is bound to
                                     // the find results <tree>.
 
 
-//---- internal utility routines
-
-function _OptionDesc(options, pattern)
-{
-    var optionDesc = "";
-    if (options.matchWord) {
-        optionDesc += " Match whole word.";
-    }
-    if (options.caseSensitivity == options.FOC_SENSITIVE
-        ||
-         (
-           options.caseSensitivity == options.FOC_SMART
-           &&
-           pattern.toLowerCase() != pattern
-         )
-       )
-    {
-        optionDesc += " Match case.";
-    }
-    return optionDesc;
-}
-
 
 //---- the new FindResultsTab functionality (new ones are created on the fly)
 //
@@ -631,7 +609,7 @@ FindResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
     var baseDesc = descWidget.getAttribute("baseDesc");
     var desc;
     if (subDesc) {
-        desc = subDesc + " (" + baseDesc + ")";
+        desc = subDesc + " " + baseDesc;
     } else {
         desc = baseDesc;
     }
@@ -669,7 +647,7 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
         throw("illegal tense value: '"+tense+"'");
     }
     if (!this._patternAlias) {
-        baseDesc += "occurrences of '" + this._pattern + "'";
+        baseDesc += "occurrences of " + this._options.searchDescFromPattern(this._pattern);
     } else {
         baseDesc += this._patternAlias;
     }
@@ -695,7 +673,6 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
     } else {
         baseDesc += " in "+this.context_.name+".";
     }
-    baseDesc += _OptionDesc(this._options, this._pattern);
     return baseDesc;
 }
 

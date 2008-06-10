@@ -1073,6 +1073,26 @@ class KoFindOptions:
         self.confirmReplacementsInFiles = value
         return gPrefSvc.prefs.setBooleanPref(self.confirmReplacementsInFilesPrefName, value)
 
+    def searchDescFromPattern(self, pattern):
+        opts = []
+        if self.matchWord:
+            opts.append("match whole word")
+        if self.patternType == FOT_REGEX_PYTHON:
+            bits = ["/", pattern.replace("/", "\\/"), "/"]
+            if (self.caseSensitivity == FOC_INSENSITIVE
+                or (self.caseSensitivity == FOC_SMART
+                    and pattern.lower() == pattern)):
+                bits.append('i')
+            bits.append('m')
+        else:
+            bits = ["'", pattern, "'"]
+            if (self.caseSensitivity == FOC_SENSITIVE
+                or (self.caseSensitivity == FOC_SMART
+                    and pattern.lower() != pattern)):
+                opts.append("match case")
+        if opts:
+            bits += [" ", "(%s)" % ", ".join(opts)]
+        return ''.join(bits)
 
 class KoFindService(object):
     _com_interfaces_ = components.interfaces.koIFindService

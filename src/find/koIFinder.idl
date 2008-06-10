@@ -225,6 +225,10 @@ interface koIFindOptions: nsISupports {
     // Other stuff:
     attribute boolean multiline;
     attribute boolean confirmReplacementsInFiles;
+    
+    // Return a string description of the search. E.g., if this
+    // is a regex search then the result might be 'foo' -> '/foo/i'
+    wstring searchDescFromPattern(in wstring pattern);
 };
 
 
