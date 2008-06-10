@@ -433,8 +433,8 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
     var doc = this.docSvc.createDocumentFromURI(uri);
     var view = null;
     if (! doc.file.exists) {
-        if (ko.dialogs.yesNo("The file " + doc.file.displayPath +
-                         " does not exist.  Do you want to create it?") == "No") {
+        if (ko.dialogs.yesNo("The file '" + doc.file.displayPath +
+                         "' does not exist.  Do you want to create it?") == "No") {
             return null;
         } else {
             var sysUtils = Components.classes["@activestate.com/koSysUtils;1"]

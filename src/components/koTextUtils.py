@@ -55,3 +55,6 @@ class KoTextUtils(object):
     def one_line_summary_from_text(self, text, length):
         return textutils.one_line_summary_from_text(text, length)
 
+    def break_up_words(self, text, max_word_length):
+        return textutils.break_up_words(text, max_word_length)
+

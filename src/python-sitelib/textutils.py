@@ -124,6 +124,33 @@ def one_line_summary_from_text(text, length=78,
     return summary
 
 
+# Recipe: break_up_words (1.0)
+def break_up_words(text, max_word_length=50):
+    """Break up words(*) in the given string so no word is longer than
+    `max_word_length`.
+    
+    Here a "word" means any consecutive string of characters not separated
+    by whitespace.
+    
+    @param text {str} The string in which to break up words.
+    @param max_length {int} The max word length. Default is 50.
+    """
+    import re
+    bit_is_word = True
+    bits = []
+    for bit in re.split("(\s+)", text):
+        if bit_is_word:
+            while len(bit) > max_word_length:
+                head, bit = bit[:max_word_length], bit[max_word_length:]
+                bits.append(head)
+                bits.append(' ')
+            bits.append(bit)
+        else:
+            bits.append(bit)
+        bit_is_word = not bit_is_word
+    return ''.join(bits)
+
+
 
 #---- self-test
 

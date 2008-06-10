@@ -65,7 +65,7 @@ var gDoNotAskUI = false; // true iff "Don't ask me again" UI is being used.
 
 function OnLoad()
 {
-    var dialog = document.getElementById("dialog-yesno")
+    var dialog = document.getElementById("dialog-yesno");
     var yesButton = dialog.getButton("accept");
     var noButton = dialog.getButton("extra1");
     yesButton.setAttribute("label", "Yes");
@@ -77,6 +77,9 @@ function OnLoad()
     var descWidget = document.getElementById("prompt");
     var desc = window.arguments[0].prompt;
     if (typeof desc != "undefined" && desc != null) {
+        var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
+                            .getService(Components.interfaces.koITextUtils);
+        desc = textUtils.break_up_words(desc, 50);
         var textNode = document.createTextNode(desc);
         descWidget.appendChild(textNode);
     } else {
