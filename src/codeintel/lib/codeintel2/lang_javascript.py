@@ -2211,10 +2211,8 @@ class JavaScriptCiler:
             if isinstance(toScope, JSFunction):
                 toScope = self._convertFunctionToClass(toScope)
         # Add it to scope if it's not already in there
-        v =  toScope.variables.get(varName)
-        if not v:
-            v = toScope.addVariable(varName, self.lineno, self.depth, "Object",
-                                    doc=doc, isLocal=isLocal)
+        v = toScope.addVariable(varName, self.lineno, self.depth, ["Object"],
+                                doc=doc, isLocal=isLocal)
         self.currentScope = v
 
     def addReturnObject(self, doc=None):
