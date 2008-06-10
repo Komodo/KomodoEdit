@@ -70,6 +70,9 @@ function OnLoad()
     var descWidget = document.getElementById("prompt");
     var desc = window.arguments[0].prompt;
     if (typeof desc != "undefined" && desc != null) {
+        var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
+                            .getService(Components.interfaces.koITextUtils);
+        desc = textUtils.break_up_words(desc, 50);
         var textNode = document.createTextNode(desc);
         descWidget.appendChild(textNode);
     } else {

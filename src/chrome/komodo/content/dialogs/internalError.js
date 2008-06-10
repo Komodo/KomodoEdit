@@ -76,6 +76,9 @@ function OnLoad()
 
         // error
         var errorWidget = document.getElementById("error");
+        var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
+                            .getService(Components.interfaces.koITextUtils);
+        error = textUtils.break_up_words(error, 50);
         var textNode = document.createTextNode(error);
         errorWidget.appendChild(textNode);
 

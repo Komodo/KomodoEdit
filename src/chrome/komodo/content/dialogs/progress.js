@@ -87,6 +87,9 @@ function OnLoad()
     var promptWidget = document.getElementById("prompt");
     var prompt = window.arguments[0].prompt;
     if (typeof prompt != "undefined" && prompt != null) {
+        var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
+                            .getService(Components.interfaces.koITextUtils);
+        prompt = textUtils.break_up_words(prompt, 50);
         var textNode = document.createTextNode(prompt);
         promptWidget.appendChild(textNode);
     } else {
