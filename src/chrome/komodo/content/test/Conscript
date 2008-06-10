@@ -44,6 +44,9 @@ Import(
     "buildFlavour",
     "unsiloedPythonExe",
 );
+
+$cons->InstallInChrome("overlay.xul");
+
 $cons->InstallInChrome("test_scimoz.xul");
 $cons->InstallInChrome("test_scimoz.js");
 $cons->InstallInChrome("test_firefoxAutoComplete.xul");

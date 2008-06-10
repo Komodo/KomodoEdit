@@ -57,6 +57,9 @@
 <?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
 <?xul-overlay href="chrome://komodo/content/commandsOverlay.xul"?>
+<!-- #if False and BUILD_FLAVOUR == "dev" -->
+<?xul-overlay href="chrome://komodo/content/test/overlay.xul"?>
+<!-- #endif -->
 
 
 <!-- #ifndef PP_KO_TITLE_BAR_NAME -->
@@ -1518,25 +1521,6 @@
 <!-- #endif -->
                 </menupopup>
             </menu>
-<!-- #if BUILD_FLAVOUR == "dev" -->
-            <menu
-                id="menu_developer_test"
-                label="Test"
-                accesskey="s"
-                ordinal="9997"
-                >
-                <menupopup id="popup_test">
-                    <menuitem label="Find 2"
-                              oncommand="ko.launch.find();"/>
-                    <menuitem label="Replace 2"
-                              oncommand="ko.launch.replace();"/>
-                    <menuitem label="Find in Files 2"
-                              oncommand="ko.launch.findInFiles();"/>
-                    <menuitem label="Replace in Files 2"
-                              oncommand="ko.launch.replaceInFiles();"/>
-                </menupopup>
-            </menu>
-<!-- #endif -->
 <!-- #if PLATFORM != "darwin" -->
             <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
             <hbox id="window-controls" flex="1" hidden="true" fullscreencontrol="true"
