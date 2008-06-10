@@ -812,15 +812,15 @@ class _ReplaceUndoer(threading.Thread, TreeView):
 
             self._report(flush=True)
         except findlib2.FindError, ex:
-            # Note: `_break_up_words` is a hack to ensure that the XUL
+            # Note: `break_up_words` is a hack to ensure that the XUL
             # <description> in which this message will appear doesn't
             # screw up wrapping because of a very long token.
-            self.controllerProxy.error(_break_up_words(unicode(ex)))
+            self.controllerProxy.error(textutils.break_up_words(unicode(ex)))
         except:
-            # Note: `_break_up_words` is a hack to ensure that the XUL
+            # Note: `break_up_words` is a hack to ensure that the XUL
             # <description> in which this message will appear doesn't
             # screw up wrapping because of a very long token.
-            self.controllerProxy.error(_break_up_words(
+            self.controllerProxy.error(textutils.break_up_words(
                 "unexpected error: %s" % _exc_info_summary()))
         else:
             self.controllerProxy.done()
@@ -1606,32 +1606,6 @@ def _paths_from_ko_info(options, cwd=None):
                 on_error=None,
                 follow_symlinks=True,
                 skip_dupe_dirs=True)
-
-#TODO: put in my recipes
-def _break_up_words(s, max_word_length=50):
-    """Break up words(*) in the given string so no word is longer than
-    `max_word_length`.
-    
-    Here a "word" means any consecutive string of characters not separated
-    by whitespace.
-    
-    @param s {str} The string in which to break up words.
-    @param max_length {int} The max word length. Default is 50.
-    """
-    import re
-    bit_is_word = True
-    bits = []
-    for bit in re.split("(\s+)", s):
-        if bit_is_word:
-            while len(bit) > max_word_length:
-                head, bit = bit[:max_word_length], bit[max_word_length:]
-                bits.append(head)
-                bits.append(' ')
-            bits.append(bit)
-        else:
-            bits.append(bit)
-        bit_is_word = not bit_is_word
-    return ''.join(bits)
 
 #TODO: put in a recipe, use in ifmain-template
 def _exc_info_summary():
