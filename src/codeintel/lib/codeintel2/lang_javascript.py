@@ -59,7 +59,7 @@ from SilverCity.ScintillaConstants import (
     SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD,
     SCE_C_COMMENTDOCKEYWORDERROR, SCE_C_COMMENTLINE,
     SCE_C_COMMENTLINEDOC, SCE_C_DEFAULT, SCE_C_IDENTIFIER, SCE_C_NUMBER,
-    SCE_C_OPERATOR, SCE_C_STRING, SCE_C_CHARACTER, SCE_C_WORD,
+    SCE_C_OPERATOR, SCE_C_STRING, SCE_C_CHARACTER, SCE_C_STRINGEOL, SCE_C_WORD,
     SCE_UDL_CSL_COMMENT, SCE_UDL_CSL_COMMENTBLOCK, SCE_UDL_CSL_DEFAULT,
     SCE_UDL_CSL_IDENTIFIER, SCE_UDL_CSL_NUMBER, SCE_UDL_CSL_OPERATOR,
     SCE_UDL_CSL_REGEX, SCE_UDL_CSL_STRING, SCE_UDL_CSL_WORD,
@@ -157,7 +157,7 @@ class PureJavaScriptStyleClassifier:
                                  SCE_C_COMMENTLINEDOC,
                                  SCE_C_COMMENTDOCKEYWORD,
                                  SCE_C_COMMENTDOCKEYWORDERROR)
-        self.string_styles    = (SCE_C_STRING, SCE_C_CHARACTER)
+        self.string_styles    = (SCE_C_STRING, SCE_C_CHARACTER, SCE_C_STRINGEOL)
         self.whitespace_style = SCE_C_DEFAULT
         self.ignore_styles    = self.comment_styles + (self.whitespace_style, )
 
@@ -306,7 +306,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if DEBUG:
                 print "No jsdoc, ran out of characters to look at."
 
-        elif last_char not in ".(":
+        elif last_char not in self.trg_chars:
             # Check if this could be a 'complete-names' trigger, this is
             # an implicit 3-character trigger i.e. " win<|>" or an explicit
             # trigger on 3 or more characters. We cannot support less than than
@@ -377,7 +377,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                    "names", last_pos - 2, implicit,
                                    citdl_expr="".join(reversed(citdl_expr)))
             if DEBUG:
-                print "trg_from_pos: no: %r is not in '.('" % last_char
+                print "trg_from_pos: no: %r is not in %r" % (
+                                last_char, "".join(self.trg_chars), )
             return None
 
         elif last_style == jsClassifier.operator_style:
