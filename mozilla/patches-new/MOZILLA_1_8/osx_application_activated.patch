@@ -1,0 +1,136 @@
+Index: widget/src/mac/nsMacMessagePump.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/mac/Attic/nsMacMessagePump.cpp,v
+retrieving revision 1.148.8.5
+diff -u -r1.148.8.5 widget/src/mac/nsMacMessagePump.cpp
+--- widget/src/mac/nsMacMessagePump.cpp	30 May 2006 19:34:01 -0000	1.148.8.5
++++ widget/src/mac/nsMacMessagePump.cpp	15 May 2008 20:37:09 -0000
+@@ -52,6 +52,9 @@
+ #include "nsGUIEvent.h"
+ #include "nsMacTSMMessagePump.h"
+ #include "nsToolkit.h"
++#include "nsServiceManagerUtils.h"
++#include "nsISupportsPrimitives.h"
++#include "nsIObserverService.h"
+ 
+ #include <Carbon/Carbon.h>
+ 
+@@ -68,6 +71,7 @@
+ nsMacMessagePump::nsMacMessagePump(nsToolkit *aToolkit)
+ : mToolkit(aToolkit)
+ , mMouseClickEventHandler(NULL)
++, mAppEventHandler(NULL)
+ , mWNETransitionEventHandler(NULL)
+ , mProcessEvents(PR_FALSE)
+ {
+@@ -121,6 +125,22 @@
+                                     &mMouseClickEventHandler);
+   NS_ASSERTION(err == noErr, "Could not install MouseClickEventHandler");
+ 
++  const EventTypeSpec kAppEventList[] = {
++    { kEventClassApplication, kEventAppFrontSwitched },
++  };
++
++  static EventHandlerUPP sAppEventHandlerUPP;
++  if (!sAppEventHandlerUPP)
++    sAppEventHandlerUPP = ::NewEventHandlerUPP(AppEventHandler);
++
++  err =
++   ::InstallApplicationEventHandler(sAppEventHandlerUPP,
++                                    GetEventTypeCount(kAppEventList),
++                                    kAppEventList,
++                                    NS_STATIC_CAST(void*, this),
++                                    &mAppEventHandler);
++  NS_ASSERTION(err == noErr, "Could not install AppEventHandler");
++
+   //
+   // create the TSM Message Pump
+   //
+@@ -130,6 +150,9 @@
+ 
+ nsMacMessagePump::~nsMacMessagePump()
+ {
++  if (mAppEventHandler)
++    ::RemoveEventHandler(mAppEventHandler);
++
+   if (mMouseClickEventHandler)
+     ::RemoveEventHandler(mMouseClickEventHandler);
+ 
+@@ -441,6 +470,51 @@
+ }
+ 
+ pascal OSStatus
++nsMacMessagePump::AppEventHandler(EventHandlerCallRef inHandlerCallRef,
++                                  EventRef inEvent,
++                                  void *inUserData)
++{
++  OSStatus result = eventNotHandledErr;
++  UInt32 eventClass = GetEventClass(inEvent);
++  UInt32 eventKind = GetEventKind(inEvent);
++
++  // We only handle active app chnaged events...
++  if ((eventClass == kEventClassApplication) && (eventKind == kEventAppFrontSwitched))
++  {
++    ProcessSerialNumber fp;
++    ProcessSerialNumber psn;
++    result = ::GetCurrentProcess(&psn);
++    if (result != noErr)
++        return result;
++
++    // Get the new process ID out
++    if (GetEventParameter(inEvent, kEventParamProcessID,
++                          typeProcessSerialNumber, NULL,
++                          sizeof(ProcessSerialNumber), NULL,
++                          &fp) == noErr)
++    {
++      bool samePsn = psn.lowLongOfPSN == fp.lowLongOfPSN &&
++                      psn.highLongOfPSN == fp.highLongOfPSN;
++      nsCOMPtr<nsISupportsPRBool> focusing =
++        do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++      focusing->SetData(samePsn);
++
++      nsCOMPtr<nsIObserverService> obsServ =
++        do_GetService("@mozilla.org/observer-service;1");
++
++      if (!obsServ)
++        return result;
++      obsServ->NotifyObservers(focusing, "application-activated", nsnull);
++    }
++    
++    // Tell the dispatcher that we handled the event...
++    result = noErr;
++  }
++  
++  return result;
++}
++
++pascal OSStatus
+ nsMacMessagePump::MouseClickEventHandler(EventHandlerCallRef aHandlerCallRef,
+                                          EventRef            aEvent,
+                                          void*               aUserData)
+Index: widget/src/mac/nsMacMessagePump.h
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/mac/Attic/nsMacMessagePump.h,v
+retrieving revision 1.35.12.3
+diff -u -r1.35.12.3 widget/src/mac/nsMacMessagePump.h
+--- widget/src/mac/nsMacMessagePump.h	30 May 2006 19:34:01 -0000	1.35.12.3
++++ widget/src/mac/nsMacMessagePump.h	15 May 2008 20:37:09 -0000
+@@ -70,6 +70,10 @@
+ 
+     PRBool DispatchOSEventToRaptor(EventRecord &anEvent, WindowPtr aWindow);
+ 
++    static pascal OSStatus AppEventHandler(
++                                           EventHandlerCallRef aHandlerCallRef,
++                                           EventRef            aEvent,
++                                           void*               aUserData);
+     static pascal OSStatus MouseClickEventHandler(
+                                            EventHandlerCallRef aHandlerCallRef,
+                                            EventRef            aEvent,
+@@ -82,6 +86,7 @@
+   protected:
+     nsToolkit*           mToolkit;
+     nsMacTSMMessagePump* mTSMMessagePump;
++    EventHandlerRef      mAppEventHandler;
+     EventHandlerRef      mMouseClickEventHandler;
+     EventHandlerRef      mWNETransitionEventHandler;
+     PRPackedBool         mProcessEvents;
