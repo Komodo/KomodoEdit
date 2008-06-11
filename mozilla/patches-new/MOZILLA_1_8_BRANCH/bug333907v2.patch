@@ -137,7 +137,7 @@ diff -d -u -r3.569.2.45 nsWindow.cpp
  #if defined(DEBUG_ftang)
  //#define KE_DEBUG
  //#define DEBUG_IME
-@@ -5502,6 +5509,40 @@
+@@ -5389,6 +5396,61 @@
      nsMemory::HeapMinimize(PR_TRUE);
      break;
  #endif
@@ -175,10 +175,30 @@ diff -d -u -r3.569.2.45 nsWindow.cpp
 +        appService->Quit(nsIAppShutdown::eForceQuit);
 +    }
 +    break;
++    case WM_ACTIVATEAPP:
++      {
++        if (mWindowType == eWindowType_toplevel) {
++            result = TRUE;
++            *aRetValue = result;
++            nsCOMPtr<nsISupportsPRBool> focusing =
++              do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++            focusing->SetData(wParam);
++     
++            nsCOMPtr<nsIObserverService> obsServ =
++              do_GetService("@mozilla.org/observer-service;1");
++     
++            if (obsServ)
++              obsServ->NotifyObservers(focusing, "application-activated", nsnull);
++        } else {
++            result = FALSE;
++            *aRetValue = result;
++        }
++      }
++      break;
++
      default:
      {
        // Handle both flavors of mouse wheel events.
-
 Index: toolkit/components/build/nsToolkitCompsModule.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/toolkit/components/build/nsToolkitCompsModule.cpp,v
