@@ -59,6 +59,8 @@ except ImportError:
     import textinfo
 import difflibex
 
+import warnings
+warnings.simplefilter("ignore", textinfo.ChardetImportWarning) # bug 77562
 
 
 #---- exceptions and globals
