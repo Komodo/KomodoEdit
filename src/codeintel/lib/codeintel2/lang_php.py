@@ -1304,12 +1304,13 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropped '$' It gets in the way of common usage: "$this->$"
     # - dropped '\\' I could find no common use of "\" following func/variable
     # - dropped '?' It gets in the way of common usage: "<?php "
+    # - dropped '/', it gets in the way of "</" closing an XML/HTML tag
     # - dropped ' ' It gets in the way of common usage: "function ". This char
     #               could be re-instated once bug 77532 is fixed.
     # Bug references:
     #   http://bugs.activestate.com/show_bug.cgi?id=77524
     #   http://bugs.activestate.com/show_bug.cgi?id=77532
-    cpln_fillup_chars = "~`!%^&*()-=+{}[]|;:'\",.<>/"
+    cpln_fillup_chars = "~`!%^&*()-=+{}[]|;:'\",.<>"
     #TODO: c.f. cpln_stop_chars stuff in lang_html.py
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
     # - dropping '#' because we need it for $form['#foo']
