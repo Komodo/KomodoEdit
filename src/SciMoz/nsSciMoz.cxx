@@ -540,15 +540,19 @@ void SciMoz::Notify(long lParam) {
 			int currentPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
 			int curLine = SendEditor(SCI_LINEFROMPOSITION, currentPos, 0);
 			int firstVisibleLine = SendEditor(SCI_GETFIRSTVISIBLELINE, 0, 0);
+			int curVisibleLine = SendEditor(SCI_VISIBLEFROMDOCLINE, curLine, 0);
 			int linesOnScreen = SendEditor(SCI_LINESONSCREEN, 0, 0);
-			int ySlop, top, bottom;
+			int lastVisibleLine = firstVisibleLine + linesOnScreen;
+			// SendEditor(SCI_DOCLINEFROMVISIBLE, firstHiddenVisibleLine + linesOnScreen, 0);
+			int curSmallerYMargin;
 
-			top = curLine - firstVisibleLine;
-			bottom = firstVisibleLine + linesOnScreen - curLine;
-			ySlop = SCIMIN(_ySlop, top);
-			ySlop = SCIMIN(ySlop, bottom);
-			if (_ySlop != ySlop) {
-				SendEditor(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_EVEN, ySlop);
+			int linesFromTop = curVisibleLine - firstVisibleLine;
+			int linesFromBottom = lastVisibleLine - curVisibleLine;
+			// _ySlop: current buffer's _ySlop
+			curSmallerYMargin = SCIMIN(_ySlop, linesFromTop);
+			curSmallerYMargin = SCIMIN(curSmallerYMargin, linesFromBottom);
+			if (_ySlop > curSmallerYMargin) {
+				SendEditor(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_EVEN, curSmallerYMargin);
 			}
 			}
 #else
