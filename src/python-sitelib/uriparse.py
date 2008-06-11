@@ -115,22 +115,15 @@ def pathToURI(path):
         mutex.release()
 
 def _normalizedPathToURI(localPath, koFileEx):
-    fixedPath = os.path.normpath(localPath);
+    fixedPath = os.path.normpath(localPath)
+    if localPath and fixedPath != localPath:
+        # Preserve trailing slash (Bug 77205).
+        trailingSlash = localPath[-1]
+        if trailingSlash in '\\/' and not fixedPath[-1] in '\\/':
+            fixedPath += trailingSlash
     if fixedPath != localPath:
-        if koFileEx.isDirectory:
-            # Bug 77205: Mapped URIs where the local part ends with a slash
-            # lose that trailing slash due to normpath.
-            endsWithSlash_re = re.compile('([\\/])$')
-            m = endsWithSlash_re.search(localPath)
-            if m:
-                trailingSlash = str(m.groups(1))
-                if trailingSlash and not endsWithSlash_re.search(fixedPath):
-                    fixedPath += trailingSlash
-            if fixedPath != localPath:
-                koFileEx.path = fixedPath
-        else:
-            koFileEx.path = fixedPath
-    return koFileEx.URI;
+        koFileEx.path = fixedPath
+    return koFileEx.URI
 
 # Get the local file path for the given URI.
 #

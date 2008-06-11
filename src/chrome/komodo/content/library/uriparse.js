@@ -73,6 +73,28 @@ function _getKoFileEx() {
     return _koFileEx;
 }
 
+function _lastChar(s) {
+    return s ? s[s.length - 1] : "";
+}
+
+function _isSlashChar(c) {
+    return "/\\".indexOf(c) >= 0;
+}
+
+function _normalizedPathToURI(localPath, koFileEx) {
+    var fixedPath = _osPathSvc.normpath(localPath);
+    if (fixedPath != localPath) {
+        var trailingSlash = _lastChar(localPath);
+        if (_isSlashChar(trailingSlash) && !_isSlashChar(_lastChar(fixedPath))) {
+            fixedPath += trailingSlash;
+        }
+        if (fixedPath != localPath) {
+            koFileEx.path = fixedPath;
+        }
+    }
+    return koFileEx.URI;
+};
+
 
 /**
  * Get the URI representation of the given local file path.
@@ -95,29 +117,8 @@ this.localPathToURI = function(localPath) {
         // ...then this was not a proper local path (probably a URI)
         throw("'"+localPath+"' does not appear to be a proper local path");
     }
-    return this._normalizedPathToURI(localPath, koFileEx);
+    return _normalizedPathToURI(localPath, koFileEx);
 }
-
-this._normalizedPathToURI = function(localPath, koFileEx) {
-    var fixedPath = _osPathSvc.normpath(localPath);
-    if (fixedPath != localPath) {
-        if (koFileEx.isDirectory) {
-            // Bug 77205: Mapped URIs where the local part ends with a slash
-            // lose that trailing slash due to normpath.
-            var endsWithSlash_re = /([\\\/])$/;
-            var trailingSlash = endsWithSlash_re.test(localPath) ? RegExp.$1 : "";
-            if (trailingSlash && !endsWithSlash_re.test(fixedPath)) {
-                fixedPath += trailingSlash;
-            }
-            if (fixedPath != localPath) {
-                koFileEx.path = fixedPath;
-            }
-        } else {
-            koFileEx.path = fixedPath;
-        }
-    }
-    return koFileEx.URI;
-};
 
 
 /**
@@ -153,7 +154,7 @@ this.pathToURI = function(path) {
     // Normalize paths, but don't try to change case.
     // Lookup routines like findViewsForURI and getViewsByTypeAndURI
     // in views.unprocessed.xml need to ignore case when appropriate.
-    return this._normalizedPathToURI(path, koFileEx);
+    return _normalizedPathToURI(path, koFileEx);
 }
 
 /**
