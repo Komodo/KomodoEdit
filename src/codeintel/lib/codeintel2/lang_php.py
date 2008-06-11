@@ -2730,7 +2730,8 @@ class PHPParser:
                                           doc=self.comment)
                 elif classVar and self.currentClass is not None:
                     self.addClassMember(name, ".".join(typeNames),
-                                        attributes=attributes, doc=self.comment)
+                                        attributes=attributes, doc=self.comment,
+                                        forceToClass=classVar)
                 else:
                     self.addVariable(name, ".".join(typeNames),
                                      attributes=attributes, doc=self.comment)
