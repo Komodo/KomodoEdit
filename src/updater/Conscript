@@ -1,0 +1,14 @@
+#!/usr/local/bin/perl -w
+# Copyright (c) 2000-2008 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    "cons",
+    "build",
+    "platform",
+    "buildType",
+    "buildFlavour",
+    "mozBin",
+);
+
+$cons->Install($mozBin, "updater.ini");

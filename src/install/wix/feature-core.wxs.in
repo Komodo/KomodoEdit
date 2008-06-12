@@ -373,6 +373,7 @@
             <File Id="file1284" Name="PYWINT_1.DLL" LongName="pywintypes25.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pywintypes25.dll"/>
             <File Id="file338" Name="regxpcom.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\regxpcom.exe"/>
             <File Id="file340" Name="SciLexer.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\SciLexer.dll"/>
+            <File Id="file458" Name="updater.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.ini" />
             <File Id="file341" Name="updater.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.exe"/>
             <File Id="file343" Name="w9xpopen.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\w9xpopen.exe"/>
             <File Id="file344" Name="winEmbed.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\winEmbed.exe"/>

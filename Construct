@@ -350,6 +350,7 @@ Build(
     "$build/udl/Conscript",
     "$build/prefs/Conscript",
     "$build/templates/Conscript",
+    "$build/updater/Conscript",
     "$build/views/Conscript",
     "prebuilt/Conscript",
       
