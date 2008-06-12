@@ -179,8 +179,8 @@
                 <File Id="file4420" Name="CODEI_28.GIF" LongName="codeintel_scope.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_scope.gif"/>
                 <File Id="file4422" Name="CODEI_30.GIF" LongName="codeintel_sort.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_sort.gif"/>
                 <File Id="file4692" Name="code_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\code_tab.gif"/>
-                <File Id="file590" LongName="column_select.png" Name="COLUMN_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_select.png" />
-                <File Id="file598" LongName="column_edit.png" Name="COLUMN_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_edit.png" />
+                <File Id="file459" LongName="column_select.png" Name="COLUMN_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_select.png" />
+                <File Id="file460" LongName="column_edit.png" Name="COLUMN_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_edit.png" />
                 <File Id="file302" Name="dom_tab.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\dom_tab.png" />
                 <File Id="file4696" Name="EDITOR_4.GIF" LongName="editor_autocomp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_autocomp.gif"/>
                 <File Id="file4697" Name="EDITOR_5.GIF" LongName="editor_calltips.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_calltips.gif"/>
