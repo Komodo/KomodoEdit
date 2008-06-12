@@ -48,6 +48,8 @@ import citestsupport
 
 log = logging.getLogger("test")
 
+default_tags = ["-knownfailure", "-xpcom"]
+
 def _skip_setup():
     TEST_SKIP_SETUP = os.environ.get("TEST_SKIP_SETUP", "0")
     return TEST_SKIP_SETUP not in ('0', '')
@@ -60,6 +62,7 @@ def setup():
         citestsupport.rmtree(citestsupport.test_db_base_dir)
 
 if __name__ == "__main__":
-    retval = testlib.harness(setup_func=setup)
+    retval = testlib.harness(setup_func=setup,
+                             default_tags=default_tags)
     sys.exit(retval)
 

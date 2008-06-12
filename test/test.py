@@ -51,6 +51,7 @@ testdir_from_ns = {
     "pyxpcom": "pyxpcom",
     "ci": join("..", "src", "codeintel", "test2"),
 }
+default_tags = ["-knownfailure"]
 
 
 def setup():
@@ -77,6 +78,7 @@ def setup():
 
 if __name__ == "__main__":
     retval = testlib.harness(testdir_from_ns=testdir_from_ns,
-                             setup_func=setup)
+                             setup_func=setup,
+                             default_tags=default_tags)
     sys.exit(retval)
 
