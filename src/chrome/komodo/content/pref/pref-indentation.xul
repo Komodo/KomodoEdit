@@ -154,14 +154,14 @@ function changeNewLanguage(item, name)  {
 
     // store old data
     if (curLang) {
-        curLang.useTabs = document.getElementById('useTabsLang').value;
+        curLang.useTabs = document.getElementById('useTabsLang').checked;
         curLang.tabWidth = document.getElementById('tabWidthLang').value;
         curLang.indentWidth = document.getElementById('indentWidthLang').value;
     }
     curLang = getPrefsForLanguage(name);
 
     // set new data
-    document.getElementById('useTabsLang').value = curLang.useTabs;
+    document.getElementById('useTabsLang').checked = curLang.useTabs;
     document.getElementById('tabWidthLang').value = curLang.tabWidth;
     document.getElementById('indentWidthLang').value = curLang.indentWidth;
 }
