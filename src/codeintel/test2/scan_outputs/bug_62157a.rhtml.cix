@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="RHTML" mtime="42" path="scan_inputs/bug_62157a.rhtml">
-    <scope ilk="blob" lang="Ruby" name="bug_62157a.rhtml">
+    <scope ilk="blob" lang="Ruby" name="bug_62157a.rhtml" src="scan_inputs/bug_62157a.rhtml">
       <import line="2" module="net/http" symbol="*" />
       <variable attributes="__local__" citdl="Net::HTTP::Get" line="3" name="getter" />
       <variable attributes="__local__" line="4" name="res" />
