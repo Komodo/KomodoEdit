@@ -2456,7 +2456,7 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("require('myfile.php');\nfo<|>o->bar", "foo")
 
     def test_simple(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_defn_simple")
         foo_content, foo_positions = unmark_text(php_markup(dedent("""\
             function test1($i) {
                 $b = 0;
@@ -2476,7 +2476,7 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="function", name="test1", line=1, path=path, )
 
     def test_simple_import(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_simple_import")
         foo_content, foo_positions = unmark_text(php_markup(dedent("""\
             require('bar.php');
             $a = $b<1>ar;
@@ -2507,7 +2507,7 @@ class DefnTestCase(CodeIntelTestCase):
 
     #@tag("knownfailure")
     #def test_simple_import(self):
-    #    test_dir = join(self.test_dir, "test_defn")
+    #    test_dir = join(self.test_dir, "test_simple_import")
     #    foo_content, foo_positions = unmark_text(php_markup(dedent("""\
     #        require('bar.php');
     #        $a = $b<1>ar;
