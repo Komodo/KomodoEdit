@@ -472,12 +472,14 @@
         <![CDATA[
             if (!this.document || !this.document.differentOnDisk()) return;
             var baseName = this.document.baseName;
+            var title;
+            var prompt;
             if (this.document.isDirty) {
-                var prompt = 'The file ' + baseName + ' is unsaved, and the ' +
+                prompt = 'The file ' + baseName + ' is unsaved, and the ' +
 		         'file changed on disk.  You can use '+
                          '"Show Unsaved Changes" to view a diff of the ' +
 			 'changes, revert or save your changes.';
-                var title = 'Current unsaved buffer has changed on disk';
+                title = 'Current unsaved buffer has changed on disk';
                 if (this.prefs.getBooleanPref("donotask_buffer_conflicts_with_file_on_disk")) return;
                 var choice = ko.dialogs.customButtons(
                     prompt,
@@ -490,12 +492,21 @@
                 }
                 return;
             }
-            if (ko.dialogs.yesNo("The file " + baseName + " has changed, would you like to reload the file?",
-                             "Yes" /* default button */,
-                             null /* additional text */,
-                             null /* title */,
-                             "reload_changed_files" /* doNotAsk pref */
-                             ) == "Yes") {
+
+            // The 'reload_changed_files' pref is also used in the views.js
+            // code. Both calls must use the same dialog type 'selectFromList'
+            // to ensure that the pref value remains consistent. See bug:
+            // http://bugs.activestate.com/show_bug.cgi?id=77900
+            title = 'Reload Changed Files';
+            prompt = 'Some open files and/or projects have changed on '+
+                     'disk, do you want to reload them?';
+            var items = ko.dialogs.selectFromList(title,
+                                              prompt,
+                                              [this.document.file.displayPath],
+                                              'zero-or-more',
+                                              null,
+                                             'reload_changed_files');
+            if (items != null && items.length > 0) {
                 this.revertUnconditionally();
             } else {
                 this.document.isDirty = true;
