@@ -48,7 +48,7 @@
 # - See the optparse "TODO" below.
 # - Make the quiet option actually quiet.
 
-__version_info__ = (0, 6, 0)
+__version_info__ = (0, 6, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 
@@ -238,14 +238,15 @@ def testmods_from_testdir(testdir):
         log.debug("import test module '%s'", testmod_path)
         try:
             iinfo = imp.find_module(testmod_name, [dirname(testmod_path)])
-            sys.path.insert(0, testdir)
+            testabsdir = abspath(testdir)
+            sys.path.insert(0, testabsdir)
             old_dir = os.getcwd()
             os.chdir(testdir)
             try:
                 testmod = imp.load_module(testmod_name, *iinfo)
             finally:
                 os.chdir(old_dir)
-                sys.path.remove(testdir)
+                sys.path.remove(testabsdir)
         except TestSkipped, ex:
             log.warn("'%s' module skipped: %s", testmod_name, ex)
         except Exception, ex:
