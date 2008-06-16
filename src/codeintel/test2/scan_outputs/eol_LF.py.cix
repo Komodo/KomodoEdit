@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs\eol_LF.py">
-    <scope ilk="blob" lang="Python" name="eol_LF">
+  <file lang="Python" mtime="42" path="scan_inputs/eol_LF.py">
+    <scope ilk="blob" lang="Python" name="eol_LF" src="scan_inputs/eol_LF.py">
       <import line="4" module="sys" />
       <import line="4" module="time" />
       <import line="5" module="thread" />

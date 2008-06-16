@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs\fancy_default_args.py">
-    <scope ilk="blob" lang="Python" name="fancy_default_args">
+  <file lang="Python" mtime="42" path="scan_inputs/fancy_default_args.py">
+    <scope ilk="blob" lang="Python" name="fancy_default_args" src="scan_inputs/fancy_default_args.py">
       <import line="2" module="os" />
       <import line="3" module="re" />
       <variable citdl="int" line="5" name="BLAH" />

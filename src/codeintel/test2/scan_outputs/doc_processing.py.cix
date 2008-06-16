@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs\doc_processing.py">
-    <scope doc="This is the summary line for this module. So is this." ilk="blob" lang="Python" name="doc_processing">
+  <file lang="Python" mtime="42" path="scan_inputs/doc_processing.py">
+    <scope doc="This is the summary line for this module. So is this." ilk="blob" lang="Python" name="doc_processing" src="scan_inputs/doc_processing.py">
       <scope doc="Read s characters, or the rest of the string" ilk="function" line="14" lineend="16" name="read" signature="read([s])">
         <variable ilk="argument" name="s" />
       </scope>

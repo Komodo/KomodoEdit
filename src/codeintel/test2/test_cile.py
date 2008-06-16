@@ -188,10 +188,13 @@ def _testOneInputFile(self, fpath):
             normed_infile = normed_infile.replace('\\', '/')
             for file_elem in tree:
                 file_elem.set("path", normed_infile)
-                for scope_elem in file_elem:
-                    if scope_elem.get("ilk") != "blob": continue
-                    if scope_elem.get("src") == infile.replace('\\', '/'):
-                        scope_elem.set("src", normed_infile)
+                for blob_elem in file_elem:
+                    if blob_elem.get("ilk") != "blob": continue
+                    norm_src = os.path.normpath(blob_elem.get("src"))
+                    if sys.platform == "win32":
+                        norm_src = norm_src.replace('\\', '/')
+                    if norm_src == normed_infile:
+                        blob_elem.set("src", norm_src)
 
             tree = pretty_tree_from_tree(tree)
             cix = ET.tostring(tree)

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs\sample.py">
-    <scope doc="This is a module doc string." ilk="blob" lang="Python" name="sample">
+  <file lang="Python" mtime="42" path="scan_inputs/sample.py">
+    <scope doc="This is a module doc string." ilk="blob" lang="Python" name="sample" src="scan_inputs/sample.py">
       <import line="8" module="os" />
       <import line="8" module="sys" />
       <import line="9" module="xml.sax" />

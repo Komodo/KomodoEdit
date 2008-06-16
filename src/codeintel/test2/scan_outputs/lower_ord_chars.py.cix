@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs\lower_ord_chars.py">
-    <scope doc="Name  Dec  Oct  Hex Literals ----------------------------" ilk="blob" lang="Python" name="lower_ord_chars">
+  <file lang="Python" mtime="42" path="scan_inputs/lower_ord_chars.py">
+    <scope doc="Name  Dec  Oct  Hex Literals ----------------------------" ilk="blob" lang="Python" name="lower_ord_chars" src="scan_inputs/lower_ord_chars.py">
       <scope doc="(nul)   0 0000 0x00 &amp;#0; &amp;#0;" ilk="function" line="9" name="zero" signature="zero()" />
       <scope doc="(soh)   1 0001 0x01 &amp;#1; &amp;#1;" ilk="function" line="11" name="one" signature="one()" />
       <scope doc="(stx)   2 0002 0x02 &amp;#2; &amp;#2;" ilk="function" line="13" name="two" signature="two()" />
