@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs\hier1.rb">
-    <scope ilk="blob" lang="Ruby" name="hier1">
+  <file lang="Ruby" mtime="42" path="scan_inputs/hier1.rb">
+    <scope ilk="blob" lang="Ruby" name="hier1" src="scan_inputs/hier1.rb">
       <import line="2" module="delegate" symbol="*" />
       <variable attributes="__local__" citdl="Tempfile" line="16" name="t" />
       <scope classrefs="File" ilk="class" line="3" lineend="4" name="Tempfile" />

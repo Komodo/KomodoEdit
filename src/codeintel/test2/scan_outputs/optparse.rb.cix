@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs\optparse.rb">
-    <scope ilk="blob" lang="Ruby" name="optparse">
+  <file lang="Ruby" mtime="42" path="scan_inputs/optparse.rb">
+    <scope ilk="blob" lang="Ruby" name="optparse" src="scan_inputs/optparse.rb">
       <variable line="1814" name="Version" />
       <scope classrefs="Object" doc="optparse.rb - command-line option analysis with the&#xA;OptionParser class." ilk="class" line="193" lineend="1807" name="OptionParser">
         <import line="734" module="optparse/version" symbol="*" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs\cgi.rb">
-    <scope ilk="blob" lang="Ruby" name="cgi">
+  <file lang="Ruby" mtime="42" path="scan_inputs/cgi.rb">
+    <scope ilk="blob" lang="Ruby" name="cgi" src="scan_inputs/cgi.rb">
       <import line="35" module="English" symbol="*" />
       <scope classrefs="Object" doc="CGI class." ilk="class" line="274" lineend="2295" name="CGI">
         <import line="738" module="delegate" symbol="*" />

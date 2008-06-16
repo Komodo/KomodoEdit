@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/rails/active_support/dependencies.rb">
-    <scope ilk="blob" lang="Ruby" name="dependencies">
+    <scope ilk="blob" lang="Ruby" name="dependencies" src="scan_inputs/rails/active_support/dependencies.rb">
       <import line="1" module="set" symbol="*" />
       <import line="2" module="core_ext/module/attribute_accessors" symbol="*" />
       <import line="3" module="core_ext/load_error" symbol="*" />

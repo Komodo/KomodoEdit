@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/include01.rb">
-    <scope ilk="blob" lang="Ruby" name="include01">
+    <scope ilk="blob" lang="Ruby" name="include01" src="scan_inputs/include01.rb">
       <import line="1" module="outer" symbol="*" />
       <import line="2" symbol="Outer" />
       <scope ilk="namespace" line="4" lineend="16" name="M1">

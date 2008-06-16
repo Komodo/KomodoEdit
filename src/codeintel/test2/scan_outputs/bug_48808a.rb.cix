@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/bug_48808a.rb">
-    <scope ilk="blob" lang="Ruby" name="bug_48808a">
+    <scope ilk="blob" lang="Ruby" name="bug_48808a" src="scan_inputs/bug_48808a.rb">
       <variable attributes="__local__" citdl="Delegator" line="1" name="d1" />
       <variable attributes="__local__" citdl="Delegator" line="2" name="d2" />
     </scope>

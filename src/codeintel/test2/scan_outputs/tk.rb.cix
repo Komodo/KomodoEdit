@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs\tk.rb">
-    <scope ilk="blob" lang="Ruby" name="tk">
+  <file lang="Ruby" mtime="42" path="scan_inputs/tk.rb">
+    <scope ilk="blob" lang="Ruby" name="tk" src="scan_inputs/tk.rb">
       <import line="7" module="tcltklib" symbol="*" />
       <import line="8" module="tkutil" symbol="*" />
       <import line="11" module="tk/autoload" symbol="*" />

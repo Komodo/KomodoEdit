@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs\fileutils.rb">
-    <scope ilk="blob" lang="Ruby" name="fileutils">
+  <file lang="Ruby" mtime="42" path="scan_inputs/fileutils.rb">
+    <scope ilk="blob" lang="Ruby" name="fileutils" src="scan_inputs/fileutils.rb">
       <scope doc="= fileutils.rb" ilk="namespace" line="76" lineend="1015" name="FileUtils">
         <variable citdl="Hash" line="923" name="OPT_TABLE" />
         <variable attributes="__alias__" citdl="pwd" line="89" name="getwd" />

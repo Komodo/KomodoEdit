@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/module01.rb">
-    <scope ilk="blob" lang="Ruby" name="module01">
+    <scope ilk="blob" lang="Ruby" name="module01" src="scan_inputs/module01.rb">
       <scope ilk="namespace" line="1" lineend="15" name="TopLevel">
         <scope classrefs="Object" ilk="class" line="3" lineend="6" name="TL_Class1">
           <scope ilk="function" line="4" lineend="5" name="f_tl_cl1" signature="f_tl_cl1">
