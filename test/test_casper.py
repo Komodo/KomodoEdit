@@ -187,7 +187,7 @@ def casper_tests():
     from codeintel2.manager import Manager
 
     db_base_dir = join(dirname(__file__), "tmp", "db")
-    mgr = Manager(db_base_dir, langs=["JavaScript"])
+    mgr = Manager(db_base_dir)
     mgr.upgrade()
     mgr.initialize()
     try:
