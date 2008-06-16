@@ -2496,10 +2496,12 @@
                class="chromeclass-status"
                style="min-height: 1.5em;">
         <statusbarpanel id="statusbar-message" label="&ready.label;" crop="right" flex="1"/>
-        <statusbarpanel id="statusbar-checker">
+        <statusbarpanel id="statusbar-checker"
+                        style="min-width: 36px;">
             <toolbarbutton id="statusbar-check"
                            tooltiptext="&syntaxCheckingStatus.tooltiptext;"
-                           type="menu-button"
+                           orient="horizontal"
+                           type="menu"
                            persist="buttonstyle"
                            buttonstyle="pictures"
                            onclick="if (event.button == 2)
@@ -2536,13 +2538,14 @@
                         style="min-width: 8em;"
                         insertafter="statusbar-line-col"/>
         <statusbarpanel id="statusbar-language"
-                        context="context-filetype-menu"
+                        pack="end"
                         style="min-width: 8em; max-width: 12em;">
             <toolbarbutton class="statusbar-label"
                   id="statusbar-language-menu"
                   tooltiptext="&fileType.tooltiptext;"
                   flex="1"
-                  type="menu-button"
+                  orient="horizontal"
+                  type="menu"
                   persist="buttonstyle"
                   buttonstyle="text"
                   oncommand="this.firstChild.showPopup(this, -1,-1);">

@@ -143,12 +143,14 @@ function _updateLanguage(view) {
         //XXX It would probably be cleaner to handle the "startpage language
         //    is N/A" logic in the view system, but I don't know how to
         //    easily do that right now.
+        var languageWidget = document.getElementById('statusbar-language-menu');
         if (view.getAttribute("type") == "startpage") {
             _clearLanguage();
+            languageWidget.setAttribute('collapsed', 'true');
         } else {
             var language = view.document.language;
-            var languageWidget = document.getElementById('statusbar-language-menu');
             languageWidget.setAttribute("label", language);
+            languageWidget.removeAttribute('collapsed');
         }
     } catch(e) {
         _clearLanguage();
@@ -158,7 +160,7 @@ function _updateLanguage(view) {
 
 function _clearLanguage() {
     var languageWidget = document.getElementById('statusbar-language-menu');
-    languageWidget.removeAttribute("label");
+    languageWidget.setAttribute("label", "");
 }
 
 function _updateLintMessage(view) {
@@ -322,10 +324,12 @@ try {
     // Only have linting for some view types (currently only 'editor').
     if (typeof(view.lintBuffer) == "undefined" || !view.lintBuffer)
     {
+        checkWidget.setAttribute('collapsed', 'true');
         checkWidget.removeAttribute("image");
         checkWidget.setAttribute("tooltiptext", "Syntax Checking Status");
         return;
     }
+    checkWidget.removeAttribute('collapsed');
 
     // Is linting enabled?
     var checkingEnabled = view.prefs.getBooleanPref("editUseLinting");

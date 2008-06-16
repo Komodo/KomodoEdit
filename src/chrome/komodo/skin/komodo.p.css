@@ -106,31 +106,26 @@ statusbarpanel[highlite="true"] > label {
   padding: 1px 10px 2px 10px;
 }
 
-menu.statusbar-label,
+menu.statusbar-label > label,
 menuitem.statusbar-label > label
 {
   font: status-bar;
+  text-align: left;
 }
-statusbarpanel > menu.statusbar-label {
-  /* This is a HACK to get around the space seemingly left
-   * for the checkbox -- though I'm not sure where that
-   * space *is* in the XBL, perhaps in the default theme CSS.
-   */
-  margin-left: -10px;
-}
-statusbarpanel > toolbarbutton[type="menu-button"],
-statusbarpanel > toolbarbutton[type="menu-button"] > toolbarbutton {
+statusbarpanel > toolbarbutton[type="menu"] {
   padding: 0px;
   margin: 0px;
+  border-style: none !important;
+  -moz-appearance: none;
 }
-statusbarpanel > toolbarbutton[type="menu-button"] > dropmarker,
-statusbarpanel > menu > .menu-right {
-  margin-right: -2px;
+statusbarpanel > toolbarbutton > .toolbarbutton-text {
+  font: status-bar;
+  text-align: left;
+  padding-left: 6px;
+  padding-right: 2px;
+}
+statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
   list-style-image: url("chrome://komodo/skin/images/menupopup_arrows.png");
-}
-statusbarpanel > toolbarbutton[type="menu-button"] {
-  padding: 0px;
-  margin: -3px 0px;
 }
 
 
