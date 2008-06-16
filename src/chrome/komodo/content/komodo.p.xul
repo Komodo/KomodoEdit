@@ -2538,13 +2538,17 @@
         <statusbarpanel id="statusbar-language"
                         context="context-filetype-menu"
                         style="min-width: 8em; max-width: 12em;">
-            <menu class="statusbar-label"
+            <toolbarbutton class="statusbar-label"
                   id="statusbar-language-menu"
                   tooltiptext="&fileType.tooltiptext;"
-                  flex="1">
+                  flex="1"
+                  type="menu-button"
+                  persist="buttonstyle"
+                  buttonstyle="text"
+                  oncommand="this.firstChild.showPopup(this, -1,-1);">
                 <menupopup id="statusbar-filetype-menu"
-                    onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();" />
-            </menu>
+                           onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();" />
+            </toolbarbutton>
         </statusbarpanel>
     </statusbar>
     <commandset id="allcommands"/>
