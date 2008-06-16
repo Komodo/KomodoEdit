@@ -46,6 +46,7 @@ from glob import glob
 import unittest
 import subprocess
 import logging
+from pprint import pprint, pformat
 
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
@@ -2585,7 +2586,7 @@ class _BaseTestCase(CodeIntelTestCase):
            
     @tag("defns") 
     def test_inline_defns(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_inline_defns")
         main_filename = "main%s" % self.ext
         main_path = join(test_dir, main_filename)
         main_content, main_positions = \
@@ -2639,7 +2640,7 @@ class _BaseTestCase(CodeIntelTestCase):
         
     @tag("defns")
     def test_peer_module_defns(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_peer_module_defns")
         main_filename = "main%s" % self.ext
         main_path = join(test_dir, main_filename)
         main_content, main_positions = \
@@ -2698,7 +2699,7 @@ class _BaseTestCase(CodeIntelTestCase):
       
     @tag("defns")  
     def test_inline_variables(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_inline_variables")
         main_filename = "main%s" % self.ext
         main_path = join(test_dir, main_filename)
         main_content, main_positions = \
@@ -2726,7 +2727,7 @@ class _BaseTestCase(CodeIntelTestCase):
 
     @tag("bug65403", "defns", "knownfailure")
     def test_inst_var_cplns(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_inst_var_cplns")
         main_filename = "main%s" % self.ext
         main_path = join(test_dir, main_filename)
         main_content, main_positions = \
