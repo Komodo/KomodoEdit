@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\SOAP\Lite.pm">
-    <scope ilk="blob" lang="Perl" name="Lite">
+  <file lang="Perl" mtime="42" path="scan_inputs/SOAP/Lite.pm">
+    <scope ilk="blob" lang="Perl" name="Lite" src="scan_inputs/SOAP/Lite.pm">
       <scope classrefs="SOAP::Cloneable" ilk="class" line="11" lineend="2903" name="SOAP::Lite">
         <import line="2659" module="Carp" />
         <variable line="15" name="$VERSION" />

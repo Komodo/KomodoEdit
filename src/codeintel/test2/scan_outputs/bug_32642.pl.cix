@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\bug_32642.pl">
-    <scope ilk="blob" lang="Perl" name="bug_32642">
+  <file lang="Perl" mtime="42" path="scan_inputs/bug_32642.pl">
+    <scope ilk="blob" lang="Perl" name="bug_32642" src="scan_inputs/bug_32642.pl">
       <variable attributes="__local__" line="10" name="$myvar" />
       <scope ilk="function" line="12" lineend="13" name="myfunc" signature="myfunc()" />
     </scope>

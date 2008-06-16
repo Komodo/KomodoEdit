@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\eval_screws_up_sub_parsing.pl">
-    <scope ilk="blob" lang="Perl" name="eval_screws_up_sub_parsing">
+  <file lang="Perl" mtime="42" path="scan_inputs/eval_screws_up_sub_parsing.pl">
+    <scope ilk="blob" lang="Perl" name="eval_screws_up_sub_parsing" src="scan_inputs/eval_screws_up_sub_parsing.pl">
       <scope ilk="function" line="7" lineend="10" name="kick" signature="kick($target)">
         <variable ilk="argument" name="$target" />
         <import line="8" module="Data::Dumper" />

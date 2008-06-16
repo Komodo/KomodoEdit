@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\ParseModule.pm">
-    <scope ilk="blob" lang="Perl" name="ParseModule">
+  <file lang="Perl" mtime="42" path="scan_inputs/ParseModule.pm">
+    <scope ilk="blob" lang="Perl" name="ParseModule" src="scan_inputs/ParseModule.pm">
       <scope ilk="class" line="5" lineend="867" name="ParseModule">
         <import line="9" module="Tokenizer" symbol="*" />
         <import line="10" module="ActiveState::Indenter" symbol="*" />

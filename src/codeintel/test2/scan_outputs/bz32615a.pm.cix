@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\bz32615a.pm">
-    <scope ilk="blob" lang="Perl" name="bz32615a">
+  <file lang="Perl" mtime="42" path="scan_inputs/bz32615a.pm">
+    <scope ilk="blob" lang="Perl" name="bz32615a" src="scan_inputs/bz32615a.pm">
       <scope ilk="class" line="1" lineend="105" name="Blatz">
         <variable line="3" name="$pup" />
         <variable line="15" name="$updating" />

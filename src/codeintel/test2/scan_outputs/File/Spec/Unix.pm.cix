@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\File\Spec\Unix.pm">
-    <scope ilk="blob" lang="Perl" name="Unix">
+  <file lang="Perl" mtime="42" path="scan_inputs/File/Spec/Unix.pm">
+    <scope ilk="blob" lang="Perl" name="Unix" src="scan_inputs/File/Spec/Unix.pm">
       <scope ilk="class" line="1" lineend="462" name="File::Spec::Unix">
         <variable line="4" name="$VERSION" />
         <variable attributes="__local__" line="130" name="$tmpdir" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\PerlModule.pm">
-    <scope ilk="blob" lang="Perl" name="PerlModule">
+  <file lang="Perl" mtime="42" path="scan_inputs/PerlModule.pm">
+    <scope ilk="blob" lang="Perl" name="PerlModule" src="scan_inputs/PerlModule.pm">
       <scope classrefs="Exporter" ilk="class" line="1" lineend="15" name="PerlModule">
         <import line="3" module="Exporter" />
         <variable attributes="__exported__" line="2" name="$myscalar" />

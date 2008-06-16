@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\HTTP\Request.pm">
-    <scope ilk="blob" lang="Perl" name="Request">
+  <file lang="Perl" mtime="42" path="scan_inputs/HTTP/Request.pm">
+    <scope ilk="blob" lang="Perl" name="Request" src="scan_inputs/HTTP/Request.pm">
       <scope classrefs="HTTP::Message" ilk="class" line="1" lineend="109" name="HTTP::Request">
         <import line="5" module="HTTP::Message" />
         <variable line="7" name="$VERSION" />

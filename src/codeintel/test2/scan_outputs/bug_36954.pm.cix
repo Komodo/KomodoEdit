@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\bug_36954.pm">
-    <scope ilk="blob" lang="Perl" name="bug_36954">
+  <file lang="Perl" mtime="42" path="scan_inputs/bug_36954.pm">
+    <scope ilk="blob" lang="Perl" name="bug_36954" src="scan_inputs/bug_36954.pm">
       <scope ilk="class" line="1" lineend="29" name="WF_Support">
         <scope ilk="function" line="22" lineend="29" name="read_matrixkeys" signature="read_matrixkeys($wf_config_file, $tag)">
           <variable ilk="argument" name="$wf_config_file" />

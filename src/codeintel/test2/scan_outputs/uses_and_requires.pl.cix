@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs\uses_and_requires.pl">
-    <scope ilk="blob" lang="Perl" name="uses_and_requires">
+  <file lang="Perl" mtime="42" path="scan_inputs/uses_and_requires.pl">
+    <scope ilk="blob" lang="Perl" name="uses_and_requires" src="scan_inputs/uses_and_requires.pl">
       <import line="1" module="SOAP::Lite" symbol="*" />
       <import line="2" module="Cwd" symbol="*" />
       <import line="3" module="HTML::Parse" symbol="parse_html" />
