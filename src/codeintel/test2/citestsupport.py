@@ -87,6 +87,7 @@ class CodeIntelTestCase(unittest.TestCase):
     # A test case can set this to false to have the setUp/tearDown *not*
     # create a `self.mgr'.
     _ci_test_setup_mgr_ = True
+    _ci_extra_module_dirs_ = None
 
     def setUp(self):
         if _xpcom_:
@@ -104,6 +105,7 @@ class CodeIntelTestCase(unittest.TestCase):
             if self._ci_env_prefs_ is not None:
                 env = SimplePrefsEnvironment(**self._ci_env_prefs_)
             self.mgr = Manager(
+                extra_module_dirs=self._ci_extra_module_dirs_,
                 db_base_dir=self._ci_db_base_dir_ or test_db_base_dir,
                 db_catalog_dirs=self._ci_db_catalog_dirs_,
                 db_import_everything_langs=self._ci_db_import_everything_langs,
@@ -129,7 +131,11 @@ class CodeIntelTestCase(unittest.TestCase):
 
     def _get_buf_and_data(self, markedup_content, lang, path=None, env=None):
         if path is None:
-            path = os.path.join("<Unsaved>", "rand%d" % random.randint(0, 100))
+            # Try to ensure no accidental re-use of the same buffer name
+            # across the whole test suite. Also try to keep the buffer
+            # names relatively short (keeps tracebacks cleaner).
+            name = "buf-" + md5.md5(markedup_content).hexdigest()[:16]
+            path = os.path.join("<Unsaved>", name)
         content, data = unmark_text(self.adjust_content(markedup_content))
         #print banner(path)
         #sys.stdout.write(content)

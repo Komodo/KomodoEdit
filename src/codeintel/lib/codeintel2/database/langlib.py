@@ -301,7 +301,7 @@ class LangDirsLib(object):
                                                  lang=self.lang)
                     if ctlr is not None:
                         ctlr.info("load %r", buf)
-                    buf.load()
+                    buf.scan_if_necessary()
             self._have_ensured_scanned_from_dir_cache[dir] = True
 
     def _importables_from_dir(self, dir):
@@ -403,7 +403,7 @@ class LangDirsLib(object):
                               "attempting load", blobname, blobfile, blobdir)
                     buf = self.mgr.buf_from_path(
                             join(blobdir, blobfile), self.lang)
-                    buf.load()
+                    buf.scan_if_necessary()
 
                     dbfile_from_blobname = lang_zone.dfb_from_dir(blobdir, {})
                     if blobbase in dbfile_from_blobname:
@@ -693,6 +693,7 @@ class LangZone(object):
         self.base_dir = join(self.db.base_dir, "db",
                              util.safe_lang_from_lang(lang))
         self._check_lang(lang)
+        self._hook_handlers = self.mgr.hook_handlers_from_lang(lang)
 
         self._lock = threading.RLock()
 
@@ -894,14 +895,21 @@ class LangZone(object):
         #TODO Database.clean() should remove dirs that have no
         #     blob_index entries.    
 
-    def update_buf_data(self, buf, force=False):
+    def update_buf_data(self, buf, scan_tree, scan_time, scan_error,
+                        skip_scan_time_check=False):
         """Update this LangZone with the buffer data.
 
-            "buf" is the CitadelBuffer instance with the relevant info
-                (path, tree, scan_time).
-            "force" (default False) is a boolean indicating if the
-                buffer data should be updated even if buf.scan_time is
-                <= that in the database.
+        @param buf {CitadelBuffer} the buffer whose data is being added
+            to the database.
+        @param scan_tree {ciElementTree} the CIX scan data. Might be None
+            if there was an early scanning failure.
+        @param scan_time {timestamp} the time of the scan, typically the
+            mtime of the file
+        @param scan_error {str} an error string if scanning failed, or
+            None if it was succesful.
+        @param skip_scan_time_check {boolean} (default False) is a
+            boolean indicating if the buffer data should be updated even
+            if `scan_time` is <= that in the database.
         """
         self._acquire_lock()
         try:
@@ -923,11 +931,11 @@ class LangZone(object):
             except KeyError:    # adding a new entry
                 (old_scan_time, old_scan_error, old_res_data) = None, None, {}
             else:               # updating an existing entry
-                if not force and buf.scan_time is not None \
-                   and buf.scan_time <= old_scan_time:
+                if not skip_scan_time_check and scan_time is not None \
+                   and scan_time <= old_scan_time:
                     log.debug("skipping db update for '%s': %s < %s and "
-                              "no force option",
-                              base, buf.scan_time, old_scan_time)
+                              "no 'skip_scan_time_check' option",
+                              base, scan_time, old_scan_time)
                     return
 
             log.debug("update from %s buf '%s'", buf.lang, buf.path)
@@ -936,26 +944,25 @@ class LangZone(object):
             # res_data: {blobname -> ilk -> toplevelnames}
             new_res_data = {}
             new_blobnames_and_blobs = []
-            for lang, blob in buf.blob_from_lang.items():
-                assert lang == blob.get("lang") == self.lang
-                blobname = blob.get("name")
-                for toplevelname, elem in blob.names.iteritems():
-                    toplevelnames_from_ilk \
-                        = new_res_data.setdefault(blobname, {})
-                    ilk = elem.get("ilk") or elem.tag
-                    if ilk not in toplevelnames_from_ilk:
-                        toplevelnames_from_ilk[ilk] = set([toplevelname])
-                    else:
-                        toplevelnames_from_ilk[ilk].add(toplevelname)
-                new_blobnames_and_blobs.append((blobname, blob))
+            if scan_tree:
+                for blob in scan_tree[0]:
+                    lang = blob.get("lang")
+                    assert blob.get("lang") == self.lang
+                    blobname = blob.get("name")
+                    toplevelnames_from_ilk = new_res_data.setdefault(blobname, {})
+                    for toplevelname, elem in blob.names.iteritems():
+                        ilk = elem.get("ilk") or elem.tag
+                        if ilk not in toplevelnames_from_ilk:
+                            toplevelnames_from_ilk[ilk] = set([toplevelname])
+                        else:
+                            toplevelnames_from_ilk[ilk].add(toplevelname)
+                    new_blobnames_and_blobs.append((blobname, blob))
 
             # Determine necessary changes to res_index.
-            new_scan_time = buf.scan_time
-            new_scan_error = buf.scan_error
-            if new_scan_error:
-                if (new_scan_time != old_scan_time
-                    or new_scan_error != old_scan_error):
-                    res_index[base] = (new_scan_time, new_scan_error,
+            if scan_error:
+                if (scan_time != old_scan_time
+                    or scan_error != old_scan_error):
+                    res_index[base] = (scan_time, scan_error,
                                        old_res_data)
                     res_index_has_changed = True
 
@@ -963,10 +970,10 @@ class LangZone(object):
                 # Only consider new blobs if there wasn't a scan error.
                 # I.e., we want to preserve the last good scan info.
 
-                if (new_scan_time != old_scan_time
-                    or new_scan_error != old_scan_error
+                if (scan_time != old_scan_time
+                    or scan_error != old_scan_error
                     or new_res_data != old_res_data):
-                    res_index[base] = (new_scan_time, new_scan_error,
+                    res_index[base] = (scan_time, scan_error,
                                        new_res_data)
                     res_index_has_changed = True
 
@@ -1089,7 +1096,14 @@ class LangZone(object):
         log.debug("TODO: LangZone.load_blob: add blob caching!")
         log.debug("fs-read: load %s blob '%s'", self.lang, dbsubpath)
         dbpath = join(self.base_dir, dbsubpath+".blob")
-        return ET.parse(dbpath).getroot()
+        blob = ET.parse(dbpath).getroot()
+        for hook_handler in self._hook_handlers:
+            try:
+                hook_handler.post_db_load_blob(blob)
+            except:
+                log.exception("error running hook: %r.post_db_load_blob(%r)",
+                              hook_handler, blob)
+        return blob
 
     def load_index(self, dir, index_name, default=None):
         """Get the indicated index.

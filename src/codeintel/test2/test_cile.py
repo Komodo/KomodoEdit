@@ -154,6 +154,7 @@ def _testOneInputFile(self, fpath):
     opts = {"mtime": "42"}
 
     # Determine input options to use, if any.
+    #XXX Not used. Drop it.
     if os.path.exists(optsfile):
         for line in open(optsfile, 'r').read().splitlines(0):
             name, value = line.split('=', 1)

@@ -131,11 +131,11 @@ class CitadelBuffer(Buffer):
         self._scan_lock.release()
 
     _have_checked_db = False
-    def _load_buf_data_once(self):
-        """Load persisted data for this buffer from the db.
+    def _load_buf_data_once(self, skip_once_check=False):
+        """Get persisted data for this buffer from the db.
         Raises NotFoundInDatabase is not there.
         """
-        if not self._have_checked_db:
+        if skip_once_check or not self._have_checked_db:
             self._have_checked_db = True
             self._scan_time_cache, self._scan_error_cache, \
                 self._blob_from_lang_cache = self.mgr.db.get_buf_data(self)
@@ -204,6 +204,7 @@ class CitadelBuffer(Buffer):
                         self.scan()
                     finally:
                         self.acquire_lock()
+                    self._load_buf_data_once(True)
             return self._blob_from_lang_cache
         finally:
             self.release_lock()
@@ -237,7 +238,7 @@ class CitadelBuffer(Buffer):
         """The CIX for this buffer. Will lazily scan if necessary."""
         return ET.tostring(self.tree)
 
-    def scan(self, mtime=None):
+    def scan(self, mtime=None, skip_scan_time_check=False):
         """Scan the current buffer.
 
             "mtime" is the modification time of the buffer content. If
@@ -260,8 +261,9 @@ class CitadelBuffer(Buffer):
         #      blob_from_lang/scan_time/scan_error. I.e. drop
         #      <file error="..."> mechanism in favour of just raising
         #      CILEError.
+        scan_tree = None
         try:
-            tree = cile_driver.scan_purelang(self)
+            scan_tree = cile_driver.scan_purelang(self)
         except CodeIntelError, ex:
             exc_info = sys.exc_info()
             exc_class, exc, tb = sys.exc_info()
@@ -276,19 +278,18 @@ class CitadelBuffer(Buffer):
             scan_error = "%s: %s (%s:%s in %s)"\
                          % (msg, exc, tb_path, tb_lineno, tb_func)
         else:
-            scan_error = tree[0].get("error")
+            scan_error = scan_tree[0].get("error")
 
         self.acquire_lock()
         try:
             self._scan_time_cache = mtime
             self._scan_error_cache = scan_error
-            if not scan_error: # Keep the old scan data if scan failed.
-                self._blob_from_lang_cache = dict((b.get("lang"), b)
-                                                  for b in tree[0])
-            elif self._blob_from_lang_cache is None:
-                self._blob_from_lang_cache = {}
         finally:
             self.release_lock()
+
+        # Put it into the database.
+        self.mgr.db.update_buf_data(self, scan_tree, mtime, scan_error,
+                                    skip_scan_time_check=skip_scan_time_check)
 
     def scoperef_from_pos(self, pos):
         """Return the scoperef for the given position in this buffer.
@@ -347,18 +348,9 @@ class CitadelBuffer(Buffer):
                 break
         return (blob, lpath)
 
-    # These two are convenience methods for working with this buffer and
-    # the database.
-    def load(self, force=False):
-        """Add this buffer's scan data to the database.
-        
-        Note: If the buffer content has changed you might need to
-        manually force a scan via buf.scan(). Otherwise it is possible
-        that the buffer will get the current data from the database (if
-        it exists) and then turn around and update the db with that
-        unchanged data. I.e. an expensive no-op.
-        """
-        self.mgr.db.update_buf_data(self, force=force)
+    def scan_if_necessary(self):
+        # SIDE-EFFECT: results in `self.scan()` if not in the db.
+        self.blob_from_lang
 
     def unload(self):
         """Remove this buffer from the database."""

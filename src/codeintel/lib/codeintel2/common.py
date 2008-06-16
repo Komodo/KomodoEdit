@@ -53,6 +53,7 @@ import stat
 import time
 import threading
 import logging
+import warnings
 
 import SilverCity
 from SilverCity.Lexer import Lexer
@@ -84,6 +85,18 @@ finally:
 # Allow the CILEs to generate type guesses based on type names (e.g.
 # "event" is an Event in JS).
 ENABLE_HEURISTICS = True 
+
+
+
+#---- warnings
+
+class CodeIntelDeprecationWarning(DeprecationWarning):
+    pass
+# Here is how to disable these warnings in your code:
+#   import warnings
+#   from codeintel2.common import CodeIntelDeprecationWarning
+#   warnings.simplefilter("ignore", CodeIntelDeprecationWarning)
+warnings.simplefilter("ignore", CodeIntelDeprecationWarning) # turn off for now
 
 
 

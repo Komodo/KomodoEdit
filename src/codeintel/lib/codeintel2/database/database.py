@@ -1017,7 +1017,10 @@ class Database(object):
         """
         self._get_lang_zone(buf.lang).remove_buf_data(buf)
 
-    def update_buf_data(self, buf, force=False):
+    def update_buf_data(self, buf, scan_tree, scan_time, scan_error,
+                        skip_scan_time_check=False):
         """Add or update data for this buffer into the database."""
-        self._get_lang_zone(buf.lang).update_buf_data(buf, force=force)
+        self._get_lang_zone(buf.lang).update_buf_data(
+            buf, scan_tree, scan_time, scan_error,
+            skip_scan_time_check=skip_scan_time_check)
 

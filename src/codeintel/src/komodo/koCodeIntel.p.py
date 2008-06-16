@@ -330,7 +330,7 @@ class KoCodeIntelManager(Manager):
         self._phpInfo = components.classes["@activestate.com/koPHPInfoInstance;1"]\
                             .getService(components.interfaces.koIPHPInfoEx)
         Manager.__init__(self, db_base_dir,
-                         extra_lang_module_dirs=extension_pylib_dirs,
+                         extra_module_dirs=extension_pylib_dirs,
                          env=KoCodeIntelEnvironment(),
                          db_event_reporter=db_event_reporter,
                          db_catalog_dirs=db_catalog_dirs)
@@ -1369,8 +1369,6 @@ class KoCodeIntelService:
             env = self._proj_env_from_koIDocument(doc)
         return self.mgr.buf_from_koIDocument(doc, env=env)
 
-    def is_registered_lang(self, lang):
-        return self.mgr.is_registered_lang(lang)
     def is_cpln_lang(self, lang):
         return self.mgr.is_cpln_lang(lang)
     def get_cpln_langs(self):

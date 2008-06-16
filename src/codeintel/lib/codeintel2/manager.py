@@ -49,9 +49,11 @@ import types
 import imp
 import shutil
 import logging
+from collections import defaultdict
 from glob import glob
 import threading
 from Queue import Queue
+import warnings
 import traceback
 
 from SilverCity import ScintillaConstants
@@ -65,6 +67,7 @@ from codeintel2.database.database import Database
 from codeintel2.environment import DefaultEnvironment
 from codeintel2 import indexer
 from codeintel2.util import guess_lang_from_path
+from codeintel2 import hooks
 from codeintel2.udl import XMLParsingBufferMixin, UDLBuffer
 
 import langinfo
@@ -90,8 +93,8 @@ log = logging.getLogger("codeintel")
 class Manager(threading.Thread, Queue):
     # See the module docstring for usage information.
 
-    def __init__(self, db_base_dir=None, on_scan_complete=None, langs=None,
-                 extra_lang_module_dirs=None, env=None,
+    def __init__(self, db_base_dir=None, on_scan_complete=None,
+                 extra_module_dirs=None, env=None,
                  db_event_reporter=None, db_catalog_dirs=None,
                  db_import_everything_langs=None):
         """Create a CodeIntel manager.
@@ -102,12 +105,9 @@ class Manager(threading.Thread, Queue):
             "on_scan_complete" (optional) is a callback for Citadel scan
                 completion. It will be passed the ScanRequest instance
                 as an argument.
-            "langs" (optional, default all) is a list of language names
-                to register. By default all available supported languages are
-                setup.
-            "extra_lang_module_dirs" (optional) is a list of extra dirs
-                in which to look for and use "lang_*.py" lang support
-                modules.
+            "extra_module_dirs" (optional) is a list of extra dirs
+                in which to look for and use "codeintel_*.py"
+                support modules (and "lang_*.py" modules, DEPRECATED).
             "env" (optional) is an Environment instance (or subclass).
                 See environment.py for details.
             "db_event_reporter" (optional) is a callback that will be called
@@ -127,9 +127,8 @@ class Manager(threading.Thread, Queue):
 
         self.citadel = Citadel(self)
 
-        # Language registry bits.
-        self._attempted_registered_safe_lang = {}  # {safe-lang: True}
-        self._registered_lang_from_safe_lang = {}
+        # Module registry bits.
+        self._registered_module_canon_paths = set()
         self.silvercity_lexer_from_lang = {}
         self.buf_class_from_lang = {}
         self.langintel_class_from_lang = {}
@@ -137,8 +136,9 @@ class Manager(threading.Thread, Queue):
         self.import_handler_class_from_lang = {}
         self._is_citadel_from_lang = {} # registered langs that are Citadel-based
         self._is_cpln_from_lang = {} # registered langs for which completion is supported
+        self._hook_handlers_from_lang = defaultdict(list)
+        self._register_modules(extra_module_dirs)
 
-        self.register_langs(langs, extra_lang_module_dirs)
         self.env = env or DefaultEnvironment() 
         self.db = Database(self, base_dir=db_base_dir,
                            catalog_dirs=db_catalog_dirs,
@@ -174,72 +174,59 @@ class Manager(threading.Thread, Queue):
         """Initialize the codeintel system."""
         self.idxr.start()
 
-    def register_langs(self, langs=None, extra_lang_module_dirs=None):
-        """Register languages.
+    def _register_modules(self, extra_module_dirs=None):
+        """Register codeintel/lang modules.
         
-        @param langs {list} is an optional list of language names
-            to register. If not given, all available languages are
-            registered. Note that these given language names are
-            compared (case-insensitively) to the name of the
-            "lang_<lang>.py" module *filenames*. Admittedly this isn't ideal.
-        @param extra_lang_module_dirs {list} is an optional list of extra
-            dirs in which to look for and use "lang_*.py" lang support
-            modules. By default just the codeintel2 package directory is
-            used.
-            
-        An "available" language is one for which there is a "lang_*.py"
-        module.
+        @param extra_module_dirs {sequence} is an optional list of extra
+            dirs in which to look for and use "codeintel|lang_*.py"
+            support modules. By default just the codeintel2 package
+            directory is used.
         """
         dirs = [dirname(__file__)]
-        if extra_lang_module_dirs:
-            dirs += extra_lang_module_dirs
-        remaining_langs = langs and set(lang.lower() for lang in langs) or None
+        if extra_module_dirs:
+            dirs += extra_module_dirs
         for dir in dirs:
+            for module_path in glob(join(dir, "codeintel_*.py")):
+                self._register_module(module_path)
             for module_path in glob(join(dir, "lang_*.py")):
-                lang = basename(module_path)[5:-3]
-                if langs and lang not in remaining_langs:
-                    continue
-                self.register_lang(lang, module_path)
-                if remaining_langs:
-                    remaining_langs.remove(lang)
-        if remaining_langs:
-            log.warn("could not find support modules for these langs: %s"
-                     % ", ".join(remaining_langs))
+                warnings.warn("%s: `lang_*.py' codeintel modules are deprecated, "
+                              "use `codeintel_*.py'. Support for `lang_*.py' "
+                              "will be dropped in Komodo 5.1." % module_path,
+                              CodeIntelDeprecationWarning)
+                self._register_module(module_path)
 
-    def register_lang(self, lang, module_path):
-        """Register the given language.
+    def _register_module(self, module_path):
+        """Register the given codeintel support module.
         
-        @param lang {str} is the name of the language to register (e.g.
-            "Python"). To support .initialize(lang='*') this argument may
-            be the "safe lang" name (e.g. "python")
-        @param module_path {str} is the path to the lang support module.
+        @param module_path {str} is the path to the support module.
+        @exception ImportError, CodeIntelError
 
         This will import the given module path and call its top-level
-        "register" function passing it the Manager instance. That is
-        expected to callback to `mgr.set_lang_info()'. This can raise
-        ImportError or CodeIntelError. This is a no-op if already called
-        for a particular language.
+        `register` function passing it the Manager instance. That is
+        expected to callback to one or more of:
+            mgr.set_lang_info(...)
+            mgr.add_hooks_handler(...)
         """
-        safe_lang = lang.lower()
-        if safe_lang in self._attempted_registered_safe_lang:
+        module_canon_path = canonicalizePath(module_path)
+        if module_canon_path in self._registered_module_canon_paths:
             return
-        self._attempted_registered_safe_lang[safe_lang] = True
+
         module_dir, module_name = os.path.split(module_path)
         module_name = splitext(module_name)[0]
         iinfo = imp.find_module(module_name, [module_dir])
         module = imp.load_module(module_name, *iinfo)
         if hasattr(module, "register"):
-            log.debug("register %s (%s) lang support", module.lang, safe_lang)
+            log.debug("register `%s' support module", module_path)
             try:
                 module.register(self)
             except CodeIntelError, ex:
-                log.warn("error registering %s (%s) lang (lang will be "
-                         "disabled): %s", module.lang, safe_lang, ex)
+                log.warn("error registering `%s' support module",
+                         module_path, ex)
             except:
-                log.exception("error registering %s (%s) lang",
-                              module.lang, safe_lang)
-            else:
-                self._registered_lang_from_safe_lang[safe_lang] = module.lang
+                log.exception("unexpected error registering `%s' "
+                              "support module", module_path)
+
+        self._registered_module_canon_paths.add(module_canon_path)
 
     def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
                       import_handler_class=None, cile_driver_class=None,
@@ -260,6 +247,17 @@ class Manager(threading.Thread, Queue):
         if is_cpln_lang:
             self._is_cpln_from_lang[lang] = True
 
+    def add_hook_handler(self, hook_handler):
+        """Add a handler for various codeintel hooks.
+        
+        @param hook_handler {hooks.HookHandler}
+        """
+        assert isinstance(hook_handler, hooks.HookHandler)
+        assert hook_handler.name is not None, \
+            "hook handlers must have a name: %r.name is None" % hook_handler
+        for lang in hook_handler.langs:
+            self._hook_handlers_from_lang[lang].append(hook_handler)
+
     def finalize(self, timeout=None):
         if self.citadel is not None:
             self.citadel.finalize()
@@ -277,11 +275,6 @@ class Manager(threading.Thread, Queue):
     # Proxy the batch update API onto our Citadel instance.
     def batch_update(self, join=True, updater=None):
         return self.citadel.batch_update(join=join, updater=updater)
-
-    def is_registered_lang(self, lang):
-        """Return true if this is a registered language."""
-        safe_lang = lang.lower()
-        return safe_lang in self._registered_lang_from_safe_lang
 
     def is_multilang(self, lang):
         """Return True iff this is a multi-lang language.
@@ -328,6 +321,10 @@ class Manager(threading.Thread, Queue):
                 langintel = langintel_class(self)
             self._langintel_from_lang_cache[lang] = langintel
         return self._langintel_from_lang_cache[lang] 
+
+    def hook_handlers_from_lang(self, lang):
+        return self._hook_handlers_from_lang.get(lang, []) \
+               + self._hook_handlers_from_lang.get("*", [])
 
     #XXX
     #XXX Cache bufs based on (path, lang) so can share bufs. (weakref)

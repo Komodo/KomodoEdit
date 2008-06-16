@@ -341,7 +341,6 @@ interface koICodeIntelService: nsISupports {
 
     koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
 
-    boolean is_registered_lang(in wstring lang);
     boolean is_cpln_lang(in wstring lang);
     void get_cpln_langs(out PRUint32 count,
                         [array, size_is(count)] out wstring langs);

@@ -74,6 +74,7 @@ my @codeintel2_files = (
     "lib/codeintel2/common.py",
     "lib/codeintel2/constants_css.py",
     "lib/codeintel2/environment.py",
+    "lib/codeintel2/hooks.py",
     "lib/codeintel2/indexer.py",
     "lib/codeintel2/gencix_utils.py",
     "lib/codeintel2/jsdoc.py",

@@ -394,9 +394,9 @@ class ImportEverythingTestCase(DBTestCase):
             path = join(test_dir, file)
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(bar_php, lang=lang)
-        bar_buf.load(force=True)
+        bar_buf.scan(skip_scan_time_check=True)
         foo_buf = self.mgr.buf_from_path(foo_php, lang=lang)
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         langlib = self.mgr.db.get_lang_lib(lang, "impevy_multilanglib",
                                            [test_dir], lang)
 
@@ -439,9 +439,9 @@ class ImportEverythingTestCase(DBTestCase):
             path = join(test_dir, file)
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(bar_php, lang=lang)
-        bar_buf.load(force=True)
+        bar_buf.scan(skip_scan_time_check=True)
         foo_buf = self.mgr.buf_from_path(foo_php, lang=lang)
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         langlib = self.mgr.db.get_lang_lib(lang, "impevy_langlib",
                                            [test_dir], lang)
 
@@ -712,18 +712,18 @@ class MultiLangLibTestCase(DBTestCase):
 
         buf = self.mgr.buf_from_path(path, "RHTML")
         buf.unload()
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
         self.failUnless(buf.scan_error is None)
         blob = buf.blob_from_lang["Ruby"]
         self.failUnless("spitit" in blob.names)
 
         # Test CILE raising CodeIntelError
         buf.accessor.reset_content("go boom")
-        buf.scan()
+        buf.scan(skip_scan_time_check=True)
         self.failUnless(buf.scan_error is not None)
         self.failUnless("boom" in buf.scan_error)
 
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
         scan_time, scan_error, blob_from_lang \
             = self.mgr.db.get_buf_data(buf)
         self.failUnless(scan_time == buf.scan_time)
@@ -755,14 +755,14 @@ class MultiLangLibTestCase(DBTestCase):
         citadel_log.addFilter(filter)
         try:
             buf.accessor.reset_content("go crazy")
-            buf.scan()
+            buf.scan(skip_scan_time_check=True)
             self.failUnless(buf.scan_error is not None)
             self.failUnless("crazy" in buf.scan_error)
         finally:
             citadel_log.removeFilter(filter)
         self.failUnless(len(filter.filtered_out))
 
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
         scan_time, scan_error, blob_from_lang \
             = self.mgr.db.get_buf_data(buf)
         self.failUnless(scan_time == buf.scan_time)
@@ -839,9 +839,9 @@ class MultiLangLibTestCase(DBTestCase):
             path = join(test_dir, file)
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(bar_php, lang=lang)
-        bar_buf.load(force=True)
+        bar_buf.scan(skip_scan_time_check=True)
         foo_buf = self.mgr.buf_from_path(foo_php, lang=lang)
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         langlib = self.mgr.db.get_lang_lib(lang, "test_toplevelname_index",
                                            [test_dir], lang)
         lang_zone = langlib.lang_zone
@@ -871,7 +871,7 @@ class MultiLangLibTestCase(DBTestCase):
         foo_content = foo_content.replace("foo_func", "foo_func2")
         foo_buf.accessor.reset_content(foo_content)
         foo_buf.scan()
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         self.failUnless("foo.php" in toplevelname_index._on_deck,
                         "recent 'foo.php' change isn't on-deck in "
                         "toplevelname_index")
@@ -900,7 +900,7 @@ class MultiLangLibTestCase(DBTestCase):
         foo_content = foo_content.replace("foo_func2", "foo_func3")
         foo_buf.accessor.reset_content(foo_content)
         foo_buf.scan()
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         self.failUnless("foo.php" in toplevelname_index._on_deck,
                         "recent 'foo.php' change isn't on-deck in "
                         "toplevelname_index")
@@ -971,7 +971,7 @@ class LangLibTestCase(DBTestCase):
 
         buf = self.mgr.buf_from_path(foo_py, "Python")
         buf.unload()
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
 
         lib = self.mgr.db.get_lang_lib(lang, "test_updating lib",
                                        [self.test_dir])
@@ -1011,7 +1011,7 @@ class LangLibTestCase(DBTestCase):
 
         buf = self.mgr.buf_from_path(path, "Python")
         buf.unload()
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
 
         self.failUnless(buf.scan_error is None)
         blob = buf.blob_from_lang["Python"]
@@ -1028,7 +1028,7 @@ class LangLibTestCase(DBTestCase):
         buf.scan()
         self.failUnless(buf.scan_error is not None)
 
-        buf.load(force=True)
+        buf.scan(skip_scan_time_check=True)
         scan_time, scan_error, blob_from_lang = self.mgr.db.get_buf_data(buf)
         self.failUnless(scan_time == buf.scan_time)
         self.failUnless(scan_error == buf.scan_error,
@@ -1064,7 +1064,7 @@ class LangLibTestCase(DBTestCase):
 
         lib = self.mgr.db.get_lang_lib("Python", "testlib", [dirname(path)])
         # This one may scan it, if not already in the db.
-        lib.has_blob("test_scan_error_rescanning")
+        self.failIf( lib.has_blob("test_scan_error_rescanning") )
 
         # This `lib.has_blob(...)' call must NOT scan it.
         cile_driver = self.mgr.citadel.cile_driver_from_lang("Python")
@@ -1073,7 +1073,9 @@ class LangLibTestCase(DBTestCase):
         cile_driver_class.scan_purelang = counting_scan_purelang
         try:
             lib.has_blob("test_scan_error_rescanning")
-            self.failIf(hasattr(cile_driver, "scan_count"))
+            self.failIf(hasattr(cile_driver, "scan_count"),
+                "Didn't expected our tweaked CILE driver, %r, to have a "
+                "`scan_count` attribute, but it does!" % cile_driver)
         finally:
             cile_driver_class.scan_purelang = cile_driver_class.old_scan_purelang
             if hasattr(cile_driver, "scan_count"):
@@ -1119,9 +1121,9 @@ class LangLibTestCase(DBTestCase):
             path = join(test_dir, file)
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(bar_js, lang=lang)
-        bar_buf.load(force=True)
+        bar_buf.scan(skip_scan_time_check=True)
         foo_buf = self.mgr.buf_from_path(foo_js, lang=lang)
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         langlib = self.mgr.db.get_lang_lib(lang, "test_toplevelname_index",
                                            [test_dir])
         lang_zone = langlib.lang_zone
@@ -1148,7 +1150,7 @@ class LangLibTestCase(DBTestCase):
         foo_content = foo_content.replace("foo_func", "foo_func2")
         foo_buf.accessor.reset_content(foo_content)
         foo_buf.scan()
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         self.failUnless("foo.js" in toplevelname_index._on_deck,
                         "recent 'foo.js' change isn't on-deck in "
                         "toplevelname_index")
@@ -1163,7 +1165,7 @@ class LangLibTestCase(DBTestCase):
         foo_content = foo_content.replace("foo_func2", "foo_func3")
         foo_buf.accessor.reset_content(foo_content)
         foo_buf.scan()
-        foo_buf.load(force=True)
+        foo_buf.scan(skip_scan_time_check=True)
         self.failUnless("foo.js" in toplevelname_index._on_deck,
                         "recent 'foo.js' change isn't on-deck in "
                         "toplevelname_index")
