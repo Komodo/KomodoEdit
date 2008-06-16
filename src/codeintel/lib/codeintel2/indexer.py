@@ -580,7 +580,6 @@ class Indexer(threading.Thread):
                         return
 
                 buf.scan(mtime=request.mtime)
-                db.update_buf_data(buf)
 
             elif isinstance(request, XMLParseRequest):
                 request.buf.xml_parse()
