@@ -58,7 +58,8 @@ Engine should not be randomly changing the whitespace that it spits out.
 
 import sys
 import os
-from os.path import join, dirname, splitext, basename, exists, isfile
+from os.path import join, dirname, splitext, basename, exists, isfile, \
+                    abspath, normpath
 import re
 import unittest
 import difflib
@@ -184,17 +185,18 @@ def _testOneInputFile(self, fpath):
             tree = buf.tree
 
             # Normalize paths.
-            normed_infile = infile[len(dirname(gInputsDir))+1:]
-            normed_infile = normed_infile.replace('\\', '/')
+            relnorm_infile = infile[len(dirname(gInputsDir))+1:]
+            absnorm_infile = infile
+            relnorm_infile = relnorm_infile.replace('\\', '/')
+            absnorm_infile = absnorm_infile.replace('\\', '/')
             for file_elem in tree:
-                file_elem.set("path", normed_infile)
+                file_elem.set("path", relnorm_infile)
                 for blob_elem in file_elem:
                     if blob_elem.get("ilk") != "blob": continue
-                    norm_src = os.path.normpath(blob_elem.get("src"))
-                    if sys.platform == "win32":
-                        norm_src = norm_src.replace('\\', '/')
-                    if norm_src == normed_infile:
-                        blob_elem.set("src", norm_src)
+                    norm_src = normpath(blob_elem.get("src"))
+                    norm_src = norm_src.replace('\\', '/')
+                    if norm_src in (relnorm_infile, absnorm_infile):
+                        blob_elem.set("src", relnorm_infile)
 
             tree = pretty_tree_from_tree(tree)
             cix = ET.tostring(tree)
@@ -347,7 +349,7 @@ def _addUnicodeScanInputTests():
             u"""\
 <codeintel version="2.0">
   <file lang="Perl" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.pl">
-    <scope ilk="blob" lang="Perl" name="foo">
+    <scope ilk="blob" lang="Perl" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.pl">
       <scope ilk="function" line="1" lineend="1" name="foo" signature="foo()" />
     </scope>
   </file>
@@ -358,7 +360,7 @@ def _addUnicodeScanInputTests():
             u"""\
 <codeintel version="2.0">
   <file lang="Python" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.py">
-    <scope ilk="blob" lang="Python" name="foo">
+    <scope ilk="blob" lang="Python" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.py">
       <scope ilk="function" line="1" lineend="1" name="foo" signature="foo()" />
     </scope>
   </file>
@@ -384,7 +386,7 @@ end
             u"""\
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.rb">
-    <scope ilk="blob" lang="Ruby" name="foo">
+    <scope ilk="blob" lang="Ruby" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.rb">
       <scope ilk="function" line="2" lineend="4" name="foo" signature="foo" />
     </scope>
   </file>
@@ -395,7 +397,7 @@ end
             u"""\
 <codeintel version="2.0">
   <file lang="Tcl" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.tcl">
-    <scope ilk="blob" lang="Tcl" name="foo">
+    <scope ilk="blob" lang="Tcl" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.tcl">
       <scope ilk="function" line="1" lineend="1" name="foo" signature="foo {}" />
     </scope>
   </file>
