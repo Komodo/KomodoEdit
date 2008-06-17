@@ -531,8 +531,19 @@ class Indexer(threading.Thread):
 ##                    reason = "stopped"
                     break
                 except:
-                    log.exception("unexpected internal error in indexer: "
-                                  "ignoring and continuing")
+                    # Because we aren't fully waiting for indexer
+                    # termination in `self.finalize` it is possible that
+                    # an ongoing request fails (Manager finalization
+                    # destroys the `mgr.db` instance). Don't bother
+                    # logging an error if we are stopping.
+                    #
+                    # Note: The typical culprit is a *long*
+                    # <PreloadBufLibsRequest> for a PHP or JS library
+                    # dir. Ideally this would be split into a number of
+                    # lower-prio indexer requests.
+                    if not self._stopping:
+                        log.exception("unexpected internal error in indexer: "
+                                      "ignoring and continuing")
         finally:
 ##            try:
 ##                if self._completedCB:
