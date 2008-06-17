@@ -42,6 +42,7 @@ from os.path import dirname, join, abspath, normpath, basename
 import sys
 import re
 import logging
+import threading
 import operator
 import traceback
 
@@ -112,6 +113,7 @@ class UDLLexer(Lexer):
     """LexUDL wants the path to the .lexres file as the first element of
     the first keywords list.
     """
+    _lock = threading.Lock()
 
     def __init__(self):
         self._properties = SilverCity.PropertySet()
@@ -121,6 +123,14 @@ class UDLLexer(Lexer):
         self._keyword_lists = [
             SilverCity.WordList(lexres_path),
         ]
+
+    def tokenize_by_style(self, text, call_back=None):
+        """LexUDL.cxx currently isn't thread-safe."""
+        self._lock.acquire()
+        try:
+            return Lexer.tokenize_by_style(self, text, call_back)
+        finally:
+            self._lock.release()
 
     if _xpcom_:
         # Presume we are running under Komodo. Look in the available
