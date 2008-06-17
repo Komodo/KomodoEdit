@@ -290,6 +290,7 @@ class CitadelBuffer(Buffer):
         # Put it into the database.
         self.mgr.db.update_buf_data(self, scan_tree, mtime, scan_error,
                                     skip_scan_time_check=skip_scan_time_check)
+        self._load_buf_data_once(True)
 
     def scoperef_from_pos(self, pos):
         """Return the scoperef for the given position in this buffer.
