@@ -281,7 +281,7 @@ def getMappedPath(path, prefs=None, host=None):
     if not mapping:
         # try all pref layers for a match
         if prefs.parent:
-            return getMappedPath(path, prefs.parent)
+            return getMappedPath(path, prefs.parent, host)
         return path
 
     # There are mappings, check them now
@@ -309,7 +309,7 @@ def getMappedPath(path, prefs=None, host=None):
     if not mappeduri:
         # this layer had mappings, but none matched, look at parent prefs
         if prefs.parent:
-            return getMappedPath(path, prefs.parent)
+            return getMappedPath(path, prefs.parent, host)
         return path
     # now we need a URI of the mappedpath
     return mappeduri + path[len(mappedpath):]
