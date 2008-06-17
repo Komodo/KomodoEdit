@@ -63,20 +63,25 @@ class DjangoXMLTemplateLangInfo(_DjangoTemplateLangInfo):
 
 
 class MasonHTMLTemplateLangInfo(LangInfo):
+    #TODO: How to best handle relationship with HTML?
+    #TODO: How to enable detection?
     name = "Mason HTML Template"
     komodo_name = "Mason"
     conforms_to_bases = ["Text"]
-    #TODO: How to best handle relationship with HTML?
-    #TODO: How to enable detection?
+    # This ext is a Komodo-ism, but helpful for getting codeintel tests
+    # working for Template Toolkit.
+    exts = [".mason.html"]
 
 
 class TemplateToolkitLangInfo(LangInfo):
     #TODO: link to lang page
     #TODO: Is template toolkit just for HTML files?
-    #TODO: is .ttkt.html for real or just a Komodo-ism?
     name = "Template Toolkit HTML Template"  # a little long
     komodo_name = "TemplateToolkit"
     conforms_to_bases = ["Text"]
+    # This ext is a Komodo-ism, but helpful for getting codeintel tests
+    # working for Template Toolkit.
+    exts = [".ttkt.html"]
 
 
 class SmartyLangInfo(LangInfo):
