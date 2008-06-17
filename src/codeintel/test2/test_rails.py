@@ -933,12 +933,9 @@ class PureRailsTestCase(_BaseTestCase):
         self.assertCompletionsDoNotInclude2(buf, positions[1],
                                        [("function", "bet"),
                                        ])
-        expected_parts = _splitall(migrate_table_create_path)
-        expected_parts[-3:-3] = ["app", "controllers", "..", ".."]
-        fixed_migrate_table_create_path = join(*expected_parts)
         self.assertDefnMatches2(buf, positions[2], lang="Ruby",
                                 line=6,
-                                path=fixed_migrate_table_create_path                     
+                                path=migrate_table_create_path
                                )
         
     # This test *sometimes* fails.
@@ -991,7 +988,7 @@ class PureRailsTestCase(_BaseTestCase):
                    [("function", "read"), #4
                    ],
                   ]
-        repl_path = join('controllers', '..', 'models')
+        repl_path = 'models'
         fixed_cart_path = cart_path.replace('models', repl_path)
         fixed_book_path = book_path.replace('models', repl_path)
         self.assertDefnMatches2(adminc_buf, adminc_positions[5],
