@@ -987,11 +987,15 @@ class Database(object):
         This is used as the filename for the dbfile for this blob.
         """
         s = ':'.join([res_path, lang, blobname])
+        if isinstance(s, unicode):
+            s = s.encode(sys.getfilesystemencoding())
         return md5.new(s).hexdigest()
 
     #TODO:PERF: evaluate perf improvement with caching of this
     def dhash_from_dir(self, dir):
         """Return a hash path to use internally in the db for the given dir."""
+        if isinstance(dir, unicode):
+            dir = dir.encode(sys.getfilesystemencoding())
         return md5.new(dir).hexdigest()
 
 
