@@ -362,7 +362,9 @@ class Manager(threading.Thread, Queue):
             import textinfo
             ti = textinfo.textinfo_from_path(path, encoding=encoding,
                     follow_symlinks=True)
-            lang = ti.lang
+            lang = (hasattr(ti.langinfo, "komodo_name")
+                    and ti.langinfo.komodo_name
+                    or ti.langinfo.name)
             encoding = ti.encoding
             content = ti.text
         elif encoding:
