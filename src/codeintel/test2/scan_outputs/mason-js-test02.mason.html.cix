@@ -8,7 +8,7 @@
         <variable ilk="argument" name="p2" />
       </scope>
     </scope>
-    <scope ilk="blob" lang="Perl" name="mason-js-test02.mason.html">
+    <scope ilk="blob" lang="Perl" name="mason-js-test02.mason.html" src="scan_inputs/mason-js-test02.mason.html">
       <scope ilk="function" line="20" lineend="21" name="a" signature="a()" />
       <scope ilk="function" line="22" lineend="23" name="b" signature="b()" />
       <scope ilk="function" line="24" lineend="25" name="ab" signature="ab()" />

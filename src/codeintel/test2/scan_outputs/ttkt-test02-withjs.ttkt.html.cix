@@ -22,7 +22,7 @@
       <variable citdl="String" line="39" name="s" />
       <variable citdl="Number" line="43" name="gNum" />
     </scope>
-    <scope ilk="blob" lang="Perl" name="ttkt-test02-withjs.ttkt.html">
+    <scope ilk="blob" lang="Perl" name="ttkt-test02-withjs.ttkt.html" src="scan_inputs/ttkt-test02-withjs.ttkt.html">
       <variable line="53" name="$d" />
       <variable attributes="__local__" line="57" name="$d1" />
       <scope ilk="function" line="50" lineend="55" name="foo" signature="foo($a, $b)">
