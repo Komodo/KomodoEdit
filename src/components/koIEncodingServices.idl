@@ -76,6 +76,6 @@ interface koIEncodingServices : nsISupports {
     void getUnicodeEncodedString(in ACString raw_string,
                                  out wstring unicode_string,
                                  out wstring encoding_name,
-                                 out wstring bom);
+                                 out string bom);
 };
 
