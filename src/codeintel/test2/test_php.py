@@ -1807,6 +1807,23 @@ EOD;
                  ("variable", 'SERVER_NAME'),
                 ])
 
+    @tag("bug78042")
+    def test_class_variable_ciling(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=78042
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug78042_class {
+                function bug78042_func() {
+                    $this-><1>xxx;
+                    self::<2>yyy;
+                }
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                [("function", 'bug78042_func'), ])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+                [("function", 'bug78042_func'), ])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
