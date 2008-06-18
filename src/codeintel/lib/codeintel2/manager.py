@@ -220,7 +220,7 @@ class Manager(threading.Thread, Queue):
             try:
                 module.register(self)
             except CodeIntelError, ex:
-                log.warn("error registering `%s' support module",
+                log.warn("error registering `%s' support module: %s",
                          module_path, ex)
             except:
                 log.exception("unexpected error registering `%s' "
