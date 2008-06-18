@@ -731,6 +731,8 @@
 
   <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
   <string id="donotask_action_dragdrop_mapped_uri"></string>
+  
+  <boolean id="donotask_reboot_after_changing_keybindings">0</boolean>
 
   <!-- p4_edit_on_save
     - if boolean pref is true, then:

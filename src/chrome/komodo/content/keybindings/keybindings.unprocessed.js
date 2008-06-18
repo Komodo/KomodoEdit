@@ -478,7 +478,7 @@ this.manager.prototype.parseConfiguration = function (data,
     if (typeof(forceReload) == 'undefined') forceReload = true; // false; XXX
     if (typeof(ignoreCommandPrefix) == 'undefined') ignoreCommandPrefix = null;
 
-    var i
+    var i;
     var line;
     var lines = data.split('\n');
     var onlywhitespace = /^\s*$/;
@@ -798,7 +798,10 @@ this.manager.prototype.saveAndApply = function(prefset) {
             dirty = true;
         }
         if (dirty || this._configDirty) {
-            alert("Changes to the keybindings won't fully take effect until Komodo is restarted.");
+            ko.dialogs.alert("Changes to the keybindings won't fully take effect until Komodo is restarted.",
+                             null, null, // text, title
+                             "reboot_after_changing_keybindings" // doNotAskPref
+                             );
         }
         this.saveCurrentConfiguration();
         this._saveKnownConfigs();
