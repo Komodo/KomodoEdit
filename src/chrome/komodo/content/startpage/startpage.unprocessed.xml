@@ -401,7 +401,8 @@
         <xul:tree anonid="mru-tree" flex="1" class="no-border"
                   hidecolumnpicker="true"
                   ondblclick="this.parentNode.oncommand(event);"
-                  context="_child">
+                  context="_child"
+                  tooltip="_child">
             <xul:treecols style="height: 0px">
             <xul:treecol primary="true" hideheader="true"
                      id="tree-file"
@@ -429,6 +430,9 @@
                       oncommand="this.parentNode.parentNode.parentNode.removeSelected();"
                       />
             </xul:menupopup>
+            <xul:tooltip onpopupshowing="return this.parentNode.parentNode.onTooltipPopup(event);" crop="center">
+                <xul:label anonid="tooltiptext" value="" crop="center"/>
+            </xul:tooltip>
         </xul:tree>
     </content>
 
@@ -448,6 +452,8 @@
         <property name="treeView"
                   onget="return this.tree.view;"/>
         <property name="treeChildren"
+                  onget="return this.tree.firstChild.nextSibling;"/>
+        <property name="tooltip"
                   onget="return this.tree.lastChild;"/>
 
         <method name="init">
@@ -803,6 +809,66 @@
         ]]> </body>
         </method>
 
+
+        <method name="getEntryByCoord">
+        <parameter name="x"/>
+        <parameter name="y"/>
+        <body>
+        <![CDATA[
+            var select = new Object();
+            select.row = {};
+            select.col = {};
+            select.obj = {};
+            select.cell = {};
+            select.cell.x = {};
+            select.cell.y = {};
+            select.cell.h = {};
+            select.cell.w = {};
+        
+            //var columnheight = this.getElement('treecol','name').boxObject.height;
+            var boxObject = this.tree.treeBoxObject.
+                        QueryInterface(Components.interfaces.nsITreeBoxObject)
+            boxObject.getCellAt(x, y, select.row, select.col, select.obj);
+            try {
+                if (select.col.value == null ||
+                    select.row.value < 0 || select.row.value >= this.treeView.rowCount) {
+                    // XXX this.newVar();
+                    return null;
+                } else {
+                    boxObject.getCoordsForCellItem(select.row.value, select.col.value, 'text', select.cell.x, select.cell.y, select.cell.w, select.cell.h);
+                    //select.cell.x.value += boxObject.x;
+                    //select.cell.y.value += (boxObject.y + columnheight -1);
+                }
+            } catch (e) {
+                return null;
+            }
+            return select;
+        ]]>
+        </body>
+        </method>
+
+        <method name="onTooltipPopup">
+        <parameter name="event"/>
+        <body> <![CDATA[
+            // Update the tooltip text... Must return false if the popup
+            // should not be displayed.
+
+            var select = this.getEntryByCoord(event.clientX, event.clientY);
+            if (select && select.obj.value != "twisty") {
+                this.tooltip.firstChild.value = "";
+                //var rowItem = this.view.getRowItem(select.row.value);
+                var item = this.tree.view.getItemAtIndex(select.row.value);
+                var url = item.getAttribute('url');
+                try {
+                    this.tooltip.firstChild.value = ko.uriparse.URIToLocalPath(url);
+                } catch(e) {
+                    this.tooltip.firstChild.value = url;
+                }
+                return this.tooltip.firstChild.value != "";
+            }
+            return false;
+        ]]> </body>
+        </method>
     </implementation>
 
     <handlers>
@@ -810,6 +876,12 @@
         <![CDATA[
             // prevent the whole window scrolling if scrolling the tree
             event.preventDefault();
+        ]]>
+        </handler>
+        <handler event="mousemove" phase="bubbling">
+        <![CDATA[
+            // kill the tooltip if it is visible
+            this.tooltip.hidePopup();
         ]]>
         </handler>
     </handlers>
