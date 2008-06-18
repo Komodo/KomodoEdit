@@ -485,9 +485,10 @@ class PHPTreeEvaluator(TreeEvaluator):
         static_cplns = (self.trg.type == "static-members")
         for child in elem:
             name_prefix = ''   # Used to add "$" for static variable names.
-            attributes = None
+            attributes = child.get("attributes", "").split()
+            if "__hidden__" in attributes:
+                continue
             if not allowProtected:
-                attributes = child.get("attributes", "").split()
                 # Protected and private vars can only be shown from inside
                 # the class scope
                 if "protected" in attributes:
@@ -502,8 +503,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                                  elem_name, child.get("name"))
                         continue
             if not allowPrivate:
-                if attributes is None:
-                    attributes = child.get("attributes", "").split()
                 # we now know protected is allowed, now check private
                 if "private" in attributes:
                     if allowPrivate is None:
@@ -515,8 +514,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                                  elem_name, child.get("name"))
                         continue
             if child.tag == "variable":
-                if attributes is None:
-                    attributes = child.get("attributes", "").split()
                 if static_cplns:
                     # Static variables use the '$' prefix, constants do not.
                     if "static" in attributes:

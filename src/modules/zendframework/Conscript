@@ -43,6 +43,7 @@ if ($buildFlavour ne "full") {
   $cons->InstallAs("$extDir/content/overlay.xul", 'content/overlay.xul');
   $cons->InstallAs("$extDir/content/zendMVCWizard.xul", 'content/zendMVCWizard.xul');
   $cons->InstallAs("$extDir/content/zendutils.js", 'content/zendutils.js');
+  $cons->InstallAs("$extDir/pylib/codeintel_zend.py", 'pylib/codeintel_zend.py');
 } else {
   $cons->Command(
       ["zendframework.xpi", "zendframework.jar"],
@@ -53,9 +54,10 @@ if ($buildFlavour ne "full") {
       "content/overlay.xul",
       "content/zendutils.js",
       "content/zendMVCWizard.xul",
+      "pylib/codeintel_zend.py",
       qq(
           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr zendframework.jar content 
-          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates -x .svn
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates pylib -x .svn
       )
   );
 
@@ -63,6 +65,7 @@ if ($buildFlavour ne "full") {
   $cons->Install("$extDir", "zendframework.jar");
   $cons->Install("$extDir", "install.rdf");
   $cons->Install("$extDir", "chrome.manifest");
+  $cons->Install("$extDir/pylib", "pylib/codeintel_zend.py");
 }
 
 $cons->InstallAs("$extDir/project-templates/Zend\ Framework/Zend_MVC_Project.kpz",
