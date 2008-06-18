@@ -691,7 +691,8 @@ class JavaScriptBuffer(CitadelBuffer):
     #       same problem again... the ideal solution would be to override the
     #       cpln_fillup_chars to be only "\"'" for the 'array-members' trigger
     #       event. But this is not yet possible...
-    cpln_fillup_chars = "~`!#%^&*()-=+{}[]|\\;:'\",.<>?/ "
+    # - dropped ' ' It gets in the way of common usage: "var " (bug 77950).
+    cpln_fillup_chars = "~`!#%^&*()-=+{}[]|\\;:'\",.<>?/"
     cpln_stop_chars = "~`!@#%^&*()-=+{}[]|\\;:'\",.<>?/ "
     sce_prefixes = ["SCE_C_"]
 
