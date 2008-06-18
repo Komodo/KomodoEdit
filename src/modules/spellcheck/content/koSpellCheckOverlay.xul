@@ -52,7 +52,8 @@
     <script src="chrome://komodospellchecker/content/koLaunchSpellcheck.js"  type="application/x-javascript" />
 
   <commandset id="allcommands">
-    <command id="Tasks:CheckSpelling" oncommand="spellcheckerLauncher_run();"/>
+    <command id="Tasks:CheckSpelling" oncommand="spellcheckerLauncher_run();"
+             desc="&commandLaunchSpellCheck.description;"/>
   </commandset>
   <menupopup id="editorContextMenu">
     <menuitem id="menu_komodospellchecker"
