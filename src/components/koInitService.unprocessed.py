@@ -850,6 +850,20 @@ class KoInitService:
         self._upgradeUserDataDirFiles()
         self._upgradeUserPrefs()
 
+    def _isMozDictionaryDir(self, dictionaryDir):
+        # Return true if dictionaryDir contains at least one pair of files
+        # foo.aff and foo.dic
+        
+        if not os.path.isdir(dictionaryDir):
+            return False
+        from os.path import basename, join, splitext
+        import glob
+        aff_bases = set(splitext(basename(p))[0]
+                        for p in glob.glob(join(dictionaryDir, "*.aff")))
+        dic_bases = set(splitext(basename(p))[0]
+                        for p in glob.glob(join(dictionaryDir, "*.dic")))
+        return len(aff_bases.intersection(dic_bases)) > 0
+
     def initExtensions(self):
         """'pylib' subdirectories of installed extensions are appended
         to Komodo's runtime sys.path.
@@ -862,9 +876,7 @@ class KoInitService:
         try:
             koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
             dictionaryDir = os.path.join(koDirSvc.userDataDir, "dictionaries")
-            if os.path.isdir(dictionaryDir) \
-               and os.path.exists(os.path.join(dictionaryDir, "en-US.dic")) \
-               and os.path.exists(os.path.join(dictionaryDir, "en-US.aff")):
+            if self._isMozDictionaryDir(dictionaryDir):
                 profDir_nsFile = components.classes["@mozilla.org/file/local;1"] \
                         .createInstance(components.interfaces.nsILocalFile)
                 profDir_nsFile.initWithPath(dictionaryDir)
@@ -872,7 +884,7 @@ class KoInitService:
                          .getService(components.interfaces.nsIProperties)
                 directoryService.set("DictD", profDir_nsFile)
         except:
-            log.error("Failed to set the dictionary property")
+            log.exception("Failed to set the dictionary property")
             
         import directoryServiceUtils
         from os.path import join, exists
