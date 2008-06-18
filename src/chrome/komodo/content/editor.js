@@ -238,6 +238,7 @@ editor_editorController.prototype.do_cmd_viewAsGuessedLanguage = function() {
     try {
         ko.views.manager.currentView.document.language = '';
         ko.views.manager.currentView.document.language = ko.views.manager.currentView.document.language;
+        ko.views.manager.currentView.scimoz.colourise(0, -1);
     } catch (e) {
         log.exception(e);
     }
