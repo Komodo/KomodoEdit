@@ -47,10 +47,12 @@ from xpcom.client import WeakReference
 import sys, os, cgi
 from eollib import newl
 import logging
+import shutil
 import timeline
 import uriparse
 
 log = logging.getLogger('koXMLPrefs')
+#log.setLevel(logging.DEBUG)
 
 _timers = {} # used for timeline stuff
 
@@ -76,9 +78,10 @@ def pickleCache(object, filename):
     Pickle a pref object to a pref pickle file given the pref's
     ordinary XML file name.
     """
-    pickleFilename = filename
+    from tempfile import mkstemp
+    (fdes, pickleFilename) = mkstemp(".tmp", "koPickle_")
     import cPickle
-    file = open(pickleFilename, "wb")
+    file = os.fdopen(fdes, "wb")
     try:
         try:
             log.debug("Pickling object %s to %s" % (object, pickleFilename))
@@ -97,6 +100,10 @@ def pickleCache(object, filename):
     finally:
         if file is not None:
             file.close()
+            # Avoid copying bytes when writing to a profile file,
+            # although this is hard to do on Windows
+            import shutil
+            shutil.move(pickleFilename, filename)
 
 def pickleCacheOKToLoad(xml_filename):
     """
