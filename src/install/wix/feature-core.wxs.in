@@ -306,6 +306,7 @@
       <ComponentRef Id="component298"/>
       <ComponentRef Id="component211"/>
       <ComponentRef Id="component212"/>
+      <ComponentRef Id="component220"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1315,6 +1316,11 @@
                   </Component>
                 </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\project-templates\Zend Framework -->
               </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\project-templates -->
+              <Directory Id="directory243" Name="pylib">
+                <Component Id="component220" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file462" Name="CODEIN_1.PY" LongName="codeintel_zend.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\zendframework@ActiveState.com\pylib\codeintel_zend.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\pylib -->
             </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com -->
           </Directory> <!-- lib\mozilla\extensions -->
           <Directory Id="directory65" Name="greprefs">
