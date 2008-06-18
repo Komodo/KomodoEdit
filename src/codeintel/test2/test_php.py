@@ -1824,6 +1824,20 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
                 [("function", 'bug78042_func'), ])
 
+    @tag("bug78050")
+    def test_class_variable_ciling(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=78050
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug78050_class {
+                function bug78050_func() {
+                    $this-><1>xxx == 1;
+                }
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                [("function", 'bug78050_func'), ])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
