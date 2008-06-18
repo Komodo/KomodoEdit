@@ -830,6 +830,7 @@ class KoInitService:
                 join("XRE", "key3.db"): join("XRE", "key3.db"),
                 join("XRE", "cert8.db"): join("XRE", "cert8.db"),
                 join("XRE", "secmod.db"): join("XRE", "secmod.db"),
+                join("XRE", "extensions"): join("XRE", "extensions"),
             })
             if prevVer >= (4,1):
                 # In Komodo 4.1, the Mozilla nsIPasswordManager changed the
