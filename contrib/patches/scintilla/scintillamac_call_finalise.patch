@@ -1,8 +1,8 @@
-Index: /Users/ericp/svn/apps/komodo/src/scintilla/macosx/ScintillaMacOSX.cxx
+Index: src/scintilla/macosx/ScintillaMacOSX.cxx
 ===================================================================
---- /Users/ericp/svn/apps/komodo/src/scintilla/macosx/ScintillaMacOSX.cxx	(revision 19760)
-+++ /Users/ericp/svn/apps/komodo/src/scintilla/macosx/ScintillaMacOSX.cxx	(working copy)
-@@ -234,6 +234,7 @@
+--- src/scintilla/macosx/ScintillaMacOSX.cxx	(revision 19760)
++++ src/scintilla/macosx/ScintillaMacOSX.cxx	(working copy)
+@@ -234,11 +234,11 @@
  ScintillaMacOSX::~ScintillaMacOSX() {
      // If the window is closed and the timer is not removed,
      // A segment violation will occur when it attempts to fire the timer next.
@@ -10,3 +10,8 @@ Index: /Users/ericp/svn/apps/komodo/src/scintilla/macosx/ScintillaMacOSX.cxx
      if ( mouseTrackingRef != NULL ) {
          ReleaseMouseTrackingRegion(mouseTrackingRef);
      }
+     mouseTrackingRef = NULL;
+-    SetTicking(false);
+ #ifdef EXT_INPUT
+     ExtInput::detach (GetViewRef());
+ #endif
