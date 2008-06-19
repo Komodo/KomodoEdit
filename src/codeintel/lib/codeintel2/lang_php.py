@@ -2676,8 +2676,10 @@ class PHPParser:
             # Parse special internal variable names
             if name == "parent":
                 continue
+            thisVar = False
             if name in ("this", "self", ):
                 classVar = True
+                thisVar = True # need to distinguish between class var types.
                 if len(namelist) <= 1:
                     continue
                 # We don't need the this/self piece of the namelist.
@@ -2722,7 +2724,7 @@ class PHPParser:
                     p = self._skipPastParenArguments(styles, text, p+1)
 
             # Create the variable cix information.
-            if mustCreateVariable or (p < len(styles) and
+            if mustCreateVariable or (not thisVar and p < len(styles) and
                                       styles[p] == self.PHP_OPERATOR and \
                                       text[p] in ",;"):
                 log.debug("Line %d, variable definition: %r",
