@@ -14118,11 +14118,9 @@
         <variable ilk="argument" name="id" />
         <variable ilk="argument" name="config" />
       </scope>
-      <variable citdl="Number" doc="The X position of the point, which is also the right, left and index zero (for Dom.getXY symmetry)" line="1213" name="this[0]" />
       <scope attributes="private" doc="PRIVATE: Updates the rgb attribute with the current state of the r,g,b&#xA;fields.  This is invoked from change listeners on these&#xA;attributes to facilitate updating these values from the&#xA;individual form fields" ilk="function" line="1219" lineend="1227" name="_updateRGB" signature="_updateRGB()">
         <variable attributes="__local__ private" citdl="Array" line="1222" name="rgb" />
       </scope>
-      <variable citdl="Number" doc="The Y position of the point, which is also the top, bottom and index one (for Dom.getXY symmetry)" line="1220" name="this[1]" />
       <variable citdl="Menu" line="1231" name="oMenu" />
       <scope attributes="private" ilk="function" line="1287" lineend="1292" name="translateValues" returns="val" signature="translateValues(val, start)">
         <variable ilk="argument" name="val" />
