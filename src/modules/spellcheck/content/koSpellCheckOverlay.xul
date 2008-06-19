@@ -51,14 +51,15 @@
     <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript" />
     <script src="chrome://komodospellchecker/content/koLaunchSpellcheck.js"  type="application/x-javascript" />
 
-  <commandset id="allcommands">
-    <command id="Tasks:CheckSpelling" oncommand="spellcheckerLauncher_run();"
+  <commandset id="cmdset_currentview_is_editor">
+    <command id="cmd_checkSpelling"
+             oncommand="ko.commands.doCommandAsync('cmd_checkSpelling', event)"
              desc="&commandLaunchSpellCheck.description;"/>
   </commandset>
   <menupopup id="editorContextMenu">
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
-              observes="Tasks:CheckSpelling"
+              observes="cmd_checkSpelling"
               insertafter="editor-context-sep-extensions"
               class="menuitem-iconic-wide"/>
   </menupopup>
@@ -66,7 +67,7 @@
   <menupopup id="popup_tools">
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
-              observes="Tasks:CheckSpelling"
+              observes="cmd_checkSpelling"
               class="menuitem-iconic-wide"/>
   </menupopup>
     

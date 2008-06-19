@@ -38,21 +38,64 @@
  * An extension to add dialog-based spellchecking of text parts of files.
  */
 
+if (typeof(ko) == 'undefined') {
+    var ko = {};
+}
+if (!('extensions' in ko)) {
+    ko.extensions = {};
+}
+if (!('spellchecker' in ko.extensions)) {
+    ko.extensions.spellchecker = {};
+}
 
-function spellcheckerLauncher_run() {
+(function() {
+// Set up a controller to make sure we do this only when there's a view
+
+var __SpellCheckController = null;
+function SpellCheckController() {
+    try {
+        window.controllers.appendController(this);
+    } catch(e) {
+        this.log.exception(e);
+    }
+}
+
+// The following two lines ensure proper inheritance (see Flanagan, p. 144).
+SpellCheckController.prototype = new xtk.Controller();
+SpellCheckController.prototype.constructor = SpellCheckController;
+
+SpellCheckController.prototype.destroy = function() {
+    window.controllers.removeController(this);
+}
+
+SpellCheckController.prototype.is_cmd_checkSpelling_enabled = function() {
+    return (ko.views.manager.currentView
+            && ko.views.manager.currentView.languageObj != null);
+}
+
+SpellCheckController.prototype.do_cmd_checkSpelling = function() {
     var obj = {};
     try {
         obj.view = ko.views.manager.currentView;
+        if (!obj.view || !obj.view.languageObj) {
+            alert("No current document to spellcheck.");
+            return;
+        }
         obj.ko = ko;
     } catch(ex) {
-        alert("Komodo Internal Error: couldn't find the document/view object: " + ex);
+        alert("Komodo Internal Error: couldn't find the document to spellcheck: " + ex);
         return;
     }
-    // let the context-menu go away
-    setTimeout(function(win) {
-        win.openDialog("chrome://komodospellchecker/content/koSpellCheck.xul",
-                          "spellchecker",
-                          "chrome,modal,titlebar",
-                          obj);
-    }, 1, window);
+    window.openDialog("chrome://komodospellchecker/content/koSpellCheck.xul",
+                      "spellchecker",
+                      "chrome,modal,titlebar",
+                      obj);
 }
+
+this.SpellCheckController_onload = function() {
+    __SpellCheckController = new SpellCheckController();
+    window.removeEventListener("load", this.SpellCheckController_onload, true);
+}
+
+}).apply(ko.extensions.spellchecker);
+window.addEventListener("load", ko.extensions.spellchecker.SpellCheckController_onload, true);
