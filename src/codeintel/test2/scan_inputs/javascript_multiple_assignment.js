@@ -19,3 +19,9 @@ item2.toString();
 item3.toString();
 
 var low = -1, high = gFastIndex;
+
+/*
+  Ensure a variable named "this[0]" is not created.
+  http://bugs.activestate.com/show_bug.cgi?id=77854
+*/
+x = this[0] = 1;
