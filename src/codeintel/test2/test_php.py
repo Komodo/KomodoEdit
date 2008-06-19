@@ -547,6 +547,12 @@ class TriggerTestCase(CodeIntelTestCase):
         # No trigger on a string.
         self.assertNoTrigger(php_markup('a"<|>SERVER_NAME"]'))
 
+    @tag("bug78099")
+    def test_variable_trigger_with_class_operator(self):
+        # Should not trigger variables after "::"
+        # http://bugs.activestate.com/show_bug.cgi?id=78099
+        self.assertNoTrigger(php_markup("Class::$s<|>"))
+
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "PHP"
