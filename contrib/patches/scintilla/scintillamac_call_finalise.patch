@@ -1,7 +1,7 @@
-Index: src/scintilla/macosx/ScintillaMacOSX.cxx
+Index: macosx/ScintillaMacOSX.cxx
 ===================================================================
---- src/scintilla/macosx/ScintillaMacOSX.cxx	(revision 19760)
-+++ src/scintilla/macosx/ScintillaMacOSX.cxx	(working copy)
+--- macosx/ScintillaMacOSX.cxx	(revision 19760)
++++ macosx/ScintillaMacOSX.cxx	(working copy)
 @@ -234,11 +234,11 @@
  ScintillaMacOSX::~ScintillaMacOSX() {
      // If the window is closed and the timer is not removed,
