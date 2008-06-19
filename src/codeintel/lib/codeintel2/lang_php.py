@@ -2707,9 +2707,11 @@ class PHPParser:
             assignChar = text[p]
             typeNames = []
             mustCreateVariable = False
-            # Work out the citdl
+            # Work out the citdl, we also ensure this is not just a comparison,
+            # i.e. not "$x == 2".
             if p+1 < len(styles) and styles[p] == self.PHP_OPERATOR and \
-                                         assignChar in "=":
+                                         assignChar in "=" and \
+               (p+2 >= len(styles) or text[p+1] != "="):
                 # Assignment to the variable
                 mustCreateVariable = True
                 typeNames, p = self._getVariableType(styles, text, p, assignChar)
