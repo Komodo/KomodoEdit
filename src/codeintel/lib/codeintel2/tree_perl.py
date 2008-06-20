@@ -425,7 +425,7 @@ class PerlTreeEvaluatorBase(CandidatesForTreeEvaluator):
                 morphed_cplns.append((type, value))
             cplns = morphed_cplns
 
-        cplns.sort(key=lambda c: c[1].upper())
+        cplns = CandidatesForTreeEvaluator.post_process_cplns(self, cplns)
         if DEBUG:
             print banner("(after)", '-')
             pprint(cplns)

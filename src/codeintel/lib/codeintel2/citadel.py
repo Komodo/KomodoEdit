@@ -652,13 +652,14 @@ class CitadelEvaluator(Evaluator):
         
         Note that a common operation that all implementations should
         generally do (and the default impl. *does*) is to sort the list
-        of completions case-insensitively by value. Sorting is necessary
+        of completions case-insensitively by value and with punctuation
+        characters sorting last (see bug 77954). Sorting is necessary
         to have type-ahead-find work properly in Scintilla's autocomplete
         UI and case-insensitive sorting is necessary if using Scintilla's
-        SCI_AUTOCSETIGNORECASE(true) -- which Komodo is. To do this:
-                cplns.sort(key=lambda c: c[1].upper())
+        SCI_AUTOCSETIGNORECASE(true) -- which Komodo is.
         """
-        cplns.sort(key=lambda c: c[1].upper())
+        from codeintel2.util import OrdPunctLast
+        cplns.sort(key=lambda c: OrdPunctLast(c[1]))
         return cplns
 
     def post_process_calltips(self, calltips):

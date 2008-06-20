@@ -115,6 +115,7 @@ class RubyLexer(Lexer):
         ]
 
 
+#TODO: This isn't used. Drop it.
 class RubyCitadelEvaluator(CitadelEvaluator):
     def __init__(self, ctlr, buf, trg, expr, line, converted_dot_new=None):
         CitadelEvaluator.__init__(self, ctlr, buf, trg, expr, line)

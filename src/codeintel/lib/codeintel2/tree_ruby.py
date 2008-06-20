@@ -984,8 +984,7 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
         self.debug("In RubyTreeEvaluator.post_process_cplns: %r", cplns)
         """Remove completions that don't start with a letter"""
         fixed_cplns = [x for x in cplns if letter_start_re.match(x[1])]
-        fixed_cplns.sort(key=lambda c: c[1].upper())
-        return fixed_cplns
+        return TreeEvaluatorHelper.post_process_cplns(self, fixed_cplns)
 
     _s_initialize_new = re.compile(r'^initialize\(')
     def post_process_calltips(self, calltips):

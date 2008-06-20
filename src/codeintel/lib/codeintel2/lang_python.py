@@ -422,8 +422,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 #            value = cplns[i][1]
 #            if value.startswith("__") and value.endswith("__"):
 #                del cplns[i]
-#        cplns.sort(key=lambda c: c[1].upper())
-#        return cplns
+#        return CitadelEvaluator.post_process_cplns(self, cplns)
 
 
 class PythonBuffer(CitadelBuffer):
