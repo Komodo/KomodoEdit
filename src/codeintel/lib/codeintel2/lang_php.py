@@ -552,6 +552,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     # Explicit call, move ahead one for real trigger position
                     pos += 1
                 if not implicit or prev_char == "$":
+                    # Ensure we are not triggering over static class variables.
+                    # Do this by checking that the preceding text is not "::"
+                    # http://bugs.activestate.com/show_bug.cgi?id=78099
+                    p, c, style = ac.getPrecedingPosCharStyle(last_style,
+                                                              max_look_back=30)
+                    if c == ":" and style == self.operator_style and \
+                        ac.getTextBackWithStyle(style, max_text_len=3)[1] == "::":
+                        return None
                     return Trigger(lang, TRG_FORM_CPLN, "variables",
                                    pos-1, implicit)
             elif last_style in (self.identifier_style, self.keyword_style):
