@@ -60,8 +60,25 @@ var ko = {
             throw new Error("SpellChecker not found!!!\n");
         }
 
-        this.language = 'en-US';
-        this.spellChecker.dictionary = this.language;
+        // Figure out which language to use
+        var targetLang = null;
+        try {
+            var o1 = {};
+            this.spellChecker.getDictionaryList(o1, {});
+            var dictList = o1.value;
+            if (dictList) {
+                var prefset = args.view.document.getEffectivePrefs();
+                var currDocLang = this.getLastSpellCheckLanguage(prefset);
+                if (currDocLang && dictList.indexOf(currDocLang) >= 0) {
+                    targetLang = currDocLang;
+                } else {
+                    targetLang = dictList[0];
+                }
+            }
+        } catch(ex) {
+            dump(ex + "\n");
+        }
+        this.spellChecker.dictionary = this.language = (targetLang || 'en-US');
         if (this.spellChecker.providesPersonalDictionary) {
             this.personalDictionary = this.spellChecker.personalDictionary;
         } else {
