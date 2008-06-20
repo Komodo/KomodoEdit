@@ -311,7 +311,15 @@ this.testSavePref = function() {
 /* -- Some local utilities -- */
 
 this.layoutData = {
-  'application'     : {'controllers': true, 'views': true},
+  'application'     : {
+    'controllers': true,
+    'views': {
+      'scripts': true,
+      'helpers': true,
+      'filters': true
+    },
+    'models': true
+  },
   'library'         : {'Zend': false},
   'public'          : true
 };
@@ -445,7 +453,7 @@ this.scaffold = function(projPath) {
     _newFile(indexPath, indexText);
     
     _addController('index', projPath);
-    _addView('index', projPath);
+    _addView('index', 'index', projPath);
   } catch(e) {
     ko.dialogs.internalError(e, 'Error in scaffold: '+e);
   }
@@ -470,18 +478,27 @@ this.setLiveDir = function(path) {
  */
 
 this.addView = function() {
-  var name = ko.dialogs.prompt('New View name');
-  if(name) {
-    _addView(name);
+  var args = ko.dialogs.prompt2(
+    'To add a view script, you need to supply the controller and the action:',
+    'Controller',
+    'index',
+    'Action',
+    'index',
+    'Add a view script'
+  );
+  if(args.length == 2) {
+    _addView(args[0], args[1]);
   }
 }
 
 /**
  * _addView: implementation, can be used by automation scripts
- * @param name {String}
+ * @param controller {String}
+ * @param action {String}
+ * @param projPath {String} optional
  */
 
-function _addView(name, projPath) {
+function _addView(controller, action, projPath) {
   try {
     var project = ko.projects.manager.currentProject;
     if(typeof(projPath) == 'undefined') {
@@ -489,10 +506,14 @@ function _addView(name, projPath) {
     }
     var snpt = ko.projects.findPart('snippet', 'ZendView', '*', project);
     var origTxt = snpt.value;
-    var newView = tabstopReplacer(name, origTxt);
-    var viewFile = (name.toLowerCase() + '.phtml');
-    var viewPath = getFilePath('views', viewFile, projPath);
-    _newFile(viewPath, newView);
+    var newView = tabstopReplacer(action, origTxt);
+    var viewFile = _fixActionName(action) + '.phtml';
+    viewFile = getFilePath('views', viewFile, projPath, controller.toLowerCase());
+    var viewPath = os.path.dirname(viewFile);
+    if(!os.path.exists(viewPath)) {
+      os.mkdir(viewPath);
+    }
+    _newFile(viewFile, newView);
   } catch(e) {
     ko.dialogs.internalError(e, 'Error: '+e);
   } 
@@ -556,15 +577,19 @@ function _addController(name, projPath) {
  * getFilePath()
  * @param type {String}
  * @param fileName {String}
+ * @param projPath {String}
+ * @param folderName {String}
  */
 
-function getFilePath(type, fileName, projPath) {
+function getFilePath(type, fileName, projPath, folderName) {
   try {
     var arr = new Array();
     switch(type) {
       case "controllers":
-      case "views":
         arr = [projPath, 'application', type, fileName];
+        break;
+      case "views":
+        arr = [projPath, 'application', type, 'scripts', folderName, fileName];
         break;
       case "bootstrap":
         arr = [projPath, 'application', fileName];
@@ -670,6 +695,26 @@ function findAll(rx, text) {
     out.push(match);
   }
   return out;
+}
+
+/**
+ * _fixActionName
+ * @param str {String}
+ */
+
+function _fixActionName(name) {
+  var outname = '';
+  name = name.replace(/[\.\_]/g, '-');
+  for(i=0; i<name.length;i++) {
+    var tmp = name[i];
+    if(/[A-Z]/.test(tmp)) {
+      //this is a capital
+      tmp = '-'+tmp.toLowerCase();
+    }
+    outname += tmp;
+  }
+  
+  return outname.replace(/[\-]{2,9}/g, '-');
 }
 
 /**
