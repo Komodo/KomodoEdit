@@ -52,10 +52,12 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="kodialog"
         orient="vertical"
-        height="300"
+        height="340"
         width="550"
         minheight=""
-        onload="zendutils.onZendLoad();">
+        onload="zendutils.onZendLoad();"
+        persist="screenX screenY height width"
+        >
 
   <script src="chrome://xtk/content/xtk.js"
     type="application/x-javascript;version=1.7"/>
