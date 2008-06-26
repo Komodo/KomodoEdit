@@ -1169,15 +1169,13 @@ viewManager.prototype.is_cmd_findNext_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_findNext = function() {
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
     var pattern = ko.mru.get("find-patternMru");
     if (pattern) {
         var context = Components.classes[
             "@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
+        var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
         context.type = findSvc.options.preferredContextType;
         findSvc.options.searchBackward = false;
         Find_FindNext(window, context, pattern);
@@ -1196,14 +1194,12 @@ viewManager.prototype.is_cmd_findPrevious_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_findPrevious = function() {
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
     var pattern = ko.mru.get("find-patternMru");
     if (pattern) {
         var context = Components.classes["@activestate.com/koFindContext;1"]
                       .createInstance(Components.interfaces.koIFindContext);
+        var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
         context.type = findSvc.options.preferredContextType;
         findSvc.options.searchBackward = true;
         Find_FindNext(window, context, pattern);
@@ -1239,10 +1235,8 @@ viewManager.prototype._findFunction = function(searchType) {
         if (re == null || re == '')
             return;
 
-        if (findSvc == null) {
-            findSvc = Components.classes["@activestate.com/koFindService;1"].
+        var findSvc = Components.classes["@activestate.com/koFindService;1"].
                       getService(Components.interfaces.koIFindService);
-        }
         var patternType, caseSensitivity, searchBackward, matchWord;
         patternType = findSvc.options.patternType;
         caseSensitivity = findSvc.options.caseSensitivity;

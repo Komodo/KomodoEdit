@@ -60,7 +60,13 @@
 var findLog = ko.logging.getLogger("find_functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
 
-var findSvc = null; // the find XPCOM service that does all the grunt work
+// the find XPCOM service that does all the grunt work
+__defineGetter__("findSvc",
+function()
+{
+    return Components.classes["@activestate.com/koFindService;1"]
+                  .getService(Components.interfaces.koIFindService);
+});
 
 // The find session is used to hold find results and to determine when to stop
 // searching (i.e. when we have come full circle).
@@ -929,11 +935,6 @@ function Find_FindNextInMacro(editor, contexttype, pattern, patternType,
             .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
 
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
-
     // Stash old options
     old_patternType = findSvc.options.patternType;
     old_caseSensitivity = findSvc.options.caseSensitivity;
@@ -967,11 +968,6 @@ function Find_FindAllInMacro(editor, contexttype, pattern, patternType,
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
-
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
 
     // Stash old options
     old_patternType = findSvc.options.patternType;
@@ -1008,11 +1004,6 @@ function Find_MarkAllInMacro(editor, contexttype, pattern, patternType,
             .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
 
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
-
     // Stash old options
     old_patternType = findSvc.options.patternType;
     old_caseSensitivity = findSvc.options.caseSensitivity;
@@ -1045,11 +1036,6 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
-
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
 
     // Stash old options
     old_patternType = findSvc.options.patternType;
@@ -1084,11 +1070,6 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
-
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
 
     // Stash old options
     old_patternType = findSvc.options.patternType;
@@ -1143,10 +1124,6 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     findLog.info("Find_FindNext(editor, context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
 
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_FindNextInMacro(window, " +
                                     context.type + ", '" +
@@ -1203,10 +1180,6 @@ function Find_FindAll(editor, context, pattern, patternAlias,
 
     findLog.info("Find_FindAll(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_FindAllInMacro(window, " +
                                     context.type + ", '" +
@@ -1301,10 +1274,6 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
     }
     
     // Returns true iff any matches were found and displayed.
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-    }
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_MarkAllInMacro(window, " +
                                     context.type + ", '" +
@@ -1379,10 +1348,6 @@ function Find_Replace(editor, context, pattern, replacement,
     // occurence of the pattern was found and hilighted.
     findLog.info("Find_Replace(editor, context, pattern='"+pattern+
                  "', replacement='"+replacement+"')");
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
 
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_ReplaceInMacro(window, " +
@@ -1455,11 +1420,6 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern+
                  "', replacement='"+replacement+"', showReplaceResults="+
                  showReplaceResults+")\n");
-
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
 
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("Find_ReplaceAllInMacro(window, " +
@@ -1590,10 +1550,6 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
 
     findLog.info("Find_FindAllInFiles(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
 
     //TODO macro recording stuff for this
 
@@ -1642,10 +1598,6 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
 
     findLog.info("Find_ReplaceAllInFiles(editor, context, pattern='"+pattern+
                  "', repl='"+repl+"', confirm="+confirm+")");
-    if (findSvc == null) {
-        findSvc = Components.classes["@activestate.com/koFindService;1"].
-                  getService(Components.interfaces.koIFindService);
-    }
 
     //TODO macro recording stuff for this
 
