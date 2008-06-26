@@ -171,11 +171,6 @@ function onloadDelay() {
             ko.open.startPage();
         }
 
-        /* commandmentSvc needs the window to be alive */
-        var commandmentSvc = Components.classes["@activestate.com/koCommandmentService;1"]
-                           .getService(Components.interfaces.koICommandmentService);
-        commandmentSvc.initialize();
-
         // the offer to restore the workspace needs to be after the
         // commandments system is initialized because the commandments mechanism
         // is how the determination of 'running in non-interactive mode' happens,

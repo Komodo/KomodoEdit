@@ -421,6 +421,9 @@ class KoCommandmentService:
     _reg_clsid_ = "{1ADBCE86-1AE4-4F90-AA85-B230B7510D7B}"
     _reg_contractid_ = "@activestate.com/koCommandmentService;1"
     _reg_desc_ = "Komodo commandment system service"
+    _reg_categories_ = [
+         ("komodo-startup-service", "koCommandmentService", True),
+         ]
 
     def __init__(self):
         # Platform-specific handle on object indicating Komodo is running.
@@ -431,8 +434,12 @@ class KoCommandmentService:
                     getService(components.interfaces.nsIObserverService)
         self._observer = WrapObject(self, components.interfaces.nsIObserver)
         obsvc.addObserver(self._observer, 'xpcom-shutdown', 1)
+        obsvc.addObserver(self._observer, 'komodo-ui-started', 1)
 
     def initialize(self):
+        if self._reader:
+            # we're already initialized
+            return
         global _gObserverSvc
         proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"]\
             .getService(components.interfaces.nsIProxyObjectManager)
@@ -473,6 +480,9 @@ class KoCommandmentService:
         if topic == 'xpcom-shutdown':
             log.debug("koCommandmentService got xpcom-shutdown, unloading");
             self.finalize()
+        elif topic == 'komodo-ui-started':
+            # commandmentSvc needs the window to be alive
+            self.initialize()
  
     def handleCommandment(self, commandment):
         # For testing only: this will be obselete when the commandment
