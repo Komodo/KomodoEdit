@@ -1859,7 +1859,7 @@ this.manager.prototype.evalCommand = function (event, commandname, keylabel) {
             }
        }
         if (expr) {
-            dump("would eval: " + expr+'\n');
+            //dump("would eval: " + expr+'\n');
             var ret = eval(expr);
             if (typeof(ret) == 'undefined') ret = true;
             return ret;
