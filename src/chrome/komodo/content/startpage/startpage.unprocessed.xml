@@ -446,6 +446,15 @@
         <field name="_files">null</field>
         <field name="_updateProjectMRUWhenVisible">true</field>
         <field name="_updateFileMRUWhenVisible">true</field>
+        <field name="_log">null</field>
+        <property name="log">
+            <getter><![CDATA[
+            if (!this._log) {
+                this._log = ko.logging.getLogger('startpage.tree-mru');
+            }
+            return this._log;
+            ]]></getter>
+        </property>
 
         <property name="tree"
                   onget="return document.getAnonymousNodes(this)[0];"/>
@@ -549,7 +558,7 @@
 
         <method name="openSelected">
         <body> <![CDATA[
-            log.info("openSelected");
+            this.log.info("openSelected");
             try {
                 var items = this.getSelectedItems();
                 var urls = new Array();
@@ -561,14 +570,14 @@
                 if (urls.length > 0)
                     ko.open.multipleURIs(urls);
             } catch (ex) {
-                log.error("openSelected error: "+ex);
+                this.log.error("openSelected error: "+ex);
             }
         ]]> </body>
         </method>
 
         <method name="removeSelected">
         <body> <![CDATA[
-            log.info("removeSelected");
+            this.log.info("removeSelected");
             try {
                 // Remove the selected files and projects from their respective MRUs.
                 // - Delete in reverse order so indeces are correct.
@@ -585,7 +594,7 @@
                 this.updateProjectMRUTable();
                 this.updateFileMRUTable();
             } catch (ex) {
-                log.error("removeSelected error: "+ex);
+                this.log.error("removeSelected error: "+ex);
             }
         ]]> </body>
         </method>
@@ -594,7 +603,7 @@
         <body> <![CDATA[
             // Verify and then clear the given MRU.
             //    "mru" is either "project" or "file", indicating which MRU.
-            log.info("clearMRU()");
+            this.log.info("clearMRU()");
             try {
                 var prompt = "Are you sure you want to clear the list "+
                              "of recent Files and Projects?";
@@ -604,14 +613,14 @@
                     ko.mru.reset("mruFileList");
                 }
             } catch (ex) {
-                log.error("clearMRU error: "+ex);
+                this.log.error("clearMRU error: "+ex);
             }
         ]]> </body>
         </method>
 
         <method name="updateProjectMRUTable">
         <body> <![CDATA[
-            log.info("_updateProjectMRUTable()");
+            this.log.info("_updateProjectMRUTable()");
             try {
                 var children = this._projects.lastChild;
                 // Get the MRU info.
@@ -632,14 +641,14 @@
                     }
                 }
             } catch(ex) {
-                log.exception(ex, "_updateProjectMRUTable error: ");
+                this.log.exception(ex, "_updateProjectMRUTable error: ");
             }
         ]]> </body>
         </method>
 
         <method name="updateFileMRUTable">
         <body> <![CDATA[
-            log.info("_updateFileMRUTable()");
+            this.log.info("_updateFileMRUTable()");
             try {
                 var children = this._files.lastChild;
                 // Get the MRU info.
@@ -662,7 +671,7 @@
                 
                 
             } catch(ex) {
-                log.exception(ex, "_updateFileMRUTable error: ");
+                this.log.exception(ex, "_updateFileMRUTable error: ");
             }
         ]]> </body>
         </method>
@@ -674,7 +683,7 @@
         <parameter name="index"/>
         <parameter name="url"/>
         <body> <![CDATA[
-            log.info("_addMRURow(widgets, mru='"+mru+"', index='"+index+
+            this.log.info("_addMRURow(widgets, mru='"+mru+"', index='"+index+
                           "', url='"+url+"')");
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             try {
@@ -712,7 +721,7 @@
 
                 children.appendChild(item);
             } catch (ex) {
-                log.error("_addMRURow error: "+ex);
+                this.log.error("_addMRURow error: "+ex);
             }
         ]]> </body>
         </method>
@@ -720,7 +729,7 @@
         <method name="_isToday">
         <parameter name="secs"/>
         <body> <![CDATA[
-            log.info("_isToday(secs="+secs+")");
+            this.log.info("_isToday(secs="+secs+")");
             try {
                 // Return true iff the given 'secs' (seconds since the epoch) is today.
                 var timeTuple = this._timeSvc.localtime(secs, new Object());
@@ -732,7 +741,7 @@
 
                 return date == dateNow;
             } catch (ex) {
-                log.error("_isToday error: "+ex);
+                this.log.error("_isToday error: "+ex);
             }
             return false;
         ]]> </body>
@@ -741,7 +750,7 @@
         <method name="_getLastModifiedMessage">
         <parameter name="url"/>
         <body> <![CDATA[
-            log.info("_getLastModifiedMessage(url='"+url+"')");
+            this.log.info("_getLastModifiedMessage(url='"+url+"')");
             var msg = "";
             try {
                 // Return a pretty string describing the last modified time of the given
@@ -757,7 +766,7 @@
                     msg = "Could not determine";
                 }
             } catch (ex) {
-                log.exception(ex, "_getLastModifiedMessage error");
+                this.log.exception(ex, "_getLastModifiedMessage error");
             }
             return msg;
         ]]> </body>
@@ -769,7 +778,7 @@
         <parameter name="topic"/>
         <parameter name="data"/>
         <body> <![CDATA[
-            log.info("observe(subject="+subject+", topic="+topic+
+            this.log.info("observe(subject="+subject+", topic="+topic+
                           ", data="+data+")");
             try {
                 // Observing (1) pref and (2) plain nsIObserver notifications.
@@ -804,7 +813,7 @@
                     break;
                 }
             } catch (ex) {
-                log.error("observe error: "+ex);
+                this.log.error("observe error: "+ex);
             }
         ]]> </body>
         </method>
@@ -1033,19 +1042,19 @@
                     var webNav = req._browser.webNavigation;
                     webNav.loadURI(url, flags, null, null, null);
                 } else {
-                    log.error("Unable to connect, status "+req.status);
+                    this.log.error("Unable to connect, status "+req.status);
                     req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
                 }
             };
             req.onerror = function (e) {
-                log.error("Unable to connect");
+                this.log.error("Unable to connect");
                 req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
             }
             req.send(null);
             // kep a reference
             this._req = req;
         } catch(e) {
-            log.exception(e);
+            this.log.exception(e);
         }
         ]]>
         </body>
