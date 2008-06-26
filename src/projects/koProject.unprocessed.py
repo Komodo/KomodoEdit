@@ -2448,6 +2448,13 @@ class koProject(koLiveFolderPart):
         del self._urlmap
         self.destroy()
 
+    def getPart(self, filename, url, project, live):
+        basename = os.path.basename(filename)
+        if os.path.isdir(filename):
+            return Folder(url, basename, project, live)
+        if basename.endswith('.kpf'):
+            return ProjectShortcut(url, basename, project)
+        return File(url, basename, project)
 
 
 #---- Utility routines

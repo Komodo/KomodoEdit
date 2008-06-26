@@ -4,7 +4,7 @@ from xpcom import components, ServerException, COMException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 
 import os
-import uriparse
+import uriparse, fnmatch
 from URIlib import URIParser, RemoteURISchemeTypes
 
 import logging
@@ -175,14 +175,6 @@ class KoFileImportingService:
             log.exception("failed scaning remote file system")
             return []
 
-    def _getPart(self, filename, url, project, live):
-        basename = os.path.basename(filename)
-        if os.path.isdir(filename):
-            return Folder(url, basename, project, live)
-        if basename.endswith('.kpf'):
-            return ProjectShortcut(url, basename, project)
-        return File(url, basename, project)
-
     def addSelectedFiles(self, folder, importType, basedir, filenames):
         #import time
         #t1 = time.clock()
@@ -212,7 +204,7 @@ class KoFileImportingService:
             isRemote = False
             # Convert all filenames into local URI's
             filenames_and_urls = [(filename, uriparse.localPathToURI(str(filename))) for filename in filenames]
-        data = [(self._getPart(filename, url, project, folder.live), filename, url) for (filename,url) in filenames_and_urls]
+        data = [(project.getPart(filename, url, project, folder.live), filename, url) for (filename,url) in filenames_and_urls]
 
         # Let the Code Intelligence system know that a file has been
         # added to one of Komodo's open projects or toolboxes.
