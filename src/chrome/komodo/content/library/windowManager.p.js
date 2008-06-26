@@ -130,10 +130,10 @@ ko.windowManager = {
      *
      * @return <Boolean>
      */
-    closeAll: function windowManager_closeAll() {
+    closeAll: function windowManager_closeAll(parent) {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
-    
+        if (typeof(parent) == 'undefined') parent = null;
         // Check for other OPEN windows and close if there
         // This is expandable - just add your windowtype to the array
         try {
@@ -141,6 +141,7 @@ ko.windowManager = {
             do {
                 var openWindow = openWindows.getNext();
                 if (openWindow && openWindow != window) {
+                    if (parent && parent != openWindow.parent) continue;
                     openWindow.close();
                     if (!openWindow.closed) {
                         return false;
@@ -151,13 +152,17 @@ ko.windowManager = {
             log.exception(e);
         }
         return true;
+    },
+    
+    closeChildren: function() {
+        var me = this.getMainWindow();
+        return this.closeAll(me);
     }
 };
 /* handle shutdown requests, check if the namespace exists, if it does
    we are in the main komodo window, so register our shutdown callbacks */
 if (typeof(ko.main) != 'undefined') {
     ko.main.addCanQuitHandler(ko.windowManager.closeAll);
-    ko.main.addUnloadHandler(ko.windowManager.closeAll);
 }
 
 // backwards compatibility APIs
