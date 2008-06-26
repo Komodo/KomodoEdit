@@ -63,7 +63,7 @@ class nodeGenerator(threading.Thread):
     def stop(self):
         self._stop = 1
         try:
-            self.treeview._observerProxy.notifyObservers(self.treeview, "kpf_tree_filter_status", "stopped")
+            self.treeview.async.statusObserver(None, "kpf_tree_filter_status", "stopped")
         except:
             # noone listening
             pass
@@ -73,7 +73,7 @@ class nodeGenerator(threading.Thread):
     
     def start(self):
         try:
-            self.treeview._observerProxy.notifyObservers(self.treeview, "kpf_tree_filter_status", "searching")
+            self.treeview.async.statusObserver(None, "kpf_tree_filter_status", "searching")
         except:
             # noone listening
             pass
@@ -99,7 +99,7 @@ class nodeGenerator(threading.Thread):
                 index = self.treeview.addRow(row)
             self.cache = []
             # we do this so the UI refreshes correctly
-            self.treeview._wrapSelfAsync.invalidate()
+            self.treeview.async.invalidate()
         
     def addRow(self, row):
         if not self._stop:
@@ -240,7 +240,8 @@ class KPFTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIKPFTreeView,
                         components.interfaces.nsITreeView,
-                        components.interfaces.koIFileNotificationObserver]
+                        components.interfaces.koIFileNotificationObserver,
+                        components.interfaces.nsISupportsWeakReference]
     _reg_clsid_ = "{216F0F44-D15B-11DA-8CBD-000D935D3368}"
     _reg_contractid_ = "@activestate.com/koKPFTreeView;1"
     _reg_desc_ = "Komodo KPF Tree View"
@@ -262,6 +263,7 @@ class KPFTreeView(TreeView):
         self._document = None
         self._ft = None
         self._dataLock = threading.RLock()
+        self.statusObserver = None
         self.atomService = components.classes["@mozilla.org/atom-service;1"].\
                                 getService(components.interfaces.nsIAtomService)
         # Get a handle on the Komodo asnychronous operations service. Used for
@@ -270,9 +272,7 @@ class KPFTreeView(TreeView):
                 getService(components.interfaces.koIAsyncService)
         
         wrapSelf = WrapObject(self, components.interfaces.koIKPFTreeView)
-        self._wrapSelf = getProxyForObject(1, components.interfaces.koIKPFTreeView,
-                                          wrapSelf, PROXY_SYNC | PROXY_ALWAYS)
-        self._wrapSelfAsync = getProxyForObject(1, components.interfaces.koIKPFTreeView,
+        self.async = getProxyForObject(1, components.interfaces.koIKPFTreeView,
                                           wrapSelf, PROXY_ASYNC | PROXY_ALWAYS)
         self._prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
@@ -282,18 +282,13 @@ class KPFTreeView(TreeView):
         self.__io_service = components.classes["@mozilla.org/network/protocol;1?name=file"].\
                     getService(components.interfaces.nsIFileProtocolHandler)
 
-        _proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerProxy = _proxyMgr.getProxyForObject(None,
-            components.interfaces.nsIObserverService, self._observerSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
 
         # XXX if we ever get more than one project viewer, this will be an issue
         self._partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
-        self._observerSvc.addObserver(self, "file_status",0)
+        self._observerSvc.addObserver(self, "file_status",True) # weakref
 
     def observe(self, subject, topic, data):
         if not self._tree:

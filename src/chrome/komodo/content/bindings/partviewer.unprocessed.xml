@@ -100,18 +100,6 @@
             <field name="_filterTimer">null</field>
             <field name="_currentProject">null</field>
 
-            <constructor>
-                <![CDATA[
-                    //this.view = new projectTreeView();
-                ]]>
-            </constructor>
-
-            <destructor>
-                <![CDATA[
-                    // Refer to http://www.mozilla.org/projects/xbl/xbl.html#binding-detached
-                ]]>
-            </destructor>
-
             <property name="tree">
                 <getter>
                 <![CDATA[
@@ -137,7 +125,7 @@
                 <parameter name="data"/>
                 <body>
                 <![CDATA[
-                if (subject == this.view && topic == "kpf_tree_filter_status") {
+                if (topic == "kpf_tree_filter_status") {
                 // XXX FIXME, need a better UI notification than this
                     var iconEl = this.getElement('image','partviewer-filter-icon');
                     if (data == "searching") {
@@ -161,9 +149,7 @@
                                   .QueryInterface(Components.interfaces.nsITreeBoxObject)
                                   .view = this.view;
                     this.editable = this.getAttribute("editable")
-                    var obsvc = Components.classes['@mozilla.org/observer-service;1'].
-                            getService(Components.interfaces.nsIObserverService);
-                    obsvc.addObserver(this, "kpf_tree_filter_status",false);
+                    this.view.statusObserver = this;
                     this.initSortIndicators();
                 ]]>
                 </body>
