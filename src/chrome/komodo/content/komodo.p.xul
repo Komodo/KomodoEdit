@@ -49,7 +49,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/partviewer.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/bindings/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/codeintel.css" type="text/css"?>
@@ -398,7 +397,7 @@
     </menu>
 
 
-    <toolbox id="toolbox_main"  type="reflow"
+    <toolbox id="toolbox_main"
              context="context-toolbox-menu"
              class="chromeclass-toolbar toolbox-top">
         <menubar id="menubar_main"
@@ -1535,7 +1534,8 @@
             </hbox>
 <!-- #endif -->
         </menubar>
-        <toolboxrow id="main-toolboxrow" flex="1">
+        <hbox id="main-toolboxrow" flex="1"
+                align="start" style="display:block">
         <toolbar
             id="standardToolbar"
             class="chromeclass-toolbar"
@@ -1784,7 +1784,7 @@
                 observes="cmd_helpViewBugs"
                 label="&bugs.label;"/>
         </toolbar>
-        </toolboxrow>
+        </hbox>
         <toolbar class="chromeclass-toolbar"
                  id="findToolbar"
                  align="center"

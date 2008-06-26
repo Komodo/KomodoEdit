@@ -292,7 +292,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         var cmd_id = 'cmd_custom_toolbar_'+part.id;
         var visible = ! ko.projects.isToolbarRememberedAsHidden(part.id);
 
-        var toolbox = document.getElementById('toolbox_main');
+        var toolbox = document.getElementById('main-toolboxrow');
         var toolbar = document.createElement('toolbar');
         toolbar.setAttribute('id', part.id);
         toolbar.setAttribute('class', "chromeclass-toolbar");
@@ -306,7 +306,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         var ordinal = base_ordinal + part.getLongAttribute('priority');
         toolbar.ordinal = ordinal;
 
-        toolbox.appendToolbar(toolbar);
+        toolbox.appendChild(toolbar);
 
         _fillToolbarFromPart(toolbar, part);
 

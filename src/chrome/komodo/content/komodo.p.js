@@ -316,9 +316,6 @@ function onloadDelay() {
         CodeIntel_Initialize();
         ko.uilayout.restoreTabSelections();
 
-        // xul crash hack, see http://bugs.activestate.com/show_bug.cgi?id=30774
-        // also see toolbar.xml bindings
-        window.setTimeout("document.getElementById('toolbox_main').init();",10);
         ko.macros.eventHandler.hookOnStartup();
     } catch(ex) {
         _log.exception(ex);

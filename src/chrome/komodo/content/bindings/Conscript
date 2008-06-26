@@ -72,4 +72,3 @@ $cons->InstallInChrome('views-terminal.xml');
 $cons->Preprocess('partviewer.unprocessed.xml', 'partviewer.xml');
 $cons->InstallInChrome('partviewer.xml');
 
-$cons->InstallInChrome('toolbar.xml');

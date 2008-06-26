@@ -60,4 +60,3 @@ $cons->InstallInChrome('views.css');
 $cons->Preprocess('partviewer.unprocessed.css', 'partviewer.css');
 $cons->InstallInChrome('partviewer.css');
 $cons->InstallInChrome('keybinding.css');
-$cons->InstallInChrome('toolbar.css');

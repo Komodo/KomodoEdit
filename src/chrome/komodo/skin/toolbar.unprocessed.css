@@ -42,8 +42,10 @@
     padding: 0px;
 }
 
-.toolbar-overflow {
-    -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#toolbar-overflow");
+/* fixup the hight of toolbar menu buttons */
+hbox > toolbar > toolbarbutton[type="menu-button"] {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 toolbar {

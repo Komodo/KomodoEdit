@@ -167,19 +167,6 @@
         </content>
     </binding>
 
-    <binding id="toolbar-overflow" extends="chrome://global/content/bindings/toolbar.xml#toolbar">
-        <content>
-            <xul:toolbargrippy xbl:inherits="last-toolbar,hidden=grippyhidden"
-                               tbattr="toolbar-grippy"
-                               class="toolbar-grippy"/>
-            <xul:hbox class="toolbar-prefix"
-                      xbl:inherits="onclick=prefixonclick,tooltiptext=prefixtooltip,hidden=prefixhidden,prefixopen"/>
-            <xul:scrollbox flex="1" class="toolbar-holder" align="center"
-                      xbl:inherits="collapsed,last-toolbar,orient=tborient,align=tbalign,pack=tbpack,onunderflow,onoverflow,onunderflowchanged">
-                <children/>
-            </xul:scrollbox>
-        </content>
-    </binding>
 
     <!-- TODO: add a "check path validity" icon -->
 

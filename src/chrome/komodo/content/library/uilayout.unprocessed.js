@@ -70,8 +70,6 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
     } else {
         toolbar.setAttribute("hidden", "true");
         broadcaster.setAttribute("checked", "false");
-        // reflow the toolbars now that we removed a toolbar
-        document.getElementById('toolbox_main').update(true);
     }
 }
 
@@ -148,8 +146,6 @@ this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(butto
         // Note: this can include custom toolbars
         _setToolbarButtonText(toolbars[i].id, buttonTextShowing);
     }
-    // be sure the toolbars reflow
-    document.getElementById('toolbox_main').update(true);
 }
 
 
