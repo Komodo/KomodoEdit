@@ -175,8 +175,13 @@ this.onclose = function() {
     // if we're the *only* Komodo window, we're quiting
     if (ko.windowManager.lastWindow())
         // send quit-application notifications 
-        return canQuitApplication();
+        return goQuitApplication();
     return true;
+    
+    // we're not shutting down, we're just closing a window, call
+    // tryToClose since it will not be called in the case of onclose
+    // events being sent
+    return window.tryToClose();
 }
 var _unloadObservers = [];
 window.onunload = function() {
@@ -413,6 +418,10 @@ function clearBrowserCache() {
 this.addWillQuitHandler(clearBrowserCache);
 
 window.tryToClose = function() {
+    // TODO: implement a canClose handler (like the canQuit stuff above)
+    // so we can determine if it is fine to close a window (seperate from
+    // quitting the application.)  Unfortunately, when we *are* quitting,
+    // this happens *after* the quit-application notifications.
     return ko.windowManager.closeChildren();
 }
 
