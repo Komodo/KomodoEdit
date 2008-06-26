@@ -168,9 +168,6 @@ interface koILintRequest : nsISupports {
 
 [scriptable, uuid(2AC66B1E-77CD-493D-A8FC-8188B7881BC4)]
 interface koILintService : nsISupports {
-    // Shutdown the lint service and its worker threads.  
-    void terminate();
-
     // Request a lint.
     // If there is an error an exception is raised and an error is set on
     // koILintRequest:errorString.

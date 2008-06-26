@@ -40,6 +40,7 @@ import threading
 import time
 from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom.server import WrapObject, UnwrapObject
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 
@@ -205,7 +206,8 @@ class KoLintRequest:
 
 
 class KoLintService:
-    _com_interfaces_ = [components.interfaces.koILintService]
+    _com_interfaces_ = [components.interfaces.koILintService,
+                        components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo Lint Management Service"
     _reg_clsid_ = "{9FD67601-CB60-411D-A212-ED21B3D25C15}"
     _reg_contractid_ = "@activestate.com/koLintService;1"
@@ -219,6 +221,17 @@ class KoLintService:
         self.manager = threading.Thread(target=self.run, name="Linter")
         self.manager.setDaemon(True)
         self.manager.start()
+
+        self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
+        _observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
+
+    def observe(self, subject, topic, data):
+        #print "file status service observed %r %s %s" % (subject, topic, data)
+        if topic == 'xpcom-shutdown':
+            log.debug("file status got xpcom-shutdown, unloading");
+            self.terminate()
 
     def terminate(self):
         log.info("KoLintService.terminate()")

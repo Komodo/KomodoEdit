@@ -64,9 +64,21 @@ if (typeof(ko)=='undefined') {
 ko.lint = {};
 (function() {
     
-var _lintDisplayer = null;
-var _obsSvc = null;
-var _lintSvc = null;
+__defineGetter__("_lintDisplayer",
+function()
+{
+    return Components.classes["@activestate.com/koLintDisplayer;1"].
+               getService(Components.interfaces.koILintDisplayer);
+
+});
+
+__defineGetter__("_lintSvc",
+function()
+{
+    return Components.classes["@activestate.com/koLintService;1"].
+                getService(Components.interfaces.koILintService);
+});
+
 var _log = ko.logging.getLogger("lint");
 //_log.setLevel(ko.logging.LOG_INFO);
 
@@ -314,6 +326,8 @@ this.lintBuffer.prototype._notify = function()
     try {
         if (this.view == ko.views.manager.currentView) {
             try {
+                var _obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                           getService(Components.interfaces.nsIObserverService);
                 _obsSvc.notifyObservers(
                     this.view, "current_view_check_status","");
             } catch(ex1) {
@@ -382,36 +396,7 @@ this.lintBuffer.prototype._getLinterCID = function()
 
 // Should be called in Komodo initialization.
 this.initialize = function lint_initialize() {
-    _log = ko.logging.getLogger("lint");
-    //_log.setLevel(ko.logging.LOG_INFO);
-    _log.info("lint_initialize()");
-    try {
-        _lintDisplayer = Components.classes["@activestate.com/koLintDisplayer;1"].
-                         getService(Components.interfaces.koILintDisplayer);
-        _lintSvc = Components.classes["@activestate.com/koLintService;1"].
-                       getService(Components.interfaces.koILintService);
-        _obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                           getService(Components.interfaces.nsIObserverService);
-
-        ko.main.addUnloadHandler(lint_finalize);
-    } catch(ex) {
-        _log.exception(ex);
-    }
-}
-
-
-// This is registered to be called on Komodo shutdown by lint_initialize().
-this.finalize = function lint_finalize() {
-    _log.info("lint_finalize()");
-    try {
-        if (_lintSvc) {
-            // free the lint manager
-            _lintSvc.terminate();
-            _lintSvc = null;
-        }
-    } catch(ex) {
-        _log.exception(ex);
-    }
+    _log.warn("lint_initialize() should be removed from komodo.js");
 }
 
 
@@ -489,7 +474,6 @@ this.doClick = function lint_doClick(event) {
 
 var LintBuffer = ko.lint.lintBuffer;
 var lint_initialize = ko.lint.initialize;
-var lint_finalize = ko.lint.finalize;
 var lint_jumpToNextLintResult = ko.lint.jumpToNextLintResult;
 var lint_doRequest = ko.lint.doRequest;
 var lint_clearResults = ko.lint.clearResults;
