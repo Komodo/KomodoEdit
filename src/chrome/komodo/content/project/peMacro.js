@@ -305,9 +305,28 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'javascript_macro',false);
     obsSvc.addObserver(this, 'part-invoke',false);
     obsSvc.addObserver(this, 'command-docommand',false);
+
+    var me = this;
+    this.removeListener = function() { me.finalize(); }
+    window.addEventListener("unload", this.removeListener, false);
+
     this.log = ko.logging.getLogger('macros.eventHandler');
     //this.log.setLevel(ko.logging.LOG_DEBUG);
     this._trigger_observers = {};
+}
+
+MacroEventHandler.prototype.finalize = function() {
+    if (!this.removeListener) return;
+    window.removeEventListener("unload", this.removeListener, false);
+    this.removeListener = null;
+
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                       getService(Components.interfaces.nsIObserverService);
+    obsSvc.removeObserver(this, 'macro-load');
+    obsSvc.removeObserver(this, 'macro-unload');
+    obsSvc.removeObserver(this, 'javascript_macro');
+    obsSvc.removeObserver(this, 'part-invoke');
+    obsSvc.removeObserver(this, 'command-docommand');
 }
 
 MacroEventHandler.prototype._triggersAreEnabled = function() {

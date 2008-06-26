@@ -78,6 +78,11 @@ this.ViewHistory = function viewhistory() {
     obSvc.addObserver(this, 'view_closed',false);
     obSvc.addObserver(this, 'view_opened',false);
     obSvc.addObserver(this, 'current_view_changed',false);
+
+    var me = this;
+    this.removeListener = function() { me.finalize(); }
+    window.addEventListener("unload", this.removeListener, false);
+
 // #if PLATFORM != "win"
     // on linux we must use a timeout since we do not get
     // keyup events for the ctrl key
@@ -87,6 +92,17 @@ this.ViewHistory = function viewhistory() {
 
 this.ViewHistory.prototype.constructor = this.ViewHistory;
 
+this.ViewHistory.prototype.finalize = function()
+{
+    if (!this.removeListener) return;
+    window.removeEventListener("unload", this.removeListener, false);
+    this.removeListener = null;
+    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+    obSvc.removeObserver(this, 'view_closed');
+    obSvc.removeObserver(this, 'view_opened');
+    obSvc.removeObserver(this, 'current_view_changed');
+}
 this.ViewHistory.prototype.doNextMostRecentView = function()
 {
     this.log.info("doNextMostRecentView");

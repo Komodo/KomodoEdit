@@ -1032,9 +1032,21 @@ function ProjectEventObserver() {
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
           getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, 'parts_reload',false);
+    var me = this;
+    this.removeListener = function() { me.finalize(); }
+    window.addEventListener("unload", this.removeListener, false);
 };
 
 ProjectEventObserver.prototype = {
+    finalize: function() {
+        if (!this.removeListener) return;
+        window.removeEventListener("unload", this.removeListener, false);
+        this.removeListener = null;
+        
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+              getService(Components.interfaces.nsIObserverService);
+        observerSvc.removeObserver(this, 'parts_reload');
+    },
     observe: function (view, topic, message) {
         switch (topic) {
             case 'parts_reload':

@@ -136,8 +136,21 @@
                 views[i].init();
             }
             this.viewhistory = new ko.views.ViewHistory();
-            this.__observersvc.addObserver(this,'current_view_changed','');
-            this.__observersvc.addObserver(this,'view_list_closed','');
+            this.__observersvc.addObserver(this,'current_view_changed',false);
+            this.__observersvc.addObserver(this,'view_list_closed',false);
+
+            var me = this;
+            this.removeListener = function() { me.finalize(); }
+            window.addEventListener("unload", this.removeListener, false);
+        ]]>
+        </body>
+        </method>
+
+        <method name="finalize">
+        <body>
+        <![CDATA[
+            this.__observersvc.removeObserver(this,'current_view_changed');
+            this.__observersvc.removeObserver(this,'view_list_closed');
         ]]>
         </body>
         </method>

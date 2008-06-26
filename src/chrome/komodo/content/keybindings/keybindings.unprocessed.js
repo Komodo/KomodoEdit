@@ -136,6 +136,10 @@ this.manager = function keybindingManager() {
     // This observer is never removed, but it doesn't matter - very light-weight and no cycles.
     observerSvc.addObserver(this, "kb-unload",false);
     observerSvc.addObserver(this, "kb-load",false);
+
+    var me = this;
+    this.removeListener = function() { me.finalize(); }
+    window.addEventListener("unload", this.removeListener, false);
     
     // catch keystrokes on bubble, this allows widgets to specificly override
     // a keybinding, which is the case with tree's, listbox, and many more
@@ -150,6 +154,14 @@ this.manager = function keybindingManager() {
 }
 
 this.manager.prototype.constructor = this.manager;
+
+this.manager.prototype.finalize = function(part, topic, partId) {
+    window.removeEventListener("unload", this.removeListener, false);
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+        getService(Components.interfaces.nsIObserverService);
+    observerSvc.removeObserver(this, "kb-unload");
+    observerSvc.removeObserver(this, "kb-load");
+ }
 
 this.manager.prototype.observe = function(part, topic, partId) {
     // Two notifications are observed by the keybinding manager -- kb-load and kb-unload.

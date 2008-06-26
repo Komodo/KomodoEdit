@@ -48,6 +48,10 @@ if (typeof(ko.projects)=='undefined') {
 
 function peMenu() {
     try {
+        var me = this;
+        this.removeListener = function() { me.finalize(); }
+        window.addEventListener("unload", this.removeListener, false);
+
         this.name = 'peMenu';
         this.log = ko.logging.getLogger('peMenu');
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
@@ -66,6 +70,21 @@ function peMenu() {
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 peMenu.prototype.constructor = peMenu;
+
+peMenu.prototype.finalize = function() {
+    if (!this.removeListener) return;
+    window.removeEventListener("unload", this.removeListener, false);
+    this.removeListener = null;
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                       getService(Components.interfaces.nsIObserverService);
+    obsSvc.removeObserver(this, 'menu_create');
+    obsSvc.removeObserver(this, 'menu_changed');
+    obsSvc.removeObserver(this, 'menu_remove');
+    obsSvc.removeObserver(this, 'toolbar_create');
+    obsSvc.removeObserver(this, 'toolbar_remove');
+    obsSvc.removeObserver(this, 'toolbar_changed');
+    obsSvc.removeObserver(this, 'part_changed');
+}
 
 peMenu.prototype.init = function() {
 }
