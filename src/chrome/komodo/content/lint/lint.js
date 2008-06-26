@@ -394,12 +394,6 @@ this.lintBuffer.prototype._getLinterCID = function()
 
 //---- public lint interface
 
-// Should be called in Komodo initialization.
-this.initialize = function lint_initialize() {
-    _log.warn("lint_initialize() should be removed from komodo.js");
-}
-
-
 this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 {
     try {
@@ -473,7 +467,6 @@ this.doClick = function lint_doClick(event) {
 }).apply(ko.lint);
 
 var LintBuffer = ko.lint.lintBuffer;
-var lint_initialize = ko.lint.initialize;
 var lint_jumpToNextLintResult = ko.lint.jumpToNextLintResult;
 var lint_doRequest = ko.lint.doRequest;
 var lint_clearResults = ko.lint.clearResults;

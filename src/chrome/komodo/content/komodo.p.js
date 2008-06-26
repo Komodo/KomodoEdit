@@ -321,7 +321,6 @@ window.onload = function(event) {
         FindResultsTab_OnLoad();
         ko.toolboxes.onload();
         ko.uilayout.onload();
-        ko.lint.initialize();
         // anything that we want to do user interaction with at
         // startup should go into this timeout to let the window
         // onload handler finish.
@@ -466,7 +465,7 @@ window.onunload = function() {
                       "' shutdown handler (object='"+callback.object+"':");
         }
     }
-    //_log.debug("made it to the end of komodoOnUnload\n");
+    //_log.debug("made it to the end of window.onunload\n");
 }
 
 
@@ -488,17 +487,8 @@ this.addUnloadHandler = function(handler, object /*=null*/) {
 }
 
 window.tryToClose = function() {
-    try {
-        if (canQuitListener.cancelQuit()) {
-            return false;
-        }
-        willQuitListener.doQuit();
-    } catch(e) {
-        log.exception(e);
-    }
-    return true;
+    return ko.windowManager.closeChildren();
 }
-
 
 }).apply(ko.main);
 
