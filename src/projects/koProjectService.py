@@ -8,29 +8,16 @@ from projectUtils import *
 import logging
 log = logging.getLogger("koProjectService")
 
-class KoPartService(object):
-    _com_interfaces_ = [components.interfaces.koIPartService,
-                        components.interfaces.nsIObserver]
-    _reg_desc_ = "Komodo Part Service Component"
-    _reg_contractid_ = "@activestate.com/koPartService;1"
-    _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
-
+class windowData():
     def __init__(self):
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
-            getService(components.interfaces.koILastErrorService)
-        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-            getService(components.interfaces.nsIWindowMediator)
-
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService);
-        obsSvc.addObserver(WrapObject(self,components.interfaces.nsIObserver), 'python_macro', 0);
         self._toolbox = None
         self._sharedToolbox = None
         self._currentProject = None
         self._projects = []
         
-        # DEPRECATED
+        # DEPRECATED - XXX still used though
         self._runningMacro = [None]
+
 
     def get_runningMacro(self):
         return self._runningMacro[-1]
@@ -192,10 +179,95 @@ class KoPartService(object):
                 if part.getStringAttribute(attrname) == attrvalue:
                     yield part
 
+
+class KoPartService(object):
+    _com_interfaces_ = [components.interfaces.koIPartService,
+                        components.interfaces.nsIObserver,
+                        components.interfaces.nsIWindowMediatorListener]
+    _reg_desc_ = "Komodo Part Service Component"
+    _reg_contractid_ = "@activestate.com/koPartService;1"
+    _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
+    _reg_categories_ = [
+         ("komodo-startup-service", "koCommandmentService", True),
+         ]
+
+    def __init__(self):
+        self.wrapped = WrapObject(self, components.interfaces.nsIWindowMediatorListener)
+
+        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
+                        getService(components.interfaces.nsIWindowMediator);
+        self.wm.addListener(self.wrapped)
+
+        self._data = {}
+
+    def onWindowTitleChange(self, window, newTitle):
+        pass
+    def onOpenWindow(self, window):
+        self._data[window] = windowData()
+    def onCloseWindow(self, window):
+        if window in self._data:
+            del self._data[window]
+
+    def get_window(self):
+        w = self.wm.getMostRecentWindow('Komodo');
+        if w not in self._data:
+            self._data[w] = windowData()
+        return w
+
+    def get_runningMacro(self):
+        return self._data[self.get_window()].runningMacro
+
+    def set_runningMacro(self, macro):
+        self._data[self.get_window()].runningMacro = macro
+    runningMacro = property(get_runningMacro, set_runningMacro)
+    
+    def isCurrent(self, project):
+        return self._data[self.get_window()].isCurrent(project)
+
+    def set_toolbox(self, project):
+        return self._data[self.get_window()].set_toolbox(project)
+
+    def get_toolbox(self):
+        return self._data[self.get_window()].get_toolbox()
+
+    def set_sharedToolbox(self, project):
+        return self._data[self.get_window()].set_sharedToolbox(project)
+
+    def get_sharedToolbox(self):
+        return self._data[self.get_window()].get_sharedToolbox()
+
+    def set_currentProject(self, project):
+        return self._data[self.get_window()].set_currentProject(project)
+
+    def get_currentProject(self):
+        return self._data[self.get_window()].get_currentProject()
+
+    def addProject(self, project):
+        return self._data[self.get_window()].addProject(project)
+
+    def removeProject(self, project):
+        return self._data[self.get_window()].removeProject(project)
+
+    def getProjects(self):
+        return self._data[self.get_window()].getProjects()
+
+    def getProjectForURL(self, url):
+        return self._data[self.get_window()].getProjectForURL(url)
+
+    def getEffectivePrefsForURL(self, url):
+        return self._data[self.get_window()].getEffectivePrefsForURL(url)
+
+    def getPartById(self, id):
+        return findPartById(id)
+
+    def findPart(self, partType, name, where, part):
+        return self._data[self.get_window()].findPart(partType, name, where, part)
+
+    def getPart(self, type, attrname, attrvalue, where, container):
+        return self._data[self.get_window()].getPart(type, attrname, attrvalue, where, container)
+
+    def getParts(self, type, attrname, attrvalue, where, container):
+        return self._data[self.get_window()].getParts(type, attrname, attrvalue, where, container)
+
     def observe(self, subject, topic, data):
-        #XXX This routine is never invoked from within Komodo
-        if topic != 'python_macro':
-            return
-        window = self.wm.getMostRecentWindow('Komodo');
-        #XXX Wrong number of arguments in this call
-        evalPythonMacro(None, None, window, None, data)
+        pass
