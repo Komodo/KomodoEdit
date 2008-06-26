@@ -148,10 +148,6 @@ interface koIFileStatusChecker : nsISupports {
 [scriptable, uuid(607513C6-32D3-444d-8A07-84EE150B4B4E)]
 interface koIFileStatusService : nsISupports {
         /**
-         * Initializer call is made automatically by Komodo at startup.
-         */
-    void init();
-        /**
          * Unload call is made automatically by Komodo at shutdown.
          */
     void unload();

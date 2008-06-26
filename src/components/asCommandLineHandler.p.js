@@ -84,49 +84,6 @@ function resolveURIInternal(aCmdLine, aArgument) {
   return uri;
 }
 
-function komodoPlatformInit() {
-    try {
-        const loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                             .getService(Components.interfaces.mozIJSSubScriptLoader);
-        loader.loadSubScript('chrome://komodo/content/library/logging.js');
-    } catch(e) {
-        dump(e+"\n");
-    }
-    var initSvc = Components.classes["@activestate.com/koInitService;1"].
-                  getService(Components.interfaces.koIInitService);
-    try {
-	// upgrade must occure before *ANYTHING*
-        initSvc.upgradeUserSettings();
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in upgradeUserSettings***\n");
-    }
-    try {
-        initSvc.installSamples(false);
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in installSamples***\n");
-    }
-    try {
-        initSvc.setPlatformErrorMode();
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in setPlatformErrorMode***\n");
-    }
-    try {
-        initSvc.setEncoding();
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in setEncoding***\n");
-    }
-    try {
-        initSvc.initProcessUtils();
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in initProcessUtils***\n");
-    }
-    try {
-        initSvc.initExtensions();
-    } catch(e) {
-        log.exception(e, "***Komodo Initialization Service failed in initExtensions***\n");
-    }
-}
-
 function openWindow(parent, url, target, features, args) {
     var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
             .getService(Components.interfaces.nsIWindowWatcher);
@@ -273,7 +230,6 @@ var nsKomodoCommandLineHandler = {
     if (outer != null)
       throw Components.results.NS_ERROR_NO_AGGREGATION;
 
-    komodoPlatformInit();
     return this.QueryInterface(iid);
   },
     

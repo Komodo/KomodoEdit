@@ -14,7 +14,7 @@ diff -d -u -r1.6 module.py
 +                catman = components.classes["@mozilla.org/categorymanager;1"]\
 +                                       .getService(components.interfaces.nsICategoryManager);
 +                for cat_info in reg_categories:
-+                    if len(cat_info) > 2 and cat_info[2] and cat_info[0] == "app-startup":
++                    if len(cat_info) > 2 and cat_info[2]:
 +                        name = "service,%s" % reg_contractid
 +                    else:
 +                        name = reg_contractid

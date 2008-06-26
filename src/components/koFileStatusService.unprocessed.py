@@ -119,10 +119,14 @@ class KoFileStatusService:
     _reg_clsid_ = "{20732408-43DA-4ca2-BC9F-B82437A3CB2B}"
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
+    _reg_categories_ = [
+         ("komodo-startup-service", "koFileStatusService", True),
+         ]
 
     monitoredFileNotifications = ("file_update_now", "file_status_now")
 
     def __init__(self):
+        #print "file status created"
         timeline.enter('koFileStatusService.__init__')
         self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
             getService(components.interfaces.nsIProxyObjectManager)
@@ -172,6 +176,7 @@ class KoFileStatusService:
         timeline.leave('koFileStatusService.__init__')
 
     def init(self):
+        #print "file status init"
         timeline.enter('koFileStatusService.init')
 
         # Setup notification observers
@@ -274,8 +279,12 @@ class KoFileStatusService:
     # events and fileSvc notifications.
     # @private
     def observe(self, subject, topic, data):
+        #print "file status service observed %r %s %s" % (subject, topic, data)
         try:
             log.debug("status observer received %s:%s" % (topic, data))
+            if topic == 'komodo-startup-service':
+                self.init()
+                return
             if topic == 'xpcom-shutdown':
                 log.debug("file status got xpcom-shutdown, unloading");
                 self.unload()

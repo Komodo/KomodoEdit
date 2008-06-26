@@ -41,7 +41,6 @@ interface nsIDOMWindowInternal;
 
 [scriptable, uuid(E59E34ED-7D95-4460-87E9-FDCEF7C79D62)]
 interface asIDialogProxy: nsISupports {
-    void init(in nsIDOMWindowInternal inWindow);
     /* alert is just a simplified alertEx, passing defaults for all additional parameters */
     wstring alert(in wstring prompt);
     /* alertEx:

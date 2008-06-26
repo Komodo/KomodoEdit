@@ -233,15 +233,6 @@ function onloadDelay() {
 
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
         ko.run.output.initialize();
-        // initialize the js dialog proxy with our window so that we can
-        // avoid using the hidden window
-        try {
-            var dialogproxy = Components.classes['@activestate.com/asDialogProxy;1'].
-                                getService(Components.interfaces.asIDialogProxy);
-            dialogproxy.init(window);
-        } catch (e) {
-            _log.exception(e);
-        }
 
         // Openning the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
@@ -312,10 +303,6 @@ window.onload = function(event) {
         gPrefs = gPrefSvc.prefs;
 
         configureDefaultEncoding();
-        
-        // just need to initalize this, hopefully can remove once refactored
-        var fStatSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
-        fStatSvc.init();
         
         /* services needed for even the most basic operation of komodo */
         ko.keybindings.onload();

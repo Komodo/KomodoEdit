@@ -50,7 +50,6 @@ const nsIDOMWindow          = Components.interfaces.nsIDOMWindow;
 
 function asDialogProxy()
 {
-    this.mParentWindow = null;
     this.loggingSvc = Components.classes["@activestate.com/koLoggingService;1"].
                     getService(Components.interfaces.koILoggingService);
     this.log = this.loggingSvc.getLogger('asdialogproxy');
@@ -59,10 +58,6 @@ function asDialogProxy()
 }
 
 asDialogProxy.prototype = {
-  init: function(parent) {
-    this.mParentWindow = parent;
-  },
-    
   _getParentWindow: function() {
     /* if we can get the window from the window mediator, just use that,
        otherwise, fallback to the old behaviour, which always got the
@@ -70,31 +65,7 @@ asDialogProxy.prototype = {
     */
     var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                     .getService(Components.interfaces.nsIWindowMediator);
-    win = wm.getMostRecentWindow(null);
-    if (win) return win;
-    /* This is just paranoia (--trentm)  the above should always work, but
-      leave the old tested code in place for now. */
-    var parent=null;
-    try {
-      if (typeof(window) == "object" && window != null) {
-        parent = window;
-      } else if (this.mParentWindow) {
-        return this.mParentWindow;
-      } else {
-        try {
-          var appShellService = Components.classes[APPSHELL_SERV_CONTRACTID].getService(nsIAppShellService);
-          parent = appShellService.hiddenDOMWindow;
-          parent.oldfocus = parent.focus;
-          parent.focus = function(){};
-        } catch(ex) {
-          debug("Can't get parent.  xpconnect hates me so we can't get one from the appShellService.\n");
-          debug(ex + "\n");
-        }
-      }
-    } catch(ex) { debug("no window access\n"); }
-    if (!this.mParentWindow)
-      this.mParentWindow = parent;
-    return parent;
+    return wm.getMostRecentWindow(null);
   },
 
   alert: function(prompt) {

@@ -331,23 +331,57 @@ def _diffFileAssociations(a, b):
 #---- main component implementation
 
 class KoInitService:
-    _com_interfaces_ = [components.interfaces.koIInitService]
+    _com_interfaces_ = [components.interfaces.koIInitService,
+                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{BAECC764-52AC-46dc-9428-D23F05247818}"
     _reg_contractid_ = "@activestate.com/koInitService;1"
     _reg_desc_ = "Komodo Init Service"
+    _reg_categories_ = [
+         #("xpcom-startup", "koInitService", True),
+         ("app-startup", "koInitService", True),
+         ]
 
     def __init__(self):
+        #print "KoInitService starting"
         # We need this to make sure that logging handlers get registered before
         # we do _anything_ with loggers.
         loggingSvc = components.classes["@activestate.com/koLoggingService;1"].getService()
+
 # #if BUILD_FLAVOUR == "dev"
         if sys.platform.startswith("win") and os.environ.has_key("KOMODO_DEBUG_BREAK"):
             print "KOMODO_DEBUG_BREAK in the environment - breaking into system debugger..."
             import win32api
             win32api.DebugBreak()
 # #endif
+        self.upgradeUserSettings()
+        self.installSamples(False)
+        self.setPlatformErrorMode()
+        self.setEncoding()
+        self.initProcessUtils()
+        self.initExtensions()
 
-        self._isInitialized = 0
+    def observe(self, subject, topic, data):
+        # this exists soley for app-startup support
+        if topic == "app-startup":
+            # get all komodo-startup components and instantiate them
+            catman = components.classes["@mozilla.org/categorymanager;1"].\
+                            getService(components.interfaces.nsICategoryManager)
+            category = 'komodo-startup-service'
+            names = catman.enumerateCategory(category)
+            while names.hasMoreElements():
+                nameObj = names.getNext()
+                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+                name = nameObj.data
+                cid = catman.getCategoryEntry(category, name)
+                if cid.startswith("service,"):
+                    cid = cid[8:]
+                log.info("Adding startup service for %r: %r", name, cid)
+                try:
+                    svc = components.classes[cid].\
+                        getService(components.interfaces.nsIObserver)
+                    svc.observe(None, "komodo-startup-service", None)
+                except Exception, e:
+                    log.exception(e, "Unable to start %r service: %r", name, cid)
 
     def setPlatformErrorMode(self):
         if sys.platform.startswith("win"):
@@ -463,6 +497,12 @@ class KoInitService:
                 os.environ[var] = lang
         
     def setEncoding(self):
+        try:
+            self._setEncoding()
+        except Exception, e:
+            log.exception(e, "koInitService setEncoding failed")
+
+    def _setEncoding(self):
         log.debug("in setEncoding")
         self._startup_locale = self._setlocale()
         if sys.platform.startswith("win"):
@@ -591,8 +631,11 @@ class KoInitService:
         return self._startup_locale[1]
 
     def initProcessUtils(self):
-        import koprocessutils
-        koprocessutils.initialize()
+        try:
+            import koprocessutils
+            koprocessutils.initialize()
+        except Exception, e:
+            log.exception(e)
 
     def finishInitialization(self):
         pass
@@ -847,8 +890,11 @@ class KoInitService:
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
-        self._upgradeUserDataDirFiles()
-        self._upgradeUserPrefs()
+        try:
+            self._upgradeUserDataDirFiles()
+            self._upgradeUserPrefs()
+        except Exception, e:
+            log.exception(e)
 
     def _isMozDictionaryDir(self, dictionaryDir):
         # Return true if dictionaryDir contains at least one pair of files
@@ -884,27 +930,33 @@ class KoInitService:
                          .getService(components.interfaces.nsIProperties)
                 directoryService.set("DictD", profDir_nsFile)
         except:
-            log.exception("Failed to set the dictionary property")
-            
-        import directoryServiceUtils
-        from os.path import join, exists
-        for extDir in directoryServiceUtils.getExtensionDirectories():
-            pylibDir = join(extDir, "pylib")
-            if exists(pylibDir):
-                sys.path.append(pylibDir)
+            log.exception(e, "Failed to set the dictionary property")
+        
+        try:
+            import directoryServiceUtils
+            from os.path import join, exists
+            for extDir in directoryServiceUtils.getExtensionDirectories():
+                pylibDir = join(extDir, "pylib")
+                if exists(pylibDir):
+                    sys.path.append(pylibDir)
+        except Exception, e:
+            log.exception(e)
 
     def installSamples(self, force):
-        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        #XXX The best target directory might vary for other OSes.
-        dstDir = os.path.join(koDirSvc.userDataDir, "samples")
-        if os.path.exists(dstDir):
-            if force:
-                log.info("removing old samples directory: '%s'" % dstDir)
-                _rmtree(dstDir) #XXX should handle error here
-            else:
-                log.info("samples already present at '%s'" % dstDir)
-                return
-        srcDir = os.path.join(koDirSvc.supportDir, "samples")
-        log.info("installing Komodo samples to '%s'" % dstDir)
-        _copy(srcDir, dstDir)
+        try:
+            infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
+            koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+            #XXX The best target directory might vary for other OSes.
+            dstDir = os.path.join(koDirSvc.userDataDir, "samples")
+            if os.path.exists(dstDir):
+                if force:
+                    log.info("removing old samples directory: '%s'" % dstDir)
+                    _rmtree(dstDir) #XXX should handle error here
+                else:
+                    log.info("samples already present at '%s'" % dstDir)
+                    return
+            srcDir = os.path.join(koDirSvc.supportDir, "samples")
+            log.info("installing Komodo samples to '%s'" % dstDir)
+            _copy(srcDir, dstDir)
+        except Exception, e:
+            log.exception(e)
