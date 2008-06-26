@@ -976,7 +976,7 @@ class KoInitService:
                          .getService(components.interfaces.nsIProperties)
                 directoryService.set("DictD", profDir_nsFile)
         except:
-            log.exception(e, "Failed to set the dictionary property")
+            log.error("Failed to set the dictionary property")
         
         try:
             import directoryServiceUtils
