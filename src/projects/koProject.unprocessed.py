@@ -78,7 +78,6 @@ from projectUtils import *
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
 KPF_VERSION = 4
-koLanguageRegistryService = None
 gLastProjNum = 1
 
 ANCHOR_MARKER = '!@#_anchor'
@@ -108,12 +107,6 @@ def _makeNewProjectName():
     newname = "Unnamed Project %d" % gLastProjNum
     gLastProjNum += 1
     return newname
-
-def _url2basename(url):
-    file = components.classes["@activestate.com/koFileEx;1"].\
-            createInstance(components.interfaces.koIFileEx)
-    file.URI = url
-    return file.baseName
 
 
 #---- PyXPCOM implementations
@@ -2139,11 +2132,6 @@ class koProject(koLiveFolderPart):
                 # pop a part off the stack
                 childpart = partstack.pop()
 
-                if childpart.type == 'snippet':
-                    # "old" (2.0 and 2.3b1) snippets need to be converted to the new
-                    # encoding scheme.  New snippets are fine the way they are.
-                    childpart = _SnippetConvert(childpart)
-
                 if kpfVer < 3 or \
                    not 'idref' in childpart._attributes:
                     # either an initial upgrade, or K3 read/wrote a K4 project
@@ -2464,17 +2452,6 @@ class koProject(koLiveFolderPart):
 
 #---- Utility routines
 
-def _norm_dir_from_dir(dir, cwd=None):
-    from os.path import normpath, isabs, abspath
-    if dir.startswith("~"):
-        dir = expanduser(dir)
-    elif not isabs(dir):
-        if cwd:
-            dir = join(cwd, dir)
-        else:
-            dir = abspath(dir)
-    return normpath(dir)
-
 def _local_path_from_url(url):
     try:
         #TODO: The docs for URIToLocalPath say an UNC ends up as a file://
@@ -2483,22 +2460,6 @@ def _local_path_from_url(url):
     except ValueError:
         # The url isn't a local path.
         return None
-
-# Code used to group filenames in language groups.
-def _initKoLanguageRegistryService():
-    global koLanguageRegistryService
-    if koLanguageRegistryService is None:
-        koLanguageRegistryService = components.classes["@activestate.com/koLanguageRegistryService;1"] \
-            .getService(components.interfaces.koILanguageRegistryService);
-
-def mapNamesToLanguages(names):
-    if koLanguageRegistryService is None: _initKoLanguageRegistryService()
-    newmap = {}
-    for name in names:
-        language = koLanguageRegistryService.suggestLanguageForFile(name)
-        if not language: language = 'Other'
-        newmap.setdefault(language, []).append(name)
-    return newmap
 
 _partFactoryMap = {}
 for name, value in globals().items():
@@ -2511,53 +2472,4 @@ def createPartFromType(type, project):
         project.create()
         return project
     return _partFactoryMap[type](project)
-
-def _getIntAttributeAndDelete(part, attribute_name):
-    if attribute_name in part._attributes:
-        number = int(part._attributes[attribute_name])
-        del part._attributes[attribute_name]
-    else:
-        number = 0
-    return number
-
-def _SnippetConvert(part):
-    # Old snippets (version 2.0 and 2.3b1) used attributes to refer to the
-    # anchor and currentPos.  New snippets insert special markers in the
-    # text itself, to make selection-preserving processing much easier
-    # (unicode conversion, wrapping, etc.)
-    # This code converts old snippet parts to the new ones and leaves the new ones
-    # unchanged.
-    if 'anchor_col' in part._attributes:
-        anchor_line = _getIntAttributeAndDelete(part, 'anchor_line')
-        anchor_col = _getIntAttributeAndDelete(part, 'anchor_col')
-        currentPos_line = _getIntAttributeAndDelete(part, 'currentPos_line')
-        currentPos_col = _getIntAttributeAndDelete(part, 'currentPos_col')
-        _getIntAttributeAndDelete(part, 'anchor') # clean up of old junk
-        _getIntAttributeAndDelete(part, 'currentPos') # clean up of old junk
-        anchor = currentPos = 0
-        lines = part.value.splitlines(1)
-        # compute index-style anchor and currentPos from the (line,col) pairs
-        # These coordinates are antiquated, and are removed from the part.
-        for i in range(anchor_line):
-            if len(lines) > i:
-                anchor += len(lines[i])
-        anchor += anchor_col
-        for i in range(currentPos_line):
-            if len(lines) > i:
-                currentPos += len(lines[i])
-        currentPos += currentPos_col
-        if anchor < currentPos:
-            part.value = part.value[:anchor] + \
-                         ANCHOR_MARKER + \
-                         part.value[anchor:currentPos] + \
-                         CURRENTPOS_MARKER + \
-                         part.value[currentPos:]
-        else:
-            part.value = part.value[:currentPos] + \
-                         CURRENTPOS_MARKER + \
-                         part.value[currentPos:anchor] + \
-                         ANCHOR_MARKER + \
-                         part.value[anchor:]
-    return part
-
 
