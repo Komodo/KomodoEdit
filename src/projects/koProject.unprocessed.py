@@ -73,7 +73,7 @@ from URIlib import URIParser, RemoteURISchemeTypes
 from koXMLPrefs import NodeToPrefset
 from eollib import newl
 from findlib2 import paths_from_path_patterns
-
+from projectUtils import *
 
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
@@ -115,30 +115,6 @@ def _url2basename(url):
     file.URI = url
     return file.baseName
 
-
-_uuidGenerator = None
-def _genFastGuid():
-    global _uuidGenerator
-    if _uuidGenerator is None:
-        _uuidGenerator = components.classes["@mozilla.org/uuid-generator;1"].getService(components.interfaces.nsIUUIDGenerator)
-    guid = _uuidGenerator.generateUUID()
-    # must convert nsIDPtr to string first
-    return str(guid)[1:-1] # strip off the {}'s
-
-# we use a weak value dictionary to make sure that the id map doesn't end up
-# keeping references alive.
-_idmap = weakref.WeakValueDictionary()
-
-
-def getNextId(part):
-    xulid = _genFastGuid()
-    _idmap[xulid] = part
-    return xulid
-
-def _findPartById(id):
-    if id in _idmap:
-        return _idmap[id]
-    return None
 
 #---- PyXPCOM implementations
 
@@ -216,9 +192,9 @@ class koPart(object):
         elif self.id == self._attributes['id']:
             self.getIDRef()
             if self._idref == self.id:
-                if self.id not in _idmap:
+                if self.id not in idmap:
                     #print "assignID [%s]: adding self to idmap" % self.id
-                    _idmap[self.id] = self
+                    idmap[self.id] = self
                 if hasattr(self, 'children'):
                     if self.id not in self._project._childmap:
                         #print "assignId [%s]: add child ref to childmap" % self.id
@@ -249,15 +225,15 @@ class koPart(object):
 
 
         # first, dump the old id from the idmap
-        if self.id in _idmap:
-            del _idmap[self.id]
+        if self.id in idmap:
+            del idmap[self.id]
 
         # dump the old id from the child and pref maps
         self._storeData()
 
         self.id = self._attributes['id']
         self._idref = None
-        _idmap[self.id] = self
+        idmap[self.id] = self
 
         # add the new id to the maps
         self._restoreData()
@@ -834,7 +810,7 @@ class koContainerBase(koPart):
 
     def addChild(self, child):
         child = UnwrapObject(child)
-        if child.id in _idmap and _idmap[child.id] != child:
+        if child.id in idmap and idmap[child.id] != child:
             log.error("duplicate id in child [%s], reseting id", child.id)
             if 'id' in child._attributes:
                 del child._attributes['id']
@@ -2200,8 +2176,8 @@ class koProject(koLiveFolderPart):
                 
                 # set part to the parent or none so any extra text nodes
                 # are place into the correct part
-                if id in _idmap:
-                    part = _idmap[id]
+                if id in idmap:
+                    part = idmap[id]
                 elif partstack:
                     part = partstack[-1]
                 else:
@@ -2218,8 +2194,8 @@ class koProject(koLiveFolderPart):
         added = []
         for idref, children in self._childmap.items():
             added += children
-            if idref in _idmap:
-                part = _idmap[idref]
+            if idref in idmap:
+                part = idmap[idref]
                 for child in children:
                     child.set_parent(part)
             else:
@@ -2228,8 +2204,8 @@ class koProject(koLiveFolderPart):
                 #    print "  id: %s name: %s" % (child.id,child.get_name())
         for idref, prefset in self._prefmap.items():
             #print "adding prefset to idref [%s]" % idref
-            if idref in _idmap:
-                part = _idmap[idref]
+            if idref in idmap:
+                part = idmap[idref]
                 part.set_prefset(prefset)
             else:
                 log.debug("    no part for prefset idref [%s]", idref)
@@ -2271,7 +2247,7 @@ class koProject(koLiveFolderPart):
         log.info("project.load\t%4.4f" % (dt))
 
     def validateParts(self):
-        myparts = [p for p in _idmap.values() if p._project is self]
+        myparts = [p for p in idmap.values() if p._project is self]
         print "I have %d parts" % len(myparts)
 
         mychildren = [p for p in myparts if p._parent is self]
@@ -2287,7 +2263,7 @@ class koProject(koLiveFolderPart):
         print "       %d child sets" % len(self._childmap)
         for idref, children in self._childmap.items():
             print "       %d in childset [%s]" % (len(children), idref)
-            if idref not in _idmap:
+            if idref not in idmap:
                 print "          is orphaned"
                 orphans += children
             else:
@@ -2297,7 +2273,7 @@ class koProject(koLiveFolderPart):
         orphaned_prefs = []
         print "       %d prefsets" % len(self._prefmap)
         for idref, prefset in self._prefmap.items():
-            if idref not in _idmap:
+            if idref not in idmap:
                 orphaned_prefs.append(prefset)
         print "       %d orphaned prefsets" % len(orphans)
         #self.dumpTreeFromMaps(self.id)
@@ -2524,328 +2500,6 @@ def mapNamesToLanguages(names):
         newmap.setdefault(language, []).append(name)
     return newmap
 
-class KoFileImportingService:
-    _com_interfaces_ = [components.interfaces.koIFileImportingService]
-    _reg_clsid_ = "{DC2BBD9F-A575-4ddc-8A22-D345B5413874}"
-    _reg_contractid_ = "@activestate.com/koFileImportingService;1"
-    _reg_desc_ = "Service to import files into folders"
-
-    def __init__(self):
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-            .getService(components.interfaces.koILastErrorService)
-        self.lastErrorSvc.setLastError(0, '')
-
-    def getCandidatesForDir(self, dirname, live, include_pats, exclude_pats):
-        # start with current directory contents
-        # clean up to deal with some samba problems
-        # http://bugs.activestate.com/show_bug.cgi?id=23097
-        dirname = os.path.normpath(os.path.abspath(dirname))
-        try:
-            allnames = os.listdir(dirname)
-        except OSError, e:
-            if e.errno == 13: # permission denied
-                self.lastErrorSvc.setLastError(13, 'Permission denied')
-            raise
-# #if PLATFORM == "win"
-        except WindowsError, e:
-            if e.errno in (5, 32) and not os.path.exists(dirname):
-                # Looks like the directory was deleted between the
-                # time the request was initiated and when it was handled
-                return []
-            else:
-                raise
-# #endif
-
-        dirsonly = [name for name in allnames\
-                if os.path.isdir(os.path.join(dirname, name))]
-        # Files have import patterns, directories do not
-        filesonly = set(allnames).difference(dirsonly)
-        if live:
-            allnames = _filterFiles(dirsonly, None, exclude_pats)
-            allnames = allnames.union(_filterFiles(filesonly, include_pats, exclude_pats))
-        else:
-            allnames = _filterFiles(filesonly, include_pats, exclude_pats)
-        # was a set, now we go back to a list
-        return [os.path.join(dirname, name) for name in sorted(allnames)]
-
-    def findCandidateFiles(self, part, dirname, include, exclude, recursive):
-        self.lastErrorSvc.setLastError(0, '')
-        try:
-            if include != '':
-                include_pats = include.split(';')
-            else:
-                include_pats = None
-            if exclude != '':
-                exclude_pats = exclude.split(';')
-            else:
-                exclude_pats = None
-            part = UnwrapObject(part)
-            
-            allnames = self.getCandidatesForDir(dirname, part.live,
-                                                include_pats, exclude_pats)
-
-            # now look at children
-            if recursive:
-                for subdirname in _dirwalker(dirname, exclude_pats):
-                    names = self.getCandidatesForDir(subdirname, part.live,
-                                                     include_pats, exclude_pats)
-                    names = [os.path.join(subdirname, name) for name in names\
-                                if part.live or os.path.isfile(os.path.join(subdirname, name))]
-                    allnames.extend(names)
-
-            #print "part._project._urlmap:", part._project._urlmap
-            if not part.live:
-                # XXX REMOVE ME when livefolder == folder
-                # for now, support the js dialog for importing
-                newfiles = []
-                for name in allnames:
-                    name = os.path.abspath(name)
-                    url = uriparse.localPathToURI(name)
-                    if not part._project._urlmap.get(url, None):
-                        newfiles.append(name)
-                return newfiles
-            # live folder import wants all the matching files
-            return allnames
-        except:
-            # TODO: Catch OSError or appropriate specific exception
-            log.exception("failed scaning file system")
-            return []
-
-    def findCandidateFilesRemotely(self, part, dirname, include, exclude, recursive, connection=None, serverUri=None):
-        self.lastErrorSvc.setLastError(0, '')
-        try:
-            if include != '':
-                include_pats = include.split(';')
-            else:
-                include_pats = None
-            if exclude != '':
-                exclude_pats = exclude.split(';')
-            else:
-                exclude_pats = None
-            part = UnwrapObject(part)
-            if connection is None:
-                # Setup the connection for the given url
-                # Note: dirname is a url for the first call, but sebsequent
-                #       recursive calls it will just be the remote path/directory.
-                RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
-                            getService(components.interfaces.koIRemoteConnectionService)
-                connection = RFService.getConnectionUsingUri(dirname)
-                if not connection:
-                    self.lastErrorSvc.setLastError(1, 'Could not obtain remote file connection')
-                    return []
-                # Parse up the url, so we get the remote directory path
-                URI = URIParser()
-                URI.URI = dirname
-                remoteDir = URI.path
-                # Base URI for the remote filesystem
-                serverUri = "%s://%s" % (URI.scheme, URI.server)
-            else:
-                remoteDir = dirname
-
-            # Get the remote directory listing
-            #print "Getting connection listing for: %s" % (remoteDir)
-            koRemoteInfo = connection.list(remoteDir, 1)  # Refresh it
-            if koRemoteInfo is None:
-                self.lastErrorSvc.setLastError(1, 'Could not locate the remote file path: %r' % (remoteDir))
-                return []
-            koRemoteInfo = koRemoteInfo.getChildren()
-            #print "koRemoteInfo:", koRemoteInfo
-
-            filesonly = [f for f in koRemoteInfo if f.isFile()]
-            filenames = [f.getFilename() for f in filesonly]
-            if filenames:
-                # Filter them. Note: Files have include and exclude patterns
-                # Note2: _filterFiles works on basenames only
-                filteredFilenames = _filterFiles(filenames, include_pats, exclude_pats)
-                # Convert back to list of full path filenames
-                filenames = ["%s/%s" % (remoteDir, name) for name in filteredFilenames]
-
-            # now look at children for recursive imports
-            if recursive:
-                # Determine the directories
-                dirnames = [f.getFilename() for f in koRemoteInfo if f.isDirectory()]
-                # Directories only have an exclude pattern
-                # Note: _filterFiles works on basenames only
-                filteredDirnames = _filterFiles(dirnames, None, exclude_pats)
-                # Turn into full path
-                filteredDirnames = ["%s/%s" % (remoteDir, name) for name in filteredDirnames]
-                for subdirname in filteredDirnames:
-                    filenames += self.findCandidateFilesRemotely(part, subdirname, include, exclude, recursive, connection, serverUri)
-
-            # Don't add files that already exist in the project
-            if not part.live:
-                # XXX REMOVE ME when livefolder == folder
-                # for now, support the js dialog for importing
-                newfiles = []
-                for name in filenames:
-                    uri = "%s%s" % (serverUri, name)
-                    if not part._project._urlmap.get(uri, None):
-                        newfiles.append(name)
-                return newfiles
-
-            return filenames
-        except:
-            # TODO: Catch OSError or appropriate specific exception
-            log.exception("failed scaning remote file system")
-            return []
-
-    def _getPart(self, filename, url, project, live):
-        basename = os.path.basename(filename)
-        if os.path.isdir(filename):
-            return Folder(url, basename, project, live)
-        if basename.endswith('.kpf'):
-            return ProjectShortcut(url, basename, project)
-        return File(url, basename, project)
-
-    def addSelectedFiles(self, folder, importType, basedir, filenames):
-        #import time
-        #t1 = time.clock()
-        # XXX bug 38793
-        if basedir[-1]=='/':
-            basedir = basedir[:-1]
-
-        folder = UnwrapObject(folder)
-        project = folder._project
-        _folderCache = {}
-
-        # See what type of import this is
-        #print "basedir: %r" % (basedir)
-        URI = URIParser()
-        URI.URI = basedir
-        if URI.scheme in RemoteURISchemeTypes:
-            isRemote = True
-            # Convert all filenames into remote URI's
-            remotePrefix = "%s://%s" % (URI.scheme, URI.server)
-            # XXX - This hack may be needed on Windows ??
-            #if sys.platform.startswith("win"):
-            #    # Windows, convert the filenames to a windows format
-            #    filenames_and_urls = [(os.path.normpath(filename), remotePrefix + filename) for filename in filenames]
-            #else:
-            filenames_and_urls = [(filename, remotePrefix + filename) for filename in filenames]
-        else:
-            isRemote = False
-            # Convert all filenames into local URI's
-            filenames_and_urls = [(filename, uriparse.localPathToURI(str(filename))) for filename in filenames]
-        data = [(self._getPart(filename, url, project, folder.live), filename, url) for (filename,url) in filenames_and_urls]
-
-        # Let the Code Intelligence system know that a file has been
-        # added to one of Komodo's open projects or toolboxes.
-        codeIntelSvc = components.classes["@activestate.com/koCodeIntelService;1"]\
-            .getService(components.interfaces.koICodeIntelService);
-        #c1 = time.clock()
-        #print "addSelectedFiles c1 ", c1-t1
-
-        if importType == 'makeFlat':
-            for part, filename, url in data:
-                part.live = folder.live
-                folder.children.append(part)
-                part._parent = folder
-                project._urlmap[url] = part
-                part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
-        elif importType == 'groupByType':
-            registry = components.classes["@activestate.com/koLanguageRegistryService;1"].\
-                getService(components.interfaces.koILanguageRegistryService)
-            for part, filename, url in data:
-                language = registry.suggestLanguageForFile(filename)
-                if not language: language = 'Other'
-                if language in _folderCache and _folderCache[subdirname]:
-                    subfolder = _folderCache[language]
-                else:
-                    subfolder = _folderCache[language] = folder.getLanguageFolder(language)
-                part.live = subfolder.live
-                subfolder.children.append(part)
-                part._parent = subfolder
-                project._urlmap[url] = part
-                part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
-        elif importType == 'useFolders':
-            if not isRemote:
-                basedir = uriparse.localPathToURI(basedir)
-            baseuri = basedir
-            for part, filename, url in data:
-                diruri = os.path.dirname(url)
-                if diruri in _folderCache and _folderCache[diruri]:
-                    subfolder = _folderCache[diruri]
-                else:
-                    subfolder = _folderCache[diruri] = folder.getDirFolder(baseuri, diruri)
-                if not subfolder:
-                    log.error("Unable to get subfolder for %s: %s", baseuri, diruri)
-                part.live = subfolder.live
-                subfolder.children.append(part)
-                part._parent = subfolder
-                project._urlmap[url] = part
-                part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
-        #c2 = time.clock()
-        #print "addSelectedFiles c2 ", c2-c1
-        try:
-            # let the file status service know we need to get status info
-            self._getObserverSvc().notifyObservers(self,'file_changed',basedir)
-        except:
-            pass # no listener
-        project.set_isDirty(len(data) > 0)
-        #t2 = time.clock()
-        #print "addSelectedFiles ", t2-t1
-
-def _isOk(fullpath, exclude_pats):
-    if exclude_pats:
-        base = os.path.basename(fullpath)
-        for pat in exclude_pats:
-            if fnmatch.fnmatch(base, pat):
-                return 0
-    return 1
-
-def _dirwalker(dirname, exclude_pats):
-    """Generate all subdirectories of the given directory."""
-    try:
-        contents = os.listdir(os.path.normpath(dirname))
-    except OSError, e:
-        if e.errno != 13: # permission denied
-            raise
-        contents = []
-    for f in contents:
-        fullpath = os.path.join(dirname, f)
-        if os.path.isdir(fullpath) and _isOk(fullpath, exclude_pats):
-            yield fullpath
-            for subdirname in _dirwalker(fullpath, exclude_pats):
-                if _isOk(subdirname, exclude_pats):
-                    yield subdirname
-
-def _filterFiles(names, include_pats, exclude_pats):
-    """Filter the names array for filenames which match any of the
-    patterns in include_pats and match none of the patterns in
-    exclude_pats -- returns a list containing a selection of the input
-    names.
-
-    if include_pats is None then all files match are considered by
-    default
-
-    if exclude_pats is None then no files are excluded explicitly
-    """
-    # Simplest case, get back right away
-    if include_pats is None and exclude_pats is None:
-        return set(names)
-    # Else, lets go through the names
-    # Note: Exclude gets priority over include
-
-    # Check include_pats first, then check exclude_pats
-    if include_pats:
-        oknames = set()
-        # Go through every include pattern and find a match
-        for pat in include_pats:
-            oknames = oknames.union(fnmatch.filter(names, pat))
-    else:
-        oknames = set(names)
-
-    # Check excludes, it gets priority over include_pats
-    if exclude_pats and oknames:
-        # Go through every exclude pattern and find a match
-        for pat in exclude_pats:
-            oknames = oknames.difference(fnmatch.filter(oknames, pat))
-    return oknames
-
-
 _partFactoryMap = {}
 for name, value in globals().items():
     if isinstance(value, object) and getattr(value, 'type', ''):
@@ -2906,590 +2560,4 @@ def _SnippetConvert(part):
                          part.value[anchor:]
     return part
 
-
-def macro_openURI(uri):
-    obsvc = components.classes["@mozilla.org/observer-service;1"].\
-          getService(components.interfaces.nsIObserverService);
-    obsvc.notifyObservers(None, 'open-url', uri);
-
-def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
-                    subject=None, topic="", data=""):
-    lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-        .getService(components.interfaces.koILastErrorService)
-    lastErrorSvc.setLastError(0, '')
-    import komodo
-    komodo.domdocument = domdocument
-    komodo.document = document
-    komodo.editor = scimoz
-    komodo.view = view
-    komodo.window = window
-    komodo.components = components
-    komodo.macro = part
-    komodo.openURI = macro_openURI
-    macroGlobals = {}
-    macroGlobals['komodo'] = komodo
-    macroGlobals['window'] = window
-    if topic:
-        macroGlobals['subject'] = subject
-        macroGlobals['topic'] = topic
-        macroGlobals['data'] = data
-
-    _partSvc = components.classes["@activestate.com/koPartService;1"]\
-        .getService(components.interfaces.koIPartService)
-    _partSvc.runningMacro = part
-
-    # Put the Python macro code in a "_code()" function and eval it.
-    #
-    # Note: This has the potential to be problematic if the Python
-    # macro uses a syntax at the top-level that isn't allow inside
-    # a Python function. For example, "from foo import *" in a function
-    # with Python 2.5 generates:
-    #   bar.py:2: SyntaxWarning: import * only allowed at module level
-    #       def _code():
-    # Not sure if that will be made an *error* in future Python versions.
-    code = "def _code():\n%s\n\n\n" % _indent(code)
-    try:
-        exec code in macroGlobals, macroGlobals
-        retval = eval('_code()', macroGlobals, macroGlobals)
-        _partSvc.runningMacro = None
-        return retval
-    except Exception, e:
-        _partSvc.runningMacro = None
-        err = ''.join(traceback.format_exception(*sys.exc_info()))
-        lastErrorSvc.setLastError(1, err)
-        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-
-class KoPartService(object):
-    _com_interfaces_ = [components.interfaces.koIPartService,
-                        components.interfaces.nsIObserver]
-    _reg_desc_ = "Komodo Part Service Component"
-    _reg_contractid_ = "@activestate.com/koPartService;1"
-    _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
-
-    def __init__(self):
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
-            getService(components.interfaces.koILastErrorService)
-        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-            getService(components.interfaces.nsIWindowMediator)
-
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService);
-        obsSvc.addObserver(WrapObject(self,components.interfaces.nsIObserver), 'python_macro', 0);
-        self._toolbox = None
-        self._sharedToolbox = None
-        self._currentProject = None
-        self._projects = []
-        
-        # DEPRECATED
-        self._runningMacro = [None]
-
-    def get_runningMacro(self):
-        return self._runningMacro[-1]
-    def set_runningMacro(self, macro):
-        if macro:
-            self._runningMacro.append(macro)
-        elif len(self._runningMacro) > 1:
-            self._runningMacro.pop()
-    runningMacro = property(get_runningMacro, set_runningMacro)
-    
-    def isCurrent(self, project):
-        return project and project in [self._currentProject, self._toolbox, self._sharedToolbox]
-
-    def set_toolbox(self, project):
-        if self._toolbox:
-            self._toolbox.deactivate()
-        self._toolbox = project
-        if self._toolbox:
-            self._toolbox.activate()
-
-    def get_toolbox(self):
-        return self._toolbox
-
-    def set_sharedToolbox(self, project):
-        if self._sharedToolbox:
-            self._sharedToolbox.deactivate()
-        self._sharedToolbox = project
-        if self._sharedToolbox:
-            self._sharedToolbox.activate()
-
-    def get_sharedToolbox(self):
-        return self._sharedToolbox
-
-    def set_currentProject(self, project):
-        if self._currentProject:
-            self._currentProject.deactivate()
-        self._currentProject = project
-        if self._currentProject:
-            self._currentProject.activate()
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService)
-        try:
-            obsSvc.notifyObservers(project, 'current_project_changed', '')
-        except:
-            pass
-
-    def get_currentProject(self):
-        return self._currentProject
-
-    def addProject(self, project):
-        if project not in self._projects:
-            self._projects.append(project)
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
-            try:
-                obsSvc.notifyObservers(project, 'project_added', '')
-            except:
-                pass
-
-    def removeProject(self, project):
-        if project in self._projects:
-            self._projects.remove(project)
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
-            try:
-                obsSvc.notifyObservers(project, 'project_removed', '')
-            except:
-                pass
-
-    def getProjects(self):
-        return self._projects
-
-    def getProjectForURL(self, url):
-        for p in self._projects:
-            part = p.getChildByURL(url)
-            if part:
-                return p
-        else:
-            return None
-
-    def getEffectivePrefsForURL(self, url):
-        if not self._currentProject:
-            return None
-        part = self._currentProject.getChildByURL(url)
-        if not part:
-            for p in self._projects:
-                part = p.getChildByURL(url)
-                if part:
-                    break
-        if part:
-            return part.prefset
-        return None
-
-    def getPartById(self, id):
-        return _findPartById(id)
-
-    def findPartForRunningMacro(self, partType, name, where='*'):
-        log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
-        return self.findPart(partType, name, where, self.runningMacro)
-
-    def findPart(self, partType, name, where, part):
-        # See koIProject for details.
-        if part:
-            container = part.project
-        else:
-            container = None
-        if where == '*':
-            places = [container, self._toolbox, self._sharedToolbox]
-        elif where == 'container':
-            places = [container]
-        elif where == 'toolbox':
-            places = [self._toolbox]
-        elif where == 'shared toolbox':
-            places = [self._sharedToolbox]
-        elif where == 'toolboxes':
-            places = [self._toolbox, self._sharedToolbox]
-        for place in places:
-            if place:
-                found = place.getChildWithTypeAndStringAttribute(
-                            partType, 'name', name, 1)
-                if found:
-                    return found
-        return None
-
-    def getPart(self, type, attrname, attrvalue, where, container):
-        for part in self._genParts(type, attrname, attrvalue,
-                                   where, container):
-            return part
-
-    def getParts(self, type, attrname, attrvalue, where, container):
-        return list(
-            self._genParts(type, attrname, attrvalue, where, container)
-        )
-
-    def _genParts(self, type, attrname, attrvalue, where, container):
-        # Determine what koIProject's to search.
-        if where == '*':
-            places = [container, self._toolbox, self._sharedToolbox]
-        elif where == 'container':
-            places = [container]
-        elif where == 'current project':
-            places = [self._currentProject]
-        elif where == 'projects':
-            places = self._projects
-        elif where == 'toolbox':
-            places = [self._toolbox]
-        elif where == 'shared toolbox':
-            places = [self._sharedToolbox]
-        elif where == 'toolboxes':
-            places = [self._toolbox, self._sharedToolbox]
-
-        # Search them.
-        for place in places:
-            if not place:
-                continue
-            #TODO: Unwrap and use iterators to improve efficiency.
-            #      Currently this can be marshalling lots of koIParts.
-            for part in place.getChildrenByType(type, True):
-                if part.getStringAttribute(attrname) == attrvalue:
-                    yield part
-
-    def observe(self, subject, topic, data):
-        #XXX This routine is never invoked from within Komodo
-        if topic != 'python_macro':
-            return
-        window = self.wm.getMostRecentWindow('Komodo');
-        #XXX Wrong number of arguments in this call
-        evalPythonMacro(None, None, window, None, data)
-
-class koProjectPackageService:
-    _com_interfaces_ = [components.interfaces.koIProjectPackageService]
-    _reg_desc_ = "Komodo Packaging Service Component"
-    _reg_contractid_ = "@activestate.com/koProjectPackageService;1"
-    _reg_clsid_ = "{16237ba5-3d97-475b-ad22-fa60b2cd3a33}"
-
-    def __init__(self):
-        self.verbose = False
-        self.percent = 10
-        self.debug = 0
-        self.test = 0
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-            .getService(components.interfaces.koILastErrorService)
-        self.fileSvc = components.classes["@activestate.com/koFileService;1"]\
-            .getService(components.interfaces.koIFileService)
-
-    def _gatherIcons(self, part):
-        icons = []
-        part = UnwrapObject(part)
-        icon = part.get_iconurl()
-        if self.test:
-            print "icon [%s]"%icon
-        if not icon.startswith('chrome://'):
-            newicon = os.path.join('.icons', os.path.basename(icon))
-            part.set_iconurl(newicon)
-            icons.append((uriparse.URIToLocalPath(icon),newicon))
-        if hasattr(part, 'getChildren'):
-            for p in part.getChildren():
-                icons += self._gatherIcons(p)
-        return icons
-
-    def _gatherLiveFileUrls(self, part, relativeDir, extradir):
-        #_getImportConfig(self, recursive=0, type="makeFlat")
-        if not part.live:
-            return []
-        config = part._getImportConfig(recursive=1, type="useFolders")
-        include = config[0]
-        exclude = config[1]
-        recursive = config[2]
-        type = config[3]
-        path = config[4]
-        if not path:
-            return []
-
-        importService = components.classes["@activestate.com/koFileImportingService;1"].\
-                        getService(components.interfaces.koIFileImportingService)
-        filenames = set(importService.findCandidateFiles(part, path, include, exclude, recursive))
-        flist = []
-        for name in filenames:
-            diskfile = os.path.abspath(name)
-            if not os.path.isfile(diskfile): continue
-            url = uriparse.localPathToURI(diskfile)
-            dest = uriparse.RelativizeURL(relativeDir, url)
-            if extradir:
-                dest = os.path.join(extradir, dest)
-            flist.append((diskfile, dest))
-        return flist
-            
-    def packageProject(self, packagePath, project, overwrite):
-        try:
-            if project.isDirty:
-                err = 'Save project before packaging'
-                self.lastErrorSvc.setLastError(1, err)
-                raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-            project = UnwrapObject(project)
-            self._packageParts(packagePath, orig_project=project,
-                               live=project.live, extradir=0,
-                               overwrite=overwrite)
-        except Exception, e:
-            log.exception(e)
-
-    def _clonePartList(self, newproject, partList):
-        # clone parts and add them to the project
-        for part in partList:
-            part = UnwrapObject(part)
-            if part.type == 'project':
-                self._clonePartList(newproject, part.children)
-            else:
-                newpart = part.copyToProject(newproject)
-                newproject.addChild(newpart)
-
-    def packageParts(self, packagePath, partList, overwrite):
-        self._packageParts(packagePath, partList=partList, overwrite=overwrite)
-
-    # a list of parts instead of project
-    def _packageParts(self, packagePath, partList=None, orig_project=None,
-                            live=0, extradir=1, overwrite=0):
-        # setup a temporary project file, as we may need to do modifications
-        # that shoule only be in the packaged version
-        if packagePath.find('.kpz') == -1:
-            zipfilename = packagePath+'.kpz'
-        else:
-            zipfilename = packagePath
-        if self.debug:
-            print "zipfilename [%s]" % zipfilename
-        if os.path.exists(zipfilename):
-            if overwrite:
-                os.unlink(zipfilename)
-            else:
-                err = 'A package with the same name already exists at that location.'
-                self.lastErrorSvc.setLastError(1, err)
-                raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-        try:
-            projectName = os.path.splitext(os.path.basename(packagePath))[0]
-            if orig_project:
-                newproject = orig_project.clone()
-            else:
-                newproject = koProject()
-                newproject.create()
-            newproject.live = live
-            newproject._url = os.path.join(os.path.dirname(zipfilename), 'package.kpf')
-            tmp_project_localPath = uriparse.URIToLocalPath(newproject._url)
-            newproject.name = projectName
-            if self.debug:
-                print "newproject._url [%s]" % newproject._url
-            
-            if partList:
-                # clone parts and add them to the project
-                self._clonePartList(newproject, partList)
-
-            # figure out a base path for all the parts
-            newproject._relativeBasedir = os.path.commonprefix(newproject._urlmap.keys())
-            if not newproject._relativeBasedir:
-                newproject._relativeBasedir = os.path.dirname(newproject._url)
-            if self.debug:
-                print "using relative base [%s]" % newproject._relativeBasedir
-
-            import zipfile
-            if not self.test:
-                zf = zipfile.ZipFile(str(zipfilename), 'w')
-
-            # look at all the url's in the project, copy files, remove parts, etc.
-            # as necessary
-            extraDirName = None
-            if extradir:
-                extraDirName = newproject.name
-            fix_drive_re = re.compile(r'^(?:file:\/\/\/)?(?:(\w):)?(.*)$')
-            flist = set()
-            for source in newproject._urlmap:
-                part = newproject._urlmap[source]
-                
-                # gather files from live folders
-                if part.live and hasattr(part, 'refreshChildren'):
-                    if newproject.live or part._parent.live: continue
-                    flist = flist.union(self._gatherLiveFileUrls(part, newproject._relativeBasedir, extraDirName))
-                    continue
-                
-                if 'url' in part._tmpAttributes and \
-                   part._tmpAttributes['url'] == part._attributes['url']:
-                    dest = part._tmpAttributes['relativeurl']
-                else:
-                    dest = uriparse.RelativizeURL(newproject._relativeBasedir, part._attributes['url'])
-                diskfile = uriparse.URIToLocalPath(part._attributes['url'])
-                # XXX FIXME this is *VERY HACKY*.  I've done a quick fix, but what the !?
-                # we should never get a full path in dest, it should be relative
-                if dest.find('file:')==0:
-                    try:
-                        dest = fix_drive_re.sub(r'\1\2',dest)
-                    except Exception, e:
-                        dest = fix_drive_re.sub(r'\2',dest)
-
-                # we do not add directories
-                if os.path.isfile(diskfile):
-                    part._attributes['url'] = dest
-                    if extraDirName:
-                        dest = os.path.join(extraDirName, dest)
-                    if self.debug:
-                        print "diskfile [%r] dest[%r]" % (diskfile, dest)
-                    flist.add((diskfile, dest))
-
-            # gather live files from live project
-            if newproject.live:
-                if partList:
-                    prj = partList[0]._project
-                else:
-                    prj = orig_project
-                flist = flist.union(self._gatherLiveFileUrls(prj, newproject._relativeBasedir, extraDirName))
-            
-            if not self.test:
-                for item in flist:
-                    zf.write(str(item[0]), str(item[1]))
-
-            # get a list of all the icons that are not in chrome so we can package
-            # them
-            iconlist = self._gatherIcons(newproject)
-            for icondata in iconlist:
-                source = icondata[0]
-                if extraDirName:
-                    dest = os.path.join(extraDirName, icondata[1])
-                else:
-                    dest = icondata[1]
-                if self.debug:
-                    print "icon diskfile [%r] dest[%r]" % (source,dest)
-                if not self.test:
-                    zf.write(str(source), str(dest))
-
-            # save the temporary project file, add it to the zipfile, then delete it
-            newproject.save()
-            # save the new project
-            if extraDirName:
-                project_filename = os.path.join(extraDirName, os.path.basename(tmp_project_localPath))
-            else:
-                project_filename = os.path.basename(tmp_project_localPath)
-            if self.debug:
-                print "writing project to zip as [%r]" % project_filename
-            if not self.test:
-                zf.write(str(tmp_project_localPath), str(project_filename))
-        except Exception, e:
-            log.exception(e)
-            if os.path.exists(tmp_project_localPath):
-                os.unlink(tmp_project_localPath)
-            err = 'An error occurred while attempting to export the package:\n\n%s' % e
-            self.lastErrorSvc.setLastError(1, err)
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-        os.unlink(tmp_project_localPath)
-        self.lastErrorSvc.setLastError(0, 'The package has been exported successfully to %s' % zipfilename)
-
-    def newProjectFromPackage(self, file, dir):
-        return self._importPackage(file, dir, None)
-
-    def importPackage(self, file, dir, part):
-        self._importPackage(file, dir, part)
-
-    def _importPackage(self, file, dir, part):
-        try:
-            packageDir, projectFile = self.extractPackage(file, dir)
-        except Exception, e:
-            log.exception(e)
-            packageDir = None
-            projectFile = None
-        if not packageDir or not projectFile:
-            err = 'An error occurred while attempting to extract the package: %s' % file
-            self.lastErrorSvc.setLastError(1, err)
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-        newproject = koProject()
-        newproject.create()
-        newproject.loadQuiet(projectFile)
-        if os.path.exists(projectFile):
-            os.unlink(projectFile)
-
-        if not part:
-            # we clone to update all the id's in the project
-            return newproject.clone()
-
-        for child in newproject.children:
-            newchild = child.clone()
-            if child._attributes.has_key('icon'):
-                # cloned parts have a relative url here, fix it
-                if newchild._attributes['icon'].find("://") == -1:
-                    newchild._attributes['icon'] = uriparse.UnRelativizeURL(newproject._relativeBasedir, child._attributes['icon'])
-            part.addChild(newchild)
-
-        if not part.name:
-            part.name = "Package %s" % projectName
-        self.lastErrorSvc.setLastError(0, 'The package "%s" has been imported successfully.' % file)
-        return None
-
-    def extractPackage(self, file, dir):
-        import zipfile
-        if not dir.endswith(':') and not os.path.exists(dir):
-            os.mkdir(dir)
-
-        zf = zipfile.ZipFile(file)
-        files = zf.namelist()
-        # create directory structure to house files
-        self._createstructure(file, dir)
-
-        num_files = len(files)
-        percent = self.percent
-        divisions = 100 / percent
-        perc = int(num_files / divisions)
-
-        kpf = None
-        basedir = os.path.dirname(os.path.join(dir, files[0]))
-        # extract files to directory structure
-        for name in files:
-            if name.endswith('/'):
-                continue
-            outfile = open(os.path.join(dir, name), 'wb')
-            outfile.write(zf.read(name))
-            outfile.flush()
-            outfile.close()
-            
-            if not kpf and os.path.splitext(name)[1] == ".kpf":
-                kpf = os.path.join(dir, name)
-            if os.path.basename(name) == "package.kpf":
-                kpf = os.path.join(dir, name)
-        return basedir, kpf
-
-
-    def _createstructure(self, file, dir):
-        self._makedirs(self._listdirs(file), dir)
-
-
-    def _makedirs(self, directories, basedir):
-        """ Create any directories that don't currently exist """
-        for dir in directories:
-            curdir = os.path.join(basedir, dir)
-            if not os.path.exists(curdir):
-                os.makedirs(curdir)
-
-    def _listdirs(self, file):
-        """ Grabs all the directories in the zip structure
-        This is necessary to create the structure before trying
-        to extract the file to it. """
-        import zipfile
-        zf = zipfile.ZipFile(file)
-
-        dirs = {}
-
-        for name in zf.namelist():
-            if name.endswith('/'):
-                dirs[name] = 1
-            else:
-                dirs[os.path.dirname(name)] = 1
-
-        dirs = dirs.keys()
-        dirs.sort()
-        return dirs
-
-
-
-#---- internal support stuff
-
-# Recipe: indent (0.2.1)
-def _indent(s, width=4, skip_first_line=False):
-    """_indent(s, [width=4]) -> 's' indented by 'width' spaces
-
-    The optional "skip_first_line" argument is a boolean (default False)
-    indicating if the first line should NOT be indented.
-    """
-    lines = s.splitlines(1)
-    indentstr = ' '*width
-    if skip_first_line:
-        return indentstr.join(lines)
-    else:
-        return indentstr + indentstr.join(lines)
 

@@ -57,7 +57,11 @@ $cons->Install($idlExportDir, 'koIProject.idl');
 $cons->BuildAndInstallXpt('koIProject.idl');
 $cons->Preprocess('koProject.unprocessed.py', 'koProject.py');
 $cons->InstallXpcomComponent('koProject.py');
+$cons->InstallXpcomComponent('koProjectPackageService.py');
+$cons->InstallXpcomComponent('koProjectImportService.py');
+$cons->InstallXpcomComponent('koProjectService.py');
 $cons->InstallPythonUtility('komodo.py');
+$cons->InstallPythonUtility('projectUtils.py');
 
 $cons->Install($idlExportDir, 'koIKPFTreeView.idl');
 $cons->BuildAndInstallXpt('koIKPFTreeView.idl');
