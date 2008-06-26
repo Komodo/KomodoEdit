@@ -79,6 +79,11 @@ function _CodeIntelPrefObserver()
         this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                        getService(Components.interfaces.koIPrefService);
         this.prefSvc.prefs.prefObserverService.addObserver(this, "codeintel_enabled", 0);
+        /* since Codeintel_Finalize is only called on application quit, we
+           need to also remove this listener in the window unload event. */
+        var me = this;
+        this.removeListener = function() { me.finalize(); }
+        window.addEventListener("unload", this.removeListener, false);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -88,6 +93,9 @@ _CodeIntelPrefObserver.prototype.constructor = _CodeIntelPrefObserver;
 _CodeIntelPrefObserver.prototype.finalize = function()
 {
     try {
+        if (!this.removeListener) return;
+        window.removeEventListener("unload", this.removeListener, false);
+        this.removeListener = null;
         this.prefSvc.prefs.prefObserverService.removeObserver(this, "codeintel_enabled");
         this.prefSvc = null;
     } catch(ex) {
@@ -118,14 +126,21 @@ _CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID
     }
 };
 
-
 function _CodeIntelObserver()
 {
     try {
-        this.obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                      getService(Components.interfaces.nsIObserverService);
-        this.obsSvc.addObserver(this, "current_view_changed", false);
-        this.obsSvc.addObserver(this, "current_view_language_changed", false);
+        obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                 getService(Components.interfaces.nsIObserverService);
+        obsSvc.addObserver(this, "current_view_changed", false);
+        obsSvc.addObserver(this, "current_view_language_changed", false);
+        
+        /* since deactivate deletes the instance, we need to be able to
+           remove the unload listener in finalize so it is not called
+           from multiple sources.  setup a remove function that we can
+           reference in removeEventListener below.  */
+        var me = this;
+        this.removeListener = function() { me.finalize(); }
+        window.addEventListener("unload", this.removeListener, false);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -135,8 +150,13 @@ _CodeIntelObserver.prototype.constructor = _CodeIntelObserver;
 _CodeIntelObserver.prototype.finalize = function()
 {
     try {
-        this.obsSvc.removeObserver(this, "current_view_changed");
-        this.obsSvc.removeObserver(this, "current_view_language_changed");
+        if (!this.removeListener) return;
+        window.removeEventListener("unload", this.removeListener, false);
+        this.removeListener == null;
+        obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                 getService(Components.interfaces.nsIObserverService);
+        obsSvc.removeObserver(this, "current_view_changed");
+        obsSvc.removeObserver(this, "current_view_language_changed");
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
