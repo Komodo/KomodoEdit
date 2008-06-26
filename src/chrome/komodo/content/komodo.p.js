@@ -171,6 +171,7 @@ _KomodoObserver.prototype = {
     onOnload will call the handlers LIFO to reverse the
     order of initialization.
 */
+
 this.onclose = function() {
     // if we're the *only* Komodo window, we're quiting
     if (ko.windowManager.lastWindow())
@@ -417,12 +418,26 @@ function clearBrowserCache() {
 }
 this.addWillQuitHandler(clearBrowserCache);
 
+var _canCloseObservers = [];
+this.addCanCloseHandler = function(handler, object /*=null*/) {
+    if (typeof(object) == "undefined") object = null;
+    var callback = new Object();
+    callback.handler = handler;
+    callback.object = object;
+    _canCloseObservers.push(callback);
+}
 window.tryToClose = function() {
-    // TODO: implement a canClose handler (like the canQuit stuff above)
-    // so we can determine if it is fine to close a window (seperate from
-    // quitting the application.)  Unfortunately, when we *are* quitting,
-    // this happens *after* the quit-application notifications.
-    return ko.windowManager.closeChildren();
+    if (!ko.windowManager.closeChildren()) return false;
+    for (var i=_canCloseObservers.length-1; i >= 0 ; i--) {
+        try {
+            var callback = _canCloseObservers[i];
+            if (!callback.handler.apply(callback.object)) return false;
+        } catch(e) {
+            _log.exception(e,"error when running '"+callback.handler+
+                      "' shutdown handler (object='"+callback.object+"':");
+        }
+    }
+    return true;
 }
 
 }).apply(ko.main);
