@@ -38,36 +38,58 @@
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.client import WeakReference
+from xpcom.server import WrapObject, UnwrapObject
 
 import logging
 log = logging.getLogger('koViewService')
 
+# XXX the view service needs some additional thought for supporting multi
+# window capability.
+
 class koViewService:
-    _com_interfaces_ = [components.interfaces.koIViewService]
+    _com_interfaces_ = [components.interfaces.koIViewService,
+                        components.interfaces.nsIWindowMediatorListener]
     _reg_desc_ = "Komodo View Service Component"
     _reg_contractid_ = "@activestate.com/koViewService;1"
     _reg_clsid_ = "{7F78C1E7-A746-449F-951D-8BED1B502CCD}"
     
     def __init__(self):
-        self._viewMgr = None
-        
+        self._viewMgr = {}
+        self.wrapped = WrapObject(self, components.interfaces.nsIWindowMediatorListener)
+
+        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
+                        getService(components.interfaces.nsIWindowMediator);
+        self.wm.addListener(self.wrapped)
+
+    def onWindowTitleChange(self, window, newTitle):
+        pass
+    def onOpenWindow(self, window):
+        pass
+    def onCloseWindow(self, window):
+        if window in self._viewMgr:
+            del self._viewMgr[window]
+
     def setViewMgr(self, viewMgr):
-        self._viewMgr = viewMgr
+        window = self.wm.getMostRecentWindow('Komodo')
+        self._viewMgr[window] = viewMgr
 
     def get_currentView(self):
-        if self._viewMgr:
-            return self._viewMgr.currentView
+        window = self.wm.getMostRecentWindow('Komodo')
+        if window in self._viewMgr:
+            return self._viewMgr[window].currentView
         else:
             log.error("Trying to get currentView from the koViewService but no viewMgr has been set")
 
     def get_topView(self):
-        if self._viewMgr:
-            return self._viewMgr.topView
+        window = self.wm.getMostRecentWindow('Komodo')
+        if window in self._viewMgr:
+            return self._viewMgr[window].topView
         else:
             log.error("Trying to get topView from the koViewService but no viewMgr has been set")
 
     def newViewFromURI(self, URI, type):
-        if self._viewMgr:
-            return self._viewMgr.newViewFromURI(URI, type)
+        window = self.wm.getMostRecentWindow('Komodo')
+        if window in self._viewMgr:
+            return self._viewMgr[window].newViewFromURI(URI, type)
         else:
             log.error("Trying to create a new view from the koViewService but no viewMgr has been set")
