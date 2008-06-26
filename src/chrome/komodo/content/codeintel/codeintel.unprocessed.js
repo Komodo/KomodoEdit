@@ -653,7 +653,7 @@ function CodeIntel_Initialize()
         } else {
             _CodeIntel_Deactivate();
         }
-        ko.main.addUnloadHandler(CodeIntel_Finalize);
+        ko.main.addWillQuitHandler(CodeIntel_Finalize);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
