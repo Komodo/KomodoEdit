@@ -1878,8 +1878,20 @@ this.onload = function views_onload() {
         var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
         observerSvc.addObserver(this, "application-activated",false);
+
+        var me = this;
+        this.removeListener = function() { me.finalize(); }
+        window.addEventListener("unload", this.removeListener, false);
     };
     _checkFilesObserver.prototype = {
+        finalize: function() {
+            if (!this.removeListener) return;
+            window.removeEventListener("unload", this.removeListener, false);
+            this.removeListener = null;
+            var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                            getService(Components.interfaces.nsIObserverService);
+            observerSvc.removeObserver(this, "application-activated");
+        },
         observe: function(subject, topic, data)
         {
             if (topic == 'application-activated'){
