@@ -151,59 +151,6 @@ function enableDevOptions() {
 }
 // #endif
 
-function configureDefaultEncoding() {
-    // Setup Komodo default file encoding.
-    // Komodo can only handle _some_ encodings out there. Typically
-    // Komodo will use the current system encoding (as returned by
-    // koInitService.getStartupEncoding()) as the default file encoding.
-    // However if the system encoding is one that Komodo cannot handle
-    // then we fallback to an encoding that we can handle.
-    var initSvc = Components.classes["@activestate.com/koInitService;1"].
-                  getService(Components.interfaces.koIInitService);
-    var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
-                      getService(Components.interfaces.koIEncodingServices);
-    // Determine the currently configured default file encoding.
-    var useSystemEncoding = gPrefs.getBooleanPref("encodingEnvironment");
-    var defaultEncoding = (useSystemEncoding ?
-                           initSvc.getStartupEncoding() :
-                           gPrefs.getStringPref("encodingDefault"));
-    _log.debug("encoding: currently configured default is '"+
-              defaultEncoding+"'");
-    // Ensure the default encoding can be handled by Komodo.
-    if (encodingSvc.get_encoding_index(defaultEncoding) == -1) {
-        // The current default encoding is NOT supported.
-        _log.debug("encoding: '"+defaultEncoding+"' is not supported");
-        defaultEncoding = null;
-        if (useSystemEncoding) {
-            defaultEncoding = gPrefs.getStringPref("encodingDefault");
-            _log.debug("encoding: try to fallback to 'encodingDefault' "+
-                      "pref setting: '"+defaultEncoding+"'");
-            if (encodingSvc.get_encoding_index(defaultEncoding) == -1) {
-                // the default encoding in prefs is no good either
-                _log.debug("encoding: '"+defaultEncoding+
-                          "' is not supported either");
-                defaultEncoding = null;
-            }
-        }
-        if (! defaultEncoding) {
-            // Western European is our last resort fallback.
-            defaultEncoding = "iso8859-1";
-            _log.debug("encoding: fallback to '"+defaultEncoding
-                      +"' (Western European)");
-        }
-        gPrefs.setBooleanPref("encodingEnvironment", false);
-    }
-    //XXX Komodo code requires the encodingDefault string to be lowercase
-    //    and while Komodo code has been updated to guarantee this there
-    //    may still be uppercase user prefs out there.
-    defaultEncoding = defaultEncoding.toLowerCase();
-    //XXX Unfortunately we have to write the default encoding to user
-    //    prefs even if the system encoding is being used because
-    //    most Komodo code using "encodingDefault" does not honour
-    //    "encodingEnvironment".
-    gPrefs.setStringPref("encodingDefault", defaultEncoding);
-}
-
 /* generaly this holds anything that requires user interaction
    on startup.  We want that stuff to happen after komodo's main
    windows is up and running.  There may be a thing or two otherwise
@@ -286,8 +233,6 @@ window.onload = function(event) {
                         getService(Components.interfaces.koIPrefService);
         gPrefs = gPrefSvc.prefs;
 
-        configureDefaultEncoding();
-        
         /* services needed for even the most basic operation of komodo */
         ko.keybindings.onload();
 

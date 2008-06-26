@@ -357,6 +357,7 @@ class KoInitService:
         self.installSamples(False)
         self.setPlatformErrorMode()
         self.setEncoding()
+        self.configureDefaultEncoding()
         self.initProcessUtils()
         self.initExtensions()
 
@@ -629,6 +630,51 @@ class KoInitService:
         return self._startup_locale[0]
     def getStartupEncoding(self):
         return self._startup_locale[1]
+
+    def configureDefaultEncoding(self):
+        # Setup Komodo default file encoding.
+        # Komodo can only handle _some_ encodings out there. Typically
+        # Komodo will use the current system encoding (as returned by
+        # koInitService.getStartupEncoding()) as the default file encoding.
+        # However if the system encoding is one that Komodo cannot handle
+        # then we fallback to an encoding that we can handle.
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
+                .getService(components.interfaces.koIPrefService).prefs
+        encodingSvc = components.classes["@activestate.com/koEncodingServices;1"].\
+                          getService(components.interfaces.koIEncodingServices)
+        # Determine the currently configured default file encoding.
+        useSystemEncoding = prefs.getBooleanPref("encodingEnvironment")
+        defaultEncoding = self.getStartupEncoding()
+        if not useSystemEncoding:
+            defaultEncoding = prefs.getStringPref("encodingDefault")
+        log.debug("encoding: currently configured default is '%s'", defaultEncoding)
+        # Ensure the default encoding can be handled by Komodo.
+        if encodingSvc.get_encoding_index(defaultEncoding) == -1:
+            # The current default encoding is NOT supported.
+            log.debug("encoding: '%s' is not supported", defaultEncoding)
+            defaultEncoding = None
+            if useSystemEncoding:
+                defaultEncoding = prefs.getStringPref("encodingDefault")
+                log.debug("encoding: try to fallback to 'encodingDefault' pref setting: '%s'", defaultEncoding)
+                if encodingSvc.get_encoding_index(defaultEncoding) == -1:
+                    # the default encoding in prefs is no good either
+                    log.debug("encoding: '%s' is not supported either", defaultEncoding)
+                    defaultEncoding = None
+
+            if not defaultEncoding:
+                # Western European is our last resort fallback.
+                defaultEncoding = "iso8859-1"
+                log.debug("encoding: fallback to '%s' (Western European)", defaultEncoding);
+            prefs.setBooleanPref("encodingEnvironment", false);
+
+        #XXX Komodo code requires the encodingDefault string to be lowercase
+        #    and while Komodo code has been updated to guarantee this there
+        #    may still be uppercase user prefs out there.
+        #XXX Unfortunately we have to write the default encoding to user
+        #    prefs even if the system encoding is being used because
+        #    most Komodo code using "encodingDefault" does not honour
+        #    "encodingEnvironment".
+        prefs.setStringPref("encodingDefault", defaultEncoding.lower())
 
     def initProcessUtils(self):
         try:
