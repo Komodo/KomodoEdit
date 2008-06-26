@@ -74,6 +74,7 @@
         height="600"
         screenX="20"
         screenY="20"
+        onclose="return ko.main.onclose(); /* handle os close controls */"
         persist="screenX screenY width height"
         ondragover="ko.dragDrop.dragObserver.doDragOverEvent(event);return true;"
         ondragdrop="ko.dragDrop.dragObserver.doDropEvent(event);return true;"

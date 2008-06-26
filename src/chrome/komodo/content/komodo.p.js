@@ -171,6 +171,13 @@ _KomodoObserver.prototype = {
     onOnload will call the handlers LIFO to reverse the
     order of initialization.
 */
+this.onclose = function() {
+    // if we're the *only* Komodo window, we're quiting
+    if (ko.windowManager.lastWindow())
+        // send quit-application notifications 
+        return canQuitApplication();
+    return true;
+}
 var _unloadObservers = [];
 window.onunload = function() {
     // TODO: Unfortunately, when we *are* quitting,

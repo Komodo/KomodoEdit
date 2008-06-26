@@ -123,6 +123,18 @@ ko.windowManager = {
         return wm.getMostRecentWindow('Komodo');
     },
     /**
+     * return true if this is the only Komodo window open
+     *
+     * @return <Window>
+     */
+    lastWindow: function() {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+        var openWindows = wm.getEnumerator('Komodo');
+        openWindows.getNext();
+        return !openWindows.hasMoreElements();
+    },
+    /**
      * close all open windows, return true if successful.  The normal
      * goQuitApplication function in toolkit does this, but we want to
      * prevent quitting if one of the dialogs prevents shutdown by not
