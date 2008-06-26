@@ -156,6 +156,8 @@ this.manager = function keybindingManager() {
 this.manager.prototype.constructor = this.manager;
 
 this.manager.prototype.finalize = function(part, topic, partId) {
+    window.removeEventListener('keypress', gKeyHandler, false);
+    window.removeEventListener('keydown', gKeyDownHandler, false);
     window.removeEventListener("unload", this.removeListener, false);
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
@@ -1857,7 +1859,7 @@ this.manager.prototype.evalCommand = function (event, commandname, keylabel) {
             }
        }
         if (expr) {
-            //dump("would eval: " + expr+'\n');
+            dump("would eval: " + expr+'\n');
             var ret = eval(expr);
             if (typeof(ret) == 'undefined') ret = true;
             return ret;
