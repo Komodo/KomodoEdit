@@ -242,10 +242,8 @@ window.onload = function(event) {
         ko.mru.initialize();
 
         ko.views.onload();
-        findtoolbar_onload();
         ko.projects.onload();
 
-        FindResultsTab_OnLoad();
         ko.toolboxes.onload();
         ko.uilayout.onload();
         // anything that we want to do user interaction with at

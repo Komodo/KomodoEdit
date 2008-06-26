@@ -1112,10 +1112,6 @@ FindResultsTabManager.prototype.QueryInterface = function (iid) {
 
 //---- interface routines
 
-function FindResultsTab_OnLoad()
-{
-}
-
 // Called to handle the "Find Next Result" command.
 //
 // Seeing as there may now be multiple (or zero) find results tabs there is

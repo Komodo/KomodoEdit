@@ -78,7 +78,7 @@ function findtoolbar_onload()
         log.exception(e); // not findtoolbar in case that's what failed.
     }
 }
-
+window.addEventListener("load", findtoolbar_onload, false);
 
 function Findtoolbar_OpenTextboxKeyPress(field, event) {
     try {

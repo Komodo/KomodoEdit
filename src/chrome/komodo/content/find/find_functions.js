@@ -57,6 +57,12 @@
 
 //---- globals
 
+// XXX globals maintained to keep things working, used in findInFiles and
+// the find toolbar
+var gFindInFilesCwd = null;
+var gFindInFilesSearchTerm = null;
+var gFindInFilesFolders = null;
+
 var findLog = ko.logging.getLogger("find_functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
 

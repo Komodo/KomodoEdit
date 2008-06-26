@@ -615,14 +615,6 @@ var InputBuffer_Start = ko.inputBuffer.start;
 var InputBuffer_OnFocus = ko.inputBuffer.focus;
 var InputBuffer_Finish = ko.inputBuffer.finish;
 
-// XXX globals maintained to keep things working
-var gFindDialogPanel = null;
-var gFindSearchTerm = null;
-var gFindInFilesCwd = null;
-var gFindInFilesSearchTerm = null;
-var gFindInFilesFolders = null;
-var gFindInFilesFiletypes = null;
-
 var launch_openAddonsMgr = ko.launch.openAddonsMgr;
 var launch_watchLocalFile = ko.launch.watchLocalFile;
 var launch_DiffWindow = ko.launch.diff;
