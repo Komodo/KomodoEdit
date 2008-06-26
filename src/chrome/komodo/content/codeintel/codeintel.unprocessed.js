@@ -129,7 +129,7 @@ _CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID
 function _CodeIntelObserver()
 {
     try {
-        obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                  getService(Components.interfaces.nsIObserverService);
         obsSvc.addObserver(this, "current_view_changed", false);
         obsSvc.addObserver(this, "current_view_language_changed", false);
@@ -153,7 +153,7 @@ _CodeIntelObserver.prototype.finalize = function()
         if (!this.removeListener) return;
         window.removeEventListener("unload", this.removeListener, false);
         this.removeListener == null;
-        obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                  getService(Components.interfaces.nsIObserverService);
         obsSvc.removeObserver(this, "current_view_changed");
         obsSvc.removeObserver(this, "current_view_language_changed");
