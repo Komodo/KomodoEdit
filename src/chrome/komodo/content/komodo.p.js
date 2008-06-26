@@ -51,22 +51,6 @@ var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
 this.log = _log; 
 
-function _komodoInitTemplateService(type) {
-    var templateSvc = Components.classes["@activestate.com/koTemplateService?type="+type+";1"].getService();
-    try {
-        templateSvc.initializeUserTemplateTree();
-    } catch(ex) {
-        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                            getService(Components.interfaces.koILastErrorService);
-        var errmsg = lastErrorSvc.getLastErrorMessage();
-        alert("There was an error initializing your Komodo user "+
-                     "settings directory with "+type+" template information: "+errmsg+
-                     ". This may mean that you will not be able to create "+
-                     "your own custom "+type+" templates. You will still be able "+
-                     "to use Komodo's numerous standard "+type+" templates.");
-    }
-}
-
 //
 // This observer handles any notification pertinent
 // to komodo the application (ie. startup/shutdown issues)
@@ -310,8 +294,6 @@ window.onload = function(event) {
         /* setup observers */
         _gKomodoObserver = new _KomodoObserver();
 
-        _komodoInitTemplateService("file");
-        _komodoInitTemplateService("project");
         ko.mru.initialize();
 
         ko.views.onload();

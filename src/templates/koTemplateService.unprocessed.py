@@ -103,9 +103,10 @@ class Node(dict):
 
 
 class KoTemplateService:
+    type = "file"
     _com_interfaces_ = [components.interfaces.koITemplateService]
     _reg_clsid_ = "{93d38c0c-3473-11db-8565-000d935d3368}"
-    _reg_contractid_ = "@activestate.com/koTemplateService?type=file;1"
+    _reg_contractid_ = "@activestate.com/koTemplateService?type=%s;1" % type
     _reg_desc_ = "Komodo File Template Service"
     
     def __init__(self):
@@ -134,6 +135,7 @@ folder.
 
 See "Custom Templates" in Komodo's on-line help for more information.
 """
+        self.initializeUserTemplateTree()
 
     def initializeUserTemplateTree(self):
         """Create an empty personal templates tree if there isn't one.
@@ -163,10 +165,14 @@ See "Custom Templates" in Komodo's on-line help for more information.
 
         except EnvironmentError, ex:
             log.exception(ex)
-            _gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                 .getService(components.interfaces.koILastErrorService)
-            _gLastErrorSvc.setLastError(ex.errno, str(ex))
-            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
+            prompt = components.classes["@mozilla.org/embedcomp/prompt-service;1"]\
+                 .getService(components.interfaces.nsIPromptService)
+            prompt.alert(None, "Template Service Error",
+                         """There was an error initializing your Komodo user 
+settings directory with %s template information: %s. 
+This may mean that you will not be able to create 
+your own custom %s templates. You will still be able 
+to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.type, self.type));
 
     def _load_walk(self, dname, node):
         log.debug("load templates from `%s'", dname)
@@ -227,9 +233,10 @@ See "Custom Templates" in Komodo's on-line help for more information.
         return os.path.join(self.koDirSvc.commonDataDir, self.basename)
 
 class KoProjectTemplateService(KoTemplateService):
+    type = "project"
     _com_interfaces_ = [components.interfaces.koITemplateService]
     _reg_clsid_ = "{a1f786ee-3473-11db-8565-000d935d3368}"
-    _reg_contractid_ = "@activestate.com/koTemplateService?type=project;1"
+    _reg_contractid_ = "@activestate.com/koTemplateService?type=%s;1" % type
     _reg_desc_ = "Komodo Project Template Service"
 
     def __init__(self):
