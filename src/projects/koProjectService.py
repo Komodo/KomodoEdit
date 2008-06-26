@@ -188,7 +188,7 @@ class KoPartService(object):
     _reg_contractid_ = "@activestate.com/koPartService;1"
     _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
     _reg_categories_ = [
-         ("komodo-startup-service", "koCommandmentService", True),
+         ("komodo-startup-service", "koProjectService", True),
          ]
 
     def __init__(self):
