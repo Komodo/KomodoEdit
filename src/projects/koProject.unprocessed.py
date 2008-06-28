@@ -1042,19 +1042,14 @@ class koSnippetPart(koPart):
                 .getService(components.interfaces.koIInterpolationService);
         psvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
-        psvc = UnwrapObject(psvc)
-        toolbox = sharedToolbox = None
-        if psvc._toolbox:
-            toolbox = UnwrapObject(psvc._toolbox)
-        if psvc._toolbox:
-            sharedToolbox = UnwrapObject(psvc._sharedToolbox)
         # get additional interpolation data
         projectFile = None
         project = self.get_project()
-        if project in [toolbox, sharedToolbox]:
-            if psvc._currentProject:
-                projectFile = psvc._currentProject.getFile().path
-                prefset = psvc._currentProject.prefset
+        if project in [psvc.toolbox, psvc.sharedToolbox]:
+            _currentProject = psvc.currentProject
+            if _currentProject:
+                projectFile = _currentProject.getFile().path
+                prefset = _currentProject.prefset
             else:
                 prefset = self.get_prefset()
         else:
