@@ -356,6 +356,14 @@
                 }
             ]]>
             </handler>
+            <handler event="DOMMouseScroll" phase="capturing">
+            <![CDATA[
+                if (event.detail < 0)
+                    this.scrollLeft();
+                else
+                    this.scrollRight();
+            ]]>
+            </handler>
         </handlers>
     </binding>
 
