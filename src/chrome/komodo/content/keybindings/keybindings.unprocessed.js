@@ -108,9 +108,9 @@ if (typeof(ko.keybindings)=='undefined') {
 }
 (function() {
 var _log = ko.logging.getLogger('keybindings');
+//_log.setLevel(ko.logging.LOG_DEBUG);
     
 this.manager = function keybindingManager() {
-    //_log.setLevel(ko.logging.LOG_DEBUG);
     this.commanditems = null; // XXX
     this.command2key = {}; // what key for a command?
     this.key2command= {}; // what command assigned to a key?
@@ -213,7 +213,7 @@ this.manager.prototype.loadConfiguration = function (configName, forceReload /* 
         this._configKeyTree = cloneObject(this.keyTree);
         ko.trace.get().leave('keybindingManager.loadConfiguration');
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -231,7 +231,7 @@ this.manager.prototype.mergeSchemeConfiguration = function (configName, forceRel
         this._configUnsaved = true;
         ko.trace.get().leave('keybindingManager.mergeSchemeConfiguration');
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -247,7 +247,7 @@ this.manager.prototype.removeCommandsWithPrefix = function (prefix) {
         this._configUnsaved = true;
         ko.trace.get().leave('keybindingManager.removeCommandsWithPrefix');
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -642,7 +642,7 @@ this.manager.prototype.makeNewConfiguration = function (newconfigname, prefset) 
         this._configDirty = true;
         this._configUnsaved = true;
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
     return newconfigname;
 }
@@ -680,7 +680,7 @@ this.manager.prototype.deleteConfiguration = function (configname, prefset) {
         // Reset the pref corresponding to the set of known configurations
         this._saveKnownConfigs();
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -824,7 +824,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
               getService(Components.interfaces.nsIObserverService);
         observerSvc.notifyObservers(this, 'parts_reload', '');
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -1824,7 +1824,7 @@ this.manager.prototype.event2keylabel = function (event, useShift) {
         }
         data.push(keypressed);
     } catch (e) {
-      log.exception(e);
+      _log.exception(e);
     }
     return data.join('+');
 }
