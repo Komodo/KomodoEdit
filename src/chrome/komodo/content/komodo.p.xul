@@ -2298,7 +2298,7 @@
                                     oncommand="ko.run.output.toggleView();"
                                     disabled="true"/>
                             <button id="runoutput-close-button"
-                                    class="debug-stop-icon button-toolbar-a"
+                                    class="find-stop-icon button-toolbar-a"
                                     tooltiptext="&terminateProcess.tooltiptext;"
                                     oncommand="ko.run.output.kill(-1);"
                                     disabled="true"/>
