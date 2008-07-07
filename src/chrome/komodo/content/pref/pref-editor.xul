@@ -55,7 +55,7 @@
 
   <script type="application/x-javascript;version=1.7">
   <![CDATA[
-    function OnPreferencePageLoading() {
+    function updateDoNotAskWidgets() {
         if (document.getElementById('checkDiskFile').getAttribute('checked') == 'true') {
             document.getElementById('reload_changed_files')
                     .removeAttribute('disabled');
@@ -67,6 +67,10 @@
             document.getElementById('close_deleted_files')
                     .setAttribute('disabled', 'true');
         }
+    }
+
+    function OnPreferencePageLoading() {
+        updateDoNotAskWidgets();
     }
   ]]>
   </script>
@@ -141,7 +145,7 @@
     <checkbox id="checkDiskFile"
               label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
               pref="true"
-              oncommand="update_dontasks()"/>
+              oncommand="updateDoNotAskWidgets()"/>
     <hbox align="center">
         <label value="If files have been changed:"/>
         <menulist pref="true"
