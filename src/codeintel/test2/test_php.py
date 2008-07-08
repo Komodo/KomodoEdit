@@ -2629,8 +2629,8 @@ class DefnTestCase(CodeIntelTestCase):
              ("variable", "x"), ("variable", "y"), ("variable", "z")])
         # Using class scope resolution "self::"
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
-            [("variable", "$s1"),
-             ("function", "foo")])
+            [("function", "foo"),
+             ("variable", "$s1")])
         # Inheriting class, no base class private members seen.
         self.assertCompletionsAre(markup_text(content, pos=positions[3]),
             [("function", "bar"), ("function", "foo"),
@@ -2639,20 +2639,20 @@ class DefnTestCase(CodeIntelTestCase):
              ("variable", "z"), ("variable", "z2")])
         # Using class scope resolution "self::"
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),
-            [("variable", "$s1"), ("variable", "$s2"),
-             ("function", "bar"), ("function", "foo")])
+            [("function", "bar"), ("function", "foo"),
+             ("variable", "$s1"), ("variable", "$s2")])
         # Using class scope resolution "parent::"
         self.assertCompletionsAre(markup_text(content, pos=positions[5]),
-            [("variable", "$s1"),
-             ("function", "foo")])
+            [("function", "foo"),
+             ("variable", "$s1")])
         # Global scope, no protected or private members seen.
         self.assertCompletionsAre(markup_text(content, pos=positions[6]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "z"), ("variable", "z2")])
         # Static class scope resolution, functions and static members only.
         self.assertCompletionsAre(markup_text(content, pos=positions[7]),
-            [("variable", "$s1"), ("variable", "$s2"),
-             ("function", "bar"), ("function", "foo")])
+            [("function", "bar"), ("function", "foo"),
+             ("variable", "$s1"), ("variable", "$s2")])
 
     @tag("bug76676")
     def test_phpdoc_overriding_variable_citdls(self):
