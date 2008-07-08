@@ -131,9 +131,9 @@ class HTMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping ':' because I think that may be a problem for XML tag
     #   completion with namespaces (not sure of that though)
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
-    # - TODO: might want to drop '-' because causes problem with CSS and XML
-    #   (ditto for other XML-y langs)
-    cpln_stop_chars = "'\" ;,~`!@#%^&*()-=+{}]|\\,.<>?/"
+    # - dropping '-' because causes problem with CSS and XML (bug 78312)
+    # - dropping '!' because causes problem with CSS "!important" (bug 78312)
+    cpln_stop_chars = "'\" ;,~`@#%^&*()=+{}]|\\,.<>?/"
 
 
 

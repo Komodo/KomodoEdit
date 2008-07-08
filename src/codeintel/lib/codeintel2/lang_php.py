@@ -1323,7 +1323,9 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
     # - dropping '#' because we need it for $form['#foo']
     # - dropping '$' because: MyClass::$class_var
-    cpln_stop_chars = "~`!@%^&*()-=+{}]|\\;:'\",.<>?/ "
+    # - dropping '-' because causes problem with CSS (bug 78312)
+    # - dropping '!' because causes problem with CSS "!important" (bug 78312)
+    cpln_stop_chars = "~`@%^&*()=+{}]|\\;:'\",.<>?/ "
 
     def __init__(self, *args, **kwargs):
         super(PHPBuffer, self).__init__(*args, **kwargs)

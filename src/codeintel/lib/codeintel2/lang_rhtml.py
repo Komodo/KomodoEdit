@@ -90,9 +90,11 @@ class RHTMLBuffer(UDLBuffer, XMLParsingBufferMixin, RubyCommonBufferMixin):
     # - dropping ':' because I think that may be a problem for XML tag
     #   completion with namespaces (not sure of that though)
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
+    # - dropping '-' because causes problem with CSS (bug 78312)
+    # - dropping '!' because causes problem with CSS "!important" (bug 78312)
     # - TODO: adjust for Ruby, if necessary
     # - TODO: adjust for RHTML, if necessary
-    cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
+    cpln_stop_chars = "'\" (;},~`@#%^&*()=+{}]|\\;,.<>?/"
     
 
 class RHTMLCILEDriver(UDLCILEDriver):

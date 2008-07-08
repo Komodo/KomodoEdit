@@ -69,8 +69,10 @@ class SmartyBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping ':' because I think that may be a problem for XML tag
     #   completion with namespaces (not sure of that though)
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
+    # - dropping '-' because causes problem with CSS (bug 78312)
+    # - dropping '!' because causes problem with CSS "!important" (bug 78312)
     #TODO: adjust for PHP, if necessary
-    cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
+    cpln_stop_chars = "'\" (;},~`@#%^&*()=+{}]|\\;,.<>?/"
 
 
 class SmartyCILEDriver(UDLCILEDriver):

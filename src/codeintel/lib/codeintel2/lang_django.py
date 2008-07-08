@@ -68,7 +68,9 @@ class DjangoBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping ':' because I think that may be a problem for XML tag
     #   completion with namespaces (not sure of that though)
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
-    cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
+    # - dropping '-' because causes problem with CSS (bug 78312)
+    # - dropping '!' because causes problem with CSS "!important" (bug 78312)
+    cpln_stop_chars = "'\" (;},~`@#%^&*()=+{}]|\\;,.<>?/"
 
 
 class DjangoCILEDriver(UDLCILEDriver):
