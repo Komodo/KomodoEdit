@@ -199,17 +199,24 @@ this.manager.prototype.loadConfiguration = function (configName, forceReload /* 
         ko.trace.get().enter('keybindingManager.loadConfiguration');
         if (typeof(forceReload) == 'undefined') forceReload = false;
         //dump("loading from " + configName + '\n');
-        var scheme = this.keybindingSchemeService.getScheme(configName);
-        var data = scheme.data;
+        /* Clear the old scheme */
         this._clearActiveBindings();
         this.clearBindings();
-        this.parseConfiguration(data, forceReload);
+        /* Load the new scheme settings */
+        var scheme = this.keybindingSchemeService.getScheme(configName);
+        /*
+         * currentConfiguration and currentScheme both need to be set before
+         * parseConfiguration is called, in case the keybinding needs to
+         * get saved as part of the keybinding upgrade handling.
+         * http://bugs.activestate.com/show_bug.cgi?id=78316
+         */
+        this.currentConfiguration = configName;
+        this.currentScheme = scheme;
+        this.parseConfiguration(scheme.data, forceReload);
         this.activeCommands = cloneObject(this.command2key);
         this.currentPrefixMap = this.keyTree;
         this._configDirty = false;
         this._configUnsaved = false;
-        this.currentConfiguration = configName;
-        this.currentScheme = scheme;
         this._configKeyTree = cloneObject(this.keyTree);
         ko.trace.get().leave('keybindingManager.loadConfiguration');
     } catch (e) {
