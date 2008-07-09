@@ -2701,6 +2701,7 @@ class DefnTestCase(CodeIntelTestCase):
             /**
              * show off @property, @property-read, @property-write
              *
+             * @property $noCitdlOrDoc
              * @property mixed $regular regular read/write property
              * @property-read int $foo the foo prop
              * @property-write string $bar the bar prop
@@ -2738,7 +2739,8 @@ class DefnTestCase(CodeIntelTestCase):
         """)))
         # Single base class
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "regular"),
+            [("variable", "noCitdlOrDoc"),
+             ("variable", "regular"),
              ("variable", "foo"),
              ("variable", "bar"),
             ])

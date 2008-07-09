@@ -1851,7 +1851,7 @@ class PHPInterface:
 class PHPClass:
 
     # PHPDoc magic property sniffer.
-    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+(?P<citdl>\w+)\s+(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>\w+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
                  interfaces=None, doc=None):
@@ -1880,8 +1880,8 @@ class PHPClass:
             if self.doc.find("@property") >= 0:
                 all_matches = re.findall(self._re_magic_property, self.doc)
                 for match in all_matches:
-                    varname = match[3][1:]
-                    v = PHPVariable(varname, lineno, match[2], doc=match[4])
+                    varname = match[4][1:]  # skip "$" in the name.
+                    v = PHPVariable(varname, lineno, match[3], doc=match[5])
                     self.members[varname] = v
 
     def __repr__(self):
