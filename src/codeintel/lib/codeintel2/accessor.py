@@ -88,6 +88,13 @@ class Accessor(object):
     def line_from_pos(self, pos):
         """Return the 0-based line number for the given position."""
         raise VirtualMethodError()
+    def lines_from_positions(self, positions):
+        """Yield the associate 0-based line for each of a number of
+        positions.  This can be much faster than multiple calls to
+        `line_from_pos` for some accessors.
+        """
+        for pos in positions:
+            yield self.line_from_pos(pos)
     def line_start_pos_from_pos(self, pos):
         """Return the position of the start of the line of the given pos."""
         raise VirtualMethodError()
@@ -200,7 +207,7 @@ class SilverCityAccessor(Accessor):
 
     def match_at_pos(self, pos, s):
         return self.content[pos:pos+len(s)] == s
-    
+
     __start_pos_from_line = None
     def line_from_pos(self, pos):
         r"""
@@ -314,6 +321,14 @@ class SciMozAccessor(Accessor):
     #XXX def match_at_pos(self, pos, s):...
     def line_from_pos(self, pos):
         return self.scimoz().lineFromPosition(pos)
+
+    def lines_from_positions(self, positions):
+        # Note: for a large enough set of positions it might be faster
+        # to use the algorithm in SilverCityAccessor.
+        scimoz = self.scimoz()
+        for pos in positions:
+            yield scimoz.lineFromPosition(pos)
+
     def line_start_pos_from_pos(self, pos):
         scimoz = self.scimoz()
         return scimoz.positionFromLine(scimoz.lineFromPosition(pos))
@@ -733,6 +748,7 @@ class AccessorCache:
         if self._debug:
             print "text_range:: using parent text_range: %r - %r" % (start, end)
         return self._accessor.text_range(start, end)
+
 
 # Test function
 def _test():
