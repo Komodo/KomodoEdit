@@ -78,7 +78,7 @@ class koDocumentSettingsManager:
                             getService(components.interfaces.koIPrefService).prefs
         self.document = None
         self._observing = 0
-        self._supportsFolding = 0
+        self._foldFlags = 0
         self._scintillas = []
         self._useAlternateFaceType = None
         timeline.leave('koDocumentSettingsManager.__init__')
@@ -240,7 +240,7 @@ class koDocumentSettingsManager:
         self.setBooleanPrefIfDifferent('showLineNumbers', scimoz.getMarginWidthN(0) != 0)
         self.setBooleanPrefIfDifferent('showIndentationGuides', scimoz.indentationGuides)
         self.setBooleanPrefIfDifferent('showEOL', scimoz.viewEOL)
-        self.setBooleanPrefIfDifferent('editFoldLines', self._foldFlags) # XXX is this going to be a problem?
+        self.setBooleanPrefIfDifferent('editFoldLines', self._foldFlags)
         #prefs.setStringPref('editFoldStyle', ... )
         #prefs.setStringPref('editUseFixedFont', ... )
         self.setLongPrefIfDifferent('editWrapType', scimoz.wrapMode)
