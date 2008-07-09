@@ -68,7 +68,11 @@ function openHelp(topic, contentPack)
     params.SetNumberStrings(2);
     params.SetString(0, helpFileURI);
     params.SetString(1, topic);
-    window.openDialog("chrome://help/content/help.xul", "_blank", "chrome,all,close=yes", params);
+    ko.windowManager.openOrFocusDialog(
+        "chrome://help/content/help.xul",
+        "mozilla:help",
+        "chrome,all,close=yes",
+        params);
   }
 }
 
