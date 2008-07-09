@@ -94,7 +94,6 @@
     <command id="Zend:save_project_cfg" oncommand="zendutils.save();"/>
     <command id="Zend:toggle_fw_loc_checkbox" oncommand="zendutils.toggleFwCheckbox();"/>
     <command id="Zend:pick_proj_path" disabled="true"/>
-    <command id="Zend:pick_fw_path"/>
     <command id="Zend:form_validated" disabled="true"/>
   </commandset>
   
@@ -154,7 +153,7 @@
         </description>
         <hbox align="center">
             <textbox id="zend_framework_location" flex="1" observes="Zend:pick_fw_path"/>
-            <button label="&browse.label;" command="Zend:browse_lib_loc" observes="Zend:pick_fw_path"/>
+            <button label="&browse.label;" command="Zend:browse_lib_loc"/>
         </hbox>
     </groupbox>
     <hbox align="right" style="padding-top: 20px;"> 

@@ -71,9 +71,7 @@ this.onZendLoad = function() {
         
         if(this.hasZendFw(fwPath)) {
           this.Id('zend_framework_location').value = fwPath;
-          this.Id('Zend:pick_fw_path').setAttribute('disabled', true);
           this.Id('Zend:toggle_fw_default_path').hidden = false;
-          this.Id('Zend:pick_fw_path').setAttribute('disabled', true);
           this.Id('zendfw_use_default_path').checked = true;
         }
       }
@@ -153,9 +151,11 @@ this.toggleFwCheckbox = function() {
 this.browseProjDir = function() {
   try {
     var newDir = ko.filepicker.getFolder();
-    this.Id('zend_project_location').value = newDir;
-    this.picked_proj_path = newDir;
-    this.validate();
+    if(newDir) {
+      this.Id('zend_project_location').value = newDir;
+      this.picked_proj_path = newDir;
+      this.validate();
+    }
   } catch(e) {
     ko.dialogs.internalError(e, 'Error: '+e);
   }
@@ -170,7 +170,7 @@ this.browseProjDir = function() {
 this.browseLibDir = function() {
   try {
     var newDir = ko.filepicker.getFolder();
-    if (this.hasZendFw(newDir)) {
+    if (newDir && this.hasZendFw(newDir)) {
       this.Id('zend_framework_location').value = newDir;
       this.picked_fw_path = newDir;
       this.validate();
@@ -202,7 +202,7 @@ this.validate = function() {
     }
     
     var vcmd = document.getElementById('Zend:form_validated');
-    if(this.hasValidPath('zend_project_location') && this.hasValidPath('zend_framework_location')) {
+    if(this.hasValidPath('zend_project_location')) {
       vcmd.removeAttribute('disabled');
     } else {
       vcmd.setAttribute('disabled', true);
@@ -234,7 +234,7 @@ this.save = function() {
     // somehow save path to includedirs
     var zend_include_path = this.Id('zend_framework_location').value;
     
-    if(this.hasZendFw(zend_include_path)) {
+    if(zend_include_path && this.hasZendFw(zend_include_path)) {
       winArgs.zendFwPath = zend_include_path;
     }
     
@@ -244,7 +244,12 @@ this.save = function() {
     winArgs.hasFS = this.hasFS;
     if(!winArgs.hasFs) {
       winArgs.scaffold = true;
-      this.picked_proj_path !== false ? winArgs.projPath = this.picked_proj_path : winArgs.projPath = winArgs.path;
+      
+      if (this.picked_proj_path !== false) {
+        winArgs.projPath = this.picked_proj_path;
+      } else {
+        winArgs.projPath = winArgs.path;
+      }
     } else { // no scaffolding
       winArgs.scaffold = false;
     }
@@ -274,14 +279,10 @@ this.addReplaceZendFwPath = function(newVal) { // newVal is definitely a Zend fr
         if(zendutils.hasZendFw(pref)) {  // replacement
           newPref = newVal;
         } else { 
-          //ko.utils.print('not a Zend framework path: '+pref);
           newPref = pref + os.pathsep + newVal;
         }
       } else {
-        //ko.utils.print(pref_arr);
-        // more than one pref in there, unlikely 
         for(i in pref_arr) {
-          //ko.utils.print(i+' - '+pref_arr[i]);
           if(pref_arr[i] !== '' && !zendutils.hasZendFw(pref_arr[i])) {
             newPref += pref_arr[i] + os.pathsep;
           }
@@ -291,21 +292,10 @@ this.addReplaceZendFwPath = function(newVal) { // newVal is definitely a Zend fr
     } else { // no existing pref
       newPref = newVal;
     }
-    //ko.utils.print(newPref);
     prefset.setStringPref('phpExtraPaths', newPref);
   } catch(e) {
     ko.dialogs.internalError(e, 'Error: '+e);
   }
-}
-
-/**
- * testSavePref: description
- * @param path {String}
- */
-
-this.testSavePref = function() {
-  var path = '/Users/jeffg/code/komodo/extensions/ZendMVC/Zend';
-  this.addReplaceZendFwPath(path);
 }
 
 /* -- Some local utilities -- */
@@ -468,9 +458,6 @@ this.setLiveDir = function(path) {
   var project = ko.projects.manager.currentProject;
   var prefs = project.prefset;
   prefs.setStringPref("import_dirname", path);
-  
-  // awesome code to reload the project livedir
-  
 }
 
 /**
@@ -480,13 +467,13 @@ this.setLiveDir = function(path) {
 this.addView = function() {
   var args = ko.dialogs.prompt2(
     'To add a view script, you need to supply the controller and the action:',
-    'Controller',
+    'Controller:',
     'index',
-    'Action',
+    'Action:',
     'index',
     'Add a view script'
   );
-  if(args.length == 2) {
+  if(args && args.length == 2) {
     _addView(args[0], args[1]);
   }
 }
@@ -507,8 +494,8 @@ function _addView(controller, action, projPath) {
     var snpt = ko.projects.findPart('snippet', 'ZendView', '*', project);
     var origTxt = snpt.value;
     var newView = tabstopReplacer(action, origTxt);
-    var viewFile = _fixActionName(action) + '.phtml';
-    viewFile = getFilePath('views', viewFile, projPath, controller.toLowerCase());
+    var viewFile = _fixViewPath(action) + '.phtml';
+    viewFile = getFilePath('views', viewFile, projPath, _fixViewPath(controller.toLowerCase()));
     var viewPath = os.path.dirname(viewFile);
     if(!os.path.exists(viewPath)) {
       os.mkdir(viewPath);
@@ -565,7 +552,7 @@ function _addController(name, projPath) {
     var snpt = ko.projects.findPart('snippet', 'ZendController', '*', project);
     var snptTxt = snpt.value;
     var newController = tabstopReplacer(name, snptTxt);
-    var controllerFile = (name.toLowerCase() + 'Controller.php');
+    var controllerFile = capitalize(name) + 'Controller.php';
     var controllerPath = getFilePath('controllers', controllerFile, projPath);
     _newFile(controllerPath, newController);
   } catch(e) {
@@ -698,11 +685,11 @@ function findAll(rx, text) {
 }
 
 /**
- * _fixActionName
+ * _fixViewPath
  * @param str {String}
  */
 
-function _fixActionName(name) {
+function _fixViewPath(name) {
   var outname = '';
   name = name.replace(/[\.\_]/g, '-');
   for(i=0; i<name.length;i++) {
@@ -739,20 +726,6 @@ function nicePath(raw) {
 
 function trim(str) {
   return str.replace(/^[\s]+/, '').replace(/[\s]+$/, '');
-}
-
-/**
- * diaLog: logger
- * @param text {String}
- */
-
-this.diaLog = function(text) {
-  var txtbox = this.Id('logger');
-  if(txtbox.value.length > 0) {
-    txtbox.value = txtbox.value+"\n"+text;
-  } else {
-    txtbox.value = text;
-  }
 }
 
 }).apply(zendutils);
