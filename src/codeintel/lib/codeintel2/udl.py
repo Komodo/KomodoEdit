@@ -45,6 +45,7 @@ import logging
 import threading
 import operator
 import traceback
+from pprint import pprint, pformat
 
 import SilverCity
 from SilverCity import ScintillaConstants
@@ -211,6 +212,22 @@ class UDLBuffer(CitadelBuffer):
         style = self.accessor.style_at_pos(pos)
         return self.lang_from_style(style)
 
+    _udl_family_from_lang_cache = None
+    @property
+    def udl_family_from_lang(self):
+        if self._udl_family_from_lang_cache is None:
+            self._udl_family_from_lang_cache = dict(
+                (uf, L) for (uf, L) in [
+                    (self.m_lang, "M"),
+                    (self.css_lang, "CSS"),
+                    (self.csl_lang, "CSL"),
+                    (self.ssl_lang, "SSL"),
+                    (self.tpl_lang, "TPL"),
+                    ]
+                if L is not None
+            )
+        return self._udl_family_from_lang_cache
+
     def text_chunks_from_lang(self, lang):
         """Generate a list of text chunks of the given language content.
 
@@ -220,13 +237,17 @@ class UDLBuffer(CitadelBuffer):
         Generates 2-tuples:
             (POSITION-OFFSET, TEXT-CHUNK)
         """
-        langs = [self.m_lang, self.css_lang, self.csl_lang,
-                 self.ssl_lang, self.tpl_lang]
-        langs = [L for L in langs if L is not None]
-        if len(langs) == 1:
+        udl_family_from_lang = self.udl_family_from_lang
+        if len(udl_family_from_lang) == 1:
             yield 0, self.accessor.text
-        elif lang not in langs:
+        elif lang not in udl_family_from_lang:
             pass
+        elif hasattr(self.accessor, "udl_family_chunk_ranges"):
+            udl_family = self.udl_family_from_lang[lang]
+            text = self.accessor.text  #Note: assuming here that `text` is in *bytes*
+            for u, start, end in self.accessor.udl_family_chunk_ranges:
+                if u == udl_family:
+                    yield start, text[start:end]
         else:
             min_style, max_style = {
                 self.m_lang:   (ScintillaConstants.SCE_UDL_M_DEFAULT,

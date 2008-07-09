@@ -2001,6 +2001,9 @@ static int create_line_state(int push_stack_size,
 #define update_line_state_from_delim(line_state, delimiter_hash) \
     ((line_state) | (((delimiter_hash) & DELIMITER_MASK) << 12))
 
+// From koILinter.idl:
+#define DECORATOR_UDL_FAMILY_TRANSITION 18
+
 static void synchronizeDocStart(unsigned int& startPos,
                                 int &length,
                                 int &initState, // out only
@@ -2225,6 +2228,27 @@ static void doActions(Transition     *p_TranBlock,
 #endif
         istate = new_state;
         if (new_family >= 0 && curr_family != new_family) {
+            // Figure out where the new family started.
+            // This can be anywhere between where pattern-matching started
+            // (origOldPos) and one before where it ended (newPos) because 
+            // UDL actions can have both upto- and include- paint statements.
+            styler.Flush();
+            int nfpos;
+            int lowestPos = origOldPos - 100;  // usually we'll move back at most 10
+            if (lowestPos < 0) lowestPos = 0;
+            int last_style = -1; // Cache the family of the current style
+            for (nfpos = newPos - 1; nfpos >= lowestPos; nfpos--) {
+                int curr_style = styler.StyleAt(nfpos);
+                if (last_style != curr_style) {
+                    if (p_MainInfo->StyleToFamily(curr_style) == curr_family) {
+                        nfpos += 1;
+                        break;
+                    }
+                    last_style = curr_style;
+                }
+            }
+            styler.IndicatorFill(nfpos, nfpos + 1,
+                                 DECORATOR_UDL_FAMILY_TRANSITION, 1);
             curr_family = new_family;
             p_MainInfo->SetCurrFamily(curr_family);
         }
@@ -2625,6 +2649,17 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
 
     styler.StartAt(startPos, lexerMask);
     styler.StartSegment(startPos);
+    if (lengthDoc > 1) {
+        // If there's an indicator at the very start of this line,
+        // leave it in -- we're not going to rediscover the transition.
+        styler.IndicatorFill(startPos + 1, lengthDoc - 1,
+                             DECORATOR_UDL_FAMILY_TRANSITION, 0);
+        if (startPos == 0) {
+            // Put an indicator at the start
+            styler.IndicatorFill(0, 1,
+                                 DECORATOR_UDL_FAMILY_TRANSITION, 1);
+        }
+    }
     i = startPos;
     for (;;) {
         ch = styler.SafeGetCharAt(i);

@@ -78,6 +78,7 @@ interface koILintResult : nsISupports
     const long DECORATOR_ERROR = 15;
     const long DECORATOR_WARNING = 16;
     const long DECORATOR_SOFT_CHAR = 17;
+    const long DECORATOR_UDL_FAMILY_TRANSITION = 18;
   
 };
 

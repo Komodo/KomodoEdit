@@ -319,6 +319,12 @@ class koDocumentSettingsManager:
         scimoz.indicSetFore(DECORATOR_ERROR, RGB(0xff,0,0))
         scimoz.indicSetFore(DECORATOR_WARNING, RGB(0x00, 0x80,0))
         
+        DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
+        scimoz.indicSetStyle(DECORATOR_UDL_FAMILY_TRANSITION, scimoz.INDIC_HIDDEN)
+        ## For debugging, to show the UDL family transitions:
+        #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
+        #                     scimoz.INDIC_ROUNDBOX)
+        #scimoz.indicSetFore(DECORATOR_UDL_FAMILY_TRANSITION, RGB(0,0x80,0))
         
     def _updateLineNumberMargin(self):
         for scintilla in self._scintillas:

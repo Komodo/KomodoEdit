@@ -40,7 +40,10 @@
 lexer-based styled buffers.
 """
 
+import bisect
+
 from codeintel2.common import *
+from codeintel2 import util
 
 try:
     from xpcom.client import WeakReference
@@ -346,6 +349,62 @@ class SciMozAccessor(Accessor):
         end_pos = i # Point one past the end
         return (start_pos, end_pos)
 
+    @property
+    def udl_family_chunk_ranges(self):
+        """Generate a list of continguous UDL-family ranges.
+        
+        Generates 3-tuples:
+            (<udl-family>, <start-byte-offset>, <end-byte-offset>)
+        where
+            <udl-family> is one of "M", "CSS", "CSL", "SSL", "TPL"
+            <start-byte-offset> is inclusive
+            <end-byte-offset> is exclusive (like a Python range)
+        
+        Note: For non-UDL languages this will return on chunk that is the
+        whole document and <udl-family> will be None.
+        """
+        # LexUDL will set indicator 18 on the start char (or set of chars)
+        # beginning a new UDL family section.
+        scimoz = self.scimoz()
+
+        # Note: value must match that in LexUDL.cxx and koILinter.idl.
+        DECORATOR_UDL_FAMILY_TRANSITION = 18
+
+        pos = 0
+        length = scimoz.length
+        while pos < length:
+            start = scimoz.indicatorStart(DECORATOR_UDL_FAMILY_TRANSITION, pos)
+            end = scimoz.indicatorEnd(DECORATOR_UDL_FAMILY_TRANSITION, start+1)
+            if start == end == 0: # No indicators.
+                yield (None, 0, length)
+                break
+            start = max(start-1, 0)
+            #print "range: %d (%r) - %d (%r): %s" % (
+            #    start, scimoz.getWCharAt(start),
+            #    end, scimoz.getWCharAt(end-1),
+            #    self._udl_family_from_style(scimoz.getStyleAt(pos)))
+            #print util.indent(repr(scimoz.getTextRange(start, end)))
+            yield (self._udl_family_from_style(scimoz.getStyleAt(pos)),
+                   start, end)
+            pos = end + 1
+    
+    _udl_family_from_start_style = {
+       ScintillaConstants.SCE_UDL_M_DEFAULT: "M",
+       ScintillaConstants.SCE_UDL_CSS_DEFAULT: "CSS",
+       ScintillaConstants.SCE_UDL_CSL_DEFAULT: "CSL",
+       ScintillaConstants.SCE_UDL_SSL_DEFAULT: "SSL",
+       ScintillaConstants.SCE_UDL_TPL_DEFAULT: "TPL",
+    }
+    _udl_family_start_styles = list(sorted(_udl_family_from_start_style.keys()))
+    @classmethod
+    def _udl_family_from_style(cls, style):
+        """Determine which UDL family this style is in. Returns one
+        of M, CSS, CSL, SSL or TPL.
+        """
+        idx = bisect.bisect_right(cls._udl_family_start_styles, style)
+        start_style = cls._udl_family_start_styles[idx-1]
+        fam = cls._udl_family_from_start_style[start_style]
+        return fam
 
 class KoDocumentAccessor(SciMozAccessor):
     """An accessor that lazily defers to the first view attached to this
@@ -358,8 +417,9 @@ class KoDocumentAccessor(SciMozAccessor):
     
     def _scimoz_proxy_from_scimoz(self, scimoz):
         from xpcom import _xpcom
+        # Do NOT use PROXY_ALWAYS.
         return _xpcom.getProxyForObject(1, components.interfaces.ISciMoz,
-            scimoz, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
+            scimoz, _xpcom.PROXY_SYNC)
         
     def _get_scimoz_ref(self):
         try:
