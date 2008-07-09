@@ -328,7 +328,7 @@ diff -U 10 -r -N layout/generic/nsObjectFrame.h layout/generic/nsObjectFrame.h
 diff -U 10 -r -N layout/generic/nsPluginHelper.cpp layout/generic/nsPluginHelper.cpp
 --- layout/generic/nsPluginHelper.cpp	1969-12-31 18:00:00.000000000 -0600
 +++ layout/generic/nsPluginHelper.cpp	2006-06-13 10:40:49.000000000 -0500
-@@ -0,0 +1,191 @@
+@@ -0,0 +1,192 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -427,6 +427,7 @@ diff -U 10 -r -N layout/generic/nsPluginHelper.cpp layout/generic/nsPluginHelper
 +static nsIWidget *
 +GetNearestWidget(nsIView *aView)
 +{
++  if (aView == nsnull) return nsnull;
 +  if (aView->HasWidget())
 +    return aView->GetWidget();
 +  nsIView *firstChild = aView->GetFirstChild();
