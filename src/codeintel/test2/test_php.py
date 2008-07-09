@@ -2676,6 +2676,22 @@ class DefnTestCase(CodeIntelTestCase):
              ("function", "bar"),
             ])
 
+    @tag("bug76676")
+    def test_phpdoc_optional_var_target(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug76676_Class {
+                function bug76676_func() {}
+            }
+            /**
+              * @var $bug_76676_optional_var_target bug76676_Class
+              */
+            $foo = 1;
+            $bug_76676_optional_var_target-><1>xxx;
+       """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [ ("function", "bug76676_func"), ])
+
     @tag("bug72960")
     def test_phpdoc_class_property(self):
         # http://bugs.activestate.com/show_bug.cgi?id=72960

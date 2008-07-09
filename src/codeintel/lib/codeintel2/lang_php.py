@@ -2636,7 +2636,7 @@ class PHPParser:
                 varname = all_matches[0][1]
                 vartype = all_matches[0][2]
                 php_variable = None
-                if varname and varname[0] == "$":
+                if varname:
                     # Optional, defines the variable this is applied to.
                     php_variable = self.addVariable(varname, vartype,
                                                     doc=comment,
@@ -2769,6 +2769,12 @@ class PHPParser:
         firstStyle = styles[pos]
 
         try:
+            # We may be able to get some PHPDoc out of the comment already,
+            # such as targeted "@var " comments.
+            # http://bugs.activestate.com/show_bug.cgi?id=76676
+            if self.comment and self._handleVariableComment(None, self.comment):
+                self.comment = []
+
             # Eat special attribute keywords
             while firstStyle == self.PHP_WORD and \
                   text[pos] in ("var", "public", "protected", "private",
