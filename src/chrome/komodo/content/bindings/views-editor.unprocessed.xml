@@ -459,8 +459,10 @@
         <body>
         <![CDATA[
             var baseName = this.document.baseName;
-            if (ko.dialogs.yesNo("Do you wish to revert to the last saved version of " + baseName + "?",
-                             "Yes") == "Yes") {
+            if (ko.dialogs.yesNo("Do you wish to revert to the last saved version of '" + baseName + "'?",
+                                 "Yes", null, null, // default response, text, title
+                                 "revert_buffer"
+                                 ) == "Yes") {
                 this.revertUnconditionally();
             }
         ]]>

@@ -177,6 +177,11 @@
               style="padding-top: 5px;"
               pref="true" prefstring="donotask_buffer_conflicts_with_file_on_disk"
               prefattribute="checked"/>
+    <checkbox id="showFileRevertAreYouSureDialog"
+              label="&doNotAlertMeOnBufferRevert.label;"
+              style="padding-top: 5px;"
+              pref="true" prefstring="donotask_revert_buffer"
+              prefattribute="checked"/>
   </groupbox>
 
  <groupbox orient="vertical">

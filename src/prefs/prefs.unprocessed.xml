@@ -688,6 +688,10 @@
   <!-- Whether to show the error dialog of reopening file failures at startup. -->
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
 
+  <!-- Whether to prompt the user before discarding all changes on cmd_revert. -->
+  <boolean id="donotask_revert_buffer">0</boolean>
+  <string id="donotask_action_revert_buffer"></string>
+
   <!-- The default format used to generate a date string. -->
   <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
 
