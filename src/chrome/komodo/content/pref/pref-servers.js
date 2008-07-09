@@ -52,7 +52,9 @@ var data = new Object();
 
 // Classes
 
-function Server(type, alias, hostname, port, path, username, password) {
+function Server(host_data, type, alias, hostname, port, path, username, password) {
+    this.host_data = host_data;
+    this.is_modified = (host_data == null);
     this.type = type;
     this.alias = alias;
     this.hostname = hostname;
@@ -137,11 +139,11 @@ function OnPreferencePageOK(prefset) {
       var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
       // just remove all old servers and add all new servers
       for (var i = 0; i < oldServers.length; i++) {
-          var hostdata = oldServers[i].type+":"+oldServers[i].alias+":"+
-                          oldServers[i].hostname+":"+oldServers[i].port+":"+
-                          oldServers[i].path;
-          //dump("removing "+hostdata+"\n");
-          passwordmanager.removeUser(hostdata, oldServers[i].username);
+          if (oldServers[i].host_data) {
+            //dump("removing "+oldServers[i].host_data+"\n");
+            passwordmanager.removeUser(oldServers[i].host_data,
+                                       oldServers[i].username);
+          }
       }
       for (var i = 0; i < newServers.length; i++) {
           var hostdata = newServers[i].type+":"+newServers[i].alias+":"+
@@ -176,25 +178,36 @@ function _strcmp(a,b) {
 // Return an array of Association objects, built from the fileAssociations
 // preference.
 function getServerListFromPreference(prefset) {
-  try {
-  var list = new Array();
-  var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
-  var e = passwordmanager.enumerator;
-  while (e.hasMoreElements()) {
-      //dump("dumping password manager data...\n");
-      // server is nsIPassword, which has host, user and password members
-      var nspassword = e.getNext().QueryInterface(Components.interfaces.nsIPassword);
-      //dump("    "+nspassword.host+", ["+nspassword.user+", "+nspassword.password+"]\n");
-      var server_info = new String(nspassword.host).split(":")
-      list.push(new Server(server_info[0], server_info[1],
-              server_info[2], server_info[3], server_info[4],
-              new String(nspassword.user), new String(nspassword.password)));
-  }
-  } catch(e) {
-      log.exception(e);
-  }
-  list.sort(function (a,b) { return _strcmp(a.alias,b.alias); });
-  return list;
+    try {
+        var list = new Array();
+        var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].
+                                getService(Components.interfaces.nsIPasswordManager);
+        var e = passwordmanager.enumerator;
+        while (e.hasMoreElements()) {
+            //dump("dumping password manager data...\n");
+            // server is nsIPassword, which has host, user and password members
+            var nspassword = e.getNext().QueryInterface(Components.interfaces.nsIPassword);
+            //dump("    "+nspassword.host+", ["+nspassword.user+", "+nspassword.password+"]\n");
+            var server_info = new String(nspassword.host).split(":");
+            /* Only use Komodo style server info, ignore others:
+               nspassword.host example for Komodo:
+                    FTP:the foobar server:foobar.com:21:
+               nspassword.host example for Firefox:
+                    ftp://twhiteman@foobar.com:21
+            */
+            if (server_info.length >= 5) {
+                list.push(new Server(nspassword.host, server_info[0],
+                                     server_info[1], server_info[2],
+                                     server_info[3], server_info[4],
+                                     new String(nspassword.user),
+                                     new String(nspassword.password)));
+            }
+        }
+    } catch(e) {
+        log.exception(e);
+    }
+    list.sort(function (a,b) { return _strcmp(a.alias,b.alias); });
+    return list;
 }
 
 // Return true if the arrays of Association objects, a and b, correspond to
@@ -316,7 +329,9 @@ function onAddServerEntry() {
         server.path = path
         server.username = username;
         server.password = password;
+        server.is_modified = true;
         servers[current_server_idx] = server;
+
         current_server_cell.setAttribute('label', server.alias);
         document.getElementById("serversList").setAttribute('label', server.alias);
     } else {
@@ -324,7 +339,7 @@ function onAddServerEntry() {
             alert("The entry name is not unique, please correct this.\n");
             return;
         }
-        server = new Server(type, alias, hostname, port, path, username, password);
+        server = new Server(null, type, alias, hostname, port, path, username, password);
         servers.push(server);
         servers.sort(function (a,b) { return _strcmp(a.alias,b.alias); } );
         _setMenuList(server.alias);
