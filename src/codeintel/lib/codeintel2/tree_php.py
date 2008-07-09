@@ -158,12 +158,12 @@ class PHPTreeEvaluator(TreeEvaluator):
             # The 3-character trigger, which not actually specific to functions.
             retval = self._functions_from_scope(self.expr, start_scope) + \
                      self._constants_from_scope(self.expr, start_scope) + \
-                     self._classes_from_scope(self.expr, start_scope)
+                     self._classes_from_scope(self.expr[:3], start_scope)
             #if self.ctlr.is_aborted():
             #    return None
             return retval
         elif trg.type == "classes":
-            return self._classes_from_scope(self.expr, start_scope)
+            return self._classes_from_scope(None, start_scope)
         elif trg.type == "interfaces":
             return self._interfaces_from_scope(self.expr, start_scope)
         elif trg.type == "magic-methods":
@@ -290,12 +290,17 @@ class PHPTreeEvaluator(TreeEvaluator):
                 elemlist = self._get_all_import_blobs_for_elem(global_blob)
             for elem in elemlist:
                 names = elem_retriever(elem)
-                if expr and isinstance(names, dict):
-                    try:
-                        names = names[expr]
-                    except KeyError:
-                        # Nothing in the dict matches, thats okay
-                        names = []
+                if expr:
+                    if isinstance(names, dict):
+                        try:
+                            names = names[expr]
+                        except KeyError:
+                            # Nothing in the dict matches, thats okay
+                            names = []
+                    else:
+                        # Iterate over the names and keep the ones containing
+                        # the given prefix.
+                        names = [x for x in names if x.startswith(expr)]
                 self.log("%s_names_from_scope_starting_with_expr:: adding %s: %r",
                          elem_type, scope_type, names)
                 all_names.update(names)
@@ -356,7 +361,7 @@ class PHPTreeEvaluator(TreeEvaluator):
 
     def _classes_from_scope(self, expr, scoperef):
         """Return all available class names beginning with expr"""
-        return self._element_names_from_scope_starting_with_expr(None,
+        return self._element_names_from_scope_starting_with_expr(expr,
                             scoperef,
                             "class",
                             ("locals", "globals", "imports",),

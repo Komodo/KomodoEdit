@@ -2413,7 +2413,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[2]),
             [("function", "setMapDims")])
 
-    @tag("bug76677", "knownfailure")
+    @tag("bug76677")
     def test_3char_trigger_includes_classes(self):
         # Test for ensuring the citdl type can be found when the object
         # instance is the same as the class name.
@@ -2425,10 +2425,22 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
                 public static function my_func() { }
             }
             Bug<1>;
+            foo<2>;
         """)))
 
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
+            [("constant", "Bug76677_const"),
+             ("function", "Bug76677_func"),
+             ("class", "Bug76677_class"),
+            ])
+
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
+            [("class", "Exception")])
+
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
             [("constant", "Bug76677_const"),
              ("function", "Bug76677_func"),
              ("class", "Bug76677_class"),
