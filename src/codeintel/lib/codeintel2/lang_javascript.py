@@ -1129,6 +1129,8 @@ class JSObject:
             result.append("%s%s %s(%s)" % (" " * depth, self.cixname, self.name, self.argline))
         elif self.cixname == "class" and self.extends:
             result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.extends))
+        elif self.cixname == "variable" and (self.type or (self.jsdoc and self.jsdoc.type)):
+            result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.type or (self.jsdoc and self.jsdoc.type)))
         else:
             result.append("%s%s %s" % (" " * depth, self.cixname, self.name))
         for attrname in ("classes", "members", "functions", "variables"):
@@ -1223,10 +1225,24 @@ class JSObject:
         if self.extends:
             addClassRef(cixobject, self.extends)
 
-        # Sort and include contents
         allValues = self.functions.values() + self.members.values() + \
                     self.classes.values() + self.variables.values() + \
                     self.anonymous_functions
+
+        # If this is a variable with child elements, yet has a citdl type of
+        # something that is not an "Object", don't bother to adding these child
+        # elements, as we will just go with what the citdl information holds.
+        # http://bugs.activestate.com/show_bug.cgi?id=78484
+        # Ideally the ciler should include this information and have the tree
+        # handler combine the completions from the citdl and also the child
+        # elements, but this is not yet possible.
+        if allValues and self.cixname == 'variable' and \
+           cixobject.get("citdl") != "Object":
+            log.info("Variable of type: %r contains %d child elements, "
+                     "ignoring them.", cixobject.get("citdl"), len(allValues))
+            return
+
+        # Sort and include contents
         for v in sortByLine(allValues):
             if not v.isHidden:
                 v.toElementTree(cixobject)
@@ -1639,6 +1655,10 @@ class JavaScriptCiler:
         if scope is None:
             scope = self.currentScope
         log.debug("Finding in scope: %s.%r with names: %r", scope.name, attrlist, namelist)
+        # If variables are defined, also search members, which is the
+        # correstponding group for class scopes.
+        if "variables" in attrlist:
+            attrlist += ("members", )
         # Work up the scope stack looking for the classname
         while scope:
             currentScope = scope
