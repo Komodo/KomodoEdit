@@ -401,18 +401,23 @@ class MultiLangZone(LangZone):
                 try:
                     blob = self.load_blob(dbsubpath)
                 except ET.XMLParserError, ex:
-                    #XXX Or should we clean out index and raise NotFoundInDatabase?
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not parse dbfile for '%s' blob: %s"\
                             % (blobname, ex),
-                        "ignore")
-                    continue
+                        "recover")
+                    self.remove_buf_data(buf)
+                    raise NotFoundInDatabase(
+                        "`%s' buffer %s `%s' blob was corrupted in database"
+                        % (buf.path, lang, blobname))
                 except EnvironmentError, ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not read dbfile for '%s' blob: %s"\
                             % (blobname, ex),
-                        "ignore")
-                    continue
+                        "recover")
+                    self.remove_buf_data(buf)
+                    raise NotFoundInDatabase(
+                        "`%s' buffer %s `%s' blob not found in database"
+                        % (buf.path, lang, blobname))
                 assert blob.get("lang") == lang
                 blob_from_lang[lang] = blob
 

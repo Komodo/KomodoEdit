@@ -72,6 +72,87 @@ class DBTestCase(CodeIntelTestCase):
             "database internal consistency errors after run:\n%s"
             % indent('\n'.join(errors)))
 
+
+class CorruptionTestCase(DBTestCase):
+    test_dir = join(os.getcwd(), "tmp", "db-corruption")
+
+    @tag("bug78401", "php")
+    def test_missing_blob_file_recovery_multilang(self):
+        # Create a PHP file, load it into the database.
+        path = join(self.test_dir, "missing_blob_file.php")
+        writefile(path, "<?php echo 'hi'; function bar() {} ?>")
+        buf = self.mgr.buf_from_path(path, lang="PHP")
+        buf.scan(skip_scan_time_check=True)
+
+        # Manually delete the blob file.
+        db = self.mgr.db
+        dhash = db.dhash_from_dir(dirname(path))
+        bhash = db.bhash_from_blob_info(buf.path, "PHP", buf.tree[0][0].get("name"))
+        blob_path = join(db.base_dir, "db", "php", dhash, bhash + ".blob")
+        os.unlink(blob_path)
+        assert not exists(blob_path)
+
+        # Try to get the buf data: we expect the buffer to be re-scanned
+        # and proper data returned.
+        #
+        # Get a new buffer instance (to avoid the buf scan data caching).
+        # Note: Relying on NOT having buf caching for this. If/when buf
+        # caching is added, then alternative it to cheat and remove buf's
+        # cache of scan data.
+        buf2 = self.mgr.buf_from_path(path, lang="PHP")
+        blob = buf2.tree[0][0]
+
+        # - ensure the corruption was noted
+        self.failUnlessEqual(len(db.corruptions), 1)
+        corruption = db.corruptions[0]
+        self.failUnless("get_buf_data" in corruption[0])
+        self.failUnless("missing_blob_file" in corruption[1])
+        self.failUnlessEqual(corruption[2], "recover")
+
+        # - ensure the scan data was obtained
+        self.failUnlessEqual(blob.get("lang"), "PHP")
+        self.failUnlessEqual(blob[0].get("ilk"), "function")
+        self.failUnlessEqual(blob[0].get("name"), "bar")
+    
+    @tag("bug78401", "python")
+    def test_missing_blob_file_recovery(self):
+        # Create a Python file, load it into the database.
+        path = join(self.test_dir, "missing_blob_file.py")
+        writefile(path, "def bar(): pass")
+        buf = self.mgr.buf_from_path(path, lang="Python")
+        buf.scan(skip_scan_time_check=True)
+
+        # Manually delete the blob file.
+        db = self.mgr.db
+        dhash = db.dhash_from_dir(dirname(path))
+        bhash = db.bhash_from_blob_info(buf.path, "Python", buf.tree[0][0].get("name"))
+        blob_path = join(db.base_dir, "db", "python", dhash, bhash + ".blob")
+        os.unlink(blob_path)
+        assert not exists(blob_path)
+        
+        # Try to get the buf data: we expect the buffer to be re-scanned
+        # and proper data returned.
+        #
+        # Get a new buffer instance (to avoid the buf scan data caching).
+        # Note: Relying on NOT having buf caching for this. If/when buf
+        # caching is added, then alternative it to cheat and remove buf's
+        # cache of scan data.
+        db.corruptions = []
+        buf2 = self.mgr.buf_from_path(path, lang="Python")
+        blob = buf2.tree[0][0]
+
+        # - ensure the corruption was noted
+        self.failUnlessEqual(len(db.corruptions), 1)
+        corruption = db.corruptions[0]
+        self.failUnless("get_buf_data" in corruption[0])
+        self.failUnless("missing_blob_file" in corruption[1])
+        self.failUnlessEqual(corruption[2], "recover")
+
+        # - ensure the scan data was obtained
+        self.failUnlessEqual(blob.get("lang"), "Python")
+        self.failUnlessEqual(blob[0].get("ilk"), "function")
+        self.failUnlessEqual(blob[0].get("name"), "bar")
+
 class UpgradeTestCase(DBTestCase):
     # Don't create the manager and upgrade/init.
     _ci_test_setup_mgr_ = False
