@@ -156,7 +156,8 @@ this.ViewHistory.prototype._debug_recentViews = function()
             if (!this._recentViews[i]) {
                 dump('<null>\n');
             } else {
-                var v = this._recentViews[i].document.baseName;
+                var v = this._recentViews[i];
+                v = v.document ? v.document.baseName : "[doc not set]";
                 if (this._recentViews[i] == this._currentView) {
                     dump('*** ');
                 }
@@ -169,21 +170,30 @@ this.ViewHistory.prototype._debug_recentViews = function()
     }
 }
 
+this.ViewHistory.prototype._getCurrentViewIdx = function() {
+    if (!this._recentViews || this._recentViews.length < 2) {
+        this.log.info("no _recentViews in viewGetter");
+        this._debug_recentViews();
+        return -1;
+    }
+    var currIndex = this._recentViews.indexOf(this._currentView);
+    if (currIndex == -1) {
+        var msg = "Can't find the current view ";
+        try {
+            msg += this._currentView.document.baseName;
+        } catch(e) {}
+        this.log.info(msg);
+        this._debug_recentViews();
+    }
+    return currIndex;
+}
+
 this.ViewHistory.prototype.getNextMostRecentView = function()
 {
     this.log.info("getNextMostRecentView");
-    if (!this._recentViews || this._recentViews.length < 2) {
-        this.log.info("no _recentViews in getNextMostRecentView");
-        this._debug_recentViews();
+    var currIndex = this._getCurrentViewIdx();
+    if (currIndex == -1) {
         return null;
-    }
-    var currIndex = null;
-    var i;
-    for (i = 0; i < this._recentViews.length; i++) {
-        if (this._recentViews[i] == this._currentView) {
-            currIndex = i;
-            break;
-        }
     }
     // Find the current view in the "_recentViews" stack and return the
     // preceding view.
@@ -210,20 +220,12 @@ this.ViewHistory.prototype.getNextMostRecentView = function()
 this.ViewHistory.prototype.getNextLeastRecentView = function()
 {
     this.log.info("getNextLeastRecentView");
-    if (!this._recentViews || this._recentViews.length < 2) {
-        this.log.info("no _recentViews in getNextLeastRecentView");
+    var currIndex = this._getCurrentViewIdx();
+    if (currIndex == -1) {
         return null;
     }
     // Find the current view in the "recent views" stack and return the
     // succeeding view.
-    var currIndex = null;
-    var i;
-    for (i = 0; i < this._recentViews.length; i++) {
-        if (this._recentViews[i] == this._currentView) {
-            currIndex = i;
-            break;
-        }
-    }
     // XXX JavaScript get's modulus wrong for negative values, so add the
     //     .length to ensure the value is not negative.
     var index = (currIndex - 1 + this._recentViews.length) %
@@ -307,15 +309,14 @@ this.ViewHistory.prototype.setMostRecentView = function (view)
     //this._debug_recentViews();
     var v;
     if (! this.inBufferSwitchingSession) {
-        var newStack = new Array();
-        newStack[0] = view;
-        for (var i =0; i < this._recentViews.length; i++) {
-            v = this._recentViews[i];
-            if (v != view) {
-                newStack.push(v);
+        var idx = this._recentViews.indexOf(view);
+        if (idx != 0) {
+            // If 0, leave it at the start
+            if (idx > 0) {
+                this._recentViews.splice(idx, 1);
             }
+            this._recentViews.unshift(view);
         }
-        this._recentViews = newStack;
         //this._debug_recentViews();
         //this.log.debug("setMostRecentView(" + view +
         //          "): new stack: " + this._recentViews);
@@ -330,15 +331,10 @@ this.ViewHistory.prototype.removeRecentView = function (view)
 {
     this.log.info("removeRecentView");
     // this._debug_recentViews();
-    var newrecentviews = []
-
-    var i;
-    for (i = 0; i < this._recentViews.length; i++) {
-        if (this._recentViews[i] != view) {
-           newrecentviews.push(this._recentViews[i]);
-        }
+    var idx = this._recentViews.indexOf(view);
+    if (idx >= 0) {
+        this._recentViews.splice(idx, 1);
     }
-    this._recentViews = newrecentviews;
     // this._debug_recentViews();
 }
 
