@@ -71,6 +71,11 @@ class langpack(Task):
             sh.rm(build_dir, self.log)
         os.makedirs(build_dir)
         
+        # Version
+        ver_bits = [self.LANGPACK_VERSION,
+                    self._svnversion_from_dir(locale_dir)]
+        version = '.'.join([v for v in ver_bits if v])
+
         # Create the package contents.
         os.makedirs(join(build_dir, "chrome"))
         sh.cp(locale_dir, join(build_dir, "chrome", "locale"),
@@ -117,15 +122,12 @@ class langpack(Task):
                 </em:targetApplication>
             </Description>
             </RDF>
-            """))
+            """ % version))
         
         # Package it up.
         if not exists(pkg_dir):
             os.makedirs(pkg_dir)
-        version = self._svnversion_from_dir(locale_dir)
-        pkg_name = ["Komodo", "LangPack"]
-        if version:
-            pkg_name.append("r%s" % version)
+        pkg_name = ["Komodo", "LangPack", version]
         pkg_name = '-'.join(pkg_name) + ".xpi"
         pkg_path = join(pkg_dir, pkg_name)
         sh.run_in_dir('zip -rq "%s" .' % abspath(pkg_path), build_dir,
