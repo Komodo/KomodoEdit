@@ -25,12 +25,12 @@
       cursor position. Press 'Esc' to cancel. -->
 
 <script type="text/javascript">
-//<![CDATA[
+/*<![CDATA[*/
 /*
-    * JavaScript code blocks include syntax highlighting, autocomplete and
-    * calltips. See the javascript_sample.js file for more JavaScript
-    * features.
-*/
+ * JavaScript code blocks include syntax highlighting, autocomplete and
+ * calltips. See the javascript_sample.js file for more JavaScript
+ * features.
+ */
 
 /* mini js library */
 function $(id) { return document.getElementById(id); }
@@ -40,10 +40,9 @@ function log(str) { add_html('log', str); $('log').scrollTop = $('log').scrollHe
 function clear(id) { html(id,"");}
 function trim(str) { str.replace(/^\s*/, '').replace(/\s*$/, ''); return str; } 
 
-/*
-    * hack(): takes the value of the text field and prints it out
-    * in the output div, increasing the font size for every iteration
-    * I threw in the color change for some extra pizazz.
+/**
+ * rand_color: psudo random hex color generator
+ * @returns {String}
 */
 
 function rand_color() {
@@ -58,6 +57,12 @@ function rand_color() {
     }
     return "#"+hexstr;
 }
+
+/*
+ * hack(): takes the value of the text field and prints it out
+ * in the output div, increasing the font size for every iteration
+ * I threw in the color change for some extra pizazz.
+ */
 
 function hack() {
     clear('script-output');
@@ -81,8 +86,8 @@ function hack() {
 
 function livehack() {
     /* un-comment the code below to update the page as you type
-      to un-comment a block in Komodo, select the block and hit Ctrl+SHIFT+3
-    */
+     * to un-comment a block in Komodo, select the block and hit Ctrl+SHIFT+3
+     */
     //hack();
 }
 
@@ -97,14 +102,14 @@ function show(id) {
     $('log-header').innerHTML = 'Log';
 }
 
-//]]>
+/*]]>*/
 </script>
 <style type="text/css">
-
+/*<![CDATA[*/
 /*
-    * Style blocks in html include syntax highlighting and autocomplete for CSS
-    * declarations
-*/
+ * Style blocks in html include syntax highlighting and autocomplete for CSS
+ * declarations
+ */
 
 body {
     color: #036;
@@ -147,6 +152,7 @@ a:hover { text-decoration: underline; }
 }
 #ctrl { border-bottom: 1px solid #EFEFEF; }
 .err { font: bold; color: red; }
+/*]]>*/
 </style>
 </head>
 <body>
