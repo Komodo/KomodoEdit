@@ -77,7 +77,6 @@ var _fileListSep = "; ";
 var sfile = null;
 var retvals;
 var filePickerMode;
-var homeDir;
 var treeView;
 var helpTag;
 
@@ -788,8 +787,6 @@ function setInitialDirectory(dirPath)
   clearHistoryList();
   var dirServiceProvider = Components.classes[nsIDirectoryServiceProvider_CONTRACTID]
                                      .getService(nsIDirectoryServiceProvider);
-  var persistent = new Object();
-  homeDir = dirServiceProvider.getFile("Home", persistent);
   sfile = null;
 
   try {
@@ -805,6 +802,8 @@ function setInitialDirectory(dirPath)
           log.debug("setInitialDirectory: no file produced for "+dirPath);
     } else if (!RemoteFileBrowserOnly && sfile && !sfile.isDirectory) {
       // Start in the user's home directory
+      var persistent = new Object();
+      var homeDir = dirServiceProvider.getFile("Home", persistent);
       log.debug("setInitialDirectory: initialize new file with homeDir "+homeDir.path);
       sfile = newFile(homeDir.path);
     }
