@@ -1717,8 +1717,19 @@ def target_configure(argv):
     # Error out if it looks like we will hit the subtle limitation on
     # PATH length on Windows.
     if sys.platform == "win32":
-        PATH_LEN_LIMIT = 166 # best guess from experimentation
-        LONGEST_SUB_PATH = r"komodo\app\profile\extensions\{972ce4c6-7e08-4474-a285-3208198ce6fd}\index.rdf"
+        # This guy is 192 chars long and fails:
+        #   C:\trentm\as\openkomodo-moz19\mozilla\build\cvs-ko5.19-okmoz19\mozilla\ko-rel-ns\_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_result.html
+        # This guy (tweaked) is 189 chars and works:
+        #   C:\trentm\as\openkomodo-moz19\mozilla\build\cvs-ko5.19-okmoz19\mozilla\ko-rel-ns\_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_tex.html
+        # I believe the path length limit in the msys/mozilla build-tools
+        # somewhere (perhaps in 'nsinstall'?) is 189 characters.
+        #
+        # Perhaps the actual limit depends on some transformation of the
+        # path -- e.g. the msys/cygwin path.
+        PATH_LEN_LIMIT = 189 # best guess from experimentation
+        # This is the longest subpath in the Mozilla tree that I've come
+        # across in builds.
+        LONGEST_SUB_PATH = r"_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_result.html"
         # Normally we would get the objdir from _get_mozilla_objdir(),
         # but that requires a configured mozilla source tree and we
         # haven't even cracked the source yet. If --moz-objdir was
@@ -1770,13 +1781,12 @@ You need to do one or more of the following to work around this problem
    For example:
         python build.py configure --moz-objdir=obj-FOO ...
         python build.py -h configure
+   Note: You have to make sure your value doesn't conflict with any
+   top-level files/dirs in the Mozilla source tree. E.g. "dom" is a
+   conflict.
 
-3. Change where you check out the Mozilla-devel source tree to a shorter
-   path. For example, I check out mine to "$HOME/as/Mozilla-devel".
-
-4. Help get Komodo to build with msys instead of cygwin on Windows. See:
-    http://xulblog.de/xul/archives/21-Cygwin-be-gone.html
-   (This presumes that I am right that the limitation is cygwin here.)
+3. Change where you check out your Komodo source tree to a shorter
+   path. For example, I check out mine to "$HOME/as/komodo".
 **************************************************************************
 """ % (PATH_LEN_LIMIT,
        LONGEST_SUB_PATH, len(LONGEST_SUB_PATH),
