@@ -1729,7 +1729,7 @@ def target_configure(argv):
         PATH_LEN_LIMIT = 189 # best guess from experimentation
         # This is the longest subpath in the Mozilla tree that I've come
         # across in builds.
-        LONGEST_SUB_PATH = r"_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_result.html"
+        LONGEST_SUB_PATH = r"\_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_result.html"
         # Normally we would get the objdir from _get_mozilla_objdir(),
         # but that requires a configured mozilla source tree and we
         # haven't even cracked the source yet. If --moz-objdir was
