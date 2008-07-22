@@ -95,7 +95,7 @@ PRINT
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(
-                components.interfaces.ISciMoz.SCLEX_PB)
+                components.interfaces.ISciMoz.SCLEX_POWERBASIC)
             self._lexer.setKeywords(0, self._keywords_preprocessor + \
                                        self._keywords_functions + \
                                        self._keywords_proceedures + \
