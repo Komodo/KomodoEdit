@@ -416,7 +416,7 @@ $consLocal->Install("$supportDir/html", $exeName);
         "--lang", "en-US",
         "--chrome-dir", $mozChromeDir,
         "--miniset-dir", $readmeDir,
-        "--license-text-path", "%2",
+        "--license-text-path", "%2:a",
     );
     if ($withKomodoCix) {
         push @opts, ("--komodo-cix-path", "%3:a");
