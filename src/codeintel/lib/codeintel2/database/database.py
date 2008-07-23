@@ -304,6 +304,8 @@ class Database(object):
     # version number should be used for small upgrades to the database.
     #
     # db change log:
+    # - 2.0.18: (PHP Alternative Control Syntax)
+    #   http://bugs.activestate.com/show_bug.cgi?id=78957
     # - 2.0.17: (PHP variables) Parse complex variable definitions.
     #   http://bugs.activestate.com/show_bug.cgi?id=74625
     #   PHP stdlibs were also updated.
@@ -342,7 +344,7 @@ class Database(object):
     # - 2.0.2: added scan_error to res_index in LangZone and MultiLangZone,
     #   add "lang" file to lang zones for reverse safe_lang -> lang lookup
     # - 2.0.1: s/VERSION.txt/VERSION/, made PHP a MultiLangZone
-    VERSION = "2.0.17"
+    VERSION = "2.0.18"
 
     LEN_PREFIX = 3 # Length of prefix in 'toplevelprefix_index' indeces.
 
@@ -584,6 +586,7 @@ class Database(object):
         "2.0.14": (VERSION, _upgrade_wipe_db, None),
         "2.0.15": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
         "2.0.16": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
+        "2.0.17": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
     }
 
     def report_event(self, desc):

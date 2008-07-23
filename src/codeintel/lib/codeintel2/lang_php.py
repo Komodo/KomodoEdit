@@ -2992,8 +2992,20 @@ class PHPParser:
                         # Decreasing depth/scope
                         self._addCodePiece()
                         self.decBlock()
+                    elif op == ":":
+                        # May be an alternative syntax
+                        if len(self.text) > 0 and \
+                           self.styles[0] == self.PHP_WORD and \
+                           self.text[0] in ("if", "elseif", "else", "while", "for", "foreach", "switch"):
+                            #print "Alt syntax? text: %r" % (self.text, )
+                            self._addCodePiece()
                     elif op == ";":
                         # Statement is done
+                        if len(self.text) > 0 and \
+                           self.styles[0] == self.PHP_WORD and \
+                           self.text[-1] in ("endif", "endwhile", "endfor", "endforeach", "endswitch"):
+                            # Alternative syntax, remove this from the text.
+                            self.text = self.text[:-1]
                         self._addCodePiece()
                     col += 1
         elif style in self.PHP_COMMENT_STYLES:
