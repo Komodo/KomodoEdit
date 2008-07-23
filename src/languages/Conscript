@@ -109,6 +109,7 @@ $cons->InstallXpcomComponent('koNsisLanguage.py');
 $cons->InstallXpcomComponent('koOthersLanguage.py');
 $cons->InstallXpcomComponent('koPascalLanguage.py');
 $cons->InstallXpcomComponent('koPowerBasicLanguage.py');
+$cons->InstallXpcomComponent('koPowerShellLanguage.py');
 $cons->InstallXpcomComponent('koPerlLanguage.py');
 $cons->InstallXpcomComponent('koPOVLanguage.py');
 $cons->InstallXpcomComponent('koPostScriptLanguage.py');

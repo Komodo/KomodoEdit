@@ -246,6 +246,7 @@
  '*.pm': 'Perl',
  '*.pov': 'POVRay',
  '*.ps': 'PostScript',
+ '*.ps1': 'PowerShell',
  '*.py': 'Python',
  '*.pyw': 'Python',
  '*.rb': 'Ruby',

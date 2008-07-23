@@ -293,6 +293,13 @@ class PowerBasicLangInfo(_BasicLangInfo):
     name = "PowerBasic"
     exts = [".pb"]
 
+class PowerShellLangInfo(_BasicLangInfo):
+    """Windows PowerShell
+    http://www.microsoft.com/windowsserver2003/technologies/management/powershell/default.mspx
+    """
+    name = "PowerShell"
+    exts = [".ps1"]
+
 class BlitzBasicLangInfo(_BasicLangInfo):
     """http://www.blitzbasic.com/Products/blitzmax.php"""
     name = "BlitzBasic"
