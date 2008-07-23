@@ -1844,6 +1844,19 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
                 [("function", 'bug78050_func'), ])
 
+    @tag("bug78957")
+    def test_alternative_control_syntax(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=78957
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            if ( !function_exists('bug78957_function') ) :
+            function bug78957_function($id, $name = '') { }
+            endif;
+            bug<1>
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                [("function", 'bug78957_function'), ])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
