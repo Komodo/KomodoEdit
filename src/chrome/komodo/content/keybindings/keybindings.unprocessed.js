@@ -507,7 +507,7 @@ this.manager.prototype.parseConfiguration = function (data,
 
     // Find out if we are binding keys, or if we've gotten our keybindings using
     // the Mozilla persist mechanism
-    var keyset = document.getElementById('widekeyset');
+    var keyset = this.document.getElementById('widekeyset');
     var bindingKeys = true;
     var vi_enabled = false;
     //if (!forceReload && keyset.hasAttribute('persisted_kb') && keyset.getAttribute('persisted_kb') == 'true') {
@@ -1047,7 +1047,7 @@ this.manager.prototype.unsetKey = function(keylabel) {
     if (keylabel in this.key2command) {
         delete this.key2command[keylabel];
     }
-    var key = document.getElementById(keylabel);
+    var key = this.document.getElementById(keylabel);
     if (key) {
         key.removeAttribute('command');
     }
@@ -1057,11 +1057,11 @@ this.manager.prototype.unsetKeyBinding = function(commandId) {
     // this both unsets the keybinding and clears the menu key text,
     // which is set by either acceltext, keytext, or modifiers+key|keycode
     //dump("unsetKeyBinding "+commandId+"\n");
-    var cmd = document.getElementById(commandId);
+    var cmd = this.document.getElementById(commandId);
     if (cmd)
         cmd.removeAttribute('acceltext');
     
-    var key = document.getElementById("key_"+commandId);
+    var key = this.document.getElementById("key_"+commandId);
     if (key) {
         key.removeAttribute('modifiers');
         key.removeAttribute('keycode');
@@ -1086,7 +1086,7 @@ this.manager.prototype.setKeyBinding = function(keysequence, commandId, commandK
     }
     //dump('setKeyBinding for '+id+"\n");
 
-    var key = document.getElementById(id);
+    var key = this.document.getElementById(id);
     var exists = key != null;
     if (exists && commandKey) {
         // make sure the existing key is valid, and if so, then we're no
@@ -1097,10 +1097,10 @@ this.manager.prototype.setKeyBinding = function(keysequence, commandId, commandK
         }
     }
     if (!exists) {
-        key = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "key");
+        key = this.document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "key");
         key.setAttribute('id', id);
         key.setAttribute('command', commandId);
-        document.getElementById('widekeyset').appendChild(key);
+        this.document.getElementById('widekeyset').appendChild(key);
     } else if (!commandKey) {
         // always reset the command on non-command  key elements
         key.setAttribute('command', commandId);
@@ -1212,46 +1212,48 @@ this.manager.prototype.assignKey = function(commandId, keysequence, parameter) {
 this.manager.prototype.parseGlobalData= function() {
     var i;
     var keyname, key, commandname, commanddesc, command;
-    var keys = document.getElementsByTagName('key');
-    var commands = document.getElementsByTagName('command');
-    var broadcasters = document.getElementsByTagName('broadcaster');
+    var keys = this.document.getElementsByTagName('key');
+    var commands = this.document.getElementsByTagName('command');
+    var broadcasters = this.document.getElementsByTagName('broadcaster');
+
+    var all_commands = [];
+    for (i=0; i < commands.length; i++) {
+        all_commands.push(commands[i]);
+    }
+    for (i=0; i < broadcasters.length; i++) {
+        all_commands.push(broadcasters[i]);
+    }
+
     this.keynames = new Array();
     for (i=0; i< keys.length; i++) {
         this.keynames[keys[i].getAttribute('id')] = 1;
     }
+
     this.commandnames = new Array();
     this.commanditems = new Array();
     var already_got = new Array();
-    var commanditem = {};
-    for (i=0; i< commands.length; i++) {
-        command = commands[i];
+    var commanditem;
+    var commanditem_from_name = {};
+    for (i=0; i< all_commands.length; i++) {
+        command = all_commands[i];
         commandname = command.getAttribute('id');
-        if (already_got[commandname]) continue;
-        already_got[commandname] = 1;
+        commanditem = commanditem_from_name[commandname];
+        if (commanditem) {
+            // We might find a better description.
+            if (!commanditem.desc && command.hasAttribute('desc')) {
+                commanditem.desc = command.getAttribute('desc');
+            }
+            continue;
+        }
         this.commandnames.push(commandname);
-        commanddesc = ''
+        commanddesc = '';
         if (command.hasAttribute('desc')) {
             commanddesc = command.getAttribute('desc');
         }
         commanditem = {};
         commanditem.desc = commanddesc;
         commanditem.name = commandname
-        this.commanditems.push(commanditem);
-        //dump("adding " + commandname + ' --> ' + commanddesc + '\n');
-    }
-    for (i=0; i< broadcasters.length; i++) {
-        command = broadcasters[i];
-        commandname = command.getAttribute('id');
-        if (already_got[commandname]) continue;
-        already_got[commandname] = 1;
-        this.commandnames.push(commandname);
-        commanddesc = ''
-        if (command.hasAttribute('desc')) {
-            commanddesc = command.getAttribute('desc');
-        }
-        commanditem = {};
-        commanditem.desc = commanddesc;
-        commanditem.name = commandname
+        commanditem_from_name[commandname] = commanditem;
         this.commanditems.push(commanditem);
         //dump("adding " + commandname + ' --> ' + commanddesc + '\n');
     }
@@ -1450,10 +1452,10 @@ this.manager.prototype.makeCommandIdTable = function() {
     this.rownum = 0;
     var i, j;
 
-    var _commands = document.getElementsByTagName('command');
-    var _broadcasters = document.getElementsByTagName('broadcaster');
-    var command
-    var _desc = []
+    var _commands = this.document.getElementsByTagName('command');
+    var _broadcasters = this.document.getElementsByTagName('broadcaster');
+    var command;
+    var _desc = [];
     for (i = 0; i < _commands.length; i++) {
         command = _commands[i];
         desc = command.getAttribute('desc');
@@ -1509,7 +1511,7 @@ this.manager.prototype._addRow = function(category, desc, keys) {
 }
 
 this.manager.prototype.commandId2desc= function(commandname, param, label) {
-    var command = document.getElementById(commandname);
+    var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
     }
@@ -1537,7 +1539,7 @@ this.manager.prototype.commandId2desc= function(commandname, param, label) {
 }
 
 this.manager.prototype.commandId2shortdesc = function(commandname, param) {
-    var command = document.getElementById(commandname);
+    var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
     }
@@ -1563,7 +1565,7 @@ this.manager.prototype.commandId2shortdesc = function(commandname, param) {
 }
 
 this.manager.prototype.commandId2tabledesc= function(commandname, param) {
-    var command = document.getElementById(commandname);
+    var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
     }
@@ -1839,7 +1841,7 @@ this.manager.prototype.event2keylabel = function (event, useShift) {
 this.manager.prototype.evalCommand = function (event, commandname, keylabel) {
     // this handles executing multi-key bindings and toolbox related commands
     try {
-        var command = document.getElementById(commandname);
+        var command = this.document.getElementById(commandname);
         if (!command) {
             _log.error("FAILURE to find command " + commandname);
         }
