@@ -62,7 +62,7 @@ class koPowerShellLanguage(KoLanguageBase):
         'commands': ('SCE_POWERSHELL_CMDLET',),
         'aliases': ('SCE_POWERSHELL_ALIAS',),
         }
-    defaultExtension = '.PS1'
+    defaultExtension = '.ps1'
     commentDelimiterInfo = {"line": [ "# " ]}
     
     sample = """
