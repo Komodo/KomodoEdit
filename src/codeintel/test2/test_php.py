@@ -1857,6 +1857,42 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
                 [("function", 'bug78957_function'), ])
 
+    @tag("bug79003", "php5", "knownfailure")
+    def test_type_hinting(self):
+        # http://ch2.php.net/language.oop5.typehinting
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            <?php
+            // An example class
+            class bug79003Class
+            {
+                public function test(bug79003OtherClass $otherclass) {
+                    echo $otherclass-><3>var;
+                }
+            
+                public function test_array(array $input_array) {
+                    print_r($input_array);
+                }
+            }
+            
+            class bug79003OtherClass {
+                public $var = 'Hello World';
+                public function test_func() {}
+            }
+
+            $inst_myclass = new bug79003Class();
+            $inst_myclass->test(<1>);
+            $inst_myclass->test_array(<2>);
+            ?>
+        """)))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "test(bug79003OtherClass otherclass)")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "test_array(array $input_array)")
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+                [("function", 'test_func'),
+                 ("variable", 'var'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
