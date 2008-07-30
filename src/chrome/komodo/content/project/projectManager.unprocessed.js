@@ -106,6 +106,7 @@ function projectManager() {
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
     ko.projects.extensionManager.datapoints['Name']='Name';
     this.observer = new ProjectEventObserver();
+    this._currentProject = null;
     ko.trace.get().leave('projectManager()');
 }
 
@@ -507,6 +508,7 @@ projectManager.prototype.__defineSetter__("currentProject",
 function(project)
 {
     this.viewMgr.view.currentProject = project;
+    this._currentProject = project;
     if (gCodeIntelActive) {
         gCodeIntelSvc.ideEvent("current_project_changed", null,project);
     }
@@ -538,7 +540,9 @@ projectManager.prototype.setCurrentProject = function(project) {
 projectManager.prototype.__defineGetter__("currentProject",
 function()
 {
-    return this.viewMgr.view.currentProject;
+    // At shutdown the projects are unloaded from the view
+    // before the saveWorkspace routine runs.
+    return this.viewMgr.view.currentProject || this._currentProject;
 });
 
 projectManager.prototype.getCurrentProject = function() {

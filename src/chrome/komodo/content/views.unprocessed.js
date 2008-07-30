@@ -1971,7 +1971,15 @@ this.restoreWorkspace = function view_restoreWorkspace()
                 workspace.getPrefIds(ids, cnt);
                 if (workspace.hasPref('opened_projects')) {
                     pref = workspace.getPref('opened_projects');
-                    ko.projects.manager.setState(pref)
+                    ko.projects.manager.setState(pref);
+                    if (workspace.hasPref('current_project')) {
+                        var url = workspace.getStringPref('current_project');
+                        // If a project with that url is loaded, make it current
+                        var proj = ko.projects.manager.getProjectByURL(url);
+                        if (proj) {
+                            ko.projects.manager.currentProject = proj;
+                        }
+                    }
                 }
                 for (var i = 0; i < ids.value.length; i++) {
                     id = ids.value[i];
@@ -2011,6 +2019,10 @@ this.saveWorkspace = function view_saveWorkspace()
         if (pref) {
             workspace.setPref(pref.id, pref)
             haveStateToPersist = true;
+            var currentProject = ko.projects.manager.currentProject;
+            if (currentProject) {
+                workspace.setStringPref('current_project', currentProject.url);
+            }
         } else if (workspace.hasPref('opened_projects')) {
             workspace.deletePref('opened_projects');
         }
