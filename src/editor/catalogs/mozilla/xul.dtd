@@ -441,7 +441,6 @@
 <!ATTLIST radio
 	%XULElement; 
 	accesskey CDATA #IMPLIED
-	checked (true | false) #IMPLIED
 	command CDATA #IMPLIED
 	crop (start | end | center | none | left | right) #IMPLIED
 	disabled (true | false) #IMPLIED
