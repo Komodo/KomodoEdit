@@ -835,9 +835,9 @@
   <boolean id="codeintel_completion_fillups_enabled">0</boolean>
   <boolean id="codeintel_have_preloaded_database">0</boolean>
 <!-- #if PLATFORM == "win" -->
-  <string id="codeintel_selected_catalogs">["pywin32", "yui"]</string>
+  <string id="codeintel_selected_catalogs">["pywin32"]</string>
 <!-- #else -->
-  <string id="codeintel_selected_catalogs">["yui"]</string>
+  <string id="codeintel_selected_catalogs">[]</string>
 <!-- #endif -->
   <long id="codeintel_max_recursive_dir_depth">10</long>
 
