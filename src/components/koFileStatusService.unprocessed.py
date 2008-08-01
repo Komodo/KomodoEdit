@@ -76,6 +76,7 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 from xpcom.server import UnwrapObject
 
 import timeline
+import uriparse
 from fileStatusUtils import KoDiskFileChecker
 
 log = logging.getLogger('koFileStatusService')
@@ -255,6 +256,9 @@ class KoFileStatusService:
         # This url has changed, perform a status check
         self._cv.acquire()
         try:
+            # Ensure the URI format is the same as used by koIFile.
+            # http://bugs.activestate.com/show_bug.cgi?id=79065
+            uri = uriparse.pathToURI(uri)
             if flags & self.FNS_FILE_DELETED:
                 # File was deleted, remove it from our list of paths checked.
                 # The file notification system observer automatically removes
