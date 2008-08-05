@@ -397,7 +397,7 @@ ISController.prototype.keyPressForSearch = function(event) {
                                         null, true,
                                         true); // add pattern to find MRU
             if (findres == false) {
-                ko.statusBar.AddMessage("Incremental Search: No more occurences of "
+                ko.statusBar.AddMessage("Incremental Search: No more occurrences of "
                     + this._incrementalSearchPattern +' found',
                     "isearch", 0, false, true)
             } else {
@@ -456,7 +456,7 @@ ISController.prototype.keyPressForSearch = function(event) {
                 // that will be done on stopping of interactive search.
                 false);
             if (! findres) {
-                ko.statusBar.AddMessage("Interactive Search: No occurences of "
+                ko.statusBar.AddMessage("Interactive Search: No occurrences of "
                     + this._incrementalSearchPattern + " found.",
                     "isearch", 3000, true, true);
                 scimoz.setSel(oldStart, oldEnd);

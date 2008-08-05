@@ -1425,7 +1425,7 @@ VimController.prototype.performSearch = function (scimoz, searchString,
                     scimoz.currentPos = orig_currentPos;
                     return;
                 } else if (findres == false) {
-                    msg = "No occurences of '" + searchString + "' was found";
+                    msg = "No occurrences of '" + searchString + "' were found";
                     // Didn't find anything, ensure we move back to the start position
                     scimoz.currentPos = orig_currentPos;
                     break;

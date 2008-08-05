@@ -286,7 +286,7 @@ interface koIFindService : nsISupports {
                          in ISciMoz scimoz,
                          out PRUint32 count); // number of replacements
 
-    // Asynchronously find all occurences of "pattern" and load those into
+    // Asynchronously find all occurrences of "pattern" and load those into
     // the "resultsView". Note: the information on which files to search are
     // in the "options" attribute.
     //XXX Need to add a .finalize() to the find service to .stop() and
