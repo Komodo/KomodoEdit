@@ -345,6 +345,7 @@
             if (this.parentView)
                 this.parentView.updateLeafName(this);
             if (notify) {
+                xtk.domutils.fireEvent(this, 'view_document_attached');
                 xtk.domutils.fireEvent(this, 'current_view_changed');
             }
         ]]>
