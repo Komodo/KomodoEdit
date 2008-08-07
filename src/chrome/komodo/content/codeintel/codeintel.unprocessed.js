@@ -630,7 +630,7 @@ function CodeIntel_Initialize()
         } else {
             _CodeIntel_DeactivateWindow();
         }
-        ko.main.addWillQuitHandler(CodeIntel_Finalize);
+        ko.main.addWillCloseHandler(CodeIntel_Finalize);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
