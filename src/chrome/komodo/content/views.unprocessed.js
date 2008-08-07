@@ -97,6 +97,7 @@ function viewManager() {
     this.lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                             getService(Components.interfaces.koILastErrorService);
     this.observerSvc.addObserver(this, "open_file", false); // commandment
+    this.observerSvc.addObserver(this, "open-url",false);
     this.observerSvc.addObserver(this, "SciMoz:FileDrop", false);
     this.observerSvc.addObserver(this, "file_status", false);
     var self = this;
@@ -134,6 +135,7 @@ viewManager.prototype.shutdown = function()
 {
     try {
         this.observerSvc.removeObserver(this, "open_file");  // commandment
+        this.observerSvc.removeObserver(this, "open-url");
         this.observerSvc.removeObserver(this, "SciMoz:FileDrop");
         this.observerSvc.removeObserver(this, "file_status");
         window.removeEventListener('current_view_changed',
@@ -718,84 +720,102 @@ viewManager.prototype.cacheCommandData = function(view)
     return cache
 }
 
+viewManager.prototype._handle_open_file = function(topic, data)
+{
+            
+            for (var i in urllist) {
+                ko.open.URI(urllist[i]);
+            }
+        
+    try {
+        this.log.info("got open_file notification: " + data);
+        var urllist = data.split('|'); //see asCommandLineHandler.js
+        for (var i = 0; i < urllist.length; i++) {
+            var thisPart = urllist[i];
+            var uri;
+            var fname = '';
+            var anchorDesc = '';
+            var currentPosDesc = '';
+            var currentPos, anchor = 0;
+            if (thisPart.indexOf('\t') != -1) { // We have a selection specification
+                var parts = thisPart.split('\t');
+                fname = parts[0];
+                var subparts = parts[1].split('-');
+                switch (subparts.length) {
+                  case 1:
+                   // Only one position is specified -- use it
+                   // for both anchor and currentPos
+                   anchorDesc = subparts[0];
+                   currentPosDesc = anchorDesc;
+                   break;
+                  case 2:
+                   // it's <anchor>-<currentPos>
+                   anchorDesc = subparts[0];
+                   currentPosDesc = subparts[1];
+                   break;
+                  default:
+                   this.log.error("Error processing data segment of " +
+                                  topic + " notification: " + thisPart);
+                }
+            } else {
+                fname = thisPart;
+            }
+            try {
+                uri = ko.uriparse.localPathToURI(fname);
+            } catch(ex) {
+                // Maybe it is a URI already?
+                uri = fname;
+            }
+            ko.open.URI(uri); // dispatch to view, project, UI builder as necessary
+            if (anchorDesc && currentPosDesc) {
+                // Are we using character index or line,column?
+                if (anchorDesc.indexOf(',') == -1) {
+                    anchor = Number(anchor);
+                } else {
+                    subparts = anchorDesc.split(',');
+                    var anchorLine = Math.max(Number(subparts[0]) - 1,
+                                              0);
+                    var anchorCol = Math.max(Number(subparts[1]) - 1,
+                                             0);
+                    anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
+                                                                           anchorCol);
+                }
+                if (currentPosDesc.indexOf(',') == -1) {
+                    currentPos = Number(currentPos);
+                } else {
+                    subparts = currentPosDesc.split(',')
+                        var currentPosLine = Math.max(Number(subparts[0]) - 1,
+                                                      0);
+                    var currentPosCol = Math.max(Number(subparts[1]) - 1,
+                                                 0);
+                    currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
+                                                                               currentPosCol);
+                }
+                // do gotoline first because it messes w/ current position and anchor.
+                var lineNo = ko.views.manager.currentView.scimoz.lineFromPosition(currentPos);
+                ko.views.manager.currentView.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
+                ko.views.manager.currentView.anchor = anchor;
+                ko.views.manager.currentView.currentPos = currentPos;
+                // Force the main window to the forefront
+                //precondition: window == ko.windowManager.getMainWindow()
+                window.focus();
+            }
+        }
+    } catch (e) {
+        this.log.exception(e);
+    }
+}
+
 viewManager.prototype.observe = function(subject, topic, data)
 {
     this.log.debug("_ViewObserver: observed '"+topic+"' notification: data='"+data+"'\n");
     switch (topic) {
         case 'SciMoz:FileDrop':
         case 'open_file':
-            try {
-                this.log.info("got open_file notification: " + data);
-                var uri;
-                var fname = '';
-                var anchorDesc = '';
-                var currentPosDesc = '';
-                var currentPos, anchor = 0;
-                if (data.indexOf('\t') != -1) { // We have a selection specification
-                    var parts = data.split('\t');
-                    fname = parts[0];
-                    var subparts = parts[1].split('-');
-                    switch (subparts.length) {
-                        case 1:
-                            // Only one position is specified -- use it
-                            // for both anchor and currentPos
-                            anchorDesc = subparts[0];
-                            currentPosDesc = anchorDesc;
-                            break;
-                        case 2:
-                            // it's <anchor>-<currentPos>
-                            anchorDesc = subparts[0];
-                            currentPosDesc = subparts[1];
-                            break;
-                        default:
-                            this.log.error("Error processing data segment of " +
-                                           topic + " notification: " + data);
-                    }
-                } else {
-                    fname = data;
-                }
-                try {
-                    uri = ko.uriparse.localPathToURI(fname);
-                } catch(ex) {
-                    // Maybe it is a URI already?
-                    uri = fname;
-                }
-                ko.open.URI(uri); // dispatch to view, project, UI builder as necessary
-                if (anchorDesc && currentPosDesc) {
-                    // Are we using character index or line,column?
-                    if (anchorDesc.indexOf(',') == -1) {
-                        anchor = Number(anchor);
-                    } else {
-                        subparts = anchorDesc.split(',');
-                        var anchorLine = Math.max(Number(subparts[0]) - 1,
-                                                  0);
-                        var anchorCol = Math.max(Number(subparts[1]) - 1,
-                                                 0);
-                        anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
-                                             anchorCol);
-                    }
-                    if (currentPosDesc.indexOf(',') == -1) {
-                        currentPos = Number(currentPos);
-                    } else {
-                        subparts = currentPosDesc.split(',')
-                        var currentPosLine = Math.max(Number(subparts[0]) - 1,
-                                                      0);
-                        var currentPosCol = Math.max(Number(subparts[1]) - 1,
-                                                     0);
-                        currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
-                                             currentPosCol);
-                    }
-                    // do gotoline first because it messes w/ current position and anchor.
-                    var lineNo = ko.views.manager.currentView.scimoz.lineFromPosition(currentPos);
-                    ko.views.manager.currentView.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
-                    ko.views.manager.currentView.anchor = anchor;
-                    ko.views.manager.currentView.currentPos = currentPos;
-                    // Force the main window to the forefront
-                    ko.windowManager.getMainWindow().focus();
-                }
-                break;
-            } catch (e) {
-                this.log.exception(e);
+        case 'open-url': // see nsCommandLineServiceMac.cpp, bug 37787
+            // This is also used by komodo macro API to open files from python
+            if (ko.windowManager.getMainWindow() == window) {
+                this._handle_open_file(topic, data);
             }
             break;
         case 'file_status':

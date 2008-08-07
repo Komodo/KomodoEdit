@@ -78,7 +78,6 @@ _KomodoObserver.prototype = {
         var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
         observerSvc.addObserver(this, "quit",false);
-        observerSvc.addObserver(this, "open-url",false);
         observerSvc.addObserver(this, "quit-application-requested",false);
         observerSvc.addObserver(this, "quit-application-granted",false);
     },
@@ -88,7 +87,6 @@ _KomodoObserver.prototype = {
                         getService(Components.interfaces.nsIObserverService);
         try {
             observerSvc.removeObserver(this, "quit");
-            observerSvc.removeObserver(this, "open-url");
             observerSvc.removeObserver(this, "quit-application-requested");
             observerSvc.removeObserver(this, "quit-application-granted");
         } catch(e) { /* moz already removed them */ _log.debug('quit '+e); }
@@ -100,13 +98,6 @@ _KomodoObserver.prototype = {
         switch (topic) {
         case 'quit':
             window.setTimeout("goQuitApplication()", 0);
-            break;
-        case 'open-url': // see nsCommandLineServiceMac.cpp, bug 37787
-            // This is also used by komodo macro API to open files from python
-            var urllist = data.split('|'); //see asCommandLineHandler.js
-            for (var i in urllist) {
-                ko.open.URI(urllist[i]);
-            }
             break;
         case "quit-application-requested":
             var cancelQuit = subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
