@@ -91,6 +91,7 @@ var handlers = {
     'cmd_helpLanguageAlternate': 'ko.help.alternate()',
     'cmd_toolsWatchFile': 'ko.launch.watchLocalFile()',
     'cmd_toolsRunCommand': 'ko.launch.runCommand()',
+    'cmd_newWindow': 'ko.launch.newWindow()',
     'cmd_open': 'ko.open.filePicker()',
     'cmd_open_remote': 'ko.filepicker.openRemoteFiles()',
     'cmd_openTemplate': 'ko.open.templatePicker()',

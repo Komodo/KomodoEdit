@@ -558,6 +558,13 @@ this.checkForUpdates = function checkForUpdates()
     }
 }
 
+this.newWindow = function newWindow()
+{
+    ko.windowManager.openDialog("chrome://komodo/content",
+                                "_blank",
+                                "chrome,all,dialog=no");
+}
+
 }).apply(ko.launch);
 
 /**

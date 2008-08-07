@@ -248,6 +248,7 @@
 <!ENTITY generalNewFileDefaultType.desc "General: New File (default type)">
 <!ENTITY generalNewProject.desc "General: New Project...">
 <!ENTITY generalNewProjectFromTemplate.desc "General: New Project From Template...">
+<!ENTITY generalNewWindow.desc "General: New Window">
 <!ENTITY generalNextFile.desc "General: Next File">
 <!ENTITY generalOpenFileDialog.desc "General: Open File dialog...">
 <!ENTITY generalOpenProject.desc "General: Open Project...">
@@ -332,7 +333,7 @@
 <!ENTITY menuBookmarkToggle.accesskey "T">
 <!ENTITY menuBufferClose.accesskey "C">
 <!ENTITY menuBufferClose2.accesskey "C">
-<!ENTITY menuBufferNext.accesskey "N">
+<!ENTITY menuBufferNext.accesskey "X">
 <!ENTITY menuBufferPrevious.accesskey "P">
 <!ENTITY menuCleanLineEndings.accesskey "E">
 <!ENTITY menuCloseAll.accesskey "l">
@@ -409,6 +410,8 @@
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
 <!ENTITY newTemplate.label "New Template...">
+<!ENTITY newWindow.accesskey "N">
+<!ENTITY newWindow.label "New Window">
 <!ENTITY newURL.label "New URL...">
 <!ENTITY nextBookmark.label "Next Bookmark">
 <!ENTITY nextFile.label "Next File">

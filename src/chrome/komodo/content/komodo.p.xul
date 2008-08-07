@@ -1297,6 +1297,13 @@
                 <menupopup id="popup_window"
                     onpopupshowing="ko.uilayout.updateWindowList(this);">
                     <menuitem
+                        id="menu_newWindow"
+                        label="&newWindow.label;"
+                        class="menuitem-iconic-wide"
+                        accesskey="&newWindow.accesskey;"
+                        observes="cmd_newWindow"
+                    />
+                    <menuitem
                         id="menu_bufferClose2"
                         label="&close.label;"
                         class="menuitem-iconic-wide close-buffer-icon"

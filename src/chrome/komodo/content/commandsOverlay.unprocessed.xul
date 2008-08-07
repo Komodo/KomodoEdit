@@ -182,6 +182,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_openStartPage', event)"
             desc="&helpStartPage.desc;"/>
         <command
+            id="cmd_newWindow" key="key_cmd_newWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_newWindow', event)"
+            desc="&generalNewWindow.desc;"/>
+        <command
             id="cmd_helpHelp" key="key_cmd_helpHelp"
             oncommand="ko.commands.doCommandAsync('cmd_helpHelp')"
             desc="&helpHelp.desc;"/>
