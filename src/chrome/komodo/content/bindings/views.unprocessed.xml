@@ -473,7 +473,7 @@
                 box.appendChild(v);
                 v.init();
                 v.makeCurrent();
-                xtk.domutils.fireEvent(this, 'view_opened');
+                xtk.domutils.fireEvent(v, 'view_opened');
                 ko.trace.get().leave('view.newView');
                 return v;
             } catch(e) {
