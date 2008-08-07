@@ -586,6 +586,9 @@ MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
 
 MacroEventHandler.prototype.observe = function(part, topic, code)
 {
+    if (ko.windowManager.getMainWindow() != window) {
+        return;
+    }
     try {
         switch (topic) {
             case 'macro-load':
