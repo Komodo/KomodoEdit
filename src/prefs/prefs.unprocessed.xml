@@ -830,8 +830,8 @@
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
   <boolean id="codeintel_rescan_while_typing_enabled">1</boolean>
   <boolean id="codeintel_scanning_imports_enabled">1</boolean>
-  <boolean id="codeintel_browser_show_projects">0</boolean>
-  <boolean id="codeintel_browser_show_all_projects">0</boolean>
+  <boolean id="codeintel_browser_show_projects">0</boolean> <!-- not implemented -->
+  <boolean id="codeintel_browser_show_all_projects">0</boolean> <!-- not implemented -->
   <boolean id="codeintel_completion_fillups_enabled">0</boolean>
   <boolean id="codeintel_have_preloaded_database">0</boolean>
 <!-- #if PLATFORM == "win" -->

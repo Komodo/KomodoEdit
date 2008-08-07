@@ -201,8 +201,6 @@ projectManager.prototype._saveProjectViewState = function(project) {
 }
 
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
-    if (gCodeIntelActive)
-        gCodeIntelSvc.ideEvent("closing_project", null, project);
     // Remove the project node/part from the Projects tree.
     this.viewMgr.view.removeProject(project);
     // the active project has been reset
@@ -350,17 +348,6 @@ projectManager.prototype._saveNewProject = function(project) {
     try {
         obSvc.notifyObservers(this, 'file_project', project.url);
     } catch(e) { /* exception if no listeners */ }
-    if (gCodeIntelActive) {
-        // We delay launching the code browser for a little while to provide a
-        // smoother project-opening experience. It's not a big deal that the
-        // code browser gets populated a tad late.
-        window.setTimeout(
-            function(codeIntelSvc, msg, url, project) {
-                codeIntelSvc.ideEvent(msg, url, project);
-            },
-            1000, gCodeIntelSvc, "opened_project", project.url, project
-        );
-    }
     return true;
 }
 
@@ -508,15 +495,9 @@ function(project)
 {
     this.viewMgr.view.currentProject = project;
     this._currentProject = project;
-    if (gCodeIntelActive) {
-        gCodeIntelSvc.ideEvent("current_project_changed", null,project);
-    }
     /* XXX FIXME SMC old logic, broken with live projects
     if (this._projects.indexOf(project) >= 0) {
         this.viewMgr.view.currentProject = project;
-        if (gCodeIntelActive) {
-            gCodeIntelSvc.ideEvent("current_project_changed", null,project);
-        }
     } else {
         log.error("trying to set a project as current project, but it is not in the projects list "+project.name+" "+this._projects.indexOf(project)+"\n");
         dump("projects...\n");
@@ -966,17 +947,6 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
         }
     }
     var project = ko.projects.manager.loadProject(url)
-    if (gCodeIntelActive) {
-        // We delay launching the code browser for a little while to provide a
-        // smoother project-opening experience. It's not a big deal that the
-        // code browser gets populated a tad late.
-        window.setTimeout(
-            function(codeIntelSvc, msg, url, project) {
-                codeIntelSvc.ideEvent(msg, url, project);
-            },
-            1000, gCodeIntelSvc, "opened_project", url, project
-        );
-    }
     if (action == "Yes") {
         var v, file_url;
         for (var i=0; i < opened_files.length; i++) {

@@ -1073,10 +1073,6 @@ class KoCodeIntelService:
         self._proxiedObsSvc = getProxyForObject(None,
             components.interfaces.nsIObserverService,
             obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
-        self.fileSvc = components.classes["@activestate.com/koFileService;1"]\
-            .getService(components.interfaces.koIFileService)
-        self.langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-             getService(components.interfaces.koILanguageRegistryService)
         self.partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
 
@@ -1085,18 +1081,6 @@ class KoCodeIntelService:
 
         #TODO: Currently this never gets cleared.
         self._proj_env_from_proj_id_cache = {}
-
-        # XXX todo, add pref observer to turn on/off showing projects
-        self.prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                            .getService().prefs # global prefs
-        self._showProjects = self.prefSvc.getBooleanPref('codeintel_browser_show_projects')
-        self._showAllProjects = self.prefSvc.getBooleanPref('codeintel_browser_show_all_projects')
-        self._projects = []
-
-        #XXX Obsolete. Remove usage of and dependence on this. The
-        #    KoCodeBrowserTreeView maintains a list of open buffers that
-        #    is authoritative.
-        self._files = [] #files that were sent via opened_document
 
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
@@ -1191,28 +1175,6 @@ class KoCodeIntelService:
                     request = ScanRequest(document.ciBuf, PRIORITY_CURRENT)
                     self.mgr.idxr.stage_request(request, 1.5)
 
-    def _addURIRequest(self, uri):
-        XXX
-        # Determine the probable language from the file basename.
-        f = self.fileSvc.getFileFromURI(uri)
-        lang = self.langRegistrySvc.suggestLanguageForFile(f.baseName)
-        cipath = f.displayPath
-        mtime = f.lastModifiedTime
-        return self._addPathRequest(cipath, lang, mtime=mtime)
-
-    def _addPathRequest(self, cipath, lang, name="opened_document",
-                        document=None, mtime=None):
-        XXX
-        if self.mgr.is_citadel_lang(lang):
-            if name == "opened_document":
-                #self.mgr.setCurrentFile(cipath, lang)
-                if document:
-                    mtime = document.file and document.file.lastModifiedTime or None
-            request = ScanRequest(buf, PRIORITY_CURRENT, mtime=mtime)
-            self.mgr.idxr.stage_request(request)
-            return 1
-        return 0
-
     def ideEvent(self, name, sdata, odata):
         # XXX PERF Note:
         # - Project support + live projects have not been investigated.
@@ -1232,88 +1194,6 @@ class KoCodeIntelService:
                         self.mgr.idxr.stage_request(request)
             elif name == "closing_document":
                 dummy, document = sdata, odata
-                if self._showProjects and not document.isUntitled:
-                    for p in self._projects:
-                        #TODO: This is brutally inefficient for a project
-                        # with lots of items. Re-impl this with a new
-                        # koIProject.hasURL() or similar (i.e. a dict
-                        # lookup instead of a list lookup).
-                        urls = p.getAllContainedURLs()
-                        if document.file.URI in urls:
-                            return
-            #XXX TODO for project files in Code Browser:
-            # - uriparse.displayPath() is what we want
-            # - need to have added to and removed from project in
-            #   added_file_to_project and removed_file_from_project events
-            # - figure out a W.S. system for these that is efficient
-            # - get a separate mode for PseudoModule in cb.py (perhaps
-            #   should finally separate PseudoModule into parts: three
-            #   sub-classes: ErrorNode, NotScannedModule, ScanningModule)
-            # - consider adding a toggle button to turn off "files in
-            #   projects"
-            # - consider adding a "Scan" entry to context menu on modules
-            #   in C.B.
-            elif name == "current_project_changed":
-                if self._showAllProjects or not self._showProjects:
-                    return
-                XXX
-                dummy, project = sdata, odata.QueryInterface(components.interfaces.koIProject)
-                if self._projects and project == self._projects[0]:
-                    return
-                if self._projects:
-                    urls = self._projects[0].getAllContainedURLs()
-                    for url in urls:
-                        f = self.fileSvc.getFileFromURI(url)
-                        cipath = f.displayPath
-                    self._projects = []
-                if project:
-                    self._projects.append(project)
-                    urls = self._projects[0].getAllContainedURLs()
-                    for url in urls:
-                        self._addURIRequest(url)
-            elif name == "closing_project":
-                # remove all project files that are not open in the editor
-                if not self._showProjects or not self._projects:
-                    return
-                XXX
-                dummy, project = sdata, odata.QueryInterface(components.interfaces.koIProject)
-                if not self._showAllProjects and project != self._projects[0]:
-                    return
-                urls = project.getAllContainedURLs()
-                self._projects.remove(project)
-                for url in urls:
-                    f = self.fileSvc.getFileFromURI(url)
-            #    print "XXX:TODO let CodeBrowserMgr know project '%s' is closing" % project.name
-            elif name == "opened_project":
-                if not self._showProjects or (not self._showAllProjects and self._projects):
-                    return
-                XXX
-                # add all project files that are in the project
-                url, project = sdata, odata.QueryInterface(components.interfaces.koIProject)
-                self._projects.append(project)
-                log.info("ideEvent %s: project='%s'", project.name, os.path.basename(project.url))
-                urls = project.getAllContainedURLs()
-                for url in urls:
-                    self._addURIRequest(url)
-            #    pprint(urls)
-            elif name == "added_file_to_project":
-                if not self._showProjects:
-                    return
-                XXX
-                url, project = sdata, odata.QueryInterface(components.interfaces.koIProject)
-                log.info("ideEvent %s: %s", name, os.path.basename(url))
-                self._addURIRequest(url)
-            elif name == "removed_file_from_project":
-                if not self._showProjects:
-                    return
-                XXX
-                url, project = sdata, odata.QueryInterface(components.interfaces.koIProject)
-                log.info("ideEvent %s: %s", name, os.path.basename(url))
-                for p in self._projects:
-                    urls = p.getAllContainedURLs()
-                    if url in urls:
-                        return
-                f = self.fileSvc.getFileFromURI(url)
             elif (name == "switched_current_language" or
                   name == "switched_current_document"):
                 # Switched current editor pane view to a new document or

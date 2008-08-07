@@ -813,22 +813,9 @@ class koContainerBase(koPart):
 
         self._project.set_isDirty(1)
         self._project.registerChildByURL(child)
-        if child.type == "file":
-            # Let the Code Intelligence system know that a file has been
-            # added to one of Komodo's open projects or toolboxes.
-            self._getCodeIntelSvc().ideEvent("added_file_to_project",
-                                             child.getStringAttribute("url"),
-                                             self._project)
 
         child.applyKeybindings(1)
         child.added()
-
-    _codeIntelSvc = None
-    def _getCodeIntelSvc(self):
-        if not self._codeIntelSvc:
-            self._codeIntelSvc = components.classes["@activestate.com/koCodeIntelService;1"]\
-                .getService(components.interfaces.koICodeIntelService);
-        return self._codeIntelSvc
 
     def getChildById(self, id):
         if self.id == id:
@@ -857,12 +844,6 @@ class koContainerBase(koPart):
 
         self._project.set_isDirty(1)
         self._project.forgetChildByURL(child)
-        if child.type == "file":
-            # Let the Code Intelligence system know that a file has been
-            # removed from one of Komodo's open projects or toolboxes.
-            self._getCodeIntelSvc().ideEvent("removed_file_from_project",
-                                             child.getStringAttribute("url"),
-                                             self._project)
 
         child.removeKeybindings(1)
 

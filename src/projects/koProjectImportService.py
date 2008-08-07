@@ -206,10 +206,6 @@ class KoFileImportingService:
             filenames_and_urls = [(filename, uriparse.localPathToURI(str(filename))) for filename in filenames]
         data = [(project.getPart(filename, url, project, folder.live), filename, url) for (filename,url) in filenames_and_urls]
 
-        # Let the Code Intelligence system know that a file has been
-        # added to one of Komodo's open projects or toolboxes.
-        codeIntelSvc = components.classes["@activestate.com/koCodeIntelService;1"]\
-            .getService(components.interfaces.koICodeIntelService);
         #c1 = time.clock()
         #print "addSelectedFiles c1 ", c1-t1
 
@@ -220,7 +216,6 @@ class KoFileImportingService:
                 part._parent = folder
                 project._urlmap[url] = part
                 part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
         elif importType == 'groupByType':
             registry = components.classes["@activestate.com/koLanguageRegistryService;1"].\
                 getService(components.interfaces.koILanguageRegistryService)
@@ -236,7 +231,6 @@ class KoFileImportingService:
                 part._parent = subfolder
                 project._urlmap[url] = part
                 part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
         elif importType == 'useFolders':
             if not isRemote:
                 basedir = uriparse.localPathToURI(basedir)
@@ -254,7 +248,6 @@ class KoFileImportingService:
                 part._parent = subfolder
                 project._urlmap[url] = part
                 part.assignId()
-                codeIntelSvc.ideEvent("added_file_to_project", url, project)
         #c2 = time.clock()
         #print "addSelectedFiles c2 ", c2-c1
         try:

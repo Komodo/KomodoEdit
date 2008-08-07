@@ -290,20 +290,6 @@ interface koICodeIntelService: nsISupports {
     //      being closed
     //      sdata: null
     //      odata: associated koIDocument instance
-    //  opened_project: sent when a new project is opened
-    //      sdata: project URL
-    //      odata: associated koIProject instance
-    //  closing_project: sent when a project is being closed
-    //      sdata: null
-    //      odata: associated koIProject instance
-    //  added_file_to_project: sent when a file gets added to a project or
-    //      toolbox
-    //      sdata: file URL
-    //      odata: null
-    //  removed_file_from_project: sent when a file is removed from a project
-    //      or toolbox
-    //      sdata: file URL
-    //      odata: null
     //  switched_current_document: sent whenever a new editor view in the
     //      Editor Pane is set as the current
     //      sdata: null
