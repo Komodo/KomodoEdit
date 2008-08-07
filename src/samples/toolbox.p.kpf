@@ -907,6 +907,11 @@ wc -w</command>
 </folder>
 <folder id="4205fa9a-61df-184c-be6b-f713c7153c56" idref="7f803f0e-3304-11db-a53a-000d935d3368" name="Abbreviations">
 </folder>
+<macro async="0" id="b1b86111-b812-475f-a20c-9bf8347d4064" idref="7f803f0e-3304-11db-a53a-000d935d3368" keyboard_shortcut="" language="JavaScript" name="Open New Window" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+window.openDialog("chrome://komodo/content",
+                  "_blank",
+                  "chrome,all,dialog=no",
+                  null);</macro>
 <snippet id="e158f1e2-c472-f443-b607-cbdbbdb6b662" idref="fcdb9b2b-4fc8-ac41-8573-7bad68188d98" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
 if __name__ == '__main__':
     !@#_anchorpass!@#_currentPos</snippet>
