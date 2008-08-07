@@ -385,7 +385,6 @@ static void ColouriseTclDoc(unsigned int startPos,
 		 */
 		if (!iswordchar(chNext)) {
 		    bool varEndsHere = false;
-		    int endPoint = 0;
 		    if (varBraced) {
 			if (chNext == '}') {
 			    varBraced = false;

@@ -2675,9 +2675,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         int lineCurrent = styler.GetLine(i);
         if (lineStartUpdateState < lineCurrent) {
             for (int iLine = lineStartUpdateState; iLine < lineCurrent; iLine++) {
-                // We don't look at the current line, so there's no danger
-                // that iLine + 1 exceeds the document boundary.
-                int lineEndPos = styler.LineStart(iLine + 1) - 1;
                 int oldLineState = styler.GetLineState(iLine);
                 int currStackSize = p_MainInfo->StateStackSize();
                 int newLineState = create_line_state(currStackSize,
@@ -2686,7 +2683,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 // If we have an active delimiter, set the line-state
                 // based on a hash of it.  Otherwise set it to the current style.
                 if (p_MainInfo->current_delimiter[0]) {
-                    // Create a hash of the delimiter, and or it in based
+                    // Create a hash of the delimiter, and bit-or it in based
                     // on the current state
                     unsigned int delimHash = (simpleHash(DELIMITER_MASK,
                                                 p_MainInfo->current_delimiter.c_str())
