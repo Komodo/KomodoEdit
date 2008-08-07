@@ -229,9 +229,7 @@
                 this.__observersvc.notifyObservers(null, 'current_view_changed', '');
                 } catch(e) {/*noone home*/}
                 this.currentView = null;
-                try {
-                this.__observersvc.notifyObservers(this, 'view_list_closed', '');
-                } catch(e) {/*noone home*/}
+                xtk.domutils.fireEvent(this, 'view_list_closed');
             }
         } catch (e) {
             this.log.exception(e);

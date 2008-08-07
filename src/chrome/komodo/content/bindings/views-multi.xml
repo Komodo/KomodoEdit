@@ -137,7 +137,6 @@
             }
             this.viewhistory = new ko.views.ViewHistory();
             this.__observersvc.addObserver(this,'current_view_changed',false);
-            this.__observersvc.addObserver(this,'view_list_closed',false);
 
             var me = this;
             this.removeListener = function() { me.finalize(); }
@@ -150,7 +149,6 @@
         <body>
         <![CDATA[
             this.__observersvc.removeObserver(this,'current_view_changed');
-            this.__observersvc.removeObserver(this,'view_list_closed');
         ]]>
         </body>
         </method>
@@ -166,7 +164,7 @@
         ]]>
         </body>
         </method>
-
+        
         <method name="observe">
         <parameter name="subject"/>
         <parameter name="topic"/>
@@ -177,33 +175,6 @@
             try {
             var nodes = document.getAnonymousNodes(this);
             switch (topic) {
-            case 'view_list_closed':
-                if (subject != this.currentView &&
-                    subject != this.otherView) return;
-
-                nodes[0].childNodes[1].setAttribute('collapsed','true');
-
-                // hack to make parent look right
-                if (nodes[0].firstChild.getAttribute('collapsed')=='true' &&
-                    nodes[0].lastChild.getAttribute('collapsed')=='true') {
-
-                    this.parentNode.setAttribute('class','blank-workspace');
-                } else {
-                    // XXX this is lame, but it gets the job done.  Seems we cannot do this
-                    // directly within an observer that is called from an event, so we
-                    // have to do a timeout for it to work.  The timeout must also be > 0.
-                    if (subject == this.currentView && this.otherView.currentView) {
-                        window.setTimeout('ko.views.manager.topView.otherView.currentView.makeCurrent();',1);
-                    } else if (subject == this.otherView && this.currentView.currentView) {
-                        // XXX this isn't working, and doing a timeout similar to the above
-                        // always fails.  This at least gets partial focus back to the
-                        // correct place, but commands do not get reset correctly until
-                        // ctrl-tab or a mouse click is done.
-                        this.currentView.currentView.setFocus();
-                        this.viewhistory.setMostRecentView(this.currentView.currentView);
-                    }
-                }
-                break;
             case 'current_view_changed':
                 if (subject && this.parentNode.getAttribute('class')=='blank-workspace') {
                     this.parentNode.removeAttribute('class');
@@ -573,6 +544,40 @@
         </method>
 
     </implementation>
+    <handlers>
+        <handler event="view_list_closed" phase="bubbling" >
+        <![CDATA[
+        var nodes = document.getAnonymousNodes(this);
+        var view = event.originalTarget;
+        if (view != this.currentView &&
+            view != this.otherView) return;
+
+        nodes[0].childNodes[1].setAttribute('collapsed','true');
+
+        // hack to make parent look right
+        if (nodes[0].firstChild.getAttribute('collapsed')=='true' &&
+            nodes[0].lastChild.getAttribute('collapsed')=='true') {
+
+            this.parentNode.setAttribute('class','blank-workspace');
+        } else {
+            // XXX this is lame, but it gets the job done.  Seems we cannot do this
+            // directly within an observer that is called from an event, so we
+            // have to do a timeout for it to work.  The timeout must also be > 0.
+            if (view == this.currentView && this.otherView.currentView) {
+                window.setTimeout('ko.views.manager.topView.otherView.currentView.makeCurrent();',1);
+            } else if (view == this.otherView && this.currentView.currentView) {
+                // XXX this isn't working, and doing a timeout similar to the above
+                // always fails.  This at least gets partial focus back to the
+                // correct place, but commands do not get reset correctly until
+                // ctrl-tab or a mouse click is done.
+                this.currentView.currentView.setFocus();
+                this.viewhistory.setMostRecentView(this.currentView.currentView);
+            }
+        }
+        ]]>
+        </handler>
+    </handlers>
+
 </binding>
 
 </bindings>
