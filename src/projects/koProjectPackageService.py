@@ -8,10 +8,6 @@ import uriparse
 import logging
 log = logging.getLogger("koProjectPackageService")
 
-def koProject():
-    return UnwrapObject(components.classes["@activestate.com/koProject;1"]
-                        .createInstance(components.interfaces.koIProject))
-
 class koProjectPackageService:
     _com_interfaces_ = [components.interfaces.koIProjectPackageService]
     _reg_desc_ = "Komodo Packaging Service Component"
@@ -120,7 +116,8 @@ class koProjectPackageService:
             if orig_project:
                 newproject = orig_project.clone()
             else:
-                newproject = koProject()
+                newproject = UnwrapObject(components.classes["@activestate.com/koProject;1"]
+                                          .createInstance(components.interfaces.koIProject))
                 newproject.create()
             newproject.live = live
             newproject._url = os.path.join(os.path.dirname(zipfilename), 'package.kpf')
@@ -249,7 +246,8 @@ class koProjectPackageService:
             self.lastErrorSvc.setLastError(1, err)
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
 
-        newproject = koProject()
+        newproject = UnwrapObject(components.classes["@activestate.com/koProject;1"]
+                                  .createInstance(components.interfaces.koIProject))
         newproject.create()
         newproject.loadQuiet(projectFile)
         if os.path.exists(projectFile):
