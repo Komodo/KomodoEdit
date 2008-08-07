@@ -994,12 +994,11 @@
                     this.lintBuffer.request("buffer was modified");
                 }
 
-                if (this.document && (this.isCICitadelStuffEnabled 
-                                      || this.isCIXMLStuffEnabled))
+                if (this.document
+                    && (this.isCICitadelStuffEnabled || this.isCIXMLStuffEnabled)
+                    && this._isCIRescanningEnabled)
                 {
-                    gCodeIntelSvc.ideEvent_EditedCurrentDocument(
-                        this.document, linesAdded,
-                        this._isCIRescanningEnabled);
+                    gCodeIntelSvc.scan_document(this.document, linesAdded, false);
                 }
 
                 if (this.document) {

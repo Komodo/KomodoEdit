@@ -325,11 +325,14 @@ class KoCodeIntelManager(Manager):
       (hopefully) -- by caching CIDB data on the current file -- and more
       correctly -- given recent edits and language-specific smarts.
     """
+    _com_interfaces_ = [components.interfaces.koICodeIntelManager]
+
     def __init__(self, db_base_dir=None, extension_pylib_dirs=None,
                  db_event_reporter=None, db_catalog_dirs=None):
         self._phpInfo = components.classes["@activestate.com/koPHPInfoInstance;1"]\
                             .getService(components.interfaces.koIPHPInfoEx)
         Manager.__init__(self, db_base_dir,
+                         on_scan_complete=self._on_scan_complete,
                          extra_module_dirs=extension_pylib_dirs,
                          env=KoCodeIntelEnvironment(),
                          db_event_reporter=db_event_reporter,
@@ -346,6 +349,12 @@ class KoCodeIntelManager(Manager):
         self._currLanguage = None
         #self._flushCSCache()
         self._batchUpdateProgressUIHandler = None
+
+    def _on_scan_complete(self, request):
+        if request.status == "changed":
+            # Don't bother if no scan change.
+            self._proxiedObsSvc.notifyObservers(
+                request.buf, "codeintel_buffer_scanned", None)
 
     def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
                       import_handler_class=None, cile_driver_class=None,
@@ -1077,7 +1086,7 @@ class KoCodeIntelService:
             .getService(components.interfaces.koIPartService)
 
         self._wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', True)
+        obsSvc.addObserver(self._wrappedSelf, 'quit-application-granted', True)
 
         #TODO: Currently this never gets cleared.
         self._proj_env_from_proj_id_cache = {}
@@ -1140,13 +1149,12 @@ class KoCodeIntelService:
             self.isBackEndActive = True
 
     def _deactivate(self):
-        #TODO: What about undo'ing `self.activateUI()` stuff?
         self.isBackEndActive = False
         self.mgr.finalize()
 
     def observe(self, subject, topic, data):
         try:
-            if topic == 'xpcom-shutdown':
+            if topic == 'quit-application-granted':
                 self._deactivate()
         except Exception, e:
             log.exception("Unexpected error observing notification.")
@@ -1158,51 +1166,24 @@ class KoCodeIntelService:
             cipath = document.displayPath
         return cipath
 
-    def ideEvent_EditedCurrentDocument(self, document, linesAdded,
-                                       rescan=False):
+    def scan_document(self, document, linesAdded, useFileMtime):
         lang = document.language
-        # XXX FIXME post beta 1
+        #TODO: is this still necessary? (Was: XXX FIXME post beta 1)
         #if self.mgr.is_xml_lang(lang):
-        #    if rescan:
-        #        request = XMLParseRequest(document.ciBuf, PRIORITY_CURRENT)
-        #        self.mgr.idxr.stage_request(request, 0.5)
+        #    request = XMLParseRequest(document.ciBuf, PRIORITY_CURRENT)
+        #    self.mgr.idxr.stage_request(request, 0.5)
         if self.mgr.is_citadel_lang(lang):
-            if rescan:
-                if linesAdded:
-                    request = ScanRequest(document.ciBuf, PRIORITY_IMMEDIATE)
-                    self.mgr.idxr.stage_request(request, 0)
-                else:
-                    request = ScanRequest(document.ciBuf, PRIORITY_CURRENT)
-                    self.mgr.idxr.stage_request(request, 1.5)
-
-    def ideEvent(self, name, sdata, odata):
-        try:
-            if name == "opened_document":
-                url, document = sdata, odata
-                language = document.language
-                log.info("ideEvent %s: %s (%s)", name, document.displayPath, language)
-                if self.mgr.is_citadel_lang(language):
-                    mtime = document.file and document.file.lastModifiedTime or None
-                    buf = UnwrapObject(document.ciBuf)
-                    if buf is not None:
-                        # sometimes occurs, race condition in opening?
-                        request = ScanRequest(buf, PRIORITY_OPEN, mtime=mtime)
-                        self.mgr.idxr.stage_request(request)
-            elif name == "closing_document":
-                dummy, document = sdata, odata
-            elif name == "switched_current_language":
-                # Switched current editor pane view to a new document or
-                # changed that document's language.
-                dummy, document = sdata, odata
-                log.info("ideEvent %s: %s (%s)", name,
-                         document.displayPath, document.language)
+            mtime = None
+            if useFileMtime and document.file:
+                mtime = document.file.lastModifiedTime
+            if linesAdded:
+                request = ScanRequest(document.ciBuf, PRIORITY_IMMEDIATE,
+                                      mtime=mtime)
+                self.mgr.idxr.stage_request(request, 0)
             else:
-                raise NotImplementedError("unknown ideEvent name: '%s'" % name)
-        except Exception, ex:
-            #XXX Error trapping. Should just log and then drop any error... i.e.
-            #    I don't think there is anything here that should be fatal.
-            log.exception("Whoa! Unexpected failure handling ideEvent '%s'"
-                          % name)
+                request = ScanRequest(document.ciBuf, PRIORITY_CURRENT,
+                                      mtime=mtime)
+                self.mgr.idxr.stage_request(request, 1.5)
 
     #XXX I think this is unused and can be dropped.
     def batch_update(self, join, updater):

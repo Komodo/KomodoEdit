@@ -381,20 +381,6 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
         view = this.topView.createViewFromDocument(doc, viewType);
     }
 
-    if (gCodeIntelActive) {
-        // We delay launching the code browser for a little while to provide
-        // a smoother file-opening experience. It's not a big deal that the
-        // code browser gets populated a tad late.
-        var osPath = Components.classes["@activestate.com/koOsPath;1"]
-                     .createInstance(Components.interfaces.koIOsPath);
-        window.setTimeout(
-            function(codeIntelSvc, msg, uri, doc) {
-                codeIntelSvc.ideEvent(msg, uri, doc);
-            },
-            500, gCodeIntelSvc, "opened_document",
-            osPath.join("<Unsaved>", doc.displayPath), doc
-        );
-    }
     return view;
 }
 
@@ -421,21 +407,6 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
     // the following line is delayed to avoid notifications during load()
     var doc = this.docSvc.createUntitledDocument(language);
     var view = this.topView.createViewFromDocument(doc,viewType);
-
-    if (gCodeIntelActive) {
-        // We delay launching the code browser for a little while to provide
-        // a smoother file-opening experience. It's not a big deal that the
-        // code browser gets populated a tad late.
-        var osPath = Components.classes["@activestate.com/koOsPath;1"]
-                     .createInstance(Components.interfaces.koIOsPath);
-        window.setTimeout(
-            function(codeIntelSvc, msg, uri, doc) {
-                codeIntelSvc.ideEvent(msg, uri, doc);
-            },
-            500, gCodeIntelSvc, "opened_document",
-            osPath.join("<Unsaved>", doc.displayPath), doc
-        );
-    }
 
     ko.trace.get().leave('viewManager.doNewView');
     this.log.info("leaving doNewView");
@@ -511,21 +482,6 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
         ko.dialogs.alert('Komodo was unable to open the file: '+doc.file.baseName, err, 'File Open Error');
         this.log.exception(e);
         view = null;
-    }
-    try {
-        if (gCodeIntelActive && view) {
-            // We delay launching the code browser for a little while
-            // to provide a smoother file-opening experience.  It's
-            // not a big deal that the code browser gets populated a tad late.
-            window.setTimeout(
-                function(codeIntelSvc, msg, uri, doc) {
-                    codeIntelSvc.ideEvent(msg, uri, doc);
-                },
-                500, gCodeIntelSvc, "opened_document", uri, doc
-            );
-        }
-    } catch (e)  {
-        this.log.exception(e);
     }
 
     ko.trace.get().leave('viewManager.newViewFromURI');
@@ -2286,10 +2242,11 @@ function _view_checkDiskFiles(event) {
                     if (item.type == 'view') {
                         items[i].view.revertUnconditionally()
                         if (gCodeIntelActive) {
-                            var doc = items[i].view.document;
-                            gCodeIntelSvc.ideEvent_EditedCurrentDocument(
-                                doc,
-                                1, // linesAdded: using non-zero value to encourage high-prio rescan
+                            gCodeIntelSvc.scan_document(
+                                items[i].view.document,
+                                // linesAdded: using non-zero value to
+                                // encourage high-prio rescan
+                                1,
                                 true);
                         }
                     } else {

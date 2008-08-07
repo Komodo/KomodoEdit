@@ -588,11 +588,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
 
         // Also refresh CodeIntel data for this view, if enabled.
         if (view.isCICitadelStuffEnabled || view.isCIXMLStuffEnabled) {
-            // fake an edit to get a re-scan of the document
-            gCodeIntelSvc.ideEvent_EditedCurrentDocument(
-                view.document,
-                0, // no lines added
-                true); // yes, rescan
+            gCodeIntelSvc.scan_document(view.document, 0, false);
         }
     }
     try {

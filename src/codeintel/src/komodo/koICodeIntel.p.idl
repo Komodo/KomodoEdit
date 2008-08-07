@@ -255,8 +255,14 @@ interface koICodeIntelBuffer: nsISupports {
 };
 
 
+[scriptable, uuid(f0396f8e-2d40-4c59-a616-ec1bcb41c07d)]
+interface koICodeIntelManager: nsISupports {
+}; 
+
 [scriptable, uuid(2FDAB19C-B243-49C8-916C-BEAD369FCF97)]
 interface koICodeIntelService: nsISupports {
+    readonly attribute koICodeIntelManager mgr;
+
     // Handling upgrades of the CIDB.
     // Whenever the CodeIntel system is activated these should be used to
     // upgrade if necessary.
@@ -268,44 +274,15 @@ interface koICodeIntelService: nsISupports {
     // An error is set on koILastErrorService if backend activation fails.
     void activateBackEnd();
 
-    // The manager from which we can get a DB connection. Not in the XPCOM,
-    // but used by the koICodeIntelObjectBrowserTreeView implementation.
-    //readonly attribute manager;
-
-    // Notify the Code Intel backend of an event in the IDE that it should
-    // or might want to react to.
-    //
-    //  "name" is the event name
-    //  "sdata" is event-specific string data, if any. Often this is a URL.
-    //  "odata" is event-specific XPCOM component data, if any. Often this
-    //      is a koIDocument or koIProject.
-    //
-    // The following are the supported/expected events (* means this event
-    // has not been hooked into Komodo yet):
-    //
-    //  opened_document: sent whenever a new editor view is opened.
-    //      sdata: document URL
-    //      odata: associated koIDocument instance
-    //  closing_document: sent when the last editor view on a document is
-    //      being closed
-    //      sdata: null
-    //      odata: associated koIDocument instance
-    //  switched_current_language: should be sent whenever the current editor
-    //      view's language is changed.
-    //      sdata: null
-    //      odata: associated koIDocument instance
-    //  changed_document: sent when a document in Komodo changes (either by
-    //      some action in Komodo or by outside of Komodo)
-    //      sdata: document URL
-    //      odata: associated koIDocument instance
-    void ideEvent(in string name, in wstring sdata, in nsISupports odata);
-    // Special API for edited current document to allow for some extra
-    // data for optimization.
-    //  edited_current_document: sent when the current editor view content
-    //      should be re-scanned.
-    void ideEvent_EditedCurrentDocument(in koIDocument document,
-                                        in long linesAdded,
-                                        in boolean rescan);
+    // Request a scan of the given koIDocument.
+    // ...
+    // @param useFileMtime {boolean} indicates if the document file's
+    //      mtime should be used for the scan request. If true, this
+    //      typically means that the file won't be re-scanned if the
+    //      database has already scanned the file with that mtime. To
+    //      force a scan of *unsaved* changes, use false.
+    void scan_document(in koIDocument document, in long linesAdded,
+                       in boolean useFileMtime);
 
     void batch_update(in boolean join,
                       in koICodeIntelBatchUpdater updater);

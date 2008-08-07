@@ -268,10 +268,7 @@ function onloadDelay() {
         
         ko.mozhacks.pluginContextMenu();
 
-        // Initialize the Code Intel system *after* startup files are opened
-        // via workspace restoration and 'open' commandments. See
-        // _CodeIntelObserver.observe() for why.
-        CodeIntel_Initialize();
+        CodeIntel_InitializeWindow();
         ko.uilayout.restoreTabSelections();
 
         ko.macros.eventHandler.hookOnStartup();

@@ -36,14 +36,6 @@
 
 /* JavaScript-side control of the Code Intelligence system in Komodo
  * (code browsing, autocomplete and calltip triggering).
- *
- * Usage:
- * - Komodo's startup should call CodeIntel_Initialize() and shutdown should
- *   call CodeIntel_Finalize().
- * - All code calling the koICodeIntelService (defined on gCodeIntelSvc)
- *   or the Code Browser manager (defined on gCodeBrowserMgr) should first
- *   check that the system is active by checking the boolean
- *   gCodeIntelActive.
  */
 // TODO:
 //
@@ -67,7 +59,6 @@ var gCodeIntelCtrl = null;
 var _gCodeIntel_log = ko.logging.getLogger("codeintel_js");
 //_gCodeIntel_log.setLevel(ko.logging.LOG_DEBUG);
 
-var _gCodeIntel_observer = null;
 var _gCodeIntel_prefObserver = null;
 
 
@@ -79,11 +70,6 @@ function _CodeIntelPrefObserver()
         this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                        getService(Components.interfaces.koIPrefService);
         this.prefSvc.prefs.prefObserverService.addObserver(this, "codeintel_enabled", 0);
-        /* since Codeintel_Finalize is only called on application quit, we
-           need to also remove this listener in the window unload event. */
-        var me = this;
-        this.removeListener = function() { me.finalize(); }
-        window.addEventListener("unload", this.removeListener, false);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -93,9 +79,6 @@ _CodeIntelPrefObserver.prototype.constructor = _CodeIntelPrefObserver;
 _CodeIntelPrefObserver.prototype.finalize = function()
 {
     try {
-        if (!this.removeListener) return;
-        window.removeEventListener("unload", this.removeListener, false);
-        this.removeListener = null;
         this.prefSvc.prefs.prefObserverService.removeObserver(this, "codeintel_enabled");
         this.prefSvc = null;
     } catch(ex) {
@@ -125,47 +108,6 @@ _CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID
         _gCodeIntel_log.exception(ex);
     }
 };
-
-_CodeIntelObserver.prototype.handle_current_view_language_changed = function(event)
-{
-    var view = event.originalTarget;
-    if (view.document) {
-        gCodeIntelSvc.ideEvent("switched_current_language", null,
-                               view.document);
-    }
-    window.setTimeout("window.updateCommands('codebrowser');", 0);
-};
-
-function _CodeIntelObserver()
-{
-    try {
-        window.addEventListener('current_view_language_changed',
-                                this.handle_current_view_language_changed, false);
-        /* since deactivate deletes the instance, we need to be able to
-           remove the unload listener in finalize so it is not called
-           from multiple sources.  setup a remove function that we can
-           reference in removeEventListener below.  */
-        var this_ = this;
-        this.removeListener = function() { this_.finalize(); }
-        window.addEventListener("unload", this.removeListener, false);
-    } catch(ex) {
-        _gCodeIntel_log.exception(ex);
-    }
-}
-_CodeIntelObserver.prototype.constructor = _CodeIntelObserver;
-
-_CodeIntelObserver.prototype.finalize = function()
-{
-    try {
-        if (!this.removeListener) return;
-        window.removeEventListener("unload", this.removeListener, false);
-        this.removeListener == null;
-        window.removeEventListener('current_view_language_changed',
-                                   this.handle_current_view_language_changed, false);
-    } catch(ex) {
-        _gCodeIntel_log.exception(ex);
-    }
-}
 
 
 
@@ -618,9 +560,9 @@ CodeIntelCompletionUIHandler.prototype.setDefinitionsInfo = function(
 
 //---- public routines
 
-function CodeIntel_Initialize()
+function CodeIntel_InitializeWindow()
 {
-    _gCodeIntel_log.debug("CodeIntel_Initialize()");
+    _gCodeIntel_log.debug("CodeIntel_InitializeWindow()");
     try {
         // Setup the pref observer to watch for Code Intel system enabling.
         _gCodeIntel_prefObserver = new _CodeIntelPrefObserver();
@@ -630,16 +572,16 @@ function CodeIntel_Initialize()
         } else {
             _CodeIntel_DeactivateWindow();
         }
-        ko.main.addWillCloseHandler(CodeIntel_Finalize);
+        ko.main.addWillCloseHandler(CodeIntel_FinalizeWindow);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
 }
 
 
-function CodeIntel_Finalize()
+function CodeIntel_FinalizeWindow()
 {
-    _gCodeIntel_log.debug("CodeIntel_Finalize()");
+    _gCodeIntel_log.debug("CodeIntel_FinalizeWindow()");
     try {
         _CodeIntel_DeactivateWindow();
         _gCodeIntel_prefObserver.finalize();
@@ -733,7 +675,6 @@ function _CodeIntel_ActivateWindow()
 {
     _gCodeIntel_log.debug("_CodeIntel_ActivateWindow()");
     try {
-
         // Setup services.
         gCodeIntelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
                               .getService(Components.interfaces.koICodeIntelService);
@@ -756,26 +697,8 @@ function _CodeIntel_ActivateWindow()
             }
         }
 
-        // Notify the Code Intel engine of currently open files and projects.
-        window.setTimeout(
-            function() {
-                var i;
-                var editorViews = ko.views.manager.topView.getViewsByType(true, "editor");
-                for (i = 0; i < editorViews.length; i++) {
-                    gCodeIntelSvc.ideEvent("opened_document",
-                                           editorViews[i].document.file.URI,
-                                           editorViews[i].document);
-                }
-            },
-            2000
-        );
-
-        // Observe some other file and project changes.
-        _gCodeIntel_observer = new _CodeIntelObserver();
-
         gCodeIntelActive = true;
         xtk.domutils.fireEvent(window, "codeintel_activated_window");
-        window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -791,12 +714,6 @@ function _CodeIntel_DeactivateWindow()
         // Shutdown the various services if they are up and running.
         if (gCodeIntelSvc) {
             gCodeIntelSvc = null;
-            if (_gCodeIntel_observer) {
-                //TODO: Looks like this is redundant since r20189 adding
-                //      `.finalize()' on "unload" event.
-                _gCodeIntel_observer.finalize();
-                _gCodeIntel_observer = null;
-            }
         }
 
         xtk.domutils.fireEvent(window, "codeintel_deactivated_window");
