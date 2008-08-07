@@ -105,8 +105,15 @@ peSnippet.prototype.isCommandEnabled = function(command, part) {
     case 'cmd_makeSnippetFromSelection':
         var sel = '';
         if (ko.views.manager.currentView &&
-           ko.views.manager.currentView.getAttribute('type') == 'editor') {
-            sel = ko.views.manager.currentView.selection;
+            ko.views.manager.currentView.getAttribute('type') == 'editor') {
+            try {
+                sel = ko.views.manager.currentView.selection;
+            } catch(ex) {
+                // This is one of the few isCommandEnabled methods that can
+                // trigger a xbl "document.getAnonymousNodes(this) has no properties"
+                // exception.
+                return false;
+            }
         }
         return (sel != '');
     case 'cmd_insertSnippet':
