@@ -819,9 +819,6 @@ function _CodeIntel_Activate()
         _gCodeIntel_observer = new _CodeIntelObserver();
 
         gCodeIntelActive = true;
-        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                     getService(Components.interfaces.nsIObserverService);
-        obsSvc.notifyObservers(null, "codeintel_activated", null);
         window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -844,10 +841,6 @@ function _CodeIntel_Deactivate()
                 _gCodeIntel_observer = null;
             }
         }
-
-        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                     getService(Components.interfaces.nsIObserverService);
-        obsSvc.notifyObservers(null, "codeintel_deactivated", null);
 
         window.updateCommands('codebrowser');
     } catch(ex) {

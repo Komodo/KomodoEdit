@@ -153,10 +153,27 @@
         <body>
         <![CDATA[
             this.parentView.setContext(this, "tabContextMenu");
-            this.__observersvc.addObserver(this, "codeintel_activated", 0);
-            this.__observersvc.addObserver(this, "codeintel_deactivated", 0);
             this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
             this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
+            
+            var this_ = this;
+            this._on_codeintel_activated = function(event) {
+                this_.isCICplnEnabled =
+                    gCodeIntelSvc.is_cpln_lang(this_.document.language);
+                this_.isCICitadelStuffEnabled =
+                    gCodeIntelSvc.is_citadel_lang(this_.document.language);
+                this_.isCIXMLStuffEnabled =
+                    gCodeIntelSvc.is_xml_lang(this_.document.language);
+            }
+            window.addEventListener('codeintel_activated',
+                this._on_codeintel_activated, false);
+            this._on_codeintel_deactivated = function(event) {
+                this_.isCICplnEnabled = false;
+                this_.isCICitadelStuffEnabled = false;
+                this_.isCIXMLStuffEnabled = false;
+            }
+            window.addEventListener('codeintel_deactivated',
+                this._on_codeintel_deactivated, false);
         ]]>
         </body>
         </method>
@@ -334,25 +351,6 @@
                     xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
                 }
                 break;
-            case 'codeintel_activated':
-                // Multi-window note: I have no idea why the events
-                // aren't firing.
-                if (window == doc) {
-                    this.isCICplnEnabled =
-                        gCodeIntelSvc.is_cpln_lang(this.document.language);
-                    this.isCICitadelStuffEnabled =
-                        gCodeIntelSvc.is_citadel_lang(this.document.language);
-                    this.isCIXMLStuffEnabled =
-                        gCodeIntelSvc.is_xml_lang(this.document.language);
-                }
-                break;
-            case 'codeintel_deactivated':
-                if (window == doc) {
-                    this.isCICplnEnabled = false;
-                    this.isCICitadelStuffEnabled = false;
-                    this.isCIXMLStuffEnabled = false;
-                }
-                break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
                 this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
@@ -397,9 +395,12 @@
                     this.preview.sourceView = null;
                     this.preview = null;
                 }
-                this.__observersvc.removeObserver(this, "codeintel_activated");
-                this.__observersvc.removeObserver(this, "codeintel_deactivated");
                 this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
+
+                window.removeEventListener('codeintel_activated',
+                    this._on_codeintel_activated, false);
+                window.removeEventListener('codeintel_deactivated',
+                    this._on_codeintel_deactivated, false);
 
                 // XXX nothing should ever inherit from view-editor
                 // if they do, this code using __proto__ must be changed
@@ -1124,24 +1125,6 @@
                 }
                 ]]>
             </handler>
-        <handler event="codeintel_activated" phase="capturing" >
-        <![CDATA[
-            dump("Got codeintel_activated handler\n");
-            this.isCICplnEnabled =
-                gCodeIntelSvc.is_cpln_lang(this.document.language);
-            this.isCICitadelStuffEnabled =
-                gCodeIntelSvc.is_citadel_lang(this.document.language);
-            this.isCIXMLStuffEnabled =
-                gCodeIntelSvc.is_xml_lang(this.document.language);        ]]>
-        </handler>
-        <handler event="codeintel_deactivated" phase="capturing" >
-        <![CDATA[
-            dump("Got codeintel_deactivated handler\n");
-            this.isCICplnEnabled = false;
-            this.isCICitadelStuffEnabled = false;
-            this.isCIXMLStuffEnabled = false;
-        ]]>
-        </handler>
     </handlers>
 
 </binding>
