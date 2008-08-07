@@ -1148,12 +1148,9 @@ this.unload = function uilayout_unload()
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
-    if (ko.windowManager.lastWindow()) {
-        // These make sense only if it's the last window shutting down.
-        gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
-        // nsIDOMChromeWindow STATE_MAXIMIZED = 1
-        gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
-    }
+    gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
+    // nsIDOMChromeWindow STATE_MAXIMIZED = 1
+    gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
 }
 
 this.onload = function uilayout_onload()
