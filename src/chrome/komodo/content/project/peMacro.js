@@ -594,15 +594,15 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
     try {
         switch (topic) {
             case 'macro-load':
-            if (ko.windowManager.getMainWindow() != window) {
-                return;
-            }
+                if (ko.windowManager.getMainWindow() != window) {
+                    return;
+                }
                 this.addMacro(part);
                 break;
             case 'macro-unload':
-            if (ko.windowManager.getMainWindow() != window) {
-                return;
-            }
+                if (ko.windowManager.getMainWindow() != window) {
+                    return;
+                }
                 this.removeMacro(part);
                 break;
             case 'javascript_macro':
@@ -617,8 +617,7 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 if (part == window) {
                     ko.commands.doCommand(code);
                 } else {
-                    this.log.error("command-docommand: not in current window for code: "
-                                   + code);
+                    //this.log.debug("command-docommand: not in current window for code: " + code);
                 }
                 break;
         };
