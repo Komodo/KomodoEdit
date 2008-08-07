@@ -683,6 +683,9 @@ function CodeIntel_Finalize()
 }
 
 
+/* Upgrade the codeintel database, if necessary.
+ * This should only be done once per Komodo *app* (not once per window).
+ */
 function _CodeIntel_UpgradeDBIfNecessary()
 {
     _gCodeIntel_log.debug("_CodeIntel_UpgradeDBIfNecessary()");
@@ -768,18 +771,23 @@ function _CodeIntel_Activate()
         // Setup services.
         gCodeIntelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
                               .getService(Components.interfaces.koICodeIntelService);
-        try {
-            _CodeIntel_UpgradeDBIfNecessary();
-            gCodeIntelSvc.activateBackEnd();
-            _CodeIntel_PreloadDBIfNecessary();
-        } catch(ex2) {
-            _gCodeIntel_log.exception(ex2);
-            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                                getService(Components.interfaces.koILastErrorService);
-            var err = lastErrorSvc.getLastErrorMessage();
-            ko.dialogs.internalError(err, ex2+"\n\n"+err);
-            _CodeIntel_Deactivate();
-            return;
+        //TODO: Race condition on startup here! If two Komodo windows
+        //      open quickly then they'll both start the "upgrade if
+        //      necessary".
+        if (! gCodeIntelSvc.isBackEndActive) {
+            try {
+                _CodeIntel_UpgradeDBIfNecessary();
+                gCodeIntelSvc.activateBackEnd();
+                _CodeIntel_PreloadDBIfNecessary();
+            } catch(ex2) {
+                _gCodeIntel_log.exception(ex2);
+                var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                    getService(Components.interfaces.koILastErrorService);
+                var err = lastErrorSvc.getLastErrorMessage();
+                ko.dialogs.internalError(err, ex2+"\n\n"+err);
+                _CodeIntel_Deactivate();
+                return;
+            }
         }
 
         // Notify the Code Intel engine of currently open files and projects.
