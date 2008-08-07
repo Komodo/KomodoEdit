@@ -827,7 +827,9 @@ this.manager.prototype.saveAndApply = function(prefset) {
         this.saveCurrentConfiguration();
         this._saveKnownConfigs();
         this.loadConfiguration(this.currentConfiguration, true);
-        xtk.domutils.fireEvent(window, 'parts_reload');
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+              getService(Components.interfaces.nsIObserverService);
+        observerSvc.notifyObservers(this, 'parts_reload', '');
     } catch (e) {
         _log.exception(e);
     }

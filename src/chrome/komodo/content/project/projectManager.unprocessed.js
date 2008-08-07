@@ -1033,7 +1033,9 @@ this.saveProjectAs = function ProjectSaveAs(project)
 
 // support parts_reload which is notified from keybindings manager
 function ProjectEventObserver() {
-    window.addEventListener("parts_reload", this.handle_parts_reload, false);
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+          getService(Components.interfaces.nsIObserverService);
+    observerSvc.addObserver(this, 'parts_reload',false);
     var me = this;
     this.removeListener = function() { me.finalize(); }
     window.addEventListener("unload", this.removeListener, false);
@@ -1044,12 +1046,19 @@ ProjectEventObserver.prototype = {
         if (!this.removeListener) return;
         window.removeEventListener("unload", this.removeListener, false);
         this.removeListener = null;
-        window.removeEventListener("parts_reload", this.handle_parts_reload, false);
+        
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+              getService(Components.interfaces.nsIObserverService);
+        observerSvc.removeObserver(this, 'parts_reload');
     },
-    handle_parts_reload: function(event) {
-        var managers = ko.projects.managers;
-        for (var i=0; i < managers.length; i++) {
-            managers[i].applyPartKeybindings();
+    observe: function (view, topic, message) {
+        switch (topic) {
+            case 'parts_reload':
+                var managers = ko.projects.managers;
+                for (var i=0; i < managers.length; i++) {
+                    managers[i].applyPartKeybindings();
+                }
+                break;
         }
     },
 
