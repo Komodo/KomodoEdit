@@ -302,14 +302,8 @@ interface koICodeIntelService: nsISupports {
     // Special API for edited current document to allow for some extra
     // data for optimization.
     //  edited_current_document: sent when the current editor view content
-    //      should be re-scanned. (This event is a little different for the
-    //      others in that it is a _command_ instead of an _event_. This is
-    //      because preference handling is being done under the hood to
-    //      control whether re-scans are done for every edit.)
-    //      sdata: document URL
-    //      odata: associated koIDocument instance
+    //      should be re-scanned.
     void ideEvent_EditedCurrentDocument(in koIDocument document,
-                                        in ISciMoz scimoz,
                                         in long linesAdded,
                                         in boolean rescan);
 

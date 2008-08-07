@@ -1158,7 +1158,7 @@ class KoCodeIntelService:
             cipath = document.displayPath
         return cipath
 
-    def ideEvent_EditedCurrentDocument(self, document, scimoz, linesAdded,
+    def ideEvent_EditedCurrentDocument(self, document, linesAdded,
                                        rescan=False):
         lang = document.language
         # XXX FIXME post beta 1
@@ -1177,7 +1177,7 @@ class KoCodeIntelService:
 
     def ideEvent(self, name, sdata, odata):
         try:
-            if name in ("opened_document", "changed_document"):
+            if name == "opened_document":
                 url, document = sdata, odata
                 language = document.language
                 log.info("ideEvent %s: %s (%s)", name, document.displayPath, language)

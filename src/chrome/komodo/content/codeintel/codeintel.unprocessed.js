@@ -792,6 +792,8 @@ function _CodeIntel_Deactivate()
         if (gCodeIntelSvc) {
             gCodeIntelSvc = null;
             if (_gCodeIntel_observer) {
+                //TODO: Looks like this is redundant since r20189 adding
+                //      `.finalize()' on "unload" event.
                 _gCodeIntel_observer.finalize();
                 _gCodeIntel_observer = null;
             }

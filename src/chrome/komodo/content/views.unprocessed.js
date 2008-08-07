@@ -2274,8 +2274,10 @@ function _view_checkDiskFiles(event) {
                         items[i].view.revertUnconditionally()
                         if (gCodeIntelActive) {
                             var doc = items[i].view.document;
-                            gCodeIntelSvc.ideEvent("changed_document",
-                                                   doc.file.URI, doc);
+                            gCodeIntelSvc.ideEvent_EditedCurrentDocument(
+                                doc,
+                                1, // linesAdded: using non-zero value to encourage high-prio rescan
+                                true);
                         }
                     } else {
                         ko.projects.manager.revertProject(items[i].project);
