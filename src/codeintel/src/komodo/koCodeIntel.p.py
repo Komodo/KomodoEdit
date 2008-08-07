@@ -1176,10 +1176,6 @@ class KoCodeIntelService:
                     self.mgr.idxr.stage_request(request, 1.5)
 
     def ideEvent(self, name, sdata, odata):
-        # XXX PERF Note:
-        # - Project support + live projects have not been investigated.
-        #   This results in LOTS of IDE events being sent (and unnecessarily
-        #   for the common case: that pref is turned off).
         try:
             if name in ("opened_document", "changed_document"):
                 url, document = sdata, odata
