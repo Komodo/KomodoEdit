@@ -164,13 +164,9 @@ function _clearLanguage() {
 }
 
 function _updateLintMessage(view) {
-    if (typeof(view)=='undefined' || !view || !view.document) {
-        //dump("  view has gone null\n");
-        return;
-    }
     // The timeout has been called, remove the setTimeout id
     _updateLintMessageTimer = null;
-    if (!view || !view.lintBuffer) {
+    if (!view || !view.document || !view.lintBuffer) {
         return;
     }
 
