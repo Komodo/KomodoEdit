@@ -157,7 +157,7 @@
             this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
             
             var this_ = this;
-            this._on_codeintel_activated = function(event) {
+            this._on_codeintel_activated_window = function(event) {
                 this_.isCICplnEnabled =
                     gCodeIntelSvc.is_cpln_lang(this_.document.language);
                 this_.isCICitadelStuffEnabled =
@@ -165,15 +165,15 @@
                 this_.isCIXMLStuffEnabled =
                     gCodeIntelSvc.is_xml_lang(this_.document.language);
             }
-            window.addEventListener('codeintel_activated',
-                this._on_codeintel_activated, false);
-            this._on_codeintel_deactivated = function(event) {
+            window.addEventListener('codeintel_activated_window',
+                this._on_codeintel_activated_window, false);
+            this._on_codeintel_deactivated_window = function(event) {
                 this_.isCICplnEnabled = false;
                 this_.isCICitadelStuffEnabled = false;
                 this_.isCIXMLStuffEnabled = false;
             }
-            window.addEventListener('codeintel_deactivated',
-                this._on_codeintel_deactivated, false);
+            window.addEventListener('codeintel_deactivated_window',
+                this._on_codeintel_deactivated_window, false);
         ]]>
         </body>
         </method>
@@ -397,10 +397,10 @@
                 }
                 this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
 
-                window.removeEventListener('codeintel_activated',
-                    this._on_codeintel_activated, false);
-                window.removeEventListener('codeintel_deactivated',
-                    this._on_codeintel_deactivated, false);
+                window.removeEventListener('codeintel_activated_window',
+                    this._on_codeintel_activated_window, false);
+                window.removeEventListener('codeintel_deactivated_window',
+                    this._on_codeintel_deactivated_window, false);
 
                 // XXX nothing should ever inherit from view-editor
                 // if they do, this code using __proto__ must be changed

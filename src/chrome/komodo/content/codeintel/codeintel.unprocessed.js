@@ -112,9 +112,9 @@ _CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID
         case "codeintel_enabled":
             var enabled = prefSet.getBooleanPref("codeintel_enabled");
             if (enabled) {
-                _CodeIntel_Activate();
+                _CodeIntel_ActivateWindow();
             } else {
-                _CodeIntel_Deactivate();
+                _CodeIntel_DeactivateWindow();
             }
             break;
         default:
@@ -626,9 +626,9 @@ function CodeIntel_Initialize()
         _gCodeIntel_prefObserver = new _CodeIntelPrefObserver();
 
         if (gPrefs.getBooleanPref("codeintel_enabled")) {
-            _CodeIntel_Activate();
+            _CodeIntel_ActivateWindow();
         } else {
-            _CodeIntel_Deactivate();
+            _CodeIntel_DeactivateWindow();
         }
         ko.main.addWillQuitHandler(CodeIntel_Finalize);
     } catch(ex) {
@@ -641,7 +641,7 @@ function CodeIntel_Finalize()
 {
     _gCodeIntel_log.debug("CodeIntel_Finalize()");
     try {
-        _CodeIntel_Deactivate();
+        _CodeIntel_DeactivateWindow();
         _gCodeIntel_prefObserver.finalize();
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -729,9 +729,9 @@ function _CodeIntel_PreloadDBIfNecessary()
 //}
 
 
-function _CodeIntel_Activate()
+function _CodeIntel_ActivateWindow()
 {
-    _gCodeIntel_log.debug("_CodeIntel_Activate()");
+    _gCodeIntel_log.debug("_CodeIntel_ActivateWindow()");
     try {
 
         // Setup services.
@@ -751,7 +751,7 @@ function _CodeIntel_Activate()
                                     getService(Components.interfaces.koILastErrorService);
                 var err = lastErrorSvc.getLastErrorMessage();
                 ko.dialogs.internalError(err, ex2+"\n\n"+err);
-                _CodeIntel_Deactivate();
+                _CodeIntel_DeactivateWindow();
                 return;
             }
         }
@@ -774,7 +774,7 @@ function _CodeIntel_Activate()
         _gCodeIntel_observer = new _CodeIntelObserver();
 
         gCodeIntelActive = true;
-        xtk.domutils.fireEvent(window, "codeintel_activated");
+        xtk.domutils.fireEvent(window, "codeintel_activated_window");
         window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -782,9 +782,9 @@ function _CodeIntel_Activate()
 }
 
 
-function _CodeIntel_Deactivate()
+function _CodeIntel_DeactivateWindow()
 {
-    _gCodeIntel_log.debug("_CodeIntel_Deactivate()");
+    _gCodeIntel_log.debug("_CodeIntel_DeactivateWindow()");
     try {
         gCodeIntelActive = false;
 
@@ -799,7 +799,7 @@ function _CodeIntel_Deactivate()
             }
         }
 
-        xtk.domutils.fireEvent(window, "codeintel_deactivated");
+        xtk.domutils.fireEvent(window, "codeintel_deactivated_window");
         window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
