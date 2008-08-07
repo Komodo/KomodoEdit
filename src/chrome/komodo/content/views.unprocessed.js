@@ -728,7 +728,7 @@ viewManager.prototype.cacheCommandData = function(view)
     return cache
 }
 
-viewManager.prototype._handle_open_file = function(topic, data)
+viewManager.prototype.handle_open_file = function(topic, data)
 {
     try {
         this.log.info("got open_file notification: " + data);
@@ -818,7 +818,7 @@ viewManager.prototype.observe = function(subject, topic, data)
         case 'open-url': // see nsCommandLineServiceMac.cpp, bug 37787
             // This is also used by komodo macro API to open files from python
             if (ko.windowManager.getMainWindow() == window) {
-                this._handle_open_file(topic, data);
+                this.handle_open_file(topic, data);
             }
             break;
         case 'file_status':

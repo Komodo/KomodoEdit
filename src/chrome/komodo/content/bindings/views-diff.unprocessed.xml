@@ -356,7 +356,16 @@
                     }
 
                     // Open the file at this position.
-                    observerSvc.notifyObservers(null, 'open_file', openFileArg);
+                    try {
+                        // Best: show the context in the window that created the diff view.
+                        opener.ko.views.manager.handle_open_file('open_file', openFileArg);
+                    } catch(e) {
+                        // Do this in case the opener was closed while the
+                        // diff window is still open.  This will show up in the most
+                        // recent window, even if this file is open in another window
+                        // but not the recent one.
+                        observerSvc.notifyObservers(null, 'open_file', openFileArg);
+                    }
                 } catch(ex) {
                     this.log.exception(ex);
                 }
