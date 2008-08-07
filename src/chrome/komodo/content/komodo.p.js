@@ -248,7 +248,13 @@ function onloadDelay() {
         // commandments system is initialized because the commandments mechanism
         // is how the determination of 'running in non-interactive mode' happens,
         // which the restoration step needs to know about.
-        ko.workspace.restoreWorkspace();
+        
+        // Eventually restoreWorkspace will be rewritten to restore
+        // a set of windows, and restore will be done at app-startup
+        // time, not when each window starts up.
+        if (ko.windowManager.numKomodoWindows() == 1) {
+            ko.workspace.restoreWorkspace();
+        }
 
         // handle window.arguments spec list
         if (window.arguments && window.arguments[0]) {
