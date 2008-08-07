@@ -800,11 +800,6 @@ function _CodeIntel_Activate()
                                            editorViews[i].document.file.URI,
                                            editorViews[i].document);
                 }
-                var projects = ko.projects.manager._projects;
-                for (i = 0; i < projects.length; i++) {
-                    gCodeIntelSvc.ideEvent("opened_project", projects[i].url,
-                                           projects[i]);
-                }
                 // Ensure that the backend knows which is the current view.
                 var v = ko.views.manager.currentView;
                 if (v) {
