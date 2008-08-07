@@ -396,11 +396,11 @@
         <![CDATA[
             // Return true if the view ends up closed.
             try {
-                try {
-                    this.__observersvc.notifyObservers(this, 'view_closing', '');
-                } catch(e) {
-                    // no one is listening
-                }
+                // 2008-07 -- this event currently isn't consumed by
+                // core Komodo, but extension and macro writers
+                // asked for a notification, will be an event on
+                // the containing view in v5.
+                xtk.domutils.fireEvent(this, 'view_closing');
                 if (ko.macros.eventHandler.hookPreFileClose()) {
                     ko.statusBar.AddMessage("Macro interrupted file closing procedure.",
                                          "macro",
