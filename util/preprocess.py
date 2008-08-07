@@ -120,7 +120,7 @@
     recognize the unpreprocessed file as the original language.
 """
 
-__version_info__ = (1, 0, 8)
+__version_info__ = (1, 0, 9)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -368,6 +368,9 @@ def getContentType(filename):
                           filename, contentType, regex.pattern)
                 break
     # Try to determine from the file contents.
+    content = open(filename, 'rb').read()
+    if content.startswith("<?xml"):  # cheap XML sniffing
+        contentType = "XML"
     # XXX reading shebang line/magic number
     # XXX reading Emacs-style mode line???
     # XXX should this be higher?

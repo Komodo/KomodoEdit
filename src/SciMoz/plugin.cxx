@@ -120,6 +120,23 @@ nsPluginInstanceBase * NS_NewPluginInstance(nsPluginCreateData * aCreateDataStru
     }
 #endif /* USE_LICENSE */
 
+#if USE_CARBON
+    // Check if the browser supports the CoreGraphics drawing model
+    NPBool supportsCoreGraphics = FALSE;
+    NPError err = NPN_GetValue(aCreateDataStruct->instance,
+                                    NPNVsupportsCoreGraphicsBool,
+                                    &supportsCoreGraphics);
+    if (err != NPERR_NO_ERROR || !supportsCoreGraphics) 
+        return NULL;
+
+    // Set the drawing model
+    err = NPN_SetValue(aCreateDataStruct->instance,
+                            NPPVpluginDrawingModel,
+                            (void*)NPDrawingModelCoreGraphics);
+    if (err != NPERR_NO_ERROR) 
+        return NULL;
+#endif
+
   nsPluginInstance * plugin = new nsPluginInstance(aCreateDataStruct->instance);
   return plugin;
 }
@@ -142,18 +159,18 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
   mInitialized(FALSE),
   mScriptablePeer(NULL)
 {
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::nsPluginInstance %p\n", aInstance);
-#endif 
   mString[0] = '\0';
   mScriptablePeer = new SciMoz(this);
   NS_ADDREF(mScriptablePeer);
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr,"nsPluginInstance::nsPluginInstance %p inst %p peer %p\n", this, mInstance, mScriptablePeer);
+#endif 
 }
 
 nsPluginInstance::~nsPluginInstance()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::~nsPluginInstance\n");
+    fprintf(stderr,"nsPluginInstance::~nsPluginInstance %p inst %p peer %p\n", this, mInstance, mScriptablePeer);
 #endif 
   // mScriptablePeer may be also held by the browser 
   // so releasing it here does not guarantee that it is over
@@ -174,7 +191,7 @@ nsPluginInstance::~nsPluginInstance()
 NPBool nsPluginInstance::init(NPWindow* aWindow)
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::init %p\n",aWindow);
+    fprintf(stderr,"nsPluginInstance::init %p window %p\n",this,aWindow);
 #endif 
   if(aWindow == NULL)
     return FALSE;
@@ -218,7 +235,7 @@ void nsPluginInstance::shut()
 NPBool nsPluginInstance::isInitialized()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::isInitialized\n");
+    fprintf(stderr,"nsPluginInstance::isInitialized %p %d\n", this, mInitialized);
 #endif 
   return mInitialized;
 }

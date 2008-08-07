@@ -65,10 +65,10 @@ from xpcom import components, nsError, ServerException, COMException
 import upgradeutils
 
 import logging
+#logging.basicConfig()
 log = logging.getLogger('koInitService')
 ## without calling basicConfig here, we do not get logging at all from
 ## the init service, and people get an error message about it.
-#logging.basicConfig()
 #log.setLevel(logging.DEBUG)
 
 #---- support routines
@@ -990,7 +990,6 @@ class KoInitService:
 
     def installSamples(self, force):
         try:
-            infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
             koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
             #XXX The best target directory might vary for other OSes.
             dstDir = os.path.join(koDirSvc.userDataDir, "samples")

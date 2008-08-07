@@ -19,7 +19,7 @@
                 <!-- Komodo Edit's uuid -->
                 <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
                 <em:minVersion>4.3.0-alpha1</em:minVersion>
-                <em:maxVersion>4.*</em:maxVersion>
+                <em:maxVersion>5.*</em:maxVersion>
             </Description>
         </em:targetApplication>
     </Description>

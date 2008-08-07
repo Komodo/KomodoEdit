@@ -1,0 +1,9 @@
+# Microsoft Developer Studio Generated Dependency File, included by dftables.mak
+
+..\dftables.c : \
+	"..\pcre_internal.h"\
+	"..\pcre_maketables.c"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	

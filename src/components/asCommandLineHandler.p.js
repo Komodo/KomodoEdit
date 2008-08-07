@@ -42,21 +42,24 @@ const winOptions =
   "chrome,all";
 // #endif
 
-var gInfoSvc = null;
+//var gInfoSvc = null;
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function shouldLoadURI(aURI) {
   if (aURI && !aURI.schemeIs("chrome"))
     return true;
 	
-  log.warn("*** Preventing external load of chrome: URI into window\n");
-  log.warn("    Use -chrome <uri> instead\n");
+  //log.warn("*** Preventing external load of chrome: URI into window\n");
+  //log.warn("    Use -chrome <uri> instead\n");
   return false;
 }
 
 function resolveURIInternal(aCmdLine, aArgument) {
   var uri = aCmdLine.resolveURI(aArgument);
 
-  if (!(uri instanceof Components.interfaces.nsIFileURL)) {
+  if (!(uri instanceof Ci.nsIFileURL)) {
     return uri;
   }
 
@@ -72,8 +75,8 @@ function resolveURIInternal(aCmdLine, aArgument) {
   // doesn't exist. Try URI fixup heuristics: see bug 290782.
  
   try {
-    var urifixup = Components.classes["@mozilla.org/docshell/urifixup;1"]
-                             .getService(Components.interfaces.nsIURIFixup);
+    var urifixup = Cc["@mozilla.org/docshell/urifixup;1"]
+                             .getService(Ci.nsIURIFixup);
 
     uri = urifixup.createFixupURI(aArgument, 0);
   }
@@ -85,15 +88,15 @@ function resolveURIInternal(aCmdLine, aArgument) {
 }
 
 function openWindow(parent, url, target, features, args) {
-    var wwatch = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-            .getService(Components.interfaces.nsIWindowWatcher);
+    var wwatch = Cc["@mozilla.org/embedcomp/window-watcher;1"]
+            .getService(Ci.nsIWindowWatcher);
     return wwatch.openWindow(parent, url, target, features, args);
 }
 
 // Duplicate of windowManager.js:windowManager_getMainWindow.
 function getMostRecentWindow(aType) {
-    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-            .getService(Components.interfaces.nsIWindowMediator);
+    var wm = Cc["@mozilla.org/appshell/window-mediator;1"]
+            .getService(Ci.nsIWindowMediator);
     return wm.getMostRecentWindow(aType);
 }
 
@@ -108,14 +111,14 @@ function _internalError(error, text)
         throw("Must specify 'text' argument to _internalError().");
 
     // Show the dialog.
-    var args =  Components.classes["@mozilla.org/supports-array;1"]
-           .createInstance(Components.interfaces.nsISupportsArray);
-    var errorObj = Components.classes["@mozilla.org/supports-string;1"]
-           .createInstance(Components.interfaces.nsISupportsString);
+    var args =  Cc["@mozilla.org/supports-array;1"]
+           .createInstance(Ci.nsISupportsArray);
+    var errorObj = Cc["@mozilla.org/supports-string;1"]
+           .createInstance(Ci.nsISupportsString);
     errorObj.data = error;
     args.AppendElement(errorObj);
-    var textObj = Components.classes["@mozilla.org/supports-string;1"]
-            .createInstance(Components.interfaces.nsISupportsString);
+    var textObj = Cc["@mozilla.org/supports-string;1"]
+            .createInstance(Ci.nsISupportsString);
     textObj.data = text;
     args.AppendElement(textObj);
     openWindow(null,
@@ -125,32 +128,13 @@ function _internalError(error, text)
                args);
 }
 
-var nsKomodoCommandLineHandler = {
-  mChromeURL : null,
-
-  get chromeURL() {
-    if (this.mChromeURL) {
-      return this.mChromeURL;
-    }
-
-    this.mChromeURL = "chrome://komodo/content";
-    return this.mChromeURL;
-  },
-
-  /* nsISupports */
-  QueryInterface : function dch_QI(iid) {
-    if (!iid.equals(Components.interfaces.nsISupports) &&
-        !iid.equals(Components.interfaces.nsICommandLineHandler) &&
-        !iid.equals(Components.interfaces.nsIFactory))
-      throw Components.errors.NS_ERROR_NO_INTERFACE;
-
-    return this;
-  },
+function komodoCmdLineHander() { }
+komodoCmdLineHander.prototype = {
+  chromeURL : "chrome://komodo/content",
 
   /* nsICommandLineHandler */
   handle : function dch_handle(cmdLine) {
     var urilist = [];
-
     try {
       var ar;
       while ((ar = cmdLine.handleFlagWithParam("url", false))) {
@@ -182,8 +166,8 @@ var nsKomodoCommandLineHandler = {
 
     var koWin = getMostRecentWindow("Komodo");
     if (urilist.length) {
-      var obsvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
+      var obsvc = Cc["@mozilla.org/observer-service;1"].
+            getService(Ci.nsIObserverService);
       var speclist = [];
       for (var uri in urilist) {
         if (shouldLoadURI(urilist[uri]))
@@ -197,12 +181,12 @@ var nsKomodoCommandLineHandler = {
         }
         if (!cmdLine.preventDefault && !koWin) {
           // if we couldn't load it in an existing window, open a new one
-          var args =  Components.classes["@mozilla.org/supports-array;1"]
-                 .createInstance(Components.interfaces.nsISupportsArray);
+          var args =  Cc["@mozilla.org/supports-array;1"]
+                 .createInstance(Ci.nsISupportsArray);
   
           var paramBlock = 
-              Components.classes["@mozilla.org/embedcomp/dialogparam;1"].
-              createInstance(Components.interfaces.nsIDialogParamBlock);
+              Cc["@mozilla.org/embedcomp/dialogparam;1"].
+              createInstance(Ci.nsIDialogParamBlock);
           paramBlock.SetString(0, speclist);
           args.AppendElement(paramBlock);
 
@@ -225,75 +209,13 @@ var nsKomodoCommandLineHandler = {
   // XXX localize me... how?
   helpInfo : "Usage: komodo [-flags] [<url>]\n",
 
-  /* nsIFactory */
-  createInstance: function dch_CI(outer, iid) {
-    if (outer != null)
-      throw Components.results.NS_ERROR_NO_AGGREGATION;
-
-    return this.QueryInterface(iid);
-  },
-    
-  lockFactory : function dch_lock(lock) {
-    /* no-op */
-  }
+  classDescription: "komodoCmdLineHander",
+  classID: Components.ID("{07DCEAC7-31F6-11DA-BC61-000D935D3368}"),
+  contractID: "@activestate.com/komodo/final-clh;1",
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
+  _xpcom_categories: [{category: "command-line-handler", entry: "m-komodo"}]
 };
 
-const dch_contractID = "@activestate.com/komodo/final-clh;1";
-const dch_CID = Components.ID("{07DCEAC7-31F6-11DA-BC61-000D935D3368}");
-
-var Module = {
-  /* nsISupports */
-  QueryInterface: function mod_QI(iid) {
-    if (iid.equals(Components.interfaces.nsIModule) ||
-        iid.equals(Components.interfaces.nsISupports))
-      return this;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-
-  /* nsIModule */
-  getClassObject: function mod_getco(compMgr, cid, iid) {
-    if (cid.equals(dch_CID))
-      return nsKomodoCommandLineHandler.QueryInterface(iid);
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-  },
-    
-  registerSelf: function mod_regself(compMgr, fileSpec, location, type) {
-    var compReg =
-      compMgr.QueryInterface( Components.interfaces.nsIComponentRegistrar );
-    compReg.registerFactoryLocation( dch_CID,
-                                     "nsKomodoCommandLineHandler",
-                                     dch_contractID,
-                                     fileSpec,
-                                     location,
-                                     type );
-
-    var catMan = Components.classes["@mozilla.org/categorymanager;1"]
-                           .getService(Components.interfaces.nsICategoryManager);
-
-    catMan.addCategoryEntry("command-line-handler",
-                            "ko-default",
-                            dch_contractID, true, true);
-  },
-    
-  unregisterSelf : function mod_unregself(compMgr, location, type) {
-    var compReg = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compReg.unregisterFactoryLocation(dch_CID, location);
-
-    var catMan = Components.classes["@mozilla.org/categorymanager;1"]
-                           .getService(Components.interfaces.nsICategoryManager);
-
-    catMan.deleteCategoryEntry("command-line-handler",
-                               "ko-default", true);
-  },
-
-  canUnload: function(compMgr) {
-    return true;
-  }
-};
-
-// NSGetModule: Return the nsIModule object.
 function NSGetModule(compMgr, fileSpec) {
-  return Module;
+  return XPCOMUtils.generateModule([komodoCmdLineHander]);
 }

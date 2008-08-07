@@ -37,8 +37,10 @@
 import os
 import sys
 import time
-import signal  # used by kill() method on Linux/Mac
-import ctypes  # used by kill() method on Windows
+if sys.platform == "win32":
+    import ctypes  # used by kill() method on Windows
+else:
+    import signal  # used by kill() method on Linux/Mac
 import logging
 import threading
 import warnings

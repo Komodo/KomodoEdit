@@ -1,0 +1,152 @@
+# Microsoft Developer Studio Generated Dependency File, included by libpcre.mak
+
+..\pcre_compile.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_config.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_dfa_exec.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_exec.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_fullinfo.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_get.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_globals.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_info.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_maketables.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_ord2utf8.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_printint.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_refcount.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_study.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_tables.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_try_flipped.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_ucp_findchar.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	"..\ucp_findchar.c"\
+	"..\ucpinternal.h"\
+	"..\ucptable.c"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_valid_utf8.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_version.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcre_xclass.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcreposix.c : \
+	"..\pcre_internal.h"\
+	"..\pcreposix.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+!IF  "$(CFG)" == "libpcre - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libpcre - Win32 Debug"
+
+!ENDIF 
+

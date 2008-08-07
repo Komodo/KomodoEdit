@@ -28,7 +28,7 @@ Build steps on Windows:
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
-    python build.py configure -k 4.4 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
+    python build.py configure -k 5.0 --moz-src=cvs --release --no-strip --shared --tools --moz-objdir=ko-shared
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -42,7 +42,7 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 4.4 --moz-src=cvs:1.8 --release \
+    python build.py configure -k 5.0 --moz-src=cvs --release \
         --no-strip --shared --tools
     python build.py distclean all
     cd ..

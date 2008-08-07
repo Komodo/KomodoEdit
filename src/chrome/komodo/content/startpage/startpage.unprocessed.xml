@@ -305,23 +305,15 @@
             try {
                 // c.f. dialog.xml::_fireButtonEvent in mozilla
                 this.log.debug("_fireEvent()");
-
-                var event = document.createEvent("Events");
-                event.initEvent(eventName, false, true);
-
-                // handle dom event handlers
-                var noCancel = this.dispatchEvent(event);
-
+                var returned = true;
                 // handle any xml attribute event handlers
                 var handler = this.getAttribute("on"+eventName);
                 if (handler != "") {
-                    var fn = new Function("event", handler);
-                    var returned = fn(event);
-                    if (returned == false)
-                        noCancel = false;
+                    var fn = new Function(handler);
+                    returned = fn.apply(this);
                 }
 
-                return noCancel;
+                return returned;
             } catch(ex) {
                 this.log.error(ex);
             }
@@ -341,55 +333,12 @@
         <xul:vbox>
             <xul:button xbl:inherits="label=title,image=image"
                         valign="left" halign="top"
-                        class="button-link header"
-                        oncommand="window.document.getBindingParent(this).handleCommand();"/>
+                        class="button-link header"/>
             <xul:vbox class="bullet-vbox">
                 <children/>
             </xul:vbox>
         </xul:vbox>
-
     </content>
-
-    <implementation>
-        <field name="_log">null</field>
-        <property name="log">
-            <getter><![CDATA[
-            if (!this._log) {
-                this._log = ko.logging.getLogger('startpage.bullet');
-            }
-            return this._log;
-            ]]></getter>
-        </property>
-
-        <method name="handleCommand">
-        <body> <![CDATA[
-            try {
-                // c.f. dialog.xml::_fireButtonEvent in mozilla
-                this.log.debug("handleCommand()");
-
-                var event = document.createEvent("Events");
-                event.initEvent("bulletcommand", false, true);
-
-                // handle dom event handlers
-                var noCancel = this.dispatchEvent(event);
-
-                // handle any xml attribute event handlers
-                var handler = this.getAttribute("onbulletcommand");
-                if (handler != "") {
-                    var fn = new Function("event", handler);
-                    var returned = fn(event);
-                    if (returned == false)
-                        noCancel = false;
-                }
-
-                return noCancel;
-            } catch(ex) {
-                this.log.error(ex);
-            }
-            return false;
-        ]]> </body>
-        </method>
-    </implementation>
 </binding>
 
 <binding id="startpage-tree-mru" extends="xul:vbox">
@@ -907,8 +856,7 @@
             <xul:box type="startpage" anonid="landingPageBox" title="&whatSNew.title;"
                      pref="start_page_landing_box_closed" ordinal="0"
                      onboxopen="
-                        var page = event.target.parentNode.parentNode;
-                        page.loadLandingPage();
+                        this.parentNode.parentNode.loadLandingPage();
                      ">
             <xul:browser anonid="landingPage" style="height: 200px;" flex="1"
                          type="content" disablehistory="true"
@@ -931,15 +879,14 @@
                 <xul:hbox flex="1">
                         <xul:box type="startpage-bullet"
                                  title="&openSampleProject.title;"
-                                 _onbulletcommand="window.document.getBindingParent(this).openSampleProject();"
-                                 onbulletcommand="window.document.getBindingParent(event.target).openSampleProject();"
+                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
                                  class="open-sample">
                             <xul:description width="240px">Contains a number of files
                             showing many of the features of Komodo.</xul:description>
                         </xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&checkConfiguration.title;"
-                                 onbulletcommand="window.document.getBindingParent(event.target).checkConfiguration();"
+                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.checkConfiguration();"
                                  class="properties-icon">
                             <xul:description width="240px">Checks system configuration to
                             ensure all Komodo features are working properly.</xul:description>  

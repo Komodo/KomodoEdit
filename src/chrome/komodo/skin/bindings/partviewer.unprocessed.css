@@ -60,7 +60,9 @@ partviewer {
 
 
 .projectTree:-moz-tree-image(primaryColumn) {
-  width: 22px;  /* to accomodate non 16x22 icons for parts with custom icons */
+  /* XXX width scales the image in 1.9, can we prevent that? */
+  /*width: 22px;  /* to accomodate non 16x22 icons for parts with custom icons */
+  margin-right: 8px;
 }
 
 .projectTree:-moz-tree-cell-text(projectActive)
@@ -95,10 +97,12 @@ partviewer {
 
 .projectTree:-moz-tree-image(default) {
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(default, missing) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(folder) {
@@ -127,180 +131,223 @@ partviewer {
 
 .projectTree:-moz-tree-image(project) {
   list-style-image: url('chrome://komodo/skin/images/project_icon.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, missing) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, asyncOperation) {
   list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccOk) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccSync) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccConflict) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, add) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_add.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, delete) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_delete.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_readonly.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccOk, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_readonly_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccSync, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_readonly_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccConflict, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_readonly_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, branch) {
   /* XXX fixme */
   list-style-image: url('chrome://komodo/skin/images/project_icon_add.png');
+  margin-right: 2px;
 }
 
 /* XXX fixme integrate icons are needed, currently they match the edit icons */
 .projectTree:-moz-tree-image(project, integrate) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccOk, integrate) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccSync, integrate) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccConflict, integrate) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, edit) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccOk, edit) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccSync, edit) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(project, sccConflict, edit) {
   list-style-image: url('chrome://komodo/skin/images/project_icon_edit_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file) {
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, missing) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, asyncOperation) {
   list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccOk) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccSync) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccConflict) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, add) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_add.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, delete) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_delete.png');
+  margin-right: 2px;
 }
 
 
 .projectTree:-moz-tree-image(file, sccOk, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccSync, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccConflict, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, add, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_add.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, delete, isReadOnly) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_delete.png');
+  margin-right: 2px;
 }
 
 
 .projectTree:-moz-tree-image(file, branch) {
   /* XXX fixme */
   list-style-image: url('chrome://komodo/skin/images/file_icon_add.png');
+  margin-right: 2px;
 }
 
 /* XXX fixme integrate icons are needed, currently they match the edit icons */
 .projectTree:-moz-tree-image(file, integrate) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccOk, integrate) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccSync, integrate) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccConflict, integrate) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_conflict.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, edit) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccOk, edit) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_ok.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccSync, edit) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_sync.png');
+  margin-right: 2px;
 }
 
 .projectTree:-moz-tree-image(file, sccConflict, edit) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_edit_conflict.png');
+  margin-right: 2px;
 }
 
 

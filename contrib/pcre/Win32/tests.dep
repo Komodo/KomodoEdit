@@ -1,0 +1,8 @@
+# Microsoft Developer Studio Generated Dependency File, included by tests.mak
+
+!IF  "$(CFG)" == "tests - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "tests - Win32 Debug"
+
+!ENDIF 
+

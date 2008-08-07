@@ -36,46 +36,25 @@ rem the terms of any one of the MPL, the GPL or the LGPL.
 rem 
 rem ***** END LICENSE BLOCK *****
 
-rem This is a slightly modified version of mozilla-build\start-msvc6.bat:
-rem - don't start "msys\bin\bash"
-rem - add some extra paths
-echo ================ setup Mozilla/MSVC6 build env ===================
+echo envrun-moz-vc8-x86: setting up Visual C++ 8/x86 compiler environment
 
-rem Keep guess-msvc.bat from trouncing the current PATH.
-set MOZ_NO_RESET_PATH=1
+set _CURR_DRIVE=%~d0%
+set _CURR_PATH=%~p0%
+set _SETENV_SCRIPT=%_CURR_DRIVE%%_CURR_PATH%..\setenv-moz-msvc8.bat
+call %_SETENV_SCRIPT%
+set RETVAL=%ERRORLEVEL%
 
+:check_setup
+if "%RETVAL%x" == "0x" goto run_cmd
+echo envrun-moz-vc8-x86: setting up Mozilla vc8 environment failed: %RETVAL%: aborting run
+exit %RETVAL%
 
-SET MOZ_MSVCVERSION=6
+:run_cmd
+echo envrun-moz-vc8-x86: running: %*
+%*
+set RETVAL=%ERRORLEVEL%
+if "%RETVAL%x" == "0x" goto succeeded
+echo envrun-moz-vc8-x86: '%*' failed: %RETVAL%
+exit %RETVAL%
 
-if "x%MOZILLABUILD%" == "x" ( 
-    set MOZILLABUILD=C:\mozilla-build
-)
-
-echo Mozilla tools directory: %MOZILLABUILD%
-
-REM Get MSVC paths
-call "%MOZILLABUILD%\guess-msvc.bat"
-
-if "%VC6DIR%"=="" (
-    ECHO "Microsoft Visual C++ version 6 was not found. Exiting."
-    pause
-)
-
-REM For MSVC6, we use the "old" non-static moztools
-set MOZ_TOOLS=%MOZILLABUILD%\moztools-180compat
-
-rem append moztools to PATH
-SET PATH=%PATH%;%MOZ_TOOLS%\bin
-
-rem Other PATH additions.
-rem - not sure make 3.81 is necessary but probably is
-rem - msys\local\bin to get iconv.exe
-set PATH=%MOZILLABUILD%\make-3.81\bin;%PATH%
-set PATH=%MOZILLABUILD%\msys\local\bin;%PATH%
-set PATH=%MOZILLABUILD%\info-zip;%PATH%
-set PATH=%MOZILLABUILD%\msys\bin;%PATH%
-
-rem Prepend MSVC paths
-call "%VC6DIR%\Bin\vcvars32.bat"
-
-echo ========================== done ==================================
+:succeeded

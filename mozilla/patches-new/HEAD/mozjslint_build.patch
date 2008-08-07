@@ -1,3 +1,11 @@
+diff
+
+The recent adding of ".manifest" files to SHIP_BINS is to support properly
+running js.exe on Windows with a vc8 build. The .manifest file needs to
+be next to js.exe in the dist/bin dir to properly load the MSVCR80.dll
+dependency. Note that a vc6 build wouldn't build the .manifest files
+so this addition to the patch isn't perfect.
+
 Index: js/src/jsconfig.mk
 ===================================================================
 RCS file: /cvsroot/mozilla/js/src/jsconfig.mk,v
@@ -53,7 +61,7 @@ diff -u -r3.9 jsconfig.mk
  endif
  ifeq ($(OS_ARCH), WINNT)
 -  SHIP_BINS   := $(addsuffix .exe, $(SHIP_BINS))
-+  SHIP_BINS   := $(addsuffix .exe, $(SHIP_BINS)) js32.dll
++  SHIP_BINS   := $(addsuffix .exe, $(SHIP_BINS)) js.exe.manifest js32.dll js32.dll.manifest
  endif
 -SHIP_BINS     := $(addprefix $(SHIP_DIST)/bin/, $(SHIP_BINS))
 +SHIP_BINS     := $(addprefix $(OBJDIR)/, $(SHIP_BINS))

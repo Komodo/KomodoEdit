@@ -51,13 +51,27 @@ void SciMoz::PlatformCreate(WinID) {
 
 void SciMoz::Resize() {
 	// we have to get the titlebar height, and add it to the y origin
+#ifndef USE_CARBON //1.8 branch
+	OSStatus err;
 	Rect winRect;
-	GetWindowBounds(fPlatform.container, kWindowTitleBarRgn, &winRect);
+	err = GetWindowBounds(fPlatform.container, kWindowTitleBarRgn, &winRect);
 	int tbHeight = winRect.bottom - winRect.top;
-
+	if (err != noErr) {
+		// gecko 1.9.0 on osx 10.4 fails to get the titleBarRgn, but
+		// this workaround gives the same result.
+		Rect structRect;
+		err = GetWindowBounds(fPlatform.container, kWindowStructureRgn, &structRect);
+		err = GetWindowBounds(fPlatform.container, kWindowContentRgn, &winRect);
+		tbHeight = winRect.top - structRect.top;
+	}
+#endif
 	HIRect boundsRect;
 	boundsRect.origin.x = fWindow->x; // left
+#ifndef USE_CARBON //1.8 branch
 	boundsRect.origin.y = fWindow->y +  tbHeight; // top
+#else
+	boundsRect.origin.y = fWindow->y; // top
+#endif
 	boundsRect.size.width = fWindow->width;
 	boundsRect.size.height = fWindow->height;
 #ifdef DEBUG_PAINT
@@ -151,6 +165,10 @@ void SciMoz::PlatformNew(void) {
 	fPlatform.port = NULL;
 	fPlatform.container = NULL;
 	wEditor = scintilla_new();
+	// CFRetain the editor to prevent TView kEventHIObjectDestruct,
+	// otherwise we crash in PlatformDestroy deleting scintilla.  That
+	// happens to the current buffer when we quit Komodo.
+	CFRetain(wEditor); 
 	err = GetControlProperty( wEditor, scintillaMacOSType, 0, sizeof( scintilla ), NULL, &scintilla );
 	assert( err == noErr && scintilla != NULL );
 
@@ -166,7 +184,7 @@ void SciMoz::PlatformNew(void) {
 
 nsresult SciMoz::PlatformDestroy(void) {
 #ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::PlatformDestroy\n");
+	fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
 	PlatformResetWindow();
 	// This must have reset out window.
@@ -205,7 +223,9 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	{
 		if ( npwindow && npwindow->window && portMain == npwindow->window ) {
 #ifdef DEBUG_PAINT
-			fprintf(stderr, "....have fWindow, call show/hide\n");
+			fprintf(stderr, "....have fWindow, call show/hide (%d,%d,%d,%d)\n", 
+											fWindow->clipRect.left, fWindow->clipRect.top, 
+											fWindow->clipRect.right, fWindow->clipRect.bottom);
 #endif
 			SetHIViewShowHide(WINDOW_DISABLED(fWindow));
 			return NS_OK;
@@ -219,7 +239,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	if (npwindow && npwindow->window) {
 		fWindow = npwindow;
 		portMain = npwindow->window;
-#if MOZ_VERSION < 190 //1.8 branch
+#ifndef USE_CARBON //1.8 branch
 		NP_Port* npport = (NP_Port*) portMain;
 		fPlatform.port = npport->port;
 		fPlatform.container = GetWindowFromPort(fPlatform.port);
@@ -247,7 +267,7 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 #endif
 		scintilla->SetTicking(false);
 		scintilla->Resize(0,0);
-#if MOZ_VERSION < 190 //1.8 branch
+#ifndef USE_CARBON //1.8 branch
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);
@@ -268,7 +288,7 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 		HIViewAddSubview(wMain, wEditor);
 		Resize();
 		scintilla->Resize(fWindow->width,fWindow->height);
-#if MOZ_VERSION < 190 //1.8 branch
+#ifndef USE_CARBON //1.8 branch
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);
@@ -354,7 +374,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 #ifdef DEBUG_PAINT
 		fprintf(stderr, "SciMoz::PlatformHandleEvent updateEvt %08X\n", wEditor);
 #endif
-#if MOZ_VERSION < 190 //1.8 branch
+#ifndef USE_CARBON //1.8 branch
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);

@@ -43,6 +43,7 @@ Import(
     "platform",
     "buildType", "buildFlavour",
     "buildPlatform",
+    "compiler",
     "komodoDevDir",
     "unsiloedPythonExe",
     "ranRegxpcomStateFileName",
@@ -138,6 +139,7 @@ my %ppData = (
     'PP_KO_PLATNAME' => "$buildPlatform",
     'PP_PYTHON_MAJOR_MINOR' => "$siloedPyVer",
     'PP_IS_GTK2_SILOED' => "$isGTK2Siloed",
+    'PP_COMPILER' => "$compiler",
 );
 
 if ($platform eq "win") {
@@ -172,6 +174,8 @@ if (!$xulrunner) {
         ["preprocess+share", 'app/nsKomodoApp.p.cpp', 'app/nsKomodoApp.cpp'],
         ["cp+share",         'app/koStart.h', undef],
         ["preprocess+share", 'app/koStart.unprocessed.c', 'app/koStart.c'],
+        ["preprocess+share", 'app/komodo.exe.p.manifest', 'app/komodo.exe.manifest'],
+        #XXX Might need a ko.exe.manifest as well.
     
         ["preprocess",       'app/module.unprocessed.ver','app/module.ver'],
         ["preprocess",       'app/splash.unprocessed.rc', 'app/splash.rc'],
@@ -275,8 +279,9 @@ if (!$xulrunner) {
             "stub/koStart.c",               # 6
             "stub/koStart.h",               # 7
             "stub/my_getopt.c",             # 8
-            "stub/getopt.h",                # 9
-            "stub/my_getopt.h",             # 10
+            "stub/komodo.exe.manifest",     # 9
+            "stub/getopt.h",                # 10
+            "stub/my_getopt.h",             # 11
             qq(
                 copy %3 %0:d
                 copy %4 %0:d
@@ -286,6 +291,7 @@ if (!$xulrunner) {
                 cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%8:b.obj /c %8
                 rc /fo%2:b.res %2
                 link /nologo $LDFLAGS /subsystem:console /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+                mt -manifest %9 -outputresource:%0
             )
         );
         $cons->Install($stubDir, "stub/ko.exe");
@@ -300,8 +306,9 @@ if (!$xulrunner) {
             "stub/koStart.c",               # 6
             "stub/koStart.h",               # 7
             "stub/my_getopt.c",             # 8
-            "stub/getopt.h",                # 9
-            "stub/my_getopt.h",             # 10
+            "stub/komodo.exe.manifest",     # 9
+            "stub/getopt.h",                # 10
+            "stub/my_getopt.h",             # 11
             qq(
                 copy %3 %0:d
                 copy %4 %0:d
@@ -311,6 +318,7 @@ if (!$xulrunner) {
                 cl /nologo $CFLAGS /D_WINDOWS /Fo%8:b.obj /c %8
                 rc /fo%2:b.res %2
                 link /nologo $LDFLAGS /subsystem:windows /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+                mt -manifest %9 -outputresource:%0
             )
         );
         $cons->Install($stubDir, "stub/komodo.exe");

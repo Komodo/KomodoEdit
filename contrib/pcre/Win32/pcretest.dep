@@ -1,0 +1,16 @@
+# Microsoft Developer Studio Generated Dependency File, included by pcretest.mak
+
+..\pcre_tables.c : \
+	"..\pcre_internal.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	
+
+..\pcretest.c : \
+	"..\pcre_internal.h"\
+	"..\pcreposix.h"\
+	"..\ucp.h"\
+	".\config.h"\
+	".\pcre.h"\
+	

@@ -1,0 +1,25 @@
+Index: toolkit/content/nsDragAndDrop.js
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/content/nsDragAndDrop.js,v
+retrieving revision 1.10
+diff -u -r1.10 toolkit/content/nsDragAndDrop.js
+--- toolkit/content/nsDragAndDrop.js	12 Aug 2007 19:17:04 -0000	1.10
++++ toolkit/content/nsDragAndDrop.js	6 Aug 2008 01:21:45 -0000
+@@ -429,9 +429,14 @@
+              count < transferData.dataList.length);
+       
+       try {
+-        this.mDragService.invokeDragSessionWithImage(aEvent.target, transArray,
+-                                                     region, dragAction.action,
+-                                                     null, 0, 0, aEvent);
++        if (!("supportsDragImage" in aDragDropObserver) || aDragDropObserver.supportsDragImage) {
++          this.mDragService.invokeDragSessionWithImage(aEvent.target, transArray,
++                                                       region, dragAction.action,
++                                                       null, 0, 0, aEvent);
++        } else {
++          this.mDragService.invokeDragSession(aEvent.target, transArray,
++                                                       region, dragAction.action);
++        }
+       }
+       catch(ex) {
+         // this could be because the user pressed escape to

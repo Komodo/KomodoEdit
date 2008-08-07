@@ -1,0 +1,27 @@
+diff
+
+See http://bugs.activestate.com/show_bug.cgi?id=77816
+
+Index: toolkit/locales/en-US/chrome/mozapps/update/updates.dtd
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/locales/en-US/chrome/mozapps/update/updates.dtd,v
+retrieving revision 1.17.2.5
+diff -u -5 -r1.17.2.5 updates.dtd
+--- toolkit/locales/en-US/chrome/mozapps/update/updates.dtd	17 Aug 2006 06:22:26 -0000	1.17.2.5
++++ toolkit/locales/en-US/chrome/mozapps/update/updates.dtd	11 Jun 2008 19:39:40 -0000
+@@ -1,4 +1,4 @@
+-<!ENTITY  updateWizard.title              "Software Update">
++<!ENTITY  updateWizard.title              "&brandShortName; Update">
+ 
+ <!ENTITY  window.width                    "36em">
+ <!ENTITY  window.macWidth                 "39em">
+@@ -21,8 +21,7 @@
+ <!ENTITY  listIncompatible.label          "Show List">
+ <!ENTITY  listIncompatible.accesskey      "L">
+ 
+-<!ENTITY  upgrade.evangelism              "It is strongly recommended that you upgrade &brandShortName; 
+-                                           as soon as possible.">
++<!ENTITY  upgrade.evangelism              "We recommend you update to benefit from the latest enhancements and fixes.">
+ 
+ <!ENTITY  license.instructions            "If you agree to the terms of this agreement, click I Agree 
+                                            below to continue installing this update.">

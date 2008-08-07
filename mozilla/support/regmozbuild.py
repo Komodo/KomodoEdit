@@ -250,22 +250,16 @@ class _MozBuildRegistry:
         """
         # XXX - Remove python 2.3 code once we've fully moved to VC7, VC8
         try:
-            # Only available on python 2.4 and above
-            from operator import attrgetter
-            sorted_configs = sorted(self.configs.values(),
-                                    key=attrgetter("changenum"),
-                                    reverse=True)
-        except ImportError:
+            # 'sorted' only available on python 2.4 and above
+            sorted_configs = [v for k, v in 
+                sorted(self.configs.items(), reverse=True)]
+        except NameError:
             # This should be sufficient for python 2.3
-            all_configs = self.configs.values()
-            sorted_configs = []
-            for config in all_configs:
-                # work out where to put it
-                i = 0
-                for i in range(len(sorted_configs)):
-                    if config["changenum"] > sorted_configs[i]["changenum"]:
-                        break
-                sorted_configs.insert(i, config)
+            items = list(self.configs.items())
+            items.sort()
+            items.reverse()
+            sorted_configs = [v for k,v in items]
+
         for config in sorted_configs:
             for attr, value in conditions.items():
                 if value is None: continue

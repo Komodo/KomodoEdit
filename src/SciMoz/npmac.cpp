@@ -297,23 +297,6 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
 
   NPError rv = NPERR_NO_ERROR;
 
-#if MOZ_VERSION >= 190
-    // Check if the browser supports the CoreGraphics drawing model
-    NPBool supportsCoreGraphics = FALSE;
-    NPError err = NPN_GetValue(instance,
-                                    NPNVsupportsCoreGraphicsBool,
-                                    &supportsCoreGraphics);
-    if (err != NPERR_NO_ERROR || !supportsCoreGraphics) 
-        return NPERR_INCOMPATIBLE_VERSION_ERROR;
-
-    // Set the drawing model
-    err = NPN_SetValue(instance,
-                            NPPVpluginDrawingModel,
-                            (void*)NPDrawingModelCoreGraphics);
-    if (err != NPERR_NO_ERROR) 
-        return NPERR_INCOMPATIBLE_VERSION_ERROR;
-#endif
-
   // create a new plugin instance object
   // initialization will be done when the associated window is ready
   nsPluginCreateData ds;

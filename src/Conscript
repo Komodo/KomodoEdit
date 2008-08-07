@@ -130,13 +130,15 @@ if ($platform eq "win") {
     if (! -d $mozillaBuildDir) {
         die "MozillaBuild dir could not be found: '$mozillaBuildDir' does not exist";
     }
-    if ($compiler ne "vc6") {
-        die "Compiler is not vc6: need to adjust which xpidl dependencies.";
+    if ($compiler eq "vc6") {
+        # xpidl.exe does not depend on these for vc8 builds. I'm not sure
+        # about vc compiler versions other than 6 and 8 -- though I
+        # believe these dependencies are still required for vc7.
+        $cons->Install("$sdkDir/bin",
+                       "$mozillaBuildDir/moztools-180compat/bin/libIDL-0.6.dll");
+        $cons->Install("$sdkDir/bin",
+                       "$mozillaBuildDir/moztools-180compat/bin/glib-1.2.dll");
     }
-    $cons->Install("$sdkDir/bin",
-                   "$mozillaBuildDir/moztools-180compat/bin/libIDL-0.6.dll");
-    $cons->Install("$sdkDir/bin",
-                   "$mozillaBuildDir/moztools-180compat/bin/glib-1.2.dll");
     $cons->Install("$sdkDir/bin", "$mozillaBuildDir/info-zip/zip.exe");
 } else {
     # On Linux and Mac OS X we just require the user to have libIDL and

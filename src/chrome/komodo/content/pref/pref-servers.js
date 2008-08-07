@@ -136,21 +136,29 @@ function OnPreferencePageOK(prefset) {
 
     // only write out the prefs if they have actually changed
     if (!areServerListsEquivalent(oldServers, newServers)) {
-      var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+      var passwordmanager = Components.classes["@mozilla.org/login-manager;1"]
+                                .getService(Components.interfaces.nsILoginManager);
       // just remove all old servers and add all new servers
       for (var i = 0; i < oldServers.length; i++) {
           if (oldServers[i].host_data) {
-            //dump("removing "+oldServers[i].host_data+"\n");
-            passwordmanager.removeUser(oldServers[i].host_data,
-                                       oldServers[i].username);
+              var loginsToRemove = passwordmanager.findLogins(
+                {}, oldServers[i].hostdata, null, oldServers[i].alias);
+              for (var v=0; v < loginsToRemove.length; v++) {
+                if (loginsToRemove[i].username == oldServers[i].username)
+                    passwordmanager.removeLogin(loginsToRemove[i]);
+              }
           }
       }
       for (var i = 0; i < newServers.length; i++) {
+          var loginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
+                                .createInstance(Components.interfaces.nsILoginInfo);
           var hostdata = newServers[i].type+":"+newServers[i].alias+":"+
                           newServers[i].hostname+":"+newServers[i].port+":"+
                           newServers[i].path;
-          //dump("adding "+hostdata+"\n");
-          passwordmanager.addUser(hostdata, newServers[i].username, newServers[i].password);
+          loginInfo.init(hostdata, null, newServers[i].alias,
+                         newServers[i].username, newServers[i].password,
+                         "", "");
+          passwordmanager.addLogin(loginInfo);
       }
     }
     return true;
@@ -180,15 +188,11 @@ function _strcmp(a,b) {
 function getServerListFromPreference(prefset) {
     try {
         var list = new Array();
-        var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].
-                                getService(Components.interfaces.nsIPasswordManager);
-        var e = passwordmanager.enumerator;
-        while (e.hasMoreElements()) {
-            //dump("dumping password manager data...\n");
-            // server is nsIPassword, which has host, user and password members
-            var nspassword = e.getNext().QueryInterface(Components.interfaces.nsIPassword);
-            //dump("    "+nspassword.host+", ["+nspassword.user+", "+nspassword.password+"]\n");
-            var server_info = new String(nspassword.host).split(":");
+        var loginMgr = Components.classes["@mozilla.org/login-manager;1"].
+                                getService(Components.interfaces.nsILoginManager);
+        var logins = loginMgr.getAllLogins({});
+        for (var i=0; i < logins.length; i++) {
+            var server_info = new String(logins[i].hostname).split(":");
             /* Only use Komodo style server info, ignore others:
                nspassword.host example for Komodo:
                     FTP:the foobar server:foobar.com:21:
@@ -196,11 +200,11 @@ function getServerListFromPreference(prefset) {
                     ftp://twhiteman@foobar.com:21
             */
             if (server_info.length >= 5) {
-                list.push(new Server(nspassword.host, server_info[0],
+                list.push(new Server(logins[i].hostname, server_info[0],
                                      server_info[1], server_info[2],
                                      server_info[3], server_info[4],
-                                     new String(nspassword.user),
-                                     new String(nspassword.password)));
+                                     new String(logins[i].username),
+                                     new String(logins[i].password)));
             }
         }
     } catch(e) {

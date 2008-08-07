@@ -136,13 +136,13 @@ class koRemoteConnectionService:
     # Return the server prefs for the given server alias
     # We have the lock already
     def _getServerPrefSettings(self, server_alias):
-        passwordmanager = components.classes["@mozilla.org/passwordmanager;1"].getService(components.interfaces.nsIPasswordManager);
-        e = passwordmanager.enumerator
-        while e.hasMoreElements():
+        passwordmanager = components.classes["@mozilla.org/login-manager;1"].\
+                                getService(components.interfaces.nsILoginManager)
+        logins = passwordmanager.getAllLogins() # array of nsILoginInfo
+        for login in logins:
             # server is nsIPassword, which has host, user and password members
-            server = e.getNext().QueryInterface(components.interfaces.nsIPassword)
             #print "    %s [%s,%s] " % (server.host, server.user, server.password)
-            info = server.host.split(':')
+            info = login.hostname.split(':')
             if server_alias == info[1]:
                 # we found our server, return the info
                 #protocol = info[0]
@@ -150,7 +150,7 @@ class koRemoteConnectionService:
                 #hostname = info[2]
                 #port     = info[3]
                 #path     = info[4]
-                return info[:4] + [server.user, server.password] + info[4:]
+                return info[:4] + [server.username, server.password] + info[4:]
         return None
 
     def _getServerDetailsFromUri(self, uri):

@@ -256,6 +256,9 @@ my %environ = (
     'HOME' => $ENV{HOME},
     'PKG_CONFIG_PATH' => $ENV{PKG_CONFIG_PATH},
     'PROCESSOR_ARCHITECTURE' => $ENV{PROCESSOR_ARCHITECTURE},
+    # Nmake chokes without, at least, the "SystemRoot" environment variable.
+    'SystemRoot' => $ENV{SystemRoot},
+    'SystemDrive' => $ENV{SystemDrive},
 );
 # Needed for p4 calls in processes kicked off by Cons.
 foreach my $envvar (keys %ENV) {

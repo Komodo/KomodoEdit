@@ -45,6 +45,7 @@
 #include "nsISupports.idl"
 #include "nsIDOMEvent.idl"
 
+interface ISciMozEvents;
 // An interface purely to get around a 128 vtable limitation
 // on some parts of xpcom.
 // Mainly used by object that need to call Scintilla
@@ -56,11 +57,11 @@
 interface ISciMozLite : nsISupports {
 	// Manually created features
 	attribute DOMString name; // a "name" for debugging/diagnostic purposes.
-	void hookEvents(in nsISupports eventListener);
-	void hookEventsWithStrongReference(in nsISupports eventListener);
-	void hookSomeEvents(in nsISupports eventListener, in PRUint32 mask);
-	void hookSomeEventsWithStrongReference(in nsISupports eventListener, in PRUint32 mask);
-	void unhookEvents(in nsISupports eventListener);
+	void hookEvents(in ISciMozEvents eventListener);
+	void hookEventsWithStrongReference(in ISciMozEvents eventListener);
+	void hookSomeEvents(in ISciMozEvents eventListener, in PRUint32 mask);
+	void hookSomeEventsWithStrongReference(in ISciMozEvents eventListener, in PRUint32 mask);
+	void unhookEvents(in ISciMozEvents eventListener);
 	void setCommandUpdateTarget( in nsISupports window);
 	// this one is more of a hack to avoid exposing the
 	// non-scriptable nsIDOMWindow to Python!

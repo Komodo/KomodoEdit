@@ -1183,7 +1183,12 @@ class koDocumentBase:
             self._views[0].scimoz.setSavePoint()
 
     def saveState(self, scintilla):
-        self.docSettingsMgr.applyViewSettingsToDocument(scintilla)
+        try:
+            self.docSettingsMgr.applyViewSettingsToDocument(scintilla)
+        except Exception, e:
+            # this failure will block closing a file if something is wrong,
+            # log it and move on
+            log.exception(e)
 
     # The document manages a reference count of the views onto that
     # document. When the last view 

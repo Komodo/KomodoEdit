@@ -5,7 +5,7 @@ retrieving revision 1.5
 diff -u -r1.5 extensions/python/xpcom/__init__.py
 --- extensions/python/xpcom/__init__.py	20 Jan 2006 05:50:16 -0000	1.5
 +++ extensions/python/xpcom/__init__.py	13 Jun 2007 22:00:36 -0000
-@@ -39,32 +39,112 @@
+@@ -39,32 +39,126 @@
  # The XPCOM (Cross Platform COM) package.
  import exceptions
  
@@ -77,6 +77,20 @@ diff -u -r1.5 extensions/python/xpcom/__init__.py
 +        self.location = None
 +        self.inner = None
 +        self.data = None
++
++    _message = None
++    
++    # backwards compat when running under python 2.6
++    @apply
++    def message():
++    
++        def get(self):
++            return self._message
++    
++        def set(self, value):
++            self._message = value
++    
++        return property(get, set)
 +
 +    def setExcInfo(self, exc_info):
 +        if exc_info[2]:
@@ -200,7 +214,7 @@ diff -u -r1.12 extensions/python/xpcom/server/policy.py
 +                        exc_val.inner = pyexec
 +        else:
 +            # Unhandled exception - always print a warning.
-+            logger.exception("Unhandled exception calling '%s'", func_name)
++            logger.error("Unhandled exception calling '%s'", func_name, exc_info=exc_info)
 +            if hasattr(exc_val, "__class__"):
 +                message = "%s: %s" % (exc_info[1].__class__.__name__, str(exc_val))
              else:

@@ -421,8 +421,8 @@ def _validateEnv():
         if "MOZILLABUILD" not in os.environ:
             raise BuildError("it doesn't look like you've run the "
                              "MozillaBuild setenv script ('MOZILLABUILD' "
-                             "build envvar is not set): run "
-                             "'setenv-moz-msvc6.bat' in your shell")
+                             "build envvar is not set): run the appropriate"
+                             "'setenv-moz-msvc?.bat' in your shell")
         mozilla_build_dir = os.environ["MOZILLABUILD"]
         
         # Some checks to ensure the old MOZ_TOOLS package isn't in the way.
@@ -431,7 +431,7 @@ def _validateEnv():
         except which.WhichError:
             raise BuildError("couldn't find 'nsinstall' on the PATH: "
                              "that's weird, you should have it after "
-                             "having run 'setenv-moz-msvc6.bat'")
+                             "having run the appropriate 'setenv-moz-msvc?.bat'")
         else:
             if not nsinstall_path.startswith(mozilla_build_dir):
                 raise BuildError("the first 'nsinstall' on your PATH, '%s', "
@@ -1074,7 +1074,7 @@ def target_configure(argv):
             cvs:1.8.1      MOZILLA_1_8_BRANCH      4.X             2.0
                             (1.8.1 == MOZILLA_1_8_1_BRANCH in Q3 2006)
             cvs:1.8        MOZILLA_1_8_BRANCH      4.X             2.X
-            cvs            HEAD                    experimental    3.X
+            cvs            HEAD                    5.X             3.X
 
     Other Options:
         -r, --reconfigure
@@ -1213,8 +1213,6 @@ def target_configure(argv):
     }
     if sys.platform.startswith("linux") or sys.platform.startswith("sunos"):
         config["buildOpt"].append("gtk2")
-    if sys.platform == "win32":
-        defaultWinCompiler = config["compiler"] = "vc6"
     mozBuildOptions = [
        'enable-canvas',
        'enable-svg',
@@ -1438,12 +1436,21 @@ def target_configure(argv):
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
     config["changenum"] = _getChangeNum()
-    if sys.platform == "win32" and config["compiler"] != defaultWinCompiler:
-        config["buildOpt"].append(config["compiler"])
+    if sys.platform == "win32":
+        if config["mozSrcScheme"].startswith("cvs:1.8"):
+            defaultWinCompiler = "vc6"
+        else:
+            defaultWinCompiler = "vc8"
+        if not config["compiler"]:
+            config["compiler"] = defaultWinCompiler
+        if config["compiler"] != defaultWinCompiler:
+            config["buildOpt"].append(config["compiler"])
 
     if config["python"] is None:
-        if config["pythonVersion"] in (None, "2.5"):
-            config["pyVer"] = "2.5"
+        if config["pythonVersion"] is None:
+            config["pythonVersion"] = "2.6"
+        if config["pythonVersion"] in ("2.5", "2.6"):
+            config["pyVer"] = config["pythonVersion"]
             # New Python 2.5 builds.
             if sys.platform == "win32":
                 buildName = config["platform"] + '-' + config["compiler"]
@@ -1451,7 +1458,8 @@ def target_configure(argv):
                 buildName = "macosx"
             else:
                 buildName = config["platform"]
-            prebuiltDir = join("prebuilt", "python2.5", buildName)
+            prebuiltDir = join("prebuilt", "python%s" % config["pyVer"],
+                               buildName)
 
             # If the dirs exists and is out-of-date: remove it.
             mtime_zip = os.stat(prebuiltDir+".zip").st_mtime
@@ -1529,9 +1537,15 @@ def target_configure(argv):
 
     # Determine the exact mozilla build configuration (i.e. the content
     # of '.mozconfig') -- unless specifically given.
+    mozCvsVer = _guess_mozilla_cvs_version_from_config(config)
     if config["mozconfig"] is None:
         if not config["official"]:
-            mozBuildExtensions.append('python/xpcom')
+            if mozCvsVer is None or mozCvsVer >= 1.9:
+                mozBuildExtensions.append('python')
+                # help viewer was removed from normal builds, enable it for Komodo
+                mozBuildOptions.append("enable-help-viewer")
+            else:
+                mozBuildExtensions.append('python/xpcom')
 
         if "withTests" not in config:
             mozBuildOptions.append("disable-tests")
@@ -1616,7 +1630,6 @@ def target_configure(argv):
         if "gtk" in config["buildOpt"]:
             mozBuildOptions.append('enable-default-toolkit=gtk')
         elif "gtk2" in config["buildOpt"]:
-            mozCvsVer = _guess_mozilla_cvs_version_from_config(config)
             # Note: "mozCvsVer" can be None
             if mozCvsVer is None or mozCvsVer >= 1.9:
                 # Assume at least mozilla 1.9 then, use cairo gtk builds.
@@ -1689,7 +1702,7 @@ def target_configure(argv):
                 python = _msys_path_from_path(config["python"])
             else:
                 python = config["python"]
-            config["mozconfig"] += "set PYTHON=%s\nexport PYTHON\n" % python
+            config["mozconfig"] += "PYTHON=%s\nexport PYTHON\n" % python
 
         # Minimize size and build static for a little extra perf boost.
         # Don't use static in dev builds since it makes it easier to

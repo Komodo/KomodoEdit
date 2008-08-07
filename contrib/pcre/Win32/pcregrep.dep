@@ -1,0 +1,6 @@
+# Microsoft Developer Studio Generated Dependency File, included by pcregrep.mak
+
+..\pcregrep.c : \
+	".\config.h"\
+	".\pcre.h"\
+	

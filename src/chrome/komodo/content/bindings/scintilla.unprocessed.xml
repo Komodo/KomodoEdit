@@ -544,6 +544,7 @@
                 </body>
             </method>
 
+            <field name="supportsDragImage">false</field>
             <method name="onDragStart">
                 <parameter name="event"/>
                 <parameter name="transferData"/>
@@ -1419,8 +1420,15 @@
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 this.columnModeStartLine = -1;
-                this._lastx = event.layerX;
-                this._lasty = event.layerY;
+<!-- #if PLATFORM == "win" -->
+                var x = event.layerX < 0 ? 0 : event.layerX - this.boxObject.x;
+                var y = event.layerY - this.boxObject.y;
+<!-- #else -->
+                var x = event.layerX;
+                var y = event.layerY;
+<!-- #endif -->
+                this._lastx = x;
+                this._lasty = y;
                 if (this._contextShowing && this._mozcontext) {
                     // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
                     this._mozcontext.hidePopup();
@@ -1434,7 +1442,7 @@
                 this._startDragDrop = false;
                 // No need to check X or Y are in range, as we will only get
                 // this event when we do!
-                var pos = this.scimoz.positionFromPoint(event.layerX, event.layerY);
+                var pos = this.scimoz.positionFromPoint(x, y);
                 if (event.button != 2) { // right-click is handled by us
                     this._inMouseDown = event.button;
                     //dump('pos: '+pos+' s: '+this.scimoz.selectionStart+' e: '+this.scimoz.selectionEnd+' style: '+this.scimoz.getStyleAt(pos)+'\n');
@@ -1447,7 +1455,7 @@
                         pos > this.scimoz.selectionEnd+1)) {
 <!-- #if PLATFORM != "darwin" -->
                         //dump('clicked outside selection '+event.timeStamp+'\n');
-                        this.scimoz.buttonDown( event.layerX, event.layerY,
+                        this.scimoz.buttonDown( x, y,
                                                         event.button,
                                                         event.timeStamp,
                                                         event.shiftKey, event.ctrlKey, event.metaKey);

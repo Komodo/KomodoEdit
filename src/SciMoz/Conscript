@@ -145,7 +145,7 @@ if ($platform eq "win") {
     }
     $LDFLAGS .= " /libpath:$mozObjDir\\modules\\plugin\\tools\\sdk\\samples\\common";
     my $CXXFLAGS = "/W3 /D_WINDOWS /DWIN32 " .
-        " /DWINVER=0x400 /I$xScintillaBuildDir/include" .
+        " /I$xScintillaBuildDir/include" .
         " /I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
         " /I$mozDevelDist/include/xulapp" .
         " /I$mozSrc/mozilla/xpcom/ds" .
@@ -168,6 +168,26 @@ if ($platform eq "win") {
         $CXXFLAGS .= " /Ox /DNDEBUG /D_NDEBUG /MD";
         # LDFLAGS is fine!
     }
+
+    # To avoid linker problems like this:
+    #     nsSciDoc.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)" (__imp_?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z) referenced in function "public: virtual unsigned int __stdcall SciDoc::TransformLineEnds(wchar_t const *,int,wchar_t * *)" (?TransformLineEnds@SciDoc@@UAGIPB_WHPAPA_W@Z)
+    # The problem is the mangled linkage name. Attempting to import:
+    #   ?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z (wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)
+    # But the export is:
+    #   ?ToNewUnicode@@YAPAGABVnsAString_internal@@@Z (unsigned short * __cdecl ToNewUnicode(class nsAString_internal const &))
+    # From http://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B_Name_Mangling
+    #   '_W' means __wchar_t
+    #   'G'  means unsigned short
+    # From http://groups.google.com/group/mozilla.dev.embedding/browse_thread/thread/454eea957b336805
+    #   Use '-Zc:wchar_t-' (Treat wchar_t as Built-In Type: NO) option.
+    $CXXFLAGS .= " -Zc:wchar_t-";
+
+    # Others parts of the build for other platforms are defining these.
+    # TODO: Clean up #define's in the file. This Conscript is a mess
+    #       and is causing confusion. Note that MOZILLA_INTERNAL_API
+    #       is hardwired in one of the .cxx|.h files so should be removed
+    #       from this Conscript.
+    $CXXFLAGS .= " /DMOZ_VERSION=$mozVersionNumber /DMOZILLA_INTERNAL_API=1";
 
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " /I$includeDir"
@@ -232,7 +252,10 @@ elsif ($platform eq "darwin") {
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
                             " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
-
+    # to have SciMoz use carbon instead of quickdraw, do the following
+    #if ($mozVersionNumber >= 190) {
+    #    $consLocal{'CXXFLAGS'} .= " -DUSE_CARBON=1";
+    #}
     $consLocal{'CXXFLAGS'} .= " -include Carbon/Carbon.h ";
 
     # Ensure that these are defined for use by mozilla headers
@@ -399,7 +422,7 @@ $cons->BuildAndInstallXpt('ISciDoc.idl');
 $cons->BuildHeaderFromIdl('ISciDoc.idl');
 
 if ($platform eq "win") {
-    my $LDFLAGS = "/libpath:$xScintillaBuildDir/bin ";
+    my $LDFLAGS = "/libpath:$xScintillaBuildDir\\bin ";
     my $CXXFLAGS = "/DWINVER=0x400 /I$xScintillaBuildDir/include /I$xScintillaBuildDir/src ";
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " -I$includeDir";
@@ -411,6 +434,9 @@ if ($platform eq "win") {
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
     $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib SciLexer.lib ";
+    if ($mozVersionNumber >= 190) {
+        $LDFLAGS .= " xpcomglue.lib";
+    }
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -424,6 +450,9 @@ if ($platform eq "win") {
         # LDFLAGS is fine!
     }
     $dllName = 'koSciDoc.dll';
+
+    # See discussion above for same option for nsSciMoz.cxx build.
+    $CXXFLAGS .= " -Zc:wchar_t-";
 
     $cons->Command($dllName,
         "nsSciDoc.cxx",

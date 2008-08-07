@@ -225,23 +225,26 @@ if ($platform eq "win") {
                         copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
                        ));
     } else {
-        # msdev does not exist in vc7 or vc8, use devenv instead
+        # Building with the .mak files here should work with any VC
+        # version.
         $cons->Command([$landmark,
                         "$scintilla_dir_for_cons/include/pcre.h",
                         "$silvercity_dir_for_cons/libpcre.lib"],
                        "pcre/pcreposix.h",
-                       "pcre/Win32/dftables.sln",
-                       "pcre/Win32/libpcre.sln",
+                       "pcre/Win32/dftables.mak",
+                       "pcre/Win32/libpcre.mak",
                        qq(
-                        cd %1:d && devenv.exe Win32\\%2:f /BUILD "Release" /USEENV
-                        cd %1:d && devenv.exe Win32\\%3:f /BUILD "Release" /USEENV
+                       set
+                        cd %2:d && nmake -nologo -f %2:f
+                        cd %3:d && nmake -nologo -f %3:f
                         copy %1:d\\Win32\\Release\\libpcre.lib $scintilla_dir\\win32\\libpcre.lib
                         copy %1:d\\Win32\\pcre.h $scintilla_dir\\include\\pcre.h
-                        attrib -R $scintilla_dir\\include\\pcre.h
                         copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
                        ));
     }
-    $cons->DependsRecursive($landmark, "pcre", ('\.svn'));    
+    $cons->DependsRecursive($landmark, "pcre",
+                            ('\.svn', 'doc', 'testdata'));
+
 } else {
     my $scintilla_dir_for_cons = "$build/scintilla";
     my $scintilla_dir = "$buildAbsDir/scintilla";

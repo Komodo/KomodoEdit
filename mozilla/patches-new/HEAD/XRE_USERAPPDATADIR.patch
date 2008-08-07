@@ -1,10 +1,10 @@
 Index: toolkit/xre/nsXREDirProvider.cpp
 ===================================================================
 RCS file: /cvsroot/mozilla/toolkit/xre/nsXREDirProvider.cpp,v
-retrieving revision 1.65
-diff -u -r1.65 nsXREDirProvider.cpp
---- toolkit/xre/nsXREDirProvider.cpp	26 Sep 2007 18:35:21 -0000	1.65
-+++ toolkit/xre/nsXREDirProvider.cpp	8 Oct 2007 21:27:42 -0000
+retrieving revision 1.68
+diff -u -r1.68 nsXREDirProvider.cpp
+--- toolkit/xre/nsXREDirProvider.cpp	7 Mar 2008 01:58:18 -0000	1.68
++++ toolkit/xre/nsXREDirProvider.cpp	15 Mar 2008 01:34:09 -0000
 @@ -42,6 +42,8 @@
  #include "nsAppRunner.h"
  #include "nsXREDirProvider.h"
@@ -14,7 +14,7 @@ diff -u -r1.65 nsXREDirProvider.cpp
  #include "jsapi.h"
  
  #include "nsIJSContextStack.h"
-@@ -984,6 +986,17 @@
+@@ -1002,6 +1004,17 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
  
@@ -32,11 +32,11 @@ diff -u -r1.65 nsXREDirProvider.cpp
  #if defined(XP_MACOSX)
    FSRef fsRef;
    OSType folderType;
-@@ -1062,6 +1075,7 @@
+@@ -1079,6 +1092,7 @@
+ #else
  #error "Don't know how to get product dir on your platform"
  #endif
-   NS_ENSURE_SUCCESS(rv, rv);
 +  } /* if $_XRE_USERAPPDATADIR */
  
-   rv = AppendProfilePath(localDir);
-   NS_ENSURE_SUCCESS(rv, rv);
+   NS_IF_ADDREF(*aFile = localDir);
+   return rv;

@@ -1411,17 +1411,16 @@ function _strcmp(a,b) {
 function getServerListFromPreference(prefset) {
   try {
   var list = new Array();
-  var passwordmanager = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
-  var e = passwordmanager.enumerator;
-  while (e.hasMoreElements()) {
+  var passwordmanager = Components.classes["@mozilla.org/login-manager;1"]
+                                .getService(Components.interfaces.nsILoginManager);
+  var logins = passwordmanager.getAllLogins(new Object()); // array of nsILoginInfo
+  for (var i=0; i < logins.length; i++) {
       //dump("dumping password manager data...\n");
-      // server is nsIPassword, which has host, user and password members
-      var nspassword = e.getNext().QueryInterface(Components.interfaces.nsIPassword);
       //dump("    "+nspassword.host+", ["+nspassword.user+", "+nspassword.password+"]\n");
-      var server_info = new String(nspassword.host).split(":")
+      var server_info = new String(logins[i].hostname).split(":")
       list.push(new Server(server_info[0], server_info[1],
               server_info[2], server_info[3], server_info[4],
-              new String(nspassword.user), new String(nspassword.password)));
+              new String(logins[i].username), new String(logins[i].password)));
   }
   } catch(e) {
       log.exception(e);
