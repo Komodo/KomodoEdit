@@ -852,9 +852,7 @@
         <body>
         <![CDATA[
             ko.trace.get().enter('onUpdateUI');
-            try {
-                this.__observersvc.notifyObservers(this, 'current_view_linecol_changed', '');
-            } catch(e) { /* no one is home */ }
+            xtk.domutils.fireEvent(this, 'current_view_linecol_changed');
 
             // often painting during onUpdateUI doesn't work correctly since it
             // has to reenter scimoz, if we set it in a timeout, it works.
