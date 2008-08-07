@@ -290,10 +290,6 @@ interface koICodeIntelService: nsISupports {
     //      being closed
     //      sdata: null
     //      odata: associated koIDocument instance
-    //  switched_current_document: sent whenever a new editor view in the
-    //      Editor Pane is set as the current
-    //      sdata: null
-    //      odata: associated koIDocument instance
     //  switched_current_language: should be sent whenever the current editor
     //      view's language is changed.
     //      sdata: null
@@ -302,10 +298,6 @@ interface koICodeIntelService: nsISupports {
     //      some action in Komodo or by outside of Komodo)
     //      sdata: document URL
     //      odata: associated koIDocument instance
-    //  opened_project: sent when a new project is opened
-    //      sdata: project URL
-    //      odata: associated koIProject instance
-    //
     void ideEvent(in string name, in wstring sdata, in nsISupports odata);
     // Special API for edited current document to allow for some extra
     // data for optimization.

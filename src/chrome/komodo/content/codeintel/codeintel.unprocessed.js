@@ -139,19 +139,14 @@ _CodeIntelObserver.prototype.handle_current_view_language_changed = function(eve
 function _CodeIntelObserver()
 {
     try {
-        var me = this;
-        this.handle_current_view_changed_setup = function(event) {
-            me.handle_current_view_changed(event);
-        };
-        window.addEventListener('current_view_changed',
-                                this.handle_current_view_changed_setup, false);
         window.addEventListener('current_view_language_changed',
                                 this.handle_current_view_language_changed, false);
         /* since deactivate deletes the instance, we need to be able to
            remove the unload listener in finalize so it is not called
            from multiple sources.  setup a remove function that we can
            reference in removeEventListener below.  */
-        this.removeListener = function() { me.finalize(); }
+        var this_ = this;
+        this.removeListener = function() { this_.finalize(); }
         window.addEventListener("unload", this.removeListener, false);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -165,8 +160,6 @@ _CodeIntelObserver.prototype.finalize = function()
         if (!this.removeListener) return;
         window.removeEventListener("unload", this.removeListener, false);
         this.removeListener == null;
-        window.removeEventListener('current_view_changed',
-                                   this.handle_current_view_changed_setup, false);
         window.removeEventListener('current_view_language_changed',
                                    this.handle_current_view_language_changed, false);
     } catch(ex) {
@@ -174,33 +167,6 @@ _CodeIntelObserver.prototype.finalize = function()
     }
 }
 
-_CodeIntelObserver.prototype.handle_current_view_changed = function(event) {
-    // 'current_view_changed' is sent when a new tab in the editor pane
-    // is made current. Annoyances:
-    // - This is sent for _every_ file restored on startup, rather than
-    //   (ideally) just the last one, i.e. the one that becomes current.
-    //   Solution: The Code Intel system is only initialized after files
-    //   have been opened on startup. It should gather the starter list of
-    //   files and projects on its own.
-    // - When the user has two "Tab Groups" and switches from a tab in
-    //   one group to the other, _two_ "current_view_changed"
-    //   notifications are sent for the newly selected tab. Solution:
-    //   XXX Not sure what, if anything, need be done about this.
-    if (!ko.views.manager.batchMode) { // batch edit or Ctrl+Tab'ing
-        view = event.originalTarget;
-        //XXX Check 'view' because sometimes "current_view_changed"
-        //    is sent with the subject set to NULL. To repro:
-        //    - open two files in Komodo, one in each "Tab Group"
-        //    - select the one in the second tab group and then
-        //      close it with the "X" icon
-        if (view.getAttribute("type") == "editor" &&
-            view.document) {
-            gCodeIntelSvc.ideEvent("switched_current_document", null,
-                                   view.document);
-        }
-        window.setTimeout("window.updateCommands('codebrowser');", 0);
-    }
-}
 
 
 //---- the UI manager for completions (autocomplete/calltip) in a view
@@ -799,12 +765,6 @@ function _CodeIntel_Activate()
                     gCodeIntelSvc.ideEvent("opened_document",
                                            editorViews[i].document.file.URI,
                                            editorViews[i].document);
-                }
-                // Ensure that the backend knows which is the current view.
-                var v = ko.views.manager.currentView;
-                if (v) {
-                    gCodeIntelSvc.ideEvent("switched_current_document",
-                                           v.document.file.URI, v.document);
                 }
             },
             2000

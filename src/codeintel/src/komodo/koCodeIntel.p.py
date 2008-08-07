@@ -1190,16 +1190,10 @@ class KoCodeIntelService:
                         self.mgr.idxr.stage_request(request)
             elif name == "closing_document":
                 dummy, document = sdata, odata
-            elif (name == "switched_current_language" or
-                  name == "switched_current_document"):
+            elif name == "switched_current_language":
                 # Switched current editor pane view to a new document or
                 # changed that document's language.
                 dummy, document = sdata, odata
-
-                #TODO Used to kick off a ScanRequest for this new
-                #     current document. I don't think that is
-                #     necessary. If that is the case, then remove
-                #     the "switched_current_document" ideEvent.
                 log.info("ideEvent %s: %s (%s)", name,
                          document.displayPath, document.language)
             else:
