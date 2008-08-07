@@ -333,7 +333,7 @@
 <!ENTITY menuBookmarkToggle.accesskey "T">
 <!ENTITY menuBufferClose.accesskey "C">
 <!ENTITY menuBufferClose2.accesskey "C">
-<!ENTITY menuBufferNext.accesskey "X">
+<!ENTITY menuBufferNext.accesskey "x">
 <!ENTITY menuBufferPrevious.accesskey "P">
 <!ENTITY menuCleanLineEndings.accesskey "E">
 <!ENTITY menuCloseAll.accesskey "l">
