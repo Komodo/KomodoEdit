@@ -606,6 +606,9 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 this.removeMacro(part);
                 break;
             case 'javascript_macro':
+                if (ko.windowManager.getMainWindow() != window) {
+                    return;
+                }
                 // dump("part = " + part + "\n");
                 ko.macros.evalAsJavaScript(code);
                 break;
