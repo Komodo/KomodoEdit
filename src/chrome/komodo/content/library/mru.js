@@ -130,7 +130,7 @@ this.initialize = function MRU_initialize()
 {
     _log.info("initialize()");
     gMRUPrefObserver = new _MRUPrefObserver();
-    ko.main.addUnloadHandler(ko.mru.finalize);
+    ko.main.addWillCloseHandler(ko.mru.finalize);
 }
 
 

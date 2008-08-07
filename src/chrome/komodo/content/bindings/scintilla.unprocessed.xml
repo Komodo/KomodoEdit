@@ -156,7 +156,13 @@
             </body>
             </method>
 
-            <property name="scimoz" onget="return document.getAnonymousNodes(this)[0].ISciMoz;"/>
+            <property name="xscimoz" onget="return document.getAnonymousNodes(this)[0].ISciMoz;"/>
+            <property name="scimoz">
+                <getter><![CDATA[
+                var xblContent = document.getAnonymousNodes(this)[0];
+                return xblContent && xblContent.ISciMoz;
+                ]]></getter>
+            </property>
 
             <field name="_log">null</field>
             <property name="log">

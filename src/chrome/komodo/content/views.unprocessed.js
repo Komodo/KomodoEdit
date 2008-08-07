@@ -89,7 +89,6 @@ function viewManager() {
     this.topView.init();
     ko.main.addCanCloseHandler(this.canClose, this);
     ko.main.addWillCloseHandler(this.postCanClose, this);
-    // ko.main.addUnloadHandler(this.shutdown, this); // called in postCanClose now
     this.docSvc = Components.classes['@activestate.com/koDocumentService;1']
                     .getService(Components.interfaces.koIDocumentService);
     this.observerSvc = Components.classes["@mozilla.org/observer-service;1"].
@@ -190,7 +189,6 @@ viewManager.prototype.postCanClose = function()
             }
         }
         this.shutdown();
-        //XXX Don't need to do this if we're the last window.
         // We didn't call _doCloseAll originally when the view mgr
         // was designed around v2, for perf reasons,
         // which prob don't hold anymore.
@@ -1066,6 +1064,15 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         if (view.getAttribute('type') == 'editor') {
             try {
                 view.saveState();
+                if (ko.macros.eventHandler.hookPreFileClose()) {
+                    //Bogus: this needs the view so the macro can
+                    // work with it.
+                    ko.statusBar.AddMessage("Macro interrupted file closing procedure.",
+                                         "macro",
+                                         5000,
+                                         true);
+                    return false;
+                }
             } catch (e) {
                 this.log.error(e);
             }
@@ -1076,8 +1083,12 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                 // There is no way that untitled documents could be in the list
                 if (view.document.isUntitled) continue;
                 // exclude if it's not in the list
-                if (! _elementInArray(view.document.file.URI, urls)) continue;
-                // exclude if we've already got it!
+                if (! _elementInArray(view.document.file.URI, urls)) {
+                    continue;
+                }
+            }
+            if (ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
+                continue;
             }
             // We need to deal with views that are split and that share a document
             // So we keep track of the displayPaths, and only add a view
@@ -1118,7 +1129,9 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                           doNotAskPref,
                           true /* yesNoCancel */,
                           ["Save", "Do Not Save", "Cancel"]);
-    if (itemsToSave == null) return false; // canceled
+    if (itemsToSave == null) {
+        return false; // canceled
+    }
     for (i = 0; i < itemsToSave.length; i++) {
         item = itemsToSave[i];
         if (item.type == 'view') {
@@ -2045,7 +2058,7 @@ this.restoreWorkspace = function view_restoreWorkspace()
             }
             _restoreInProgress = false;
         }
-        ko.main.addUnloadHandler(ko.workspace.saveWorkspace, this);
+        ko.main.addWillCloseHandler(ko.workspace.saveWorkspace, this);
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     }

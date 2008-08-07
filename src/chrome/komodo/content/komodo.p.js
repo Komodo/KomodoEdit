@@ -49,125 +49,31 @@ ko.main = {};
 
 var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
-this.log = _log; 
+// _log.setLevel(ko.logging.LOG_DEBUG);
 
-//
-// This observer handles any notification pertinent
-// to komodo the application (ie. startup/shutdown issues)
-// that have no other place to be handled.
-//
-function _KomodoObserver(addUnloadHandler) {
-    // addUnloadHandler(this.shutdown, this);
-    //dump(">> _KomodoObserver ctor\n"); // once per window
-    this.ignoreQuitRequest = false;
-    this.ignoreDoQuit = false;
-    this._canQuitObservers = [];
-    this._willQuitObservers = [];
-    this.startup();
-    this.addWillQuitHandler(this.shutdown, this);
-};
-_KomodoObserver.prototype.constructor = _KomodoObserver;
-_KomodoObserver.prototype = {
-    QueryInterface: function (iid) {
-        if (!iid.equals(Components.interfaces.nsIObserver) &&
-            !iid.equals(Components.interfaces.nsISupports)) {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        }
-        return this;
-    },
-    startup: function()
-    {
-        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-        observerSvc.addObserver(this, "quit",false);
-        observerSvc.addObserver(this, "quit-application-requested",false);
-        observerSvc.addObserver(this, "quit-application-granted",false);
-    },
-    shutdown: function()
-    {
-        _log.debug("Running _KomodoObserver shutdown function\n");
-        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-        try {
-            observerSvc.removeObserver(this, "quit");
-            observerSvc.removeObserver(this, "quit-application-requested");
-            observerSvc.removeObserver(this, "quit-application-granted");
-        } catch(e) { /* moz already removed them */ _log.debug('quit '+e); }
-        _gKomodoObserver = null;
-    },
-    observe: function(subject, topic, data)
-    {
-        _log.debug("_KomodoObserver: observed '"+topic+"' notification: data='"+data+"'\n");
-        //dump("_KomodoObserver: observed '"+topic+"' notification: data='"+data+"'\n");
-        if (typeof(ko) == "undefined") {
-            // An observer apparently didn't get removed, but if ko is
-            // dead, dump, alert, and Components are too.  Just return.
-            return;
-        }
-        var mainWindow = ko.windowManager.getMainWindow();
-        if (mainWindow != window) {
-            //dump("Observation is not for the main window, ignore it\n");
-            return;
-        }
-        switch (topic) {
-        case 'quit':
-            window.setTimeout("goQuitApplication()", 0);
-            break;
-        case "quit-application-requested":
-            var cancelQuit = subject.QueryInterface(Components.interfaces.nsISupportsPRBool);
-            cancelQuit.data = this.cancelQuit();
-            break;
-        case "quit-application-granted":
-            this.doQuit();
-            break;
-        }
-    },
-    cancelQuit: function() {
-        if (this.ignoreQuitRequest) {
-            return false;
-        }
-        for (var i=this._canQuitObservers.length-1; i >= 0 ; i--) {
-            try {
-                var callback = this._canQuitObservers[i];
-                if (!callback.handler.apply(callback.object)) return true;
-            } catch(e) {
-                _log.exception(e,"error when running '"+callback.handler+
-                          "' shutdown handler (object='"+callback.object+"':");
-            }
-        }
-        this.ignoreQuitRequest = true;
-        return false;
-    },
-    addCanQuitHandler: function(handler, object /*=null*/) {
-        if (typeof(object) == "undefined") object = null;
-        var callback = new Object();
-        callback.handler = handler;
-        callback.object = object;
-        this._canQuitObservers.push(callback);
-    },
-    doQuit: function() {
-        if (this.ignoreDoQuit) {
-            return;
-        }
-        for (var i=0; i < this._willQuitObservers.length; i++) {
-            try {
-                var callback = this._willQuitObservers[i];
-                callback.handler.apply(callback.object);
-            } catch(e) {
-                _log.exception(e,"error when running '"+callback.handler+
-                          "' shutdown handler (object='"+callback.object+"':");
-            }
-        }
-        this.ignoreDoQuit = true;
-    },
-    addWillQuitHandler: function(handler, object /*=null*/) {
-        if (typeof(object) == "undefined") object = null;
-        var callback = new Object();
-        callback.handler = handler;
-        callback.object = object;
-        this._willQuitObservers.push(callback);
+// This handler is fired when the user tries to close a Komodo window
+
+this.onClose = function(event) {
+    _log.debug(">> ko.main.onClose");
+    if (!ko.main.runCanCloseHandlers()) {
+        event.stopPropagation();
+        event.preventDefault();
+        event.cancelBubble = true;
+        return null;
     }
-};
+    ko.main.runWillCloseHandlers();
+    if (ko.windowManager.lastWindow()) {
+        // if we're the only Komodo window, we're quitting
+        _log.debug("<< ko.main.onClose via goQuitApplication");
+        // Have Mozilla finish off this window before trying to walk over it again
+        // in goQuitApplication.
+        setTimeout(goQuitApplication, 0);
+        return null;
+    }
+    _log.debug("<< ko.main.onClose");
+    return null;
+}
+window.addEventListener("close", ko.main.onClose, true);
 
 /*
     if you want to do something onUnload or onClose, then
@@ -177,35 +83,62 @@ _KomodoObserver.prototype = {
     order of initialization.
 */
 
-this.onclose = function() {
-    //dump(">> komodo.p.js this.onclose\n");
-    var thisIsLastWindow = ko.windowManager.lastWindow(); 
-    window.tryToClose() && do_window_onunload(); 
-    // if we're the *only* Komodo window, we're quiting
-    if (thisIsLastWindow) {
-        // send quit-application notifications 
-        return goQuitApplication();
+var _canCloseHandlers = [];
+this.addCanCloseHandler = function(handler, object /*=null*/) {
+    if (typeof(object) == "undefined") object = null;
+    var callback = new Object();
+    callback.handler = handler;
+    callback.object = object;
+    _canCloseHandlers.push(callback);
+};
+
+this.runCanCloseHandlers = function() {
+    _log.debug(">> ko.main.runCanCloseHandlers");
+    for (var i=_canCloseHandlers.length-1; i >= 0 ; i--) {
+        try {
+            var callback = _canCloseHandlers[i];
+            var res;
+            if (callback.object) {
+                res = callback.handler.apply(callback.object);
+            } else {
+                res = callback.handler();
+            }
+            if (!res) {
+                _log.debug("<< window.tryToClose: ret false, canClose says no");
+                return false;
+            }
+        } catch(e) {
+            _log.exception(e,"error when running '"+callback.handler+
+                      "' shutdown handler (object='"+callback.object+"':");
+        }
     }
-    return null;
-}
+    _log.debug("<< ko.main.runCanCloseHandlers ret true");
+    return true;
+};
 
-var _unloadObservers = [];
-this._unloadObservers = _unloadObservers;
+var _willCloseHandlers = []; // synonym: willCloseHandlers
 
-var do_window_ununload = function() {
-    //dump(">> komodo.p.js window.onunload \n");
-    // TODO: Unfortunately, when we *are* quitting,
-    // this happens *after* the quit-application notifications.
-    
-    /* no further changes here, use registration functions below!
+/**
+ * addWillCloseHandler
+ * Register a routine to be called when a Komodo window is closed.
+ * To register a simple routine do this:
+ *      ko.main.addWillCloseHandler(<routine>)
+ * To register an object method do this:
+ *      ko.main.addWillCloseHandler(this.<method>, this);
+ *XXX Do we want to add an optional argument list to pass in?
+ */
+this.addWillCloseHandler = function(handler, object /*=null*/) {
+    if (typeof(object) == "undefined") object = null;
+    var callback = new Object();
+    callback.handler = handler;
+    callback.object = object;
+    _willCloseHandlers.push(callback);
+};
 
-      we call onunload handlers LIFO
-    */
-    //_log.warn("window.onunload has been called\n");
-    // Sort lowest priorities first, since we pop off the end
-    _unloadObservers.sort(function(a, b) { return a.priority - b.priority });
-    while (_unloadObservers.length > 0) {
-        var callback = _unloadObservers.pop();
+this.runWillCloseHandlers = function() {
+    _log.debug(">> ko.main.runWillCloseHandlers");
+    while (_willCloseHandlers.length > 0) {
+        var callback = _willCloseHandlers.pop();
         try {
             if (callback.object) {
                 callback.handler.apply(callback.object);
@@ -217,38 +150,31 @@ var do_window_ununload = function() {
                       "' shutdown handler (object='"+callback.object+"':");
         }
     }
-    //_log.debug("made it to the end of window.onunload\n");
-    return true;
+    _log.debug("<< ko.main.runWillCloseHandlers");
 }
 
-/**
- * addUnloadHandler
- * Register a routine to be called on Komodo shutdown.
- * To register a simple routine do this:
- *      ko.main.addUnloadHandler(<routine>)
- * To register an object method do this:
- *      ko.main.addUnloadHandler(this.<method>, this);
- *XXX Do we want to add an optional argument list to pass in?
- */
- this.addUnloadHandler = function(handler, object /*=null*/, priority /*=null*/) {
-    if (typeof(object) == "undefined") object = null;
-    if (typeof(priority) == "undefined") priority = 0;
-    var callback = new Object();
-    callback.handler = handler;
-    callback.object = object;
-    callback.priority = priority;
-    _unloadObservers.push(callback);
-}
-this.addWillCloseHandler = this.addUnloadHandler;
 
-/* initialize the application observer */
-//dump("About to create a new _KomodoObserver...\n");
-try {
- var _gKomodoObserver = new _KomodoObserver(); // this.addUnloadHandler);
- this._gKomodoObserver = _gKomodoObserver;
-} catch(ex) {
-    dump(ex + "\n");
+// Callbacks on window used by goQuitApplication in moz toolkit.
+// See KD 229 for details.
+
+window.tryToClose = function() {
+    _log.debug(">> window.tryToClose");
+    var res = ko.main.runCanCloseHandlers();
+    _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
+    return res;
+};
+
+var _nativeWindowClose = window.close;
+window.close = function() {
+    _log.debug(">> window.close");
+    ko.main.runWillCloseHandlers();
+    _nativeWindowClose();
+    _log.debug("<< window.close");
 }
+
+    
+//************ End Shutdown Code
+
 
 
 // #if BUILD_FLAVOUR == "dev"
@@ -309,7 +235,6 @@ function onloadDelay() {
         // commandmentSvc.initialize() because that will immediately start
         // executing queued up commandments.
         ko.trace.get().mark("startup complete");
-
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
         ko.run.output.initialize();
 
@@ -362,6 +287,7 @@ function onloadDelay() {
 }
 
 window.onload = function(event) {
+    _log.debug(">> window.onload");
     //dump(">>> window.onload\n");
     // XXX PLUGINS cannot be touched here, do it in the delayed onload handler below!!!
     try {
@@ -399,38 +325,7 @@ window.onload = function(event) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
     }
-}
-
-
-/**
- * if you want to do something onUnload or onClose, then
- *  you have to register a handler function that takes no
- *  arguments.  This is called automaticaly.
- *  onOnload will call the handlers LIFO to reverse the
- *  order of initialization.
- */
-
-
-/**
- * addCanQuitHandler
- *
- * observer for watching the quit-application-requested notification, and
- * easily handling a response to it.
- *
- * @param <Function> fnCallback  callback returns a boolean
- * @param <Object> object for apply param
- */
-this.addCanQuitHandler = function(handler, object /*=null*/) {
-    _gKomodoObserver.addCanQuitHandler(handler, object);
-}
-
-/**
- * addWillQuitHandler
- *
- * simple observer for watching the quit-application-granted notification
- */
-this.addWillQuitHandler = function(handler, object /*=null*/) {
-    _gKomodoObserver.addWillQuitHandler(handler, object);
+    _log.debug("<< window.onload");
 }
 
 /**
@@ -451,30 +346,6 @@ try {
 } catch(ex) {
     _log.debug("calling addWillCloseHandler: " + ex + "\n");
 }
-
-var _canCloseObservers = [];
-this.addCanCloseHandler = function(handler, object /*=null*/) {
-    if (typeof(object) == "undefined") object = null;
-    var callback = new Object();
-    callback.handler = handler;
-    callback.object = object;
-    _canCloseObservers.push(callback);
-};
-
-window.tryToClose = function() {
-    log.debug(">> komodo.p.js - window.tryToClose\n");
-    if (!ko.windowManager.closeChildren()) return false;
-    for (var i=_canCloseObservers.length-1; i >= 0 ; i--) {
-        try {
-            var callback = _canCloseObservers[i];
-            if (!callback.handler.apply(callback.object)) return false;
-        } catch(e) {
-            _log.exception(e,"error when running '"+callback.handler+
-                      "' shutdown handler (object='"+callback.object+"':");
-        }
-    }
-    return true;
-};
 
 }).apply(ko.main);
 
@@ -556,6 +427,7 @@ function()
             getService(Components.interfaces.nsIObserverService);
 });
 
-var KomodoRegisterOnUnloadHandler = ko.main.addUnloadHandler;
-var KomodoRegisterCanCloseHandler = ko.main.addCanQuitHandler;
-var KomodoRegisterPostCanCloseHandler = ko.main.addWillQuitHandler;
+//XXX Remove these names and document API change? - DOcument
+var KomodoRegisterCanCloseHandler = ko.main.addCanCloseHandler;
+var KomodoRegisterPostCanCloseHandler = ko.main.addWillCloseHandler;
+var KomodoRegisterOnUnloadHandler = KomodoRegisterPostCanCloseHandler;

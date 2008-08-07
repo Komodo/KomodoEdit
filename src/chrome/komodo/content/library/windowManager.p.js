@@ -169,13 +169,26 @@ ko.windowManager = {
     closeChildren: function() {
         var me = this.getMainWindow();
         return this.closeAll(me);
+    },
+
+    otherWindowHasViewForURI: function(uri) {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+        try {
+            var openWindows = wm.getEnumerator('Komodo');
+            do {
+                var otherWindow = openWindows.getNext();
+                if (otherWindow != window
+                    && otherWindow.ko.views.manager.getViewForURI(uri)) {
+                    return true;
+                }
+            } while (openWindows.hasMoreElements());
+        } catch(e) {
+            log.exception(e);
+        }
+        return false;
     }
 };
-/* handle shutdown requests, check if the namespace exists, if it does
-   we are in the main komodo window, so register our shutdown callbacks */
-if (typeof(ko.main) != 'undefined') {
-    ko.main.addCanQuitHandler(ko.windowManager.closeAll);
-}
 
 // backwards compatibility APIs
 var openWindowUniqueInstance = ko.windowManager.openOrFocusDialog;

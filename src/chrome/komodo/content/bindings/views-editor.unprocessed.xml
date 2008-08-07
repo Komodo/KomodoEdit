@@ -418,13 +418,7 @@
                 // asked for a notification, will be an event on
                 // the containing view in v5.
                 xtk.domutils.fireEvent(this, 'view_closing');
-                if (ko.macros.eventHandler.hookPreFileClose()) {
-                    ko.statusBar.AddMessage("Macro interrupted file closing procedure.",
-                                         "macro",
-                                         5000,
-                                         true);
-                    return false;
-                }
+                
                 if (this.document &&
                     this.document.numScintillas == 1 &&  // if we're split let it be dirty
                     this.document.isDirty) {

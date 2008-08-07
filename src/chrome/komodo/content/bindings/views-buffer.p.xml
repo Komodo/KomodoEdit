@@ -998,7 +998,7 @@
                                       || this.isCIXMLStuffEnabled))
                 {
                     gCodeIntelSvc.ideEvent_EditedCurrentDocument(
-                        this.document, this.scimoz, linesAdded,
+                        this.document, linesAdded,
                         this._isCIRescanningEnabled);
                 }
 

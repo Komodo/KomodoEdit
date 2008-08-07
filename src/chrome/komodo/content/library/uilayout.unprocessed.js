@@ -1168,7 +1168,7 @@ this.onload = function uilayout_onload()
     _prefobserver = new _PrefObserver();
     _prefobserver.init();
     _updateAccesskeys();
-    ko.main.addUnloadHandler(ko.uilayout.unload);
+    ko.main.addWillCloseHandler(ko.uilayout.unload);
     ko.trace.get().leave("ko.uilayout.onload");
 }
 
