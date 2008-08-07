@@ -426,8 +426,3 @@ function()
     return Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
 });
-
-//XXX Remove these names and document API change? - DOcument
-var KomodoRegisterCanCloseHandler = ko.main.addCanCloseHandler;
-var KomodoRegisterPostCanCloseHandler = ko.main.addWillCloseHandler;
-var KomodoRegisterOnUnloadHandler = KomodoRegisterPostCanCloseHandler;
