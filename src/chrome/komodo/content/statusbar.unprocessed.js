@@ -166,6 +166,9 @@ function _clearLanguage() {
 function _updateLintMessage(view) {
     // The timeout has been called, remove the setTimeout id
     _updateLintMessageTimer = null;
+    if (!view || !view.lintBuffer) {
+        return;
+    }
 
     // If there are lint result messages for the current line then display
     // them.
