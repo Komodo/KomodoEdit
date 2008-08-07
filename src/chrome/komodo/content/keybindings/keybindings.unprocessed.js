@@ -827,7 +827,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
         this.saveCurrentConfiguration();
         this._saveKnownConfigs();
         this.loadConfiguration(this.currentConfiguration, true);
-        ko.projects.manager.handle_parts_reload();
+        ko.projects.handle_parts_reload();
     } catch (e) {
         _log.exception(e);
     }
