@@ -591,7 +591,6 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
             // fake an edit to get a re-scan of the document
             gCodeIntelSvc.ideEvent_EditedCurrentDocument(
                 view.document,
-                view.scimoz,
                 0, // no lines added
                 true); // yes, rescan
         }
