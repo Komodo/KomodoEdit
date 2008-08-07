@@ -591,15 +591,18 @@ MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
 
 MacroEventHandler.prototype.observe = function(part, topic, code)
 {
-    if (ko.windowManager.getMainWindow() != window) {
-        return;
-    }
     try {
         switch (topic) {
             case 'macro-load':
+            if (ko.windowManager.getMainWindow() != window) {
+                return;
+            }
                 this.addMacro(part);
                 break;
             case 'macro-unload':
+            if (ko.windowManager.getMainWindow() != window) {
+                return;
+            }
                 this.removeMacro(part);
                 break;
             case 'javascript_macro':
@@ -607,11 +610,16 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 ko.macros.evalAsJavaScript(code);
                 break;
             case 'command-docommand':
-                //XXX Called from a Python macro
-                // This will break if the macro runs async and
-                // the user switches to a new window while it's running.
-                //dump("got command-docommand: " + code + '\n');
-                ko.commands.doCommand(code);
+                // Called from a Python macro
+                // If the user does a multi-window switch into code
+                // that runs komodo.doCommand() outside a macro context,
+                // this command might not run as expected.
+                if (part == window) {
+                    ko.commands.doCommand(code);
+                } else {
+                    this.log.error("command-docommand: not in current window for code: "
+                                   + code);
+                }
                 break;
         };
     } catch (e) {

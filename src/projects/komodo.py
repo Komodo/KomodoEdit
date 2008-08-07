@@ -43,7 +43,13 @@ from xpcom import components, ServerException, COMException, nsError
 def doCommand(commandId):
     _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
         .getService(components.interfaces.nsIObserverService)
-    _observerSvc.notifyObservers(None, 'command-docommand', commandId)
+    # komodo.window is injected in projectUtils.evalPythonMacro()
+    # Use a try block in case this code is run in some other context
+    try:
+        win = window
+    except NameError:
+        win = None
+    _observerSvc.notifyObservers(win, 'command-docommand', commandId)
 
 def findPart(partType, name, where='*'):
     """Find a component in the Toolbox, Projects, etc.
