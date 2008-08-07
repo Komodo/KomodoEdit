@@ -814,6 +814,7 @@ function _CodeIntel_Activate()
         _gCodeIntel_observer = new _CodeIntelObserver();
 
         gCodeIntelActive = true;
+        xtk.domutils.fireEvent(window, "codeintel_activated");
         window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -836,6 +837,7 @@ function _CodeIntel_Deactivate()
             }
         }
 
+        xtk.domutils.fireEvent(window, "codeintel_deactivated");
         window.updateCommands('codebrowser');
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
