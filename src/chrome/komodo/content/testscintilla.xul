@@ -67,6 +67,7 @@
 <!-- to HERE is what we need for buffer views, along with the css files above. -->
   <script type="application/x-javascript;version=1.7">
     <![CDATA[
+        xtk.include("domutils");
         function onload() {
 
           dump("in onload\n");
