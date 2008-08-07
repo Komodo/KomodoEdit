@@ -452,11 +452,14 @@ function StatusBarObserver() {
     obsSvc.addObserver(this, 'view_closed',false);
     obsSvc.addObserver(this, 'current_view_changed',false);
     obsSvc.addObserver(this, 'status_bar_reset',false);
-    obsSvc.addObserver(this, 'current_view_encoding_changed',false);
-    obsSvc.addObserver(this, 'current_view_language_changed',false);
     obsSvc.addObserver(this, 'current_view_linecol_changed',false);
-    obsSvc.addObserver(this, 'current_view_check_status',false);
     obsSvc.addObserver(this, 'status_message',false);
+    window.addEventListener('current_view_check_status',
+                            this.handle_current_view_check_status, false);
+    window.addEventListener('current_view_encoding_changed',
+                            this.handle_current_view_encoding_changed, false);
+    window.addEventListener('current_view_language_changed',
+                            this.handle_current_view_language_changed, false);
 };
 StatusBarObserver.prototype.destroy = function()
 {
@@ -466,11 +469,14 @@ StatusBarObserver.prototype.destroy = function()
     obsSvc.removeObserver(this, 'view_closed');
     obsSvc.removeObserver(this, 'current_view_changed');
     obsSvc.removeObserver(this, 'status_bar_reset');
-    obsSvc.removeObserver(this, 'current_view_encoding_changed');
-    obsSvc.removeObserver(this, 'current_view_language_changed');
     obsSvc.removeObserver(this, 'current_view_linecol_changed');
-    obsSvc.removeObserver(this, 'current_view_check_status');
     obsSvc.removeObserver(this, 'status_message');
+    window.removeEventListener('current_view_check_status',
+                               this.handle_current_view_check_status, false);
+    window.removeEventListener('current_view_encoding_changed',
+                               this.handle_current_view_encoding_changed, false);
+    window.removeEventListener('current_view_language_changed',
+                               this.handle_current_view_language_changed, false);
 }
 StatusBarObserver.prototype.observe = function(subject, topic, data)
 {
@@ -492,17 +498,8 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
             _updateCheck(view);
         }
         break;
-    case 'current_view_encoding_changed':
-        _updateEncoding(ko.views.manager.currentView);
-        break;
-    case 'current_view_language_changed':
-        _updateLanguage(ko.views.manager.currentView);
-        break;
     case 'current_view_linecol_changed':
         _updateLineCol(ko.views.manager.currentView);
-        break;
-    case 'current_view_check_status':
-        _updateCheck(ko.views.manager.currentView);
         break;
     case 'status_message':
         // "subject" is expected to be a koIStatusMessage object.
@@ -511,6 +508,17 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     }
 }
 
+StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
+    _updateCheck(ko.views.manager.currentView);
+};
+
+StatusBarObserver.prototype.handle_current_view_encoding_changed = function(event) {
+    _updateEncoding(ko.views.manager.currentView);
+};
+StatusBarObserver.prototype.handle_current_view_language_changed = function(event) {
+    _updateLanguage(ko.views.manager.currentView);
+    _updateSectionPanel(ko.views.manager.currentView);
+}; 
 
 function _addMessage(msg, category, timeout, highlight,
                               interactive /* false */)

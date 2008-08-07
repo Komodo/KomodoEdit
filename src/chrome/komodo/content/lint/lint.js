@@ -325,14 +325,7 @@ this.lintBuffer.prototype._notify = function()
     _log.debug("LintBuffer["+this.view.title+"]._notify()");
     try {
         if (this.view == ko.views.manager.currentView) {
-            try {
-                var _obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                           getService(Components.interfaces.nsIObserverService);
-                _obsSvc.notifyObservers(
-                    this.view, "current_view_check_status","");
-            } catch(ex1) {
-                // ignore
-            }
+            xtk.domutils.fireEvent(window, "current_view_check_status");
         }
     } catch(ex2) {
         _log.exception(ex2);

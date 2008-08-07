@@ -305,11 +305,7 @@
                         //    right now?). This will not re-lint in that case.
                         this.lintBuffer.request("language changed");
                     }
-                    try {
-                        this.__observersvc.notifyObservers(this, 'current_view_language_changed', doc.language);
-                    } catch (e) {
-                        // nobody home
-                    }
+                    xtk.domutils.fireEvent(this, 'current_view_language_changed');
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('current_view_language_changed');", 1)
                 }
@@ -329,8 +325,9 @@
                 break;
             case 'encoding_changed':
                 // got notification from document, update the statusbar
-                if (this.isCurrent)
-                    this.__observersvc.notifyObservers(this, 'current_view_encoding_changed','');
+                if (this.isCurrent) {
+                    xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
+                }
                 break;
             case 'codeintel_activated':
                 this.isCICplnEnabled =

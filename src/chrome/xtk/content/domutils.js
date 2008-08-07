@@ -83,8 +83,15 @@ getFocusedAncestorByName: function(localName) {
         log.exception(e);
     }
     return null;
-}
+},
 
+fireEvent : function(target, eventName) {
+    var event = document.createEvent("Events");
+    event.initEvent(eventName, true, true);
+    target.dispatchEvent(event);
+},
+
+__END__ : null
 };
 
 

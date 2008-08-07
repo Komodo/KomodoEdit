@@ -642,7 +642,8 @@ function _Observer ()
     observerSvc.addObserver(this, "view_opened",false);
     observerSvc.addObserver(this, "view_closed",false);
     observerSvc.addObserver(this, "current_view_changed",false);
-    observerSvc.addObserver(this, "current_view_language_changed",false);
+    window.addEventListener('current_view_language_changed',
+                            this.handle_current_view_language_changed, false);
 };
 _Observer.prototype.destroy = function()
 {
@@ -652,7 +653,8 @@ _Observer.prototype.destroy = function()
     observerSvc.removeObserver(this, "view_opened");
     observerSvc.removeObserver(this, "view_closed");
     observerSvc.removeObserver(this, "current_view_changed");
-    observerSvc.removeObserver(this, "current_view_language_changed");
+    window.removeEventListener('current_view_language_changed',
+                               this.handle_current_view_language_changed, false);
 }
 _Observer.prototype.observe = function(subject, topic, data)
 {
@@ -679,11 +681,11 @@ _Observer.prototype.observe = function(subject, topic, data)
     case 'view_closed':
         _gNeedToUpdateWindowMenu = true;
         break;
-    case 'current_view_language_changed':
-        _log.info("GOT current_view_language_changed");
-        _updateCurrentLanguage(subject);
-        break;
     }
+}
+_Observer.prototype.handle_current_view_language_changed = function(event) {
+    _log.info("GOT current_view_language_changed");
+    _updateCurrentLanguage(event.originalTarget);
 }
 
 function _updateCurrentLanguage(view)

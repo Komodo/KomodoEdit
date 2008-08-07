@@ -66,6 +66,7 @@ var data = {};
 var gEncodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                    getService(Components.interfaces.koIEncodingServices);
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+xtk.include("domutils");
 
 function OnPreferencePageLoading(prefset) {
     data.readonly = document.getElementById("readonly");
@@ -191,9 +192,7 @@ function OnPreferencePageClosing(prefset, ok) {
             case "language":
                 if (value == "" || value != parent.view.document.language) {
                     parent.view.document.language = value;
-                    observerSvc.notifyObservers(parent.view,
-                                                "current_view_language_changed",
-                                                null);
+                    xtk.domutils.fireEvent(parent.view, 'current_view_language_changed');
                 }
                 break;
 
@@ -235,9 +234,7 @@ function OnPreferencePageClosing(prefset, ok) {
                 var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
                            && data.bom.checked);
                 if (!applyEncodingAndBOM(encodingName, bom)) return false;
-                observerSvc.notifyObservers(parent.view,
-                                            "current_view_encoding_changed",
-                                            null);
+                xtk.domutils.fireEvent(parent.view, 'current_view_encoding_changed');
                 break;
 
             default:

@@ -126,13 +126,24 @@ _CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID
     }
 };
 
+_CodeIntelObserver.prototype.handle_current_view_language_changed = function(event)
+{
+    var view = event.originalTarget;
+    if (view.document) {
+        gCodeIntelSvc.ideEvent("switched_current_language", null,
+                               view.document);
+    }
+    window.setTimeout("window.updateCommands('codebrowser');", 0);
+};
+
 function _CodeIntelObserver()
 {
     try {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                  getService(Components.interfaces.nsIObserverService);
         obsSvc.addObserver(this, "current_view_changed", false);
-        obsSvc.addObserver(this, "current_view_language_changed", false);
+        window.addEventListener('current_view_language_changed',
+                                this.handle_current_view_language_changed, false);
         
         /* since deactivate deletes the instance, we need to be able to
            remove the unload listener in finalize so it is not called
@@ -156,7 +167,8 @@ _CodeIntelObserver.prototype.finalize = function()
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                  getService(Components.interfaces.nsIObserverService);
         obsSvc.removeObserver(this, "current_view_changed");
-        obsSvc.removeObserver(this, "current_view_language_changed");
+        window.removeEventListener('current_view_language_changed',
+                                   this.handle_current_view_language_changed, false);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -194,14 +206,6 @@ _CodeIntelObserver.prototype.observe = function(subject, topic, data)
                 }
                 window.setTimeout("window.updateCommands('codebrowser');", 0);
             }
-            break;
-        case "current_view_language_changed":
-            view = subject;
-            if (view.document) {
-                gCodeIntelSvc.ideEvent("switched_current_language", null,
-                                       view.document);
-            }
-            window.setTimeout("window.updateCommands('codebrowser');", 0);
             break;
         }
     } catch(ex) {
