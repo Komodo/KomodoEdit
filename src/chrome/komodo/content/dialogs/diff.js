@@ -59,6 +59,7 @@ function DiffWindow()
     scintillaOverlayOnLoad();
 
     document.title = window.arguments[0].title;
+    xtk.include('domutils');
     var view = document.getElementById('view');
     view.init();
 
