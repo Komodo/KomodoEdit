@@ -105,7 +105,6 @@ function projectManager() {
     // add our default datapoint
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
     ko.projects.extensionManager.datapoints['Name']='Name';
-    this.observer = new ProjectEventObserver();
     this._currentProject = null;
     ko.trace.get().leave('projectManager()');
 }
@@ -1031,48 +1030,19 @@ this.saveProjectAs = function ProjectSaveAs(project)
     return true;
 }
 
-// support parts_reload which is notified from keybindings manager
-function ProjectEventObserver() {
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-          getService(Components.interfaces.nsIObserverService);
-    observerSvc.addObserver(this, 'parts_reload',false);
-    var me = this;
-    this.removeListener = function() { me.finalize(); }
-    window.addEventListener("unload", this.removeListener, false);
-};
-
-ProjectEventObserver.prototype = {
-    finalize: function() {
-        if (!this.removeListener) return;
-        window.removeEventListener("unload", this.removeListener, false);
-        this.removeListener = null;
-        
-        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-              getService(Components.interfaces.nsIObserverService);
-        observerSvc.removeObserver(this, 'parts_reload');
-    },
-    observe: function (view, topic, message) {
-        switch (topic) {
-            case 'parts_reload':
-                var managers = ko.projects.managers;
-                for (var i=0; i < managers.length; i++) {
-                    managers[i].applyPartKeybindings();
-                }
-                break;
-        }
-    },
-
-    QueryInterface: function (iid) {
-        if (!iid.equals(nsIObserver))
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-        return this;
-    }
-};
-
 this.onload = function() {
     ko.projects.extensionManager.init();
     ko.projects.manager = new projectManager();
 }
+
+// support parts_reload which is notified from keybindings manager
+
+this.handle_parts_reload = function() {
+    var managers = ko.projects.managers;
+    for (var i=0; i < managers.length; i++) {
+        managers[i].applyPartKeybindings();
+    }
+};
 
 }).apply(ko.projects);
 
