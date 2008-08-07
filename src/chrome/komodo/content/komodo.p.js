@@ -202,6 +202,8 @@ var do_window_ununload = function() {
       we call onunload handlers LIFO
     */
     //_log.warn("window.onunload has been called\n");
+    // Sort lowest priorities first, since we pop off the end
+    _unloadObservers.sort(function(a, b) { return a.priority - b.priority });
     while (_unloadObservers.length > 0) {
         var callback = _unloadObservers.pop();
         try {
@@ -228,11 +230,13 @@ var do_window_ununload = function() {
  *      ko.main.addUnloadHandler(this.<method>, this);
  *XXX Do we want to add an optional argument list to pass in?
  */
-this.addUnloadHandler = function(handler, object /*=null*/) {
+ this.addUnloadHandler = function(handler, object /*=null*/, priority /*=null*/) {
     if (typeof(object) == "undefined") object = null;
+    if (typeof(priority) == "undefined") priority = 0;
     var callback = new Object();
     callback.handler = handler;
     callback.object = object;
+    callback.priority = priority;
     _unloadObservers.push(callback);
 }
 this.addWillCloseHandler = this.addUnloadHandler;

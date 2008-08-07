@@ -107,6 +107,13 @@ function projectExtensionManager() {
      * extensions we use 'insertControllerAt(0,...' to be hit before the
      * scintilla cut/copy/paste controller */
     window.controllers.insertControllerAt(0, this);
+    ko.main.addWillCloseHandler(function() {
+        try {
+            window.controllers.removeController(this);
+        } catch(ex) {
+            log.exception(ex);
+        }
+    }, this, 10);
     ko.trace.get().leave('projectExtensionManager()');
 }
 

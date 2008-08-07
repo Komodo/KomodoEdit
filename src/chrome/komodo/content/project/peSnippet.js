@@ -106,13 +106,7 @@ peSnippet.prototype.isCommandEnabled = function(command, part) {
         var sel = '';
         if (ko.views.manager.currentView &&
            ko.views.manager.currentView.getAttribute('type') == 'editor') {
-            try {
-                sel = ko.views.manager.currentView.selection;
-            } catch(ex) {
-                if (ex.message != 'document.getAnonymousNodes(this) has no properties') {
-                    _log.exception(ex);
-                }
-            }
+            sel = ko.views.manager.currentView.selection;
         }
         return (sel != '');
     case 'cmd_insertSnippet':
