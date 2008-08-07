@@ -473,9 +473,7 @@
                 box.appendChild(v);
                 v.init();
                 v.makeCurrent();
-                ko.trace.get().enter('notifying: view_opened');
-                this.__observersvc.notifyObservers(v, 'view_opened', '');
-                ko.trace.get().leave('notifying: view_opened');
+                xtk.domutils.fireEvent(this, 'view_opened');
                 ko.trace.get().leave('view.newView');
                 return v;
             } catch(e) {
@@ -771,11 +769,7 @@
         <body>
         <![CDATA[
             // XXX this code is duplicated in view-buffer to avoid xbl inheritance limitations
-            try {
-                this.__observersvc.notifyObservers(this, 'view_closed', '');
-            } catch(e) {
-                // no one is listening
-            }
+            xtk.domutils.fireEvent(this, 'view_closed');
             try {
                 if (this.parentView)
                     this.parentView.removeView(this);

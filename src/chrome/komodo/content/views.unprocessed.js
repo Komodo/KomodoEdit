@@ -98,10 +98,19 @@ function viewManager() {
                             getService(Components.interfaces.koILastErrorService);
     this.observerSvc.addObserver(this, "open_file", false); // commandment
     this.observerSvc.addObserver(this, "SciMoz:FileDrop", false);
-    this.observerSvc.addObserver(this, "view_opened", false);
-    this.observerSvc.addObserver(this, "view_closed", false);
     this.observerSvc.addObserver(this, "current_view_changed", false);
     this.observerSvc.addObserver(this, "file_status", false);
+    var self = this;
+    this.handle_view_closed_setup = function(event) {
+        self.handle_view_closed();
+    };
+    this.handle_view_opened_setup = function(event) {
+        self.handle_view_opened();
+    };
+    window.addEventListener('view_closed',
+                            this.handle_view_closed_setup, false);
+    window.addEventListener('view_opened',
+                            this.handle_view_opened_setup, false);
     this._viewCount = 0;
     this.batchMode = false;
     this.lastviewcache = this.cacheCommandData(null);
@@ -117,10 +126,12 @@ viewManager.prototype.shutdown = function()
     try {
         this.observerSvc.removeObserver(this, "open_file");  // commandment
         this.observerSvc.removeObserver(this, "SciMoz:FileDrop");
-        this.observerSvc.removeObserver(this, "view_opened");
-        this.observerSvc.removeObserver(this, "view_closed");
         this.observerSvc.removeObserver(this, "current_view_changed");
         this.observerSvc.removeObserver(this, "file_status");
+        window.removeEventListener('view_closed',
+                                this.handle_view_closed_setup, false);
+        window.removeEventListener('view_opened',
+                                this.handle_view_opened_setup, false);
     } catch(e) {
         /* moz probably already removed them */
         log.warn('possible error shutting down viewManager:'+e);
@@ -827,29 +838,6 @@ viewManager.prototype.observe = function(subject, topic, data)
             }
             this.lastviewcache = newcache;
             break;
-        case 'view_opened':
-            this.log.info("got 'view opened' notification");
-            this._viewCount++;
-            this.log.info("_viewcount is " + this._viewCount);
-            if (this._viewCount == 1) {
-                this.log.info("sending event: 'some_files_open'");
-                window.setTimeout("window.updateCommands('some_files_open');", 1);
-            } else if (this._viewCount == 2) {
-                // We've opened our second view
-                window.setTimeout("window.updateCommands('second_view_open_close');", 1);
-            }
-            break;
-        case 'view_closed':
-            this._viewCount--;
-            this.log.info("_viewcount is " + this._viewCount);
-            if (this._viewCount == 0) {
-                this.log.info("sending event: 'some_files_open'");
-                window.setTimeout("window.updateCommands('some_files_open');", 1);
-            } else if (this._viewCount == 1) {
-                // We've closed our second view
-                window.setTimeout("window.updateCommands('second_view_open_close');", 1);
-            }
-            break;
         case 'file_status':
             var urllist = data.split('\n');
             var views;
@@ -872,6 +860,31 @@ viewManager.prototype.observe = function(subject, topic, data)
     }
 }
 
+viewManager.prototype.handle_view_closed = function() {
+    this._viewCount--;
+    this.log.info("_viewcount is " + this._viewCount);
+    if (this._viewCount == 0) {
+        this.log.info("sending event: 'some_files_open'");
+        window.setTimeout("window.updateCommands('some_files_open');", 1);
+    } else if (this._viewCount == 1) {
+        // We've closed our second view
+        window.setTimeout("window.updateCommands('second_view_open_close');", 1);
+    }
+};
+
+viewManager.prototype.handle_view_opened = function() {
+    this.log.info("got 'view opened' notification");
+    this._viewCount++;
+    this.log.info("_viewcount is " + this._viewCount);
+    if (this._viewCount == 1) {
+        this.log.info("sending event: 'some_files_open'");
+        window.setTimeout("window.updateCommands('some_files_open');", 1);
+    } else if (this._viewCount == 2) {
+        // We've opened our second view
+        window.setTimeout("window.updateCommands('second_view_open_close');", 1);
+    }
+};
+        
 viewManager.prototype.supportsCommand = function(command) {
     if (command.indexOf("cmd_viewAs") == 0) {
         return true;

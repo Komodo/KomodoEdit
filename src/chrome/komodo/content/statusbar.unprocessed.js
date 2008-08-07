@@ -448,8 +448,6 @@ function _clear() {
 function StatusBarObserver() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.addObserver(this, 'view_opened',false);
-    obsSvc.addObserver(this, 'view_closed',false);
     obsSvc.addObserver(this, 'current_view_changed',false);
     obsSvc.addObserver(this, 'current_view_linecol_changed',false);
     obsSvc.addObserver(this, 'status_message',false);
@@ -461,13 +459,15 @@ function StatusBarObserver() {
                             this.handle_current_view_language_changed, false);
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
+    window.addEventListener('view_closed',
+                            this.handle_current_view_open_or_closed, false);
+    window.addEventListener('view_opened',
+                            this.handle_current_view_open_or_closed, false);
 };
 StatusBarObserver.prototype.destroy = function()
 {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.removeObserver(this, 'view_opened');
-    obsSvc.removeObserver(this, 'view_closed');
     obsSvc.removeObserver(this, 'current_view_changed');
     obsSvc.removeObserver(this, 'current_view_linecol_changed');
     obsSvc.removeObserver(this, 'status_message');
@@ -479,6 +479,10 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_language_changed, false);
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
+    window.removeEventListener('view_closed',
+                               this.handle_current_view_open_or_closed, false);
+    window.removeEventListener('view_opened',
+                               this.handle_current_view_open_or_closed, false);
 }
 StatusBarObserver.prototype.observe = function(subject, topic, data)
 {
@@ -488,10 +492,6 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     var view = subject;
 
     switch (topic) {
-    case 'view_opened':
-    case 'view_closed':
-        _clear();
-        break;
     case 'current_view_changed':
         if (!ko.views.manager.batchMode) {
             _updateEncoding(view);
@@ -520,6 +520,10 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
     _updateLineCol(ko.views.manager.currentView);
+}; 
+
+StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
+    _clear()
 }; 
 
 function _addMessage(msg, category, timeout, highlight,

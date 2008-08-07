@@ -308,11 +308,7 @@
                 this.browser.removeEventListener("DOMTitleChanged", this.onTitleChanged, false);
             } catch(e) {}
             /////// copied from view-base.close due to xbl inheritance issues //////
-            try {
-                this.__observersvc.notifyObservers(this, 'view_closed', '');
-            } catch(e) {
-                // no one is listening
-            }
+            xtk.domutils.fireEvent(this, 'view_closed');
             try {
                 if (this.parentView)
                     this.parentView.removeView(this);

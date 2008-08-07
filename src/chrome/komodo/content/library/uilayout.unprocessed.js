@@ -639,22 +639,27 @@ function _Observer ()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
-    observerSvc.addObserver(this, "view_opened",false);
-    observerSvc.addObserver(this, "view_closed",false);
     observerSvc.addObserver(this, "current_view_changed",false);
     window.addEventListener('current_view_language_changed',
                             this.handle_current_view_language_changed, false);
+    window.addEventListener('view_closed',
+                            this.handle_current_view_open_or_closed, false);
+    window.addEventListener('view_opened',
+                            this.handle_current_view_open_or_closed, false);
 };
 _Observer.prototype.destroy = function()
 {
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
-    observerSvc.removeObserver(this, "view_opened");
-    observerSvc.removeObserver(this, "view_closed");
     observerSvc.removeObserver(this, "current_view_changed");
+    
     window.removeEventListener('current_view_language_changed',
                                this.handle_current_view_language_changed, false);
+    window.removeEventListener('view_closed',
+                               this.handle_current_view_open_or_closed, false);
+    window.removeEventListener('view_opened',
+                               this.handle_current_view_open_or_closed, false);
 }
 _Observer.prototype.observe = function(subject, topic, data)
 {
@@ -676,16 +681,16 @@ _Observer.prototype.observe = function(subject, topic, data)
             _updateCurrentLanguage(subject);
             ko.uilayout.updateTitlebar(subject);
         }
-        // fall through
-    case 'view_opened':
-    case 'view_closed':
-        _gNeedToUpdateWindowMenu = true;
-        break;
+        this.handle_current_view_open_or_closed();
     }
 }
 _Observer.prototype.handle_current_view_language_changed = function(event) {
     _log.info("GOT current_view_language_changed");
     _updateCurrentLanguage(event.originalTarget);
+}
+
+_Observer.prototype.handle_current_view_open_or_closed = function(event) {
+    _gNeedToUpdateWindowMenu = true;
 }
 
 function _updateCurrentLanguage(view)

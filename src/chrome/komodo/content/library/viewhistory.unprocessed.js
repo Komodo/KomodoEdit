@@ -75,12 +75,17 @@ this.ViewHistory = function viewhistory() {
     this._currentView = null;
     var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
-    obSvc.addObserver(this, 'view_closed',false);
-    obSvc.addObserver(this, 'view_opened',false);
     obSvc.addObserver(this, 'current_view_changed',false);
-
-    var me = this;
-    this.removeListener = function() { me.finalize(); }
+    var self = this;
+    this.handle_view_closed = function(event) {
+        self.removeRecentView(event.originalTarget);
+    };
+    this.handle_view_opened = function(event) {
+        self.setMostRecentView(event.originalTarget);
+    };
+    this.removeListener = function() { self.finalize(); }
+    window.addEventListener('view_closed', this.handle_view_closed, false);
+    window.addEventListener('view_opened', this.handle_view_opened, false);
     window.addEventListener("unload", this.removeListener, false);
 
 // #if PLATFORM != "win"
@@ -99,9 +104,9 @@ this.ViewHistory.prototype.finalize = function()
     this.removeListener = null;
     var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
-    obSvc.removeObserver(this, 'view_closed');
-    obSvc.removeObserver(this, 'view_opened');
     obSvc.removeObserver(this, 'current_view_changed');
+    window.removeEventListener('view_closed', this.handle_view_closed, false);
+    window.removeEventListener('view_opened', this.handle_view_opened, false);
 }
 this.ViewHistory.prototype.doNextMostRecentView = function()
 {
@@ -283,12 +288,6 @@ this.ViewHistory.prototype.exitBufferSwitchingSession = function()
 this.ViewHistory.prototype.observe = function (subject, topic, data)
 {
     switch (topic) {
-        case 'view_opened':
-            this.setMostRecentView(subject);
-            break;
-        case 'view_closed':
-            this.removeRecentView(subject);
-            break;
         case 'current_view_changed':
             this._currentView = subject;
             break;
