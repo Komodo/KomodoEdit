@@ -162,6 +162,10 @@ this.addMacro = function peMacro_addMacro(/*koIPart*/ parent)
 this.executeMacro = function macro_executeMacro(part, async, observer_arguments)
 {
     log.info("executeMacro part.id:"+part.id);
+    if (ko.macros.recorder.mode == 'recording') {
+        // See bug 79081 for why we can't have async macros while recording.
+        async = false;
+    }
     try {
         ko.macros.recordPartInvocation(part);
         var language = part.getStringAttribute('language').toLowerCase();
@@ -188,7 +192,9 @@ this.executeMacroById = function macro_executeMacroById(id, asynchronous) {
         var _partSvc = Components.classes["@activestate.com/koPartService;1"]
                 .getService(Components.interfaces.koIPartService);
         var macroPart = _partSvc.getPartById(id);
-        var retval = _executeMacro(macroPart, asynchronous);
+        var retval = _executeMacro(macroPart,
+                                   (asynchronous
+                                    && ko.macros.recorder.mode != 'recording'));
         return retval;
     } catch (e) {
         log.exception(e);
@@ -263,8 +269,9 @@ function _executeMacro(part, asynchronous, observer_arguments) {
         }
     } catch (e) {
         log.exception(e);
+    } finally {
+        ko.macros.recorder.resumeRecording();
     }
-    ko.macros.recorder.resumeRecording();
     return false;
 }
 
@@ -303,7 +310,6 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'macro-load', false);
     obsSvc.addObserver(this, 'macro-unload', false);
     obsSvc.addObserver(this, 'javascript_macro',false);
-    obsSvc.addObserver(this, 'part-invoke',false);
     obsSvc.addObserver(this, 'command-docommand',false);
 
     ko.main.addWillCloseHandler(this.finalize, this);
@@ -320,7 +326,6 @@ MacroEventHandler.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'macro-load');
     obsSvc.removeObserver(this, 'macro-unload');
     obsSvc.removeObserver(this, 'javascript_macro');
-    obsSvc.removeObserver(this, 'part-invoke');
     obsSvc.removeObserver(this, 'command-docommand');
     } catch(ex) {
         this.log.exception(ex);
@@ -601,11 +606,10 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 // dump("part = " + part + "\n");
                 ko.macros.evalAsJavaScript(code);
                 break;
-            case 'part-invoke':
-                //dump("got part-invoke: " + part + '\n' + dummy + '\n');
-                ko.projects.invokePart(part);
-                break;
             case 'command-docommand':
+                //XXX Called from a Python macro
+                // This will break if the macro runs async and
+                // the user switches to a new window while it's running.
                 //dump("got command-docommand: " + code + '\n');
                 ko.commands.doCommand(code);
                 break;
@@ -732,7 +736,7 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
             var type = part.type;
             var runtxt = "_part = komodo.findPart('"+type+"', '" + name + "'" + ", '*')\n";
             runtxt += "if (!_part) {alert(\"Couldn't find a " + type + " called '" + name + "' when executing macro.\"); return\n}\n";
-            runtxt += "_part.invoke();\n";
+            runtxt += "ko.projects.invokePart(_part);\n";
             wko.macros.recorder.appendCode(runtxt);
         }
     } catch (e) {

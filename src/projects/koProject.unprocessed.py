@@ -672,14 +672,6 @@ class koPart(object):
             for child in self.children:
                 child.removeKeybindings(recurse)
 
-    def invoke(self):
-        try:
-            self._getObserverSvc().notifyObservers(self,
-                                                   'part-invoke',
-                                                   self.id)
-        except Exception, unused:
-            pass
-
     def generateRows(self, generator, nodeIsOpen, sortBy='name', level=0,
                      filterString=None, sortDir=0, childrenOnly=0):
 

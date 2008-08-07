@@ -101,8 +101,10 @@ MacroRecorder.prototype.suspendRecording = function() {
     // want what that macro does (i.e. launching of commands) to
     // be recorded in _this_ macro.  This must be paired with
     // a call to resumeRecording (below)
-    this.stopRecording(true); // but ...
-    this.mode = 'suspended'; // set the mode to paused
+    if (this.mode == 'recording') {
+        this.stopRecording(true); // but ...
+        this.mode = 'suspended'; // set the mode to paused
+    }
 }
 
 MacroRecorder.prototype.resumeRecording = function() {

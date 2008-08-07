@@ -118,9 +118,6 @@ interface koIPart: nsIObserver {
     
     void applyKeybindings(in boolean recurse); // cause kb-load notifications for all relevant parts
     void removeKeybindings(in boolean recurse); // cause kb-unload notifications for all relevant parts
-
-    // invoke the part -- do nothing if that doesn't make sense.
-    void invoke(); 
 };
 
 /* koIContainerBase is a base interface for all container types.
