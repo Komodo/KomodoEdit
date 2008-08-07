@@ -227,7 +227,14 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
         var base_ordinal = 100;
 
         var name = part.name;
-        var menubar = document.getElementById('menubar_main')
+        var menubar = document.getElementById('menubar_main');
+        if (menubar.getElementsByAttribute('id', part.id).length >= 1) {
+            // Multi-window filter.
+            //dump("peMenu.js -- already have menu item "
+            //     + part.name
+            //     + " in this menu, rejecting the new one\n");
+            return;
+        }
         var menu = document.createElement('menu');
         menu.setAttribute('label', name);
         var accesskey = part.getStringAttribute('accesskey');
@@ -293,6 +300,10 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         var visible = ! ko.projects.isToolbarRememberedAsHidden(part.id);
 
         var toolbox = document.getElementById('main-toolboxrow');
+        if (toolbox.getElementsByAttribute('id', part.id).length >= 1) {
+            // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
+            return;
+        }
         var toolbar = document.createElement('toolbar');
         toolbar.setAttribute('id', part.id);
         toolbar.setAttribute('class', "chromeclass-toolbar");
