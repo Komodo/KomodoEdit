@@ -48,9 +48,7 @@ if (typeof(ko.projects)=='undefined') {
 
 function peMenu() {
     try {
-        var me = this;
-        this.removeListener = function() { me.finalize(); }
-        window.addEventListener("unload", this.removeListener, false);
+        ko.main.addWillCloseHandler(this.finalize, this);
 
         this.name = 'peMenu';
         this.log = ko.logging.getLogger('peMenu');
@@ -72,9 +70,6 @@ function peMenu() {
 peMenu.prototype.constructor = peMenu;
 
 peMenu.prototype.finalize = function() {
-    if (!this.removeListener) return;
-    window.removeEventListener("unload", this.removeListener, false);
-    this.removeListener = null;
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'menu_create');

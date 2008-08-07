@@ -87,8 +87,8 @@ this.onload = function Toolbox_onLoad()
 //
 
 function toolboxBaseManager() {
-    ko.main.addCanQuitHandler(this.save, this);
-    ko.main.addWillQuitHandler(this.savePrefs, this);
+    ko.main.addCanCloseHandler(this.save, this);
+    ko.main.addWillCloseHandler(this.savePrefs, this);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -414,9 +414,11 @@ toolboxBaseManager.prototype.save = function() {
             }
         }
     }
-    try {
-        _obSvc.notifyObservers(this, 'file_changed', this.toolbox.url);
-    } catch(e) { /* exception if no listeners */ }
+    if (this.toolbox) {
+        try {
+            _obSvc.notifyObservers(this, 'file_changed', this.toolbox.url);
+        } catch(e) { /* exception if no listeners */ }
+    }
     return true;
 }
 

@@ -133,7 +133,7 @@ this.manager = function keybindingManager() {
     this.document = document;
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
-    // This observer is never removed, but it doesn't matter - very light-weight and no cycles.
+    // Each main window has an instance of this observer, and we shut each one down when the window is closed.
     observerSvc.addObserver(this, "kb-unload",false);
     observerSvc.addObserver(this, "kb-load",false);
 

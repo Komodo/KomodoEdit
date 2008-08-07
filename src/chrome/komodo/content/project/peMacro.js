@@ -306,9 +306,7 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'part-invoke',false);
     obsSvc.addObserver(this, 'command-docommand',false);
 
-    var me = this;
-    this.removeListener = function() { me.finalize(); }
-    window.addEventListener("unload", this.removeListener, false);
+    ko.main.addWillCloseHandler(this.finalize, this);
 
     this.log = ko.logging.getLogger('macros.eventHandler');
     //this.log.setLevel(ko.logging.LOG_DEBUG);
@@ -316,10 +314,7 @@ function MacroEventHandler() {
 }
 
 MacroEventHandler.prototype.finalize = function() {
-    if (!this.removeListener) return;
-    window.removeEventListener("unload", this.removeListener, false);
-    this.removeListener = null;
-
+    try {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'macro-load');
@@ -327,6 +322,9 @@ MacroEventHandler.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'javascript_macro');
     obsSvc.removeObserver(this, 'part-invoke');
     obsSvc.removeObserver(this, 'command-docommand');
+    } catch(ex) {
+        this.log.exception(ex);
+    }
 }
 
 MacroEventHandler.prototype._triggersAreEnabled = function() {
@@ -338,8 +336,10 @@ MacroEventHandler.prototype._triggersAreEnabled = function() {
 MacroEventHandler.prototype._triggerWrapper = {
     observe : function(subject, topic, data) {
         // 'this' isn't 'me', so call the global singleton
-        if (!ko.macros.eventHandler._triggersAreEnabled()) {
-            dump("_triggersAreEnabled? no\n");
+        if (!ko) {
+            //this ko has shutdown (or isn't defined yet)
+            return false;
+        } else if (!ko.macros.eventHandler._triggersAreEnabled()) {
             return false;
         }
         var observer_arguments = {
@@ -616,7 +616,7 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
 }
 this.eventHandler = new MacroEventHandler();
 // safe to use ko.main because this file is loaded only in komodo.xul
-ko.main.addCanQuitHandler(function () { return ko.macros.eventHandler.hookOnQuit() });
+ko.main.addCanCloseHandler(function () { return ko.macros.eventHandler.hookOnQuit() });
 
 
 

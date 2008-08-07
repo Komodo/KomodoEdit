@@ -57,12 +57,14 @@ this.log = _log;
 // that have no other place to be handled.
 //
 function _KomodoObserver(addUnloadHandler) {
-    addUnloadHandler(this.shutdown, this);
+    // addUnloadHandler(this.shutdown, this);
+    //dump(">> _KomodoObserver ctor\n"); // once per window
     this.ignoreQuitRequest = false;
     this.ignoreDoQuit = false;
     this._canQuitObservers = [];
     this._willQuitObservers = [];
     this.startup();
+    this.addWillQuitHandler(this.shutdown, this);
 };
 _KomodoObserver.prototype.constructor = _KomodoObserver;
 _KomodoObserver.prototype = {
@@ -83,6 +85,7 @@ _KomodoObserver.prototype = {
     },
     shutdown: function()
     {
+        _log.debug("Running _KomodoObserver shutdown function\n");
         var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
         try {
@@ -95,6 +98,17 @@ _KomodoObserver.prototype = {
     observe: function(subject, topic, data)
     {
         _log.debug("_KomodoObserver: observed '"+topic+"' notification: data='"+data+"'\n");
+        //dump("_KomodoObserver: observed '"+topic+"' notification: data='"+data+"'\n");
+        if (typeof(ko) == "undefined") {
+            // An observer apparently didn't get removed, but if ko is
+            // dead, dump, alert, and Components are too.  Just return.
+            return;
+        }
+        var mainWindow = ko.windowManager.getMainWindow();
+        if (mainWindow != window) {
+            //dump("Observation is not for the main window, ignore it\n");
+            return;
+        }
         switch (topic) {
         case 'quit':
             window.setTimeout("goQuitApplication()", 0);
@@ -164,19 +178,22 @@ _KomodoObserver.prototype = {
 */
 
 this.onclose = function() {
+    //dump(">> komodo.p.js this.onclose\n");
+    var thisIsLastWindow = ko.windowManager.lastWindow(); 
+    window.tryToClose() && do_window_onunload(); 
     // if we're the *only* Komodo window, we're quiting
-    if (ko.windowManager.lastWindow())
+    if (thisIsLastWindow) {
         // send quit-application notifications 
         return goQuitApplication();
-    return true;
-    
-    // we're not shutting down, we're just closing a window, call
-    // tryToClose since it will not be called in the case of onclose
-    // events being sent
-    return window.tryToClose();
+    }
+    return null;
 }
+
 var _unloadObservers = [];
-window.onunload = function() {
+this._unloadObservers = _unloadObservers;
+
+var do_window_ununload = function() {
+    //dump(">> komodo.p.js window.onunload \n");
     // TODO: Unfortunately, when we *are* quitting,
     // this happens *after* the quit-application notifications.
     
@@ -199,6 +216,7 @@ window.onunload = function() {
         }
     }
     //_log.debug("made it to the end of window.onunload\n");
+    return true;
 }
 
 /**
@@ -217,9 +235,16 @@ this.addUnloadHandler = function(handler, object /*=null*/) {
     callback.object = object;
     _unloadObservers.push(callback);
 }
+this.addWillCloseHandler = this.addUnloadHandler;
 
 /* initialize the application observer */
-var _gKomodoObserver = new _KomodoObserver(this.addUnloadHandler);
+//dump("About to create a new _KomodoObserver...\n");
+try {
+ var _gKomodoObserver = new _KomodoObserver(); // this.addUnloadHandler);
+ this._gKomodoObserver = _gKomodoObserver;
+} catch(ex) {
+    dump(ex + "\n");
+}
 
 
 // #if BUILD_FLAVOUR == "dev"
@@ -325,14 +350,15 @@ function onloadDelay() {
         _log.exception(ex);
     }
     try {
+        // This is a global event, no need to use the WindowObserverSvc
         observerSvc.notifyObservers(null, "komodo-ui-started", "");
     } catch(ex) {
         /* ignore this exception, there were no listeners for the event */
     }
 }
 
-
 window.onload = function(event) {
+    //dump(">>> window.onload\n");
     // XXX PLUGINS cannot be touched here, do it in the delayed onload handler below!!!
     try {
 // #if BUILD_FLAVOUR == "dev"
@@ -347,17 +373,24 @@ window.onload = function(event) {
         /* services needed for even the most basic operation of komodo */
         ko.keybindings.onload();
 
-        ko.mru.initialize();
+        window.setTimeout(function() {
+            // These routines use the handlers defined in this module.
+            try {
+                ko.mru.initialize();
 
-        ko.views.onload();
-        ko.projects.onload();
+                ko.views.onload();
+                ko.projects.onload();
 
-        ko.toolboxes.onload();
-        ko.uilayout.onload();
+                ko.toolboxes.onload();
+                ko.uilayout.onload();
+            } catch(ex) {
+                _log.exception(ex);
+            }
         // anything that we want to do user interaction with at
         // startup should go into this timeout to let the window
         // onload handler finish.
         window.setTimeout(onloadDelay, 500);
+        }, 0);
     } catch (e) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
@@ -406,8 +439,14 @@ function clearBrowserCache() {
     try {
         cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
     } catch(ex) {}
+};
+try {
+    //XXX - multi-window work
+    // clearBrowserCache needs to be rewritten as an xpcom component that clears the cache on app shutdown
+    this.addWillCloseHandler(clearBrowserCache);
+} catch(ex) {
+    _log.debug("calling addWillCloseHandler: " + ex + "\n");
 }
-this.addWillQuitHandler(clearBrowserCache);
 
 var _canCloseObservers = [];
 this.addCanCloseHandler = function(handler, object /*=null*/) {
@@ -416,8 +455,10 @@ this.addCanCloseHandler = function(handler, object /*=null*/) {
     callback.handler = handler;
     callback.object = object;
     _canCloseObservers.push(callback);
-}
+};
+
 window.tryToClose = function() {
+    log.debug(">> komodo.p.js - window.tryToClose\n");
     if (!ko.windowManager.closeChildren()) return false;
     for (var i=_canCloseObservers.length-1; i >= 0 ; i--) {
         try {
@@ -429,7 +470,7 @@ window.tryToClose = function() {
         }
     }
     return true;
-}
+};
 
 }).apply(ko.main);
 

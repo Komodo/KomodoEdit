@@ -164,6 +164,10 @@ function _clearLanguage() {
 }
 
 function _updateLintMessage(view) {
+    if (typeof(view)=='undefined' || !view || !view.document) {
+        //dump("  view has gone null\n");
+        return;
+    }
     // The timeout has been called, remove the setTimeout id
     _updateLintMessageTimer = null;
     if (!view || !view.lintBuffer) {
@@ -450,8 +454,7 @@ function _clear() {
 
 function StatusBarObserver() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                       getService(Components.interfaces.nsIObserverService);
-    obsSvc.addObserver(this, 'current_view_linecol_changed',false);
+                    getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'status_message',false);
     window.addEventListener('current_view_changed',
                             this.handle_current_view_changed, false);
@@ -467,12 +470,17 @@ function StatusBarObserver() {
                             this.handle_current_view_open_or_closed, false);
     window.addEventListener('view_opened',
                             this.handle_current_view_open_or_closed, false);
+    ko.main.addWillCloseHandler(this.destroy, this);
 };
+
 StatusBarObserver.prototype.destroy = function()
 {
+    if (_updateLintMessageTimer) {
+        clearTimeout(_updateLintMessageTimer);
+        _updateLintMessageTimer = null;
+    }
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                       getService(Components.interfaces.nsIObserverService);
-    obsSvc.removeObserver(this, 'current_view_linecol_changed');
+                    getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'status_message');
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
@@ -488,6 +496,9 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_open_or_closed, false);
     window.removeEventListener('view_opened',
                                this.handle_current_view_open_or_closed, false);
+    _messageStack = null;
+    _observer = null;
+    _prefObserver = null; 
 }
 StatusBarObserver.prototype.observe = function(subject, topic, data)
 {
@@ -585,7 +596,9 @@ function StatusBarPrefObserver()
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
     prefSvc.prefs.prefObserverService.addObserver(this,'editUseLinting',0);
+    ko.main.addWillCloseHandler(this.destroy, this);
 };
+
 StatusBarPrefObserver.prototype.destroy = function()
 {
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
@@ -608,15 +621,6 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 
 _observer = new StatusBarObserver();
 _prefObserver = new StatusBarPrefObserver();
-
-window.addEventListener("unload", function() {
-    _observer.destroy();
-    _observer = null;
-    _prefObserver.destroy();
-    _prefObserver = null;
-    _messageStack = null;
-}, false);
-
 
 //---- public functions
 

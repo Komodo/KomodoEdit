@@ -272,7 +272,7 @@
              document (notifications sent directly on the private
              nsIObserverService instance for that document instance).
              However this is not *always* the case: this view does
-             register to observer some other notifications. -->
+             register to observe some other notifications. -->
         <parameter name="doc"/>
         <parameter name="topic"/>
         <parameter name="data"/>
@@ -284,6 +284,10 @@
                            this.document.baseName+"' observed '"+topic+"'\n");
             switch (topic) {
             case 'language_changed':
+                // Multi-window story: do this on the current view only.
+                if (!this.isCurrent) { 
+                    return;
+                } 
                 this.log.info("Changed language to:" + doc.language);
                 this.scintilla.language = doc.language;
                 this.commandCompletionSvc = null;
@@ -312,6 +316,11 @@
                 this.parentView.updateLeafName(this);
                 break;
             case 'buffer_dirty':
+                // Multi-window story: the check on this.isCurrent is sufficient
+                // If the same file is current in more than one window, including
+                // the topmost, we'll update its title bar and status in each window.
+                // Weirdness:
+                // this.document always points to the doc argument.
                 if (this.parentView && typeof(this.parentView['updateDirtyStatus']) != 'undefined') {
                     this.parentView.updateDirtyStatus(this);
                     if (this.isCurrent) {
@@ -326,19 +335,26 @@
                 }
                 break;
             case 'codeintel_activated':
-                this.isCICplnEnabled =
-                    gCodeIntelSvc.is_cpln_lang(this.document.language);
-                this.isCICitadelStuffEnabled =
-                    gCodeIntelSvc.is_citadel_lang(this.document.language);
-                this.isCIXMLStuffEnabled =
-                    gCodeIntelSvc.is_xml_lang(this.document.language);
+                // Multi-window note: I have no idea why the events
+                // aren't firing.
+                if (window == doc) {
+                    this.isCICplnEnabled =
+                        gCodeIntelSvc.is_cpln_lang(this.document.language);
+                    this.isCICitadelStuffEnabled =
+                        gCodeIntelSvc.is_citadel_lang(this.document.language);
+                    this.isCIXMLStuffEnabled =
+                        gCodeIntelSvc.is_xml_lang(this.document.language);
+                }
                 break;
             case 'codeintel_deactivated':
-                this.isCICplnEnabled = false;
-                this.isCICitadelStuffEnabled = false;
-                this.isCIXMLStuffEnabled = false;
+                if (window == doc) {
+                    this.isCICplnEnabled = false;
+                    this.isCICitadelStuffEnabled = false;
+                    this.isCIXMLStuffEnabled = false;
+                }
                 break;
             case 'ySlop':
+                //multi-window: this applies to all windows, as it's a pref
                 this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
                 break;
             }
@@ -1108,6 +1124,24 @@
                 }
                 ]]>
             </handler>
+        <handler event="codeintel_activated" phase="capturing" >
+        <![CDATA[
+            dump("Got codeintel_activated handler\n");
+            this.isCICplnEnabled =
+                gCodeIntelSvc.is_cpln_lang(this.document.language);
+            this.isCICitadelStuffEnabled =
+                gCodeIntelSvc.is_citadel_lang(this.document.language);
+            this.isCIXMLStuffEnabled =
+                gCodeIntelSvc.is_xml_lang(this.document.language);        ]]>
+        </handler>
+        <handler event="codeintel_deactivated" phase="capturing" >
+        <![CDATA[
+            dump("Got codeintel_deactivated handler\n");
+            this.isCICplnEnabled = false;
+            this.isCICitadelStuffEnabled = false;
+            this.isCIXMLStuffEnabled = false;
+        ]]>
+        </handler>
     </handlers>
 
 </binding>

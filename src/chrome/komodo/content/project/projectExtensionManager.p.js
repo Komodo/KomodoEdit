@@ -513,8 +513,16 @@ projectExtensionManager.prototype.isCommandEnabled = function(command) {
     if (typeof(this._commands[command]) == 'undefined') {
         return false;
     }
-    //dump("isCommandEnabled command "+cmd+"\n");
     return this._commands[command].isCommandEnabled(command);
+    //XXX - Remove rest of code here.
+    //dump("isCommandEnabled command "+cmd+"\n");
+    try {
+        return this._commands[command].isCommandEnabled(command);
+    } catch(ex) {
+        // Sometimes this fails at shutdown.  Dump for development only.
+        dump(ex + "\n");
+        return false;
+    }
 }
 
 projectExtensionManager.prototype.doCommand = function(command) {

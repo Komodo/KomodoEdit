@@ -87,9 +87,9 @@ function viewManager() {
     this.currentView = null;
     this.topView = document.getElementById('topview');
     this.topView.init();
-    ko.main.addCanQuitHandler(this.canClose, this);
-    ko.main.addWillQuitHandler(this.postCanClose, this);
-    ko.main.addUnloadHandler(this.shutdown, this);
+    ko.main.addCanCloseHandler(this.canClose, this);
+    ko.main.addWillCloseHandler(this.postCanClose, this);
+    // ko.main.addUnloadHandler(this.shutdown, this); // called in postCanClose now
     this.docSvc = Components.classes['@activestate.com/koDocumentService;1']
                     .getService(Components.interfaces.koIDocumentService);
     this.observerSvc = Components.classes["@mozilla.org/observer-service;1"].
@@ -173,6 +173,7 @@ viewManager.prototype.canClose = function()
     return true;
 }
 
+//Bad name -- should be "willClose"
 viewManager.prototype.postCanClose = function()
 {
     try {
@@ -188,6 +189,13 @@ viewManager.prototype.postCanClose = function()
                     item.view.document.removeAutoSaveFile();
             }
         }
+        this.shutdown();
+        //XXX Don't need to do this if we're the last window.
+        // We didn't call _doCloseAll originally when the view mgr
+        // was designed around v2, for perf reasons,
+        // which prob don't hold anymore.
+        var ignoreFailures=true, closeStartPage=true;
+        this._doCloseAll(ignoreFailures, closeStartPage);
     } catch(e) {
         /* moz probably already removed them */
         log.warn('exception in viewManager.postCanClose:'+e);
@@ -722,11 +730,6 @@ viewManager.prototype.cacheCommandData = function(view)
 
 viewManager.prototype._handle_open_file = function(topic, data)
 {
-            
-            for (var i in urllist) {
-                ko.open.URI(urllist[i]);
-            }
-        
     try {
         this.log.info("got open_file notification: " + data);
         var urllist = data.split('|'); //see asCommandLineHandler.js
@@ -968,16 +971,18 @@ viewManager.prototype.do_cmd_closeAll = function() {
     this._doCloseAll();
 }
 
-viewManager.prototype._doCloseAll = function() {
+viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage) {
+    if (typeof(ignoreFailures) == "undefined") ignoreFailures = false;
+    if (typeof(closeStartPage) == "undefined") closeStartPage = false;
     // returns true if all views were closed.
     var views = this.topView.getDocumentViews(true);
     var i;
     for (i = views.length-1; i >= 0; i--) {
         // Exclude the Start Page from "Close All".
         //   http://bugs.activestate.com/show_bug.cgi?id=27321
-        if (views[i].getAttribute("type") == "startpage")
+        if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
             continue;
-        if (! views[i].close()) {
+        if (! views[i].close() && !ignoreFailures) {
             return false;
         }
     }
