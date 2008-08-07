@@ -1044,7 +1044,8 @@ class KoCodeIntelDBPreloader(threading.Thread):
 
 
 class KoCodeIntelService:
-    _com_interfaces_ = [components.interfaces.koICodeIntelService]
+    _com_interfaces_ = [components.interfaces.koICodeIntelService,
+                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{CF1F65B6-25EC-4FB3-A2CB-241CB436E377}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
@@ -1068,7 +1069,7 @@ class KoCodeIntelService:
             db_catalog_dirs=list(self._genDBCatalogDirs()))
 
         obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-                 .getService(components.interfaces.nsIObserverService)
+            .getService(components.interfaces.nsIObserverService)
         self._proxiedObsSvc = getProxyForObject(None,
             components.interfaces.nsIObserverService,
             obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
@@ -1078,6 +1079,9 @@ class KoCodeIntelService:
              getService(components.interfaces.koILanguageRegistryService)
         self.partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
+
+        self._wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
+        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', True)
 
         #TODO: Currently this never gets cleared.
         self._proj_env_from_proj_id_cache = {}
@@ -1151,11 +1155,17 @@ class KoCodeIntelService:
         else:
             self.isBackEndActive = True
 
-    def deactivate(self):
-        #XXX Is there a problem with ref cycle btwn codeBrowserMgr and mgr?
-        #XXX Can the codeintel system survice a deactivate/re-activate cycle?
+    def _deactivate(self):
+        #TODO: What about undo'ing `self.activateUI()` stuff?
         self.isBackEndActive = False
         self.mgr.finalize()
+
+    def observe(self, subject, topic, data):
+        try:
+            if topic == 'xpcom-shutdown':
+                self._deactivate()
+        except Exception, e:
+            log.exception("Unexpected error observing notification.")
 
     def _getCIPath(self, document):
         if document.isUntitled:
@@ -1324,6 +1334,7 @@ class KoCodeIntelService:
             log.exception("Whoa! Unexpected failure handling ideEvent '%s'"
                           % name)
 
+    #XXX I think this is unused and can be dropped.
     def batch_update(self, join, updater):
         # Unwrap controller so the non-IDL-ified attributes can be used by
         # the guts of the codeintel system.

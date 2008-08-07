@@ -834,7 +834,6 @@ function _CodeIntel_Deactivate()
 
         // Shutdown the various services if they are up and running.
         if (gCodeIntelSvc) {
-            gCodeIntelSvc.deactivate();
             gCodeIntelSvc = null;
             if (_gCodeIntel_observer) {
                 _gCodeIntel_observer.finalize();

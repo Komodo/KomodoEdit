@@ -267,7 +267,6 @@ interface koICodeIntelService: nsISupports {
     readonly attribute boolean isBackEndActive;
     // An error is set on koILastErrorService if backend activation fails.
     void activateBackEnd();
-    void deactivate();
 
     // The manager from which we can get a DB connection. Not in the XPCOM,
     // but used by the koICodeIntelObjectBrowserTreeView implementation.
