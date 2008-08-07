@@ -101,10 +101,22 @@
                 this._lastFocused = val;
                 val.setAttribute('lastfocused','true');
                 this.otherView.setAttribute('lastfocused','false');
+                var currentView = null;
                 try {
-                    this.__observersvc.notifyObservers(val.currentView, 'current_view_changed', '');
-                } catch (e) {
-                    // nobody home or there is no val.currentView
+                    // This accessor will trigger a 2147500037 exception
+                    // if there is no view, which can happen at startup.
+                    currentView = val.currentView;
+                } catch(ex) {
+                    return;
+                }
+                if (currentView) {
+                    try {
+                        xtk.domutils.fireEvent(currentView, 'current_view_changed');
+                    } catch(ex) {
+                        this.log.exception(ex);
+                        // dump("Can't fire an event at val.currentView ("
+                        //     + currentView + "), ex=" + ex + "\n");
+                    }
                 }
             }
             ]]>
@@ -136,19 +148,6 @@
                 views[i].init();
             }
             this.viewhistory = new ko.views.ViewHistory();
-            this.__observersvc.addObserver(this,'current_view_changed',false);
-
-            var me = this;
-            this.removeListener = function() { me.finalize(); }
-            window.addEventListener("unload", this.removeListener, false);
-        ]]>
-        </body>
-        </method>
-
-        <method name="finalize">
-        <body>
-        <![CDATA[
-            this.__observersvc.removeObserver(this,'current_view_changed');
         ]]>
         </body>
         </method>
@@ -161,43 +160,6 @@
             // of views based on that, and close_all calls the close method on
             // all views, regardless of type.
             return true;
-        ]]>
-        </body>
-        </method>
-        
-        <method name="observe">
-        <parameter name="subject"/>
-        <parameter name="topic"/>
-        <parameter name="data"/>
-        <body>
-        <![CDATA[
-            this.log.debug('Got notification of '+topic+' '+data+' '+subject);
-            try {
-            var nodes = document.getAnonymousNodes(this);
-            switch (topic) {
-            case 'current_view_changed':
-                if (subject && this.parentNode.getAttribute('class')=='blank-workspace') {
-                    this.parentNode.removeAttribute('class');
-                }
-
-                var ok = nodes[0].childNodes[1].getAttribute('collapsed')=='true' &&
-                         nodes[0].firstChild.getAttribute('collapsed')!='true' &&
-                         nodes[0].lastChild.getAttribute('collapsed')!='true';
-                // handle the splitters visibility
-                if (ok) {
-                    nodes[0].childNodes[1].removeAttribute('collapsed');
-                }
-
-                try {
-                    this.viewhistory.setMostRecentView(subject);
-                } catch (e) {
-                    this.log.exception(e);
-                }
-                break;
-            }
-            } catch(e) {
-                 this.log.exception(e);
-            }
         ]]>
         </body>
         </method>
@@ -545,7 +507,7 @@
 
     </implementation>
     <handlers>
-        <handler event="view_list_closed" phase="bubbling" >
+        <handler event="view_list_closed" phase="capturing" >
         <![CDATA[
         var nodes = document.getAnonymousNodes(this);
         var view = event.originalTarget;
@@ -574,6 +536,30 @@
                 this.viewhistory.setMostRecentView(this.currentView.currentView);
             }
         }
+        ]]>
+        </handler>
+        
+        <handler event="current_view_changed" phase="capturing" >
+        <![CDATA[
+            var nodes = document.getAnonymousNodes(this);
+            var view = event.originalTarget;
+            if (this.parentNode.getAttribute('class')=='blank-workspace') {
+                this.parentNode.removeAttribute('class');
+            }
+
+            var ok = nodes[0].childNodes[1].getAttribute('collapsed')=='true' &&
+                     nodes[0].firstChild.getAttribute('collapsed')!='true' &&
+                     nodes[0].lastChild.getAttribute('collapsed')!='true';
+            // handle the splitters visibility
+            if (ok) {
+                nodes[0].childNodes[1].removeAttribute('collapsed');
+            }
+
+            try {
+                this.viewhistory.setMostRecentView(view);
+            } catch (e) {
+                this.log.exception(e);
+            }
         ]]>
         </handler>
     </handlers>

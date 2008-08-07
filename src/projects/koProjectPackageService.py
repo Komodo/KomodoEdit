@@ -8,6 +8,10 @@ import uriparse
 import logging
 log = logging.getLogger("koProjectPackageService")
 
+def koProject():
+    return UnwrapObject(components.classes["@activestate.com/koProject;1"]
+                        .createInstance(components.interfaces.koIProject))
+
 class koProjectPackageService:
     _com_interfaces_ = [components.interfaces.koIProjectPackageService]
     _reg_desc_ = "Komodo Packaging Service Component"

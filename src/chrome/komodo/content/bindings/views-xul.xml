@@ -60,11 +60,7 @@
             // XXX quick hack
             this.iframe.setAttribute('src',doc.file.URI);
             this.parentView.updateLeafName(this);
-            try {
-                this.__observersvc.notifyObservers(this, 'current_view_changed', '');
-            } catch (e) {
-                // nobody home
-            }
+            xtk.domutils.fireEvent(this, 'current_view_changed');
         ]]>
         </body>
         </method>

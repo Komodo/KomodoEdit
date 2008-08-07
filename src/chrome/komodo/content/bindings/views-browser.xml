@@ -344,11 +344,8 @@
 
             if (this.parentView)
                 this.parentView.updateLeafName(this);
-            try {
-                if (notify)
-                    this.__observersvc.notifyObservers(this, 'current_view_changed', '');
-            } catch (e) {
-                // nobody home
+            if (notify) {
+                xtk.domutils.fireEvent(this, 'current_view_changed');
             }
         ]]>
         </body>

@@ -183,11 +183,7 @@
             // special hack in commands.js to deal with focus on embed elements.
             // this.controllers.appendController(this._genericController);
 
-            try {
-                this.__observersvc.notifyObservers(this, 'current_view_changed', '');
-            } catch (e) {
-                // nobody home
-            }
+            xtk.domutils.fireEvent(this, 'current_view_changed');
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
             ko.macros.eventHandler.hookPostFileOpen();

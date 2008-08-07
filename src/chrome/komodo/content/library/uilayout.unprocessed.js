@@ -639,11 +639,21 @@ function _Observer ()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
-    observerSvc.addObserver(this, "current_view_changed",false);
+    var self = this;
+    this.handle_current_view_changed_setup = function(event) {
+        self.handle_current_view_changed(event);
+    };
+    this.handle_view_list_closed_setup = function(event) {
+        self.handle_view_list_closed(event);
+    };
+    window.addEventListener('current_view_changed',
+                            this.handle_current_view_changed_setup, false);
     window.addEventListener('current_view_language_changed',
                             this.handle_current_view_language_changed, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
+    window.addEventListener('view_list_closed',
+                            this.handle_view_list_closed_setup, false);
     window.addEventListener('view_opened',
                             this.handle_current_view_open_or_closed, false);
 };
@@ -652,12 +662,15 @@ _Observer.prototype.destroy = function()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
-    observerSvc.removeObserver(this, "current_view_changed");
     
+    window.removeEventListener('current_view_changed',
+                               this.handle_current_view_changed_setup, false);
     window.removeEventListener('current_view_language_changed',
                                this.handle_current_view_language_changed, false);
     window.removeEventListener('view_closed',
                                this.handle_current_view_open_or_closed, false);
+    window.removeEventListener('view_list_closed',
+                               this.handle_view_list_closed_setup, false);
     window.removeEventListener('view_opened',
                                this.handle_current_view_open_or_closed, false);
 }
@@ -676,14 +689,20 @@ _Observer.prototype.observe = function(subject, topic, data)
             _gNeedToUpdateTemplateMRUMenu = true;
         }
         break;
-    case 'current_view_changed':
-        if (!ko.views.manager.batchMode) {
-            _updateCurrentLanguage(subject);
-            ko.uilayout.updateTitlebar(subject);
-        }
-        this.handle_current_view_open_or_closed();
     }
 }
+
+_Observer.prototype.current_view_changed_common = function(view) {
+    if (!ko.views.manager.batchMode) {
+        _updateCurrentLanguage(view);
+        ko.uilayout.updateTitlebar(view);
+    }
+    this.handle_current_view_open_or_closed();
+}
+_Observer.prototype.handle_current_view_changed = function(event) {
+    this.current_view_changed_common(event.originalTarget);
+}
+
 _Observer.prototype.handle_current_view_language_changed = function(event) {
     _log.info("GOT current_view_language_changed");
     _updateCurrentLanguage(event.originalTarget);
@@ -691,6 +710,10 @@ _Observer.prototype.handle_current_view_language_changed = function(event) {
 
 _Observer.prototype.handle_current_view_open_or_closed = function(event) {
     _gNeedToUpdateWindowMenu = true;
+}
+
+_Observer.prototype.handle_view_list_closed = function(event) {
+    this.current_view_changed_common(null);
 }
 
 function _updateCurrentLanguage(view)

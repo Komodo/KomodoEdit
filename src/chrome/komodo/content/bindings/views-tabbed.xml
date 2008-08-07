@@ -225,9 +225,6 @@
                 // undefined state regarding document.focusedElement which
                 // is used to get controllers.  (ie. this fixed mru)
                 this.focus();
-                try {
-                this.__observersvc.notifyObservers(null, 'current_view_changed', '');
-                } catch(e) {/*noone home*/}
                 this.currentView = null;
                 xtk.domutils.fireEvent(this, 'view_list_closed');
             }
@@ -376,9 +373,7 @@
             // check for file changed status
             view.reloadIfChanged();
             if (view.document) {
-                try {
-                this.__observersvc.notifyObservers(view, 'current_view_changed', '');
-                } catch(e) {/*noone home*/}
+                xtk.domutils.fireEvent(view, 'current_view_changed');
             }
             // we need to update the dirty status for non-editor views,
             // such as browsers and startpage, otherwise the save button

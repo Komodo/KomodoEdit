@@ -451,9 +451,10 @@ function _clear() {
 function StatusBarObserver() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.addObserver(this, 'current_view_changed',false);
     obsSvc.addObserver(this, 'current_view_linecol_changed',false);
     obsSvc.addObserver(this, 'status_message',false);
+    window.addEventListener('current_view_changed',
+                            this.handle_current_view_changed, false);
     window.addEventListener('current_view_check_status',
                             this.handle_current_view_check_status, false);
     window.addEventListener('current_view_encoding_changed',
@@ -471,9 +472,10 @@ StatusBarObserver.prototype.destroy = function()
 {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.removeObserver(this, 'current_view_changed');
     obsSvc.removeObserver(this, 'current_view_linecol_changed');
     obsSvc.removeObserver(this, 'status_message');
+    window.removeEventListener('current_view_changed',
+                               this.handle_current_view_changed, false);
     window.removeEventListener('current_view_check_status',
                                this.handle_current_view_check_status, false);
     window.removeEventListener('current_view_encoding_changed',
@@ -495,20 +497,22 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     var view = subject;
 
     switch (topic) {
-    case 'current_view_changed':
-        if (!ko.views.manager.batchMode) {
-            _updateEncoding(view);
-            _updateLanguage(view);
-            _updateLineCol(view);
-            _updateCheck(view);
-        }
-        break;
     case 'status_message':
         // "subject" is expected to be a koIStatusMessage object.
         _addMessageObject(subject);
         break;
     }
 }
+
+StatusBarObserver.prototype.handle_current_view_changed = function(event) {
+    if (!ko.views.manager.batchMode) {
+        _updateEncoding(view);
+        _updateLanguage(view);
+        _updateLineCol(view);
+        _updateCheck(view);
+    }
+    break;
+};
 
 StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
     _updateCheck(ko.views.manager.currentView);

@@ -98,15 +98,24 @@ function viewManager() {
                             getService(Components.interfaces.koILastErrorService);
     this.observerSvc.addObserver(this, "open_file", false); // commandment
     this.observerSvc.addObserver(this, "SciMoz:FileDrop", false);
-    this.observerSvc.addObserver(this, "current_view_changed", false);
     this.observerSvc.addObserver(this, "file_status", false);
     var self = this;
+    this.handle_current_view_changed_setup = function(event) {
+        self.handle_current_view_changed(event);
+    };
+    this.handle_view_list_closed = function(event) {
+        self.currentView = null;
+    };
     this.handle_view_closed_setup = function(event) {
         self.handle_view_closed();
     };
     this.handle_view_opened_setup = function(event) {
         self.handle_view_opened();
     };
+    window.addEventListener('current_view_changed',
+                            this.handle_current_view_changed_setup, false);
+    window.addEventListener('view_list_closed',
+                            this.handle_view_list_closed, false);
     window.addEventListener('view_closed',
                             this.handle_view_closed_setup, false);
     window.addEventListener('view_opened',
@@ -126,8 +135,11 @@ viewManager.prototype.shutdown = function()
     try {
         this.observerSvc.removeObserver(this, "open_file");  // commandment
         this.observerSvc.removeObserver(this, "SciMoz:FileDrop");
-        this.observerSvc.removeObserver(this, "current_view_changed");
         this.observerSvc.removeObserver(this, "file_status");
+        window.removeEventListener('current_view_changed',
+                                this.handle_current_view_changed_setup, false);
+        window.removeEventListener('view_list_closed',
+                                   this.handle_view_list_closed, false);
         window.removeEventListener('view_closed',
                                 this.handle_view_closed_setup, false);
         window.removeEventListener('view_opened',
@@ -786,58 +798,6 @@ viewManager.prototype.observe = function(subject, topic, data)
                 this.log.exception(e);
             }
             break;
-        case 'current_view_changed':
-            // Update the currentView
-            // This has to happen always since one can do ctrl+tab,ctrl+i, and that
-            // needs to find the right view.
-            this.currentView = subject;
-            if (this.batchMode) {
-                // break out early -- we don't want to update controllers at this point.
-                break;
-            }
-            if (this.topView.viewhistory.inBufferSwitchingSession) {
-                // break out early -- we don't want to update controllers at this point.
-                break;
-            }
-            var oldcache = this.lastviewcache;
-            var newcache = this.cacheCommandData(this.currentView);
-            //for (var x in oldcache) {
-            //    dump('oldcache['+ x +'] = ' + oldcache[x] + '\n');
-            //}
-            //for (var x in newcache) {
-            //    dump('newcache['+ x +'] = ' + newcache[x] + '\n');
-            //}
-            window.setTimeout("window.updateCommands('current_view_changed');", 1);
-            var update_editor_change = (oldcache.type != newcache.type) &&
-                (oldcache.type == 'editor' || newcache.type== 'editor');
-            if (update_editor_change) {
-                window.setTimeout("window.updateCommands('currentview_is_editor');", 1)
-            }
-            if (update_editor_change || oldcache.sccSummary!= newcache.sccSummary) {
-                window.setTimeout("window.updateCommands('SCC');", 1);
-            }
-            window.setTimeout("window.updateCommands('dirty');", 1);
-            if (update_editor_change || oldcache.canUndo != newcache.canUndo ||
-                oldcache.canRedo != newcache.canRedo) {
-                window.setTimeout("window.updateCommands('undo');", 1);
-            }
-            if (update_editor_change || oldcache.language != newcache.language) {
-                window.setTimeout("window.updateCommands('language_changed');", 1)
-            }
-            if (update_editor_change || oldcache.canDebug != newcache.canDebug) {
-                window.setTimeout("window.updateCommands('debuggability_changed');", 1);
-            }
-            if (update_editor_change || oldcache.canFold != newcache.canFold) {
-                window.setTimeout("window.updateCommands('foldability_changed');", 1);
-            }
-            if (update_editor_change || oldcache.canPreview != newcache.canPreview) {
-                window.setTimeout("window.updateCommands('previewability_changed');",1);
-            }
-            if (update_editor_change || oldcache.hasSelection != newcache.hasSelection) {
-                window.setTimeout("window.updateCommands('select');", 1);
-            }
-            this.lastviewcache = newcache;
-            break;
         case 'file_status':
             var urllist = data.split('\n');
             var views;
@@ -858,6 +818,59 @@ viewManager.prototype.observe = function(subject, topic, data)
             }
             break;
     }
+}
+
+viewManager.prototype.handle_current_view_changed = function(event) {
+    // Update the currentView
+    // This has to happen always since one can do ctrl+tab,ctrl+i, and that
+    // needs to find the right view.
+    this.currentView = event.originalTarget;
+    if (this.batchMode) {
+        // break out early -- we don't want to update controllers at this point.
+        return;
+    }
+    if (this.topView.viewhistory.inBufferSwitchingSession) {
+        // break out early -- we don't want to update controllers at this point.
+        return;
+    }
+    var oldcache = this.lastviewcache;
+    var newcache = this.cacheCommandData(this.currentView);
+    //for (var x in oldcache) {
+    //    dump('oldcache['+ x +'] = ' + oldcache[x] + '\n');
+    //}
+    //for (var x in newcache) {
+    //    dump('newcache['+ x +'] = ' + newcache[x] + '\n');
+    //}
+    window.setTimeout("window.updateCommands('current_view_changed');", 1);
+    var update_editor_change = (oldcache.type != newcache.type) &&
+        (oldcache.type == 'editor' || newcache.type== 'editor');
+    if (update_editor_change) {
+        window.setTimeout("window.updateCommands('currentview_is_editor');", 1)
+    }
+    if (update_editor_change || oldcache.sccSummary!= newcache.sccSummary) {
+        window.setTimeout("window.updateCommands('SCC');", 1);
+    }
+    window.setTimeout("window.updateCommands('dirty');", 1);
+    if (update_editor_change || oldcache.canUndo != newcache.canUndo ||
+        oldcache.canRedo != newcache.canRedo) {
+        window.setTimeout("window.updateCommands('undo');", 1);
+    }
+    if (update_editor_change || oldcache.language != newcache.language) {
+        window.setTimeout("window.updateCommands('language_changed');", 1)
+    }
+    if (update_editor_change || oldcache.canDebug != newcache.canDebug) {
+        window.setTimeout("window.updateCommands('debuggability_changed');", 1);
+    }
+    if (update_editor_change || oldcache.canFold != newcache.canFold) {
+        window.setTimeout("window.updateCommands('foldability_changed');", 1);
+    }
+    if (update_editor_change || oldcache.canPreview != newcache.canPreview) {
+        window.setTimeout("window.updateCommands('previewability_changed');",1);
+    }
+    if (update_editor_change || oldcache.hasSelection != newcache.hasSelection) {
+        window.setTimeout("window.updateCommands('select');", 1);
+    }
+    this.lastviewcache = newcache;
 }
 
 viewManager.prototype.handle_view_closed = function() {

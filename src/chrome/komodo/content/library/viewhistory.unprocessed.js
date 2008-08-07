@@ -73,10 +73,13 @@ this.ViewHistory = function viewhistory() {
     this.log = ko.logging.getLogger('viewhistory');
     //this.log.setLevel(ko.logging.LOG_DEBUG);
     this._currentView = null;
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
-    obSvc.addObserver(this, 'current_view_changed',false);
     var self = this;
+    this.handle_current_view_changed = function(event) {
+        self._currentView = event.originalTarget;
+    };
+    this.handle_view_list_closed = function(event) {
+        self._currentView = null;
+    };
     this.handle_view_closed = function(event) {
         self.removeRecentView(event.originalTarget);
     };
@@ -84,9 +87,13 @@ this.ViewHistory = function viewhistory() {
         self.setMostRecentView(event.originalTarget);
     };
     this.removeListener = function() { self.finalize(); }
+    window.addEventListener('current_view_changed',
+                            this.handle_current_view_changed, false);
+    window.addEventListener('view_list_closed',
+                            this.handle_view_list_closed, false);
     window.addEventListener('view_closed', this.handle_view_closed, false);
     window.addEventListener('view_opened', this.handle_view_opened, false);
-    window.addEventListener("unload", this.removeListener, false);
+    window.addEventListener("unload", this.removeListener, true);
 
 // #if PLATFORM != "win"
     // on linux we must use a timeout since we do not get
@@ -102,9 +109,10 @@ this.ViewHistory.prototype.finalize = function()
     if (!this.removeListener) return;
     window.removeEventListener("unload", this.removeListener, false);
     this.removeListener = null;
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
-    obSvc.removeObserver(this, 'current_view_changed');
+    window.removeEventListener('current_view_changed',
+                               this.handle_current_view_changed, false);
+    window.removeEventListener('view_list_closed',
+                               this.handle_view_list_closed, false);
     window.removeEventListener('view_closed', this.handle_view_closed, false);
     window.removeEventListener('view_opened', this.handle_view_opened, false);
 }
@@ -272,25 +280,14 @@ this.ViewHistory.prototype.exitBufferSwitchingSession = function()
 {
     this.log.debug("exitBufferSwitchingSession()");
     this.inBufferSwitchingSession = false;
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                       getService(Components.interfaces.nsIObserverService);
     ko.views.manager.batchMode = false;
     // We need to do a current_view_changed here because the views.js
     // observer ignores those while in the middle of a control-tab session
     // for purposes of optimization.
-    try {
-        observerSvc.notifyObservers(this._currentView, 'current_view_changed', '');
-    } catch (e) {
-        // nobody home;
-    }
-}
-
-this.ViewHistory.prototype.observe = function (subject, topic, data)
-{
-    switch (topic) {
-        case 'current_view_changed':
-            this._currentView = subject;
-            break;
+    if (this._currentView) {
+        xtk.domutils.fireEvent(this._currentView, 'current_view_changed');
+    } else {
+        xtk.domutils.fireEvent(window, 'view_list_closed');
     }
 }
 

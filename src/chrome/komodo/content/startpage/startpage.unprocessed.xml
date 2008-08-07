@@ -1123,11 +1123,7 @@
             this.log.info("initWithDocument");
             this.document = doc;
             this.parentView.updateLeafName(this);
-            try {
-                this.__observersvc.notifyObservers(this, 'current_view_changed', '');
-            } catch (ex) {
-                // nobody home
-            }
+            xtk.domutils.fireEvent(this, 'current_view_changed');
         ]]> </body>
         </method>
 
