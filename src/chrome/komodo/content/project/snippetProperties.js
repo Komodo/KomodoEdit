@@ -40,8 +40,9 @@
  *
  */
 
-var log = ko.logging.getLogger("snippetProperties");
+xtk.include("domutils");
 
+var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;

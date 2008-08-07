@@ -34,6 +34,8 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+xtk.include('domutils');
+        
 var gPartname, gKeybinding, gPart, gItem, gScintilla = null;
 var gDefaultPartIconURL = null;
 var gTriggerGroup, gRank, gLanguage, gTriggerCheckbox, gRunInBackground;

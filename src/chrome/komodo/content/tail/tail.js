@@ -36,6 +36,8 @@
 
 /* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
+xtk.include("domutils");
+
 var tail;
 var intervalId = -1;
 var mydata = new Object();
@@ -45,6 +47,7 @@ var taillog = ko.logging.getLogger('tail');
 var fileEx;
 var gDoc;
 var gView;
+
 function TailOnLoad() {
     try {
         scintillaOverlayOnLoad();

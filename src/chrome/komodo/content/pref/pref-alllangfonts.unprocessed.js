@@ -39,6 +39,7 @@
   - Test on linux
 */
 
+xtk.include("domutils");
 var enumerator = Components.classes["@mozilla.org/gfx/fontenumerator;1"].createInstance();
 if( enumerator )
     enumerator = enumerator.QueryInterface(Components.interfaces.nsIFontEnumerator);
