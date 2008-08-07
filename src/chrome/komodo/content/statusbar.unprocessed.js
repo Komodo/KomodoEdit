@@ -518,7 +518,6 @@ StatusBarObserver.prototype.handle_current_view_changed = function(event) {
         _updateLineCol(view);
         _updateCheck(view);
     }
-    break;
 };
 
 StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
