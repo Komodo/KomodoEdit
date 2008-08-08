@@ -735,7 +735,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 # Dictionary of already created xpcom wrappers, used so we do not keep
 # creating xpcom instances / services
 from ciElementTree import Element, SubElement, dump
-try:
+
+if _xpcom_:
     from xpcom import xpt
     _xpcom_ = True
     import xpcom.xpt
@@ -840,8 +841,6 @@ try:
                                            attributes="constant")
         return elem
     
-except ImportError:
-    _xpcom_ = False
 
 # Globals used for holding the xpcom cix information, the base xpcom structure
 # is generated once per run, then interface details are added on demand.

@@ -78,11 +78,8 @@ from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
 from codeintel2.accessor import AccessorCache
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

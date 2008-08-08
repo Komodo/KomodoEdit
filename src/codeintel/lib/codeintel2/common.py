@@ -41,8 +41,27 @@
 # - XXX Rationalize exceptions.
 # - XXX Coding style name changes.
 
-#XXX Use cog to fill out __all__.
-#__all__ = []
+__all__ = [
+    "Trigger", "Definition", "CILEDriver", "Evaluator",
+    "EvalController", "LogEvalController",
+
+    "canonicalizePath", "parseAttributes",
+
+    "TRG_FORM_CPLN", "TRG_FORM_CALLTIP", "TRG_FORM_DEFN",
+
+    "PRIORITY_CONTROL", "PRIORITY_IMMEDIATE", "PRIORITY_CURRENT",
+    "PRIORITY_OPEN", "PRIORITY_BACKGROUND",
+
+    "CodeIntelDeprecationWarning",
+    "CodeIntelError", "NotATriggerError", "EvalError", "EvalTimeout",
+    "VirtualMethodError", "CitadelError", "NoBufferAccessorError",
+    "CILEError", "CIXError", "CIDBError", "DatabaseError",
+    "CorruptDatabase", "NotFoundInDatabase", "CITDLError",
+    "NoModuleEntry", "NoCIDBModuleEntry",
+
+    "ENABLE_HEURISTICS",
+    "_xpcom_",
+]
 
 import os
 from os.path import dirname, join, normpath, exists, basename
@@ -59,12 +78,15 @@ import SilverCity
 from SilverCity.Lexer import Lexer
 from SilverCity import ScintillaConstants
 
-try:
-    from xpcom import components
-    from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
+if "CODEINTEL_NO_PYXPCOM" in os.environ:
     _xpcom_ = False
+else:
+    try:
+        from xpcom import components
+        from xpcom.server import UnwrapObject
+        _xpcom_ = True
+    except ImportError:
+        _xpcom_ = False
 
 #XXX Should only do this hack for non-Komodo local codeintel usage.
 #XXX We need to have a better mechanism for rationalizing and sharing
@@ -208,8 +230,12 @@ PRIORITY_CURRENT = 2        # UI requires info on this file soon
 PRIORITY_OPEN = 3           # UI will likely require info on this file soon
 PRIORITY_BACKGROUND = 4     # info may be needed sometime
 
+#TODO: these are unused, drop them
 # CIDB base type constants
 BT_CLASSREF, BT_INTERFACEREF = range(2)
+
+#TODO: These are unused, drop them, the symbolType2Name below and its dead
+#      usage in cb.py.
 # CIDB symbol type constants
 (ST_FUNCTION, ST_CLASS, ST_INTERFACE, ST_VARIABLE, ST_ARGUMENT) = range(5)
 _symbolType2Name = {
@@ -535,6 +561,7 @@ class Evaluator(object):
 
 #---- helper methods
 
+#TODO: drop this (see note above)
 def symbolType2Name(st):
     return _symbolType2Name[st]
 
@@ -547,6 +574,7 @@ else:
     # literal '?' -- this is better than failing outright.
     charrefreplace = 'replace'
 
+#TODO: duplicated in parseutil.py, drop this one (along with preceding charrefreplace)
 def xmlencode(s):
     """Encode the given string for inclusion in a UTF-8 XML document.
     
@@ -564,6 +592,7 @@ def xmlencode(s):
                lambda m: '&#%d;'%ord(m.group(1)),
                s.encode('utf-8', charrefreplace))
 
+#TODO: drop this, see similar func in parseutil.py
 def xmlattrstr(attrs):
     """Construct an XML-safe attribute string from the given attributes
     
@@ -582,6 +611,7 @@ def xmlattrstr(attrs):
     return s
 
 
+#TODO: unused, drop it
 def isUnsavedPath(path):
     """Return true if the given path is a special <Unsaved>\sub\path file."""
     tag = "<Unsaved>"
@@ -591,6 +621,7 @@ def isUnsavedPath(path):
     else:
         return False
 
+#TODO: move this utils.py
 _uriMatch = re.compile("^\w+://")
 def canonicalizePath(path, normcase=True):
     r"""Return what CodeIntel considers a canonical version of the given path.
@@ -650,6 +681,7 @@ def canonicalizePath(path, normcase=True):
             cpath = os.path.normcase(cpath)
         return cpath
 
+#TODO: move this utils.py
 def parseAttributes(attrStr=None):
     """Parse the given attributes string (from CIX) into an attribute dict."""
     attrs = {}

@@ -55,12 +55,9 @@ from SilverCity.ScintillaConstants import *
 from codeintel2.common import *
 from codeintel2.util import isident, indent, banner, markup_text
 
-try:
+if _xpcom_:
     from xpcom import components
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 #XXX We need to have a better mechanism for rationalizing and sharing
 #    common lexer style classes. For now we'll just HACKily grab from

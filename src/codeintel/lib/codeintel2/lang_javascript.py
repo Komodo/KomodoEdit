@@ -55,6 +55,7 @@ from ciElementTree import Element, ElementTree, SubElement
 
 import SilverCity
 from SilverCity.Lexer import Lexer
+from SilverCity import ScintillaConstants
 from SilverCity.ScintillaConstants import (
     SCE_C_COMMENT, SCE_C_COMMENTDOC, SCE_C_COMMENTDOCKEYWORD,
     SCE_C_COMMENTDOCKEYWORDERROR, SCE_C_COMMENTLINE,
@@ -81,11 +82,8 @@ from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

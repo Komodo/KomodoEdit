@@ -72,12 +72,9 @@ from codeintel2.udl import XMLParsingBufferMixin, UDLBuffer
 
 import langinfo
 
-try:
+if _xpcom_:
     from xpcom import components
     from xpcom.client import WeakReference
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

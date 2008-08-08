@@ -42,6 +42,8 @@ lexer-based styled buffers.
 
 import bisect
 
+from SilverCity import ScintillaConstants
+
 from codeintel2.common import *
 from codeintel2 import util
 

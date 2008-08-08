@@ -81,13 +81,12 @@ from SilverCity.ScintillaConstants import (SCE_UDL_M_STAGO, SCE_UDL_M_DEFAULT,
                                            )
 
 
-try:
+if _xpcom_:
     from xpcom import components, _xpcom
     from xpcom.server import WrapObject, UnwrapObject
     from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
+
+
 
 #---- globals
 

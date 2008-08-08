@@ -56,13 +56,10 @@ from codeintel2.common import *
 from codeintel2.citadel import CitadelBuffer
 #from codeintel2.javascript_common import trg_from_pos as javascript_trg_from_pos
 
-try:
+if _xpcom_:
     from xpcom import components
     from xpcom.server import UnwrapObject
     import directoryServiceUtils
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 log = logging.getLogger("codeintel.udl")
 #log.setLevel(logging.DEBUG)

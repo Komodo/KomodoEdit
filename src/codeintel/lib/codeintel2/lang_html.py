@@ -50,11 +50,8 @@ from codeintel2.udl import UDLLexer, UDLBuffer, UDLCILEDriver, XMLParsingBufferM
 from codeintel2.lang_xml import XMLLangIntel
 from HTMLTreeParser import html_optional_close_tags
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

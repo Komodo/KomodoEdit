@@ -68,11 +68,8 @@ from codeintel2.tree_perl import (PerlTreeEvaluator,
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

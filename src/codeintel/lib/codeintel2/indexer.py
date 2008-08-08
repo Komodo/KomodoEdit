@@ -65,11 +65,8 @@ from codeintel2.buffer import Buffer
 from codeintel2.database.langlib import LangDirsLib
 from codeintel2.database.multilanglib import MultiLangDirsLib
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 

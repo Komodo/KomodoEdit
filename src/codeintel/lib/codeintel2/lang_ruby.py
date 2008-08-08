@@ -75,11 +75,8 @@ from codeintel2.util import isident, isdigit, banner, indent, markup_text, hotsh
 from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.tree_ruby import RubyTreeEvaluator
 
-try:
+if _xpcom_:
     from xpcom.server import UnwrapObject
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 
