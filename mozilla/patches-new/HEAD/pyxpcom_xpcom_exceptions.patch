@@ -5,7 +5,7 @@ retrieving revision 1.5
 diff -u -r1.5 extensions/python/xpcom/__init__.py
 --- extensions/python/xpcom/__init__.py	20 Jan 2006 05:50:16 -0000	1.5
 +++ extensions/python/xpcom/__init__.py	13 Jun 2007 22:00:36 -0000
-@@ -39,32 +39,126 @@
+@@ -39,32 +39,130 @@
  # The XPCOM (Cross Platform COM) package.
  import exceptions
  
@@ -58,9 +58,13 @@ diff -u -r1.5 extensions/python/xpcom/__init__.py
          assert int(errno) == errno, "The errno param must be an integer"
 +        exceptions.Exception.__init__(self, errno)
 +        try:
-+            # magic to hook up com interface after xpcom is loaded
-+            if not hasattr(Exception, "_com_interfaces_"):
-+                import components
++            # Magic to hook up com interface after xpcom is loaded.
++            # The "NS_ERROR_NO_INTERFACE" check is to avoid an infinite
++            # loop when XPCOM isn't registered and hence
++            # `components.interface.nsIException` results in a
++            # COMException.
++            if not hasattr(Exception, "_com_interfaces_") \
++               and errno != nsError.NS_ERROR_NO_INTERFACE:
 +                Exception._com_interfaces_ = [components.interfaces.nsIException]
 +        except exceptions.Exception, e:
 +            # not initialized yet, cannot make this an xpcom component
