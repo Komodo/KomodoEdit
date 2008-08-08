@@ -67,6 +67,7 @@ class Error(Exception):
 #---- globals
 
 log = logging.getLogger("komodo_to_cix")
+log.setLevel(logging.INFO)
 #log.setLevel(logging.DEBUG)
 
 #TODO: the Komodo JS API should define a version somewhere
@@ -354,12 +355,9 @@ def _prepare_xpcom():
     # is called.
     #
     # The Komodo test system provides a component for this.
-    try:
+    from codeintel2.common import _xpcom_
+    if _xpcom_:
         from xpcom import components
-        _xpcom_ = True
-    except ImportError:
-        _xpcom_ = False
-    else:
         koTestSvc = components.classes["@activestate.com/koTestService;1"] \
             .getService(components.interfaces.koITestService)
         koTestSvc.init()

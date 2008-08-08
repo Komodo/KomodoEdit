@@ -209,10 +209,20 @@ $cons->InstallPythonUtility($ciElementTreeExt);
 
 # Generate the Komodo JavaScript API Catalog.
 if ($withKomodoCix) {
+    # Set "CODEINTEL_NO_PYXPCOM" for the "komodo_to_cix.py" build.
+    # Running PyXPCOM-y things at build time can be difficult. If XPCOM
+    # registration hasn't run yet then components will be missing and
+    # using PyXPCOM will likely fail (`regxpcom` isn't sufficient for
+    # XPCOM registration -- go figure).
+    %consLocal = $cons->copy();
+    $consLocal{ENV}{'CODEINTEL_NO_PYXPCOM'} = '1';
+    $consLocal{ENV}{'KOMODO_VERBOSE'} = '1';  # avoid stdhandle redirection by sitepyxpcom.py
+    $consLocal = new cons(%consLocal);
+
     my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
     my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
     my $cElementTreeExt = "$komodoPythonUtilsDir/cElementTree$pydExt";
-    $cons->Command(
+    $consLocal->Command(
         $komodoCix,
         # files needed to do the generation
         "support/gencix/javascript/komodo/komodo_to_cix.py",
