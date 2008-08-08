@@ -811,14 +811,14 @@ class Citadel(object):
             raise CodeIntelError("cannot start batch update: another batch "
                                  "update is in progress")
 
-        assert(join or updater is not None,
-               "cannot specify join=False and updater=None because "
-               "you must manually wait on the updater if join is False.")
+        assert join or updater is not None, \
+               ("cannot specify join=False and updater=None because "
+                "you must manually wait on the updater if join is False.")
         if updater is None:
             updater = BatchUpdater()
-        assert (isinstance(updater, BatchUpdater),
-                "given controller is not an instance of "
-                "BatchUpdater: %r" % updater)
+        assert isinstance(updater, BatchUpdater), \
+                ("given controller is not an instance of "
+                 "BatchUpdater: %r" % updater)
 
         if self._scheduler is not None:
             self._scheduler.pause()
