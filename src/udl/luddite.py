@@ -102,7 +102,7 @@ class Shell(cmdln.Cmdln):
     
             koext build
 
-    4. Upload and announce you new extension on Komodo's add-ons site:
+    4. Upload and announce your new extension on Komodo's add-ons site:
     
             http://community.activestate.com/addons
 
