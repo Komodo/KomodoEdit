@@ -179,9 +179,9 @@ listed here and/or corrections, please start a Documentation bug for this:
     <http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation>
 
 
-- Ubuntu 7.10:
+- Ubuntu 7.10 & 8.04:
   
-    apt-get install g++ patch libgtk2.0-dev libidl-dev
+    apt-get install g++ patch libgtk2.0-dev libidl-dev libcurl4-gnutls-dev
 
 - Others ...
 
