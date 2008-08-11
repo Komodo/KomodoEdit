@@ -49,6 +49,7 @@ from pprint import pprint
 
 import SilverCity
 from SilverCity.Lexer import Lexer
+from SilverCity import ScintillaConstants
 from SilverCity.ScintillaConstants import (
     SCE_CSS_DIRECTIVE, SCE_CSS_DOUBLESTRING, SCE_CSS_IDENTIFIER,
     SCE_CSS_IDENTIFIER2, SCE_CSS_OPERATOR, SCE_CSS_SINGLESTRING,

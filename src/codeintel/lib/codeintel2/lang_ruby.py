@@ -50,8 +50,9 @@ import weakref
 from ciElementTree import Element, SubElement, tostring
 import SilverCity
 from SilverCity.Lexer import Lexer
+from SilverCity import ScintillaConstants
 from SilverCity.ScintillaConstants import (
-    SCLEX_RUBY, SCE_RB_DEFAULT,
+    SCLEX_RUBY, SCE_RB_DEFAULT, SCE_RB_COMMENTLINE,
     SCE_RB_REGEX, SCE_RB_IDENTIFIER, SCE_RB_WORD, SCE_RB_OPERATOR,
     SCE_UDL_M_OPERATOR, SCE_UDL_SSL_DEFAULT, SCE_UDL_SSL_IDENTIFIER,
     SCE_UDL_SSL_OPERATOR, SCE_UDL_SSL_VARIABLE, SCE_UDL_SSL_WORD,
@@ -236,8 +237,7 @@ class _RubyStyleClassifier(_CommonStyleClassifier):
     def __getattr__(self, name):
         return getattr(self.buf, name)
 
-    ignoreStyles =  (ScintillaConstants.SCE_RB_DEFAULT,
-                     ScintillaConstants.SCE_RB_COMMENTLINE)
+    ignoreStyles =  (SCE_RB_DEFAULT, SCE_RB_COMMENTLINE)
 
 class _UDLStyleClassifier(_CommonStyleClassifier):
     def __init__(self, buf):

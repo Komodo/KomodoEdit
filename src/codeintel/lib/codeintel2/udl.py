@@ -38,7 +38,7 @@
 """UDL (User-Defined Language) support for codeintel."""
 
 import os
-from os.path import dirname, join, abspath, normpath, basename
+from os.path import dirname, join, abspath, normpath, basename, exists
 import sys
 import re
 import logging

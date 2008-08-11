@@ -56,7 +56,7 @@ tokenStyleToContainerStyle (if any of these are called, that is).
 """
 import re
 
-from SilverCity import Ruby, ScintillaConstants
+from SilverCity import ScintillaConstants
 
 GENERIC_TYPE_UNKNOWN = 0
 GENERIC_TYPE_NUMBER = 1
