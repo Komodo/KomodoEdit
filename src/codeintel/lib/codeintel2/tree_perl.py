@@ -70,6 +70,7 @@ Hence:
 
 """
 
+import re
 from pprint import pprint
 
 from codeintel2.common import *

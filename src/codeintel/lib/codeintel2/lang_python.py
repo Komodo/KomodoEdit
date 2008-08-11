@@ -46,6 +46,7 @@ import random
 import parser
 from glob import glob
 import weakref
+import re
 from pprint import pprint, pformat
 
 import SilverCity

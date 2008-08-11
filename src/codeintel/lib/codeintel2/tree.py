@@ -45,6 +45,7 @@ quirks can be dealt with cleanly).
 """
 
 import logging
+import re
 
 import ciElementTree as ET
 if not getattr(ET, "_patched_for_komodo_", False):

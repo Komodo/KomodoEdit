@@ -42,6 +42,7 @@ from os.path import basename, splitext, isdir, join, normcase, normpath
 import time
 import sys
 import logging
+import re
 from pprint import pformat
 from glob import glob
 import weakref
