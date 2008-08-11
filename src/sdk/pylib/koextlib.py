@@ -116,14 +116,14 @@ _install_rdf_template = """<?xml version="1.0"?>
       <Description>
         <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
         <em:minVersion>4.1</em:minVersion>
-        <em:maxVersion>4.*</em:maxVersion>
+        <em:maxVersion>5.*</em:maxVersion>
       </Description>
     </em:targetApplication>
     <em:targetApplication> <!-- Komodo Edit -->
       <Description>
         <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
         <em:minVersion>4.1</em:minVersion>
-        <em:maxVersion>4.*</em:maxVersion>
+        <em:maxVersion>5.*</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>
