@@ -74,6 +74,7 @@ Import(
     'mozVersion',
     'sdkDir',
     'universal',
+    'compiler',
 );
 
 if ($^O eq "linux") {
@@ -169,18 +170,20 @@ if ($platform eq "win") {
         # LDFLAGS is fine!
     }
 
-    # To avoid linker problems like this:
-    #     nsSciDoc.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)" (__imp_?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z) referenced in function "public: virtual unsigned int __stdcall SciDoc::TransformLineEnds(wchar_t const *,int,wchar_t * *)" (?TransformLineEnds@SciDoc@@UAGIPB_WHPAPA_W@Z)
-    # The problem is the mangled linkage name. Attempting to import:
-    #   ?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z (wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)
-    # But the export is:
-    #   ?ToNewUnicode@@YAPAGABVnsAString_internal@@@Z (unsigned short * __cdecl ToNewUnicode(class nsAString_internal const &))
-    # From http://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B_Name_Mangling
-    #   '_W' means __wchar_t
-    #   'G'  means unsigned short
-    # From http://groups.google.com/group/mozilla.dev.embedding/browse_thread/thread/454eea957b336805
-    #   Use '-Zc:wchar_t-' (Treat wchar_t as Built-In Type: NO) option.
-    $CXXFLAGS .= " -Zc:wchar_t-";
+    if ($compiler ne "vc6") {
+        # To avoid linker problems like this:
+        #     nsSciDoc.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)" (__imp_?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z) referenced in function "public: virtual unsigned int __stdcall SciDoc::TransformLineEnds(wchar_t const *,int,wchar_t * *)" (?TransformLineEnds@SciDoc@@UAGIPB_WHPAPA_W@Z)
+        # The problem is the mangled linkage name. Attempting to import:
+        #   ?ToNewUnicode@@YAPA_WABVnsAString_internal@@@Z (wchar_t * __cdecl ToNewUnicode(class nsAString_internal const &)
+        # But the export is:
+        #   ?ToNewUnicode@@YAPAGABVnsAString_internal@@@Z (unsigned short * __cdecl ToNewUnicode(class nsAString_internal const &))
+        # From http://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B_Name_Mangling
+        #   '_W' means __wchar_t
+        #   'G'  means unsigned short
+        # From http://groups.google.com/group/mozilla.dev.embedding/browse_thread/thread/454eea957b336805
+        #   Use '-Zc:wchar_t-' (Treat wchar_t as Built-In Type: NO) option.
+        $CXXFLAGS .= " -Zc:wchar_t-";
+    }
 
     # Others parts of the build for other platforms are defining these.
     # TODO: Clean up #define's in the file. This Conscript is a mess
@@ -451,8 +454,10 @@ if ($platform eq "win") {
     }
     $dllName = 'koSciDoc.dll';
 
-    # See discussion above for same option for nsSciMoz.cxx build.
-    $CXXFLAGS .= " -Zc:wchar_t-";
+    if ($compiler ne "vc6") {
+        # See discussion above for same option for nsSciMoz.cxx build.
+        $CXXFLAGS .= " -Zc:wchar_t-";
+    }
 
     $cons->Command($dllName,
         "nsSciDoc.cxx",
