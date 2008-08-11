@@ -41,6 +41,7 @@ import sys
 import os
 import logging
 from pprint import pprint
+import re
 
 import process
 
@@ -92,6 +93,7 @@ keywords = ["after", "append", "apply", "array", "auto_execok",
             "tkwait", "toplevel", "winfo", "wm"]
 
 line_end_re = re.compile("(?:\r\n|\r)")
+
 
 #---- language support
 
