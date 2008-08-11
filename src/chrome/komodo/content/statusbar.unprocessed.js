@@ -513,6 +513,7 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
 
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
     if (!ko.views.manager.batchMode) {
+        var view = event.originalTarget;
         _updateEncoding(view);
         _updateLanguage(view);
         _updateLineCol(view);
