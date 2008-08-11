@@ -38,7 +38,7 @@
 """Ruby support for CodeIntel"""
 
 import os
-from os.path import basename, splitext, isdir, join, normcase, normpath
+from os.path import basename, splitext, isdir, join, normcase, normpath, exists
 import time
 import sys
 import logging

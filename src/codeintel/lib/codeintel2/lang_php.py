@@ -43,7 +43,7 @@
 """codeintel support for PHP"""
 
 import os
-from os.path import isdir, join
+from os.path import isdir, join, basename, splitext, exists
 import sys
 import md5
 import re
@@ -52,7 +52,6 @@ import time
 import warnings
 from cStringIO import StringIO
 import weakref
-from os.path import basename, splitext
 from glob import glob
 
 from SilverCity.ScintillaConstants import (SCE_UDL_SSL_DEFAULT,

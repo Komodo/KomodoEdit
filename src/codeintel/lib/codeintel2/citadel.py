@@ -54,6 +54,7 @@ import logging
 import time
 import re
 import traceback
+import threading
 from pprint import pprint
 
 import ciElementTree as ET

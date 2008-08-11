@@ -46,6 +46,7 @@ import stat
 import textwrap
 import types
 from pprint import pprint, pformat
+import time
 
 from codeintel2.common import CodeIntelError
 

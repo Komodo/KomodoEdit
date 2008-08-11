@@ -43,7 +43,6 @@ import sys
 import time
 import md5
 import pprint
-import threading
 import stat
 import types
 import imp

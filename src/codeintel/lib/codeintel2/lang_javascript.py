@@ -43,7 +43,7 @@
 """
 
 import os
-from os.path import splitext, basename
+from os.path import splitext, basename, exists
 import sys
 import types
 import logging
