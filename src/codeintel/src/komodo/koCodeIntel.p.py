@@ -40,7 +40,7 @@ and Komodo's Code Intelligence functionality.
 """
 
 import os
-from os.path import basename, dirname
+from os.path import basename, dirname, join
 import sys
 import string
 import re
