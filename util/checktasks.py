@@ -45,7 +45,7 @@ class langinfo(Task):
                 "ext_hits": [('"', '.tex'), ('"', '.tex'), ('"', None)],
             },
         }
-        for comp_path in glob(join(languages_dir, "ko*Language.py")) \
+        for comp_path in glob(join(languages_dir, "ko*Language.*py")) \
                 + glob(join(udl_skel_dir, "*", "components", "ko*Language.py")):
             comp_base = basename(comp_path)
             if comp_base in skips:
@@ -64,7 +64,8 @@ class langinfo(Task):
 
     def make(self):
         lidb = self.get_lidb()
-        li_langs = set(li.name for li in lidb.langinfos())
+        li_langs = set(hasattr(li, "komodo_name") and li.komodo_name or li.name
+                       for li in lidb.langinfos())
         ko_ext_from_lang = dict(i for i in self.gen_ko_langs_and_exts())
 
         num_warnings = 0
