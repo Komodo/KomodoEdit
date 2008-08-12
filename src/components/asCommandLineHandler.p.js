@@ -42,7 +42,6 @@ const winOptions =
   "chrome,all";
 // #endif
 
-//var gInfoSvc = null;
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
