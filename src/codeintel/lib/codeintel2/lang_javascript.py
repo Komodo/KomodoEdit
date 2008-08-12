@@ -1564,7 +1564,6 @@ class JavaScriptCiler:
         if log.level >= logging.DEBUG:
             log.debug("    lineno:%r, state:%r, depth:%r", self.lineno,
                       self.state, self.depth)
-            log.debug("    d: %r", d)
             log.debug("    currentScope: %r", self.currentScope)
             log.debug("")
 
