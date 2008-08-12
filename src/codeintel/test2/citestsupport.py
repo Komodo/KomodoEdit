@@ -39,11 +39,13 @@
 
 import os
 import sys
-from os.path import join, dirname, exists, abspath
+from os.path import dirname, join, normpath, exists, basename, abspath
 from glob import glob
-from pprint import pprint
+from pprint import pprint, pformat
 import unittest
 import random
+import md5
+import re
 
 from codeintel2.manager import Manager
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
