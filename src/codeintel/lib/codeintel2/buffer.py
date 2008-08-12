@@ -46,6 +46,7 @@ import logging
 from cStringIO import StringIO
 import traceback
 import md5
+import time
 
 import SilverCity
 from SilverCity import ScintillaConstants
