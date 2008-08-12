@@ -1520,6 +1520,7 @@ class PerlCILEDriver(CILEDriver):
                 raise CodeIntelError("could not find the Perl CILE "
                                      "component '%s'\n" % self.scineplex)
 
+    #TODO: This may not be used. If so, remove it.
     def scan(self, request):
         request.calculateMD5()
         if gDoOldPerlWay:
@@ -1532,7 +1533,7 @@ class PerlCILEDriver(CILEDriver):
             # Run language engine and report any errors.
             content = line_end_re.sub("\n", request.content)
             p = process.ProcessOpen(argv, stderr=None)
-            stdout, stderr = p.communicate(communicate)
+            stdout, stderr = p.communicate(content)
             return stdout.decode("utf-8")
         else:
             return perlcile.scan(request.content, request.path,
