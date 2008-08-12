@@ -74,17 +74,17 @@ pref("extensions.hideInstallButton", true);
 
 // Preferences for the Get Add-ons pane
 pref("extensions.getAddons.showPane", true);
-pref("extensions.getAddons.browseAddons", "https://community.activestate.com/%LOCALE%/%APP%");
+pref("extensions.getAddons.browseAddons", "http://community.activestate.com/addons");
 pref("extensions.getAddons.maxResults", 5);
-pref("extensions.getAddons.recommended.browseURL", "https://community.activestate.com/%LOCALE%/%APP%/recommended");
-pref("extensions.getAddons.recommended.url", "https://community.activestate.com/%LOCALE%/%APP%/api/%API_VERSION%/list/featured/all/10/%OS%/%VERSION%");
-pref("extensions.getAddons.search.browseURL", "https://community.activestate.com/%LOCALE%/%APP%/search?q=%TERMS%");
-pref("extensions.getAddons.search.url", "https://community.activestate.com/%LOCALE%/%APP%/api/%API_VERSION%/search/%TERMS%/all/10/%OS%/%VERSION%");
+pref("extensions.getAddons.recommended.browseURL", "http://community.activestate.com/xpi/recommended");
+pref("extensions.getAddons.recommended.url", "http://community.activestate.com/xpi/api/%API_VERSION%/list/featured/all/10");
+pref("extensions.getAddons.search.browseURL", "http://community.activestate.com/search/node/%TERMS%+type%3Axpi");
+pref("extensions.getAddons.search.url", "http://community.activestate.com/xpi/api/%API_VERSION%/search/%TERMS%");
 
 // Blocklist preferences
 pref("extensions.blocklist.enabled", false);
 pref("extensions.blocklist.interval", 86400);
-pref("extensions.blocklist.url", "https://community.activestate.com/addons/blocklist/%APP_ID%/%APP_VERSION%/");
+pref("extensions.blocklist.url", "http://community.activestate.com/addons/blocklist/");
 pref("extensions.blocklist.detailsURL", "http://community.activestate.com/addons/blocklist/");
 
 // Dictionary download preference
