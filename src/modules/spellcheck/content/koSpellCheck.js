@@ -54,7 +54,7 @@ var ko = {
         this.session = session;  // pointer to namespace object
         this.scimoz = args.scimoz;
         this.misspelledWord = null;
-        this.spellChecker = (Components.classes['@mozilla.org/spellchecker/myspell;1'].
+        this.spellChecker = (Components.classes['@mozilla.org/spellchecker/engine;1'].
                     getService(Components.interfaces.mozISpellCheckingEngine));
         if (!this.spellChecker) {
             throw new Error("SpellChecker not found!!!\n");
