@@ -446,22 +446,9 @@ class PHPTreeEvaluator(TreeEvaluator):
         """
         members = set()
         if elem.tag == "import":
-            alias = elem.get("alias")
-            symbol_name = elem.get("symbol")
             module_name = elem.get("module")
-            if symbol_name:
-                #XXX Ignore failure to import.
-                blob = import_handler.import_blob_name(
-                            module_name, self.buf.libs, self.ctlr)
-                if symbol_name == "*":
-                    XXX
-                else:
-                    symbol = blob.names[symbol_name]
-                    member_type = (symbol.get("ilk") or symbol.tag)
-                    members.add( (member_type, alias or symbol_name) )
-            else:
-                cpln_name = alias or module_name.split('.', 1)[0]
-                members.add( ("module", cpln_name) )
+            cpln_name = module_name.split('.', 1)[0]
+            members.add( ("module", cpln_name) )
         else:
             members.add( (elem.get("ilk") or elem.tag,
                           name_prefix + elem.get("name")) )
