@@ -2005,37 +2005,12 @@ class PHPcile:
     def __init__(self):
         # filesparsed contains all files parsed
         self.filesparsed={}
-        # needfile contains a list of files included by the file that is the key
-        self.needfile={}
-        # infile contains a list of files that the key file is included in 
-        self.infile={}
-        # classindex tells us what file a class definition is contained in
-        self.classindex={}
-        # functionindex tells us what file a function is defined in
-        self.functionindex={}
-        # interfaceindex tells us what file an interface definition is contained in
-        self.interfaceindex={}
 
-    def _clearindex(self, filename, index):
-        tmp = [k for k in index if index[k] == filename]
-        for k in tmp:
-            del index[k]
-        
     def clear(self, filename):
         # clear include links from the cache
         if filename not in self.filesparsed:
             return
         del self.filesparsed[filename]
-        
-        if filename in self.needfile:
-            for f in self.needfile[filename]:
-                i = self.infile[f].index(filename)
-                del self.infile[f][i]
-            del self.needfile[filename]
-        
-        self._clearindex(filename, self.classindex)
-        self._clearindex(filename, self.functionindex)
-        self._clearindex(filename, self.interfaceindex)
         
     def __repr__(self):
         r = ''
@@ -2102,10 +2077,6 @@ class PHPParser:
         # investigation, see bug 45362 for details.
         self.cile.filesparsed[self.filename] = self.fileinfo
 
-    def idfunc(self, m):
-        log.debug("ID: %r",m.group(0))
-        return m.group(0)
-
     # parses included files
     def include_file(self, filename):
         # XXX Very simple prevention of include looping.  Really should
@@ -2116,22 +2087,6 @@ class PHPParser:
         # add the included file to our list of included files
         if filename not in self.fileinfo.includes:
             self.fileinfo.includes[filename] = self.lineno
-
-        # add the included file to our list of included files
-        if self.filename not in self.cile.needfile:
-            self.cile.needfile[self.filename] = []
-        try:
-            self.cile.needfile[self.filename].index(filename)
-        except ValueError, e:
-            self.cile.needfile[self.filename].append(filename)
-
-        # add this file to the infile list
-        if filename not in self.cile.infile:
-            self.cile.infile[filename] = []
-        try:
-            self.cile.infile[filename].index(self.filename)
-        except ValueError, e:
-            self.cile.infile[filename].append(self.filename)
 
     def incBlock(self):
         self.depth = self.depth+1
@@ -2179,7 +2134,6 @@ class PHPParser:
             self.currentInterface.functions[self.currentFunction.name] = self.currentFunction
         else:
             self.fileinfo.functions[self.currentFunction.name] = self.currentFunction
-            self.cile.functionindex[self.currentFunction.name] = self.fileinfo.filename
         if self.currentInterface or self.currentFunction.attributes.find('abstract') >= 0:
             self.currentFunction.lineend = self.lineno
             self.currentFunction = None
@@ -2204,8 +2158,6 @@ class PHPParser:
                                          interfaces,
                                          doc=doc)
             self.fileinfo.classes[self.currentClass.name] = self.currentClass
-            # log.debug("adding classindex[%s]=%s", m.group('name'), self.fileinfo.filename)
-            self.cile.classindex[self.currentClass.name]=self.fileinfo.filename
             log.debug("CLASS: %s extends %s interfaces %s attributes %s on line %d in %s at depth %d\nDOCS: %s",
                      self.currentClass.name, self.currentClass.extends, 
                      self.currentClass.interfaces, self.currentClass.attributes,
@@ -2263,8 +2215,6 @@ class PHPParser:
             # make this class the current class
             self.currentInterface = PHPInterface(name,extends, self.lineno, self.depth)
             self.fileinfo.interfaces[name] = self.currentInterface
-            # log.debug("adding classindex[%s]=%s", name, self.fileinfo.filename)
-            self.cile.interfaceindex[name] = self.fileinfo.filename
             log.debug("INTERFACE: %s extends %s on line %d in %s at depth %d",
                      name, extends, self.lineno, self.filename, self.depth)
         else:
