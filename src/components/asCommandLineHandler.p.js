@@ -128,8 +128,8 @@ function _internalError(error, text)
                args);
 }
 
-function komodoCmdLineHander() { }
-komodoCmdLineHander.prototype = {
+function komodoCmdLineHandler() { }
+komodoCmdLineHandler.prototype = {
   chromeURL : "chrome://komodo/content",
 
   /* nsICommandLineHandler */
@@ -209,7 +209,7 @@ komodoCmdLineHander.prototype = {
   // XXX localize me... how?
   helpInfo : "Usage: komodo [-flags] [<url>]\n",
 
-  classDescription: "komodoCmdLineHander",
+  classDescription: "komodoCmdLineHandler",
   classID: Components.ID("{07DCEAC7-31F6-11DA-BC61-000D935D3368}"),
   contractID: "@activestate.com/komodo/final-clh;1",
   QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
@@ -217,5 +217,5 @@ komodoCmdLineHander.prototype = {
 };
 
 function NSGetModule(compMgr, fileSpec) {
-  return XPCOMUtils.generateModule([komodoCmdLineHander]);
+  return XPCOMUtils.generateModule([komodoCmdLineHandler]);
 }
