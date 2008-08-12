@@ -578,7 +578,7 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
             perl_type = self._perl_type_from_elem(elem)
             self.error("cannot get completions from a Perl %s: '%s' is "
                        "<%s %s> (expected a Perl package element)",
-                       perl_type, self.expr, perl_type, name)
+                       perl_type, self.expr, perl_type, elem.get("name"))
             return None
         return self._func_members_from_pkg(elem.get("name"), elem)
 
@@ -590,7 +590,7 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
         if not (elem.tag == "scope" and elem.get("ilk") == "function"):
             perl_type = self._perl_type_from_elem(elem)
             self.error("cannot call a Perl %s: '%s' is <%s %s>",
-                       perl_type, self.expr, perl_type, name)
+                       perl_type, self.expr, perl_type, elem.get("name"))
             return None
         return [ self._calltip_from_func(elem) ]
 
