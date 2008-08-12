@@ -45,6 +45,7 @@ from os.path import (join, dirname, abspath, exists, basename, splitext,
 from glob import glob
 from pprint import pprint
 import unittest
+import time
 import logging
 
 import codeintel2
