@@ -133,7 +133,7 @@ class CSSLexer(Lexer):
             """),
         ]
 
-class _StraightCSSStyleClassifier:
+class _StraightCSSStyleClassifier(object):
     def is_css_style(self, style, accessorCacheBack=None):
         return True
 
