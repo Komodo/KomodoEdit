@@ -44,6 +44,7 @@ limitations, bugs, and having a better code design (i.e. where lang-specific
 quirks can be dealt with cleanly).
 """
 
+import sys
 from os.path import normpath
 import logging
 import re

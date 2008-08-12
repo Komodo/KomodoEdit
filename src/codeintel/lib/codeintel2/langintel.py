@@ -54,6 +54,8 @@ Dev Notes:
   the variable name.
 """
 
+import os
+import re
 import operator
 from pprint import pformat, pprint
 import logging

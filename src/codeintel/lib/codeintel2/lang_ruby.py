@@ -38,7 +38,8 @@
 """Ruby support for CodeIntel"""
 
 import os
-from os.path import basename, splitext, isdir, join, normcase, normpath, exists
+from os.path import basename, splitext, isdir, join, normcase, \
+                    normpath, exists, dirname
 import time
 import sys
 import logging
@@ -1313,10 +1314,6 @@ class RubyLangIntel(CitadelLangIntel,
                 ctlr.done("error")
                 return
             evalr = RubyTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
-            buf.mgr.request_eval(evalr)
-
-        elif trg.form == TRG_FORM_CPLN and trg.type == "literal-methods":
-            evalr = RubyLiteralEvaluator(ctlr, buf, trg, None, None)
             buf.mgr.request_eval(evalr)
 
         elif trg.form == TRG_FORM_CPLN and trg.type in (

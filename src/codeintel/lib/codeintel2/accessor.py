@@ -183,8 +183,8 @@ class SilverCityAccessor(Accessor):
                 return token
             sentinel -= 1
         else:
-            raise Error("style_at_pos binary search sentinel hit: there "
-                        "is likely a logic problem here!")
+            raise CodeIntelError("style_at_pos binary search sentinel hit: "
+                                 "there is likely a logic problem here!")
 
     def style_at_pos(self, pos):
         return self._token_at_pos(pos)["style"]
@@ -254,8 +254,8 @@ class SilverCityAccessor(Accessor):
                 lower = line
             sentinel -= 1
         else:
-            raise Error("line_from_pos binary search sentinel hit: there "
-                        "is likely a logic problem here!")
+            raise CodeIntelError("line_from_pos binary search sentinel hit: "
+                                 "there is likely a logic problem here!")
 
     def line_start_pos_from_pos(self, pos):
         token = self._token_at_pos(pos)

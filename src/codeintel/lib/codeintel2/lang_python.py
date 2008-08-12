@@ -691,6 +691,7 @@ class PythonImportHandler(ImportHandler):
         ImportHandler.__init__(self, mgr)
         self.__stdCIXScanId = None
 
+    #TODO: may not be used. If so, drop it.
     def _shellOutForPath(self, compiler):
         import process
         argv = [compiler, "-c", "import sys; print '\\n'.join(sys.path)"]
@@ -704,7 +705,7 @@ class PythonImportHandler(ImportHandler):
         p = process.ProcessOpen(argv, env=env, stdin=None)
         stdout, stderr = p.communicate()
         retval = p.returncode
-        path = [line for line in output.splitlines(0)]
+        path = [line for line in stdout.splitlines(0)]
         if path and (path[0] == "" or path[0] == os.getcwd()):
             del path[0] # cwd handled separately
         return path

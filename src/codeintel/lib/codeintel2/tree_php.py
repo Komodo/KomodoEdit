@@ -39,7 +39,7 @@
 
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
-from codeintel2.util import make_short_name_dict, banner
+from codeintel2.util import make_short_name_dict, banner, LINE_LIMIT
 
 
 php_magic_global_method_data = {
@@ -935,7 +935,6 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _calltip_from_func(self, node):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
-        from codeintel2.util import LINE_LIMIT
         signature = node.get("signature")
         doc = node.get("doc")
         ctlines = []

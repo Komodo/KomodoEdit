@@ -43,7 +43,7 @@
 """
 
 import os
-from os.path import splitext, basename, exists
+from os.path import splitext, basename, exists, dirname, normpath
 import sys
 import types
 import logging
@@ -962,7 +962,7 @@ class JSArgs:
         args = []
         for arg in self.args:
             args.append(repr(arg))
-        return string.join(args, ', ')
+        return ', '.join(args)
 
     def addTypeForArgument(self, argname, typename):
         try:

@@ -297,6 +297,11 @@ else:
 
 def register(mgr):
     """Register language support with the Manager."""
+    #XXX
+    import getpass
+    if getpass.getuser() == "trentm":
+        return
+
     mgr.set_lang_info(lang,
                       silvercity_lexer=TclLexer(),
                       buf_class=TclBuffer,

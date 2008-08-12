@@ -42,8 +42,12 @@ import re
 from pprint import pformat
 
 from codeintel2.common import *
-from codeintel2.util import indent
+from codeintel2.util import indent, LINE_LIMIT
 from codeintel2.tree import TreeEvaluator
+
+if _xpcom_:
+    from xpcom import components
+
 
 
 class CandidatesForTreeEvaluator(TreeEvaluator):
@@ -292,7 +296,6 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
     def _calltip_from_func(self, elem):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
-        from codeintel2.util import LINE_LIMIT
         signature = elem.get("signature")
         doc = elem.get("doc")
         ctlines = []

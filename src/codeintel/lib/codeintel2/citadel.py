@@ -249,9 +249,9 @@ class CitadelBuffer(Buffer):
         scan_time/scan_error/blob_from_lang properties.
         """
         if self.path is None:
-            raise Error("cannot scan %s buffer: 'path' is not set (setting "
-                        "a fake path starting with '<Unsaved>' is okay)"
-                        % self.lang)
+            raise CodeIntelError("cannot scan %s buffer: 'path' is not set (setting "
+                                 "a fake path starting with '<Unsaved>' is okay)"
+                                 % self.lang)
 
         cile_driver = self.mgr.citadel.cile_driver_from_lang(self.lang)
         if mtime is None:

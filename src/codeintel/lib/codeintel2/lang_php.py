@@ -43,7 +43,7 @@
 """codeintel support for PHP"""
 
 import os
-from os.path import isdir, join, basename, splitext, exists
+from os.path import isdir, join, basename, splitext, exists, dirname
 import sys
 import md5
 import re
@@ -1572,7 +1572,7 @@ class PHPArgs:
         args = []
         for arg in self.args:
             args.append(repr(arg))
-        return string.join(args, ', ')
+        return ', '.join(args)
 
     def toElementTree(self, cixelement):
         for argIndex in range(len(self.args)):

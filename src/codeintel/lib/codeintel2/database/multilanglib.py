@@ -42,7 +42,7 @@ See the database/database.py module docstring for an overview.
 import sys
 import os
 from os.path import (join, dirname, exists, expanduser, splitext, basename,
-                     split, abspath, isabs, isdir, isfile)
+                     split, abspath, isabs, isdir, isfile, normpath)
 from glob import glob
 from pprint import pprint, pformat
 import logging

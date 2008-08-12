@@ -73,6 +73,8 @@ finally:
     del _ko_src_dir
 
 
+log = logging.getLogger("codeintel.buffer")
+
 
 
 #---- module interface
@@ -583,9 +585,9 @@ div.code .tags        { color: red; }
             name_from_num \
                 = self._style_name_from_style_num_from_lang[self.lang] = {}
             if self.sce_prefixes is None:
-                raise Error("'sce_prefixes' not set on class %s: cannot "
-                            "determine style constant names"
-                            % self.__class__.__name__)
+                raise CodeIntelError("'sce_prefixes' not set on class %s: cannot "
+                                     "determine style constant names"
+                                     % self.__class__.__name__)
             for attr in dir(ScintillaConstants):
                 for sce_prefix in self.sce_prefixes:
                     if attr.startswith(sce_prefix):

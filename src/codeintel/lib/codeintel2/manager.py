@@ -54,6 +54,7 @@ import threading
 from Queue import Queue
 import warnings
 import traceback
+import codecs
 
 from SilverCity import ScintillaConstants
 

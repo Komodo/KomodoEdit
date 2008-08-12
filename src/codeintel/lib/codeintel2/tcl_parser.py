@@ -104,14 +104,14 @@ class TclClassifier(shared_parser.CommonClassifier):
     def is_symbol(self, tok):
         return False
 
-    def quote_patterns_cb(tok):
+    def quote_patterns_cb(self, tok):
         tval = tok.text
         if tval[0] == '"':
-            return _quote_patterns[SCE_TCL_STRING]
+            return self._quote_patterns[ScintillaConstants.SCE_TCL_STRING]
         elif tval[0] == '\'':
-            return _quote_patterns[SCE_TCL_CHARACTER]
+            return self._quote_patterns[ScintillaConstants.SCE_TCL_CHARACTER]
         else:
-            return _quote_patterns[SCE_TCL_DEFAULT] # Fallback
+            return self._quote_patterns[ScintillaConstants.SCE_TCL_DEFAULT] # Fallback
 
     # Accessors for where we'd rather work with a style than call a predicate fn
 

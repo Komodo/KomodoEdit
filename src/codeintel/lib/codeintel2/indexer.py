@@ -619,6 +619,7 @@ class Indexer(threading.Thread):
                                       "on_scan_complete callback")
 
 
+#TODO: I believe this is unused. Drop it.
 class BatchUpdater(threading.Thread):
     """A scheduler thread for batch updates to the CIDB.
 
