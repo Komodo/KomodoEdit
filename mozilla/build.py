@@ -2575,6 +2575,7 @@ def target_pluginsdk(argv=["mozilla"]):
 
 
 def target_mbsdiff(argv=["mozilla"]):
+    """Build mbsdiff module needed for building update .mar packages."""
     config = _importConfig()
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
@@ -2589,6 +2590,17 @@ def target_mbsdiff(argv=["mozilla"]):
     _run_in_dir('make', bsdiffDir, log.info)
     return argv[1:]
 
+def target_libmar(argv=["mozilla"]):
+    """Build libmar module needed for building update .mar packages."""
+    config = _importConfig()
+    _setupMozillaEnv()
+    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+    libmar_dir = os.path.join(native_objdir, 'modules', 'libmar')
+    log.info("entering directory '%s' (to build libmar separately)",
+             libmar_dir)
+    _run_in_dir('make', libmar_dir, log.info)
+    return argv[1:]
+
 
 def target_all(argv):
     """get the source, patch it, and build mozilla"""
@@ -2600,6 +2612,7 @@ def target_all(argv):
     target_jsstandalone()
     target_pluginsdk()
     target_mbsdiff()
+    target_libmar()
     target_silo_python()
     target_regmozbuild()
     return argv[1:]
