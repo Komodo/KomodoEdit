@@ -80,7 +80,7 @@ class RubyCommonClassifier:
         return tok.text[0] == '=' and tok.text[1].isalnum and tok.text.find("\n=cut", 5) > 0
     
     def is_string_qw_cb(self, tok):
-        return re_compile(r'^qw\s*[^\w\d_]').match(tok.text)
+        return re.compile(r'^qw\s*[^\w\d_]').match(tok.text)
                                                    
     def is_symbol_cb(self, tok):
         return tok.text[0] == ":"
