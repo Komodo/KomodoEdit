@@ -47,11 +47,11 @@ from SilverCity import ScintillaConstants
 from codeintel2.common import *
 from codeintel2 import util
 
-try:
+if _xpcom_:
+    from xpcom import components
     from xpcom.client import WeakReference
     from xpcom import COMException
-except ImportError:
-    pass
+
 
 
 class Accessor(object):
