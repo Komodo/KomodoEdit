@@ -171,21 +171,12 @@ ko.windowManager = {
         return this.closeAll(me);
     },
     
-    numKomodoWindows: function() {
+    isAdditionalWindow: function() {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
-        var count = 0;
-        try {
-            var openWindows = wm.getEnumerator('Komodo');
-            do {
-                if (openWindows.getNext()) {
-                    count += 1;
-                }
-            } while (openWindows.hasMoreElements());
-        } catch(e) {
-            log.exception(e);
-        }
-        return count;
+        var openWindows = wm.getEnumerator('Komodo');
+        openWindows.getNext();
+        return openWindows.hasMoreElements();
     },
 
     otherWindowHasViewForURI: function(uri) {

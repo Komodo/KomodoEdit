@@ -252,7 +252,16 @@ function onloadDelay() {
         // Eventually restoreWorkspace will be rewritten to restore
         // a set of windows, and restore will be done at app-startup
         // time, not when each window starts up.
-        if (ko.windowManager.numKomodoWindows() == 1) {
+        var restoreWorkspace = true;
+        try {
+            if (ko.windowManager.isAdditionalWindow()) {
+                restoreWorkspace = false;
+            }
+        } catch(ex) {
+            // Restore the workspace on error
+            _log.exception(e);
+        }
+        if (restoreWorkspace) {
             ko.workspace.restoreWorkspace();
         }
 
