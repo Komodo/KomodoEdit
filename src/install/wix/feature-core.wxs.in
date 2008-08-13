@@ -51,7 +51,6 @@
       <ComponentRef Id="RegistryBase" />
       <ComponentRef Id="ReadMeFiles" />
       <ComponentRef Id="component2"/>
-      <ComponentRef Id="component25"/>
       <ComponentRef Id="MsvcrtUpdate"/>
 
 <?if $(var.IsMSIDebugBuild) = "no" ?>
@@ -355,9 +354,6 @@
       </Component>
       <Component Id="ReadMeFiles" DiskId="1" Guid="$(autowix.guid)">
         <File Id="file323" Name="LICENSE.txt"   src="feature-core\INSTALLDIR\LICENSE.txt"/>
-      </Component>
-      <Component DiskId="1" Guid="$(autowix.guid)" Id="component25">
-        <File Id="file1408" LongName="komodo-config.py" Name="KOMODO_0.PY" Vital="yes" src="feature-core\INSTALLDIR\komodo-config.py" />
       </Component>
 
       <Directory Id="LibDir" Name="lib">
@@ -3354,6 +3350,7 @@
               <File Id="file19" Name="luddite.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\luddite.py"/>
               <File Id="file286" Name="koext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\koext.py"/>
               <File Id="file1412" LongName="codeintel.py" Name="CODEIN_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\codeintel.py" />
+              <File Id="file339" Name="KOMODO_2.PY" LongName="komodo-config.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\komodo-config.py"/>
             </Component>
           </Directory> <!-- lib\sdk\bin -->
           <Directory Id="directory620" Name="IDL_0" LongName="idl">
