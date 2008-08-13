@@ -307,6 +307,17 @@
       <ComponentRef Id="component211"/>
       <ComponentRef Id="component212"/>
       <ComponentRef Id="component220"/>
+      <ComponentRef Id="component223"/>
+      <ComponentRef Id="component301"/>
+      <ComponentRef Id="component354"/>
+      <ComponentRef Id="component356"/>
+      <ComponentRef Id="component357"/>
+      <ComponentRef Id="component358"/>
+      <ComponentRef Id="component363"/>
+      <ComponentRef Id="component364"/>
+      <ComponentRef Id="component366"/>
+      <ComponentRef Id="component413"/>
+      <ComponentRef Id="component420"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -369,9 +380,9 @@
             <File Id="file332" Name="nspr4.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nspr4.dll"/>
             <File Id="file333" Name="plc4.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plc4.dll"/>
             <File Id="file334" Name="plds4.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plds4.dll"/>
-            <File Id="file1282" Name="python25.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python25.dll"/>
-            <File Id="file1283" Name="PYTHON_1.DLL" LongName="pythoncom25.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pythoncom25.dll"/>
-            <File Id="file1284" Name="PYWINT_1.DLL" LongName="pywintypes25.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pywintypes25.dll"/>
+            <File Id="file1282" Name="python26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python26.dll"/>
+            <File Id="file1283" Name="PYTHON_1.DLL" LongName="pythoncom26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pythoncom26.dll"/>
+            <File Id="file1284" Name="PYWINT_1.DLL" LongName="pywintypes26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pywintypes26.dll"/>
             <File Id="file338" Name="regxpcom.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\regxpcom.exe"/>
             <File Id="file340" Name="SciLexer.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\SciLexer.dll"/>
             <File Id="file458" Name="updater.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.ini" />
@@ -384,17 +395,29 @@
             <File Id="file348" Name="xpcshell.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpcshell.exe"/>
             <File Id="file349" Name="XPICLE_0.EXE" LongName="xpicleanup.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpicleanup.exe"/>
             <File Id="file351" Name="xpistub.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpistub.dll"/>
+            <File Id="file465" Name="APPLIC_0.INI" LongName="application.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\application.ini"/>
+            <File Id="file466" Name="CRASHR_0.EXE" LongName="crashreporter.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.exe"/>
+            <File Id="file467" Name="CRASHR_0.INI" LongName="crashreporter.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.ini"/>
+            <File Id="file468" Name="IA2MAR_0.DLL" LongName="IA2Marshal.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\IA2Marshal.dll"/>
+            <File Id="file469" Name="JSEXE_0.MAN" LongName="js.exe.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js.exe.manifest"/>
+            <File Id="file470" Name="JS32DL_0.MAN" LongName="js32.dll.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js32.dll.manifest"/>
+            <File Id="file473" Name="platform.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\platform.ini"/>
+            <File Id="file477" Name="pyxpcom.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pyxpcom.dll"/>
+            <File Id="file478" Name="sqlite3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\sqlite3.dll"/>
 <?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
             <File Id="file1891" Name="mangle.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mangle.exe"/>
             <File Id="file1892" Name="nss3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nss3.dll"/>
             <File Id="file1893" Name="nssckbi.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nssckbi.dll"/>
+            <File Id="file471" Name="nssdbm3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nssdbm3.dll"/>
+            <File Id="file472" Name="nssutil3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nssutil3.dll"/>
             <File Id="file1894" Name="SHLIBS_0.EXE" LongName="shlibsign.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\shlibsign.exe"/>
             <File Id="file1895" Name="smime3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\smime3.dll"/>
             <File Id="file1896" Name="softokn3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.chk"/>
             <File Id="file1897" Name="softokn3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.dll"/>
             <File Id="file1898" Name="ssl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssl3.dll"/>
+            <File Id="file479" Name="SSLTUN_0.EXE" LongName="ssltunnel.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssltunnel.exe"/>
 <?endif ?>
           </Component>
           <Directory Id="ChromeDir" Name="chrome">
@@ -785,6 +808,36 @@
               <File Id="file1395" Name="spellchk.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchk.dll"/>
               <File Id="file230" Name="ISciDoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciDoc.xpt"/>
               <File Id="file236" Name="koSciDoc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSciDoc.dll"/>
+              <File Id="file474" Name="CONTEN_6.XPT" LongName="contentprefs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentprefs.xpt"/>
+              <File Id="file475" Name="dom_json.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_json.xpt"/>
+              <File Id="file476" Name="DOM_OF_0.XPT" LongName="dom_offline.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_offline.xpt"/>
+              <File Id="file480" Name="EXTHEL_0.XPT" LongName="exthelper.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\exthelper.xpt"/>
+              <File Id="file481" Name="KOPOWE_1.PY" LongName="koPowerShellLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPowerShellLanguage.py"/>
+              <File Id="file482" Name="KOPROJ_1.PY" LongName="koProjectImportService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectImportService.py"/>
+              <File Id="file483" Name="KOPROJ_2.PY" LongName="koProjectPackageService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectPackageService.py"/>
+              <File Id="file484" Name="KOPROJ_3.PY" LongName="koProjectService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectService.py"/>
+              <File Id="file561" Name="loginmgr.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\loginmgr.xpt"/>
+              <File Id="file562" Name="NSADDO_0.JS" LongName="nsAddonRepository.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsAddonRepository.js"/>
+              <File Id="file563" Name="NSBADC_0.JS" LongName="nsBadCertHandler.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsBadCertHandler.js"/>
+              <File Id="file564" Name="NSBLOC_0.JS" LongName="nsBlocklistService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsBlocklistService.js"/>
+              <File Id="file565" Name="NSCONT_0.JS" LongName="nsContentDispatchChooser.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsContentDispatchChooser.js"/>
+              <File Id="file566" Name="NSCONT_1.JS" LongName="nsContentPrefService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsContentPrefService.js"/>
+              <File Id="file567" Name="NSDOWN_0.JS" LongName="nsDownloadManagerUI.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDownloadManagerUI.js"/>
+              <File Id="file568" Name="NSHAND_0.JS" LongName="nsHandlerService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsHandlerService.js"/>
+              <File Id="file569" Name="NSLOGI_0.JS" LongName="nsLoginInfo.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsLoginInfo.js"/>
+              <File Id="file570" Name="NSLOGI_1.JS" LongName="nsLoginManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsLoginManager.js"/>
+              <File Id="file571" Name="NSLOGI_2.JS" LongName="nsLoginManagerPrompter.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsLoginManagerPrompter.js"/>
+              <File Id="file572" Name="NSTRYT_0.JS" LongName="nsTryToClose.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsTryToClose.js"/>
+              <File Id="file573" Name="NSWEBH_0.JS" LongName="nsWebHandlerApp.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsWebHandlerApp.js"/>
+              <File Id="file574" Name="PARENT_0.XPT" LongName="parentalcontrols.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\parentalcontrols.xpt"/>
+              <File Id="file575" Name="places.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\places.xpt"/>
+              <File Id="file576" Name="PLUGIN_0.JS" LongName="pluginGlue.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pluginGlue.js"/>
+              <File Id="file577" Name="pyabout.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyabout.py"/>
+              <File Id="file578" Name="pydom.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pydom.dll"/>
+              <File Id="file579" Name="STORAG_0.JS" LongName="storage-Legacy.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\storage-Legacy.js"/>
+              <File Id="file580" Name="TXEXSL_0.JS" LongName="txEXSLTRegExFunctions.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.js"/>
+              <File Id="file581" Name="XPCOM__5.XPT" LongName="xpcom_system.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_system.xpt"/>
+              <File Id="file582" Name="ZIPWRI_0.XPT" LongName="zipwriter.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\zipwriter.xpt"/>
 <?if $(var.WithCrypto) = "yes" ?>
               <File Id="file3946" Name="koSFTP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSFTP.py"/>
               <File Id="file4016" Name="koSCP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSCP.py"/>
@@ -1330,6 +1383,17 @@
               <File Id="file2283" Name="XPINST_0.JS" LongName="xpinstall.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\greprefs\xpinstall.js"/>
             </Component>
           </Directory> <!-- lib\mozilla\greprefs -->
+          <Directory Id="directory255" Name="modules">
+            <Component Id="component223" DiskId="1" Guid="$(autowix.guid)">
+              <File Id="file583" Name="debug.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\debug.js"/>
+              <File Id="file584" Name="DOWNLO_0.JSM" LongName="DownloadUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadUtils.jsm"/>
+              <File Id="file585" Name="ISO860_0.JSM" LongName="ISO8601DateUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\ISO8601DateUtils.jsm"/>
+              <File Id="file586" Name="JSON.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\JSON.jsm"/>
+              <File Id="file591" Name="MICROF_0.JS" LongName="Microformats.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Microformats.js"/>
+              <File Id="file592" Name="PLURAL_0.JSM" LongName="PluralForm.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PluralForm.jsm"/>
+              <File Id="file593" Name="XPCOMU_0.JSM" LongName="XPCOMUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\XPCOMUtils.jsm"/>
+            </Component>
+          </Directory> <!-- lib\mozilla\modules -->
           <Directory Id="directory66" Name="plugins">
             <Component Id="component60" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file2284" Name="npnul32.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plugins\npnul32.dll"/>
@@ -1399,16 +1463,18 @@
                 <File Id="file2948" Name="OSFILE_0.PY" LongName="osFilePollingNotifier.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFilePollingNotifier.py"/>
                 <File Id="file2949" Name="OSFILE_1.PY" LongName="osFileNotificationUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFileNotificationUtils.py"/>
                 <File Id="file2956" Name="OSFILE_2.PY" LongName="osFileNotifications_win32.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFileNotifications_win32.py"/>
-                <File Id="file1285" Name="CELEME_0.EGG" LongName="cElementTree-1.0.5_20051216-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\cElementTree-1.0.5_20051216-py2.5.egg-info"/>
-                <File Id="file1286" Name="ELEMEN_0.EGG" LongName="elementtree-1.2.6_20050316-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\elementtree-1.2.6_20050316-py2.5.egg-info"/>
-                <File Id="file1342" Name="SILVER_0.EGG" LongName="SilverCity-0.9.5-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.5.egg-info"/>
                 <File Id="file1385" Name="kotaclib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\kotaclib.py" />
                 <File Id="file602" LongName="koAsyncOperationUtils.py" Name="KOASYN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koAsyncOperationUtils.py" />
-                <File Id="file350" Name="SGMLOP_0.EGG" LongName="sgmlop-1.1.1_20040207-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop-1.1.1_20040207-py2.5.egg-info"/>
                 <File Id="file352" Name="sgmlop.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop.pyd"/>
+                <File Id="file350" Name="CELEME_0.EGG" LongName="cElementTree-1.0.5_20051216-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\cElementTree-1.0.5_20051216-py2.6.egg-info"/>
+                <File Id="file595" Name="ELEMEN_1.EGG" LongName="elementtree-1.2.6_20050316-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\elementtree-1.2.6_20050316-py2.6.egg-info"/>
+                <File Id="file596" Name="PROJEC_0.PY" LongName="projectUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\projectUtils.py"/>
+                <File Id="file599" Name="SGMLOP_1.EGG" LongName="sgmlop-1.1.1_20040207-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop-1.1.1_20040207-py2.6.egg-info"/>
+                <File Id="file609" Name="SILVER_1.EGG" LongName="SilverCity-0.9.5-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.6.egg-info"/>
+
 <?if $(var.WithCrypto) = "yes" ?>
                 <File Id="file3938" Name="REMOTE_3.PY" LongName="remotefileagent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\remotefileagent.py"/>
-                <File Id="file1302" Name="PYCRYP_0.EGG" LongName="pycrypto-2.0.1-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.0.1-py2.5.egg-info"/>
+                <File Id="file597" Name="PYCRYP_1.EGG" LongName="pycrypto-2.0.1-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.0.1-py2.6.egg-info"/>
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
 <?endif ?>
@@ -1834,6 +1900,13 @@
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\SilverCity -->
             </Directory> <!-- lib\mozilla\python\komodo -->
+            <Directory Id="directory333" Name="nsdom">
+              <Component Id="component301" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file610" Name="context.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\nsdom\context.py"/>
+                <File Id="file621" Name="DOMCOM_0.PY" LongName="domcompile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\nsdom\domcompile.py"/>
+                <File Id="file624" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\nsdom\__init__.py"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\python\nsdom -->
             <Directory Id="directory75" Name="xpcom">
               <Component Id="component69" DiskId="1" Guid="$(autowix.guid)">
                 <RemoveFile Id="removefile69" On="uninstall" Name="*.pyo" />
@@ -1845,6 +1918,8 @@
                 <File Id="file2394" Name="xpt.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\xpt.py"/>
                 <File Id="file2395" Name="_xpcom.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\_xpcom.pyd"/>
                 <File Id="file2396" Name="__INIT_5.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\__init__.py"/>
+                <File Id="file625" Name="PRIMIT_0.PY" LongName="primitives.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\primitives.py"/>
+                <File Id="file626" Name="shutdown.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\shutdown.py"/>
               </Component>
               <Directory Id="directory76" Name="client">
                 <Component Id="component70" DiskId="1" Guid="$(autowix.guid)">
@@ -1913,6 +1988,8 @@
               <File Id="file2443" Name="VIEWSO_0.CSS" LongName="viewsource.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\viewsource.css"/>
               <File Id="file2444" Name="WINCHA_0.PRO" LongName="wincharset.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\wincharset.properties"/>
               <File Id="file300" Name="svg.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\svg.css"/>
+              <File Id="file627" Name="CONTEN_0.CSS" LongName="contenteditable.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\contenteditable.css"/>
+              <File Id="file628" Name="DESIGN_0.CSS" LongName="designmode.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\designmode.css"/>
             </Component>
             <Directory Id="directory80" Name="dtd">
               <Component Id="component74" DiskId="1" Guid="$(autowix.guid)">
@@ -1943,6 +2020,10 @@
                 <File Id="file2461" Name="MATHFO_6.PRO" LongName="mathfontMTExtra.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontMTExtra.properties"/>
                 <File Id="file2462" Name="MATHFO_7.PRO" LongName="mathfontPUA.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontPUA.properties"/>
                 <File Id="file2463" Name="MATHFO_8.PRO" LongName="mathfontSymbol.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSymbol.properties"/>
+                <File Id="file629" Name="MATHFO_9.PRO" LongName="mathfontStandardSymbolsL.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontStandardSymbolsL.properties"/>
+                <File Id="file630" Name="MATHF_10.PRO" LongName="mathfontSTIXNonUnicode.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXNonUnicode.properties"/>
+                <File Id="file631" Name="MATHF_11.PRO" LongName="mathfontSTIXSize1.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXSize1.properties"/>
+                <File Id="file632" Name="MATHF_12.PRO" LongName="mathfontUnicode.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontUnicode.properties"/>
               </Component>
             </Directory> <!-- lib\mozilla\res\fonts -->
             <Directory Id="directory83" Name="html">
@@ -1957,6 +2038,7 @@
                 <File Id="file2471" Name="GOPHER_7.GIF" LongName="gopher-telnet.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-telnet.gif"/>
                 <File Id="file2472" Name="GOPHER_8.GIF" LongName="gopher-text.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-text.gif"/>
                 <File Id="file2473" Name="GOPHER_9.GIF" LongName="gopher-unknown.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-unknown.gif"/>
+                <File Id="file633" Name="folder.png" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\folder.png"/>
               </Component>
             </Directory> <!-- lib\mozilla\res\html -->
             <Directory Id="directory84" Name="samples">
@@ -2073,8 +2155,8 @@
             <File Id="file5" Name="python.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python.exe"/>
             <File Id="file2571" Name="License.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\License.txt"/>
             <File Id="file2572" Name="pythonw.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\pythonw.exe"/>
-            <File Id="file1346" Name="python25.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python25.exe"/>
-            <File Id="file1347" Name="PYTHON_2.EXE" LongName="pythonw25.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\pythonw25.exe"/>
+            <File Id="file1346" Name="python26.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python26.exe"/>
+            <File Id="file1347" Name="PYTHON_2.EXE" LongName="pythonw26.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\pythonw26.exe"/>
           </Component>
           <Directory Id="directory88" Name="DLLs">
             <Component Id="component82" DiskId="1" Guid="$(autowix.guid)">
@@ -2090,6 +2172,7 @@
               <File Id="file1351" Name="_ELEME_0.PYD" LongName="_elementtree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_elementtree.pyd"/>
               <File Id="file1352" Name="_sqlite3.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_sqlite3.pyd"/>
               <File Id="file1353" Name="_ssl.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_ssl.pyd"/>
+              <File Id="file634" Name="_msi.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_msi.pyd"/>
             </Component>
           </Directory> <!-- lib\python\DLLs -->
           <Directory Id="directory89" Name="include">
@@ -2175,6 +2258,13 @@
               <File Id="file1357" Name="pyarena.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\pyarena.h"/>
               <File Id="file1358" Name="pyexpat.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\pyexpat.h"/>
               <File Id="file1359" Name="PYTHON_4.H" LongName="Python-ast.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\Python-ast.h"/>
+              <File Id="file635" Name="BYTEAR_0.H" LongName="bytearrayobject.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\bytearrayobject.h"/>
+              <File Id="file636" Name="BYTESO_0.H" LongName="bytesobject.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\bytesobject.h"/>
+              <File Id="file637" Name="BYTES__0.H" LongName="bytes_methods.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\bytes_methods.h"/>
+              <File Id="file638" Name="PYMACC_0.H" LongName="pymacconfig.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\pymacconfig.h"/>
+              <File Id="file639" Name="pymath.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\pymath.h"/>
+              <File Id="file640" Name="pystrcmp.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\pystrcmp.h"/>
+              <File Id="file641" Name="warnings.h" Vital="yes" src="feature-core\INSTALLDIR\lib\python\include\warnings.h"/>
             </Component>
           </Directory> <!-- lib\python\include -->
           <Directory Id="directory90" Name="LIB_0" LongName="Lib">
@@ -2373,6 +2463,17 @@
               <File Id="file1367" Name="struct.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\struct.py"/>
               <File Id="file1368" Name="uuid.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\uuid.py"/>
               <File Id="file1369" Name="WSGIRE_0.EGG" LongName="wsgiref.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\wsgiref.egg-info"/>
+              <File Id="file642" Name="abc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\abc.py"/>
+              <File Id="file643" Name="ast.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\ast.py"/>
+              <File Id="file644" Name="COLLEC_0.PY" LongName="collections.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\collections.py"/>
+              <File Id="file645" Name="FRACTI_0.PY" LongName="fractions.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\fractions.py"/>
+              <File Id="file646" Name="GENERI_0.PY" LongName="genericpath.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\genericpath.py"/>
+              <File Id="file647" Name="io.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\io.py"/>
+              <File Id="file648" Name="numbers.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\numbers.py"/>
+              <File Id="file649" Name="plistlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\plistlib.py"/>
+              <File Id="file650" Name="PYDOC__0.PY" LongName="pydoc_topics.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\pydoc_topics.py"/>
+              <File Id="file651" Name="ssl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\ssl.py"/>
+              <File Id="file652" Name="_abcoll.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\_abcoll.py"/>
             </Component>
             <Directory Id="directory91" Name="bsddb">
               <Component Id="component85" DiskId="1" Guid="$(autowix.guid)">
@@ -2450,6 +2551,8 @@
                 <File Id="file2888" Name="version.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\version.py"/>
                 <File Id="file2889" Name="__INI_10.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\__init__.py"/>
                 <File Id="file1430" Name="VERSIO_0.PY" LongName="versionpredicate.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\versionpredicate.py"/>
+                <File Id="file653" Name="config.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\config.py"/>
+                <File Id="file654" Name="MSVC9C_0.PY" LongName="msvc9compiler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\msvc9compiler.py"/>
               </Component>
               <Directory Id="directory94" Name="command">
                 <Component Id="component88" DiskId="1" Guid="$(autowix.guid)">
@@ -2478,6 +2581,10 @@
                   <File Id="file1431" Name="BDIST__3.PY" LongName="bdist_msi.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\bdist_msi.py"/>
                   <File Id="file1432" Name="INSTAL_5.PY" LongName="install_egg_info.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\install_egg_info.py"/>
                   <File Id="file1433" Name="upload.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\upload.py"/>
+                  <File Id="file655" Name="WININS_2.EXE" LongName="wininst-6.0.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-6.0.exe"/>
+                  <File Id="file656" Name="WININS_3.EXE" LongName="wininst-8.0.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-8.0.exe"/>
+                  <File Id="file657" Name="WININS_4.EXE" LongName="wininst-9.0-amd64.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-9.0-amd64.exe"/>
+                  <File Id="file658" Name="WININS_5.EXE" LongName="wininst-9.0.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-9.0.exe"/>
                 </Component>
               </Directory> <!-- lib\python\Lib\distutils\command -->
             </Directory> <!-- lib\python\Lib\distutils -->
@@ -2631,6 +2738,9 @@
                 <File Id="file3096" Name="uu_codec.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\uu_codec.py"/>
                 <File Id="file3097" Name="ZLIB_C_0.PY" LongName="zlib_codec.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\zlib_codec.py"/>
                 <File Id="file3098" Name="__INI_15.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\__init__.py"/>
+                <File Id="file659" Name="utf_32.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\utf_32.py"/>
+                <File Id="file660" Name="UTF_32_0.PY" LongName="utf_32_be.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\utf_32_be.py"/>
+                <File Id="file661" Name="UTF_32_1.PY" LongName="utf_32_le.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\encodings\utf_32_le.py"/>
               </Component>
             </Directory> <!-- lib\python\Lib\encodings -->
             <Directory Id="directory100" Name="hotshot">
@@ -2715,6 +2825,7 @@
                 <File Id="file1644" Name="HYPERP_0.PY" LongName="HyperParser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\HyperParser.py"/>
                 <File Id="file1645" Name="MACOSX_0.PY" LongName="macosxSupport.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\macosxSupport.py"/>
                 <File Id="file1646" Name="MULTIC_0.PY" LongName="MultiCall.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\MultiCall.py"/>
+                <File Id="file662" Name="TABBED_0.PY" LongName="tabbedpages.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\tabbedpages.py"/>
               </Component>
               <Directory Id="directory102" Name="ICONS_1" LongName="Icons">
                 <Component Id="component96" DiskId="1" Guid="$(autowix.guid)">
@@ -2728,6 +2839,86 @@
                 </Component>
               </Directory> <!-- lib\python\Lib\idlelib\Icons -->
             </Directory> <!-- lib\python\Lib\idlelib -->
+            <Directory Id="directory384" Name="json">
+              <Component Id="component354" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file663" Name="decoder.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\json\decoder.py"/>
+                <File Id="file664" Name="encoder.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\json\encoder.py"/>
+                <File Id="file665" Name="scanner.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\json\scanner.py"/>
+                <File Id="file666" Name="tool.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\json\tool.py"/>
+                <File Id="file667" Name="__INI_12.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\json\__init__.py"/>
+              </Component>
+            </Directory> <!-- lib\python\Lib\json -->
+            <Directory Id="directory386" Name="lib2to3">
+              <Component Id="component356" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file684" Name="FIXER__0.PY" LongName="fixer_base.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixer_base.py"/>
+                <File Id="file685" Name="FIXER__1.PY" LongName="fixer_util.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixer_util.py"/>
+                <File Id="file686" Name="Grammar.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\Grammar.txt"/>
+                <File Id="file687" Name="patcomp.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\patcomp.py"/>
+                <File Id="file688" Name="PATTER_0.TXT" LongName="PatternGrammar.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\PatternGrammar.txt"/>
+                <File Id="file689" Name="pygram.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pygram.py"/>
+                <File Id="file690" Name="pytree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pytree.py"/>
+                <File Id="file691" Name="refactor.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\refactor.py"/>
+                <File Id="file692" Name="__INI_22.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\__init__.py"/>
+              </Component>
+              <Directory Id="directory387" Name="fixes">
+                <Component Id="component357" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file693" Name="FIX_AP_0.PY" LongName="fix_apply.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_apply.py"/>
+                  <File Id="file694" Name="FIX_BA_0.PY" LongName="fix_basestring.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_basestring.py"/>
+                  <File Id="file695" Name="FIX_BU_0.PY" LongName="fix_buffer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_buffer.py"/>
+                  <File Id="file696" Name="FIX_CA_0.PY" LongName="fix_callable.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_callable.py"/>
+                  <File Id="file697" Name="fix_dict.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_dict.py"/>
+                  <File Id="file698" Name="FIX_EX_0.PY" LongName="fix_except.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_except.py"/>
+                  <File Id="file699" Name="fix_exec.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_exec.py"/>
+                  <File Id="file700" Name="FIX_EX_1.PY" LongName="fix_execfile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_execfile.py"/>
+                  <File Id="file701" Name="FIX_FI_0.PY" LongName="fix_filter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_filter.py"/>
+                  <File Id="file702" Name="FIX_FU_0.PY" LongName="fix_funcattrs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_funcattrs.py"/>
+                  <File Id="file703" Name="FIX_FU_1.PY" LongName="fix_future.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_future.py"/>
+                  <File Id="file704" Name="FIX_HA_0.PY" LongName="fix_has_key.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_has_key.py"/>
+                  <File Id="file705" Name="FIX_ID_0.PY" LongName="fix_idioms.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_idioms.py"/>
+                  <File Id="file706" Name="FIX_IM_0.PY" LongName="fix_import.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_import.py"/>
+                  <File Id="file707" Name="FIX_IM_1.PY" LongName="fix_imports.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_imports.py"/>
+                  <File Id="file708" Name="FIX_IN_0.PY" LongName="fix_input.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_input.py"/>
+                  <File Id="file709" Name="FIX_IN_1.PY" LongName="fix_intern.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_intern.py"/>
+                  <File Id="file711" Name="FIX_IT_0.PY" LongName="fix_itertools.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_itertools.py"/>
+                  <File Id="file712" Name="FIX_IT_1.PY" LongName="fix_itertools_imports.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_itertools_imports.py"/>
+                  <File Id="file713" Name="fix_long.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_long.py"/>
+                  <File Id="file714" Name="fix_map.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_map.py"/>
+                  <File Id="file715" Name="FIX_ME_0.PY" LongName="fix_methodattrs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_methodattrs.py"/>
+                  <File Id="file716" Name="fix_ne.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_ne.py"/>
+                  <File Id="file717" Name="fix_next.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_next.py"/>
+                  <File Id="file718" Name="FIX_NO_0.PY" LongName="fix_nonzero.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_nonzero.py"/>
+                  <File Id="file719" Name="FIX_NU_0.PY" LongName="fix_numliterals.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_numliterals.py"/>
+                  <File Id="file720" Name="FIX_PR_0.PY" LongName="fix_print.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_print.py"/>
+                  <File Id="file721" Name="FIX_RA_0.PY" LongName="fix_raise.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_raise.py"/>
+                  <File Id="file722" Name="FIX_RA_1.PY" LongName="fix_raw_input.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_raw_input.py"/>
+                  <File Id="file723" Name="FIX_RE_0.PY" LongName="fix_renames.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_renames.py"/>
+                  <File Id="file724" Name="fix_repr.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_repr.py"/>
+                  <File Id="file725" Name="FIX_ST_0.PY" LongName="fix_standarderror.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_standarderror.py"/>
+                  <File Id="file726" Name="FIX_TH_0.PY" LongName="fix_throw.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_throw.py"/>
+                  <File Id="file727" Name="FIX_TU_0.PY" LongName="fix_tuple_params.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_tuple_params.py"/>
+                  <File Id="file728" Name="FIX_TY_0.PY" LongName="fix_types.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_types.py"/>
+                  <File Id="file729" Name="FIX_UN_0.PY" LongName="fix_unicode.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_unicode.py"/>
+                  <File Id="file730" Name="FIX_WS_0.PY" LongName="fix_ws_comma.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_ws_comma.py"/>
+                  <File Id="file731" Name="FIX_XR_0.PY" LongName="fix_xrange.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_xrange.py"/>
+                  <File Id="file732" Name="FIX_XR_1.PY" LongName="fix_xreadlines.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_xreadlines.py"/>
+                  <File Id="file733" Name="fix_zip.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_zip.py"/>
+                  <File Id="file734" Name="__INI_34.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\__init__.py"/>
+                </Component>
+              </Directory> <!-- lib\python\Lib\lib2to3\fixes -->
+              <Directory Id="directory388" Name="pgen2">
+                <Component Id="component358" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file735" Name="conv.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\conv.py"/>
+                  <File Id="file736" Name="driver.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\driver.py"/>
+                  <File Id="file737" Name="grammar.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\grammar.py"/>
+                  <File Id="file738" Name="literals.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\literals.py"/>
+                  <File Id="file739" Name="parse.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\parse.py"/>
+                  <File Id="file740" Name="pgen.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\pgen.py"/>
+                  <File Id="file741" Name="token.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\token.py"/>
+                  <File Id="file742" Name="tokenize.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\tokenize.py"/>
+                  <File Id="file743" Name="__INI_38.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pgen2\__init__.py"/>
+                </Component>
+              </Directory> <!-- lib\python\Lib\lib2to3\pgen2 -->
+            </Directory> <!-- lib\python\Lib\lib2to3 -->
             <Directory Id="directory539" Name="msilib">
               <Component Id="component495" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file1647" Name="schema.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\msilib\schema.py"/>
@@ -2736,6 +2927,28 @@
                 <File Id="file1650" Name="__INI_83.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\msilib\__init__.py"/>
               </Component>
             </Directory> <!-- lib\python\Lib\msilib -->
+            <Directory Id="directory393" Name="MULTIP_0" LongName="multiprocessing">
+              <Component Id="component363" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file755" Name="CONNEC_0.PY" LongName="connection.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\connection.py"/>
+                <File Id="file756" Name="forking.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\forking.py"/>
+                <File Id="file757" Name="heap.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\heap.py"/>
+                <File Id="file758" Name="managers.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\managers.py"/>
+                <File Id="file759" Name="pool.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\pool.py"/>
+                <File Id="file760" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\process.py"/>
+                <File Id="file761" Name="queues.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\queues.py"/>
+                <File Id="file762" Name="REDUCT_0.PY" LongName="reduction.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\reduction.py"/>
+                <File Id="file763" Name="SHARED_2.PY" LongName="sharedctypes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\sharedctypes.py"/>
+                <File Id="file764" Name="SYNCHR_0.PY" LongName="synchronize.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\synchronize.py"/>
+                <File Id="file765" Name="util.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\util.py"/>
+                <File Id="file766" Name="__INI_56.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\__init__.py"/>
+              </Component>
+              <Directory Id="directory394" Name="dummy">
+                <Component Id="component364" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file767" Name="CONNEC_2.PY" LongName="connection.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\dummy\connection.py"/>
+                  <File Id="file768" Name="__INI_71.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\multiprocessing\dummy\__init__.py"/>
+                </Component>
+              </Directory> <!-- lib\python\Lib\multiprocessing\dummy -->
+            </Directory> <!-- lib\python\Lib\multiprocessing -->
             <Directory Id="directory103" Name="LOGGIN_0" LongName="logging">
               <Component Id="component97" DiskId="1" Guid="$(autowix.guid)">
                 <RemoveFile Id="removefile97" On="uninstall" Name="*.pyo" />
@@ -2751,9 +2964,17 @@
                 <File Id="file3182" Name="PYTHON_1.PY" LongName="pythoncom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythoncom.py"/>
                 <File Id="file3183" Name="pywin32.pth" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32.pth"/>
                 <File Id="file3184" Name="README_1.TXT" LongName="README.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\README.txt"/>
-                <File Id="file1765" Name="PYWIN3_0.EGG" LongName="pywin32-209.2-py2.5.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32-209.2-py2.5.egg-info"/>
+                <File Id="file769" Name="PYWIN3_1.EGG" LongName="pywin32-211.1-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32-211.1-py2.6.egg-info"/>
                 <File Id="file1775" Name="PYWIN3_0.TXT" LongName="pywin32.version.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32.version.txt"/>
               </Component>
+              <Directory Id="directory396" Name="adodbapi">
+                <Component Id="component366" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file770" Name="adodbapi.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\adodbapi\adodbapi.py"/>
+                  <File Id="file771" Name="license.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\adodbapi\license.txt"/>
+                  <File Id="file772" Name="readme.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\adodbapi\readme.txt"/>
+                  <File Id="file773" Name="__INI_72.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\adodbapi\__init__.py"/>
+                </Component>
+              </Directory> <!-- lib\python\Lib\site-packages\adodbapi -->
               <Directory Id="directory105" Name="isapi">
                 <Component Id="component99" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file3185" Name="INSTAL_4.PY" LongName="install.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\isapi\install.py"/>
@@ -2824,6 +3045,7 @@
                       <File Id="file3263" Name="window.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\pywin\framework\window.py"/>
                       <File Id="file3264" Name="winout.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\pywin\framework\winout.py"/>
                       <File Id="file3265" Name="__INI_25.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\pywin\framework\__init__.py"/>
+                      <File Id="file779" Name="MDI_PY_0.PY" LongName="mdi_pychecker.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\pywin\framework\mdi_pychecker.py"/>
                     </Component>
                     <Directory Id="directory117" Name="EDITOR_0" LongName="editor">
                       <Component Id="component111" DiskId="1" Guid="$(autowix.guid)">
@@ -2937,6 +3159,7 @@
                   <File Id="file1859" Name="WIN32C_3.PYD" LongName="win32cred.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32cred.pyd"/>
                   <File Id="file1863" Name="WIN32P_3.PYD" LongName="win32profile.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32profile.pyd"/>
                   <File Id="file1864" Name="win32ts.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32ts.pyd"/>
+                  <File Id="file780" Name="WIN32T_1.PYD" LongName="win32transaction.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32transaction.pyd"/>
                 </Component>
                 <Directory Id="directory133" Name="INCLUD_0" LongName="include">
                   <Component Id="component127" DiskId="1" Guid="$(autowix.guid)">
@@ -3117,6 +3340,12 @@
                     </Component>
                   </Directory> <!-- lib\python\Lib\site-packages\win32comext\axscript\server -->
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\axscript -->
+                <Directory Id="directory446" Name="bits">
+                  <Component Id="component413" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file781" Name="bits.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\bits\bits.pyd"/>
+                    <File Id="file782" Name="__INI_73.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\bits\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\python\Lib\site-packages\win32comext\bits -->
                 <Directory Id="directory165" Name="DIRECT_0" LongName="directsound">
                   <Component Id="component156" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file3612" Name="DIRECT_0.PYD" LongName="directsound.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\directsound.pyd"/>
@@ -3145,6 +3374,13 @@
                     <File Id="file3626" Name="__INI_48.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\mapi\__init__.py"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\mapi -->
+                <Directory Id="directory452" Name="propsys">
+                  <Component Id="component420" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file785" Name="propsys.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\propsys\propsys.pyd"/>
+                    <File Id="file786" Name="pscon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\propsys\pscon.py"/>
+                    <File Id="file787" Name="__INI_75.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\propsys\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\python\Lib\site-packages\win32comext\propsys -->
                 <Directory Id="directory171" Name="shell">
                   <Component Id="component162" DiskId="1" Guid="$(autowix.guid)">
                     <RemoveFile Id="removefile162" On="uninstall" Name="*.pyo" />
@@ -3165,6 +3401,7 @@
               <Component Id="component536" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file1989" Name="dbapi2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\sqlite3\dbapi2.py"/>
                 <File Id="file2016" Name="__INI_86.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\sqlite3\__init__.py"/>
+                <File Id="file789" Name="dump.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\sqlite3\dump.py"/>
               </Component>
             </Directory> <!-- lib\python\Lib\sqlite3 -->
             <Directory Id="directory583" Name="wsgiref">
@@ -3226,7 +3463,7 @@
           </Directory> <!-- lib\python\Lib -->
           <Directory Id="directory181" Name="LIBS_1" LongName="libs">
             <Component Id="component172" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file2306" Name="python25.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\python25.lib"/>
+              <File Id="file2306" Name="python26.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\python26.lib"/>
               <File Id="file3664" Name="bz2.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\bz2.lib"/>
               <File Id="file3665" Name="pyexpat.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\pyexpat.lib"/>
               <File Id="file3667" Name="select.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\select.lib"/>
@@ -3238,6 +3475,8 @@
               <File Id="file2333" Name="_ELEME_0.LIB" LongName="_elementtree.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_elementtree.lib"/>
               <File Id="file2351" Name="_sqlite3.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_sqlite3.lib"/>
               <File Id="file2359" Name="_ssl.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_ssl.lib"/>
+              <File Id="file790" Name="sqlite3.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\sqlite3.lib"/>
+              <File Id="file791" Name="_msi.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_msi.lib"/>
             </Component>
           </Directory> <!-- lib\python\libs -->
         </Directory> <!-- lib\python -->
@@ -3525,6 +3764,10 @@
               <File Id="file4910" Name="NSIX50_2.IDL" LongName="nsIX509CertValidity.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIX509CertValidity.idl"/>
               <File Id="file4922" Name="NSROOT_0.IDL" LongName="nsrootidl.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsrootidl.idl"/>
               <File Id="file4100" Name="KOIVIC_0.IDL" LongName="koIViCommandDetail.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIViCommandDetail.idl"/>
+              <File Id="file792" Name="nsIArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIArray.idl"/>
+              <File Id="file793" Name="NSIHAS_0.IDL" LongName="nsIHashable.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIHashable.idl"/>
+              <File Id="file794" Name="nsIJSON.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIJSON.idl"/>
+              <File Id="file795" Name="NSIMUT_0.IDL" LongName="nsIMutableArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIMutableArray.idl"/>
             </Component>
           </Directory> <!-- lib\sdk\idl -->
           <Directory Id="directory6" Name="pylib">
