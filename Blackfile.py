@@ -2011,6 +2011,10 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("python", "komodo"),
         mozbinpath("python", "komodo.pth"),
         mozbinpath("is_dev_tree.txt"),
+        
+        # This moved. Make sure it gets turfed from old moz builds.
+        mozbinpath("komodo-config.py"),
+        mozbinpath("komodo-config"),
 
         mozbinpath("chrome", "app-chrome.manifest"),
         mozbinpath("chrome", "icons"),
