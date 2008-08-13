@@ -81,8 +81,6 @@
       <ComponentRef Id="component75"/>
       <ComponentRef Id="component76"/>
       <ComponentRef Id="component77"/>
-      <ComponentRef Id="component78"/>
-      <ComponentRef Id="component79"/>
       <ComponentRef Id="component82"/>
       <ComponentRef Id="component83"/>
       <ComponentRef Id="component84"/>
@@ -388,13 +386,10 @@
             <File Id="file458" Name="updater.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.ini" />
             <File Id="file341" Name="updater.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.exe"/>
             <File Id="file343" Name="w9xpopen.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\w9xpopen.exe"/>
-            <File Id="file344" Name="winEmbed.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\winEmbed.exe"/>
             <File Id="file345" Name="xpcom.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpcom.dll"/>
             <File Id="file346" Name="XPCOM__0.DLL" LongName="xpcom_compat.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpcom_compat.dll"/>
             <File Id="file347" Name="XPCOM__1.DLL" LongName="xpcom_core.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpcom_core.dll"/>
             <File Id="file348" Name="xpcshell.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpcshell.exe"/>
-            <File Id="file349" Name="XPICLE_0.EXE" LongName="xpicleanup.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpicleanup.exe"/>
-            <File Id="file351" Name="xpistub.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xpistub.dll"/>
             <File Id="file465" Name="APPLIC_0.INI" LongName="application.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\application.ini"/>
             <File Id="file466" Name="CRASHR_0.EXE" LongName="crashreporter.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.exe"/>
             <File Id="file467" Name="CRASHR_0.INI" LongName="crashreporter.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.ini"/>
@@ -423,7 +418,6 @@
           <Directory Id="ChromeDir" Name="chrome">
             <Component Id="component6" DiskId="1" Guid="$(autowix.guid)">
               <RemoveFile Id="removefile6" On="uninstall" Name="APPCHR_1.MAN" LongName="app-chrome.manifest" />
-              <File Id="file356" Name="CHROME_0.TXT" LongName="chromelist.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\chromelist.txt"/>
               <File Id="file357" Name="classic.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\classic.jar"/>
               <File Id="file358" Name="CLASSI_0.MAN" LongName="classic.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\classic.manifest"/>
               <File Id="file359" Name="comm.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\comm.jar"/>
@@ -512,13 +506,11 @@
               <File Id="file1950" Name="imgicon.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imgicon.xpt"/>
               <File Id="file1951" Name="imglib2.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imglib2.xpt"/>
               <File Id="file1952" Name="intl.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\intl.xpt"/>
-              <File Id="file1953" Name="intlcmpt.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\intlcmpt.xpt"/>
               <File Id="file1954" Name="ISciMoz.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciMoz.xpt"/>
               <File Id="file1955" Name="ISCIMO_0.XPT" LongName="ISciMozController.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciMozController.xpt"/>
               <File Id="file1956" Name="ISCIMO_1.XPT" LongName="ISciMozEvents.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciMozEvents.xpt"/>
               <File Id="file1957" Name="jar.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jar.xpt"/>
               <File Id="file1958" Name="JSCONS_0.JS" LongName="jsconsole-clhandler.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jsconsole-clhandler.js"/>
-              <File Id="file1959" Name="JSCONS_0.XPT" LongName="jsconsole.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jsconsole.xpt"/>
               <File Id="file1960" Name="jsd3250.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jsd3250.dll"/>
               <File Id="file1961" Name="JSDSER_0.XPT" LongName="jsdservice.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jsdservice.xpt"/>
               <File Id="file1962" Name="KOADAL_0.PY" LongName="koADALanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koADALanguage.py"/>
@@ -723,7 +715,6 @@
               <File Id="file2194" Name="NECKO__0.XPT" LongName="necko_about.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_about.xpt"/>
               <File Id="file2195" Name="NECKO__1.XPT" LongName="necko_cache.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_cache.xpt"/>
               <File Id="file2196" Name="NECKO__2.XPT" LongName="necko_cookie.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_cookie.xpt"/>
-              <File Id="file2197" Name="NECKO__3.XPT" LongName="necko_data.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_data.xpt"/>
               <File Id="file2198" Name="NECKO__4.XPT" LongName="necko_dns.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_dns.xpt"/>
               <File Id="file2199" Name="NECKO__5.XPT" LongName="necko_file.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_file.xpt"/>
               <File Id="file2200" Name="NECKO__6.XPT" LongName="necko_ftp.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_ftp.xpt"/>
@@ -732,29 +723,22 @@
               <File Id="file2203" Name="NECKO__9.XPT" LongName="necko_socket.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_socket.xpt"/>
               <File Id="file2204" Name="NECKO_10.XPT" LongName="necko_strconv.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_strconv.xpt"/>
               <File Id="file2205" Name="NECKO_11.XPT" LongName="necko_viewsource.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_viewsource.xpt"/>
-              <File Id="file2208" Name="NSCLOS_0.JS" LongName="nsCloseAllWindows.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsCloseAllWindows.js"/>
               <File Id="file2209" Name="NSDEFA_0.JS" LongName="nsDefaultCLH.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDefaultCLH.js"/>
               <File Id="file2210" Name="NSDICT_0.JS" LongName="nsDictionary.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDictionary.js"/>
               <File Id="file2211" Name="NSEXTE_0.JS" LongName="nsExtensionManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsExtensionManager.js"/>
               <File Id="file2212" Name="NSHELP_0.JS" LongName="nsHelperAppDlg.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsHelperAppDlg.js"/>
-              <File Id="file2213" Name="NSINTE_0.JS" LongName="nsInterfaceInfoToIDL.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsInterfaceInfoToIDL.js"/>
-              <File Id="file2214" Name="NSKILL_0.JS" LongName="nsKillAll.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsKillAll.js"/>
               <File Id="file2215" Name="NSPOST_0.JS" LongName="nsPostUpdateWin.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPostUpdateWin.js"/>
               <File Id="file2216" Name="NSPROG_0.JS" LongName="nsProgressDialog.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsProgressDialog.js"/>
               <File Id="file2217" Name="NSPROX_0.JS" LongName="nsProxyAutoConfig.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsProxyAutoConfig.js"/>
               <File Id="file2218" Name="NSRESE_0.JS" LongName="nsResetPref.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsResetPref.js"/>
               <File Id="file2221" Name="NSUPDA_0.JS" LongName="nsUpdateService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateService.js"/>
               <File Id="file2222" Name="NSXMLR_0.JS" LongName="nsXmlRpcClient.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsXmlRpcClient.js"/>
-              <File Id="file2223" Name="PASSWO_0.XPT" LongName="passwordmgr.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\passwordmgr.xpt"/>
               <File Id="file2224" Name="plugin.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\plugin.xpt"/>
               <File Id="file2225" Name="pref.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pref.xpt"/>
               <File Id="file2226" Name="prefetch.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\prefetch.xpt"/>
               <File Id="file2227" Name="profile.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\profile.xpt"/>
-              <File Id="file2228" Name="PROGRE_0.XPT" LongName="progressDlg.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\progressDlg.xpt"/>
               <File Id="file2229" Name="PROXYO_0.XPT" LongName="proxyObject.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\proxyObject.xpt"/>
               <File Id="file2230" Name="pyloader.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyloader.dll"/>
-              <File Id="file2231" Name="PYXPCO_0.XPT" LongName="pyxpcom_test.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyxpcom_test.xpt"/>
-              <File Id="file2232" Name="PY_TES_0.PY" LongName="py_test_component.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\py_test_component.py"/>
               <File Id="file2233" Name="rdf.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\rdf.xpt"/>
               <File Id="file2234" Name="satchel.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\satchel.xpt"/>
               <File Id="file2236" Name="shistory.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\shistory.xpt"/>
@@ -768,7 +752,6 @@
               <File Id="file2245" Name="WEBBRO_0.XPT" LongName="webbrowserpersist.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webbrowserpersist.xpt"/>
               <File Id="file2246" Name="WEBBRO_1.XPT" LongName="webBrowser_core.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webBrowser_core.xpt"/>
               <File Id="file2247" Name="WEBSHE_0.XPT" LongName="webshell_idls.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webshell_idls.xpt"/>
-              <File Id="file2248" Name="websrvcs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\websrvcs.xpt"/>
               <File Id="file2249" Name="widget.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\widget.xpt"/>
               <File Id="file2250" Name="windowds.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowds.xpt"/>
               <File Id="file2251" Name="WINDOW_0.XPT" LongName="windowwatcher.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowwatcher.xpt"/>
@@ -802,10 +785,7 @@
               <File Id="file4017" Name="pipboot.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pipboot.xpt"/>
               <File Id="file4018" Name="pipnss.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pipnss.xpt"/>
               <File Id="file298" Name="dom_svg.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_svg.xpt"/>
-              <File Id="file299" Name="GKSVGR_0.XPT" LongName="gksvgrenderer.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gksvgrenderer.xpt"/>
-              <File Id="file339" Name="myspell.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\myspell.dll"/>
               <File Id="file1394" Name="SPELLC_0.XPT" LongName="spellchecker.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchecker.xpt"/>
-              <File Id="file1395" Name="spellchk.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchk.dll"/>
               <File Id="file230" Name="ISciDoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ISciDoc.xpt"/>
               <File Id="file236" Name="koSciDoc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSciDoc.dll"/>
               <File Id="file474" Name="CONTEN_6.XPT" LongName="contentprefs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentprefs.xpt"/>
@@ -1913,7 +1893,6 @@
                 <File Id="file2389" Name="COMPON_0.PY" LongName="components.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\components.py"/>
                 <File Id="file2390" Name="file.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\file.py"/>
                 <File Id="file2391" Name="nsError.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\nsError.py"/>
-                <File Id="file2392" Name="register.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\register.py"/>
                 <File Id="file2393" Name="XPCOM__0.PY" LongName="xpcom_consts.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\xpcom_consts.py"/>
                 <File Id="file2394" Name="xpt.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\xpt.py"/>
                 <File Id="file2395" Name="_xpcom.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\xpcom\_xpcom.pyd"/>
@@ -1950,11 +1929,9 @@
             <Component Id="component73" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file2406" Name="arrow.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\arrow.gif"/>
               <File Id="file2407" Name="arrowd.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\arrowd.gif"/>
-              <File Id="file2408" Name="BLOATC_0.HTM" LongName="bloatcycle.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\bloatcycle.html"/>
               <File Id="file2409" Name="BROKEN_0.GIF" LongName="broken-image.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\broken-image.gif"/>
               <File Id="file2410" Name="CHARSE_0.PRO" LongName="charsetalias.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\charsetalias.properties"/>
               <File Id="file2411" Name="CHARSE_1.PRO" LongName="charsetData.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\charsetData.properties"/>
-              <File Id="file2412" Name="cmessage.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\cmessage.txt"/>
               <File Id="file2413" Name="EDITOR_0.CSS" LongName="EditorOverride.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\EditorOverride.css"/>
               <File Id="file2414" Name="forms.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\forms.css"/>
               <File Id="file2415" Name="grabber.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\grabber.gif"/>
@@ -1984,7 +1961,6 @@
               <File Id="file2439" Name="TABLER_4.GIF" LongName="table-remove-row-hover.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\table-remove-row-hover.gif"/>
               <File Id="file2440" Name="TABLER_5.GIF" LongName="table-remove-row.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\table-remove-row.gif"/>
               <File Id="file2441" Name="ua.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\ua.css"/>
-              <File Id="file2442" Name="VIEWER_0.PRO" LongName="viewer.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\viewer.properties"/>
               <File Id="file2443" Name="VIEWSO_0.CSS" LongName="viewsource.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\viewsource.css"/>
               <File Id="file2444" Name="WINCHA_0.PRO" LongName="wincharset.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\wincharset.properties"/>
               <File Id="file300" Name="svg.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\svg.css"/>
@@ -2009,16 +1985,7 @@
             </Directory> <!-- lib\mozilla\res\entityTables -->
             <Directory Id="directory82" Name="fonts">
               <Component Id="component76" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2453" Name="FONTEN_0.PRO" LongName="fontEncoding.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\fontEncoding.properties"/>
-                <File Id="file2454" Name="FONTNA_0.PRO" LongName="fontNameMap.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\fontNameMap.properties"/>
                 <File Id="file2455" Name="MATHFO_0.PRO" LongName="mathfont.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfont.properties"/>
-                <File Id="file2456" Name="MATHFO_1.PRO" LongName="mathfontCMEX10.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontCMEX10.properties"/>
-                <File Id="file2457" Name="MATHFO_2.PRO" LongName="mathfontCMSY10.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontCMSY10.properties"/>
-                <File Id="file2458" Name="MATHFO_3.PRO" LongName="mathfontMath1.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontMath1.properties"/>
-                <File Id="file2459" Name="MATHFO_4.PRO" LongName="mathfontMath2.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontMath2.properties"/>
-                <File Id="file2460" Name="MATHFO_5.PRO" LongName="mathfontMath4.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontMath4.properties"/>
-                <File Id="file2461" Name="MATHFO_6.PRO" LongName="mathfontMTExtra.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontMTExtra.properties"/>
-                <File Id="file2462" Name="MATHFO_7.PRO" LongName="mathfontPUA.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontPUA.properties"/>
                 <File Id="file2463" Name="MATHFO_8.PRO" LongName="mathfontSymbol.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSymbol.properties"/>
                 <File Id="file629" Name="MATHFO_9.PRO" LongName="mathfontStandardSymbolsL.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontStandardSymbolsL.properties"/>
                 <File Id="file630" Name="MATHF_10.PRO" LongName="mathfontSTIXNonUnicode.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXNonUnicode.properties"/>
@@ -2028,112 +1995,9 @@
             </Directory> <!-- lib\mozilla\res\fonts -->
             <Directory Id="directory83" Name="html">
               <Component Id="component77" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2464" Name="GOPHER_0.GIF" LongName="gopher-audio.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-audio.gif"/>
-                <File Id="file2465" Name="GOPHER_1.GIF" LongName="gopher-binary.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-binary.gif"/>
-                <File Id="file2466" Name="GOPHER_2.GIF" LongName="gopher-find.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-find.gif"/>
-                <File Id="file2467" Name="GOPHER_3.GIF" LongName="gopher-image.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-image.gif"/>
-                <File Id="file2468" Name="GOPHER_4.GIF" LongName="gopher-menu.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-menu.gif"/>
-                <File Id="file2469" Name="GOPHER_5.GIF" LongName="gopher-movie.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-movie.gif"/>
-                <File Id="file2470" Name="GOPHER_6.GIF" LongName="gopher-sound.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-sound.gif"/>
-                <File Id="file2471" Name="GOPHER_7.GIF" LongName="gopher-telnet.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-telnet.gif"/>
-                <File Id="file2472" Name="GOPHER_8.GIF" LongName="gopher-text.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-text.gif"/>
-                <File Id="file2473" Name="GOPHER_9.GIF" LongName="gopher-unknown.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\gopher-unknown.gif"/>
                 <File Id="file633" Name="folder.png" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\html\folder.png"/>
               </Component>
             </Directory> <!-- lib\mozilla\res\html -->
-            <Directory Id="directory84" Name="samples">
-              <Component Id="component78" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2474" Name="aform.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\aform.css"/>
-                <File Id="file2475" Name="Anieyes.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\Anieyes.gif"/>
-                <File Id="file2476" Name="BEEPTE_0.HTM" LongName="beeptest.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\beeptest.html"/>
-                <File Id="file2477" Name="bform.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\bform.css"/>
-                <File Id="file2478" Name="bg.jpg" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\bg.jpg"/>
-                <File Id="file2479" Name="cform.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\cform.css"/>
-                <File Id="file2480" Name="CHECKB_0.XUL" LongName="checkboxTest.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\checkboxTest.xul"/>
-                <File Id="file2481" Name="demoform.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\demoform.css"/>
-                <File Id="file2482" Name="FIND_0.HTM" LongName="find.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\find.html"/>
-                <File Id="file2483" Name="gear1.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\gear1.gif"/>
-                <File Id="file2484" Name="IMAGE__0.HTM" LongName="image_props.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\image_props.html"/>
-                <File Id="file2485" Name="mozform.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\mozform.css"/>
-                <File Id="file2486" Name="PRINTS_0.HTM" LongName="printsetup.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\printsetup.html"/>
-                <File Id="file2487" Name="raptor.jpg" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\raptor.jpg"/>
-                <File Id="file2488" Name="rock_gra.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\rock_gra.gif"/>
-                <File Id="file2489" Name="SCROLL_2.XUL" LongName="scrollbarTest1.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\scrollbarTest1.xul"/>
-                <File Id="file2490" Name="SCROLL_3.XUL" LongName="scrollbarTest2.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\scrollbarTest2.xul"/>
-                <File Id="file2491" Name="SLIDER_0.XUL" LongName="sliderTest1.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\sliderTest1.xul"/>
-                <File Id="file2492" Name="SOUNDT_0.HTM" LongName="soundtest.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\soundtest.html"/>
-                <File Id="file2493" Name="test.wav" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test.wav"/>
-                <File Id="file2494" Name="TEST0_0.HTM" LongName="test0.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test0.html"/>
-                <File Id="file2495" Name="TEST1_0.HTM" LongName="test1.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test1.html"/>
-                <File Id="file2496" Name="TEST10_0.HTM" LongName="test10.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test10.html"/>
-                <File Id="file2497" Name="TEST11_0.HTM" LongName="test11.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test11.html"/>
-                <File Id="file2498" Name="TEST12_0.HTM" LongName="test12.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test12.html"/>
-                <File Id="file2499" Name="TEST13_0.HTM" LongName="test13.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test13.html"/>
-                <File Id="file2500" Name="TEST14_0.HTM" LongName="test14.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test14.html"/>
-                <File Id="file2501" Name="TEST15_0.HTM" LongName="test15.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test15.html"/>
-                <File Id="file2502" Name="TEST16_0.HTM" LongName="test16.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test16.html"/>
-                <File Id="file2503" Name="TEST2_0.HTM" LongName="test2.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test2.html"/>
-                <File Id="file2504" Name="TEST3_0.HTM" LongName="test3.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test3.html"/>
-                <File Id="file2505" Name="TEST4_0.HTM" LongName="test4.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test4.html"/>
-                <File Id="file2506" Name="TEST5_0.HTM" LongName="test5.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test5.html"/>
-                <File Id="file2507" Name="TEST6_0.HTM" LongName="test6.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test6.html"/>
-                <File Id="file2508" Name="TEST7_0.HTM" LongName="test7.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test7.html"/>
-                <File Id="file2509" Name="TEST81_0.HTM" LongName="test8-1.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8-1.html"/>
-                <File Id="file2510" Name="TEST8_0.HTM" LongName="test8.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8.html"/>
-                <File Id="file2511" Name="TEST8D_0.HTM" LongName="test8dom.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8dom.html"/>
-                <File Id="file2512" Name="TEST8S_0.HTM" LongName="test8sca.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8sca.html"/>
-                <File Id="file2513" Name="TEST8S_1.HTM" LongName="test8siz.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8siz.html"/>
-                <File Id="file2514" Name="TEST8T_0.HTM" LongName="test8tab.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test8tab.html"/>
-                <File Id="file2515" Name="TEST9_0.HTM" LongName="test9.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test9.html"/>
-                <File Id="file2516" Name="TEST9A_0.HTM" LongName="test9a.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test9a.html"/>
-                <File Id="file2517" Name="TEST9B_0.HTM" LongName="test9b.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test9b.html"/>
-                <File Id="file2518" Name="TEST_E_0.HTM" LongName="test_ed.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_ed.html"/>
-                <File Id="file2519" Name="TEST_F_0.HTM" LongName="test_form.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_form.html"/>
-                <File Id="file2520" Name="TEST_G_0.HTM" LongName="test_gfx.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_gfx.html"/>
-                <File Id="file2521" Name="TEST_L_0.HTM" LongName="test_lbox.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_lbox.html"/>
-                <File Id="file2522" Name="TEST_P_0.HTM" LongName="test_pr.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_pr.html"/>
-                <File Id="file2523" Name="TEST_W_0.HTM" LongName="test_weight.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\test_weight.html"/>
-                <File Id="file2524" Name="TOOLBA_0.XUL" LongName="toolbarTest1.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\toolbarTest1.xul"/>
-                <File Id="file2525" Name="TREETE_0.CSS" LongName="treeTest1.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\treeTest1.css"/>
-                <File Id="file2526" Name="TREETE_0.XUL" LongName="treeTest1.xul" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\treeTest1.xul"/>
-                <File Id="file2527" Name="xulTest.css" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\samples\xulTest.css"/>
-              </Component>
-            </Directory> <!-- lib\mozilla\res\samples -->
-            <Directory Id="directory85" Name="throbber">
-              <Component Id="component79" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2528" Name="anim.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anim.gif"/>
-                <File Id="file2529" Name="anims00.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims00.gif"/>
-                <File Id="file2530" Name="anims01.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims01.gif"/>
-                <File Id="file2531" Name="anims02.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims02.gif"/>
-                <File Id="file2532" Name="anims03.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims03.gif"/>
-                <File Id="file2533" Name="anims04.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims04.gif"/>
-                <File Id="file2534" Name="anims05.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims05.gif"/>
-                <File Id="file2535" Name="anims06.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims06.gif"/>
-                <File Id="file2536" Name="anims07.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims07.gif"/>
-                <File Id="file2537" Name="anims08.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims08.gif"/>
-                <File Id="file2538" Name="anims09.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims09.gif"/>
-                <File Id="file2539" Name="anims10.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims10.gif"/>
-                <File Id="file2540" Name="anims11.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims11.gif"/>
-                <File Id="file2541" Name="anims12.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims12.gif"/>
-                <File Id="file2542" Name="anims13.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims13.gif"/>
-                <File Id="file2543" Name="anims14.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims14.gif"/>
-                <File Id="file2544" Name="anims15.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims15.gif"/>
-                <File Id="file2545" Name="anims16.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims16.gif"/>
-                <File Id="file2546" Name="anims17.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims17.gif"/>
-                <File Id="file2547" Name="anims18.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims18.gif"/>
-                <File Id="file2548" Name="anims19.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims19.gif"/>
-                <File Id="file2549" Name="anims20.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims20.gif"/>
-                <File Id="file2550" Name="anims21.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims21.gif"/>
-                <File Id="file2551" Name="anims22.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims22.gif"/>
-                <File Id="file2552" Name="anims23.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims23.gif"/>
-                <File Id="file2553" Name="anims24.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims24.gif"/>
-                <File Id="file2554" Name="anims25.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims25.gif"/>
-                <File Id="file2555" Name="anims26.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims26.gif"/>
-                <File Id="file2556" Name="anims27.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims27.gif"/>
-                <File Id="file2557" Name="anims28.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims28.gif"/>
-                <File Id="file2558" Name="anims29.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\throbber\anims29.gif"/>
-              </Component>
-            </Directory> <!-- lib\mozilla\res\throbber -->
           </Directory> <!-- lib\mozilla\res -->
           <Directory Id="directory87" Name="updates">
             <Component Id="component219" DiskId="1" Guid="$(autowix.guid)">
@@ -2321,7 +2185,6 @@
               <File Id="file2704" Name="getpass.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\getpass.py"/>
               <File Id="file2705" Name="gettext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\gettext.py"/>
               <File Id="file2706" Name="glob.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\glob.py"/>
-              <File Id="file2707" Name="GOPHER_0.PY" LongName="gopherlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\gopherlib.py"/>
               <File Id="file2708" Name="gzip.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\gzip.py"/>
               <File Id="file2709" Name="heapq.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\heapq.py"/>
               <File Id="file2710" Name="hmac.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\hmac.py"/>
@@ -2575,7 +2438,6 @@
                   <File Id="file2906" Name="INSTAL_3.PY" LongName="install_scripts.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\install_scripts.py"/>
                   <File Id="file2907" Name="REGIST_0.PY" LongName="register.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\register.py"/>
                   <File Id="file2908" Name="sdist.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\sdist.py"/>
-                  <File Id="file2909" Name="WININS_0.EXE" LongName="wininst-6.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-6.exe"/>
                   <File Id="file2910" Name="WININS_1.EXE" LongName="wininst-7.1.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\wininst-7.1.exe"/>
                   <File Id="file2911" Name="__INI_11.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\__init__.py"/>
                   <File Id="file1431" Name="BDIST__3.PY" LongName="bdist_msi.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\distutils\command\bdist_msi.py"/>
@@ -2809,7 +2671,6 @@
                 <File Id="file3157" Name="SEARCH_1.PY" LongName="SearchDialogBase.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\SearchDialogBase.py"/>
                 <File Id="file3158" Name="SEARCH_2.PY" LongName="SearchEngine.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\SearchEngine.py"/>
                 <File Id="file3159" Name="STACKV_0.PY" LongName="StackViewer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\StackViewer.py"/>
-                <File Id="file3160" Name="tabpage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\tabpage.py"/>
                 <File Id="file3161" Name="testcode.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\testcode.py"/>
                 <File Id="file3162" Name="textView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\textView.py"/>
                 <File Id="file3163" Name="TODO.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\idlelib\TODO.txt"/>
@@ -3301,7 +3162,6 @@
                 <Directory Id="directory154" Name="axdebug">
                   <Component Id="component147" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file3553" Name="adb.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\adb.py"/>
-                    <File Id="file3554" Name="axdebug.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\axdebug.pyd"/>
                     <File Id="file3555" Name="CODECO_1.PY" LongName="codecontainer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\codecontainer.py"/>
                     <File Id="file3556" Name="contexts.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\contexts.py"/>
                     <File Id="file3557" Name="DEBUGG_1.PY" LongName="debugger.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\debugger.py"/>
@@ -3348,7 +3208,6 @@
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\bits -->
                 <Directory Id="directory165" Name="DIRECT_0" LongName="directsound">
                   <Component Id="component156" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file3612" Name="DIRECT_0.PYD" LongName="directsound.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\directsound.pyd"/>
                     <File Id="file3613" Name="__INI_45.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\__init__.py"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\directsound -->
@@ -3487,8 +3346,6 @@
           </Component>
           <Directory Id="directory619" Name="bin">
             <Component Id="component569" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file3801" Name="GLIB12_0.DLL" LongName="glib-1.2.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\glib-1.2.dll"/>
-              <File Id="file3802" Name="LIBIDL_0.DLL" LongName="libIDL-0.6.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\libIDL-0.6.dll"/>
               <File Id="file3805" Name="regxpcom.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\regxpcom.exe"/>
               <File Id="file3806" Name="xpidl.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\xpidl.exe"/>
               <File Id="file3807" Name="xpt_dump.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\xpt_dump.exe"/>
@@ -3572,7 +3429,6 @@
               <File Id="file4107" Name="MOZIJS_0.IDL" LongName="mozIJSSubScriptLoader.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\mozIJSSubScriptLoader.idl"/>
               <File Id="file4108" Name="NSIASN_0.IDL" LongName="nsIASN1Object.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Object.idl"/>
               <File Id="file4109" Name="NSIASN_1.IDL" LongName="nsIASN1Sequence.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Sequence.idl"/>
-              <File Id="file4110" Name="NSIBAD_0.IDL" LongName="nsIBadCertListener.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIBadCertListener.idl"/>
               <File Id="file4111" Name="NSICAT_0.IDL" LongName="nsICategoryManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICategoryManager.idl"/>
               <File Id="file4112" Name="NSICER_0.IDL" LongName="nsICertificateDialogs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICertificateDialogs.idl"/>
               <File Id="file4113" Name="NSICHA_0.IDL" LongName="nsIChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIChannel.idl"/>
@@ -3682,7 +3538,6 @@
               <File Id="file4308" Name="NSIDO_93.IDL" LongName="nsIDOMNode.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMNode.idl"/>
               <File Id="file4309" Name="NSIDO_94.IDL" LongName="nsIDOMNodeList.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMNodeList.idl"/>
               <File Id="file4310" Name="NSIDO_95.IDL" LongName="nsIDOMNotation.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMNotation.idl"/>
-              <File Id="file4311" Name="NSIDO_96.IDL" LongName="nsIDOMNSDocumentStyle.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMNSDocumentStyle.idl"/>
               <File Id="file4312" Name="NSIDO_97.IDL" LongName="nsIDOMProcessingInstruction.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMProcessingInstruction.idl"/>
               <File Id="file4313" Name="NSIDO_98.IDL" LongName="nsIDOMRange.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMRange.idl"/>
               <File Id="file4314" Name="NSIDO_99.IDL" LongName="nsIDOMStorage.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMStorage.idl"/>
