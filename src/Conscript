@@ -114,11 +114,11 @@ $cons->Command($isDevTree, "echo This is a Komodo dev tree > %0");
 $cons->InstallRecursive($sdkDir, cwd()."/src/sdk", # must be abs, bug in InstallRecursive
                         ('bin', '.*\.pyc', '\.svn'));
 if ($platform eq "win") {
-    $cons->InstallAs("$mozBin/komodo-config.py", "sdk/bin/komodo-config.py");
+    $cons->InstallAs("$sdkDir/bin/komodo-config.py", "sdk/bin/komodo-config.py");
     $cons->InstallAs("$sdkDir/bin/koext.py", "sdk/bin/koext.py");
     $cons->InstallAs("$sdkDir/bin/codeintel.py", "sdk/bin/codeintel.py");
 } else {
-    $cons->InstallAs("$mozBin/komodo-config", "sdk/bin/komodo-config.py");
+    $cons->InstallAs("$sdkDir/bin/komodo-config", "sdk/bin/komodo-config.py");
     $cons->InstallAs("$sdkDir/bin/koext", "sdk/bin/koext.py");
     $cons->InstallAs("$sdkDir/bin/codeintel", "sdk/bin/codeintel.py");
 }

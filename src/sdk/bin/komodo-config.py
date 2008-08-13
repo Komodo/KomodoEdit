@@ -58,45 +58,37 @@ class KomodoConfigError(Exception):
 
 def get_dev_build_info(type):
     # This script is here:
-    #   <moz-dist>/bin/komodo-config[.py]
-    moz_dist_dir = dirname(dirname(abspath(__file__)))
+    #   <moz-dist>/komodo-bits/sdk/bin/komodo-config[.py]
+    sdk_dir = dirname(dirname(dirname(abspath(__file__))))
 
     if type == "sdk-dir":
         # <moz-dist>/komodo-bits/sdk/
-        return join(moz_dist_dir, "komodo-bits", "sdk")
+        return sdk_dir
     elif type == "idl-includes":
-        idl_dir = join(get_dev_build_info("sdk-dir"), "idl")
+        idl_dir = join(sdk_dir, "idl")
         return '-I "%s"' % idl_dir
     else:
         raise KomodoConfigError("unknown info type: %r" % type)
 
 
 def get_info(type):
-    is_dev_build = exists(join(dirname(__file__), "is_dev_tree.txt"))
+    # If in a dev build, this script is here:
+    #   <moz-dist>/komodo-bits/sdk/bin/komodo-config[.py]
+    dist_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
+    is_dev_build = exists(join(dist_dir, "bin", "is_dev_tree.txt"))
     if is_dev_build:
         return get_dev_build_info(type)
     
-    # This script is here:
-    #   [Mac OS X] <install_dir>/Contents/MacOS/komodo-config
-    #   [Windows]  <install_dir>/komodo-config.py
-    #   [Linux]    <install_dir>/bin/komodo-config
-    if sys.platform == "win32":
-        install_dir = dirname(abspath(__file__))
-    elif sys.platform == "darwin":
-        install_dir = dirname(dirname(dirname(abspath(__file__))))
-    else:
-        install_dir = dirname(dirname(abspath(__file__)))
+    # In an installer build, this script is here:
+    #   [Mac OS X] <install_dir>/Contents/SharedSupport/sdk/bin/komodo-config
+    #   [Windows]  <install_dir>\lib\sdk\bin\komodo-config.py
+    #   [Linux]    <install_dir>/lib/sdk/bin/komodo-config
+    sdk_dir = dirname(dirname(abspath(__file__)))
 
     if type == "sdk-dir":
-        # [Mac OS X] <install_dir>/Contents/SharedSupport/sdk/
-        # [Windows]  <install_dir>\lib\sdk\
-        # [Linux]    <install_dir>/lib/sdk/
-        if sys.platform == "darwin":
-            return join(install_dir, "Contents", "SharedSupport", "sdk")
-        else:
-            return join(install_dir, "lib", "sdk")
+        return sdk_dir
     elif type == "idl-includes":
-        idl_dir = join(get_info("sdk-dir"), "idl")
+        idl_dir = join(sdk_dir, "idl")
         return '-I "%s"' % idl_dir
     else:
         raise KomodoConfigError("unknown info type: %r" % type)
