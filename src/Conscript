@@ -51,6 +51,7 @@ Import(
     'mozDevelDist',
     'compiler',
     'hostUserDataDir',
+    'mozVersion',
 );
 
 # We use this "state" file as a HACK-around Cons' requirement to have
@@ -130,7 +131,7 @@ if ($platform eq "win") {
     if (! -d $mozillaBuildDir) {
         die "MozillaBuild dir could not be found: '$mozillaBuildDir' does not exist";
     }
-    if ($compiler eq "vc6") {
+    if ($mozVersion eq "1.8") {
         # xpidl.exe does not depend on these for vc8 builds. I'm not sure
         # about vc compiler versions other than 6 and 8 -- though I
         # believe these dependencies are still required for vc7.
