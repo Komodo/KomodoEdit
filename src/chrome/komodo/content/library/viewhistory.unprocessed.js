@@ -93,7 +93,7 @@ this.ViewHistory = function viewhistory() {
                             this.handle_view_list_closed, false);
     window.addEventListener('view_closed', this.handle_view_closed, false);
     window.addEventListener('view_opened', this.handle_view_opened, false);
-    window.addEventListener("unload", this.removeListener, true);
+    ko.main.addWillCloseHandler(this.finalize);
 
 // #if PLATFORM != "win"
     // on linux we must use a timeout since we do not get
@@ -107,7 +107,6 @@ this.ViewHistory.prototype.constructor = this.ViewHistory;
 this.ViewHistory.prototype.finalize = function()
 {
     if (!this.removeListener) return;
-    window.removeEventListener("unload", this.removeListener, false);
     this.removeListener = null;
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
