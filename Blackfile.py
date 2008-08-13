@@ -1147,8 +1147,13 @@ def ImageKomodo(cfg, argv):
         # Trim some unneeded stuff in siloed Python.
         ("rmdir", iipylibpath("ctypes", "test")),
         ("rmdir", iipylibpath("sqlite3", "test")),
+        ("rmdir", iipylibpath("json", "tests")),
+        ("rmdir", iipylibpath("lib2to3", "tests")),
         ("rmdir", iipylibpath("site-packages", "isapi", "doc")),
         ("rmdir", iipylibpath("site-packages", "isapi", "samples")),
+        ("rmdir", iipylibpath("site-packages", "adodbapi", "tests")),
+        ("rmdir", iipylibpath("site-packages", "win32comext", "bits", "test")),
+        ("rmdir", iipylibpath("site-packages", "win32comext", "propsys", "test")),
 
         # Remove empty dirs
         ("rmemptydirs", iicorepath()),
