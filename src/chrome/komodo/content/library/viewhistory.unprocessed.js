@@ -86,7 +86,6 @@ this.ViewHistory = function viewhistory() {
     this.handle_view_opened = function(event) {
         self.setMostRecentView(event.originalTarget);
     };
-    this.removeListener = function() { self.finalize(); }
     window.addEventListener('current_view_changed',
                             this.handle_current_view_changed, false);
     window.addEventListener('view_list_closed',
@@ -106,8 +105,6 @@ this.ViewHistory.prototype.constructor = this.ViewHistory;
 
 this.ViewHistory.prototype.finalize = function()
 {
-    if (!this.removeListener) return;
-    this.removeListener = null;
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
     window.removeEventListener('view_list_closed',
