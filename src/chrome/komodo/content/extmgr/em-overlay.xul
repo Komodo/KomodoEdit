@@ -39,4 +39,18 @@
 <overlay id="extensionsOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <radio id="themes-view" hidden="true" collapsed="true"/>
+    
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+    function openURL(aURL)
+    {
+      var uri = Components.classes["@mozilla.org/network/io-service;1"]
+                          .getService(nsIIOService).newURI(aURL, null, null);
+    
+      var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
+                                  .getService(Components.interfaces.nsIExternalProtocolService);
+      protocolSvc.loadUrl(uri);
+    }
+    ]]>
+    </script>
 </overlay>
