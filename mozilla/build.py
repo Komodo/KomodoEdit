@@ -1235,6 +1235,8 @@ def target_configure(argv):
        'without-system-jpeg',
        'without-system-png',
        'without-system-mng',
+       
+       'enable-updater',
     ]
     mozMakeOptions = []
     mozBuildExtensions = []
