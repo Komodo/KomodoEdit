@@ -1053,15 +1053,6 @@ def ImageKomodo(cfg, argv):
             ("cp", stubpath("komodo"+EXE), iicorebinpath("komodo"+EXE)),
         ]
 
-    # - 'komodo-config' belongs in the installed bin dir, not the
-    #   moz-bin dir.
-    komodo_config_name = (sys.platform == "win32" and "komodo-config.py"
-                          or "komodo-config")
-    ibits += [
-        ("cp", mozdistpath("bin", komodo_config_name), iicorebinpath(komodo_config_name)),
-        ("rm", iimozbinpath(komodo_config_name)),
-    ]
-
     # - The prominent standalone doc bits: place somewhere appropriate
     #   in installation *and* in the base of installer package.
     ibits += [
