@@ -347,8 +347,6 @@
                 // force a tab switch on mousedown so we always focus the
                 // tabpanel, and cause a select event for the tab
                 if (event.button != 1 && event.originalTarget.localName == 'tab') {
-                    // force the select event to happen again
-                    event.originalTarget.selected = false;
                     // set the selected item.  If the currently selected item
                     // is also the originalTarget, we'll 'selected' will be
                     // reset to true, and a select event will be issued.
