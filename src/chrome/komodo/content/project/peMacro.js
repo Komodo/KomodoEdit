@@ -630,6 +630,12 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
 }
 this.eventHandler = new MacroEventHandler();
 // safe to use ko.main because this file is loaded only in komodo.xul
+
+// Calling addCanCloseHandler is the same as explicitly observing
+// quit-application-requested and then calling ko.macros.eventHandler.hookOnQuit()
+// This way is simpler because we don't have to QI the observe function's first arg
+// for nsIBoolean, and handle the double-negative (set the .data field to true if we
+// want to quit, but hookOnQuit() returns false if we're to quit).
 ko.main.addCanCloseHandler(function () { return ko.macros.eventHandler.hookOnQuit() });
 
 
