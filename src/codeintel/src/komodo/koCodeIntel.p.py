@@ -1093,7 +1093,7 @@ class KoCodeIntelService:
             .getService(components.interfaces.koIPartService)
 
         self._wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'quit-application-granted', True)
+        obsSvc.addObserver(self._wrappedSelf, 'quit-application', True)
 
         #TODO: Currently this never gets cleared.
         self._proj_env_from_proj_id_cache = {}
@@ -1156,12 +1156,13 @@ class KoCodeIntelService:
             self.isBackEndActive = True
 
     def _deactivate(self):
-        self.isBackEndActive = False
-        self.mgr.finalize()
+        if self.isBackEndActive:
+            self.isBackEndActive = False
+            self.mgr.finalize()
 
     def observe(self, subject, topic, data):
         try:
-            if topic == 'quit-application-granted':
+            if topic == 'quit-application':
                 self._deactivate()
         except Exception, e:
             log.exception("Unexpected error observing notification.")
