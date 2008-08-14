@@ -1382,64 +1382,20 @@ function gotoDirectory(remoteDir) {
 
 
 var servers = null;
-function Server(protocol, alias, hostname, port, path, username, password) {
-  this.protocol = protocol;
-  this.alias = alias;
-  this.hostname = hostname;
-  this.port = port;
-  this.path = path;
-  this.username = username;
-  this.password = password;
-  this.id = Server_generateId();
-}
 
-// Each Association object has a unique identifier.  This is used to
-// establish a relationship between the association object and the
-// items in the tree that represent it.
-
-var Server_index = 0;  // used for generating ids
-function Server_generateId() {
-  return "server" + Server_index++;
-}
-
-function _strcmp(a,b) {
-    if (a==b) return 0;
-    if (a<b) return -1;
-    return 1;
-}
-
-function getServerListFromPreference(prefset) {
-  try {
-  var list = new Array();
-  var passwordmanager = Components.classes["@mozilla.org/login-manager;1"]
-                                .getService(Components.interfaces.nsILoginManager);
-  var logins = passwordmanager.getAllLogins(new Object()); // array of nsILoginInfo
-  for (var i=0; i < logins.length; i++) {
-      //dump("dumping password manager data...\n");
-      //dump("    "+nspassword.host+", ["+nspassword.user+", "+nspassword.password+"]\n");
-      var server_info = new String(logins[i].hostname).split(":")
-      list.push(new Server(server_info[0], server_info[1],
-              server_info[2], server_info[3], server_info[4],
-              new String(logins[i].username), new String(logins[i].password)));
-  }
-  } catch(e) {
-      log.exception(e);
-  }
-  list.sort(function (a,b) { return _strcmp(a.alias,b.alias); });
-  return list;
+function loadServerPrefs()
+{
+    //servers = getServerListFromPreference(globalPrefs);
+    var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                    getService(Components.interfaces.koIRemoteConnectionService);
+    var server_count = {};
+    servers = RCService.getServerInfoList(server_count);
 }
 
 function createServersMenuItem(server) {
   var cell = document.createElementNS(XUL_NS, 'menuitem');
-  cell.setAttribute('id', server.id);
   cell.setAttribute('label', server.alias);
-  cell.setAttribute('assocId', server.id);
   return cell;
-}
-
-function loadServerPrefs()
-{
-    servers = getServerListFromPreference(globalPrefs);
 }
 
 function setupServerMenuList(selectServerWithAlias)
@@ -1628,11 +1584,12 @@ function onServerChanged(alias) {
 
     try {
         connectToServer();
-        if (!server.path) {
+        var initial_path = server.path;
+        if (!initial_path) {
             // Go to home directory then
-            server.path = serverInfo.connection.getHomeDirectory();
+            initial_path = serverInfo.connection.getHomeDirectory();
         }
-        setInitialDirectory(server.path);
+        setInitialDirectory(initial_path);
     } catch (e) {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                        getService(Components.interfaces.koILastErrorService);

@@ -44,8 +44,36 @@
 //
 
 #include "nsISupports.idl"
+#include "nsILoginInfo.idl"
 #include "koIRemoteFileInfo.idl"
 #include "koIFTP.idl"
+
+/**
+ * Komodo Server Account information.
+ * @since Komodo 5.0.0
+ */
+[scriptable, uuid(a48abf34-6fc8-4c0e-a0a0-a842dff807eb)]
+interface koIServerInfo : nsISupports {
+    readonly attribute wstring raw_hostdata;  // Host data, as stored by the nsILoginManager
+    readonly attribute wstring protocol;
+    readonly attribute wstring alias;
+    readonly attribute wstring hostname;
+    readonly attribute long port;
+    readonly attribute wstring username;
+    readonly attribute wstring password;
+    readonly attribute wstring path;
+
+    // Initialize the Komodo server information from the data provided.
+    void init(in wstring protocol, in wstring alias, in wstring hostname,
+              in wstring port, in wstring username, in wstring password,
+              in wstring path);
+
+    // Initialize the Komodo server information from the nsILoginInfo.
+    void initFromLoginInfo(in nsILoginInfo logininfo);
+
+    // Create a nsILoginInfo from the Komodo server information.
+    nsILoginInfo generateLoginInfo();
+};
 
 [scriptable, uuid(D99E7A30-C5F3-43A7-8029-144097D41904)]
 interface koIRemoteConnectionService : nsISupports {
@@ -79,7 +107,10 @@ interface koIRemoteConnectionService : nsISupports {
     void getConnectionUsingUri(in wstring uri,
                                [retval] out koIFTPConnection connection);
 
-    // Return the connection object for the given server alias.
+    /**
+     * Return the connection object for the given server alias.
+     * @since Komodo 4.4.0
+     */
     void getConnectionUsingServerAlias(in wstring server_alias,
                                        [retval] out koIFTPConnection connection);
 
@@ -113,4 +144,23 @@ interface koIRemoteConnectionService : nsISupports {
                          [retval] out koIRemoteFileInfo rfinfo);
     //   removeChildPaths: whether to remove cached files that start with this path
     void removeCachedRFInfo(in wstring cache_key, in wstring path, in long removeChildPaths);
+
+    /**
+     * Return the server information for the given server alias.
+     * @since Komodo 5.0.0
+     */
+    koIServerInfo getServerInfoForAlias(in wstring server_alias);
+
+    /**
+     * Return the list of servers, in koIServerInfo format.
+     * @since Komodo 5.0.0
+     */
+    void getServerInfoList(out unsigned long count,
+                           [array, size_is(count), retval] out koIServerInfo servers);
+    /**
+     * Save the list of servers, in koIServerInfo format.
+     * @since Komodo 5.0.0
+     */
+    void saveServerInfoList(in unsigned long count,
+                            [array, size_is(count)] in koIServerInfo servers);
 };

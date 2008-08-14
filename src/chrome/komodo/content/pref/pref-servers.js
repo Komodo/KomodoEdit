@@ -50,31 +50,6 @@ var dialog = {}; //XXX used both for easy access to named XUL elements and to ke
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var data = new Object();
 
-// Classes
-
-function Server(host_data, type, alias, hostname, port, path, username, password) {
-    this.host_data = host_data;
-    this.is_modified = (host_data == null);
-    this.type = type;
-    this.alias = alias;
-    this.hostname = hostname;
-    this.port = port;
-    this.path = path;
-    this.username = username;
-    this.password = password;
-    this.id = Server._generateId();
-}
-
-// Each Association object has a unique identifier.  This is used to
-// establish a relationship between the association object and the
-// items in the tree that represent it.
-
-Server._index = 0;  // used for generating ids
-Server._generateId = function() {
-    return "server" + Server._index++;
-}
-
-
 // Handlers
 
 function PrefServers_OnLoad() {
@@ -136,37 +111,20 @@ function OnPreferencePageOK(prefset) {
 
     // only write out the prefs if they have actually changed
     if (!areServerListsEquivalent(oldServers, newServers)) {
-      var passwordmanager = Components.classes["@mozilla.org/login-manager;1"]
-                                .getService(Components.interfaces.nsILoginManager);
-      // just remove all old servers and add all new servers
-      for (var i = 0; i < oldServers.length; i++) {
-          if (oldServers[i].host_data) {
-              var loginsToRemove = passwordmanager.findLogins(
-                {}, oldServers[i].hostdata, null, oldServers[i].alias);
-              for (var v=0; v < loginsToRemove.length; v++) {
-                if (loginsToRemove[i].username == oldServers[i].username)
-                    passwordmanager.removeLogin(loginsToRemove[i]);
-              }
-          }
-      }
-      for (var i = 0; i < newServers.length; i++) {
-          var loginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
-                                .createInstance(Components.interfaces.nsILoginInfo);
-          var hostdata = newServers[i].type+":"+newServers[i].alias+":"+
-                          newServers[i].hostname+":"+newServers[i].port+":"+
-                          newServers[i].path;
-          loginInfo.init(hostdata, null, newServers[i].alias,
-                         newServers[i].username, newServers[i].password,
-                         "", "");
-          passwordmanager.addLogin(loginInfo);
-      }
+        var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                        getService(Components.interfaces.koIRemoteConnectionService);
+        RCService.saveServerInfoList(newServers.length, newServers);
     }
     return true;
 }
 
 function OnPreferencePageInitalize(prefset) {
-    data.servers = getServerListFromPreference(prefset);
-    data.original = getServerListFromPreference(prefset);
+    var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                    getService(Components.interfaces.koIRemoteConnectionService);
+    var server_count = {};
+    data.servers = RCService.getServerInfoList(server_count);
+    // Make a copy, to later compare to the modified servers.
+    data.original = RCService.getServerInfoList(server_count);
 }
 
 function OnPreferencePageLoading(prefset) {
@@ -186,32 +144,6 @@ function _strcmp(a,b) {
 // Return an array of Association objects, built from the fileAssociations
 // preference.
 function getServerListFromPreference(prefset) {
-    try {
-        var list = new Array();
-        var loginMgr = Components.classes["@mozilla.org/login-manager;1"].
-                                getService(Components.interfaces.nsILoginManager);
-        var logins = loginMgr.getAllLogins({});
-        for (var i=0; i < logins.length; i++) {
-            var server_info = new String(logins[i].hostname).split(":");
-            /* Only use Komodo style server info, ignore others:
-               nspassword.host example for Komodo:
-                    FTP:the foobar server:foobar.com:21:
-               nspassword.host example for Firefox:
-                    ftp://twhiteman@foobar.com:21
-            */
-            if (server_info.length >= 5) {
-                list.push(new Server(logins[i].hostname, server_info[0],
-                                     server_info[1], server_info[2],
-                                     server_info[3], server_info[4],
-                                     new String(logins[i].username),
-                                     new String(logins[i].password)));
-            }
-        }
-    } catch(e) {
-        log.exception(e);
-    }
-    list.sort(function (a,b) { return _strcmp(a.alias,b.alias); });
-    return list;
 }
 
 // Return true if the arrays of Association objects, a and b, correspond to
@@ -221,7 +153,7 @@ function areServerListsEquivalent(a, b) {
 
   for (var i = 0; i < a.length; i++) {
     // we don't care about the IDs
-    if (a[i].type != b[i].type ||
+    if (a[i].protocol != b[i].protocol ||
         a[i].alias != b[i].alias ||
         a[i].hostname != b[i].hostname ||
         a[i].port != b[i].port ||
@@ -255,7 +187,7 @@ function _setMenuList(selectedServer) {
         if (indexSelect == -1)
             indexSelect = 0;
         menulist.selectedIndex = indexSelect;
-        onEditServerEntry(servers[indexSelect].id, null, menulist.selectedItem);
+        loadServerEntryWithAlias(servers[0].alias);
     }
 }
 
@@ -272,12 +204,13 @@ function checkAddButtonStatus() {
 }
 
 var current_server_idx = -1;
-var current_server_cell = null;
 function onAddServerEntry() {
-    var type = dialog.server_types.selectedItem.getAttribute("label");
+    var protocol = dialog.server_types.selectedItem.getAttribute("label");
     var alias = dialog.alias.value;
     var hostname = dialog.hostname.value;
     var port = dialog.port.value;
+    if (!port)
+        port = -1;
     var path = dialog.path.value;
     var username = dialog.username.value;
     var password = dialog.password.value;
@@ -286,30 +219,8 @@ function onAddServerEntry() {
         prefServersLog.warn("Missing a required field. Name, Host Name and User Name are required fields.");
         return;
     }
-    // Ensure that no ":" chars are used in any of the fields. ":" is used
-    // uncarefully as a delimiter in the server saving code.
-    var fieldWithColon = null;
-    if (alias.indexOf(":") != -1) {
-        fieldWithColon = "alias";
-    } else if (hostname.indexOf(":") != -1) {
-        fieldWithColon = "hostname";
-    } else if (port.indexOf(":") != -1) {
-        fieldWithColon = "port";
-    } else if (path.indexOf(":") != -1) {
-        fieldWithColon = "path";
-    } else if (username.indexOf(":") != -1) {
-        fieldWithColon = "username";
-    }
-    if (fieldWithColon) {
-        alert("The " + fieldWithColon +
-              " field cannot contain a ':' character");
-        var textbox = document.getElementById(fieldWithColon);
-        textbox.focus();
-        textbox.setSelectionRange(0, textbox.value.length);
-        return;
-    }
-    if (((type == "SFTP" || type == "SCP") && parseInt(port) == 21) ||
-        (type == "FTP" && parseInt(port) == 22)) {
+    if (((protocol == "SFTP" || protocol == "SCP") && parseInt(port) == 21) ||
+        (protocol == "FTP" && parseInt(port) == 22)) {
         var message = "You may have specified the wrong port. " +
                       "FTP uses port 21 by default. " +
                       "SFTP and SCP use port 22 by default. " +
@@ -322,33 +233,25 @@ function onAddServerEntry() {
         }
     }
 
-    var server;
+    var serverInfo = Components.classes["@activestate.com/koServerInfo;1"].
+                        createInstance(Components.interfaces.koIServerInfo);
+    serverInfo.init(protocol, alias, hostname, port, username, password, path);
 
     if (current_server_idx > -1) {
-        server = servers[current_server_idx];
-        server.type = type;
-        server.alias = alias;
-        server.hostname = hostname;
-        server.port = port;
-        server.path = path
-        server.username = username;
-        server.password = password;
-        server.is_modified = true;
-        servers[current_server_idx] = server;
-
-        current_server_cell.setAttribute('label', server.alias);
-        document.getElementById("serversList").setAttribute('label', server.alias);
+        servers[current_server_idx] = serverInfo;
+        // Update the menuitem label, in case the alias was changed.
+        dialog.serversList.selectedItem.setAttribute('label', serverInfo.alias);
+        dialog.serversList.setAttribute('label', serverInfo.alias);
     } else {
         if (getAliasIndex(alias) > -1) {
-            alert("The entry name is not unique, please correct this.\n");
+            alert("The entry name must be unique, please correct this.\n");
             return;
         }
-        server = new Server(null, type, alias, hostname, port, path, username, password);
-        servers.push(server);
+        servers.push(serverInfo);
         servers.sort(function (a,b) { return _strcmp(a.alias,b.alias); } );
-        _setMenuList(server.alias);
+        _setMenuList(serverInfo.alias);
     }
-    setMenuSelection("serversList",server.alias);
+    setMenuSelection("serversList",serverInfo.alias);
     dialog.buttonAdd.setAttribute('disabled', 'true');
 }
 
@@ -363,24 +266,25 @@ function setMenuSelection(id, label) {
     }
 }
 
-function onEditServerEntry(id, item, event) {
-    var server_idx = getIdIndex(id);
-    if (server_idx < 0) return;
+function loadServerEntryWithAlias(server_alias) {
+    var server_idx = getAliasIndex(server_alias);
+    if (!server_idx < 0) {
+        return;
+    }
     var server = servers[server_idx];
-    setMenuSelection("server_types",server.type);
+    setMenuSelection("server_types",server.protocol);
+
     dialog.alias.value = server.alias;
     dialog.hostname.value = server.hostname;
-    dialog.port.value = server.port;
+    if (server.port < 0)
+        dialog.port.value = "";
+    else
+        dialog.port.value = server.port;
     dialog.path.value = server.path;
     dialog.username.value = server.username;
-
     dialog.password.value = server.password;
 
     current_server_idx = server_idx;
-    if (item != null)
-        current_server_cell = event.target;
-    else
-        current_server_cell = event;
     dialog.buttonDelete.removeAttribute('disabled');
     dialog.buttonAdd.setAttribute('disabled','true');
     dialog.buttonAdd.setAttribute('label', 'Update');
@@ -393,12 +297,12 @@ function onEditServerEntry(id, item, event) {
 function onDeleteServerEntry() {
     if (current_server_idx > -1) {
         servers.splice(current_server_idx, 1);
-        dialog.serversPopup.removeChild(current_server_cell);
+        dialog.serversPopup.removeChild(dialog.serversList.selectedItem);
         onClearServerEntry();
         if (servers.length > 0) {
             var menulist = document.getElementById("serversList");
             menulist.selectedIndex = 0;
-            onEditServerEntry(servers[0].id, null, menulist.selectedItem);
+            loadServerEntryWithAlias(servers[0].alias);
         }
     }
 }
@@ -413,7 +317,6 @@ function onClearServerEntry() {
     dialog.username.value = "";
     dialog.password.value = "";
     current_server_idx = -1;
-    current_server_cell = null;
     dialog.buttonDelete.setAttribute('disabled', 'true');
     dialog.buttonAdd.setAttribute('disabled', 'true');
     dialog.buttonAdd.setAttribute('label', 'Add');
@@ -424,10 +327,8 @@ function onClearServerEntry() {
 
 function createServersMenuItem(server) {
     var cell = document.createElementNS(XUL_NS, 'menuitem');
-    cell.setAttribute('id', server.id);
     cell.setAttribute('label', server.alias);
-    cell.setAttribute('assocId', server.id);
-    cell.setAttribute("onclick", "onEditServerEntry('"+server.id+"',this, event)");
+    cell.setAttribute("onclick", "loadServerEntryWithAlias(this.getAttribute('label'))");
     return cell;
 }
 

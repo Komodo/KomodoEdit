@@ -39,16 +39,80 @@
 
 import socket
 import threading
+import logging
+import types
+import urllib
+
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.client import WeakReference
-import logging, types
+
 import URIlib
 import remotefilelib
 
 log = logging.getLogger('koRemoteConnectionService')
 #log.setLevel(logging.DEBUG)
 
+class BadServerInfoException(Exception):
+    pass
+
 #---- PyXPCOM component implementation
+
+class koServerInfo:
+    _com_interfaces_ = [components.interfaces.koIServerInfo]
+    _reg_desc_ = "Server Information"
+    _reg_clsid_ = "{71db5411-9a71-4961-a700-b348b8ef0f75}"
+    _reg_contractid_ = "@activestate.com/koServerInfo;1"
+
+    def __init__(self):
+        self.raw_hostdata = ''
+        self.protocol = ''
+        self.alias = ''
+        self.hostname = ''
+        self.port = -1
+        self.username = ''
+        self.password = ''
+        self.path = ''
+
+    def init(self, protocol, alias, hostname, port, username, password, path,
+             raw_hostdata=None):
+        self.protocol = protocol
+        self.alias = alias
+        self.hostname = hostname
+        self.port = port
+        self.username = username
+        self.password = password
+        self.path = path
+        if raw_hostdata is None:
+            # Generate the host data
+            fields = map(urllib.quote, [protocol, alias, hostname, port, path])
+            self.raw_hostdata = ":".join(fields)
+        else:
+            # Use the existing host data
+            self.raw_hostdata = raw_hostdata
+
+    def initFromLoginInfo(self, logininfo):
+        # logininfo is a nsILoginInfo xpcom object.
+        host_split = logininfo.hostname.split(':')
+        # Only use Komodo style server info, ignore others:
+        #   nspassword.host example for Komodo:
+        #        FTP:the foobar server:foobar.com:21:
+        #   nspassword.host example for Firefox:
+        #        ftp://twhiteman@foobar.com:21
+        if len(host_split) < 5:
+            raise BadServerInfoException()
+        # Unquote the elements.
+        host_split = map(urllib.unquote, host_split)
+        self.init(host_split[0], host_split[1], host_split[2], host_split[3],
+                  logininfo.username, logininfo.password, host_split[4],
+                  raw_hostdata=logininfo.hostname)
+
+    def generateLoginInfo(self):
+        loginInfo = components.classes["@mozilla.org/login-manager/loginInfo;1"]\
+                            .createInstance(components.interfaces.nsILoginInfo)
+        loginInfo.init(self.raw_hostdata, "", self.alias,
+                       self.username, self.password, "", "")
+        return loginInfo
+        
 
 # The underscore names are private, and should only be used internally
 # All underscore names require locking, which should happen through the
@@ -58,6 +122,8 @@ class koRemoteConnectionService:
     _reg_desc_ = "Remote Connection Service"
     _reg_clsid_ = "{c12f592b-11a2-4172-85c2-02d87ac56887}"
     _reg_contractid_ = "@activestate.com/koRemoteConnectionService;1"
+
+    EMPTY_PASSWORD_SENTINEL = '\vKOMODO_EMPTY_PASSWORD\v'
 
     def __init__(self):
         # _connections is a dictionary of python connection objects. The key
@@ -136,21 +202,16 @@ class koRemoteConnectionService:
     # Return the server prefs for the given server alias
     # We have the lock already
     def _getServerPrefSettings(self, server_alias):
-        passwordmanager = components.classes["@mozilla.org/login-manager;1"].\
-                                getService(components.interfaces.nsILoginManager)
-        logins = passwordmanager.getAllLogins() # array of nsILoginInfo
-        for login in logins:
-            # server is nsIPassword, which has host, user and password members
-            #print "    %s [%s,%s] " % (server.host, server.user, server.password)
-            info = login.hostname.split(':')
-            if server_alias == info[1]:
-                # we found our server, return the info
-                #protocol = info[0]
-                #aliasname = info[1]
-                #hostname = info[2]
-                #port     = info[3]
-                #path     = info[4]
-                return info[:4] + [server.username, server.password] + info[4:]
+        serverInfo = self.getServerInfoForAlias(server_alias)
+        if serverInfo:
+            # we found our server, return the info
+            return [serverInfo.protocol,
+                    serverInfo.alias,
+                    serverInfo.hostname,
+                    serverInfo.port,
+                    serverInfo.username,
+                    serverInfo.password,
+                    serverInfo.path]
         return None
 
     def _getServerDetailsFromUri(self, uri):
@@ -407,3 +468,57 @@ class koRemoteConnectionService:
             self._removeCachedRFInfo(cache_key, path, removeChildPaths)
         finally:
             self._lock.release()
+
+    # Return the sorted list of servers, in koIServerInfo objects.
+    def getServerInfoList(self):
+        serverinfo_list = []
+        loginmanager = components.classes["@mozilla.org/login-manager;1"].\
+                            getService(components.interfaces.nsILoginManager)
+        logins = loginmanager.getAllLogins() # array of nsILoginInfo
+        #print "getServerInfoList:: logins: %r" % (logins, )
+        if logins:
+            for logininfo in logins:
+                logininfo.QueryInterface(components.interfaces.nsILoginInfo)
+                serverinfo = koServerInfo()
+                try:
+                    if logininfo.password == self.EMPTY_PASSWORD_SENTINEL:
+                        logininfo.password = ''
+                    serverinfo.initFromLoginInfo(logininfo)
+                    serverinfo_list.append(serverinfo)
+                except BadServerInfoException:
+                    # Ignore non Komodo server entries.
+                    pass
+            serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
+        return serverinfo_list
+
+    def getServerInfoForAlias(self, server_alias):
+        servers = self.getServerInfoList()
+        for serverInfo in servers:
+            if server_alias == serverInfo.alias:
+                return serverInfo
+        return None
+
+    def saveServerInfoList(self, serverinfo_list):
+        loginmanager = components.classes["@mozilla.org/login-manager;1"].\
+                            getService(components.interfaces.nsILoginManager)
+        logins = loginmanager.getAllLogins() # array of nsILoginInfo
+        # remove all old servers
+        if logins:
+            for logininfo in logins:
+                logininfo.QueryInterface(components.interfaces.nsILoginInfo)
+                serverinfo = koServerInfo()
+                try:
+                    serverinfo.initFromLoginInfo(logininfo)
+                    loginmanager.removeLogin(logininfo)
+                except BadServerInfoException:
+                    # Ignore non Komodo server entries.
+                    pass
+        # and now add all the new servers
+        for serverinfo in serverinfo_list:
+            # Transform the serverinfo into a logininfo object.
+            logininfo = serverinfo.generateLoginInfo()
+            if not logininfo.password:
+                # Hack to workaround the login manager not accepting empty
+                # passwords.
+                logininfo.password = self.EMPTY_PASSWORD_SENTINEL
+            loginmanager.addLogin(logininfo)
