@@ -2,16 +2,9 @@
 
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.server import WrapObject, UnwrapObject
+import mozutils
 import weakref
 
-_uuidGenerator = None
-def _genFastGuid():
-    global _uuidGenerator
-    if _uuidGenerator is None:
-        _uuidGenerator = components.classes["@mozilla.org/uuid-generator;1"].getService(components.interfaces.nsIUUIDGenerator)
-    guid = _uuidGenerator.generateUUID()
-    # must convert nsIDPtr to string first
-    return str(guid)[1:-1] # strip off the {}'s
 
 
 # we use a weak value dictionary to make sure that the id map doesn't end up
@@ -20,7 +13,7 @@ idmap = weakref.WeakValueDictionary()
 
 
 def getNextId(part):
-    xulid = _genFastGuid()
+    xulid = mozutils.generateUUID()
     idmap[xulid] = part
     return xulid
 
