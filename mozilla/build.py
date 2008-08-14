@@ -70,13 +70,13 @@ r"""
     Suggested configurations are:
     * Snapdragon development builds:
         python build.py configure -k 1.10 --moz-src=cvs:1.8 \
-            --release --no-strip --shared --tools
+            --release --no-strip --tools
     * Mozilla trunk builds:
         python build.py configure -k 1.10 --moz-src=cvs \
-            --release --no-strip --shared --tools
+            --release --no-strip --tools
     * Komodo IDE 4.3.x development build:
         python build.py configure -k 4.13 --moz-src=cvs:1.8 \
-            --release --no-strip --shared --tools
+            --release --no-strip --tools
 """
 #
 # Development Notes:
@@ -1092,9 +1092,6 @@ def target_configure(argv):
         --debug, --release
             specify mozilla build-type (default: release)
 
-        --static, --shared
-            Build statically (the default) or shared binaries.
-
         --strip, --no-strip
             Whether to strip libraries after the build. By default
             stripping *is* done.
@@ -1204,7 +1201,6 @@ def target_configure(argv):
         "mozSrcScheme": BuildError("don't have a mozilla source scheme: "
                                    "use '--moz-src'"),
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
-        "staticBuild": True,
         "stripBuild": True,
         "compiler": None, # Windows-only; 'vc6' (the default) or 'vc7', 'vc8'
         "mozObjDir": None,
@@ -1250,7 +1246,6 @@ def target_configure(argv):
              "moz-src=",
              "blessed", "universal",
              "komodo", "xulrunner", "suite", "browser", "moz-app=",
-             "static", "shared",
              "strip", "no-strip",
              "g4", "no-g4",
              "gtk2", "gtk",
@@ -1353,11 +1348,6 @@ def target_configure(argv):
             config["withTests"] = True
         elif opt == "--without-tests":
             config["withTests"] = False
-        elif opt == "--static":
-            config["staticBuild"] = True
-        elif opt == "--shared":
-            config["staticBuild"] = False
-            config["buildOpt"].append("shared")
         elif opt == "--strip":
             config["stripBuild"] = True
         elif opt == "--no-strip":
@@ -1706,12 +1696,6 @@ def target_configure(argv):
                 python = config["python"]
             config["mozconfig"] += "PYTHON=%s\nexport PYTHON\n" % python
 
-        # Minimize size and build static for a little extra perf boost.
-        # Don't use static in dev builds since it makes it easier to
-        # recompile specific modules when we build with shared objects.
-        if config["staticBuild"]:
-            mozBuildOptions.append('disable-shared')
-            mozBuildOptions.append('enable-static')
         if config["stripBuild"]:
             mozBuildOptions.append('enable-strip')
             mozBuildOptions.append('enable-strip-libs')
