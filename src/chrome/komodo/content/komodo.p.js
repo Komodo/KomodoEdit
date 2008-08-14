@@ -55,6 +55,17 @@ var _log = ko.logging.getLogger("ko.main");
 
 this.onClose = function(event) {
     _log.debug(">> ko.main.onClose");
+    if (ko.windowManager.lastWindow()) {
+        // if we're the only Komodo window, we're quitting
+        _log.debug("<< ko.main.onClose via goQuitApplication");
+        // Have Mozilla finish off this window before trying to walk over it again
+        // in goQuitApplication.
+        event.stopPropagation();
+        event.preventDefault();
+        event.cancelBubble = true;
+        setTimeout(goQuitApplication, 0);
+        return null;
+    }
     if (!ko.main.runCanCloseHandlers()) {
         event.stopPropagation();
         event.preventDefault();
@@ -62,14 +73,6 @@ this.onClose = function(event) {
         return null;
     }
     ko.main.runWillCloseHandlers();
-    if (ko.windowManager.lastWindow()) {
-        // if we're the only Komodo window, we're quitting
-        _log.debug("<< ko.main.onClose via goQuitApplication");
-        // Have Mozilla finish off this window before trying to walk over it again
-        // in goQuitApplication.
-        setTimeout(goQuitApplication, 0);
-        return null;
-    }
     _log.debug("<< ko.main.onClose");
     return null;
 }
@@ -411,10 +414,24 @@ window.openDialog = function openDialogNotSheet() {
         args[i]=arguments[i];
     return _openDialog.apply(this, args);
 }
+
+// this is from toolkit, but we're forcing a quit rather than "attempting"
+// a quit.  This is so the app shuts down when the last window exits.
+window.goQuitApplication = function()
+{
+  if (!canQuitApplication())
+    return false;
+
+  var appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1'].
+                     getService(Components.interfaces.nsIAppStartup);
+
+  appStartup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
+  return true;
+}
+
 // #endif
 
 }).apply(ko.mozhacks);
-
 
 
 // backwards compatibility APIs
