@@ -191,7 +191,8 @@
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
 <!ENTITY exportPackage.label "Export Package...">
-<!ENTITY extensionManager.label "Extension Manager">
+<!ENTITY extensionManager.accesskey "A">
+<!ENTITY extensionManager.label "Add-ons">
 <!ENTITY file.label "File">
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">

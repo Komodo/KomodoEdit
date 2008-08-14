@@ -1274,6 +1274,14 @@
                                       />
                         </menupopup>
                     </menu>
+
+                    <menuseparator id="menu_addons_separator"/>
+                    <menuitem label="&extensionManager.label;"
+                              id="menu_extensionmanager"
+                              accesskey="&extensionManager.accesskey;"
+                              observes="cmd_openextmgr"
+                              class="menuitem-iconic-wide" />
+
                     <menuseparator id="menu_tools_separator"/>
                     <menuitem label="&watchFile.label;"
                               accesskey="&menuWatchThread.accesskey;"
@@ -1287,10 +1295,6 @@
                               id="menu_compareFiles"
                               oncommand="window.openDialog('chrome://komodo/content/dialogs/compare.xul', '_blank', 'chrome,modal,titlebar,resizable');"
                               />
-                    <menuitem label="&extensionManager.label;"
-                              id="menu_extensionmanager"
-                              observes="cmd_openextmgr"
-                              class="menuitem-iconic-wide" />
                 </menupopup>
             </menu>
             <menu id="menu_window" label="&window.label;" accesskey="&menuWindow.accesskey;" ordinal="9995">
