@@ -971,7 +971,20 @@ class KoCodeIntelDBPreloader(threading.Thread):
     controller = None
     _progress_mode_cache = None
     cancelling = False
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+        ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
+                   getService(components.interfaces.koICodeIntelService)
+        self._mgr = UnwrapObject(ciSvc).mgr
     
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
+                    .getService(components.interfaces.koIPrefService).prefs
+        self._proxiedPrefs = getProxyForObject(None,
+            components.interfaces.koIPreferenceSet,
+            prefs, PROXY_ALWAYS | PROXY_ASYNC)
+
     def set_controller(self, controller):
         self.controller = getProxyForObject(None,
             components.interfaces.koIProgressController,
@@ -987,17 +1000,13 @@ class KoCodeIntelDBPreloader(threading.Thread):
         errtext = None
         try:
             try:
-                ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
-                           getService(components.interfaces.koICodeIntelService)
-                mgr = UnwrapObject(ciSvc).mgr
-                
                 # Stage 1: stdlibs zone
                 # For now we preload stdlibs for a hardcoded set of langs.
                 # Eventually would want to tie this to answers from a "Komodo
                 # Startup Wizard" that would ask the user what languages they
                 # use.
                 self.controller.set_stage("Preloading standard library data.")
-                stdlibs_zone = mgr.db.get_stdlibs_zone()
+                stdlibs_zone = self._mgr.db.get_stdlibs_zone()
                 if stdlibs_zone.can_preload():
                     stdlibs_zone.preload(self.progress_cb)
                 else:
@@ -1022,14 +1031,12 @@ class KoCodeIntelDBPreloader(threading.Thread):
                 self.value_span = (0, 100)
                 self.controller.set_desc("")
                 self.controller.set_progress_mode("determined")
-                catalogs_zone = mgr.db.get_catalogs_zone()
-                catalog_selections = mgr.env.get_pref("codeintel_selected_catalogs")
+                catalogs_zone = self._mgr.db.get_catalogs_zone()
+                catalog_selections = self._mgr.env.get_pref("codeintel_selected_catalogs")
                 catalogs_zone.update(catalog_selections,
                                      progress_cb=self.progress_cb)
 
-                prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                            .getService().prefs # global prefs
-                prefSvc.setBooleanPref("codeintel_have_preloaded_database", 1)
+                self._proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 1)
             except Exception, ex:
                 errmsg = "Error preloading DB: %s" % ex
                 errtext = traceback.format_exc()
