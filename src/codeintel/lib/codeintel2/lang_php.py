@@ -516,8 +516,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                    pos, implicit)
                 elif last_char == ">":
                     if prev_char == "-":
-                        p, c, style = ac.getPrecedingPosCharStyle(prev_style, self.comment_styles)
-                        if style in (self.variable_style, self.identifier_style):
+                        p, c, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles_or_whitespace)
+                        if style in (self.variable_style, self.identifier_style) or \
+                           (style == self.operator_style and c == ')'):
                             return Trigger(lang, TRG_FORM_CPLN, "object-members",
                                            pos, implicit)
                         elif DEBUG:

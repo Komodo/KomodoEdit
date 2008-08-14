@@ -127,6 +127,12 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name=name, pos=13)
         self.assertTriggerMatches(php_markup("$foo->bar-><|>foobar;"),
                                   name=name, pos=17)
+        self.assertTriggerMatches(php_markup("$foo->bar()-><|>foobar;"),
+                                  name=name, pos=19)
+        self.assertTriggerMatches(php_markup("$foo->bar('sludge')-><|>foobar;"),
+                                  name=name, pos=27)
+        self.assertTriggerMatches(php_markup("$foo->bar('sludge', $x, 5)-><|>foobar;"),
+                                  name=name, pos=34)
         # Test using the scope resolution operator "::"
         name = "php-complete-static-members"
         self.assertTriggerMatches(php_markup("myclass::<|>myfunc();"),
@@ -2523,6 +2529,34 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(
             markup_text(content, pos=positions[1]),
             [("variable", "connection"), ])
+
+    @tag("bug77834")
+    def test_chained_method_calls(self):
+        # Test for ensuring the citdl type can be found when the methods
+        # are chained together.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug77834_class {
+                var $x = 0;
+                /**
+                 * @return bug77834_class
+                 */
+                function func1() { }
+                function func2() { }
+            }
+            $bug77834_inst = new bug77834_class();
+            $bug77834_inst->func1()-><1>xxx;
+            $bug77834_inst->func1(5)-><2>xxx;
+            $bug77834_inst->func1("a string", $x)-><3>func1("bae")-><4>xxx;
+        """)))
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
 
 
 class DefnTestCase(CodeIntelTestCase):
