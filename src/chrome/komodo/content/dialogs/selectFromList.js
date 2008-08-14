@@ -84,12 +84,13 @@ var gItemsTreeView = {  // The nsITreeView object for the list of items.
     // be required.
     tree : null,
     isSeparator : function(index) {return false;},
-    isContainer : function(index) {return false;},
     setTree : function(out) { this.tree = out; },
     getRowProperties : function(row,prop){},
     getColumnProperties : function(column,prop){},
     getCellProperties : function(row,prop){},
     isContainer : function(row) {return false;},
+    isContainerOpen: function(index) { return false;},
+    isContainerEmpty: function(index) { return false; },
     cycleCell: function(row, colId) {},
     setRowCount : function(rowCount) {
         this.rowCount = rowCount;
