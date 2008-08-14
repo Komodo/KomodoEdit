@@ -65,7 +65,7 @@
     <script src="chrome://komodo/content/dialogs/authenticate.js" type="application/x-javascript;version=1.7"/>
 
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <hbox flex="1">

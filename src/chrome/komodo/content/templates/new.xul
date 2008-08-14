@@ -74,7 +74,7 @@
     <script src="chrome://komodo/content/templates/new.js"   type="application/x-javascript;version=1.7"/>
 
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <hbox flex="1">

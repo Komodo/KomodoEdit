@@ -63,8 +63,8 @@
     <script src="chrome://komodo/content/dialogs/prompt.js"  type="application/x-javascript;version=1.7"/>
 
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
-        <popup type="autocomplete" id="popupTextboxAutoComplete2"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete2" noautofocus="true"/>
     </popupset>
 
     <vbox flex="1">

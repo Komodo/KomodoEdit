@@ -135,7 +135,7 @@ class KoTACResult:
         self.searchResult = components.interfaces.nsIAutoCompleteResult.RESULT_FAILURE
         self.errorDescription = errorDescription
 
-    def addMatch(self, value, comment=None, style=None, isDefault=False):
+    def addMatch(self, value, comment=None, style=None, isDefault=False, image=None):
         """Add an AutoComplete search match/hit
 
             "value" is the (string) value of the match.
@@ -158,7 +158,7 @@ class KoTACResult:
         if not self.matches \
            and self.searchResult == nsIAutoCompleteResult.RESULT_NOMATCH:
             self.searchResult = nsIAutoCompleteResult.RESULT_SUCCESS
-        self.matches.append((value, comment, style))
+        self.matches.append((value, comment, style, image))
         if isDefault:
             self.defaultIndex = len(self.matches) - 1
 
@@ -171,6 +171,8 @@ class KoTACResult:
         return self.matches[index][1]
     def getStyleAt(self, index):
         return self.matches[index][2]
+    def getImageAt(self, index):
+        return self.matches[index][3]
     def removeValueAt(self, rowIndex, removeFromDb=False):
         del self.matches[rowIndex]
 
@@ -196,8 +198,7 @@ class KoTACDemoSearch(KoTACSearch):
                   "previousResult=%r, listener)", searchString, 
                   searchParam, previousResult)
 
-        result = components.classes["@activestate.com/autocomplete/result;1"] \
-            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result = KoTACResult()
         result.init(searchString)
 
         try:
@@ -245,8 +246,7 @@ class KoTACFilePathSearch(KoTACSearch):
         relative, then treat it relative to the given "cwd". If "cwd" is
         empty then do not commplete on relative paths.
         """
-        result = components.classes["@activestate.com/autocomplete/result;1"] \
-            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result = KoTACResult()
         result.init(pattern)
 
         #XXX Disable this optimization because
@@ -308,8 +308,7 @@ class KoTACMruSearch(KoTACSearch):
                   "previousResult=%r, listener)", searchString, 
                   prefName, previousResult)
 
-        result = components.classes["@activestate.com/autocomplete/result;1"] \
-            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result = KoTACResult()
         result.init(searchString)
 
         if DEBUG: allitems = []
@@ -403,8 +402,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
             print "startSearch: cwd=%r" % cwd
             print "startSearch: mruLimit=%r" % mruLimit
 
-        result = components.classes["@activestate.com/autocomplete/result;1"] \
-            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result = result = KoTACResult()
         result.init(searchString)
 
         # Pref hits first (limited number)
@@ -528,8 +526,7 @@ class KoTACItemAndMruSearch(KoTACSearch):
                          mruLimit)
                 mruLimit = None
 
-        result = components.classes["@activestate.com/autocomplete/result;1"] \
-            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result = KoTACResult()
         result.init(searchString)
 
         if item is not None:

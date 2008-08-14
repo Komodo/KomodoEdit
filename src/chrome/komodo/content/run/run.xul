@@ -78,7 +78,7 @@
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
     </keyset>
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <vbox flex="1">

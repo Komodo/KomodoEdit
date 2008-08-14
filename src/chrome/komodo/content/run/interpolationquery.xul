@@ -70,7 +70,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolationquery.js"/>
 
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <vbox>

@@ -55,7 +55,7 @@
     <script src="chrome://komodo/content/test/test_firefoxAutoComplete.js" type="application/x-javascript;version=1.7"/>
 
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <vbox style="padding: 10px 10px 20px 10px;" flex="1">

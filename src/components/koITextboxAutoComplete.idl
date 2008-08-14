@@ -45,6 +45,7 @@ interface koIAutoCompleteResult : nsIAutoCompleteResult {
     void setIgnored();
     void setFailed(in wstring errorDescription);
     void addMatch(in wstring value, in wstring comment,
-                  in wstring style, in boolean isDefault);
+                  in wstring style, in boolean isDefault,
+                  in wstring image);
 };
 

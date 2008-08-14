@@ -71,7 +71,7 @@
 </keyset>
 
 <popupset>
-    <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+    <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
 </popupset>
 
 <menupopup id="dialogTooltip" />

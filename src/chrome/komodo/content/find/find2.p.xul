@@ -105,7 +105,7 @@
 <!-- #endif -->
     </keyset>
     <popupset>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <hbox style="padding: 5px 10px 5px 10px;">
