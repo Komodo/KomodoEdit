@@ -43,7 +43,7 @@ import sys
 from glob import glob
 import re
 import logging
-import md5
+from hashlib import md5
 from pprint import pprint
 from posixpath import join as rjoin
 from posixpath import basename as rbasename
@@ -298,7 +298,7 @@ class KomodoMarCacher(object):
     def _cache_mar_dir_from_mar_path(self, mar_path):
         cache_mar_path = self._cache_mar_path_from_mar_path(mar_path)
         return join(dirname(cache_mar_path),
-                    md5.new(basename(cache_mar_path)).hexdigest())
+                    md5(basename(cache_mar_path)).hexdigest())
 
     def _cache_mar_path(self, mar_path, skip_checksum_check=False):
         """Get a clean local cache of the given remote .mar path.
@@ -319,14 +319,14 @@ class KomodoMarCacher(object):
         # Ensure cache's validity.
         if not skip_checksum_check:
             src_md5 = buildutils.remote_md5sum(mar_path, log.debug)
-            cache_md5 = md5.new(open(cache_mar_path, 'rb').read()).hexdigest()
+            cache_md5 = md5(open(cache_mar_path, 'rb').read()).hexdigest()
             if src_md5 != cache_md5:
                 log.info("'%s' in cache is invalid: reloading", basename(mar_path))
                 os.remove(cache_mar_path)
                 buildutils.remote_cp(mar_path, cache_mar_path, log.debug)
                 have_new_mar = True
                 
-                cache_md5 = md5.new(open(cache_mar_path, 'rb').read()).hexdigest()
+                cache_md5 = md5(open(cache_mar_path, 'rb').read()).hexdigest()
                 if src_md5 != cache_md5:
                     raise Error("cannot get valid copy of '%s' in mar cache: "
                                 "md5sum even after a reload does not checkout"

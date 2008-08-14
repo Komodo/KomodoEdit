@@ -112,7 +112,7 @@
 import os
 import sys
 import getopt
-import md5
+from hashlib import md5
 import re
 import logging
 import pprint
@@ -1221,7 +1221,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     conforming the the Code Intelligence XML format.
     
         "content" is the Python content to scan. This should be an
-            encoded string: must be a string for `md5.new` and
+            encoded string: must be a string for `md5` and
             `compiler.parse` -- see bug 73461.
         "filename" is the source of the Python content (used in the
             generated output).
@@ -1246,7 +1246,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """
     log.info("scan '%s'", filename)
     if md5sum is None:
-        md5sum = md5.new(content).hexdigest()
+        md5sum = md5(content).hexdigest()
     if mtime is None:
         mtime = int(time.time())
     # 'compiler' both (1) wants a newline at the end and (2) can fail on

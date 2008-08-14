@@ -7,7 +7,7 @@ import sys
 import time
 import random
 import threading
-import md5
+from hashlib import md5
 from os.path import dirname, join, abspath
 
 #from codeintel2.lang_php import PHPLexer
@@ -82,7 +82,7 @@ class MyThread(threading.Thread):
     def run(self):
         time.sleep(random.random())
         tokens = list( self.lexer.tokenize_by_style(self.content) )
-        print "%15s tokens md5: %s" % (self.lexer.__class__.__name__, md5.md5(repr(tokens)).hexdigest())
+        print "%15s tokens md5: %s" % (self.lexer.__class__.__name__, md5(repr(tokens)).hexdigest())
 
 def doit():
     lexers = []

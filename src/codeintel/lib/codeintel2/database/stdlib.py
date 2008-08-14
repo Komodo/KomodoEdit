@@ -47,7 +47,6 @@ from os.path import (join, dirname, exists, expanduser, splitext, basename,
 import cPickle as pickle
 import threading
 import time
-import md5
 import bisect
 import fnmatch
 from glob import glob

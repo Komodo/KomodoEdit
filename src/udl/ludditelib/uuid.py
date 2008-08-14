@@ -195,7 +195,7 @@ def uuid1():
 
 def uuid3(namespace, name):
     """Generate a UUID from the MD5 hash of a namespace UUID and a name."""
-    from md5 import md5
+    from hashlib import md5
     uuid = UUID(0, 0, 0, 0, 0, 0)
     uuid.bytes = md5(namespace.bytes + name).digest()[:16]
     uuid.variant = RFC_4122

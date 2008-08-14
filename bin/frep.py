@@ -104,7 +104,7 @@ from pprint import pprint, pformat
 from glob import glob
 import cPickle as pickle
 import codecs
-import md5
+from hashlib import md5
 import difflib
 
 

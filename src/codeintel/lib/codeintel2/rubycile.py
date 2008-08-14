@@ -79,7 +79,6 @@ import os
 from os.path import abspath, basename, dirname, splitext, isfile, isdir, join
 import sys
 import getopt
-import md5
 import re
 import logging
 import glob

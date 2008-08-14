@@ -147,7 +147,7 @@ import imp
 import pprint
 import glob
 import types
-import md5
+from hashlib import md5
 import difflib
 
 try:
@@ -362,13 +362,13 @@ def _assertCanAddFile(src, dst, patchSrcPath):
     fin = open(src, 'rb')
     try:
         src_content = fin.read()
-        src_md5 = md5.new(src_content).hexdigest()
+        src_md5 = md5(src_content).hexdigest()
     finally:
         fin.close()
     fin = open(dstPath, 'rb')
     try:
         dst_content = fin.read()
-        dst_md5 = md5.new(dst_content).hexdigest()
+        dst_md5 = md5(dst_content).hexdigest()
     finally:
         fin.close()
     if src_md5 != dst_md5:
@@ -607,7 +607,7 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
                 # necessary.
                 fin = open(atticLoc, 'rb')
                 try:
-                    atticmd5 = md5.new(fin.read()).hexdigest()
+                    atticmd5 = md5(fin.read()).hexdigest()
                 finally:
                     fin.close()
                 if os.path.isfile(sourceLoc):
@@ -617,7 +617,7 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
                 if os.path.exists(sourceFile):
                     fin = open(sourceFile, 'rb')
                     try:
-                        sourcemd5 = md5.new(fin.read()).hexdigest()
+                        sourcemd5 = md5(fin.read()).hexdigest()
                     finally:
                         fin.close()
                     if atticmd5 == sourcemd5:

@@ -40,7 +40,6 @@
 import os
 from os.path import basename
 import sys
-import md5
 import re
 import stat
 import textwrap

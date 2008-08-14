@@ -38,7 +38,8 @@
 
 # needed for ftpfile
 import urlparse, urllib
-import stat, os, sys, copy, md5
+import stat, os, sys, copy
+from hashlib import md5
 import types, re
 
 win32 = sys.platform.startswith("win")
@@ -368,7 +369,7 @@ class URIParser(object):
 
     #readonly attribute string md5name; 
     def get_md5name(self):
-        return md5.new(self.get_encodedURI()).hexdigest()
+        return md5(self.get_encodedURI()).hexdigest()
     md5name = property(get_md5name)
 
 class FileHandlerBase(object):

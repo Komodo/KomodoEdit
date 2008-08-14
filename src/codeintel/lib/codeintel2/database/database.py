@@ -250,7 +250,7 @@ import cPickle as pickle
 from cPickle import UnpicklingError
 import threading
 import time
-import md5
+from hashlib import md5
 import bisect
 import fnmatch
 from glob import glob
@@ -992,14 +992,14 @@ class Database(object):
         s = ':'.join([res_path, lang, blobname])
         if isinstance(s, unicode):
             s = s.encode(sys.getfilesystemencoding())
-        return md5.new(s).hexdigest()
+        return md5(s).hexdigest()
 
     #TODO:PERF: evaluate perf improvement with caching of this
     def dhash_from_dir(self, dir):
         """Return a hash path to use internally in the db for the given dir."""
         if isinstance(dir, unicode):
             dir = dir.encode(sys.getfilesystemencoding())
-        return md5.new(dir).hexdigest()
+        return md5(dir).hexdigest()
 
 
     #---- The following are convenience methods for working with a

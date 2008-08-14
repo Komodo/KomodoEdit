@@ -68,7 +68,7 @@ from posixpath import join as urljoin
 from fnmatch import fnmatch
 import pprint
 import glob
-import md5
+from hashlib import md5
 import operator
 import logging
 
@@ -2236,7 +2236,7 @@ def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
             base = os.path.splitext(base)[0]
             target = base + ext
         if os.path.exists(target):
-            _table[possible] = (os.path.abspath(target), md5.new(open(possible, 'rb').read()).hexdigest())
+            _table[possible] = (os.path.abspath(target), md5(open(possible, 'rb').read()).hexdigest())
             count += 1
     #print 'Found %d %s files in %s' % (count, extensions, sourceSubdir)
     
@@ -2294,7 +2294,7 @@ def QuickBuild(cfg, argv, _table):
         # We don't just want > because p4 revert (and possibly `hg
         # revert') brings the date back.
         if os.path.isfile(target):
-            newmd5 = md5.new(open(source, 'rb').read()).hexdigest()
+            newmd5 = md5(open(source, 'rb').read()).hexdigest()
             if newmd5 != oldmd5:
                 todo.append((source, target))
                 _table[source] = (target, newmd5)

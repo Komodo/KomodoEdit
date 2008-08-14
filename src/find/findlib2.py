@@ -47,7 +47,7 @@ import logging
 import codecs
 from glob import glob
 import cPickle as pickle
-import md5
+from hashlib import md5
 from pprint import pprint, pformat
 
 try:
@@ -301,7 +301,7 @@ def undo_replace(journal_id, dry_run=False):
         f = open(group.path, 'rb') #TODO: handle path being missing
         bytes = f.read()
         f.close()
-        md5sum = md5.md5(bytes).hexdigest()
+        md5sum = md5(bytes).hexdigest()
         if md5sum != group.after_md5sum:
             changed_paths.append(group.path)
     if changed_paths:
@@ -337,7 +337,7 @@ def undo_replace(journal_id, dry_run=False):
 
         # 4. Sanity check.
         bytes = text.encode(group.encoding)
-        md5sum = md5.md5(bytes).hexdigest()
+        md5sum = md5(bytes).hexdigest()
         log.debug("undo md5 check: before=%s, after undo=%s",
                   group.before_md5sum, md5sum)
         if md5sum != group.before_md5sum:
@@ -709,9 +709,9 @@ class ReplaceHitGroup(Hit):
         #   (start_pos, end_pos), the start line (start_line,
         #   0-based).
         #TODO: get before_md5sum from the TextInfo
-        before_md5sum = md5.md5(
+        before_md5sum = md5(
             self.before_text.encode(self.encoding)).hexdigest()
-        after_md5sum = md5.md5(
+        after_md5sum = md5(
             self.after_text.encode(self.encoding)).hexdigest()
 
         self.rhits = []

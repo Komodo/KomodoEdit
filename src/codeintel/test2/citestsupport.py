@@ -44,7 +44,7 @@ from glob import glob
 from pprint import pprint, pformat
 import unittest
 import random
-import md5
+from hashlib import md5
 import re
 
 from codeintel2.manager import Manager
@@ -136,7 +136,7 @@ class CodeIntelTestCase(unittest.TestCase):
             # Try to ensure no accidental re-use of the same buffer name
             # across the whole test suite. Also try to keep the buffer
             # names relatively short (keeps tracebacks cleaner).
-            name = "buf-" + md5.md5(markedup_content).hexdigest()[:16]
+            name = "buf-" + md5(markedup_content).hexdigest()[:16]
             path = os.path.join("<Unsaved>", name)
         content, data = unmark_text(self.adjust_content(markedup_content))
         #print banner(path)

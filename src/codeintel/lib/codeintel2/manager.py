@@ -41,7 +41,6 @@ import os
 from os.path import dirname, join, abspath, splitext, basename, isabs
 import sys
 import time
-import md5
 import pprint
 import stat
 import types

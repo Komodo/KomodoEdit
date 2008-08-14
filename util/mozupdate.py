@@ -753,14 +753,14 @@ class Shell(cmdln.Cmdln):
 
 def _od_path_from_path(path, od_opts=["-c"]):
     """Calculate and cache `od $od_opts $path` and return the cached path."""
-    import md5
+    from hashlib import md5
     import applib
     import buildutils
     import which
     from os.path import exists
     cache_dir = join(
         applib.user_cache_dir("komodo-dev", "ActiveState"), "od")
-    od_dir = join(cache_dir, md5.new(dirname(path)).hexdigest())
+    od_dir = join(cache_dir, md5(dirname(path)).hexdigest())
     od_path = join(od_dir, basename(path)+".od")
     if not exists(od_dir):
         os.makedirs(od_dir)
@@ -777,13 +777,13 @@ def _od_path_from_path(path, od_opts=["-c"]):
 
 def _strings_path_from_path(path):
     """Calculate and cache `strings $path` and return the cached path."""
-    import md5
+    from hashlib import md5
     import applib
     import buildutils
     from os.path import exists
     cache_dir = join(
         applib.user_cache_dir("komodo-dev", "ActiveState"), "strings")
-    strings_dir = join(cache_dir, md5.new(dirname(path)).hexdigest())
+    strings_dir = join(cache_dir, md5(dirname(path)).hexdigest())
     strings_path = join(strings_dir, basename(path)+".strings")
     if not exists(strings_dir):
         os.makedirs(strings_dir)

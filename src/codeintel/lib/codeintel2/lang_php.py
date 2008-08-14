@@ -45,7 +45,6 @@
 import os
 from os.path import isdir, join, basename, splitext, exists, dirname
 import sys
-import md5
 import re
 import logging
 import time

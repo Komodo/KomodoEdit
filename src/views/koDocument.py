@@ -40,7 +40,7 @@ from xpcom import components, nsError, ServerException, COMException, _xpcom
 from xpcom.server import WrapObject, UnwrapObject
 import xpcom
 import logging
-import md5
+from hashlib import md5
 import re
 import sys
 import cStringIO
@@ -379,7 +379,7 @@ class koDocumentBase:
             data = self._get_buffer_from_file(file)
         else:
             data = ''
-        self._lastmd5 = md5.new(data).digest()
+        self._lastmd5 = md5(data).digest()
         self.set_buffer(data,0)
         self.setSavePoint()
         # if a file is in a project, then we have to check
@@ -443,7 +443,7 @@ class koDocumentBase:
             try:
                 try:
                     ondisk = self.file.read(-1)
-                    newmd5 = md5.new(ondisk).digest()
+                    newmd5 = md5(ondisk).digest()
                 except Exception, ex:
                     errmsg = "File differentOnDisk check failed: %s" % ex
                     log.error(errmsg)
@@ -1150,7 +1150,7 @@ class koDocumentBase:
                 # better data.
                 raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
-            self._lastmd5 = md5.new(data).digest()
+            self._lastmd5 = md5(data).digest()
             self.set_isDirty(0)
             self.setSavePoint()
 
@@ -1567,6 +1567,6 @@ class koDocumentBase:
             self.set_isDirty(1)
             # fix the file content md5
             data = self._get_buffer_from_file(self.file)
-            self._lastmd5 = md5.new(data).digest()
+            self._lastmd5 = md5(data).digest()
         finally:
             timeline.leave('koDocumentBase.restoreAutoSave')

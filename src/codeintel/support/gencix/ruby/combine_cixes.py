@@ -47,7 +47,7 @@ import os
 from os.path import basename, splitext, isfile, isdir, join
 import sys
 import getopt
-import md5
+from hashlib import md5
 import re
 import logging
 import glob

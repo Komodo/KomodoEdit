@@ -40,7 +40,7 @@ import os
 from os.path import (join, dirname, exists, expanduser, splitext, basename,
                      split, abspath, isabs, isdir, isfile)
 import threading
-import md5
+from hashlib import md5
 from pprint import pprint, pformat
 import logging
 import codecs
@@ -93,7 +93,7 @@ class ProjectZone(object):
 
         self.name = basename(proj.path)
         self.base_dir = join(self.db.base_dir, "db", "projs", 
-                             md5.new(proj.path).hexdigest())
+                             md5(proj.path).hexdigest())
         self._proj_lib_from_lang = weakref.WeakValueDictionary()
         self._idx_lock = threading.RLock()
         self._dirs_from_basename = None

@@ -153,7 +153,7 @@ def _guid_from_keys(keys, sep=":"):
     """Return a GUID string that is an MD5 hexdigest of the ':'-joined given
     keys.
     """
-    from md5 import md5
+    from hashlib import md5
     key = sep.join(keys)
     d = md5(key).hexdigest().upper() # MSI likes uppercase hexadecimal
     guid = "%s-%s-%s-%s-%s" % (d[:8], d[8:12], d[12:16], d[16:20], d[20:])

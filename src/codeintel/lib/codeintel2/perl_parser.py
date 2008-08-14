@@ -40,7 +40,6 @@
 """Perl parsing support for codeintel/perlcile.py"""
 
 import copy
-import md5
 import os.path
 import string
 import sys

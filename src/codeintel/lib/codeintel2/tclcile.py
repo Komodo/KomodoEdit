@@ -79,7 +79,7 @@ import os
 from os.path import basename, splitext, isfile, isdir, join
 import sys
 import getopt
-import md5
+from hashlib import md5
 import re
 import logging
 import glob
@@ -122,7 +122,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Tcl"):
         else:
             actual_mtime = mtime
         if md5sum is None:
-            actual_md5 = md5.new(content).hexdigest()
+            actual_md5 = md5(content).hexdigest()
         else:
             actual_md5 = md5sum
         return parser_cix.produce_cix(parse_tree, filename, actual_md5, actual_mtime, "Tcl", "tclcile")

@@ -38,7 +38,7 @@
 
 import os
 import sys
-import md5
+from hashlib import md5
 import re
 import stat
 import time
@@ -146,7 +146,7 @@ class ScanRequest:
         """Calculate and set self.md5sum if is it not already set."""
         if self.md5sum is None:
             self.loadContent()
-            self.md5sum = md5.new(self.content).hexdigest()
+            self.md5sum = md5(self.content).hexdigest()
     def getCanonicalPath(self):
         return canonicalizePath(self.path)
 

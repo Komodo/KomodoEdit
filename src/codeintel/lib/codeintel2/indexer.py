@@ -55,7 +55,7 @@ import threading
 import time
 import bisect
 import Queue
-import md5
+from hashlib import md5
 import traceback
 
 import logging
@@ -880,7 +880,7 @@ class BatchUpdater(threading.Thread):
     def _handle_cix_request(self, path):
         self.progress("importing", path)
         #XXX Consider not bothering if MD5 of file is already in DB.
-        #       md5sum = md5.new(cix).hexdigest()
+        #       md5sum = md5(cix).hexdigest()
         #    c.f. "Can an MD5 for a CIX file be added?" in my notes.
         try:
             fin = open(path, 'r')

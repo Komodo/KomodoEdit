@@ -37,7 +37,6 @@
 
 import os
 import sys
-import md5
 import logging
 import shutil
 
