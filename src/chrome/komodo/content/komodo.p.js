@@ -415,20 +415,6 @@ window.openDialog = function openDialogNotSheet() {
     return _openDialog.apply(this, args);
 }
 
-// this is from toolkit, but we're forcing a quit rather than "attempting"
-// a quit.  This is so the app shuts down when the last window exits.
-window.goQuitApplication = function()
-{
-  if (!canQuitApplication())
-    return false;
-
-  var appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1'].
-                     getService(Components.interfaces.nsIAppStartup);
-
-  appStartup.quit(Components.interfaces.nsIAppStartup.eForceQuit);
-  return true;
-}
-
 // #endif
 
 }).apply(ko.mozhacks);
