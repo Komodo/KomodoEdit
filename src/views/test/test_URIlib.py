@@ -34,7 +34,8 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-import sys, md5
+import sys
+from hashlib import md5
 import unittest
 import tempfile
 
@@ -153,7 +154,7 @@ class TestURIParser(unittest.TestCase):
         
         URI = URIParser()
         URI.path = filename
-        assert URI.md5name == md5.new(URI.URI).hexdigest()
+        assert URI.md5name == md5(URI.URI).hexdigest()
         
 
 class TestFileHandler(unittest.TestCase):

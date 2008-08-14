@@ -45,7 +45,7 @@ from pprint import pprint, pformat
 import logging
 from cStringIO import StringIO
 import traceback
-import md5
+from hashlib import md5
 import time
 
 import SilverCity

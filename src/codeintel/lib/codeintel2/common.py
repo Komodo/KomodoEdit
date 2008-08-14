@@ -66,7 +66,6 @@ __all__ = [
 import os
 from os.path import dirname, join, normpath, exists, basename
 import sys
-import md5
 import re
 import stat
 import time
