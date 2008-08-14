@@ -488,6 +488,7 @@ class Indexer(threading.Thread):
     def pause(self):
         self._resumeEvent = threading.Event()
         self._pauseEvent = threading.Event()
+        #TODO: shouldn't this be `self.add_request`?
         self.addRequest(IndexerPauseRequest())
         self._pauseEvent.wait() # wait until the Scheduler is actually paused
         log.debug("indexer: paused")
