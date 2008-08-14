@@ -156,10 +156,10 @@
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
     <popupset id="editorTooltipSet">
-        <popup type="tooltip" id="editorTooltip" flex="1">
+        <tooltip id="editorTooltip" flex="1">
             <description multiline="true" id="editorTooltip-tooltipText" class="tooltip-label" flex="1"/>
-        </popup>
-        <popup type="autocomplete" id="popupTextboxAutoComplete"/>
+        </tooltip>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
     <popupset id="extensionPopupSet"/>
