@@ -1447,7 +1447,7 @@
                 <File Id="file596" Name="PROJEC_0.PY" LongName="projectUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\projectUtils.py"/>
                 <File Id="file599" Name="SGMLOP_1.EGG" LongName="sgmlop-1.1.1_20040207-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop-1.1.1_20040207-py2.6.egg-info"/>
                 <File Id="file609" Name="SILVER_1.EGG" LongName="SilverCity-0.9.5-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.6.egg-info"/>
-                <File Id="file299" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
+                <File Id="file299" Name="mozutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\mozutils.py" />
 
 <?if $(var.WithCrypto) = "yes" ?>
                 <File Id="file3938" Name="REMOTE_3.PY" LongName="remotefileagent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\remotefileagent.py"/>
