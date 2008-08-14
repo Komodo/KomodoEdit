@@ -747,6 +747,9 @@ class koLangSvcStyleInfo(koLangSvcStyleInfo_Default):
 
 _softCharDecorator = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
 
+class _NextLineException(Exception):
+    pass
+
 class KoLanguageBase:
     _com_interfaces_ = [components.interfaces.koILanguage]
 
@@ -2590,12 +2593,12 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth):
                             return guess, usesTabs
                         else:
                             # probably an empty block
-                            raise "NextLine"
+                            raise _NextLineException()
                     else:
                         # We've found a character which is not a block opener
                         # so this can't be an indenting line.
-                        raise "NextLine"
-            except "NextLine":
+                        raise _NextLineException()
+            except _NextLineException:
                 continue
         log.info("Couldn't find indentation information from the file")
         return 0, 0
