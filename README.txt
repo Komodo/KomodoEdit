@@ -73,8 +73,8 @@ Read/write developer access is available via:
 Build Prerequisites for Windows
 ===============================
 
-- Python 2.5. You can install ActivePython 2.5 from here:
-  <http://downloads.activestate.com/ActivePython/windows/2.5/ActivePython-2.5.1.1-win32-x86.msi>
+- Python >=2.5. You can install ActivePython from here:
+  <http://downloads.activestate.com/ActivePython/windows/>
 
 - Visual C++ 8.0 (aka Visual Studio 2005) and all the Platform SDKs for
   building Mozilla with vc8 as described here:
@@ -187,11 +187,11 @@ Step 1: Building Python
 -----------------------
 
 Currently the Komodo source tree includes *prebuilt* Python binaries
-in `mozilla/prebuilt/python2.5`. Basically these are vanilla Python 2.5.1
+in `mozilla/prebuilt/python2.5`. Basically these are vanilla Python 2.6
 builds with the following tweaks:
 
 - [Windows] a patch to disable looking in the registry for sys.path info
-- [Windows] built with VC6 (atypical of all current Python distros)
+- [Windows] built with VC8 (atypical of all current Python distros)
 - [Mac OS X] a patch to the Python frameworks bin/python stub to allow
   running `python` in this framework without it having to be installed
   in one of the standard "/Library/Frameworks",
@@ -199,10 +199,8 @@ builds with the following tweaks:
 - The builds are shared (atypical of some Linux Python builds)
 
 Currently these are ActivePython builds. However, the plan is to update
-the Open Komodo build system (in late 2007) to support building its own
-Python from sources rather than relying on a prebuilt ActivePython. This
-was just the quickest way to get the Open Komodo sources out in 2 f*@&ing
-months (<http://blogs.activestate.com/shanec/2007/09/holy-komodo.html>).
+the Komodo build system to support building its own Python from sources
+rather than relying on a prebuilt ActivePython.
 
 
 Step 2: Building Mozilla
