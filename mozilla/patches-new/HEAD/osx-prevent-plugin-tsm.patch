@@ -1,10 +1,10 @@
-Index: /Users/shanec/svn/komodo/mozilla/build/cvs-ko5.10/mozilla/widget/src/cocoa/nsChildView.mm
+Index: widget/src/cocoa/nsChildView.mm
 ===================================================================
 RCS file: /cvsroot/mozilla/widget/src/cocoa/nsChildView.mm,v
 retrieving revision 1.362
 diff -u -r1.362 nsChildView.mm
---- nsChildView.mm	22 Jul 2008 15:19:11 -0000	1.362
-+++ nsChildView.mm	15 Aug 2008 00:56:52 -0000
+--- widget/src/cocoa/nsChildView.mm	22 Jul 2008 15:19:11 -0000	1.362
++++ widget/src/cocoa/nsChildView.mm	15 Aug 2008 00:56:52 -0000
 @@ -5228,6 +5228,9 @@
  - (void)keyDown:(NSEvent*)theEvent
  {
