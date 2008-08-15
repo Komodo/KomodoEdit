@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 import textwrap
+from util import CompareNPunctLast
 
 CSS_ATTR_DICT = {
     'azimuth'   : [
@@ -1210,3 +1211,46 @@ CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT = {
 }
 for property, calltip in CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.items():
     CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT[property] = "\n".join(textwrap.wrap(calltip, 40))
+
+css_color_names = [ 'aqua', 'black', 'blue', 'fuchsia', 'gray', 'green', 'lime', 'maroon', 'navy', 'olive', 'purple', 'red', 'silver', 'teal', 'white', 'yellow' ]
+
+# Note: The color descriptions are not yet used by Komodo for attribute values,
+# but since I already have the info, might as well keep it for reference, we may
+# be able to add it later on...
+css2_system_colors = {
+    'ActiveBorder'           : """Active window border""",
+    'ActiveCaption'          : """Active window caption""",
+    'AppWorkspace'           : """Background color of multiple document interface""",
+    'Background'             : """Desktop background""",
+    'ButtonFace'             : """Face color for three-dimensional display elements""",
+    'ButtonHighlight'        : """Dark shadow for three-dimensional display elements (for edges facing away from the light source)""",
+    'ButtonShadow'           : """Shadow color for three-dimensional display elements""",
+    'ButtonText'             : """Text on push buttons""",
+    'CaptionText'            : """Text in caption, size box, and scrollbar arrow box""",
+    'GrayText'               : """Grayed (disabled) text. This color is set to #000 if the current display driver does not support a solid gray color""",
+    'Highlight'              : """Item(s) selected in a control""",
+    'HighlightText'          : """Text of item(s) selected in a control""",
+    'InactiveBorder'         : """Inactive window border""",
+    'InactiveCaption'        : """Inactive window caption""",
+    'InactiveCaptionText'    : """Color of text in an inactive caption""",
+    'InfoBackground'         : """Background color for tooltip controls""",
+    'InfoText'               : """Text color for tooltip controls""",
+    'Menu'                   : """Menu background""",
+    'MenuText'               : """Text in menus""",
+    'Scrollbar'              : """Scroll bar gray area""",
+    'ThreeDDarkShadow'       : """Dark shadow for three-dimensional display elements""",
+    'ThreeDFace'             : """Face color for three-dimensional display elements""",
+    'ThreeDHighlight'        : """Highlight color for three-dimensional display elements""",
+    'ThreeDLightShadow'      : """Light color for three-dimensional display elements (for edges facing the light source)""",
+    'ThreeDShadow'           : """Dark shadow for three-dimensional display elements""",
+    'Window'                 : """Window background""",
+    'WindowFrame'            : """Window frame""",
+    'WindowText'             : """Text in windows""",
+}
+
+# Add the css2 system colors.
+# XXX - Uncomment following lines to add, disabled for now.
+#for attr, values in CSS_ATTR_DICT.items():
+#    if '#' in values or 'rbg(' in values:
+#        CSS_ATTR_DICT[attr] = sorted(values + css_color_names + css2_system_colors.keys(),
+#                                     cmp=CompareNPunctLast)
