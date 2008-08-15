@@ -129,6 +129,12 @@ statusbarpanel > toolbarbutton > .toolbarbutton-text {
   padding-right: 2px;
 }
 statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
+  /*
+   The moz appearance is necessary to override the additional image provided
+   by the toolbarbutton menu image (provided through a xbl binding).
+   http://bugs.activestate.com/show_bug.cgi?id=79320
+  */
+  -moz-appearance: none !important;
   list-style-image: url("chrome://komodo/skin/images/menupopup_arrows.png");
 }
 
