@@ -395,6 +395,11 @@
             <File Id="file473" Name="platform.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\platform.ini"/>
             <File Id="file477" Name="pyxpcom.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pyxpcom.dll"/>
             <File Id="file478" Name="sqlite3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\sqlite3.dll"/>
+            <File Id="file344" Name="gkgfx.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\gkgfx.dll"/>
+            <File Id="file349" Name="mozlcms.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozlcms.dll"/>
+            <File Id="file351" Name="mozz.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozz.dll"/>
+            <File Id="file356" Name="thebes.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\thebes.dll"/>
+            <File Id="file594" Name="xul.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xul.dll"/>
 <?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
@@ -814,6 +819,54 @@
               <File Id="file580" Name="TXEXSL_0.JS" LongName="txEXSLTRegExFunctions.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.js"/>
               <File Id="file581" Name="XPCOM__5.XPT" LongName="xpcom_system.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_system.xpt"/>
               <File Id="file582" Name="ZIPWRI_0.XPT" LongName="zipwriter.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\zipwriter.xpt"/>
+              <File Id="file668" Name="ACCESS_1.DLL" LongName="accessibility.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\accessibility.dll"/>
+              <File Id="file669" Name="appcomps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\appcomps.dll"/>
+              <File Id="file670" Name="appshell.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\appshell.dll"/>
+              <File Id="file671" Name="auth.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\auth.dll"/>
+              <File Id="file672" Name="AUTOCO_0.DLL" LongName="autoconfig.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\autoconfig.dll"/>
+              <File Id="file673" Name="caps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\caps.dll"/>
+              <File Id="file674" Name="chardet.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\chardet.dll"/>
+              <File Id="file675" Name="chrome.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\chrome.dll"/>
+              <File Id="file676" Name="cmdlines.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\cmdlines.dll"/>
+              <File Id="file677" Name="composer.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\composer.dll"/>
+              <File Id="file678" Name="cookie.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\cookie.dll"/>
+              <File Id="file679" Name="docshell.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\docshell.dll"/>
+              <File Id="file680" Name="EMBEDC_0.DLL" LongName="embedcomponents.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\embedcomponents.dll"/>
+              <File Id="file681" Name="GKGFXT_0.DLL" LongName="gkgfxthebes.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gkgfxthebes.dll"/>
+              <File Id="file682" Name="gklayout.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gklayout.dll"/>
+              <File Id="file683" Name="gkparser.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gkparser.dll"/>
+              <File Id="file744" Name="gkplugin.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gkplugin.dll"/>
+              <File Id="file745" Name="gkwidget.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gkwidget.dll"/>
+              <File Id="file746" Name="i18n.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\i18n.dll"/>
+              <File Id="file747" Name="imgicon.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imgicon.dll"/>
+              <File Id="file748" Name="imglib2.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imglib2.dll"/>
+              <File Id="file749" Name="intlapp.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\intlapp.dll"/>
+              <File Id="file750" Name="jar50.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jar50.dll"/>
+              <File Id="file751" Name="mork.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\mork.dll"/>
+              <File Id="file752" Name="mozfind.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\mozfind.dll"/>
+              <File Id="file753" Name="necko.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko.dll"/>
+              <File Id="file754" Name="perms.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\perms.dll"/>
+              <File Id="file774" Name="pipboot.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pipboot.dll"/>
+              <File Id="file775" Name="pipnss.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pipnss.dll"/>
+              <File Id="file776" Name="pippki.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pippki.dll"/>
+              <File Id="file777" Name="rdf.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\rdf.dll"/>
+              <File Id="file778" Name="satchel.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\satchel.dll"/>
+              <File Id="file783" Name="spellchk.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchk.dll"/>
+              <File Id="file784" Name="strgcmps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\strgcmps.dll"/>
+              <File Id="file788" Name="tkautoc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkautoc.dll"/>
+              <File Id="file796" Name="tkhstory.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkhstory.dll"/>
+              <File Id="file797" Name="tkitcmps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkitcmps.dll"/>
+              <File Id="file798" Name="txmgr.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txmgr.dll"/>
+              <File Id="file799" Name="uconv.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\uconv.dll"/>
+              <File Id="file800" Name="ucvmath.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ucvmath.dll"/>
+              <File Id="file801" Name="UNIVER_0.DLL" LongName="universalchardet.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\universalchardet.dll"/>
+              <File Id="file802" Name="webbrwsr.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webbrwsr.dll"/>
+              <File Id="file803" Name="windowds.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowds.dll"/>
+              <File Id="file804" Name="XMLEXT_0.DLL" LongName="xmlextras.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xmlextras.dll"/>
+              <File Id="file805" Name="xpc3250.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpc3250.dll"/>
+              <File Id="file806" Name="XPCOM__2.DLL" LongName="xpcom_compat_c.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_compat_c.dll"/>
+              <File Id="file807" Name="xppref32.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xppref32.dll"/>
+              <File Id="file808" Name="ZIPWRI_0.DLL" LongName="zipwriter.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\zipwriter.dll"/>
 <?if $(var.WithCrypto) = "yes" ?>
               <File Id="file3946" Name="koSFTP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSFTP.py"/>
               <File Id="file4016" Name="koSCP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSCP.py"/>
