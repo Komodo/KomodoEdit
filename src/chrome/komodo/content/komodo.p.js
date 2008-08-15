@@ -55,17 +55,6 @@ var _log = ko.logging.getLogger("ko.main");
 
 this.onClose = function(event) {
     _log.debug(">> ko.main.onClose");
-    if (ko.windowManager.lastWindow()) {
-        // if we're the only Komodo window, we're quitting
-        _log.debug("<< ko.main.onClose via goQuitApplication");
-        // Have Mozilla finish off this window before trying to walk over it again
-        // in goQuitApplication.
-        event.stopPropagation();
-        event.preventDefault();
-        event.cancelBubble = true;
-        setTimeout(goQuitApplication, 0);
-        return null;
-    }
     if (!ko.main.runCanCloseHandlers()) {
         event.stopPropagation();
         event.preventDefault();
@@ -73,6 +62,14 @@ this.onClose = function(event) {
         return null;
     }
     ko.main.runWillCloseHandlers();
+    if (ko.windowManager.lastWindow()) {
+        // if we're the only Komodo window, we're quitting
+        _log.debug("<< ko.main.onClose via goQuitApplication");
+        // Have Mozilla finish off this window before trying to walk over it again
+        // in goQuitApplication.
+        setTimeout(goQuitApplication, 0);
+        return null;
+    }
     _log.debug("<< ko.main.onClose");
     return null;
 }
