@@ -35,7 +35,8 @@
 # ***** END LICENSE BLOCK *****
 
 import textwrap
-from util import CompareNPunctLast
+
+from codeintel2.util import CompareNPunctLast
 
 CSS_ATTR_DICT = {
     'azimuth'   : [
