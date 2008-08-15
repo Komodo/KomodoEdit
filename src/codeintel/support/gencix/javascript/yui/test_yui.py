@@ -53,6 +53,17 @@ log = logging.getLogger("test_yui")
 #log.setLevel(logging.DEBUG)
 
 
+def get_tree_from_cix(yui_version):
+    cix_file = glob("%s%syui_v%s.cix" % (join(dirname(abspath(__file__)),
+                                             "apicatalogs"),
+                                         os.sep, yui_version))[0]
+    try:
+        return ET.parse(cix_file).getroot()
+    except:
+        log.exception("Unable to load cix file: %r", cix_file)
+    return None
+
+
 class YUIBaseTests(object):
     version = None
     cix_file = None
@@ -176,16 +187,6 @@ class YUIBaseTests(object):
             "YAHOO.widget.TabView",
         ]
         self._check_module_list(module_list)
-
-def get_tree_from_cix(yui_version):
-    cix_file = glob("%s%syui_%s.cix" % (join(dirname(abspath(__file__)),
-                                             "apicatalogs"),
-                                        os.sep, yui_version))[0]
-    try:
-        return ET.parse(cix_file).getroot()
-    except:
-        log.exception("Unable to load cix file: %r", cix_file)
-    return None
 
 
 class YUI_v22_TestCase(unittest.TestCase, YUIBaseTests):
