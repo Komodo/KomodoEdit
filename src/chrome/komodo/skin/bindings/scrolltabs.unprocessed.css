@@ -147,243 +147,12 @@ tab[type="file-tab"]
   list-style-image : url("chrome://komodo/skin/images/minimize_down_disable.gif");
 }
 
-tabbox.whiteout > tabs,
-tabbox.tabs-bottom > tabs
-{
-    padding: 0px;
-    margin: 0px;
-    -moz-appearance: none;
-    border: none;
-/* #if PLATFORM == 'darwin' */
-    background-color: black;
-    background: url("chrome://global/skin/10pct_transparent_pixel.png") repeat;
-/* #else */
-    background: url('chrome://komodo/skin/images/transparent_white.png');
-    min-height: 26px;
-/* #endif */
-}
-
-tabbox.whiteout > tabs[type="scrollable"]
-{
-  border: none;
-  border-bottom: 1px solid GrayText;
-}
-
-tabbox.whiteout > tabs[type="scrollable"].tabs-inset
-{
-  border: 1px inset ThreeDHighlight;
-  border-bottom: 1px solid GrayText;
-}
-
-tabbox.tabs-bottom > tabs[type="scrollable"]
-{
-  border: 1px inset ThreeDHighlight;
-  border-top: 1px solid GrayText;
-}
-
-tabbox.tabs-bottom > tabs[type="scrollable"].tabs-inset
-{
-  border: 1px inset ThreeDHighlight;
-  border-top: 1px solid GrayText;
-}
-
-/* #if PLATFORM == 'darwin' */
-tabbox.whiteout > tabs > tab > .tab-image-middle > .tab-icons
-{
-  margin-bottom: 3px;
-}
-
-tabbox.whiteout > tabs > tab[selected="true"] > .tab-image-middle > .tab-icons
-{
-  margin-bottom: 4px;
-}
-
-tabbox.tabs-bottom > tabs > tab > .tab-image-middle > .tab-icons
-{
-  margin-top: 3px;
-}
-
-tabbox.tabs-bottom > tabs > tab[selected="true"] > .tab-image-middle > .tab-icons
-{
-  margin-top: 4px;
-}
-/* #endif */
-
-tabbox.whiteout > tabs > .tabstrip-box,
-tabbox.whiteout > tabs > .tabs-left,
-tabbox.whiteout > tabs > .tabs-right
-{
-    border: none;
-/* #if PLATFORM == 'darwin' */
-    border-bottom: 1px solid GrayText;
-/* #endif */
-}
-
-/* #if PLATFORM != 'darwin' */
-tabbox.whiteout > tabs
-{
-    border: none;
-    border-bottom: 1px solid GrayText;
-}
-/* #endif */
-
-tabbox.whiteout > tabs[type="scrollable"] > .tabstrip-box,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-left,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-right
-{
-    border: none;
-    margin-bottom: -1px;
-}
-
-tabbox.whiteout > tabs > .tabs-left,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-left
-{
-    border-right: 1px solid GrayText;
-    margin-top: 2px;
-}
-tabbox.whiteout > tabs > .tabs-right
-{
-/* #if PLATFORM == 'darwin' */
-    border-left: 1px solid ThreeDDarkShadow;
-/* #endif */
-    margin-top: 2px;
-}
-
-tabbox.tabs-bottom > tabs > .tabstrip-box,
-tabbox.tabs-bottom > tabs > .tabs-left,
-tabbox.tabs-bottom > tabs > .tabs-right
-{
-    border: none;
-/* #if PLATFORM == 'darwin' */
-    border-top: 1px solid GrayText;
-/* #endif */
-}
-
-/* #if PLATFORM != 'darwin' */
-tabbox.tabs-bottom > tabs
-{
-    border: none;
-    border-top: 1px solid GrayText;
-}
-/* #endif */
-
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabstrip-box,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-left,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-right
-{
-    border: none;
-    margin: 0px;
-    margin-top: -1px;
-}
-
-tabbox.tabs-bottom > tabs > .tabs-left,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-left
-{
-    border-right: 1px solid GrayText;
-    margin-bottom: 2px;
-}
-tabbox.tabs-bottom > tabs > .tabs-right
-{
-/* #if PLATFORM == 'darwin' */
-    border-left: 1px solid ThreeDDarkShadow;
-/* #endif */
-    margin-bottom: 2px;
-}
-
+/* ::::: Tabbox settings ::::: */
 
 .tab-icon {
     padding: 0px;
     margin: 0px;
     margin-right: 1px;
-}
-
-/* top right bottom left */
-tabbox.whiteout > tabs > tab
-{
-    -moz-appearance: none;
-    -moz-border-radius: 0px;
-    height: 14px !important;
-    max-width: 20em;
-    background-color: transparent;
-    color: #383838;
-    margin: 3px 0px 0px 0px;
-/* #if PLATFORM == 'darwin' */
-    padding: 1px 3px 1px 3px;
-/* #else */
-    padding: 0px 3px 1px 3px;
-/* #endif */
-    border: none;
-    border-left: 1px solid ThreeDDarkShadow;
-    border-right: 1px solid GrayText;
-/* #if PLATFORM == 'darwin' */
-    border-bottom: 1px solid GrayText;
-/* #endif */
-}
-
-tabbox.whiteout > tabs > tab[selected="true"]
-{
-    -moz-appearance: none;
-    font-weight: bold;
-    background-color: buttonface;
-    color: #000000;
-    margin: 2px 0px 0px 0px;
-/* #if PLATFORM == 'darwin' */
-    padding: 1px 3px 1px 3px;
-/* #else */
-    padding: 0px 3px 1px 3px;
-/* #endif */
-    border: 1px solid GrayText;
-    border-left: 1px solid ThreeDDarkShadow;
-    border-bottom: none;
-}
-
-tabbox.tabs-bottom > tabs > tab
-{
-    -moz-appearance: none;
-    -moz-border-radius: 0px;
-    height: 14px !important;
-    max-width: 20em;
-    color: #383838;
-
-    border: none;
-    margin: 0px 0px 3px 0px;
-/* #if PLATFORM == 'darwin' */
-    border-top: 1px solid GrayText;
-/* #else */
-    background-color: transparent;
-/* #endif */
-    padding: 1px 3px 1px 3px;
-    border-left: 1px solid ThreeDDarkShadow;
-    border-right: 1px solid GrayText;
-}
-
-
-tabbox.tabs-bottom > tabs > tab[selected="true"]
-{
-    -moz-appearance: none;
-    font-weight: bold;
-    background-color: buttonface;
-    color: #000000;
-
-/* #if PLATFORM == 'darwin' */
-    margin: 0px 0px 2px 0px;
-    padding: 2px 3px 1px 3px;
-/* #else */
-    margin: -1px 0px 2px 0px;
-    padding: 2px 3px 1px 3px;
-/* #endif */
-    border: 1px solid GrayText;
-    border-left: 1px solid ThreeDDarkShadow;
-    border-top: none;
-}
-
-tabbox.whiteout > tabs > tab[selected="true"][dragtarget="true"],
-tabbox.tabs-bottom > tabs > tab[selected="true"][dragtarget="true"],
-tab[dragtarget="true"]  {
-    -moz-appearance: none;
-    border: 1px;
-    border-right: 1px solid black;
-    -moz-border-left-colors: black;
 }
 
 view[type="tabbed"][lastfocused="false"] > tabbox.whiteout > tabs > tab[selected="true"]
@@ -404,7 +173,6 @@ tabbox.whiteout > tabpanels
 
 tabbox.tabs-bottom > tabpanels
 {
-    /* padding: 0px 0px 1px 0px; */
     -moz-appearance: none;
     border: none;
     border-bottom: 1px solid buttonface;
@@ -434,26 +202,53 @@ tabs.small > tab {
     font-size: 85%;
 }
 
-tabbox.whiteout > tabs > tab:not([selected="true"]):hover {}
+/* #if PLATFORM == 'darwin' */
 
-tabbox.whiteout > tabs > tab:not([selected="true"]) > .tab-image-middle > .tab-icon,
-tabbox.tabs-bottom > tabs > tab:not([selected="true"]) > .tab-image-middle > .tab-icon
+/*
+ Using a custom tab setting on the Mac (same as Firefox does) instead of
+ native tabs.
+*/
+
+tabbox.whiteout > tabs,
+tabbox.tabs-bottom > tabs
 {
-   -moz-opacity: 0.4;
+    padding: 0px;
+    margin: 0px;
+    -moz-appearance: none;
+    border: none;
+    background-color: black;
+    background: url("chrome://global/skin/10pct_transparent_pixel.png") repeat;
 }
 
-tabbox.whiteout > tabs > tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon,
-tabbox.tabs-bottom > tabs > tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon
+tabbox.whiteout > tabs > tab
 {
-   -moz-opacity: 1.0;
+    -moz-appearance: none;
+    -moz-border-radius: 6px 6px 0px 0px;
+    height: 14px !important;
+    max-width: 20em;
+    background-color: transparent;
+    color: #383838;
+    margin: 3px 0px 0px 0px;
+    padding: 1px 3px 1px 3px;
+    border: none;
+    border-left: 1px solid ThreeDDarkShadow;
+    border-right: 1px solid GrayText;
+    border-bottom: 1px solid GrayText;
 }
 
-tabbox.whiteout > tabs > tab[selected="true"],
-tabbox.whiteout > tabs > tab:hover,
-tabbox.tabs-bottom > tabs > tab[selected="true"],
-tabbox.tabs-bottom > tabs > tab:hover
+tabbox.whiteout > tabs > tab[selected="true"]
 {
-	color: #000000;
+    -moz-appearance: none;
+    -moz-border-radius: 6px 6px 0px 0px;
+    font-weight: bold;
+    /*background-color: #ABABAB;*/
+    background-color: buttonface;
+    color: #000000;
+    margin: 2px 0px 0px 0px;
+    padding: 1px 3px 1px 3px;
+    border: 1px solid GrayText;
+    border-left: 1px solid ThreeDDarkShadow;
+    border-bottom: none;
 }
 
-
+/* #endif */
