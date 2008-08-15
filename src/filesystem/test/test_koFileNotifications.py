@@ -58,9 +58,10 @@ import osFilePollingNotifier
 log = None
 POLL_PERIOD = 0.3
 
-notifications_type = 0
 TYPE_POLLING = 1
 TYPE_OS_NOTIFICATIONS = 2
+
+notifications_type = TYPE_POLLING
 
 #############################################################
 #                   Test  utilities                         #
@@ -1761,4 +1762,5 @@ def _run_tests(notify_service):
 
 if __name__ == '__main__':
     _run_tests(TYPE_POLLING)
-    _run_tests(TYPE_OS_NOTIFICATIONS)
+    if sys.platform.startswith("win"):
+        _run_tests(TYPE_OS_NOTIFICATIONS)
