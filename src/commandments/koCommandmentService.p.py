@@ -252,7 +252,7 @@ if sys.platform.startswith("win"):
         The .txt file must by guarded by the appropriate mutex and an
         event is signalled when new commandments are added.
         """
-        _product_type = "PP_PROD_TYPE"
+        _product_type = "PRODUCT_TYPE"
 
         def __init__(self, dname, ver):
             """Create the commandments reader thread.
@@ -435,6 +435,7 @@ class KoCommandmentService:
         self._observer = WrapObject(self, components.interfaces.nsIObserver)
         obsvc.addObserver(self._observer, 'xpcom-shutdown', 1)
         obsvc.addObserver(self._observer, 'komodo-ui-started', 1)
+        self.initialize()
 
     def initialize(self):
         if self._reader:
