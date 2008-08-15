@@ -879,14 +879,14 @@
                 <xul:hbox flex="1">
                         <xul:box type="startpage-bullet"
                                  title="&openSampleProject.title;"
-                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
+                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
                                  class="open-sample">
                             <xul:description width="240px">Contains a number of files
                             showing many of the features of Komodo.</xul:description>
                         </xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&checkConfiguration.title;"
-                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.checkConfiguration();"
+                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.checkConfiguration();"
                                  class="properties-icon">
                             <xul:description width="240px">Checks system configuration to
                             ensure all Komodo features are working properly.</xul:description>  
