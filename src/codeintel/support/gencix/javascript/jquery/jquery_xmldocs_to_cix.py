@@ -120,11 +120,9 @@ Function: To be executed when the DOM document has finished loading.
 If 'context' is specified, accepts a string containing a CSS or basic XPath selector
 which is then used to match a set of elements.""")
 
-    alt_scope = createCixClass(cixmodule, "$")
-    alt_ctor = createCixFunction(alt_scope, "$", attributes="__ctor__")
-    alt_ctor.set("signature", ctor.get("signature").replace("jQuery(", "$("))
-    alt_ctor.set("doc", ctor.get("doc"))
-    alt_scope.set("classrefs", "jQuery")
+    # "$" is a reference to the jQuery class.
+    alt_scope = createCixVariable(cixmodule, "$", )
+    alt_scope.set("citdl", "jQuery")
 
     # Add the methods.
     for categoryElem in root.getchildren():
