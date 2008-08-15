@@ -81,6 +81,7 @@ from fileStatusUtils import KoDiskFileChecker
 
 log = logging.getLogger('koFileStatusService')
 #log.setLevel(logging.DEBUG)
+#log.setLevel(logging.INFO)
 
 
 # Sort according to directory v's file.
@@ -421,15 +422,34 @@ class KoFileStatusService:
                        time_till_next_run > 0:
                         self._cv.wait(time_till_next_run)
                     items_to_check = list(self._items_to_check)
-                    if not items_to_check:
-                        last_bg_check_time = time.time()
                     self._items_to_check = set()
-                    # Sort the items.
-                    items_to_check.sort(sortFileStatus)
-                    # Get the default update reason. Is set by
-                    # a direct call to updateStatusForAllFiles.
                     updateReason = self._updateReason
-                    self._updateReason = self.REASON_BACKGROUND_CHECK
+                    #
+                    # Either perform a full check or check the items in the
+                    # _items_to_check set... decide now.
+                    #
+                    # If there are any individual files in the _items_to_check
+                    # set that have a higher priority than the current
+                    # _updateReason, then these items will be updated now, and
+                    # the full check will have to wait till the next loop. If
+                    # any items in the _items_to_check set have a lower priority
+                    # than the _updateReason, then these items will be removed,
+                    # as they will get updated (with equal or higher priority)
+                    # when the full check is run, if all the items have a lower
+                    # priority then a full check will be performed now.
+                    for i in range(len(items_to_check) - 1, -1, -1):
+                        koIFile, uri, reason = items_to_check[i]
+                        if not koIFile.isFile or \
+                               (updateReason > self.REASON_BACKGROUND_CHECK and
+                                reason <= updateReason):
+                            items_to_check.pop(i)
+                    if not items_to_check:
+                        # This will count as a background check.
+                        last_bg_check_time = time.time()
+                        self._updateReason = self.REASON_BACKGROUND_CHECK
+                    else:
+                        items_to_check.sort(sortFileStatus)
+                        # The _updateReason will remain unchanged for next loop.
                 finally:
                     self._cv.release()
 
@@ -506,6 +526,11 @@ class KoFileStatusService:
                     #print "updateStatus reason:"
                     #for item in items_to_check:
                     #    print "%d - %s" % (item[2], item[1])
+
+                log.info("num files to check: %d, isBackgroundCheck: %r",
+                         len(items_to_check), isBackgroundCheck)
+                #from pprint import pprint
+                #pprint([x[1] for x in items_to_check])
 
                 # invalidate old status information
                 # we do this seperately so that the scc modules can
