@@ -28,7 +28,7 @@ Build steps on Windows:
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
-    python build.py configure -k 5.0 --moz-src=cvs --release --no-strip --shared --tools --moz-objdir=ko-shared
+    python build.py configure -k 5.0 --moz-src=cvs --release --no-strip --tools --moz-objdir=ko-obj
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -43,7 +43,7 @@ Build steps on Linux and Mac OS X:
     #---- Build Mozilla
     cd openkomodo/mozilla
     python build.py configure -k 5.0 --moz-src=cvs --release \
-        --no-strip --shared --tools
+        --no-strip --tools
     python build.py distclean all
     cd ..
     #---- Build Komodo
@@ -76,18 +76,13 @@ Build Prerequisites for Windows
 - Python 2.5. You can install ActivePython 2.5 from here:
   <http://downloads.activestate.com/ActivePython/windows/2.5/ActivePython-2.5.1.1-win32-x86.msi>
 
-- Visual C++ 6.0, service pack 5, Visual C processor pack.
+- Visual C++ 8.0 (aka Visual Studio 2005) and all the Platform SDKs for
+  building Mozilla with vc8 as described here:
+    http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites  
   
-  Yes, Komodo is still building with MSVC 6. The plan is to move to
-  MSVC 8 relatively soon (late 2007). This will likely happen in
-  conjunction with moving the Open Komodo build to the Mozilla trunk
-  -- currently Komodo uses the MOZILLA_1_8_BRANCH branch.
-
-  (TODO: Add links to SP5 and visual C processor pack.)
-
-- Install the MozillaBuild 1.1 package into *the default dir*
+- Install the latest "MozillaBuild-$ver.exe" package into *the default dir*
   (i.e. "C:\mozilla-build").
-  <http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/MozillaBuildSetup-1.1.exe>
+  <http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/>
 
 - Install ActivePerl 5.8.
 
@@ -101,28 +96,17 @@ Build Prerequisites for Windows
   (Eventually this dependency will go away when the curent Komodo
   Cons/Black-based system is replaced (hopefully late 2007 or early 2008.)
 
-- Install Ruby, at least version 1.8.4
-
-See <http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites> for
-more details on Windows build prerequisites. However, following the above
-steps is *meant to be sufficient* to get building Komodo.
-
 
 
 Build Prerequisites for Mac OS X
 ================================
 
-- Python 2.5. You can install ActivePython 2.5 from here:
+- Python **2.6**. You can install ActivePython 2.6 from here:
 
-  <http://downloads.activestate.com/ActivePython/macosx/2.5/ActivePython-2.5.1.1-macosx.dmg>
+  <http://downloads.activestate.com/ActivePython/macosx/2.6/>
 
   If you prefer the Python builds from python.org should be sufficient
   as well.
-
-  I'm not currently sure if the default Python that ships with the various
-  Mac OS X versions is sufficient. I suspect that they are **not**.
-  However, in late 2007 we will be trying to remove dependencies such as
-  these, if we are able.
 
 - Xcode. Install the latest one (avoid Xcode 2.0, though).
   <http://developer.apple.com/tools/download/>
@@ -159,8 +143,8 @@ above steps is *meant to be sufficient* to get building Komodo.
 Build Prerequisites for Linux
 =============================
 
-- Python 2.5. Your distro's Python 2.5 should be sufficient, or you can
-  install ActivePython from here:
+- Python 2.5 or greater. Your distro's Python 2.5 should be sufficient, or
+  you can install ActivePython from here:
   
     <http://downloads.activestate.com/ActivePython/linux/2.5/>
 
@@ -249,25 +233,23 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 4.4 --moz-src=cvs:1.8 --release --no-strip --shared --tools --moz-objdir=ko-shared
+        python build.py configure -k 5.0 --moz-src=cvs --release --no-strip --tools --moz-objdir=ko-obj
 
    On other platforms:
    
-        python build.py configure -k 4.4 --moz-src=cvs:1.8 --release \
-            --no-strip --shared --tools
+        python build.py configure -k 5.0 --moz-src=cvs --release \
+            --no-strip --tools
 
    What this configure-step does is create a "config.py" file that guides
    the build step (next). This is akin to the "./configure" in the common
    "./configure; make; make install" build trinity.
    
    What this configuration is saying is:
-   - configure for a Komodo Edit 4.4.x build
-   - use the latest Mozilla CVS sources from the 1.8 branch
+   - configure for a Komodo Edit 5.0.x build
+   - use the latest Mozilla CVS HEAD sources
    - do a release (i.e. non-debug) build
    - don't strip symbol information from binaries (i.e. *don't* put
      --enable-strip in .mozconfig)
-   - build shared (i.e. *don't* put --disable-shared and --enable-static
-     in .mozconfig)
    - also build some extra tools-parts of the Mozilla tree (
      venkman, inspector, cview)
      
@@ -304,9 +286,9 @@ Step 3: Building Komodo
    If you built Mozilla above for a Komodo version other than the version
    mentioned in "src/version.txt", then you may have to specify your
    version. E.g. if you configured above with
-   "python configure.py -k 4.4 ..." then you'd want something like:
+   "python configure.py -k 5.0 ..." then you'd want something like:
    
-        bk configure -V 4.4.0-devel
+        bk configure -V 5.0.0-devel
 
    Run `bk help configure` for a (somewhat sparse) listing of available
    options.
