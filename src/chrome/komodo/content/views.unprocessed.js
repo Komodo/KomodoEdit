@@ -1682,7 +1682,40 @@ viewManager.prototype.do_cmd_movetab = function() {
     this.topView.moveView(this.currentView);
 }
 
-// cmd_movetab
+// cmd_openTabInNewWindow
+viewManager.prototype.is_cmd_openTabInNewWindow_supported = function() {
+    return true;
+}
+
+viewManager.prototype.is_cmd_openTabInNewWindow_enabled = function() {
+    return true;
+}
+
+viewManager.prototype.do_cmd_openTabInNewWindow = function() {
+    ko.launch.newWindow(this.currentView.document.file.URI);
+}
+
+// cmd_moveTabToNewWindow
+viewManager.prototype.is_cmd_moveTabToNewWindow_supported = function() {
+    return true;
+}
+
+viewManager.prototype.is_cmd_moveTabToNewWindow_enabled = function() {
+    return true;
+}
+
+viewManager.prototype.do_cmd_moveTabToNewWindow = function() {
+    // Close the tab first, because if it's dirty and we try
+    // copying it to the new window first, the changes will get lost.
+    // Not sure why.
+    var uri = this.currentView.document.file.URI;
+    if (!this.currentView.close()) {
+        return;
+    }
+    ko.launch.newWindow(uri);
+}
+
+// cmd_rotateSplitter
 viewManager.prototype.is_cmd_rotateSplitter_supported = function() {
     return 1;
 }

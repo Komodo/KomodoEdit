@@ -396,6 +396,7 @@
 <!ENTITY menuWindow.accesskey "W">
 <!ENTITY moveToOtherTabGroup.label "Move to Other Tab Group">
 <!ENTITY moveToPreviousMark.label "Move to Previous Mark">
+<!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
 <!ENTITY new.label "New">
 <!ENTITY newCommand.label "New Command...">
 <!ENTITY newCustomMenu.label "New Custom Menu">
@@ -428,6 +429,7 @@
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
 <!ENTITY openProject.tooltiptext "Open Project">
+<!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
 <!ENTITY pageSetup.label "Page Setup">
 <!ENTITY paste.label "Paste">
 <!ENTITY paste.tooltiptext "Paste">
@@ -592,6 +594,8 @@
 <!ENTITY userInterfaceFocusOtherSplitEditorPane.desc "User Interface: Focus other split editor pane">
 <!ENTITY userInterfaceFullScreen.desc "User Interface: Full Screen">
 <!ENTITY userInterfaceMoveTabToAnotherTabWindow.desc "User Interface: Move tab to another tab window">
+<!ENTITY userInterfaceMoveTabToANewWindow.desc "User Interface: Move tab to a new window">
+<!ENTITY userInterfaceOpenTabInANewWindow.desc "User Interface: Open tab in a new window">
 <!ENTITY userInterfaceShowHideCodeBrowserTab.desc "User Interface: Show/Hide Code Browser Tab">
 <!ENTITY userInterfaceShowHideEndOfLines.desc "User Interface: Show/Hide End of Lines">
 <!ENTITY userInterfaceShowHideKomodoResourcesToolbar.desc "User Interface: Show/Hide Komodo Resources Toolbar">

@@ -823,6 +823,16 @@
             disabled="true"
             desc="&userInterfaceMoveTabToAnotherTabWindow.desc;"/>
         <command
+            id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceOpenTabInANewWindow.desc;" />
+        <command
+            id="cmd_moveTabToNewWindow" key="key_cmd_moveTabToNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceMoveTabToANewWindow.desc;" />
+        <command
             id="cmd_splittab" key="key_cmd_splittab"
             oncommand="ko.commands.doCommandAsync('cmd_splittab', event)"
             disabled="true"

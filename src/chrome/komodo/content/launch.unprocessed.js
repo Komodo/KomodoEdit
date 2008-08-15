@@ -558,11 +558,15 @@ this.checkForUpdates = function checkForUpdates()
     }
 }
 
-this.newWindow = function newWindow()
+this.newWindow = function newWindow(uri /* =null */)
 {
+    if (typeof(uri) == "undefined") {
+        uri = null;
+    }
     ko.windowManager.openDialog("chrome://komodo/content",
                                 "_blank",
-                                "chrome,all,dialog=no");
+                                "chrome,all,dialog=no",
+                                uri);
 }
 
 }).apply(ko.launch);

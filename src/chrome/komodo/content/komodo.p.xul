@@ -1955,6 +1955,14 @@
                     observes="cmd_movetab"
                     class="menuitem-iconic-wide"
                     label="&moveToOtherTabGroup.label;"/>
+        <menuitem id="menu_openTabInNewWindow"
+                    observes="cmd_openTabInNewWindow"
+                    class="menuitem-iconic-wide"
+                    label="&openTabInNewWindow.label;"/>
+        <menuitem id="menu_moveTabToNewWindow"
+                    observes="cmd_moveTabToNewWindow"
+                    class="menuitem-iconic-wide"
+                    label="&moveTabToNewWindow.label;"/>
         <menuitem id="menu_splittab"
                     observes="cmd_splittab"
                     class="menuitem-iconic-wide"
