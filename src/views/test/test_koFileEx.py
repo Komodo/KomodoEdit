@@ -174,7 +174,27 @@ class TestKoFileEx(unittest.TestCase):
                 os.remove(filename) # clean up
                 assert self.__file.hasChanged
                 assert not self.__file.exists
-        
+
+    def test_fileChanged(self):
+        filename = tempfile.mktemp()
+        try:
+            text = "This is a test!"
+            self.__file.URI = filename
+            self.__file.open('w');
+            self.__file.write(text)
+            self.__file.close()
+            assert not self.__file.hasChanged
+            self.__file.URI = filename
+            self.__file.open('w')
+            self.__file.write(text * 2)
+            self.__file.close()
+            assert self.__file.hasChanged
+            # hasChanged will update the stats, next call will be different
+            assert not self.__file.hasChanged
+        finally:
+            if os.path.isfile(filename):
+                os.remove(filename) # clean up
+
     def test_stat(self):
         filename = os.__file__ # returns os.pyc
         self.__file.path = os.path.dirname(filename)+'/os.py'
