@@ -109,7 +109,7 @@ class koServerInfo:
     def generateLoginInfo(self):
         loginInfo = components.classes["@mozilla.org/login-manager/loginInfo;1"]\
                             .createInstance(components.interfaces.nsILoginInfo)
-        loginInfo.init(self.raw_hostdata, "", self.alias,
+        loginInfo.init(self.raw_hostdata, None, self.alias,
                        self.username, self.password, "", "")
         return loginInfo
         
