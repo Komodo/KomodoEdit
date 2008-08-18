@@ -134,6 +134,7 @@ ko.windowManager = {
         openWindows.getNext();
         return !openWindows.hasMoreElements();
     },
+
     /**
      * Close all open windows (or just children of a given parent window).
      *
@@ -168,6 +169,9 @@ ko.windowManager = {
         return true;
     },
     
+    /**
+     * Close children of the current main Komodo window.
+     */
     closeChildren: function() {
         var me = this.getMainWindow();
         return this.closeAll(me);
