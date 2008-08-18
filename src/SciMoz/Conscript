@@ -426,7 +426,7 @@ $cons->BuildHeaderFromIdl('ISciDoc.idl');
 
 if ($platform eq "win") {
     my $LDFLAGS = "/libpath:$xScintillaBuildDir\\bin ";
-    my $CXXFLAGS = "/DWINVER=0x400 /I$xScintillaBuildDir/include /I$xScintillaBuildDir/src ";
+    my $CXXFLAGS = "/I$xScintillaBuildDir/include /I$xScintillaBuildDir/src ";
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " -I$includeDir";
     }
