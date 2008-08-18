@@ -135,19 +135,21 @@ ko.windowManager = {
         return !openWindows.hasMoreElements();
     },
     /**
-     * close all open windows, return true if successful.  The normal
-     * goQuitApplication function in toolkit does this, but we want to
-     * prevent quitting if one of the dialogs prevents shutdown by not
+     * Close all open windows (or just children of a given parent window).
+     *
+     * The normal goQuitApplication function in toolkit does this, but we want
+     * to prevent quitting if one of the dialogs prevents shutdown by not
      * closing.
      *
-     * @return <Boolean>
+     * @param parent {Window} An optional argument to only close windows
+     *      that are children of this window.
+     * @return {Boolean} True if windows were successful closed.
      */
-    closeAll: function windowManager_closeAll(parent) {
+    closeAll: function closeAll(parent /* =null */) {
+        if (typeof(parent) == 'undefined') parent = null;
+
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
-        if (typeof(parent) == 'undefined') parent = null;
-        // Check for other OPEN windows and close if there
-        // This is expandable - just add your windowtype to the array
         try {
             var openWindows = wm.getEnumerator(null);
             do {
