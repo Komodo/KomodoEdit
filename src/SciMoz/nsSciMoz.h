@@ -197,7 +197,6 @@ class SciMoz : public ISciMoz,
 {
 private:
     long _lastCharCodeAdded;
-    long _ySlop;
     
     // brace match support
     long bracesStyle;

@@ -153,7 +153,6 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
     sInGrab = 0;
 #endif
     _lastCharCodeAdded = 0;
-    _ySlop = 0;
 
     bracesStyle = 10;
     bracesCheck = true;
@@ -536,27 +535,7 @@ void SciMoz::Notify(long lParam) {
 			break;
 		*/
 		case SCN_POSCHANGED:
-#ifdef FAST_CODE
-			{
-			int currentPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
-			int curLine = SendEditor(SCI_LINEFROMPOSITION, currentPos, 0);
-			int firstVisibleLine = SendEditor(SCI_GETFIRSTVISIBLELINE, 0, 0);
-			int curVisibleLine = SendEditor(SCI_VISIBLEFROMDOCLINE, curLine, 0);
-			int linesOnScreen = SendEditor(SCI_LINESONSCREEN, 0, 0);
-			int lastVisibleLine = firstVisibleLine + linesOnScreen;
-			// SendEditor(SCI_DOCLINEFROMVISIBLE, firstHiddenVisibleLine + linesOnScreen, 0);
-			int curSmallerYMargin;
-
-			int linesFromTop = curVisibleLine - firstVisibleLine;
-			int linesFromBottom = lastVisibleLine - curVisibleLine;
-			// _ySlop: current buffer's _ySlop
-			curSmallerYMargin = SCIMIN(_ySlop, linesFromTop);
-			curSmallerYMargin = SCIMIN(curSmallerYMargin, linesFromBottom);
-			if (_ySlop > curSmallerYMargin) {
-				SendEditor(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_EVEN, curSmallerYMargin);
-			}
-			}
-#else
+#ifndef FAST_CODE
 			mask = ISciMozEvents::SME_POSCHANGED;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnPosChanged(notification->position);
@@ -874,19 +853,6 @@ NS_IMETHODIMP SciMoz::SetLastCharCodeAdded(PRInt32  charcode)
 	return NS_OK;
 }
 
-/* attribute long ySlop; */
-NS_IMETHODIMP SciMoz::GetYSlop(PRInt32  *_retval)
-{
-	*_retval = _ySlop;
-	return NS_OK;
-}
-
-NS_IMETHODIMP SciMoz::SetYSlop(PRInt32  slop)
-{
-	_ySlop = slop;
-	SendEditor(SCI_SETYCARETPOLICY, CARET_SLOP | CARET_STRICT | CARET_EVEN, _ySlop);
-	return NS_OK;
-}
 /* long charPosAtPosition(in long); */
 NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 {

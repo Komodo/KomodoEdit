@@ -151,7 +151,10 @@
         <![CDATA[
             this.parentView.setContext(this, "tabContextMenu");
             this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
-            this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
+            this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
+                                   this.scimoz.CARET_STRICT |
+                                   this.scimoz.CARET_EVEN,
+                                   this.__globalPrefs.getLongPref('ySlop'));
             
             var this_ = this;
             this._on_codeintel_activated_window = function(event) {
@@ -350,7 +353,10 @@
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
-                this.scimoz.ySlop = this.__globalPrefs.getLongPref('ySlop');
+                this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
+                                       this.scimoz.CARET_STRICT |
+                                       this.scimoz.CARET_EVEN,
+                                       this.__globalPrefs.getLongPref('ySlop'));
                 break;
             }
         ]]>

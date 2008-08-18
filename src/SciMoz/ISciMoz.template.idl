@@ -78,7 +78,6 @@ interface ISciMozLite : nsISupports {
 	
 	// stuff to minimize some of our eventist usage
 	attribute long lastCharCodeAdded;
-	attribute long ySlop;
 	void doBraceMatch();
 	
         // utility function to save every man and his dog from doing the int->char conversion.
