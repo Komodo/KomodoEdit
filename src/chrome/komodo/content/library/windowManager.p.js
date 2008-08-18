@@ -168,11 +168,6 @@ ko.windowManager = {
         return true;
     },
     
-    closeChildren: function() {
-        var me = this.getMainWindow();
-        return this.closeAll(me);
-    },
-    
     isAdditionalWindow: function() {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
