@@ -136,7 +136,6 @@ private:
     EventRecord mouseDownEvent;
     MouseTrackingRef mouseTrackingRef;
     MouseTrackingRegionID mouseTrackingID;
-    HIPoint GetLocalPoint(::Point pt);
 
     void InsertCharacters (const UniChar* buf, int len);
     static pascal void IdleTimerEventHandler(EventLoopTimerRef inTimer,
@@ -156,6 +155,7 @@ public: // Public for scintilla_send_message
     virtual void SetMouseCapture(bool on);
     virtual bool HaveMouseCapture();
     virtual PRectangle GetClientRectangle();
+    HIPoint GetLocalPoint(::Point pt);
 
     virtual void ScrollText(int linesToMove);
     virtual void SetVerticalScrollPos();

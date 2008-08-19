@@ -2092,11 +2092,11 @@ OSStatus ScintillaMacOSX::MouseDragged( EventRecord *event )
 
 OSStatus ScintillaMacOSX::MouseDragged( HIPoint& location, UInt32 modifiers, EventMouseButton button, UInt32 clickCount )
 {
-#if !defined(CONTAINER_HANDLES_EVENTS)
-    ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
-    return noErr;
-#else
     if (HaveMouseCapture() && !inDragDrop) {
+#if defined(CONTAINER_HANDLES_EVENTS)
+        ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
+#else
+        // we need to handle tracking the mouse drag ourselves
         MouseTrackingResult mouseStatus = 0;
         ::Point theQDPoint;
         UInt32 outModifiers;
@@ -2114,6 +2114,7 @@ OSStatus ScintillaMacOSX::MouseDragged( HIPoint& location, UInt32 modifiers, Eve
         ButtonUp( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ),
                   static_cast<int>( GetCurrentEventTime() / kEventDurationMillisecond ), 
                   (modifiers & controlKey) != 0 );
+#endif
     } else {
         if (!HaveMouseCapture() && HIViewGetSuperview(GetViewRef()) != NULL) {
             HIViewRef view;
@@ -2129,6 +2130,9 @@ OSStatus ScintillaMacOSX::MouseDragged( HIPoint& location, UInt32 modifiers, Eve
         }
         ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
     }
+#if !defined(CONTAINER_HANDLES_EVENTS)
+    return noErr;
+#else
     return eventNotHandledErr; // allow event to go to container
 #endif
 }

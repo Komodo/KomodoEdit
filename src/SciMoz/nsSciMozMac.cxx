@@ -326,6 +326,19 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 	switch (event->what)
 	{
 	case nullEvent:
+		// Mozilla will not track mouse drags outside our port, so we
+		// must do it ourselves manually, without blocking an
+		// event, which will cause repaint issues in scintilla.
+		if (scintilla->HaveMouseCapture()) {
+			::Point theQDPoint;
+			GetMouse (&theQDPoint);
+			HIPoint location = scintilla->GetLocalPoint(theQDPoint);
+			if (GetCurrentEventButtonState() != 0) {
+				scintilla->MouseDragged( location, 0, kEventMouseButtonPrimary, 1);
+			} else {
+				scintilla->MouseUp(location, 0, kEventMouseButtonPrimary, 1);
+			}
+		}
 		break;
 	case mouseDown:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent mouseDown h %d v %d\n",event->where.h, event->where.v);
