@@ -215,12 +215,11 @@
         </method>
 
         <method name="getTooltipText">
-            <body>
-            <![CDATA[
+        <parameter name="x"/>
+        <parameter name="y"/>
+        <body><![CDATA[
             var text = null;
             try {
-                var x = this.scintilla._lastx;
-                var y = this.scintilla._lasty;
                 var sm = this.scintilla.scimoz;
                 var pos = sm.positionFromPoint(x, y);
                 if (pos > 0 && pos < sm.length) {
@@ -255,8 +254,7 @@
                 this.log.exception(e);
             }
             return text;
-            ]]>
-            </body>
+        ]]></body>
         </method>
 
         <method name="doFocus">

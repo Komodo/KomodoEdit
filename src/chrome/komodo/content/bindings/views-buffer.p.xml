@@ -736,8 +736,9 @@
             <parameter name="x"/>
             <parameter name="y"/>
         <body><![CDATA[
-            if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
-                gEditorTooltipHandler.show(this,x + this.boxObject.x,y + this.boxObject.y);
+            if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
+                gEditorTooltipHandler.show(this, x, y);
+            }
             return true;
         ]]></body>
         </method>

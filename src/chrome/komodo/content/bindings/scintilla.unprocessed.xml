@@ -1355,8 +1355,8 @@
                 if (event.button != 2) { // right-click is handled by us
                     
 <!-- #if PLATFORM != "darwin" -->
-                    x = event.layerX < 0 ? 0 : event.layerX;
-                    y = event.layerY; // Must allow this to be -ve so we scroll up
+                    x = event.clientX < 0 ? 0 : event.clientX;
+                    y = event.clientY; // Must allow this to be -ve so we scroll up
                     var pos = this.scimoz.positionFromPoint(x, y);
 
                     // only disable scintilla mouseup if this is a single left button
@@ -1493,14 +1493,15 @@
                 // Note we seem to get mousemove messages every second or so.  I
                 // think it is related to the cursor, but not sure.  It seems to originate
                 // from Windows itself, but I don't know what triggers it.  mh.
-                var x = event.layerX < 0 ? 0 : event.layerX;
-                var y = event.layerY; // Must allow this to be -ve so we scroll up
+                var x = event.clientX < 0 ? 0 : event.clientX;
+                var y = event.clientY; // Must allow this to be -ve so we scroll up
 <!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
                 // darwin and windows handle this (somewhat differently) in
                 // scimoz now
                 this.scimoz.buttonMove( x, y );
 <!-- #endif -->
 
+                //TODO: rip this out. Not worth it.
                 // Handle detecing if we're over a hotspotted style and
                 // put up a status message accordingly.
                 if (window.document.getElementById('komodo_main')) {
@@ -1512,7 +1513,9 @@
                                              'doubleclick', 3000, false);
                     }
                 }
-                // store the mouse position for tooltip usage
+
+                // Use by blur event for handling text selection with the
+                // mouse.
                 if ((x != this._lastx) || (y != this._lasty)) {
                     this._lastx = x;
                     this._lasty = y;

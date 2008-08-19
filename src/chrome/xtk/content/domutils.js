@@ -119,7 +119,7 @@ tooltipHandler.prototype.show = function(parentElement, x, y) {
         window.clearTimeout(this._hideTimeout);
         this._hideTimeout = null;
     }
-    if (this.fillInTooltip(parentElement)) {
+    if (this.fillInTooltip(parentElement, x, y)) {
         // to handle multi line tooltips, we have to do some magic.
         // first we resize to the minimal size needed by the
         // description tag that is used to hold the text.
@@ -129,11 +129,7 @@ tooltipHandler.prototype.show = function(parentElement, x, y) {
         // of mozilla reflow, which are not defined, and thus may
         // change in the future
         this._tooltip.setAttribute('style','height: 0px');
-        this._tooltip.showPopup(parentElement,x,y,'tooltip',"topleft","topleft");
-        var box = document.getBoxObjectFor(this._tooltipTextNode);
-        // XXX we add 6 pixels, 1 for border, 2 for padding, as
-        // defined in komodo.css for the tooltip popup
-        this._tooltip.setAttribute('style','height: '+(box.height+6)+'px');
+        this._tooltip.openPopup(parentElement,"after_pointer",x,y,false);
         this._hideTimeout = window.setTimeout(function (me) { me.hide(); } ,5000, this);
     }
 }
@@ -142,7 +138,7 @@ tooltipHandler.prototype.hide = function() {
     this._tooltip.hidePopup();
 }
 
-tooltipHandler.prototype.fillInTooltip = function(tipElement) {
+tooltipHandler.prototype.fillInTooltip = function(tipElement, x, y) {
     // this function only gets called if the tooltip attribute
     // on an element has been set to 'editorTooltip'.  This is
     // specificly to support tooltips in scintilla, and should
@@ -155,7 +151,7 @@ tooltipHandler.prototype.fillInTooltip = function(tipElement) {
         while (this._tooltipTextNode.hasChildNodes())
             this._tooltipTextNode.removeChild(this._tooltipTextNode.firstChild);
 
-        var text = tipElement.getTooltipText();
+        var text = tipElement.getTooltipText(x, y);
         if (text)  {
             var node = document.createTextNode(text);
             this._tooltipTextNode.appendChild(node);
