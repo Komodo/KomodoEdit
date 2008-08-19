@@ -1390,14 +1390,18 @@
                     window.updateCommands("select")
                     this._inMouseDown = -1;
                 } else if (this._mozcontext && !this._contextShowing) {
-<!-- #if PLATFORM == "win" -->
-                    x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                    y = event.clientY - this.boxObject.y;
-<!-- #else -->
-                    x = event.layerX;
-                    y = event.layerY;
-<!-- #endif -->
-                    this._mozcontext.openPopup(this, "overlap", x, y, true);
+                    this._mozcontext.openPopup(
+                        null, // anchor on the Komodo window
+                        null, // ignore if anchorElement is null
+                        // Offset by 2 pixels to allow clicking in same place
+                        // to dismiss the context menu as per:
+                        // http://developer.mozilla.org/en/docs/XUL:PopupGuide:Positioning
+                        // > Context menus will appear offset down and to the
+                        // > right a couple of pixels so that the menu can be
+                        // > dismissed again just by clicking in the same place.
+                        event.clientX + 2,
+                        event.clientY + 2,
+                        true);
                     this._contextShowing = true;
                 }
                 ]]>
@@ -1424,13 +1428,8 @@
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 this.columnModeStartLine = -1;
-<!-- #if PLATFORM == "win" -->
                 var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
                 var y = event.clientY - this.boxObject.y;
-<!-- #else -->
-                var x = event.layerX;
-                var y = event.layerY;
-<!-- #endif -->
                 this._lastx = x;
                 this._lasty = y;
                 if (this._contextShowing && this._mozcontext) {
