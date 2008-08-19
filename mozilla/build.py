@@ -735,6 +735,7 @@ def _getMozSrcInfo(scheme, mozApp):
                         cvs:MOZILLA_1_8_BRANCH
                         cvs:1.8  # shortcut for 'MOZILLA_<ver>_BRANCH'
                         cvs:1.8:02/14/2006  # Valentine's Day 2006
+                        cvs:HEAD:02/14/2006  # Valentine's Day 2006
                     See tinderbox.mozilla.org for hints on Mozilla CVS
                     tags.
                 <path-to-tarball>
