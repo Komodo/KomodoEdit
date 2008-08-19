@@ -1390,10 +1390,14 @@
                     window.updateCommands("select")
                     this._inMouseDown = -1;
                 } else if (this._mozcontext && !this._contextShowing) {
-                    // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
-                    x = event.clientX < 0 ? 0 : event.clientX;
-                    y = event.clientY < 0 ? 0 : event.clientY;
-                    this._mozcontext.showPopup(this, x, y, 'context');
+<!-- #if PLATFORM == "win" -->
+                    x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                    y = event.clientY - this.boxObject.y;
+<!-- #else -->
+                    x = event.layerX;
+                    y = event.layerY;
+<!-- #endif -->
+                    this._mozcontext.openPopup(this, "overlap", x, y, true);
                     this._contextShowing = true;
                 }
                 ]]>
@@ -1421,8 +1425,8 @@
                 <![CDATA[
                 this.columnModeStartLine = -1;
 <!-- #if PLATFORM == "win" -->
-                var x = event.layerX < 0 ? 0 : event.layerX - this.boxObject.x;
-                var y = event.layerY - this.boxObject.y;
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y;
 <!-- #else -->
                 var x = event.layerX;
                 var y = event.layerY;
