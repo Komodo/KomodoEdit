@@ -49,39 +49,68 @@ ko.main = {};
 
 var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
-// _log.setLevel(ko.logging.LOG_DEBUG);
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
-// This handler is fired when the user tries to close a Komodo window
 
-this.onClose = function(event) {
-    _log.debug(">> ko.main.onClose");
+/**
+ * Window "close" event handler to close the Komodo window and, if it is the
+ * last one, quit.
+ *
+ * This is called when the application's "x" close button is pressed. It is
+ * NOT called when quitting Komodo via "File -> Exit", "Cmd+Q", or equivalent.
+ */
+this._onClose = function(event) {
+    _log.debug(">> ko.main._onClose");
+
+    // If this is the last main Komodo window, then call toolkit's
+    // `goQuitApplication` to handle quitting.
+    if (ko.windowManager.lastWindow()) {
+        event.stopPropagation();
+        event.preventDefault();
+        event.cancelBubble = true;
+        goQuitApplication();
+        return;
+    }
+    
+    // Otherwise, this isn't the last Komodo window, just handle closing
+    // this window.
     if (!ko.main.runCanCloseHandlers()) {
         event.stopPropagation();
         event.preventDefault();
         event.cancelBubble = true;
-        return null;
+        return;
     }
     ko.main.runWillCloseHandlers();
-    if (ko.windowManager.lastWindow()) {
-        // if we're the only Komodo window, we're quitting
-        _log.debug("<< ko.main.onClose via goQuitApplication");
-        // Have Mozilla finish off this window before trying to walk over it again
-        // in goQuitApplication.
-        setTimeout(goQuitApplication, 0);
-        return null;
-    }
-    _log.debug("<< ko.main.onClose");
-    return null;
-}
-window.addEventListener("close", ko.main.onClose, true);
 
-/*
-    if you want to do something onUnload or onClose, then
-    you have to register a handler function that takes no
-    arguments.  This is called automaticaly.
-    onOnload will call the handlers LIFO to reverse the
-    order of initialization.
-*/
+    window.removeEventListener("close", ko.main._onClose, true);
+    _log.debug("<< ko.main._onClose");
+    return;
+}
+window.addEventListener("close", ko.main._onClose, true);
+
+
+/**
+ * Window "DOMWindowClose" event sent when the window is about to be closed by
+ * `window.close()`.
+ *
+ * For Komodo shutdown this is called when a window is closed via toolkit's
+ * `goQuitApplication()`, but NOT when closed via the application
+ * window's "x" close button.
+ *
+ * http://developer.mozilla.org/en/docs/Gecko-Specific_DOM_Events#DOMWindowClose
+ * http://mxr.mozilla.org/mozilla1.8/source/dom/src/base/nsGlobalWindow.cpp#4737
+ *  ...
+ *  DispatchCustomEvent("DOMWindowClose")
+ *  ...
+ */
+this._onDOMWindowClose = function(event) {
+    _log.debug(">> ko.main._onDOMWindowClose");
+    ko.main.runWillCloseHandlers();
+    window.removeEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
+    _log.debug("<< ko.main._onDOMWindowClose");
+}
+window.addEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
+
 
 var _canCloseHandlers = [];
 this.addCanCloseHandler = function(handler, object /*=null*/) {
@@ -163,14 +192,6 @@ window.tryToClose = function() {
     _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
     return res;
 };
-
-var _nativeWindowClose = window.close;
-window.close = function() {
-    _log.debug(">> window.close");
-    ko.main.runWillCloseHandlers();
-    _nativeWindowClose();
-    _log.debug("<< window.close");
-}
 
     
 //************ End Shutdown Code
