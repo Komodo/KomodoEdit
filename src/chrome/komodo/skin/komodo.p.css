@@ -33,6 +33,55 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  * 
  * ***** END LICENSE BLOCK ***** */
+@import url("chrome://global/skin/");
+
+/* #if PLATFORM == "darwin" */
+
+#komodo_main {
+  -moz-binding: url("chrome://global/skin/globalBindings.xml#unifiedWindow");
+}
+
+#komodo_main[chromehidden~="toolbar"][chromehidden~="location"][chromehidden~="directories"] {
+  border-top: 1px solid rgba(0,0,0,0.65);
+  -moz-appearance: none;
+  background-color: #C9C9C9;
+}
+
+#toolbox_main,
+#toolbox_main > menubar,
+#toolbox_main > toolbar,
+#main-toolboxrow,
+#main-toolboxrow > toolbar {
+  background-color: #C9C9C9;
+  border: none;
+  background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
+}
+
+/* height same as background image */
+#toolbox_main > toolbar[buttonstyle="pictures"],
+#main-toolboxrow > toolbar[buttonstyle="pictures"] {
+  height: 31px;
+}
+
+#toolbox_main > toolbar,
+#main-toolboxrow > toolbar {
+  padding-right: 3px;
+  padding-left: 3px;
+}
+/* ----- INACTIVE WINDOW ----- */
+
+#komodo_main:not([active="true"]) > #toolbox_main,
+#komodo_main:not([active="true"]) > #toolbox_main > menubar,
+#komodo_main:not([active="true"]) > #toolbox_main > toolbar,
+#komodo_main:not([active="true"]) > #toolbox_main > #main-toolboxrow,
+#komodo_main:not([active="true"]) > #toolbox_main > #main-toolboxrow > toolbar {
+  background-color: #E4E4E4;
+  background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
+}
+
+
+
+/* #endif */
 
 
 /* ::::: fullscreen window controls ::::: */
