@@ -58,10 +58,11 @@
         </content>
         <implementation implements="nsIObserver">
             <field name='_inMouseDown'>-1</field>
-            <field name='_startDragDrop'>false</field>
+            <!-- x,y coord list containing position initiating a drag or null -->
+            <field name='_startDragDrop'>null</field> 
             <field name='_inDragDrop'>false</field>
-            <field name='_lastx'>0</field>
-            <field name='_lasty'>0</field>
+            <!-- x,y list of mousedown or mousemove, or null, used in blur -->
+            <field name='_lastMousePos'>null</field> 
 
             <!-- key_handler: Javascript function which gets first dibs on
                               keypressed events. Function gets called in
@@ -112,6 +113,14 @@
             <field name='dealtWithAlt'>-1</field>
             <field name='_dragScrollHits'>1</field>
 <!-- #endif -->
+
+            <method name="_closeToStartDragDrop">
+            <parameter name="pos"/>
+            <body> <![CDATA[
+                return (Math.abs(pos[0] - this._startDragDrop[0]) <= 2
+                        && Math.abs(pos[1] - this._startDragDrop[1]) <= 2);
+            ]]> </body>
+            </method>
 
             <!--nsIObserver implementation-->
             <method name="observe">
@@ -455,7 +464,8 @@
                 <body>
                 <![CDATA[
                     this.scimoz.dragPosition = -1;
-                    this._inDragDrop = this._startDragDrop = false;
+                    this._inDragDrop = false;
+                    this._startDragDrop = null;
                     return true;
                 ]]>
                 </body>
@@ -555,7 +565,6 @@
                 transferData.data = new TransferData();
                 transferData.data.addDataForFlavour("text/unicode",unicodetext);
 
-                this._startDragDrop = 1;
                 this._inDragDrop = true;
 <!-- #if PLATFORM != "darwin" -->
                 this._dragScrollHits = 0;
@@ -1105,6 +1114,16 @@
                 scimoz.anchor = scimoz.currentPos = pos;
             ]]></body>
             </method>
+            
+            <method name="getClientCoordinates">
+            <parameter name="event"/>
+            <body><![CDATA[
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y;
+                return [x,y];
+            ]]></body>
+            </method>
+
         </implementation>
 
         <handlers>
@@ -1123,7 +1142,7 @@
                 // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
                 // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
                 if (this._inMouseDown != -1 && event.originalTarget != this) {
-                    this.scimoz.buttonUp( this._lastx, this._lasty, this._inMouseDown, event.timeStamp, 0, 0, 0);
+                    this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, event.timeStamp, 0, 0, 0);
                     // The selection may have changed as a result.
                     // We could get smarter about only sending this when it truly _has_
                     // changed, but this would require remembering the position in the
@@ -1348,16 +1367,13 @@
 
             <handler event="mouseup" phase="capturing">
                 <![CDATA[
-                var x;
-                var y;
                 this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
                 if (event.button != 2) { // right-click is handled by us
                     
 <!-- #if PLATFORM != "darwin" -->
-                    x = event.clientX < 0 ? 0 : event.clientX;
-                    y = event.clientY; // Must allow this to be -ve so we scroll up
-                    var pos = this.scimoz.positionFromPoint(x, y);
+                    var x,y;
+                    [x,y] = this.getClientCoordinates(event);
 
                     // only disable scintilla mouseup if this is a single left button
                     // click.  Otherwise selections get disabled on linux
@@ -1368,7 +1384,7 @@
                             this.log.error('scintilla mouseup during dragdrop!\n');
                         }
                         //dump('scintilla reset mouseup positions\n');
-                        // get the position, set the selection start/end
+                        var pos = this.scimoz.positionFromPoint(x, y);
                         this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
                         this.scimoz.currentPos = pos;
                         this.scimoz.dragPosition = -1;
@@ -1381,7 +1397,7 @@
 <!-- #endif -->
 
                     this._inDragDrop = false;
-                    this._startDragDrop = false;
+                    this._startDragDrop = null;
 
                     // The selection may have changed as a result.
                     // We could get smarter about only sending this when it truly _has_
@@ -1409,6 +1425,7 @@
 
             <handler event="contextmenu">
                 <![CDATA[
+                dump("got context menu\n");
                 /*  XXX bug 42126
                     this is causing too many issues, it is meant to support the
                     OSX behaviour of holding a mouse button down for a period of
@@ -1428,10 +1445,9 @@
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 this.columnModeStartLine = -1;
-                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                var y = event.clientY - this.boxObject.y;
-                this._lastx = x;
-                this._lasty = y;
+                var x,y;
+                [x,y] = this.getClientCoordinates(event);
+                this._lastMousePos = [x,y];
                 if (this._contextShowing && this._mozcontext) {
                     // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
                     this._mozcontext.hidePopup();
@@ -1442,7 +1458,7 @@
                     this.mouse_handler(event);
                 }
                 this._inDragDrop = false;
-                this._startDragDrop = false;
+                this._startDragDrop = null;
                 // No need to check X or Y are in range, as we will only get
                 // this event when we do!
                 var pos = this.scimoz.positionFromPoint(x, y);
@@ -1464,8 +1480,8 @@
                                                         event.shiftKey, event.ctrlKey, event.metaKey);
 <!-- #endif -->
                     } else {
-                        //dump('clicked in selection\n');
-                        this._startDragDrop = true;
+                        this._startDragDrop = [x,y];
+
                     }
                 } else if (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
                         pos < this.scimoz.selectionStart ||
@@ -1484,8 +1500,14 @@
             <handler event="mousemove">
                 <![CDATA[
             try {
+                var x,y;
+                [x,y] = this.getClientCoordinates(event);
+                // Use by blur event for handling text selection with the mouse.
+                this._lastMousePos = [x,y];
 <!-- #if PLATFORM != "darwin" -->
-                if (this._startDragDrop && !this._inDragDrop) {
+                if (this._startDragDrop && !this._inDragDrop
+                    && !this._closeToStartDragDrop([x, y])
+                    ) {
                     nsDragAndDrop.startDrag(event,this);
                 }
 <!-- #endif -->
@@ -1493,8 +1515,6 @@
                 // Note we seem to get mousemove messages every second or so.  I
                 // think it is related to the cursor, but not sure.  It seems to originate
                 // from Windows itself, but I don't know what triggers it.  mh.
-                var x = event.clientX < 0 ? 0 : event.clientX;
-                var y = event.clientY; // Must allow this to be -ve so we scroll up
 <!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
                 // darwin and windows handle this (somewhat differently) in
                 // scimoz now
@@ -1512,13 +1532,6 @@
                         ko.statusBar.AddMessage("Double-click to jump to the corresponding file and line number.",
                                              'doubleclick', 3000, false);
                     }
-                }
-
-                // Use by blur event for handling text selection with the
-                // mouse.
-                if ((x != this._lastx) || (y != this._lasty)) {
-                    this._lastx = x;
-                    this._lasty = y;
                 }
             } catch (e) {
                 this.log.exception(e);
