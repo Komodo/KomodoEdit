@@ -46,7 +46,7 @@
 // A linked-list of all event listeners.
 class EventListener {
 public:
-	EventListener(nsISupports *listener, PRBool tryWeakRef, PRUint32 _mask) {
+	EventListener(ISciMozEvents *listener, PRBool tryWeakRef, PRUint32 _mask) {
 		mask = _mask;
 		bIsWeak = PR_FALSE;
 		if (tryWeakRef) {
@@ -65,14 +65,27 @@ public:
 	}
   
 	// Does one EventListener equal another???
-	PRBool Equals(nsISupports *anotherListener) {
-		// to ensure COM identity rules, do an explicit QI for nsISupports, and compare that.
-		nsCOMPtr<nsISupports> other = do_QueryInterface(anotherListener);
-		nsCOMPtr<nsISupports> mine = do_QueryInterface(pListener);
-		return other==mine;	
+	PRBool Equals(ISciMozEvents *anotherListener) {
+		ISciMozEvents *pret;
+		get(&pret);
+		return anotherListener == pret;
 	}
 
-	nsISupports *pListener;
+	void * get(ISciMozEvents **pret) {
+		if (bIsWeak) {
+			nsIWeakReference *pw = (nsIWeakReference *)pListener;
+			if (NS_SUCCEEDED(pw->QueryReferent(NS_GET_IID(ISciMozEvents), (void **)pret)))
+				return (void *)this;
+		} else {
+			pListener->AddRef();
+			*pret = (ISciMozEvents *)pListener;
+			return (void *)this;
+		}
+		return nsnull;
+	}
+
+
+	ISciMozEvents *pListener;
 	PRUint32 mask;
 	EventListener *pNext;
 	PRBool bIsWeak;
@@ -89,7 +102,7 @@ public:
 			pLook = pTemp;
 		}
 	}
-	nsresult Add( nsISupports *listener, PRBool tryWeakRef, PRUint32 mask) {
+	nsresult Add( ISciMozEvents *listener, PRBool tryWeakRef, PRUint32 mask) {
 		EventListener *l = new EventListener(listener, tryWeakRef, mask);
 		if (!l || l->pListener == NULL) {
 			delete l;
@@ -99,7 +112,7 @@ public:
 		pFirst = l;
 		return NS_OK;
 	}
-	nsresult Remove( nsISupports *listener ) {
+	nsresult Remove( ISciMozEvents *listener ) {
 		// No real need to check for weak-reference support.
 		// If someone added a weak-reference, then almost
 		// by definition they dont want to manage the lifetime
@@ -125,15 +138,7 @@ public:
 		EventListener *l = from ? ((EventListener *)from)->pNext : pFirst;
 		for (;l;l=l->pNext) {
 			if (l->mask & lookMask) {
-				if (l->bIsWeak) {
-					nsIWeakReference *pw = (nsIWeakReference *)l->pListener;
-					if (NS_SUCCEEDED(pw->QueryReferent(NS_GET_IID(ISciMozEvents), (void **)pret)))
-						return (void *)l;
-				} else {
-					l->pListener->AddRef();
-					*pret = (ISciMozEvents *)l->pListener;
-					return (void *)l;
-				}
+				return l->get(pret);
 			}
 		}
 		return nsnull;

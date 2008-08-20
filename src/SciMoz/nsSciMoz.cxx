@@ -611,7 +611,7 @@ NS_IMETHODIMP SciMoz::HookSomeEvents(ISciMozEvents *eventListener, PRUint32 mask
 	return listeners.Add(eventListener, PR_TRUE, mask);
 }
 
-/* void HookSomeEventsWithStrongReference (in nsISupports eventListener, in PRUint32 mask); */
+/* void HookSomeEventsWithStrongReference (in ISciMozEvents eventListener, in PRUint32 mask); */
 NS_IMETHODIMP SciMoz::HookSomeEventsWithStrongReference(ISciMozEvents *eventListener, PRUint32 mask) {
 	SCIMOZ_CHECK_THREAD("HookSomeEventsWithStrongReference");
 #ifdef SCIMOZ_DEBUG
@@ -622,7 +622,7 @@ NS_IMETHODIMP SciMoz::HookSomeEventsWithStrongReference(ISciMozEvents *eventList
 	return listeners.Add(eventListener, PR_FALSE, mask);
 }
 
-/* void UnhookEvents (in nsISupports eventListener); */
+/* void UnhookEvents (in ISciMozEvents eventListener); */
 NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
 	SCIMOZ_CHECK_THREAD("UnhookEvents");
 #ifdef SCIMOZ_DEBUG
