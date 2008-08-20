@@ -1423,25 +1423,6 @@
                 ]]>
             </handler>
 
-            <handler event="contextmenu">
-                <![CDATA[
-                dump("got context menu\n");
-                /*  XXX bug 42126
-                    this is causing too many issues, it is meant to support the
-                    OSX behaviour of holding a mouse button down for a period of
-                    time to get a context menu.  There are just too many areas
-                    of conflict to try and handle this from here, have to change
-                    the code in scimoz to do this.
-                    if (this._mozcontext && !this._contextShowing && !this.scimoz.isTracking && !this.scimoz.inDragSession) {
-                        var x = event.clientX < 0 ? 0 : event.clientX;
-                        var y = event.clientY < 0 ? 0 : event.clientY;
-                        this._mozcontext.showPopup(this, x, y, 'context');
-                        this._contextShowing = true;
-                    }
-                */
-                ]]>
-            </handler>
-
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 this.columnModeStartLine = -1;
@@ -1520,31 +1501,9 @@
                 // scimoz now
                 this.scimoz.buttonMove( x, y );
 <!-- #endif -->
-
-                //TODO: rip this out. Not worth it.
-                // Handle detecing if we're over a hotspotted style and
-                // put up a status message accordingly.
-                if (window.document.getElementById('komodo_main')) {
-                    var pos = this.scimoz.positionFromPoint(x, y);
-                    var style = this.scimoz.getStyleAt(pos);
-                    var isHotspot = this.scimoz.styleGetHotSpot(style);
-                    if (isHotspot) {
-                        ko.statusBar.AddMessage("Double-click to jump to the corresponding file and line number.",
-                                             'doubleclick', 3000, false);
-                    }
-                }
             } catch (e) {
                 this.log.exception(e);
             }
-                ]]>
-            </handler>
-            <handler event="mouseover">
-                <![CDATA[
-                //dump('mouseover\n');
-                ]]>
-            </handler>
-            <handler event="mouseout">
-                <![CDATA[
                 ]]>
             </handler>
 
