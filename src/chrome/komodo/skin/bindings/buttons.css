@@ -39,6 +39,7 @@
  **/
 
 /* button-toolbar-a = used for image only buttons */
+button[type="button-toolbar-a"],
 .button-toolbar-a
 {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-a");

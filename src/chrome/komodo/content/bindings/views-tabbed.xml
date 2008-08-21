@@ -56,8 +56,9 @@
             handleCtrlPageUpDown="false"
             xbl:inherit="class,style,flex,orient">
             <xul:tabs type="scrollable" xbl:inherit="orient"
-                onclosetab="this.parentNode.parentNode.parentNode.parentNode.closeCurrentView();"
+                onclose="this.parentNode.parentNode.parentNode.parentNode.closeCurrentView();"
                 closecollapsed="false" closedisabled="true"
+                closeclass="scroll-x-icon"
                 onselect="this.parentNode.parentNode.select(event);"
                 />
             <xul:tabpanels flex="1"/>

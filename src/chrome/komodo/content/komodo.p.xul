@@ -2082,8 +2082,9 @@
                           id="project_toolbox_tabs" orient="horizontal"
                           class="tabs-inset"
                           splitterId="workspace_left_splitter"
-                          onminimize="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
-                          minimizeleftcollapsed="false">
+                          onclose="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
+                          closeclass="scroll-minimize-left-icon"
+                          closecollapsed="false">
                         <tab id="project_tab" label="&projects.label;"
                              oncommand="ko.projects.manager.viewMgr.tree.focus();"
                              onfocus="ko.projects.manager.viewMgr.focus();"/>
@@ -2192,8 +2193,9 @@
                           class="tabs-inset"
                           id="right_toolbox_tabs" orient="horizontal"
                           splitterId="workspace_right_splitter"
-                          onminimize="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
-                          minimizerightcollapsed="false">
+                          onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
+                          closeclass="scroll-minimize-right-icon"
+                          closecollapsed="false">
                         <tab type="file-tab" id="toolbox_tab" label="&toolbox.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
                              accesskey="&toolboxTab.accesskey;"
@@ -2278,9 +2280,9 @@
                 <tabs type="scrollable" collapsable="true"
                     id="output_tabs" orient="horizontal"
                     splitterId="bottom_splitter"
-                    onminimize="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
-                    minimizedowncollapsed="false"
-                    closecollapsed="true">
+                    onclose="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
+                    closeclass="scroll-minimize-down-icon"
+                    closecollapsed="false">
                     <!-- Need both onmousedown and onfocus to catch selection
                          by mouse and Ctrl[+Shift]+Tab -->
                     <tab id="runoutput_tab" label="&commandOutput.label;"

@@ -138,7 +138,15 @@
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
         </resources>
         <content>
-            <xul:box style="min-width: 4px" class="tabs-left" flex="0"/>
+            <xul:box anonid="left-scroll" xbl:inherits="collapsable" class="tabstrip-box tabs-left" flex="0">
+                <xul:button
+                    disabled="true"
+                    type="button-toolbar-a"
+                    class="scroll-arrow-left-icon"
+                    onmousedown="this.parentNode.parentNode.startButtonRepeater(0);"
+                    onmouseup="this.parentNode.parentNode.stopButtonRepeater();"
+                    onmouseout="this.parentNode.parentNode.stopButtonRepeater();"/>
+            </xul:box>
             <xul:scrollbox xbl:inherits="orient,align,pack,dir"
                 class="tabstrip-box" flex="1">
                 <children includes="tab"/>
@@ -146,32 +154,21 @@
             <xul:box xbl:inherits="orient,align,pack,dir" align="center" pack="center"
                      class="tabstrip-box" style="min-width: 4px; padding: 1px;">
                 <children/>
-                <xul:box xbl:inherits="collapsable" class="tabstrip-box" flex="1">
+                <xul:box anonid="right-scroll" xbl:inherits="collapsable" class="tabstrip-box tabs-right" flex="1">
                 <xul:button
                     disabled="true"
-                    class="scroll-arrow-left-icon button-toolbar-a"
-                    onmousedown="this.parentNode.parentNode.parentNode.startButtonRepeater(0);"
-                    onmouseup="this.parentNode.parentNode.parentNode.stopButtonRepeater();"
-                    onmouseout="this.parentNode.parentNode.parentNode.stopButtonRepeater();"/>
-                <xul:button
-                    disabled="true"
-                    class="scroll-arrow-right-icon button-toolbar-a"
+                    type="button-toolbar-a"
+                    class="scroll-arrow-right-icon"
                     onmousedown="this.parentNode.parentNode.parentNode.startButtonRepeater(1);"
                     onmouseup="this.parentNode.parentNode.parentNode.stopButtonRepeater();"
                     onmouseout="this.parentNode.parentNode.parentNode.stopButtonRepeater();"/>
                 </xul:box>
-                <xul:button class="scroll-minimize-left-icon button-toolbar-a" collapsed="true"
-                            xbl:inherits="onclick=onminimize, collapsed=minimizeleftcollapsed,
-                                          disabled=minimizeleftdisabled"/>
-                <xul:button class="scroll-minimize-right-icon button-toolbar-a" collapsed="true"
-                            xbl:inherits="onclick=onminimize, collapsed=minimizerightcollapsed,
-                                          disabled=minimizerightdisabled"/>
-                <xul:button class="scroll-minimize-down-icon button-toolbar-a" collapsed="true"
-                            xbl:inherits="onclick=onminimize, collapsed=minimizedowncollapsed,
-                                          disabled=minimizedowndisabled"/>
-                <xul:button class="scroll-x-icon button-toolbar-a" collapsed="true"
-                            xbl:inherits="onclick=onclosetab, collapsed=closecollapsed,
-                                          disabled=closedisabled"/>
+                <xul:button anonid="closeBtn"
+                            type="button-toolbar-a"
+                            class="scroll-x-icon"
+                            collapsed="true"
+                            xbl:inherits="onclick=onclose, collapsed=closecollapsed,
+                                          disabled=closedisabled, class=closeclass"/>
             </xul:box>
         </content>
 
@@ -184,13 +181,16 @@
 
             <property name="scrollBoxObject" readonly="true"
                 onget="return this.scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
+            
+            <property name="leftScrollButtonBox" readonly="true"
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','left-scroll');"/>
+            <property name="rightScrollButtonBox" readonly="true"
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','right-scroll');"/>
 
             <constructor>
                 <![CDATA[
-                    var v = document.getAnonymousNodes(this)[2].firstChild;
-                    if (v.getAttribute('collapsable')=='true') {
-                        v.setAttribute('collapsed','true');
-                    }
+                this.leftScrollButtonBox.setAttribute('collapsed', 'true');
+                this.rightScrollButtonBox.setAttribute('collapsed', 'true');
                 ]]>
             </constructor>
 
@@ -316,24 +316,33 @@
         <handlers>
             <handler event="underflow" phase="capturing">
             <![CDATA[
-                var v = document.getAnonymousNodes(this)[2];
-                v.setAttribute('class', 'scrolltabbox-buttons-disabled');
-                if (v.firstChild.getAttribute('collapsable')=='true') {
-                    v.firstChild.setAttribute('collapsed','true');
+                this.leftScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons-disabled');
+                this.leftScrollButtonBox.firstChild.setAttribute('disabled', 'true');
+                if (!this.leftScrollButtonBox.hasAttribute('collapsable') ||
+                    this.leftScrollButtonBox.getAttribute('collapsable')=='true') {
+                    this.leftScrollButtonBox.setAttribute('collapsed','true');
                 }
-                v.firstChild.childNodes[0].setAttribute('disabled', 'true');
-                v.firstChild.childNodes[1].setAttribute('disabled', 'true');
+
+                this.rightScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons-disabled');
+                this.rightScrollButtonBox.firstChild.setAttribute('disabled', 'true');
+                if (!this.rightScrollButtonBox.hasAttribute('collapsable') ||
+                    this.rightScrollButtonBox.getAttribute('collapsable')=='true') {
+                    this.rightScrollButtonBox.setAttribute('collapsed','true');
+                }
+
                 this.scrollRefresh();
             ]]>
             </handler>
 
             <handler event="overflow" phase="capturing">
             <![CDATA[
-                var v = document.getAnonymousNodes(this)[2];
-                v.setAttribute('class', 'scrolltabbox-buttons');
-                v.firstChild.removeAttribute('collapsed');
-                v.firstChild.childNodes[0].removeAttribute('disabled');
-                v.firstChild.childNodes[1].removeAttribute('disabled');
+                this.leftScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons');
+                this.leftScrollButtonBox.firstChild.removeAttribute('disabled');
+                this.leftScrollButtonBox.removeAttribute('collapsed');
+
+                this.rightScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons');
+                this.rightScrollButtonBox.firstChild.removeAttribute('disabled');
+                this.rightScrollButtonBox.removeAttribute('collapsed');
             ]]>
             </handler>
 
