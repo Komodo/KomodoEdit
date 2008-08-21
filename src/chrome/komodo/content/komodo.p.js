@@ -313,7 +313,9 @@ function onloadDelay() {
     }
     try {
         // This is a global event, no need to use the WindowObserverSvc
-        observerSvc.notifyObservers(null, "komodo-ui-started", "");
+        var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+        obSvc.notifyObservers(null, "komodo-ui-started", "");
     } catch(ex) {
         /* ignore this exception, there were no listeners for the event */
     }
