@@ -186,6 +186,9 @@ if (!$xulrunner) {
     
         ["preprocess",       'config/version.p.txt', 'config/version.txt'],
     
+        ["preprocess",       "app/brand.p.dtd", "app/brand.dtd"],
+        ["preprocess",       "app/brand.p.properties", "app/brand.properties"],
+
         #TODO: Add ko_project.ico.
         ["cp",               "app/komodo.$productType.ico", "app/komodo.ico"],
         ["cp",               "app/macbuild/$macKoIconName.icns",
