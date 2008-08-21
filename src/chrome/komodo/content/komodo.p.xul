@@ -2,6 +2,8 @@
 <!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD; 
 ]>
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -619,11 +621,21 @@
                     <!-- more mozilla menu magic for osx.  FileQuit id's are
                          necessary for proper aqua menu's -->
                     <menuseparator id="menu_FileQuitSeparator"/>
+<!-- #if PLATFORM == "darwin" -->
+<!-- #define QUIT_LABEL_ENTITY &quitApplicationCmdMac.label; -->
+<!-- #define QUIT_ACCESSKEY_ENTITY &quitApplicationCmdMac.accesskey; -->
+<!-- #elif PLATFORM == "win" -->
+<!-- #define QUIT_LABEL_ENTITY &quitApplicationCmdWin.label; -->
+<!-- #define QUIT_ACCESSKEY_ENTITY &quitApplicationCmdWin.accesskey; -->
+<!-- #else -->
+<!-- #define QUIT_LABEL_ENTITY &quitApplicationCmd.label; -->
+<!-- #define QUIT_ACCESSKEY_ENTITY &quitApplicationCmd.accesskey; -->
+<!-- #endif -->
                     <menuitem
                         id="menu_FileQuitItem"
-                        label="&exit.label;"
+                        label="QUIT_LABEL_ENTITY"
                         class="menuitem-iconic-wide"
-                        accesskey="&menuFileQuitItem.accesskey;"
+                        accesskey="QUIT_ACCESSKEY_ENTITY"
                         observes="cmd_quit"
                         />
                 </menupopup>

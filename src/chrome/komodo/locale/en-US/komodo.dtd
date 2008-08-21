@@ -186,7 +186,6 @@
 <!ENTITY exchangePositionAndMark.label "Exchange Position and Mark">
 <!ENTITY existingFileS.label "Existing File(s)...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
-<!ENTITY exit.label "Exit">
 <!ENTITY expand.label "Expand">
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
@@ -349,7 +348,6 @@
 <!ENTITY menuFile.accesskey "F">
 <!ENTITY menuFileNew.accesskey "N">
 <!ENTITY menuFileOpen.accesskey "O">
-<!ENTITY menuFileQuitItem.accesskey "x">
 <!ENTITY menuFind.accesskey "F">
 <!ENTITY menuFindNext.accesskey "N">
 <!ENTITY menuHelpHelp.accesskey "H">
@@ -463,6 +461,12 @@
 <!ENTITY projectsToolboxAddRemoteFile.desc "Projects/Toolbox: Add Remote File...">
 <!ENTITY properties.label "Properties">
 <!ENTITY propertiesAndSettings.label "Properties and Settings">
+<!ENTITY quitApplicationCmd.label "Quit">
+<!ENTITY quitApplicationCmd.accesskey "Q">
+<!ENTITY quitApplicationCmdMac.label "Quit &brandShortName;">
+<!ENTITY quitApplicationCmdMac.accesskey "Q">
+<!ENTITY quitApplicationCmdWin.label "Exit">
+<!ENTITY quitApplicationCmdWin.accesskey "x">
 <!ENTITY reImport.label "Re-import">
 <!ENTITY reImportFromFileSystemWithSameSettings.tooltiptext "Re-import from File System with same settings">
 <!ENTITY reImportFromFileSystemWithTheSameSettings.tooltiptext "Re-Import from File System with the same settings">
