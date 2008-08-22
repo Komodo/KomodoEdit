@@ -1,0 +1,107 @@
+
+/* #if PLATFORM != 'darwin' */
+tabs[type="sidebar"]
+{
+  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');
+}
+/* #else */
+tabs[type="sidebar"]
+{
+  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
+    padding: 0px;
+    margin: 0px;
+    -moz-appearance: none;
+    border: none;
+  /*background-color: #d4dde5;*/
+}
+
+tabbox.sidepanel
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+  background-color: #d4dde5;
+
+
+}
+
+#komodo_main:not([active="true"]) tabbox.sidepanel {
+  background-color: #E4E4E4;
+}
+
+tabbox.sidepanel > tabs,
+tabbox.sidepanel > tabpanels,
+tabbox.sidepanel > tabpanels > tabpanel,
+tabbox.sidepanel > tabpanels > tabpanel > vbox,
+tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+  background-color: transparent !important;
+
+}
+
+tabbox.sidepanel .toolbar-box,
+tabbox.sidepanel .partviewer-toolbar {
+  margin-bottom: 6px;
+}
+
+tabbox.sidepanel partviewer,
+tabbox.sidepanel tree
+{
+  border: None;
+  padding: 0px;
+  margin: 0px;
+  background-color: #d4dde5;
+  border:none;
+}
+
+#komodo_main:not([active="true"]) tabbox.sidepanel partviewer,
+#komodo_main:not([active="true"]) tabbox.sidepanel tree {
+  background-color: #E4E4E4;
+}
+
+
+tabbox.sidepanel tree treechildren,
+tabbox.sidepanel tree treechildren::-moz-tree-row,
+tabbox.sidepanel partviewer treechildren,
+tabbox.sidepanel partviewer treechildren::-moz-tree-row {
+  background-color: #d4dde5;
+  padding-bottom: 1px;
+  -moz-appearance: none;
+  margin: 0;
+  border: none;
+}
+
+tabbox.sidepanel tree treechildren::-moz-tree-cell-text(selected), 
+tabbox.sidepanel partviewer treechildren::-moz-tree-cell-text(selected) {  
+  font-weight: bold !important;
+  color: #ffffff !important;
+}
+
+tabbox.sidepanel tree treechildren::-moz-tree-row(selected),
+tabbox.sidepanel partviewer treechildren::-moz-tree-row(selected) {  
+  background-color: #6f81a9;
+  background-image: url("chrome://browser/skin/places/selected-gradient.png");
+  background-repeat: repeat-x;
+  background-position: bottom left;
+  border-top: 1px solid #979797;
+}
+
+#komodo_main:not([active="true"]) tabbox.sidepanel tree treechildren::-moz-tree-row(selected),
+#komodo_main:not([active="true"]) tabbox.sidepanel partviewer treechildren::-moz-tree-row(selected) {  
+  background-image: url("chrome://browser/skin/places/selected-focused-gradient.png");
+  background-color: #8a8a8a !important;
+  border-top: 1px solid #91a0c0;
+}
+
+#komodo_main:not([active="true"]) tabbox.sidepanel tree treechildren,
+#komodo_main:not([active="true"]) tabbox.sidepanel tree treechildren::-moz-tree-row,
+#komodo_main:not([active="true"]) tabbox.sidepanel partviewer treechildren,
+#komodo_main:not([active="true"]) tabbox.sidepanel partviewer treechildren::-moz-tree-row{
+  background-color: #E4E4E4;
+}
+/* #endif */
