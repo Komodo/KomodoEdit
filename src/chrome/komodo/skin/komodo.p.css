@@ -245,7 +245,23 @@ tab > .tab-text {
   background-image: url("chrome://komodo/skin/images/grippy.png");
   background-repeat: no-repeat;
   background-position: center;
+  margin: 0px;
+  padding: 0px; 
+  border: none;
 }
+
+/* #if PLATFORM == 'darwin' */
+splitter[orient="vertical"].divot_splitter {
+  min-height: 1px;
+  height: 2px;
+  background-image: none !important;
+}
+splitter[orient="horizontal"].divot_splitter {
+  min-width: 1px;
+  width: 2px;
+  background-image: none !important;       
+}
+/* #endif */
 
 .grippy_splitter {
   background-image: url("chrome://komodo/skin/images/grippy_horizontal.png");

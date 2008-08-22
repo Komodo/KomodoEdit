@@ -49,7 +49,7 @@
         </resources>
     </binding>
 
-    <binding id="file-status-tab" display="xul:button"
+    <binding id="file-status-tab" display="xul:hbox"
             extends="chrome://global/content/bindings/tabbox.xml#tab">
         <resources>
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
@@ -68,6 +68,8 @@
                     style="margin-right: 0px; padding-right:2px;" crop="right"/>
             <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled" collapsed="true" value="*"
                        style="margin-left: 0px; padding-left:0px; padding-right:1px"/>
+            <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
+                        class="tab-close-button"/>
             </xul:hbox>
             <xul:hbox class="tab-image-right" xbl:inherits="selected"/>
         </content>
@@ -88,6 +90,15 @@
             </method>
         </implementation>
         <handlers>
+            <handler event="mousedown" button="0" phase="capturing">
+            <![CDATA[
+                var anonid = event.originalTarget.getAttribute("anonid");
+                if (anonid == "close-button") {
+                    var panel = document.getElementById(this.linkedPanel);
+                    panel.firstChild.close();
+                }
+            ]]>
+            </handler>
             <handler event="draggesture" phase="capturing">
             <![CDATA[
                 try {
@@ -131,6 +142,100 @@
         </handlers>
     </binding>
 
+
+    <binding id="tabs-droplist" xbl:inherits="orient"
+        extends="chrome://global/content/bindings/tabbox.xml#tabs">
+        <content>
+            <xul:box xbl:inherits="orient,align,pack,dir" flex="1"
+                     align="center" pack="center">
+            <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
+            <xul:spacer flex="1"/>
+            <xul:toolbarbutton anonid="tabs-list"
+                           type="menu-button"
+                           persist="buttonstyle"
+                           buttonstyle="pictures"
+                           class="tabPicker-icon"
+                           oncommand="this.firstChild.showPopup(this, -1,-1);">
+                <xul:menupopup anonid="tabs-list-popup"
+                    onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
+            </xul:toolbarbutton>
+            <xul:toolbarbutton anonid="panel-close-button" class="panel-close-button"
+                        collapsed="true"
+                        xbl:inherits="onclick=onclose,
+                                      collapsed=closecollapsed,
+                                      disabled=closedisabled"/>
+            <xul:box anonid="left-scroll" collapsed="true" flex="0">
+                <children includes="tab"/>
+            </xul:box>
+            </xul:box>
+        </content>
+        <implementation>
+            <property name="menuListPopup" readonly="true"
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','tabs-list-popup');"/>
+
+            <method name="_createMenuItem">
+                <parameter name="tab"/>
+                <body>
+                <![CDATA[
+                try {
+                    var menuitem = document.createElement('menuitem');
+                    menuitem.setAttribute("label", tab.label);
+                    menuitem.setAttribute('type', 'checkbox');
+                    if (tab.selected) {
+                        menuitem.setAttribute('checked', 'true');
+                        // No need to switch view oncommand, this view is already current.
+                        // However we *do* need to ensure that the checkmark stays.
+                        // See http://bugs.activestate.com/show_bug.cgi?id=26423
+                        menuitem.setAttribute('oncommand',
+                                              'event.target.setAttribute("checked", "true");');
+                    } else {
+                        menuitem.setAttribute('checked', 'false');
+                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
+                    }
+                    menuitem.tab = tab;
+                    return menuitem;
+                } catch(ex) {
+                    var _log = ko.logging.getLogger("scrolltabs");
+                    _log.exception(ex, "error generating Window list "+
+                                                "menuitem for '"+tab.label+"'");
+                }
+                return null;
+                ]]>
+                </body>
+            </method>
+
+            <method name="getTabList">
+                <parameter name="dir"/>
+                <body>
+                <![CDATA[
+                var popup = this.menuListPopup;
+                while (popup.lastChild) {
+                    popup.removeChild(popup.lastChild);
+                }
+        
+                // get all the tab labels, and create the menu
+                var child;
+                for (var i = 0; i < this.childNodes.length; i++) {
+                    child = this.childNodes[i];
+                    if (child.localName == "tab" &&
+                        (!child.hasAttribute("collapsed") || child.getAttribute("collapsed") == false) &&
+                        (!child.hasAttribute("hidden") || child.getAttribute("hidden") == false)) {
+                        popup.appendChild(this._createMenuItem(this.childNodes[i]));
+                    }
+                }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="select" phase="capturing">
+            <![CDATA[
+                this.setAttribute("label", selectedItem.label);
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
     <binding id="tabs-scrollable" xbl:inherits="orient"
             extends="chrome://global/content/bindings/tabbox.xml#tabs">
         <resources>
@@ -138,7 +243,8 @@
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
         </resources>
         <content>
-            <xul:box anonid="left-scroll" xbl:inherits="collapsable" class="tabstrip-box tabs-left" flex="0">
+            <xul:box anonid="left-scroll" xbl:inherits="collapsable"
+                     align="center" pack="center" class="tabstrip-box tabs-left" flex="0">
                 <xul:button
                     disabled="true"
                     type="button-toolbar-a"
@@ -147,28 +253,37 @@
                     onmouseup="this.parentNode.parentNode.stopButtonRepeater();"
                     onmouseout="this.parentNode.parentNode.stopButtonRepeater();"/>
             </xul:box>
-            <xul:scrollbox xbl:inherits="orient,align,pack,dir"
+            <xul:scrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
                 class="tabstrip-box" flex="1">
                 <children includes="tab"/>
             </xul:scrollbox>
-            <xul:box xbl:inherits="orient,align,pack,dir" align="center" pack="center"
-                     class="tabstrip-box" style="min-width: 4px; padding: 1px;">
-                <children/>
-                <xul:box anonid="right-scroll" xbl:inherits="collapsable" class="tabstrip-box tabs-right" flex="1">
+            <xul:box anonid="right-scroll" xbl:inherits="collapsable" flex="0"
+                     align="center" pack="center" class="tabstrip-box tabs-right">
                 <xul:button
                     disabled="true"
                     type="button-toolbar-a"
                     class="scroll-arrow-right-icon"
-                    onmousedown="this.parentNode.parentNode.parentNode.startButtonRepeater(1);"
-                    onmouseup="this.parentNode.parentNode.parentNode.stopButtonRepeater();"
-                    onmouseout="this.parentNode.parentNode.parentNode.stopButtonRepeater();"/>
-                </xul:box>
-                <xul:button anonid="closeBtn"
-                            type="button-toolbar-a"
-                            class="scroll-x-icon"
+                    onmousedown="this.parentNode.parentNode.startButtonRepeater(1);"
+                    onmouseup="this.parentNode.parentNode.stopButtonRepeater();"
+                    onmouseout="this.parentNode.parentNode.stopButtonRepeater();"/>
+            </xul:box>
+            <xul:box xbl:inherits="orient,align,pack,dir" flex="0"
+                     align="center" pack="center" class="tabstrip-box">
+                <children/>
+                <xul:toolbarbutton anonid="tabs-list"
+                               type="menu-button"
+                               persist="buttonstyle"
+                               buttonstyle="pictures"
+                               class="tabPicker-icon"
+                               oncommand="this.firstChild.showPopup(this, -1,-1);">
+                    <xul:menupopup anonid="tabs-list-popup"
+                        onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
+                </xul:toolbarbutton>
+                <xul:toolbarbutton anonid="panel-close-button" class="panel-close-button"
                             collapsed="true"
-                            xbl:inherits="onclick=onclose, collapsed=closecollapsed,
-                                          disabled=closedisabled, class=closeclass"/>
+                            xbl:inherits="onclick=onclose,
+                                          collapsed=closecollapsed,
+                                          disabled=closedisabled"/>
             </xul:box>
         </content>
 
@@ -186,6 +301,8 @@
                 onget="return document.getAnonymousElementByAttribute(this,'anonid','left-scroll');"/>
             <property name="rightScrollButtonBox" readonly="true"
                 onget="return document.getAnonymousElementByAttribute(this,'anonid','right-scroll');"/>
+            <property name="menuListPopup" readonly="true"
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','tabs-list-popup');"/>
 
             <constructor>
                 <![CDATA[
@@ -193,6 +310,61 @@
                 this.rightScrollButtonBox.setAttribute('collapsed', 'true');
                 ]]>
             </constructor>
+
+            <method name="_createMenuItem">
+                <parameter name="tab"/>
+                <body>
+                <![CDATA[
+                try {
+                    var menuitem = document.createElement('menuitem');
+                    menuitem.setAttribute("label", tab.label);
+                    menuitem.setAttribute('type', 'checkbox');
+                    if (tab.selected) {
+                        menuitem.setAttribute('checked', 'true');
+                        // No need to switch view oncommand, this view is already current.
+                        // However we *do* need to ensure that the checkmark stays.
+                        // See http://bugs.activestate.com/show_bug.cgi?id=26423
+                        menuitem.setAttribute('oncommand',
+                                              'event.target.setAttribute("checked", "true");');
+                    } else {
+                        menuitem.setAttribute('checked', 'false');
+                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
+                    }
+                    menuitem.tab = tab;
+                    return menuitem;
+                } catch(ex) {
+                    var _log = ko.logging.getLogger("scrolltabs");
+                    _log.exception(ex, "error generating Window list "+
+                                                "menuitem for '"+tab.label+"'");
+                }
+                return null;
+                ]]>
+                </body>
+            </method>
+
+
+            <method name="getTabList">
+                <parameter name="dir"/>
+                <body>
+                <![CDATA[
+                var popup = this.menuListPopup;
+                while (popup.lastChild) {
+                    popup.removeChild(popup.lastChild);
+                }
+        
+                // get all the tab labels, and create the menu
+                var child;
+                for (var i = 0; i < this.childNodes.length; i++) {
+                    child = this.childNodes[i];
+                    if (child.localName == "tab" &&
+                        (!child.hasAttribute("collapsed") || child.getAttribute("collapsed") == false) &&
+                        (!child.hasAttribute("hidden") || child.getAttribute("hidden") == false)) {
+                        popup.appendChild(this._createMenuItem(this.childNodes[i]));
+                    }
+                }
+                ]]>
+                </body>
+            </method>
 
             <method name="advanceSelectedTab">
                 <parameter name="aDir"/>

@@ -74,7 +74,11 @@ toolbarbutton {
 .toolbarbutton-icon {
     -moz-margin-end: 0px;
 }
-    
+
+.toolbar-box {
+    margin: 0px 2px;
+}
+
 #buttonBrowserPreview
 {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");

@@ -41,6 +41,10 @@ partviewer {
   -moz-binding: url('chrome://komodo/content/bindings/partviewer.xml#partviewer');
 }
 
+.partviewer-toolbar-box {
+    margin: 0px 2px;
+}
+
 .addToolboxItemButton
 {
   list-style-image : url("chrome://komodo/skin/images/new_toolboxitem_icon.png");

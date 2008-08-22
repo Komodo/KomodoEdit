@@ -49,7 +49,7 @@
     <binding id="partviewer" extends="xul:hbox">
         <content>
             <xul:vbox flex="1" style="margin: 0px; padding: 0px;">
-                <xul:hbox align="center" style="margin: 0px 2px;">
+                <xul:hbox align="center" class="partviewer-toolbar">
                     <children includes="toolbarbutton"/>
                     <xul:toolbarseparator style="min-width:10px;" flex="1"/>
                     <xul:image id="partviewer-filter-icon"
@@ -73,8 +73,8 @@
                     xbl:inherits="hidecolumnpicker">
                     <xul:treecols>
                         <xul:treecol primary="true" id="name" flex="1"
-                            crop="center" label="&name.label;"
-                            xbl:inherits="label=treecollabel"
+                            crop="center"
+                            xbl:inherits="label=treecollabel, hideheader"
                             class="treecol-header treecol-inset-header sortDirectionIndicator"
                             persist="width"/>
                     </xul:treecols>
