@@ -1,6 +1,0 @@
-#expand <!ENTITY  lang.version          __MOZILLA_LOCALE_VERSION__>
-<!ENTITY  brandShortName        "Komodo">
-<!ENTITY  brandFullName         "Komodo">            
-<!ENTITY  vendorShortName       "ActiveState">
-#expand <!ENTITY  version               "__APP_VERSION__">
-<!ENTITY  releaseURL            "http://www.ActiveState.com/Komodo">
