@@ -52,10 +52,10 @@ Import(
     'sdkDir',
 );
 
-$cons->Preprocess('koIProject.unprocessed.idl', 'koIProject.idl');
+$cons->Preprocess('koIProject.p.idl', 'koIProject.idl');
 $cons->Install($idlExportDir, 'koIProject.idl');
 $cons->BuildAndInstallXpt('koIProject.idl');
-$cons->Preprocess('koProject.unprocessed.py', 'koProject.py');
+$cons->Preprocess('koProject.p.py', 'koProject.py');
 $cons->InstallXpcomComponent('koProject.py');
 $cons->InstallXpcomComponent('koProjectPackageService.py');
 $cons->InstallXpcomComponent('koProjectImportService.py');
@@ -65,5 +65,5 @@ $cons->InstallPythonUtility('projectUtils.py');
 
 $cons->Install($idlExportDir, 'koIKPFTreeView.idl');
 $cons->BuildAndInstallXpt('koIKPFTreeView.idl');
-$cons->Preprocess('koKPFTreeView.unprocessed.py', 'koKPFTreeView.py');
+$cons->Preprocess('koKPFTreeView.p.py', 'koKPFTreeView.py');
 $cons->InstallXpcomComponent('koKPFTreeView.py');

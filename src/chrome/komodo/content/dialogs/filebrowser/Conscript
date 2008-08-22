@@ -48,8 +48,8 @@ Import(
 );
 
 $cons->InstallInChrome('filebrowser.xul');
-$cons->Preprocess("filebrowser.unprocessed.js", "filebrowser.js");
+$cons->Preprocess("filebrowser.p.js", "filebrowser.js");
 $cons->InstallInChrome('filebrowser.js');
-$cons->Preprocess("filebrowseview.unprocessed.js", "filebrowseview.js");
+$cons->Preprocess("filebrowseview.p.js", "filebrowseview.js");
 $cons->InstallInChrome('filebrowseview.js');
 

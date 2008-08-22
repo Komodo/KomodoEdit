@@ -55,36 +55,36 @@ Import(
 );
 
 $cons->InstallPythonUtility('styles.py');
-$cons->Preprocess('factoryStyleSettings.unprocessed.py',
+$cons->Preprocess('factoryStyleSettings.p.py',
                   'factoryStyleSettings.py');
 $cons->InstallPythonUtility('factoryStyleSettings.py');
 $cons->InstallPythonUtility('userStyleSettings.py');
 $cons->Install($idlExportDir, 'koIScintillaSchemeService.idl');
 $cons->BuildAndInstallXpt('koIScintillaSchemeService.idl');
-$cons->Preprocess('koScintillaSchemeService.unprocessed.py',
+$cons->Preprocess('koScintillaSchemeService.p.py',
                   'koScintillaSchemeService.py');
 $cons->InstallXpcomComponent('koScintillaSchemeService.py');
-$cons->Preprocess('Default.unprocessed.ksf', 'Default.ksf');
+$cons->Preprocess('Default.p.ksf', 'Default.ksf');
 $cons->Install("$supportDir/schemes", 'Default.ksf');
-$cons->Preprocess('Dark.unprocessed.ksf', 'Dark.ksf');
+$cons->Preprocess('Dark.p.ksf', 'Dark.ksf');
 $cons->Install("$supportDir/schemes", 'Dark.ksf');
-$cons->Preprocess('Medium.unprocessed.ksf', 'Medium.ksf');
+$cons->Preprocess('Medium.p.ksf', 'Medium.ksf');
 $cons->Install("$supportDir/schemes", 'Medium.ksf');
-$cons->Preprocess('Bright.unprocessed.ksf', 'Bright.ksf');
+$cons->Preprocess('Bright.p.ksf', 'Bright.ksf');
 $cons->Install("$supportDir/schemes", 'Bright.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
 if ($platform eq "darwin") {
-    $cons->Preprocess('Default.unprocessed.kkf', 'Windows.kkf');
+    $cons->Preprocess('Default.p.kkf', 'Windows.kkf');
     $cons->Install("$supportDir/schemes", 'Windows.kkf');
-    $cons->Preprocess('Mac.unprocessed.kkf', 'Default.kkf');
+    $cons->Preprocess('Mac.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
 } else {
-    $cons->Preprocess('Default.unprocessed.kkf', 'Default.kkf');
+    $cons->Preprocess('Default.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
 }
-$cons->Preprocess('Emacs.unprocessed.kkf', 'Emacs.kkf');
+$cons->Preprocess('Emacs.p.kkf', 'Emacs.kkf');
 $cons->Install("$supportDir/schemes", 'Emacs.kkf');
 
 $cons->BuildAndInstallXpt('koIViCommandDetail.idl');

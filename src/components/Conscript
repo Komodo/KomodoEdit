@@ -79,7 +79,7 @@ $cons->Preprocess('asCommandLineHandler.p.js',
 $cons->InstallXpcomComponent('asCommandLineHandler.js');
 
 # koIInitServive
-$cons->Preprocess('koInitService.unprocessed.py',
+$cons->Preprocess('koInitService.p.py',
                   'koInitService.py');
 $cons->InstallXpcomComponent('koInitService.py');
 $cons->Install($idlExportDir, 'koIInitService.idl');
@@ -91,7 +91,7 @@ $cons->Install($idlExportDir, 'koIFinalizeService.idl');
 $cons->BuildAndInstallXpt('koIFinalizeService.idl');
 
 # koIDirs
-$cons->Preprocess('koDirs.unprocessed.py',
+$cons->Preprocess('koDirs.p.py',
                   'koDirs.py',
                   {"PP_KO_APPDATADIR_NAME" => $komodoAppDataDirName,
                    "PP_KO_VER" => $komodoShortVersion});
@@ -151,7 +151,7 @@ $cons->Install($idlExportDir, 'koIEncoding.idl');
 $cons->BuildAndInstallXpt('koIEncoding.idl');
 
 # koIEncodingServices
-$cons->Preprocess('koEncodingServices.unprocessed.py',
+$cons->Preprocess('koEncodingServices.p.py',
                   'koEncodingServices.py');
 $cons->InstallXpcomComponent('koEncodingServices.py');
 $cons->Install($idlExportDir, 'koIEncodingServices.idl');
@@ -167,7 +167,7 @@ $cons->InstallXpcomComponent('koRemoteFileInfo.py');
 $cons->Install($idlExportDir, 'koIRemoteFileInfo.idl');
 $cons->BuildAndInstallXpt('koIRemoteFileInfo.idl');
 # Library for remote files
-$cons->Preprocess('remotefilelib.unprocessed.py',
+$cons->Preprocess('remotefilelib.p.py',
                   'remotefilelib.py');
 $cons->InstallPythonUtility('remotefilelib.py');
 # Ftp handling
@@ -214,7 +214,7 @@ $cons->Install($idlExportDir, 'koILastErrorService.idl');
 $cons->BuildAndInstallXpt('koILastErrorService.idl');
 
 # koIFileStatusService
-$cons->Preprocess('koFileStatusService.unprocessed.py',
+$cons->Preprocess('koFileStatusService.p.py',
                   'koFileStatusService.py');
 $cons->InstallXpcomComponent('koFileStatusService.py');
 $cons->Install($idlExportDir, 'koIFileStatusService.idl');
@@ -226,7 +226,7 @@ $cons->BuildAndInstallXpt('koIProgress.idl');
 
 # koIWindowsIntegration - Windows system file associations, etc.
 if ($platform eq "win") {
-    $cons->Preprocess('koWindowsIntegration.unprocessed.py',
+    $cons->Preprocess('koWindowsIntegration.p.py',
                       'koWindowsIntegration.py');
     $cons->InstallXpcomComponent('koWindowsIntegration.py');
     $cons->Install($idlExportDir, 'koIWindowsIntegration.idl');
@@ -245,7 +245,7 @@ $cons->BuildAndInstallXpt('koITextUtils.idl');
 
 # koIFeatureStatusService - a service to determine the functional status
 #   of major features within Komodo.
-$cons->Preprocess('koFeatureStatusService.unprocessed.py',
+$cons->Preprocess('koFeatureStatusService.p.py',
                   'koFeatureStatusService.py');
 $cons->InstallXpcomComponent('koFeatureStatusService.py');
 $cons->Install($idlExportDir, 'koIFeatureStatusService.idl');

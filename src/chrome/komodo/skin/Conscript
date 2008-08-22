@@ -53,7 +53,7 @@ Import(
 
 $cons->Preprocess('komodo.p.css', 'komodo.css');
 $cons->InstallInChrome('komodo.css');
-$cons->Preprocess('toolbar.unprocessed.css', 'toolbar.css');
+$cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
 $cons->InstallInChrome('browser.css');
 $cons->InstallInChrome('codeintel.css');

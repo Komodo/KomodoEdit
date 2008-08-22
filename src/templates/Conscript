@@ -58,7 +58,7 @@ Import(
     'sdkDir',
 );
 
-$cons->Preprocess('koTemplateService.unprocessed.py', 'koTemplateService.py');
+$cons->Preprocess('koTemplateService.p.py', 'koTemplateService.py');
 $cons->InstallXpcomComponent('koTemplateService.py');
 $cons->Install($idlExportDir, 'koITemplateService.idl');
 $cons->BuildAndInstallXpt('koITemplateService.idl');

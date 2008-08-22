@@ -54,9 +54,9 @@ Import(
 
 $cons->Install($idlExportDir, 'koIRunService.idl');
 $cons->BuildAndInstallXpt('koIRunService.idl');
-$cons->Preprocess('koRunService.unprocessed.py', 'koRunService.py');
+$cons->Preprocess('koRunService.p.py', 'koRunService.py');
 $cons->InstallXpcomComponent('koRunService.py');
-$cons->Preprocess('koRunTerminal.unprocessed.py', 'koRunTerminal.py');
+$cons->Preprocess('koRunTerminal.p.py', 'koRunTerminal.py');
 $cons->InstallXpcomComponent('koRunTerminal.py');
 $cons->InstallPythonUtility('runutils.py');
 

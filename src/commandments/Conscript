@@ -73,7 +73,7 @@ $cons->BuildAndInstallXpt('koICommandmentService.idl');
 #    don't install it for now.
 #my $kmm = $version;
 #$kmm =~ s/^(\d+\.\d+).*$/$1/;
-#$cons->Preprocess('kocommandments.unprocessed.py', 'kocommandments.py',
+#$cons->Preprocess('kocommandments.p.py', 'kocommandments.py',
 #                  {'KOMODO_MAJOR_MINOR' => $kmm});
 #$cons->InstallPythonUtility('kocommandments.py');
 

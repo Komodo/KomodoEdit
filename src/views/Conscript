@@ -54,7 +54,7 @@ Import(
     'sdkDir',
 );
 
-$cons->Preprocess('URIlib.unprocessed.py', 'URIlib.py');
+$cons->Preprocess('URIlib.p.py', 'URIlib.py');
 $cons->InstallPythonUtility('URIlib.py');
 
 $cons->Install($idlExportDir, 'koIFileEx.idl');

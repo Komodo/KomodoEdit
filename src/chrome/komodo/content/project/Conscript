@@ -51,7 +51,7 @@ Import(
     'buildFlavour',
 );
 
-$cons->Preprocess('projectManager.unprocessed.js', 'projectManager.js');
+$cons->Preprocess('projectManager.p.js', 'projectManager.js');
 $cons->InstallInChrome('projectManager.js');
 
 $cons->InstallInChrome('partutils.js');
@@ -66,9 +66,9 @@ $cons->InstallInChrome('toolboxManager.js');
 $cons->InstallInChrome('renamePart.xul');
 $cons->InstallInChrome('macroProperties.xul');
 $cons->InstallInChrome('macroProperties.js');
-$cons->Preprocess('fileProperties.unprocessed.xul', 'fileProperties.xul');
+$cons->Preprocess('fileProperties.p.xul', 'fileProperties.xul');
 $cons->InstallInChrome('fileProperties.xul');
-$cons->Preprocess('fileProperties.unprocessed.js', 'fileProperties.js');
+$cons->Preprocess('fileProperties.p.js', 'fileProperties.js');
 $cons->InstallInChrome('fileProperties.js');
 $cons->InstallInChrome('snippetProperties.js');
 $cons->InstallInChrome('snippetProperties.xul');
@@ -77,7 +77,7 @@ $cons->InstallInChrome('simplePartProperties.js');
 $cons->InstallInChrome('customMenuProperties.xul');
 $cons->InstallInChrome('customMenuProperties.js');
 
-$cons->Preprocess('peFile.unprocessed.js', 'peFile.js');
+$cons->Preprocess('peFile.p.js', 'peFile.js');
 $cons->InstallInChrome('peFile.js');
 $cons->InstallInChrome('peFolder.js');
 $cons->InstallInChrome('peSnippet.js');

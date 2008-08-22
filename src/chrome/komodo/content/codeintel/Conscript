@@ -45,7 +45,7 @@ Import(
     "mozVersion",
 );
 
-$cons->Preprocess("codeintel.unprocessed.js", "codeintel.js");
+$cons->Preprocess("codeintel.p.js", "codeintel.js");
 $cons->InstallInChrome("codeintel.js");
 $cons->InstallInChrome("ciDefinitionChoice.js");
 $cons->InstallInChrome("ciDefinitionChoice.xul");

@@ -46,6 +46,6 @@ Import(
     'productType',
 );
 
-$cons->Preprocess('startpage.unprocessed.xml', 'startpage.xml');
+$cons->Preprocess('startpage.p.xml', 'startpage.xml');
 $cons->InstallInChrome('startpage.xml');
 

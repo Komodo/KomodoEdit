@@ -54,7 +54,7 @@ Import(
 
 $cons->Preprocess('keybindings.p.xml', 'keybindings.xml');
 $cons->InstallInChrome('keybindings.xml');
-$cons->Preprocess('keybindings.unprocessed.js', 'keybindings.js');
+$cons->Preprocess('keybindings.p.js', 'keybindings.js');
 $cons->InstallInChrome('keybindings.js');
 $cons->InstallInChrome('vi-commands-overlay.xul');
 $cons->InstallInChrome('viKeyBinder.js');

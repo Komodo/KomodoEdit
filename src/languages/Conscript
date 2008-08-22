@@ -57,7 +57,7 @@ Import(
 
 $cons->Install($idlExportDir, 'koILanguage.idl');
 $cons->BuildAndInstallXpt('koILanguage.idl');
-$cons->Preprocess('koPythonLanguage.unprocessed.py', 'koPythonLanguage.py');
+$cons->Preprocess('koPythonLanguage.p.py', 'koPythonLanguage.py');
 $cons->InstallXpcomComponent('koPythonLanguage.py');
 $cons->InstallXpcomComponent('koLanguage.py');
 $cons->InstallPythonUtility('koLanguageServiceBase.py');

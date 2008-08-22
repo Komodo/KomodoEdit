@@ -47,7 +47,7 @@ Import(
     'mozVersion',
 );
 
-$cons->Preprocess('new.unprocessed.js', 'new.js');
+$cons->Preprocess('new.p.js', 'new.js');
 $cons->InstallInChrome('new.js');
 $cons->InstallInChrome('new.xul');
 

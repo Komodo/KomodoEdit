@@ -76,7 +76,7 @@ $cons->InstallPythonUtility('koprocessutils.py');
 $cons->InstallPythonUtility('which.py');
 $cons->InstallPythonUtility('timeline.py');
 $cons->InstallPythonUtility('timeline_hook.py');
-$cons->Preprocess('koTreeView.unprocessed.py', 'koTreeView.py');
+$cons->Preprocess('koTreeView.p.py', 'koTreeView.py');
 $cons->InstallPythonUtility('koTreeView.py');
 $cons->InstallPythonUtility('pyxpcomProfiler.py');
 $cons->InstallPythonUtility('reflow.py');

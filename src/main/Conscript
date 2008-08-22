@@ -173,14 +173,14 @@ if (!$xulrunner) {
         ["cp+share",         'app/my_getopt.c', undef],
         ["preprocess+share", 'app/nsKomodoApp.p.cpp', 'app/nsKomodoApp.cpp'],
         ["cp+share",         'app/koStart.h', undef],
-        ["preprocess+share", 'app/koStart.unprocessed.c', 'app/koStart.c'],
+        ["preprocess+share", 'app/koStart.p.c', 'app/koStart.c'],
         ["preprocess+share", 'app/komodo.exe.p.manifest', 'app/komodo.exe.manifest'],
         #XXX Might need a ko.exe.manifest as well.
     
-        ["preprocess",       'app/module.unprocessed.ver','app/module.ver'],
-        ["preprocess",       'app/splash.unprocessed.rc', 'app/splash.rc'],
+        ["preprocess",       'app/module.p.ver','app/module.ver'],
+        ["preprocess",       'app/splash.p.rc', 'app/splash.rc'],
     
-        ["preprocess",       'app/macbuild/Contents/Info.unprocessed.plist.in',
+        ["preprocess",       'app/macbuild/Contents/Info.p.plist.in',
                              'app/macbuild/Contents/Info.plist.in'],
         ["preprocess",       'app/profile/komodo.p.js', 'app/profile/komodo.js'],
     
@@ -264,7 +264,7 @@ if (!$xulrunner) {
             'PP_KO_VERSION' => "$komodoVersion-$buildNum",
             'PP_KO_COMMASEP_VERSION' => $FILEVERSION, # must all be numeric
         );
-        $cons->Preprocess("stub/komodo.unprocessed.rc", "stub/komodo.rc",
+        $cons->Preprocess("stub/komodo.p.rc", "stub/komodo.rc",
                           \%rcData);
     
         $cons->InstallAs("xre/app/komodo.ico",
@@ -351,7 +351,7 @@ if (!$xulrunner) {
     $cons->Install($mozResourcesDir, "komodo.js");
 
     if ($platform eq "darwin") {
-        $cons->Preprocess("xre/app/macbuild/Contents/Info.unprocessed.plist.in", "Info.plist", \%ppData);
+        $cons->Preprocess("xre/app/macbuild/Contents/Info.p.plist.in", "Info.plist", \%ppData);
         $cons->Install("$mozApp/Contents", "Info.plist");
         
         $frameworkDir = "$mozDevelDist/XUL.framework";

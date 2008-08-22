@@ -48,7 +48,7 @@ Import(
     'mozVersion',
 );
 
-$cons->Preprocess('scrolltabs.unprocessed.css', 'scrolltabs.css');
+$cons->Preprocess('scrolltabs.p.css', 'scrolltabs.css');
 $cons->InstallInChrome('scrolltabs.css');
 $cons->Preprocess('sidebar.p.css', 'sidebar.css');
 $cons->InstallInChrome('sidebar.css');
@@ -59,6 +59,6 @@ $cons->InstallInChrome('scintilla.css');
 $cons->InstallInChrome('widgets.css');
 $cons->InstallInChrome('prefwidgets.css');
 $cons->InstallInChrome('views.css');
-$cons->Preprocess('partviewer.unprocessed.css', 'partviewer.css');
+$cons->Preprocess('partviewer.p.css', 'partviewer.css');
 $cons->InstallInChrome('partviewer.css');
 $cons->InstallInChrome('keybinding.css');

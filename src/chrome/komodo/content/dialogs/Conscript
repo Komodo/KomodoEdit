@@ -63,7 +63,7 @@ $cons->InstallInChrome('selectFromList.js');
 $cons->InstallInChrome('selectFromList.xul');
 $cons->InstallInChrome('customButtons.js');
 $cons->InstallInChrome('customButtons.xul');
-$cons->Preprocess('editEnvVar.unprocessed.js', 'editEnvVar.js');
+$cons->Preprocess('editEnvVar.p.js', 'editEnvVar.js');
 $cons->InstallInChrome('editEnvVar.js');
 $cons->InstallInChrome('editEnvVar.xul');
 $cons->Preprocess('editPathMap.p.xul', 'editPathMap.xul');
@@ -79,12 +79,12 @@ $cons->InstallInChrome('compare.js');
 $cons->InstallInChrome('compare.xul');
 
 $cons->InstallInChrome('diff.js');
-$cons->Preprocess('diff.unprocessed.xul', 'diff.xul');
+$cons->Preprocess('diff.p.xul', 'diff.xul');
 $cons->InstallInChrome('diff.xul');
 
-$cons->Preprocess("featureControlPanel.unprocessed.js", "featureControlPanel.js");
+$cons->Preprocess("featureControlPanel.p.js", "featureControlPanel.js");
 $cons->InstallInChrome('featureControlPanel.js');
-$cons->Preprocess("featureControlPanel.unprocessed.xul", "featureControlPanel.xul");
+$cons->Preprocess("featureControlPanel.p.xul", "featureControlPanel.xul");
 $cons->InstallInChrome('featureControlPanel.xul');
 
 $cons->InstallInChrome('progress.js');

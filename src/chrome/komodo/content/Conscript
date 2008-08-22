@@ -54,7 +54,7 @@ Import(
 $cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
                   {'WITH_JARRING' => $jarring}, 1);
 
-$cons->Preprocess('commandsOverlay.unprocessed.xul', 'commandsOverlay.xul');
+$cons->Preprocess('commandsOverlay.p.xul', 'commandsOverlay.xul');
 $cons->InstallInChrome('commandsOverlay.xul');
 $cons->Preprocess('komodo.p.xul', 'komodo.xul',
                   {'PP_KO_TITLE_BAR_NAME' => "$komodoTitleBarName"});
@@ -62,11 +62,11 @@ $cons->InstallInChrome('komodo.xul');
 $cons->Preprocess('komodo.p.js', 'komodo.js');
 $cons->InstallInChrome('komodo.js');
 $cons->InstallInChrome('browse.js');
-$cons->Preprocess('launch.unprocessed.js', 'launch.js');
+$cons->Preprocess('launch.p.js', 'launch.js');
 $cons->InstallInChrome('launch.js');
-$cons->Preprocess('views.unprocessed.js', 'views.js');
+$cons->Preprocess('views.p.js', 'views.js');
 $cons->InstallInChrome('views.js');
-$cons->Preprocess('statusbar.unprocessed.js', 'statusbar.js');
+$cons->Preprocess('statusbar.p.js', 'statusbar.js');
 $cons->InstallInChrome('statusbar.js');
 $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('markers.js');
@@ -74,7 +74,7 @@ $cons->InstallInChrome('markers.js');
 
 $cons->InstallInChrome("about.xul");
 $cons->InstallInChrome("about.js");
-$cons->Preprocess('testkeys.unprocessed.xul', 'testkeys.xul');
+$cons->Preprocess('testkeys.p.xul', 'testkeys.xul');
 $cons->InstallInChrome("testkeys.xul");
 $cons->Preprocess('testkeys.p.js', 'testkeys.js');
 $cons->InstallInChrome("testkeys.js");
