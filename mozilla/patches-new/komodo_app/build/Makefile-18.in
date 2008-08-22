@@ -164,12 +164,12 @@ endif
 ifdef DEBUG
 RCFLAGS += -DDEBUG
 endif
-RCFLAGS += -DFIREFOX_ICO=\"$(DIST)/branding/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
+RCFLAGS += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\"
 endif
 
 include $(topsrcdir)/config/rules.mk
 
-DEFINES += -DFIREFOX_ICO=\"$(DIST)/branding/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
+DEFINES += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\"
 
 ifdef BUILD_STATIC_LIBS
 include $(topsrcdir)/config/static-rules.mk
@@ -248,7 +248,6 @@ ICON_FILES	= \
 		$(DIST)/branding/mozicon128.png \
 		$(DIST)/branding/mozicon50.xpm \
 		$(DIST)/branding/mozicon16.xpm \
-		$(DIST)/branding/document.png \
 		$(NULL)
 
 libs:: $(ICON_FILES)
@@ -272,29 +271,17 @@ ifndef MOZ_BRANDING_DIRECTORY
 ifeq ($(OS_ARCH),WINNT)
 	cp $(srcdir)/komodo.ico   $(DIST)/branding/komodo.ico
 	cp $(srcdir)/komodo.ico   $(DIST)/branding/app.ico
-	cp $(srcdir)/document.ico  $(DIST)/branding/document.ico
 endif
 ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/macbuild/komodo.icns  $(DIST)/branding/komodo.icns
-	cp $(srcdir)/macbuild/document.icns  $(DIST)/branding/document.icns
-	cp $(srcdir)/macbuild/dsstore $(DIST)/branding/dsstore
-	cp $(srcdir)/macbuild/background.png $(DIST)/branding/background.png
-	cp $(srcdir)/macbuild/disk.icns $(DIST)/branding/disk.icns
-	cp $(srcdir)/macbuild/license.r $(DIST)/branding/license.r
 endif
 ifneq (,$(filter gtk gtk2,$(MOZ_WIDGET_TOOLKIT)))
 	cp $(srcdir)/mozicon128.png $(DIST)/branding/mozicon128.png
 	cp $(srcdir)/mozicon16.xpm $(DIST)/branding/mozicon16.xpm
 	cp $(srcdir)/mozicon50.xpm $(DIST)/branding/mozicon50.xpm
-	cp $(srcdir)/document.png $(DIST)/branding/document.png
 endif
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 	cp $(srcdir)/default.xpm   $(DIST)/branding/default.xpm	
-endif
-ifeq ($(OS_ARCH),OS2)
-	cp $(srcdir)/komodo-os2.ico   $(DIST)/branding/komodo.ico
-	cp $(srcdir)/komodo-os2.ico   $(DIST)/branding/app.ico
-	cp $(srcdir)/document-os2.ico  $(DIST)/branding/document.ico
 endif
 endif
 
@@ -332,7 +319,6 @@ libs repackage:: $(PROGRAM)
 	rsync -a --copy-unsafe-links $(DIST)/package/PrintPDE.plugin $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
 	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(APP_NAME).app/Contents/MacOS
 	cp -RL $(DIST)/branding/komodo.icns $(DIST)/$(APP_NAME).app/Contents/Resources/komodo.icns
-	cp -RL $(DIST)/branding/document.icns $(DIST)/$(APP_NAME).app/Contents/Resources/document.icns
 	cp -RL $(DIST)/package/mozillaSuite.rsrc $(DIST)/$(APP_NAME).app/Contents/Resources/$(PROGRAM).rsrc
 	echo -n APPLKOMO > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
 #       remove CVS dirs from packaged app
