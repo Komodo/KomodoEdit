@@ -2089,8 +2089,8 @@
                 <tabbox orient="vertical"
                         flex="1"
                         id="leftTabBox"
-                        class="whiteout">
-                    <tabs type="scrollable" collapsable="true"
+                        class="sidepanel">
+                    <tabs type="sidebar" collapsable="true"
                           id="project_toolbox_tabs" orient="horizontal"
                           class="tabs-inset"
                           splitterId="workspace_left_splitter"
@@ -2172,8 +2172,7 @@
                       collapse="none"
                       collapsed="true"
                       splitterCmdId="cmd_viewLeftPane"
-                      persist="collapsed"
-                      style="margin: 0px; padding: 0px; border: none;"/>
+                      persist="collapsed"/>
             <vbox id="editorviewbox" flex="1" class="blank-workspace">
                 <view id="topview"
                       type="multiview"
@@ -2191,8 +2190,7 @@
                       collapse="none"
                       collapsed="true"
                       splitterCmdId="cmd_viewRightPane"
-                      persist="collapsed"
-                      style="margin: 0px; padding: 0px; border: none;"/>
+                      persist="collapsed"/>
             <vbox id="right_toolbox_area"
                 width="200"
                 collapsed="true"
@@ -2200,8 +2198,8 @@
                 <tabbox orient="vertical"
                         flex="1"
                         id="rightTabBox"
-                        class="whiteout">
-                    <tabs type="scrollable" collapsable="true"
+                        class="sidepanel">
+                    <tabs type="sidebar" collapsable="true"
                           class="tabs-inset"
                           id="right_toolbox_tabs" orient="horizontal"
                           splitterId="workspace_right_splitter"
@@ -2267,8 +2265,7 @@
                   class="divot_splitter"
                   persist="collapsed"
                   collapsed="true"
-                  orient="vertical"
-                  style="margin: 0px; padding: 0px; border: none;"/>
+                  orient="vertical"/>
 
         <!-- Output Area -->
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
