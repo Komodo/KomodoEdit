@@ -51,7 +51,6 @@ Import(
     'mozMinorVersion',
 );
 
-$cons->Preprocess('komodo.p.css', 'komodo.css');
 $cons->InstallInChrome('komodo.css');
 $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
