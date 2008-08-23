@@ -2124,7 +2124,8 @@
                                     tabid="project_tab"
                                     flex="1"
                                     menuobserves="broadcaster_projectCurrent"
-                                    treecollabel="Name"
+                                    hidecolumnpicker="true"
+                                    hideheader="true"
                                     candrag="true"
                                     candrop="true">
                                     <toolbarbutton
