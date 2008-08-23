@@ -1,4 +1,12 @@
 
+tabpanels,
+tabpanel
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+}
 
 /*
  * Problem with toolbar buttons showing the checked state on linux.

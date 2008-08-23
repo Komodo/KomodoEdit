@@ -18,7 +18,7 @@ tab[type="file-tab"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
 }
 
-.panel-close-button,
+.tabs-closebutton,
 .tab-close-button[selected="true"] {
   list-style-image: url("chrome://global/skin/icons/closetab.png");
   -moz-appearance: none;
@@ -29,12 +29,12 @@ tab[type="file-tab"]
   cursor: default;
 }
 
-.panel-close-button:hover,
+.tabs-closebutton:hover,
 .tab-close-button[selected="true"]:hover {
   list-style-image: url("chrome://global/skin/icons/closetab-hover.png");
 }
 
-.panel-close-button:hover:active,
+.tabs-closebutton:hover:active,
 .tab-close-button[selected="true"]:hover:active {
   list-style-image: url("chrome://global/skin/icons/closetab-active.png");
 }
