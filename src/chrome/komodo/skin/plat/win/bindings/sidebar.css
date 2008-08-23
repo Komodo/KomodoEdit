@@ -1,5 +1,54 @@
 
+
 tabs[type="sidebar"]
 {
-  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');
+  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
+    padding: 0px;
+    margin: 0px;
+    -moz-appearance: none;
+    border: none;
+}
+
+tabbox.sidepanel
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+}
+
+tabbox.sidepanel > tabs,
+tabbox.sidepanel > tabpanels,
+tabbox.sidepanel > tabpanels > tabpanel,
+tabbox.sidepanel > tabpanels > tabpanel > vbox,
+tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+}
+
+tabbox.sidepanel .toolbar-box,
+tabbox.sidepanel .partviewer-toolbar {
+  margin-bottom: 6px;
+}
+
+tabbox.sidepanel partviewer,
+tabbox.sidepanel tree
+{
+  border: None;
+  padding: 0px;
+  margin: 0px;
+  border:none;
+}
+
+tabbox.sidepanel tree treechildren,
+tabbox.sidepanel tree treechildren::-moz-tree-row,
+tabbox.sidepanel partviewer treechildren,
+tabbox.sidepanel partviewer treechildren::-moz-tree-row {
+  padding-bottom: 1px;
+  -moz-appearance: none;
+  margin: 0;
+  border: none;
 }

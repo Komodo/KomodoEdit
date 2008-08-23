@@ -1,3 +1,11 @@
+tabpanels,
+tabpanel
+{
+  -moz-appearance: none;
+  border: None;
+  padding: 0px;
+  margin: 0px;
+}
 
 /* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
  * 
