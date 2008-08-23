@@ -1,0 +1,162 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+partviewer {
+  -moz-user-focus: normal;
+  -moz-binding: url('chrome://komodo/content/bindings/partviewer.xml#partviewer');
+}
+
+.partviewer-toolbar-box {
+    margin: 0px 2px;
+}
+
+.addToolboxItemButton
+{
+  list-style-image : url("chrome://komodo/skin/images/new_toolboxitem_icon.png");
+}
+
+.addToolboxItemButton:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/new_toolboxitem_hover.png");
+}
+
+.addToolboxItemButton[disabled="true"],
+.addToolboxItemButton[disabled="true"]:hover,
+.addToolboxItemButton[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/new_toolboxitem_disabled.png");
+}
+
+
+.projectTree:-moz-tree-image(primaryColumn) {
+  /* XXX width scales the image in 1.9, can we prevent that? */
+  /*width: 22px;  /* to accomodate non 16x22 icons for parts with custom icons */
+  margin-right: 8px;
+}
+
+.projectTree:-moz-tree-cell-text(projectActive)
+{
+    font-weight: bold;
+}
+
+/* file not found status */
+
+.projectTree:-moz-tree-cell-text(missing) {
+  color: #c43434; /* dark red */
+}
+
+.projectTree:-moz-tree-cell-text(selected, missing) {
+  color: white;
+}
+
+.projectTree:-moz-tree-image(default) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(default, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(folder) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
+}
+
+.projectTree:-moz-tree-image(folder, open) {
+  list-style-image: url('chrome://komodo/skin/images/folder-open-pink.png');
+}
+
+.projectTree:-moz-tree-image(folder, closed) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
+}
+
+.projectTree:-moz-tree-image(livefolder) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
+}
+
+.projectTree:-moz-tree-image(livefolder, open) {
+  list-style-image: url('chrome://komodo/skin/images/folder-open.png');
+}
+
+.projectTree:-moz-tree-image(livefolder, closed) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
+}
+
+.projectTree:-moz-tree-image(project) {
+  list-style-image: url('chrome://komodo/skin/images/project_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, asyncOperation) {
+  list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, isReadOnly) {
+  list-style-image: url('chrome://komodo/skin/images/project_icon_readonly.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file, asyncOperation) {
+  list-style-image: url('chrome://global/skin/throbber/Throbber-small.gif');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(menu) {
+  list-style-image: url('chrome://komodo/skin/images/menu_icon.png');
+}
+
+.projectTree:-moz-tree-image(toolbar) {
+  list-style-image: url('chrome://komodo/skin/images/toolbar_icon.png');
+}
+
+.projectTree:-moz-tree-image(snippet) {
+  list-style-image: url('chrome://komodo/skin/images/snippet.png');
+}
+
+.projectTree:-moz-tree-image(command) {
+  list-style-image: url('chrome://komodo/skin/images/run_commands.png');
+}
+
+.projectTree:-moz-tree-image(template) {
+  list-style-image: url('chrome://komodo/skin/images/newTemplate.png');
+}
+
+.projectTree:-moz-tree-image(URL) {
+  list-style-image: url('chrome://komodo/skin/images/xlink.png');
+}
+
+.projectTree:-moz-tree-image(macro) {
+  list-style-image: url('chrome://komodo/skin/images/macro.png');
+}
+
+.projectTree:-moz-tree-image(webservice) {
+  list-style-image: url('chrome://komodo/skin/images/webServicesImg.png');
+}
+
+.projectTree:-moz-tree-image(ProjectRef) {
+  list-style-image: url('chrome://komodo/skin/images/project_icon.png');
+}
+
+.projectTree:-moz-tree-image(DirectoryShortcut) {
+  list-style-image: url('chrome://komodo/skin/images/open_shortcut.png');
+}
+

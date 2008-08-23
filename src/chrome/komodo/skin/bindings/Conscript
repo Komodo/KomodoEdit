@@ -55,6 +55,5 @@ $cons->InstallInChrome('scintilla.css');
 $cons->InstallInChrome('widgets.css');
 $cons->InstallInChrome('prefwidgets.css');
 $cons->InstallInChrome('views.css');
-$cons->Preprocess('partviewer.p.css', 'partviewer.css');
 $cons->InstallInChrome('partviewer.css');
 $cons->InstallInChrome('keybinding.css');

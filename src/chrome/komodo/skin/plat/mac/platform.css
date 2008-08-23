@@ -10,3 +10,17 @@ splitter[orient="horizontal"].divot_splitter {
   width: 2px;
   background-image: none !important;       
 }
+
+.projectTree:-moz-tree-twisty
+{
+  padding: 0px;
+  margin: 0px;
+  /* breaks single click on twisty margin-right: -8px; */
+}
+
+.projectTree:-moz-tree-twisty(open) {
+  padding: 0px;
+  margin: 0px;
+  /* breaks single click on twisty margin-right: -8px; */
+}
+
