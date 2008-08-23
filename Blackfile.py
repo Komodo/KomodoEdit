@@ -2280,6 +2280,18 @@ def BuildQuickBuildDB(cfg, argv):
               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'images'),
               extensions=['xpm'],
               preserveSubtrees=1)
+    
+    if cfg.platform == "darwin":
+        skinPlat = 'mac'
+    elif cfg.platform == "win32":
+        skinPlat = 'win'
+    else:
+        skinPlat = 'gnome'
+    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/'+skinPlat,
+              targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
+              extensions=['css', 'png'],
+              preserveSubtrees=1)
+
     pickle.dump(_table, open('qbtable.pik', 'w'))
 
 def DumpQuickBuildDB(cfg, argv):
