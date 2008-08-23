@@ -18,6 +18,19 @@ tab[type="file-tab"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
 }
 
+.tabs-select-button {
+  list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+}
+.tabs-select-button  > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+.tabs-select-button  > .toolbarbutton-text {
+  display: none;
+}
+.tabs-select-button > .toolbarbutton-icon {
+   margin: 0px;
+}
+
 .tabs-closebutton,
 .tab-close-button[selected="true"] {
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");

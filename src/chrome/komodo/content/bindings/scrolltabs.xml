@@ -151,10 +151,10 @@
             <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
             <xul:spacer flex="1"/>
             <xul:toolbarbutton anonid="tabs-list"
-                           type="menu-button"
+                           type="menu"
                            persist="buttonstyle"
                            buttonstyle="pictures"
-                           class="tabPicker-icon"
+                           class="tabs-select-button"
                            oncommand="this.firstChild.showPopup(this, -1,-1);">
                 <xul:menupopup anonid="tabs-list-popup"
                     onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
@@ -271,10 +271,10 @@
                      align="center" pack="center" class="tabstrip-box">
                 <children/>
                 <xul:toolbarbutton anonid="tabs-list"
-                               type="menu-button"
+                               type="menu"
                                persist="buttonstyle"
                                buttonstyle="pictures"
-                               class="tabPicker-icon"
+                               class="tabs-select-button"
                                oncommand="this.firstChild.showPopup(this, -1,-1);">
                     <xul:menupopup anonid="tabs-list-popup"
                         onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>

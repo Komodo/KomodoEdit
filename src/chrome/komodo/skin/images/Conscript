@@ -44,6 +44,8 @@ Import(
     'productType',
 );
 
+$cons->InstallInChrome('alltabs-box-bkgnd-icon.png');
+
 if ($platform eq "darwin") {
 $cons->InstallInChrome('toolbar-background.gif');
 $cons->InstallInChrome('toolbar-background-inactive.png');

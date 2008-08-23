@@ -18,6 +18,32 @@ tab[type="file-tab"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
 }
 
+.tabs-select-button {
+  list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+.tabs-select-button:hover {
+  background-color: rgba(0,0,0,0.10);
+}
+.tabs-select-button:hover:active,
+.tabs-select-button[open="true"] {
+  background-color: rgba(0,0,0,0.20);
+}
+
+.tabs-select-button  > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
+.tabs-select-button  > .toolbarbutton-text {
+  display: none;
+}
+
+.tabs-select-button > .toolbarbutton-icon {
+  -moz-margin-end: 2px;
+}
+
 .tabs-closebutton,
 .tab-close-button[selected="true"] {
   list-style-image: url("chrome://global/skin/icons/closetab.png");
@@ -212,6 +238,7 @@ tabbox.whiteout > tabs[type="scrollable"] > .tabs-left
     border-right: 1px solid GrayText;
     margin-top: 2px;
 }
+
 tabbox.whiteout > tabs > .tabs-right
 {
     border-left: 1px solid ThreeDDarkShadow;
