@@ -1,0 +1,12 @@
+
+/* make out splitters similar to regular osx splitters */
+splitter[orient="vertical"].divot_splitter {
+  min-height: 1px;
+  height: 2px;
+  background-image: none !important;
+}
+splitter[orient="horizontal"].divot_splitter {
+  min-width: 1px;
+  width: 2px;
+  background-image: none !important;       
+}

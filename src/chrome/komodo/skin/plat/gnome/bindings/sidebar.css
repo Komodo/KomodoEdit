@@ -1,0 +1,5 @@
+
+tabs[type="sidebar"]
+{
+  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');
+}

@@ -50,8 +50,6 @@ Import(
 
 $cons->Preprocess('scrolltabs.p.css', 'scrolltabs.css');
 $cons->InstallInChrome('scrolltabs.css');
-$cons->Preprocess('sidebar.p.css', 'sidebar.css');
-$cons->InstallInChrome('sidebar.css');
 $cons->InstallInChrome('buttons.css');
 $cons->InstallInChrome('colorpicker.css');
 $cons->InstallInChrome('listbox.css');

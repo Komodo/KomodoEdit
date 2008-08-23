@@ -1,0 +1,94 @@
+
+
+.divot_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0px;
+  padding: 0px; 
+  border: none;
+}
+
+.grippy_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal.png");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.grippy_splitter[orient="vertical"] {
+  background-image: url("chrome://komodo/skin/images/grippy_vertical.png");
+}
+
+
+.divot_splitter[collapsed="true"] {
+  visibility: collapse;
+}
+
+.grippy_splitter_collapsable {
+  background-image: none;
+}
+
+.grippy_splitter_collapsable > grippy {
+  min-height: 80px;
+  min-width: 10px;
+  border: none;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"] > grippy {
+  min-height: 10px;
+  min-width: 80px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.grippy_splitter_collapsable[collapse="before"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_left.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="before"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_right.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="after"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_right.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[collapse="after"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal_left.png");
+  background-repeat: no-repeat;
+}
+
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="before"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_up.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="before"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_down.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="after"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_down.png");
+  background-repeat: no-repeat;
+}
+
+.grippy_splitter_collapsable[orient="vertical"][collapse="after"][state="collapsed"] > grippy{
+  background-position: center;
+  background-image: url("chrome://komodo/skin/images/grippy_vertical_up.png");
+  background-repeat: no-repeat;
+}
