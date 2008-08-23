@@ -159,7 +159,7 @@
                 <xul:menupopup anonid="tabs-list-popup"
                     onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
             </xul:toolbarbutton>
-            <xul:toolbarbutton anonid="panel-close-button" class="panel-close-button"
+            <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                         collapsed="true"
                         xbl:inherits="onclick=onclose,
                                       collapsed=closecollapsed,
@@ -243,7 +243,7 @@
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
         </resources>
         <content>
-            <xul:box anonid="left-scroll" xbl:inherits="collapsable"
+            <xul:box anonid="left-scroll" xbl:inherits="collapsable" collapsed="true"
                      align="center" pack="center" class="tabstrip-box tabs-left" flex="0">
                 <xul:button
                     disabled="true"
@@ -257,7 +257,7 @@
                 class="tabstrip-box" flex="1">
                 <children includes="tab"/>
             </xul:scrollbox>
-            <xul:box anonid="right-scroll" xbl:inherits="collapsable" flex="0"
+            <xul:box anonid="right-scroll" xbl:inherits="collapsable" flex="0" collapsed="true"
                      align="center" pack="center" class="tabstrip-box tabs-right">
                 <xul:button
                     disabled="true"
@@ -279,7 +279,7 @@
                     <xul:menupopup anonid="tabs-list-popup"
                         onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
                 </xul:toolbarbutton>
-                <xul:toolbarbutton anonid="panel-close-button" class="panel-close-button"
+                <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                             collapsed="true"
                             xbl:inherits="onclick=onclose,
                                           collapsed=closecollapsed,
