@@ -34,6 +34,11 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 @import url("chrome://global/skin/");
+@import url("chrome://komodo/skin/unifiedWindow.css");
+@import url("chrome://komodo/skin/splitter.css");
+
+/* platform is last, to easily include overrides on the above */
+@import url("chrome://komodo/skin/platform.css");
 
 
 /* ::::: fullscreen window controls ::::: */
