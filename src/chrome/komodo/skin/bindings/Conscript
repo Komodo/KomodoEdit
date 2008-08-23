@@ -48,8 +48,6 @@ Import(
     'mozVersion',
 );
 
-$cons->Preprocess('scrolltabs.p.css', 'scrolltabs.css');
-$cons->InstallInChrome('scrolltabs.css');
 $cons->InstallInChrome('buttons.css');
 $cons->InstallInChrome('colorpicker.css');
 $cons->InstallInChrome('listbox.css');
