@@ -1,0 +1,70 @@
+diff
+
+Allow one to use <textbox type="autocomplete" sizetopopup="none"/> to
+specify that the popup tree's width should NOT be set to that of the
+textbox. When using this, one must manually set the width on the
+popup widget.
+
+See: https://bugzilla.mozilla.org/show_bug.cgi?id=416250
+
+Index: toolkit/content/widgets/autocomplete.xml
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/content/widgets/autocomplete.xml,v
+retrieving revision 1.139
+diff -u -6 -r1.139 autocomplete.xml
+--- toolkit/content/widgets/autocomplete.xml	22 Apr 2008 19:47:44 -0000	1.139
++++ toolkit/content/widgets/autocomplete.xml	25 Aug 2008 23:52:49 -0000
+@@ -695,19 +697,21 @@
+ 
+             this.showCommentColumn = this.mInput.showCommentColumn;
+             this.showImageColumn = this.mInput.showImageColumn;
+ 
+             document.popupNode = null;
+ 
+-            var rect = aElement.getBoundingClientRect();
+-            var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+-                              .getInterface(Components.interfaces.nsIWebNavigation);
+-            var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
+-            var docViewer = docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);
+-            var width = (rect.right - rect.left) * docViewer.fullZoom;
+-            this.setAttribute("width", width > 100 ? width : 100);
++            if (aElement.sizetopopup == "always" || aElement.sizetopopup == "pref") {
++              var rect = aElement.getBoundingClientRect();
++              var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
++                                .getInterface(Components.interfaces.nsIWebNavigation);
++              var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
++              var docViewer = docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);
++              var width = (rect.right - rect.left) * docViewer.fullZoom;
++              this.setAttribute("width", width > 100 ? width : 100);
++            }
+ 
+             // setConsumeRollupEvent() before we call openPopup()
+             var nsIPopupBO = Components.interfaces.nsIPopupBoxObject;
+             this.popupBoxObject.setConsumeRollupEvent(
+               this.mInput.consumeRollupEvent ? 
+                 nsIPopupBO.ROLLUP_CONSUME : 
+@@ -944,17 +948,19 @@
+         <body>
+           <![CDATA[
+           if (!this.mPopupOpen) {
+             this.mInput = aInput;
+             document.popupNode = null;
+ 
+-            var rect = aElement.getBoundingClientRect();
+-            var width = rect.right - rect.left;
+-            this.setAttribute("width", width > 100 ? width : 100);
+-            // invalidate() depends on the width attribute
+-            this._invalidate();
++            if (aElement.sizetopopup == "always" || aElement.sizetopopup == "pref") {
++              var rect = aElement.getBoundingClientRect();
++              var width = rect.right - rect.left;
++              this.setAttribute("width", width > 100 ? width : 100);
++              // invalidate() depends on the width attribute
++              this._invalidate();
++            }
+ 
+             // setConsumeRollupEvent() before we call openPopup()
+             var nsIPopupBO = Components.interfaces.nsIPopupBoxObject;
+             this.popupBoxObject.setConsumeRollupEvent(
+               this.mInput.consumeRollupEvent ? 
+                 nsIPopupBO.ROLLUP_CONSUME : 
