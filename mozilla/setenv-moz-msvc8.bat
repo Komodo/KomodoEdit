@@ -56,6 +56,11 @@ echo Mozilla tools directory: %MOZILLABUILD%
 
 REM Get MSVC paths
 call "%MOZILLABUILD%\guess-msvc.bat"
+REM Ignore retval from guess-msvc.bat. It will return an error retval if,
+REM for example, you've never had any of the Platform SDKs installed -- which
+REM according to the current Mozilla Windows Build Prerequisites page is not
+REM required when building with VC8 professional.
+call cmd.exe /c exit 0
 
 REM Use the "new" moztools-static
 set MOZ_TOOLS=%MOZILLABUILD%\moztools
