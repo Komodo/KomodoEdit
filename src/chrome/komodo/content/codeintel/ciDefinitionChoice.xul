@@ -56,7 +56,6 @@
         onunload="ciDefinitionChoice_onUnload();"
         ondialogaccept="return ciDefinitionChoice_onOK();"
         ondialogcancel="return ciDefinitionChoice_onCancel();">
-        >
         <!--ondialogaccept="return ciDefinitionChoice_onOK();"-->
         <!--ondialogcancel="return ciDefinitionChoice_onCancel();">-->
 
