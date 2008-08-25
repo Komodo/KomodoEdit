@@ -2177,11 +2177,18 @@ class MozVersion(black.configure.Datum):
             # separators. Perl is fine with that on windows so just use those.
             milestone = milestone.replace('\\', '/')
 
-        i, o, e = os.popen3('perl '+milestone+' -topsrcdir '+mozSrc)
+        perlExe = black.configure.items["unsiloedPerlExe"].Get()
+        cmd = '%s %s -topsrcdir %s' % (perlExe, milestone, mozSrc)
+        i, o, e = os.popen3(cmd)
         i.close()
         output = o.read()
         o.close()
+        stderr = e.read()
         retval = e.close()
+        if retval:
+            raise black.configure.ConfigureError(
+                "error running '%s': stdout='%r' stderr='%r'"
+                % (cmd, output, stderr))
     
         # only use the first 2 parts of the version
         ver = output.split('.')[:2]
