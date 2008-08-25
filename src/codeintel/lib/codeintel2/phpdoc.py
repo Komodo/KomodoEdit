@@ -88,7 +88,7 @@ phpdoc_tags = {
                     "@param datatype $paramname The description",
 
     "property":     "Document a 'Magic' Property of a class.\n"
-                    "@property datatype The description",
+                    "@property datatype $property_name The description",
 
     "return":       "Specify the return type of a function or method.\n"
                     "@return datatype The description",
