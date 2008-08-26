@@ -144,11 +144,6 @@ $cons->Install($imagesDir, "icons/grippy_horizontal_right.png");
 $cons->Install($imagesDir, "icons/grippy_vertical_up.png");
 $cons->Install($imagesDir, "icons/grippy_vertical_down.png");
 
-# Other images
-$cons->Install($imagesDir, "other/calltip_screenshot.gif");
-$cons->Install($imagesDir, "other/komodo_icon.gif");
-$cons->Install($imagesDir, "other/progress-busy.gif");
-
 # derived famfamfam icons
 $cons->InstallAs("$imagesDir/redo.png", "famfamfam_derived/arrow_redo.png");
 $cons->InstallAs("$imagesDir/redo_hover.png", "famfamfam_derived/arrow_redo_hover.png");
