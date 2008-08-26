@@ -238,11 +238,11 @@ foreach my $src (keys %images) {
 # Install the about box images.
 my $aboutSrc;
 if ($komodoVersion =~ /alpha/) {
-    $aboutSrc = "other/about_" . $productType . "_alpha.png";
+    $aboutSrc = "other/about_edit_alpha.png";
 } elsif ($komodoVersion =~ /beta/) {
-    $aboutSrc = "other/about_" . $productType . "_beta.png";
+    $aboutSrc = "other/about_edit_beta.png";
 } else {
-    $aboutSrc = "other/about_" . $productType . ".png";
+    $aboutSrc = "other/about_edit.png";
 }
 $cons->InstallAs("$imagesDir/about.png", $aboutSrc);
 
