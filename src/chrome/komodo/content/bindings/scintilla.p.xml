@@ -1129,11 +1129,9 @@
         <handlers>
             <handler event="focus" phase="capturing">
                 <![CDATA[
-                ko.trace.get().enter('scintilla: focus');
                 this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
                 this.scimoz.focus = true;
-                ko.trace.get().leave('scintilla: focus');
                 ]]>
             </handler>
 
@@ -1339,23 +1337,23 @@
             </handler>
 
 <!-- #if PLATFORM != "darwin" -->
-            <handler event="keyup" phase="capturing" keycode="VK_ALT">
+            <handler event="keyup" phase="capturing">
                 <![CDATA[
-                if (this.dealtWithAlt == 1) {
+                if (event.keyCode == event.DOM_VK_ALT && this.dealtWithAlt == 1) {
                     event.cancelBubble = true;
                     this.dealtWithAlt = -1;
                 }
-                ]]>
-            </handler>
-            <handler event="keydown" phase="capturing" keycode="VK_ALT">
-                <![CDATA[
-                this.dealtWithAlt = 0;
                 ]]>
             </handler>
 <!-- #endif -->
 
             <handler event="keydown" phase="capturing">
                 <![CDATA[
+<!-- #if PLATFORM != "darwin" -->
+                if (event.keyCode == event.DOM_VK_ALT) {
+                    this.dealtWithAlt = 0;
+                }
+<!-- #endif -->
                 if (this.key_handler) {
                     // The key_handler will cancelBubble or preventDefault if it
                     // is necessary.
@@ -1371,7 +1369,7 @@
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
                 if (event.button != 2) { // right-click is handled by us
                     
-<!-- #if PLATFORM != "darwin" -->
+<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
                     var x,y;
                     [x,y] = this.getClientCoordinates(event);
 
@@ -1453,7 +1451,7 @@
                         (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
                         pos < this.scimoz.selectionStart ||
                         pos > this.scimoz.selectionEnd+1)) {
-<!-- #if PLATFORM != "darwin" -->
+<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
                         //dump('clicked outside selection '+event.timeStamp+'\n');
                         this.scimoz.buttonDown( x, y,
                                                         event.button,
