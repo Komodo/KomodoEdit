@@ -431,15 +431,13 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 	case WM_MBUTTONUP:
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:
-		// pretend the message happened in our parent.
-		rc = CallWindowProc(inst->fPlatform.fDefaultWindowProc, (HWND)inst->portMain, Msg, wParam, lParam);
-		break;
 	case WM_MOUSEMOVE:
-		// we need to notify the parent, then call scintilla directly.
-		// this makes scroll/selection work when you move the mouse
-		// outside of scintilla
-		rc = CallWindowProc(inst->fPlatform.fDefaultWindowProc, (HWND)inst->portMain, Msg, wParam, lParam);
+		// send the event through the DOM so we can use it.  Moz will
+		// prevent bubbling on some events, primarily key and mouse
+		CallWindowProc(inst->fPlatform.fDefaultWindowProc, (HWND)inst->portMain, Msg, wParam, lParam);
+		// Tell scintilla about the event so it can do it's work
 		inst->fPlatform.fDefaultChildWindowProc(hWnd, Msg, wParam, lParam);
+		rc = 0; // allow the event to bubble if moz doesn't block us
 		break;
 	case WM_KILLFOCUS:
 	case WM_SETFOCUS:
