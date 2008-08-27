@@ -115,6 +115,8 @@ def pathToURI(path):
         mutex.release()
 
 def _normalizedPathToURI(localPath, koFileEx):
+    if koFileEx.scheme != "file" or localPath.startswith("file:/"):
+        return koFileEx.URI
     fixedPath = os.path.normpath(localPath)
     if localPath and fixedPath != localPath:
         # Preserve trailing slash (Bug 77205).

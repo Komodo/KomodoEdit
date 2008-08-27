@@ -82,6 +82,9 @@ function _isSlashChar(c) {
 }
 
 function _normalizedPathToURI(localPath, koFileEx) {
+    if ( koFileEx.scheme != "file" || localPath.indexOf("file:/") == 0) {
+        return koFileEx.URI;
+    }
     var fixedPath = _osPathSvc.normpath(localPath);
     if (fixedPath != localPath) {
         var trailingSlash = _lastChar(localPath);
