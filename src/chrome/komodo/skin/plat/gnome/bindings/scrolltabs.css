@@ -19,7 +19,7 @@ tab[type="file-tab"]
 }
 
 .tabs-select-button {
-  list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+  list-style-image: url("chrome://komodo/skin/images/tab_select.png");
 }
 .tabs-select-button  > .toolbarbutton-menu-dropmarker {
   display: none;
