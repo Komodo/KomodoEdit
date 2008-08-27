@@ -5,7 +5,7 @@ retrieving revision 1.362
 diff -u -r1.362 nsChildView.mm
 --- widget/src/cocoa/nsChildView.mm	22 Jul 2008 15:19:11 -0000	1.362
 +++ widget/src/cocoa/nsChildView.mm	15 Aug 2008 00:56:52 -0000
-@@ -5228,6 +5228,9 @@
+@@ -5228,6 +5234,9 @@
  - (void)keyDown:(NSEvent*)theEvent
  {
    NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
@@ -15,12 +15,36 @@ diff -u -r1.362 nsChildView.mm
  
    // If a plugin has the focus, we need to use an alternate method for
    // handling NSKeyDown and NSKeyUp events (otherwise Carbon-based IME won't
-@@ -5247,7 +5250,7 @@
+@@ -5247,9 +5256,8 @@
      ::TSMRemoveDocumentProperty(mPluginTSMDoc, kFocusedChildViewTSMDocPropertyTag);
      return;
    }
 -
 +*/
    [self processKeyDownEvent:theEvent keyEquiv:NO];
- 
+-
    NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+ 
+@@ -5407,6 +5415,13 @@
+   // If this is a plugin, we do actually perform the action on keyboard commands. See bug 428047.
+   // If the action on plugins here changes the first responder, don't continue.
+   NSMenu* mainMenu = [NSApp mainMenu];
++#if 1
++   /* ACTIVESTATE, reverting patch from bug 428047 (see above) to prevent
++      double execution of menu related key events */
++  if ([mainMenu isKindOfClass:[GeckoNSMenu class]])
++    [(GeckoNSMenu*)mainMenu performMenuUserInterfaceEffectsForEvent:theEvent];
++  UInt32 modifierFlags = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
++#else
+   if (mIsPluginView) {
+     if ([mainMenu isKindOfClass:[GeckoNSMenu class]])
+       [(GeckoNSMenu*)mainMenu actOnKeyEquivalent:theEvent];
+@@ -5444,6 +5459,7 @@
+       (modifierFlags & (NSControlKeyMask | NSAlternateKeyMask)))
+     return NO;
+ 
++#endif
+   if ([theEvent type] == NSKeyDown) {
+     // We trust the Gecko handled status for cmd key events. See bug 417466 for more info.
+     if (modifierFlags & NSCommandKeyMask)
