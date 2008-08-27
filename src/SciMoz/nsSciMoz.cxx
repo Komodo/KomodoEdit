@@ -1004,6 +1004,7 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRUnichar ** text
 	textEvent->GetEventReply(&textEventReply);
 	int curPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
 	int curLine = SendEditor(SCI_LINEFROMPOSITION, curPos);
+	int anchor = SendEditor(SCI_GETANCHOR, 0, 0);
 #if 0
 	// XXX device dependant!!!!  bug 40959
 	// see xpcom/ds/nsUnitConversion.h and gfx/src/mac/nsDeviceContextMac.cpp
@@ -1019,8 +1020,8 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRUnichar ** text
 #else
 #define PIXELS_TO_APP(x,y) NSIntPixelsToAppUnits(x,y)
 #endif
-	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, curPos) + fWindow->x, p2t);
-	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, curPos) + fWindow->y, p2t);
+	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, anchor) + fWindow->x, p2t);
+	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, anchor) + fWindow->y, p2t);
 	textEventReply->mCursorPosition.width = fWindow->width;
 	textEventReply->mCursorPosition.height = PIXELS_TO_APP(SendEditor(SCI_TEXTHEIGHT, curLine, 0), p2t);
 	textEventReply->mCursorIsCollapsed = false;
