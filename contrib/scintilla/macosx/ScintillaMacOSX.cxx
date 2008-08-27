@@ -1677,8 +1677,21 @@ sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, s
 
 void ScintillaMacOSX::TimerFired( EventLoopTimerRef )
 {
+    if (inDragDrop) {
+        DragScroll();
+    } else
+    if (HaveMouseCapture()) {
+      if (!inDragDrop) {
+        // set the last point to fix drag selection and dragmove, Editor:Tick
+        // will handle the rest.  We have to do this because we do not get
+        // carbon events to handle this particular situation.
+        ::Point theQDPoint;
+        GetMouse (&theQDPoint);
+        HIPoint location = GetLocalPoint(theQDPoint);
+        ptMouseLast = Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) );
+      }
+    }
     Tick();
-    DragScroll();
 }
 
 OSStatus ScintillaMacOSX::BoundsChanged( UInt32 /*inOptions*/, const HIRect& inOriginalBounds, const HIRect& inCurrentBounds, RgnHandle /*inInvalRgn*/ )
@@ -2092,44 +2105,19 @@ OSStatus ScintillaMacOSX::MouseDragged( EventRecord *event )
 
 OSStatus ScintillaMacOSX::MouseDragged( HIPoint& location, UInt32 modifiers, EventMouseButton button, UInt32 clickCount )
 {
-    if (HaveMouseCapture() && !inDragDrop) {
-#if defined(CONTAINER_HANDLES_EVENTS)
-        ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
-#else
-        // we need to handle tracking the mouse drag ourselves
-        MouseTrackingResult mouseStatus = 0;
-        ::Point theQDPoint;
-        UInt32 outModifiers;
-        EventTimeout inTimeout=0.1;
-        while (mouseStatus != kMouseTrackingMouseReleased) {
-            ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
-            TrackMouseLocationWithOptions((GrafPtr)-1,
-                                          kTrackMouseLocationOptionDontConsumeMouseUp,
-                                          inTimeout,
-                                          &theQDPoint,
-                                          &outModifiers,
-                                          &mouseStatus);
-            location = GetLocalPoint(theQDPoint);
+    if (!HaveMouseCapture() && HIViewGetSuperview(GetViewRef()) != NULL) {
+        HIViewRef view;
+        HIViewGetSubviewHit(reinterpret_cast<ControlRef>(wMain.GetID()), &location, true, &view);
+        if (view) {
+            // the hit is on a subview (ie. scrollbars)
+            WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
+            return eventNotHandledErr;
+        } else {
+            // reset to normal, buttonmove will change for other area's in the editor
+            WndProc(SCI_SETCURSOR, (long int)SC_CURSORNORMAL, 0);
         }
-        ButtonUp( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ),
-                  static_cast<int>( GetCurrentEventTime() / kEventDurationMillisecond ), 
-                  (modifiers & controlKey) != 0 );
-#endif
-    } else {
-        if (!HaveMouseCapture() && HIViewGetSuperview(GetViewRef()) != NULL) {
-            HIViewRef view;
-            HIViewGetSubviewHit(reinterpret_cast<ControlRef>(wMain.GetID()), &location, true, &view);
-            if (view) {
-                // the hit is on a subview (ie. scrollbars)
-                WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
-                return eventNotHandledErr;
-            } else {
-                // reset to normal, buttonmove will change for other area's in the editor
-                WndProc(SCI_SETCURSOR, (long int)SC_CURSORNORMAL, 0);
-            }
-        }
-        ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
     }
+    ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
 #if !defined(CONTAINER_HANDLES_EVENTS)
     return noErr;
 #else
