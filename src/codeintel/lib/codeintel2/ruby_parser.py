@@ -67,21 +67,6 @@ _leading_hash_re = re.compile(r'^\s*\#+\s*')
 class RubyCommonClassifier:
     """Mixin class containing classifier callbacks"""
 
-    def is_array_cb(self, tok):
-        tval = tok.text
-        return len(tval) >= 2 and tval[0] == '@' and tval[1] != '$'
-        # @$name is more like an expression -- don't return it
-
-    def is_scalar_cb(self, tok):
-        tval = tok.text
-        return len(tval) > 1 and tval[0] == '$' and (tval[1].isalnum or tval[1] == "_")
-
-    def is_pod_cb(self, tok):
-        return tok.text[0] == '=' and tok.text[1].isalnum and tok.text.find("\n=cut", 5) > 0
-    
-    def is_string_qw_cb(self, tok):
-        return re.compile(r'^qw\s*[^\w\d_]').match(tok.text)
-                                                   
     def is_symbol_cb(self, tok):
         return tok.text[0] == ":"
 
