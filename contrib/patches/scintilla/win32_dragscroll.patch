@@ -1,0 +1,63 @@
+--- win32/ScintillaWin.cxx	2008-08-27 11:55:17.000000000 -0700
++++ win32/ScintillaWin.cxx	2008-08-27 12:02:32.000000000 -0700
+@@ -279,6 +285,11 @@
+ 	HBITMAP sysCaretBitmap;
+ 	int sysCaretWidth;
+ 	int sysCaretHeight;
++	
++	// XXX ActiveState drag scroll support
++	int scrollSpeed;
++	int scrollTicks;
++	void DragScroll();
+ };
+ 
+ HINSTANCE ScintillaWin::hInstance = 0;
+@@ -663,6 +678,7 @@
+ 	case WM_TIMER:
+ 		if (wParam == standardTimerID && timer.ticking) {
+ 			Tick();
++			DragScroll();
+ 		} else if (wParam == idleTimerID && idler.state) {
+ 			SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
+ 		} else {
+@@ -1096,6 +1116,40 @@
+ 	return contains;
+ }
+ 
++void ScintillaWin::DragScroll() {
++#define RESET_SCROLL_TIMER(lines) \
++  scrollSpeed = (lines); \
++  scrollTicks = 2000;
++
++    if (posDrag == invalidPosition) {
++        RESET_SCROLL_TIMER(1);
++        return;
++    }
++    Point dragMouse = LocationFromPosition(posDrag);
++    int line = pdoc->LineFromPosition(posDrag);
++    int currentVisibleLine = cs.DisplayFromDoc(line);
++    int lastVisibleLine = Platform::Minimum(topLine + LinesOnScreen() - 1, pdoc->LinesTotal() - 1);
++
++    if (currentVisibleLine <= topLine && topLine > 0) {
++        ScrollTo( topLine - scrollSpeed );
++    } else if (currentVisibleLine >= lastVisibleLine) {
++        ScrollTo( topLine + scrollSpeed );
++    } else {
++        RESET_SCROLL_TIMER(1);
++        return;
++    }
++    if (scrollSpeed == 1) {
++        scrollTicks -= timer.tickSize;
++        if (scrollTicks <= 0) {
++            RESET_SCROLL_TIMER(5);
++        }
++    }
++
++    SetDragPosition(PositionFromLocation(dragMouse));
++
++#undef RESET_SCROLL_TIMER
++}
++
+ void ScintillaWin::ScrollText(int linesToMove) {
+ 	//Platform::DebugPrintf("ScintillaWin::ScrollText %d\n", linesToMove);
+ 	::ScrollWindow(MainHWND(), 0,
