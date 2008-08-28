@@ -1,9 +1,18 @@
 diff
 
-Allow one to use <textbox type="autocomplete" sizetopopup="none"/> to
-specify that the popup tree's width should NOT be set to that of the
+Allow one to use
+|   <textbox type="autocomplete" sizetopopup="none" autocompletepopup="myPopup" />
+and
+|   <panel type="autocomplete" id="myPopup" width="300"/>
+to specify that the popup's width should NOT be set to that of the
 textbox. When using this, one must manually set the width on the
-popup widget.
+popup widget (set to 300 in the example above).
+
+Currently the popup is sized to the textbox's width regardless of the
+value of "sizetopopup".
+
+The `.removeAttribute("width")` call was added for this bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=381084
 
 See: https://bugzilla.mozilla.org/show_bug.cgi?id=416250
 
@@ -11,10 +20,14 @@ Index: toolkit/content/widgets/autocomplete.xml
 ===================================================================
 RCS file: /cvsroot/mozilla/toolkit/content/widgets/autocomplete.xml,v
 retrieving revision 1.139
-diff -u -6 -r1.139 autocomplete.xml
+diff -U 10 -r1.139 autocomplete.xml
 --- toolkit/content/widgets/autocomplete.xml	22 Apr 2008 19:47:44 -0000	1.139
-+++ toolkit/content/widgets/autocomplete.xml	25 Aug 2008 23:52:49 -0000
-@@ -695,19 +697,21 @@
++++ toolkit/content/widgets/autocomplete.xml	27 Aug 2008 23:48:52 -0000
+@@ -691,27 +693,29 @@
+           if (!this.mPopupOpen) {
+             this.mInput = aInput;
+             this.view = aInput.controller.QueryInterface(Components.interfaces.nsITreeView);
+             this.invalidate();
  
              this.showCommentColumn = this.mInput.showCommentColumn;
              this.showImageColumn = this.mInput.showImageColumn;
@@ -43,7 +56,41 @@ diff -u -6 -r1.139 autocomplete.xml
              this.popupBoxObject.setConsumeRollupEvent(
                this.mInput.consumeRollupEvent ? 
                  nsIPopupBO.ROLLUP_CONSUME : 
-@@ -944,17 +948,19 @@
+                 nsIPopupBO.ROLLUP_NO_CONSUME);
+             this.openPopup(aElement, "after_start", 0, 0, false, false);
+           }
+         ]]></body>
+@@ -785,21 +789,24 @@
+ 
+       <property name="popupOpen" readonly="true"
+                 onget="return this.mPopupOpen;"/>
+ 
+       <method name="closePopup">
+         <body>
+           <![CDATA[
+           if (this.mPopupOpen) {
+             this.hidePopup();
+             document.popupNode = null;
+-            this.removeAttribute("width");
++            var sizetopopup = this.mInput.getAttribute("sizetopopup");
++            if (sizetopopup == "always" || sizetopopup == "pref") {
++              this.removeAttribute("width");
++            }
+           }
+         ]]>
+         </body>
+       </method>
+ 
+       <!-- This is the default number of rows that we give the autocomplete
+            popup when the textbox doesn't have a "maxrows" attribute
+            for us to use. -->
+       <field name="defaultMaxRows" readonly="true">6</field>
+ 
+@@ -940,25 +947,27 @@
+ 
+       <method name="_openAutocompletePopup">
+         <parameter name="aInput"/>
+         <parameter name="aElement"/>
          <body>
            <![CDATA[
            if (!this.mPopupOpen) {
@@ -68,3 +115,7 @@ diff -u -6 -r1.139 autocomplete.xml
              this.popupBoxObject.setConsumeRollupEvent(
                this.mInput.consumeRollupEvent ? 
                  nsIPopupBO.ROLLUP_CONSUME : 
+                 nsIPopupBO.ROLLUP_NO_CONSUME);
+             this.openPopup(aElement, "after_start", 0, 0, false, false);
+           }
+         ]]>
