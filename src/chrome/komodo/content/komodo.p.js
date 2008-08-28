@@ -275,12 +275,12 @@ function onloadDelay() {
         // time, not when each window starts up.
         var restoreWorkspace = true;
         try {
-            if (ko.windowManager.isAdditionalWindow()) {
+            if (!ko.windowManager.lastWindow()) {
                 restoreWorkspace = false;
             }
         } catch(ex) {
             // Restore the workspace on error
-            _log.exception(e);
+            _log.exception(ex);
         }
         if (restoreWorkspace) {
             ko.workspace.restoreWorkspace();
