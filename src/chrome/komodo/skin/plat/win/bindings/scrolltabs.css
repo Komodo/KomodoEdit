@@ -43,17 +43,27 @@ tab[type="file-tab"]
 
 .tab-close-button > .toolbarbutton-icon {
   -moz-margin-end: 0px !important;
-  margin-top: 1px;
+  padding: 2px 0 0 2px;
 }
+
 
 .tabs-closebutton,
 .tab-close-button[selected="true"] {
   -moz-appearance: none;
-  -moz-image-region: rect(0px, 56px, 14px, 42px);
-  -moz-margin-end: 6px;
-  border: none;
-  padding: 0px;
   list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0px, 14px, 14px, 0px);
+  padding: 2px 2px;
+  margin: 0px;
+  border: none;
+}
+
+view[lastfocused="true"] .tab-text[selected="true"] {
+  font-weight: bold;
+}
+
+tabbox.whiteout .tabs-closebutton,
+tabbox.sidepanel .tabs-closebutton {
+  list-style-image: url("chrome://global/skin/icons/closeSidebar.png");
 }
 
 .tabs-closebutton:hover,

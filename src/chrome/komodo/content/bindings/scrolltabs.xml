@@ -56,7 +56,7 @@
         </resources>
         <content>
             <xul:hbox class="tab-image-left" xbl:inherits="selected"/>
-            <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected">
+            <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected" align="center">
                 <xul:hbox flex="0" class="tab-icons" align="center" pack="center">
                     <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=action,tooltiptext=actiontip"/>
                     <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=status,tooltiptext=statustip"/>
@@ -64,10 +64,11 @@
                     <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=readonly,tooltiptext=locktip"/>
                     <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=image,tooltiptext=icontip"/>
                 </xul:hbox>
-                <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled" flex="1"
-                           style="margin-right: 0px; padding-right:2px;" crop="right"/>
-                <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled" collapsed="true" value="*"
-                           style="margin-left: 0px; padding-left:0px; padding-right:1px"/>
+                <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled,selected"
+                           flex="1" anonid="label" crop="right"/>
+                <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled,selected"
+                           collapsed="true" value="*"/>
+                <xul:spacer flex="1"/>
                 <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
                                    class="tab-close-button"/>
             </xul:hbox>
