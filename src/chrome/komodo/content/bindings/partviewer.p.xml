@@ -48,7 +48,7 @@
 
     <binding id="partviewer" extends="xul:hbox">
         <content>
-            <xul:vbox flex="1" style="margin: 0px; padding: 0px;">
+            <xul:vbox flex="1">
                 <xul:hbox align="center" class="partviewer-toolbar">
                     <children includes="toolbarbutton"/>
                     <xul:toolbarseparator style="min-width:10px;" flex="1"/>

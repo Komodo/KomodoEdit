@@ -76,7 +76,7 @@ toolbarbutton {
 }
 
 .toolbar-box {
-    margin: 0px 2px;
+    padding: 2px 4px;
 }
 
 #buttonBrowserPreview

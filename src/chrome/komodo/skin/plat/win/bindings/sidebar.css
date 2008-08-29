@@ -3,52 +3,23 @@
 tabs[type="sidebar"]
 {
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
-    padding: 0px;
-    margin: 0px;
-    -moz-appearance: none;
-    border: none;
+  height: 25px;
+  background-color: -moz-Dialog;
+  -moz-appearance: toolbox;
+  border-bottom: 1px solid ThreeDShadow;
+  border-top: 1px solid ThreeDHighlight;
 }
 
-tabbox.sidepanel
-{
+tabbox.sidepanel label.tab-text {
+  -moz-padding-start: 4px;
+}
+
+/* Drop the default 1 pixel border around trees and make the top border
+ * blend into the side panel toolbar/header
+ */
+tabbox.sidepanel tree {
   -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  margin: 0px;
-}
-
-tabbox.sidepanel > tabs,
-tabbox.sidepanel > tabpanels,
-tabbox.sidepanel > tabpanels > tabpanel,
-tabbox.sidepanel > tabpanels > tabpanel > vbox,
-tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
-{
-  -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  margin: 0px;
-}
-
-tabbox.sidepanel .toolbar-box,
-tabbox.sidepanel .partviewer-toolbar {
-  margin-bottom: 6px;
-}
-
-tabbox.sidepanel partviewer,
-tabbox.sidepanel tree
-{
-  border: None;
-  padding: 0px;
-  margin: 0px;
-  border:none;
-}
-
-tabbox.sidepanel tree treechildren,
-tabbox.sidepanel tree treechildren::-moz-tree-row,
-tabbox.sidepanel partviewer treechildren,
-tabbox.sidepanel partviewer treechildren::-moz-tree-row {
-  padding-bottom: 1px;
-  -moz-appearance: none;
+  border: 0;
   margin: 0;
-  border: none;
+  border-top: 1px solid ThreeDShadow;
 }
