@@ -114,6 +114,7 @@ my @toExport = (
     # for building PyDBGP binary bits for all supported Python's
     'pythonInstallDir',
     'unsiloedPerlExe',
+    'unsiloedPerlBinDir',
     'perlVersion',
     'komodoPythonUtilsDir',
     'komodoDefaultUserInstallDir',
