@@ -45,16 +45,12 @@ if (typeof(ko)=='undefined') {
 ko.printing = {};
 (function() {
 var _gBrowserLoadListener = null;
-function getBrowser()
-{
-  return document.getElementById("printBrowser");
-}
 
 this.printPreview = function(view, preview, tofile, selectionOnly)
 {
     window.openDialog("chrome://komodo/content/printPreview.xul",
                       "Komodo:PrintPreview",
-                      "chrome,all,centerscreen",
+                      "chrome,all",
                       view, preview, tofile, selectionOnly
                       );
 }

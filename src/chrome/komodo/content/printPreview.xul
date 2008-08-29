@@ -87,6 +87,26 @@
       ko.printing.print(view, preview, tofile, selectionOnly);
       } catch(e) { log.exception(e); }
     }
+    
+    // Callbacks used by PrintUtils.printPreview in Moz 1.9:
+    function getPPBrowser() {
+        return document.getElementById("printBrowser");
+    }
+    
+    function getNavToolbox() {
+        return document.getElementById("printPreviewDeck");
+    }
+    
+    function getWebNavigation() {
+        // Give PrintUtils.printPreview() what it wants
+        // (in toolkit/components/printing/content/printUtils.js).
+        return {
+          document: document,
+          currentURI: { spec: opener.ko.views.manager.currentView.document.file.URI }
+        };
+    }
+    // End callbacks
+
     ]]>
     </script>
 
