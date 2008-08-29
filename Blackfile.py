@@ -1971,6 +1971,9 @@ def BuildKomodo(cfg, argv):
         return GetScintillaSource(cfg, argv)
     if "package_md5sums" in argv:
         return _PackageUpdateMd5sums(cfg)
+    noquick = "noquick" in argv
+    if noquick:
+        argv.remove("noquick")     
 
     # Get and patch the scintilla source if necessary.
     retval = GetScintillaSource(cfg, argv)
@@ -1992,7 +1995,7 @@ def BuildKomodo(cfg, argv):
         retval = JarChrome("komodo", cfg, argv)
     if not retval and cfg.withDocJarring:
         retval = JarChrome("komododoc", cfg, argv)
-    if not retval:
+    if not retval and not noquick:
         BuildQuickBuildDB(cfg, argv)
     return retval
 
