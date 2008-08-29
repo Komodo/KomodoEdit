@@ -2283,7 +2283,7 @@ def BuildQuickBuildDB(cfg, argv):
     
     if cfg.platform == "darwin":
         skinPlat = 'mac'
-    elif cfg.platform == "win32":
+    elif cfg.platform == "win":
         skinPlat = 'win'
     else:
         skinPlat = 'gnome'
