@@ -1153,7 +1153,15 @@
 
             <handler event="keypress" phase="capturing">
                 <![CDATA[
+<!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
+<!-- #else -->
+                // bug 79591, allow alt keys to get through since they
+                // are used for special key entry on osx.  This is dependent
+                // on our patches in nsChildView.mm, changing those patches
+                // may change the behaviour here as well.
+                var cmdkey = event.ctrlKey || event.metaKey;
+<!-- #endif -->
                 if (this.scimoz.focus &&
                     (event.charCode == 0 || cmdkey || this.key_handler)) {
                     // Setup a callback to check if we've moved away from the
