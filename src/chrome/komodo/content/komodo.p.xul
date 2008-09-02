@@ -746,6 +746,19 @@
                               accesskey="&menuEditPrefsCurrent.accesskey;"
                               observes="cmd_editPrefsCurrent"
                               />
+<!-- #if PLATFORM == "darwin" -->
+                    <!-- Taken from  http://mxr.mozilla.org/mozilla/source/browser/base/content/baseMenuOverlay.xul 
+                         Moz finds these id attributes and moves them to the App menu.
+                         No keybindings for these menuitems because we don't assign them
+                         command IDs.
+                         See http://mxr.mozilla.org/mozilla/source/widget/src/cocoa/nsMenuBarX.mm#148
+                         for an example. -->
+
+                    <menuitem id="menu_mac_services" label="&menuSysMacServices.label; "/>
+                    <menuitem id="menu_mac_hide_app" label="&menuSysMacHideApp.label;" />
+                    <menuitem id="menu_mac_hide_others" label="&menuSysMacHideOtherApps.label;" />
+                    <menuitem id="menu_mac_show_all" label="&menuSysMacShowAllApps.label;" />
+<!-- #endif -->
                 </menupopup>
             </menu>
             <menu id="menu_code" label="&code.label;" accesskey="&menuCode.accesskey;">

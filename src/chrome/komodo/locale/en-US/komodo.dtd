@@ -668,3 +668,9 @@
 <!ENTITY tclReferenceWeb.label "Tcl Reference (web)">
 <!ENTITY XSLTMailingLists.label "XSLT Mailing Lists">
 <!ENTITY XSLTReferenceWeb.label "XSLT Reference (Web)">
+
+<!-- Mac system menu definitions -->
+<!ENTITY menuSysMacServices.label "Services">
+<!ENTITY menuSysMacHideApp.label "Hide &brandShortName;">
+<!ENTITY menuSysMacHideOtherApps.label "Hide Others">
+<!ENTITY menuSysMacShowAllApps.label "Show All">
