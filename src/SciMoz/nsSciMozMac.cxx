@@ -51,11 +51,11 @@ void SciMoz::PlatformCreate(WinID) {
 
 void SciMoz::Resize() {
 	// we have to get the titlebar height, and add it to the y origin
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw APIs
+	int tbHeight;
 	OSStatus err;
 	Rect winRect;
 	err = GetWindowBounds(fPlatform.container, kWindowTitleBarRgn, &winRect);
-	int tbHeight = winRect.bottom - winRect.top;
 	if (err != noErr) {
 		// gecko 1.9.0 on osx 10.4 fails to get the titleBarRgn, but
 		// this workaround gives the same result.
@@ -63,11 +63,14 @@ void SciMoz::Resize() {
 		err = GetWindowBounds(fPlatform.container, kWindowStructureRgn, &structRect);
 		err = GetWindowBounds(fPlatform.container, kWindowContentRgn, &winRect);
 		tbHeight = winRect.top - structRect.top;
+	} else {
+		tbHeight = winRect.bottom - winRect.top;
 	}
 #endif
+
 	HIRect boundsRect;
 	boundsRect.origin.x = fWindow->x; // left
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw APIs
 	boundsRect.origin.y = fWindow->y +  tbHeight; // top
 #else
 	boundsRect.origin.y = fWindow->y; // top
@@ -239,7 +242,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	if (npwindow && npwindow->window) {
 		fWindow = npwindow;
 		portMain = npwindow->window;
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw APIs
 		NP_Port* npport = (NP_Port*) portMain;
 		fPlatform.port = npport->port;
 		fPlatform.container = GetWindowFromPort(fPlatform.port);
@@ -267,7 +270,7 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 #endif
 		scintilla->SetTicking(false);
 		scintilla->Resize(0,0);
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw APIs
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);
@@ -288,7 +291,7 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 		HIViewAddSubview(wMain, wEditor);
 		Resize();
 		scintilla->Resize(fWindow->width,fWindow->height);
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw API
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);
@@ -374,7 +377,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 #ifdef DEBUG_PAINT
 		fprintf(stderr, "SciMoz::PlatformHandleEvent updateEvt %08X\n", wEditor);
 #endif
-#ifndef USE_CARBON //1.8 branch
+#ifndef USE_CARBON // i.e. using QuickDraw APIs
 		Draw1Control(wEditor);
 #else
 		HIViewSetNeedsDisplay(wEditor, true);
