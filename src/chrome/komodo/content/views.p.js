@@ -1791,7 +1791,8 @@ viewManager.prototype.is_cmd_printSelection_supported = function() {
 
 viewManager.prototype.is_cmd_printSelection_enabled = function() {
     return (this.currentView &&
-            this.currentView.getAttribute('type') == 'editor');
+            this.currentView.getAttribute('type') == 'editor' &&
+            this.currentView.selection);
 }
 
 viewManager.prototype.do_cmd_printSelection = function() {
@@ -1817,7 +1818,8 @@ viewManager.prototype.is_cmd_printPreviewSelection_supported = function() {
 
 viewManager.prototype.is_cmd_printPreviewSelection_enabled = function() {
     return (this.currentView &&
-            this.currentView.getAttribute('type') == 'editor');
+            this.currentView.getAttribute('type') == 'editor' &&
+            this.currentView.selection);
 }
 
 viewManager.prototype.do_cmd_printPreviewSelection = function() {
@@ -1844,7 +1846,8 @@ viewManager.prototype.is_cmd_exportHTMLSelection_supported = function() {
 
 viewManager.prototype.is_cmd_exportHTMLSelection_enabled = function() {
     return (this.currentView &&
-            this.currentView.getAttribute('type') == 'editor');
+            this.currentView.getAttribute('type') == 'editor' &&
+            this.currentView.selection);
 }
 
 viewManager.prototype.do_cmd_exportHTMLSelection = function() {

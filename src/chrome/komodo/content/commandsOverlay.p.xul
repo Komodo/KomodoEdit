@@ -790,33 +790,18 @@
             oncommand="ko.commands.doCommandAsync('cmd_print', event)"
             disabled="true"
             desc="&generalPrint.desc;"/>
-        <command
-            id="cmd_printSelection" key="key_cmd_printSelection"
-            oncommand="ko.commands.doCommandAsync('cmd_printSelection', event)"
-            disabled="true"
-            desc="&generalPrintSelection.desc;"/>
 <!-- #if PLATFORM != "darwin" -->
         <command
             id="cmd_printPreview" key="key_cmd_printPreview"
             oncommand="ko.commands.doCommandAsync('cmd_printPreview', event)"
             disabled="true"
             desc="&generalPrintPreview.desc;"/>
-        <command
-            id="cmd_printPreviewSelection" key="key_cmd_printPreviewSelection"
-            oncommand="ko.commands.doCommandAsync('cmd_printPreviewSelection', event)"
-            disabled="true"
-            desc="&generalPrintPreviewSelection.desc;"/>
 <!-- #endif -->
         <command
             id="cmd_exportHTML" key="key_cmd_exportHTML"
             oncommand="ko.commands.doCommandAsync('cmd_exportHTML', event)"
             disabled="true"
             desc="&generalExportAsHTML.desc;"/>
-        <command
-            id="cmd_exportHTMLSelection" key="key_cmd_exportHTMLSelection"
-            oncommand="ko.commands.doCommandAsync('cmd_exportHTMLSelection', event)"
-            disabled="true"
-            desc="&generalExportSelectionAsHTML.desc;"/>
         <command
             id="cmd_movetab" key="key_cmd_movetab"
             oncommand="ko.commands.doCommandAsync('cmd_movetab', event)"
@@ -1272,6 +1257,33 @@
             oncommand="ko.commands.doCommand('cmd_convertLowerCase')"
             disabled="true"
             desc="&sourceCodeConvertSelectionToLowerCase.desc;"/>
+    </commandset>
+
+    <!-- Commands that are enabled when the editor has focus and
+         a selection -->
+    <commandset
+        id="cmdset_selection"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="select,current_view_changed"
+        >
+        <command
+            id="cmd_printSelection" key="key_cmd_printSelection"
+            oncommand="ko.commands.doCommandAsync('cmd_printSelection', event)"
+            disabled="true"
+            desc="&generalPrintSelection.desc;"/>
+        <command
+            id="cmd_exportHTMLSelection" key="key_cmd_exportHTMLSelection"
+            oncommand="ko.commands.doCommandAsync('cmd_exportHTMLSelection', event)"
+            disabled="true"
+            desc="&generalExportSelectionAsHTML.desc;"/>
+<!-- #if PLATFORM != "darwin" -->
+        <command
+            id="cmd_printPreviewSelection" key="key_cmd_printPreviewSelection"
+            oncommand="ko.commands.doCommandAsync('cmd_printPreviewSelection', event)"
+            disabled="true"
+            desc="&generalPrintPreviewSelection.desc;"/>
+<!-- #endif -->
     </commandset>
 
     <!-- Commands that need to be updated when the dirtyness of the
