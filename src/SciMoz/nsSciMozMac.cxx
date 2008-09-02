@@ -251,11 +251,13 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 		fPlatform.port = npport->context;
 		fPlatform.container = npport->window;
 #endif
-		wMain = HIViewGetRoot(fPlatform.container);
-
-		// show scintilla
-		SetHIViewShowHide(WINDOW_DISABLED(fWindow));
 		parked = false;
+		if (fPlatform.container) {
+			wMain = HIViewGetRoot(fPlatform.container);
+			SetHIViewShowHide(WINDOW_DISABLED(fWindow)); // show scintilla
+		} else {
+			PlatformResetWindow();
+		}
 	}
 	return NS_OK;
 }
