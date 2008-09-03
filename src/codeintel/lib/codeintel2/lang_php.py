@@ -2896,8 +2896,8 @@ class PHPParser:
                 # Remove out any "<?php" and "?>" tags, see syntax description:
                 #   http://www.php.net/manual/en/language.basic-syntax.php
                 elif text.startswith("<?"):
-                    if text.startswith("<?php"):
-                        text = text[len("<?php"):]
+                    if text[:5].lower() == "<?php":
+                        text = text[5:]
                     elif text.startswith("<?="):
                         text = text[len("<?="):]
                     else:
