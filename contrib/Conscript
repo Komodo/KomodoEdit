@@ -234,7 +234,6 @@ if ($platform eq "win") {
                        "pcre/Win32/dftables.mak",
                        "pcre/Win32/libpcre.mak",
                        qq(
-                       set
                         cd %2:d && nmake -nologo -f %2:f
                         cd %3:d && nmake -nologo -f %3:f
                         copy %1:d\\Win32\\Release\\libpcre.lib $scintilla_dir\\win32\\libpcre.lib
