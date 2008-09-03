@@ -218,6 +218,7 @@
  '*.inc': 'PHP',
  '*.java': 'Java',
  '*.js': 'JavaScript',
+ '*.json': 'JavaScript',
  '*.kix': 'Kix',
  '*.kpf': 'XML',
  '*.lis': 'Lisp',
