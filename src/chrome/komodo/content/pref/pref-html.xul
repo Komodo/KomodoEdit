@@ -110,22 +110,17 @@ function OnPreferencePageOK(prefset) {
         <caption label="&syntaxChecking.label;"/>
         <vbox flex="1" align="center">
             <description>
-                Komodo uses Tidy, an HTML syntax checking tool from the W3C,
-                to check for errors in your HTML files.  Here you can set error
-                levels, and the WAI Accessibility Conformance level you wish to support.
-                If you need a deeper level of customization for Tidy, you can
-                customize the way Tidy works by creating a Tidy configuration file.
-                You can find more details on Tidy configuration at the website below.
+                &syntaxControlHtml.description;
             </description>
             <separator class="thin"/>
-            <label value="You can find more information about Tidy at:"/>
+            <label value="&moreInfoTydy.label;"/>
             <separator class="thin"/>
             <button label="&lt;http://tidy.sourceforge.net/&gt;"
                 class="button-link"
                 style="margin: -10px; color: #b82619;"
                 onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
             <separator/>
-            <label value="You can find more information about WAI at:"/>
+            <label value="&moreInfoWai.label;"/>
             <separator class="thin"/>
             <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
                 class="button-link"
@@ -143,7 +138,7 @@ function OnPreferencePageOK(prefset) {
             </columns>
             <rows>
                 <row align="center">
-                <label>Error Level:</label>
+                <label>&errorLevel.label;</label>
                 <menulist pref="true" prefattribute="data"
                           prefstring="tidy_errorlevel">
                     <menupopup>
@@ -153,7 +148,7 @@ function OnPreferencePageOK(prefset) {
                 </menulist>
                 </row>
                 <row align="center">
-                    <label>WAI Accessibility Conformance Level:</label>
+                    <label>&waiAccessibilityLevel.label;</label>
                     <menulist pref="true" prefattribute="data"
                               prefstring="tidy_accessibility">
                         <menupopup>
@@ -169,7 +164,7 @@ function OnPreferencePageOK(prefset) {
 
         <separator class="groovy-thin"
                    style="margin-top: 10px; margin-bottom: 10px;"/>
-        <text value="Configuration File:" style="padding: 2px 6px 2px 6px"/>
+        <text value="&configurationFile.label;" style="padding: 2px 6px 2px 6px"/>
         <hbox align="center">
             <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
             <button label="&browse.label;"

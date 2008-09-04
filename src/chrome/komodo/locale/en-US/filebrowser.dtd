@@ -48,3 +48,14 @@
 <!ENTITY rename.label "Rename">
 <!ENTITY size.label "Size">
 <!ENTITY textInput.label "textInput">
+
+<!--filebrowser.xul-->
+<!ENTITY serverName.label "Server:">
+<!ENTITY lookIn.label "Look in:">
+<!ENTITY fileName.label "File name:">
+<!ENTITY fileOfType.label "Files of type:">
+
+<!-- commented in filebrowser.dtd-->
+<!--
+<!ENTITY new.label "New">
+                        -->

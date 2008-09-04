@@ -104,3 +104,27 @@
 <!ENTITY variable.label "Variable">
 <!ENTITY wSelectionOrWordUnderCursor.label "&#37;w : selection or word under cursor">
 <!ENTITY waitForCommandToTerminate.title "Wait for Command to Terminate">
+
+<!--commandproperties.xul-->
+<!ENTITY unnamedCommand.label "&lt;unnamed command&gt;">
+<!ENTITY commandAlternative.label "Command:">
+<!ENTITY commandAlternative.accesskey "m">
+<!ENTITY startIn.label "Start in:">
+<!ENTITY startIn.accesskey "S">
+<!ENTITY runIn.label "Run in:">
+<!ENTITY environmentVar.label "Environment Variables:">
+
+<!--run.xul-->
+<!ENTITY commandTextbox.label "Run:">
+
+<!--waitfortermination.xul-->
+<!ENTITY waitForTermination.description "You have started a command that modifies the current buffer. The command is taking a long time to complete. It might be hung. You can wait for the command to complete (this dialog will automatically be dismissed) or abort the command by clicking 'Kill.'">
+
+<!--commented in file waitfortermination.xul-->
+<!--
+<!ENTITY dontShowAgain.label "Don't show me this again.">
+<!ENTITY dontShowAgain.accesskey "d">
+<!ENTITY abortCommand.label "Abort Command">
+                                                        -->
+
+

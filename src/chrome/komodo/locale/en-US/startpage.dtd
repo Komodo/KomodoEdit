@@ -48,3 +48,10 @@
 <!ENTITY remove.label "Remove">
 <!ENTITY removeAllSelectedProjectsAndFilesFromList.tooltiptext "Remove All Selected Projects and Files from List">
 <!ENTITY whatSNew.title "What's New">
+
+<!--startpage.xml-->
+<!ENTITY openSampleProject.description "Contains a number of files showing many of the features of Komodo.">
+<!ENTITY checkConfiguration.description "Checks system configuration to ensure all Komodo features are working properly.">
+<!ENTITY recentProjectFiles.title "Recent Projects and Files">
+<!ENTITY actions.label "Actions:">
+<!ENTITY startPage.title "Start Page">

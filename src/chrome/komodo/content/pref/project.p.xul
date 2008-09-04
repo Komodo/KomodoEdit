@@ -266,7 +266,7 @@
                     <treerow>
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/pref-environ.xul"
-                                  label="Environment"/>
+                                  label="&environment.label;"/>
                     </treerow>
                 </treeitem>
 -->
@@ -341,7 +341,7 @@
                     <treerow>
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/pref-newfiles.xul"
-                                  label="New Files"/>
+                                  label="&newFiles.label;"/>
                     </treerow>
                 </treeitem>
 -->

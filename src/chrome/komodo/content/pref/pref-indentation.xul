@@ -173,7 +173,7 @@ function changeNewLanguage(item, name)  {
       <caption label="&indentation.label;"/>
 
       <hbox align="center">
-        <label value="Auto-Indent Style:"/>
+        <label value="&autoIndentStyle.label;"/>
         <menulist id="editAutoIndentStyle" pref="true" prefattribute="data">
             <menupopup>
                 <menuitem data="smart" label="&useSmartIndent.label;"/>
@@ -205,13 +205,13 @@ function changeNewLanguage(item, name)  {
           <textbox id="indentWidth" size="3" wsm_persist="true"
                      pref="true" prefstring="indentWidth"
                      prefattribute="value"/>
-          <text value="Number of spaces per indent"/>
+          <text value="&filePrefIndentationSpacePerIndent.label;"/>
       </hbox>
       <hbox align="center">
           <textbox id="tabWidth" size="3" wsm_persist="true"
                      pref="true" prefstring="tabWidth"
                      prefattribute="value"/>
-          <text value="Width of each Tab character"/>
+          <text value="&filePrefIndentationWhidtTabChar.label;"/>
 
       </hbox>
 
@@ -229,11 +229,11 @@ function changeNewLanguage(item, name)  {
                   label="&preferTabCharactersOverSpaces.label;"/>
         <hbox align="center">
             <textbox id="indentWidthLang" size="3"/>
-            <text value="Number of spaces per indent"/>
+            <text value="&filePrefIndentationSpacePerIndent.label;"/>
         </hbox>
         <hbox align="center">
             <textbox id="tabWidthLang" size="3"/>
-            <text value="Width of each Tab character"/>
+            <text value="&filePrefIndentationWhidtTabChar.label;"/>
         </hbox>
     </groupbox>
 </window>

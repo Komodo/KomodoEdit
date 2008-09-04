@@ -59,9 +59,9 @@
     <groupbox orient="vertical" flex="1">
         <caption label="&environment.label;"/>
         <vbox flex="1">
-            <label value="Startup Environment Variables" control="env-sys" class="kopadded"/>
+            <label value="&startEnvironVar.label;" control="env-sys" class="kopadded"/>
             <EnvPrefs id="env-sys" editable="false" flex="1"/>
-            <label value="User Environment Variables (override defaults)" control="user-env-prefs" class="kopadded"/>
+            <label value="&userEnvironVar.label;" control="user-env-prefs" class="kopadded"/>
             <EnvPrefs id="user-env-prefs" editable="true"
                 prefwidget="true" pref="true"
                 prefstring="userEnvironmentStartupOverride" flex="1"/>

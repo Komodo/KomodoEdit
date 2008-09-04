@@ -131,7 +131,7 @@
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
-                    <textbox id="snippetname" flex="1" value="&lt;unnamed command&gt;"
+                    <textbox id="snippetname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
                     <spacer width="10"/>
                     <vbox _style="padding: 5px 5px 0px 5px;">

@@ -65,13 +65,13 @@
                 prefattribute="checked"/>
 
             <hbox align="center">
-                <label value="Wrap long lines at"/>
+                <label value="&printingWrapLongLines.label;"/>
                 <textbox id="print_lineLength" size="5" pref="true"/>
-                <label value="characters (0 for no wrapping)"/>
+                <label value="&printingCharNotWrap.label;"/>
             </hbox>
 
             <hbox align="center">
-                <label value="Scale font sizes from screen to print by"/>
+                <label value="&printingScaleSizes.label;"/>
                 <textbox id="print_scalingRatio" size="5" pref="true"/>
                 <button label="&reset.label;"
                         oncommand="document.getElementById('print_scalingRatio').value = '1.5';"

@@ -129,7 +129,7 @@
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
-                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                    <textbox id="partname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
                     <spacer width="10"/>
                     <vbox _style="padding: 5px 5px 0px 5px;">
@@ -145,7 +145,7 @@
                 <separator class="groovy-thin"/>
                 <spacer height="10"/>
                 <hbox align="center">
-                    <label value="Language: "/>
+                    <label value="&language.label;"/>
                     <radiogroup id="language"
                                 orient="horizontal">
                         <radio id="Python"
@@ -263,8 +263,8 @@
                     </radiogroup>
                     <spacer height="10"/>
                     <hbox align="center">
-                        <label value="Rank:"
-                               accesskey="&k.accesskey;"
+                        <label value="&rank.label;"
+                               accesskey="&rank.accesskey;"
                                control="rank"/>
                         <textbox id="rank"
                                  value=""/>

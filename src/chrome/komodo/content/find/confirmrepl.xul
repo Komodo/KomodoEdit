@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % findDTD SYSTEM "chrome://komodo/locale/find.dtd">
+  %findDTD;
+]>
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
  
@@ -46,7 +50,7 @@
 <dialog id="dialog-confirm-repl"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         windowtype="komodo_confirm_repl"
-        title="Confirm Replacements"
+        title="&confirmReplacement.title;"
         orient="vertical"
         style="min-width: 40em; max-width: 50em;"
         screenX="110"
@@ -70,10 +74,7 @@
         <image id="dialog-icon" class="question-icon spaced" />
         <separator orient="vertical" class="thin"/>
         <description flex="1">
-            Confirm replacements before changes are made. Mark the
-            files you would like to change and click "Make Changes" to
-            commit. Click "Cancel" to cancel without making any
-            changes.
+            &confirmReplacement.description;
         </description>
     </hbox>
 
@@ -81,7 +82,7 @@
     <hbox align="center" style="padding: 5px;">
         <image id="status-img" />
         <label id="status-lbl" crop="center" flex="1"
-               value="Preparing..."/>
+               value="&preparing.label;"/>
     </hbox>
     <tree id="repls" flex="1"
           seltype="multiple"
@@ -98,7 +99,7 @@
                      editable="true"
                      class="treecol-image"
                      ignoreincolumnpicker="true"
-                     tooltiptext="Check to apply changes to this file" />
+                     tooltiptext="&checkToApplyChanges.tooltiptext;" />
             <splitter class="tree-splitter"/>
             <treecol id="repls-desc"
                      hideheader="true"
@@ -114,15 +115,15 @@
     <separator class="thin"/>
     <hbox>
         <separator flex="1"/>
-        <button id="show-selected-changes-btn" label="Show Selected Changes"
-                tooltiptext="Show the changes for the selected paths."
+        <button id="show-selected-changes-btn" label="&showSelectedChanges.label;"
+                tooltiptext="&showSelectedChanges.tooltiptext;"
                 disabled="true"
-                accesskey="l"
+                accesskey="&showSelectedChanges.accesskey;"
                 oncommand="show_selected_changes();"/>
-        <button id="show-marked-changes-btn" label="Show Marked Changes"
-                tooltiptext="Show the changes for all marked paths."
+        <button id="show-marked-changes-btn" label="&showMarkedChanges.label;"
+                tooltiptext="&showMarkedChanges.tooltiptext;"
                 disabled="true"
-                accesskey="k"
+                accesskey="&showMarkedChanges.accesskey;"
                 oncommand="show_marked_changes();"/>
     </hbox>
 

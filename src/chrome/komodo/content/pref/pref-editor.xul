@@ -110,7 +110,7 @@
     <caption label="&cursorOptions.label;"/>
     <hbox align="center" flex="1">
         <hbox align="center" flex="1">
-            <label value="Cursor style:"/>
+            <label value="&cursorStyle.label;"/>
             <menulist pref="true"
                       id="caretStyle"
                       prefattribute="data">
@@ -125,7 +125,7 @@
             </menulist>
         </hbox>
         <hbox align="center" flex="1">
-            <label value="Width of line cursor:"/>
+            <label value="&widthLineCursor.label;"/>
             <menulist pref="true"
                       id="caretWidth"
                       prefattribute="data"
@@ -147,7 +147,7 @@
               pref="true"
               oncommand="updateDoNotAskWidgets()"/>
     <hbox align="center">
-        <label value="If files have been changed:"/>
+        <label value="&fileChanged.label;"/>
         <menulist pref="true"
                   id="reload_changed_files"
                   prefattribute="data"
@@ -160,7 +160,7 @@
         </menulist>
     </hbox>
     <hbox align="center">
-        <label value="If files have been deleted:"/>
+        <label value="&fileDeleted.label;"/>
         <menulist pref="true"
                   prefattribute="data"
                   id="close_deleted_files"
@@ -187,7 +187,7 @@
  <groupbox orient="vertical">
     <caption label="&scrolling.label;"/>
     <hbox align="center">
-        <label value="Minimum number of lines to keep above and below cursor:"/>
+        <label value="&minimumNumberLineAboveBelowCursor.label;"/>
         <textbox id="ySlop"
                     size="3"
                     pref="true"
@@ -195,7 +195,7 @@
                     prefattribute="value"/>
     </hbox>
     <hbox align="center">
-        <label value="Horizontal scrollbar width (in pixels):"/>
+        <label value="&horizScrollWidth.label;"/>
         <textbox id="scrollWidth"
                     size="6"
                     pref="true"
@@ -219,7 +219,7 @@
         <rows>
             <row>
                 <hbox align="center">
-                    <label style="min-width: 80px;">Matches Case:</label>
+                    <label style="min-width: 80px;">&filePrefEditorMatchCase.label;</label>
                 </hbox>
                 <menulist id="isearchCaseSensitivity"
                         pref="true"
@@ -234,7 +234,7 @@
             <separator class="thin"/>
             <row>
                 <hbox align="center">
-                    <label style="min-width: 80px;">Uses:</label>
+                    <label style="min-width: 80px;">&filePrefEdiorUses.label;</label>
                 </hbox>
                 <menulist id="isearchType"
                         pref="true"

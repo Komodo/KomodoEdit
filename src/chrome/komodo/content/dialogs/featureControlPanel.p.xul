@@ -84,17 +84,17 @@
                     <row style="margin: 1px;">
                         <hbox style="background-color: #E7E3DE; min-height: 21px;"
                               flex="1" align="center" pack="start">
-                            <label value="Language Features" style="font-weight: bold;"/>
+                            <label value="&languageFeatures.label;" style="font-weight: bold;"/>
                         </hbox>
                         <hbox style="background-color: #E7E3DE;"/>
                     </row>
                     <row id="perl-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="Perl"/>
+                            <label value="&perl.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label id="perl-syntax-checking-status"
-                                   value="Syntax Checking: Status Unknown"/>
+                                   value="&sintaxCheckingUnknown.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -106,11 +106,11 @@
                     </row>
                     <row id="php-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="PHP"/>
+                            <label value="&php.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label id="php-syntax-checking-status"
-                                   value="Syntax Checking: Status Unknown"/>
+                                   value="&sintaxCheckingUnknown.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -122,11 +122,11 @@
                     </row>
                     <row id="python-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="Python"/>
+                            <label value="&python.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label id="python-syntax-checking-status"
-                                   value="Syntax Checking: Status Unknown"/>
+                                   value="&sintaxCheckingUnknown.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -138,11 +138,11 @@
                     </row>
                     <row id="ruby-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="Ruby"/>
+                            <label value="&ruby.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label id="ruby-syntax-checking-status"
-                                   value="Syntax Checking: Status Unknown"/>
+                                   value="&sintaxCheckingUnknown.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -154,10 +154,10 @@
                     </row>
                     <row id="xslt-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="XSLT"/>
+                            <label value="&xslt.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label value="Syntax Checking: Ready"/>
+                            <label value="&sintaxCheckingReady.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -165,10 +165,10 @@
                     </row>
                     <row id="other-languages-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="Other Languages"/>
+                            <label value="&otherLanguages.label;"/>
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label value="Syntax Checking for JavaScript, HTML, XML: Ready"/>
+                            <label value="&sintaxCheckingReadyJavscriptHtmlXml.label;"/>
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>

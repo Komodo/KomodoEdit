@@ -59,7 +59,7 @@
     <groupbox orient="vertical">
         <caption label="&webBrowser.label;"/>
         <vbox flex="1">
-            <description>Which browser should Komodo use when opening URLs?</description>
+            <description>&whichBrowserUse.description;</description>
         </vbox>
         <spacer height="5"/>
         <hbox>
@@ -77,7 +77,7 @@
         <caption label="&previewInBrowser.label;"/>
         <radiogroup id="browser_preview_method" flex="1" pref="true"
                     prefattribute="value">
-            <description>Which method should be used to preview files in the browser?</description>
+            <description>&whichMethodUse.description;</description>
             <radio value="in-tab-other-group"
                    label="&previewInKomodoTabOtherTabGroup.label;"
                    selected="true"/>

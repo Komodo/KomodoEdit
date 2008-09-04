@@ -75,7 +75,7 @@
                   prefstring="editUseLinting"
                   prefattribute="checked"/>
         <hbox align="center">
-            <label value="Wrap long lines by:"/>
+            <label value="&fileEditingPropertiesWrapLines.label;"/>
             <menulist pref="true"
                       id="editWrapType"
                       prefattribute="data"
@@ -93,7 +93,7 @@
                   prefattribute="checked"/>
         <hbox align="center">
             <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-            <label value="Edge line column"
+            <label value="&fileEditingPropertiesEdgeLine.label;"
                    control="editAutoWrapColumn"/>
         </hbox>
     </groupbox>

@@ -72,9 +72,7 @@
         <vbox flex="1">
             <description id="prompt" flex="1"/>
             <description flex="1">
-                Typically a file is used to preview itself but sometimes it is
-                useful to preview another file that includes your file, e.g.
-                using an HTML file to preview a CSS file.
+                &pickPreviewInformation.description;
             </description>
             <vbox style="padding-left: 10px;">
                 <radiogroup id="use-which-file" flex="1"

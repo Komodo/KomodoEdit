@@ -78,11 +78,11 @@
             <separator class="thin"/>
             <hbox id="server-box" collapsed="true" align="center"
                   style="min-height: 20px;">
-                <label value="Server:" control="server" style="min-width: 70px;"/>
+                <label value="&server.label;" control="server" style="min-width: 70px;"/>
                 <label id="server" value=""/>
             </hbox>
             <hbox align="center">
-                <label value="User Name:" control="username" accesskey="&U.accesskey;"
+                <label value="&userName.label;" control="username" accesskey="&userName.accesskey;"
                        style="min-width: 70px;"/>
                 <textbox id="username"
                          flex="1"
@@ -97,7 +97,7 @@
                          onfocus="this.setSelectionRange(0,this.value.length);"/>
             </hbox>
             <hbox align="center">
-                <label id="password-label" value="Password:"
+                <label id="password-label" value="&password.label;"
                        control="password"
                        accesskey="&passwordLabel.accesskey;" style="min-width: 70px;"/>
                 <textbox id="password" 

@@ -118,8 +118,8 @@
         </columns>
         <rows>
           <row align="center">
-            <label value="Find what:" control="pattern"
-                   accesskey="n"/>
+            <label value="&findWhat.label;" control="pattern"
+                   accesskey="&findWhat.accesskey;"/>
             <deck id="pattern-deck" selectedIndex="0" flex="1">
               <!-- When on FF3 code base use 'newlines' attr:
                      http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
@@ -143,7 +143,7 @@
             <hbox>
               <!-- TODO: prettier shortcuts button -->
               <button type="menu" id="pattern-shortcuts"
-                      tooltiptext="Regular Expression Shortcuts"
+                      tooltiptext="&regExpShortcut.tooltiptext;"
                       class="rightarrow-button">
                 <menupopup popupanchor="topright">
                   <menuitem label="&escapeRegexSpecialCharacters.label;"
@@ -231,7 +231,7 @@
                   <menuitem label="&group.label;"
                             shortcut="(...)"
                             oncommand="regex_insert_shortcut(this);"/>
-                  <menuitem label="(?P&lt;name&gt;...) : named group"
+                  <menuitem label="&namedGroup.label;"
                             shortcut="(?P&lt;name&gt;...)"
                             oncommand="regex_insert_shortcut(this);"/>
                   <menuitem label="&nonGroupingGroup.label;"
@@ -241,19 +241,19 @@
                   <menuitem label="&aCommentTheContentsAreIgnored.label;"
                             shortcut="(?#...)"
                             oncommand="regex_insert_shortcut(this);"/>
-                  <menuitem label="(?=...) : matches if &lt;...&gt; matches next, but does not consume the string"
+                  <menuitem label="&matchesIfNextNotConsume.label;"
                             shortcut="(?=...)"
                             oncommand="regex_insert_shortcut(this);"/>
-                  <menuitem label="(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string"
+                  <menuitem label="&matchesIfNotNextNotConsume.label;"
                             shortcut="(?!...)"
                             oncommand="regex_insert_shortcut(this);"/>
-                  <menuitem label="(?&lt;=...) : positive lookbehind assertion"
+                  <menuitem label="&positiveLookbehindAssertion.label;"
                             shortcut="(?&lt;=...)"
-                            tooltiptext="matches if the current position is immediately preceded by a match for &lt;...&gt;"
+                            tooltiptext="&positiveLookbehindAssertion.tooltiptext;"
                             oncommand="regex_insert_shortcut(this);"/>
-                  <menuitem label="(?&lt;!...) : negative lookbehind assertion"
+                  <menuitem label="&negativeLookbehindAssertion.label;"
                             shortcut="(?&lt;!...)"
-                            tooltiptext="matches if the current position is NOT immediately preceded by a match for &lt;...&gt;"
+                            tooltiptext="&negativeLookbehindAssertion.tooltiptext;"
                             oncommand="regex_insert_shortcut(this);"/>
                 </menupopup>
               </button>
@@ -261,8 +261,8 @@
           </row>
 
           <row id="repl-row" align="center">
-            <label id="repl-lbl" value="Replace with:"
-                   control="repl" accesskey="l"/>
+            <label id="repl-lbl" value="&replaceWith.label;"
+                   control="repl" accesskey="&replaceWith.accesskey;"/>
             <deck id="repl-deck" selectedIndex="0" flex="1">
               <!-- When on FF3 code base use 'newlines' attr:
                      http://developer.moztextilla.org/en/docs/XUL:textbox#a-newlines
@@ -287,8 +287,8 @@
           <row>
             <box/>
             <hbox>
-              <checkbox id="opt-regex" label="Regex" accesskey="x"
-                        tooltiptext="Treat the pattern as a regular expression"
+              <checkbox id="opt-regex" label="&regex.label;" accesskey="&regex.accesskey;"
+                        tooltiptext="&regex.tooltiptext;"
                         oncommand="update('regex')"/>
               <!-- This is a fakey tri-state checkbox:
                     checked     value         label
@@ -297,16 +297,16 @@
                     true        match-case    Match case
                     true        smart-case    Smart case
                 -->
-              <checkbox id="opt-case" label="Match case"
+              <checkbox id="opt-case" label="&matchCase.label;"
                         checked="true" value="match-case"
-                        accesskey="c" oncommand="update('case')"/>
-              <checkbox id="opt-word" label="Word" accesskey="W"
-                        tooltiptext="Match whole words"
+                        accesskey="&matchCase.accesskey;" oncommand="update('case')"/>
+              <checkbox id="opt-word" label="&word.label;" accesskey="&word.accesskey;"
+                        tooltiptext="&matchWholeWords.tooltiptext;"
                         oncommand="update('word')"/>
-              <checkbox id="opt-multiline" label="Multiline"
-                        accesskey="t" oncommand="update('multiline')"/>
-              <checkbox id="opt-repl" label="Replace"
-                        accesskey="p" oncommand="update('replace')"/>
+              <checkbox id="opt-multiline" label="&multiline.label;"
+                        accesskey="&multiline.accesskey;" oncommand="update('multiline')"/>
+              <checkbox id="opt-repl" label="&replace.label;"
+                        accesskey="&replace.accesskey;" oncommand="update('replace')"/>
             </hbox>
           </row>
 
@@ -344,33 +344,33 @@
           </row>
 
           <row align="center" style="margin-top: 10px;">
-              <label value="Search in:" accesskey="i" control="search-in-menu"/>
+              <label value="&searchIn.label;" accesskey="&searchIn.accesskey;" control="search-in-menu"/>
               <menulist id="search-in-menu" oncommand="update('search-in')"
                         crop="center">
                   <menupopup>
-                      <menuitem value="document" label="Current document"/>
-                      <menuitem value="selection" label="Selected text"/>
-                      <menuitem value="open-files" label="Open files"/>
+                      <menuitem value="document" label="&currentDocument.label;"/>
+                      <menuitem value="selection" label="&selectedText.label;"/>
+                      <menuitem value="open-files" label="&openFiles.label;"/>
                       <menuitem id="search-in-curr-project"
                                 collapsed="true" hidden="true"
-                                value="curr-project" label="Current project"/>
-                      <menuitem value="files" label="Files"/>
+                                value="curr-project" label="&currentProject.label;"/>
+                      <menuitem value="files" label="&filesAlt.label;"/>
                       <menuseparator id="search-in-collection-sep"
                                      collapsed="true" hidden="true"/>
                       <menuitem id="search-in-collection"
                                 collapsed="true" hidden="true"
-                                value="collection" label="Collection"
+                                value="collection" label="&collection.label;"
                                 crop="center"/>
                   </menupopup>
               </menulist>
           </row>
 
           <row id="dirs-row" align="center">
-            <label value="Directories:" control="dirs"
-                   accesskey="D"/>
+            <label value="&directories.label;" control="dirs"
+                   accesskey="&directories.accesskey;"/>
             <textbox id="dirs"
                      flex="1"
-                     tooltiptext="ENTER_DIRECTORIES_ENTITY"
+                     tooltiptext="&enterDirectoriesUnix.tooltiptext;"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru_and_dirpath"
@@ -381,25 +381,25 @@
                      completeselectedindex="true"
                      onfocus="dirs_on_focus(this, event);"
                      oninput="update('dirs');"/>
-            <button label="..." accesskey="."
+            <button label="&threeFullStop.label;" accesskey="&threeFullStop.accesskey;"
                     style="min-width: 0px;"
-                    tooltiptext="Edit list of directories to search"
+                    tooltiptext="&editListDirToSearch.tooltiptext;"
                     oncommand="browse_for_dirs();"/>
           </row>
           <row id="subdirs-row">
             <box/>
             <checkbox id="search-in-subdirs"
-                      label="Search in sub-directories"
-                      accesskey="b"
+                      label="&searchInSubDir.label;"
+                      accesskey="&searchInSubDir.accesskey;"
                       oncommand="update('search-in-subdirs');"/>
           </row>
 
           <row id="includes-row" align="center">
-            <label value="Include:" control="includes"
-                   accesskey="u" style="width: 5.6em;"/>
+            <label value="&include.label;" control="includes"
+                   accesskey="&include.accesskey;" style="width: 5.6em;"/>
             <textbox id="includes"
                      flex="1"
-                     tooltiptext="ENTER_FILETYPES_TO_INCLUDE_ENTITY"
+                     tooltiptext="&enterFiletypesToIncludeUnix.tooltiptext;"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru"
@@ -412,11 +412,11 @@
           </row>
 
           <row id="excludes-row" align="center">
-            <label value="Exclude:" control="excludes"
-                   style="width: 5.6em;" accesskey="E"/>
+            <label value="&exclude.label;" control="excludes"
+                   style="width: 5.6em;" accesskey="&exclude.accesskey;"/>
             <textbox id="excludes"
                      flex="1"
-                     tooltiptext="ENTER_FILETYPES_TO_EXCLUDE_ENTITY"
+                     tooltiptext="&enterFiletypesToExcludeUnix.tooltiptext;"
                      type="autocomplete"
                      maxrows="10"
                      autocompletesearch="mru"
@@ -432,39 +432,39 @@
 
       <separator class="thin"/>
       <vbox id="find-buttons" style="width: 11em">
-        <button id="find-prev-btn" label="Find Previous"
+        <button id="find-prev-btn" label="&findPrevious.label;"
                 style="margin-top: 0px;"
-                accesskey="v" oncommand="find_prev();"/>
-        <button id="find-next-btn" label="Find Next"
+                accesskey="&findPrev.accesskey;" oncommand="find_prev();"/>
+        <button id="find-next-btn" label="&findNext.label;"
                 style="margin-top: 0px;"
-                accesskey="F" oncommand="find_next();"/>
+                accesskey="&findNextButton.accesskey;" oncommand="find_next();"/>
         <button id="replace-btn" label="&replace.label;"
                 style="margin-top: 0px;"
-                accesskey="R" oncommand="replace();"/>
-        <button id="find-all-btn" label="Find All"
+                accesskey="&replaceButton.accesskey;" oncommand="replace();"/>
+        <button id="find-all-btn" label="&findAll.label;"
                 style="margin-top: 0px;"
-                _accesskey="A" uses-accesskey="true"
+                _accesskey="&findAllButton.accesskey;" uses-accesskey="true"
                 oncommand="find_all();"/>
         <button id="replace-all-btn" label="&replaceAll.label;"
                 style="margin-top: 0px;" collapsed="true"
-                _accesskey="A" uses-accesskey="true"
+                _accesskey="&replaceAllButton.accesskey;" uses-accesskey="true"
                 oncommand="replace_all();"/>
-        <checkbox id="confirm-replacements-in-files" label="Confirm"
+        <checkbox id="confirm-replacements-in-files" label="&confirm.label;"
                   style="margin-top: 0px;" collapsed="true"
-                  accesskey="m" oncommand="update('confirm-replacements')"
-                  tooltiptext="Confirm replacements before making changes"/>
-        <checkbox id="show-replace-all-results" label="Show results"
+                  accesskey="&confirm.accesskey;" oncommand="update('confirm-replacements')"
+                  tooltiptext="&confirm.tooltiptext;"/>
+        <checkbox id="show-replace-all-results" label="&showResults.label;"
                   style="margin-top: 0px;" collapsed="true"
-                  accesskey="o" oncommand="update('show-replace-all-results')"
-                  tooltiptext="Show results tab in bottom pane for 'Replace All'"/>
-        <button id="mark-all-btn" label="Mark All"
+                  accesskey="&showResults.accesskey;" oncommand="update('show-replace-all-results')"
+                  tooltiptext="&showResults.tooltiptext;"/>
+        <button id="mark-all-btn" label="&markAll.label;"
                 style="margin-top: 0px;"
-                accesskey="k" oncommand="mark_all();" />
+                accesskey="&markAll.accesskey;" oncommand="mark_all();" />
         <!-- Exclude for lack of space. This isn't crucial.
-        <button id="close-btn" label="Close"
-                accesskey="s" oncommand="window.close();"/> -->
+        <button id="close-btn" label="&close.label;"
+                accesskey="6findCloseButton.accesskey;" oncommand="window.close();"/> -->
         <!-- Exclude for lack of space. This isn't crucial.
-        <button id="help-btn" label="Help" accesskey="H"
+        <button id="help-btn" label="&help.label;" accesskey="&helpButton.accesskey;"
                 oncommand="ko.help.open('find2_dialog');"/> -->
       </vbox>
     </hbox>

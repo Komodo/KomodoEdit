@@ -435,3 +435,261 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY xslXSLT.label ".xsl: XSLT">
 <!ENTITY xsltXSLT.label ".xslt: XSLT">
 <!ENTITY yYearWithoutCentury0099.label "&#37;y : year without century [00,99]">
+
+<!--editenvironvar.xul-->
+<!ENTITY AddEditEnvir.label "Add/Edit Environment Variable">
+<!ENTITY AddEditEnvirName.label "Name:">
+<!ENTITY AddEditEnvirValue.label "Value:">
+
+<!--file-properties.xul-->
+<!ENTITY filePropertiesName.label "Name:">
+<!ENTITY filePropertiesLocation.label "Location:">
+<!ENTITY filePropertiesSize.label "Size:">
+<!ENTITY filePropertiesModified.label "Modified:">
+<!ENTITY filePropertiesAccessed.label "Accessed:">
+<!ENTITY filePropertiesAttributes.label "Attributes:">
+<!ENTITY filePropertiesLanguage.label "Language:">
+<!ENTITY filePropertiesLanguage.accesskey "L">
+<!ENTITY filePropertiesEncoding.label "Encoding:">
+<!ENTITY filePropertiesEncoding.accesskey "E">
+<!ENTITY filePropertiesLineEndings.label "Line Endings:">
+<!ENTITY filePropertiesLineEndings.accesskey "n">
+<!ENTITY filePropertiesMixedEndings.description "(This file has mixed line endings.)">
+<!ENTITY filePropertiesDefaultDoctype.label "Default DOCTYPE:">
+<!ENTITY filePropertiesDefaultNamespace.label "Default Namespace:">
+
+<!--editing-properties.xul-->
+<!ENTITY fileEditingPropertiesWrapLines.label "Wrap long lines by:">
+<!ENTITY fileEditingPropertiesEdgeLine.label "Edge line column">
+
+<!--indent-properties.xul-->
+<!ENTITY fileIndentPropertiesSpacePerIndent.label "Number of spaces per indent">
+<!ENTITY fileIndentPropertiesWhidtTabChar.label "Width of each Tab character">
+
+<!--pref.xul-->
+<!ENTITY webAndBrowser.label "Web &amp; Browser">
+
+<!--pref.alllangfonts.xul-->
+<!ENTITY sampleText.label "Sample Text:">
+<!ENTITY schemeType.label "Scheme: (System schemes are in bold)">
+<!ENTITY schemeType.accesskey "S">
+<!ENTITY chooseEncodFont.description "Choose an encoding and font for Komodo's editor windows.">
+<!ENTITY filePrefAllLangEncod.label "Encoding: ">
+<!ENTITY filePrefAllLangEncod.accesskey "E">
+<!ENTITY filePrefAllLangFixedWidth.label "Fixed Width:">
+<!ENTITY filePrefAllLangFixedWidth.accesskey "W">
+<!ENTITY filPrefAllLangForeText "Fore:">
+<!ENTITY filPrefAllLangBackText "Back:">
+<!ENTITY filePrefAllLangProportional.label "Proportional:">
+<!ENTITY chooseColorEditorElement.description "Choose colors for Komodo's editor elements (i.e. anything in the editor that is not syntax coloring).">
+<!ENTITY filePrefAllLangColorChoice.label "Color Choice: ">
+<!ENTITY filePrefAllLangColorChoice.accesskey "h">
+<!ENTITY styleForElements.description "Set styling for syntax elements common to many programming languages.">
+<!ENTITY filePrefAllLangElementType.label "Element Type: ">
+<!ENTITY filePrefAllLangElementType1.accesskey "T">
+<!ENTITY filePrefAllLangFace.label "Face:">
+<!ENTITY filePrefAllLangSize.label "Size:">
+<!ENTITY filePrefAllLangForeground.label "Foreground:">
+<!ENTITY filePrefAllLangBackground.label "Background:">
+<!ENTITY styleForSpecElements.description "Set styling for language-specific syntax elements.">
+<!ENTITY filePrefAllLangLanguage.label "Language:">
+<!ENTITY filePrefAllLangLanguage.accesskey "G">
+<!ENTITY filePrefAllLangElementType2.accesskey "Y">
+
+<!--pref-association.xul-->
+<!ENTITY fileAssociations.description "File Associations determine editor defaults, such as language element colorization. Click pattern to view associated language.">
+<!ENTITY filePrefAssocLang.label "Language">
+<!ENTITY useXmlDeclarations.label "Use XML declarations (&lt;?xml ...&gt;, &lt;!DOCTYPE ...&gt;)">
+
+<!--pref-codeintel.xul-->
+<!ENTITY codeIntelDisabled.description "The Code Intelligence system is disabled. It can be re-enabled by manually setting the 'codeintel_enabled' preference.">
+<!ENTITY codeIntel.description "Code Intelligence refers to the system that provides autocomplete, calltips, and the Code Browser.">
+<!ENTITY codeIntelAutocompleteFillUpCharacters.description "'Fill-up' is where typing a certain character — like '(' or '.' — during an autocomplete session will trigger insertion of the current completion before the character itself is inserted.">
+<!ENTITY codeIntelAPICatalogs.description "Komodo uses API catalogs to provide autocomplete and calltips for 3rd-party libraries. Check the libraries that you use in your code.">
+<!ENTITY codeIntelAPICatalogsNote.description "Note: Selecting all API catalogs for a particular language can lead to confusing results.">
+
+<!--pref-intl.xul-->
+<!ENTITY useEncodeEnvironment.label "Use Encoding Defined in Environment">
+<!ENTITY customEncoding.label "Custom Encoding">
+<!ENTITY dateTime.label "Date &amp; Time">
+<!ENTITY format.label "Format">
+<!ENTITY dateTimeExample.label "Example:">
+
+<!--pref-project.xul-->
+<!ENTITY filePrefProjectWhenStart.label "When starting Komodo:">
+<!ENTITY filePrefProjectWhenOpenProject.label "When opening a project:">
+<!ENTITY filePrefProjectWhenCloseProject.label "When closing a project:">
+<!ENTITY filePrefProjectUpdateEvery.label "Update every">
+<!ENTITY filePrefProjectMinutes.label " minutes">
+
+<!--pref-editsmart.xul-->
+<!ENTITY msecs.label "msecs">
+<!ENTITY fileEditSmartWrapLines.label "Wrap long lines by:">
+<!ENTITY fileEditSmartWrapMarkers.label "Word wrap markers:">
+<!ENTITY fileEditSmartEdgeLine.label "Edge line column">
+<!ENTITY fileEditSmartFoldMarkStyle.label "Fold mark style:">
+<!-- strings embedded in script-->
+<!ENTITY useTabCharacterToCompleteWords.message "Use tab character to complete words like __KEY__ ">
+<!ENTITY tabstopDelimiterField.message "The &#37;1-tabstop delimiter field may not be empty.">
+<!ENTITY tabstopDelimiterMayNotBeAscii.message "Tabstop delimiters may not be ASCII.  Please change the &#37;1-tabstop delimiter to a higher-bit character.">
+
+<!--pref-editor.xul-->
+<!ENTITY cursorStyle.label "Cursor style:">
+<!ENTITY widthLineCursor.label "Width of line cursor:">
+<!ENTITY fileChanged.label "If files have been changed:">
+<!ENTITY fileDeleted.label "If files have been deleted:">
+<!ENTITY minimumNumberLineAboveBelowCursor.label "Minimum number of lines to keep above and below cursor:">
+<!ENTITY horizScrollWidth.label "Horizontal scrollbar width (in pixels):">
+<!ENTITY filePrefEditorMatchCase.label "Matches Case:">
+<!ENTITY filePrefEdiorUses.label "Uses:">
+
+<!--pref-environ.xul-->
+<!ENTITY startEnvironVar.label "Startup Environment Variables">
+<!ENTITY userEnvironVar.label "User Environment Variables (override defaults)">
+
+<!--pref-folderimport.xul-->
+<!ENTITY directoryImportFrom.label "Directory to import from">
+<!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
+<!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
+<!ENTITY typeFolderStructure.label "Type of folder structure to create:">
+
+<!--pref-html.xul-->
+<!ENTITY syntaxControlHtml.description "Komodo uses Tidy, an HTML syntax checking tool from the W3C, to check for errors in your HTML files.  Here you can set error levels, and the WAI Accessibility Conformance level you wish to support. If you need a deeper level of customization for Tidy, you can customize the way Tidy works by creating a Tidy configuration file. You can find more details on Tidy configuration at the website below.">
+<!ENTITY moreInfoTydy.label "You can find more information about Tidy at:">
+<!ENTITY moreInfoWai.label "You can find more information about WAI at:">
+<!ENTITY errorLevel.label "Error Level:">
+<!ENTITY waiAccessibilityLevel.label "WAI Accessibility Conformance Level:">
+<!ENTITY configurationFile.label "Configuration File:">
+
+<!--pref-indentation.xul-->
+<!ENTITY autoIndentStyle.label "Auto-Indent Style:">
+<!ENTITY filePrefIndentationSpacePerIndent.label "Number of spaces per indent">
+<!ENTITY filePrefIndentationWhidtTabChar.label "Width of each Tab character">
+
+<!--pref-javascript.xul-->
+<!--pref-project-javascript.xul-->
+<!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+
+<!--pref-keys.xul-->
+<!ENTITY keyBindingsConfiguration.description "Key bindings determine what key shortcuts will start what command. Click on a command to see and modify its key configuration.">
+<!ENTITY removeAltKeyFromMenu.label "Remove Alt-&lt;letter&gt; shortcuts from menus">
+<!ENTITY keyBindingsSchemes.label "Key Binding Schemes (System schemes are in bold)">
+<!ENTITY keyBindingsSchemes.accesskey "S">
+<!ENTITY filePrefKeysCommands.label "Commands:">
+<!ENTITY filePrefKeysCommands.accesskey "C">
+<!ENTITY noCommandsMatch.description "No commands match the specified search string.">
+
+<!--pref-language.xul-->
+<!ENTITY comingSoon.label "Coming Soon ...">
+
+<!--pref-languages.xul-->
+<!ENTITY languagesSettings.description "Komodo comes with support for a variety of languages. Core editing features are enabled by default for a large set of languages.  For additional configuration of Core languages, select the language in the tree to the left.">
+
+<!--pref-mappeduri.xul-->
+<!ENTITY mappedUri.description "Specify any mapping of a URI to a local path that you would like Komodo to use when opening files, previewing, etc.">
+
+<!--pref-newfiles.xul-->
+<!ENTITY newButtonSettings.description "Specify the default language for files created using the 'New' Button.">
+<!ENTITY newFileEolIndicator.description "Specify the end-of-line (EOL) indicator for newly created files.">
+<!ENTITY noExtensionFile.label "If filename has no extension:">
+<!ENTITY numberTemplatesRember.label "Number of recent templates to remember">
+
+<!--pref-ui.xul-->
+<!ENTITY numberOfProjects.label "Number of Projects">
+<!ENTITY numberOfFiles.label "Number of Files">
+
+<!--pref-perl.xul-->
+<!ENTITY noPerlInterpreter.description "No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at">
+<!ENTITY noteRestartPerl.alert "Note: Komodo must be restarted for it to recognize new Perl installations.">
+<!ENTITY filePrefPerlUseThisInterpreter.label "Use this interpreter">
+<!ENTITY filePrefPerlLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
+<!ENTITY filePrefPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell.">
+
+<!--pref-php.xul-->
+<!ENTITY noPhpInterpreter.description "No PHP interpreter was found on your system PATH. If you would like to debug and run PHP programs in Komodo you will need to enter the path to your PHP executable below, or install PHP if it is not currently installed. You can get PHP from www.php.net.">
+<!ENTITY noteRestartPhp.alert "Note: Komodo must be restarted for it to recognize new PHP installations.">
+<!ENTITY filePrefPhpUseThisInterpreter.label "Use this interpreter">
+<!ENTITY filePrefPhpInifileDirectory.description "Directory containing php.ini">
+<!ENTITY phpFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+<!ENTITY commentStyle.label "Comment Style:">
+
+<!--pref-python.xul-->
+<!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system. If you would like to debug and run Python programs in Komodo you will need to install Python. You can get Python from ActiveState at">
+<!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
+<!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
+<!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
+
+<!--pref-ruby.xul-->
+<!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">
+<!ENTITY noteRestartRuby.alert "Note: Komodo must be restarted for it to recognize new Ruby installations.">
+<!ENTITY rubyDebuggerNotWorking.description "The Ruby debugger extension does not work with the version of Ruby selected or that is on your path. You need to use Ruby version 1.8.2 or later.  You can get Ruby from the Ruby home page at">
+<!ENTITY filePrefRubyUseThisInterpreter.label "Use this interpreter">
+<!ENTITY filePrefRubyLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
+<!ENTITY filePrefRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell.">
+
+<!--pref-xml-catalog.xul-->
+<!ENTITY xmlIdentifies.description "Komodo identifies the type of your XML/HTML documents, and uses that to provide autocompletion appropriate for each document.">
+<!ENTITY xmlRangeSchemas.description "Komodo ships with built-in support for a wide range of built-in document schemas, including HTML/XHTML, XSL, XBL, XUL, RDF, Relax-NG, DocBook, Atom, VXML, WML, and SVG (for a full list see the documentation).">
+<!ENTITY xmlAdditionalCatalogs.description "This dialog lets you add your own SGML or XML Catalog files for use in XML/HTML autocompletion. See the documentation for detailed instructions on how to create your own catalog file from a Schema or DTD.">
+
+<!--pref-printing.xul-->
+<!ENTITY printingWrapLongLines.label "Wrap long lines at">
+<!ENTITY printingCharNotWrap.label "characters (0 for no wrapping)">
+<!ENTITY printingScaleSizes.label "Scale font sizes from screen to print by">
+
+<!--pref-project.perl.xul-->
+<!ENTITY filePrefProjectPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
+
+<!--pref-project.php.xul-->
+<!ENTITY filePrefProjectPhpAdditionalDirectory.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+
+<!--pref-project.python.xul-->
+<!ENTITY filePrefProjectPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
+
+<!--pref-project.ruby.xul-->
+<!ENTITY filePrefProjectRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
+
+<!--pref-save.xul-->
+<!ENTITY fixWhiteSpace.label "Fix whitespace on save:">
+<!ENTITY autoSaveEvery.label "Auto-save every">
+<!ENTITY minutesZeroDisables.label "minutes (0 to disable)">
+<!ENTITY ifFileNameHasNoExtension.label "If filename has no extension:">
+
+<!--pref-servers.xul-->
+<!ENTITY serverType.label "Server Type (*)">
+<!ENTITY connectionName.label "Name (*)">
+<!ENTITY hostName.label "Hostname (*)">
+<!ENTITY portNumber.label "Port">
+<!ENTITY userName.label "User Name (*)">
+<!ENTITY password.label "Password">
+<!ENTITY defaultPath.label "Default Path">
+<!ENTITY requiredFieldMark.label "Required fields are marked with (*)">
+<!ENTITY timeoutSeconds.label "Timeout (seconds):">
+
+<!--pref-web.xul-->
+<!ENTITY whichBrowserUse.description "Which browser should Komodo use when opening URLs?">
+<!ENTITY whichMethodUse.description "Which method should be used to preview files in the browser?">
+
+<!--preview-properties.xul-->
+<!ENTITY useThisUrlPreview.label "Use this file/URL when previewing in browser:">
+
+<!--koPrefWidgest.xml-->
+<!ENTITY requestMethod.label "Request Method">
+<!ENTITY postType.label "Post Type">
+<!ENTITY browserArguments.label "Browser Arguments">
+
+<!--scc-properties.xul-->
+<!ENTITY sccPropertiesName.label "Name:">
+<!ENTITY sccPropertiesSystem.label "SCC System:">
+<!ENTITY sccPropertiesNA.label "N/A">
+<!ENTITY sccPropertiesStatus.label "Status:">
+<!ENTITY sccPropertiesDepotRev.label "Depot Revision:">
+<!ENTITY sccPropertiesLocalRev.label "Local Revision:">
+
+<!--commented in file pref-alllangfonts.xul-->
+<!--
+<!ENTITY htmlSample.label "HTML Sample">
+<!ENTITY pythonSample.label "Python Sample">
+<!ENTITY perlSample.label "Perl Sample">
+<!ENTITY phpSample.label "PHP Sample">
+                                            -->

@@ -67,7 +67,7 @@
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/editenvironvar.js"/>
 
 <vbox flex="1">
-            <label value="Add/Edit Environment Variable"
+            <label value="&AddEditEnvir.label;"
                    style="margin: 5px 1px;"/>
     <grid>
         <columns>
@@ -76,12 +76,12 @@
         </columns>
         <rows>
         <row>
-            <label value="Name:" control="varName" class="kopadded"
+            <label value="&AddEditEnvirName.label;" control="varName" class="kopadded"
                    style="width: 50px;margin: 5px 1px;"/>
             <textbox id="VarName" flex="1"/>
         </row>
         <row>
-            <label value="Value:" control="varValue" class="kopadded"
+            <label value="&AddEditEnvirValue.label;" control="varValue" class="kopadded"
                    style="width: 50px; margin: 5px 1px;"/>
             <hbox align="top">
                 <deck id="VarDeck" selectedIndex="0" flex="1">

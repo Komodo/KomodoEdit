@@ -106,7 +106,7 @@
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
-                    <textbox id="name-textbox" flex="1" value="&lt;unnamed command&gt;"
+                    <textbox id="name-textbox" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');" style="max-height: 1.6em;"/>
                     <spacer width="10"/>
                     <vbox _style="padding: 5px 5px 0px 5px;">
@@ -126,10 +126,10 @@
                 <!-- Basic options -->
                 <vbox flex="1">
                     <hbox align="center">
-                        <label value="Command:" control="command-textbox"
-                               accesskey="&m.accesskey;"/>
+                        <label value="&commandAlternative.label;" control="command-textbox"
+                               accesskey="&commandAlternative.accesskey;"/>
                         <textbox id="command-textbox"
-                                 accesskey="&commandTextbox.accesskey;"
+                                 accesskey="&commandAlternative.accesskey;"
                                  width="323"
                                  maxrows="10"
                                  type="autocomplete"
@@ -230,9 +230,9 @@
                         <caption label="&advancedOptions.label;"/>
 
                         <hbox flex="1" align="center">
-                            <label value="Start in:" control="cwd-textbox"
+                            <label value="&startIn.label;" control="cwd-textbox"
                                    style="width: 50px;"
-                                   accesskey="&S.accesskey;"/>
+                                   accesskey="&startIn.accesskey;"/>
                             <textbox id="cwd-textbox"
                                      flex="1"
                                      maxrows="10"
@@ -273,7 +273,7 @@
                         <spacer height="5"/>
 
                         <hbox flex="1">
-                            <label value="Run in:" control="run-in-use-menulist"
+                            <label value="&runIn.label;" control="run-in-use-menulist"
                                    style="width: 50px;"/>
                             <vbox flex="1">
                                 <menulist id="run-in-menulist" oncommand="UpdateField('runIn');">
@@ -318,7 +318,7 @@
                         <spacer height="5"/>
                         <vbox flex="1">
                             <script>var gEnvView = null;</script>
-                            <label value="Environment Variables:"/>
+                            <label value="&environmentVar.label;"/>
                             <tree id="env" style="height: 70px;"
                                       onclick="Env_OnClick(event);"
                                       onkeypress="return Env_OnKeyPress(event);">

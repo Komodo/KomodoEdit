@@ -402,7 +402,7 @@
                     <treerow>
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/pref-web.xul"
-                                  label="Web &amp; Browser"
+                                  label="&webAndBrowser.label;"
                                   helptag="web_and_browser"/>
                     </treerow>
                 </treeitem>

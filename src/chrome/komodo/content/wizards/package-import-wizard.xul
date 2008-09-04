@@ -170,22 +170,21 @@ function finished_onPageShow() {
 ]]>
 </script>
 
-    <wizardpage id="start" description="Name and location of package import."
+    <wizardpage id="start" description="&importNameAndLocationDesc.label;"
                 label="&importNameAndLocation.label;"
                 onpageadvanced="return package_validate();">
         <description>
-            To import a package you must select the package you wish to import,
-            and the location that it can be extracted into.
+            &importNameAndLocationDesc.description;
         </description>
         <seperator/>
-        <label value="Select a package to import:"/>
+        <label value="&selectPackageToImport.label;"/>
         <hbox align="center">
             <textbox id="packageFile" flex="1"/>
             <button label="&browse.label;"
                     oncommand="package_OnBrowseFile('packageFile');"/>
         </hbox>
         <seperator class="thin"/>
-        <text value="Select the location to extract the files:"/>
+        <text value="&selectLocationToExtract.label;"/>
         <hbox align="center">
             <textbox id="extractLocation" flex="1"/>
             <button label="&browse.label;"
@@ -194,7 +193,7 @@ function finished_onPageShow() {
     </wizardpage>
 
     <wizardpage id="finished" label="&finishedWithImport.label;"
-                description="Finished with the import process."
+                description="&importFinishedDesc.label;"
                 onpageshow="finished_onPageShow();">
         <description id="finish-msg" style="font-weight: bold;"/>
     </wizardpage>

@@ -73,7 +73,7 @@
     </popupset>
 
     <hbox align="center">
-        <label control="name" value="Variable Name:" style="width: 7em;"/>
+        <label control="name" value="&variableName.label;" style="width: 7em;"/>
         <textbox id="name"
                  flex="1"
                  type="autocomplete"
@@ -88,7 +88,7 @@
     </hbox>
     <separator class="thin"/>
     <hbox align="center">
-        <label control="value" value="Variable Value:" style="width: 7em;"/>
+        <label control="value" value="&variableValue.label;" style="width: 7em;"/>
         <textbox id="value"
                  flex="1"
                  style="max-height: 1.5em;"

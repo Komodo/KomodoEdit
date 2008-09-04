@@ -79,17 +79,17 @@
                         </columns>
                         <rows>
                             <row align="center">
-                                <label value="Name:" control="nameField"/>
+                                <label value="&name.label;" control="nameField"/>
                                 <textbox id="nameField" readonly="true" flex="1" oninput="updateApply();"/>
                             </row>
                             <separator class="thin" />
                             <row align="center">
-                                <label value="Size:" control="sizeField"/>
-                                <description id="sizeField" value="N/A" class="kopadded" crop="middle"/>
+                                <label value="&size.label;" control="sizeField"/>
+                                <description id="sizeField" value="&filePropertiesNA.label;" class="kopadded" crop="middle"/>
                             </row>
                             <separator class="thin" />
                             <row align="center">
-                                <label value="Location:" control="locationField"/>
+                                <label value="&location.label;" control="locationField"/>
                                 <textbox id="locationField" readonly="true"/>
                             </row>
                             <separator class="thin" />
@@ -99,18 +99,18 @@
                             </hbox>
                             <separator class="thin" />
                             <row align="center">
-                                <label value="Created:" control="createdField"/>
-                                <description id="createdField" value="N/A" class="kopadded" crop="middle"/>
+                                <label value="&created.label;" control="createdField"/>
+                                <description id="createdField" value="&filePropertiesNA.label;" class="kopadded" crop="middle"/>
                             </row>
                             <separator class="thin" />
                             <row align="center">
-                                <label value="Modified:" control="modifiedField"/>
-                                <description id="modifiedField" value="N/A" class="kopadded" crop="middle"/>
+                                <label value="&modified.label;" control="modifiedField"/>
+                                <description id="modifiedField" value="&filePropertiesNA.label;" class="kopadded" crop="middle"/>
                             </row>
                             <separator class="thin" />
                             <row align="center">
-                                <label value="Access:" control="accessedField"/>
-                                <description id="accessedField" value="N/A" class="kopadded" crop="middle"/>
+                                <label value="&access.label;" control="accessedField"/>
+                                <description id="accessedField" value="&filePropertiesNA.label;" class="kopadded" crop="middle"/>
                             </row>
                             <separator class="thin" />
                             <hbox align="center">
@@ -119,20 +119,20 @@
                             </hbox>
                             <separator class="thin" />
                             <row align="center">
-                                <description value="Attribute"/>
+                                <description value="&attribute.label;"/>
                                 <hbox id="rwbox" align="center">
                                     <checkbox id="rwCheckbox" disabled="true"/>
-                                    <label id="rwtext" value="Read-Only" control="rwCheckbox"/>
+                                    <label id="rwtext" value="&readOnly.label;" control="rwCheckbox"/>
                                 </hbox>
                             </row>
                         </rows>
                     </grid>
             </vbox>
             <vbox id="directory_tabpanel" flex="1" collapsed="true">
-                <label value="Files to include: (empty means 'all')"/>
+                <label value="&filesToInclude.label;"/>
                 <textbox id="inc-filter" pref="true" value=""  oninput="updateApply();"/>
                 <separator class="thin"/>
-                <label value="Files and directories to exclude: (empty means 'none')"/>
+                <label value="&filesToExclude.label;"/>
                 <textbox id="ex-filter" pref="true" value=""  oninput="updateApply();"/>
             </vbox>
         </tabpanels>

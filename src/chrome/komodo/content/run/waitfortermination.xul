@@ -80,11 +80,7 @@
         <separator orient="vertical" class="thin"/>
         <vbox flex="1">
             <description id="warning-description" flex="1">
-                You have started a command that modifies the current buffer.
-                The command is taking a long time to complete. It might be
-                hung. You can wait for the command to complete (this dialog
-                will automatically be dismissed) or abort the command by
-                clicking 'Kill.'
+                &waitForTermination.description;
             </description>
             <separator class="thin"/>
             <textbox id="command-textbox" readonly="true"/>
@@ -93,13 +89,13 @@
     </hbox>
     <!--<separator class="thin"/>-->
     <!--<checkbox id="doNotAsk-checkbox" checked="false" collapsed="true"-->
-    <!--          label="Don't show me this again." accesskey="d"/>-->
+    <!--          label="&dontShowAgain.label;" accesskey="&dontShowAgain.accesskey;"/>-->
 
 
 
   <!--<hbox>-->
   <!--  <spacer flex="1"/>-->
-  <!--  <button class="exit-dialog" id="kill-button" label="Abort Command"-->
+  <!--  <button class="exit-dialog" id="kill-button" label="&abortCommand.label;"-->
   <!--          oncommand="Kill();"/>-->
   <!--  <spacer flex="1"/>-->
   <!--</hbox>-->

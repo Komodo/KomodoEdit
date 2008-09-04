@@ -82,18 +82,18 @@
         <separator orient="vertical" class="thin"/>
         <vbox flex="1">
             <vbox>
-                <description>Please choose two files that you wish to compare.</description>
+                <description>&chooseFileToCompare.description;</description>
                 <separator class="thin"/>
-                <description>Note that if the two files are very large or very different, then comparing them may take a few seconds.</description>
+                <description>&noteCompareFiles.description;</description>
                 <separator class="thin"/>
             </vbox>
             <separator class="thin"/>
             <vbox>
                 <hbox align="center">
-                    <label width="60" value="First file:"/>
+                    <label width="60" value="&compareFirstFile.label;"/>
 <!--
             <textbox id="textbox_findInFiles"
-                     tooltiptext="Press Enter to Find in Files"
+                     tooltiptext="&pressEnterToFind.tooltiptext;"
                      type="autocomplete"
                      style="min-height: 16px;"
                      flex="1"
@@ -142,7 +142,7 @@
             <separator class="thin"/>
             <vbox>
                 <hbox align="center">
-                    <label width="60" value="Second file:"/>
+                    <label width="60" value="&compareSecondFile.label;"/>
                     <textbox id="second"
                              style="min-height: 20px;"
                              flex="1"

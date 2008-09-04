@@ -68,13 +68,13 @@
                 <textbox id="indentWidth" size="3"
                           pref="true" prefstring="indentWidth"
                           prefattribute="value"/>
-                <label value="Number of spaces per indent" control="indentWidth"/>
+                <label value="&fileIndentPropertiesSpacePerIndent.label;" control="indentWidth"/>
             </hbox>
             <hbox align="center">
                 <textbox id="tabWidth" size="3"
                           pref="true" prefstring="tabWidth"
                           prefattribute="value"/>
-                    <label value="Width of each Tab character" control="tabWidth"/>
+                    <label value="&fileIndentPropertiesWhidtTabChar.label;" control="tabWidth"/>
             </hbox>
     </groupbox>
 

@@ -104,3 +104,54 @@
 <!ENTITY viewWhitespace.label "View Whitespace">
 <!ENTITY wSelectionOrWordUnderCursor.label "[[&#37;w]] : selection or word under cursor">
 <!ENTITY wordWrap.label "Word Wrap">
+
+<!--authenticate.xul-->
+<!ENTITY server.label "Server:">
+<!ENTITY userName.label "User Name:">
+<!ENTITY userName.accesskey "U">
+<!ENTITY password.label "Password:">
+
+<!--compare.xul-->
+<!ENTITY chooseFileToCompare.description "Please choose two files that you wish to compare.">
+<!ENTITY noteCompareFiles.description "Note that if the two files are very large or very different, then comparing them may take a few seconds.">
+<!ENTITY compareFirstFile.label "First file:">
+<!ENTITY compareSecondFile.label "Second file:">
+
+<!--editEnvVar.xul-->
+<!ENTITY variableName.label "Variable Name:">
+<!ENTITY variableValue.label "Variable Value:">
+
+<!--featureControlPanel.xul-->
+<!ENTITY languageFeatures.label "Language Features">
+<!ENTITY perl.label "Perl">
+<!ENTITY php.label "Php">
+<!ENTITY python.label "Python">
+<!ENTITY ruby.label "Ruby">
+<!ENTITY xslt.label "XSLT">
+<!ENTITY otherLanguages.label "Other Languages">
+<!ENTITY sintaxCheckingUnknown.label "Syntax Checking: Status Unknown">
+<!ENTITY sintaxCheckingReady.label "Syntax Checking: Ready">
+<!ENTITY sintaxCheckingReadyJavscriptHtmlXml.label "Syntax Checking for JavaScript, HTML, XML: Ready">
+
+<!--iconpicker.xul-->
+<!ENTITY iconpicker.description "Select an icon to use from Komodo's standard set or click on 'Choose Other' to pick your own.  Choose a 16x16 image file for best results.">
+
+<!--internalError.xul-->
+<!ENTITY pleaseReport.label "You can help make Komodo better by reporting this to:">
+<!ENTITY or.label "or">
+<!ENTITY pleaseInclude.label "Please be sure to include the following text. Thank you.">
+
+<!--pickPreview.xul-->
+<!ENTITY pickPreviewInformation.description "Typically a file is used to preview itself but sometimes it is useful to preview another file that includes your file, e.g. using an HTML file to preview a CSS file.">
+
+<!--commented in compare.xul-->
+<!--
+<!ENTITY pressEnterToFind.tooltiptext "Press Enter to Find in Files">
+                                                                    -->
+
+<!--commented in editPathMap.xul-->
+<!--
+<!ENTITY browseLocalRemotoDir.tooltiptext "Browse for a local or remote directory">
+<!ENTITY browseLocally.label "Browse Locally...">
+<!ENTITY browseRemotely.label "Browse Remotely...">
+                                                                                     -->

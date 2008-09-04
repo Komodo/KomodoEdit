@@ -99,7 +99,7 @@
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
-                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                    <textbox id="partname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
                     <spacer width="10"/>
                     <vbox _style="padding: 5px 5px 0px 5px;">
@@ -115,7 +115,7 @@
                 <separator class="groovy-thin"/>
                 <spacer height="15"/>
                 <hbox align="center">
-                    <label value="Value:"/>
+                    <label value="&value.label;"/>
                     <textbox flex="1" id="partvalue" accesskey="&partvalue.accesskey;" onkeyup="updateOK()" value=""/>
                 </hbox>
             </vbox>

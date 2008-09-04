@@ -77,16 +77,16 @@
     <vbox  style="padding: 6px;">
         <hbox>
             <vbox pack="end">
-                <label value="Sample Text:"/>
+                <label value="&sampleText.label;"/>
             </vbox>
             <!--<spacer flex="1"/>-->
             <!--<menulist id="samplelanguagelist">-->
             <!--    <menupopup>-->
-            <!--        <menuitem label="HTML Sample"/>-->
-            <!--        <menuitem label="Python Sample"/>-->
-            <!--        <menuitem label="Perl Sample"/>-->
-            <!--        <menuitem label="PHP Sample"/>-->
-            <!--        <menuitem label="Browse..."/>-->
+            <!--        <menuitem label="&htmlSample.label;"/>-->
+            <!--        <menuitem label="&pythonSample.label;"/>-->
+            <!--        <menuitem label="&perlSample.label;"/>-->
+            <!--        <menuitem label="&phpSample.label;"/>-->
+            <!--        <menuitem label="&browse.label;"/>-->
             <!--    </menupopup>-->
             <!--</menulist>-->
         </hbox>
@@ -97,7 +97,7 @@
               style="margin-left: 6px; height: 160px;"/>
     </vbox>
     <vbox style="padding: 6px;">
-        <label value="Scheme: (System schemes are in bold)" accesskey="&S.accesskey;" control="schemeslist"/>
+        <label value="&schemeType.label;" accesskey="&schemeType.accesskey;" control="schemeslist"/>
         <hbox>
             <menulist id="schemeslist"
                       flex="1"
@@ -126,12 +126,12 @@
             <tabpanels>
                 <tabpanel id="fonts_panel" orient="vertical">
                     <description style="margin-bottom: 10px;">
-                        Choose an encoding and font for Komodo's editor windows.
+                        &chooseEncodFont.description;
                     </description>
                     <radiogroup>
                     <hbox align="center">
-                        <label value="Encoding: "
-                               accesskey="&E.accesskey;"
+                        <label value="&filePrefAllLangEncod.label;"
+                               accesskey="&filePrefAllLangEncod.accesskey;"
                                control="encodingslist"/>
                         <menulist id="encodingslist"
                                   sizetopopup="false"
@@ -147,8 +147,8 @@
                     <hbox>
                     <vbox flex="1">
                         <hbox align="center">
-                            <label value="Fixed Width:"
-                                   accesskey="&W.accesskey;"
+                            <label value="&filePrefAllLangFixedWidth.label;"
+                                   accesskey="&filePrefAllLangFixedWidth.accesskey;"
                                    control="fixed"/>
                             <radio id="preferFixed"
                                    oncommand="preferFixed(true)"
@@ -201,7 +201,7 @@
                                     oncommand="onClickBoldOrItalic(this)" />
                             <vbox>
                                 <hbox align="center">
-                                    <label value="Fore:"/>
+                                    <label value="&filPrefAllLangForeText;"/>
                                     <colorpicker id="fixedColorPickerFore"
                                                  palettename="scin-customize"
                                                  type="button" width="20" height="20"
@@ -214,7 +214,7 @@
 <!-- #endif -->
                                 </hbox>
                                 <hbox align="center">
-                                    <label value="Back:"/>
+                                    <label value="&filPrefAllLangBackText;"/>
                                     <colorpicker id="fixedColorPickerBack"
                                                  palettename="scin-customize"
                                                  type="button" width="20" height="20"
@@ -231,7 +231,7 @@
                     </vbox>
                     <vbox flex="1">
                         <hbox align="center">
-                            <label value="Proportional:"
+                            <label value="&filePrefAllLangProportional.label;"
                                    control="proportional"/>
                             <radio id="preferProp"
                                    oncommand="preferFixed(false)"
@@ -284,7 +284,7 @@
                                     oncommand="onClickBoldOrItalic(this)"/>
                             <vbox>
                                 <hbox align="center">
-                                    <label value="Fore:"/>
+                                    <label value="&filPrefAllLangForeText;"/>
                                     <colorpicker id="propColorPickerFore"
                                                  palettename="scin-customize"
                                                  type="button" width="20" height="20"
@@ -297,7 +297,7 @@
 <!-- #endif -->
                                 </hbox>
                                 <hbox align="center">
-                                    <label value="Back:"/>
+                                    <label value="&filPrefAllLangBackText;"/>
                                     <colorpicker id="propColorPickerBack"
                                                  palettename="scin-customize"
                                                  type="button" width="20" height="20"
@@ -317,10 +317,9 @@
                 </tabpanel>
                 <tabpanel id="colors_panel" orient="vertical">
                     <description style="margin-bottom: 10px;">
-                        Choose colors for Komodo's editor elements (i.e.
-                        anything in the editor that is not syntax coloring).
+                        &chooseColorEditorElement.description;
                     </description>
-                    <label value="Color Choice: " accesskey="&h.accesskey;" control="extracolors"/>
+                    <label value="&filePrefAllLangColorChoice.label;" accesskey="&filePrefAllLangColorChoice.accesskey;" control="extracolors"/>
                     <hbox align="center">
                         <menulist id="extracolors">
                             <menupopup>
@@ -381,12 +380,11 @@
                 </tabpanel>
                 <tabpanel id="common_panel" orient="vertical">
                     <description style="margin-bottom: 10px;">
-                        Set styling for syntax elements common to many
-                        programming languages.
+                        &styleForElements.description;
                     </description>
                     <vbox>
                         <hbox align="center">
-                            <label value="Element Type: " accesskey="&T.accesskey;" control="commonlist"/>
+                            <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="commonlist"/>
                             <menulist id="commonlist"
                                       style="width: 180px"
                                       oncommand="updateCommonStyle();">
@@ -400,14 +398,14 @@
 
                         <separator class="thin"/>
                             <hbox align="center">
-                                <label value="Face:"/>
+                                <label value="&filePrefAllLangFace.label;"/>
                                 <menulist id="fixedOrPropCommon" oncommand="pickFaceType(this)">
                                     <menupopup>
                                         <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
                                         <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
                                     </menupopup>
                                 </menulist>
-                                <label value="Size:"/>
+                                <label value="&filePrefAllLangSize.label;"/>
                                 <menulist id="commonSize" oncommand="onClickCommonSize()">
                                     <menupopup>
                                         <menuitem id="commonSize_8" value="8" label="8"/>
@@ -444,7 +442,7 @@
                             </hbox>
                             <separator class="thin"/>
                             <hbox align="center">
-                                <label value="Foreground:"/>
+                                <label value="&filePrefAllLangForeground.label;"/>
                                 <colorpicker id="commonColorPickerFore"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"
@@ -455,7 +453,7 @@
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('commonColorPickerFore')"/>
 <!-- #endif -->
-                                <label value="Background:"/>
+                                <label value="&filePrefAllLangBackground.label;"/>
                                 <colorpicker id="commonColorPickerBack"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"
@@ -471,17 +469,17 @@
                 </tabpanel>
                 <tabpanel id="specific_panel" orient="vertical">
                     <description style="margin-bottom: 10px;">
-                        Set styling for language-specific syntax elements.
+                        &styleForSpecElements.description;
                     </description>
                     <hbox align="center">
-                        <label value="Language:" class="kopadded" accesskey="&G.accesskey;" control="languageList"/>
+                        <label value="&filePrefAllLangLanguage.label;" class="kopadded" accesskey="&filePrefAllLangLanguage.accesskey;" control="languageList"/>
                         <langlist id="languageList" oncommand="changeLanguage()"/>
                     </hbox>
                     <separator class="thin"/>
                     <hbox>
                         <vbox flex="1">
                             <hbox align="center">
-                                <label value="Element Type: " accesskey="&Y.accesskey;" control="specificlist"/>
+                                <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType2.accesskey;" control="specificlist"/>
                                 <menulist flex="1" id="specificlist" oncommand="updateSpecificStyle()">
                                     <menupopup id="specificpopup"/>
                                 </menulist>
@@ -492,14 +490,14 @@
                             </hbox>
                             <separator class="thin"/>
                             <hbox align="center">
-                                <label value="Face:"/>
+                                <label value="&filePrefAllLangFace.label;"/>
                                 <menulist id="fixedOrPropSpecific" oncommand="pickFaceType(this)">
                                     <menupopup>
                                         <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
                                         <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
                                     </menupopup>
                                 </menulist>
-                                <label value="Size:"/>
+                                <label value="&filePrefAllLangSize.label;"/>
                                 <menulist id="specificSize" oncommand="onClickSpecificSize()">
                                     <menupopup>
                                         <menuitem id="specificSize_8" value="8" label="8"/>
@@ -536,7 +534,7 @@
                             </hbox>
                             <separator class="thin"/>
                             <hbox align="center">
-                                <label value="Foreground:"/>
+                                <label value="&filePrefAllLangForeground.label;"/>
                                 <colorpicker id="specificColorPickerFore"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"
@@ -547,7 +545,7 @@
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('specificColorPickerFore')"/>
 <!-- #endif -->
-                                <label value="Background:"/>
+                                <label value="&filePrefAllLangBackground.label;"/>
                                 <colorpicker id="specificColorPickerBack"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"

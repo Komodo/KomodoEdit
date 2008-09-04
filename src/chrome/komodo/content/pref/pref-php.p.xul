@@ -66,18 +66,13 @@
         <caption label="&defaultPHPInterpreter.label;"/>
         <vbox id="no-avail-interps-message" collapsed="true">
             <vbox flex="1" align="center">
-                <description style="font-weight: bold;">No PHP interpreter was
-                             found on your system PATH. If you would like to
-                             debug and run PHP programs in Komodo you will need
-                             to enter the path to your PHP executable below,
-                             or install PHP if it is not currently installed.
-                             You can get PHP from www.php.net.</description>
+                <description style="font-weight: bold;">&noPhpInterpreter.description;</description>
                 <button label="&httpAspnActiveStateComASPNPHP.label;" class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('Note: Komodo must be restarted for it to recognize new PHP installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://aspn.ActiveState.com/ASPN/PHP/');"/>
+                        oncommand="alert('&noteRestartPhp.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://aspn.ActiveState.com/ASPN/PHP/');"/>
             </vbox>
         </vbox>
         <vbox flex="1">
-            <text value="Use this interpreter" style="padding: 2px 6px 2px 6px"/>
+            <text value="&filePrefPhpUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">
             <menulist id="phpDefaultInterpreter"
                 flex="1"
@@ -94,7 +89,7 @@
     <groupbox orient="vertical">
         <caption label="&pathToAlternatePHPConfigurationFile.label;"/>
         <vbox>
-        <description id="iniExplain">Directory containing php.ini</description>
+        <description id="iniExplain">&filePrefPhpInifileDirectory.description;</description>
 
         <hbox align="center">
             <textbox id="phpConfigFile" flex="1"
@@ -109,9 +104,7 @@
     <groupbox orient="vertical">
         <caption label="&PHPDirectories.label;"/>
         <description>
-            Specify any directories that you want Komodo to use for
-            autocomplete and calltips. Komodo will recursively scan these
-            directories for information.
+            &phpFolder.description;
         </description>
 	<pathlist
 		id="phpExtraPaths"
@@ -124,7 +117,7 @@
     <groupbox orient="vertical">
         <caption label="&otherOptions.label;"/>
         <hbox align="center">
-        <label value="Comment Style:"/>
+        <label value="&commentStyle.label;"/>
         <menulist id="commentStyle"
                       pref="true" prefstring="phpCommentStyle"
                       prefattribute="data">

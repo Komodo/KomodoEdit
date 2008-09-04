@@ -369,12 +369,12 @@
             </xul:treechildren>
             <xul:menupopup>
             <xul:menuitem anonid="context_open"
-                      label="Open"
+                      label="&open.label;"
                       class="menuitem-iconic open-file-icon"
                       oncommand="this.parentNode.parentNode.parentNode.openSelected();"
                       />
             <xul:menuitem anonid="context_remove"
-                      label="Remove"
+                      label="&remove.label;"
                       class="menuitem-iconic list-item-remove-icon"
                       oncommand="this.parentNode.parentNode.parentNode.removeSelected();"
                       />
@@ -881,26 +881,24 @@
                                  title="&openSampleProject.title;"
                                  oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
                                  class="open-sample">
-                            <xul:description width="240px">Contains a number of files
-                            showing many of the features of Komodo.</xul:description>
+                            <xul:description width="240px">&openSampleProject.description;</xul:description>
                         </xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&checkConfiguration.title;"
                                  oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.checkConfiguration();"
                                  class="properties-icon">
-                            <xul:description width="240px">Checks system configuration to
-                            ensure all Komodo features are working properly.</xul:description>  
+                            <xul:description width="240px">&checkConfiguration.description;</xul:description>  
                         </xul:box>
                 </xul:hbox>
             </xul:box>
 
-            <xul:box type="startpage" anonid="mru-box" title="Recent Projects and Files"
+            <xul:box type="startpage" anonid="mru-box" title="&recentProjectFiles.title;"
                      pref="start_page_mru_box_closed" flex="1" ordinal="2">
                 <xul:hbox flex="1">
 
                     <xul:separator/>
                     <xul:vbox style="padding: 2px 5px 0px 5px">
-                        <xul:label value="Actions:" style="font-weight: bold"/>
+                        <xul:label value="&actions.label;" style="font-weight: bold"/>
                         <xul:button anonid="menu_file_newFile"
                                   label="&newFile.label;"
                                   align="left" pack="center"
@@ -926,7 +924,7 @@
     </content>
     <implementation name="viewstartpage" implements="koIStartPageView, nsIObserver">
 
-        <property name="title" readonly="true" onget="return 'Start Page';"/>
+        <property name="title" readonly="true" onget="return '&startPage.title;';"/>
 
         <field name="widgets">null</field>
 

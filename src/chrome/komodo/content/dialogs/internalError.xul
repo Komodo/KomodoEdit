@@ -68,20 +68,20 @@
         <separator orient="vertical" class="thin"/>
         <vbox flex="1">
             <description id="error" flex="1"/>
-            <label value="You can help make Komodo better by reporting this to:"/>
+            <label value="&pleaseReport.label;"/>
             <hbox align="center">
                 <separator style="width: 20px;"/>
                 <button label="&lt;http://bugs.activestate.com/&gt;"
                         class="button-link"
                         style="margin: -10px; color: #b82619;"
                         oncommand="Browse('http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo');"/>
-                <label value="or"/>
+                <label value="&or.label;"/>
                 <button label="&lt;komodo-feedback@ActiveState.com&gt;"
                         class="button-link"
                         style="margin: -10px; color: #b82619;"
                         oncommand="Browse('mailto:komodo-feedback@ActiveState.com');"/>
             </hbox>
-            <label value="Please be sure to include the following text. Thank you."/>
+            <label value="&pleaseInclude.label;"/>
             <textbox id="text" multiline="true" flex="1"
                      style="min-width: 40em; min-height: 8em;"
                      readonly="true"/>

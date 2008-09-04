@@ -56,10 +56,7 @@
     <groupbox>
         <caption label="&languageConfigurations.label;"/>
 	<description style="margin-top: 10px;">
-        Komodo comes with support for a variety of languages. Core editing
-        features are enabled by default for a large set of languages.  For
-        additional configuration of Core languages, select the language in
-        the tree to the left.
+        &languagesSettings.description;
 	</description>
 
 	<separator class="thin"/>

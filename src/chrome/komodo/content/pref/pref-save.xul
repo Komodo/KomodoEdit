@@ -56,7 +56,7 @@
 
     <groupbox orient="vertical">
         <caption label="&saveOptions.label;"/>
-        <label value="Fix whitespace on save:"/>
+        <label value="&fixWhiteSpace.label;"/>
             <checkbox style="margin-left: 40px;"
                         id="cleanLineEnds"
                         label="&cleanTrailingWhitespaceAndEOLMarkers.label;"
@@ -66,12 +66,15 @@
                         label="&ensureFileEndsWithEOLMarker.label;"
                         pref="true"/>
         <separator/>
+        <!-- Edited from localizator to better fit whit all languages -->
         <hbox align="center">
-            <label value="Minutes between auto-save (0 to disable):"/>
+            <label value="&autoSaveEvery.label;"/>
             <textbox id="autoSaveMinutes" size="3" pref="true"/>
+            <label value="&minutesZeroDisables.label;"/>
         </hbox>
+        <!-- End of edit -->
         <separator/>
-        <label value="If filename has no extension:"/>
+        <label value="&ifFileNameHasNoExtension.label;"/>
         <menulist pref="true" prefattribute="data"
                   prefstrings="donotask_ensure_filename_has_ext,donotask_action_ensure_filename_has_ext">
              <menupopup>

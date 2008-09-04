@@ -168,7 +168,7 @@ function browseForDir(elem, remote) {
             -->
             <!--
             <toolbarbutton id="editPathBrowseButton"
-                           tooltiptext="Browse for a local or remote directory"
+                           tooltiptext="&browseLocalRemotoDir.tooltiptext;"
                            type="menu"
                            persist="buttonstyle"
                            buttonstyle="pictures">
@@ -176,11 +176,11 @@ function browseForDir(elem, remote) {
                     <menuitem id="editpathmap_browse_local_menuitem"
                               class="menuitem-iconic"
                               oncommand="browseForDir(document.getElementById('path'), false)"
-                              label="Browse Locally..." />
+                              label="&browseLocally.label;" />
                     <menuitem id="editpathmap_browse_remote_menuitem"
                               class="menuitem-iconic"
                               oncommand="browseForDir(document.getElementById('path'), true)"
-                              label="Browse Remotely..." />
+                              label="&browseRemotely.label;" />
                 </menupopup>
             </toolbarbutton>
             -->

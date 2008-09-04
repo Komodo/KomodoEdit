@@ -34,6 +34,11 @@
  the terms of any one of the MPL, the GPL or the LGPL.
  
  ***** END LICENSE BLOCK ***** -->
+ 
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % findDTD SYSTEM "chrome://komodo/locale/find.dtd">
+  %findDTD;
+]>
 
 <!-- Dialog to *undo* a "Replace in Files" operation. -->
 
@@ -46,7 +51,7 @@
 <dialog id="dialog-undo-repl"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         windowtype="komodo_undo_repl"
-        title="Undo Replacements"
+        title="&undoReplacements.title;"
         orient="vertical"
         style="min-width: 40em; max-width: 50em;"
         persist="height width"
@@ -67,7 +72,7 @@
         <separator orient="vertical" class="thin"/>
         -->
         <description id="summary-desc" flex="1">
-            Undoing replacement.
+            &undoingReplacements.description;
         </description>
     </hbox>
 
@@ -76,7 +81,7 @@
       <hbox align="start" style="padding-right: 3px;">
         <image id="status-img"/>
       </hbox>
-      <description crop="center" id="status-desc" flex="1">Preparing...</description>
+      <description crop="center" id="status-desc" flex="1">&preparing.description;</description>
     </hbox>
     <tree id="repls" flex="1"
           seltype="multiple"

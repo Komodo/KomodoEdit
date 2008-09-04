@@ -136,26 +136,23 @@ function finished_onPageShow() {
 ]]>
 </script>
 
-    <wizardpage id="start" description="Export Steps">
+    <wizardpage id="start" description="&exportStepDesc.label;">
         <description>
-            To export a package you need to provide a name and location for the
-            package. Komodo will then gather any icons or files associated with
-            the items you selected to export, and create a KPZ file in the
-            location you have selected.
+            &exportStepDesc.description;
         </description>
     </wizardpage>
 
-    <wizardpage id="exportPage" description="Name and location of package export."
+    <wizardpage id="exportPage" description="&exportNameAndLocationDesc.label;"
                 label="&exportNameAndLocation.label;"
                 onpageadvanced="return package_validate();">
         <description>
-            Enter the name of the package, and a location to which to export it.
+            &exportNameAndLocationDesc.description;
         </description>
         <seperator/>
-        <label value="Package Name:"/>
+        <label value="&packageName.label;"/>
         <textbox id="packageName"/>
         <seperator class="thin"/>
-        <label value="Export Location:"/>
+        <label value="&exportLocation.label;"/>
         <hbox align="center">
             <textbox id="exportLocation" flex="1"/>
             <button label="&browse.label;"
@@ -164,7 +161,7 @@ function finished_onPageShow() {
     </wizardpage>
 
     <wizardpage id="finished" label="&finishedWithExport.label;"
-                description="Finished with the export process."
+                description="&exportFinishedDesc.label;"
                 onpageshow="finished_onPageShow();">
         <description id="finish-msg"/>
     </wizardpage>

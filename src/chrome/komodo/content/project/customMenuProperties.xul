@@ -97,7 +97,7 @@
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
-                    <textbox id="partname" flex="1" value="&lt;unnamed command&gt;"
+                    <textbox id="partname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
                 </hbox>
                 <spacer height="10"/>
@@ -106,7 +106,7 @@
                 <grid>
                     <rows>
                         <row align="center">
-                            <label value="Priority"
+                            <label value="&priority.label;"
                                    id="priority_label"
                                    accesskey="&priorityLabel.accesskey;"/>
                             <textbox size="3"
@@ -119,9 +119,9 @@
                         </row>
                         <separator class="thin"/>
                         <row align="center" id="accessbox" collapsed="true">
-                            <label value="Menu Access Key"
+                            <label value="&menuAccessKey.label;"
                                    tooltiptext="&pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext;"
-                                   accesskey="&m.accesskey;" />
+                                   accesskey="&menuAccessKey.accesskey;" />
                             <textbox size="1"
                                      tooltiptext="&pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext;"
                                      maxlength="1"

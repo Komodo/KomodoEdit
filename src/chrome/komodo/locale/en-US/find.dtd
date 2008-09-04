@@ -139,3 +139,71 @@
 <!ENTITY zeroOrMoreOfThePrecedingBlockNonGreedy.label "*? : zero or more of the preceding block (non-greedy)">
 <!ENTITY zeroOrOneOfThePrecedingBlock.label "? : zero or one of the preceding block">
 <!ENTITY zeroOrOneOfThePrecedingBlockNonGreedy.label "?? : zero or one of the preceding block (non-greedy)">
+
+<!--browseForDirs.xul-->
+<!ENTITY selectDirsForSearch.description "Select directories in which to search for files.">
+
+<!--confirmrepl.xul-->
+<!ENTITY confirmReplacement.title "Confirm Replacements">
+<!ENTITY confirmReplacement.description "Confirm replacements before changes are made. Mark the files you would like to change and click 'Make Changes' to commit. Click 'Cancel' to cancel without making any changes.">
+<!ENTITY preparing.label "Preparing...">
+<!ENTITY checkToApplyChanges.tooltiptext "Check to apply changes to this file">
+<!ENTITY showSelectedChanges.label "Show Selected Changes">
+<!ENTITY showSelectedChanges.tooltiptext "Show the changes for the selected paths.">
+<!ENTITY showSelectedChanges.accesskey "l">
+<!ENTITY showMarkedChanges.label "Show Marked Changes">
+<!ENTITY showMarkedChanges.tooltiptext "Show the changes for all marked paths.">
+<!ENTITY showMarkedChanges.accesskey "k">
+
+<!--find2.xul-->
+<!ENTITY findWhat.label "Find what:">
+<!ENTITY findWhat.accesskey "n">
+<!ENTITY regExpShortcut.tooltiptext "Regular Expression Shortcuts">
+<!ENTITY namedGroup.label "(?P&lt;name&gt;...) : named group">
+<!ENTITY matchesIfNextNotConsume.label "(?=...) : matches if &lt;...&gt; matches next, but does not consume the string">
+<!ENTITY matchesIfNotNextNotConsume.label "(?!...) : matches if &lt;...&gt; does NOT match next, but does not consume the string">
+<!ENTITY positiveLookbehindAssertion.label "(?&lt;=...) : positive lookbehind assertion">
+<!ENTITY positiveLookbehindAssertion.tooltiptext "matches if the current position is immediately preceded by a match for &lt;...&gt;">
+<!ENTITY negativeLookbehindAssertion.label "(?&lt;!...) : negative lookbehind assertion">
+<!ENTITY negativeLookbehindAssertion.tooltiptext "matches if the current position is NOT immediately preceded by a match for &lt;...&gt;">
+<!ENTITY replaceWith.label "Replace with:">
+<!ENTITY replaceWith.accesskey "l">
+<!ENTITY regex.label "Regex">
+<!ENTITY regex.accesskey "x">
+<!ENTITY regex.tooltiptext "Treat the pattern as a regular expression">
+<!ENTITY matchCase.label "Match case">
+<!ENTITY matchCase.accesskey "c">
+<!ENTITY word.label "Word">
+<!ENTITY word.accesskey "W">
+<!ENTITY matchWholeWords.tooltiptext "Match whole words">
+<!ENTITY multiline.accesskey "t">
+<!ENTITY replace.accesskey "p">
+<!ENTITY searchIn.accesskey "i">
+<!ENTITY selectedText.label "Selected text">
+<!ENTITY openFiles.label "Open files">
+<!ENTITY filesAlt.label "Files">
+<!ENTITY collection.label "Collection">
+<!ENTITY directories.label "Directories:">
+<!ENTITY directories.accesskey "D">
+<!ENTITY threeFullStop.label "...">
+<!ENTITY threeFullStop.accesskey ".">
+<!ENTITY editListDirToSearch.tooltiptext "Edit list of directories to search">
+<!ENTITY searchInSubDir.label "Search in sub-directories">
+<!ENTITY searchInSubDir.accesskey "b">
+<!ENTITY include.label "Include:">
+<!ENTITY include.accesskey "u">
+<!ENTITY exclude.label "Exclude:">
+<!ENTITY exclude.accesskey "E">
+<!ENTITY findPrev.accesskey "v">
+<!ENTITY confirm.label "Confirm">
+<!ENTITY confirm.accesskey "m">
+<!ENTITY confirm.tooltiptext "Confirm replacements before making changes">
+<!ENTITY showResults.label "Show results">
+<!ENTITY showResults.accesskey "o">
+<!ENTITY showResults.tooltiptext "Show results tab in bottom pane for 'Replace All'">
+<!ENTITY markAll.accesskey "k">
+
+<!--undorepl.xul-->
+<!ENTITY undoReplacements.title "Undo Replacements">
+<!ENTITY undoingReplacements.description "Undoing replacement.">
+<!ENTITY preparing.description "Preparing...">

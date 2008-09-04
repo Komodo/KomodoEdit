@@ -108,13 +108,13 @@
           <textbox id="mruProjectSize" size="3" maxlength="2"
                      pref="true"
                      prefattribute="value"/>
-          <label control="mruProjectSize" value="Number of Projects"/>
+          <label control="mruProjectSize" value="&numberOfProjects.label;"/>
       </hbox>
       <hbox align="center">
           <textbox id="mruFileSize" size="3" maxlength="2"
                      pref="true"
                      prefattribute="value"/>
-          <label control="mruFileSize" value="Number of Files"/>
+          <label control="mruFileSize" value="&numberOfFiles.label;"/>
       </hbox>
   </groupbox>
 </window>

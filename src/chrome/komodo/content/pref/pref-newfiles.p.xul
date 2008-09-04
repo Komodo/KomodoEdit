@@ -62,8 +62,7 @@
 
         <vbox>
             <description>
-                Specify the default language for files created using the "New"
-                Button.
+                &newButtonSettings.description;
             </description>
             <!-- Note: There is a little bit of special handling in the
                  JS to set the initial value of this widget. -->
@@ -74,8 +73,7 @@
        <separator class="thin"/>
        <vbox>
             <description>
-                Specify the end-of-line (EOL) indicator for newly created
-                files.
+                &newFileEolIndicator.description;
             </description>
             <hbox pack="start">
                <menulist id="endOfLine"
@@ -94,7 +92,7 @@
        </vbox>
 
         <separator class="thin"/>
-        <label value="If filename has no extension:"/>
+        <label value="&noExtensionFile.label;"/>
         <menulist pref="true" prefattribute="data"
                   prefstrings="donotask_ensure_new_filename_has_ext,donotask_action_ensure_new_filename_has_ext">
              <menupopup>
@@ -111,7 +109,7 @@
             <textbox id="mruTemplateSize" size="2" maxlength="2"
                      pref="true" prefattribute="value"/>
             <label control="mruTemplateSize"
-                   value="Number of recent templates to remember"/>
+                   value="&numberTemplatesRember.label;"/>
             <button label="&clearList.label;"
                     oncommand="PrefNewFiles_ClearTemplateMRU();"
                     tooltiptext="&clearListOfRecentTemplates.tooltiptext;"/>

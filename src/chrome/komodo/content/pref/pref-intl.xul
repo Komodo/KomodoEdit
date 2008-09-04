@@ -64,7 +64,7 @@
         <vbox flex="1">
             <hbox flex="1">
                 <checkbox id="encodingEnvironment"
-                          baselabel="Use Encoding Defined in Environment"
+                          baselabel="&useEncodeEnvironment.label;"
                           pref="true" oncommand="updateDefaultEncodingSection();"
                           prefattribute="checked" flex="1"/>
                 <hbox id="unsupportedEncodingWarningBox" collapsed="true"
@@ -77,7 +77,7 @@
             </hbox>
             <hbox flex="1" style="padding-left: 20px;">
                 <hbox align="center" pack="end">
-                    <text class="kopadded" value="Custom Encoding"/>
+                    <text class="kopadded" value="&customEncoding.label;"/>
                 </hbox>
                 <menulist id="encodingDefault" flex="1"
                           pref="true"
@@ -125,7 +125,7 @@
     </groupbox>
 
     <groupbox orient="vertical">
-        <caption label="Date &amp; Time"/>
+        <caption label="&dateTime.label;"/>
         <grid>
             <columns>
                 <column />
@@ -134,7 +134,7 @@
             <rows>
                 <row>
                     <hbox align="center" pack="end">
-                        <label value="Format"/>
+                        <label value="&format.label;"/>
                     </hbox>
                     <hbox>
                         <textbox id="defaultDateFormat" flex="1"
@@ -245,7 +245,7 @@
                     <hbox/>
                     <hbox align="center">
                         <hbox align="center" pack="end">
-                            <label value="Example:" control="dateFormatExample"/>
+                            <label value="&dateTimeExample.label;" control="dateFormatExample"/>
                             <label id="dateFormatExample" flex="1"/>
                         </hbox>
                     </hbox>

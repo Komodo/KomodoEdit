@@ -72,7 +72,7 @@
     <script src="chrome://komodo/content/find/browseForDirs.js" type="application/x-javascript;version=1.7"/>
 
     <description>
-        Select directories in which to search for files.
+        &selectDirsForSearch.description;
     </description>
 
     <separator class="thin"/>

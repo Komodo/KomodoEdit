@@ -82,10 +82,7 @@ function OnPreferencePageLoading() {
     <groupbox orient="vertical">
         <caption label="&additionalPythonImportDirectories.label;"/>
         <description>
-            Specify any additional directories that you want Komodo to
-            add to the Python path when debugging, syntax checking or
-            in the interactive shell.  Komodo will also scan
-            these directories for Autocompletion and Calltips information.
+            &filePrefProjectPythonAdditionalDirectory.description;
         </description>
 	<pathlist
                 id="pythonExtraPaths"

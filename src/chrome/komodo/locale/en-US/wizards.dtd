@@ -41,3 +41,19 @@
 <!ENTITY importNameAndLocation.label "Import Name and Location">
 <!ENTITY packageExportWizard.title "Package Export Wizard">
 <!ENTITY packageImportWizard.title "Package Import Wizard">
+
+<!--package-export-wizard.xul-->
+<!ENTITY exportStepDesc.label "Export Steps">
+<!ENTITY exportStepDesc.description "To export a package you need to provide a name and location for the package. Komodo will then gather any icons or files associated with the items you selected to export, and create a KPZ file in the location you have selected.">
+<!ENTITY exportNameAndLocationDesc.label "Name and location of package export.">
+<!ENTITY exportNameAndLocationDesc.description "Enter the name of the package, and a location to which to export it.">
+<!ENTITY packageName.label "Package Name:">
+<!ENTITY exportLocation.label "Export Location:">
+<!ENTITY exportFinishedDesc.label "Finished with the export process.">
+
+<!--package-import-wizard.xul-->
+<!ENTITY importNameAndLocationDesc.label "Name and location of package import.">
+<!ENTITY importNameAndLocationDesc.description "To import a package you must select the package you wish to import, and the location that it can be extracted into.">
+<!ENTITY selectPackageToImport.label "Select a package to import:">
+<!ENTITY selectLocationToExtract.label "Select the location to extract the files:">
+<!ENTITY importFinishedDesc.label "Finished with the import process.">

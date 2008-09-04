@@ -65,25 +65,21 @@
         <caption label="&defaultRubyInterpreter.label;"/>
         <vbox id="no-avail-interps-message" collapsed="true" flex="1" align="center">
             <description style="font-weight: bold;">
-                No Ruby interpreter was found on your system. If you would
-                like to debug and run Ruby programs in Komodo you will need
-                to install Ruby. You can get Ruby from the Ruby home page at
+                &noRubyInterpreter.description;
             </description>
             <button label="&httpWwwRubyLangOrg.label;"
                     class="button-link-a" style="cursor:pointer;"
-                    oncommand="alert('Note: Komodo must be restarted for it to recognize new Ruby installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+                    oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
         </vbox>
         <vbox id="invalid-version-message" collapsed="true" flex="1" align="center">
             <description style="font-weight: bold;">
-                The Ruby debugger extension does not work with the version of
-                Ruby selected or that is on your path. You need to use Ruby
-                version 1.8.2 or later.  You can get Ruby from the Ruby home page at
+                &rubyDebuggerNotWorking.description;
             </description>
             <button label="&httpWwwRubyLangOrg.label;"
                     class="button-link-a" style="cursor:pointer;"
-                    oncommand="alert('Note: Komodo must be restarted for it to recognize new Ruby installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+                    oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
         </vbox>
-        <text value="Use this interpreter" style="padding: 2px 6px 2px 6px"/>
+        <text value="&filePrefRubyUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
         <hbox align="center">
             <menulist id="rubyDefaultInterpreter"
                 flex="1"
@@ -99,7 +95,7 @@
     <groupbox orient="vertical">
         <caption label="&backgroundSyntaxChecking.label;"/>
         <description>
-            You can configure the level of strictness that is used when doing background syntax checks.
+            &filePrefRubyLevelStricness.description;
         </description>
         <hbox align="center">
             <menulist id="ruby_lintOption"
@@ -119,9 +115,7 @@
     <groupbox orient="vertical">
         <caption label="&additionalRubyImportDirectories.label;"/>
         <description>
-            Specify any additional directories that you want Komodo to
-            add to the Ruby path when debugging, syntax checking or
-            in the interactive shell.
+            &filePrefRubyAdditionalDirectory.description;
         </description>
 	<pathlist
                 id="rubyExtraPaths"

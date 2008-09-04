@@ -64,23 +64,23 @@
             <checkbox id="import_live" label="&liveImport.label;"
                       oncommand="PrefFolderImport_updateLive()"
                       pref="true" prefstring="import_live" />
-            <label value="Directory to import from" class="kopadded"/>
+            <label value="&directoryImportFrom.label;" class="kopadded"/>
             <hbox align="center">
                 <textbox id="import_dirname" pref="true" flex="1" />
                 <button label="&browse.label;" oncommand="PrefFolderImport_doBrowseForDir()" />
             </hbox>
             <separator class="thin"/>
-            <label value="Files to include: (empty means 'all')"/>
+            <label value="&filesToInclude.label;"/>
             <textbox id="import_include_matches" pref="true" value=""/>
             <separator class="thin"/>
-            <label value="Files and directories to exclude: (empty means 'none')"/>
+            <label value="&filesToExclude.label;"/>
             <textbox id="import_exclude_matches" pref="true" value=""/>
             <separator class="thin"/>
             <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
                 oncommand="PrefFolderImport_updateRecursive()"
                 pref="true" prefstring="import_recursive" />
             <separator class="thin"/>
-            <label value="Type of folder structure to create:"/>
+            <label value="&typeFolderStructure.label;"/>
             <menulist id="import_type"
                       pref="true"
                       prefattribute="data">

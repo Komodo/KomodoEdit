@@ -56,7 +56,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   buttons="cancel"
-  buttonlabelcancel="Close"
+  buttonlabelcancel="&closeButton.Label;"
   width="600"
   height="400"
   screenX="20"
@@ -81,7 +81,7 @@
     <hbox id="scintillaOverlayXul"/>
 
     <vbox flex="1">
-        <hbox><label id="tail_path_label" value="File Path: "/><label id="dialogheader"/></hbox>
+        <hbox><label id="tail_path_label" value="&filePath.label;"/><label id="dialogheader"/></hbox>
         <separator />
         <view type="buffer" id="view" flex="1"/>
     </vbox>

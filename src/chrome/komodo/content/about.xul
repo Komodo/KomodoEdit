@@ -70,7 +70,7 @@
 
     <vbox flex="1" id="buildinfo">
         <separator class="thin"/>
-        <label value="Build Information:"/>
+        <label value="&buildInformation.label;"/>
         <textbox id="build-info" readonly="true" flex="1" multiline="true"
                  style="background-color: transparent; border: none;"/>
     </vbox>

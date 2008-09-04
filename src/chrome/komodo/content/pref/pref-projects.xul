@@ -55,7 +55,7 @@
 
     <groupbox orient="vertical">
         <caption label="&workspace.label;"/>
-        <label value="When starting Komodo:"/>
+        <label value="&filePrefProjectWhenStart.label;"/>
         <menulist pref="true" prefattribute="data"
                   prefstrings="donotask_restore_workspace,donotask_action_restore_workspace">
              <menupopup>
@@ -75,7 +75,7 @@
         <caption label="&openingAndClosingProjects.label;"/>
         <vbox>
             <hbox align="center">
-                <label value="When opening a project:"/>
+                <label value="&filePrefProjectWhenOpenProject.label;"/>
                 <menulist pref="true" prefattribute="data"
                           prefstrings="donotask_open_recent_files_on_project_open,donotask_action_open_recent_files_on_project_open">
                      <menupopup>
@@ -86,7 +86,7 @@
                 </menulist>
             </hbox>
             <hbox align="center">
-                <label value="When closing a project:"/>
+                <label value="&filePrefProjectWhenCloseProject.label;"/>
                 <menulist pref="true" prefattribute="data"
                           prefstrings="donotask_close_all_files_on_project_close,donotask_action_close_all_files_on_project_close">
                     <menupopup>
@@ -106,13 +106,13 @@
                   prefstring="diskBackgroundCheck"
                   prefattribute="checked"/>
         <hbox align="center">
-            <label value="Update every"/>
+            <label value="&filePrefProjectUpdateEvery.label;"/>
             <textbox id="diskBackgroundMinutes"
                      size="3"
                      pref="true"
                      prefstring="diskBackgroundMinutes"
                      prefattribute="value"/>
-            <label value=" minutes"/>
+            <label value="&filePrefProjectMinutes.label;"/>
         </hbox>
     </groupbox>
 

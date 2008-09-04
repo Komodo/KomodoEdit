@@ -86,7 +86,7 @@
         <hbox flex="1">
             <vbox flex="1">
                 <hbox align="center">
-                    <label value="Run:" control="command-textbox"/>
+                    <label value="&commandTextbox.label;" control="command-textbox"/>
                     <textbox id="command-textbox"
                              accesskey="&commandTextbox.accesskey;"
                              width="323"
@@ -210,8 +210,8 @@
                 <caption label="&advancedOptions.label;"/>
 
                 <hbox flex="1" align="center">
-                    <label value="Start in:" control="cwd-textbox"
-                           style="width: 50px;" accesskey="&S.accesskey;"/>
+                    <label value="&startIn.label;" control="cwd-textbox"
+                           style="width: 50px;" accesskey="&startIn.accesskey;"/>
                     <textbox id="cwd-textbox"
                              flex="1"
                              maxrows="10"
@@ -251,7 +251,7 @@
                 <spacer height="5"/>
 
                 <hbox flex="1">
-                    <label value="Run in:" control="run-in-menulist"
+                    <label value="&runIn.label;" control="run-in-menulist"
                            style="width: 50px;"/>
                     <vbox flex="1">
                         <menulist id="run-in-menulist" oncommand="UpdateRunIn();">
@@ -293,7 +293,7 @@
                 <spacer height="5"/>
                 <vbox flex="1">
                     <script>var gRunEnvView = null;</script>
-                    <label value="Environment Variables:"/>
+                    <label value="&environmentVar.label;"/>
                     <tree id="env" style="height: 70px;"
                               onclick="RunEnv_OnClick(event);"
                               onkeypress="return RunEnv_OnKeyPress(event);">

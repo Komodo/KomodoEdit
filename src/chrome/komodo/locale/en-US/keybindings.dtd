@@ -145,3 +145,11 @@
 <!ENTITY sourceCodeViIncreaseLineIndent.desc "Source Code: Vi: Increase Line Indent">
 <!ENTITY sourceCodeViJumpToMatchingBrace.desc "Source Code: Vi: Jump to Matching Brace">
 <!ENTITY viEmulationMode.tooltiptext "Vi emulation mode">
+
+<!--keybindings.xml-->
+<!ENTITY currentKeySequence.label "Current Key Sequence">
+<!ENTITY currentKeySequence.accesskey "K">
+<!ENTITY newKeySequence.label "New Key Sequence">
+<!ENTITY keyCombinationNotAvailable.label "This key combination is not available.">
+<!ENTITY keySequenceUsedBy.label "Key Sequence Currently Used By">
+

@@ -61,11 +61,11 @@
 
     <groupbox style="padding:6px;" orient="vertical">
         <caption label="&keyBindings.label;" />
-        <description>Key bindings determine what key shortcuts will start what command. Click on a command to see and modify its key configuration.</description>
+        <description>&keyBindingsConfiguration.description;</description>
 <!-- #if PLATFORM != 'darwin' -->
         <separator class="thin"/>
         <checkbox id="keybindingDisableAccesskeys"
-                  label="Remove Alt-&lt;letter&gt; shortcuts from menus"
+                  label="&removeAltKeyFromMenu.label;"
                   pref="true"
                   prefstring="keybindingDisableAccesskeys"
                   prefattribute="checked"/>
@@ -74,8 +74,8 @@
                   label="&enableViEmulation.label;"
                   oncommand="setViKeybindings(this);"/>
         <separator class="thin"/>
-            <label value="Key Binding Schemes (System schemes are in bold)"
-                    accesskey="&S.accesskey;" control="configurations"/>
+            <label value="&keyBindingsSchemes.label;"
+                    accesskey="&keyBindingsSchemes.accesskey;" control="configurations"/>
             <hbox>
                 <menulist flex="1" id="configurations">
                     <menupopup id="configpopup"/>
@@ -92,7 +92,7 @@
             </hbox>
         <separator class="thin"/>
         <hbox align="center">
-            <label value="Commands:" flex="1" accesskey="&C.accesskey;" control="commands-filter-textbox"/>
+            <label value="&filePrefKeysCommands.label;" flex="1" accesskey="&filePrefKeysCommands.accesskey;" control="commands-filter-textbox"/>
             <image class="commands-filter-icon"
                    tooltiptext="&filterCommands.tooltiptext;"
                    />
@@ -107,7 +107,7 @@
         </hbox>
         <deck id="deck" style="height: 150px">
             <description id="nohits" style="padding: 5px">
-                No commands match the specified search string.
+                &noCommandsMatch.description;
             </description>
             <listbox id="keybinding-tree"
                 tooltip="aTooltip"

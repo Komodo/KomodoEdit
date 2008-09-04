@@ -52,10 +52,10 @@
                                 pref="true" prefattribute="label"
                                 selectedItem="0" align="center"
                                 orient="horizontal">
-                    <xul:description value="Request Method" class="kopadded"/>
+                    <xul:description value="&requestMethod.label;" class="kopadded"/>
                     <xul:radio group="request-method" id="GET" label="&GET.label;"/>
                     <xul:radio group="request-method" id="POST" label="&POST.label;"/>
-                    <xul:description value="Post Type" class="kopadded"/>
+                    <xul:description value="&postType.label;" class="kopadded"/>
                     <xul:menulist id="postType"
                                   pref="true" prefstring="posttype"
                                   prefattribute="data">
@@ -66,7 +66,7 @@
                         </xul:menupopup>
                     </xul:menulist>
                 </xul:radiogroup>
-                <xul:description value="Browser Arguments" class="kopadded"/>
+                <xul:description value="&browserArguments.label;" class="kopadded"/>
                 <xul:tree id="browserArgs" flex="1"
                           onclick="this.parentNode.parentNode.onSelect(event);">
                     <xul:treecols>
@@ -84,7 +84,7 @@
                     <xul:caption label="&requestVariable.label;" class="kopadded"/>
                     <xul:hbox flex="1">
                         <xul:vbox flex="1">
-                            <xul:description value="Type" class="kopadded"/>
+                            <xul:description value="&type.label;" class="kopadded"/>
                             <xul:menulist id="cgiVarType">
                                 <xul:menupopup>
                                     <xul:menuitem label="&GET.label;" onclick="this.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.setType('GET');"/>
@@ -95,12 +95,12 @@
                             </xul:menulist>
                         </xul:vbox>
                         <xul:vbox flex="1">
-                            <xul:description value="Name" class="kopadded"/>
+                            <xul:description value="&name.label;" class="kopadded"/>
                             <xul:textbox id="cgiVarName"
                                          oninput="this.parentNode.parentNode.parentNode.parentNode.parentNode.varNameKeypress(event);"/>
                         </xul:vbox>
                         <xul:vbox flex="1">
-                            <xul:description value="Value" class="kopadded"/>
+                            <xul:description value="&value.label;" class="kopadded"/>
                             <xul:textbox id="cgiVarValue" multiline="true" height="60px"
                                          oninput="this.parentNode.parentNode.parentNode.parentNode.parentNode.varValueKeypress(event);"/>
                         </xul:vbox>

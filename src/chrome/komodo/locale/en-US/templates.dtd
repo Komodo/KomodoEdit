@@ -46,3 +46,13 @@
 <!ENTITY newFile.title "New File">
 <!ENTITY remote.label "Remote...">
 <!ENTITY remoteFileDir.accesskey "R">
+
+<!--new.xul-->
+<!ENTITY categories.label "Categories">
+<!ENTITY categories.accesskey "g">
+<!ENTITY templates.label "Templates">
+<!ENTITY templates.accesskey "m">
+<!ENTITY fileName.label "Filename:">
+<!ENTITY fileName.accesskey "n">
+<!ENTITY directory.label "Directory:">
+<!ENTITY directory.accesskey "D">

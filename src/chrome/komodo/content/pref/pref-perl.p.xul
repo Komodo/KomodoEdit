@@ -65,13 +65,13 @@
         <caption label="&defaultPerlInterpreter.label;"/>
         <vbox flex="1" align="center" id="no-avail-interps-message" collapsed="true">
             <description style="font-weight: bold;">
-                No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at
+                &noPerlInterpreter.description;
             </description>
             <button label="&httpWwwActiveStateComProductsActivePerl.label;"
                     class="button-link-a" style="cursor:pointer;"
-                    oncommand="alert('Note: Komodo must be restarted for it to recognize new Perl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ActivePerl/');"/>
+                    oncommand="alert('&noteRestartPerl.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ActivePerl/');"/>
         </vbox>
-        <text value="Use this interpreter" style="padding: 2px 6px 2px 6px"/>
+        <text value="&filePrefPerlUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
         <hbox align="center">
             <menulist id="perlDefaultInterpreter"
                 flex="1"
@@ -86,7 +86,7 @@
     <groupbox orient="vertical">
         <caption label="&backgroundSyntaxChecking.label;"/>
         <description>
-            You can configure the level of strictness that is used when doing background syntax checks.
+            &filePrefPerlLevelStricness.description;
         </description>
         <hbox align="center">
             <menulist id="perl_lintOption"
@@ -106,9 +106,7 @@
     <groupbox orient="vertical">
         <caption label="&additionalPerlImportDirectories.label;"/>
         <description>
-            Specify any additional directories that you want Komodo to
-            add to the Perl path when debugging, syntax checking or
-            in the interactive shell.
+            &filePrefPerlAdditionalDirectory.description;
         </description>
         <pathlist
                 id="perlExtraPaths"

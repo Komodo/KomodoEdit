@@ -79,7 +79,7 @@
     </hbox>
     <hbox flex="1">
         <vbox flex="1">
-            <text value="Server Type (*)" class="kopadded"/>
+            <text value="&serverType.label;" class="kopadded"/>
             <menulist id="server_types" oncommand="checkAddButtonStatus();">
                 <menupopup id ="server_typesPopup">
                     <menuitem label="&FTP.label;" value="ftp"/>
@@ -92,37 +92,37 @@
             </menulist>
         </vbox>
         <vbox flex="1">
-            <text value="Name (*)" class="kopadded"/>
+            <text value="&connectionName.label;" class="kopadded"/>
             <textbox id="alias" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&shortNameYouWishToCallThisServerConnection.tooltiptext;" />
         </vbox>
     </hbox>
     <hbox flex="1">
         <vbox flex="1">
-            <text value="Hostname (*)" class="kopadded"/>
+            <text value="&hostName.label;" class="kopadded"/>
             <textbox id="hostname" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&theServerNameToConnectToEitherADomainNameOrAIPAddress.tooltiptext;" />
         </vbox>
         <vbox flex="1">
-            <text value="Port" class="kopadded"/>
+            <text value="&portNumber.label;" class="kopadded"/>
             <textbox id="port" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&ifNoPortIsGivenTheDefaultProtocolPortIsUsed.tooltiptext;" />
         </vbox>
     </hbox>
     <hbox flex="1">
         <vbox flex="1">
-            <text value="User Name (*)" class="kopadded"/>
+            <text value="&userName.label;" class="kopadded"/>
             <textbox id="username" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&usernameUsedToLoginToTheRemoteServer.tooltiptext;" />
         </vbox>
         <vbox flex="1">
-            <text value="Password" class="kopadded"/>
+            <text value="&password.label;" class="kopadded"/>
             <textbox id="password" type="password" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext;"/>
         </vbox>
     </hbox>
     <vbox flex="1">
-        <text value="Default Path" class="kopadded"/>
+        <text value="&defaultPath.label;" class="kopadded"/>
         <textbox id="path" flex="1" value="" oninput="checkAddButtonStatus();"
                  tooltiptext="&ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext;" />
     </vbox>
@@ -137,14 +137,14 @@
     </hbox>
 
     <separator />
-    <text value="Required fields are marked with (*)" class="kopadded" />
+    <text value="&requiredFieldMark.label;" class="kopadded" />
 </groupbox>
 
 <groupbox orient="vertical">
     <caption label="&defaultConnectionTimeout.label;"/>
     <hbox flex="1">
         <vbox flex="1">
-            <label value="Timeout (seconds):"/>
+            <label value="&timeoutSeconds.label;"/>
             <textbox id="remotefiles_defaultConnectionTimeout"
                      size="5"
                      pref="true"/>

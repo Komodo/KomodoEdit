@@ -93,9 +93,9 @@
 
     <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-    <label value="Item Name"/>
+    <label value="&itemName.Label;"/>
     <textbox id="partName" pref="true" value=""/>
     <separator class="thin"/>
-    <label value="Item Value"/>
+    <label value="&itemValue.Label;"/>
     <textbox id="partValue" pref="true" readonly="true" multiline="true" value="" flex="1"/>
 </dialog>

@@ -74,20 +74,13 @@ function OnPreferencePageLoading() {
     <groupbox orient="vertical">
         <caption label="&XMLCatalogs.label;"/>
         <description>
-            Komodo identifies the type of your XML/HTML documents, and uses that
-            to provide autocompletion appropriate for each document.
+            &xmlIdentifies.description;
         </description>
         <description>
-            Komodo ships with built-in support for a wide range of built-in
-            document schemas, including HTML/XHTML, XSL, XBL, XUL, RDF,
-            Relax-NG, DocBook, Atom, VXML, WML, and SVG (for a full list see the
-            documentation).
+            &xmlRangeSchemas.description;
         </description>
         <description>
-            This dialog lets you add your own SGML or XML Catalog files for use
-            in XML/HTML autocompletion. See the documentation for detailed
-            instructions on how to create your own catalog file from a Schema or
-            DTD.
+            &xmlAdditionalCatalogs.description;
         </description>
 	<pathlist
 		id="xmlCatalogPaths"

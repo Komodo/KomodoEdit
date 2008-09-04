@@ -76,8 +76,8 @@
                 </columns>
                 <rows>
                     <row>
-                        <label value="Directory to import from:" class="kopadded"/>
-                        <label value="Browse for directory location:" class="kopadded"/>
+                        <label value="&directoryImportFrom.label;" class="kopadded"/>
+                        <label value="&browseForDyrectoryLoc.label;" class="kopadded"/>
                     </row>
                     <row>
                         <textbox id="dirname" pref="true" flex="1" />
@@ -89,10 +89,10 @@
                 </rows>
             </grid>
             <separator class="thin"/>
-            <label value="Files to include: (empty means 'all')"/>
+            <label value="&filesToInclude.label;"/>
             <textbox id="inc-filter" pref="true" value=""/>
             <separator class="thin"/>
-            <label value="Files and directories to exclude: (empty means 'none')"/>
+            <label value="&filesToExclude.label;"/>
             <textbox id="ex-filter" pref="true" value=""/>
             <separator class="thin"/>
             <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
@@ -100,7 +100,7 @@
                 pref="true" prefstring="import-recursive" />
             <separator class="thin"/>
             <hbox pack="start" align="center">
-                <label value="Type of folder structure to create:"/>
+                <label value="&typeFolderStructure.label;"/>
                 <menulist id="import-type">
                     <menupopup>
                         <menuitem id="dirs" label="&importDirectoryStructure.label;" data="useFolders"/>

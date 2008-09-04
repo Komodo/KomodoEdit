@@ -57,7 +57,7 @@
   <groupbox orient="vertical">
     <caption label="&language.label;"/>
 
-    <text value="Coming Soon ..." />
+    <text value="&comingSoon.label;" />
   </groupbox>
 </window>
 

@@ -89,19 +89,19 @@
 
     <rows>
         <row id="serversList" align="center" collapsed="true" style="margin-bottom: 2px">
-            <label value="Server:" control="serverMenuList" />
+            <label value="&serverName.label;" control="serverMenuList" />
             <menulist id="serverMenuList" flex="1" crop="left" editable="true"
                 onkeypress="if (event.keyCode == 13) { onServerChanged(this.label);} "
                 oncommand="onServerChanged(this.label);">
                 <menupopup id="serverMenu" onpopupshowing="refreshServerMenu();"/>
             </menulist>
-            <!--<button label="New" oncommand="goServerPrefs();"/> -->
+            <!--<button label="&new.label;" oncommand="goServerPrefs();"/> -->
             <button class="server-pref-icon button-toolbar-a" tooltip="dialogTooltip" tooltiptext="&accounts.tooltiptext;"
                 oncommand="goServerPrefs();"/>
         </row>
         <!--<separator class="thin" />-->
         <row id="directoryList" align="center" style="margin-bottom: 2px">
-            <label value="Look in:" control="lookInMenuList" />
+            <label value="&lookIn.label;" control="lookInMenuList" />
             <menulist id="lookInMenuList" flex="1" oncommand="onDirectoryChanged(event.target);" crop="left">
                 <menupopup id="lookInMenu"/>
             </menulist>
@@ -143,7 +143,7 @@
 
     <rows>
         <row align="center">
-            <label value="File name:" label="&textInput.label;" />
+            <label value="&fileName.label;" label="&textInput.label;" />
             <textbox id="textInput"
                      flex="1"
                      type="autocomplete"
@@ -158,7 +158,7 @@
         </row>
         <separator class="thin" />
         <row id="filterBox" hidden="true" align="center">
-            <label value="Files of type:" control="filterMenuList" />
+            <label value="&fileOfType.label;" control="filterMenuList" />
             <menulist id="filterMenuList" flex="1" oncommand="onFilterChanged(event.target);">
                 <menupopup id="filterMenu"/>
             </menulist>

@@ -66,8 +66,7 @@
             <image class="small-warning-icon spaced" flex="1"/>
         </hbox>
         <description flex="1">
-            The Code Intelligence system is disabled. It can be re-enabled by
-            manually setting the 'codeintel_enabled' preference.
+            &codeIntelDisabled.description;
         </description>
     </hbox>
 
@@ -75,8 +74,7 @@
         <caption label="&codeIntelligence.label;"  disabled="true"/>
 
         <description>
-            Code Intelligence refers to the system that provides autocomplete,
-            calltips, and the Code Browser.
+            &codeIntel.description;
         </description>
 
         <checkbox id="codeintel_completion_triggering_enabled"
@@ -88,21 +86,17 @@
                   label="&enableAutocompleteFillUpCharacters.label;"
                   pref="true" prefattribute="checked"/>
         <description style="margin-left: 27px;">
-            "Fill-up" is where typing a certain character — like '(' or '.'
-            — during an autocomplete session will trigger insertion of the
-            current completion before the character itself is inserted.
+            &codeIntelAutocompleteFillUpCharacters.description;
         </description>
     </groupbox>
 
     <groupbox id="groupbox-2" orient="vertical">
         <caption label="&APICatalogs.label;"/>
         <description>
-            Komodo uses API catalogs to provide autocomplete and calltips for
-            3rd-party libraries. Check the libraries that you use in your code.
+            &codeIntelAPICatalogs.description;
         </description>
         <description>
-            Note: Selecting all API catalogs for a particular language can lead
-            to confusing results.
+            &codeIntelAPICatalogsNote.description;
         </description>
 
         <separator class="thin"/>

@@ -80,7 +80,7 @@
     <hbox flex="1">
         <!-- Categories -->
         <vbox flex="1">
-            <label value="Categories" accesskey="&g.accesskey;" control="categories"/>
+            <label value="&categories.label;" accesskey="&categories.accesskey;" control="categories"/>
             <tree id="categories" flex="1" style="min-height: 140px;"
                   hidecolumnpicker="true" seltype="single"
                   onselect="CategoriesOnSelectionChange();">
@@ -95,7 +95,7 @@
 
         <!-- Templates -->
         <vbox flex="1">
-            <label value="Templates" accesskey="&m.accesskey;" control="templates"/>
+            <label value="&templates.label;" accesskey="&templates.accesskey;" control="templates"/>
             <tree id="templates" flex="1" style="min-height: 140px;"
                   hidecolumnpicker="true" seltype="single"
                   onselect="TemplatesOnSelectionChange();"
@@ -117,7 +117,7 @@
         </columns>
         <rows>
             <row align="center">
-                <label value="Filename:" control="filename" accesskey="&n.accesskey;"/>
+                <label value="&fileName.label;" control="filename" accesskey="&fileName.accesskey;"/>
                 <textbox id="filename"
                          type="autocomplete"
                          maxrows="10"
@@ -130,7 +130,7 @@
                          oninput="resetAddToProject();"/>
             </row>
             <row align="center">
-                <label value="Directory:" control="dirname" accesskey="&D.accesskey;"/>
+                <label value="&directory.label;" control="dirname" accesskey="&directory.accesskey;"/>
                 <hbox align="center">
                     <textbox id="dirname" flex="1" onchange="updateAccept()"
                              type="autocomplete"

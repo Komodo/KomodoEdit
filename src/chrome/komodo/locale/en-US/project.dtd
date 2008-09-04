@@ -106,3 +106,39 @@
 <!ENTITY triggerSystemNotificationName.accesskey "n">
 <!ENTITY triggers.label "Triggers">
 <!ENTITY wSelectionOrWordUnderCursor.label "[[&#37;w]]: selection or word under cursor">
+
+<!--customMenuProperties.xul-->
+<!ENTITY unnamedCommand.label "&lt;unnamed command&gt;">
+<!ENTITY priority.label "Priority">
+<!ENTITY menuAccessKey.label "Menu Access Key">
+<!ENTITY menuAccessKey.accesskey "m">
+
+<!--fileProperties.xul-->
+<!ENTITY name.label "Name:">
+<!ENTITY size.label "Size:">
+<!ENTITY location.label "Location:">
+<!ENTITY created.label "Created:">
+<!ENTITY modified.label "Modified:">
+<!ENTITY access.label "Access:">
+<!ENTITY attribute.label "Attribute">
+<!ENTITY readOnly.label "Read-Only">
+<!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
+<!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
+<!ENTITY filePropertiesNA.label "N/A">
+
+<!--importFromFS.xul-->
+<!ENTITY directoryImportFrom.label "Directory to import from:">
+<!ENTITY browseForDyrectoryLoc.label "Browse for directory location:">
+<!ENTITY typeFolderStructure.label "Type of folder structure to create:">
+
+<!--macroProperties.xul-->
+<!ENTITY language.label "Language: ">
+<!ENTITY rank.label "Rank:">
+<!ENTITY rank.accesskey "k">
+
+<!--renamePart.xul-->
+<!ENTITY itemName.Label "Item Name">
+<!ENTITY itemValue.Label "Item Value">
+
+<!--simplePartProperties.xul-->
+<!ENTITY value.label "Value:">

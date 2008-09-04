@@ -98,7 +98,7 @@ function OnPreferencePageLoading() {
                 </columns>
                 <rows>
                     <row align="center">
-                        <label value="Name:"/>
+                        <label value="&sccPropertiesName.label;"/>
                         <textbox id="scc-name" readonly="true" flex="1"/>
                     </row>
                     <separator style="height: 8px;"/>
@@ -106,23 +106,23 @@ function OnPreferencePageLoading() {
                     <separator class="thin"/>
 
                     <row align="center">
-                        <label value="SCC System:"/>
-                        <label id="scc-type" value="N/A" crop="middle"/>
+                        <label value="&sccPropertiesSystem.label;"/>
+                        <label id="scc-type" value="&sccPropertiesNA.label;" crop="middle"/>
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Status:"/>
-                        <label id="scc-status" value="N/A" crop="middle"/>
+                        <label value="&sccPropertiesStatus.label;"/>
+                        <label id="scc-status" value="&sccPropertiesNA.label;" crop="middle"/>
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Depot Revision:"/>
-                        <label id="scc-depotRevision" value="N/A" crop="middle"/>
+                        <label value="&sccPropertiesDepotRev.label;"/>
+                        <label id="scc-depotRevision" value="&sccPropertiesNA.label;" crop="middle"/>
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Local Revision:"/>
-                        <label id="scc-localRevision" value="N/A" crop="middle"/>
+                        <label value="&sccPropertiesLocalRev.label;"/>
+                        <label id="scc-localRevision" value="&sccPropertiesNA.label;" crop="middle"/>
                     </row>
                     <separator class="thin"/>
                 </rows>

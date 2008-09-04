@@ -76,8 +76,7 @@ function onload() {
     <groupbox orient="vertical">
         <caption label="&mappedURIs.label;"/>
         <description>
-            Specify any mapping of a URI to a local path that you would like Komodo
-            to use when opening files, previewing, etc.
+            &mappedUri.description;
         </description>
   
         <mappededitor id="mappings"

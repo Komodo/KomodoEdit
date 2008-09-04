@@ -52,3 +52,21 @@
 <!ENTITY type.label "Type">
 <!ENTITY unset.label "unset">
 <!ENTITY value.label "Value">
+
+<!--commented in file pref_control.xul-->
+<!--
+<!ENTITY copyName.label "Copy name">
+<!ENTITY copyName.accesskey "C">
+<!ENTITY copyValue.label "Copy value">
+<!ENTITY copyValue.accesskey "v">
+<!ENTITY new.label "New">
+<!ENTITY new.accesskey "N">
+<!ENTITY string.label "String">
+<!ENTITY string.accesskey "S">
+<!ENTITY integer.label "Integer">
+<!ENTITY integer.accesskey "I">
+<!ENTITY boolean.label "Boolean">
+<!ENTITY boolean.accesskey "B">
+<!ENTITY modify.label "Modify">
+<!ENTITY modify.accesskey "M">
+-->

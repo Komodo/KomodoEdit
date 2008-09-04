@@ -49,8 +49,8 @@
         <content>
         <xul:vbox flex="1">
             <xul:label class="label"
-                       value="Current Key Sequence"
-                       accesskey="&K.accesskey;"
+                       value="&currentKeySequence.label;"
+                       accesskey="&currentKeySequence.accesskey;"
                        control="currentlist"
                        style="width: 110px;"
                        align="right"
@@ -65,7 +65,7 @@
                 <xul:button id="clearall" oncommand="parentNode.parentNode.parentNode._clearAll()"
                     label="&clearAll.label;"/>
             </xul:hbox>
-            <xul:label class="label" value="New Key Sequence"
+            <xul:label class="label" value="&newKeySequence.label;"
                 style="width: 110px;" align="right"/>
             <xul:hbox>
                 <xul:textbox flex="1" id="newkey"
@@ -79,10 +79,10 @@
             </xul:hbox>
             <xul:vbox align="center">
                 <xul:label flex="1" id="notAvailable" class="label"
-                value="This key combination is not available." collapsed="true"
+                value="&keyCombinationNotAvailable.label;" collapsed="true"
                 style="color: darkred;" align="right"/>
             </xul:vbox>
-            <xul:label value="Key Sequence Currently Used By"/>
+            <xul:label value="&keySequenceUsedBy.label;"/>
             <xul:listbox id="usedby" rows="4">
             </xul:listbox>
         </xul:vbox>

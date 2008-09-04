@@ -81,9 +81,7 @@ function OnPreferencePageLoading() {
     <groupbox orient="vertical">
         <caption label="&javaScriptDirectories.label;"/>
         <description>
-            Specify any directories that you want Komodo to use for
-            autocomplete and calltips. Komodo will recursively scan these
-            directories for information.
+            &javascriptFolder.description;
         </description>
 	<pathlist
 		id="javascriptExtraPaths"

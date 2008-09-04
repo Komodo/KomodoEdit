@@ -1527,7 +1527,7 @@
                     <menuitem
                         id="menu_helpUpdates"
                         label="&checkForUpdates.label;"
-                        accesskey="U"
+                        accesskey="&menuHelpCheckForUpdates.accesskey;"
                         class="menuitem-iconic-wide"
                         oncommand="ko.launch.checkForUpdates()"
                         />
@@ -1833,7 +1833,7 @@
             <image id="openButton"
                    class="open-file-nohover-icon"
                    style="margin-left: 7px;"/>
-            <label value="Open"
+            <label value="&komodoFindToolbarOpen.label;"
                    accesskey="&openLabel.accesskey;"
                    control="textbox_open"
                    id="open_label"
@@ -1860,7 +1860,7 @@
                      onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"/>
             <toolbarseparator/>
             <image id="findButton" class="find"/>
-            <label value="Find"
+            <label value="&komodoFindToolbarFind.label;"
                    accesskey="&findLabel.accesskey;"
                    id="find_label"
                    control="textbox_find"
@@ -1881,7 +1881,7 @@
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
                      onkeypress="Findtoolbar_FindTextboxKeyPress(this, event);"/>
-            <label value="in"
+            <label value="&komodoFindToolbarIn.label;"
                    style="margin-left: 0px; margin-right: 0px"/>
             <textbox id="textbox_findInFiles"
                      tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
@@ -2430,7 +2430,7 @@
                             <separator style="width: 10px;"/>
                             <button id="findresults1-lock-button"
                                     class="find-lock-icon button-toolbar-a"
-                                    tooltiptext="Lock/Unlock Find Results"
+                                    tooltiptext="&lockUnlockFindResults.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).toggleLockResults();"/>
                         </hbox>
                         <tree id="findresults1" flex="1"
@@ -2496,7 +2496,7 @@
                             <separator style="width: 10px;"/>
                             <button id="findresults2-lock-button"
                                     class="find-lock-icon button-toolbar-a"
-                                    tooltiptext="Lock/Unlock Find Results"
+                                    tooltiptext="&lockUnlockFindResults.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).toggleLockResults();"/>
                         </hbox>
                         <tree id="findresults2" flex="1"

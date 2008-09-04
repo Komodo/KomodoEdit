@@ -532,7 +532,7 @@ function applyEncodingAndBOM(encodingName, bom)
                 </columns>
                 <rows>
                     <row align="center">
-                        <label value="Name:"/>
+                        <label value="&filePropertiesName.label;"/>
                         <textbox id="properties-name" readonly="true" flex="1"/>
                     </row>
                     <separator style="height: 8px;"/>
@@ -541,12 +541,12 @@ function applyEncodingAndBOM(encodingName, bom)
 
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Location:"/>
+                        <label value="&filePropertiesLocation.label;"/>
                         <textbox id="location" readonly="true"/>
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Size:"/>
+                        <label value="&filePropertiesSize.label;"/>
                         <label id="size"/>
                     </row>
                     <separator class="thin"/>
@@ -562,12 +562,12 @@ function applyEncodingAndBOM(encodingName, bom)
 <!-- #endif -->
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Modified:"/>
+                        <label value="&filePropertiesModified.label;"/>
                         <label id="modified"/>
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Accessed:"/>
+                        <label value="&filePropertiesAccessed.label;"/>
                         <label id="accessed"/>
                     </row>
                     <separator class="thin"/>
@@ -577,7 +577,7 @@ function applyEncodingAndBOM(encodingName, bom)
                     <separator class="thin"/>
                     <row align="center">
                         <!-- Should show Unix-style file mode for linux. -->
-                        <label value="Attributes:"/>
+                        <label value="&filePropertiesAttributes.label;"/>
                         <checkbox id="readonly" style="padding-left: 0px;"
                                   label="&readOnly.label;" accesskey="&readonly.accesskey;"
                                   oncommand="setField('readonly', this.checked);"/>
@@ -596,8 +596,8 @@ function applyEncodingAndBOM(encodingName, bom)
                 </columns>
                 <rows>
                     <row align="center">
-                        <label value="Language:" control="language"
-                               accesskey="&L.accesskey;"/>
+                        <label value="&filePropertiesLanguage.label;" control="language"
+                               accesskey="&filePropertiesLanguage.accesskey;"/>
                         <hbox align="center" flex="1">
                             <langlist id="language" flex="1"
                                       oncommand="setField('language', this.selection);"/>
@@ -608,8 +608,8 @@ function applyEncodingAndBOM(encodingName, bom)
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Encoding:" control="encoding"
-                               accesskey="&E.accesskey;"/>
+                        <label value="&filePropertiesEncoding.label;" control="encoding"
+                               accesskey="&filePropertiesEncoding.accesskey;"/>
                         <menulist id="encoding"/>
                     </row>
                     <row>
@@ -621,8 +621,8 @@ function applyEncodingAndBOM(encodingName, bom)
                     </row>
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Line Endings:" control="lineEndings"
-                               accesskey="&n.accesskey;"/>
+                        <label value="&filePropertiesLineEndings.label;" control="lineEndings"
+                               accesskey="&filePropertiesLineEndings.accesskey;"/>
                         <menulist id="lineEndings"
                                   oncommand="setField('lineEndings', this.value);">
                             <menupopup>
@@ -643,7 +643,7 @@ function applyEncodingAndBOM(encodingName, bom)
                                       label="&preserveExistingLineEndings.label;"
                                       oncommand="setField('lineEndings', document.getElementById('lineEndings').value);"/>
                             <description id="mixedLineEndings"
-                                         value="(This file has mixed line endings.)"
+                                         value="&filePropertiesMixedEndings.description;"
                                          style="color: #CC3333; margin-top: 0px; padding-left: 20px;"
                                          collapsed="true"/>
                         </vbox>
@@ -653,14 +653,14 @@ function applyEncodingAndBOM(encodingName, bom)
     </groupbox>
     <groupbox orient="vertical" id="markupSettings">
         <caption label="&documentMarkupSettings.label;"/>
-        <label value="Default DOCTYPE:"/>
+        <label value="&filePropertiesDefaultDoctype.label;"/>
         <menulist id="doctypeList"
                   flex="1">
             <menupopup id="doctypePopup">
                 <menuitem label="&determineFromContent.label;"/>
             </menupopup>
         </menulist>
-        <label value="Default Namespace:"/>
+        <label value="&filePropertiesDefaultNamespace.label;"/>
         <menulist id="namespaceList"
                   flex="1">
             <menupopup id="namespacePopup">

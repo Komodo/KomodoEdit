@@ -186,6 +186,7 @@
 <!ENTITY exchangePositionAndMark.label "Exchange Position and Mark">
 <!ENTITY existingFileS.label "Existing File(s)...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
+<!ENTITY exit.label "Exit">
 <!ENTITY expand.label "Expand">
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
@@ -348,6 +349,7 @@
 <!ENTITY menuFile.accesskey "F">
 <!ENTITY menuFileNew.accesskey "N">
 <!ENTITY menuFileOpen.accesskey "O">
+<!ENTITY menuFileQuitItem.accesskey "x">
 <!ENTITY menuFind.accesskey "F">
 <!ENTITY menuFindNext.accesskey "N">
 <!ENTITY menuHelpHelp.accesskey "H">
@@ -668,6 +670,22 @@
 <!ENTITY tclReferenceWeb.label "Tcl Reference (web)">
 <!ENTITY XSLTMailingLists.label "XSLT Mailing Lists">
 <!ENTITY XSLTReferenceWeb.label "XSLT Reference (Web)">
+
+<!--about.dtd-->
+<!ENTITY buildInformation.label "Build Information:">
+
+<!--komodo.xul-->
+<!ENTITY projectPanelName.label "Name">
+<!ENTITY lockUnlockFindResults.tooltiptext "Lock/Unlock Find Results">
+<!ENTITY komodoFindToolbarFind.label "Find">
+<!ENTITY komodoFindToolbarOpen.label "Open">
+<!ENTITY komodoFindToolbarIn.label "in">
+<!ENTITY menuHelpCheckForUpdates.accesskey "U">
+
+<!--commented in file commandsOverlay.xul-->
+<!--
+<!ENTITY editorCopyCurrentLine.desc "Editor: Copy current line">
+-->
 
 <!-- Mac system menu definitions -->
 <!ENTITY menuSysMacServices.label "Services">

@@ -56,6 +56,11 @@
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
 
+    <script type="text/javascript">
+    	var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
+    	var tabstopDelimiterField = "&tabstopDelimiterField.message;";
+    	var tabstopDelimiterMayNotBeAscii="&tabstopDelimiterMayNotBeAscii.message;";
+    </script>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
     
@@ -63,7 +68,7 @@
         try {
         var gMainWindow = ko.windowManager.getMainWindow();
         // get a keybinding and set the text correctly
-        var text = "Use tab character to complete words like __KEY__ ";
+        var text = useTabCharacterToCompleteWords;
         var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_completeWord');
         text = text.replace('__KEY__', keylabel);
         document.getElementById('editTabCompletes').setAttribute('label', text);
@@ -98,12 +103,11 @@
             for (var baseName in char_codes) {
                 var char_field = document.getElementById("editTabstopDelimiter" + baseName);
                 if (char_field.value.length == 0) {
-                    alert("The " + baseName.toLowerCase() + "-tabstop delimiter field may not be empty.");
+                    alert(tabstopDelimiterField.replace('%1', baseName.toLowerCase()));
                     char_field.focus();
                     return false;
                 } else if (char_field.value.charCodeAt(0) < 128) {
-                    alert("Tabstop delimiters may not be ASCII.  Please change the " +
-                          baseName.toLowerCase() + "-tabstop delimiter to a higher-bit character.");
+                    alert(tabstopDelimiterMayNotBeAscii.replace('%1', baseName.toLowerCase()));
                     char_field.focus();
                     char_field.select();
                     return false;
@@ -157,13 +161,13 @@
                       prefattribute="checked"
                       oncommand="pref_lint_doEnabling();"/>
             <textbox id="lintDelay" size="4" pref="true"/>
-            <label value="msecs"/> 
+            <label value="&msecs.label;"/> 
         </hbox>
         <checkbox id="editTabCompletes"
                   label="&useTabCharacterToCompleteWordsLikeCtrlSpace.label;"
                   pref="true"/>
         <hbox align="center">
-            <label value="Wrap long lines by:"/>
+            <label value="&fileEditSmartWrapLines.label;"/>
             <menulist pref="true"
                       id="editWrapType"
                       prefattribute="data"
@@ -176,7 +180,7 @@
             </menulist>
         </hbox>
         <hbox align="center">
-            <label value="Word wrap markers:"/>
+            <label value="&fileEditSmartWrapMarkers.label;"/>
             <menulist pref="true"
                       id="editWordWrapMarker"
                       prefattribute="data"
@@ -196,7 +200,7 @@
                   pref="true"/>
         <hbox align="center">
             <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-            <text value="Edge line column"/>
+            <text value="&fileEditSmartEdgeLine.label;"/>
         </hbox>
         
         <separator class="thin"/>
@@ -207,7 +211,7 @@
     <groupbox orient="vertical">
         <caption label="&folding.label;"/>
       <hbox align="center">
-        <label value="Fold mark style:"/>
+        <label value="&fileEditSmartFoldMarkStyle.label;"/>
         <menulist id="editFoldStyle" pref="true" prefattribute="data">
             <menupopup>
                 <menuitem data="none" label="&donTShowFoldMarks.label;"/>

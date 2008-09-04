@@ -56,7 +56,7 @@
 
     <groupbox orient="vertical">
         <caption label="&preview.label;"/>
-            <label value="Use this file/URL when previewing in browser:"
+            <label value="&useThisUrlPreview.label;"
                    control="preview"/>
             <textbox id="preview" pref="true" prefstring="preview_path"/>
             <hbox>
