@@ -316,11 +316,11 @@ if __name__ == '__main__':
 from optparse import OptionParser
 
 parser.add_option("-[[%tabstop:f]]",
-		  "--[[%tabstop:file]]",
-		  dest="[[%tabstop:file]]",
-		  help="[[%tabstop:desc]].",
-		  default="[[%tabstop:DEFAULT]]"
-		  )!@#_currentPos!@#_anchor</snippet>
+                  "--[[%tabstop:file]]",
+                  dest="[[%tabstop:file]]",
+                  help="[[%tabstop:desc]].",
+                  default="[[%tabstop:DEFAULT]]"
+                  )!@#_currentPos!@#_anchor</snippet>
 <snippet id="11e4757c-94d4-894e-a2cc-766acf52cfd2" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
 #![[%python]]
 import os, re
@@ -333,7 +333,6 @@ from time import strftime, strptime, localtime
 class [[%tabstop:name]](object):
     
     def __init__(self,*args):
-	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="93506188-83fb-214b-83e9-6799909842e2" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
@@ -352,7 +351,7 @@ for root, dirs, files in os.walk([[%tabstop:dirname]]):
 <snippet id="55b73c8f-c3a4-0741-939b-4ac6fdccc386" idref="cd59b5c5-1958-ba45-a896-75218787ea5b" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
     function(i) {
-	[[%tabstop:]]
+        [[%tabstop:]]
     }
 );!@#_currentPos!@#_anchor</snippet>
 <snippet id="6d12782f-1ee4-754b-8436-c5d2d5253efc" idref="cd59b5c5-1958-ba45-a896-75218787ea5b" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
@@ -367,7 +366,7 @@ $(document).ready(function() {
 <snippet id="7e98c136-04d1-f74d-9950-ecb5484885ab" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
 function _dump($data) {
     if (func_num_args() &gt; 1) {
-	$data = func_get_args();
+        $data = func_get_args();
     }
     return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
 }!@#_currentPos!@#_anchor</snippet>
@@ -389,7 +388,7 @@ class [[%tabstop:class]] «extends» «» {
     
     /*
         * __construct()
-	* @param $[[%tabstop:arg]]
+        * @param $[[%tabstop:arg]]
     */
     
     function __construct($[[%tabstop:arg]]) {
@@ -458,12 +457,12 @@ function [[%tabstop:name]]([[%tabstop:arg1]]) {
 
 var [[%tabstop:className]] = function() {
     [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
+};!@#_currentPos!@#_anchor</snippet>
 <snippet id="da6dfc19-f706-3d47-8334-ade88b924651" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
 try {
-  !@#_currentPos!@#_anchor   
+    !@#_currentPos!@#_anchor   
 } catch(e) {
-  alert(e);
+    alert(e);
 }</snippet>
 <snippet id="12b0edb6-c212-6c47-bdfc-a4e5551ae76c" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
 /**
@@ -488,7 +487,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 <snippet id="4ac9e1b6-18ef-e84c-a6ec-51a14e319ef3" idref="b7fb330a-0bca-f943-a28f-359c6542210c" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
     function(i) {
-	[[%tabstop:]]
+        [[%tabstop:]]
     }
 );!@#_currentPos!@#_anchor</snippet>
 <snippet id="7df8596f-9a0f-974e-8fb8-e298fcc70f23" idref="b7fb330a-0bca-f943-a28f-359c6542210c" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
@@ -609,7 +608,7 @@ function [[%tabstop:name]]([[%tabstop:arg1]]) {
  
 [[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
     [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
+};!@#_currentPos!@#_anchor</snippet>
 <snippet id="9f69bf30-a8fa-df48-8b41-91170db1ccce" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /**
  * [[%tabstop:className]]
@@ -620,9 +619,9 @@ var [[%tabstop:className]] = function() {
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="57ebfb1f-d7b2-8742-ad12-c6aa69dc1bf5" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
 try {
-  !@#_currentPos!@#_anchor   
+    !@#_currentPos!@#_anchor   
 } catch(e) {
-  alert(e);
+    alert(e);
 }</snippet>
 <snippet id="2fbbf5be-0992-dd4b-8e46-d168bacaed77" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
 /**
@@ -687,7 +686,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 <snippet id="68903540-cf0f-6d42-bfd5-b6a37c7a3499" idref="47b5cfe3-424c-6d4f-9885-17008f81c39c" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
     function(i) {
-	[[%tabstop:]]
+        [[%tabstop:]]
     }
 );!@#_currentPos!@#_anchor</snippet>
 <snippet id="52c01217-6fe1-b84e-8407-c38408e36961" idref="47b5cfe3-424c-6d4f-9885-17008f81c39c" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
@@ -919,11 +918,11 @@ if __name__ == '__main__':
 from optparse import OptionParser
 
 parser.add_option("-[[%tabstop:f]]",
-		  "--[[%tabstop:file]]",
-		  dest="[[%tabstop:file]]",
-		  help="[[%tabstop:desc]].",
-		  default="[[%tabstop:DEFAULT]]"
-		  )!@#_currentPos!@#_anchor</snippet>
+                  "--[[%tabstop:file]]",
+                  dest="[[%tabstop:file]]",
+                  help="[[%tabstop:desc]].",
+                  default="[[%tabstop:DEFAULT]]"
+                  )!@#_currentPos!@#_anchor</snippet>
 <snippet id="cd4aadae-2c57-b541-a049-92c1d3380114" idref="fcdb9b2b-4fc8-ac41-8573-7bad68188d98" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
 #![[%python]]
 import os, re
@@ -936,7 +935,7 @@ from time import strftime, strptime, localtime
 class [[%tabstop:name]](object):
     
     def __init__(self,*args):
-	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+        [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="ff55e5c6-517a-384d-9328-2ec570d3a276" idref="fcdb9b2b-4fc8-ac41-8573-7bad68188d98" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
@@ -955,11 +954,11 @@ if __name__ == '__main__':
     !@#_anchorpass!@#_currentPos</snippet>
 <snippet id="c454ed0c-9db0-8648-975c-ad566cd61c52" idref="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" indent_relative="true" keyboard_shortcut="" name="pyaddops" set_selection="false">
 parser.add_option("-[[%tabstop:f]]",
-		  "--[[%tabstop:file]]",
-		  dest="[[%tabstop:file]]",
-		  help="[[%tabstop:desc]].",
-		  default="[[%tabstop:DEFAULT]]"
-		  )!@#_currentPos!@#_anchor</snippet>
+                  "--[[%tabstop:file]]",
+                  dest="[[%tabstop:file]]",
+                  help="[[%tabstop:desc]].",
+                  default="[[%tabstop:DEFAULT]]"
+                  )!@#_currentPos!@#_anchor</snippet>
 <snippet id="15035d5f-b3cb-d145-9ef2-09fb85623c64" idref="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" indent_relative="true" keyboard_shortcut="" name="pyopts" set_selection="true">
 from optparse import OptionParser!@#_currentPos!@#_anchor</snippet>
 <snippet id="c845752b-c7b8-094f-b7ab-4af8dbbb3992" idref="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" indent_relative="false" keyboard_shortcut="" name="pybang" set_selection="true">
@@ -974,7 +973,7 @@ from time import strftime, strptime, localtime
 class [[%tabstop:name]](object):
     
     def __init__(self,*args):
-	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+        [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="06d72b16-5399-3b43-94a6-b45d2f4b8cc5" idref="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" indent_relative="true" keyboard_shortcut="" name="pydef" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
@@ -1033,7 +1032,7 @@ function [[%tabstop:name]]([[%tabstop:arg1]]) {
  
 [[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
     [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
+};!@#_currentPos!@#_anchor</snippet>
 <snippet id="0785b903-27f2-9741-bc8a-f3d6a6fd2627" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jsclass" set_selection="false">
 /**
  * [[%tabstop:className]]
@@ -1068,7 +1067,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 <snippet id="a6ef4443-2cb6-be4c-af13-59372d7f06c7" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
 function _dump($data) {
     if (func_num_args() &gt; 1) {
-	$data = func_get_args();
+        $data = func_get_args();
     }
     return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
 }!@#_currentPos!@#_anchor</snippet>
@@ -1090,7 +1089,7 @@ class [[%tabstop:class]] «extends» «» {
     
     /*
         * __construct()
-	* @param $[[%tabstop:arg]]
+        * @param $[[%tabstop:arg]]
     */
     
     function __construct($[[%tabstop:arg]]) {
@@ -1136,7 +1135,7 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 <snippet id="03794af8-21ed-0f43-b0ae-6e7e2966b160" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" indent_relative="true" keyboard_shortcut="" name="phpdump" set_selection="false">
 function _dump($data) {
     if (func_num_args() &gt; 1) {
-	$data = func_get_args();
+        $data = func_get_args();
     }
     return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
 }!@#_currentPos!@#_anchor</snippet>
@@ -1158,7 +1157,7 @@ class [[%tabstop:class]] «extends» «» {
     
     /*
         * __construct()
-	* @param $[[%tabstop:arg]]
+        * @param $[[%tabstop:arg]]
     */
     
     function __construct($[[%tabstop:arg]]) {
@@ -1229,10 +1228,10 @@ foreach [[%tabstop:VAR]] [[%tabstop]] {
 <snippet id="94f4af19-462b-eb46-a0dc-357d1a198bc7" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
 switch [[%tabstop:STRING]] {
     [[%tabstop:PATTERN]] {
-	[[%tabstop:ACTION]]
+        [[%tabstop:ACTION]]
     }
     [[%tabstop:PATTERN2]]
-	[[%tabstop:ACTION2]]
+        [[%tabstop:ACTION2]]
     }
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="d930cd3f-a095-d649-b6b6-620aa06a21a5" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
@@ -1242,7 +1241,7 @@ foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
 <snippet id="97f1d277-f151-b84e-939c-f9b5b6a7b96a" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
 if ([[%tabstop:EXPR]]) {
     [[%tabstop]]
-   }
+}
 elsif ([[%tabstop:EXPR]]) {
     [[%tabstop]]
 }
@@ -1252,15 +1251,14 @@ else {
 <snippet id="91278317-24c3-9d46-8dca-69686124ff22" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
 while ([[%tabstop:EXPR]]) {
     [[%tabstop]]
-}
-!@#_currentPos!@#_anchor</snippet>
+}!@#_currentPos!@#_anchor</snippet>
 <snippet id="b719cdb9-ca34-5547-80fa-4e5140a62bad" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
 #![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="d69aa705-67f7-dc44-a8b8-36ec1c3d80c1" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
-%[[%tabstop:name]] (
-    [[%tabstop]]	=&gt; [[%tabstop]],
-    [[%tabstop]]	=&gt; [[%tabstop]],
-)!@#_currentPos!@#_anchor</snippet>
+%[[%tabstop:name]] = (
+    [[%tabstop]] =&gt; [[%tabstop]],
+    [[%tabstop]] =&gt; [[%tabstop]],
+);!@#_currentPos!@#_anchor</snippet>
 <snippet id="a77072f0-56a7-3544-a6c2-bfd4810d6bd7" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 class [[%tabstop:name]]
   def [[%tabstop]]
