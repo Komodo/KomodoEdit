@@ -71,8 +71,6 @@ Import(
     "productType",
     "prettyProductType",
     "isGTK2Siloed",
-    'mozVersion',
-    'mozVersionNumber',
     "stubDir",
     "xulrunner",
     "xulrunnerBuildId",
@@ -188,6 +186,8 @@ if (!$xulrunner) {
     
         ["preprocess",       "app/brand.p.dtd", "app/brand.dtd"],
         ["preprocess",       "app/brand.p.properties", "app/brand.properties"],
+
+        ["preprocess",       "app/application.p.ini", "app/application.ini"],
 
         #TODO: Add ko_project.ico.
         ["cp",               "app/komodo.$productType.ico", "app/komodo.ico"],
@@ -335,11 +335,6 @@ if (!$xulrunner) {
         $cons->Install($stubDir, "stub/komodo");
     }
     
-    if ($mozVersionNumber >= 190) {
-        $cons->Preprocess("application.p.ini", "application.ini", \%ppData);
-        $cons->Install($mozBin, "application.ini");
-    }
-
 } else {
     # XULRUNNER 1.9 build
     my ($frameworkDir, $appFrameworkDir, $appBin, $xulrunnerBin);
