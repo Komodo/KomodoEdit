@@ -57,6 +57,7 @@ Import(
     "mozChromeDir",
     "mozResourcesDir",
     'mozDevelDist',
+    "mozVersion",
     "idlExportDir",
     "version",
     "komodoVersion",
