@@ -84,6 +84,7 @@ if ($buildType eq 'debug') {
     $suffix = "_d";
 }
 
+my $currYear = (localtime(time))[5] + 1900;
 
 
 # XRE-based Komodo startup:
@@ -139,6 +140,7 @@ my %ppData = (
     'PP_PYTHON_MAJOR_MINOR' => "$siloedPyVer",
     'PP_IS_GTK2_SILOED' => "$isGTK2Siloed",
     'PP_COMPILER' => "$compiler",
+    'PP_CURR_YEAR' => "$currYear",
 );
 
 if ($platform eq "win") {
