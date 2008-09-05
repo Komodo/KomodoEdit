@@ -338,22 +338,20 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         scimoz.replaceTarget(0, "");
 
         // Figure out what the base indentation for the snippet should be
-        scimoz.lineEnd();
-        ko.commands.doCommand('cmd_newline');
-        var createdLine = selectionEndLine + 1;
-        var newLineStart = scimoz.positionFromLine(createdLine);
-        var newLineEnd = scimoz.getLineEndPosition(createdLine);
-        var baseIndentation = scimoz.getTextRange(newLineStart, newLineEnd);
-
-        // Now get rid of the inserted blank line
-        scimoz.targetStart = initialCurrentPos;
-        scimoz.targetEnd = newLineEnd;
-        scimoz.replaceTarget(0, "");
-        scimoz.gotoPos(initialCurrentPos);
+        // Assume that the line that starts the snippet insertion point
+        // defines the indentation the snippet will use.
+        
+        var leading_ws_re = /^(\s+)(.*)/;
+        var selectionLineStartPoint = scimoz.positionFromLine(selectionEndLine);
+        var thisLineText = scimoz.getTextRange(selectionLineStartPoint, selectionEndPoint);
+        var match = thisLineText.match(leading_ws_re);
+        var baseIndentation = "";
+        if (match) {
+            baseIndentation = match[1];
+        }
 
         var lines = text.split(eol_str);
         scimoz.lineEnd();
-        var leading_ws_re = /^(\s+)(.*)/;
         for (i = 1; i < lines.length; i++) {
             // Turn the snippet tabs into a space-equivalent value,
             // we only need to do this for starting whitespace though.
@@ -391,6 +389,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                 newindent = newindent.replace(tabequivalent, '\t', 'g');
                 lines[i] = newindent + rest;
             }
+            baseIndentation = "";
         }
         text = lines.join(eol_str) + remainingText;
     } else {
