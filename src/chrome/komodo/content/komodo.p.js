@@ -363,25 +363,6 @@ window.onload = function(event) {
     _log.debug("<< window.onload");
 }
 
-/**
- * clearBrowserCache
- * clear the browser cache on shutdown (bug 67586)
- */
-function clearBrowserCache() {
-    var cacheService = Components.classes["@mozilla.org/network/cache-service;1"]
-             .getService(Components.interfaces.nsICacheService);
-    try {
-        cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
-    } catch(ex) {}
-};
-try {
-    //XXX - multi-window work
-    // clearBrowserCache needs to be rewritten as an xpcom component that clears the cache on app shutdown
-    this.addWillCloseHandler(clearBrowserCache);
-} catch(ex) {
-    _log.debug("calling addWillCloseHandler: " + ex + "\n");
-}
-
 }).apply(ko.main);
 
 ko.mozhacks = {};
