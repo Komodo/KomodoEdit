@@ -139,6 +139,9 @@ function OnLoad() {
 
 function OnUnload()
 {
+    var view = document.getElementById('view');
+    // The "close" method ensures the scintilla view is properly cleaned up.
+    view.close();
     window.controllers.removeController(_diffWindow);
 }
 

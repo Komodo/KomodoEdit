@@ -54,7 +54,8 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
-        onload="PrefLangFonts_OnLoad()">
+        onload="PrefLangFonts_OnLoad()"
+        onunload="PrefLangFonts_OnUnload();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>

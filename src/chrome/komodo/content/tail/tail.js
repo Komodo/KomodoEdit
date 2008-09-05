@@ -97,6 +97,8 @@ function TailOnFocus() {
 
 function TailOnUnload () {
     //gDoc.releaseView(gView);
+    // The "close" method ensures the scintilla view is properly cleaned up.
+    gView.close();
     gDoc.releaseReference();
 }
 

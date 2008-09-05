@@ -71,6 +71,16 @@ function PrefLangFonts_OnLoad()  {
     }
 }
 
+function PrefLangFonts_OnUnload()  {
+    try {
+        var view = document.getElementById('sample');
+        // The "close" method ensures the scintilla view is properly cleaned up.
+        view.close();
+    } catch (e) {
+        log.error(e);
+    }
+}
+
 function initDialog() {
     // Get a handle on the UI widgets
     var dialog = {};

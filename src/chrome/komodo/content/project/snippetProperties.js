@@ -140,6 +140,16 @@ function onLoad(event) {
 }
 
 
+function onUnload(event) {
+    try {
+        // The "close" method ensures the scintilla view is properly cleaned up.
+        snippetvalue.close();
+    } catch (e) {
+        log.exception(e);
+    }
+}
+
+
 function OK()  {
     if (Apply()) {
         window.arguments[0].res = true;

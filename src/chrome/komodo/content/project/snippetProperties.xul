@@ -58,6 +58,7 @@
         style="min-width: 40em;"
         orient="vertical"
         onload="onLoad(event)"
+        onunload="onUnload()"
         persist="width height screenX screenY"
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK()"

@@ -177,6 +177,15 @@ function onLoad() {
     }
 };
 
+function onUnload() {
+    try {
+        // The "close" method ensures the scintilla view is properly cleaned up.
+        gMacroContents.close();
+    } catch (e) {
+        log.exception(e);
+    }
+}
+
 function makeAppliable() {
     gApplyButton.removeAttribute('disabled');
 }
