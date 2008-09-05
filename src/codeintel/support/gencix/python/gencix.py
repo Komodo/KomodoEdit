@@ -403,7 +403,7 @@ if __name__ == "__main__":
     for arg in args:
         print "Generating CIX for", arg
         if root is None or not options.onefile:
-            root = Element("codeintel", name=arg, version="2.0")
+            root = Element("codeintel", name=arg, version="2.0", xmlns="urn:activestate:cix:2.0")
             if options.name:
                 root.set("name", options.name)
             if options.description:

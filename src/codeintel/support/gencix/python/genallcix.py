@@ -287,7 +287,7 @@ def merge_trees(tree1, tree2):
 
 def process_module_list(module_list, fname, catalog_name=None,
                         catalog_description=None):
-    root = Element("codeintel", version="2.0")
+    root = Element("codeintel", version="2.0", xmlns="urn:activestate:cix:2.0")
     if catalog_name:
         root.set("name", catalog_name)
     if catalog_description:
