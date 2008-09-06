@@ -68,15 +68,14 @@ class KomodoReleasesGuru(object):
     pkg_prefix_from_project = {
         "komodoedit": "Komodo-Edit",
         "komodoide": "Komodo-IDE",
-        "openkomodo": "OpenKomodo", # DEPRECATED
     }
     pkg_base_dir_from_project = {
         "komodoedit": "komodo-build@nas:/data/komodo/builds",
         "komodoide": "komodo-build@nas:/data/komodo/builds",
     }
     nightly_base_dir_from_project = {
-        "komodoedit": "box17:/data/download/komodoedit/nightly",
-        "komodoide": "komodo-build@nas:/data/komodo/builds/fakey-downloads/komodoide/nightly",
+        "komodoedit": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoedit/",
+        "komodoide": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoide/",
     }
     
     def __init__(self, project, platname, full_ver):
@@ -126,7 +125,7 @@ class KomodoReleasesGuru(object):
     _released_versions_cache = None
     @property
     def released_versions(self):
-        """Generate the list of Komodo releases (lastest first).
+        """Generate the list of Komodo releases (latest first).
         
         A Komodo "release" counts if there is a ver dir in
         the Komodo builds share with a GoldBits directory.
@@ -185,7 +184,8 @@ class KomodoReleasesGuru(object):
                 nightlies = buildutils.remote_glob(
                     rjoin(month_dir, "????-??-??-??-"+branch))
                 for nightly_dir in sorted(nightlies, reverse=True):
-                    pat = "%s-*-%s-complete.mar" % (self.pkg_prefix, self.platname)
+                    pat = "%s-%s.*-%s-complete.mar" % (
+                        self.pkg_prefix, self.ver_bits[0], self.platname)
                     complete_mar_paths = buildutils.remote_glob(
                         rjoin(nightly_dir, "updates", pat))
                     if len(complete_mar_paths) < 1:
@@ -228,6 +228,10 @@ class KomodoReleasesGuru(object):
 
     def _get_last_release_complete_mar(self, include_betas=False):
         for ver, ver_str, is_beta in self.released_versions:
+            if ver[0] != self.ver_bits[0]:
+                # Only build partial updates within the same major release
+                # stream.
+                continue
             if not include_betas and is_beta:
                 continue
             last_release_ver = ver
