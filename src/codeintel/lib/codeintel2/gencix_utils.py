@@ -245,7 +245,7 @@ def createCixFile(cix, path, lang="JavaScript", mtime="1102379523"):
                         path=path)
 
 def createCixRoot(version="2.0", name=None, description=None):
-    cixroot = Element("codeintel", version=version, xmlns="urn:activestate:cix:%s" % (version, ))
+    cixroot = Element("codeintel", version=version)
     if name is not None:
         cixroot.attrib["name"] = name
     if description is not None:
