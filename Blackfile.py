@@ -1439,7 +1439,6 @@ into the appropriate .wxs files in "src/install/wix":
 
 
 
-
 def _PackageKomodoUpdates(cfg):
     print "packaging 'Komodo Updates'..."
     mozupdate = join("util", "mozupdate.py")
@@ -1492,11 +1491,11 @@ def _PackageKomodoUpdates(cfg):
     mozupdate_clobber_arg = ""
     if cfg.platform == "linux":
         mozupdate_clobber_arg = " ".join([
-            r"-c lib/python/bin/python2.5",
-            r"-c lib/python/bin/python2.5-config",
+            r"-c lib/python/bin/python%s" % cfg.siloedPyVer,
+            r"-c lib/python/bin/python%s-config" % cfg.siloedPyVer,
             r"-c lib/python/bin/python-config",
-            r"-c lib/python/lib/python2.5/config/Makefile",
-            r"-c lib/python/lib/python2.5/site-packages/activestate.py",
+            r"-c lib/python/lib/python%s/config/Makefile" % cfg.siloedPyVer,
+            r"-c lib/python/lib/python%s/site-packages/activestate.py" % cfg.siloedPyVer,
 
             # This is only needed for the 4.2.0 (final) release to ensure
             # that the Linux partial update 4.2b7 -> 4.2 works. See bug
