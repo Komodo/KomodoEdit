@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import traceback
+
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 import mozutils
