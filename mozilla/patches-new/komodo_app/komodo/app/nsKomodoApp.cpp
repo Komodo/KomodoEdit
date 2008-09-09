@@ -31,7 +31,7 @@ static const nsXREAppData kAppData = {
 #else
   "{36E66FA0-F259-11D9-850E-000D935D3368}",
 #endif
-  "Copyright (c) 2000 - 2007 ActiveState Software Inc.",
+  "Copyright (c) 2000 - 2008 ActiveState Software Inc.",
   NS_XRE_ENABLE_EXTENSION_MANAGER
 };
 #endif
