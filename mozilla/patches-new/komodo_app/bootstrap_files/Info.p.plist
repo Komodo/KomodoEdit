@@ -60,7 +60,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>PT_CONFIG_komodoVersion</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Komodo PT_CONFIG_komodoVersion, © 2000-2007 ActiveState Software Inc.</string>
+	<string>Komodo PT_CONFIG_komodoVersion, © 2000-2008 ActiveState Software Inc.</string>
         <key>NSAppleScriptEnabled</key>
         <true/>
 	<key>CFBundleDocumentTypes</key>
