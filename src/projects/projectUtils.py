@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import traceback
 
 from xpcom import components, ServerException, COMException, nsError
