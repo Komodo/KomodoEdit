@@ -47,6 +47,9 @@ var _log = ko.logging.getLogger('peSnippet');
 var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 
+var _wrapsSelectionRE = /\[\[%[sSwW]\]\]/;
+
+
 function peSnippet() {
     this.name = 'peSnippet';
 }
@@ -243,6 +246,77 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
     }
 }
 
+/* Convert white-space to tabs
+ * @param {String} s
+ * @param {Integer} tabWidth
+ *
+ * @returns {String} detabified string
+ */
+ 
+this._detabify = function(s, tabWidth) {
+    if (tabWidth <= 0) return s; // sanity check user input
+    var s_new = '';
+    var out_pos = 0;
+    var in_len = s.length;
+    for (var in_pos = 0; in_pos < in_len; ++in_pos) {
+        var c = s.substr(in_pos, 1);
+        if (c == ' ') {
+            s_new += c;
+            out_pos += 1;
+        } else if (c == '\t') {
+            var num_needed = tabWidth - out_pos % tabWidth;
+            out_pos += num_needed;
+            for (; num_needed > 0; --num_needed) {
+                s_new += ' ';
+            }
+        } else {
+            s_new += s.substr(in_pos);
+            break;
+        }
+    }
+    return s_new;
+}
+
+/* Convert leading white-space in each line to spaces, and remove
+ * the base indentation from each lines.
+ *
+ * @param {String} text
+ * @param {Integer} tabWidth
+ * @param {String} baseIndentation
+ *
+ * @returns {String} converted string
+ */
+
+this._stripLeadingWS  = function(text, tabWidth, baseIndentation) {
+    if (!baseIndentation) {
+        return text;
+    }
+    var lines = text.split(/(\r?\n|\r)/);
+    var fixedLines = [];
+    var lim = lines.length;
+    if (lim % 2) {
+        lines.push("");
+        lim += 1;
+    }
+    for (var i = 0; i < lim; i += 2) {
+        var noTabLine = this._detabify(lines[i], tabWidth);
+        if (noTabLine.indexOf(baseIndentation) != 0) {
+            if (i > 0) {
+                dump("Whoa, reduced indentation at line " + i
+                     + "\n");
+                // Bail out
+                return text;
+            } else {
+                fixedLines.push(noTabLine);
+            }
+        } else {
+            fixedLines.push(noTabLine.substr(baseIndentation.length));
+        }
+        fixedLines.push(lines[i + 1]);
+    }
+    return fixedLines.join("");
+}
+
 this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */) {
     
     if(typeof(view) == 'undefined') {
@@ -298,8 +372,42 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     }
 
     // Do the interpolation of special codes.
+    // var snippetWrapsSelection = text.indexOf('[[%s') >= 0;
+    var snippetWrapsSelection = _wrapsSelectionRE.test(text);
     text = text.replace('%%', '%', 'g');
+
+    // Common variables...
+    var leading_ws_re = /^(\s+)(.*)/;
+    var startingLine = scimoz.lineFromPosition(scimoz.currentPos);
+    var startingLineStartPos = scimoz.positionFromLine(startingLine);
+    var currLineText = scimoz.getTextRange(startingLineStartPos,
+                                           scimoz.currentPos);
+    var match = currLineText.match(leading_ws_re);
+    // Snippets have a hardwired tab setting of 8
+
+    var baseIndentation = match ? this._detabify(match[1], 8) : "";
     
+    // Work out the equivalent number of spaces to use for each tab.
+    var tabequivalent = '';
+    var useTabs = view.prefs.getBooleanPref("useTabs");
+    var tabWidth = view.prefs.getLongPref("tabWidth");
+    for (i = 0; i < tabWidth; i++) {
+        tabequivalent += ' ';
+    }
+
+    // Trim the baseIndentation from each line but the first of the selection.
+    // It will get re-inserted after interpolation.
+    if (snippetWrapsSelection) {
+        if (viewData.selection) {
+            viewData.selection = this._stripLeadingWS(viewData.selection,
+                                                      tabWidth,
+                                                      baseIndentation);
+        } else {
+            ko.dialogs.alert("Error inserting snippet: "
+                             + "The snippet expects a selection, but there is none.");
+        }
+    }        
+
     var istrings = ko.interpolate.interpolate(
                         window,
                         [], // codes are not bracketed
@@ -311,14 +419,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     var oldInsertionPoint;
     // Do the indentation, if necessary.
     if (relativeIndent) {
-        // Work out the equivalent number of spaces to use for each tab.
-        var tabequivalent = '';
-        var useTabs = view.prefs.getBooleanPref("useTabs");
-        var tabWidth = view.prefs.getLongPref("tabWidth");
-        for (i = 0; i < tabWidth; i++) {
-            tabequivalent += ' ';
-        }
-
         var initialCurrentPos = scimoz.currentPos;
         var initialAnchor = scimoz.anchor;
 
@@ -341,15 +441,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         // Assume that the line that starts the snippet insertion point
         // defines the indentation the snippet will use.
         
-        var leading_ws_re = /^(\s+)(.*)/;
-        var selectionLineStartPoint = scimoz.positionFromLine(selectionEndLine);
-        var thisLineText = scimoz.getTextRange(selectionLineStartPoint, selectionEndPoint);
-        var match = thisLineText.match(leading_ws_re);
-        var baseIndentation = "";
-        if (match) {
-            baseIndentation = match[1];
-        }
-
         var lines = text.split(eol_str);
         scimoz.lineEnd();
         for (i = 1; i < lines.length; i++) {
@@ -389,7 +480,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                 newindent = newindent.replace(tabequivalent, '\t', 'g');
                 lines[i] = newindent + rest;
             }
-            baseIndentation = "";
         }
         text = lines.join(eol_str) + remainingText;
     } else {
