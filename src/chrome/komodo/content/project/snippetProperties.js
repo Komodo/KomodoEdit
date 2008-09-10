@@ -100,6 +100,7 @@ function onLoad(event) {
         scin.caretFore = 0x0000ff;
         scin.setSelBack(1, 11184895);
         scin.caretWidth = 2;
+        scin.useTabs = false;
         gSetSelectionCheckbox.setAttribute('checked',
                                            gItem.getStringAttribute('indent_relative'));
         var anchor = text.indexOf(ANCHOR_MARKER);
