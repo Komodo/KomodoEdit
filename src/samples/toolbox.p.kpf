@@ -333,6 +333,7 @@ from time import strftime, strptime, localtime
 class [[%tabstop:name]](object):
     
     def __init__(self,*args):
+        [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="93506188-83fb-214b-83e9-6799909842e2" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
@@ -449,7 +450,7 @@ function [[%tabstop:name]]([[%tabstop:arg1]]) {
  
 [[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
     [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
+};!@#_currentPos!@#_anchor</snippet>
 <snippet id="42334831-8c37-8840-95b6-829126750410" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /**
  * [[%tabstop:className]]
@@ -475,7 +476,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 
 (function() {
     [[%tabstop:]]
-}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+}).apply([[%tabstop:name]]);!@#_currentPos!@#_anchor</snippet>
 <folder id="cd59b5c5-1958-ba45-a896-75218787ea5b" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" name="jQuery">
 </folder>
 <snippet id="0d1b1c8c-f593-2841-998b-bf38dbcbb867" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
@@ -634,7 +635,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 
 (function() {
     [[%tabstop:]]
-}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+}).apply([[%tabstop:name]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="7d4faf7d-2ab2-3744-8470-d0fdad332b46" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
 &lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="776b75fe-dc47-4a44-b43e-6f356509eb21" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
