@@ -59,7 +59,10 @@ import logging
 from koLintResult import *
 from koLintResults import koLintResults
 
+import projectUtils
+
 log = logging.getLogger('koPythonLinter')
+_leading_ws_re = re.compile(r'(\s*)')
 
 class KoPythonLinter:
     _com_interfaces_ = [components.interfaces.koILinter]
@@ -94,7 +97,7 @@ class KoPythonLinter:
             errmsg = "No python interpreter with which to check syntax."
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
 
-    def _buildResult(self, dict):
+    def _buildResult(self, dict, leadingWS):
         """Convert a pycompile.py output dict to a KoILintResult.
         
         A pycompile.py dict looks like this:
@@ -107,7 +110,15 @@ class KoPythonLinter:
         """
         r = KoLintResult()
         r.description = dict["description"]
+        if leadingWS:
+            dict['lineno'] -= 1
+            if dict['text'].startswith(leadingWS):
+                dict['text'] = dict['text'][len(leadingWS):]
         if dict["offset"] is not None:
+            if leadingWS:
+                actualLineOffset = len(leadingWS)
+                if dict['offset'] >= actualLineOffset:
+                    dict['offset'] -= actualLineOffset
             r.description += " (at column %d)" % dict["offset"]
         r.lineStart = dict['lineno']
         r.lineEnd = dict['lineno']
@@ -121,7 +132,7 @@ class KoPythonLinter:
             r.severity = r.SEV_WARNING
         return r
 
-    def _parseWarnings(self, warntext, text):
+    def _parseWarnings(self, warntext, text, leadingWS):
         """Parse out warnings from the text like the following and return
         a list of KoLintResult's.
 
@@ -136,6 +147,11 @@ class KoPythonLinter:
         skip that here for now.
         """
         textlines = text.splitlines(1)
+        if leadingWS:
+            del textlines[0]
+            columnEndOffset = len(leadingWS)
+        else:
+            columnEndOffset = 0
         warningRe = re.compile("^(?P<fname>.*?):(?P<line>\d+): (?P<desc>.*)$")
         results = []
         for line in warntext.splitlines():
@@ -143,10 +159,13 @@ class KoPythonLinter:
             if match:
                 # Ignore lines that don't match this, e.g. "  def foo():"
                 r = KoLintResult()
-                r.lineStart = int(match.group('line'))
-                r.lineEnd = int(match.group('line'))
+                lineNo = int(match.group('line'))
+                if leadingWS:
+                    lineNo -= 1
+                r.lineStart = lineNo
+                r.lineEnd = lineNo
                 r.columnStart = 1
-                r.columnEnd = len(textlines[r.lineStart-1])
+                r.columnEnd = len(textlines[r.lineStart-1]) - columnEndOffset
                 r.description = match.group('desc')
                 r.severity = r.SEV_WARNING
                 results.append(r)
@@ -162,7 +181,12 @@ class KoPythonLinter:
             python = self._getInterpreter(prefset)
             compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                      "pycompile.py")
-    
+            if request.document.displayPath.startswith("macro://"):
+                text = projectUtils.wrapPythonMacro(text)
+                leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)
+            else:
+                leadingWS = None
+
             # Save the current buffer to a temporary file.
             tmpFileName = tempfile.mktemp()
             fout = open(tmpFileName, 'wb')
@@ -218,9 +242,9 @@ class KoPythonLinter:
                     # Parse syntax errors in the output.
                     dicts = eval(output)
                     for d in dicts:
-                        results.addResult( self._buildResult(d) )
+                        results.addResult( self._buildResult(d, leadingWS) )
                     # Parse warnings in the error.
-                    for r in self._parseWarnings(error, text):
+                    for r in self._parseWarnings(error, text, leadingWS):
                         results.addResult(r)
             finally:
                 os.unlink(tmpFileName)

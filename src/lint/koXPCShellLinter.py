@@ -65,9 +65,20 @@ class KoXPCShellLinter:
         # copy file-to-lint to a temp file
         jsfilename = tempfile.mktemp() + '.js'
         # convert to UNIX line terminators before splitting
+        isMacro = request.document.displayPath.startswith("macro://")
+        if isMacro:
+            funcName = request.document.file.leafName;
+            lastDot = funcName.rfind('.')
+            if lastDot >= 0:
+                funcName = funcName[:lastDot]
+            # Append "_macro" to avoid collisions with any js keywords
+            funcName = re.sub(r'[\W]+', '_', funcName) + "_macro"
+            textToAnalyze = "function " + funcName + "() {\n" + text + "\n}";
+        else:
+            textToAnalyze = text
         datalines = re.sub("\r\n|\r", "\n", text).split("\n")
         fout = open(jsfilename, 'w')
-        fout.write(text)
+        fout.write(textToAnalyze)
         fout.close()
 
         koDirs = components.classes["@activestate.com/koDirs;1"].\
@@ -119,6 +130,11 @@ class KoXPCShellLinter:
                 firstLineMatch = firstLineRe.search(line.strip())
                 if firstLineMatch:
                     lineNo = int(firstLineMatch.group("lineNo"))
+                    if isMacro:
+                        if lineNo > len(datalines) + 1:
+                            lineNo = len(datalines)
+                        else:
+                            lineNo -= 1
                     errorType = firstLineMatch.group("type")
                     desc = firstLineMatch.group("desc")
                 else:

@@ -39,6 +39,8 @@ def _indent(s, width=4, skip_first_line=False):
     else:
         return indentstr + indentstr.join(lines)
 
+def wrapPythonMacro(code, functionName='_code'):
+    return "def %s():\n%s\n\n\n" % (functionName, _indent(code))
 
 def macro_openURI(uri):
     obsvc = components.classes["@mozilla.org/observer-service;1"].\
@@ -74,13 +76,13 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
     # Put the Python macro code in a "_code()" function and eval it.
     #
     # Note: This has the potential to be problematic if the Python
-    # macro uses a syntax at the top-level that isn't allow inside
+    # macro uses a syntax at the top-level that isn't allowed inside
     # a Python function. For example, "from foo import *" in a function
     # with Python 2.5 generates:
     #   bar.py:2: SyntaxWarning: import * only allowed at module level
     #       def _code():
     # Not sure if that will be made an *error* in future Python versions.
-    code = "def _code():\n%s\n\n\n" % _indent(code)
+    code = wrapPythonMacro(code)
     try:
         exec code in macroGlobals, macroGlobals
         retval = eval('_code()', macroGlobals, macroGlobals)
