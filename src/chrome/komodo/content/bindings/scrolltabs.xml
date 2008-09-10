@@ -837,7 +837,7 @@
 
         </implementation>
         <handlers>
-            <handler event="draggesture" phase="capturing">
+            <handler event="draggesture" phase="bubbling">
             <![CDATA[
                 try {
                 if (event.target.localName == 'tab' &&
@@ -846,7 +846,7 @@
                 } catch(e) {/*let the event bubble*/}
             ]]>
             </handler>
-            <handler event="dragdrop" phase="capturing">
+            <handler event="dragdrop" phase="bubbling">
             <![CDATA[
                 try {
                 if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)

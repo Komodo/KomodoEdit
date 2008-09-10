@@ -586,11 +586,9 @@
         catch the event here.  So now we look to see if there is a
         draghandler somewhere that we can pass the event to, or otherwise
         ignore it and let the workspace handler catch it if it can-->
-        <handler event="dragdrop" phase="capturing">
+        <handler event="dragdrop" phase="bubbling">
         <![CDATA[
             var ok = true;
-            if (this.currentView &&
-                typeof(this.currentView.dragHandler) != 'undefined' &&
                 this.currentView.dragHandler) {
 
                 this.log.debug('dragdrop parent has handler');
