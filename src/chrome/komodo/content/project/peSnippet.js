@@ -249,10 +249,8 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
 /* Convert white-space to tabs
  * @param {String} s
  * @param {Integer} tabWidth
- *
  * @returns {String} detabified string
  */
- 
 this._detabify = function(s, tabWidth) {
     if (tabWidth <= 0) return s; // sanity check user input
     var s_new = '';
@@ -283,10 +281,8 @@ this._detabify = function(s, tabWidth) {
  * @param {String} text
  * @param {Integer} tabWidth
  * @param {String} baseIndentation
- *
  * @returns {String} converted string
  */
-
 this._stripLeadingWS  = function(text, tabWidth, baseIndentation) {
     if (!baseIndentation) {
         return text;
