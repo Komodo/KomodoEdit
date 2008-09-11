@@ -564,10 +564,19 @@ class koDocumentBase:
             an = scimoz.anchor
             fvl = scimoz.firstVisibleLine
             xoffset = scimoz.xOffset
+            isReadOnly = scimoz.readOnly
+            if isReadOnly:
+                # We are setting or reloading the file contents, but this will
+                # fail if the buffer is set to readonly. We do want to allow the
+                # buffer to be modified in this instance.
+                # http://bugs.activestate.com/show_bug.cgi?id=79961
+                scimoz.readOnly = False
             scimoz.beginUndoAction()
             scimoz.text = text
             textLength = scimoz.textLength # length in bytes. =(
             scimoz.endUndoAction()
+            if isReadOnly:
+                scimoz.readOnly = True
             scimoz.currentPos = min(textLength, cp)
             scimoz.anchor = min(textLength, an)
             scimoz.lineScroll(0, min(fvl-scimoz.firstVisibleLine, scimoz.lineCount-scimoz.firstVisibleLine))
