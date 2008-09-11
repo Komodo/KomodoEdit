@@ -1892,7 +1892,7 @@ def JarChrome(chromeTree, cfg, argv):
                 #    the files to update are somewhere below the
                 #    top-level dir (i.e. relying on '-r').
                 os.unlink(jarFile)
-            cmd = "%s -r -q %s content skin locale" % (zipExe, jarFile)
+            cmd = "%s -X -r -q %s content skin locale -x \\*.consign" % (zipExe, jarFile)
             out.write("running '%s' in '%s'\n" % (cmd, chromeDir))
             failed = os.system(cmd)
             if failed:
