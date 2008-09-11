@@ -134,6 +134,7 @@ class ProcessOpen(Popen):
         self.__hasTerminated = threading.Condition()
 
         # Launch the process.
+        #print "Process: %r in %r" % (cmd, cwd)
         Popen.__init__(self, cmd, cwd=cwd, env=env, shell=shell,
                        stdin=stdin, stdout=stdout, stderr=stderr,
                        universal_newlines=universal_newlines,
@@ -234,6 +235,53 @@ class ProcessOpen(Popen):
                     # Ignore:   OSError: [Errno 3] No such process
                     raise
             self.returncode = exitCode
+
+
+
+class AbortableProcessHelper(object):
+    """A helper class that is able to run a process and have the process be
+    killed/aborted (possibly by another thread) if it is still running.
+    """
+    STATUS_INITIALIZED = 0         # Ready to run.
+    STATUS_RUNNING = 1             # A process is running.
+    STATUS_FINISHED_NORMALLY = 2   # The command/process finished normally.
+    STATUS_ABORTED = 3             # The command/process was aborted.
+
+    def __init__(self):
+        self._process = None
+        self._process_status = self.STATUS_INITIALIZED
+        self._process_status_lock = threading.Lock()
+
+    def ProcessOpen(self, *args, **kwargs):
+        """Create a new process and return it."""
+        self._process_status_lock.acquire()
+        try:
+            self._process_status = self.STATUS_RUNNING
+            self._process = ProcessOpen(*args, **kwargs)
+            return self._process
+        finally:
+            self._process_status_lock.release()
+
+    def ProcessDone(self):
+        """Mark the process as being completed, does not need to be aborted."""
+        self._process_status_lock.acquire()
+        try:
+            self._process = None
+            self._process_status = self.STATUS_FINISHED_NORMALLY
+        finally:
+            self._process_status_lock.release()
+
+    def ProcessAbort(self):
+        """Kill the process if it is still running."""
+        self._process_status_lock.acquire()
+        try:
+            self._process_status = self.STATUS_ABORTED
+            if self._process:
+                self._process.kill()
+                self._process = None
+        finally:
+            self._process_status_lock.release()
+
 
 
 ## Deprecated process classes ##
