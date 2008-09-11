@@ -49,6 +49,7 @@
 
 <dialog id="dialog_ciDefinitionChoice"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&ciDefinitionChoice.title;"
         width="560" height="300"
         persist="screenX screenY width height"
         buttons="accept,cancel"

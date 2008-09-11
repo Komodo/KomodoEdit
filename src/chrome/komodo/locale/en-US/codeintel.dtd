@@ -37,3 +37,4 @@
 <!ENTITY name.label "Name">
 <!ENTITY path.label "Path">
 <!ENTITY type.label "Type">
+<!ENTITY ciDefinitionChoice.title "Multiple Possible Definitions">
