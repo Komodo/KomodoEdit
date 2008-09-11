@@ -170,6 +170,13 @@ this.getSubAttr = function stringutils_getSubAttr(value, subattrname)
     return null;
 }
 
+/**
+ * Return a copy of s with the leading and trailing whitespace removed.
+ * @returns {string}
+ */
+this.strip = function(s) {
+    return s.replace(/(^\s*|\s*$)/g, ''); // strip whitespace;
+}
 
 }).apply(ko.stringutils);
 
