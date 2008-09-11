@@ -516,7 +516,7 @@ def build_ext(base_dir, log=None):
             for d in chrome_dirs:
                 _cp(d, join(jar_build_dir, d), log.info)
             _trim_files_in_dir(jar_build_dir, [".svn", ".hg", "CVS"], log.info)
-            _run_in_dir('"%s" -r %s.jar *' % (zip_exe, ext_info.codename),
+            _run_in_dir('"%s" -X -r %s.jar *' % (zip_exe, ext_info.codename),
                         jar_build_dir, log.info)
     
             xpi_manifest += [
@@ -580,7 +580,7 @@ def build_ext(base_dir, log=None):
             else:
                 _cp(src, xpi_build_dir, log.info)
         _trim_files_in_dir(xpi_build_dir, [".svn", ".hg", "CVS"], log.info)
-        _run_in_dir('"%s" -r %s *' % (zip_exe, ext_info.pkg_name),
+        _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
         _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
     finally:
