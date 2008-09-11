@@ -102,8 +102,8 @@ if ($buildFlavour eq "full") {
       "platform/Darwin/kotcllint",
       "platform/Linux/kotcllint",
       qq(
-          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr kotcllint.jar content locale
-          $unsiloedPythonExe bin/run-in-dir.py %1:d zip kotcllint.xpi kotcllint.jar install.rdf chrome.manifest -r components platform
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr kotcllint.jar content locale
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X kotcllint.xpi kotcllint.jar install.rdf chrome.manifest -r components platform
       )
   );
 
