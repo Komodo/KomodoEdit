@@ -135,7 +135,7 @@ $cons->Install($idlExportDir, 'koIUrllib.idl');
 $cons->BuildAndInstallXpt('koIUrllib.idl');
 
 # koIInfoServive
-# XXX DO NOT PREPROCESS THESE FILES
+$cons->Preprocess('koInfoService.p.py', 'koInfoService.py');
 $cons->InstallXpcomComponent('koInfoService.py');
 $cons->Install($idlExportDir, 'koIInfoService.idl');
 $cons->BuildAndInstallXpt('koIInfoService.idl');
