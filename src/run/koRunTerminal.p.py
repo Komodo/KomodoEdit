@@ -86,6 +86,10 @@ class koTerminalHandler:
     It is easy to add new handlers for special keystrokes.  Look at the way
     _handle_keypress_DOM_VK_BACK_SPACE is being defined for example.  See above
     for the list of special key codes.
+
+    Important: The Scintilla instance should only be used and referenced in
+    this class when self.active is True, otherwise there is a chance that the
+    Scintilla widget has been removed/destroyed and things will then go bad.
     """
     _com_interfaces_ = [components.interfaces.koITerminalHandler]
     _reg_clsid_ = "36C5DDAA-7A5D-444D-80CA-17D52EBDBA9A"
@@ -171,7 +175,9 @@ class koTerminalHandler:
 
     # this is always called from an iobuffer thread
     def addText(self, length, text, name):
-        # Note, the terminal mutex *must* be acquired before this call.
+        if not self.active:
+            # Requires that we are still active.
+            return
         # If we write to stdin, it ends up here, so we need to pass it along
         # to the real stdin object.
         if name == '<stdin>':
@@ -310,13 +316,15 @@ class KoRunTerminal(koTerminalHandler, TreeView):
     """This is the interface between run sub-processes and Komodo's command
     output window (or _one_ of the command output windows if there are ever
     more than one). This acts as the handler for events on the output
-    window's <scintilla> widget. It acts as the tree view for the output
+    window's <scintilla> widget. It also acts as the tree view for the output
     window's <tree> widget.
 
     The embedded Scintilla is kept in a 'readOnly' state unless
     currently interacting with the child process (self.active is True).
-    XXX Perhaps there is a better API for that (perhaps call it
-    'interactive')?
+
+    Important: The Scintilla instance should only be used and referenced in
+    this class when self.active is True, otherwise there is a chance that the
+    Scintilla widget has been removed/destroyed and things will then go bad.
 
     Input is buffered in line chunks, i.e. user input is forwarded to
     the child a line at a time when <Enter> is pressed. This means that
@@ -351,6 +359,10 @@ class KoRunTerminal(koTerminalHandler, TreeView):
 
     def addText(self, length, text, name):
         # name is either <stderr> or <stdout>
+        if not self.active:
+            # Requires that we are still active.
+            return
+
         # Note, the terminal mutex should *must* be aquired before this call.
         koTerminalHandler.addText(self, length, text, name)
         
