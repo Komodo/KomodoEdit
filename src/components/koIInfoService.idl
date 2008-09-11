@@ -41,9 +41,9 @@
 interface koIInfoService : nsISupports {
     //---- Platform information. (XXX This should be minimized.)
     readonly attribute string platform;
-    readonly attribute boolean isWindows;
+    readonly attribute boolean isWindows; // DEPRECATED
 
-    // exports from platform.py
+    // exports from platform.py (DEPRECATED)
     readonly attribute string osSystem;   // e.g. Linux, Windows
     readonly attribute string osRelease;  // "NT", "2000", "2.2.0"
     readonly attribute string osVersion;

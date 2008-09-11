@@ -135,7 +135,18 @@ $cons->Install($idlExportDir, 'koIUrllib.idl');
 $cons->BuildAndInstallXpt('koIUrllib.idl');
 
 # koIInfoServive
-$cons->Preprocess('koInfoService.p.py', 'koInfoService.py');
+my %ppInfo = (
+    'PP_VERSION' => $version,
+    'PP_BUILD_NUMBER' => $buildNum,
+    'PP_BUILD_ASC_TIME' => $buildASCTime,
+    'PP_BUILD_PLAT' => $buildPlatform,              # avoid PLATFORM var
+    'PP_BUILD_TYPE' => $buildType,
+    'PP_BUILD_FLAV' => $buildFlavour,               # avoid BUILD_FLAVOUR var
+    'PP_MOZ_BIN_DIR' => $mozBin,
+    'PP_PROD_TYPE' => $productType,                 # avoid PRODUCT_TYPE var
+    'PP_PRETTY_PROD_TYPE' => $prettyProductType,    # avoid PRODUCT_TYPE var
+);
+$cons->Preprocess('koInfoService.p.py', 'koInfoService.py', \%ppInfo);
 $cons->InstallXpcomComponent('koInfoService.py');
 $cons->Install($idlExportDir, 'koIInfoService.idl');
 $cons->BuildAndInstallXpt('koIInfoService.idl');
@@ -280,31 +291,5 @@ $cons->InstallXpcomComponent('koLoggingService.py');
 ## Install test cases.
 #$cons->Install("$supportDir/test", "test_koIndexer.py");
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
-
-
-my $komodoInfoTxt = "$mozChromeDir/komodo/content/resources/komodo-info.txt";
-# Quote For Echo 
-#   So that quotes in strings being echo'd are included on Linux. On Windows
-#   adding quotes would have the quotes echo'd literally.
-my $q4e = '"';
-if ($^O eq "MSWin32") {
-    $q4e = '';
-}
-$cons->Command($komodoInfoTxt,
-    # Prefix commands with "@ " (note the space) to avoid having Cons
-    # print the command before executing it. These command run for every
-    # build. No need to clutter the output.
-    qq(
-        @ echo ${q4e}version=$version${q4e} > %0 
-        @ echo ${q4e}buildNumber=$buildNum${q4e} >> %0 
-        @ echo ${q4e}buildASCTime=$buildASCTime${q4e} >> %0 
-        @ echo ${q4e}buildPlatform=$buildPlatform${q4e} >> %0 
-        @ echo ${q4e}buildType=$buildType${q4e} >> %0 
-        @ echo ${q4e}buildFlavour=$buildFlavour${q4e} >> %0 
-        @ echo ${q4e}productType=$productType${q4e} >> %0 
-        @ echo ${q4e}prettyProductType=$prettyProductType${q4e} >> %0 
-        @ echo ${q4e}mozBinDir=$mozBin${q4e} >> %0 
-    ));
-$cons->Depends("$mozComponentsDir/koInfoService.py", $komodoInfoTxt);
 
 

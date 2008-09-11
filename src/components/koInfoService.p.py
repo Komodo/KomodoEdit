@@ -35,17 +35,23 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-# Provide general (read-only) information about a Komodo build/installation
-#
-# This is accomplished by reading komodo-info.txt, distributed with
-# a Komodo build/installation.
+"""Provide general (read-only) information about a Komodo
+build/installation.
+"""
+
+# #ifndef PP_VERSION
+# #error Cannot build koInfoService.p.py with 'bk build quick'.
+# #endif
 
 import sys
 import os
 import re
 import time
-from xpcom import components, nsError, ServerException, COMException
 import logging
+import operator
+
+from xpcom import components, nsError, ServerException, COMException
+
 
 log = logging.getLogger("koInfoService")
 
@@ -63,25 +69,22 @@ class KoInfoService:
     _reg_contractid_ = "@activestate.com/koInfoService;1"
     _reg_desc_ = "Komodo Information Service"
 
-    def _getInfo(self, infoURL):
-        log.debug("Getting Komodo information from '%s'.\n", infoURL)
-        import xpcom.file
-        fin = xpcom.file.URIFile(infoURL)
-        datumRe = re.compile("^(?P<name>\w+)=(?P<value>.*)$")
-        info = {}
-        for line in fin.readlines():
-            line = line.strip()
-            datumMatch = datumRe.search(line)
-            if datumMatch:
-                info[datumMatch.group("name")] = datumMatch.group("value")
-            else:
-                log.error("Bogus data line, '%s', in Komodo information "\
-                          "file, '%s'.\n", line, infoURL)
-                raise ServerException(nsError.NS_ERROR_UNEXPECTED)
-        return info
+    version = "PP_VERSION"
+    buildNumber = "PP_BUILD_NUMBER"
+    buildASCTime = "PP_BUILD_ASC_TIME"
+    buildPlatform = "PP_BUILD_PLAT"
+    #TODO: Drop mozBinDir here, only used as a "stamp" (?) in
+    #      koFileLoggingService.py. koIDirs has the authoritative mozBinDir.
+    mozBinDir = "PP_MOZ_BIN_DIR"
+    buildType = "PP_BUILD_TYPE"
+    buildFlavour = "PP_BUILD_FLAV"
+    productType = "PP_PROD_TYPE"
+    prettyProductType = "PP_PRETTY_PROD_TYPE"
 
     def __init__(self):
         self.platform = sys.platform
+        
+        #TODO: Drop all these. They aren't necessary.
         self.isWindows = sys.platform.startswith("win")
         # XXX bug 33823
         # when building with gtk2, platform.py functions fail preventing
@@ -94,17 +97,6 @@ class KoInfoService:
         else:
             self.osSystem,node,self.osRelease,self.osVersion,machine = os.uname()
         
-        infoURL = "chrome://komodo/content/resources/komodo-info.txt"
-        info = self._getInfo(infoURL)
-        self.version = info["version"]
-        self.buildNumber = info["buildNumber"]
-        self.buildASCTime = info["buildASCTime"]
-        self.buildPlatform = info["buildPlatform"]
-        self.mozBinDir = info["mozBinDir"]
-        self.buildType = info["buildType"]
-        self.buildFlavour = info["buildFlavour"]
-        self.productType = info["productType"]
-        self.prettyProductType = info["prettyProductType"]
         # We are in non-interactive mode if KOMODO_NONINTERACTIVE is set
         # and non-zero.
         KOMODO_NONINTERACTIVE = os.environ.get("KOMODO_NONINTERACTIVE")
@@ -127,7 +119,6 @@ if __name__ == "__main__":
     print "version: %r" % info.version
     print "buildNumber: %r" % info.buildNumber
     print "buildASCTime: %r" % info.buildASCTime
-    print "mozBinDir: %r" % info.mozBinDir
     print "buildType: %r" % info.buildType
     print "buildFlavour: %r" % info.buildFlavour
     print "productType: %r" % info.productType
