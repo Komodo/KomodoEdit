@@ -95,9 +95,9 @@ if ($buildFlavour ne "full") {
         "components/casper-clhandler.js",
         "skin/casper.css",
         qq(
-            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr casper.jar content
-            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr casper.jar skin
-            $unsiloedPythonExe bin/run-in-dir.py %1:d zip casper.xpi casper.jar install.rdf chrome.manifest
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr casper.jar content
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr casper.jar skin
+            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X casper.xpi casper.jar install.rdf chrome.manifest
         )
     );
     

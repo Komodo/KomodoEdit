@@ -56,8 +56,8 @@ if ($buildFlavour ne "full") {
       "content/zendMVCWizard.xul",
       "pylib/codeintel_zend.py",
       qq(
-          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -Dr zendframework.jar content 
-          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates pylib -x .svn
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr zendframework.jar content 
+          $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates pylib -x .svn
       )
   );
 
