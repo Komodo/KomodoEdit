@@ -3647,6 +3647,7 @@
               <File Id="file4807" Name="NSITOO_0.IDL" LongName="nsITooltipListener.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITooltipListener.idl"/>
               <File Id="file4808" Name="NSITOO_1.IDL" LongName="nsITooltipTextProvider.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITooltipTextProvider.idl"/>
               <File Id="file4858" Name="NSITRA_0.IDL" LongName="nsITraceRefcnt.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITraceRefcnt.idl"/>
+              <File Id="file809" Name="NSITRA_1.IDL" LongName="nsITraceableChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITraceableChannel.idl"/>
               <File Id="file4859" Name="NSIUNI_0.IDL" LongName="nsIUnicharStreamListener.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIUnicharStreamListener.idl"/>
               <File Id="file4860" Name="NSIUPL_0.IDL" LongName="nsIUploadChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIUploadChannel.idl"/>
               <File Id="file4861" Name="nsIURI.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIURI.idl"/>
