@@ -51,19 +51,15 @@ import logging
 import operator
 
 from xpcom import components, nsError, ServerException, COMException
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+
 
 
 log = logging.getLogger("koInfoService")
 
-# Defines not in the nsI IDL.
-PROXY_SYNC    = 0x0001  # acts just like a function call.
-PROXY_ASYNC   = 0x0002  # fire and forget.  This will return immediately and
-                        # you will lose all return information.
-PROXY_ALWAYS  = 0x0004  # ignore check to see if the eventQ is on the same
-                        # thread as the caller, and alway return a proxied
-                        # object.
 
-class KoInfoService:
+
+class KoInfoService(object):
     _com_interfaces_ = [components.interfaces.koIInfoService]
     _reg_clsid_ = "{EB22F329-1D99-427a-B0E1-19DFF13AFBF7}"
     _reg_contractid_ = "@activestate.com/koInfoService;1"
