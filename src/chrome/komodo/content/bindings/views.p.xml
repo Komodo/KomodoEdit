@@ -589,6 +589,8 @@
         <handler event="dragdrop" phase="bubbling">
         <![CDATA[
             var ok = true;
+            if (this.currentView &&
+                typeof(this.currentView.dragHandler) != 'undefined' && 
                 this.currentView.dragHandler) {
 
                 this.log.debug('dragdrop parent has handler');
