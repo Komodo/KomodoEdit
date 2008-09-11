@@ -1017,9 +1017,9 @@ void ShowVersion( TidyDocImpl* doc )
     helper = " for ";
 #endif
 
-    tidy_out( doc, "\nHTML Tidy%s%s (release date: %s; built on %s, at %s)\n"
+    tidy_out( doc, "\nHTML Tidy%s%s (release date: %s)\n"
                    "See http://tidy.sourceforge.net/ for details.\n",
-              helper, platform, release_date, __DATE__, __TIME__ );
+              helper, platform, release_date );
 }
 
 void FileError( TidyDocImpl* doc, ctmbstr file, TidyReportLevel level )

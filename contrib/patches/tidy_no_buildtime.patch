@@ -1,0 +1,34 @@
+diff
+
+Don't include the build date and time in the tidy executable. This
+results in unnecessary inclusion in partial Komodo update packages.
+http://bugs.activestate.com/show_bug.cgi?id=79937
+
+--- tidy/src/localize.c.22973	2008-09-10 18:26:53.000000000 -0700
++++ tidy/src/localize.c	2008-09-10 18:25:17.000000000 -0700
+@@ -1010,23 +1010,23 @@
+ 
+ void ShowVersion( TidyDocImpl* doc )
+ {
+     ctmbstr platform = "", helper = "";
+ 
+ #ifdef PLATFORM_NAME
+     platform = PLATFORM_NAME;
+     helper = " for ";
+ #endif
+ 
+-    tidy_out( doc, "\nHTML Tidy%s%s (release date: %s; built on %s, at %s)\n"
++    tidy_out( doc, "\nHTML Tidy%s%s (release date: %s)\n"
+                    "See http://tidy.sourceforge.net/ for details.\n",
+-              helper, platform, release_date, __DATE__, __TIME__ );
++              helper, platform, release_date );
+ }
+ 
+ void FileError( TidyDocImpl* doc, ctmbstr file, TidyReportLevel level )
+ {
+     message( doc, level, "Can't open \"%s\"\n", file );
+ }
+ 
+ static char* TagToString(Node* tag, char* buf, size_t count)
+ {
+     *buf = 0;
