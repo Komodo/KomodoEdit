@@ -176,7 +176,7 @@ function updateNewFilesEncodingSection() {
 function doBOM(encodingInfo)  {
     var bom = encodingInfo.byte_order_marker != '';
     if (bom)  {
-        dialog.bomBox.setAttribute('disabled', 'false');
+        dialog.bomBox.removeAttribute('disabled');
         return true;
     }
     else  {

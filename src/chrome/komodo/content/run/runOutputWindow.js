@@ -290,7 +290,7 @@ this.setProcessHandle = function RunOutput_SetProcessHandle(process)
     if (_gTerminalHandler.active) {
         _gProcess = process;
         var closeButton = document.getElementById("runoutput-close-button");
-        closeButton.setAttribute("disabled", "false");
+        closeButton.removeAttribute("disabled");
     }
 }
 
