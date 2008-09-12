@@ -341,6 +341,10 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs("blam()->\nfoo->bar-><|>", "blam().foo.bar")
         self.assertCITDLExprIs("if(!<|>is_array", "is_", trigger_name="functions")
 
+    @tag("bug79991")
+    def test_citdl_expr_from_static_class_variables(self):
+        self.assertCITDLExprIs("MyConfig::$db-><|>", "MyConfig.db")
+
     def test_preceding_trg_from_pos_general(self):
         calltip_trigger = "php-calltip-call-signature"
         completion_trigger = "php-complete-object-members"
