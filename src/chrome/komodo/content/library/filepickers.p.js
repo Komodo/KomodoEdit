@@ -868,15 +868,17 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
    fileBrowser.title = title;
 
    if (typeof(defaultUrl) == "undefined" || !defaultUrl) {
-       // If the current file is a remote file, use that location, else fall
-       // back to the last opened remote location.
-       var currentView = ko.views.manager.currentView;
-       if (currentView && currentView.document &&
-           currentView.document.file.isRemoteFile) {
-          defaultUrl = currentView.document.file.URI;
-       } else {
-          defaultUrl = _lastRemoteLocation;
-       }
+      defaultUrl = _lastRemoteLocation;
+      // Note: ko.views may be empty when used from a Komodo dialog.
+      if (ko.views) {
+         // If the current file is a remote file, use that location, else fall
+         // back to the last opened remote location.
+         var currentView = ko.views.manager.currentView;
+         if (currentView && currentView.document &&
+             currentView.document.file.isRemoteFile) {
+            defaultUrl = currentView.document.file.URI;
+         }
+      }
    }
    fileBrowser.displayDirectory.path = defaultUrl;
 
