@@ -942,6 +942,13 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         break
                 elif (ch in STOPOPS or ch in EXTRA_STOPOPS_PRECEDING_IDENT) and \
                      (ch != ")" or (citdl_expr and citdl_expr[-1] != ".")):
+                    if ch == '$':
+                        # This may not be the end of the road, given static
+                        # variables are accessed through "Class::$static".
+                        prev_pos, prev_ch, prev_style = ac.peekPrevPosCharStyle()
+                        if prev_ch == ":":
+                            # Continue building up the citdl then.
+                            continue
                     if DEBUG:
                         print "citdl_expr: %r" % (citdl_expr)
                         print "stop at stop-operator %d: %r" % (i, ch)

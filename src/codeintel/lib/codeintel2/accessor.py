@@ -636,6 +636,34 @@ class AccessorCache:
             print "getPrevPosCharStyle:: pos:%d ch:%r style:%d" % (self._pos, self._ch, self._style)
         return (self._pos, self._ch, self._style)
 
+    def peekPrevPosCharStyle(self, ignore_styles=None, max_look_back=100):
+        """Same as getPrevPosCharStyle, but does not move the buffer position.
+        @param ignore_styles {tuple}
+        @returns {tuple} with values (pos, char, style), these values will
+        all be None if it exceeds the max_look_back.
+        @raises IndexError can be raised when nothing left to consume.
+        """
+        # Store the old values.
+        old_pos = self._pos
+        old_ch = self._ch
+        old_style = self._style
+        old_cachePos = self._cachePos
+        old_cacheFirstBufPos = self._cacheFirstBufPos
+        try:
+            pos, ch, style = self.getPrevPosCharStyle(ignore_styles, max_look_back)
+        finally:
+            # Restore old values.
+            self._pos = old_pos
+            self._ch = old_ch
+            self._style = old_style
+            # The cache may have gotten extended (which is fine), but in that
+            # case the old_cachePos is no longer correct, so update it.
+            cache_extended_by = old_cacheFirstBufPos - self._cacheFirstBufPos
+            self._cachePos = old_cachePos + cache_extended_by
+        if self._debug:
+            print "peekPrevPosCharStyle:: pos:%d ch:%r style:%d" % (pos, ch, style)
+        return (pos, ch, style)
+
     def getPrecedingPosCharStyle(self, current_style=None, ignore_styles=None,
                                  max_look_back=200):
         """Go back and get the preceding style.
