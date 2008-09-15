@@ -167,6 +167,10 @@ listed here and/or corrections, please start a Documentation bug for this:
   
     apt-get install g++ patch libgtk2.0-dev libidl-dev libcurl4-gnutls-dev
 
+- Fedora 9:
+
+    yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel
+
 - Others ...
 
 
