@@ -4,11 +4,29 @@ splitter[orient="vertical"].divot_splitter {
   min-height: 1px;
   height: 2px;
   background-image: none !important;
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.50);
 }
 splitter[orient="horizontal"].divot_splitter {
   min-width: 1px;
   width: 2px;
-  background-image: none !important;       
+  background-image: none !important;
+  border: none;
+  border-right: 1px solid rgba(0,0,0,0.50);
+}
+
+view splitter[orient="vertical"].grippy_splitter{
+  min-height: 1px;
+  height: 2px;
+  background-image: none !important;
+  background-color: rgba(0,0,0,0.35);
+}
+
+view splitter[orient="horizontal"].grippy_splitter {
+  min-width: 1px;
+  width: 3px;
+  background-image: none !important;
+  background-color: rgba(0,0,0,0.35);
 }
 
 .projectTree:-moz-tree-twisty
@@ -24,3 +42,106 @@ splitter[orient="horizontal"].divot_splitter {
   /* breaks single click on twisty margin-right: -8px; */
 }
 
+
+/* output pane toolbars and other toolbar backgrounds */
+
+.toolbar-background {
+  background-color: #C9C9C9;
+  background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
+  border-bottom: 1px solid rgba(0,0,0,0.50);
+}
+
+/* main workarea tweaks */
+
+#komodo-vbox, #komodo-box, #komodo-hbox {
+  padding: 0px;
+  margin: 0px;
+  border: none;  
+}
+
+#komodo-box {
+}
+
+#project_toolbox_area {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+#right_toolbox_area {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+.blank-workspace,
+#output-panel {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+
+.divot_splitter,
+.thin-inset-border,
+.thin-outset-border {
+  border: none;
+}
+
+/* toolbar button outlines */
+toolbarseparator {
+  padding: 2px;
+  margin: 0px;
+}
+
+.toolbar-hbox {
+  padding: 3px 4px;
+}
+
+.toolbar-hbox,
+toolbarbox,
+toolbar {
+  -moz-box-align: center;
+  -moz-box-pack: center;
+}
+
+.toolbar-hbox toolbarbutton,
+toolbar toolbarbutton {
+  border: 1px solid rgba(0,0,0,.5);
+  border-bottom: 2px groove threedshadow;
+  background-image: url("chrome://global/skin/icons/button-gradient.png");
+  margin: 0px;
+  margin-right: -1px;
+  padding: 1px 4px;
+  min-width: 24px;
+  height: 24px;
+}
+
+.toolbar-hbox toolbarbutton[checked="true"],
+toolbar toolbarbutton[checked="true"] {
+  background-image: url("chrome://global/skin/icons/button-gradient-active.png");
+}
+
+toolbarbutton:first-child {
+  margin-left: 3px;
+  padding-left: 3px;
+  -moz-border-radius-topleft: 4px;
+  -moz-border-radius-bottomleft: 4px;
+}
+
+toolbarbutton:last-child {
+  margin-right: 3px;
+  padding-right: 3px;
+  -moz-border-radius-topright: 4px;
+  -moz-border-radius-bottomright: 4px;
+}
+
+.solo-button {
+  -moz-border-radius: 4px;
+}
+
+.toolbar-hbox toolbarbutton toolbarbutton,
+toolbarbutton toolbarbutton {
+  border: none;
+  background-color: transparent;
+}

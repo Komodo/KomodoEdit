@@ -1,6 +1,7 @@
 /* Copyright (c) 2000-2006 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
+@import url("chrome://komodo/skin/tabs/nativetabs.css");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 tabbox[type="draggable"]
@@ -161,119 +162,45 @@ tab[type="file-tab"]
   list-style-image : url("chrome://komodo/skin/images/minimize_down_disable.gif");
 }
 
-tabbox.whiteout > tabs,
-tabbox.tabs-bottom > tabs
+.whiteout > tabs,
+.tabs-bottom > tabs
 {
     padding: 0px;
     margin: 0px;
     -moz-appearance: none;
     border: none;
-    background-color: black;
-    background: url("chrome://global/skin/10pct_transparent_pixel.png") repeat;
+    background-color: rgba(0,0,0,0.10); /* controls darkness of unselected tabs */
 }
 
-tabbox.whiteout > tabs[type="scrollable"]
+.whiteout > tabs[type="scrollable"]
 {
   border: none;
   border-bottom: 1px solid GrayText;
 }
 
-tabbox.whiteout > tabs[type="scrollable"].tabs-inset
-{
-  border: 1px inset ThreeDHighlight;
-  border-bottom: 1px solid GrayText;
-}
-
-tabbox.tabs-bottom > tabs[type="scrollable"]
+.tabs-bottom > tabs[type="scrollable"]
 {
   border: 1px inset ThreeDHighlight;
   border-top: 1px solid GrayText;
 }
 
-tabbox.tabs-bottom > tabs[type="scrollable"].tabs-inset
+.whiteout .tabstrip-box,
+.tabs-bottom .tabstrip-box
 {
-  border: 1px inset ThreeDHighlight;
-  border-top: 1px solid GrayText;
-}
-
-tabbox.whiteout > tabs > tab > .tab-image-middle > .tab-icons
-{
-  margin-bottom: 3px;
-}
-
-tabbox.whiteout > tabs > tab[selected="true"] > .tab-image-middle > .tab-icons
-{
-  margin-bottom: 4px;
-}
-
-tabbox.tabs-bottom > tabs > tab > .tab-image-middle > .tab-icons
-{
-  margin-top: 3px;
-}
-
-tabbox.tabs-bottom > tabs > tab[selected="true"] > .tab-image-middle > .tab-icons
-{
-  margin-top: 4px;
-}
-
-tabbox.whiteout > tabs > .tabstrip-box,
-tabbox.whiteout > tabs > .tabs-left,
-tabbox.whiteout > tabs > .tabs-right
-{
+    padding-left: 2px;
+    padding-right: 2px;
     border: none;
-    border-bottom: 1px solid GrayText;
 }
 
-tabbox.whiteout > tabs[type="scrollable"] > .tabstrip-box,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-left,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-right
+.whiteout .tabstrip-box
 {
-    border: none;
     margin-bottom: -1px;
 }
 
-tabbox.whiteout > tabs > .tabs-left,
-tabbox.whiteout > tabs[type="scrollable"] > .tabs-left
+.tabs-bottom .tabstrip-box
 {
-    border-right: 1px solid GrayText;
-    margin-top: 2px;
-}
-
-tabbox.whiteout > tabs > .tabs-right
-{
-    border-left: 1px solid ThreeDDarkShadow;
-    margin-top: 2px;
-}
-
-tabbox.tabs-bottom > tabs > .tabstrip-box,
-tabbox.tabs-bottom > tabs > .tabs-left,
-tabbox.tabs-bottom > tabs > .tabs-right
-{
-    border: none;
-    border-top: 1px solid GrayText;
-}
-
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabstrip-box,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-left,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-right
-{
-    border: none;
-    margin: 0px;
     margin-top: -1px;
 }
-
-tabbox.tabs-bottom > tabs > .tabs-left,
-tabbox.tabs-bottom > tabs[type="scrollable"] > .tabs-left
-{
-    border-right: 1px solid GrayText;
-    margin-bottom: 2px;
-}
-tabbox.tabs-bottom > tabs > .tabs-right
-{
-    border-left: 1px solid ThreeDDarkShadow;
-    margin-bottom: 2px;
-}
-
 
 .tab-icon {
     padding: 0px;
@@ -282,68 +209,74 @@ tabbox.tabs-bottom > tabs > .tabs-right
 }
 
 /* top right bottom left */
-tabbox.whiteout > tabs > tab
+.whiteout tab
 {
     -moz-appearance: none;
-    -moz-border-radius: 0px;
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-topright: 4px;
     height: 14px !important;
     max-width: 20em;
     background-color: transparent;
     color: #383838;
     margin: 3px 0px 0px 0px;
-    padding: 1px 3px 1px 3px;
+    padding: 2px 3px 1px 3px;
     border: none;
     border-left: 1px solid ThreeDDarkShadow;
     border-right: 1px solid GrayText;
     border-bottom: 1px solid GrayText;
 }
 
-tabbox.whiteout > tabs > tab[selected="true"]
+.whiteout tab[selected="true"]
 {
     -moz-appearance: none;
     font-weight: bold;
-    background-color: buttonface;
+    background-color: rgba(0,0,0,0.10); /* controls darkness of unselected tabs */
+    background-color: #E4E4E4;
+    /*background-color: buttonface;*/
     color: #000000;
-    margin: 2px 0px 0px 0px;
-    padding: 1px 3px 1px 3px;
+    margin: 2px 0px -2px 0px;
+    padding: 2px 3px 3px 3px;
     border: 1px solid GrayText;
     border-left: 1px solid ThreeDDarkShadow;
     border-bottom: none;
 }
 
-tabbox.tabs-bottom > tabs > tab
+.tabs-bottom tab
 {
     -moz-appearance: none;
     -moz-border-radius: 0px;
+    -moz-border-radius-bottomleft: 4px;
+    -moz-border-radius-bottomright: 4px;
     height: 14px !important;
     max-width: 20em;
     color: #383838;
 
-    border: none;
     margin: 0px 0px 3px 0px;
+    padding: 1px 3px 2px 3px;
+
+    border: none;
     border-top: 1px solid GrayText;
-    padding: 1px 3px 1px 3px;
     border-left: 1px solid ThreeDDarkShadow;
     border-right: 1px solid GrayText;
 }
 
 
-tabbox.tabs-bottom > tabs > tab[selected="true"]
+.tabs-bottom tab[selected="true"]
 {
     -moz-appearance: none;
     font-weight: bold;
-    background-color: buttonface;
+    background-color: #E4E4E4;
     color: #000000;
 
-    margin: 0px 0px 2px 0px;
-    padding: 2px 3px 1px 3px;
+    margin: -2px 0px 2px 0px;
+    padding: 4px 3px 1px 3px;
     border: 1px solid GrayText;
     border-left: 1px solid ThreeDDarkShadow;
     border-top: none;
 }
 
-tabbox.whiteout > tabs > tab[selected="true"][dragtarget="true"],
-tabbox.tabs-bottom > tabs > tab[selected="true"][dragtarget="true"],
+.whiteout tab[selected="true"][dragtarget="true"],
+.tabs-bottom tab[selected="true"][dragtarget="true"],
 tab[dragtarget="true"]  {
     -moz-appearance: none;
     border: 1px;
@@ -351,44 +284,25 @@ tab[dragtarget="true"]  {
     -moz-border-left-colors: black;
 }
 
-view[type="tabbed"][lastfocused="false"] > tabbox.whiteout > tabs > tab[selected="true"]
-{
-    font-weight: normal;
-}
-
-tabbox.whiteout > tabpanels
+.whiteout > tabpanels,
+.tabs-bottom > tabpanels
 {
     -moz-appearance: none;
     border: None;
-    border-top: 1px solid buttonface;
-    -moz-border-top-colors: buttonface;
-    -moz-border-bottom-colors: none ;
     padding: 0px;
     margin: 0px;
 }
 
-tabbox.tabs-bottom > tabpanels
-{
-    /* padding: 0px 0px 1px 0px; */
-    -moz-appearance: none;
-    border: none;
-    border-bottom: 1px solid buttonface;
-    -moz-border-top-colors: none ;
-    -moz-border-bottom-colors: buttonface ;
+.whiteout > tabpanels > tabpanel {
     padding: 0px;
     margin: 0px;
 }
 
-tabbox.whiteout > tabpanels > tabpanel {
+.tabs-bottom > tabpanels > tabpanel {
     padding: 0px;
     margin: 0px;
-    padding-top: 2px;
-}
-
-tabbox.tabs-bottom > tabpanels > tabpanel {
-    padding: 0px;
-    margin: 0px;
-    padding-bottom: 2px;
+    background-color: #E4E4E4;
+    padding-bottom: 1px;
 }
 
 tabs.xxx-small > tab {
@@ -399,26 +313,48 @@ tabs.small > tab {
     font-size: 85%;
 }
 
-tabbox.whiteout > tabs > tab:not([selected="true"]):hover {}
+.whiteout tab:not([selected="true"]):hover {}
 
-tabbox.whiteout > tabs > tab:not([selected="true"]) > .tab-image-middle > .tab-icon,
-tabbox.tabs-bottom > tabs > tab:not([selected="true"]) > .tab-image-middle > .tab-icon
+.whiteout tab:not([selected="true"]) > .tab-image-middle > .tab-icon,
+.tabs-bottom tab:not([selected="true"]) > .tab-image-middle > .tab-icon
 {
    -moz-opacity: 0.4;
 }
 
-tabbox.whiteout > tabs > tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon,
-tabbox.tabs-bottom > tabs > tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon
+.whiteout tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon,
+.tabs-bottom tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon
 {
    -moz-opacity: 1.0;
 }
 
-tabbox.whiteout > tabs > tab[selected="true"],
-tabbox.whiteout > tabs > tab:hover,
-tabbox.tabs-bottom > tabs > tab[selected="true"],
-tabbox.tabs-bottom > tabs > tab:hover
+.whiteout tab[selected="true"],
+.whiteout tab:hover,
+.tabs-bottom tab[selected="true"],
+.tabs-bottom tab:hover
 {
 	color: #000000;
 }
 
+.tabs-bottom .tab-text,
+.tabs-bottom .tab-text-shadow,
+.whiteout .tab-text-shadow,
+.whiteout .tab-text {
+  font: message-box;
+  font-weight: bold !important;
+  margin-top: 0 !important;
+}
+
+/* collapse tab selector on bottom tabs */
+
+.tabs-bottom .tabs-select-button {
+  visibility: collapse;
+}
+
+/* no border for views in output tabs */
+
+.whiteout view {
+  border: none;
+  margin: 0px;
+  padding: 0px;
+}
 

@@ -10,7 +10,6 @@
   background-color: #C9C9C9;
 }
 
-#toolbox_main,
 #toolbox_main > menubar,
 #toolbox_main > toolbar,
 #main-toolboxrow,
@@ -18,6 +17,13 @@
   background-color: #C9C9C9;
   border: none;
   background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
+}
+
+#toolbox_main {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+  border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 
 /* height same as background image */
@@ -42,4 +48,9 @@
   background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
 }
 
-
+#komodo_main:not([active="true"]) > #toolbox_main {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+  border-bottom: 1px solid rgba(0,0,0,0.10);
+}
