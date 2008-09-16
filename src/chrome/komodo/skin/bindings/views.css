@@ -58,12 +58,10 @@ view[type='diff']  {
 
 view[type='buffer']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#view-buffer');
-  border: thin ThreeDDarkShadow solid;
 }
 
 view[type='terminal']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-terminal.xml#view-terminal');
-  border: thin ThreeDDarkShadow solid;
 }
 
 view[type='browser']  {
