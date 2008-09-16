@@ -1,0 +1,29 @@
+
+
+/* Tab drag and drop */
+.tab-drop-indicator-bar {
+  height: 11px;
+  margin-top: -11px;
+  position: relative;
+  /* set -moz-margin-start to -1/2 indicator width: */
+  -moz-margin-start: -5px;
+}
+
+.tab-drop-indicator {
+  height: 11px;
+  width: 11px;
+  margin-bottom: -5px;
+  position: relative;
+  background: url('chrome://komodo/skin/tabs/tabDragIndicator.png') 50% 50% no-repeat;
+}
+
+/* Tabbrowser arrowscrollbox arrows */
+.tabbrowser-arrowscrollbox > .scrollbutton-up {
+  -moz-appearance: tab-scroll-arrow-back;
+  margin: 0px;
+}
+
+.tabbrowser-arrowscrollbox > .scrollbutton-down {
+  -moz-appearance: tab-scroll-arrow-forward;
+  margin: 0px;
+}

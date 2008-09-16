@@ -1,3 +1,6 @@
+@import url("chrome://komodo/skin/tabs/tabs.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 tabpanels,
 tabpanel
