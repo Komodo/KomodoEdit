@@ -127,7 +127,7 @@
 .native .tabstrip-box {
   margin-top: -1px;
   border-bottom: 1px solid rgba(0,0,0,0.50);
-  background-color: rgba(0,0,0,0.30); /* controls darkness of unselected tabs */
+  background-color: rgba(0,0,0,0.20); /* controls darkness of unselected tabs */
 }
 
 .native tabs {
@@ -190,12 +190,10 @@
   cursor: default;
 }
 
-.native .tab-close-button:hover,
 .native tab[selected="true"] > .tab-close-button:hover {
   list-style-image: url("chrome://global/skin/icons/closetab-hover.png");
 }
 
-.native .tab-close-button:hover:active,
 .native tab[selected="true"] > .tab-close-button:hover:active {
   list-style-image: url("chrome://global/skin/icons/closetab-active.png");
 }
