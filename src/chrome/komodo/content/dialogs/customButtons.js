@@ -49,6 +49,7 @@
  *                      no be shown.
  *      .title          the dialog title
  *      .doNotAskUI     show the "Don't ask me again" UI
+ *      .style          The class attribute to be applied to the dialog icon.
  *  On return window.arguments[0] has:
  *      .response       the name of button used
  *      .doNotAsk       (iff .doNotAskUI) a boolean indicating if this question

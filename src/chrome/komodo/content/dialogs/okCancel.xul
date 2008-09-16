@@ -52,12 +52,14 @@
         style="min-width: 40em; max-width: 55em;"
         flex="1"
         buttons="accept,cancel"
+        ondialoghelp="return Help();"
         ondialogaccept="return OK();"
         ondialogcancel="return Cancel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"   type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/dialogs/okCancel.js" type="application/x-javascript;version=1.7"/>
 
     <hbox flex="1">

@@ -52,6 +52,7 @@
         style="min-width: 40em; max-width: 55em;"
         flex="1"
         buttons="accept,extra1"
+        ondialoghelp="return Help();"
         ondialogaccept="return Yes();"
         ondialogextra1="return No();"
         ondialogcancel="return Cancel();">
@@ -59,6 +60,7 @@
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"   type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/dialogs/yesNo.js"   type="application/x-javascript;version=1.7"/>
 
     <hbox flex="1">

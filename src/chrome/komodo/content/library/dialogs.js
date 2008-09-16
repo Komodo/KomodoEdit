@@ -117,10 +117,14 @@ var _prefs = Components.classes['@activestate.com/koPrefService;1'].
 //  "doNotAskPref", uses/requires the following two prefs:
 //      boolean donotask_<doNotAskPref>: whether to not show the dialog
 //      string donotask_action_<doNotAskPref>: "Yes" or "No"
+//  "style", the class attribute to be applied to the dialog icon.
+//  "helpTopic",  the help topic, to be passed to "ko.help.open()". If
+//      not provided (or null) then no Help button will be shown.
 //
 // Returns "Yes", "No" or "Cancel", whichever the user selected.
 //
-this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title, doNotAskPref, style)
+this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title,
+                                               doNotAskPref, style, helpTopic)
 {
     if (typeof(prompt) == 'undefined') prompt = null;
     if (typeof(response) == 'undefined') response = "Yes";
@@ -128,6 +132,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title, do
     if (typeof(title) == 'undefined') title = null;
     if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
     if (typeof(style) == 'undefined') style = "question-icon spaced";
+    if (typeof(helpTopic) == 'undefined') helpTopic = null;
 
     // Break out early if "doNotAskPref" prefs so direct.
     var bpref = null, spref = null;
@@ -155,6 +160,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title, do
     obj.title = title;
     obj.doNotAskUI = doNotAskPref != null;
     obj.style = style;
+    obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/yesNoCancel.xul",
                       "_blank",
                       "chrome,modal,titlebar",
@@ -182,19 +188,23 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title, do
 //  "doNotAskPref", uses/requires the following two prefs:
 //      boolean donotask_<doNotAskPref>: whether to not show the dialog
 //      string donotask_action_<doNotAskPref>: "Yes" or "No"
+//  "helpTopic",  the help topic, to be passed to "ko.help.open()". If
+//      not provided (or null) then no Help button will be shown.
 //
 // Returns "Yes" or "No", whichever the user selected. Note that cancelling the
 // dialog via <Esc> (or equivalent) is taken to mean a "No" answer from the
 // user; though there is a subtle difference in that the possible "Don't ask me
 // again." checkbox setting is NOT honoured if the dialog is cancelled.
 //
-this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref)
+this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref,
+                                   helpTopic)
 {
     if (typeof(prompt) == 'undefined') prompt = null;
     if (typeof(response) == 'undefined') response = null;
     if (typeof(text) == 'undefined') text = null;
     if (typeof(title) == 'undefined') title = null;
     if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
+    if (typeof(helpTopic) == 'undefined') helpTopic = null;
 
     // Break out early if "doNotAskPref" prefs so direct.
     var bpref = null, spref = null;
@@ -221,6 +231,7 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref)
     obj.text = text;
     obj.title = title;
     obj.doNotAskUI = doNotAskPref != null;
+    obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
                       "_blank",
                       "chrome,modal,titlebar",
@@ -247,16 +258,20 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref)
 //  "title" is the dialog title.
 //  "doNotAskPref", uses/requires the following pref:
 //      boolean donotask_<doNotAskPref>: whether to not show the dialog
+//  "helpTopic",  the help topic, to be passed to "ko.help.open()". If
+//      not provided (or null) then no Help button will be shown.
 //
 // Returns "OK" or "Cancel", whichever the user selected.
 //
-this.okCancel = function dialog_okCancel(prompt, response, text, title, doNotAskPref)
+this.okCancel = function dialog_okCancel(prompt, response, text, title,
+                                         doNotAskPref, helpTopic)
 {
     if (typeof(prompt) == 'undefined') prompt = null;
     if (typeof(response) == 'undefined') response = null;
     if (typeof(text) == 'undefined') text = null;
     if (typeof(title) == 'undefined') title = null;
     if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
+    if (typeof(helpTopic) == 'undefined') helpTopic = null;
 
     // Break out early if "doNotAskPref" prefs so direct.
     var bpref = null;
@@ -274,6 +289,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title, doNotAsk
     obj.text = text;
     obj.title = title;
     obj.doNotAskUI = doNotAskPref != null;
+    obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/okCancel.xul",
                       "_blank",
                       "chrome,modal,titlebar",
@@ -303,6 +319,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title, doNotAsk
 //  "doNotAskPref", uses/requires the following two prefs:
 //      boolean donotask_<doNotAskPref>: whether to not show the dialog
 //      string donotask_action_<doNotAskPref>: the name of the button pressed
+//  "style", the class attribute to be applied to the dialog icon.
 //
 // Returns the name of the button pressed, i.e. one of the strings in
 // "buttons", or "Cancel" if the dialog was cancelled (it is possible the

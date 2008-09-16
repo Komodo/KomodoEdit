@@ -49,6 +49,7 @@
  *                      no be shown.
  *      .title          the dialog title
  *      .doNotAskUI     show the "Don't ask me again" UI
+ *      .helpTopic      Help topic, to be passed to "ko.help.open()"
  *  On return window.arguments[0] has:
  *      .response       "Yes" or "No"
  *      .doNotAsk       (iff .doNotAskUI) a boolean indicating if this question
@@ -59,6 +60,7 @@ var log = ko.logging.getLogger("dialogs.yesNo");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
 var gDoNotAskUI = false; // true iff "Don't ask me again" UI is being used.
+var gHelpTopic = null;
 
 
 //---- interface routines for XUL
@@ -139,6 +141,14 @@ function OnLoad()
                 .removeAttribute("collapsed");
     }
 
+    // .helpTopic
+    if (window.arguments[0].helpTopic) {
+        var helpButton = dialog.getButton("help");
+        helpButton.removeAttribute("hidden");
+        helpButton.removeAttribute("disabled");
+        gHelpTopic = window.arguments[0].helpTopic;
+    }
+
     window.sizeToContent();
     if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
         dialog.centerWindowOnScreen();
@@ -183,4 +193,9 @@ function Cancel()
     return true;
 }
 
+function Help()
+{
+    ko.windowManager.getMainWindow().ko.help.open(gHelpTopic);
+    return true;
+}
 
