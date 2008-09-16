@@ -51,7 +51,7 @@
         <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
     </resources>
     <content>
-        <xul:tabbox type="draggable" class="whiteout"
+        <xul:tabbox type="draggable" class="native"
             orient="vertical" flex="1" id='tabbed-view'
             handleCtrlPageUpDown="false"
             xbl:inherit="class,style,flex,orient">
