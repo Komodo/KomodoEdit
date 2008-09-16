@@ -69,7 +69,7 @@
                 <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled,selected"
                            collapsed="true" value="*"/>
                 <xul:spacer flex="1"/>
-                <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
+                <xul:toolbarbutton anonid="close-button" 
                                    class="tab-close-button"/>
             </xul:hbox>
             <xul:hbox class="tab-image-right" xbl:inherits="selected"/>
@@ -79,7 +79,7 @@
                 <parameter name="tab"/>
                 <body>
                 <![CDATA[
-                    var parent = this.parentNode.parentNode;
+                    var parent = this.parentNode;
                     while (parent) {
                       if (parent.localName == "tabbox")
                         return parent;
@@ -245,32 +245,11 @@
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
         </resources>
         <content>
-            <xul:box anonid="left-scroll" xbl:inherits="collapsable" collapsed="true"
-                     align="center" pack="center" class="tabstrip-box tabs-left" flex="0">
-                <xul:button
-                    disabled="true"
-                    type="button-toolbar-a"
-                    class="scroll-arrow-left-icon"
-                    onmousedown="this.parentNode.parentNode.startButtonRepeater(0);"
-                    onmouseup="this.parentNode.parentNode.stopButtonRepeater();"
-                    onmouseout="this.parentNode.parentNode.stopButtonRepeater();"/>
-            </xul:box>
-            <xul:scrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
-                class="tabstrip-box" flex="1">
+            <xul:box xbl:inherits="orient,align,pack,dir" flex="1" class="tabstrip-box">
+            <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
+                class="tab-arrowscrollbox" flex="1" clicktoscroll="true">
                 <children includes="tab"/>
-            </xul:scrollbox>
-            <xul:box anonid="right-scroll" xbl:inherits="collapsable" flex="0" collapsed="true"
-                     align="center" pack="center" class="tabstrip-box tabs-right">
-                <xul:button
-                    disabled="true"
-                    type="button-toolbar-a"
-                    class="scroll-arrow-right-icon"
-                    onmousedown="this.parentNode.parentNode.startButtonRepeater(1);"
-                    onmouseup="this.parentNode.parentNode.stopButtonRepeater();"
-                    onmouseout="this.parentNode.parentNode.stopButtonRepeater();"/>
-            </xul:box>
-            <xul:box xbl:inherits="orient,align,pack,dir" flex="0"
-                     align="center" pack="center" class="tabstrip-box">
+            </xul:arrowscrollbox>
                 <children/>
                 <xul:toolbarbutton anonid="tabs-list"
                                type="menu"
@@ -278,7 +257,7 @@
                                buttonstyle="pictures"
                                class="tabs-select-button"
                                oncommand="this.firstChild.showPopup(this, -1,-1);">
-                    <xul:menupopup anonid="tabs-list-popup"
+                    <xul:menupopup anonid="tabs-list-popup" position="after_end"
                         onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
                 </xul:toolbarbutton>
                 <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
@@ -294,24 +273,13 @@
             <field name="_scrollbox">null</field>
 
             <property name="scrollbox" readonly="true"
-                onget="return document.getAnonymousNodes(this)[1];"/>
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','tabstrip');"/>
 
             <property name="scrollBoxObject" readonly="true"
-                onget="return this.scrollbox.boxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
-            
-            <property name="leftScrollButtonBox" readonly="true"
-                onget="return document.getAnonymousElementByAttribute(this,'anonid','left-scroll');"/>
-            <property name="rightScrollButtonBox" readonly="true"
-                onget="return document.getAnonymousElementByAttribute(this,'anonid','right-scroll');"/>
+                onget="return this.scrollbox.scrollBoxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
+
             <property name="menuListPopup" readonly="true"
                 onget="return document.getAnonymousElementByAttribute(this,'anonid','tabs-list-popup');"/>
-
-            <constructor>
-                <![CDATA[
-                this.leftScrollButtonBox.setAttribute('collapsed', 'true');
-                this.rightScrollButtonBox.setAttribute('collapsed', 'true');
-                ]]>
-            </constructor>
 
             <method name="_createMenuItem">
                 <parameter name="tab"/>
@@ -395,87 +363,6 @@
                 </body>
             </method>
 
-            <method name="startButtonRepeater">
-                <parameter name="dir"/>
-                <body>
-                <![CDATA[
-                    this.doRepeater(dir);
-                    this.stopButtonRepeater();
-                    this._repeater = new objectTimer(this,this.doButtonRepeater,[dir]);
-                    this._repeater.startTimeout(500);
-                ]]>
-                </body>
-            </method>
-
-            <method name="doButtonRepeater">
-                <parameter name="dir"/>
-                <body>
-                <![CDATA[
-                    this.doRepeater(dir);
-                    this.stopButtonRepeater();
-                    this._repeater = new objectTimer(this,this.doRepeater,[dir]);
-                    this._repeater.startInterval(100);
-                ]]>
-                </body>
-            </method>
-
-            <method name="stopButtonRepeater">
-                <body>
-                <![CDATA[
-                    if (!this._repeater) return;
-                    this._repeater.stop();
-                    this._repeater.free();
-                    this._repeater = null;
-                ]]>
-                </body>
-            </method>
-
-            <method name="doRepeater">
-                <parameter name="dir"/>
-                <body>
-                <![CDATA[
-                    if (dir)
-                        this.scrollRight();
-                    else
-                        this.scrollLeft();
-                ]]>
-                </body>
-            </method>
-
-            <method name="scrollLeft">
-                <body>
-                <![CDATA[
-                    var dx = -this.scrollBoxObject.width;
-                    var ox = {};
-                    var oy = {};
-                    var ddx = dx/12.0;
-                    this.scrollBoxObject.getPosition(ox, oy);
-                    this.scrollBoxObject.scrollTo(ox.value+ddx, 0);
-                ]]>
-                </body>
-            </method>
-
-            <method name="scrollRight">
-                <body>
-                <![CDATA[
-                    var dx = this.scrollBoxObject.width;
-                    var ox = {};
-                    var oy = {};
-                    var ddx = dx/12.0;
-                    this.scrollBoxObject.getPosition(ox, oy);
-                    this.scrollBoxObject.scrollTo(ox.value+ddx, 0);
-                ]]>
-                </body>
-            </method>
-
-            <method name="scrollRefresh">
-                <body>
-                <![CDATA[
-                    this.scrollBoxObject.scrollTo(0, 0)
-                ]]>
-                </body>
-            </method>
-
             <method name="scrollToTabIndex">
                 <parameter name="index"/>
                 <body>
@@ -490,33 +377,13 @@
         <handlers>
             <handler event="underflow" phase="capturing">
             <![CDATA[
-                this.leftScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons-disabled');
-                this.leftScrollButtonBox.firstChild.setAttribute('disabled', 'true');
-                if (!this.leftScrollButtonBox.hasAttribute('collapsable') ||
-                    this.leftScrollButtonBox.getAttribute('collapsable')=='true') {
-                    this.leftScrollButtonBox.setAttribute('collapsed','true');
-                }
-
-                this.rightScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons-disabled');
-                this.rightScrollButtonBox.firstChild.setAttribute('disabled', 'true');
-                if (!this.rightScrollButtonBox.hasAttribute('collapsable') ||
-                    this.rightScrollButtonBox.getAttribute('collapsable')=='true') {
-                    this.rightScrollButtonBox.setAttribute('collapsed','true');
-                }
-
-                this.scrollRefresh();
+                this.scrollBoxObject.scrollTo(0, 0)
             ]]>
             </handler>
 
             <handler event="overflow" phase="capturing">
             <![CDATA[
-                this.leftScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons');
-                this.leftScrollButtonBox.firstChild.removeAttribute('disabled');
-                this.leftScrollButtonBox.removeAttribute('collapsed');
-
-                this.rightScrollButtonBox.setAttribute('class', 'scrolltabbox-buttons');
-                this.rightScrollButtonBox.firstChild.removeAttribute('disabled');
-                this.rightScrollButtonBox.removeAttribute('collapsed');
+                this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
             ]]>
             </handler>
 
@@ -537,14 +404,6 @@
                 }
             ]]>
             </handler>
-            <handler event="DOMMouseScroll" phase="capturing">
-            <![CDATA[
-                if (event.detail < 0)
-                    this.scrollLeft();
-                else
-                    this.scrollRight();
-            ]]>
-            </handler>
         </handlers>
     </binding>
 
@@ -552,10 +411,16 @@
     <binding id="tabbox-draggable" xbl:inherits="orient"
         extends="chrome://global/content/bindings/tabbox.xml#tabbox">
         <content>
+            <xul:hbox class="tab-drop-indicator-bar" anonid="drop-indicator-bar" collapsed="true">
+                <xul:hbox class="tab-drop-indicator" mousethrough="always"/>
+            </xul:hbox>
             <children/>
         </content>
         <implementation>
             <field name="_lastTarget">-1</field>
+            <field name="dropIndicatorBar">
+              document.getAnonymousElementByAttribute(this, "anonid", "drop-indicator-bar");
+            </field>
 
             <method name="getTabIndexById">
                 <parameter name="id"/>
@@ -730,7 +595,7 @@
                             drop.targetNode = event.target;
 
                         drop.sourceNode = session.sourceNode;
-                        this._dropTimeout = new objectTimer(this,this.doDrop,[drop]);
+                        this._dropTimeout = new objectTimer(this,this.doDrop,[drop, event]);
                         this._dropTimeout.startTimeout(1);
                         event.cancelBubble = true;
                         return true;
@@ -742,26 +607,25 @@
 
             <method name="doDrop">
                 <parameter name="dropData"/>
+                <parameter name="event"/>
                 <body>
                 <![CDATA[
                     var result = false;
 
                     var sourceNode = dropData.sourceNode;
                     var targetNode = dropData.targetNode;
-                    var targetIndex = this.getTabIndexById(targetNode.id);
+                    var targetIndex = this.getNewIndex(event);
                     var sourceIndex = this.getTabIndexById(sourceNode.id);
-                    var index;
                     if (targetNode.localName == 'tab') {
                         // figure out what we are inserting in front of
-                        index = this.getTabIndexById(targetNode.id);
-                        var targetTab = this._tabs.childNodes[index];
+                        var targetTab = this._tabs.childNodes[targetIndex];
                         this.moveTab(sourceNode,targetTab);
                     } else {
                         // append the tab to the end
                         this.moveTab(sourceNode,null);
                     }
                     // select what we just dragged
-                    index = this.getTabIndexById(sourceNode.id);
+                    var index = this.getTabIndexById(sourceNode.id);
                     this._tabs.selectedIndex = index;
 
                     // scroll the tabbox while we're dragging
@@ -810,13 +674,109 @@
                 </body>
             </method>
 
+            <method name="getNewIndex">
+              <parameter name="aEvent"/>
+              <body>
+                <![CDATA[
+                  var i;
+                  var tabs = this._tabs.childNodes;
+                  if (window.getComputedStyle(this.parentNode, null).direction == "ltr") {
+                    for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < tabs.length; i++)
+                      if (aEvent.screenX < tabs[i].boxObject.screenX + tabs[i].boxObject.width / 2) 
+                        return i;
+                  } else {
+                    for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < tabs.length; i++)
+                      if (aEvent.screenX > tabs[i].boxObject.screenX + tabs[i].boxObject.width / 2)
+                        return i;
+                  }
+                  return tabs.length;
+                ]]>
+              </body>
+            </method>
+
             <method name="onDragOver">
                 <parameter name="event"/>
                 <parameter name="flavour"/>
                 <parameter name="session"/>
                 <body>
                 <![CDATA[
-                    return true;
+                var tabStrip = this._tabs.scrollbox;
+                var ltr = (window.getComputedStyle(this.parentNode, null).direction
+                           == "ltr");
+    
+                // autoscroll the tab strip if we drag over the scroll
+                // buttons, even if we aren't dragging a tab, but then
+                // return to avoid drawing the drop indicator
+                var pixelsToScroll = 0;
+                if (this._tabs.getAttribute("overflow") == "true") {
+                  var targetAnonid = event.originalTarget.getAttribute("anonid");
+                  switch (targetAnonid) {
+                    case "scrollbutton-up":
+                      pixelsToScroll = tabStrip.scrollIncrement * -1;
+                      break;
+                    case "scrollbutton-down":
+                    case "tabs-list":
+                      pixelsToScroll = tabStrip.scrollIncrement;
+                      break;
+                  }
+                  if (pixelsToScroll)
+                    tabStrip.scrollByPixels((ltr ? 1 : -1) * pixelsToScroll);
+                }
+    
+                var newIndex = this.getNewIndex(event);
+                var ib = this.dropIndicatorBar;
+                var ind = ib.firstChild;
+                var tabStripBoxObject = this._tabs.scrollBoxObject;
+                var tabs = this._tabs.childNodes;
+                var minMargin = tabStripBoxObject.x - this.boxObject.x;
+                // make sure we don't place the tab drop indicator past the
+                // edge, or the containing box will flex and stretch
+                // the tab drop indicator bar, which will flex the url bar.  
+                // XXX todo
+                // just use first value if you can figure out how to get
+                // the tab drop indicator to crop instead of flex and stretch
+                // the tab drop indicator bar.
+                var maxMargin = Math.min(minMargin + tabStripBoxObject.width, 
+                                         ib.boxObject.x + ib.boxObject.width -
+                                         ind.boxObject.width);
+                if (!ltr)
+                  [minMargin, maxMargin] = [this.boxObject.width - maxMargin,
+                                            this.boxObject.width - minMargin];
+                var newMargin, tabBoxObject;
+                if (pixelsToScroll) {
+                  // if we are scrolling, put the drop indicator at the edge
+                  // so that it doesn't jump while scrolling
+                  newMargin = (pixelsToScroll > 0) ? maxMargin : minMargin;
+                }
+                else {
+                  if (newIndex == tabs.length) {
+                    tabBoxObject =  tabs[newIndex-1].boxObject;
+                    if (ltr)
+                      newMargin = tabBoxObject.screenX - this.boxObject.screenX
+                                  + tabBoxObject.width;
+                    else
+                      newMargin = this.boxObject.screenX - tabBoxObject.screenX
+                                  + this.boxObject.width;
+                  }
+                  else {
+                    tabBoxObject =  tabs[newIndex].boxObject;
+                    if (ltr)
+                      newMargin = tabBoxObject.screenX - this.boxObject.screenX;
+                    else
+                      newMargin = this.boxObject.screenX - tabBoxObject.screenX
+                                  + this.boxObject.width - tabBoxObject.width;
+                  }
+                  // ensure we never place the drop indicator beyond our limits
+                  if (newMargin < minMargin)
+                    newMargin = minMargin;
+                  else if (newMargin > maxMargin)
+                    newMargin = maxMargin;
+                }
+    
+                ind.style.MozMarginStart = newMargin + 'px';
+    
+                ib.collapsed = false;
+                return true;
                 ]]>
                 </body>
             </method>
@@ -830,6 +790,7 @@
                         this._lastTarget = this.getTabIndexById(event.target.id);
                         event.target.removeAttribute('dragtarget');
                     }
+                    this.dropIndicatorBar.collapsed = true;
                     return true;
                 ]]>
                 </body>
