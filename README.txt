@@ -329,6 +329,12 @@ IDL changes -- you still need to run the slower "bk build".
 Build Troubleshooting Notes
 ===========================
 
+- If you run into Java errors when building mozilla, you may need to
+  disable Java XPCOM. You can do this by adding "--options=disable-javaxpcom"
+  to your Mozilla configure step:
+
+    python build.py configure ... --options=disable-javaxpcom
+
 - [Linux] On my Ubuntu Dapper install I had to install "automake1.9" to
   get "aclocal"::
   
