@@ -2327,9 +2327,9 @@
                         unparsed output and (2) an tree to show parsed
                         output.
                     -->
-                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel"
+                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel">
+                        <hbox id="runoutput-desc-tabpanel-toolbar-hbox"
                             class="toolbar-background toolbar-hbox">
-                        <hbox id="runoutput-desc-tabpanel-toolbar-hbox">
                             <vbox flex="1">
                                 <spring flex="1"/>
                                 <label id="runoutput-desc" style="height: 15px;"
