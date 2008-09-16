@@ -62,7 +62,7 @@
 <!-- #if BUILD_FLAVOUR == "dev" -->
 <?xul-overlay href="chrome://komodo/content/test/overlay.xul"?>
 <!-- #endif -->
-
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
 
 <!-- #ifndef PP_KO_TITLE_BAR_NAME -->
 <!-- #define PP_KO_TITLE_BAR_NAME ActiveState Komodo -->
@@ -1576,7 +1576,7 @@
         <toolbar
             id="standardToolbar"
             class="chromeclass-toolbar"
-            align="stretch"
+            align="center"
             persist="hidden collapsed buttonstyle"
             buttonstyle="pictures"
             grippyhidden="true"
@@ -1904,7 +1904,7 @@
                                     this.setSelectionRange(0, this.textLength);"
                      onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"/>
             <toolbarbutton id="find-toolbar-browsedirectory"
-                           class="folder-icon" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                           class="folder-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                            oncommand="Findtoolbar_AddBrowsedDirectory();"/>
@@ -2327,7 +2327,8 @@
                         unparsed output and (2) an tree to show parsed
                         output.
                     -->
-                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel">
+                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel"
+                            class="toolbar-background toolbar-hbox">
                         <hbox id="runoutput-desc-tabpanel-toolbar-hbox">
                             <vbox flex="1">
                                 <spring flex="1"/>
@@ -2336,16 +2337,18 @@
                                 <spring flex="1"/>
                             </vbox>
                             <spacer flex="1"/>
-                            <button id="runoutput-list-button"
-                                    class="bulletlist-icon button-toolbar-a"
+                            <hbox id="runoutput-button-box" class="no-border">
+                            <toolbarbutton id="runoutput-list-button"
+                                    class="bulletlist-icon"
                                     tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
                                     oncommand="ko.run.output.toggleView();"
                                     disabled="true"/>
-                            <button id="runoutput-close-button"
-                                    class="find-stop-icon button-toolbar-a"
+                            <toolbarbutton id="runoutput-close-button"
+                                    class="find-stop-icon"
                                     tooltiptext="&terminateProcess.tooltiptext;"
                                     oncommand="ko.run.output.kill(-1);"
                                     disabled="true"/>
+                            </hbox>
                         </hbox>
                         <vbox flex="1" id="runoutput-desc-tabpanel-vbox">
                             <hbox flex="1" id="runoutput-desc-tabpanel-hbox">
@@ -2393,7 +2396,8 @@
                     <!-- The two Find Results tabs of the output pane -->
                     <tabpanel id="findresults1_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
-                        <hbox align="center" id="findresults1_tabpanel-toolbarbox">
+                        <hbox align="center" id="findresults1_tabpanel-toolbarbox"
+                            class="toolbar-background toolbar-hbox">
 <!-- #if PLATFORM != "darwin" -->
                             <image id="findresults1-icon"
                                    collapsed="true" hidden="true"
@@ -2408,30 +2412,32 @@
                             <label id="findresults1-desc" style="height: 18px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
-                            <button id="findresults1-jumptoprev-button"
-                                    class="list-item-up-icon button-toolbar-a"
+                            <hbox id="findtoolbar1-button-box" class="no-border">
+                            <toolbarbutton id="findresults1-jumptoprev-button"
+                                    class="list-item-up-icon"
                                     tooltiptext="&jumpToPreviousResult.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).jumpToPrevResult();"/>
-                            <button id="findresults1-jumptonext-button"
-                                    class="list-item-down-icon button-toolbar-a"
+                            <toolbarbutton id="findresults1-jumptonext-button"
+                                    class="list-item-down-icon"
                                     tooltiptext="&jumpToNextResult.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).jumpToNextResult();"/>
-                            <separator style="width: 10px;"/>
-                            <button id="findresults1-stopsearch-button"
-                                    class="find-stop-icon button-toolbar-a"
+                            <toolbarseparator style="width: 10px;"/>
+                            <toolbarbutton id="findresults1-stopsearch-button"
+                                    class="find-stop-icon"
                                     tooltiptext="&stopSearch.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).stopSearch();"
                                     disabled="true"/>
-                            <button id="findresults1-undoreplace-button"
-                                    class="find-undo-icon button-toolbar-a"
+                            <toolbarbutton id="findresults1-undoreplace-button"
+                                    class="find-undo-icon"
                                     tooltiptext="&undoReplacements.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).undoReplace();"
                                     disabled="true"/>
-                            <separator style="width: 10px;"/>
-                            <button id="findresults1-lock-button"
-                                    class="find-lock-icon button-toolbar-a"
+                            <toolbarseparator style="width: 10px;"/>
+                            <toolbarbutton id="findresults1-lock-button"
+                                    class="find-lock-icon"
                                     tooltiptext="&lockUnlockFindResults.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(1).toggleLockResults();"/>
+                            </hbox>
                         </hbox>
                         <tree id="findresults1" flex="1"
                               seltype="single" class="no-border"
@@ -2459,7 +2465,8 @@
                     </tabpanel>
                     <tabpanel id="findresults2_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
-                        <hbox align="center" id="findresults2_tabpanel-toolbarbox">
+                        <hbox align="center" id="findresults2_tabpanel-toolbarbox"
+                            class="toolbar-background toolbar-hbox">
 <!-- #if PLATFORM != "darwin" -->
                             <image id="findresults2-icon"
                                    collapsed="true" hidden="true"
@@ -2474,30 +2481,32 @@
                             <label id="findresults2-desc" style="height: 15px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
-                            <button id="findresults2-jumptoprev-button"
-                                    class="list-item-up-icon button-toolbar-a"
+                            <hbox id="findtoolbar2-button-box" class="no-border">
+                            <toolbarbutton id="findresults2-jumptoprev-button"
+                                    class="list-item-up-icon"
                                     tooltiptext="&jumpToPreviousResult.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).jumpToPrevResult();"/>
-                            <button id="findresults2-jumptonext-button"
-                                    class="list-item-down-icon button-toolbar-a"
+                            <toolbarbutton id="findresults2-jumptonext-button"
+                                    class="list-item-down-icon"
                                     tooltiptext="&jumpToNextResult.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).jumpToNextResult();"/>
-                            <separator style="width: 10px;"/>
-                            <button id="findresults2-stopsearch-button"
-                                    class="find-stop-icon button-toolbar-a"
+                            <toolbarseparator style="width: 10px;"/>
+                            <toolbarbutton id="findresults2-stopsearch-button"
+                                    class="find-stop-icon"
                                     tooltiptext="&stopSearch.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).stopSearch();"
                                     disabled="true"/>
-                            <button id="findresults2-undoreplace-button"
-                                    class="find-undo-icon button-toolbar-a"
+                            <toolbarbutton id="findresults2-undoreplace-button"
+                                    class="find-undo-icon"
                                     tooltiptext="&undoReplacements.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).undoReplace();"
                                     disabled="true"/>
-                            <separator style="width: 10px;"/>
-                            <button id="findresults2-lock-button"
-                                    class="find-lock-icon button-toolbar-a"
+                            <toolbarseparator style="width: 10px;"/>
+                            <toolbarbutton id="findresults2-lock-button"
+                                    class="find-lock-icon"
                                     tooltiptext="&lockUnlockFindResults.tooltiptext;"
                                     oncommand="FindResultsTab_GetManager(2).toggleLockResults();"/>
+                            </hbox>
                         </hbox>
                         <tree id="findresults2" flex="1"
                               seltype="single" class="no-border"

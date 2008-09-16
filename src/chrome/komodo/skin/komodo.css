@@ -37,9 +37,6 @@
 @import url("chrome://komodo/skin/unifiedWindow.css");
 @import url("chrome://komodo/skin/splitter.css");
 
-/* platform is last, to easily include overrides on the above */
-@import url("chrome://komodo/skin/platform.css");
-
 
 /* ::::: fullscreen window controls ::::: */
 
@@ -139,18 +136,8 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
     font-weight: bold;
 }
 
-.thin-inset-border {
-    border: 1px ThreeDHighlight inset;
-    margin: 0px;
-    padding: 0px;
-}
-
-.thin-outset-border {
-    border: 1px ThreeDHighlight outset;
-    margin: 0px;
-    padding: 0px;
-}
-
+.thin-inset-border,
+.thin-outset-border,
 .zero-space {
     margin: 0px;
     padding: 0px;
@@ -163,7 +150,6 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 }
 
 .blank-workspace {
-    border: 1px ThreeDHighlight inset;
     margin: 0px;
     padding: 0px;
     background-color: appworkspace;
