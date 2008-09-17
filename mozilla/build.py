@@ -586,7 +586,8 @@ def _setupMozillaEnv():
     os.environ["DISABLE_TESTS"] = "1"
     os.environ["MOZ_BITS"] = "32"
     os.environ["FORCE_BUILD_REFCNT_LOGGING"] = "0"
-    os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
+    os.environ["MOZ_CURRENT_PROJECT"] \
+        = os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
     
     # ensure the mozilla build system uses our python to build with
     if config.python:
@@ -1677,7 +1678,7 @@ def target_configure(argv):
         
         # osx universal builds
         if sys.platform == 'darwin' and config["universal"]:
-            config["mozconfig"] += ". $topsrcdir/build/macosx/universal/mozconfig"
+            config["mozconfig"] += ". $topsrcdir/build/macosx/universal/mozconfig\n"
 
         if config["mozApp"] == "komodo":
             mozBuildOptions.append('enable-application=komodo')
@@ -2486,6 +2487,7 @@ def target_mozilla(argv=["mozilla"]):
     """
     log.info("target: mozilla")
     config = _importConfig()
+    _setupMozillaEnv()
     buildDir = os.path.join(gBuildDir, config.srcTreeName, "mozilla")
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
 
@@ -2495,7 +2497,6 @@ def target_mozilla(argv=["mozilla"]):
         raise BuildError("There is no mozilla source at '%s'. (landmark='%s')"\
                          % (buildDir, landmark))
 
-    _setupMozillaEnv()
     _validatePython(config)
 
     if len(argv) > 1 and os.path.isdir(os.path.join(native_objdir, argv[1])):
