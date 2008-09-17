@@ -877,6 +877,7 @@
             <xul:box type="startpage" anonid="quick-links-box" title="&quickLinks.title;"
                      pref="start_page_quick_links_box_closed" ordinal="1">
                 <xul:hbox flex="1">
+                    <xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&openSampleProject.title;"
                                  oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
@@ -889,6 +890,7 @@
                                  class="properties-icon">
                             <xul:description width="240px">&checkConfiguration.description;</xul:description>  
                         </xul:box>
+                    </xul:box>
                 </xul:hbox>
             </xul:box>
 
