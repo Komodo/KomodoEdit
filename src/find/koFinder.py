@@ -213,6 +213,9 @@ class _FindReplaceThread(threading.Thread):
             if self.journal:
                 journal_id = self.journal.id
                 self.journal.close()
+                # Ensure <Journal> isn't kept in memory until the next
+                # Replace in Files.
+                del self.journal
             if not self._stopped:
                 self._report(flush=True)
                 self.resultsMgrProxy.searchFinished(
@@ -336,6 +339,8 @@ class _FindReplaceThread(threading.Thread):
                 context, # context
                 match.expand(repl) # replacement
             )
+            # Done with line/column calculations for this hit.
+            rhit.cull_mem()
 
     def _cache_skipped_path(self, event):
         self._cache_hit(
@@ -631,6 +636,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED)
         finally:
             self.journal.close()
+            # Ensure <Journal> isn't kept in memory until the next
+            # Replace in Files.
+            del self.journal
 
     _last_report_num_paths_with_hits = 0
     _last_report_num_paths_searched = 0

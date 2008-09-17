@@ -415,30 +415,6 @@ def find_all_matches_bwd(regex, text, start=0, end=None):
 #       SkipPath
 #       StartJournal
 
-class _memoized(object):
-   """Decorator that caches a function's return value each time it is called.
-   If called later with the same arguments, the cached value is returned, and
-   not re-evaluated.
-
-   http://wiki.python.org/moin/PythonDecoratorLibrary
-   """
-   def __init__(self, func):
-      self.func = func
-      self.cache = {}
-   def __call__(self, *args):
-      try:
-         return self.cache[args]
-      except KeyError:
-         self.cache[args] = value = self.func(*args)
-         return value
-      except TypeError:
-         # uncachable -- for instance, passing a list as an argument.
-         # Better to not cache than to blow up entirely.
-         return self.func(*args)
-   def __repr__(self):
-      """Return the function's docstring."""
-      return self.func.__doc__
-
 def grouped_by_path(events):
     """Group "Hit" events in the given find event stream by path
     
@@ -543,24 +519,31 @@ class _HitWithAccessorMixin(object):
     """Provide some utilities for getting text context information given
     a `self.accessor'.
     """
+    __line_num_range_cache = None
     @property
-    @_memoized
     def line_num_range(self):
-        start = self.accessor.line_from_pos(self.start_pos)
-        end   = self.accessor.line_from_pos(self.end_pos)
-        return start, end
+        if self.__line_num_range_cache is None:
+            start = self.accessor.line_from_pos(self.start_pos)
+            end   = self.accessor.line_from_pos(self.end_pos)
+            self.__line_num_range_cache = (start, end)
+        return self.__line_num_range_cache
 
+    __line_and_col_num_range_cache = None
     @property
-    @_memoized
     def line_and_col_num_range(self):
-        start = self.accessor.line_and_col_from_pos(self.start_pos)
-        end   = self.accessor.line_and_col_from_pos(self.end_pos)
-        return start, end
+        if self.__line_and_col_num_range_cache is None:
+            start = self.accessor.line_and_col_from_pos(self.start_pos)
+            end   = self.accessor.line_and_col_from_pos(self.end_pos)
+            self.__line_and_col_num_range_cache = (start, end)
+        return self.__line_and_col_num_range_cache
 
+    __start_line_and_col_num_cache = None
     @property
-    @_memoized
     def start_line_and_col_num(self):
-        return self.accessor.line_and_col_from_pos(self.start_pos)
+        if self.__start_line_and_col_num_cache is None:
+            self.__start_line_and_col_num_cache \
+                = self.accessor.line_and_col_from_pos(self.start_pos)
+        return self.__start_line_and_col_num_cache
 
     @property
     def lines(self):
@@ -623,11 +606,28 @@ class ReplaceHit(Hit, _HitWithAccessorMixin):
         self.find_hit = find_hit
         self.accessor = accessor
 
+    def cull_mem(self):
+        """Can be called with done with the line/col calculation-related
+        methods on this object. It will release some of the larger memory
+        consumption for this object.
+        
+        This can be useful to keep memory usage low for a large replace
+        operation over many many files.
+        """
+        del self.find_hit
+        del self.accessor
+    
     def __getstate__(self):
         """Don't pickle some attrs."""
         d = self.__dict__.copy()
-        del d["find_hit"]
-        del d["accessor"]
+        try:
+            del d["find_hit"]
+        except KeyError:
+            pass
+        try:
+            del d["accessor"]
+        except KeyError:
+            pass
         return d
 
     def __repr__(self):
