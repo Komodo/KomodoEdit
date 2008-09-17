@@ -69,7 +69,7 @@
                 <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled,selected"
                            collapsed="true" value="*"/>
                 <xul:spacer flex="1"/>
-                <xul:toolbarbutton anonid="close-button" 
+                <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
                                    class="tab-close-button"/>
             </xul:hbox>
             <xul:hbox class="tab-image-right" xbl:inherits="selected"/>
@@ -152,6 +152,7 @@
                      align="center" pack="center">
             <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
             <xul:spacer flex="1"/>
+            <xul:hbox class="noborder sidebar-buttons">
             <xul:toolbarbutton anonid="tabs-list"
                            type="menu"
                            persist="buttonstyle"
@@ -159,13 +160,14 @@
                            class="tabs-select-button"
                            oncommand="this.firstChild.showPopup(this, -1,-1);">
                 <xul:menupopup anonid="tabs-list-popup"
-                    onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
+                    onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
             </xul:toolbarbutton>
             <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                         collapsed="true"
                         xbl:inherits="onclick=onclose,
                                       collapsed=closecollapsed,
                                       disabled=closedisabled"/>
+            </xul:hbox>
             <xul:box anonid="left-scroll" collapsed="true" flex="0">
                 <children includes="tab"/>
             </xul:box>
@@ -245,7 +247,7 @@
             <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
         </resources>
         <content>
-            <xul:box xbl:inherits="orient,align,pack,dir" flex="1" class="tabstrip-box">
+            <xul:box xbl:inherits="orient,align,pack,dir,overflow" flex="1" class="tabstrip-box" orient="horizontal">
             <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
                 class="tab-arrowscrollbox" flex="1" clicktoscroll="true">
                 <children includes="tab"/>
@@ -264,7 +266,8 @@
                             collapsed="true"
                             xbl:inherits="onclick=onclose,
                                           collapsed=closecollapsed,
-                                          disabled=closedisabled"/>
+                                          disabled=closedisabled,
+                                          selected"/>
             </xul:box>
         </content>
 
@@ -377,12 +380,14 @@
         <handlers>
             <handler event="underflow" phase="capturing">
             <![CDATA[
+                this.removeAttribute("overflow");
                 this.scrollBoxObject.scrollTo(0, 0)
             ]]>
             </handler>
 
             <handler event="overflow" phase="capturing">
             <![CDATA[
+                this.setAttribute("overflow", "true");
                 this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
             ]]>
             </handler>

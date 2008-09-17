@@ -1,0 +1,294 @@
+/* Tabstrip */
+tabs {
+  -moz-appearance: -moz-win-browsertabbar-toolbox;
+  background: -moz-dialog url("chrome://komodo/skin/tabs/tabbrowser-tabs-bkgnd.png") repeat-x;
+}
+
+.tab-image-left,
+.tab-image-right,
+.tab-image-middle {
+    margin: 0px;
+    padding: 0px;
+}
+.tab-arrowscrollbox {
+    -moz-padding-start: 0px;
+    /*margin-bottom: -4px;*/
+    padding-bottom: 0px;
+}
+.tabstrip-box:not([overflow="true"]) {
+  -moz-padding-start: 3px;
+}
+
+/* Tabs */
+tab {
+  -moz-appearance: none;
+  background: url("chrome://komodo/skin/tabs/tab-bkgnd.png") repeat-x;
+  margin: 3px 0px 0px;
+  padding: 0px 4px 2px;
+  border: 2px solid;
+  border-right-width: 1px;
+  border-bottom: none;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-topright: 2px;
+  -moz-border-top-colors: ThreeDShadow rgba(255,255,255,.3);
+  -moz-border-right-colors: rgba(0,0,0,.1);
+  -moz-border-left-colors: ThreeDShadow rgba(255,255,255,.3);
+}
+
+tab:hover,
+tab[selected="true"] {
+  border-top-width: 1px;
+  -moz-border-radius-topleft: 4px;
+  -moz-border-radius-topright: 4px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow;
+}
+
+tab:not([selected="true"]):hover {
+  margin: 2px 0px 0px;
+  padding: 2px 4px 1px;
+  background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
+}
+
+tab[selected="true"] {
+  border-width: 1px;
+  margin: 2px 0px 0px;
+  padding: 1px 4px 1px;
+  background-image: url("chrome://komodo/skin/tabs/tab-active-bkgnd.png");
+  background-color: -moz-dialog;
+  font-weight: bold;
+}
+
+tab[busy] > .tab-icon-image {
+  list-style-image: url("chrome://global/skin/icons/loading_16.png") !important;
+}
+
+.tab-icon-image {
+  margin-top: 1px;
+  -moz-margin-start: 7px;
+  -moz-margin-end: 3px;
+  width: 16px;
+  height: 16px;
+  list-style-image: url("chrome://global/skin/icons/folder-item.png");
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
+}
+
+.tabs-bottom {
+  height: 4px;
+  margin: 0px;
+  background: -moz-dialog url("chrome://komodo/skin/tabs/tabstrip-bottom.png") repeat;
+  border-top: 1px solid threedshadow;
+  border-bottom: 1px solid threedshadow;
+}
+
+tabpanels {
+  -moz-appearance: none;
+}
+
+/* tabbrowser-tab focus ring */
+.tab-text {
+  border: 1px dotted transparent;
+  padding: 0px 1px
+}
+
+tab[selected="true"]:focus > .tab-text {
+  border: 1px dotted -moz-DialogText;
+}
+
+/* Tab DnD indicator */
+.tab-drop-indicator-bar {
+  height: 11px;
+  margin-top: -11px;
+  position: relative;
+  /* set -moz-margin-start to -1/2 indicator width: */
+  -moz-margin-start: -5px;
+}
+
+.tab-drop-indicator {
+  height: 11px;
+  width: 11px;
+  margin-bottom: -5px;
+  position: relative;
+  background: url('chrome://komodo/skin/tabs/tabDragIndicator.png') 50% 50% no-repeat;
+}
+
+/* Tab close button */
+.tab-close-button > .toolbarbutton-icon {
+  -moz-margin-end: 0px !important;
+  margin-top: 1px;
+}
+
+.tab-close-button {
+  -moz-appearance: none;
+  -moz-image-region: rect(0px, 56px, 14px, 42px);
+  /*-moz-margin-end: 6px;*/
+  border: none;
+  padding: 0px;
+  padding-left: 1px;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+}
+
+.tab-close-button:hover,
+tab[selected="true"] > .tab-close-button:hover {
+  -moz-image-region: rect(0px, 28px, 14px, 14px);
+}
+
+.tab-close-button:hover:active,
+tab[selected="true"] > .tab-close-button:hover:active {
+  -moz-image-region: rect(0px, 42px, 14px, 28px);
+}
+
+.tab-close-button[selected="true"],
+tab[selected="true"] > .tab-close-button {
+  -moz-image-region: rect(0px, 14px, 14px, 0px);
+  /* Make this button focusable so clicking on it will not focus the tab while
+     it's getting closed */
+  -moz-user-focus: normal;
+}
+
+.tab-close-button:focus {
+  outline: none !important;
+}
+
+/* Tab scrollbox arrow and all-tabs buttons */
+.tab-arrowscrollbox > .scrollbutton-up,
+.tab-arrowscrollbox > .scrollbutton-down,
+.tabs-select-button {
+  -moz-appearance: none;
+  width: 18px;
+  margin: 0px;
+  margin-top: 3px;
+  padding: 0px;
+  border: 2px solid;
+  border-right-width: 1px;
+  border-bottom: none;
+  -moz-border-top-colors: ThreeDShadow rgba(255,255,255,.3);
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow rgba(255,255,255,.3);
+  background: url("chrome://komodo/skin/tabs/tab-bkgnd.png") repeat-x;
+  -moz-image-region: rect(0, 11px, 14px, 0);
+}
+
+.tab-arrowscrollbox > .scrollbutton-up:not([disabled="true"]):hover,
+.tab-arrowscrollbox > .scrollbutton-down:not([disabled="true"]):hover,
+.tabs-select-button:hover {
+  border-top-width: 1px;
+  padding-top: 1px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow transparent;
+  background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
+}
+
+.tab-arrowscrollbox > .scrollbutton-up:not([disabled="true"]):hover,
+.tab-arrowscrollbox > .scrollbutton-down:not([disabled="true"]):hover {
+  -moz-image-region: rect(0, 22px, 14px, 11px);
+}
+
+.tab-arrowscrollbox > .scrollbutton-up[disabled="true"],
+.tab-arrowscrollbox > .scrollbutton-down[disabled="true"] {
+  opacity: .4;
+}
+
+.tab-arrowscrollbox > .scrollbutton-up:not([disabled="true"]):hover:active,
+.tab-arrowscrollbox > .scrollbutton-down:not([disabled="true"]):hover:active {
+  -moz-image-region: rect(0, 44px, 14px, 33px);
+}
+
+.tab-arrowscrollbox > .scrollbutton-up {
+  border-left-style: none;
+  list-style-image: url("chrome://komodo/skin/tabs/tab-arrow-start.png");
+  -moz-border-radius-topright: 2px;
+}
+
+.tab-arrowscrollbox > .scrollbutton-up[chromedir="rtl"] {
+  border-left-style: solid;
+  border-right-style: none;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-topright: 0px;
+  list-style-image: url("chrome://komodo/skin/tabs/tab-arrow-end.png");
+}
+
+.tab-arrowscrollbox > .scrollbutton-up > .toolbarbutton-icon {    
+  margin: 5px 0px 1px 0px;
+}
+
+.tab-arrowscrollbox > .scrollbutton-down,
+.tabs-select-button {
+  border-right-style: none;
+  -moz-border-radius-topleft: 2px;
+}
+
+.tab-arrowscrollbox > .scrollbutton-down {
+  list-style-image: url("chrome://komodo/skin/tabs/tab-arrow-end.png");
+}
+
+.tab-arrowscrollbox > .scrollbutton-down[chromedir="rtl"],
+.tabstrip-box > stack[chromedir="rtl"] > .tabs-select-button {
+  border-left-style: none;
+  border-right-style: solid;
+  -moz-border-radius-topleft: 0px;
+  -moz-border-radius-topright: 2px;
+}
+
+.tab-arrowscrollbox > .scrollbutton-down[chromedir="rtl"] {
+  list-style-image: url("chrome://komodo/skin/tabs/tab-arrow-start.png");
+}
+
+.tab-arrowscrollbox > .scrollbutton-down > .toolbarbutton-icon {
+  margin-top: 5px;
+  margin-bottom: 1px;
+  -moz-margin-end: 2px;
+}
+
+.tabs-select-button > .toolbarbutton-text,
+.tabs-select-button > .toolbarbutton-icon {
+  display: none;
+}
+
+.tabs-select-button > .toolbarbutton-menu-dropmarker {
+  margin: 2px 1px 2px 0px;
+}
+
+/* Tabstrip close button */
+.tabs-closebutton {
+  -moz-appearance: none;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0px, 14px, 14px, 0px);
+  padding: 4px 2px;
+  margin: 0px;
+  margin-top: 3px;
+  width: 22px;
+
+  border: 2px solid;
+  border-right: None;
+  border-bottom: none;
+  -moz-border-top-colors: ThreeDShadow rgba(255,255,255,.3);
+  -moz-border-left-colors: ThreeDShadow rgba(255,255,255,.3);
+  background: url("chrome://komodo/skin/tabs/tab-bkgnd.png") repeat-x;
+}
+
+.tabs-closebutton:hover {
+  -moz-image-region: rect(0px, 28px, 14px, 14px);
+}
+
+.tabs-closebutton:hover:active {
+  -moz-image-region: rect(0px, 42px, 14px, 28px);
+}
+
+.tabs-closebutton:hover {
+  border-top-width: 1px;
+  padding-top: 5px;
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-right-colors: ThreeDShadow;
+  -moz-border-left-colors: ThreeDShadow transparent;
+  background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
+}
+
+.tabs-closebutton[chromedir="rtl"] {
+  border-left: none;
+  border-right: 1px solid threedshadow;
+  -moz-border-radius-topleft: 0px;
+  -moz-border-radius-topright: 2px;
+}
