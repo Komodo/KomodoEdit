@@ -694,6 +694,59 @@ class KoPHPInfoInstance(KoAppInfoEx):
             return self._info['cfg_file_path']
         return None
 
+    def _GetPHPOutputAndError(self, phpCode):
+        """Run the given PHP code and return the output.
+
+        If some error occurs then the error is logged and the empty
+        string is returned. (Basically we are taking the position that
+        PHP is unreliable.)
+        """
+        php = self._GetPHPExeName()
+        if not php:
+            return None #XXX Would be better, IMO, to raise an exception here.
+        env = koprocessutils.getUserEnv()
+        ini = self._getInterpreterConfig()
+        if ini:
+            env["PHPRC"] = ini
+        argv = [php, '-q']
+        
+        if not "PHPRC" in env:
+            # php will look in cwd for php.ini also.
+            cwd = os.path.dirname(php)
+        else:
+            cwd = None
+        # PHP sets stdin, stdout to binary on it's end.  If we do not do
+        # the same, some wierd things can happen, most notably with shell
+        # comments that end with \r\n.
+        try:
+            p = process.ProcessOpen(argv, mode='b', env=env, cwd=cwd)
+            p.stdin.write(phpCode)
+            p.stdin.close()
+            output = p.stdout.read()
+            stderr = p.stderr.read()
+            # For some reason, PHP linter causes an exception on close
+            # with errno = 0, will investigate in PHP later.
+            try:
+                p.close()
+            except IOError, e:
+                if e.errno == 0:  
+                    pass
+                else:
+                    raise
+        except OSError, e:
+            if e.errno == 0 or e.errno == 32:
+                # this happens if you are playing
+                # in prefs and change the executable, but
+                # not the ini file (ie ini is for a different
+                # version of PHP)
+                log.error("Caught expected PHP execution error, don't worry be happy: %s", e.strerror)
+                return ""
+            else:
+                log.error("Caught PHP execution exception: %s", e.strerror)
+                return ""
+        return output.strip(), stderr.strip()
+
+
     def _GetPHPOutput(self, phpCode):
         """Run the given PHP code and return the output.
 
@@ -815,7 +868,17 @@ class KoPHPInfoInstance(KoAppInfoEx):
 
     def get_version(self):
         if 'version' not in self._info:
-            out = self._GetPHPOutput("<?php echo(phpversion().\"\\n\"); ?>")
+            out, err = self._GetPHPOutputAndError(
+                "<?php echo(phpversion().\"\\n\"); ?>")
+            if not out:
+                # (Bug 73485) With some esp. borked PHP setups, even
+                # getting the version dies. Logging this case is the least
+                # we can do. A better (but more onerous to verify as being
+                # safe) change would be to pass up the error and show it
+                # in the using UI (e.g. the PHP prefs panel).
+                log.error("could not determine PHP version number for "
+                          "'%s':\n----\n%s\n----",
+                          self._GetPHPExeName(), err)
             self._info['version'] =  self._parsedOutput(out)
         return self._info['version']
 
