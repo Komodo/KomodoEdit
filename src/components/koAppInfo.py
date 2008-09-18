@@ -703,7 +703,8 @@ class KoPHPInfoInstance(KoAppInfoEx):
         """
         php = self._GetPHPExeName()
         if not php:
-            return None #XXX Would be better, IMO, to raise an exception here.
+            # XXX Would be better, IMO, to raise an exception here.
+            return None, "No PHP executable could be found."
         env = koprocessutils.getUserEnv()
         ini = self._getInterpreterConfig()
         if ini:
@@ -740,10 +741,9 @@ class KoPHPInfoInstance(KoAppInfoEx):
                 # not the ini file (ie ini is for a different
                 # version of PHP)
                 log.error("Caught expected PHP execution error, don't worry be happy: %s", e.strerror)
-                return ""
             else:
                 log.error("Caught PHP execution exception: %s", e.strerror)
-                return ""
+            return None, e.strerror
         return output.strip(), stderr.strip()
 
 
