@@ -121,22 +121,21 @@ tab[selected="true"]:focus > .tab-text {
 
 .tab-close-button {
   -moz-appearance: none;
-  -moz-image-region: rect(0px, 56px, 14px, 42px);
-  /*-moz-margin-end: 6px;*/
   border: none;
   padding: 0px;
   padding-left: 1px;
-  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tab-close-button:hover,
 tab[selected="true"] > .tab-close-button:hover {
   -moz-image-region: rect(0px, 28px, 14px, 14px);
+  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tab-close-button:hover:active,
 tab[selected="true"] > .tab-close-button:hover:active {
   -moz-image-region: rect(0px, 42px, 14px, 28px);
+  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tab-close-button[selected="true"],
@@ -145,6 +144,7 @@ tab[selected="true"] > .tab-close-button {
   /* Make this button focusable so clicking on it will not focus the tab while
      it's getting closed */
   -moz-user-focus: normal;
+  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tab-close-button:focus {
