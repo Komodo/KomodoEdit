@@ -109,6 +109,21 @@
         </body>
         </method>
 
+        <method name="finalizeTerminal">
+        <body>
+        <![CDATA[
+            if (this.terminalHandler) {
+                // Ensure the session has ended.
+                this.terminalHandler.endSession();
+                this.scintilla.controllers.removeController(this._genericController);
+                this._genericController = null;
+                this.scimoz.unhookEvents(this);
+                this.terminalHandler = null;
+            }
+        ]]>
+        </body>
+        </method>
+
         <method name="startSession">
         <parameter name="clearContent"/>
         <body>

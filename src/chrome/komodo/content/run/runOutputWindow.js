@@ -108,26 +108,33 @@ function _ClearUI()
 
 //---- public interface
 this.initialize = function RunOutput_Init() {
-    // Create a terminal for the output window. The terminal has std handlers
-    // that proxy read/write events between the scintilla and a spawned child
-    // process.
-    _gTerminalHandler = Components.classes['@activestate.com/koRunTerminal;1']
-                 .createInstance(Components.interfaces.koITreeOutputHandler);
-
-    if (!_gTerminalHandler) {
-        _log.error("initialize: couldn't create a koRunTerminal");
-        return;
+    try {
+        // Create a terminal for the output window. The terminal has std handlers
+        // that proxy read/write events between the scintilla and a spawned child
+        // process.
+        _gTerminalHandler = Components.classes['@activestate.com/koRunTerminal;1']
+                     .createInstance(Components.interfaces.koITreeOutputHandler);
+    
+        if (!_gTerminalHandler) {
+            _log.error("initialize: couldn't create a koRunTerminal");
+            return;
+        }
+        _ClearUI();
+        gRunOutput_Bound = false;
+    } finally {
+        // Now that we are initialized, add a finalizer as well.
+        window.addEventListener("unload", ko.run.output.finalize, false);
     }
-    _ClearUI();
-    gRunOutput_Bound = false;
 }
 
 
 this.finalize = function RunOutput_Fini()
 {
-    var scinWidget = document.getElementById("runoutput-scintilla");
-    scinWidget.controllers.removeController(_gTerminalHandler.controller);
-    //XXX Does the scinWidget have to be finalized?
+    if (_gTerminalView) {
+        _gTerminalView.finalizeTerminal();
+        _gTerminalView = null;
+    }
+    _gTerminalHandler = null;
 }
 
 
@@ -509,6 +516,9 @@ function _UpdateSortIndicators(mainWindow, sortId)
 }
 
 }).apply(ko.run.output);
+
+window.addEventListener("load", ko.run.output.initialize, false);
+
 
 var RunOutput_Init = ko.run.output.initialize;
 var RunOutput_Fini = ko.run.output.finalize;

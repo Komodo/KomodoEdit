@@ -257,7 +257,6 @@ function onloadDelay() {
         // executing queued up commandments.
         ko.trace.get().mark("startup complete");
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
-        ko.run.output.initialize();
 
         // Openning the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
