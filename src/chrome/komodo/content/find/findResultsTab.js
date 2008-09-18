@@ -399,8 +399,10 @@ FindResultsTabManager.prototype.initialize = function(id)
 }
 
 
-FindResultsTabManager.prototype.show = function()
+FindResultsTabManager.prototype.show = function(focus /* =false */)
 {
+    if (typeof(focus) == "undefined" || focus == null) focus = false;
+
     try {
         findResultsLog.info("[manager "+this.id+"] show");
 
@@ -412,11 +414,12 @@ FindResultsTabManager.prototype.show = function()
         var tabWidget = document.getElementById(this._idprefix+"_tab");
         tabsWidget.selectedItem = tabWidget;
 
-        // (controversial?) give the find results tab the focus
-        //XXX This does not work because the input buffer is passing focus back
-        //    to the editor.
-        var findResultsWidget = document.getElementById(this._idprefix+"-body");
-        findResultsWidget.focus();
+        if (focus) {
+            // Give the find results tab the focus. See bug 79487 for why
+            // this *isn't* the default.
+            var findResultsWidget = document.getElementById(this._idprefix+"-body");
+            findResultsWidget.focus();
+        }
     } catch(ex) {
         findResultsLog.exception(ex);
     }
