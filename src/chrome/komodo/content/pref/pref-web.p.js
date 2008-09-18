@@ -82,8 +82,10 @@ function browseForBrowser() {
 }
 
 function configureProxies() {
-    window.openDialog("chrome://komodo/content/pref/pref-proxies.xul",
-                      "Komodo:ProxyPrefs",
-                      "chrome,dialog,modal,resizable,close,centerscreen",
-                      null);
+    ko.windowManager.openDialog(
+        "chrome://komodo/content/pref/pref-proxies.xul",
+        "Komodo:ProxyPrefs",
+        "chrome,modal,resizable,close,centerscreen",
+        null);
 }
+
