@@ -2042,13 +2042,14 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     }
 };
 
-this.restoreWorkspaceByIndex = function(currentWindow, idx) {
+this.restoreWorkspaceByIndex = function(currentWindow, idx)
+{
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
         ko.dialogs.alert("Internal error: \n"
                          + "ko.workspace.restoreWorkspaceByIndex invoked (index="
-                  + idx
-                  + "),\n"
-                  + "but there's no windowWorkspace pref\n");
+                         + idx
+                         + "),\n"
+                         + "but there's no windowWorkspace pref\n");
         return;
     }
     idx = parseInt(idx);
@@ -2058,9 +2059,10 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx) {
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx);
     }
-}
+};
 
-this._restoreWindowWorkspace = function(workspace, currentWindow) {
+this._restoreWindowWorkspace = function(workspace, currentWindow)
+{
     _restoreInProgress = true;
     try {
         var wko = currentWindow.ko;
@@ -2103,6 +2105,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow) {
     }
     _restoreInProgress = false;
 };
+
 /**
  * save all workspace preferences and state
  */
@@ -2139,7 +2142,7 @@ this.saveWorkspace = function view_saveWorkspace()
             var wko = thisWindow.ko;
             var pref = wko.projects.manager.getState();
             if (pref) {
-                workspace.setPref(pref.id, pref)
+                workspace.setPref(pref.id, pref);
                 var currentProject = wko.projects.manager.currentProject;
                 if (currentProject) {
                     workspace.setStringPref('current_project', currentProject.url);
@@ -2162,7 +2165,6 @@ this.saveWorkspace = function view_saveWorkspace()
         }
         // Save prefs
         gPrefSvc.saveState();
-
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
     }
