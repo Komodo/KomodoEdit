@@ -404,6 +404,7 @@ class KoFileStatusService:
                 # on to any koIFileEx references between runs, allowing the
                 # koIFileEx items to be properly garbage collected. See bug:
                 # http://bugs.activestate.com/show_bug.cgi?id=68285
+                all_local_dirs = None
                 all_local_files = None
                 file_item = None
                 items_to_check = None
@@ -439,9 +440,8 @@ class KoFileStatusService:
                     # priority then a full check will be performed now.
                     for i in range(len(items_to_check) - 1, -1, -1):
                         koIFile, uri, reason = items_to_check[i]
-                        if not koIFile.isFile or \
-                               (updateReason > self.REASON_BACKGROUND_CHECK and
-                                reason <= updateReason):
+                        if updateReason > self.REASON_BACKGROUND_CHECK and \
+                           reason <= updateReason:
                             items_to_check.pop(i)
                     if not items_to_check:
                         # This will count as a background check.
@@ -462,11 +462,16 @@ class KoFileStatusService:
                 # Maintenance cleanup and addition of observed files.
                 #print "doing file status update"
                 # XXX - Do we really need to unwrap these puppies?
+                all_local_dirs = []
                 all_local_files = []
                 for koIFile in self._fileSvc.getAllFiles():
                     try:
-                        if koIFile.isLocal and koIFile.isFile:
-                            all_local_files.append(UnwrapObject(koIFile))
+                        if koIFile.isLocal:
+                            u = UnwrapObject(koIFile)
+                            if u.isFile:
+                                all_local_files.append(u)
+                            elif u.isDirectory:
+                                all_local_dirs.append(u)
                     except:
                         log.exception("unexpected error from koIFile.isLocal or koIFile.isFile")
                         continue # skip status update for this file
@@ -500,6 +505,8 @@ class KoFileStatusService:
                         log.info("Could not monitor dir uri: %r", diruri)
                         for uri in all_local_dirs_dict[diruri]:
                             set_all_local_urls.remove(uri)
+                        if diruri in all_local_dirs:
+                            all_local_dirs.remove(diruri)
 
                 expiredDirs = set(all_monitored_dirs_dict.keys()).difference(all_local_dirs_dict.keys())
                 for diruri in expiredDirs:
@@ -519,7 +526,7 @@ class KoFileStatusService:
                     # Fall back to background checking of all files.
                     isBackgroundCheck = (updateReason == self.REASON_BACKGROUND_CHECK)
                     items_to_check = [ (koIFile, koIFile.URI, updateReason) for
-                                       koIFile in all_local_files ]
+                                       koIFile in (all_local_files + all_local_dirs) ]
                     #print "updateStatus reason: Background check"
                 else:
                     isBackgroundCheck = False
