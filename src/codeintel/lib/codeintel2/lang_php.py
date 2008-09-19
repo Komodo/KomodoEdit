@@ -2311,12 +2311,12 @@ class PHPParser:
                         valueType, p = self._getVariableType(styles, text, pos+1)
                         if valueType:
                             valueType = valueType[0]
-                        if valueType == "array" and text[pos+3] == "(":
+                        if valueType == "array()":
                             # special handling for array initializers
                             value_pos = pos+2
                             pos = self._skipPastParenArguments(styles, text, pos+4)
                             if pos < len(styles):
-                                optionals.append([varname, "".join(text[value_pos:pos]), valueType])
+                                optionals.append([varname, "array()", valueType])
                         else:
                             optionals.append([varname, text[pos+2], valueType])
                             pos += 2
