@@ -87,6 +87,7 @@ class ProcessOpen(Popen):
             output is redirected to Komodo's log files.
         "universal_newlines": On by default (the opposite of subprocess).
         """
+        auto_piped_stdin = False
         shell = False
         if not isinstance(cmd, (list, tuple)):
             # The cmd is the already formatted, ready for the shell. Otherwise
@@ -122,8 +123,58 @@ class ProcessOpen(Popen):
                         log.warn("Could not encode environment variable %r "
                                  "so removing it", key)
                 env = _enc_env
+
             if flags is None:
                 flags = CREATE_NO_WINDOW
+
+            # If we don't have standard handles to pass to the child process
+            # (e.g. we don't have a console app), then
+            # `subprocess.GetStdHandle(...)` will return None. `subprocess.py`
+            # handles that (http://bugs.python.org/issue1124861)
+            #
+            # However, if Komodo is started from the command line, then
+            # the shell's stdin handle is inherited, i.e. in subprocess.py:
+            #      p2cread = GetStdHandle(STD_INPUT_HANDLE)   # p2cread == 3
+            # A few lines later this leads to:
+            #    Traceback (most recent call last):
+            #      ...
+            #      File "...\lib\mozilla\python\komodo\process.py", line 130, in __init__
+            #        creationflags=flags)
+            #      File "...\lib\python\lib\subprocess.py", line 588, in __init__
+            #        errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+            #      File "...\lib\python\lib\subprocess.py", line 709, in _get_handles
+            #        p2cread = self._make_inheritable(p2cread)
+            #      File "...\lib\python\lib\subprocess.py", line 773, in _make_inheritable
+            #        DUPLICATE_SAME_ACCESS)
+            #    WindowsError: [Error 6] The handle is invalid
+            #
+            # I suspect this indicates that the stdin handle inherited by
+            # the subsystem:windows komodo.exe process is invalid -- perhaps
+            # because of mis-used of the Windows API for passing that handle
+            # through. The same error can be demonstrated in PythonWin:
+            #   from _subprocess import *
+            #   from subprocess import *
+            #   h = GetStdHandle(STD_INPUT_HANDLE)
+            #   p = Popen("python -c '1'")
+            #   p._make_interitable(h)
+            #
+            # I don't understand why the inherited stdin is invalid for
+            # `DuplicateHandle`, but here is how we are working around this:
+            # If we detect the condition where this can fail, then work around
+            # it by setting the handle to `subprocess.PIPE`, resulting in
+            # a different and workable code path.
+            if self._needToHackAroundStdHandles() \
+               and not (flags & CREATE_NEW_CONSOLE):
+                if stdin is None and sys.stdin \
+                   and sys.stdin.fileno() not in (0,1,2):
+                    stdin = PIPE
+                    auto_piped_stdin = True
+                if stdout is None and sys.stdout \
+                   and sys.stdout.fileno() not in (0,1,2):
+                    stdout = PIPE
+                if stderr is None and sys.stderr \
+                   and sys.stderr.fileno() not in (0,1,2):
+                    stderr = PIPE
         else:
             # subprocess raises an exception otherwise.
             flags = 0
@@ -139,7 +190,28 @@ class ProcessOpen(Popen):
                        stdin=stdin, stdout=stdout, stderr=stderr,
                        universal_newlines=universal_newlines,
                        creationflags=flags)
+        if auto_piped_stdin:
+            self.stdin.close()
 
+    __needToHackAroundStdHandles = None
+    @classmethod
+    def _needToHackAroundStdHandles(cls):
+        if cls.__needToHackAroundStdHandles is None:
+            if sys.platform != "win32":
+                cls.__needToHackAroundStdHandles = False
+            else:
+                from _subprocess import GetStdHandle, STD_INPUT_HANDLE
+                stdin_handle = GetStdHandle(STD_INPUT_HANDLE)
+                if stdin_handle is not None:
+                    cls.__needToHackAroundStdHandles = True
+                    if stdin_handle != 3:
+                        log.warn("`GetStdHandle(STD_INPUT_HANDLE)` != 3: "
+                                 "something has changed w.r.t. std handle "
+                                 "inheritance in Komodo that may affect "
+                                 "subprocess launching")
+                else:
+                    cls.__needToHackAroundStdHandles = False
+        return cls.__needToHackAroundStdHandles
 
     # Override the returncode handler (used by subprocess.py), this is so
     # we can notify any listeners when the process has finished.
