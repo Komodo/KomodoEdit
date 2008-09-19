@@ -97,7 +97,7 @@ var handlers = {
     'cmd_openTemplate': 'ko.open.templatePicker()',
     'cmd_new': 'ko.views.manager.doNewView()',
     'cmd_newTemplate': 'ko.views.manager.newTemplate()',
-    'cmd_quit': 'goQuitApplication()',
+    'cmd_quit': 'ko.main.quitApplication()',
     'cmd_findInFiles': 'ko.launch.findInFiles()',
     'cmd_replaceInFiles': 'ko.launch.replaceInFiles()',
     'cmd_nextLintResult': 'ko.lint.jumpToNextLintResult()',

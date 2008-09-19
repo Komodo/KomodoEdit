@@ -2003,106 +2003,162 @@ var _restoreInProgress = false;
 this.restoreInProgress = function() {
     return _restoreInProgress;
 }
+const multiWindowWorkspacePrefName = "windowWorkspace";
 
 /**
  * restore all workspace preferences and state, open files and projects
  */
-this.restoreWorkspace = function view_restoreWorkspace()
+this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 {
-    try {
-        var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();
-        if (infoSvc.nonInteractiveMode) return;
+    if (typeof(currentWindow) == "undefined") {
+        // Get the window that's executing, and use that.
+        currentWindow = ko.windowManager.getMainWindow();
+    }
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();
+    if (infoSvc.nonInteractiveMode) return;
 
-        if (gPrefs.hasPref('workspace') &&
-            ko.dialogs.yesNo("Do you want to open recent files and projects?",
-                         null, null, null, "restore_workspace") == "Yes")
-        {
-            _restoreInProgress = true;
-            try {
-                var workspace = gPrefs.getPref('workspace');
-                var cnt = new Object();
-                var ids = new Object();
-                var id, elt;
-                var pref;
-                workspace.getPrefIds(ids, cnt);
-                if (workspace.hasPref('opened_projects')) {
-                    pref = workspace.getPref('opened_projects');
-                    ko.projects.manager.setState(pref);
-                    if (workspace.hasPref('current_project')) {
-                        var url = workspace.getStringPref('current_project');
-                        // If a project with that url is loaded, make it current
-                        var proj = ko.projects.manager.getProjectByURL(url);
-                        if (proj) {
-                            ko.projects.manager.currentProject = proj;
-                        }
-                    }
-                }
-                for (var i = 0; i < ids.value.length; i++) {
-                    id = ids.value[i];
-                    elt = document.getElementById(id);
-                    if (elt) {
-                        pref = workspace.getPref(id);
-                        elt.setState(pref);
-                    }
-                }
-            } catch(ex) {
-                log.exception(ex, "Error restoring workspace:");
-            }
-            _restoreInProgress = false;
+    if ((!gPrefs.hasPref(multiWindowWorkspacePrefName)
+         && !gPrefs.hasPref('workspace'))
+        || ko.dialogs.yesNo("Do you want to open recent files and projects?",
+                            null, null, null, "restore_workspace") == "No")
+    {
+        return;
+    }
+    if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
+        this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow);
+        return;
+    }
+    // Restore the first workspace directly, and restore other
+    // workspaces indirectly each new window's init routine in ko.main
+    
+    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow);
+    for (var i = 1; true; i++) {
+        if (windowWorkspacePref.hasPref(i)) {
+            ko.launch.newWindowFromWorkspace(i);
+        } else {
+            break;
         }
-        ko.main.addWillCloseHandler(ko.workspace.saveWorkspace, this);
+    }
+};
+
+this.restoreWorkspaceByIndex = function(currentWindow, idx) {
+    if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
+        ko.dialogs.alert("Internal error: \n"
+                         + "ko.workspace.restoreWorkspaceByIndex invoked (index="
+                  + idx
+                  + "),\n"
+                  + "but there's no windowWorkspace pref\n");
+        return;
+    }
+    idx = parseInt(idx);
+    var windowWorkspacePref = gPrefs.getPref('windowWorkspace');
+    try {
+        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow);
     } catch(ex) {
-        log.exception(ex, "Error restoring workspace:");
+        log.exception("Can't restore workspace for window " + idx);
     }
 }
 
+this._restoreWindowWorkspace = function(workspace, currentWindow) {
+    _restoreInProgress = true;
+    try {
+        var wko = currentWindow.ko;
+        var cnt = new Object();
+        var ids = new Object();
+        var id, elt;
+        var pref;
+        if (workspace.hasPref('coordinates')) {
+            pref = workspace.getPref('coordinates');
+            var coordNames = {};
+            pref.getPrefIds(coordNames, {});
+            coordNames = coordNames.value;
+            for (var name, i = 0; name = coordNames[i]; i++) {
+                currentWindow[name] = pref.getLongPref(name);
+            }
+        }
+        if (workspace.hasPref('opened_projects')) {
+            pref = workspace.getPref('opened_projects');
+            wko.projects.manager.setState(pref);
+            if (workspace.hasPref('current_project')) {
+                var url = workspace.getStringPref('current_project');
+                // If a project with that url is loaded, make it current
+                var proj = wko.projects.manager.getProjectByURL(url);
+                if (proj) {
+                    wko.projects.manager.currentProject = proj;
+                }
+            }
+        }
+        workspace.getPrefIds(ids, cnt);
+        for (var i = 0; i < ids.value.length; i++) {
+            id = ids.value[i];
+            elt = currentWindow.document.getElementById(id);
+            if (elt) {
+                pref = workspace.getPref(id);
+                elt.setState(pref);
+            }
+        }
+    } catch(ex) {
+        log.exception(ex, "Error restoring workspace:");
+    }
+    _restoreInProgress = false;
+};
 /**
  * save all workspace preferences and state
  */
 this.saveWorkspace = function view_saveWorkspace()
 {
+    // Ask each major component to serialize itself to a pref.
     try {
-        // Ask each major component to serialize itself to a pref.
-        var workspace;
-        if (gPrefs.hasPref('workspace')) {
-            workspace = gPrefs.getPref('workspace');
+        var windows = ko.windowManager.getWindows();
+        var windowWorkspace;
+        if (gPrefs.hasPref(multiWindowWorkspacePrefName)) {
+            windowWorkspace = gPrefs.getPref(multiWindowWorkspacePrefName);
+            // clear numbered workspaces
+            for (var i = 1; true; i++) {
+                if (windowWorkspace.hasPref(i)) {
+                    windowWorkspace.deletePref(i);
+                } else {
+                    break;
+                }
+            }
+            windowWorkspace.reset();
         } else {
-            workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-            workspace.id = 'workspace';
+            windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
         }
-        var haveStateToPersist = false;
-        var pref = ko.projects.manager.getState()
-        if (pref) {
-            workspace.setPref(pref.id, pref)
-            haveStateToPersist = true;
-            var currentProject = ko.projects.manager.currentProject;
-            if (currentProject) {
-                workspace.setStringPref('current_project', currentProject.url);
-            }
-        } else if (workspace.hasPref('opened_projects')) {
-            workspace.deletePref('opened_projects');
-        }
-        var ids = ['topview'];
-        var i, elt, id, pref;
-        for (i = 0; i < ids.length; i++) {
-            id = ids[i];
-            elt = document.getElementById(id);
-            if (!elt) {
-                alert("couldn't find " + id );
-            }
-            pref = elt.getState();
+        for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
+            var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            windowWorkspace.setPref(idx, workspace);
+            var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+            workspace.setPref('coordinates', coordinates);
+            coordinates.setLongPref('screenX', thisWindow.screenX);
+            coordinates.setLongPref('screenY', thisWindow.screenY);
+            coordinates.setLongPref('outerHeight', thisWindow.outerHeight);
+            coordinates.setLongPref('outerWidth', thisWindow.outerWidth);
+            var wko = thisWindow.ko;
+            var pref = wko.projects.manager.getState();
             if (pref) {
-                haveStateToPersist = true;
-                pref.id = id;
-                workspace.setPref(id, pref);
-            } else if (workspace.hasPref(id)) {
-                workspace.deletePref(id);
+                workspace.setPref(pref.id, pref)
+                var currentProject = wko.projects.manager.currentProject;
+                if (currentProject) {
+                    workspace.setStringPref('current_project', currentProject.url);
+                }
             }
-        }
-        if (haveStateToPersist) {
-            gPrefs.setPref(workspace.id, workspace);
-        } else if (gPrefs.hasPref(workspace.id)) {
-            gPrefs.deletePref(workspace.id);
+            var ids = ['topview'];
+            var i, elt, id, pref;
+            for (i = 0; i < ids.length; i++) {
+                id = ids[i];
+                elt = thisWindow.document.getElementById(id);
+                if (!elt) {
+                    alert("couldn't find " + id );
+                }
+                pref = elt.getState();
+                if (pref) {
+                    pref.id = id;
+                    workspace.setPref(id, pref);
+                }
+            }
         }
         // Save prefs
         gPrefSvc.saveState();

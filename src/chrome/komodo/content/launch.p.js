@@ -558,16 +558,27 @@ this.checkForUpdates = function checkForUpdates()
     }
 }
 
+
 this.newWindow = function newWindow(uri /* =null */)
 {
-    if (typeof(uri) == "undefined") {
-        uri = null;
+    args = {};
+    if (typeof(uri) != "undefined") {
+        args.uris = [uri];
     }
     ko.windowManager.openDialog("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
-                                uri);
+                                args);
 }
+
+this.newWindowFromWorkspace = function newWindow(workspaceIndex)
+{
+    ko.windowManager.openDialog("chrome://komodo/content",
+                                "_blank",
+                                "chrome,all,dialog=no",
+                                {workspaceIndex: workspaceIndex});
+}
+
 
 }).apply(ko.launch);
 

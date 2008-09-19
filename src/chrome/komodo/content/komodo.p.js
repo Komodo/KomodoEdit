@@ -51,6 +51,10 @@ var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
+this.quitApplication = function() {
+    ko.workspace.saveWorkspace();
+    goQuitApplication();
+};
 
 /**
  * Window "close" event handler to close the Komodo window and, if it is the
@@ -68,7 +72,7 @@ this._onClose = function(event) {
         event.stopPropagation();
         event.preventDefault();
         event.cancelBubble = true;
-        goQuitApplication();
+        ko.main.quitApplication();
         return;
     }
     
@@ -258,7 +262,7 @@ function onloadDelay() {
         ko.trace.get().mark("startup complete");
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
-        // Openning the Start Page should be before commandment system init and
+        // Opening the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
         if (gPrefs.getBooleanPref("show_start_page")) {
             ko.open.startPage();
@@ -284,20 +288,26 @@ function onloadDelay() {
         if (restoreWorkspace) {
             ko.workspace.restoreWorkspace();
         }
-
         // handle window.arguments spec list
         if (window.arguments && window.arguments[0]) {
-            var urllist = [];
-            if (window.arguments[0] instanceof Components.interfaces.nsIDialogParamBlock) {
-                var paramBlock = window.arguments[0].QueryInterface(Components.interfaces.nsIDialogParamBlock);
-                if (paramBlock) {
-                    urllist = paramBlock.GetString(0).split('|');
-                }
+            var arg = window.arguments[0];
+            if ('workspaceIndex' in arg) {
+                ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
             } else {
-                urllist = window.arguments[0].split('|'); //see asCommandLineHandler.js
-            }
-            for (var i in urllist) {
-                ko.open.URI(urllist[i]);
+                var urllist;
+                if ('uris' in arg) {
+                    urllist = arg.uris; // Called from ko.launch.newWindow(uri)
+                } else {
+                    if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
+                        var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
+                        urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
+                    } else {
+                        urllist = arg.split('|'); //see asCommandLineHandler.js
+                    }
+                }
+                for (var i in urllist) {
+                    ko.open.URI(urllist[i]);
+                }
             }
         }
         
