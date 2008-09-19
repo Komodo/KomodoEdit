@@ -2441,7 +2441,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[3]),
             [("variable", "field"), ("function", "callme")])
 
-    @tag("bug70015", "knownfailure")
+    @tag("bug70015")
     def test_class_and_instance_with_same_name(self):
         # Test for ensuring the citdl type can be found when the object
         # instance is the same as the class name.
@@ -2458,11 +2458,11 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
 
                 public function setMapDims($w, $h) {
                     $this->Width = $w;
-                    $this->Height = $h;
+                    $this-><3>Height = $h;
                 }
             }
             $Bug70015 = new Bug70015();
-            $B<1>ug70015-><2>xxx;
+            $B<1>ug70015-><2>setMapDims(<4>);
         """)))
 
         self.assertCompletionsInclude(
@@ -2471,6 +2471,13 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
             [("function", "setMapDims")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("function", "setMapDims"),
+             ("variable", "Height"),
+             ("variable", "Width")])
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+                             "setMapDims(w, h)")
 
     @tag("bug76677")
     def test_3char_trigger_includes_classes(self):

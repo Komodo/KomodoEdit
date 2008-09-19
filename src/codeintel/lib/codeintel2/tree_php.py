@@ -457,11 +457,16 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _isElemInsideScoperef(self, elem, scoperef):
         blob, lpath = scoperef
         i = 0
+        #self.log("_isElemInsideScoperef, elem: %r, lpath: %r", elem, lpath)
         for i in range(len(lpath)):
             name = lpath[i]
             if name == elem.get("name"):
-                check_elem = self._elem_from_scoperef((blob, lpath[:i+1]))
-                if check_elem == elem:
+                # XXX - It would be nice to confirm that this element is the
+                #       actual elem, but this won't work correctly when there
+                #       is an alternative match being used. i.e.
+                #       http://bugs.activestate.com/show_bug.cgi?id=70015
+                #check_elem = self._elem_from_scoperef((blob, lpath[:i+1]))
+                #if check_elem == elem:
                     # It's in the scope
                     return True
         return False
@@ -593,13 +598,43 @@ class PHPTreeEvaluator(TreeEvaluator):
         self.info("_hit_from_citdl:: found '%s' => %s on %s", expr, elem, scoperef)
         return (elem, scoperef)
 
+    def _alternative_elem_from_scoperef(self, traversed_items):
+        """Find an alternative named element for the given traversal items"""
+        for i in range(len(traversed_items)-1, -1, -1):
+            elem, lname, failed_elems = traversed_items[i]
+            self.log("Checking for alt elem: %r, lpath: %r, failed_elems: %r", elem, lname, failed_elems)
+            for child in elem.getchildren():
+                if child.attrib.get("name") == lname and child not in failed_elems:
+                    return i, child
+        return None
+
     def _elem_from_scoperef(self, scoperef):
         """A scoperef is (<blob>, <lpath>). Return the actual elem in
         the <blob> ciElementTree being referred to.
         """
-        elem = scoperef[0]
-        for lname in scoperef[1]:
-            elem = elem.names[lname]
+        elem, lpath = scoperef
+        traversed_items = []
+        for i in range(len(lpath)):
+            lname = lpath[i]
+            try:
+                child = elem.names[lname]
+            except KeyError:
+                # There is likely an alternative element that has the same name.
+                # Try and find it now.
+                # http://bugs.activestate.com/show_bug.cgi?id=70015
+                child = None
+                if i > 0:
+                    #self.log("i now: %r, traversed_items: %r", i, traversed_items)
+                    traversed_items[i-1][2].append(elem)
+                    i, child = self._alternative_elem_from_scoperef(traversed_items)
+                    traversed_items = traversed_items[:i]
+                if child is None:
+                    self.info("elem %r is missing lname: %r", elem, lname)
+                    raise
+                self.info("elem %r is missing lname: %r, found alternative: %r",
+                          elem, lname, child)
+            traversed_items.append((elem, lname, []))
+            elem = child
         return elem
 
     def _hit_from_first_part(self, tokens, scoperef):
@@ -871,6 +906,17 @@ class PHPTreeEvaluator(TreeEvaluator):
                      elem, )
             return (elem, scoperef)
         self.log("_hit_from_variable_type_inference:: resolve '%s' type inference for %r:", citdl, elem)
+        if citdl == elem.get("name") and elem.tag == "variable":
+            # We really need an alternative match in this case, such as a class
+            # or a function. First see if there are any matching names at the
+            # same scope level, else go searching up the parent scopes.
+            # http://bugs.activestate.com/show_bug.cgi?id=70015
+            parent_elem = self._elem_from_scoperef(scoperef)
+            if parent_elem is not None:
+                sibling_matches = [x for x in parent_elem.getchildren() if x.get("name") == citdl and x.tag != "variable"]
+                if sibling_matches:
+                    return (sibling_matches[0], scoperef)
+            scoperef = self.parent_scoperef_from_scoperef(scoperef)
         return self._hit_from_citdl(citdl, scoperef)
 
     def parent_scoperef_from_scoperef(self, scoperef):
