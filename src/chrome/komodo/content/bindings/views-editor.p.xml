@@ -701,9 +701,8 @@
                 }
 
             } catch(ex) {
-                ko.dialogs.internalError(
-                    "Unexpected internal error saving '"+this.title+"'.",
-                    ex+"\n\n-- TRACEBACK:\n"+ko.logging.getStack());
+                ko.dialogs.internalError("Unexpected internal error saving '"+this.title+"'.",
+                                         ex, ex);
                 this.log.exception(ex, "Error in editor view .save()");
             }
             return false;
@@ -870,9 +869,8 @@
             this.lintBuffer.request("save as");
             return true;
         } catch (ex) {
-            ko.dialogs.internalError(
-                "Unexpected internal error saving (Save As) '"+this.title+"'.",
-                ex+"\n\n-- TRACEBACK:\n"+ko.logging.getStack());
+            ko.dialogs.internalError("Unexpected internal error saving (Save As) '"+this.title+"'.",
+                                     ex, ex);
             this.log.exception(ex, "Error in editor view .saveAs()");
         }
         return false;

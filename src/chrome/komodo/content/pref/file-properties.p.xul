@@ -485,9 +485,7 @@ function applyEncodingAndBOM(encodingName, bom)
                 err = "Internal error setting the encoding for '"+
                           parent.view.document.displayPath+"' to '"+
                           encodingName+"'."
-                ko.dialogs.internalError(err, err+"\n\n"+errmsg+
-                                          "\n\n\nTRACEBACK:\n"+
-                                          ko.logging.getStack());
+                ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
             } else {
                 question = errmsg+"  Komodo can force the conversion by "+
                            "replacing all unrepresentable "+
@@ -503,9 +501,7 @@ function applyEncodingAndBOM(encodingName, bom)
                         err = "Internal error forcing the encoding for '"+
                                   parent.view.document.baseName+"' to '"+
                                   encodingName+"'."
-                        ko.dialogs.internalError(err, err+"\n\n"+errmsg+
-                                                  "\n\n\nTRACEBACK:\n"+
-                                                  ko.logging.getStack());
+                        ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
                         return false;
                     }
                 } else {

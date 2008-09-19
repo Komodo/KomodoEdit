@@ -871,17 +871,25 @@ this.editEnvVar = function dialog_editEnvVar(name, value, title, mruName /* dial
 //  "error" is a short description of the error.
 //  "text" is some text the user can quote in their bug report. This should
 //      include the details that you would like in a bug report.
+// "exception" is either an exception object, or any true value, which
+//      means to pull the traceback from the logging service.
 //
 // This function does not return anything.
 //
-this.internalError = function dialog_internalError(error, text)
+this.internalError = function dialog_internalError(error, text, exception)
 {
     if (typeof(error) == 'undefined' || error == null)
         throw("Must specify 'error' argument to ko.dialogs.internalError().");
     if (typeof(text) == 'undefined' || text == null)
         throw("Must specify 'text' argument to ko.dialogs.internalError().");
-
-    // Show the dialog.
+    if (typeof(exception) != 'undefined' && exception) {
+        try {
+            var traceback = ('stack' in exception) ? exception.stack : ko.logging.getStack(1);
+            if (traceback) {
+                text += "\n\n\nTRACEBACK:\n" + traceback;
+            }
+        } catch(ex) {}
+    }
     var obj = new Object();
     obj.error = error;
     obj.text = text;

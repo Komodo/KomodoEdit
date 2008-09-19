@@ -691,7 +691,7 @@ function _CodeIntel_ActivateWindow()
                 var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                     getService(Components.interfaces.koILastErrorService);
                 var err = lastErrorSvc.getLastErrorMessage();
-                ko.dialogs.internalError(err, ex2+"\n\n"+err);
+                ko.dialogs.internalError(err, ex2+"\n\n"+err, ex2);
                 _CodeIntel_DeactivateWindow();
                 return;
             }

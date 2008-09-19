@@ -339,8 +339,8 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
         errmsg = lastErrorSvc.getLastErrorMessage();
         log.exception(ex, errmsg);
         ko.dialogs.internalError("Error opening template.",
-                             "Error loading template '"+
-                             uri+"'.\n\n"+ko.logging.getStack());
+                                 "Error loading template '" + uri + "'",
+                                 ex);
         // even though there is an error, continue opening the
         // file so the user gets *something*
     }
@@ -361,10 +361,10 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
             ko.dialogs.alert("Could not interpolate:" + errmsg);
         } else {
             log.exception(ex, "Error interpolating template.");
-            ko.dialogs.internalError("Could not process interpolation codes "+
-                                 "in template '"+basename+"'.",
-                                 "Error interpolating template '"+
-                                 uri+"'.\n\n"+ko.logging.getStack());
+            ko.dialogs.internalError(("Could not process interpolation codes "
+                                      + "in template '" + basename + "'."),
+                                     "Error interpolating template '" + uri + "'",
+                                     ex);
         }
     }
 
