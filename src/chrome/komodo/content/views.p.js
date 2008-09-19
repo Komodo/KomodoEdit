@@ -1687,8 +1687,15 @@ viewManager.prototype.is_cmd_openTabInNewWindow_supported = function() {
     return true;
 }
 
+viewManager.prototype._viewIsTitledDocument = function() {
+    try {
+        return !this.currentView.document.isUntitled;
+    } catch(ex) {
+        return false;
+    }
+}
 viewManager.prototype.is_cmd_openTabInNewWindow_enabled = function() {
-    return true;
+    return this._viewIsTitledDocument();
 }
 
 viewManager.prototype.do_cmd_openTabInNewWindow = function() {
@@ -1701,7 +1708,7 @@ viewManager.prototype.is_cmd_moveTabToNewWindow_supported = function() {
 }
 
 viewManager.prototype.is_cmd_moveTabToNewWindow_enabled = function() {
-    return true;
+    return this._viewIsTitledDocument();
 }
 
 viewManager.prototype.do_cmd_moveTabToNewWindow = function() {
