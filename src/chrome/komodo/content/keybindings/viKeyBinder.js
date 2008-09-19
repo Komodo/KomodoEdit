@@ -119,6 +119,7 @@ function VimController() {
         this._movePosBefore = false;        // Used for commands that are the same, but just one pos before the other
         this._lastMovePosBefore = false;
         this._lastFindChar = "";
+        this._lastReplaceChar = "";
         // Anchor and currentPos are used to store command movements
         this._currentPos = 0;
         this._anchor = 0;
@@ -876,17 +877,13 @@ VimController.prototype.handleKeypress = function(event) {
             return false;
 
         } else if (this.mode == VimController.MODE_REPLACE_CHAR) {
-            this.mode = VimController.MODE_NORMAL;
             if (charCode != 0) {
-                // Only perform the deletion if there is a character to
-                // replace it with.
-                // XXX - Does not handle a count replacement (i.e. 5rx)
-                ko.commands.doCommand('cmd_delete');
-                this._lastInsertedKeycodes = [key_char];
-                // _lastModifyCommand needs to be a vim command, as it
-                // gets sent through vim_doCommand()
-                gVimController._lastModifyCommand = 'cmd_vim_cutChar';
+                this._lastReplaceChar = key_char;
+                vim_doCommand('cmd_vim_doReplaceChar');
+                this.mode = VimController.MODE_NORMAL;
+                return true;
             }
+            this.mode = VimController.MODE_NORMAL;
             return false;
 
         } else if (this.mode == VimController.MODE_SET_REGISTER) {
@@ -2372,9 +2369,13 @@ VimController.command_mappings = {
     "cmd_vim_toggleVisualLineMode" :[ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_toggleVisualBlockMode" : [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.WORKS_IN_VISUAL_MODE ],
 // Special actions
-    "cmd_vim_replaceChar" :         [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
-                                                                    VimController.WORKS_IN_VISUAL_MODE |
+    "cmd_vim_replaceChar" :         [ VimController.SPECIAL_COMMAND,VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
+    "cmd_vim_doReplaceChar" :       [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
+                                                                    VimController.MODIFY_ACTION |
+                                                                    VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.CANCELS_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING ],
     "cmd_vim_overtype" :            [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "cmd_vim_swapCase" :            [ "cmd_swapCase",               VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
@@ -3344,6 +3345,30 @@ function cmd_vim_toggleVisualBlockMode(scimoz) {
 }
 
 // Special commands
+function cmd_vim_doReplaceChar(scimoz, repeatCount) {
+    // Only perform the deletion if there is a character to
+    // replace it with. Never replace past the end of the line.
+    var currentPos = gVimController._currentPos;
+    var lineNo = scimoz.lineFromPosition(currentPos);
+    var lineEndPos = scimoz.getLineEndPosition(lineNo);
+    var text = scimoz.getTextRange(currentPos, lineEndPos);
+    if (text.length < repeatCount) {
+        return;
+    }
+    scimoz.targetStart = currentPos;
+    scimoz.targetEnd = currentPos + ko.stringutils.bytelength(text.substring(0, repeatCount));
+    var newtext = gVimController._lastReplaceChar;
+    for (var i=1; i < repeatCount; i++) {
+        newtext += newtext[0];
+    }
+    var newtext_length = ko.stringutils.bytelength(newtext);
+    scimoz.replaceTarget(newtext_length, newtext);
+    if (repeatCount > 1) {
+        gVimController._currentPos += (newtext_length -1);
+    }
+    gVimController._lastModifyCommand = 'cmd_vim_doReplaceChar';
+}
+
 function cmd_vim_replaceChar(scimoz) {
     gVimController.mode = VimController.MODE_REPLACE_CHAR;
 }
