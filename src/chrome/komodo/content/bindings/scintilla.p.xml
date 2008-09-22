@@ -262,6 +262,7 @@
 
             <field name="DECORATOR_SOFT_CHAR">Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR</field>
             <field name="bracketedDecoratedChars">null</field>
+
             <destructor>
             <![CDATA[
             this.unload();
@@ -369,8 +370,10 @@
             </method>
 
             <method name="unload">
-                <body>
-                <![CDATA[
+            <body><![CDATA[
+                if (!this.inited) {
+                    return;
+                }
                 try {
                     var prefs = Components.classes['@activestate.com/koPrefService;1'].
                                     getService(Components.interfaces.koIPrefService).prefs;
@@ -391,8 +394,8 @@
                 } catch (e) {
                     this.log.warn("Scintilla ["+this.id+"] was gone before we unloaded!");
                 }
-                ]]>
-                </body>
+                this.inited = false;
+            ]]></body>
             </method>
 
             <method name="getSupportedFlavours">

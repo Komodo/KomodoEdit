@@ -518,6 +518,8 @@
             this.lintBuffer = null;
             this.ciCompletionUIHandler = null;
 
+            this.scintilla.unload();
+
             /////// copied from view-base.close due to xbl inheritance issues //////
             xtk.domutils.fireEvent(this, 'view_closed');
             try {
