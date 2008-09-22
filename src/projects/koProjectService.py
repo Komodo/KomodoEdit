@@ -8,7 +8,7 @@ from projectUtils import *
 import logging
 log = logging.getLogger("koProjectService")
 
-class windowData():
+class windowData(object):
     def __init__(self):
         self._toolbox = None
         self._sharedToolbox = None
