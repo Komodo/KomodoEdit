@@ -1540,7 +1540,10 @@
                     // nsTransferable fails if the drag data type is not
                     // supported.  We want to catch this so the event will
                     // bubble up to the workspace.
-                    // this.log.debug('doDragDropOnView failed:\n'+e);
+                    ko.dragDrop.dragObserver.doDropEvent(event);
+                    event.cancelBubble = true;
+                    event.preventDefault();
+                    //this.log.exception(e);
                 }
 <!-- #if PLATFORM != "darwin" -->
                 this._dragScrollHits = 0;
