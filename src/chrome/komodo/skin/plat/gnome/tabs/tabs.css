@@ -27,3 +27,12 @@
   -moz-appearance: tab-scroll-arrow-forward;
   margin: 0px;
 }
+
+/* Ensure the default styling for tab close button is hidden. */
+.tab-close-button {
+  visibility: hidden;
+}
+/* Make the tab close button visible when the tab is selected. */
+.tab-close-button[selected="true"] {
+  visibility: visible;
+}
