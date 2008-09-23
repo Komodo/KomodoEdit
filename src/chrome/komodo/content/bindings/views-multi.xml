@@ -333,16 +333,10 @@
 
         <method name="canSplitView">
         <parameter name="view"/>
-        <body>
-        <![CDATA[
-            // We can split a view if there is not already two views for it.
-            // Non-editor views can't be split
-            if (view.getAttribute('type') != 'editor') {
-                return false;
-            }
-            return view.document.numScintillas == 1;
-        ]]>
-        </body>
+        <body><![CDATA[
+            // Non-editor views can't be split.
+            return view.getAttribute("type") == "editor";
+        ]]></body>
         </method>
 
         <method name="splitView">
@@ -363,16 +357,12 @@
 
         <method name="canMoveView">
         <parameter name="view"/>
-        <body>
-        <![CDATA[
-            // We can move a view if there is not already two views for it.
-            // Non-editor views can't be split so they can always be moved
-            if (view.getAttribute('type') != 'editor') {
-                return true;
-            }
-            return view.document.numScintillas == 1;
-        ]]>
-        </body>
+        <body><![CDATA[
+            // We used to restrict moving to the other tabbed-view if the
+            // document was already split. However, the implementation had
+            // problems with multi-window, so we just don't bother anymore.
+            return true;
+        ]]></body>
         </method>
 
         <!--Only used in moveView below-->
