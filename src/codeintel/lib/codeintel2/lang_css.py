@@ -1078,7 +1078,9 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
 class CSSBuffer(Buffer):
     lang = "CSS"
     sce_prefixes = ["SCE_CSS_"]
-    cpln_fillup_chars = " ('\";},.>"
+    # Removed '(' - double braces for completions that contain a '(' (bug 80063)
+    # Removed '.' - conflict with floating point values: .5em (bug 80126)
+    cpln_fillup_chars = " '\";},>"
     cpln_stop_chars = " ('\";},.>"
 
 
