@@ -49,17 +49,10 @@
 <!ENTITY anyCharacterExceptANewline.label ". : any character except a newline">
 <!ENTITY bTheBeginningOrEndOfAWord.label "\b : the beginning or end of a word">
 <!ENTITY beginningOfLine.label "^ : beginning of line">
-<!ENTITY c.accesskey "c">
 <!ENTITY close.label "Close">
 <!ENTITY currentDocument.label "Current document">
 <!ENTITY currentProject.label "Current project">
-<!ENTITY d.accesskey "d">
 <!ENTITY dAnyDecimalDigit.label "\d : any decimal digit">
-<!ENTITY displayResultsInFindResults2Tab.label "Display results in Find Results 2 tab">
-<!ENTITY e.accesskey "e">
-<!ENTITY editListOfDirectoriesToSearch.tooltiptext "Edit list of directories to search">
-<!ENTITY ellipsis.accesskey ".">
-<!ENTITY ellipsis.label "...">
 <!ENTITY endOfLine.label "$ : end of line">
 <!ENTITY enterDirectoriesWin.tooltiptext "Enter directories to search in. Separate directories with ';'.">
 <!ENTITY enterDirectoriesUnix.tooltiptext "Enter directories to search in. Separate directories with ':'.">
@@ -76,30 +69,20 @@
 <!ENTITY findAll.label "Find All">
 <!ENTITY findAllButton.accesskey "A">
 <!ENTITY findCloseButton.accesskey "s">
-<!ENTITY findDisplayInFindResults2.accesskey "2">
-<!ENTITY findFindallButton.accesskey "A">
-<!ENTITY findHelpButton.accesskey "H">
-<!ENTITY findInFiles.title "Find in Files">
-<!ENTITY findMatchWord.accesskey "w">
 <!ENTITY findNext.label "Find Next">
 <!ENTITY findNextButton.accesskey "F">
 <!ENTITY findPrevButton.accesskey "P">
 <!ENTITY findPrevious.label "Find Previous">
-<!ENTITY findSearchInSubfolders.accesskey "b">
 <!ENTITY group.label "(...) : group">
 <!ENTITY help.label "Help">
 <!ENTITY helpButton.accesskey "H">
-<!ENTITY i.accesskey "i">
 <!ENTITY ignoreCase.label "Ignore Case">
 <!ENTITY mExactlyMCopiesOfThePrecedingBlock.label "{m} : exactly 'm' copies of the preceding block">
 <!ENTITY mNMToNCopiesOfThePrecedingBlock.label "{m,n} : 'm' to 'n' copies of the preceding block">
 <!ENTITY mNMToNCopiesOfThePrecedingBlockNonGreedy.label "{m,n}? : 'm' to 'n' copies of the preceding block (non-greedy)">
 <!ENTITY markAll.label "Mark All">
 <!ENTITY markAllButton.accesskey "M">
-<!ENTITY matchWholeWord.label "Match whole word">
 <!ENTITY multiline.label "Multiline">
-<!ENTITY n.accesskey "n">
-<!ENTITY no.label "No">
 <!ENTITY nonGroupingGroup.label "(?:...) : non-grouping group">
 <!ENTITY numberTheContentsOfTheGroupOfTheGivenNumber.label "\number : the contents of the group of the given number">
 <!ENTITY oneOrMoreOfThePrecedingBlock.label "+ : one or more of the preceding block">
@@ -110,10 +93,8 @@
 <!ENTITY optRegex.accesskey "x">
 <!ENTITY optReplace.accesskey "R">
 <!ENTITY options.label "Options">
-<!ENTITY plainText.label "Plain Text">
 <!ENTITY regularExpr.label "Regular Expr.">
 <!ENTITY regularExpressionShortcuts.tooltiptext "Regular Expression Shortcuts">
-<!ENTITY regularExpressionsPythonSyntax.label "Regular Expressions (Python Syntax)">
 <!ENTITY replace.label "Replace">
 <!ENTITY replaceAll.label "Replace All">
 <!ENTITY replaceAllButton.accesskey "A">
@@ -124,17 +105,13 @@
 <!ENTITY sAnyWhitespaceCharacter.label "\s : any whitespace character">
 <!ENTITY searchIn.label "Search in">
 <!ENTITY searchIn.title "Search In">
-<!ENTITY searchInSubfolders.label "Search in subfolders">
 <!ENTITY searchUp.label "Search up">
 <!ENTITY selection.label "Selection">
 <!ENTITY selectionOnly.label "Selection only">
 <!ENTITY showReplaceAllResults.label "Show 'Replace All' Results">
 <!ENTITY theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext "the result of the match is NOT assigned a group number">
 <!ENTITY wAnyAlphanumericCharacter.label "\w : any alphanumeric character">
-<!ENTITY wildcards.label "Wildcards">
 <!ENTITY x.accesskey "x">
-<!ENTITY yes.label "Yes">
-<!ENTITY yesIfSearchStringContainsCapitalLetters.label "Yes, if search string contains capital letters">
 <!ENTITY zeroOrMoreOfThePrecedingBlock.label "* : zero or more of the preceding block">
 <!ENTITY zeroOrMoreOfThePrecedingBlockNonGreedy.label "*? : zero or more of the preceding block (non-greedy)">
 <!ENTITY zeroOrOneOfThePrecedingBlock.label "? : zero or one of the preceding block">
