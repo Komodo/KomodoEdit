@@ -211,6 +211,8 @@ class KoPartService(object):
     def get_window(self):
         # if we do not have a window from caller, then get the most recent
         # window and live with it!
+        window = None
+        #XXX Disabled for now. This while loop is infinite!
         #window = self.content.GetWindowFromCaller()
         #while window and not self.isType(window, "Komodo"):
         #    window = window.parent
