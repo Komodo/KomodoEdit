@@ -87,7 +87,6 @@
 <!ENTITY editorCancelAutoComplete.desc "Editor: Cancel AutoComplete">
 <!ENTITY editorCloseAllBuffers.desc "Editor: Close All Buffers">
 <!ENTITY editorCloseCurrentBuffer.desc "Editor: Close Current Buffer">
-<!ENTITY editorCompareWithFileOnDisk.desc "Editor: Compare with file on disk">
 <!ENTITY editorCopy.desc "Editor: Copy">
 <!ENTITY editorCopyRegion.desc "Editor: Copy Region">
 <!ENTITY editorCurrentFileSettings.desc "Editor: Current File Settings">
@@ -172,6 +171,7 @@
 <!ENTITY editorSelectToPreviousLine.desc "Editor: Select to Previous Line">
 <!ENTITY editorSelectToTopOfDocument.desc "Editor: Select to Top of Document">
 <!ENTITY editorSetMark.desc "Editor: Set Mark">
+<!ENTITY editorShowUnsavedChanges.desc "Editor: Show Unsaved Changes">
 <!ENTITY editorTabstopClear.desc "Editor: Clear Current Tabstop State">
 <!ENTITY editorToggleBookmark.desc "Editor: Toggle Bookmark">
 <!ENTITY editorToggleOvertypeInsertMode.desc "Editor: Toggle Overtype/Insert Mode">
@@ -377,7 +377,7 @@
 <!ENTITY menuSave.accesskey "S">
 <!ENTITY menuSaveAll.accesskey "l">
 <!ENTITY menuSaveAs.accesskey "A">
-<!ENTITY menuShowUnsavedChanges.accesskey "W">
+<!ENTITY menuShowUnsavedChanges.accesskey "U">
 <!ENTITY menuSplitTab.accesskey "S">
 <!ENTITY menuStartIncrementalSearch.accesskey "I">
 <!ENTITY menuTabify.accesskey "T">

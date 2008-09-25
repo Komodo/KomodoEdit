@@ -1312,7 +1312,7 @@
             id="cmd_showUnsavedChanges" key="key_cmd_showUnsavedChanges"
             oncommand="ko.commands.doCommandAsync('cmd_showUnsavedChanges', event);"
             disabled="true"
-            desc="&editorCompareWithFileOnDisk.desc;"/>
+            desc="&editorShowUnsavedChanges.desc;"/>
         <command
             id="cmd_revert" key="key_cmd_revert"
             oncommand="ko.commands.doCommandAsync('cmd_revert', event);"
