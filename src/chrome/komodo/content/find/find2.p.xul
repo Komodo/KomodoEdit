@@ -145,7 +145,7 @@
               <button type="menu" id="pattern-shortcuts"
                       tooltiptext="&regExpShortcut.tooltiptext;"
                       class="rightarrow-button">
-                <menupopup popupanchor="topright">
+                <menupopup position="end_before">
                   <menuitem label="&escapeRegexSpecialCharacters.label;"
                             oncommand="regex_escape();"/>
                   <menuseparator/>

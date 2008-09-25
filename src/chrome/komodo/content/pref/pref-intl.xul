@@ -144,8 +144,7 @@
                         <button type="menu" id="shortcuts-menubutton"
                                 class="rightarrow-button"
                                 image="chrome://komodo/skin/images/scrollArrowRight-mini.png">
-                            <menupopup id="dateShortcutsPopup"
-                                       popupanchor="topright">
+                            <menupopup id="dateShortcutsPopup" position="end_before">
                                 <menuitem label="&cDefaultDateAndTimeRepresentation.label;"
                                           shortcut="%c"
                                           oncommand="insertDateShortcut(this);"/>

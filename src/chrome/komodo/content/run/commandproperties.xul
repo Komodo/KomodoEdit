@@ -144,7 +144,7 @@
                         <button type="menu" id="shortcuts-menubutton"
                                 tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
                                 class="rightarrow-button">
-                            <menupopup popupanchor="topright">
+                            <menupopup position="end_before">
                                 <menuitem label="&escapedPercentSign.label;"
                                           shortcut="%%"
                                           oncommand="InsertCommandShortcut(this);"/>
@@ -248,7 +248,7 @@
                             <button type="menu" id="shortcuts-menubutton"
                                     tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
                                     class="rightarrow-button">
-                                <menupopup popupanchor="topright">
+                                <menupopup position="end_before">
                                     <menuitem label="&escapedPercentSign.label;"
                                               shortcut="%%"
                                               oncommand="InsertCwdShortcut(this);"/>

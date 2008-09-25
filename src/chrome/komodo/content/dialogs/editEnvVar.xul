@@ -105,7 +105,7 @@
                 collapsed="true"
                 tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
                 class="rightarrow-button">
-            <menupopup popupanchor="topright">
+            <menupopup position="end_before">
                 <menuitem label="&escapedPercentSign.label;"
                           shortcut="[[%%]]"
                           oncommand="InsertShortcut(this);"/>
