@@ -211,9 +211,9 @@ class KoPartService(object):
     def get_window(self):
         # if we do not have a window from caller, then get the most recent
         # window and live with it!
-        window = self.content.GetWindowFromCaller()
-        while window and not self.isType(window, "Komodo"):
-            window = window.parent
+        #window = self.content.GetWindowFromCaller()
+        #while window and not self.isType(window, "Komodo"):
+        #    window = window.parent
         if not window:
             # window here is nsIDOMWindowInternal, change it
             window = self.wm.getMostRecentWindow('Komodo')
