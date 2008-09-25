@@ -182,8 +182,7 @@ class windowData(object):
 
 class KoPartService(object):
     _com_interfaces_ = [components.interfaces.koIPartService,
-                        components.interfaces.nsIObserver,
-                        components.interfaces.nsIWindowMediatorListener]
+                        components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo Part Service Component"
     _reg_contractid_ = "@activestate.com/koPartService;1"
     _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
@@ -192,27 +191,36 @@ class KoPartService(object):
          ]
 
     def __init__(self):
-        self.wrapped = WrapObject(self, components.interfaces.nsIWindowMediatorListener)
+        self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
+
+        self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
+                        getService(components.interfaces.nsIWindowWatcher);
+        self.ww.registerNotification(self.wrapped)
 
         self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                         getService(components.interfaces.nsIWindowMediator);
-        self.wm.addListener(self.wrapped)
+
+        self.content = components.classes["@activestate.com/koContentUtils;1"].\
+                    getService(components.interfaces.koIContentUtils)
 
         self._data = {}
 
-    def onWindowTitleChange(self, window, newTitle):
-        pass
-    def onOpenWindow(self, window):
-        self._data[window] = windowData()
-    def onCloseWindow(self, window):
-        if window in self._data:
-            del self._data[window]
+    def isType(self, w, type):
+        return w.document.documentElement.getAttribute("windowtype") == type
 
     def get_window(self):
-        w = self.wm.getMostRecentWindow('Komodo');
-        if w not in self._data:
-            self._data[w] = windowData()
-        return w
+        # if we do not have a window from caller, then get the most recent
+        # window and live with it!
+        window = self.content.GetWindowFromCaller()
+        while window and not self.isType(window, "Komodo"):
+            window = window.parent
+        if not window:
+            # window here is nsIDOMWindowInternal, change it
+            window = self.wm.getMostRecentWindow('Komodo')
+            window.QueryInterface(components.interfaces.nsIDOMWindow)
+        if window not in self._data:
+            self._data[window] = windowData()
+        return window
 
     def get_runningMacro(self):
         return self._data[self.get_window()].runningMacro
@@ -270,4 +278,13 @@ class KoPartService(object):
         return self._data[self.get_window()].getParts(type, attrname, attrvalue, where, container)
 
     def observe(self, subject, topic, data):
-        pass
+        if not subject:
+            return
+        window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
+        if not self.isType(window, "Komodo"): return
+        if topic == "domwindowopened":
+            self._data[window] = windowData()
+        elif topic == "domwindowclosed":
+            if window in self._data:
+                del self._data[window]
+

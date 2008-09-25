@@ -1,0 +1,24 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIDocShell.idl"
+#include "nsIDOMDocument.idl"
+
+[ptr] native JSContext(JSContext);
+
+%{C++
+struct JSContext;
+%}
+
+/* this is a wrapper of some content utils defined in
+  http://mxr.mozilla.org/mozilla/source/content/base/public/nsContentUtils.h
+  See nsContentUtils.h for documentation */
+
+[scriptable, uuid(382f06c5-b4c6-024f-8433-e7d4db068e52)]
+interface koIContentUtils: nsISupports
+{
+    nsIDocShell GetDocShellFromCaller();
+    nsIDOMWindow GetWindowFromCaller();
+    nsIDOMDocument GetDocumentFromCaller();
+};

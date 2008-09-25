@@ -342,6 +342,7 @@ Build(
     "$build/lint/CSS/Conscript",
     "$build/main/Conscript",
     "$build/components/Conscript",
+    "$build/components/contentUtils/Conscript",
     "$build/filesystem/Conscript",
     "$build/projects/Conscript",
     "$build/python-sitelib/Conscript",
