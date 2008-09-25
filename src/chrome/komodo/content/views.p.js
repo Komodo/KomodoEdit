@@ -376,9 +376,9 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     doc.isDirty = false;
     var view;
     if (viewList) {
-        view = viewList.createViewFromDocument(doc, viewType);
+        view = viewList.createViewFromDocument(doc, viewType, -1);
     } else {
-        view = this.topView.createViewFromDocument(doc, viewType);
+        view = this.topView.createViewFromDocument(doc, viewType, -1);
     }
 
     return view;
@@ -406,7 +406,7 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
 
     // the following line is delayed to avoid notifications during load()
     var doc = this.docSvc.createUntitledDocument(language);
-    var view = this.topView.createViewFromDocument(doc,viewType);
+    var view = this.topView.createViewFromDocument(doc, viewType, -1);
 
     ko.trace.get().leave('viewManager.doNewView');
     this.log.info("leaving doNewView");
@@ -421,10 +421,14 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
+ *      optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *      the new view. If not given, or -1, then the new view is appended.
+ *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, viewList/*=null*/)
+viewManager.prototype.newViewFromURI = function(
+    uri, viewType/*='editor'*/, viewList/*=null*/, index /* =-1 */)
 {
     this.log.info("doing newViewFromURI: " + uri);
     ko.trace.get().enter('viewManager.newViewFromURI');
@@ -432,6 +436,9 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
         viewType = 'editor';
     if (typeof(viewList)=='undefined')
         viewList = null;
+    if (typeof(index) == 'undefined' || index == null)
+        index = -1;
+
     var doc = this.docSvc.createDocumentFromURI(uri);
     var view = null;
     if (! doc.file.exists) {
@@ -473,9 +480,9 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
         }
         // the following line is delayed to avoid notifications during load()
         if (viewList) {
-            view = viewList.createViewFromDocument(doc,viewType);
+            view = viewList.createViewFromDocument(doc, viewType, index);
         } else {
-            view = this.topView.createViewFromDocument(doc,viewType);
+            view = this.topView.createViewFromDocument(doc, viewType, index);
         }
     } catch (e)  {
         var err = this.lastErrorSvc.getLastErrorMessage();
@@ -498,15 +505,23 @@ viewManager.prototype.newViewFromURI = function(uri, viewType/*='editor'*/, view
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
+ *      optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *      the new view. If not given, or -1, then the new view is appended.
+ *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList/*=null*/)
+viewManager.prototype.doFileOpen = function(
+    uri, viewType/* ='editor' */, viewList/* =null */,
+    index /* =-1 */)
 {
     if (typeof(viewList)=='undefined')
         viewList = null;
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
+    if (typeof(index) == 'undefined' || index == null)
+        index = -1;
+
     if (viewType == 'editor') {
         uri = ko.uriparse.getMappedURI(uri);
     }
@@ -520,7 +535,7 @@ viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList
         views[0].makeCurrent();
         return views[0];
     }
-    return this.newViewFromURI(uri, viewType, viewList);
+    return this.newViewFromURI(uri, viewType, viewList, index);
 }
 
 /**
@@ -532,15 +547,23 @@ viewManager.prototype.doFileOpen = function(uri, viewType/*='editor'*/, viewList
  * @param lineno {integer} line number
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
+ *      optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *      the new view. If not given, or -1, then the new view is appended.
+ *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doFileOpenAtLine = function(uri, lineno, viewType/*='editor'*/, viewList/*=null*/) {
+viewManager.prototype.doFileOpenAtLine = function(
+    uri, lineno, viewType/* ='editor' */, viewList/* =null */,
+    index /* =-1 */)
+{
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
     if (typeof(viewList)=='undefined')
         viewList = null;
-    var v = this.doFileOpen(uri, viewType, viewList);
+    if (typeof(index) == 'undefined' || index == null)
+        index = -1;
+    var v = this.doFileOpen(uri, viewType, viewList, index);
     if (v) {
         v.currentLine = lineno;
     }
@@ -630,7 +653,7 @@ viewManager.prototype.loadViewFromURI = function(uri, viewType/*='editor'*/)
     var doc = this.docSvc.createDocumentFromURI(uri);
 
     // the following line is delayed to avoid notifications during load()
-    var view = this.topView.createViewFromDocument(doc,viewType);
+    var view = this.topView.createViewFromDocument(doc, viewType, -1);
     ko.trace.get().leave('viewManager.loadViewFromURI');
     this.log.info("leaving loadViewFromURI");
 }

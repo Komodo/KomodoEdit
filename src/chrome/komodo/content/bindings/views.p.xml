@@ -111,14 +111,15 @@
         </body>
         </method>
 
-        <!--koIView createViewFromDocument(in koIDocument document, in wstring type);-->
         <method name="createViewFromDocument">
         <parameter name="doc"/>
         <parameter name="type"/>
+        <parameter name="index"/>
         <body>
         <![CDATA[
+            if (typeof(index) == 'undefined' || index == null) index = -1;
             ko.trace.get().enter('view: createViewFromDocument');
-            var view = this.newView(type);
+            var view = this.newView(type, index);
             view.initWithDocument(doc);
             ko.trace.get().leave('view: createViewFromDocument');
             return view;
@@ -459,13 +460,15 @@
         </method>
 
         <method name="newView">
-            <parameter name="type"/>
+        <parameter name="type"/>
+        <parameter name="index"/> <!-- optional index at which to insert view -->
         <body>
         <![CDATA[
+            if (typeof(index) == 'undefined' || index == null) index = -1;
             try {
                 ko.trace.get().enter('view.newView');
                 var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-                var box = this.createNewViewContainer();
+                var box = this.createNewViewContainer(index);
                 var v = document.createElementNS(XUL_NS, 'view');
                 v.setAttribute('type',type);
                 v.setAttribute('flex','1');
@@ -646,7 +649,8 @@
             ]]></getter>
         </property>
 
-        <!--attribute koIViewWidget widget;-->
+        <!--attribute koIViewWidget widget;
+            DEPRECATED: I don't think this is used. Certain `koIViewWidget` is not. -->
         <property name="widget"/>
 
         <!--XXX alternateViewList is a temporary hack to get debugging working-->
@@ -830,6 +834,14 @@
         /* do nothing */
         ]]>
         </body>
+        </method>
+
+        <!-- Returns a boolean indicating if this view is capable of
+             being opened in a separate Komodo window. -->
+        <method name="canBeOpenedInAnotherWindow">
+        <body><![CDATA[
+            return false;
+        ]]></body>
         </method>
 
     </implementation>

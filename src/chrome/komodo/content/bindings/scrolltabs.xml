@@ -490,28 +490,6 @@
                 </body>
             </method>
 
-            <method name="moveTab">
-                <parameter name="tab"/>
-                <parameter name="target"/>
-                <body>
-                <![CDATA[
-                    if (!target) {
-                        this._tabs.appendChild(tab);
-                    } else {
-                        this._tabs.insertBefore(tab, target);
-                    }
-                    // XXX fixup some attributes
-                    var o = this._tabs.childNodes;
-                    for (var c = 0; c < o.length; ++c) {
-                        o[c].removeAttribute('first-tab');
-                        o[c].removeAttribute('last-tab');
-                    }
-                    o[0].setAttribute('first-tab','true');
-                    o[o.length-1].setAttribute('last-tab','true');
-                ]]>
-                </body>
-            </method>
-
             <field name="getDragData">null</field>
             <method name="onDragStart">
                 <parameter name="event"/>
@@ -562,6 +540,17 @@
                 <![CDATA[
                     if (!session.sourceNode ||
                         session.sourceNode.localName != 'tab') return false;
+
+                    // If this is a different window, then need to ask the
+                    // view if moving to a another window is okay.
+                    if (session.sourceNode.ownerDocument != document) {
+                        var sourceTabbox = this.getTabController(session.sourceNode);
+                        var sourceView = sourceTabbox.parentNode.currentView;
+                        if (!sourceView.canBeOpenedInAnotherWindow()) {
+                            return false;
+                        }
+                    }
+                    
                     var el = session.sourceNode;
                     while (el && el != this) {
                         if (el.localName == 'tabs') return true;
@@ -574,77 +563,96 @@
 
             <field name="_dropTimeout">null</field>
             <method name="onDrop">
-                <parameter name="event"/>
-                <parameter name="dropData"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                    if (session.canDrop && session.sourceNode.localName == 'tab') {
-
-                        /* for now, do not allow drag/drop between tabboxes */
-                        var sourceTabbox = this.getTabController(session.sourceNode);
-                        if (sourceTabbox != this) {
-                            ko.commands.doCommandAsync('cmd_movetab');
-                            return false;
-                        }
-
-                        if (session.sourceNode.id == event.target.id) {
-                            return true;
-                        }
-
-                        /* prepare an object to pass to the timout */
-                        var drop = {};
-                        if (event.originalTarget.localName == 'tab')
-                            drop.targetNode = event.originalTarget;
-                        else
-                            drop.targetNode = event.target;
-
-                        drop.sourceNode = session.sourceNode;
-                        this._dropTimeout = new objectTimer(this,this.doDrop,[drop, event]);
-                        this._dropTimeout.startTimeout(1);
-                        event.cancelBubble = true;
-                        return true;
-                    }
+            <parameter name="event"/>
+            <parameter name="dropData"/>
+            <parameter name="session"/>
+            <body><![CDATA[
+                if (!session.canDrop
+                    || session.sourceNode.localName != 'tab')
+                {
                     return false;
-                ]]>
-                </body>
+                }
+
+                // Dropping tab onto self: nothing to do.
+                if (session.sourceNode.id == event.target.id) {
+                    return true;
+                }
+                
+                // Handle the drop asynchronously.
+                // [Not sure this is necessary --TM.]
+                targetNode = (event.originalTarget.localName == 'tab'
+                              ? event.originalTarget : event.target);
+                this._dropTimeout = new objectTimer(
+                    this, this._doDropAsync,
+                    [session.sourceNode, targetNode, event]);
+                this._dropTimeout.startTimeout(1);
+
+                event.cancelBubble = true;
+                return true;
+            ]]></body>
             </method>
 
-            <method name="doDrop">
-                <parameter name="dropData"/>
-                <parameter name="event"/>
-                <body>
-                <![CDATA[
-                    var result = false;
-
-                    var sourceNode = dropData.sourceNode;
-                    var targetNode = dropData.targetNode;
-                    var targetIndex = this.getNewIndex(event);
-                    var sourceIndex = this.getTabIndexById(sourceNode.id);
-                    if (targetNode.localName == 'tab') {
-                        // figure out what we are inserting in front of
-                        var targetTab = this._tabs.childNodes[targetIndex];
-                        this.moveTab(sourceNode,targetTab);
+            <method name="_doDropAsync">
+            <parameter name="sourceNode"/>
+            <parameter name="targetNode"/>
+            <parameter name="event"/>
+            <body><![CDATA[
+                var sourceTabbox = this.getTabController(sourceNode);
+                var targetTabbox = this;
+                var sourceIndex = sourceTabbox.getTabIndexById(sourceNode.id);
+                var targetIndex = targetTabbox.getNewIndex(event);
+                //dump("move tab at sourceIndex="+sourceIndex
+                //     +" (sourceTabbox "+sourceTabbox.parentNode.getAttribute("id")
+                //     +") to targetIndex="+targetIndex
+                //     +" (targetTabbox "+targetTabbox.parentNode.getAttribute("id")
+                //     +")\n");
+            
+                if (sourceNode.ownerDocument != document) {
+                    // 1. Moving a tab from one Komodo window to another.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    
+                    // Gather the data we need to open the view in the
+                    // target window.
+                    var uri = sourceView.document.file.URI;
+                    var viewType = sourceView.getAttribute("type");
+                    var line = (viewType == "editor" ? sourceView.currentLine : null);
+                    var viewList = targetTabbox.parentNode;
+                    
+                    // Close the source view first to ensure unsaved
+                    // changes, etc. get handled first.
+                    if (!sourceView.close()) {
+                        return;
+                    }
+                    
+                    // Open the new view.
+                    if (line != null) {
+                        ko.views.manager.doFileOpenAtLine(
+                            uri, line, viewType, viewList, targetIndex);
                     } else {
-                        // append the tab to the end
-                        this.moveTab(sourceNode,null);
+                        ko.views.manager.doFileOpen(
+                            uri, viewType, viewList, targetIndex);
                     }
-                    // select what we just dragged
-                    var index = this.getTabIndexById(sourceNode.id);
-                    this._tabs.selectedIndex = index;
+                    window.focus();
+                } else if (sourceTabbox != targetTabbox) {
+                    // 2. Moving to the other view-tabbed tab box in the
+                    //    same Komodo window.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    ko.views.manager.topView.moveView(sourceView, targetIndex);
+                } else {
+                    // 3. Moving within the same view-tabbed tab box.
+                    if (targetIndex - sourceIndex == 1) {
+                        // We are dragging the tab to just after itself: no-op.
+                    } else if (targetNode.localName == 'tab') {
+                        var targetTab = targetTabbox._tabs.childNodes[targetIndex];
+                        targetTabbox._tabs.insertBefore(sourceNode, targetTab);
+                    } else { // targetNode.localName == 'tabs'
+                        // Inserting at end of the tabs.
+                        targetTabbox._tabs.appendChild(sourceNode);
+                    }
+                }
 
-                    // scroll the tabbox while we're dragging
-                    if (this._tabs.getAttribute('type')=='scrollable') {
-                        if (targetIndex < 0 || targetIndex > sourceIndex) {
-                            this._tabs.scrollToTabIndex(index+1);
-                        } else if (targetIndex < sourceIndex) {
-                            this._tabs.scrollToTabIndex(index-1);
-                        }
-                        this._tabs.scrollBoxObject.ensureElementIsVisible(this._tabs.selectedItem);
-                    }
-                    this._lastTarget = -1;
-                ]]>
-                </body>
+                this._lastTarget = -1;
+            ]]></body>
             </method>
 
             <method name="onDragEnter">

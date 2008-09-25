@@ -108,7 +108,7 @@ peURL.prototype.doCommand = function(command) {
         var docSvc = Components.classes['@activestate.com/koDocumentService;1']
                     .getService(Components.interfaces.koIDocumentService);
         var doc = docSvc.createDocumentFromURI(item.value);
-        ko.views.manager.topView.createViewFromDocument(doc,'browser');
+        ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
         break;
     case 'cmd_openSpecifiedURL':
         view = ko.projects.active;

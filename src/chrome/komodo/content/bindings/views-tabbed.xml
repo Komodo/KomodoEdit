@@ -110,8 +110,11 @@
         </method>
 
         <method name="createNewViewContainer">
+        <parameter name="index"/> <!-- optional index at which to insert view -->
         <body>
         <![CDATA[
+            if (typeof(index) == 'undefined' || index == null) index = -1;
+
             ko.trace.get().enter('createNewViewContainer');
             this.setAttribute('collapsed','false');
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -129,8 +132,15 @@
             tabpanel.id = uniqueId;
             tab.linkedPanel = uniqueId;
             
-            this.tabbox._tabs.appendChild(tab);
-            this.tabbox._tabpanels.appendChild(tabpanel);
+            if (index >= 0 && index < this.tabbox.tabs.childNodes.length) {
+                this.tabbox.tabs.insertBefore(
+                    tab, this.tabbox.tabs.childNodes[index]);
+                this.tabbox.tabpanels.insertBefore(
+                    tabpanel, this.tabbox.tabpanels.childNodes[index]);
+            } else {
+                this.tabbox.tabs.appendChild(tab);
+                this.tabbox.tabpanels.appendChild(tabpanel);
+            }
             this.tabbox.firstChild.removeAttribute('closedisabled');
             this.tabbox.handleCtrlTab = "false";
             ko.trace.get().leave('createNewViewContainer');

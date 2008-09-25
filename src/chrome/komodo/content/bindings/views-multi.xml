@@ -184,10 +184,10 @@
             var first = nodes[0].firstChild;
             var second = nodes[0].lastChild;
             try {
-                if (first.getViewIndex(view)) return first;
+                if (first.getViewIndex(view) >= 0) return first;
             } catch(e) {}
             try {
-                if (second.getViewIndex(view)) return second;
+                if (second.getViewIndex(view) >= 0) return second;
             } catch(e) {}
             return null;
         ]]>
@@ -202,24 +202,21 @@
             var first = nodes[0].firstChild;
             var second = nodes[0].lastChild;
             try {
-                if (first.getViewIndex(view)>=0) return second;
-            } catch(e) {
-                this.log.info('view not in first view manager');
-            }
+                if (first.getViewIndex(view) >= 0) return second;
+            } catch(e) {}
             try {
-                if (second.getViewIndex(view)>=0) return first;
-            } catch(e) {
-                this.log.info('view not in second view manager');
-            }
+                if (second.getViewIndex(view) >= 0) return first;
+            } catch(e) {}
             return null;
         ]]>
         </body>
         </method>
 
         <method name="createNewViewContainer">
+        <parameter name="index"/> <!-- optional index at which to insert view -->
         <body>
         <![CDATA[
-            return this.currentView.createNewViewContainer();
+            return this.currentView.createNewViewContainer(index);
         ]]>
         </body>
         </method>
@@ -323,10 +320,11 @@
         </method>
 
         <method name="newView">
-            <parameter name="type"/>
+        <parameter name="type"/>
+        <parameter name="index"/> <!-- optional index at which to insert view -->
         <body>
         <![CDATA[
-            return this.currentView.newView(type);
+            return this.currentView.newView(type, index);
         ]]>
         </body>
         </method>
@@ -349,8 +347,8 @@
             // so that the new view gets all of the settings of
             // the view being split.
             view.saveState();
-            var newview = this.currentView.createViewFromDocument(view.document,view.getAttribute('type'));
-
+            var newview = this.currentView.createViewFromDocument(
+                    view.document, view.getAttribute('type'), -1);
         ]]>
         </body>
         </method>
@@ -370,15 +368,22 @@
 
         <method name="moveView">
         <parameter name="view"/>
+        <!-- Optional index at which to insert the new view into the
+             target view list. If not given, or -1, it will be appended. -->
+        <parameter name="index"/>
         <body>
         <![CDATA[
-            this.lastFocused = this.otherView;
+            if (typeof(index) == 'undefined' || index == null) index = -1;
+        
             var doc = view.document;
-            var type = view.getAttribute('type');
+            var viewType = view.getAttribute('type');
             view.saveState();
             ko.views.manager.batchMode = true; // There are no view changes, so nothing really need to change here.
             try {
-                var newview = this.currentView.createViewFromDocument(doc,type);
+                var newViewList = this.getAltViewListForView(view);
+                var newview = newViewList.createViewFromDocument(
+                                doc, viewType, index);
+                
                 // rejigger the connections as view.close() will
                 // close the preview  [It does not do so anymore. --TM]
                 if (view.preview) {
@@ -387,6 +392,9 @@
                     newview.preview.sourceView = newview;
                 }
                 view.close();
+                
+                this.lastFocused = newViewList;
+                
                 // XXX doing this in a timeout fixes our focus problems when
                 // we move a tab from pane to pane.  This appears to be *slow*.
                 // bugs 25577, 25578

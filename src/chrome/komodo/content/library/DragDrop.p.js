@@ -84,7 +84,27 @@ this.dragObserver = {
         flavours.appendFlavour("application/x-moz-file", "nsIFile");
         return flavours;
     },
-    canDrop: function(event,session) {
+    canDrop: function(event, session) {
+        if (session.sourceNode
+            && session.sourceNode.localName == 'tab'
+            && session.sourceNode.ownerDocument != document)
+        {
+            // This session represents a view from another Komodo window:
+            // ask that view if it can be moved to another Komodo window.
+            // - Find the tabbed-view list to which this tab belongs.
+            var viewList = session.sourceNode;
+            while (viewList && viewList != this) {
+                if (viewList.localName == 'view') {
+                    break;
+                }
+                viewList = viewList.parentNode;
+            }
+            // - Ask the view if it can be moved.
+            if (viewList && !viewList.currentView.canBeOpenedInAnotherWindow()) {
+                return false;
+            }
+        }
+        
         return true;
     },
     onDragOver: function(event,flavour,session) {

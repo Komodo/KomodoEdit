@@ -73,7 +73,13 @@ interface koIView;
 [scriptable, uuid(86259E00-5910-42E3-9C39-C7828A563046)]
 interface koIViewList : nsISupports
 {
-    koIView createViewFromDocument(in koIDocument document, in wstring type);
+    // Create a new view (of the given type) from the given document.
+    // If "index" is given, the new view is inserted at the given index
+    // in the view list. If index is -1 (or otherwise invalid), the new
+    // view is appended.
+    koIView createViewFromDocument(in koIDocument document, in wstring type,
+                                   in PRUint32 index);
+
     koIView findViewForDocument(in koIDocument document);
 
     attribute koIView topView;
