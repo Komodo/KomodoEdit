@@ -56,7 +56,7 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib mozjs.lib ";
+    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib js3250.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -76,7 +76,6 @@ if ($platform eq "win") {
         "koIContentUtils.idl",
         "koIContentUtils.h",
         qq(
-            pwd || exit 0
             cl /nologo $CXXFLAGS /Fo%1:b.obj /c %1
             link /nologo $LDFLAGS /out:%0 %1:b.obj
         )
