@@ -1711,7 +1711,12 @@ viewManager.prototype.is_cmd_openTabInNewWindow_supported = function() {
 }
 
 viewManager.prototype.is_cmd_openTabInNewWindow_enabled = function() {
-    return this.currentView.canBeOpenedInAnotherWindow();
+    return (this.currentView
+            // When quitting, commands in command sets observing the "dirty"
+            // command update get called. For some reason, the methods on
+            // the view aren't there at this point (XBL binding destruction?).
+            && "canBeOpenedInAnotherWindow" in this.currentView
+            && this.currentView.canBeOpenedInAnotherWindow());
 }
 
 viewManager.prototype.do_cmd_openTabInNewWindow = function() {
@@ -1724,7 +1729,12 @@ viewManager.prototype.is_cmd_moveTabToNewWindow_supported = function() {
 }
 
 viewManager.prototype.is_cmd_moveTabToNewWindow_enabled = function() {
-    return this.currentView.canBeOpenedInAnotherWindow();
+    return (this.currentView
+            // When quitting, commands in command sets observing the "dirty"
+            // command update get called. For some reason, the methods on
+            // the view aren't there at this point (XBL binding destruction?).
+            && "canBeOpenedInAnotherWindow" in this.currentView
+            && this.currentView.canBeOpenedInAnotherWindow());
 }
 
 viewManager.prototype.do_cmd_moveTabToNewWindow = function() {
