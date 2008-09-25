@@ -703,6 +703,8 @@
               <File Id="file410" Name="KOTEXT_2.PY" LongName="koTextUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTextUtils.py"/>
               <File Id="file227" Name="KOIXML_0.XPT" LongName="koIXMLCatalogService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIXMLCatalogService.xpt"/>
               <File Id="file228" Name="KOXMLC_0.PY" LongName="koXMLCatalogService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koXMLCatalogService.py"/>
+              <File Id="file810" Name="KOCONT_0.DLL" LongName="koContentUtils.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koContentUtils.dll"/>
+              <File Id="file811" Name="KOICON_0.XPT" LongName="koIContentUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIContentUtils.xpt"/>
               <File Id="file2183" Name="LAYOUT_0.XPT" LongName="layout_base.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\layout_base.xpt"/>
               <File Id="file2184" Name="LAYOUT_1.XPT" LongName="layout_printing.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\layout_printing.xpt"/>
               <File Id="file2185" Name="LAYOUT_2.XPT" LongName="layout_xul.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\layout_xul.xpt"/>
@@ -3477,6 +3479,7 @@
               <File Id="file4104" Name="KOIWEB_0.IDL" LongName="koIWebbrowser.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIWebbrowser.idl"/>
               <File Id="file4105" Name="KOIWIN_0.IDL" LongName="koIWindowsIntegration.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIWindowsIntegration.idl"/>
               <File Id="file4106" Name="KOIXML_0.IDL" LongName="koIXMLCatalogService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIXMLCatalogService.idl"/>
+              <File Id="file812" Name="KOICON_0.IDL" LongName="koIContentUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIContentUtils.idl"/>
               <File Id="file4107" Name="MOZIJS_0.IDL" LongName="mozIJSSubScriptLoader.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\mozIJSSubScriptLoader.idl"/>
               <File Id="file4108" Name="NSIASN_0.IDL" LongName="nsIASN1Object.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Object.idl"/>
               <File Id="file4109" Name="NSIASN_1.IDL" LongName="nsIASN1Sequence.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Sequence.idl"/>
