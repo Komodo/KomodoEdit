@@ -130,7 +130,7 @@
 # - break this out into a separate project
 # - add a test suite
 
-__version_info__ = (0, 3, 0)
+__version_info__ = (0, 4, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -329,8 +329,9 @@ def _getPreprocessorDefines(config):
             if type(key) in (types.StringType, types.UnicodeType) and not key.startswith("_"):
                 defines["PT_CONFIG_"+key] = value
     else:
-        log.warn("no patch preprocessor defines can be extracted from "
-                 "configuration object: %r", type(config))
+        for name in dir(config):
+            if type(name) in (types.StringType, types.UnicodeType) and not name.startswith("_"):
+                defines["PT_CONFIG_"+name] = getattr(config, name)
     return defines
 
 def _getPatchExe(patchExe=None):
