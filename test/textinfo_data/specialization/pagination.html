@@ -1,0 +1,30 @@
+{% load pagination %}
+
+<div class="pages">
+<span class="results">{{ object_name }} {{ first_on_page }}{% ifnotequal first_on_page last_on_page %} to {{ last_on_page }}{% endifnotequal %} of {{ hits }}</span>
+<div class="paginator">
+{% if has_previous %}
+    <a class="prev" href="?page={{ previous }}">&laquo; Prev</a>
+{% else %}
+    <span class="prev disabled">&laquo; Prev</span>
+{% endif %}
+
+{% for i in page_range %}
+    {% ifequal i '...' %}
+        {{ i }}
+    {% else %}
+        {% ifequal i page %}
+            <span class="this-page">{{ i }}</span>
+        {% else %}
+            <a href="?page={{ i }}">{{ i }}</a>
+        {% endifequal %}
+    {% endifequal %}
+{% endfor %}
+
+{% if has_next %}
+    <a class="next" href="?page={{ next }}">Next &raquo;</a>
+{% else %}
+    <span class="next disabled">Next &raquo;</span>
+{% endif %}
+</div>
+</div>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load recipes_tags %}
+
+
+{% block title %}Recipe authors &laquo; {{ block.super }}{% endblock %}
+
+
+{% block content_header %}All recipe authors{% endblock %}
+
+
+{% block content %}
+
+{% if is_paginated %}
+{% load pagination %}
+<div class="pages-top">{% paginate %}</div>
+{% endif %}
+
+{% if object_list %}
+    <ul>
+    {% for profile in object_list %}
+        <li><a href="/recipes/users/{{ profile.user.id }}/">{% pretty_user_name profile.user %}</a>
+        <span class="secondary">({{ profile.num_recipes }} recipe{{ profile.num_recipes|pluralize }})</span>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
+
+{% if is_paginated %}
+<div class="pages-bottom">{% paginate %}</div>
+{% endif %}
+{% endblock %}
+
+
+{% block sidebar %}
+{{ num_authors }} people have posted recipes. Another {{ num_other_users }}
+have added commented or voted on recipes.
+{% endblock %}
+

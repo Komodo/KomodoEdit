@@ -143,6 +143,7 @@ import langinfo
 
 
 
+
 #---- exceptions and warnings
 
 class TextInfoError(Exception):
@@ -175,14 +176,16 @@ def textinfo_from_filename(path):
     """
     return TextInfo.init_from_filename(path)
 
-def textinfo_from_path(path, encoding=None, follow_symlinks=False):
+def textinfo_from_path(path, encoding=None, follow_symlinks=False,
+                       quick_determine_lang=False):
     """Determine text info for the given path.
     
     This raises EnvironmentError if the path doesn't not exist or could
     not be read.
     """
     return TextInfo.init_from_path(path, encoding=encoding, 
-                                   follow_symlinks=follow_symlinks)
+                                   follow_symlinks=follow_symlinks,
+                                   quick_determine_lang=quick_determine_lang)
 
 
 
@@ -255,6 +258,8 @@ class TextInfo(object):
 
             self._classify_from_filename(lidb, env)
             if self.is_text is False:
+                return self
+            if self.lang and quick_determine_lang:
                 return self
 
             if not self.lang:
@@ -401,6 +406,12 @@ class TextInfo(object):
                         self.langinfo = li
                         self.lang = li.name
 
+        # Attempt to specialize the lang.
+        if self.langinfo is not None:
+            li = lidb.specialized_langinfo_from_content(self.langinfo, self.text)
+            if li:
+                self.langinfo = li
+                self.lang = li.name
 
     def _classify_from_magic(self, lidb):
         """Attempt to classify from the file's magic number/shebang
@@ -911,6 +922,7 @@ class TextInfo(object):
 
     _emacs_vars_head_pat = re.compile("-\*-\s*(.*?)\s*-\*-")
 
+    _emacs_head_vars_cache = None
     def _get_emacs_head_vars(self, head_bytes):
         """Return a dictionary of emacs-style local variables in the head.
 
@@ -923,6 +935,9 @@ class TextInfo(object):
         # Presuming an 8-bit encoding. If it is UTF-16 or UTF-32, then
         # that should have been picked up by an earlier BOM check.
         # Otherwise we rely on `chardet` to cover us.
+        
+        if self._emacs_head_vars_cache is not None:
+            return self._emacs_head_vars_cache
 
         # Search the head for a '-*-'-style one-liner of variables.
         emacs_vars = {}
@@ -959,6 +974,7 @@ class TextInfo(object):
                or val.startswith('"') and val.endswith('"')):
                 emacs_vars[var] = val[1:-1]
 
+        self._emacs_head_vars_cache = emacs_vars    
         return emacs_vars
 
     # This regular expression is intended to match blocks like this:
@@ -976,6 +992,7 @@ class TextInfo(object):
         (?P<content>.*?\1End:)
         """, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
+    _emacs_tail_vars_cache = None
     def _get_emacs_tail_vars(self, tail_bytes):
         r"""Return a dictionary of emacs-style local variables in the tail.
 
@@ -997,7 +1014,14 @@ class TextInfo(object):
         # Presuming an 8-bit encoding. If it is UTF-16 or UTF-32, then
         # that should have been picked up by an earlier BOM check.
         # Otherwise we rely on `chardet` to cover us.
+        
+        if self._emacs_tail_vars_cache is not None:
+            return self._emacs_tail_vars_cache
+        
         emacs_vars = {}
+        if "Local Variables" not in tail_bytes:
+            self._emacs_tail_vars_cache = emacs_vars    
+            return emacs_vars
 
         match = self._emacs_vars_tail_pat.search(tail_bytes)
         if match:
@@ -1059,6 +1083,7 @@ class TextInfo(object):
                or val.startswith('"') and val.endswith('"')):
                 emacs_vars[var] = val[1:-1]
 
+        self._emacs_tail_vars_cache = emacs_vars    
         return emacs_vars
 
     # Note: It might nice if parser also gave which of 'vi, vim, ex' and
@@ -1071,6 +1096,7 @@ class TextInfo(object):
         (re.compile(r'^(vi|vim([<>=]?\d{3})?):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
          re.compile(r'[ \t]+')),
     ]
+    _vi_vars_cache = None
     def _get_vi_vars(self, bytes):
         r"""Return a dict of Vi[m] modeline vars.
 
@@ -1105,7 +1131,18 @@ class TextInfo(object):
             {'dir': 'c:\\tmp'}
         """
         # Presume 8-bit encoding... yada yada.
+        
+        if self._vi_vars_cache is not None:
+            return self._vi_vars_cache
+        
         vi_vars = {}
+        
+        #TODO: Consider reducing support to just "vi:" for speed. This
+        #      function takes way too much time.
+        if "vi:" not in bytes and "ex:" not in bytes and "vim:" not in bytes:
+            self._vi_vars_cache = vi_vars
+            return vi_vars
+        
         for pat, splitter in self._vi_vars_pats_and_splitters:
             match = pat.search(bytes)
             if match:
@@ -1119,6 +1156,7 @@ class TextInfo(object):
                     else:
                         vi_vars[var_str] = None
                 break
+        self._vi_vars_cache = vi_vars
         return vi_vars
 
     def _get_bom_info(self):
@@ -1876,6 +1914,10 @@ def main(argv):
                       action="store_true",
                       help="follow symlinks, i.e. show info about linked-to "
                            "files and descend into linked dirs when recursive")
+    parser.add_option("-Q", "--quick-determine-lang", action="store_true",
+                      help="Skip some processing to attempt to determine "
+                           "language. Things like specialization, emacs/vi "
+                           "local vars, full decoding, are skipped.")
     parser.add_option("--encoding", help="suggested encoding for input files")
     parser.add_option("-f", "--format",
                       help="format of output: summary (default), dict")
@@ -1885,7 +1927,8 @@ def main(argv):
              "control dirs are skipped)")
     parser.set_defaults(log_level=logging.INFO, encoding=None, recursive=False,
                         follow_symlinks=False, format="summary",
-                        excludes=[".svn", "CVS", ".hg"])
+                        excludes=[".svn", "CVS", ".hg", ".git", ".bzr"],
+                        quick_determine_lang=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
     if opts.log_level > logging.INFO:
@@ -1908,7 +1951,8 @@ def main(argv):
                     follow_symlinks=opts.follow_symlinks):
         try:
             ti = textinfo_from_path(path, encoding=opts.encoding,
-                                    follow_symlinks=opts.follow_symlinks)
+                                    follow_symlinks=opts.follow_symlinks,
+                                    quick_determine_lang=opts.quick_determine_lang)
         except OSError, ex:
             log.error("%s: %s", path, ex)
             continue

@@ -147,6 +147,7 @@ class LangInfo(object):
     filename_patterns = None
     magic_numbers = None
     doctypes = None
+    specialization_hints_from_lang = None
     # Values for Emacs `mode` var or Vi modeline `ft' or `filetype',
     # other than `name', that identify lang.
     emacs_modes = None
@@ -385,6 +386,19 @@ class Database(object):
            and system_id in self._li_from_doctype_system_id:
             return self._li_from_doctype_system_id[system_id]
 
+    def specialized_langinfo_from_content(self, li, text):
+        hints, specialized_li = self._specialization_hints_from_lang.get(
+            li.name, (None, None))
+        if not hints:
+            return None
+        for hint_str, hint_re in hints:
+            if hint_str not in text:
+                continue
+            if hint_re and not hint_re.search(text):
+                continue
+            return specialized_li
+        return None
+
     def _build_tables(self):
         self._langinfo_from_ext = {}
         self._langinfo_from_filename = {}
@@ -395,6 +409,7 @@ class Database(object):
         self._li_from_emacs_mode = {}
         self._li_from_vi_filetype = {}
         self._li_from_norm_komodo_lang = {}
+        self._specialization_hints_from_lang = {} # <lang> -> (<hint>, <specialized-langinfo>)
 
         for li in self._langinfo_from_norm_lang.values():
             if li.exts:
@@ -440,7 +455,10 @@ class Database(object):
             if hasattr(li, "komodo_name"):
                 norm_komodo_lang = self._norm_lang_from_lang(li.komodo_name)
                 self._li_from_norm_komodo_lang[norm_komodo_lang] = li
-
+            if li.specialization_hints_from_lang:
+                for lang, hint in li.specialization_hints_from_lang.items():
+                    self._specialization_hints_from_lang[lang] = (hint, li)
+        
         self._magic_table.sort(key=operator.itemgetter(2))
 
     def _norm_lang_from_lang(self, lang):

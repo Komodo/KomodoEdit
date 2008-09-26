@@ -46,20 +46,51 @@ class RHTMLLangInfo(LangInfo):
     exts = [".rhtml"]
 
 
-class _DjangoTemplateLangInfo(LangInfo):
+class DjangoTemplateLangInfo(LangInfo):
+    name = "Django Template"
     conforms_to_bases = ["Text"]
+    section_regexes = [
+        ("import", re.compile(r'\{\%[ \t]+(load\b.*?)\%\}')),
+        ("class", re.compile(r'\{\%[ \t]+(block\b.*?)\%\}')),
+    ]
 
-class DjangoHTMLTemplateLangInfo(_DjangoTemplateLangInfo):
+class DjangoHTMLTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Django HTML Template"
     komodo_name = "Django"
-    #TODO: How to best handle relationship with HTML?
-    #TODO: How to enable detection?
+    specialization_hints_from_lang = {
+        "HTML": [
+            ('{%', re.compile(r'\{\%[ \t]+\b(block|if)\b.*?\%\}')),
+            ('{{', re.compile(r'\{\{.*?\}\}')),
+        ],
+    }
 
-class DjangoTextTemplateLangInfo(_DjangoTemplateLangInfo):
+class DjangoXHTMLTemplateLangInfo(DjangoTemplateLangInfo):
+    name = "Django XHTML Template"
+    komodo_name = "Django"
+    specialization_hints_from_lang = {
+        "XHTML": [
+            ('{%', re.compile(r'\{\%[ \t]+\b(block|if)\b.*?\%\}')),
+            ('{{', re.compile(r'\{\{.*?\}\}')),
+        ],
+    }
+
+class DjangoTextTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Django Text Template"
+    specialization_hints_from_lang = {
+        "Text": [
+            ('{%', re.compile(r'\{\%[ \t]+\b(block|if)\b.*?\%\}')),
+            ('{{', re.compile(r'\{\{.*?\}\}')),
+        ],
+    }
 
-class DjangoXMLTemplateLangInfo(_DjangoTemplateLangInfo):
+class DjangoXMLTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Django XML Template"
+    specialization_hints_from_lang = {
+        "XML": [
+            ('{%', re.compile(r'\{\%[ \t]+\b(block|if)\b.*?\%\}')),
+            ('{{', re.compile(r'\{\{.*?\}\}')),
+        ],
+    }
 
 
 class MasonHTMLTemplateLangInfo(LangInfo):
