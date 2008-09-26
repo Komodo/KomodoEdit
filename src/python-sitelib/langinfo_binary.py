@@ -321,6 +321,8 @@ class ExcelDocumentLangInfo(MSOfficeDocumentLangInfo):
 
 class MSWordDocumentLangInfo(MSOfficeDocumentLangInfo):
     name = "MS Word Document"
-    exts = [".doc"]
+    #TODO: consider extended 'specialization' facility to look at ext as well.
+    # Can cause false positives for, e.g., a text document that uses '.doc'.
+    #exts = [".doc"]
 
 
