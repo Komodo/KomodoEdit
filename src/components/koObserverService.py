@@ -56,6 +56,7 @@ createInstance() must be used instead of getService().
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.client import WeakReference
 from xpcom.server.enumerator import SimpleEnumerator
+from xpcom.server import WrapObject, UnwrapObject
 
 import threading
 import logging
@@ -65,7 +66,8 @@ log = logging.getLogger('KoObserverService')
 # a base class to implement observer services
 
 class KoObserverService:
-    _com_interfaces_ = [components.interfaces.nsIObserverService]
+    _com_interfaces_ = [components.interfaces.nsIObserverService,
+                        components.interfaces.nsIObserver]
     _reg_clsid_ = "3B7D0418-1533-4F03-A759-896C058A734A"
     _reg_contractid_ = "@activestate.com/koObserverService;1"
     _reg_desc_ = "Komodo Python Observer Service"
@@ -73,6 +75,19 @@ class KoObserverService:
     def __init__(self):
         self._topics = {}
         self.cv = threading.Condition()
+        try:
+            osSvc = components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+            self._nsIObserver = WrapObject(self, components.interfaces.nsIObserver)
+            osSvc.addObserver(self._nsIObserver, 'xpcom-shutdown', 1)
+        except Exception, e:
+            log.exception(e)
+
+    def observe(self, dummy, topic, featureName):
+        if topic == "xpcom-shutdown":
+            if self._topics:
+                log.warn("observers not removed: %r", (self._topics.keys(),))
+            self._topics = {}
 
     # returns list of observers that are not dead
     def _getLiveObservers(self, topic):

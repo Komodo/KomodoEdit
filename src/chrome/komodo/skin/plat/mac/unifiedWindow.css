@@ -19,6 +19,7 @@
   background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
 }
 
+
 #toolbox_main {
   padding: 0px;
   margin: 0px;
@@ -27,8 +28,8 @@
 }
 
 /* height same as background image */
-#toolbox_main > toolbar[buttonstyle="pictures"],
-#main-toolboxrow > toolbar[buttonstyle="pictures"] {
+#toolbox_main > toolbar,
+#main-toolboxrow > toolbar {
   height: 31px;
 }
 
@@ -37,6 +38,19 @@
   padding-right: 3px;
   padding-left: 3px;
 }
+
+toolbox[mode="full"] #main-toolboxrow,
+toolbox[mode="full"] #main-toolboxrow > toolbar {
+  background-color: #C9C9C9;
+  border: none;
+  background-image: none;
+}
+
+#main-toolboxrow > toolbar[mode="full"] {
+  background-image: none;
+  height: 50px;
+}
+
 /* ----- INACTIVE WINDOW ----- */
 
 #komodo_main:not([active="true"]) > #toolbox_main,
@@ -53,4 +67,15 @@
   margin: 0px;
   border: none;
   border-bottom: 1px solid rgba(0,0,0,0.10);
+}
+
+#komodo_main:not([active="true"]) #toolbox_main[mode="full"] > #main-toolboxrow,
+#komodo_main:not([active="true"]) #toolbox_main[mode="full"] > #main-toolboxrow > toolbar {
+  background-color: #E4E4E4;
+  border: none;
+  background-image: none;
+}
+
+#komodo_main:not([active="true"]) #main-toolboxrow > toolbar[mode="full"] {
+  background-image: none;
 }

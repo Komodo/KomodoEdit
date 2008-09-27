@@ -402,6 +402,7 @@
 
     <toolbox id="toolbox_main"
              context="context-toolbox-menu"
+             persist="mode"
              class="chromeclass-toolbar toolbox-top">
         <menubar id="menubar_main"
               class="chromeclass-menubar"

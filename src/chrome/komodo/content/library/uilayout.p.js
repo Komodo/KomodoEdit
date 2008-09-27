@@ -94,9 +94,11 @@ function _setToolbarButtonText(toolbarId, buttonTextShowing)
     try {
         if (buttonTextShowing) {
             toolbar.removeAttribute('buttonstyle');
+            toolbar.setAttribute('mode','full');
             _updateToolbarButtonText(toolbar, 'toolbarbutton', null);
         } else {
             toolbar.setAttribute('buttonstyle','pictures');
+            toolbar.setAttribute('mode','icons');
             _updateToolbarButtonText(toolbar, 'toolbarbutton', 'pictures');
         }
     } catch(e) {
@@ -121,6 +123,7 @@ this.toggleButtons = function uilayout_toggleButtons()
         buttonTextShowing = true;
     }
     _buttonTextShowing = buttonTextShowing;
+    _setToolbarButtonText('toolbox_main', buttonTextShowing);
     _setToolbarButtonText('standardToolbar', buttonTextShowing);
     _setToolbarButtonText('debuggerToolbar', buttonTextShowing);
     _setToolbarButtonText('workspaceToolbar', buttonTextShowing);
