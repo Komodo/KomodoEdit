@@ -317,7 +317,7 @@ class koSFTPConnection(remotefilelib.koRemoteSSH):
             # Treat permissions as an octet value, we need to convert to integer
             # I.e. 755 as octet, the integer value of this is 493
             # permissions = int(str(permissions), 8)
-            filename = self._fixPath(filename)
+            filename = self._fixPath(name)
             self.log.debug("do_createFile: Creating file though sftp: '%s'", filename)
             # Open and then close the file to create it
             self._sftp.open(filename, 'wb').close()
