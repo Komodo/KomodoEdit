@@ -359,6 +359,14 @@ class koDocumentBase:
         
     def _loadFromFile(self, file):
         timeline.enter('koDocumentBase._loadFromFile')
+        if self.get_numScintillas() > 0:
+            # The file is already loaded, in another window.
+            # If we don't return here, two things can happen:
+            # 1. A dirty buffer in another window will be reverted
+            #    to the contents on disk.
+            # 2. Any markers in the document will be cleared.
+            timeline.leave('koDocumentBase._loadFromFile')
+            return
         self._loadfile(file)
         self._guessLanguage()
         self._initCIBuf() # need a new codeintel Buffer for this lang
