@@ -596,7 +596,7 @@ try {
     // this and even if not inserting output, it is nice to have focus back in
     // the file being editted.
     if (view) {
-        view.focus();
+        view.setFocus();
     }
 
     // Insert the returned output if requested and select it.
