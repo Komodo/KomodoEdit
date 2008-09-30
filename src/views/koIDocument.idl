@@ -201,11 +201,6 @@ interface koIDocumentService: nsISupports
                           in wstring cwd,
                           out PRUint32 count,
                           [array, size_is(count)] out wstring results);
-    
-    //XXX These are not implemented so shouldn't be here. Suspect this is
-    //    relic from before koIDiff was added.
-    wstring diffFiles(in wstring uri1, in wstring uri2);
-    wstring diffDocuments(in koIDocument doc1, in koIDocument doc2);
 };
 
 /* The koIDocumentSettingsManager manages the transfer of data between
