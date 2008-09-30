@@ -1153,7 +1153,7 @@ class koDocumentBase:
             data = self.encode()[0]
 
             if not self.file.isLocal:
-                self.forceAutoSave()
+                self._doAutoSave(force=True)
 
             try:
                 self.file.open('wb+')
@@ -1477,7 +1477,7 @@ class koDocumentBase:
         difflines.insert(0, "Index: "+self.file.displayPath+eolStr)
         return ''.join(difflines)
 
-    def getAutoSaveFileName(self):
+    def _getAutoSaveFileName(self):
         koDirs = components.classes["@activestate.com/koDirs;1"].\
                  getService(components.interfaces.koIDirs)
         dname = os.path.join(koDirs.hostUserDataDir,  "autosave")
@@ -1487,17 +1487,17 @@ class koDocumentBase:
         autoSaveFilename = "%s-%s" % (self.file.md5name,self.file.baseName)
         return os.path.join(dname, autoSaveFilename)
         
-    def getAutoSaveFile(self):
+    def _getAutoSaveFile(self):
         autoSaveFile = components.classes["@activestate.com/koFileEx;1"] \
                       .createInstance(components.interfaces.koIFileEx)
-        autoSaveFile.URI = self.getAutoSaveFileName()
+        autoSaveFile.URI = self._getAutoSaveFileName()
         return autoSaveFile
 
     # this should only called when doing a revert or save in this file,
     # or from the viewManager canClose handler.
     def removeAutoSaveFile(self):
         if self.isUntitled: return
-        autoSaveFile = self.getAutoSaveFile()
+        autoSaveFile = self._getAutoSaveFile()
         if not autoSaveFile.exists:
             return
         os.remove(autoSaveFile.path)
@@ -1505,7 +1505,7 @@ class koDocumentBase:
     def haveAutoSave(self):
         if self.isUntitled: return 0
         # set the autosave file name
-        autoSaveFile = self.getAutoSaveFile()
+        autoSaveFile = self._getAutoSaveFile()
         
         if autoSaveFile.exists:
             if autoSaveFile.lastModifiedTime > self.file.lastModifiedTime:
@@ -1517,8 +1517,6 @@ class koDocumentBase:
                 os.remove(autoSaveFile.path)
         return 0
     
-    def forceAutoSave(self):
-        self._doAutoSave(True)
     def doAutoSave(self):
         self._doAutoSave()
 
@@ -1533,7 +1531,7 @@ class koDocumentBase:
                 savetime = self._globalPrefs.getLongPref("autoSaveMinutes") * 60
             if not savetime: return
     
-            autoSaveFile = self.getAutoSaveFile()
+            autoSaveFile = self._getAutoSaveFile()
             log.debug("last save %d now %d", autoSaveFile.lastModifiedTime + savetime, time.time())
             # if we've saved recently, just return
             if not force and autoSaveFile.exists and \
@@ -1579,7 +1577,7 @@ class koDocumentBase:
         if self.isUntitled: return
         timeline.enter('koDocumentBase.restoreAutoSave')
         try:
-            autoSaveFile = self.getAutoSaveFile()
+            autoSaveFile = self._getAutoSaveFile()
             self._loadfile(autoSaveFile)
             self.set_isDirty(1)
             # fix the file content md5

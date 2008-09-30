@@ -161,18 +161,16 @@ interface koIDocument : nsISupports
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
     wstring getUnsavedChanges();
-    
-    // removeAutoSaveFile should only called from the viewManager
+
+    // Auto-save API.    
+    boolean haveAutoSave();
+    void doAutoSave();
+    void restoreAutoSave();
+    // `removeAutoSaveFile` should only called from the viewManager
     // canClose handler.  Other uses are internal to koDocument.  The
     // auto save file is removed by revert and save.
     void removeAutoSaveFile();
 
-    boolean haveAutoSave();
-    void forceAutoSave();
-    void doAutoSave();
-    void restoreAutoSave();
-    wstring getAutoSaveFileName();
-    koIFileEx getAutoSaveFile();
     readonly attribute koIDocumentSettingsManager docSettingsMgr;
 };
 
