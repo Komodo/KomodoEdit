@@ -265,34 +265,6 @@ class KoDocumentService:
         doc.existing_line_endings = eol
         doc.new_line_endings = eol
         doc.isDirty = 0
-        
-    def createNewDocumentFromTemplate(self, content, encodingName, uri, savenow):
-        document = self.createDocumentFromURI(uri)
-        document.setBufferAndEncoding(content, encodingName)
-        #print "createNewDocumentFromTemplate %s" % (document.encoding.python_encoding_name,)
-        if savenow:
-            document.save(1)
-        return document
-
-    def createDocumentFromTemplate(self, content, encodingName, name, ext):
-        name = name or "Untitled"
-        ext = ext or ""
-
-        document = components.classes["@activestate.com/koDocumentBase;1"]\
-            .createInstance(components.interfaces.koIDocument)
-        title = "%s-%d%s" % (name, self.get_doc_counter(name), ext)
-        if not encodingName:
-            encodingName = self._getEncodingFromFilename(title)
-        document.initUntitled(title, encodingName)
-        document.setBufferAndEncoding(content, encodingName)
-        #print "createDocumentFromTemplate %s" % (document.encoding.python_encoding_name,)
-        self._fixupEOL(document)
-        self._cDoc.acquire()
-        try:
-            self._documents[document.displayPath] = WeakReference(document)
-        finally:
-            self._cDoc.release()
-        return document
     
     def createDocumentFromTemplateURI(self, uri, name, ext):
         log.info("creating document with URI: %s", uri)

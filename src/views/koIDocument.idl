@@ -186,17 +186,6 @@ interface koIDocumentService: nsISupports
     koIDocument createDocumentFromFile(in koIFileEx file);
     koIDocument createDocumentFromURI(in wstring uri);
     
-    /* DEPRECATED since 4.3.0, replaced with createDocumentFromTemplateURI */
-    koIDocument createDocumentFromTemplate(in wstring content,
-                                           in wstring encodingName,
-                                           in wstring name,
-                                           in wstring ext);
-    /* DEPRECATED since 4.3.0, replaced with createFileFromTemplateURI */
-    koIDocument createNewDocumentFromTemplate(in wstring content,
-                                           in wstring encodingName,
-                                           in wstring uri,
-                                           in boolean savenow);
-    
     koIDocument createDocumentFromTemplateURI(in wstring uri,
                                            in wstring name,
                                            in wstring ext);
