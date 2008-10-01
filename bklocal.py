@@ -57,7 +57,6 @@ from black.configure import ConfigureError
 import tmShUtil
 
 sys.path.insert(0, os.path.join("src", "python-sitelib"))
-import strptime
 import which
 sys.path.pop(0)
 
