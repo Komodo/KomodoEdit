@@ -426,24 +426,29 @@
                 getService(Components.interfaces.koILastErrorService);
             this._dateFormat = gPrefs.getStringPref("defaultDateFormat");
 
-
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.addObserver(this, 'mru_changed', false);
-            gPrefs.addObserver(this); //XXX may want to use pref-specific observers
+            gPrefs.addObserver(this);
 
-                //gPrefs.removeObserver(this);
             window.setTimeout(function (me) {
                 me._projects = me.addTopRow("Recent Projects");
                 me._files = me.addTopRow("Recent Files");
                 me.updateProjectMRUTable();
                 me.updateFileMRUTable();
             }, 0, this);
-            
-
         ]]> </body>
         </method>
 
+        <method name="fini">
+        <body><![CDATA[
+            var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+            obSvc.removeObserver(this, 'mru_changed');
+            gPrefs.removeObserver(this);
+        ]]></body>
+        </method>
+        
         <method name="addTopRow">
         <parameter name="name"/>
         <body> <![CDATA[
@@ -954,7 +959,8 @@
                 window.setTimeout(function (el) {
                     var t = document.createElement("mrutree");
                     el.insertBefore(t, el.firstChild);
-                    t.init(); }, 1, this.widgets.mrubox.firstChild);
+                    t.init();
+                }, 1, this.widgets.mrubox.firstChild);
                 
                 obSvc.addObserver(this, 'mru_changed', false);
 
@@ -1045,6 +1051,9 @@
                 var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
                 obSvc.removeObserver(this, 'mru_changed');
+                
+                // Finalize the "Recent Projects & Recent Files" mru-tree.
+                this.widgets.mrubox.firstChild.firstChild.fini();
 
                 this.widgets.quickLinksBox.finalize();
             } catch(ex) {
