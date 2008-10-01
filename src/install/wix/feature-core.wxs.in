@@ -2766,6 +2766,7 @@
                 <File Id="file684" Name="FIXER__0.PY" LongName="fixer_base.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixer_base.py"/>
                 <File Id="file685" Name="FIXER__1.PY" LongName="fixer_util.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixer_util.py"/>
                 <File Id="file686" Name="Grammar.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\Grammar.txt"/>
+                <File Id="file813" Name="main.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\main.py"/>
                 <File Id="file687" Name="patcomp.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\patcomp.py"/>
                 <File Id="file688" Name="PATTER_0.TXT" LongName="PatternGrammar.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\PatternGrammar.txt"/>
                 <File Id="file689" Name="pygram.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\pygram.py"/>
@@ -2815,6 +2816,11 @@
                   <File Id="file731" Name="FIX_XR_0.PY" LongName="fix_xrange.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_xrange.py"/>
                   <File Id="file732" Name="FIX_XR_1.PY" LongName="fix_xreadlines.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_xreadlines.py"/>
                   <File Id="file733" Name="fix_zip.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_zip.py"/>
+                  <File Id="file814" Name="FIX_IM_2.PY" LongName="fix_imports2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_imports2.py"/>
+                  <File Id="file815" Name="FIX_ME_1.PY" LongName="fix_metaclass.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_metaclass.py"/>
+                  <File Id="file816" Name="FIX_PA_0.PY" LongName="fix_paren.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_paren.py"/>
+                  <File Id="file817" Name="FIX_SY_0.PY" LongName="fix_sys_exc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_sys_exc.py"/>
+                  <File Id="file818" Name="FIX_UR_0.PY" LongName="fix_urllib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_urllib.py"/>
                   <File Id="file734" Name="__INI_34.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\__init__.py"/>
                 </Component>
               </Directory> <!-- lib\python\Lib\lib2to3\fixes -->
@@ -2907,6 +2913,11 @@
                   <File Id="file3200" Name="SCINTI_0.DLL" LongName="scintilla.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\scintilla.dll"/>
                   <File Id="file3201" Name="win32ui.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\win32ui.pyd"/>
                   <File Id="file3202" Name="WIN32U_0.PYD" LongName="win32uiole.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\win32uiole.pyd"/>
+                  <File Id="file819" Name="mfc90.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\mfc90.dll"/>
+                  <File Id="file820" Name="mfc90u.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\mfc90u.dll"/>
+                  <File Id="file821" Name="mfcm90.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\mfcm90.dll"/>
+                  <File Id="file822" Name="mfcm90u.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\mfcm90u.dll"/>
+                  <File Id="file823" Name="MICROS_0.MAN" LongName="Microsoft.VC90.MFC.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythonwin\Microsoft.VC90.MFC.manifest"/>
                 </Component>
                 <Directory Id="directory109" Name="pywin">
                   <Component Id="component103" DiskId="1" Guid="$(autowix.guid)">
@@ -3224,6 +3235,7 @@
                     <File Id="file3562" Name="STACKF_0.PY" LongName="stackframe.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\stackframe.py"/>
                     <File Id="file3563" Name="UTIL_5.PY" LongName="util.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\util.py"/>
                     <File Id="file3564" Name="__INI_41.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\__init__.py"/>
+                    <File Id="file824" Name="axdebug.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axdebug\axdebug.pyd"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\axdebug -->
                 <Directory Id="directory155" Name="axscript">
@@ -3261,6 +3273,7 @@
                 <Directory Id="directory165" Name="DIRECT_0" LongName="directsound">
                   <Component Id="component156" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file3613" Name="__INI_45.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\__init__.py"/>
+                    <File Id="file825" Name="DIRECT_0.PYD" LongName="directsound.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\directsound.pyd"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\directsound -->
                 <Directory Id="directory166" Name="ifilter">
