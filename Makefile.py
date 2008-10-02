@@ -24,6 +24,10 @@ from mklib.common import MkError
 sys.path.insert(0, join(dirname(__file__), "util"))
 import buildsupport
 
+sys.path.insert(0, join(dirname(__file__), "src", "python-sitelib"))
+import textinfo
+
+
 
 include("util/checktasks.py", ns="check")
 
@@ -231,9 +235,96 @@ class lsunusedentities(Task):
             yield hit
 
 
+class lsnosvneolstyle(Task):
+    """List text files in the working copy without svn:eol-style set.
+    
+    The main point of this is that Komodo's source files in SVN should set
+    `svn:eol-style=native` because not doing so can cause minor headaches
+    E.g. patching files on Windows resets the EOLs in the file '\r\n',
+    if the file is using '\n' EOLs then you get useless `svn diff` results.
+    """
+    def make(self):
+        for path in self._no_svn_eol_style_files(os.curdir):
+            print path
+
+    def _no_svn_eol_style_files(self, d):
+        from os.path import split
+        for path in self._files_in_svn(d):
+            ti = textinfo.textinfo_from_path(path)
+            if not ti.is_text:
+                continue
+            if "svn:eol-style" in _svn_proplist(*split(path)):
+                continue
+            yield path
+
+    def _files_in_svn(self, d):
+        p = subprocess.Popen(["svn", "ls", "-R", d], stdout=subprocess.PIPE)
+        for line in p.stdout.readlines():
+            path = line.strip()
+            if path.endswith("/"):
+                continue
+            yield normpath(path)
+
+
+class svneolstylenative(lsnosvneolstyle):
+    """Set svn:eol-style=native for text files under the current dir
+    that don't already have it set.
+    """
+    def make(self):
+        for path in self._no_svn_eol_style_files(os.curdir):
+            os.system('svn propset svn:eol-style native "%s"' % path)
+
 
 
 #---- internal support stuff
+
+def _svn_propfiles(root, fn):  # Derived from Python's Tools/scripts/svneol.py
+    default = os.path.join(root, ".svn", "props", fn+".svn-work")
+    try:
+        format = int(open(os.path.join(root, ".svn", "format")).read().strip())
+    except IOError:
+        return []
+    if format in (4, 8):
+        # In version 8, committed props are stored in prop-base,
+        # local modifications in props
+        return [os.path.join(root, ".svn", "prop-base", fn+".svn-base"),
+                os.path.join(root, ".svn", "props", fn+".svn-work")]
+    raise ValueError, "Unknown repository format"
+
+def _svn_proplist(root, fn):  # from Python's Tools/scripts/svneol.py
+    "Return a list of property names for file fn in directory root"
+    result = []
+    for path in _svn_propfiles(root, fn):
+        try:
+            f = open(path)
+        except IOError:
+            # no properties file: not under version control,
+            # or no properties set
+            continue
+        while 1:
+            # key-value pairs, of the form
+            # K <length>
+            # <keyname>NL
+            # V length
+            # <value>NL
+            # END
+            line = f.readline()
+            if line.startswith("END"):
+                break
+            if not line.strip():  # format 4: prop file can be empty
+                break
+            assert line.startswith("K "), "unexpected content in `%s': line=%r" % (path, line)
+            L = int(line.split()[1])
+            key = f.read(L)
+            result.append(key)
+            f.readline()
+            line = f.readline()
+            assert line.startswith("V ")
+            L = int(line.split()[1])
+            value = f.read(L)
+            f.readline()
+        f.close()
+    return result
 
 # Recipe: dedent (0.1.2)
 def _dedentlines(lines, tabsize=8, skip_first_line=False):
