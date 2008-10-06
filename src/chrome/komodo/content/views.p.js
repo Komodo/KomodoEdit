@@ -1066,7 +1066,8 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                     continue;
                 }
             }
-            if (ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
+            if (!view.document.isUntitled
+                && ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
                 continue;
             }
             // We need to deal with views that are split and that share a document
