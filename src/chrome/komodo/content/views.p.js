@@ -344,14 +344,29 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
         // even though there is an error, continue opening the
         // file so the user gets *something*
     }
-    // Interpolate any codes.
+    
+    var docText = doc.buffer;
+    var hasTabStops = ko.tabstops.textHasTabstops(docText);
     try {
+        // Interpolate any codes.
         var istrings = ko.interpolate.interpolate(
-                          window,
-                          [], // codes are not bracketed
-                          [doc.buffer], // codes are bracketed
-                          "Template '"+name+"' Query");
-        doc.buffer = istrings[0];
+                            window,
+                            [], // codes are not bracketed
+                            [docText], // codes are bracketed
+                            "Template for " + uri,
+                            ko.interpolate.getViewData(window));
+        var liveTextInfo = null;
+        if (!hasTabStops) {
+            doc.buffer = istrings[0];
+        } else {
+            try {
+                liveTextInfo = ko.tabstops.parseLiveText(istrings[0]);
+            } catch(ex) {
+                ko.dialogs.alert(ex.message);
+                doc.buffer = docText;
+                liveTextInfo = null;
+            }
+        }
     } catch (ex) {
         var errno = lastErrorSvc.getLastErrorCode();
         if (errno == Components.results.NS_ERROR_ABORT) {
@@ -370,7 +385,7 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
 
     // Load the template.
     ko.mru.addURL("mruTemplateList", uri);
-    if (saveto) {
+    if (saveto && !liveTextInfo) {
         doc.save(1);
     }
     doc.isDirty = false;
@@ -379,6 +394,17 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
         view = viewList.createViewFromDocument(doc, viewType, -1);
     } else {
         view = this.topView.createViewFromDocument(doc, viewType, -1);
+    }
+    
+    if (liveTextInfo) {
+        doc.buffer = '';
+        ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
+        if (saveto) {
+            doc.save(1);
+        }
+        view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
+                                               liveTextInfo.tabstopInsertionTable);
+        view.moveToNextTabstop();
     }
 
     return view;
@@ -1068,6 +1094,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
             }
             if (!view.document.isUntitled
                 && ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
+                // Untitled documents can't be in other windows.
                 continue;
             }
             // We need to deal with views that are split and that share a document
@@ -2024,6 +2051,11 @@ this.ScimozOffsetFromUCS2Offset = function ScimozOffsetFromUCS2Offset(scimoz, po
         }
     }
     return pos;
+}
+
+this.nullOnModifiedHandler = function() {
+    // See views-buffer.xml:onModified
+    return true;
 }
 
 }).apply(ko.views);

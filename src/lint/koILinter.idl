@@ -79,6 +79,16 @@ interface koILintResult : nsISupports
     const long DECORATOR_WARNING = 16;
     const long DECORATOR_SOFT_CHAR = 17;
     const long DECORATOR_UDL_FAMILY_TRANSITION = 18;
+    const long DECORATOR_TABSTOP_TSZW = 19; // Zero-width
+    const long DECORATOR_TABSTOP_TSC = 20;  // Current
+    const long DECORATOR_TABSTOP_TSCZW = 21;  // Current, zero-width
+    const long DECORATOR_TABSTOP_TS1 = 22; // Most snippets need at most 2
+    const long DECORATOR_TABSTOP_TS2 = 23;
+    const long DECORATOR_TABSTOP_TS3 = 24;
+    const long DECORATOR_TABSTOP_TS4 = 25;
+    const long DECORATOR_TABSTOP_TS5 = 26;
+    const long DECORATOR_TABSTOP_LAST = 26;
+    const long DECORATOR_TABSTOP_BITMASK = 0x07c80000;
   
 };
 

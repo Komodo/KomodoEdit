@@ -347,7 +347,10 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     var text = text.replace(/\r\n|\n|\r/g, eol_str);
     
     // detect if there are tabstops before we interpolate the snippet text
-    var hasTabStops = (text.match(/\[%tabstop\:/) != null);
+    var hasTabStops = ko.tabstops.textHasTabstops(text);
+    if (hasTabStops) {
+        ko.tabstops.clearTabstopInfo(view);
+    }
 
     if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
         // There is no selection but there is a '%w', '%W', '%(w', or
@@ -503,18 +506,33 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         anchor = 0;
         currentPos = 0;
     }
-    scimoz.insertText(oldInsertionPoint, text);
+    var snippetInfo = ko.tabstops.lookupLiveTextInfoFromID(snippet.id);
+    if (!snippetInfo) {
+        try {
+            snippetInfo = ko.tabstops.parseLiveText(text);
+        } catch(ex) {
+            ko.dialogs.alert(ex.message);
+            log.exception(ex);
+            return;
+        }
+        ko.tabstops.cacheLiveTextInfo(snippetInfo, snippet.id);
+    }
+    ko.tabstops.insertLiveText(scimoz, oldInsertionPoint, snippetInfo);
     
-    if (setSelection) {
+    if (hasTabStops) {
+        // If there are tabstops, run cmd_indent which ends up running the tabstop handler
+        // XXX calling cmd_indent is a hack, see bug #74565
+        scimoz.currentPos = oldInsertionPoint;
+        // concat(): js idiom for List#clone() -- the view consumes this table
+        // as it steps through it.
+        view.document.setTabstopInsertionTable(snippetInfo.tabstopInsertionTable.length,
+                                               snippetInfo.tabstopInsertionTable);
+        view.moveToNextTabstop();
+    } else if (setSelection) {
         scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
                                               anchor);
         scimoz.currentPos = scimoz.positionAtChar(oldInsertionPoint,
                                                   currentPos);
-    } else if (hasTabStops) {
-        // If there are tabstops, run cmd_indent which ends up running the tabstop handler
-        // XXX calling cmd_indent is a hack, see bug #74565
-        ko.commands.doCommand('cmd_tabstopClear');
-        ko.commands.doCommand('cmd_indent');
     } else {
         // selection will be after snippet
         scimoz.anchor = scimoz.positionAtChar(scimoz.anchor,

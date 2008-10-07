@@ -377,6 +377,9 @@ class koSysUtils:
         utf8 = unicodestr.encode('utf-8')
         return len(utf8)
 
+    def unicodeFromUTF(self, utf8string):
+        return utf8string.decode('utf-8')
+
     def charIndexFromPosition(self, unicodestr, pos):
         utf8 = unicodestr.encode('utf-8')
         return len(utf8[:pos].decode('utf-8'))

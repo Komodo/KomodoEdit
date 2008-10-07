@@ -351,6 +351,18 @@
             </body>
         </method>
 
+        <method name="moveToNextTabstop">
+            <body>
+            <![CDATA[
+            try {
+                return ko.tabstops.moveToNextTabstop(this);
+            } catch(ex) {
+                return false;
+            }
+            ]]>
+            </body>
+        </method>
+        
         <!-- Note: this guy is the *non-CodeIntel-based* completion service.
              I.e., languages using CodeIntel for AutoComplete/CallTips do
              no use these. -->
@@ -950,7 +962,8 @@
         ]]>
         </body>
         </method>
-
+        
+        <field name="_ignoreModifications">false</field>
         <method name="onModified">
         <parameter name="position"/>
         <parameter name="modificationType"/>
@@ -967,6 +980,9 @@
         <body>
         <![CDATA[
         try {
+            if (this._ignoreModifications) {
+                return;
+            }
             // if we have an override handler, then use it, if it returns false,
             // we'll go on normally.  This is used by the terminal view.
             if (typeof(this.onModifiedHandler) != 'undefined') {
@@ -987,6 +1003,7 @@
             const SC_FOLDLEVELHEADERFLAG = Components.interfaces.ISciMoz.SC_FOLDLEVELHEADERFLAG;
             const SC_MOD_INSERTTEXT = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
             const SC_MOD_DELETETEXT = Components.interfaces.ISciMoz.SC_MOD_DELETETEXT;
+            const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
 
             // if deleting or inserting text...
             if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
@@ -1029,9 +1046,41 @@
                     }
                 }
             }
-
+            if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))
+                && (modificationType & SC_PERFORMED_USER)
+                && this.document
+                && this.document.hasTabstopInsertionTable
+                && window == ko.windowManager.getMainWindow() // : don't handle updates in other windows
+                && this == ko.window.focusedView() // focusedView: don't handle updates in other views
+               ) {
+                var runModifiedHandler = function(this_) {
+                    // Prevent this routine from invoking itself by
+                    // inserting a trivial onModifiedHandler that stops the chain.
+                    this._ignoreModifications = true;
+                    var onModifiedHandler = this_.onModifiedHandler;
+                    this_.onModifiedHandler = ko.views.nullOnModifiedHandler;
+                    try {
+                        ko.tabstops.updateLinkedBackrefs(modificationType, this_, position, text,
+                                                            length, linesAdded, line);
+                    } catch(ex) {
+                        log.exception(ex);
+                    } finally {
+                        this._ignoreModifications = false;
+                        this_.onModifiedHandler = onModifiedHandler;
+                    }
+                };
+                if (modificationType & SC_MOD_BEFOREDELETE) {
+                    // BEFORE events have to be run now.
+                    // They can't modify the buffer.
+                    runModifiedHandler(this);
+                } else {
+                    // Events that further modify the buffer have to
+                    // be run on a delayed basis.
+                    setTimeout(runModifiedHandler, 0, this);
+                }
+            }
             ko.trace.get().leave('onModified');
-            } catch(e) { dump(e); }
+        } catch(e) { dump(e); }
         ]]>
         </body>
         </method>

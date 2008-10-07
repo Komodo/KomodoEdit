@@ -98,6 +98,9 @@ class koDocumentBase:
         self._refcount = 0
         self.ciBuf = None
         self.docSettingsMgr = None
+
+        self._tabstopInsertionNodes = None
+
         self.encodingServices = components.classes['@activestate.com/koEncodingServices;1'].\
                          getService(components.interfaces.koIEncodingServices);
 
@@ -1165,6 +1168,8 @@ class koDocumentBase:
                 # .open(), .write(), and .close() will setLastError on
                 # failure so don't set it again. You will just override
                 # better data.
+                log.exception("save: can't write to file %r",
+                              self.get_displayPath())
                 raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
             self._lastmd5 = md5(data).digest()
@@ -1585,3 +1590,25 @@ class koDocumentBase:
             self._lastmd5 = md5(data).digest()
         finally:
             timeline.leave('koDocumentBase.restoreAutoSave')
+            
+    # Methods for maintaining the state of tabstop insertion
+    # on the document.  When self._tabstopInsertionNodes is
+    # null there are no tabstops to process.
+
+    def getTabstopInsertionTable(self):
+        return self._tabstopInsertionNodes
+
+    def clearTabstopInsertionTable(self):
+        self._tabstopInsertionNodes = None
+
+    def setTabstopInsertionTable(self, tabstopInsertionNodes):
+        if len(tabstopInsertionNodes):
+            self._tabstopInsertionNodes = tabstopInsertionNodes
+        else:
+            self._tabstopInsertionNodes = None
+
+    def removeTabstopInsertionNodeAt(self, idx):
+        del self._tabstopInsertionNodes[idx]
+
+    def get_hasTabstopInsertionTable(self):
+        return self._tabstopInsertionNodes is not None

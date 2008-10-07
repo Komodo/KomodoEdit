@@ -58,8 +58,6 @@
 
     <script type="text/javascript">
     	var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
-    	var tabstopDelimiterField = "&tabstopDelimiterField.message;";
-    	var tabstopDelimiterMayNotBeAscii="&tabstopDelimiterMayNotBeAscii.message;";
     </script>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
@@ -84,42 +82,6 @@
         parent.initPanel();
         }catch(e) {dump(e+'\n');}
     }
-    
-    function OnPreferencePageLoading(prefset) {
-        try {
-        document.getElementById("editTabstopDelimiterStart").value =
-            String.fromCharCode(prefset.getLongPref("editTabstopDelimiterStart_Value"));
-        document.getElementById("editTabstopDelimiterEnd").value =
-            String.fromCharCode(prefset.getLongPref("editTabstopDelimiterEnd_Value"));
-        } catch(ex) {
-            log.exception(ex);
-        }
-    }
-    
-    function OnPreferencePageOK(prefset) {
-        //   called when the user clicks ok
-        try {
-            var char_codes = {'Start':171, 'End':187};
-            for (var baseName in char_codes) {
-                var char_field = document.getElementById("editTabstopDelimiter" + baseName);
-                if (char_field.value.length == 0) {
-                    alert(tabstopDelimiterField.replace('%1', baseName.toLowerCase()));
-                    char_field.focus();
-                    return false;
-                } else if (char_field.value.charCodeAt(0) < 128) {
-                    alert(tabstopDelimiterMayNotBeAscii.replace('%1', baseName.toLowerCase()));
-                    char_field.focus();
-                    char_field.select();
-                    return false;
-                }
-                prefset.setLongPref("editTabstopDelimiter" + baseName + "_Value",
-                                    char_field.value.charCodeAt(0));
-            }
-        } catch(ex) {
-            log.exception(ex);
-        }
-        return true;
-    }
 
     var _pref_lint_log = ko.logging.getLogger("pref-lint");
     var _pref_lint_dialog = null;
@@ -137,15 +99,6 @@
     function pref_lint_doEnabling() {
         var enabled = _pref_lint_dialog.editUseLinting.checked;
         _pref_lint_setElementEnabledState(_pref_lint_dialog.lintDelay, enabled);
-    }
-    
-    function editTabstopRestoreChevrons() {
-        var char_codes = {'Start':171, 'End':187};
-        for (var baseName in char_codes) {
-            var char_id = "editTabstopDelimiter" + baseName;
-            document.getElementById(char_id).value =
-                String.fromCharCode(char_codes[baseName]);
-        }
     }
 
     ]]>
@@ -226,28 +179,6 @@
                 prefstring="editFoldLines" prefattribute="checked"/>
       <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
                 prefstring="editRestoreFoldPoints" prefattribute="checked"/>
-    </groupbox>
-    <separator class="thin"/>
-    <groupbox orient="vertical">
-        <caption label="&tabstopDelimiters.label;"/>
-        <description style="margin-left: 6px;">&tabstopDelimiters.desc;</description>
-        <vbox>
-            <hbox>
-                <label value="&tabstopStartCharacter.label;" />
-                <textbox id="editTabstopDelimiterStart" maxlength='1'
-                         style="max-width: 4em; margin-right: 2em;"
-                />
-                <spacer />
-                <label value="&tabstopEndCharacter.label;" />
-                <textbox id="editTabstopDelimiterEnd" maxlength='1'
-                         style="max-width: 4em;margin-right: 2em;"
-                />
-                <spacer />
-                <button label="&tabstopRestoreDelimiters.label;" id="editTabstopRestoreChevrons"
-                        oncommand="editTabstopRestoreChevrons()" 
-                        />
-            </hbox>
-        </vbox>
     </groupbox>
 </window>
 

@@ -46,7 +46,7 @@ var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;
-var indentCheckbox, keybinding, gItem, gItem;
+var indentCheckbox, keybinding, gItem;
 var gCaretPos;
 var gSetSelectionCheckbox;
 var scin;
@@ -133,6 +133,7 @@ function onLoad(event) {
         //centerWindowOnScreen();
 
         UpdateField('name', true);
+        opener.ko.tabstops.clearLiveTextInfo(gItem.id);
 
         updateOK();
     } catch (e) {
@@ -290,6 +291,16 @@ function Apply() {
                text.slice(currentPos, anchor) + ANCHOR_MARKER +
                text.slice(anchor);
     }
+    
+    var snippetParser = new opener.ko.tabstops.LiveTextParser();
+    try {
+        snippetParser.parse(text); // Ignore the result.
+    } catch(ex) {
+        ko.dialogs.alert(ex.message);
+        log.exception(ex);
+        return false;
+    }
+    
     gItem.value = text;
 
     var iconuri = document.getElementById('snippettab_icon').getAttribute('src');

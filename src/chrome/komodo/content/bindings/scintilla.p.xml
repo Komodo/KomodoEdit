@@ -518,6 +518,8 @@
                 eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
                 text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
 
+                var selectInsertedText;
+                var endUndoAction = true;
                 this.scimoz.beginUndoAction();
                 try {
 <!-- #if PLATFORM == "darwin" -->
@@ -535,6 +537,7 @@
                             if (start < pos) pos -= length; // adjust where we insert our data
                         }
                         this.scimoz.insertText(pos,text);
+                        selectInsertedText = true;
                     } else {
                         // data from outside scimoz
                         if (onselection) {
@@ -543,13 +546,31 @@
                         } else {
                             this.scimoz.gotoPos(pos);
                         }
-                        this.scimoz.insertText(pos, text);
+                        if (ko.tabstops && ko.tabstops.textHasTabstops(text)) {
+                            var view = ko.views.manager.currentView;
+                            ko.tabstops.clearTabstopInfo(view);
+                            var liveTextInfo = ko.tabstops.parseLiveText(text);
+                            ko.tabstops.insertLiveText(this.scimoz, pos, liveTextInfo);
+                            view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
+                                                                   liveTextInfo.tabstopInsertionTable);
+                            this.scimoz.endUndoAction();
+                            endUndoAction = false;
+                            view.moveToNextTabstop();
+                            selectInsertedText = false;
+                        } else {
+                            this.scimoz.insertText(pos, text);
+                            selectInsertedText = true;
+                        }
                     }
-                    this.scimoz.selectionStart = pos;
-                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
-                    this.scimoz.currentPos = this.scimoz.selectionEnd;
+                    if (selectInsertedText) {
+                        this.scimoz.selectionStart = pos;
+                        this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                        this.scimoz.currentPos = this.scimoz.selectionEnd;
+                    }
                 } finally {
-                    this.scimoz.endUndoAction();
+                    if (endUndoAction) {
+                        this.scimoz.endUndoAction();
+                    }
                 }
                 this.focus();
                 this.scimoz.endDrop();
@@ -1276,9 +1297,14 @@
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
+                        } else if (ko.tabstops) {
+                            ko.tabstops.clearTabstopInfo(ko.views.manager.currentView);
                         }
                         break;
                     case event.DOM_VK_DELETE:
+                        if (ko.tabstops) {
+                            ko.tabstops.handleDelete(this.scimoz);
+                        }
                         if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
                             if (this.scimoz.selectionIsRectangle) {
                                 this.columnModeStartLine = -1;
@@ -1291,6 +1317,9 @@
                         }
                         break;                    
                     case event.DOM_VK_BACK_SPACE:
+                        if (ko.tabstops) {
+                            ko.tabstops.handleBackspace(this.scimoz);
+                        }
                         if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
                             if (this.scimoz.selectionIsRectangle) {
                                 this.columnModeStartLine = -1;

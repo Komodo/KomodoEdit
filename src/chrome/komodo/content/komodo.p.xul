@@ -127,6 +127,7 @@
     <script src="chrome://komodo/content/run/interpolate.js"              type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/library/viewhistory.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/tabstops.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/prefs.js"                   type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/keybindings/viKeyBinder.js"      type="application/x-javascript;version=1.7"/>

@@ -313,6 +313,11 @@ class koDocumentSettingsManager:
             scimoz.indicSetFore(indicOffset, RGB(0xff,0,0));
         DECORATOR_ERROR = components.interfaces.koILintResult.DECORATOR_ERROR
         DECORATOR_WARNING = components.interfaces.koILintResult.DECORATOR_WARNING
+        DECORATOR_TABSTOP_TSZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSZW
+        DECORATOR_TABSTOP_TSC = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSC
+        DECORATOR_TABSTOP_TSCZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSCZW
+        DECORATOR_TABSTOP_TS5 = components.interfaces.koILintResult.DECORATOR_TABSTOP_TS5
+
         for i in [DECORATOR_ERROR, DECORATOR_WARNING]:
             scimoz.indicSetUnder(i, True) # draw under
             scimoz.indicSetStyle(i, scimoz.INDIC_SQUIGGLE)
@@ -321,6 +326,15 @@ class koDocumentSettingsManager:
         
         DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
         scimoz.indicSetStyle(DECORATOR_UDL_FAMILY_TRANSITION, scimoz.INDIC_HIDDEN)
+        for i in range(DECORATOR_TABSTOP_TSZW, DECORATOR_TABSTOP_TS5 + 1):
+            scimoz.indicSetUnder(i, True) # draw under
+            scimoz.indicSetStyle(i, scimoz.INDIC_BOX)
+            scimoz.indicSetFore(i, RGB(0x99, 0x99, 0xff))
+            
+        scimoz.indicSetStyle(DECORATOR_TABSTOP_TSC, scimoz.INDIC_ROUNDBOX)
+        scimoz.indicSetFore(DECORATOR_TABSTOP_TSC, RGB(0xff, 0x33, 0x33))
+        scimoz.indicSetStyle(DECORATOR_TABSTOP_TSCZW, scimoz.INDIC_HIDDEN)
+            
         ## For debugging, to show the UDL family transitions:
         #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
         #                     scimoz.INDIC_ROUNDBOX)

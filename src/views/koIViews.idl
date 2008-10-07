@@ -157,6 +157,11 @@ interface koIScintillaView : koIView
     attribute ISciMoz scimoz;
     attribute koIScintillaScheme scheme;
     void setFoldStyle(in long whichMargin, in wstring foldStyle);
+    // If there are tabstops in the document, this routine moves to
+    // and selects the next tabstop, and returns true.
+    // Otherwise it returns false.
+    // On true return, no further processing of the tab event should be done.
+    boolean moveToNextTabstop();
 };
 
 [scriptable, uuid(D10DFEB9-D312-49B9-A180-20A89EF47DE6)]

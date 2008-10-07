@@ -482,17 +482,25 @@ void SciMoz::Notify(long lParam) {
 						SendEditor(SCI_TOGGLEFOLD, lineAnchors[i], 0);
 					}
 				}
-				// dont go on
-				break;
+				// dont go on for beforeInsert
+				if (notification->modificationType & SC_MOD_BEFOREINSERT) {
+				    break;
+				}
 			}
-			if (!(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))) {
+			if (!(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))) {
 				// we currently only want these events, break otherwise
 				//fprintf(stderr ,"bail on calling onModified\n");
 				break;
 			}
 #endif
 			// Silly js doesnt like NULL strings here :-(
-			PRUint32 len = notification->text ? notification->length : 0;
+			bool isBeforeDelete = (notification->modificationType & SC_MOD_BEFOREDELETE) != 0;
+			PRUint32 len = ((isBeforeDelete || notification->text)
+			    ? notification->length
+			    : 0);
+			const char *text = ((len && notification->text)
+				? notification->text
+				: "");
 			//XXX Would like to use the commented out code (as was done
 			//    in Change 73289), but this causes
 			//    <http://bugs.activestate.com/show_bug.cgi?id=26793>
@@ -502,7 +510,6 @@ void SciMoz::Notify(long lParam) {
 			//    OnModified() (see views-buffer.xml).
 			//const char *pText = len ? notification->text : "";
 			//PRUnichar *text =  ToNewUnicode(NS_ConvertUTF8toUTF16(pText));
-			const char *text = len ? notification->text : "";
 			mask = ISciMozEvents::SME_MODIFIED;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnModified(notification->position,

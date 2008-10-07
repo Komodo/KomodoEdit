@@ -177,19 +177,25 @@ this.Logger.prototype.exception = function(e, message) {
     }
 }
 
-function getStack()
+function getStack(skipCount)
 {
     if (!((typeof Components == "object") &&
           (typeof Components.classes == "object")))
         return "No stack trace available.";
+    if (typeof(skipCount) == 'undefined') {
+        skipCount = 0;
+    }
 
     var frame = Components.stack.caller;
     var str = "<top>";
 
     while (frame)
     {
-        var name = frame.name ? frame.name : "[anonymous]";
-        str += "\n" + name + "@" + frame.filename +':' + frame.lineNumber;
+        if (skipCount > 0) {
+            var name = frame.name ? frame.name : "[anonymous]";
+            str += "\n" + name + "@" + frame.filename +':' + frame.lineNumber;
+            skipCount -= 1;
+        }
         frame = frame.caller;
     }
 
