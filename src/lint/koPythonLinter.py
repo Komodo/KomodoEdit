@@ -62,6 +62,8 @@ from koLintResults import koLintResults
 import projectUtils
 
 log = logging.getLogger('koPythonLinter')
+#log.setLevel(logging.DEBUG)
+
 _leading_ws_re = re.compile(r'(\s*)')
 
 class KoPythonLinter:
@@ -77,7 +79,7 @@ class KoPythonLinter:
             getService(components.interfaces.koIDirs)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
-    def _getInterpreter(self, prefset):
+    def _getInterpreterAndPyver(self, prefset):
         if prefset.hasStringPref("pythonDefaultInterpreter") and\
            prefset.getStringPref("pythonDefaultInterpreter"):
             python = prefset.getStringPref("pythonDefaultInterpreter")
@@ -92,10 +94,30 @@ class KoPythonLinter:
                 python = None
 
         if python:
-            return python
+            pyver = self._pyverFromPython(python)
+            return python, pyver
         else:
             errmsg = "No python interpreter with which to check syntax."
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
+
+    _pyverFromPythonCache = None
+    def _pyverFromPython(self, python):
+        if self._pyverFromPythonCache is None:
+            self._pyverFromPythonCache = {}
+        if python not in self._pyverFromPythonCache:
+            pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
+                .createInstance(components.interfaces.koIAppInfoEx)
+            pythonInfo.installationPath \
+                = pythonInfo.getInstallationPathFromBinary(python)
+            verStr = pythonInfo.version
+            try:
+                pyver = tuple(int(v) for v in verStr.split('.'))
+            except ValueError:
+                pyver = None
+            self._pyverFromPythonCache[python] = pyver
+
+        return self._pyverFromPythonCache[python]
+
 
     def _buildResult(self, dict, leadingWS):
         """Convert a pycompile.py output dict to a KoILintResult.
@@ -178,9 +200,13 @@ class KoPythonLinter:
         prefset = request.document.getEffectivePrefs()
 
         try:
-            python = self._getInterpreter(prefset)
-            compilePy = os.path.join(self._koDirSvc.supportDir, "python",
-                                     "pycompile.py")
+            python, pyver = self._getInterpreterAndPyver(prefset)
+            if pyver and pyver >= (3,0):
+                compilePy = os.path.join(self._koDirSvc.supportDir, "python",
+                                         "py3compile.py")
+            else:
+                compilePy = os.path.join(self._koDirSvc.supportDir, "python",
+                                         "pycompile.py")
             if request.document.displayPath.startswith("macro://"):
                 text = projectUtils.wrapPythonMacro(text)
                 leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)

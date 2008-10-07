@@ -667,6 +667,7 @@ configuration = {
     "siloedPythonVersion": SiloedPythonVersion(), # e.g. "2.4.1"
     "siloedPyVer": SiloedPyVer(), # e.g. "2.4"
     "siloedPython": SiloedPython(), # e.g. /full/path/to/siloed/bin/python
+    "havePy2to3": HavePy2to3(),     # siloed Python has sufficient lib2to3 support
 
     "siloedDistutilsLibDirName": SiloedDistutilsLibDirName(), # e.g "lib.win32-2.4"
     "perlVersion": black.configure.std.PerlVersion(perlBinDirItemName="unsiloedPerlBinDir"),

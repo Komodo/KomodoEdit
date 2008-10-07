@@ -43,9 +43,11 @@ Import(
     'mozIdlIncludePath',
     'idlExportDir',
     'komodoPythonUtilsDir',
+    'siloedPython',
     'supportDir',
     'sdkDir',
     'platform',
+    'havePy2to3',
 );
 
 $cons->Install($idlExportDir, 'koILinter.idl');
@@ -56,6 +58,9 @@ $cons->InstallPythonUtility('koLintResult.py');
 $cons->InstallXpcomComponent('koPerlCompileLinter.py');
 $cons->InstallXpcomComponent('koPythonLinter.py');
 $cons->Install("$supportDir/python", 'pycompile.py');
+if ($havePy2to3) {
+    $cons->Py2To3('pycompile.py', "$supportDir/python/py3compile.py");
+}
 $cons->InstallXpcomComponent('koHTMLLinter.py');
 $cons->InstallXpcomComponent('koPHPLinter.py');
 $cons->InstallXpcomComponent('koXPCShellLinter.py');

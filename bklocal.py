@@ -48,6 +48,7 @@ import time
 from pprint import pprint
 import warnings
 import socket
+import subprocess
 
 if sys.platform.startswith('win'):
     import _winreg
@@ -431,6 +432,23 @@ class SiloedDistutilsLibDirName(black.configure.Datum):
         self.value = "lib.%s-%s" % (platname, siloedPyVer)
         self.determined = 1
 
+class HavePy2to3(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "havePy2to3",
+            desc="whether the siloed Python has a sufficient 2to3 library for the Komodo build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        siloedPython = black.configure.items["siloedPython"].Get()
+        argv = [siloedPython, "-c", "from lib2to3.main import main"]
+        p = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        status = p.wait()
+        if status:
+            self.value = False
+        else:
+            self.value = True
+        self.determined = 1
 
 class SetMozTools(black.configure.SetEnvVar):
     def __init__(self):

@@ -53,8 +53,9 @@ Output on stderr include warnings from the warnings framework:
     t.py:7: SyntaxWarning: import * only allowed at module level
       def foo():
 
-Implementation Notes:
-    - This script should work with Python >= 1.5.2.
+Dev Notes:
+- This script should work with Python >= 1.5.2, <= 3.0. We use the 2to3
+  converter to make a version of this script for Python >=3.0.
 """
 
 import sys

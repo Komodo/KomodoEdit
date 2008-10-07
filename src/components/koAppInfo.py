@@ -268,24 +268,49 @@ class KoPythonInfoEx(KoAppInfoEx):
         return 1
 
     def get_version(self):
-        # python 1.52 does not support the -V option
-        versionScript = \
-        r"import sys;"\
-        r"import string;"\
-        r"paren = string.find(sys.version, '(');"\
-        r"version = string.strip(sys.version[:paren]);"\
-        r"sys.stdout.write(version)"
+        """Get the $major.$minor version (as a string) of the current
+        Python executable. Returns the empty string if cannot determine
+        version.
+        
+        Dev Notes:
+        - Python 1.5.2 does not support the -V option, so typically we
+          would use:
+            python -c "import sys;print(sys.version)"
+          However, because of bug 80293 we can't currently do this for Python
+          3.0 and Python 3.0 is not much more important that Python 1.5.2.
+          If running "python -V" fails, we'll fall back to trying sys.version.
+        - Specify cwd to avoid accidentally running in a dir with a
+          conflicting Python DLL.
+        """
+        version = ""
 
         pythonExe = self._GetPythonExeName()
-        pythonDir = os.path.dirname(pythonExe)
-        argv = [pythonExe, "-c", versionScript]
-        p = process.ProcessOpen(argv, cwd=pythonDir, stdin=None)
-        versionDump, stderr = p.communicate()
-        # we are only to rely on the first 2 digits being in the form x.y
-        match = re.search("([0-9.]+)", versionDump)
-        if match:
-            return match.group(1)
-        return ''
+        cwd = os.path.dirname(pythonExe)
+
+        argv = [pythonExe, "-V"]
+        p = process.ProcessOpen(argv, cwd=cwd, stdin=None)
+        stdout, stderr = p.communicate()
+        if not p.returncode:
+            version_re = re.compile("^Python (\d+\.\d+)")
+            match = version_re.match(stderr)
+            if match:
+                version = match.group(1)
+
+        if not version:
+            argv = [pythonExe, "-c", "import sys; sys.stdout.write(sys.version)"]
+            p = process.ProcessOpen(argv, cwd=cwd, stdin=None)
+            stdout, stderr = p.communicate()
+            if not p.returncode:
+                # Some example output:
+                #   2.0 (#8, Mar  7 2001, 16:04:37) [MSC 32 bit (Intel)]
+                #   2.5.2 (r252:60911, Mar 27 2008, 17:57:18) [MSC v.1310 32 bit (Intel)]
+                #   2.6rc2 (r26rc2:66504, Sep 26 2008, 15:20:44) [MSC v.1500 32 bit (Intel)]
+                version_re = re.compile("^(\d+\.\d+)")
+                match = version_re.match(stdout)
+                if match:
+                    version = match.group(1)
+
+        return version
 
     def get_localHelpFile(self):
         """Return a path to a launchable local help file, else return None.

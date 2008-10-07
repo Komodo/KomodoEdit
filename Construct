@@ -110,6 +110,7 @@ my @toExport = (
     'siloedPyVer',                # e.g. "2.4"
     'siloedPython',               # e.g. /full/path/to/siloed/bin/python
     'siloedDistutilsLibDirName',  # e.g. "lib.win32-2.4"
+    'havePy2to3',
     'unsiloedPythonExe',
     # for building PyDBGP binary bits for all supported Python's
     'pythonInstallDir',
@@ -408,6 +409,31 @@ if ($platform eq "win") {
 }
 
 #---- Cons method extensions
+
+
+# Run the Python 2 -> 3 syntax converter on the given path.
+sub cons::Py2To3 {
+    my ($env, $srcPath, $dstPath, @fixerNames) = @_;
+    
+    # die if required elements are not defined
+    defined($platform) or
+        die "*** 'platform' is not defined for " .
+        "Py2To3(). You need to 'Import' it.\n";
+    defined($siloedPython) or
+        die "*** 'siloedPython' is not defined for " .
+        "Py2To3(). You need to 'Import' it.\n";
+    
+    my $fixersOpts = "";
+    foreach my $fixerName (@fixerNames) {
+        $fixersOpts .= " --fixer=$fixerName";
+    }
+
+    my $CP = ($platform eq "win" ? "copy /Y" : "cp -f");
+    $cons->Command($dstPath, $srcPath, qq(
+        $CP %1 %0
+        $siloedPython -c "from lib2to3.main import main; main('lib2to3.fixes')" $fixersOpts -w %0
+        ));
+}
 
 sub cons::Preprocess {
     # Runs the given file through Komodo's preprocessor (currently
