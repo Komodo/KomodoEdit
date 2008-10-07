@@ -2262,10 +2262,10 @@ class koProject(koLiveFolderPart):
             except Exception, e:
                 log.exception(e)
                 raise
+            import tempfile
+            # use a tempfile to avoid disasters if there's a failure on write.
+            tempname = tempfile.mktemp()
             try:
-                import tempfile
-                # use a tempfile to avoid disasters if there's a failure on write.
-                tempname = tempfile.mktemp()
                 f = open(tempname, 'wb+')
                 f.write(stream.getvalue().encode('UTF-8'))
                 f.close()
