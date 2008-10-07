@@ -1961,6 +1961,7 @@ def target_silo_python(argv=["silo_python"]):
         libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib"]
         if float(mozVer) >= 1.9:
             libnames.append("libpyxpcom.dylib")
+            libnames.append("libpydom.dylib")
         libs = []
         for libname in libnames:
             found = {}
