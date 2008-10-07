@@ -130,7 +130,7 @@
 # - break this out into a separate project
 # - add a test suite
 
-__version_info__ = (0, 4, 0)
+__version_info__ = (0, 4, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -224,6 +224,11 @@ def _createTempDir():
 def _getPatchInfo(dirname):
     if "__patchinfo__" in sys.modules:
         del sys.modules["__patchinfo__"]
+    for p in glob(join(dirname, "__patchinfo__.py[co]")):
+        try:
+            os.remove(p)
+        except EnvironmentError:
+            pass
     try:
         file, path, desc = imp.find_module("__patchinfo__", [dirname])
     except ImportError, ex:
