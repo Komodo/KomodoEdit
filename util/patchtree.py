@@ -224,7 +224,7 @@ def _createTempDir():
 def _getPatchInfo(dirname):
     if "__patchinfo__" in sys.modules:
         del sys.modules["__patchinfo__"]
-    for p in glob(join(dirname, "__patchinfo__.py[co]")):
+    for p in glob.glob(join(dirname, "__patchinfo__.py[co]")):
         try:
             os.remove(p)
         except EnvironmentError:
