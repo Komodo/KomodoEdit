@@ -85,7 +85,6 @@
                         ondragover="nsDragAndDrop.dragOver(event,this.parentNode.parentNode.parentNode);"
                         ondragdrop="this.parentNode.parentNode.parentNode.doDragDropEvent(event);"
                         ondblclick="this.parentNode.parentNode.parentNode.onDblClick(event);"
-                        onmouseout="this.parentNode.parentNode.parentNode.doMouseOut(event);"
                         class="projectTree"/>
                 </xul:tree>
             </xul:vbox>
@@ -310,15 +309,6 @@
                         return null;
                     }
                     return select;
-                ]]>
-                </body>
-            </method>
-
-            <method name="doMouseOut">
-                <parameter name="event"/>
-                <body>
-                <![CDATA[
-                    ko.statusBar.AddMessage('','project_tree_file',0,0);
                 ]]>
                 </body>
             </method>
