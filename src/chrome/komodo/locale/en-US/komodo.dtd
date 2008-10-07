@@ -565,7 +565,7 @@
 <!ENTITY stopSearch.tooltiptext "Stop Search">
 <!ENTITY syntaxCheckingStatus.tooltiptext "Syntax Checking Status">
 <!ENTITY tabifyRegion.label "Tabify Region">
-<!ENTITY tabs.label "Tabs">
+<!ENTITY tabs.label "Tabs &amp; Sidebars">
 <!ENTITY template.label "Template">
 <!ENTITY templateFile.label "Template File...">
 <!ENTITY terminateProcess.tooltiptext "Terminate Process">
