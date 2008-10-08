@@ -103,7 +103,8 @@
             // the terminal scimoz is readonly until terminalHandler.startSession
             // is called.  When terminalHandler.endSession is called, then
             // scimoz is made read only again.
-            this.scimoz.readOnly = 1
+            this.scimoz.readOnly = 1;
+            this.sysUtils = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
             ko.trace.get().leave('view-terminal:initWithTerminal')
         ]]>
         </body>
@@ -408,10 +409,6 @@
         <method name="onModifiedHandler">
         <parameter name="position"/>
         <parameter name="modificationType"/>
-        <!-- XXX 'text' is NOT unicode ('wstring' in IDL-speak) because of
-             <http://bugs.activestate.com/show_bug.cgi?id=26793>.
-             Be warned that 'text' is UTF-8 encoded and must be used as such.
-        -->
         <parameter name="text"/>
         <parameter name="length"/>
         <parameter name="linesAdded"/>
@@ -430,11 +427,11 @@
                 // data ourselves.
                 if (text != '\n' && text != '\r' && text != '\r\n') {
                     if (linesAdded > 0) {
-                        var sline = this.scintilla.scimoz.lineFromPosition(position);
-                        var eline = this.scintilla.scimoz.lineFromPosition(position + length);
-                        var start = this.scintilla.scimoz.positionFromLine(sline);
+                        var sline = this.scimoz.lineFromPosition(position);
+                        var utf8Length = this.sysUtils.byteLength(text);
+                        var eline = this.scimoz.lineFromPosition(position + utf8Length);
+                        var start = this.scimoz.positionFromLine(sline);
                         var end = this.scimoz.getLineEndPosition(eline);
-                        var data = this.scintilla.scimoz.getTextRange(start, end);
 
                         // we have either paste or dropped data, handle it now
                         this._pasteTimer = new objectTimer(this, this.doPasteHandler, [start, end-start, linesAdded]);
