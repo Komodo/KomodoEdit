@@ -963,6 +963,15 @@ sub cons::InstallXpcomComponent {
     $env->DependsOnRegxpcom("$mozComponentsDir/" . basename($fileName));
 }
 
+sub cons::InstallXpcomModule {
+    # Install the module in the proper modules directory.
+    my ($env, $fileName) = @_;
+    # die if required elements are not defined
+    defined($mozBin) or
+        die "*** mozBin is not defined for $fileName\n";
+    $env->Install("$mozBin/modules", $fileName);
+}
+
 
 #XXX Not used, I don't think.
 sub cons::IsRegisteredInChrome {
