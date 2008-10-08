@@ -239,7 +239,7 @@ protected:
     PRBool bCouldRedoLastTime;
 
     long SendEditor(unsigned int Msg, unsigned long wParam = 0, long lParam = 0);
-    NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval);
+    NS_IMETHODIMP ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval);
 
     void Create(WinID hWnd);
     void PlatformCreate(WinID hWnd);
