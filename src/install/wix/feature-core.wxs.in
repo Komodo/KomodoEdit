@@ -3964,6 +3964,7 @@
           <Directory Id="directory217" Name="PYTHON_4" LongName="python">
             <Component Id="component205" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file3836" Name="PYCOMP_0.PY" LongName="pycompile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\python\pycompile.py"/>
+              <File Id="file828" Name="PY3COM_0.PY" LongName="py3compile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\python\py3compile.py"/>
             </Component>
           </Directory> <!-- lib\support\python -->
           <Directory Id="directory473" Name="catalogs">
