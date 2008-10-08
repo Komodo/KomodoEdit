@@ -605,6 +605,55 @@
             </body>
         </method>
 
+        <method name="insertText">
+            <parameter name="text"/>
+            <body>
+            <![CDATA[
+            // Normalize the text to use the view's preferred EOL.
+            var eol = this.document.new_line_endings;
+            var eol_str;
+            switch (eol) {
+            case Components.interfaces.koIDocument.EOL_LF:
+                eol_str = "\n";
+                break;
+            case Components.interfaces.koIDocument.EOL_CRLF:
+                eol_str = "\r\n";
+                break;
+            case Components.interfaces.koIDocument.EOL_CR:
+                eol_str = "\r";
+                break;
+            };
+
+            // Normalize the text to use the view's preferred tab/space setting.
+            var tabequivalent = '';
+            var useTabs = this.prefs.getBooleanPref("useTabs");
+            var tabWidth = this.prefs.getLongPref("tabWidth");
+            for (i = 0; i < tabWidth; i++) {
+                tabequivalent += ' ';
+            }
+            var leading_ws_re = /^(\s+)(.*)/;
+            var lines = text.split(/\r\n|\n|\r/g);
+            for (i = 0; i < lines.length; i++) {
+                // Turn tabs into a space-equivalent value and vice-versa.
+                // We only need to do this for starting whitespace though.
+                var match = lines[i].match(leading_ws_re);
+                if (match) {
+                    var whitespace = match[1];
+                    if (useTabs) {
+                        whitespace = whitespace.replace(tabequivalent, "\t", "g");
+                    } else {
+                        whitespace = whitespace.replace("\t", tabequivalent, "g")
+                    }
+                    lines[i] = whitespace + match[2];
+                }
+            }
+
+            text = lines.join(eol_str);
+            this.scimoz.replaceSel(text);
+            ]]>
+            </body>
+        </method>
+
         <!--this is not a focus handler, but rather a set of stuff we
         need to do in relation to forcing focus at certain points-->
         <method name="setFocus">

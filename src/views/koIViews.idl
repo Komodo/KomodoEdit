@@ -162,6 +162,14 @@ interface koIScintillaView : koIView
     // Otherwise it returns false.
     // On true return, no further processing of the tab event should be done.
     boolean moveToNextTabstop();
+    /**
+     * Insert the given text into the view at the current cursor position.
+     * This function will ensure that the view settings, such as EOL and tabs
+     * vs. spaces are maintained for the text being inserted. If the view has
+     * a selection, this selection will be replaced by the provided text
+     * otherwise the text is inserted at the current position.
+     */
+    void insertText(in wstring text);
 };
 
 [scriptable, uuid(D10DFEB9-D312-49B9-A180-20A89EF47DE6)]
