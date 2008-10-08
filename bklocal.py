@@ -2754,6 +2754,10 @@ class MSIVccrtMsmPath(black.configure.Datum):
             mergeModulesDir = join(os.environ["CommonProgramFiles"],
                                    "Merge Modules")
             self.value = join(mergeModulesDir, base)
+        else:
+            # Helps with Cons to have *some* value defined.
+            self.value = ""
+        self.determined = 1
 
 class MSIVccrtPolicyMsmPath(black.configure.Datum):
     # Note: I don't know *what* the "policy" MSM is for.
@@ -2775,6 +2779,10 @@ class MSIVccrtPolicyMsmPath(black.configure.Datum):
             mergeModulesDir = join(os.environ["CommonProgramFiles"],
                                    "Merge Modules")
             self.value = join(mergeModulesDir, base)
+        else:
+            # Helps with Cons to have *some* value defined.
+            self.value = ""
+        self.determined = 1
 
 class MSIKomodoPrettyId(black.configure.Datum):
     def __init__(self):
