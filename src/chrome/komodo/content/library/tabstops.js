@@ -305,8 +305,8 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
     modificationType,
     view,
     position,
-    utf8Text,
-    utf8Length
+    unicodeText,
+    unicodeLength
 ) {
     /*
      * 1. On a delete-text: get the new contents of the current TSC region, and
@@ -319,6 +319,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
     // Note: scimoz calls use utf8 lengths, but some like replaceTarget
     // want Unicode text (ucs2).  Always convert text to these forms.
     var spos, epos, scimoz = view.scimoz;
+    var utf8Length = sysUtils.byteLength(unicodeText);
     switch (modificationType & 0x0c03) {
         case SC_MOD_BEFOREDELETE:
             // Remove any indicators from the tabstop table that we're
@@ -327,8 +328,9 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
             return;
         case SC_MOD_DELETETEXT:
             if (position > 0 && scimoz.indicatorValueAt(TSC, position - 1)) {
-                spos = scimoz.indicatorStart(TSC, position - 1);
-                epos = scimoz.indicatorEnd(TSC, position - 1);
+                var prevPosition = scimoz.positionBefore(position);
+                spos = scimoz.indicatorStart(TSC, prevPosition);
+                epos = scimoz.indicatorEnd(TSC, prevPosition);
                 var newUnicodeText = scimoz.getTextRange(spos, epos);
                 var finalByteCount = epos - spos;
                 this._updateAllHits(scimoz, position + finalByteCount, TSC,
@@ -345,17 +347,17 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
             }
             return;
         case SC_MOD_INSERTTEXT:
-            var currentUnicodeText, finalByteCount;
-            var newUnicodeText = sysUtils.unicodeFromUTF(utf8Text);
-            if (position > 0 && scimoz.indicatorValueAt(TSC, position - 1)) {
-                spos = scimoz.indicatorStart(TSC, position - 1);
-                epos = scimoz.indicatorEnd(TSC, position - 1);
+            var currentUnicodeText, finalByteCount, prevPosition;
+            if (position > 0 && scimoz.indicatorValueAt(TSC, (prevPosition =
+                                                              scimoz.positionBefore(position)))) {
+                spos = scimoz.indicatorStart(TSC, prevPosition);
+                epos = scimoz.indicatorEnd(TSC, prevPosition);
                 currentUnicodeText = scimoz.getTextRange(spos, epos);
                 finalByteCount = epos - spos;
                 if (!scimoz.indicatorValueAt(TSC, position)) {
                     // Text was added to the right of the indicated buffer
                     finalByteCount += utf8Length;
-                    currentUnicodeText += newUnicodeText;
+                    currentUnicodeText += unicodeText;
                     scimoz.indicatorCurrent = TSC;
                     scimoz.indicatorFillRange(spos, finalByteCount);
                 }
@@ -366,7 +368,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
                 // Text was added inside, or to the left of the indicated region
                 spos = scimoz.indicatorStart(TSC, position);
                 epos = scimoz.indicatorEnd(TSC, position);
-                currentUnicodeText = newUnicodeText + scimoz.getTextRange(spos, epos);
+                currentUnicodeText = unicodeText + scimoz.getTextRange(spos, epos);
                 scimoz.indicatorCurrent = TSC;
                 var newWordStartPos = position - utf8Length;
                 finalByteCount = epos - newWordStartPos;
@@ -376,7 +378,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
                 // We moved to the start of the region, and typed something.
                 spos = scimoz.indicatorStart(TSC, position + utf8Length);
                 epos = scimoz.indicatorEnd(TSC, position + utf8Length);
-                currentUnicodeText = newUnicodeText + scimoz.getTextRange(spos, epos);
+                currentUnicodeText = unicodeText + scimoz.getTextRange(spos, epos);
                 finalByteCount = utf8Length + epos - spos;
                 scimoz.indicatorCurrent = TSC;
                 scimoz.indicatorFillRange(position, epos - position);
@@ -386,7 +388,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
                 scimoz.indicatorCurrent = TSC;
                 scimoz.indicatorFillRange(position, utf8Length);
                 this._updateAllZeroWidthHits(scimoz, scimoz.indicatorEnd(TSCZW, position + utf8Length),
-                                             newUnicodeText, utf8Length);
+                                             unicodeText, utf8Length);
             }
             return;
     }
@@ -953,7 +955,7 @@ this._updateAllHits = function(scimoz, position, indicator,
         }
         scimoz.targetStart = spos;
         scimoz.targetEnd = epos;
-        scimoz.replaceTarget(newUTF8Length, newUnicodeText);
+        scimoz.replaceTarget(newUnicodeText.length, newUnicodeText);
         scimoz.indicatorCurrent = indicator;
         scimoz.indicatorFillRange(spos, newUTF8Length);
         if (spos > 0) {
@@ -995,7 +997,7 @@ this._updateAllZeroWidthHits = function(scimoz, position, newUnicodeText, newUTF
         // Insert new text.
         scimoz.targetStart = spos;
         scimoz.targetEnd = spos;
-        scimoz.replaceTarget(newUTF8Length, newUnicodeText);
+        scimoz.replaceTarget(newUnicodeText.length, newUnicodeText);
         scimoz.indicatorCurrent = TSC;
         scimoz.indicatorFillRange(spos, newUTF8Length);
         this._restoreDroppedIndicators(followingSet, prevSet, scimoz, spos, newUTF8Length);

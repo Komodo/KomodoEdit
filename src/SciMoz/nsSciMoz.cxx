@@ -498,26 +498,24 @@ void SciMoz::Notify(long lParam) {
 			PRUint32 len = ((isBeforeDelete || notification->text)
 			    ? notification->length
 			    : 0);
-			const char *text = ((len && notification->text)
-				? notification->text
-				: "");
-			//XXX Would like to use the commented out code (as was done
-			//    in Change 73289), but this causes
-			//    <http://bugs.activestate.com/show_bug.cgi?id=26793>
-			//    so we will not convert the UTF-8 encoded text to
-			//    unicode. Note that this places the burden of
-			//    conversion, if necessary, on the listeners of
-			//    OnModified() (see views-buffer.xml).
-			//const char *pText = len ? notification->text : "";
-			//PRUnichar *text =  ToNewUnicode(NS_ConvertUTF8toUTF16(pText));
+			const char *pText = (len && (notification->modificationType & SC_MOD_INSERTTEXT)
+					     ? notification->text
+					     : "");
+			nsAutoString uString = NS_ConvertUTF8toUTF16(pText);
+			len = uString.Length();
+			PRUnichar *wtext = ToNewUnicode(uString);
 			mask = ISciMozEvents::SME_MODIFIED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
 				eventSink->OnModified(notification->position,
-				                      notification->modificationType, text,
-				                      len, notification->linesAdded,
-				                      notification->line, notification->foldLevelNow,
-					                  notification->foldLevelPrev);
-			//nsMemory::Free((void*)text);
+						      notification->modificationType,
+						      wtext,
+						      len,
+						      notification->linesAdded,
+						      notification->line,
+						      notification->foldLevelNow,
+						      notification->foldLevelPrev);
+			}
+			nsMemory::Free((void*)wtext);
 			}
 			break;
 		/*
@@ -1244,6 +1242,35 @@ NS_IMETHODIMP SciMoz::GetWCharAt(PRInt32 pos, PRUnichar *_retval) {
     return NS_OK;
 }
 
+NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
+	nsCAutoString utf8Text = NS_ConvertUTF16toUTF8(text, length);
+	*_retval = SendEditor(message, utf8Text.Length(), reinterpret_cast<long>(utf8Text.get()));
+	return NS_OK;
+}
+
+/* long replaceTarget(in long length, in wstring text); */
+NS_IMETHODIMP SciMoz::ReplaceTarget(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::ReplaceTarget\n");
+#endif
+	return ConvertUTF16StringSendMessage(SCI_REPLACETARGET, length, text, _retval);
+}
+
+/* long replaceTargetRE(in long length, in wstring text); */
+NS_IMETHODIMP SciMoz::ReplaceTargetRE(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::ReplaceTargetRE\n");
+#endif
+	return ConvertUTF16StringSendMessage(SCI_REPLACETARGETRE, length, text, _retval);
+}
+
+/* long searchInTarget(in long length, in wstring text); */
+NS_IMETHODIMP SciMoz::SearchInTarget(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::SearchInTarget\n");
+#endif
+	return ConvertUTF16StringSendMessage(SCI_SEARCHINTARGET, length, text, _retval);
+}
 
 // ***********************************************************************
 // *
