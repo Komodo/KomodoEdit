@@ -140,6 +140,8 @@ my @toExport = (
     'msiKomodoId',
     'msiRegistryId',
     'msiKomodoPrettyId',
+    'msiVccrtMsmPath',
+    'msiVccrtPolicyMsmPath',
     'komodoUpdateManualURL',
 
     'macKomodoAppInstallName',

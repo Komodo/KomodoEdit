@@ -84,6 +84,9 @@
             <RemoveFile Id="removefile15" Name="pod2htmd.tmp" On="uninstall" />
             <RemoveFile Id="removefile16" Name="pod2htmi.tmp" On="uninstall" />
           </Component>
+
+          <Merge Id="CRT" Language="0" src="$(var.VccrtMsmPath)" DiskId="1" />
+          <Merge Id="CRT Policy" Language="0" src="$(var.VccrtPolicyMsmPath)" DiskId="1" />
         </Directory>
       </Directory>
 
@@ -133,6 +136,9 @@
            the "Installer calculates disk requirements". -->
       <ComponentRef Id="KomodoConsoleExe" />
       <ComponentRef Id="component4" />
+
+      <MergeRef Id="CRT" />
+      <MergeRef Id="CRT Policy" />
 
       <Feature Id="env" Title="Desktop Integration"
           Description="Changes such as Desktop and Quick Launch shortcuts, PATH changes and file associations."

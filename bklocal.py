@@ -2735,6 +2735,47 @@ class KomodoAppDataDirName(black.configure.Datum):
             self.value = name.lower()
         self.determined = 1
 
+class MSIVccrtMsmPath(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "msiVccrtMsmPath",
+            desc="Full path to Visual C++ CRT merge module.")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        if sys.platform == "win32":
+            architecture = black.configure.items["architecture"].Get()
+            assert architecture == "x86", \
+                "get the right merge module path for arch=%r" % architecture
+            compiler = black.configure.items["compiler"].Get()
+            base = {
+                "vc8": "Microsoft_VC80_CRT_x86.msm",
+                "vc9": "Microsoft_VC90_CRT_x86.msm",
+            }[compiler]
+            mergeModulesDir = join(os.environ["CommonProgramFiles"],
+                                   "Merge Modules")
+            self.value = join(mergeModulesDir, base)
+
+class MSIVccrtPolicyMsmPath(black.configure.Datum):
+    # Note: I don't know *what* the "policy" MSM is for.
+    def __init__(self):
+        black.configure.Datum.__init__(self, "msiVccrtPolicyMsmPath",
+            desc="Full path to Visual C++ CRT Policy merge module.")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        if sys.platform == "win32":
+            architecture = black.configure.items["architecture"].Get()
+            assert architecture == "x86", \
+                "get the right merge module path for arch=%r" % architecture
+            compiler = black.configure.items["compiler"].Get()
+            base = {
+                "vc8": "policy_8_0_Microsoft_VC80_CRT_x86.msm",
+                "vc9": "policy_9_0_Microsoft_VC90_CRT_x86.msm",
+            }[compiler]
+            mergeModulesDir = join(os.environ["CommonProgramFiles"],
+                                   "Merge Modules")
+            self.value = join(mergeModulesDir, base)
+
 class MSIKomodoPrettyId(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "msiKomodoPrettyId",

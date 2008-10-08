@@ -60,6 +60,8 @@ Import(
     "msiKomodoId",
     "msiKomodoVersion",
     "msiKomodoPrettyId",
+    "msiVccrtMsmPath",
+    "msiVccrtPolicyMsmPath",
     "mozVersion",
     "withCrypto",
     "withCasper",
@@ -93,6 +95,8 @@ if ($buildFlavour eq "full") {
                 "PP_MSI_KOMODO_ID" => $msiKomodoId,
                 "PP_MSI_KOMODO_PRETTY_ID" => $msiKomodoPrettyId,
                 "PP_MSI_KOMODO_VERSION" => $msiKomodoVersion,
+                "PP_MSI_VCCRT_MSM_PATH" => $msiVccrtMsmPath,
+                "PP_MSI_VCCRT_POLICY_MSM_PATH" => $msiVccrtPolicyMsmPath,
                 "PP_VER_MAJOR" => $majorVer,
                 "PP_VER_MINOR" => $minorVer,
 

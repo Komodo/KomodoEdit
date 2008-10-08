@@ -70,7 +70,8 @@
     <?define ProductURL = "http://www.activestate.com/products/komodo_ide/" ?>
   <?endif ?>
   <?define UninstallText = "Modify or Uninstall Komodo" ?>
-
+  <?define VccrtMsmPath = "PP_MSI_VCCRT_MSM_PATH" ?>
+  <?define VccrtPolicyMsmPath = "PP_MSI_VCCRT_POLICY_MSM_PATH" ?>
 
   <?if $(var.IsPreReleaseVersion) = "yes" ?>
     <?define InstallLevel = "500" ?>  <!-- skip some features by default -->

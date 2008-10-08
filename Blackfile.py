@@ -735,6 +735,8 @@ configuration = {
     "macKomodoAppBuildName": MacKomodoAppBuildName(),               # e.g. "Komodo.app"
     "macKomodoAppInstallName": MacKomodoAppInstallName(),           # e.g. "Komodo IDE.app"
     "msiKomodoPrettyId": MSIKomodoPrettyId(),
+    "msiVccrtMsmPath": MSIVccrtMsmPath(),
+    "msiVccrtPolicyMsmPath": MSIVccrtPolicyMsmPath(),
 
     "komodoPackageBase": KomodoPackageBase(),
     "komodoUpdateManualURL": KomodoUpdateManualURL(),
