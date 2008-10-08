@@ -1,5 +1,5 @@
-:KD: [[%ask:KD number]]
-:Title: [[%ask1:KD Title]]
+:KD: [[%tabstop:KD number]]
+:Title: [[%tabstop1:KD Title]]
 :Status: <draft | active | final | finished | obsolete | stale | unknown>
 :Type: <meta | spec | informational>
 :Authors: <list of authors' names>

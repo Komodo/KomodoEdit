@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# Copyright (c) 2006 ActiveState Software Inc.
+# Copyright (C) [[%date:%Y]] ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
-"""Komodo test script for: [[%ask1:test what (lowercase, no spaces):foo]].
+"""Komodo test script for: [[%tabstop1:foo]]. [[%tabstop:# what to test (lowercase, no spaces)]]
 
 TODO:
 - Say that you are test the new Komodo "whizbang" feature.
@@ -30,7 +30,7 @@ from testsupport import get_config, TestError, TestSkipped, verbose
 
 
 
-class [[%ask2:Test What (uppercase, no spaces)]]TestCase(unittest.TestCase):
+class [[%tabstop:]]TestCase(unittest.TestCase):
     # define test methods here...
     def test_spam(self):
         self.failUnless(1, "Wow!")

@@ -6,8 +6,8 @@
     pointer_default(unique)
 ]
 
-interface IIMyInterface : IDispatch
+interface [[%tabstop:IMyInterface]] : IDispatch
 {
-    // Insert your methods here
+    [[%tabstop:// Insert your methods here]]
 };
 

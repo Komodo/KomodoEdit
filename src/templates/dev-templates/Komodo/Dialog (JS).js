@@ -1,11 +1,11 @@
-/* Copyright (c) 2004-2006 ActiveState Software Inc.
+/* Copyright (C) 2004-[[%date:%Y]] ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
 /* ...description of dialog...
  *
  */
 
-var log = getLoggingMgr().getLogger("foo");
+var log = getLoggingMgr().getLogger("[[%tabstop:loggerName]]");
 //log.setLevel(LOG_DEBUG);
 
 
@@ -27,13 +27,13 @@ function OnLoad()
 
 function OK()
 {
-    //...
+    [[%tabstop://...]]
     return true;
 }
 
 function Cancel()
 {
-    //...
+    [[%tabstop://...]]
     return true;
 }
 

@@ -1,24 +1,20 @@
-/* Copyright (c) 2006 [[%ask2:Domain Name:MyCompany.com]]
+/* Copyright (c) [[%date:%Y]] [[%tabstop2:MyCompany.com]]
    See the file LICENSE.txt for licensing information. */
 
-/* module [[%ask1:Component Name:MyJavaScriptComponent]] */
+/* module [[%tabstop1:MyJavaScriptComponent]] */
 
-var [[%ask1]]Module = new Object();
+var [[%tabstop1]]Module = new Object();
 
-const [[%ask1]]_CONTRACTID     = "@[[%ask2]]/js[[%ask1]];1";
-const [[%ask1]]_CID        = Components.ID("{[[%guid]]}");
+const [[%tabstop1]]_CONTRACTID     = "@[[%tabstop2]]/js[[%tabstop1]];1";
+const [[%tabstop1]]_CID        = Components.ID("{[[%guid]]}");
 
-function [[%ask1]]()
+function [[%tabstop1]]()
 {
 }
-[[%ask1]].prototype = {
-
-
+[[%tabstop1]].prototype = {
     /* TODO: Implement the interface here */
-    
-
     QueryInterface: function(iid) {
-        if (!iid.equals(i[[%ask1]]) &&
+        if (!iid.equals(I[[%tabstop1]]) &&
             !iid.equals(nsISupports))
             throw Components.results.NS_ERROR_NO_INTERFACE;
         return this;
@@ -26,19 +22,19 @@ function [[%ask1]]()
 }
 
 
-[[%ask1]]Module.registerSelf =
+[[%tabstop1]]Module.registerSelf =
 function (compMgr, fileSpec, location, type)
 {
     compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation([[%ask1]]_CID, 
-                                "[[%ask1]] Component",
-                                [[%ask1]]_CONTRACTID, 
+    compMgr.registerFactoryLocation([[%tabstop1]]_CID, 
+                                "[[%tabstop1]] Component",
+                                [[%tabstop1]]_CONTRACTID, 
                                 fileSpec, 
                                 location,
                                 type);
 }
 
-[[%ask1]]Module.getClassObject =
+[[%tabstop1]]Module.getClassObject =
 function (compMgr, cid, iid) {
     if (!cid.equals(DIALOGPROXY_CID))
         throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -46,28 +42,28 @@ function (compMgr, cid, iid) {
     if (!iid.equals(Components.interfaces.nsIFactory))
         throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
     
-    return [[%ask1]]Factory;
+    return [[%tabstop1]]Factory;
 }
 
-[[%ask1]]Module.canUnload =
+[[%tabstop1]]Module.canUnload =
 function(compMgr)
 {
     return true;
 }
     
 /* factory object */
-var [[%ask1]]Factory = new Object();
+var [[%tabstop1]]Factory = new Object();
 
-[[%ask1]]Factory.createInstance =
+[[%tabstop1]]Factory.createInstance =
 function (outer, iid) {
     if (outer != null)
         throw Components.results.NS_ERROR_NO_AGGREGATION;
 
-    return (new [[%ask1]]()).QueryInterface(iid);
+    return (new [[%tabstop1]]()).QueryInterface(iid);
 }
 
 /* entrypoint */
 function NSGetModule(compMgr, fileSpec) {
-    return [[%ask1]]Module;
+    return [[%tabstop1]]Module;
 }
 

@@ -1,5 +1,6 @@
-package [[%ask1:Module Name:Foo]];
+package [[%tabstop:ClassName]];
 use strict;
+use warnings;
 
 sub new {
     my $class = shift;

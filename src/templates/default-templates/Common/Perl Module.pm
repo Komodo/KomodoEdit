@@ -1,5 +1,6 @@
-package [[%ask1:Module Name:Foo]];
+package [[%tabstop:Module]];
 use strict;
+use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);

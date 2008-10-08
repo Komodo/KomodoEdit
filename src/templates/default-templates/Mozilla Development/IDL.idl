@@ -1,14 +1,14 @@
-/* Copyright (c) 2006 [[%ask2:Domain Name:MyCompany.com]]
+/* Copyright (C) [[%date:%Y]] [[%tabstop:MyCompany.com]]
    See the file LICENSE.txt for licensing information. */
 
 #include "nsISupports.idl"
 
-/* ...description of component/service...
+/* [[%tabstop:...description of component/service...]]
  *
  */
 
 [scriptable, uuid([[%guid]])]
-interface [[%ask1:Interface Name:iMyComponentInterface]]: nsISupports {
+interface [[%tabstop:IMyComponentInterface]]: nsISupports {
     // attributes, constants, methods, ...
 };
 
