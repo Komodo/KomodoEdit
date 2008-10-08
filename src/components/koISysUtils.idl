@@ -85,7 +85,6 @@ interface koISysUtils : nsISupports {
 
     wstring diff_files(in wstring fname1, in wstring fname2);
     string pickColor(in string startincolor);
-    wstring unicodeFromUTF(in wstring utf8string);
     long byteLength(in wstring unicodestr);
     long charIndexFromPosition(in wstring unicodestr, in long bytePos);
 };
