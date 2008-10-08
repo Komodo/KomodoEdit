@@ -3,16 +3,16 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<window id="yourapplication_window"
-        windowtype="YourApplication"
-        title="YourApplication"
+<window id="[[%tabstop1:YourApplication]]_window"
+        windowtype="[[%tabstop1]]"
+        title="[[%tabstop1]]"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        width="800"
-        height="600"
-        screenX="20"
-        screenY="20"
+        width="[[%tabstop:800]]"
+        height="[[%tabstop:600]]"
+        screenX="[[%tabstop:20]]"
+        screenY="[[%tabstop:20]]"
         persist="screenX screenY width height"
         >
 
