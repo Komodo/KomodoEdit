@@ -129,7 +129,7 @@ this.moveToNextTabstop = function(view) {
         }
         return false; // further process the tab
     }
-    var tsInfo, spos, epos, finalSPos = -1, finalEPos, idx = 0;
+    var tsInfo, spos = startingPos, epos, finalSPos = -1, finalEPos, idx = 0;
     // Look for an entry we can use
     var sawBackref0 = false;
     var sawBackrefOther = false;
@@ -865,7 +865,7 @@ this.insertEmptyIndicator = function(scimoz, startingPos, indicator)  {
     var eolStrings = ['\r\n', '\r', '\n'];
     var eol = eolStrings[scimoz.eOLMode] || "\n";
     var slen, finalLen;
-    if (startingPos == scimoz.testLength) {
+    if (startingPos == scimoz.textLength) {
         // Adding an empty tabstop at the end of the buffer
         scimoz.insertText(startingPos, eol);
         slen = finalLen = eol.length;
