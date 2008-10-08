@@ -1150,6 +1150,9 @@ def ImageKomodo(cfg, argv):
         # Remove empty dirs
         ("rmemptydirs", iicorepath()),
 
+        # Trim stuff from the Python install.
+        ("rm", iipylibpath("lib2to3", "*.pickle")),  # lazily-generated cache grammar files
+
         #XXX:TODO
         #XXX trim other generated tmp files?
         #XXX trim Python lib/python/libs
