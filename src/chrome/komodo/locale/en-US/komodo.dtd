@@ -522,7 +522,7 @@
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
-<!ENTITY showSpecificTab.tooltiptext "Show Specific Tab">
+<!ENTITY showSpecificTab.tooltiptext "Show Specific Sidebar/Tab">
 <!ENTITY showTab.label "Show Tab">
 <!ENTITY showUnsavedChanges.label "Show Unsaved Changes">
 <!ENTITY sourceCodeCleanLineEndings.desc "Source Code: Clean Line Endings">
