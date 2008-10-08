@@ -428,10 +428,16 @@ sub cons::Py2To3 {
         $fixersOpts .= " --fixer=$fixerName";
     }
 
+    # - lib2to3.main doesn't have a "-o OUTPUT-PATH" option, so we have to
+    #   copy to the target and transform there
+    # - lib2to3.main unconditionally makes a .bak file which we have to clean
+    #   up.
     my $CP = ($platform eq "win" ? "copy /Y" : "cp -f");
+    my $RM = ($platform eq "win" ? "del /F" : "rm -f");
     $cons->Command($dstPath, $srcPath, qq(
         $CP %1 %0
         $siloedPython -c "from lib2to3.main import main; main('lib2to3.fixes')" $fixersOpts -w %0
+        $RM %0.bak
         ));
 }
 
