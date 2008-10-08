@@ -332,13 +332,6 @@
   -->
   <boolean id="editElectricBrace">1</boolean>
   <long id="editAutoWrapColumn">80</long>
-  <boolean id="editSmartSoftCharacters">1</boolean>
-  <!--
-  Komodo uses the ASCII codec to process this file, so store
-  the characters as their unicode values in decimal.
-  -->
-  <long id="editTabstopDelimiterStart_Value">171</long>
-  <long id="editTabstopDelimiterEnd_Value">187</long>
   <long id="autoSaveMinutes">10</long>
   <boolean id="checkDiskFile">1</boolean>
 

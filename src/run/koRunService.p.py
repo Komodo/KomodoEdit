@@ -314,7 +314,6 @@ class KoInterpolationService:
             'guid':   self._getGuid,
 
             # The code are handled specially in _doInterpolate1().
-            'tabstop': None,
             'ask': None,
             'askpass': None,
             'date': None,
@@ -523,8 +522,6 @@ class KoInterpolationService:
                 pathValue = hit["field1"]
             elif code =="debugger":
                 name = hit["field1"]
-            elif code =="tabstop":
-                defaultValue = hit["field1"]
             else:
                 modifier = hit["field1"]
                 if modifier == "orask":
@@ -628,14 +625,6 @@ class KoInterpolationService:
                 i1s += value
                 if backref:
                     backrefs[backref] = value
-            elif code == "tabstop":
-                value = u"%s%s%s" % (unichr(self._prefs.getLongPref("editTabstopDelimiterStart_Value")),
-                                     defaultValue or "",
-                                     unichr(self._prefs.getLongPref("editTabstopDelimiterEnd_Value")))
-                i1s += value
-                if backref:
-                    backrefs[backref] = value
-
             elif code == "date":
                 import time
                 if format is None:
