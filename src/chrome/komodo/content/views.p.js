@@ -76,6 +76,9 @@ if (typeof(ko.views)=='undefined') {
 }
 
 (function() {
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/views.properties");
 
 function viewManager() {
     this.log = ko.logging.getLogger('views');
@@ -338,8 +341,8 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     } catch (ex) {
         errmsg = lastErrorSvc.getLastErrorMessage();
         log.exception(ex, errmsg);
-        ko.dialogs.internalError("Error opening template.",
-                                 "Error loading template '" + uri + "'",
+        ko.dialogs.internalError(_bundle.GetStringFromName("errorOpeningTemplate.message"),
+                                 _bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
                                  ex);
         // even though there is an error, continue opening the
         // file so the user gets *something*
@@ -353,7 +356,7 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
                             window,
                             [], // codes are not bracketed
                             [docText], // codes are bracketed
-                            "Template for " + uri,
+                            _bundle.formatStringFromName("templateQuery.message", [name], 1),
                             ko.interpolate.getViewData(window));
         var liveTextInfo = null;
         if (!hasTabStops) {
@@ -373,12 +376,11 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
             // Command was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
             errmsg = lastErrorSvc.getLastErrorMessage();
-            ko.dialogs.alert("Could not interpolate:" + errmsg);
+            ko.dialogs.alert(_bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
         } else {
-            log.exception(ex, "Error interpolating template.");
-            ko.dialogs.internalError(("Could not process interpolation codes "
-                                      + "in template '" + basename + "'."),
-                                     "Error interpolating template '" + uri + "'",
+            log.exception(ex, _bundle.GetStringFromName("errorInterpolatingTemplate.message"));
+            ko.dialogs.internalError(_bundle.formatStringFromName("couldNotProcessInterpolatingCodes.message", [basename], 1),
+                                     _bundle.formatStringFromName("errorInterpolatingTemplateUri.message", [uri], 1),
                                      ex);
         }
     }
@@ -468,8 +470,7 @@ viewManager.prototype.newViewFromURI = function(
     var doc = this.docSvc.createDocumentFromURI(uri);
     var view = null;
     if (! doc.file.exists) {
-        if (ko.dialogs.yesNo("The file '" + doc.file.displayPath +
-                         "' does not exist.  Do you want to create it?") == "No") {
+        if (ko.dialogs.yesNo(_bundle.formatStringFromName("theFileDoesNotExist.message", [doc.file.displayPath], 1)) == "No") {
             return null;
         } else {
             var sysUtils = Components.classes["@activestate.com/koSysUtils;1"]
@@ -477,7 +478,7 @@ viewManager.prototype.newViewFromURI = function(
             try {
                 sysUtils.Touch(doc.file.displayPath);
             } catch(touch_ex) {
-                ko.dialogs.alert('Komodo was unable to create the file: ' + doc.file.displayPath);
+                ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToCreateTheFile.alert", [doc.file.displayPath], 1));
                 return null;
             }
             try {
@@ -492,14 +493,12 @@ viewManager.prototype.newViewFromURI = function(
         }
     }
     if (doc.file.isDirectory) {
-        ko.dialogs.alert('Komodo cannot open directories: ['+doc.file.path+']\n');
+        ko.dialogs.alert(_bundle.formatStringFromName("komodoCannotOpenDirectories.alert", [doc.file.path], 1));
         return null;
     }
     try {
         if (doc.haveAutoSave() &&
-            ko.dialogs.yesNo("It appears the file '"+doc.file.displayPath+
-                        "' was not properly saved, would you "+
-                        "like to restore the backup?", "Yes") == "Yes") {
+            ko.dialogs.yesNo(_bundle.formatStringFromName("itAppearsTheFileWasNotSaved.alert", [doc.file.displayPath], 1)) == "Yes") {
             doc.restoreAutoSave();
         } else if (viewType != "browser") {
             doc.load();
@@ -512,7 +511,9 @@ viewManager.prototype.newViewFromURI = function(
         }
     } catch (e)  {
         var err = this.lastErrorSvc.getLastErrorMessage();
-        ko.dialogs.alert('Komodo was unable to open the file: '+doc.file.baseName, err, 'File Open Error');
+        ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToOpenTheFile.alert", [doc.file.baseName], 1),
+                         err,
+                         _bundle.GetStringFromName("fileOpenError.alert"));
         this.log.exception(e);
         view = null;
     }
@@ -1046,10 +1047,10 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         urls = null;
     }
     if (typeof(title) == 'undefined') {
-        title = "Save Modified Files?";
+        title = _bundle.GetStringFromName("saveModifiedFiles.prompt");
     }
     if (typeof(prompt) == 'undefined') {
-        title = "Please select the files you wish to save";
+        title = _bundle.GetStringFromName("pleaseSelectTheFilesYouWishToSave.prompt");
     }
     if (typeof(doNotAskPref) == 'undefined') {
         doNotAskPref = null;
@@ -1072,7 +1073,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                 if (ko.macros.eventHandler.hookPreFileClose()) {
                     //Bogus: this needs the view so the macro can
                     // work with it.
-                    ko.statusBar.AddMessage("Macro interrupted file closing procedure.",
+                    ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
                                          "macro",
                                          5000,
                                          true);
@@ -1135,7 +1136,9 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                           stringifier,
                           doNotAskPref,
                           true /* yesNoCancel */,
-                          ["Save", "Do Not Save", "Cancel"]);
+                          [_bundle.GetStringFromName("save.prompt"),
+                           _bundle.GetStringFromName("doNotSave.prompt"),
+                           _bundle.GetStringFromName("cancel.prompt")]);
     if (itemsToSave == null) {
         return false; // canceled
     }
@@ -1326,7 +1329,7 @@ viewManager.prototype._findFunction = function(searchType) {
         var context = Components.classes["@activestate.com/koFindContext;1"]
                       .createInstance(Components.interfaces.koIFindContext);
         context.type = Components.interfaces.koIFindContext.FCT_CURRENT_DOC;
-        context.name = "the current document";
+        context.name = _bundle.GetStringFromName("theCurrentDocument.name");
         if (searchType == "all") {
             Find_FindAll(window, context, re, namedBlockDescription);
         } else {
@@ -1459,8 +1462,7 @@ viewManager.prototype.do_cmd_gotoLine = function() {
         var num = parsed[1];
         //dump("validateLine(line="+line+"): sign="+sign+", num="+num+"\n");
         if (isNaN(num) || num < 0) {
-            window.alert("'"+line+"' is invalid. You must enter a number, "+
-                         "with an optional '+' or '-' prefix.");
+            window.alert(_bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1));
             return false;
         }
         return true;
@@ -1470,11 +1472,10 @@ viewManager.prototype.do_cmd_gotoLine = function() {
     var view = ko.views.manager.currentView;
     var line = ko.dialogs.prompt(
             // prompt
-            "Enter a line number to go to. Prefix + or - to move relative "+
-            "to the current line. For example: +4 will move forward 4 lines.",
-            "Enter line number:", // label
+            _bundle.GetStringFromName("enterALineNumberToGoToPrefix.prompt"),
+            _bundle.GetStringFromName("enterLineNumber.prompt"), // label
             null, // value
-            "Go To Line", // title
+            _bundle.GetStringFromName("goToLine.prompt"), // title
             // mruName: Don't use one because this tends to gobble up one
             // <Enter> keypress, which is annoying more than the MRU is
             // potentially useful. Use the following to get per-file-mru:
@@ -1601,9 +1602,9 @@ viewManager.prototype.do_cmd_saveAll = function() {
         try {
             ko.toolboxes.user.save();
         } catch(ex) {
-            ko.dialogs.alert('There was an error saving the toolbox: ',
+            ko.dialogs.alert(_bundle.GetStringFromName("thereWasAnErrorSavingTheToolbox.alert"),
                          this.lastErrorSvc.getLastErrorMessage(),
-                         'Toolbox Save Error');
+                         _bundle.GetStringFromName("toolboxSaveError.alert"));
         }
 
         // Save all dirty projects
@@ -1950,7 +1951,8 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
     try {
         var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
-        var dname = os.path.join(templateSvc.getUserTemplatesDir(), 'My Templates');
+        //TODO: The directory name "My Templates" should be localized
+        var dname = os.path.join(templateSvc.getUserTemplatesDir(), "My Templates");
         var templatename = ko.filepicker.saveFile(dname,
                                 this.currentView.document.baseName);
         if (!templatename) return;
@@ -2066,6 +2068,10 @@ if (typeof(ko.workspace) == "undefined") {
 (function() {
 
 var _restoreInProgress = false;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/views.properties");
+
 this.restoreInProgress = function() {
     return _restoreInProgress;
 }
@@ -2085,7 +2091,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     if ((!gPrefs.hasPref(multiWindowWorkspacePrefName)
          && !gPrefs.hasPref('workspace'))
-        || ko.dialogs.yesNo("Do you want to open recent files and projects?",
+        || ko.dialogs.yesNo(_bundle.GetStringFromName("doYouWantToOpenRecentFilesAndProjects.prompt"),
                             null, null, null, "restore_workspace") == "No")
     {
         return;
@@ -2220,7 +2226,7 @@ this.saveWorkspace = function view_saveWorkspace()
                 id = ids[i];
                 elt = thisWindow.document.getElementById(id);
                 if (!elt) {
-                    alert("couldn't find " + id );
+                    alert(_bundle.formatStringFromName("couldNotFind.alert", [id], 1) );
                 }
                 pref = elt.getState();
                 if (pref) {
@@ -2240,6 +2246,9 @@ this.saveWorkspace = function view_saveWorkspace()
 
 ko.window = {};
 (function() {
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/views.properties");
 
 /**
  * File Status Service used by the function(s) below.
@@ -2388,9 +2397,8 @@ function _view_checkDiskFiles(event) {
 
         // handle files and projects that have changed on disk
         if (changedItems.length > 0) {
-            title = 'Reload Changed Files and Projects';
-            prompt = 'Some open files and/or projects have changed on '+
-                     'disk, do you want to reload them?';
+            title = _bundle.GetStringFromName("reloadChangedFilesAndProjects.prompt");
+            prompt = _bundle.GetStringFromName("someOpenFilesAndOrProjectsHaveChanged.prompt");
             items = ko.dialogs.selectFromList(title,
                                           prompt,
                                           changedItems,
@@ -2423,9 +2431,8 @@ function _view_checkDiskFiles(event) {
                     removedItems[i].view.document.isDirty = true;
                 }
             }
-            title = 'Close Deleted Files and Projects';
-            prompt = 'The following open files and/or projects have been '+
-                     'deleted from disk.  Do you want to close them?';
+            title = _bundle.GetStringFromName("closeDeletedFilesAndProjects.prompt");
+            prompt = _bundle.GetStringFromName("theFollowingFilesAndProjectsDeleted.prompt");
             items = ko.dialogs.selectFromList(title,
                                           prompt,
                                           removedItems,
@@ -2448,11 +2455,8 @@ function _view_checkDiskFiles(event) {
         //    closed so there is nothing that can really be done.
         // handle files and projects that have changed and are dirty
         if (conflictedItems.length > 0) {
-            prompt = 'The following files and projects have changed on disk '+
-                     'and have unsaved changes in Komodo.  You can use '+
-                     '"Show Unsaved Changes" to view a diff of the files, '+
-                     'revert or save your changes.';
-            title = 'Modified files have changed on disk';
+            prompt = _bundle.GetStringFromName("theFollowingFilesHaveChangedOnDisk.prompt");
+            title = _bundle.GetStringFromName("modifiedFilesHaveChangedOnDisk.prompt");
             var text = '';
             for (i = 0; i < conflictedItems.length; i++) {
                 text += _itemStringifier(conflictedItems[i]) + '\n'
