@@ -18,6 +18,26 @@ tab[type="file-tab"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
 }
 
+
+
+.scroll-x-icon
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x.png");
+}
+
+.scroll-x-icon:hover
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
+}
+
+.scroll-x-icon[disabled="true"],
+.scroll-x-icon[disabled="true"]:hover,
+.scroll-x-icon[disabled="true"]:hover:active
+{
+  list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
+}
+
+
 .sidebar-buttons {
   margin: 0px;
   padding: 0px;
