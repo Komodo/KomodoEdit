@@ -117,7 +117,8 @@ this.moveToNextTabstop = function(view) {
     var startingPos = 0;
     var lim = tabstopInsertionTable.length;
     var scimoz = view.scimoz;
-    if (this._containsActiveLink(scimoz)) {
+    var containsLinks = this._containsActiveLink(scimoz, TSCZW);
+    if (containsLinks) {
         this.clearLinkedTabstops(scimoz);
     }
     if (lim == 0) {
@@ -127,7 +128,7 @@ this.moveToNextTabstop = function(view) {
         if (scimoz.selectionStart < scimoz.selectionEnd) {
             scimoz.selectionStart = scimoz.selectionEnd;
         }
-        return false; // further process the tab
+        return containsLinks; // further process the tab unless we turned off tabbing this time
     }
     var tsInfo, spos = startingPos, epos, finalSPos = -1, finalEPos, idx = 0;
     // Look for an entry we can use
@@ -161,7 +162,7 @@ this.moveToNextTabstop = function(view) {
                  + startingPos);
             return false;
         }
-        this._useIndicator(scimoz, indicator, spos, epos);
+        this._useIndicator(view, scimoz, indicator, spos, epos);
         scimoz.selectionStart = spos;
         scimoz.selectionEnd = indicator == TSZW ? spos : epos;
         scimoz.scrollCaret();
@@ -207,7 +208,7 @@ this.moveToNextTabstop = function(view) {
         }
         lastPointByIndicator[searchIndicator] = epos;
         if (tsInfo.backrefNumber == backrefNumber) {
-            this._useIndicator(scimoz, tsInfo.indicator, spos, epos, true);
+            this._useIndicator(view, scimoz, tsInfo.indicator, spos, epos, true);
             this._deleteTabstopItem(view, tabstopInsertionTable, idx);
             lim -= 1;
         } else {
@@ -218,9 +219,8 @@ this.moveToNextTabstop = function(view) {
         scimoz.selectionStart = finalSPos;
         scimoz.selectionEnd = finalEPos;
         scimoz.scrollCaret();
-        //XXX Right place?
-        scimoz.beginUndoAction();
     }
+    //XXX pending working out undo: scimoz.beginUndoAction();
     this._ensureInsertMode();
     return true;
 };
@@ -285,7 +285,6 @@ this.handleDelete = function(scimoz) {
     }
 };
 
-var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
 /**
  * When the user makes a modification in a document with tabstops, this routine
  * handles the change.  It handles two main events:
@@ -297,7 +296,7 @@ var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].getService(Co
  * @param {Long} modificationType: SC_MOD_BEFOREDELETE|SC_MOD_INSERTTEXT|SC_MOD_DELETETEXT
  * @param {Object} view: Komodo view object
  * @param {Long} position: Position of the start of the changed region
- * @param {String} text: For SC_MOD_INSERTTEXT, utf-8 encoding of added text
+ * @param {String} text: For SC_MOD_INSERTTEXT, utf-16 encoding of added text
  * @param {Long} length: Length of the change to be made, based on utf-8 encoding of the text
  * ]]
  */
@@ -306,7 +305,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
     view,
     position,
     unicodeText,
-    unicodeLength
+    utf8Length
 ) {
     /*
      * 1. On a delete-text: get the new contents of the current TSC region, and
@@ -316,10 +315,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
      *    there's a TSCZW region to the right, copy the current text to the
      *    left of each TSCZW, and set each copy to a TSC.
     */
-    // Note: scimoz calls use utf8 lengths, but some like replaceTarget
-    // want Unicode text (ucs2).  Always convert text to these forms.
     var spos, epos, scimoz = view.scimoz;
-    var utf8Length = sysUtils.byteLength(unicodeText);
     switch (modificationType & 0x0c03) {
         case SC_MOD_BEFOREDELETE:
             // Remove any indicators from the tabstop table that we're
@@ -395,13 +391,63 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
 };
 
 
+/**
+ * Are we the first string to be added in a linked tabstop?
+ */
+this.atEmptyLinkedTabstop = function(scimoz,
+                                     position,
+                                     utf8Length) {
+    if (!scimoz.indicatorValueAt(TSCZW, position + utf8Length)) {
+        return false;
+    }
+    if (position == 0) {
+        return true;
+    }
+    return !scimoz.indicatorValueAt(TSC, scimoz.positionBefore(position));
+};
+
+/**
+ * This method creates non-empty tabstops where only a zero-width indicator
+ * link was found.  It's necessary because the indicator might be detected
+ * when 'a' is typed like so:
+ *
+ * a<*>
+ *
+ * but by the time it's processed, the user has typed 'sd', leading to this
+ * situation:
+ *
+ * asd<*>
+ *
+ * In this case, only the 'd' is found to be next to a zero-width indicator,
+ * so the 'a' and 's' don't appear in the other tabstops.  This function
+ * fixes that.
+ */
+
+this.forceUpdateAllZeroWidthLinks = function(view,
+                                             scimoz,
+                                             position,
+                                             text,
+                                             utf8Length) {
+    if (scimoz.indicatorValueAt(TSC, position)) {
+        this.updateLinkedBackrefs(SC_MOD_INSERTTEXT, view, position, text, utf8Length);
+    } else {
+        var tcszw_posn = scimoz.indicatorStart(TSCZW,
+                                               scimoz.indicatorEnd(TSCZW, position));
+        // Update all the TSCZW indicators to TSC ones
+        scimoz.indicatorCurrent = TSC;
+        scimoz.indicatorFillRange(position, tcszw_posn - position);
+        var newText = scimoz.getTextRange(scimoz.indicatorStart(TSC, position),
+                                          scimoz.indicatorEnd(TSC, position));
+        this._updateAllZeroWidthHits(scimoz, scimoz.indicatorEnd(TSCZW, tcszw_posn),
+                                     newText, ko.stringutils.bytelength(newText));
+    }    
+}
 
 /**
  * Remove linked tabstops from the document.
  * @param {Scimoz} scimoz_: The usual Scimoz object.
  */
 this.clearLinkedTabstops = function(scimoz) {
-    //XXX Right place?
     scimoz.endUndoAction();
     scimoz.indicatorCurrent = TSC;
     scimoz.indicatorClearRange(0, scimoz.textLength);
@@ -901,7 +947,7 @@ this.findByIndicator = function(scimoz, indicator, startingPos)  {
     return [-1, -1];
 };
 
-this._useIndicator = function(scimoz, indicator, spos, epos, isBackref) {
+this._useIndicator = function(view, scimoz, indicator, spos, epos, isBackref) {
     if (typeof(isBackref) == 'undefined') isBackref = false;
     scimoz.indicatorCurrent = indicator;
     scimoz.indicatorClearRange(spos, epos - spos);
@@ -910,8 +956,10 @@ this._useIndicator = function(scimoz, indicator, spos, epos, isBackref) {
         scimoz.indicatorCurrent = newIndicator;
         scimoz.indicatorFillRange(spos, epos - spos);
         if (newIndicator == TSC) {
-            // Put an TSZW at the end of it.
-            this.insertEmptyIndicator(scimoz, epos, TSCZW);
+            ko.views.wrapScintillaChange(view, function() {
+                // Put a TSZW at the end of it.
+                ko.tabstops.insertEmptyIndicator(scimoz, epos, TSCZW);
+            });
         }
     }
 };
@@ -924,8 +972,8 @@ this._ensureInsertMode = function() {
     }
 }
 
-this._containsActiveLink = function(scimoz) {
-    var indicatorEnd = scimoz.indicatorEnd(TSCZW, 0);
+this._containsActiveLink = function(scimoz, indicator) {
+    var indicatorEnd = scimoz.indicatorEnd(indicator, 0);
     return indicatorEnd != 0 && indicatorEnd != scimoz.textLength;
 };
 

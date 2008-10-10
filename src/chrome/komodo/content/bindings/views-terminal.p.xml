@@ -104,7 +104,6 @@
             // is called.  When terminalHandler.endSession is called, then
             // scimoz is made read only again.
             this.scimoz.readOnly = 1;
-            this.sysUtils = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
             ko.trace.get().leave('view-terminal:initWithTerminal')
         ]]>
         </body>
@@ -409,8 +408,8 @@
         <method name="onModifiedHandler">
         <parameter name="position"/>
         <parameter name="modificationType"/>
-        <parameter name="text"/>
-        <parameter name="length"/>
+        <parameter name="text"/><!-- unicode -->
+        <parameter name="length"/><!-- utf8 -->
         <parameter name="linesAdded"/>
         <parameter name="line"/>
         <parameter name="foldLevelNow"/>
@@ -428,8 +427,7 @@
                 if (text != '\n' && text != '\r' && text != '\r\n') {
                     if (linesAdded > 0) {
                         var sline = this.scimoz.lineFromPosition(position);
-                        var utf8Length = this.sysUtils.byteLength(text);
-                        var eline = this.scimoz.lineFromPosition(position + utf8Length);
+                        var eline = this.scimoz.lineFromPosition(position + length);
                         var start = this.scimoz.positionFromLine(sline);
                         var end = this.scimoz.getLineEndPosition(eline);
 

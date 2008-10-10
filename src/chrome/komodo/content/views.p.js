@@ -400,7 +400,12 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     
     if (liveTextInfo) {
         doc.buffer = '';
-        ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
+        view.scimoz.beginUndoAction();
+        try {
+            ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
+        } finally {
+            view.scimoz.endUndoAction();
+        }
         if (saveto) {
             doc.save(1);
         }
@@ -2059,6 +2064,19 @@ this.nullOnModifiedHandler = function() {
     // See views-buffer.xml:onModified
     return true;
 }
+
+// Functions that modify the buffer should be wrapped to avoid
+// triggering re-entrant calls.
+
+this.wrapScintillaChange = function(view, func) {
+    var onModifiedHandler = view.onModifiedHandler;
+    view.onModifiedHandler = ko.views.nullOnModifiedHandler;
+    try {
+        func();
+    } finally {
+        view.onModifiedHandler = onModifiedHandler;
+    }
+};
 
 }).apply(ko.views);
 

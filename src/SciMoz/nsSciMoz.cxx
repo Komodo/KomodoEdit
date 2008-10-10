@@ -501,10 +501,10 @@ void SciMoz::Notify(long lParam) {
 			const char *pText = (len && (notification->modificationType & SC_MOD_INSERTTEXT)
 					     ? notification->text
 					     : "");
-			nsAutoString uString = NS_ConvertUTF8toUTF16(pText);
-			len = uString.Length();
+			nsAutoString uString = NS_ConvertUTF8toUTF16(pText, len);
 			PRUnichar *wtext = ToNewUnicode(uString);
 			mask = ISciMozEvents::SME_MODIFIED;
+			// Pass in unicode text, utf8 length
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
 				eventSink->OnModified(notification->position,
 						      notification->modificationType,
