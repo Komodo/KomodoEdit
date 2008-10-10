@@ -3,22 +3,22 @@
 
 /* tidy-int.h -- internal library declarations
 
-  (c) 1998-2003 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
-    $Author: hoehrmann $ 
-    $Date: 2004/03/06 17:07:02 $ 
-    $Revision: 1.8 $ 
+    $Author: arnaud02 $ 
+    $Date: 2007/02/11 09:45:52 $ 
+    $Revision: 1.13 $ 
 
 */
 
 #include "tidy.h"
 #include "config.h"
+#include "lexer.h"
 #include "tags.h"
 #include "attrs.h"
-#include "lexer.h"
 #include "pprint.h"
 #include "access.h"
 
@@ -70,8 +70,11 @@ struct _TidyDocImpl
     uint                badChars;    /* for bad char encodings */
     uint                badForm;     /* for badly placed form tags */
 
+    /* Memory allocator */
+    TidyAllocator*      allocator;
+
     /* Miscellaneous */
-    ulong               appData;
+    void*               appData;
     uint                nClassId;
     Bool                inputHadBOM;
 
@@ -115,36 +118,12 @@ TidyOption   tidyImplToOption( const TidyOptionImpl* option );
 
 #endif
 
-/* Create/Destroy a Tidy "document" object */
-TidyDocImpl* tidyDocCreate(void);
-void         tidyDocRelease( TidyDocImpl* impl );
+/** Wrappers for easy memory allocation using the document's allocator */
+#define TidyDocAlloc(doc, size) TidyAlloc((doc)->allocator, size)
+#define TidyDocRealloc(doc, block, size) TidyRealloc((doc)->allocator, block, size)
+#define TidyDocFree(doc, block) TidyFree((doc)->allocator, block)
+#define TidyDocPanic(doc, msg) TidyPanic((doc)->allocator, msg)
 
-int          tidyDocStatus( TidyDocImpl* impl );
-
-/* Parse Markup */
-int          tidyDocParseFile( TidyDocImpl* impl, ctmbstr htmlfil );
-int          tidyDocParseStdin( TidyDocImpl* impl );
-int          tidyDocParseString( TidyDocImpl* impl, ctmbstr content );
-int          tidyDocParseBuffer( TidyDocImpl* impl, TidyBuffer* inbuf );
-int          tidyDocParseSource( TidyDocImpl* impl, TidyInputSource* docIn );
-int          tidyDocParseStream( TidyDocImpl* impl, StreamIn* in );
-
-
-/* Execute post-parse diagnostics and cleanup.
-** Note, the order is important.  You will get different
-** results from the diagnostics depending on if they are run
-** pre-or-post repair.
-*/
-int          tidyDocRunDiagnostics( TidyDocImpl* doc );
-int          tidyDocCleanAndRepair( TidyDocImpl* doc );
-
-
-/* Save cleaned up file to file/buffer/sink */
-int          tidyDocSaveFile( TidyDocImpl* impl, ctmbstr htmlfil );
-int          tidyDocSaveStdout( TidyDocImpl* impl );
-int          tidyDocSaveString( TidyDocImpl* impl, tmbstr buffer, uint* buflen );
-int          tidyDocSaveBuffer( TidyDocImpl* impl, TidyBuffer* outbuf );
-int          tidyDocSaveSink( TidyDocImpl* impl, TidyOutputSink* docOut );
-int          tidyDocSaveStream( TidyDocImpl* impl, StreamOut* out );
+int          TY_(DocParseStream)( TidyDocImpl* impl, StreamIn* in );
 
 #endif /* __TIDY_INT_H__ */

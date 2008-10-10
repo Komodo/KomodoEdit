@@ -1,7 +1,7 @@
 /*
   tidy.c - HTML TidyLib command line driver
 
-  Copyright (c) 1998-2005 World Wide Web Consortium
+  Copyright (c) 1998-2008 World Wide Web Consortium
   (Massachusetts Institute of Technology, European Research 
   Consortium for Informatics and Mathematics, Keio University).
   All Rights Reserved.
@@ -9,8 +9,8 @@
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/07/22 15:57:10 $ 
-    $Revision: 1.38 $ 
+    $Date: 2008/03/22 20:53:08 $ 
+    $Revision: 1.50 $ 
 */
 
 #include "tidy.h"
@@ -25,6 +25,12 @@ static Bool samefile( ctmbstr filename1, ctmbstr filename2 )
 #else
     return ( strcasecmp( filename1, filename2 ) == 0 );
 #endif
+}
+
+static void outOfMemory(void)
+{
+    fprintf(stderr,"Out of memory. Bailing out.");
+    exit(1);
 }
 
 static const char *cutToWhiteSpace(const char *s, uint offset, char *sbuf)
@@ -66,6 +72,8 @@ static void print2Columns( const char* fmt, uint l1, uint l2,
     const char *pc1=c1, *pc2=c2;
     char *c1buf = (char *)malloc(l1+1);
     char *c2buf = (char *)malloc(l2+1);
+    if (!c1buf) outOfMemory();
+    if (!c2buf) outOfMemory();
 
     do
     {
@@ -86,6 +94,9 @@ static void print3Columns( const char* fmt, uint l1, uint l2, uint l3,
     char *c1buf = (char *)malloc(l1+1);
     char *c2buf = (char *)malloc(l2+1);
     char *c3buf = (char *)malloc(l3+1);
+    if (!c1buf) outOfMemory();
+    if (!c2buf) outOfMemory();
+    if (!c3buf) outOfMemory();
 
     do
     {
@@ -117,7 +128,7 @@ typedef enum
   CmdOptProcDir,
   CmdOptCharEnc,
   CmdOptMisc,
-  CmdOptCatLAST,
+  CmdOptCatLAST
 } CmdOptCategory;
 
 static const struct {
@@ -147,7 +158,7 @@ static const CmdOptDesc cmdopt_defs[] =  {
       "set configuration options from the specified <file>",
       NULL, CmdOptFileManip },
     { "-file <file>",
-      "write errors to the specified <file>",
+      "write errors and warnings to the specified <file>",
       "error-file: <file>", CmdOptFileManip, "-f <file>" },
     { "-modify",
       "modify the original input files",
@@ -156,10 +167,13 @@ static const CmdOptDesc cmdopt_defs[] =  {
       "indent element content",
       "indent: auto", CmdOptProcDir, "-i" },
     { "-wrap <column>",
-      "wrap text at the specified <column> (default is 68)",
+      "wrap text at the specified <column>"
+      ". 0 is assumed if <column> is missing. "
+      "When this option is omitted, the default of the configuration option "
+      "\"wrap\" applies.",
       "wrap: <column>", CmdOptProcDir, "-w <column>" },
     { "-upper",
-      "force tags to upper case (default is lower case)",
+      "force tags to upper case",
       "uppercase-tags: yes", CmdOptProcDir, "-u" },
     { "-clean",
       "replace FONT, NOBR and CENTER tags by CSS",
@@ -171,7 +185,7 @@ static const CmdOptDesc cmdopt_defs[] =  {
       "output numeric rather than named entities",
       "numeric-entities: yes", CmdOptProcDir, "-n" },
     { "-errors",
-      "only show errors",
+      "show only errors and warnings",
       "markup: no", CmdOptProcDir, "-e" },
     { "-quiet",
       "suppress nonessential output",
@@ -190,7 +204,8 @@ static const CmdOptDesc cmdopt_defs[] =  {
       "output-html: yes", CmdOptProcDir },
 #if SUPPORT_ACCESSIBILITY_CHECKS
     { "-access <level>",
-      "do additional accessibility checks (<level> = 1, 2, 3)",
+      "do additional accessibility checks (<level> = 0, 1, 2, 3)"
+      ". 0 is assumed if <level> is missing.",
       "accessibility-check: <level>", CmdOptProcDir },
 #endif
     { "-raw",
@@ -275,6 +290,7 @@ static tmbstr get_option_names( const CmdOptDesc* pos )
         len += 2+strlen(pos->name3);
 
     name = (tmbstr)malloc(len+1);
+    if (!name) outOfMemory();
     strcpy(name, pos->name1);
     if (pos->name2)
     {
@@ -311,6 +327,7 @@ static tmbstr get_escaped_name( ctmbstr name )
         }
 
     escpName = (tmbstr)malloc(len+1);
+    if (!escpName) outOfMemory();
     escpName[0] = '\0';
 
     aux[1] = '\0';
@@ -399,7 +416,7 @@ static void help( ctmbstr prog )
 {
     printf( "%s [option...] [file...] [option...] [file...]\n", prog );
     printf( "Utility to clean up and pretty print HTML/XHTML/XML\n");
-    printf( "see http://tidy.sourceforge.net/\n");
+    printf( "See http://tidy.sourceforge.net/\n");
     printf( "\n");
 
 #ifdef PLATFORM_NAME
@@ -412,10 +429,11 @@ static void help( ctmbstr prog )
 
     print_help_option();
 
-    printf( "Use --blah blarg for any configuration option \"blah\" with argument \"blarg\"\n");
-    printf( "\n");
+    printf( "Use --optionX valueX for any configuration option \"optionX\" with argument\n"
+            "\"valueX\". For a list of the configuration options, use \"-help-config\" or refer\n"
+            "to the man page.\n\n");
 
-    printf( "Input/Output default to stdin/stdout respectively\n");
+    printf( "Input/Output default to stdin/stdout respectively.\n");
     printf( "Single letter options apart from -f may be combined\n");
     printf( "as in:  tidy -f errs.txt -imu foo.html\n");
     printf( "For further info on HTML see http://www.w3.org/MarkUp\n");
@@ -456,7 +474,7 @@ ctmbstr ConfigCategoryName( TidyConfigCategory id )
     case TidyMiscellaneous:
         return "misc";
     }
-    fprintf(stderr, "Fatal error: impossible value for id='%d'.\n", id);
+    fprintf(stderr, "Fatal error: impossible value for id='%d'.\n", (int)id);
     assert(0);
     abort();
 }
@@ -493,6 +511,7 @@ void GetOption( TidyDoc tdoc, TidyOption topt, OptionDesc *d )
     switch ( optId )
     {
     case TidyDuplicateAttrs:
+    case TidySortAttributes:
     case TidyNewline:
     case TidyAccessibilityCheckLevel:
         d->type = "enum";
@@ -749,6 +768,7 @@ tmbstr GetAllowedValuesFromPick( TidyOption topt )
         len += strlen(def);
     }
     val = (tmbstr)malloc(len+1);
+    if (!val) outOfMemory();
     val[0] = '\0';
     pos = tidyOptGetPickList( topt );
     first = yes;
@@ -770,6 +790,7 @@ tmbstr GetAllowedValues( TidyOption topt, const OptionDesc *d )
     if (d->vals)
     {
         tmbstr val = (tmbstr)malloc(1+strlen(d->vals));
+        if (!val) outOfMemory();
         strcpy(val, d->vals);
         return val;
     }
@@ -851,6 +872,8 @@ void printOptionValues( TidyDoc ARG_UNUSED(tdoc), TidyOption topt,
     case TidyNewline:
         d->def = tidyOptGetCurrPick( tdoc, optId );
         break;
+    default:
+        break;
     }
 
     /* fix for http://tidy.sf.net/bug/873921 */
@@ -906,32 +929,32 @@ int main( int argc, char** argv )
     errout = stderr;  /* initialize to stderr */
     status = 0;
     
-#ifdef CONFIG_FILE
-    if ( tidyFileExists(CONFIG_FILE) )
+#ifdef TIDY_CONFIG_FILE
+    if ( tidyFileExists( tdoc, TIDY_CONFIG_FILE) )
     {
-        status = tidyLoadConfig( tdoc, CONFIG_FILE );
+        status = tidyLoadConfig( tdoc, TIDY_CONFIG_FILE );
         if ( status != 0 )
-            fprintf(errout, "Loading config file \"%s\" failed, err = %d\n", CONFIG_FILE, status);
+            fprintf(errout, "Loading config file \"%s\" failed, err = %d\n", TIDY_CONFIG_FILE, status);
     }
-#endif /* CONFIG_FILE */
+#endif /* TIDY_CONFIG_FILE */
 
     /* look for env var "HTML_TIDY" */
     /* then for ~/.tidyrc (on platforms defining $HOME) */
 
-    if ( cfgfil = getenv("HTML_TIDY") )
+    if ( (cfgfil = getenv("HTML_TIDY")) != NULL )
     {
         status = tidyLoadConfig( tdoc, cfgfil );
         if ( status != 0 )
             fprintf(errout, "Loading config file \"%s\" failed, err = %d\n", cfgfil, status);
     }
-#ifdef USER_CONFIG_FILE
-    else if ( tidyFileExists(USER_CONFIG_FILE) )
+#ifdef TIDY_USER_CONFIG_FILE
+    else if ( tidyFileExists( tdoc, TIDY_USER_CONFIG_FILE) )
     {
-        status = tidyLoadConfig( tdoc, USER_CONFIG_FILE );
+        status = tidyLoadConfig( tdoc, TIDY_USER_CONFIG_FILE );
         if ( status != 0 )
-            fprintf(errout, "Loading config file \"%s\" failed, err = %d\n", USER_CONFIG_FILE, status);
+            fprintf(errout, "Loading config file \"%s\" failed, err = %d\n", TIDY_USER_CONFIG_FILE, status);
     }
-#endif /* USER_CONFIG_FILE */
+#endif /* TIDY_USER_CONFIG_FILE */
 
     /* read command line */
     while ( argc > 0 )
@@ -1103,10 +1126,13 @@ int main( int argc, char** argv )
                 if ( argc >= 3 )
                 {
                     uint wraplen = 0;
-                    sscanf( argv[2], "%u", &wraplen );
+                    int nfields = sscanf( argv[2], "%u", &wraplen );
                     tidyOptSetInt( tdoc, TidyWrapLen, wraplen );
-                    --argc;
-                    ++argv;
+                    if (nfields > 0)
+                    {
+                        --argc;
+                        ++argv;
+                    }
                 }
             }
             else if ( strcasecmp(arg,  "version") == 0 ||
@@ -1141,10 +1167,13 @@ int main( int argc, char** argv )
                 if ( argc >= 3 )
                 {
                     uint acclvl = 0;
-                    sscanf( argv[2], "%u", &acclvl );
+                    int nfields = sscanf( argv[2], "%u", &acclvl );
                     tidyOptSetInt( tdoc, TidyAccessibilityCheckLevel, acclvl );
-                    --argc;
-                    ++argv;
+                    if (nfields > 0)
+                    {
+                        --argc;
+                        ++argv;
+                    }
                 }
             }
 #endif
@@ -1154,7 +1183,7 @@ int main( int argc, char** argv )
                 uint c;
                 ctmbstr s = argv[1];
 
-                while ( c = *++s )
+                while ( (c = *++s) != '\0' )
                 {
                     switch ( c )
                     {

@@ -1,13 +1,13 @@
 /* win32tc.c -- Interface to Win32 transcoding routines
 
-  (c) 1998-2004 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2008 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
-  $Id: win32tc.c,v 1.5 2004/08/02 02:33:13 terry_teague Exp $
+  $Id: win32tc.c,v 1.12 2008/08/09 11:55:27 hoehrmann Exp $
 */
 
 /* keep these here to keep file non-empty */
-#include <tidy.h>
+#include "tidy.h"
 #include "forward.h"
 #include "streamio.h"
 #include "tmbstr.h"
@@ -472,24 +472,24 @@ static struct _nameWinCPMap
   { NULL,                                                0,  no }
 };
 
-uint Win32MLangGetCPFromName(ctmbstr encoding)
+uint TY_(Win32MLangGetCPFromName)(TidyAllocator *allocator, ctmbstr encoding)
 {
     uint i;
     tmbstr enc;
 
     /* ensure name is in lower case */
-    enc = tmbstrdup(encoding);
-    enc = tmbstrtolower(enc);
+    enc = TY_(tmbstrdup)(allocator,encoding);
+    enc = TY_(tmbstrtolower)(enc);
 
     for (i = 0; NameWinCPMap[i].name; ++i)
     {
-        if (tmbstrcmp(NameWinCPMap[i].name, enc) == 0)
+        if (TY_(tmbstrcmp)(NameWinCPMap[i].name, enc) == 0)
         {
             IMLangConvertCharset * p = NULL;
             uint wincp = NameWinCPMap[i].wincp;
             HRESULT hr;
 
-            MemFree(enc);
+            TidyFree(allocator, enc);
 
             /* currently no support for unsafe encodings */
             if (!NameWinCPMap[i].safe)
@@ -520,11 +520,11 @@ uint Win32MLangGetCPFromName(ctmbstr encoding)
         }
     }
 
-    MemFree(enc);
+    TidyFree(allocator, enc);
     return 0;
 }
 
-Bool Win32MLangInitInputTranscoder(StreamIn * in, uint wincp)
+Bool TY_(Win32MLangInitInputTranscoder)(StreamIn * in, uint wincp)
 {
     IMLangConvertCharset * p = NULL;
     HRESULT hr;
@@ -555,12 +555,12 @@ Bool Win32MLangInitInputTranscoder(StreamIn * in, uint wincp)
         return no;
     }
 
-    in->mlang = (ulong)p;
+    in->mlang = p;
 
     return yes;
 }
 
-void Win32MLangUninitInputTranscoder(StreamIn * in)
+void TY_(Win32MLangUninitInputTranscoder)(StreamIn * in)
 {
     IMLangConvertCharset * p;
 
@@ -571,13 +571,14 @@ void Win32MLangUninitInputTranscoder(StreamIn * in)
     {
         IMLangConvertCharset_Release(p);
         p = NULL;
-        in->mlang = (ulong)NULL;
+        in->mlang = NULL;
     }
 
     CoUninitialize();
 }
 
-Bool Win32MLangInitOutputTranscoder(StreamOut * out, tmbstr encoding)
+#if 0
+Bool Win32MLangInitOutputTranscoder(TidyAllocator *allocator, StreamOut * out, tmbstr encoding)
 {
     IMLangConvertCharset * p = NULL;
     HRESULT hr;
@@ -587,7 +588,7 @@ Bool Win32MLangInitOutputTranscoder(StreamOut * out, tmbstr encoding)
 
     CoInitialize(NULL);
 
-    wincp = Win32MLangGetCPFromName(encoding);
+    wincp = TY_(Win32MLangGetCPFromName)(allocator, encoding);
     if (wincp == 0)
     {
         /* no codepage found for this encoding */
@@ -610,7 +611,7 @@ Bool Win32MLangInitOutputTranscoder(StreamOut * out, tmbstr encoding)
         return no;
     }
 
-    out->mlang = (ulong)p;
+    out->mlang = p;
 
     return yes;
 }
@@ -626,13 +627,14 @@ void Win32MLangUninitOutputTranscoder(StreamOut * out)
     {
         IMLangConvertCharset_Release(p);
         p = NULL;
-        out->mlang = (ulong)NULL;
+        out->mlang = NULL;
     }
 
     CoUninitialize();
 }
+#endif
 
-int Win32MLangGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
+int TY_(Win32MLangGetChar)(byte firstByte, StreamIn * in, uint * bytesRead)
 {
     IMLangConvertCharset * p;
     TidyInputSource * source;
@@ -644,7 +646,7 @@ int Win32MLangGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
     assert( in != NULL );
     assert( &in->source != NULL );
     assert( bytesRead != NULL );
-    assert( in->mlang != 0 );
+    assert( in->mlang != NULL );
 
     p = (IMLangConvertCharset *)in->mlang;
     source = &in->source;
@@ -667,9 +669,9 @@ int Win32MLangGetChar(byte firstByte, StreamIn * in, uint * bytesRead)
             /* U+10000-U+10FFFF are returned as a pair of surrogates */
             tchar m = (tchar)outbuf[0];
             tchar n = (tchar)outbuf[1];
-            assert( IsHighSurrogate(n) && IsLowSurrogate(m) );
+            assert( TY_(IsHighSurrogate)(n) && TY_(IsLowSurrogate)(m) );
             *bytesRead = readNow;
-            return (int)CombineSurrogatePair(n, m);
+            return (int)TY_(CombineSurrogatePair)(n, m);
         }
 
         if (outbufsize == 1)
@@ -712,14 +714,14 @@ Bool Win32MLangIsConvertible(tchar c, StreamOut * out)
     assert( c != 0 );
     assert( c <= 0x10FFFF );
     assert( out != NULL );
-    assert( out->mlang != 0 );
+    assert( out->mlang != NULL );
 
     if (c > 0xFFFF)
     {
         tchar high = 0;
         tchar low = 0;
 
-        SplitSurrogatePair(c, &low, &high);
+        TY_(SplitSurrogatePair)(c, &low, &high);
 
         inbuf[inbufsize++] = (WCHAR)low;
         inbuf[inbufsize++] = (WCHAR)high;
@@ -749,7 +751,7 @@ void Win32MLangPutChar(tchar c, StreamOut * out, uint * bytesWritten)
     assert( bytesWritten != NULL );
     assert( out != NULL );
     assert( &out->sink != NULL );
-    assert( out->mlang != 0 );
+    assert( out->mlang != NULL );
 
     p = (IMLangConvertCharset *)out->mlang;
     sink = &out->sink;
@@ -759,7 +761,7 @@ void Win32MLangPutChar(tchar c, StreamOut * out, uint * bytesWritten)
         tchar high = 0;
         tchar low = 0;
 
-        SplitSurrogatePair(c, &low, &high);
+        TY_(SplitSurrogatePair)(c, &low, &high);
 
         inbuf[inbufsize++] = (WCHAR)low;
         inbuf[inbufsize++] = (WCHAR)high;
@@ -782,3 +784,12 @@ void Win32MLangPutChar(tchar c, StreamOut * out, uint * bytesWritten)
 }
 
 #endif /* TIDY_WIN32_MLANG_SUPPORT */
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

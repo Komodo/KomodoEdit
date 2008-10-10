@@ -3,14 +3,14 @@
 
 /* forward.h -- Forward declarations for major Tidy structures
 
-  (c) 1998-2003 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
-    $Author: creitzel $ 
-    $Date: 2003/03/19 18:37:44 $ 
-    $Revision: 1.3 $ 
+    $Author: arnaud02 $ 
+    $Date: 2007/02/11 09:45:52 $ 
+    $Revision: 1.7 $ 
 
   Avoids many include file circular dependencies.
 
@@ -23,6 +23,10 @@
 
 #include "platform.h"
 #include "tidy.h"
+
+/* Internal symbols are prefixed to avoid clashes with other libraries */
+#define TYDYAPPEND(str1,str2) str1##str2
+#define TY_(str) TYDYAPPEND(prvTidy,str)
 
 struct _StreamIn;
 typedef struct _StreamIn StreamIn;
@@ -52,6 +56,14 @@ typedef struct _IStack IStack;
 struct _Lexer;
 typedef struct _Lexer Lexer;
 
+extern TidyAllocator TY_(g_default_allocator);
 
+/** Wrappers for easy memory allocation using an allocator */
+#define TidyAlloc(allocator, size) ((allocator)->vtbl->alloc((allocator), (size)))
+#define TidyRealloc(allocator, block, size) ((allocator)->vtbl->realloc((allocator), (block), (size)))
+#define TidyFree(allocator, block) ((allocator)->vtbl->free((allocator), (block)))
+#define TidyPanic(allocator, msg) ((allocator)->vtbl->panic((allocator), (msg)))
+#define TidyClearMemory(block, size) memset((block), 0, (size))
+ 
 
 #endif /* __FORWARD_H__ */

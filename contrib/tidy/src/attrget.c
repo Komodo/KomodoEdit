@@ -1,12 +1,12 @@
 /* attrget.c -- Locate attribute value by type
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info:
     $Author: arnaud02 $ 
-    $Date: 2005/04/08 09:11:13 $ 
-    $Revision: 1.4 $ 
+    $Date: 2006/09/12 15:14:44 $ 
+    $Revision: 1.6 $ 
 
 */
 
@@ -15,6 +15,11 @@
 #include "attrs.h"
 #include "tidy.h"
 
+TidyAttr TIDY_CALL tidyAttrGetById( TidyNode tnod, TidyAttrId attId )
+{
+    Node* nimp = tidyNodeToImpl(tnod);
+    return tidyImplToAttr( TY_(AttrGetById)( nimp, attId ) );
+}
 TidyAttr TIDY_CALL tidyAttrGetHREF( TidyNode tnod )
 {
     return tidyImplToAttr( attrGetHREF( tidyNodeToImpl(tnod) ) );
@@ -197,3 +202,12 @@ TidyAttr TIDY_CALL tidyAttrGetROWSPAN( TidyNode tnod )
 {
     return tidyImplToAttr( attrGetROWSPAN( tidyNodeToImpl(tnod) ) );
 }
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

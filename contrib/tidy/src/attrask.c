@@ -1,12 +1,12 @@
 /* attrask.c -- Interrogate attribute type
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info:
     $Author: arnaud02 $ 
-    $Date: 2005/04/08 09:11:13 $ 
-    $Revision: 1.4 $ 
+    $Date: 2006/09/12 15:14:44 $ 
+    $Revision: 1.5 $ 
 
 */
 
@@ -116,7 +116,7 @@ Bool TIDY_CALL tidyAttrIsREL( TidyAttr tattr )
 }
 Bool TIDY_CALL tidyAttrIsEvent( TidyAttr tattr )
 {
-    return attrIsEvent( tidyAttrToImpl(tattr) );
+    return TY_(attrIsEvent)( tidyAttrToImpl(tattr) );
 }
 Bool TIDY_CALL tidyAttrIsOnMOUSEMOVE( TidyAttr tattr )
 {
@@ -198,3 +198,12 @@ Bool TIDY_CALL tidyAttrIsROWSPAN( TidyAttr tattr )
 {
     return attrIsROWSPAN( tidyAttrToImpl(tattr) );
 }
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

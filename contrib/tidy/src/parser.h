@@ -3,20 +3,22 @@
 
 /* parser.h -- HTML Parser
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/08/03 18:07:01 $ 
-    $Revision: 1.10 $ 
+    $Date: 2007/05/30 16:47:31 $ 
+    $Revision: 1.14 $ 
 
 */
 
 #include "forward.h"
 
-Bool CheckNodeIntegrity(Node *node);
+Bool TY_(CheckNodeIntegrity)(Node *node);
+
+Bool TY_(TextNodeEndWithSpace)( Lexer *lexer, Node *node );
 
 /*
  used to determine how attributes
@@ -24,60 +26,51 @@ Bool CheckNodeIntegrity(Node *node);
  this was introduced to deal with
  user defined tags e.g. Cold Fusion
 */
-Bool IsNewNode(Node *node);
+Bool TY_(IsNewNode)(Node *node);
 
-void CoerceNode(TidyDocImpl* doc, Node *node, TidyTagId tid, Bool obsolete, Bool expected);
+void TY_(CoerceNode)(TidyDocImpl* doc, Node *node, TidyTagId tid, Bool obsolete, Bool expected);
 
 /* extract a node and its children from a markup tree */
-Node *RemoveNode(Node *node);
+Node *TY_(RemoveNode)(Node *node);
 
 /* remove node from markup tree and discard it */
-Node *DiscardElement( TidyDocImpl* doc, Node *element);
+Node *TY_(DiscardElement)( TidyDocImpl* doc, Node *element);
 
 /* insert node into markup tree as the firt element
  of content of element */
-void InsertNodeAtStart(Node *element, Node *node);
+void TY_(InsertNodeAtStart)(Node *element, Node *node);
 
 /* insert node into markup tree as the last element
  of content of "element" */
-void InsertNodeAtEnd(Node *element, Node *node);
+void TY_(InsertNodeAtEnd)(Node *element, Node *node);
 
 /* insert node into markup tree before element */
-void InsertNodeBeforeElement(Node *element, Node *node);
+void TY_(InsertNodeBeforeElement)(Node *element, Node *node);
 
 /* insert node into markup tree after element */
-void InsertNodeAfterElement(Node *element, Node *node);
+void TY_(InsertNodeAfterElement)(Node *element, Node *node);
 
-Node *TrimEmptyElement( TidyDocImpl* doc, Node *element );
-Node* DropEmptyElements(TidyDocImpl* doc, Node* node);
+Node *TY_(TrimEmptyElement)( TidyDocImpl* doc, Node *element );
+Node* TY_(DropEmptyElements)(TidyDocImpl* doc, Node* node);
 
 
 /* assumes node is a text node */
-Bool IsBlank(Lexer *lexer, Node *node);
+Bool TY_(IsBlank)(Lexer *lexer, Node *node);
 
-
-/*
- duplicate name attribute as an id
- and check if id and name match
-*/
-/* acceptable content for pre elements */
-Bool PreContent( TidyDocImpl* doc, Node *node );
-
-Bool IsJavaScript(Node *node);
-Bool DescendantOf(Node *element, TidyTagId tid);
+Bool TY_(IsJavaScript)(Node *node);
 
 /*
   HTML is the top level element
 */
-void ParseDocument( TidyDocImpl* doc );
+void TY_(ParseDocument)( TidyDocImpl* doc );
 
 
 
 /*
   XML documents
 */
-Bool XMLPreserveWhiteSpace( TidyDocImpl* doc, Node *element );
+Bool TY_(XMLPreserveWhiteSpace)( TidyDocImpl* doc, Node *element );
 
-void ParseXMLDocument( TidyDocImpl* doc );
+void TY_(ParseXMLDocument)( TidyDocImpl* doc );
 
 #endif /* __PARSER_H__ */

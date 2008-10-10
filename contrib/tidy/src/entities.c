@@ -1,13 +1,13 @@
 /* entities.c -- recognize HTML ISO entities
 
-  (c) 1998-2004 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2008 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
-    $Author: terry_teague $ 
-    $Date: 2004/08/02 02:25:13 $ 
-    $Revision: 1.15 $ 
+    $Author: hoehrmann $ 
+    $Date: 2008/08/09 11:55:27 $ 
+    $Revision: 1.19 $ 
 
   Entity handling can be static because there are no config or
   document-specific values.  Lookup table is 100% defined at 
@@ -301,7 +301,7 @@ static const entity entities[] =
     { "lsaquo",   VERS_FROM40,  8249 },
     { "rsaquo",   VERS_FROM40,  8250 },
     { "euro",     VERS_FROM40,  8364 },
-    { NULL,       0,               0 }
+    { NULL,       VERS_UNKNOWN, 0 }
 };
 
 
@@ -311,16 +311,17 @@ static const entity entities[] =
 ** speed that hash doesn't improve things without > 500
 ** items in list.
 */
-static const entity* lookup( ctmbstr s )
+static const entity* entitiesLookup( ctmbstr s )
 {
     tmbchar ch = (tmbchar)( s ? *s : 0 );
     const entity *np;
     for ( np = entities; ch && np && np->name; ++np )
-        if ( ch == *np->name && tmbstrcmp(s, np->name) == 0 )
+        if ( ch == *np->name && TY_(tmbstrcmp)(s, np->name) == 0 )
             return np;
     return NULL;
 }
 
+#if 0
 /* entity starting with "&" returns zero on error */
 uint EntityCode( ctmbstr name, uint versions )
 {
@@ -343,7 +344,7 @@ uint EntityCode( ctmbstr name, uint versions )
     }
 
    /* Named entity: name ="&" followed by a name */
-    if ( NULL != (np = lookup(name+1)) )
+    if ( NULL != (np = entitiesLookup(name+1)) )
     {
         /* Only recognize entity name if version supports it.  */
         if ( np->versions & versions )
@@ -352,8 +353,9 @@ uint EntityCode( ctmbstr name, uint versions )
 
     return 0;   /* zero signifies unknown entity name */
 }
+#endif
 
-Bool EntityInfo( ctmbstr name, Bool isXml, uint* code, uint* versions )
+Bool TY_(EntityInfo)( ctmbstr name, Bool isXml, uint* code, uint* versions )
 {
     const entity* np;
     assert( name && name[0] == '&' );
@@ -377,7 +379,7 @@ Bool EntityInfo( ctmbstr name, Bool isXml, uint* code, uint* versions )
     }
 
     /* Named entity: name ="&" followed by a name */
-    if ( NULL != (np = lookup(name+1)) )
+    if ( NULL != (np = entitiesLookup(name+1)) )
     {
         *code = np->code;
         *versions = np->versions;
@@ -390,7 +392,7 @@ Bool EntityInfo( ctmbstr name, Bool isXml, uint* code, uint* versions )
 }
 
 
-ctmbstr EntityName( uint ch, uint versions )
+ctmbstr TY_(EntityName)( uint ch, uint versions )
 {
     ctmbstr entnam = NULL;
     const entity *ep;
@@ -406,3 +408,12 @@ ctmbstr EntityName( uint ch, uint versions )
     }
     return entnam;
 }
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

@@ -1,13 +1,13 @@
 /* fileio.c -- does standard I/O
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/08/02 10:07:28 $ 
-    $Revision: 1.8 $ 
+    $Date: 2007/05/30 16:47:31 $ 
+    $Revision: 1.17 $ 
 
   Default implementations of Tidy input sources
   and output sinks based on standard C FILE*.
@@ -16,9 +16,9 @@
 
 #include <stdio.h>
 
+#include "forward.h"
 #include "fileio.h"
 #include "tidy.h"
-
 
 typedef struct _fp_input_source
 {
@@ -26,7 +26,7 @@ typedef struct _fp_input_source
     TidyBuffer   unget;
 } FileSource;
 
-static int TIDY_CALL filesrc_getByte( ulong sourceData )
+static int TIDY_CALL filesrc_getByte( void* sourceData )
 {
   FileSource* fin = (FileSource*) sourceData;
   int bv;
@@ -37,7 +37,7 @@ static int TIDY_CALL filesrc_getByte( ulong sourceData )
   return bv;
 }
 
-static Bool TIDY_CALL filesrc_eof( ulong sourceData )
+static Bool TIDY_CALL filesrc_eof( void* sourceData )
 {
   FileSource* fin = (FileSource*) sourceData;
   Bool isEOF = ( fin->unget.size == 0 );
@@ -46,44 +46,61 @@ static Bool TIDY_CALL filesrc_eof( ulong sourceData )
   return isEOF;
 }
 
-static void TIDY_CALL filesrc_ungetByte( ulong sourceData, byte bv )
+static void TIDY_CALL filesrc_ungetByte( void* sourceData, byte bv )
 {
   FileSource* fin = (FileSource*) sourceData;
   tidyBufPutByte( &fin->unget, bv );
 }
 
-void TIDY_CALL initFileSource( TidyInputSource* inp, FILE* fp )
+#if SUPPORT_POSIX_MAPPED_FILES
+#define initFileSource initStdIOFileSource
+#define freeFileSource freeStdIOFileSource
+#endif
+int TY_(initFileSource)( TidyAllocator *allocator, TidyInputSource* inp, FILE* fp )
 {
   FileSource* fin = NULL;
+
+  fin = (FileSource*) TidyAlloc( allocator, sizeof(FileSource) );
+  if ( !fin )
+      return -1;
+  TidyClearMemory( fin, sizeof(FileSource) );
+  fin->unget.allocator = allocator;
+  fin->fp = fp;
 
   inp->getByte    = filesrc_getByte;
   inp->eof        = filesrc_eof;
   inp->ungetByte  = filesrc_ungetByte;
+  inp->sourceData = fin;
 
-  fin = (FileSource*) MemAlloc( sizeof(FileSource) );
-  ClearMemory( fin, sizeof(FileSource) );
-  fin->fp = fp;
-  inp->sourceData = (ulong) fin;
+  return 0;
 }
 
-void TIDY_CALL freeFileSource( TidyInputSource* inp, Bool closeIt )
+void TY_(freeFileSource)( TidyInputSource* inp, Bool closeIt )
 {
     FileSource* fin = (FileSource*) inp->sourceData;
     if ( closeIt && fin && fin->fp )
       fclose( fin->fp );
     tidyBufFree( &fin->unget );
-    MemFree( fin );
+    TidyFree( fin->unget.allocator, fin );
 }
 
-void TIDY_CALL filesink_putByte( ulong sinkData, byte bv )
+void TIDY_CALL TY_(filesink_putByte)( void* sinkData, byte bv )
 {
   FILE* fout = (FILE*) sinkData;
   fputc( bv, fout );
 }
 
-void TIDY_CALL initFileSink( TidyOutputSink* outp, FILE* fp )
+void TY_(initFileSink)( TidyOutputSink* outp, FILE* fp )
 {
-  outp->putByte  = filesink_putByte;
-  outp->sinkData = (ulong) fp;
+  outp->putByte  = TY_(filesink_putByte);
+  outp->sinkData = fp;
 }
 
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

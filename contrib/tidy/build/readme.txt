@@ -15,7 +15,7 @@ gnuauto    GNU AutoConf          Supports shared lib builds
 
 msvc       MS Visual C++ v6      Win32 only
 
-ms.net     MS Visual Studio.NET  Win32 only
+rpm        Script for packages   For Linux distribution supporting rpm
 
 
 Common Build Options

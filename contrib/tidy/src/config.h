@@ -3,14 +3,14 @@
 
 /* config.h -- read config file and manage config properties
   
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/03/31 13:10:34 $ 
-    $Revision: 1.10 $ 
+    $Date: 2006/12/29 16:31:08 $ 
+    $Revision: 1.14 $ 
 
   config files associate a property name with a value.
 
@@ -42,16 +42,22 @@ struct _tidy_option
     TidyConfigCategory  category;   /* put 'em in groups */
     ctmbstr             name;       /* property name */
     TidyOptionType      type;       /* string, int or bool */
-    ulong               dflt;       /* factory default */
+    ulong               dflt;       /* default for TidyInteger and TidyBoolean */
     ParseProperty*      parser;     /* parsing method, read-only if NULL */
     const ctmbstr*      pickList;   /* pick list */
+    ctmbstr             pdflt;      /* default for TidyString */
 };
 
+typedef union
+{
+  ulong v;  /* Value for TidyInteger and TidyBoolean */
+  char *p;  /* Value for TidyString */
+} TidyOptionValue;
 
 typedef struct _tidy_config
 {
-    ulong value[ N_TIDY_OPTIONS + 1 ];     /* current config values */
-    ulong snapshot[ N_TIDY_OPTIONS + 1 ];  /* Snapshot of values to be restored later */
+    TidyOptionValue value[ N_TIDY_OPTIONS + 1 ];     /* current config values */
+    TidyOptionValue snapshot[ N_TIDY_OPTIONS + 1 ];  /* Snapshot of values to be restored later */
 
     /* track what tags user has defined to eliminate unnecessary searches */
     uint  defined_tags;
@@ -70,124 +76,78 @@ typedef struct {
 } TidyOptionDoc;
 
 
-const TidyOptionImpl* lookupOption( ctmbstr optnam );
-const TidyOptionImpl* getOption( TidyOptionId optId );
+const TidyOptionImpl* TY_(lookupOption)( ctmbstr optnam );
+const TidyOptionImpl* TY_(getOption)( TidyOptionId optId );
 
-TidyIterator getOptionList( TidyDocImpl* doc );
-const TidyOptionImpl*  getNextOption( TidyDocImpl* doc, TidyIterator* iter );
+TidyIterator TY_(getOptionList)( TidyDocImpl* doc );
+const TidyOptionImpl* TY_(getNextOption)( TidyDocImpl* doc, TidyIterator* iter );
 
-TidyIterator getOptionPickList( const TidyOptionImpl* option );
-ctmbstr getNextOptionPick( const TidyOptionImpl* option, TidyIterator* iter );
+TidyIterator TY_(getOptionPickList)( const TidyOptionImpl* option );
+ctmbstr TY_(getNextOptionPick)( const TidyOptionImpl* option, TidyIterator* iter );
 
-const TidyOptionDoc* tidyOptGetDocDesc( TidyOptionId optId );
+const TidyOptionDoc* TY_(OptGetDocDesc)( TidyOptionId optId );
 
-void InitConfig( TidyDocImpl* doc );
-void FreeConfig( TidyDocImpl* doc );
+void TY_(InitConfig)( TidyDocImpl* doc );
+void TY_(FreeConfig)( TidyDocImpl* doc );
 
-Bool SetOptionValue( TidyDocImpl* doc, TidyOptionId optId, ctmbstr val );
-Bool SetOptionInt( TidyDocImpl* doc, TidyOptionId optId, ulong val );
-Bool SetOptionBool( TidyDocImpl* doc, TidyOptionId optId, Bool val );
+/* Bool SetOptionValue( TidyDocImpl* doc, TidyOptionId optId, ctmbstr val ); */
+Bool TY_(SetOptionInt)( TidyDocImpl* doc, TidyOptionId optId, ulong val );
+Bool TY_(SetOptionBool)( TidyDocImpl* doc, TidyOptionId optId, Bool val );
 
-Bool ResetOptionToDefault( TidyDocImpl* doc, TidyOptionId optId );
-void ResetConfigToDefault( TidyDocImpl* doc );
-void TakeConfigSnapshot( TidyDocImpl* doc );
-void ResetConfigToSnapshot( TidyDocImpl* doc );
+Bool TY_(ResetOptionToDefault)( TidyDocImpl* doc, TidyOptionId optId );
+void TY_(ResetConfigToDefault)( TidyDocImpl* doc );
+void TY_(TakeConfigSnapshot)( TidyDocImpl* doc );
+void TY_(ResetConfigToSnapshot)( TidyDocImpl* doc );
 
-void CopyConfig( TidyDocImpl* docTo, TidyDocImpl* docFrom );
+void TY_(CopyConfig)( TidyDocImpl* docTo, TidyDocImpl* docFrom );
 
-/*
- Todd Lewis contributed this code for expanding
- ~/foo or ~your/foo according to $HOME and your
- user name. This will only work on Unix systems.
-*/
-ctmbstr ExpandTilde(ctmbstr filename);
+int  TY_(ParseConfigFile)( TidyDocImpl* doc, ctmbstr cfgfil );
+int  TY_(ParseConfigFileEnc)( TidyDocImpl* doc,
+                              ctmbstr cfgfil, ctmbstr charenc );
 
-int  ParseConfigFile( TidyDocImpl* doc, ctmbstr cfgfil );
-int  ParseConfigFileEnc( TidyDocImpl* doc,
-                         ctmbstr cfgfil, ctmbstr charenc );
-
-int  SaveConfigFile( TidyDocImpl* doc, ctmbstr cfgfil );
-int  SaveConfigSink( TidyDocImpl* doc, TidyOutputSink* sink );
+int  TY_(SaveConfigFile)( TidyDocImpl* doc, ctmbstr cfgfil );
+int  TY_(SaveConfigSink)( TidyDocImpl* doc, TidyOutputSink* sink );
 
 /* returns false if unknown option, missing parameter, or
    option doesn't use parameter
 */
-Bool  ParseConfigOption( TidyDocImpl* doc, ctmbstr optnam, ctmbstr optVal );
-Bool  ParseConfigValue( TidyDocImpl* doc, TidyOptionId optId, ctmbstr optVal );
+Bool  TY_(ParseConfigOption)( TidyDocImpl* doc, ctmbstr optnam, ctmbstr optVal );
+Bool  TY_(ParseConfigValue)( TidyDocImpl* doc, TidyOptionId optId, ctmbstr optVal );
 
 /* ensure that char encodings are self consistent */
-Bool  AdjustCharEncoding( TidyDocImpl* doc, int encoding );
+Bool  TY_(AdjustCharEncoding)( TidyDocImpl* doc, int encoding );
 
-/* ensure that config is self consistent */
-void AdjustConfig( TidyDocImpl* doc );
+Bool  TY_(ConfigDiffThanDefault)( TidyDocImpl* doc );
+Bool  TY_(ConfigDiffThanSnapshot)( TidyDocImpl* doc );
 
-Bool  ConfigDiffThanDefault( TidyDocImpl* doc );
-Bool  ConfigDiffThanSnapshot( TidyDocImpl* doc );
+int TY_(CharEncodingId)( TidyDocImpl* doc, ctmbstr charenc );
+ctmbstr TY_(CharEncodingName)( int encoding );
+ctmbstr TY_(CharEncodingOptName)( int encoding );
 
-int CharEncodingId( ctmbstr charenc );
-ctmbstr CharEncodingName( int encoding );
-ctmbstr CharEncodingOptName( int encoding );
-
-void SetEmacsFilename( TidyDocImpl* doc, ctmbstr filename );
+/* void SetEmacsFilename( TidyDocImpl* doc, ctmbstr filename ); */
 
 
 #ifdef _DEBUG
 
 /* Debug lookup functions will be type-safe and assert option type match */
-ulong   _cfgGet( TidyDocImpl* doc, TidyOptionId optId );
-Bool    _cfgGetBool( TidyDocImpl* doc, TidyOptionId optId );
-TidyTriState _cfgGetAutoBool( TidyDocImpl* doc, TidyOptionId optId );
-ctmbstr _cfgGetString( TidyDocImpl* doc, TidyOptionId optId );
+ulong   TY_(_cfgGet)( TidyDocImpl* doc, TidyOptionId optId );
+Bool    TY_(_cfgGetBool)( TidyDocImpl* doc, TidyOptionId optId );
+TidyTriState TY_(_cfgGetAutoBool)( TidyDocImpl* doc, TidyOptionId optId );
+ctmbstr TY_(_cfgGetString)( TidyDocImpl* doc, TidyOptionId optId );
 
-#define cfg(doc, id)            _cfgGet( (doc), (id) )
-#define cfgBool(doc, id)        _cfgGetBool( (doc), (id) )
-#define cfgAutoBool(doc, id)    _cfgGetAutoBool( (doc), (id) )
-#define cfgStr(doc, id)         _cfgGetString( (doc), (id) )
+#define cfg(doc, id)            TY_(_cfgGet)( (doc), (id) )
+#define cfgBool(doc, id)        TY_(_cfgGetBool)( (doc), (id) )
+#define cfgAutoBool(doc, id)    TY_(_cfgGetAutoBool)( (doc), (id) )
+#define cfgStr(doc, id)         TY_(_cfgGetString)( (doc), (id) )
 
 #else
 
 /* Release build macros for speed */
-#define cfg(doc, id)            ((doc)->config.value[ (id) ])
+#define cfg(doc, id)            ((doc)->config.value[ (id) ].v)
 #define cfgBool(doc, id)        ((Bool) cfg(doc, id))
 #define cfgAutoBool(doc, id)    ((TidyTriState) cfg(doc, id))
-#define cfgStr(doc, id)         ((ctmbstr) cfg(doc, id))
+#define cfgStr(doc, id)         ((ctmbstr) (doc)->config.value[ (id) ].p)
 
 #endif /* _DEBUG */
-
-
-
-/* parser for integer values */
-ParseProperty ParseInt;
-
-/* parser for 't'/'f', 'true'/'false', 'y'/'n', 'yes'/'no' or '1'/'0' */
-ParseProperty ParseBool;
-
-/* parser for 't'/'f', 'true'/'false', 'y'/'n', 'yes'/'no', '1'/'0'
-   or 'auto' */
-ParseProperty ParseAutoBool;
-
-/* a string excluding whitespace */
-ParseProperty ParseName;
-
-/* a CSS1 selector - CSS class naming for -clean option */
-ParseProperty ParseCSS1Selector;
-
-/* a string including whitespace */
-ParseProperty ParseString;
-
-/* a space or comma separated list of tag names */
-ParseProperty ParseTagNames;
-
-/* RAW, ASCII, LATIN0, LATIN1, UTF8, ISO2022, MACROMAN, 
-   WIN1252, IBM858, UTF16LE, UTF16BE, UTF16, BIG5, SHIFTJIS
-*/
-ParseProperty ParseCharEnc;
-ParseProperty ParseNewline;
-
-/* omit | auto | strict | loose | <fpi> */
-ParseProperty ParseDocType;
-
-/* keep-first or keep-last? */
-ParseProperty ParseRepeatAttr;
 
 #endif /* __CONFIG_H__ */

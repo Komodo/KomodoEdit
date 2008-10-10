@@ -3,13 +3,13 @@
 
 /* pprint.h -- pretty print parse tree  
   
-   (c) 1998-2003 (W3C) MIT, ERCIM, Keio University
+   (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
    See tidy.h for the copyright notice.
   
    CVS Info:
-     $Author: hoehrmann $ 
-     $Date: 2003/05/24 15:55:02 $ 
-     $Revision: 1.4 $ 
+     $Author: arnaud02 $ 
+     $Date: 2007/02/11 09:45:08 $ 
+     $Revision: 1.9 $ 
 
 */
 
@@ -26,12 +26,12 @@
   start tags and before end tags
 */
 
-#define NORMAL        0
-#define PREFORMATTED  1
-#define COMMENT       2
-#define ATTRIBVALUE   4
-#define NOWRAP        8
-#define CDATA         16
+#define NORMAL        0u
+#define PREFORMATTED  1u
+#define COMMENT       2u
+#define ATTRIBVALUE   4u
+#define NOWRAP        8u
+#define CDATA         16u
 
 
 /* The pretty printer keeps at most two lines of text in the
@@ -52,32 +52,28 @@ typedef struct _TidyIndent
 
 typedef struct _TidyPrintImpl
 {
+    TidyAllocator *allocator; /* Allocator */
+
     uint *linebuf;
     uint lbufsize;
     uint linelen;
     uint wraphere;
-    uint linecount;
   
     uint ixInd;
     TidyIndent indent[2];  /* Two lines worth of indent state */
-
 } TidyPrintImpl;
 
-void PPrintDocument( TidyDocImpl* doc );
 
-
-#if SUPPORT_ASIAN_ENCODINGS
+#if 0 && SUPPORT_ASIAN_ENCODINGS
 /* #431953 - start RJ Wraplen adjusted for smooth international ride */
 uint CWrapLen( TidyDocImpl* doc, uint ind );
 #endif
 
-void InitPrintBuf( TidyDocImpl* doc );
-void FreePrintBuf( TidyDocImpl* doc );
+void TY_(InitPrintBuf)( TidyDocImpl* doc );
+void TY_(FreePrintBuf)( TidyDocImpl* doc );
 
-void PFlushLine( TidyDocImpl* doc, uint indent );
-void PCondFlushLine( TidyDocImpl* doc, uint indent );
+void TY_(PFlushLine)( TidyDocImpl* doc, uint indent );
 
-void PPrintScriptStyle( TidyDocImpl* doc, uint mode, uint indent, Node* node );
 
 /* print just the content of the body element.
 ** useful when you want to reuse material from
@@ -86,14 +82,12 @@ void PPrintScriptStyle( TidyDocImpl* doc, uint mode, uint indent, Node* node );
 ** -- Sebastiano Vigna <vigna@dsi.unimi.it>
 */
 
-void PrintPreamble( TidyDocImpl* doc );   /* Between these 3, */
-void PrintBody( TidyDocImpl* doc );       /* you can print an entire document */
-void PrintPostamble( TidyDocImpl* doc );  /* or you can substitute another */
+void TY_(PrintBody)( TidyDocImpl* doc );       /* you can print an entire document */
                                           /* node as body using PPrintTree() */
 
-void PPrintTree( TidyDocImpl* doc, uint mode, uint indent, Node *node );
+void TY_(PPrintTree)( TidyDocImpl* doc, uint mode, uint indent, Node *node );
 
-void PPrintXMLTree( TidyDocImpl* doc, uint mode, uint indent, Node *node );
+void TY_(PPrintXMLTree)( TidyDocImpl* doc, uint mode, uint indent, Node *node );
 
 
 #endif /* __PPRINT_H__ */

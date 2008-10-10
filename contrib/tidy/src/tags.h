@@ -3,14 +3,14 @@
 
 /* tags.h -- recognize HTML tags
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/08/17 16:59:58 $ 
-    $Revision: 1.14 $ 
+    $Date: 2006/12/15 10:17:55 $ 
+    $Revision: 1.20 $ 
 
   The HTML tags are stored as 8 bit ASCII strings.
   Use lookupw() to find a tag given a wide char string.
@@ -20,7 +20,7 @@
 #include "forward.h"
 #include "attrdict.h"
 
-typedef void (Parser)( TidyDocImpl* doc, Node *node, uint mode );
+typedef void (Parser)( TidyDocImpl* doc, Node *node, GetTokenMode mode );
 typedef void (CheckAttribs)( TidyDocImpl* doc, Node *node );
 
 /*
@@ -49,102 +49,103 @@ struct _Dict
     Dict*           next;
 };
 
-#ifdef ELEMENT_HASH_LOOKUP
-#define ELEMENT_HASH_SIZE 178
+#if !defined(ELEMENT_HASH_LOOKUP)
+#define ELEMENT_HASH_LOOKUP 1
+#endif
+
+#if ELEMENT_HASH_LOOKUP
+enum
+{
+    ELEMENT_HASH_SIZE=178u
+};
+
+struct _DictHash
+{
+    Dict const*         tag;
+    struct _DictHash*   next;
+};
+
+typedef struct _DictHash DictHash;
 #endif
 
 struct _TidyTagImpl
 {
     Dict* xml_tags;                /* placeholder for all xml tags */
     Dict* declared_tag_list;       /* User declared tags */
-#ifdef ELEMENT_HASH_LOOKUP
-    Dict* hashtab[ELEMENT_HASH_SIZE];
+#if ELEMENT_HASH_LOOKUP
+    DictHash* hashtab[ELEMENT_HASH_SIZE];
 #endif
 };
 
 typedef struct _TidyTagImpl TidyTagImpl;
 
 /* interface for finding tag by name */
-const Dict* LookupTagDef( TidyTagId tid );
-Bool    FindTag( TidyDocImpl* doc, Node *node );
-Parser* FindParser( TidyDocImpl* doc, Node *node );
-void    DefineTag( TidyDocImpl* doc, UserTagType tagType, ctmbstr name );
-void    FreeDeclaredTags( TidyDocImpl* doc, UserTagType tagType ); /* tagtype_null to free all */
+const Dict* TY_(LookupTagDef)( TidyTagId tid );
+Bool    TY_(FindTag)( TidyDocImpl* doc, Node *node );
+Parser* TY_(FindParser)( TidyDocImpl* doc, Node *node );
+void    TY_(DefineTag)( TidyDocImpl* doc, UserTagType tagType, ctmbstr name );
+void    TY_(FreeDeclaredTags)( TidyDocImpl* doc, UserTagType tagType ); /* tagtype_null to free all */
 
-TidyIterator   GetDeclaredTagList( TidyDocImpl* doc );
-Dict*          GetNextDeclaredDict( TidyDocImpl* doc, TidyIterator* iter );
-ctmbstr        GetNextDeclaredTag( TidyDocImpl* doc, UserTagType tagType,
-                                   TidyIterator* iter );
+TidyIterator   TY_(GetDeclaredTagList)( TidyDocImpl* doc );
+ctmbstr        TY_(GetNextDeclaredTag)( TidyDocImpl* doc, UserTagType tagType,
+                                        TidyIterator* iter );
 
-void InitTags( TidyDocImpl* doc );
-void FreeTags( TidyDocImpl* doc );
+void TY_(InitTags)( TidyDocImpl* doc );
+void TY_(FreeTags)( TidyDocImpl* doc );
 
 
 /* Parser methods for tags */
 
-Parser ParseHTML;
-Parser ParseHead;
-Parser ParseTitle;
-Parser ParseScript;
-Parser ParseFrameSet;
-Parser ParseNoFrames;
-Parser ParseBody;
-Parser ParsePre;
-Parser ParseList;
-Parser ParseLI;
-Parser ParseDefList;
-Parser ParseBlock;
-Parser ParseInline;
-Parser ParseEmpty;
-Parser ParseTableTag;
-Parser ParseColGroup;
-Parser ParseRowGroup;
-Parser ParseRow;
-Parser ParseSelect;
-Parser ParseOptGroup;
-Parser ParseText;
-Parser ParseObject;
-Parser ParseMap;
+Parser TY_(ParseHTML);
+Parser TY_(ParseHead);
+Parser TY_(ParseTitle);
+Parser TY_(ParseScript);
+Parser TY_(ParseFrameSet);
+Parser TY_(ParseNoFrames);
+Parser TY_(ParseBody);
+Parser TY_(ParsePre);
+Parser TY_(ParseList);
+Parser TY_(ParseDefList);
+Parser TY_(ParseBlock);
+Parser TY_(ParseInline);
+Parser TY_(ParseEmpty);
+Parser TY_(ParseTableTag);
+Parser TY_(ParseColGroup);
+Parser TY_(ParseRowGroup);
+Parser TY_(ParseRow);
+Parser TY_(ParseSelect);
+Parser TY_(ParseOptGroup);
+Parser TY_(ParseText);
 
-/* Attribute checking methods */
-
-CheckAttribs CheckAttributes;
-CheckAttribs CheckIMG;
-CheckAttribs CheckLINK;
-CheckAttribs CheckAREA;
-CheckAttribs CheckTABLE;
-CheckAttribs CheckCaption;
-CheckAttribs CheckSCRIPT;
-CheckAttribs CheckSTYLE;
-CheckAttribs CheckHTML;
-CheckAttribs CheckFORM;
-CheckAttribs CheckMETA;
+CheckAttribs TY_(CheckAttributes);
 
 /* 0 == TidyTag_UNKNOWN */
 #define TagId(node)        ((node) && (node)->tag ? (node)->tag->id : TidyTag_UNKNOWN)
 #define TagIsId(node, tid) ((node) && (node)->tag && (node)->tag->id == tid)
 
-Bool nodeIsText( Node* node );
-Bool nodeIsElement( Node* node );
+Bool TY_(nodeIsText)( Node* node );
+Bool TY_(nodeIsElement)( Node* node );
 
-Bool nodeHasText( TidyDocImpl* doc, Node* node );
+Bool TY_(nodeHasText)( TidyDocImpl* doc, Node* node );
 
+#if 0
 /* Compare & result to operand.  If equal, then all bits
 ** requested are set.
 */
 Bool nodeMatchCM( Node* node, uint contentModel );
+#endif
 
 /* True if any of the bits requested are set.
 */
-Bool nodeHasCM( Node* node, uint contentModel );
+Bool TY_(nodeHasCM)( Node* node, uint contentModel );
 
-Bool nodeCMIsBlock( Node* node );
-Bool nodeCMIsInline( Node* node );
-Bool nodeCMIsEmpty( Node* node );
+Bool TY_(nodeCMIsBlock)( Node* node );
+Bool TY_(nodeCMIsInline)( Node* node );
+Bool TY_(nodeCMIsEmpty)( Node* node );
 
 
-Bool nodeIsHeader( Node* node );     /* H1, H2, ..., H6 */
-uint nodeHeaderLevel( Node* node );  /* 1, 2, ..., 6 */
+Bool TY_(nodeIsHeader)( Node* node );     /* H1, H2, ..., H6 */
+uint TY_(nodeHeaderLevel)( Node* node );  /* 1, 2, ..., 6 */
 
 #define nodeIsHTML( node )       TagIsId( node, TidyTag_HTML )
 #define nodeIsHEAD( node )       TagIsId( node, TidyTag_HEAD )

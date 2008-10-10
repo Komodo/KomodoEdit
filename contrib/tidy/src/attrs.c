@@ -1,13 +1,13 @@
 /* attrs.c -- recognize HTML attributes
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2008 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info :
 
-    $Author: arnaud02 $ 
-    $Date: 2005/09/20 09:03:17 $ 
-    $Revision: 1.115 $ 
+    $Author: hoehrmann $ 
+    $Date: 2008/08/09 11:55:26 $ 
+    $Revision: 1.130 $ 
 
 */
 
@@ -17,7 +17,42 @@
 #include "tmbstr.h"
 #include "utf8.h"
 
+/*
+ Bind attribute types to procedures to check values.
+ You can add new procedures for better validation
+ and each procedure has access to the node in which
+ the attribute occurred as well as the attribute name
+ and its value.
+
+ By default, attributes are checked without regard
+ to the element they are found on. You have the choice
+ of making the procedure test which element is involved
+ or in writing methods for each element which controls
+ exactly how the attributes of that element are checked.
+ This latter approach is best for detecting the absence
+ of required attributes.
+*/
+
 static AttrCheck CheckAction;
+static AttrCheck CheckScript;
+static AttrCheck CheckName;
+static AttrCheck CheckId;
+static AttrCheck CheckAlign;
+static AttrCheck CheckValign;
+static AttrCheck CheckBool;
+static AttrCheck CheckLength;
+static AttrCheck CheckTarget;
+static AttrCheck CheckFsubmit;
+static AttrCheck CheckClear;
+static AttrCheck CheckShape;
+static AttrCheck CheckNumber;
+static AttrCheck CheckScope;
+static AttrCheck CheckColor;
+static AttrCheck CheckVType;
+static AttrCheck CheckScroll;
+static AttrCheck CheckTextDir;
+static AttrCheck CheckLang;
+static AttrCheck CheckType;
 
 #define CH_PCDATA      NULL
 #define CH_CHARSET     NULL
@@ -25,7 +60,7 @@ static AttrCheck CheckAction;
 #define CH_XTYPE       NULL
 #define CH_CHARACTER   NULL
 #define CH_URLS        NULL
-#define CH_URL         CheckUrl
+#define CH_URL         TY_(CheckUrl)
 #define CH_SCRIPT      CheckScript
 #define CH_ALIGN       CheckAlign
 #define CH_VALIGN      CheckValign
@@ -250,7 +285,7 @@ static uint AttributeVersions(Node* node, AttVal* attval)
 
 
 /* return the version of the attribute "id" of element "node" */
-uint NodeAttributeVersions( Node* node, TidyAttrId id )
+uint TY_(NodeAttributeVersions)( Node* node, TidyAttrId id )
 {
     uint i;
 
@@ -316,7 +351,7 @@ static ctmbstr GetColorCode(ctmbstr name)
     uint i;
 
     for (i = 0; colors[i].name; ++i)
-        if (tmbstrcasecmp(name, colors[i].name) == 0)
+        if (TY_(tmbstrcasecmp)(name, colors[i].name) == 0)
             return colors[i].hex;
 
     return NULL;
@@ -327,7 +362,7 @@ static ctmbstr GetColorName(ctmbstr code)
     uint i;
 
     for (i = 0; colors[i].name; ++i)
-        if (tmbstrcasecmp(code, colors[i].hex) == 0)
+        if (TY_(tmbstrcasecmp)(code, colors[i].hex) == 0)
             return colors[i].name;
 
     return NULL;
@@ -480,8 +515,8 @@ static const struct _colors fancy_colors[] =
 };
 #endif
 
-#ifdef ATTRIBUTE_HASH_LOOKUP
-static uint hash(ctmbstr s)
+#if ATTRIBUTE_HASH_LOOKUP
+static uint attrsHash(ctmbstr s)
 {
     uint hashval;
 
@@ -491,46 +526,90 @@ static uint hash(ctmbstr s)
     return hashval % ATTRIBUTE_HASH_SIZE;
 }
 
-static Attribute *install(TidyAttribImpl * attribs, const Attribute* old)
+static const Attribute *attrsInstall(TidyDocImpl* doc, TidyAttribImpl * attribs,
+                                const Attribute* old)
 {
-    Attribute *np;
+    AttrHash *np;
     uint hashval;
 
-    np = (Attribute *)MemAlloc(sizeof(*np));
+    if (old)
+    {
+        np = (AttrHash *)TidyDocAlloc(doc, sizeof(*np));
+        np->attr = old;
 
-    np->name = tmbstrdup(old->name);
+        hashval = attrsHash(old->name);
+        np->next = attribs->hashtab[hashval];
+        attribs->hashtab[hashval] = np;
+    }
 
-    hashval = hash(np->name);
-    np->next = attribs->hashtab[hashval];
-    attribs->hashtab[hashval] = np;
+    return old;
+}
 
-    np->id       = old->id;
-    np->versions = old->versions;
-    np->attrchk  = old->attrchk;
+static void attrsRemoveFromHash( TidyDocImpl* doc, TidyAttribImpl *attribs,
+                            ctmbstr s )
+{
+    uint h = attrsHash(s);
+    AttrHash *p, *prev = NULL;
+    for (p = attribs->hashtab[h]; p && p->attr; p = p->next)
+    {
+        if (TY_(tmbstrcmp)(s, p->attr->name) == 0)
+        {
+            AttrHash* next = p->next;
+            if ( prev )
+                prev->next = next; 
+            else
+                attribs->hashtab[h] = next;
+            TidyDocFree(doc, p);
+            return;
+        }
+        prev = p;
+    }
+}
 
-    return np;
+static void attrsEmptyHash( TidyDocImpl* doc, TidyAttribImpl * attribs )
+{
+    AttrHash *dict, *next;
+    uint i;
+
+    for (i = 0; i < ATTRIBUTE_HASH_SIZE; ++i)
+    {
+        dict = attribs->hashtab[i];
+
+        while(dict)
+        {
+            next = dict->next;
+            TidyDocFree(doc, dict);
+            dict = next;
+        }
+
+        attribs->hashtab[i] = NULL;
+    }
 }
 #endif
 
-static const Attribute* lookup(TidyAttribImpl* ARG_UNUSED(attribs),
+static const Attribute* attrsLookup(TidyDocImpl* doc,
+                               TidyAttribImpl* ARG_UNUSED(attribs),
                                ctmbstr atnam)
 {
     const Attribute *np;
+#if ATTRIBUTE_HASH_LOOKUP
+    const AttrHash *p;
+#endif
 
     if (!atnam)
         return NULL;
 
-#ifdef ATTRIBUTE_HASH_LOOKUP
-    for (np = attribs->hashtab[hash(atnam)]; np != NULL; np = np->next)
-        if (tmbstrcmp(atnam, np->name) == 0)
-            return np;
+#if ATTRIBUTE_HASH_LOOKUP
+    for (p = attribs->hashtab[attrsHash(atnam)]; p && p->attr; p = p->next)
+        if (TY_(tmbstrcmp)(atnam, p->attr->name) == 0)
+            return p->attr;
 
     for (np = attribute_defs; np && np->name; ++np)
-        if (tmbstrcmp(atnam, np->name) == 0)
-            return install(attribs, np);
+        if (TY_(tmbstrcmp)(atnam, np->name) == 0)
+            return attrsInstall(doc, attribs, np);
 #else
     for (np = attribute_defs; np && np->name; ++np)
-        if (tmbstrcmp(atnam, np->name) == 0)
+        if (TY_(tmbstrcmp)(atnam, np->name) == 0)
             return np;
 #endif
 
@@ -539,7 +618,7 @@ static const Attribute* lookup(TidyAttribImpl* ARG_UNUSED(attribs),
 
 
 /* Locate attributes by type */
-AttVal* AttrGetById( Node* node, TidyAttrId id )
+AttVal* TY_(AttrGetById)( Node* node, TidyAttrId id )
 {
    AttVal* av;
    for ( av = node->attributes; av; av = av->next )
@@ -551,85 +630,87 @@ AttVal* AttrGetById( Node* node, TidyAttrId id )
 }
 
 /* public method for finding attribute definition by name */
-const Attribute* FindAttribute( TidyDocImpl* doc, AttVal *attval )
+const Attribute* TY_(FindAttribute)( TidyDocImpl* doc, AttVal *attval )
 {
     if ( attval )
-       return lookup( &doc->attribs, attval->attribute );
+       return attrsLookup( doc, &doc->attribs, attval->attribute );
     return NULL;
 }
 
-AttVal* GetAttrByName( Node *node, ctmbstr name )
+AttVal* TY_(GetAttrByName)( Node *node, ctmbstr name )
 {
     AttVal *attr;
     for (attr = node->attributes; attr != NULL; attr = attr->next)
     {
-        if (attr->attribute && tmbstrcmp(attr->attribute, name) == 0)
+        if (attr->attribute && TY_(tmbstrcmp)(attr->attribute, name) == 0)
             break;
     }
     return attr;
 }
 
-AttVal* AddAttribute( TidyDocImpl* doc,
-                      Node *node, ctmbstr name, ctmbstr value )
+AttVal* TY_(AddAttribute)( TidyDocImpl* doc,
+                           Node *node, ctmbstr name, ctmbstr value )
 {
-    AttVal *av = NewAttribute();
+    AttVal *av = TY_(NewAttribute)(doc);
     av->delim = '"';
-    av->attribute = tmbstrdup(name);
+    av->attribute = TY_(tmbstrdup)(doc->allocator, name);
 
     if (value)
-        av->value = tmbstrdup(value);
+        av->value = TY_(tmbstrdup)(doc->allocator, value);
     else
         av->value = NULL;
 
-    av->dict = lookup(&doc->attribs, name);
+    av->dict = attrsLookup(doc, &doc->attribs, name);
 
-    InsertAttributeAtEnd(node, av);
+    TY_(InsertAttributeAtEnd)(node, av);
     return av;
 }
 
-AttVal* RepairAttrValue(TidyDocImpl* doc, Node* node, ctmbstr name, ctmbstr value)
+AttVal* TY_(RepairAttrValue)(TidyDocImpl* doc, Node* node, ctmbstr name, ctmbstr value)
 {
-    AttVal* old = GetAttrByName(node, name);
+    AttVal* old = TY_(GetAttrByName)(node, name);
 
     if (old)
     {
         if (old->value)
-            MemFree(old->value);
+            TidyDocFree(doc, old->value);
         if (value)
-            old->value = tmbstrdup(value);
+            old->value = TY_(tmbstrdup)(doc->allocator, value);
         else
             old->value = NULL;
 
         return old;
     }
     else
-        return AddAttribute(doc, node, name, value);
+        return TY_(AddAttribute)(doc, node, name, value);
 }
 
 static Bool CheckAttrType( TidyDocImpl* doc,
                            ctmbstr attrname, AttrCheck type )
 {
-    const Attribute* np = lookup( &doc->attribs, attrname );
+    const Attribute* np = attrsLookup( doc, &doc->attribs, attrname );
     return (Bool)( np && np->attrchk == type );
 }
 
-Bool IsUrl( TidyDocImpl* doc, ctmbstr attrname )
+Bool TY_(IsUrl)( TidyDocImpl* doc, ctmbstr attrname )
 {
     return CheckAttrType( doc, attrname, CH_URL );
 }
 
+/*
 Bool IsBool( TidyDocImpl* doc, ctmbstr attrname )
 {
     return CheckAttrType( doc, attrname, CH_BOOL );
 }
+*/
 
-Bool IsScript( TidyDocImpl* doc, ctmbstr attrname )
+Bool TY_(IsScript)( TidyDocImpl* doc, ctmbstr attrname )
 {
     return CheckAttrType( doc, attrname, CH_SCRIPT );
 }
 
 /* may id or name serve as anchor? */
-Bool IsAnchorElement( TidyDocImpl* ARG_UNUSED(doc), Node* node)
+Bool TY_(IsAnchorElement)( TidyDocImpl* ARG_UNUSED(doc), Node* node)
 {
     TidyTagId tid = TagId( node );
     if ( tid == TidyTag_A      ||
@@ -658,7 +739,7 @@ Bool IsAnchorElement( TidyDocImpl* ARG_UNUSED(doc), Node* node)
 
   #508936 - CSS class naming for -clean option
 */
-Bool IsCSS1Selector( ctmbstr buf )
+Bool TY_(IsCSS1Selector)( ctmbstr buf )
 {
     Bool valid = yes;
     int esclen = 0;
@@ -694,15 +775,15 @@ Bool IsCSS1Selector( ctmbstr buf )
 }
 
 /* free single anchor */
-static void FreeAnchor(Anchor *a)
+static void FreeAnchor(TidyDocImpl* doc, Anchor *a)
 {
     if ( a )
-        MemFree( a->name );
-    MemFree( a );
+        TidyDocFree( doc, a->name );
+    TidyDocFree( doc, a );
 }
 
 /* removes anchor for specific node */
-void RemoveAnchorByNode( TidyDocImpl* doc, Node *node )
+void TY_(RemoveAnchorByNode)( TidyDocImpl* doc, Node *node )
 {
     TidyAttribImpl* attribs = &doc->attribs;
     Anchor *delme = NULL, *curr, *prev = NULL;
@@ -720,16 +801,16 @@ void RemoveAnchorByNode( TidyDocImpl* doc, Node *node )
         }
         prev = curr;
     }
-    FreeAnchor( delme );
+    FreeAnchor( doc, delme );
 }
 
 /* initialize new anchor */
-static Anchor* NewAnchor( ctmbstr name, Node* node )
+static Anchor* NewAnchor( TidyDocImpl* doc, ctmbstr name, Node* node )
 {
-    Anchor *a = (Anchor*) MemAlloc( sizeof(Anchor) );
+    Anchor *a = (Anchor*) TidyDocAlloc( doc, sizeof(Anchor) );
 
-    a->name = tmbstrdup( name );
-    a->name = tmbstrtolower(a->name);
+    a->name = TY_(tmbstrdup)( doc->allocator, name );
+    a->name = TY_(tmbstrtolower)(a->name);
     a->node = node;
     a->next = NULL;
 
@@ -737,10 +818,10 @@ static Anchor* NewAnchor( ctmbstr name, Node* node )
 }
 
 /* add new anchor to namespace */
-Anchor* AddAnchor( TidyDocImpl* doc, ctmbstr name, Node *node )
+static Anchor* AddAnchor( TidyDocImpl* doc, ctmbstr name, Node *node )
 {
     TidyAttribImpl* attribs = &doc->attribs;
-    Anchor *a = NewAnchor( name, node );
+    Anchor *a = NewAnchor( doc, name, node );
 
     if ( attribs->anchor_list == NULL)
          attribs->anchor_list = a;
@@ -756,41 +837,41 @@ Anchor* AddAnchor( TidyDocImpl* doc, ctmbstr name, Node *node )
 }
 
 /* return node associated with anchor */
-Node* GetNodeByAnchor( TidyDocImpl* doc, ctmbstr name )
+static Node* GetNodeByAnchor( TidyDocImpl* doc, ctmbstr name )
 {
     TidyAttribImpl* attribs = &doc->attribs;
     Anchor *found;
-    tmbstr lname = tmbstrdup(name);
-    lname = tmbstrtolower(lname);
+    tmbstr lname = TY_(tmbstrdup)(doc->allocator, name);
+    lname = TY_(tmbstrtolower)(lname);
 
     for ( found = attribs->anchor_list; found != NULL; found = found->next )
     {
-        if ( tmbstrcmp(found->name, lname) == 0 )
+        if ( TY_(tmbstrcmp)(found->name, lname) == 0 )
             break;
     }
     
-    MemFree(lname);
+    TidyDocFree(doc, lname);
     if ( found )
         return found->node;
     return NULL;
 }
 
 /* free all anchors */
-void FreeAnchors( TidyDocImpl* doc )
+void TY_(FreeAnchors)( TidyDocImpl* doc )
 {
     TidyAttribImpl* attribs = &doc->attribs;
     Anchor* a;
     while (NULL != (a = attribs->anchor_list) )
     {
         attribs->anchor_list = a->next;
-        FreeAnchor(a);
+        FreeAnchor(doc, a);
     }
 }
 
 /* public method for inititializing attribute dictionary */
-void InitAttrs( TidyDocImpl* doc )
+void TY_(InitAttrs)( TidyDocImpl* doc )
 {
-    ClearMemory( &doc->attribs, sizeof(TidyAttribImpl) );
+    TidyClearMemory( &doc->attribs, sizeof(TidyAttribImpl) );
 #ifdef _DEBUG
     {
       /* Attribute ID is index position in Attribute type lookup table */
@@ -812,42 +893,104 @@ static void FreeDeclaredAttributes( TidyDocImpl* doc )
     while ( NULL != (dict = attribs->declared_attr_list) )
     {
         attribs->declared_attr_list = dict->next;
-        MemFree( dict->name );
-        MemFree( dict );
+#if ATTRIBUTE_HASH_LOOKUP
+        attrsRemoveFromHash( doc, &doc->attribs, dict->name );
+#endif
+        TidyDocFree( doc, dict->name );
+        TidyDocFree( doc, dict );
     }
 }
 
-void FreeAttrTable( TidyDocImpl* doc )
+void TY_(FreeAttrTable)( TidyDocImpl* doc )
 {
-#ifdef ATTRIBUTE_HASH_LOOKUP
-    Attribute *dict, *next;
-    uint i;
-
-    for (i = 0; i < ATTRIBUTE_HASH_SIZE; ++i)
-    {
-        dict = doc->attribs.hashtab[i];
-
-        while(dict)
-        {
-            next = dict->next;
-            MemFree(dict->name);
-            MemFree(dict);
-            dict = next;
-        }
-
-        doc->attribs.hashtab[i] = NULL;
-    }
+#if ATTRIBUTE_HASH_LOOKUP
+    attrsEmptyHash( doc, &doc->attribs );
 #endif
-
-    FreeAnchors( doc );
+    TY_(FreeAnchors)( doc );
     FreeDeclaredAttributes( doc );
+}
+
+void TY_(AppendToClassAttr)( TidyDocImpl* doc, AttVal *classattr, ctmbstr classname )
+{
+    uint len = TY_(tmbstrlen)(classattr->value) +
+        TY_(tmbstrlen)(classname) + 2;
+    tmbstr s = (tmbstr) TidyDocAlloc( doc, len );
+    s[0] = '\0';
+    if (classattr->value)
+    {
+        TY_(tmbstrcpy)( s, classattr->value );
+        TY_(tmbstrcat)( s, " " );
+    }
+    TY_(tmbstrcat)( s, classname );
+    if (classattr->value)
+        TidyDocFree( doc, classattr->value );
+    classattr->value = s;
+}
+
+/* concatenate styles */
+static void AppendToStyleAttr( TidyDocImpl* doc, AttVal *styleattr, ctmbstr styleprop )
+{
+    /*
+    this doesn't handle CSS comments and
+    leading/trailing white-space very well
+    see http://www.w3.org/TR/css-style-attr
+    */
+    uint end = TY_(tmbstrlen)(styleattr->value);
+
+    if (end >0 && styleattr->value[end - 1] == ';')
+    {
+        /* attribute ends with declaration seperator */
+
+        styleattr->value = (tmbstr) TidyDocRealloc(doc, styleattr->value,
+            end + TY_(tmbstrlen)(styleprop) + 2);
+
+        TY_(tmbstrcat)(styleattr->value, " ");
+        TY_(tmbstrcat)(styleattr->value, styleprop);
+    }
+    else if (end >0 && styleattr->value[end - 1] == '}')
+    {
+        /* attribute ends with rule set */
+
+        styleattr->value = (tmbstr) TidyDocRealloc(doc, styleattr->value,
+            end + TY_(tmbstrlen)(styleprop) + 6);
+
+        TY_(tmbstrcat)(styleattr->value, " { ");
+        TY_(tmbstrcat)(styleattr->value, styleprop);
+        TY_(tmbstrcat)(styleattr->value, " }");
+    }
+    else
+    {
+        /* attribute ends with property value */
+
+        styleattr->value = (tmbstr) TidyDocRealloc(doc, styleattr->value,
+            end + TY_(tmbstrlen)(styleprop) + 3);
+
+        if (end > 0)
+            TY_(tmbstrcat)(styleattr->value, "; ");
+        TY_(tmbstrcat)(styleattr->value, styleprop);
+    }
 }
 
 /*
  the same attribute name can't be used
  more than once in each element
 */
-void RepairDuplicateAttributes( TidyDocImpl* doc, Node *node)
+static Bool AttrsHaveSameName( AttVal* av1, AttVal* av2)
+{
+    TidyAttrId id1, id2;
+
+    id1 = AttrId(av1);
+    id2 = AttrId(av2);
+    if (id1 != TidyAttr_UNKNOWN && id2 != TidyAttr_UNKNOWN)
+        return AttrsHaveSameId(av1, av2);
+    if (id1 != TidyAttr_UNKNOWN || id2 != TidyAttr_UNKNOWN)
+        return no;
+    if (av1->attribute && av2->attribute)
+        return TY_(tmbstrcmp)(av1->attribute, av2->attribute) == 0;
+     return no;
+}
+
+void TY_(RepairDuplicateAttributes)( TidyDocImpl* doc, Node *node, Bool isXml )
 {
     AttVal *first;
 
@@ -866,8 +1009,8 @@ void RepairDuplicateAttributes( TidyDocImpl* doc, Node *node)
         {
             AttVal *temp;
 
-            if (!(second->asp == NULL && second->php == NULL &&
-                AttrsHaveSameId(first, second)))
+            if (!(second->asp == NULL && second->php == NULL
+                  && AttrsHaveSameName(first, second)))
             {
                 second = second->next;
                 continue;
@@ -876,79 +1019,35 @@ void RepairDuplicateAttributes( TidyDocImpl* doc, Node *node)
             /* first and second attribute have same local name */
             /* now determine what to do with this duplicate... */
 
-            if (attrIsCLASS(first) && cfgBool(doc, TidyJoinClasses) && AttrHasValue(first) && AttrHasValue(second))
+            if (!isXml
+                && attrIsCLASS(first) && cfgBool(doc, TidyJoinClasses)
+                && AttrHasValue(first) && AttrHasValue(second))
             {
                 /* concatenate classes */
 
-                first->value = (tmbstr) MemRealloc(first->value, tmbstrlen(first->value) +
-                    tmbstrlen(second->value)  + 2);
-                tmbstrcat(first->value, " ");
-                tmbstrcat(first->value, second->value);
+                TY_(AppendToClassAttr)(doc, first, second->value);
 
                 temp = second->next;
-
-                ReportAttrError( doc, node, second, JOINING_ATTRIBUTE);
-                RemoveAttribute( doc, node, second );
-
+                TY_(ReportAttrError)( doc, node, second, JOINING_ATTRIBUTE);
+                TY_(RemoveAttribute)( doc, node, second );
                 second = temp;
             }
-            else if (attrIsSTYLE(first) && cfgBool(doc, TidyJoinStyles) && AttrHasValue(first) && AttrHasValue(second))
+            else if (!isXml
+                     && attrIsSTYLE(first) && cfgBool(doc, TidyJoinStyles)
+                     && AttrHasValue(first) && AttrHasValue(second))
             {
-                /* concatenate styles */
-
-                /*
-                this doesn't handle CSS comments and
-                leading/trailing white-space very well
-                see http://www.w3.org/TR/css-style-attr
-                */
-
-                uint end = tmbstrlen(first->value);
-
-                if (end >0 && first->value[end - 1] == ';')
-                {
-                    /* attribute ends with declaration seperator */
-
-                    first->value = (tmbstr) MemRealloc(first->value,
-                        end + tmbstrlen(second->value) + 2);
-
-                    tmbstrcat(first->value, " ");
-                    tmbstrcat(first->value, second->value);
-                }
-                else if (end >0 && first->value[end - 1] == '}')
-                {
-                    /* attribute ends with rule set */
-
-                    first->value = (tmbstr) MemRealloc(first->value,
-                        end + tmbstrlen(second->value) + 6);
-
-                    tmbstrcat(first->value, " { ");
-                    tmbstrcat(first->value, second->value);
-                    tmbstrcat(first->value, " }");
-                }
-                else
-                {
-                    /* attribute ends with property value */
-
-                    first->value = (tmbstr) MemRealloc(first->value,
-                        end + tmbstrlen(second->value) + 3);
-
-                    if (end > 0)
-                        tmbstrcat(first->value, "; ");
-                    tmbstrcat(first->value, second->value);
-                }
+                AppendToStyleAttr( doc, first, second->value );
 
                 temp = second->next;
-
-                ReportAttrError( doc, node, second, JOINING_ATTRIBUTE);
-                RemoveAttribute( doc, node, second );
+                TY_(ReportAttrError)( doc, node, second, JOINING_ATTRIBUTE);
+                TY_(RemoveAttribute)( doc, node, second );
                 second = temp;
-
             }
             else if ( cfg(doc, TidyDuplicateAttrs) == TidyKeepLast )
             {
                 temp = first->next;
-                ReportAttrError( doc, node, first, REPEATED_ATTRIBUTE);
-                RemoveAttribute( doc, node, first );
+                TY_(ReportAttrError)( doc, node, first, REPEATED_ATTRIBUTE);
+                TY_(RemoveAttribute)( doc, node, first );
                 firstRedefined = yes;
                 first = temp;
                 second = second->next;
@@ -956,10 +1055,8 @@ void RepairDuplicateAttributes( TidyDocImpl* doc, Node *node)
             else /* TidyDuplicateAttrs == TidyKeepFirst */
             {
                 temp = second->next;
-
-                ReportAttrError( doc, node, second, REPEATED_ATTRIBUTE);
-                RemoveAttribute( doc, node, second );
-
+                TY_(ReportAttrError)( doc, node, second, REPEATED_ATTRIBUTE);
+                TY_(RemoveAttribute)( doc, node, second );
                 second = temp;
             }
         }
@@ -969,7 +1066,7 @@ void RepairDuplicateAttributes( TidyDocImpl* doc, Node *node)
 }
 
 /* ignore unknown attributes for proprietary elements */
-const Attribute* CheckAttribute( TidyDocImpl* doc, Node *node, AttVal *attval )
+const Attribute* TY_(CheckAttribute)( TidyDocImpl* doc, Node *node, AttVal *attval )
 {
     const Attribute* attribute = attval->dict;
 
@@ -980,12 +1077,12 @@ const Attribute* CheckAttribute( TidyDocImpl* doc, Node *node, AttVal *attval )
             doc->lexer->isvoyager = yes;
             if (!cfgBool(doc, TidyHtmlOut))
             {
-                SetOptionBool(doc, TidyXhtmlOut, yes);
-                SetOptionBool(doc, TidyXmlOut, yes);
+                TY_(SetOptionBool)(doc, TidyXhtmlOut, yes);
+                TY_(SetOptionBool)(doc, TidyXmlOut, yes);
             }
         }
 
-        ConstrainVersion(doc, AttributeVersions(node, attval));
+        TY_(ConstrainVersion)(doc, AttributeVersions(node, attval));
         
         if (attribute->attrchk)
             attribute->attrchk( doc, node, attval );
@@ -993,16 +1090,16 @@ const Attribute* CheckAttribute( TidyDocImpl* doc, Node *node, AttVal *attval )
 
     if (AttributeIsProprietary(node, attval))
     {
-        ReportAttrError(doc, node, attval, PROPRIETARY_ATTRIBUTE);
+        TY_(ReportAttrError)(doc, node, attval, PROPRIETARY_ATTRIBUTE);
 
         if (cfgBool(doc, TidyDropPropAttrs))
-            RemoveAttribute( doc, node, attval );
+            TY_(RemoveAttribute)( doc, node, attval );
     }
 
     return attribute;
 }
 
-Bool IsBoolAttribute(AttVal *attval)
+Bool TY_(IsBoolAttribute)(AttVal *attval)
 {
     const Attribute *attribute = ( attval ? attval->dict : NULL );
     if ( attribute && attribute->attrchk == CH_BOOL )
@@ -1010,7 +1107,7 @@ Bool IsBoolAttribute(AttVal *attval)
     return no;
 }
 
-Bool attrIsEvent( AttVal* attval )
+Bool TY_(attrIsEvent)( AttVal* attval )
 {
     TidyAttrId atid = AttrId( attval );
 
@@ -1055,7 +1152,7 @@ static void CheckLowerCaseAttrValue( TidyDocImpl* doc, Node *node, AttVal *attva
     
     while (*p)
     {
-        if (IsUpper(*p)) /* #501230 - fix by Terry Teague - 09 Jan 02 */
+        if (TY_(IsUpper)(*p)) /* #501230 - fix by Terry Teague - 09 Jan 02 */
         {
             hasUpper = yes;
             break;
@@ -1067,16 +1164,16 @@ static void CheckLowerCaseAttrValue( TidyDocImpl* doc, Node *node, AttVal *attva
     {
         Lexer* lexer = doc->lexer;
         if (lexer->isvoyager)
-            ReportAttrError( doc, node, attval, ATTR_VALUE_NOT_LCASE);
+            TY_(ReportAttrError)( doc, node, attval, ATTR_VALUE_NOT_LCASE);
   
         if ( lexer->isvoyager || cfgBool(doc, TidyLowerLiterals) )
-            attval->value = tmbstrtolower(attval->value);
+            attval->value = TY_(tmbstrtolower)(attval->value);
     }
 }
 
 /* methods for checking value of a specific attribute */
 
-void CheckUrl( TidyDocImpl* doc, Node *node, AttVal *attval)
+void TY_(CheckUrl)( TidyDocImpl* doc, Node *node, AttVal *attval)
 {
     tmbchar c; 
     tmbstr dest, p;
@@ -1086,13 +1183,13 @@ void CheckUrl( TidyDocImpl* doc, Node *node, AttVal *attval)
     
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
     p = attval->value;
     
-    for (i = 0; 0 != (c = p[i]); ++i)
+    for (i = 0; '\0' != (c = p[i]); ++i)
     {
         if (c == '\\')
         {
@@ -1106,8 +1203,8 @@ void CheckUrl( TidyDocImpl* doc, Node *node, AttVal *attval)
     
     if ( cfgBool(doc, TidyFixUri) && escape_count )
     {
-        len = tmbstrlen(p) + escape_count * 2 + 1;
-        dest = (tmbstr) MemAlloc(len);
+        len = TY_(tmbstrlen)(p) + escape_count * 2 + 1;
+        dest = (tmbstr) TidyDocAlloc(doc, len);
         
         for (i = 0; 0 != (c = p[i]); ++i)
         {
@@ -1118,22 +1215,22 @@ void CheckUrl( TidyDocImpl* doc, Node *node, AttVal *attval)
         }
         dest[pos] = 0;
 
-        MemFree(attval->value);
+        TidyDocFree(doc, attval->value);
         attval->value = dest;
     }
     if ( backslash_count )
     {
         if ( cfgBool(doc, TidyFixBackslash) )
-            ReportAttrError( doc, node, attval, FIXED_BACKSLASH );
+            TY_(ReportAttrError)( doc, node, attval, FIXED_BACKSLASH );
         else
-            ReportAttrError( doc, node, attval, BACKSLASH_IN_URI );
+            TY_(ReportAttrError)( doc, node, attval, BACKSLASH_IN_URI );
     }
     if ( escape_count )
     {
         if ( cfgBool(doc, TidyFixUri) )
-            ReportAttrError( doc, node, attval, ESCAPED_ILLEGAL_URI);
+            TY_(ReportAttrError)( doc, node, attval, ESCAPED_ILLEGAL_URI);
         else
-            ReportAttrError( doc, node, attval, ILLEGAL_URI_REFERENCE);
+            TY_(ReportAttrError)( doc, node, attval, ILLEGAL_URI_REFERENCE);
 
         doc->badChars |= BC_INVALID_URI;
     }
@@ -1148,7 +1245,7 @@ void CheckUrl( TidyDocImpl* doc, Node *node, AttVal *attval)
 void CheckAction( TidyDocImpl* doc, Node *node, AttVal *attval)
 {
     if (AttrHasValue(attval))
-        CheckUrl( doc, node, attval );
+        TY_(CheckUrl)( doc, node, attval );
 }
 
 void CheckScript( TidyDocImpl* ARG_UNUSED(doc), Node* ARG_UNUSED(node),
@@ -1156,25 +1253,25 @@ void CheckScript( TidyDocImpl* ARG_UNUSED(doc), Node* ARG_UNUSED(node),
 {
 }
 
-Bool IsValidHTMLID(ctmbstr id)
+Bool TY_(IsValidHTMLID)(ctmbstr id)
 {
     ctmbstr s = id;
 
     if (!s)
         return no;
 
-    if (!IsLetter(*s++))
+    if (!TY_(IsLetter)(*s++))
         return no;
 
     while (*s)
-        if (!IsNamechar(*s++))
+        if (!TY_(IsNamechar)(*s++))
             return no;
 
     return yes;
 
 }
 
-Bool IsValidXMLID(ctmbstr id)
+Bool TY_(IsValidXMLID)(ctmbstr id)
 {
     ctmbstr s = id;
     tchar c;
@@ -1184,9 +1281,9 @@ Bool IsValidXMLID(ctmbstr id)
 
     c = *s++;
     if (c > 0x7F)
-        s += GetUTF8(s, &c);
+        s += TY_(GetUTF8)(s, &c);
 
-    if (!(IsXMLLetter(c) || c == '_' || c == ':'))
+    if (!(TY_(IsXMLLetter)(c) || c == '_' || c == ':'))
         return no;
 
     while (*s)
@@ -1194,11 +1291,11 @@ Bool IsValidXMLID(ctmbstr id)
         c = (unsigned char)*s;
 
         if (c > 0x7F)
-            s += GetUTF8(s, &c);
+            s += TY_(GetUTF8)(s, &c);
 
         ++s;
 
-        if (!IsXMLNamechar(c))
+        if (!TY_(IsXMLNamechar)(c))
             return no;
     }
 
@@ -1218,11 +1315,11 @@ static Bool IsValidNMTOKEN(ctmbstr name)
         c = (unsigned char)*s;
 
         if (c > 0x7F)
-            s += GetUTF8(s, &c);
+            s += TY_(GetUTF8)(s, &c);
 
         ++s;
 
-        if (!IsXMLNamechar(c))
+        if (!TY_(IsXMLNamechar)(c))
             return no;
     }
 
@@ -1243,14 +1340,14 @@ static void CheckAttrValidity( TidyDocImpl* doc, Node *node, AttVal *attval,
 {
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
     CheckLowerCaseAttrValue( doc, node, attval );
 
     if (!AttrValueIsAmong(attval, list))
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 }
 
 void CheckName( TidyDocImpl* doc, Node *node, AttVal *attval)
@@ -1259,18 +1356,18 @@ void CheckName( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
-    if ( IsAnchorElement(doc, node) )
+    if ( TY_(IsAnchorElement)(doc, node) )
     {
         if (cfgBool(doc, TidyXmlOut) && !IsValidNMTOKEN(attval->value))
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 
         if ((old = GetNodeByAnchor(doc, attval->value)) &&  old != node)
         {
-            ReportAttrError( doc, node, attval, ANCHOR_NOT_UNIQUE);
+            TY_(ReportAttrError)( doc, node, attval, ANCHOR_NOT_UNIQUE);
         }
         else
             AddAnchor( doc, attval->value, node );
@@ -1284,21 +1381,21 @@ void CheckId( TidyDocImpl* doc, Node *node, AttVal *attval )
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
-    if (!IsValidHTMLID(attval->value))
+    if (!TY_(IsValidHTMLID)(attval->value))
     {
-        if (lexer->isvoyager && IsValidXMLID(attval->value))
-            ReportAttrError( doc, node, attval, XML_ID_SYNTAX);
+        if (lexer->isvoyager && TY_(IsValidXMLID)(attval->value))
+            TY_(ReportAttrError)( doc, node, attval, XML_ID_SYNTAX);
         else
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
 
     if ((old = GetNodeByAnchor(doc, attval->value)) &&  old != node)
     {
-        ReportAttrError( doc, node, attval, ANCHOR_NOT_UNIQUE);
+        TY_(ReportAttrError)( doc, node, attval, ANCHOR_NOT_UNIQUE);
     }
     else
         AddAnchor( doc, attval->value, node );
@@ -1325,7 +1422,7 @@ void CheckAlign( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
@@ -1340,8 +1437,8 @@ void CheckAlign( TidyDocImpl* doc, Node *node, AttVal *attval)
         /* align="char" is allowed for elements with CM_TABLE|CM_ROW
            except CAPTION which is excluded above, */
         if( !(AttrValueIs(attval, "char")
-              && node->tag && (node->tag->model & CM_TABLE|CM_ROW)))
-             ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+              && TY_(nodeHasCM)(node, CM_TABLE|CM_ROW)) )
+             TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
 }
 
@@ -1354,7 +1451,7 @@ void CheckValign( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
@@ -1367,15 +1464,15 @@ void CheckValign( TidyDocImpl* doc, Node *node, AttVal *attval)
     else if (AttrValueIsAmong(attval, values2))
     {
         if (!(node->tag && (node->tag->model & CM_IMG)))
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
     else if (AttrValueIsAmong(attval, valuesp))
     {
-        ConstrainVersion( doc, VERS_PROPRIETARY );
-        ReportAttrError( doc, node, attval, PROPRIETARY_ATTR_VALUE);
+        TY_(ConstrainVersion)( doc, VERS_PROPRIETARY );
+        TY_(ReportAttrError)( doc, node, attval, PROPRIETARY_ATTR_VALUE);
     }
     else
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 }
 
 void CheckLength( TidyDocImpl* doc, Node *node, AttVal *attval)
@@ -1384,7 +1481,7 @@ void CheckLength( TidyDocImpl* doc, Node *node, AttVal *attval)
     
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
@@ -1394,17 +1491,17 @@ void CheckLength( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     p = attval->value;
     
-    if (!IsDigit(*p++))
+    if (!TY_(IsDigit)(*p++))
     {
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
     else
     {
         while (*p)
         {
-            if (!IsDigit(*p) && *p != '%')
+            if (!TY_(IsDigit)(*p) && *p != '%')
             {
-                ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+                TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
                 break;
             }
             ++p;
@@ -1418,17 +1515,17 @@ void CheckTarget( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
     /* target names must begin with A-Za-z ... */
-    if (IsLetter(attval->value[0]))
+    if (TY_(IsLetter)(attval->value[0]))
         return;
 
     /* or be one of the allowed list */
     if (!AttrValueIsAmong(attval, values))
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 }
 
 void CheckFsubmit( TidyDocImpl* doc, Node *node, AttVal *attval)
@@ -1443,16 +1540,16 @@ void CheckClear( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         if (attval->value == NULL)
-            attval->value = tmbstrdup( "none" );
+            attval->value = TY_(tmbstrdup)( doc->allocator, "none" );
         return;
     }
 
     CheckLowerCaseAttrValue( doc, node, attval );
         
     if (!AttrValueIsAmong(attval, values))
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 }
 
 void CheckShape( TidyDocImpl* doc, Node *node, AttVal *attval)
@@ -1473,7 +1570,7 @@ void CheckNumber( TidyDocImpl* doc, Node *node, AttVal *attval)
     
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
@@ -1490,9 +1587,9 @@ void CheckNumber( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     while (*p)
     {
-        if (!IsDigit(*p))
+        if (!TY_(IsDigit)(*p))
         {
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
             break;
         }
         ++p;
@@ -1504,12 +1601,12 @@ static Bool IsValidColorCode(ctmbstr color)
 {
     uint i;
 
-    if (tmbstrlen(color) != 6)
+    if (TY_(tmbstrlen)(color) != 6)
         return no;
 
     /* check if valid hex digits and letters */
     for (i = 0; i < 6; i++)
-        if (!IsDigit(color[i]) && !strchr("abcdef", ToLower(color[i])))
+        if (!TY_(IsDigit)(color[i]) && !strchr("abcdef", TY_(ToLower)(color[i])))
             return no;
 
     return yes;
@@ -1523,7 +1620,7 @@ void CheckColor( TidyDocImpl* doc, Node *node, AttVal *attval)
 
     if (!AttrHasValue(attval))
     {
-        ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
         return;
     }
 
@@ -1534,14 +1631,14 @@ void CheckColor( TidyDocImpl* doc, Node *node, AttVal *attval)
     {
         tmbstr cp, s;
 
-        cp = s = (tmbstr) MemAlloc(2 + tmbstrlen (given));
+        cp = s = (tmbstr) TidyDocAlloc(doc, 2 + TY_(tmbstrlen)(given));
         *cp++ = '#';
         while ('\0' != (*cp++ = *given++))
             continue;
 
-        ReportAttrError(doc, node, attval, BAD_ATTRIBUTE_VALUE_REPLACED);
+        TY_(ReportAttrError)(doc, node, attval, BAD_ATTRIBUTE_VALUE_REPLACED);
 
-        MemFree(attval->value);
+        TidyDocFree(doc, attval->value);
         given = attval->value = s;
     }
 
@@ -1554,8 +1651,8 @@ void CheckColor( TidyDocImpl* doc, Node *node, AttVal *attval)
 
         if (newName)
         {
-            MemFree(attval->value);
-            given = attval->value = tmbstrdup(newName);
+            TidyDocFree(doc, attval->value);
+            given = attval->value = TY_(tmbstrdup)(doc->allocator, newName);
         }
     }
 
@@ -1564,12 +1661,12 @@ void CheckColor( TidyDocImpl* doc, Node *node, AttVal *attval)
         valid = GetColorCode(given) != NULL;
 
     if (valid && given[0] == '#')
-        attval->value = tmbstrtoupper(attval->value);
+        attval->value = TY_(tmbstrtoupper)(attval->value);
     else if (valid)
-        attval->value = tmbstrtolower(attval->value);
+        attval->value = TY_(tmbstrtolower)(attval->value);
 
     if (!valid)
-        ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+        TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
 }
 
 /* check valuetype attribute for element param */
@@ -1601,7 +1698,7 @@ void CheckLang( TidyDocImpl* doc, Node *node, AttVal *attval)
     {
         if ( cfg(doc, TidyAccessibilityCheckLevel) == 0 )
         {
-            ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE );
+            TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE );
         }
         return;
     }
@@ -1627,25 +1724,177 @@ void CheckType( TidyDocImpl* doc, Node *node, AttVal *attval)
     {
         if (!AttrHasValue(attval))
         {
-            ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
             return;
         }
         if (!AttrValueIsAmong(attval, valuesOL))
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
     else if (nodeIsLI(node))
     {
         if (!AttrHasValue(attval))
         {
-            ReportAttrError( doc, node, attval, MISSING_ATTR_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, MISSING_ATTR_VALUE);
             return;
         }
         if (AttrValueIsAmong(attval, valuesUL))
             CheckLowerCaseAttrValue( doc, node, attval );
         else if (!AttrValueIsAmong(attval, valuesOL))
-            ReportAttrError( doc, node, attval, BAD_ATTRIBUTE_VALUE);
+            TY_(ReportAttrError)( doc, node, attval, BAD_ATTRIBUTE_VALUE);
     }
     return;
+}
+
+static
+AttVal *SortAttVal( AttVal* list, TidyAttrSortStrategy strat );
+
+void TY_(SortAttributes)(Node* node, TidyAttrSortStrategy strat)
+{
+    while (node)
+    {
+        node->attributes = SortAttVal( node->attributes, strat );
+        if (node->content)
+            TY_(SortAttributes)(node->content, strat);
+        node = node->next;
+    }
+}
+
+/**
+* Attribute sorting contributed by Adrian Wilkins, 2007
+* 
+* Portions copyright Simon Tatham 2001.
+*
+* Merge sort algortithm adpated from listsort.c linked from 
+* http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
+* 
+* Original copyright notice proceeds below.
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or
+* sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT.  IN NO EVENT SHALL SIMON TATHAM BE LIABLE FOR
+* ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+* CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
+
+typedef int(*ptAttValComparator)(AttVal *one, AttVal *two);
+
+/* Comparison function for TidySortAttrAlpha */
+static
+int AlphaComparator(AttVal *one, AttVal *two)
+{
+    return TY_(tmbstrcmp)(one->attribute, two->attribute);
+}
+
+
+/* The "factory method" that returns a pointer to the comparator function */
+static
+ptAttValComparator GetAttValComparator(TidyAttrSortStrategy strat)
+{
+    switch (strat)
+    {
+    case TidySortAttrAlpha:
+        return AlphaComparator;
+    case TidySortAttrNone:
+        break;
+    }
+    return 0;
+}
+
+/* The sort routine */
+static
+AttVal *SortAttVal( AttVal *list, TidyAttrSortStrategy strat)
+{
+    ptAttValComparator ptComparator = GetAttValComparator(strat);
+    AttVal *p, *q, *e, *tail;
+    int insize, nmerges, psize, qsize, i;
+
+    /*
+    * Silly special case: if `list' was passed in as NULL, return
+    * NULL immediately.
+    */
+    if (!list)
+        return NULL;
+
+    insize = 1;
+
+    while (1) {
+        p = list;
+        list = NULL;
+        tail = NULL;
+
+        nmerges = 0;  /* count number of merges we do in this pass */
+
+        while (p) {
+            nmerges++;  /* there exists a merge to be done */
+            /* step `insize' places along from p */
+            q = p;
+            psize = 0;
+            for (i = 0; i < insize; i++) {
+                psize++;
+                q = q->next;
+                if(!q) break;
+            }
+
+            /* if q hasn't fallen off end, we have two lists to merge */
+            qsize = insize;
+
+            /* now we have two lists; merge them */
+            while (psize > 0 || (qsize > 0 && q)) {
+
+                /* decide whether next element of merge comes from p or q */
+                if (psize == 0) {
+                    /* p is empty; e must come from q. */
+                    e = q; q = q->next; qsize--;
+                } else if (qsize == 0 || !q) {
+                    /* q is empty; e must come from p. */
+                    e = p; p = p->next; psize--;
+                } else if (ptComparator(p,q) <= 0) {
+                    /* First element of p is lower (or same);
+                    * e must come from p. */
+                    e = p; p = p->next; psize--;
+                } else {
+                    /* First element of q is lower; e must come from q. */
+                    e = q; q = q->next; qsize--;
+                }
+
+                /* add the next element to the merged list */
+                if (tail) {
+                    tail->next = e;
+                } else {
+                    list = e;
+                }
+
+                tail = e;
+            }
+
+            /* now p has stepped `insize' places along, and q has too */
+            p = q;
+        }
+
+        tail->next = NULL;
+
+        /* If we have done only one merge, we're finished. */
+        if (nmerges <= 1)   /* allow for nmerges==0, the empty list case */
+            return list;
+
+        /* Otherwise repeat, merging lists twice the size */
+        insize *= 2;
+    }
 }
 
 /*

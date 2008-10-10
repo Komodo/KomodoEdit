@@ -3,14 +3,14 @@
 
 /* streamio.h -- handles character stream I/O
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/03/03 12:49:24 $ 
-    $Revision: 1.14 $ 
+    $Date: 2007/07/22 09:33:26 $ 
+    $Revision: 1.21 $ 
 
   Wrapper around Tidy input source and output sink
   that calls appropriate interfaces, and applies 
@@ -59,18 +59,25 @@ typedef enum
 ** Source
 ************************/
 
-#define CHARBUF_SIZE 5
+enum
+{
+    CHARBUF_SIZE=5,
+    LASTPOS_SIZE=64
+};
 
 /* non-raw input is cleaned up*/
 struct _StreamIn
 {
     ISO2022State    state;     /* FSM for ISO2022 */
     Bool   pushed;
+    TidyAllocator *allocator;
     tchar* charbuf;
     uint   bufpos;
     uint   bufsize;
     int    tabs;
-    int    lastcol;
+    int    lastcols[LASTPOS_SIZE];
+    unsigned short curlastpos; /* current last position in lastcols */ 
+    unsigned short firstlastpos; /* first valid last position in lastcols */ 
     int    curcol;
     int    curline;
     int    encoding;
@@ -79,7 +86,7 @@ struct _StreamIn
     TidyInputSource source;
 
 #ifdef TIDY_WIN32_MLANG_SUPPORT
-    ulong  mlang;
+    void* mlang;
 #endif
 
 #ifdef TIDY_STORE_ORIGINAL_TEXT
@@ -92,17 +99,17 @@ struct _StreamIn
     TidyDocImpl* doc;
 };
 
-void freeStreamIn(StreamIn* in);
+StreamIn* TY_(initStreamIn)( TidyDocImpl* doc, int encoding );
+void TY_(freeStreamIn)(StreamIn* in);
 
-StreamIn* FileInput( TidyDocImpl* doc, FILE* fp, int encoding );
-StreamIn* BufferInput( TidyDocImpl* doc, TidyBuffer* content, int encoding );
-StreamIn* UserInput( TidyDocImpl* doc, TidyInputSource* source, int encoding );
+StreamIn* TY_(FileInput)( TidyDocImpl* doc, FILE* fp, int encoding );
+StreamIn* TY_(BufferInput)( TidyDocImpl* doc, TidyBuffer* content, int encoding );
+StreamIn* TY_(UserInput)( TidyDocImpl* doc, TidyInputSource* source, int encoding );
 
-int       ReadBOMEncoding(StreamIn *in);
-uint      ReadChar( StreamIn* in );
-void      UngetChar( uint c, StreamIn* in );
-uint      PopChar( StreamIn *in );
-Bool      IsEOF( StreamIn* in );
+int       TY_(ReadBOMEncoding)(StreamIn *in);
+uint      TY_(ReadChar)( StreamIn* in );
+void      TY_(UngetChar)( uint c, StreamIn* in );
+Bool      TY_(IsEOF)( StreamIn* in );
 
 
 /************************
@@ -116,27 +123,27 @@ struct _StreamOut
     uint  nl;
 
 #ifdef TIDY_WIN32_MLANG_SUPPORT
-    ulong mlang;
+    void* mlang;
 #endif
 
     IOType iotype;
     TidyOutputSink sink;
 };
 
-StreamOut* FileOutput( FILE* fp, int encoding, uint newln );
-StreamOut* BufferOutput( TidyBuffer* buf, int encoding, uint newln );
-StreamOut* UserOutput( TidyOutputSink* sink, int encoding, uint newln );
+StreamOut* TY_(FileOutput)( TidyDocImpl *doc, FILE* fp, int encoding, uint newln );
+StreamOut* TY_(BufferOutput)( TidyDocImpl *doc, TidyBuffer* buf, int encoding, uint newln );
+StreamOut* TY_(UserOutput)( TidyDocImpl *doc, TidyOutputSink* sink, int encoding, uint newln );
 
-StreamOut* StdErrOutput(void);
-StreamOut* StdOutOutput(void);
-void       ReleaseStreamOut( StreamOut* out );
+StreamOut* TY_(StdErrOutput)(void);
+/* StreamOut* StdOutOutput(void); */
+void       TY_(ReleaseStreamOut)( TidyDocImpl *doc, StreamOut* out );
 
-void WriteChar( uint c, StreamOut* out );
-void outBOM( StreamOut *out );
+void TY_(WriteChar)( uint c, StreamOut* out );
+void TY_(outBOM)( StreamOut *out );
 
-ctmbstr GetEncodingNameFromTidyId(uint id);
-ctmbstr GetEncodingOptNameFromTidyId(uint id);
-int GetCharEncodingFromOptName(ctmbstr charenc);
+ctmbstr TY_(GetEncodingNameFromTidyId)(uint id);
+ctmbstr TY_(GetEncodingOptNameFromTidyId)(uint id);
+int TY_(GetCharEncodingFromOptName)(ctmbstr charenc);
 
 /************************
 ** Misc
@@ -184,22 +191,14 @@ int GetCharEncodingFromOptName(ctmbstr charenc);
 ** regardless of specified encoding.  Set at compile time
 ** to either Windows or Mac.
 */
-extern const int ReplacementCharEncoding;
+extern const int TY_(ReplacementCharEncoding);
 
 /* Function for conversion from Windows-1252 to Unicode */
-uint DecodeWin1252(uint c);
+uint TY_(DecodeWin1252)(uint c);
 
 /* Function to convert from MacRoman to Unicode */
-uint DecodeMacRoman(uint c);
+uint TY_(DecodeMacRoman)(uint c);
 
-/* Function for conversion from OS/2-850 to Unicode */
-uint DecodeIbm850(uint c);
-
-/* Function for conversion from Latin0 to Unicode */
-uint DecodeLatin0(uint c);
-
-/* Function to convert from Symbol Font chars to Unicode */
-uint DecodeSymbolFont(uint c);
 #ifdef __cplusplus
 }
 #endif

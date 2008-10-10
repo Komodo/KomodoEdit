@@ -1,16 +1,16 @@
-#ifndef __PLATFORM_H__
-#define __PLATFORM_H__
+#ifndef __TIDY_PLATFORM_H__
+#define __TIDY_PLATFORM_H__
 
 /* platform.h -- Platform specifics
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2008 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/06/15 12:45:39 $ 
-    $Revision: 1.55 $ 
+    $Date: 2008/03/17 12:57:01 $ 
+    $Revision: 1.66 $ 
 
 */
 
@@ -23,9 +23,9 @@ extern "C" {
   want to specify the config file at compile-time.
 */
 
-/* #define CONFIG_FILE "/etc/tidy_config.txt" */ /* original */
-/* #define CONFIG_FILE "/etc/tidyrc" */
-/* #define CONFIG_FILE "/etc/tidy.conf" */
+/* #define TIDY_CONFIG_FILE "/etc/tidy_config.txt" */ /* original */
+/* #define TIDY_CONFIG_FILE "/etc/tidyrc" */
+/* #define TIDY_CONFIG_FILE "/etc/tidy.conf" */
 
 /*
   Uncomment the following #define if you are on a system
@@ -33,7 +33,7 @@ extern "C" {
   It enables tidy to find config files named ~/.tidyrc if 
   the HTML_TIDY environment variable is not set.
 */
-/* #define USER_CONFIG_FILE "~/.tidyrc" */
+/* #define TIDY_USER_CONFIG_FILE "~/.tidyrc" */
 
 /*
   Uncomment the following #define if your
@@ -123,6 +123,12 @@ extern "C" {
 #define PLATFORM_NAME "OpenBSD"
 #endif
 
+#elif defined(__DragonFly__)
+#define BSD_BASED_OS
+#ifndef PLATFORM_NAME
+#define PLATFORM_NAME "DragonFly"
+#endif
+
 #elif defined(__MINT__)
 #define BSD_BASED_OS
 #ifndef PLATFORM_NAME
@@ -167,6 +173,7 @@ extern "C" {
 #endif
 
 #define FILENAMES_CASE_SENSITIVE 0
+#define SUPPORT_POSIX_MAPPED_FILES 0
 
 #endif
 
@@ -482,6 +489,10 @@ extern "C" {
 #pragma warning( disable : 4706 ) /* assignment within conditional expression */
 #endif
 
+#if _MSC_VER > 1300
+#pragma warning( disable : 4996 ) /* disable depreciation warning */
+#endif
+
 #endif /* _WIN32 */
 
 #if defined(_WIN32)
@@ -491,7 +502,11 @@ extern "C" {
 #endif
 
 #ifndef TIDY_CALL
-#define TIDY_CALL __stdcall
+#ifdef _WIN64
+#  define TIDY_CALL __fastcall
+#else
+#  define TIDY_CALL __stdcall
+#endif
 #endif
 
 #endif /* _WIN32 */
@@ -502,14 +517,26 @@ extern "C" {
 #include <sys/types.h>
 #endif
 #if !defined(HPUX_OS) && !defined(CYGWIN_OS) && !defined(MAC_OS_X) && !defined(BE_OS) && !defined(SOLARIS_OS) && !defined(BSD_BASED_OS) && !defined(OSF_OS) && !defined(IRIX_OS) && !defined(AIX_OS) && !defined(LINUX_OS)
+# undef uint
 typedef unsigned int uint;
 #endif
 #if defined(HPUX_OS) || defined(CYGWIN_OS) || defined(MAC_OS) || defined(BSD_BASED_OS) || defined(_WIN32)
+# undef ulong
 typedef unsigned long ulong;
 #endif
 
+/*
+With GCC 4,  __attribute__ ((visibility("default"))) can be used along compiling with tidylib 
+with "-fvisibility=hidden". See http://gcc.gnu.org/wiki/Visibility and build/gmake/Makefile.
+*/
+/*
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define TIDY_EXPORT __attribute__ ((visibility("default")))
+#endif
+*/
+
 #ifndef TIDY_EXPORT /* Define it away for most builds */
-#define TIDY_EXPORT
+#define TIDY_EXPORT 
 #endif
 
 #ifndef TIDY_STRUCT
@@ -544,6 +571,10 @@ typedef const tmbchar* ctmbstr; /* Ditto, but const */
 # define HAS_VSNPRINTF 1
 #endif
 
+#ifndef SUPPORT_POSIX_MAPPED_FILES
+# define SUPPORT_POSIX_MAPPED_FILES 1
+#endif
+
 /*
   bool is a reserved word in some but
   not all C++ compilers depending on age
@@ -570,12 +601,6 @@ extern void* null;
 #include "dmalloc.h"
 #endif
 
-void *MemAlloc(size_t size);
-void *MemRealloc(void *mem, size_t newsize);
-void MemFree(void *mem);
-void ClearMemory(void *, size_t size);
-void FatalError( ctmbstr msg );
-
 /* Opaque data structure.
 *  Cast to implementation type struct within lib.
 *  This will reduce inter-dependencies/conflicts w/ application code.
@@ -583,9 +608,9 @@ void FatalError( ctmbstr msg );
 #if 1
 #define opaque_type( typenam )\
 struct _##typenam { int _opaque; };\
-typedef struct _##typenam* typenam
+typedef struct _##typenam const * typenam
 #else
-#define opaque_type(typenam) typedef void* typenam
+#define opaque_type(typenam) typedef const void* typenam
 #endif
 
 /* Opaque data structure used to pass back
@@ -598,4 +623,14 @@ opaque_type( TidyIterator );
 } /* extern "C" */
 #endif
 
-#endif /* __PLATFORM_H__ */
+#endif /* __TIDY_PLATFORM_H__ */
+
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

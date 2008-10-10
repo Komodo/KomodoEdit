@@ -7,9 +7,9 @@
 #
 # CVS Info :
 #
-#   $Author: terry_teague $ 
-#   $Date: 2004/08/02 02:13:09 $ 
-#   $Revision: 1.2 $ 
+#   $Author: arnaud02 $ 
+#   $Date: 2008/03/24 21:08:16 $ 
+#   $Revision: 1.4 $ 
 #
 
 AC_INIT([include/tidy.h])
@@ -57,7 +57,7 @@ save_cflags="$CFLAGS"
 
 AC_PROG_CC
 if test "x$GCC" = "xyes"; then
-	WARNING_CFLAGS="-Wall -Wno-switch -Wno-parentheses -Wno-unused"
+	WARNING_CFLAGS="-Wall"
 else
 	WARNING_CFLAGS=""
 fi

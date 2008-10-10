@@ -11,7 +11,7 @@
   this-equivalent as 1st arg.
 
 
-  Copyright (c) 1998-2005 World Wide Web Consortium
+  Copyright (c) 1998-2008 World Wide Web Consortium
   (Massachusetts Institute of Technology, European Research 
   Consortium for Informatics and Mathematics, Keio University).
   All Rights Reserved.
@@ -19,8 +19,8 @@
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/04/08 09:11:12 $ 
-    $Revision: 1.13 $ 
+    $Date: 2008/04/22 11:00:42 $ 
+    $Revision: 1.22 $ 
 
   Contributing Author(s):
 
@@ -101,11 +101,156 @@ opaque_type( TidyNode );
 */
 opaque_type( TidyAttr );
 
-/** @} */
+/** @} end Opaque group */
 
 TIDY_STRUCT struct _TidyBuffer;
 typedef struct _TidyBuffer TidyBuffer;
 
+
+/** @defgroup Memory  Memory Allocation
+**
+** Tidy uses a user provided allocator for all
+** memory allocations.  If this allocator is
+** not provided, then a default allocator is
+** used which simply wraps standard C malloc/free
+** calls.  These wrappers call the panic function
+** upon any failure.  The default panic function
+** prints an out of memory message to stderr, and
+** calls exit(2).
+**
+** For applications in which it is unacceptable to
+** abort in the case of memory allocation, then the
+** panic function can be replaced with one which
+** longjmps() out of the tidy code.  For this to
+** clean up completely, you should be careful not
+** to use any tidy methods that open files as these
+** will not be closed before panic() is called.
+**
+** TODO: associate file handles with tidyDoc and
+** ensure that tidyDocRelease() can close them all.
+**
+** Calling the withAllocator() family (
+** tidyCreateWithAllocator, tidyBufInitWithAllocator,
+** tidyBufAllocWithAllocator) allow settings custom
+** allocators).
+**
+** All parts of the document use the same allocator.
+** Calls that require a user provided buffer can
+** optionally use a different allocator.
+**
+** For reference in designing a plug-in allocator,
+** most allocations made by tidy are less than 100
+** bytes, corresponding to attribute names/values, etc.
+**
+** There is also an additional class of much larger
+** allocations which are where most of the data from
+** the lexer is stored.  (It is not currently possible
+** to use a separate allocator for the lexer, this
+** would be a useful extension).
+**
+** In general, approximately 1/3rd of the memory
+** used by tidy is freed during the parse, so if
+** memory usage is an issue then an allocator that 
+** can reuse this memory is a good idea.
+**
+** @{
+*/
+
+/** Prototype for the allocator's function table */
+struct _TidyAllocatorVtbl;
+/** The allocators function table */
+typedef struct _TidyAllocatorVtbl TidyAllocatorVtbl;
+
+/** Prototype for the allocator */
+struct _TidyAllocator;
+/** The allocator **/
+typedef struct _TidyAllocator TidyAllocator;
+
+/** An allocator's function table.  All functions here must
+    be provided.
+ */
+struct _TidyAllocatorVtbl {
+    /** Called to allocate a block of nBytes of memory */
+    void* (TIDY_CALL *alloc)( TidyAllocator *self, size_t nBytes );
+    /** Called to resize (grow, in general) a block of memory.
+        Must support being called with NULL.
+    */
+    void* (TIDY_CALL *realloc)( TidyAllocator *self, void *block, size_t nBytes );
+    /** Called to free a previously allocated block of memory */
+    void (TIDY_CALL *free)( TidyAllocator *self, void *block);
+    /** Called when a panic condition is detected.  Must support
+        block == NULL.  This function is not called if either alloc 
+        or realloc fails; it is up to the allocator to do this.
+        Currently this function can only be called if an error is
+        detected in the tree integrity via the internal function
+        CheckNodeIntegrity().  This is a situation that can
+        only arise in the case of a programming error in tidylib.
+        You can turn off node integrity checking by defining
+        the constant NO_NODE_INTEGRITY_CHECK during the build.
+    **/
+    void (TIDY_CALL *panic)( TidyAllocator *self, ctmbstr msg );
+};
+
+/** An allocator.  To create your own allocator, do something like
+    the following:
+    
+    typedef struct _MyAllocator {
+       TidyAllocator base;
+       ...other custom allocator state...
+    } MyAllocator;
+    
+    void* MyAllocator_alloc(TidyAllocator *base, void *block, size_t nBytes)
+    {
+        MyAllocator *self = (MyAllocator*)base;
+        ...
+    }
+    (etc)
+
+    static const TidyAllocatorVtbl MyAllocatorVtbl = {
+        MyAllocator_alloc,
+        MyAllocator_realloc,
+        MyAllocator_free,
+        MyAllocator_panic
+    };
+
+    myAllocator allocator;
+    TidyDoc doc;
+
+    allocator.base.vtbl = &amp;MyAllocatorVtbl;
+    ...initialise allocator specific state...
+    doc = tidyCreateWithAllocator(&allocator);
+    ...
+
+    Although this looks slightly long winded, the advantage is that to create
+    a custom allocator you simply need to set the vtbl pointer correctly.
+    The vtbl itself can reside in static/global data, and hence does not
+    need to be initialised each time an allocator is created, and furthermore
+    the memory is shared amongst all created allocators.
+*/
+struct _TidyAllocator {
+    const TidyAllocatorVtbl *vtbl;
+};
+
+/** Callback for "malloc" replacement */
+typedef void* (TIDY_CALL *TidyMalloc)( size_t len );
+/** Callback for "realloc" replacement */
+typedef void* (TIDY_CALL *TidyRealloc)( void* buf, size_t len );
+/** Callback for "free" replacement */
+typedef void  (TIDY_CALL *TidyFree)( void* buf );
+/** Callback for "out of memory" panic state */
+typedef void  (TIDY_CALL *TidyPanic)( ctmbstr mssg );
+
+
+/** Give Tidy a malloc() replacement */
+TIDY_EXPORT Bool TIDY_CALL tidySetMallocCall( TidyMalloc fmalloc );
+/** Give Tidy a realloc() replacement */
+TIDY_EXPORT Bool TIDY_CALL tidySetReallocCall( TidyRealloc frealloc );
+/** Give Tidy a free() replacement */
+TIDY_EXPORT Bool TIDY_CALL tidySetFreeCall( TidyFree ffree );
+/** Give Tidy an "out of memory" handler */
+TIDY_EXPORT Bool TIDY_CALL tidySetPanicCall( TidyPanic fpanic );
+
+/** @} end Memory group */
 
 /** @defgroup Basic Basic Operations
 **
@@ -131,12 +276,14 @@ The following is a short example program.
 int main(int argc, char **argv )
 {
   const char* input = "&lt;title&gt;Foo&lt;/title&gt;&lt;p&gt;Foo!";
-  TidyBuffer output = {0};
-  TidyBuffer errbuf = {0};
+  TidyBuffer output;
+  TidyBuffer errbuf;
   int rc = -1;
   Bool ok;
 
   TidyDoc tdoc = tidyCreate();                     // Initialize "document"
+  tidyBufInit( &amp;output );
+  tidyBufInit( &amp;errbuf );
   printf( "Tidying:\t\%s\\n", input );
 
   ok = tidyOptSetBool( tdoc, TidyXhtmlOut, yes );  // Convert to XHTML
@@ -172,15 +319,16 @@ int main(int argc, char **argv )
 */
 
 TIDY_EXPORT TidyDoc TIDY_CALL     tidyCreate(void);
+TIDY_EXPORT TidyDoc TIDY_CALL     tidyCreateWithAllocator( TidyAllocator *allocator );
 TIDY_EXPORT void TIDY_CALL        tidyRelease( TidyDoc tdoc );
 
 /** Let application store a chunk of data w/ each Tidy instance.
 **  Useful for callbacks.
 */
-TIDY_EXPORT void TIDY_CALL        tidySetAppData( TidyDoc tdoc, ulong appData );
+TIDY_EXPORT void TIDY_CALL        tidySetAppData( TidyDoc tdoc, void* appData );
 
 /** Get application data set previously */
-TIDY_EXPORT ulong TIDY_CALL       tidyGetAppData( TidyDoc tdoc );
+TIDY_EXPORT void* TIDY_CALL       tidyGetAppData( TidyDoc tdoc );
 
 /** Get release date (version) for current library */
 TIDY_EXPORT ctmbstr TIDY_CALL     tidyReleaseDate(void);
@@ -221,9 +369,9 @@ TIDY_EXPORT int TIDY_CALL         tidyLoadConfig( TidyDoc tdoc, ctmbstr configFi
 
 /** Load a Tidy configuration file with the specified character encoding */
 TIDY_EXPORT int TIDY_CALL         tidyLoadConfigEnc( TidyDoc tdoc, ctmbstr configFile,
-                                           ctmbstr charenc );
+                                                     ctmbstr charenc );
 
-TIDY_EXPORT Bool TIDY_CALL        tidyFileExists( ctmbstr filename );
+TIDY_EXPORT Bool TIDY_CALL        tidyFileExists( TidyDoc tdoc, ctmbstr filename );
 
 
 /** Set the input/output character encoding for parsing markup.
@@ -393,13 +541,13 @@ TIDY_EXPORT TidyOption TIDY_CALL    tidyOptGetNextDocLinks( TidyDoc tdoc,
    Input Source
 *****************/
 /** Input Callback: get next byte of input */
-typedef int  (TIDY_CALL *TidyGetByteFunc)( ulong sourceData );
+typedef int  (TIDY_CALL *TidyGetByteFunc)( void* sourceData );
 
 /** Input Callback: unget a byte of input */
-typedef void (TIDY_CALL *TidyUngetByteFunc)( ulong sourceData, byte bt );
+typedef void (TIDY_CALL *TidyUngetByteFunc)( void* sourceData, byte bt );
 
 /** Input Callback: is end of input? */
-typedef Bool (TIDY_CALL *TidyEOFFunc)( ulong sourceData );
+typedef Bool (TIDY_CALL *TidyEOFFunc)( void* sourceData );
 
 /** End of input "character" */
 #define EndOfStream (~0u)
@@ -410,7 +558,7 @@ TIDY_STRUCT
 typedef struct _TidyInputSource
 {
   /* Instance data */
-  ulong               sourceData;  /**< Input context.  Passed to callbacks */
+  void*               sourceData;  /**< Input context.  Passed to callbacks */
 
   /* Methods */
   TidyGetByteFunc     getByte;     /**< Pointer to "get byte" callback */
@@ -442,7 +590,7 @@ TIDY_EXPORT Bool TIDY_CALL tidyIsEOF( TidyInputSource* source );
    Output Sink
 ****************/
 /** Output callback: send a byte to output */
-typedef void (TIDY_CALL *TidyPutByteFunc)( ulong sinkData, byte bt );
+typedef void (TIDY_CALL *TidyPutByteFunc)( void* sinkData, byte bt );
 
 
 /** TidyOutputSink - accepts raw bytes of output
@@ -451,7 +599,7 @@ TIDY_STRUCT
 typedef struct _TidyOutputSink
 {
   /* Instance data */
-  ulong               sinkData;  /**< Output context.  Passed to callbacks */
+  void*               sinkData;  /**< Output context.  Passed to callbacks */
 
   /* Methods */
   TidyPutByteFunc     putByte;   /**< Pointer to "put byte" callback */
@@ -489,41 +637,6 @@ TIDY_EXPORT int TIDY_CALL     tidySetErrorBuffer( TidyDoc tdoc, TidyBuffer* errb
 TIDY_EXPORT int TIDY_CALL     tidySetErrorSink( TidyDoc tdoc, TidyOutputSink* sink );
 
 /** @} end IO group */
-
-
-/** @defgroup Memory  Memory Allocation
-**
-** By default, Tidy will use its own wrappers
-** around standard C malloc/free calls. 
-** These wrappers will abort upon any failures.
-** If any are set, all must be set.
-** Pass NULL to clear previous setting.
-**
-** May be used to set environment-specific allocators
-** such as used by web server plugins, etc.
-**
-** @{
-*/
-
-/** Callback for "malloc" replacement */
-typedef void* (TIDY_CALL *TidyMalloc)( size_t len );
-/** Callback for "realloc" replacement */
-typedef void* (TIDY_CALL *TidyRealloc)( void* buf, size_t len );
-/** Callback for "free" replacement */
-typedef void  (TIDY_CALL *TidyFree)( void* buf );
-/** Callback for "out of memory" panic state */
-typedef void  (TIDY_CALL *TidyPanic)( ctmbstr mssg );
-
-/** Give Tidy a malloc() replacement */
-TIDY_EXPORT Bool TIDY_CALL        tidySetMallocCall( TidyMalloc fmalloc );
-/** Give Tidy a realloc() replacement */
-TIDY_EXPORT Bool TIDY_CALL        tidySetReallocCall( TidyRealloc frealloc );
-/** Give Tidy a free() replacement */
-TIDY_EXPORT Bool TIDY_CALL        tidySetFreeCall( TidyFree ffree );
-/** Give Tidy an "out of memory" handler */
-TIDY_EXPORT Bool TIDY_CALL        tidySetPanicCall( TidyPanic fpanic );
-
-/** @} end Memory group */
 
 /* TODO: Catalog all messages for easy translation
 TIDY_EXPORT ctmbstr     tidyLookupMessage( int errorNo );
@@ -735,11 +848,20 @@ TIDY_EXPORT Bool TIDY_CALL tidyNodeIsHeader( TidyNode tnod ); /* h1, h2, ... */
 TIDY_EXPORT Bool TIDY_CALL tidyNodeHasText( TidyDoc tdoc, TidyNode tnod );
 TIDY_EXPORT Bool TIDY_CALL tidyNodeGetText( TidyDoc tdoc, TidyNode tnod, TidyBuffer* buf );
 
+/* Copy the unescaped value of this node into the given TidyBuffer as UTF-8 */
+TIDY_EXPORT Bool TIDY_CALL tidyNodeGetValue( TidyDoc tdoc, TidyNode tnod, TidyBuffer* buf );
+
 TIDY_EXPORT TidyTagId TIDY_CALL tidyNodeGetId( TidyNode tnod );
 
 TIDY_EXPORT uint TIDY_CALL tidyNodeLine( TidyNode tnod );
 TIDY_EXPORT uint TIDY_CALL tidyNodeColumn( TidyNode tnod );
 
+/** @defgroup NodeIsElementName Deprecated node interrogation per TagId
+**
+** @deprecated The functions tidyNodeIs{ElementName} are deprecated and 
+** should be replaced by tidyNodeGetId.
+** @{
+*/
 TIDY_EXPORT Bool TIDY_CALL tidyNodeIsHTML( TidyNode tnod );
 TIDY_EXPORT Bool TIDY_CALL tidyNodeIsHEAD( TidyNode tnod );
 TIDY_EXPORT Bool TIDY_CALL tidyNodeIsTITLE( TidyNode tnod );
@@ -821,6 +943,8 @@ TIDY_EXPORT Bool TIDY_CALL tidyNodeIsSTRIKE( TidyNode tnod );
 TIDY_EXPORT Bool TIDY_CALL tidyNodeIsU( TidyNode tnod );
 TIDY_EXPORT Bool TIDY_CALL tidyNodeIsMENU( TidyNode tnod );
 
+/** @} End NodeIsElementName group */
+
 /** @} End NodeAsk group */
 
 
@@ -834,6 +958,12 @@ TIDY_EXPORT TidyAttrId TIDY_CALL tidyAttrGetId( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsEvent( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsProp( TidyAttr tattr );
 
+/** @defgroup AttrIsAttributeName Deprecated attribute interrogation per AttrId
+**
+** @deprecated The functions  tidyAttrIs{AttributeName} are deprecated and 
+** should be replaced by tidyAttrGetId.
+** @{
+*/
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsHREF( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsSRC( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsID( TidyAttr tattr );
@@ -880,6 +1010,8 @@ TIDY_EXPORT Bool TIDY_CALL tidyAttrIsABBR( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsCOLSPAN( TidyAttr tattr );
 TIDY_EXPORT Bool TIDY_CALL tidyAttrIsROWSPAN( TidyAttr tattr );
 
+/** @} End AttrIsAttributeName group */
+
 /** @} end AttrAsk group */
 
 
@@ -889,7 +1021,17 @@ TIDY_EXPORT Bool TIDY_CALL tidyAttrIsROWSPAN( TidyAttr tattr );
 ** @{
 */
 
+TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetById( TidyNode tnod, TidyAttrId attId );
 
+/** @defgroup AttrGetAttributeName Deprecated attribute retrieval per AttrId
+**
+** @deprecated The functions tidyAttrGet{AttributeName} are deprecated and 
+** should be replaced by tidyAttrGetById.
+** For instance, tidyAttrGetID( TidyNode tnod ) can be replaced by 
+** tidyAttrGetById( TidyNode tnod, TidyAttr_ID ). This avoids a potential
+** name clash with tidyAttrGetId for case-insensitive languages.
+** @{
+*/
 TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetHREF( TidyNode tnod );
 TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetSRC( TidyNode tnod );
 TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetID( TidyNode tnod );
@@ -936,6 +1078,7 @@ TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetABBR( TidyNode tnod );
 TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetCOLSPAN( TidyNode tnod );
 TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetROWSPAN( TidyNode tnod );
 
+/** @} End AttrGetAttributeName group */
 
 /** @} end AttrGet group */
 
@@ -943,3 +1086,12 @@ TIDY_EXPORT TidyAttr TIDY_CALL tidyAttrGetROWSPAN( TidyNode tnod );
 }  /* extern "C" */
 #endif
 #endif /* __TIDY_H__ */
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

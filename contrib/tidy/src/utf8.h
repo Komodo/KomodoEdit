@@ -3,14 +3,14 @@
 
 /* utf8.h -- convert characters to/from UTF-8
 
-  (c) 1998-2004 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
-    $Author: terry_teague $ 
-    $Date: 2004/08/02 02:32:47 $ 
-    $Revision: 1.4 $ 
+    $Author: arnaud02 $ 
+    $Date: 2006/09/12 15:14:44 $ 
+    $Revision: 1.5 $ 
 
 */
 
@@ -21,15 +21,15 @@
 ** Does not convert character "codepoints", i.e. to/from 10646.
 */
 
-int DecodeUTF8BytesToChar( uint* c, uint firstByte, ctmbstr successorBytes,
-                           TidyInputSource* inp, int* count );
+int TY_(DecodeUTF8BytesToChar)( uint* c, uint firstByte, ctmbstr successorBytes,
+                                TidyInputSource* inp, int* count );
 
-int EncodeCharToUTF8Bytes( uint c, tmbstr encodebuf,
-                           TidyOutputSink* outp, int* count );
+int TY_(EncodeCharToUTF8Bytes)( uint c, tmbstr encodebuf,
+                                TidyOutputSink* outp, int* count );
 
 
-uint  GetUTF8( ctmbstr str, uint *ch );
-tmbstr PutUTF8( tmbstr buf, uint c );
+uint  TY_(GetUTF8)( ctmbstr str, uint *ch );
+tmbstr TY_(PutUTF8)( tmbstr buf, uint c );
 
 #define UNICODE_BOM_BE   0xFEFF   /* big-endian (default) UNICODE BOM */
 #define UNICODE_BOM      UNICODE_BOM_BE
@@ -37,15 +37,15 @@ tmbstr PutUTF8( tmbstr buf, uint c );
 #define UNICODE_BOM_UTF8 0xEFBBBF /* UTF-8 UNICODE BOM */
 
 
-Bool    IsValidUTF16FromUCS4( tchar ucs4 );
-Bool    IsHighSurrogate( tchar ch );
-Bool    IsLowSurrogate( tchar ch );
+Bool    TY_(IsValidUTF16FromUCS4)( tchar ucs4 );
+Bool    TY_(IsHighSurrogate)( tchar ch );
+Bool    TY_(IsLowSurrogate)( tchar ch );
 
-Bool    IsCombinedChar( tchar ch );
-Bool    IsValidCombinedChar( tchar ch );
+Bool    TY_(IsCombinedChar)( tchar ch );
+Bool    TY_(IsValidCombinedChar)( tchar ch );
 
-tchar   CombineSurrogatePair( tchar high, tchar low );
-Bool    SplitSurrogatePair( tchar utf16, tchar* high, tchar* low );
+tchar   TY_(CombineSurrogatePair)( tchar high, tchar low );
+Bool    TY_(SplitSurrogatePair)( tchar utf16, tchar* high, tchar* low );
 
 
 

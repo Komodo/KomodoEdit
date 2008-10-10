@@ -1,13 +1,13 @@
 /* buffio.c -- Treat buffer as an I/O stream.
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/09/21 10:24:15 $ 
-    $Revision: 1.9 $ 
+    $Date: 2007/01/23 11:17:46 $ 
+    $Revision: 1.14 $ 
 
   Requires buffer to automatically grow as bytes are added.
   Must keep track of current read and write points.
@@ -16,66 +16,82 @@
 
 #include "tidy.h"
 #include "buffio.h"
-
+#include "forward.h"
 
 /**************
    TIDY
 **************/
 
-static int TIDY_CALL insrc_getByte( ulong appData )
+static int TIDY_CALL insrc_getByte( void* appData )
 {
   TidyBuffer* buf = (TidyBuffer*) appData;
   return tidyBufGetByte( buf );
 }
-static Bool TIDY_CALL insrc_eof( ulong appData )
+static Bool TIDY_CALL insrc_eof( void* appData )
 {
   TidyBuffer* buf = (TidyBuffer*) appData;
   return tidyBufEndOfInput( buf );
 }
-static void TIDY_CALL insrc_ungetByte( ulong appData, byte bv )
+static void TIDY_CALL insrc_ungetByte( void* appData, byte bv )
 {
   TidyBuffer* buf = (TidyBuffer*) appData;
   tidyBufUngetByte( buf, bv );
 }
 
-void TIDY_CALL initInputBuffer( TidyInputSource* inp, TidyBuffer* buf )
+void TIDY_CALL tidyInitInputBuffer( TidyInputSource* inp, TidyBuffer* buf )
 {
   inp->getByte    = insrc_getByte;
   inp->eof        = insrc_eof;
   inp->ungetByte  = insrc_ungetByte;
-  inp->sourceData = (ulong) buf;
+  inp->sourceData = buf;
 }
 
-static void TIDY_CALL outsink_putByte( ulong appData, byte bv )
+static void TIDY_CALL outsink_putByte( void* appData, byte bv )
 {
   TidyBuffer* buf = (TidyBuffer*) appData;
   tidyBufPutByte( buf, bv );
 }
 
-void TIDY_CALL initOutputBuffer( TidyOutputSink* outp, TidyBuffer* buf )
+void TIDY_CALL tidyInitOutputBuffer( TidyOutputSink* outp, TidyBuffer* buf )
 {
   outp->putByte  = outsink_putByte;
-  outp->sinkData = (ulong) buf;
+  outp->sinkData = buf;
 }
 
 
 void TIDY_CALL tidyBufInit( TidyBuffer* buf )
 {
     assert( buf != NULL );
-    ClearMemory( buf, sizeof(TidyBuffer) );
+    tidyBufInitWithAllocator( buf, NULL );
 }
 
 void TIDY_CALL tidyBufAlloc( TidyBuffer* buf, uint allocSize )
 {
-    tidyBufInit( buf );
+    tidyBufAllocWithAllocator( buf, NULL, allocSize );
+}
+
+void TIDY_CALL tidyBufInitWithAllocator( TidyBuffer* buf,
+                                         TidyAllocator *allocator )
+{
+    assert( buf != NULL );
+    TidyClearMemory( buf, sizeof(TidyBuffer) );
+    buf->allocator = allocator ? allocator : &TY_(g_default_allocator);
+}
+
+void TIDY_CALL tidyBufAllocWithAllocator( TidyBuffer* buf,
+                                          TidyAllocator *allocator,
+                                          uint allocSize )
+{
+    tidyBufInitWithAllocator( buf, allocator );
     tidyBufCheckAlloc( buf, allocSize, 0 );
     buf->next = 0;
 }
+
 void TIDY_CALL tidyBufFree( TidyBuffer* buf )
 {
     assert( buf != NULL );
-    MemFree( buf->bp );
-    tidyBufInit( buf );
+    TidyFree(  buf->allocator, buf->bp );
+    tidyBufInitWithAllocator( buf, buf->allocator );
 }
 
 void TIDY_CALL tidyBufClear( TidyBuffer* buf )
@@ -83,10 +99,18 @@ void TIDY_CALL tidyBufClear( TidyBuffer* buf )
     assert( buf != NULL );
     if ( buf->bp )
     {
-        ClearMemory( buf->bp, buf->allocated );
+        TidyClearMemory( buf->bp, buf->allocated );
         buf->size = 0;
     }
     buf->next = 0;
+}
+
+/* Many users do not call tidyBufInit() or tidyBufAlloc() or their allocator
+   counterparts. So by default, set the default allocator.
+*/
+static void setDefaultAllocator( TidyBuffer* buf )
+{
+    buf->allocator = &TY_(g_default_allocator);
 }
 
 /* Avoid thrashing memory by doubling buffer size
@@ -97,6 +121,10 @@ void TIDY_CALL tidyBufClear( TidyBuffer* buf )
 void TIDY_CALL tidyBufCheckAlloc( TidyBuffer* buf, uint allocSize, uint chunkSize )
 {
     assert( buf != NULL );
+
+    if ( !buf->allocator )
+        setDefaultAllocator( buf );
+        
     if ( 0 == chunkSize )
         chunkSize = 256;
     if ( allocSize+1 > buf->allocated )
@@ -108,10 +136,10 @@ void TIDY_CALL tidyBufCheckAlloc( TidyBuffer* buf, uint allocSize, uint chunkSiz
         while ( allocAmt < allocSize+1 )
             allocAmt *= 2;
 
-        bp = (byte*)MemRealloc( buf->bp, allocAmt );
+        bp = (byte*)TidyRealloc( buf->allocator, buf->bp, allocAmt );
         if ( bp != NULL )
         {
-            ClearMemory( bp + buf->allocated, allocAmt - buf->allocated );
+            TidyClearMemory( bp + buf->allocated, allocAmt - buf->allocated );
             buf->bp = bp;
             buf->allocated = allocAmt;
         }
@@ -125,12 +153,14 @@ void  TIDY_CALL tidyBufAttach( TidyBuffer* buf, byte* bp, uint size )
     buf->bp = bp;
     buf->size = buf->allocated = size;
     buf->next = 0;
+    if ( !buf->allocator )
+        setDefaultAllocator( buf );
 }
 
 /* Clear pointer to memory w/out deallocation */
 void TIDY_CALL tidyBufDetach( TidyBuffer* buf )
 {
-    tidyBufInit( buf );
+    tidyBufInitWithAllocator( buf, buf->allocator );
 }
 
 
@@ -192,3 +222,11 @@ void TIDY_CALL tidyBufUngetByte( TidyBuffer* buf, byte bv )
     }
 }
 
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

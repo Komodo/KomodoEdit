@@ -3,14 +3,14 @@
 
 /* attrs.h -- recognize HTML attributes
 
-  (c) 1998-2003 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2007 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/08/24 10:27:43 $ 
-    $Revision: 1.20 $ 
+    $Date: 2007/06/14 09:36:06 $ 
+    $Revision: 1.29 $ 
 
 */
 
@@ -43,8 +43,23 @@ struct _Anchor
 
 typedef struct _Anchor Anchor;
 
-#ifdef ATTRIBUTE_HASH_LOOKUP
-#define ATTRIBUTE_HASH_SIZE 178
+#if !defined(ATTRIBUTE_HASH_LOOKUP)
+#define ATTRIBUTE_HASH_LOOKUP 1
+#endif
+
+#if ATTRIBUTE_HASH_LOOKUP
+enum
+{
+    ATTRIBUTE_HASH_SIZE=178u
+};
+
+struct _AttrHash
+{
+    Attribute const*  attr;
+    struct _AttrHash* next;
+};
+
+typedef struct _AttrHash AttrHash;
 #endif
 
 struct _TidyAttribImpl
@@ -55,8 +70,8 @@ struct _TidyAttribImpl
     /* Declared literal attributes */
     Attribute* declared_attr_list;
 
-#ifdef ATTRIBUTE_HASH_LOOKUP
-    Attribute* hashtab[ATTRIBUTE_HASH_SIZE];
+#if ATTRIBUTE_HASH_LOOKUP
+    AttrHash*  hashtab[ATTRIBUTE_HASH_SIZE];
 #endif
 };
 
@@ -64,64 +79,28 @@ typedef struct _TidyAttribImpl TidyAttribImpl;
 
 #define XHTML_NAMESPACE "http://www.w3.org/1999/xhtml"
 
-
-/*
- Bind attribute types to procedures to check values.
- You can add new procedures for better validation
- and each procedure has access to the node in which
- the attribute occurred as well as the attribute name
- and its value.
-
- By default, attributes are checked without regard
- to the element they are found on. You have the choice
- of making the procedure test which element is involved
- or in writing methods for each element which controls
- exactly how the attributes of that element are checked.
- This latter approach is best for detecting the absence
- of required attributes.
-*/
-
-AttrCheck CheckUrl;
-AttrCheck CheckScript;
-AttrCheck CheckName;
-AttrCheck CheckId;
-AttrCheck CheckAlign;
-AttrCheck CheckValign;
-AttrCheck CheckBool;
-AttrCheck CheckLength;
-AttrCheck CheckTarget;
-AttrCheck CheckFsubmit;
-AttrCheck CheckClear;
-AttrCheck CheckShape;
-AttrCheck CheckNumber;
-AttrCheck CheckScope;
-AttrCheck CheckColor;
-AttrCheck CheckVType;
-AttrCheck CheckScroll;
-AttrCheck CheckTextDir;
-AttrCheck CheckLang;
-AttrCheck CheckType;
+AttrCheck TY_(CheckUrl);
 
 /* public method for finding attribute definition by name */
-const Attribute* CheckAttribute( TidyDocImpl* doc, Node *node, AttVal *attval );
+const Attribute* TY_(CheckAttribute)( TidyDocImpl* doc, Node *node, AttVal *attval );
 
-const Attribute* FindAttribute( TidyDocImpl* doc, AttVal *attval );
+const Attribute* TY_(FindAttribute)( TidyDocImpl* doc, AttVal *attval );
 
-AttVal* GetAttrByName( Node *node, ctmbstr name );
+AttVal* TY_(GetAttrByName)( Node *node, ctmbstr name );
 
-AttVal* AddAttribute( TidyDocImpl* doc,
-                      Node *node, ctmbstr name, ctmbstr value );
+AttVal* TY_(AddAttribute)( TidyDocImpl* doc,
+                           Node *node, ctmbstr name, ctmbstr value );
 
-AttVal* RepairAttrValue(TidyDocImpl* doc, Node* node, ctmbstr name, ctmbstr value);
+AttVal* TY_(RepairAttrValue)(TidyDocImpl* doc, Node* node, ctmbstr name, ctmbstr value);
 
-Bool IsUrl( TidyDocImpl* doc, ctmbstr attrname );
+Bool TY_(IsUrl)( TidyDocImpl* doc, ctmbstr attrname );
 
-Bool IsBool( TidyDocImpl* doc, ctmbstr attrname );
+/* Bool IsBool( TidyDocImpl* doc, ctmbstr attrname ); */
 
-Bool IsScript( TidyDocImpl* doc, ctmbstr attrname );
+Bool TY_(IsScript)( TidyDocImpl* doc, ctmbstr attrname );
 
 /* may id or name serve as anchor? */
-Bool IsAnchorElement( TidyDocImpl* doc, Node* node );
+Bool TY_(IsAnchorElement)( TidyDocImpl* doc, Node* node );
 
 /*
   In CSS1, selectors can contain only the characters A-Z, 0-9, and
@@ -137,40 +116,36 @@ Bool IsAnchorElement( TidyDocImpl* doc, Node* node );
 
   #508936 - CSS class naming for -clean option
 */
-Bool IsCSS1Selector( ctmbstr buf );
+Bool TY_(IsCSS1Selector)( ctmbstr buf );
 
-Bool IsValidHTMLID(ctmbstr id);
-Bool IsValidXMLID(ctmbstr id);
+Bool TY_(IsValidHTMLID)(ctmbstr id);
+Bool TY_(IsValidXMLID)(ctmbstr id);
 
 /* removes anchor for specific node */
-void RemoveAnchorByNode( TidyDocImpl* doc, Node *node );
-
-/* add new anchor to namespace */
-Anchor* AddAnchor( TidyDocImpl* doc, ctmbstr name, Node *node );
-
-/* return node associated with anchor */
-Node* GetNodeByAnchor( TidyDocImpl* doc, ctmbstr name );
+void TY_(RemoveAnchorByNode)( TidyDocImpl* doc, Node *node );
 
 /* free all anchors */
-void FreeAnchors( TidyDocImpl* doc );
+void TY_(FreeAnchors)( TidyDocImpl* doc );
 
 
 /* public methods for inititializing/freeing attribute dictionary */
-void InitAttrs( TidyDocImpl* doc );
-void FreeAttrTable( TidyDocImpl* doc );
+void TY_(InitAttrs)( TidyDocImpl* doc );
+void TY_(FreeAttrTable)( TidyDocImpl* doc );
 
+void TY_(AppendToClassAttr)( TidyDocImpl* doc, AttVal *classattr, ctmbstr classname );
 /*
  the same attribute name can't be used
  more than once in each element
 */
-void RepairDuplicateAttributes( TidyDocImpl* doc, Node* node );
+void TY_(RepairDuplicateAttributes)( TidyDocImpl* doc, Node* node, Bool isXml );
+void TY_(SortAttributes)(Node* node, TidyAttrSortStrategy strat);
 
-Bool IsBoolAttribute( AttVal* attval );
-Bool attrIsEvent( AttVal* attval );
+Bool TY_(IsBoolAttribute)( AttVal* attval );
+Bool TY_(attrIsEvent)( AttVal* attval );
 
-AttVal* AttrGetById( Node* node, TidyAttrId id );
+AttVal* TY_(AttrGetById)( Node* node, TidyAttrId id );
 
-uint NodeAttributeVersions( Node* node, TidyAttrId id );
+uint TY_(NodeAttributeVersions)( Node* node, TidyAttrId id );
 
 /* 0 == TidyAttr_UNKNOWN  */
 #define AttrId(av) ((av) && (av)->dict ? (av)->dict->id : TidyAttr_UNKNOWN)
@@ -178,9 +153,9 @@ uint NodeAttributeVersions( Node* node, TidyAttrId id );
 
 #define AttrHasValue(attr)      ((attr) && (attr)->value)
 #define AttrValueIs(attr, val)  (AttrHasValue(attr) && \
-                                 tmbstrcasecmp((attr)->value, val) == 0)
+                                 TY_(tmbstrcasecmp)((attr)->value, val) == 0)
 #define AttrContains(attr, val) (AttrHasValue(attr) && \
-                                 tmbsubstr((attr)->value, val) != NULL)
+                                 TY_(tmbsubstr)((attr)->value, val) != NULL)
 #define AttrVersions(attr)      ((attr) && (attr)->dict ? (attr)->dict->versions : VERS_PROPRIETARY)
 
 #define AttrsHaveSameId(a, b) (a && b && a->dict && b->dict && a->dict->id && \
@@ -344,56 +319,56 @@ uint NodeAttributeVersions( Node* node, TidyAttrId id );
 
 /* Attribute Retrieval macros
 */
-#define attrGetHREF( nod )        AttrGetById( nod, TidyAttr_HREF  )
-#define attrGetSRC( nod )         AttrGetById( nod, TidyAttr_SRC  )
-#define attrGetID( nod )          AttrGetById( nod, TidyAttr_ID  )
-#define attrGetNAME( nod )        AttrGetById( nod, TidyAttr_NAME  )
-#define attrGetSUMMARY( nod )     AttrGetById( nod, TidyAttr_SUMMARY  )
-#define attrGetALT( nod )         AttrGetById( nod, TidyAttr_ALT  )
-#define attrGetLONGDESC( nod )    AttrGetById( nod, TidyAttr_LONGDESC  )
-#define attrGetUSEMAP( nod )      AttrGetById( nod, TidyAttr_USEMAP  )
-#define attrGetISMAP( nod )       AttrGetById( nod, TidyAttr_ISMAP  )
-#define attrGetLANGUAGE( nod )    AttrGetById( nod, TidyAttr_LANGUAGE  )
-#define attrGetTYPE( nod )        AttrGetById( nod, TidyAttr_TYPE  )
-#define attrGetVALUE( nod )       AttrGetById( nod, TidyAttr_VALUE  )
-#define attrGetCONTENT( nod )     AttrGetById( nod, TidyAttr_CONTENT  )
-#define attrGetTITLE( nod )       AttrGetById( nod, TidyAttr_TITLE  )
-#define attrGetXMLNS( nod )       AttrGetById( nod, TidyAttr_XMLNS  )
-#define attrGetDATAFLD( nod )     AttrGetById( nod, TidyAttr_DATAFLD  )
-#define attrGetWIDTH( nod )       AttrGetById( nod, TidyAttr_WIDTH  )
-#define attrGetHEIGHT( nod )      AttrGetById( nod, TidyAttr_HEIGHT  )
-#define attrGetFOR( nod )         AttrGetById( nod, TidyAttr_FOR  )
-#define attrGetSELECTED( nod )    AttrGetById( nod, TidyAttr_SELECTED  )
-#define attrGetCHECKED( nod )     AttrGetById( nod, TidyAttr_CHECKED  )
-#define attrGetLANG( nod )        AttrGetById( nod, TidyAttr_LANG  )
-#define attrGetTARGET( nod )      AttrGetById( nod, TidyAttr_TARGET  )
-#define attrGetHTTP_EQUIV( nod )  AttrGetById( nod, TidyAttr_HTTP_EQUIV  )
-#define attrGetREL( nod )         AttrGetById( nod, TidyAttr_REL  )
+#define attrGetHREF( nod )        TY_(AttrGetById)( nod, TidyAttr_HREF  )
+#define attrGetSRC( nod )         TY_(AttrGetById)( nod, TidyAttr_SRC  )
+#define attrGetID( nod )          TY_(AttrGetById)( nod, TidyAttr_ID  )
+#define attrGetNAME( nod )        TY_(AttrGetById)( nod, TidyAttr_NAME  )
+#define attrGetSUMMARY( nod )     TY_(AttrGetById)( nod, TidyAttr_SUMMARY  )
+#define attrGetALT( nod )         TY_(AttrGetById)( nod, TidyAttr_ALT  )
+#define attrGetLONGDESC( nod )    TY_(AttrGetById)( nod, TidyAttr_LONGDESC  )
+#define attrGetUSEMAP( nod )      TY_(AttrGetById)( nod, TidyAttr_USEMAP  )
+#define attrGetISMAP( nod )       TY_(AttrGetById)( nod, TidyAttr_ISMAP  )
+#define attrGetLANGUAGE( nod )    TY_(AttrGetById)( nod, TidyAttr_LANGUAGE  )
+#define attrGetTYPE( nod )        TY_(AttrGetById)( nod, TidyAttr_TYPE  )
+#define attrGetVALUE( nod )       TY_(AttrGetById)( nod, TidyAttr_VALUE  )
+#define attrGetCONTENT( nod )     TY_(AttrGetById)( nod, TidyAttr_CONTENT  )
+#define attrGetTITLE( nod )       TY_(AttrGetById)( nod, TidyAttr_TITLE  )
+#define attrGetXMLNS( nod )       TY_(AttrGetById)( nod, TidyAttr_XMLNS  )
+#define attrGetDATAFLD( nod )     TY_(AttrGetById)( nod, TidyAttr_DATAFLD  )
+#define attrGetWIDTH( nod )       TY_(AttrGetById)( nod, TidyAttr_WIDTH  )
+#define attrGetHEIGHT( nod )      TY_(AttrGetById)( nod, TidyAttr_HEIGHT  )
+#define attrGetFOR( nod )         TY_(AttrGetById)( nod, TidyAttr_FOR  )
+#define attrGetSELECTED( nod )    TY_(AttrGetById)( nod, TidyAttr_SELECTED  )
+#define attrGetCHECKED( nod )     TY_(AttrGetById)( nod, TidyAttr_CHECKED  )
+#define attrGetLANG( nod )        TY_(AttrGetById)( nod, TidyAttr_LANG  )
+#define attrGetTARGET( nod )      TY_(AttrGetById)( nod, TidyAttr_TARGET  )
+#define attrGetHTTP_EQUIV( nod )  TY_(AttrGetById)( nod, TidyAttr_HTTP_EQUIV  )
+#define attrGetREL( nod )         TY_(AttrGetById)( nod, TidyAttr_REL  )
 
-#define attrGetOnMOUSEMOVE( nod ) AttrGetById( nod, TidyAttr_OnMOUSEMOVE  )
-#define attrGetOnMOUSEDOWN( nod ) AttrGetById( nod, TidyAttr_OnMOUSEDOWN  )
-#define attrGetOnMOUSEUP( nod )   AttrGetById( nod, TidyAttr_OnMOUSEUP  )
-#define attrGetOnCLICK( nod )     AttrGetById( nod, TidyAttr_OnCLICK  )
-#define attrGetOnMOUSEOVER( nod ) AttrGetById( nod, TidyAttr_OnMOUSEOVER  )
-#define attrGetOnMOUSEOUT( nod )  AttrGetById( nod, TidyAttr_OnMOUSEOUT  )
-#define attrGetOnKEYDOWN( nod )   AttrGetById( nod, TidyAttr_OnKEYDOWN  )
-#define attrGetOnKEYUP( nod )     AttrGetById( nod, TidyAttr_OnKEYUP  )
-#define attrGetOnKEYPRESS( nod )  AttrGetById( nod, TidyAttr_OnKEYPRESS  )
-#define attrGetOnFOCUS( nod )     AttrGetById( nod, TidyAttr_OnFOCUS  )
-#define attrGetOnBLUR( nod )      AttrGetById( nod, TidyAttr_OnBLUR  )
+#define attrGetOnMOUSEMOVE( nod ) TY_(AttrGetById)( nod, TidyAttr_OnMOUSEMOVE  )
+#define attrGetOnMOUSEDOWN( nod ) TY_(AttrGetById)( nod, TidyAttr_OnMOUSEDOWN  )
+#define attrGetOnMOUSEUP( nod )   TY_(AttrGetById)( nod, TidyAttr_OnMOUSEUP  )
+#define attrGetOnCLICK( nod )     TY_(AttrGetById)( nod, TidyAttr_OnCLICK  )
+#define attrGetOnMOUSEOVER( nod ) TY_(AttrGetById)( nod, TidyAttr_OnMOUSEOVER  )
+#define attrGetOnMOUSEOUT( nod )  TY_(AttrGetById)( nod, TidyAttr_OnMOUSEOUT  )
+#define attrGetOnKEYDOWN( nod )   TY_(AttrGetById)( nod, TidyAttr_OnKEYDOWN  )
+#define attrGetOnKEYUP( nod )     TY_(AttrGetById)( nod, TidyAttr_OnKEYUP  )
+#define attrGetOnKEYPRESS( nod )  TY_(AttrGetById)( nod, TidyAttr_OnKEYPRESS  )
+#define attrGetOnFOCUS( nod )     TY_(AttrGetById)( nod, TidyAttr_OnFOCUS  )
+#define attrGetOnBLUR( nod )      TY_(AttrGetById)( nod, TidyAttr_OnBLUR  )
 
-#define attrGetBGCOLOR( nod )     AttrGetById( nod, TidyAttr_BGCOLOR  )
+#define attrGetBGCOLOR( nod )     TY_(AttrGetById)( nod, TidyAttr_BGCOLOR  )
 
-#define attrGetLINK( nod )        AttrGetById( nod, TidyAttr_LINK  )
-#define attrGetALINK( nod )       AttrGetById( nod, TidyAttr_ALINK  )
-#define attrGetVLINK( nod )       AttrGetById( nod, TidyAttr_VLINK  )
+#define attrGetLINK( nod )        TY_(AttrGetById)( nod, TidyAttr_LINK  )
+#define attrGetALINK( nod )       TY_(AttrGetById)( nod, TidyAttr_ALINK  )
+#define attrGetVLINK( nod )       TY_(AttrGetById)( nod, TidyAttr_VLINK  )
 
-#define attrGetTEXT( nod )        AttrGetById( nod, TidyAttr_TEXT  )
-#define attrGetSTYLE( nod )       AttrGetById( nod, TidyAttr_STYLE  )
-#define attrGetABBR( nod )        AttrGetById( nod, TidyAttr_ABBR  )
-#define attrGetCOLSPAN( nod )     AttrGetById( nod, TidyAttr_COLSPAN  )
-#define attrGetFONT( nod )        AttrGetById( nod, TidyAttr_FONT  )
-#define attrGetBASEFONT( nod )    AttrGetById( nod, TidyAttr_BASEFONT  )
-#define attrGetROWSPAN( nod )     AttrGetById( nod, TidyAttr_ROWSPAN  )
+#define attrGetTEXT( nod )        TY_(AttrGetById)( nod, TidyAttr_TEXT  )
+#define attrGetSTYLE( nod )       TY_(AttrGetById)( nod, TidyAttr_STYLE  )
+#define attrGetABBR( nod )        TY_(AttrGetById)( nod, TidyAttr_ABBR  )
+#define attrGetCOLSPAN( nod )     TY_(AttrGetById)( nod, TidyAttr_COLSPAN  )
+#define attrGetFONT( nod )        TY_(AttrGetById)( nod, TidyAttr_FONT  )
+#define attrGetBASEFONT( nod )    TY_(AttrGetById)( nod, TidyAttr_BASEFONT  )
+#define attrGetROWSPAN( nod )     TY_(AttrGetById)( nod, TidyAttr_ROWSPAN  )
 
 #endif /* __ATTRS_H__ */

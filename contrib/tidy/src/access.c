@@ -1,14 +1,14 @@
 /* access.c -- carry out accessibility checks
 
   Copyright University of Toronto
-  Portions (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  Portions (c) 1998-2008 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
   
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/04/12 12:43:40 $ 
-    $Revision: 1.28 $ 
+    $Date: 2008/08/11 10:08:23 $ 
+    $Revision: 1.40 $ 
 
 */
 
@@ -31,7 +31,9 @@
 * Programmed by: Mike Lam and Chris Ridpath
 * Modifications by : Terry Teague (TRT)
 *
+* Reference document: http://www.w3.org/TR/WAI-WEBCONTENT/
 *********************************************************************/
+
 
 #include "tidy-int.h"
 
@@ -164,7 +166,7 @@ static void CheckListUsage( TidyDocImpl* doc, Node* node );
 
 static void GetFileExtension( ctmbstr path, tmbchar *ext, uint maxExt )
 {
-    int i = tmbstrlen(path) - 1;
+    int i = TY_(tmbstrlen)(path) - 1;
     
     ext[0] = '\0';
     
@@ -173,7 +175,7 @@ static void GetFileExtension( ctmbstr path, tmbchar *ext, uint maxExt )
             break;
         else if ( path[i] == '.' )
         {
-            tmbstrncpy( ext, path+i, maxExt );
+            TY_(tmbstrncpy)( ext, path+i, maxExt );
             break;
         }
     } while ( --i > 0 );
@@ -197,7 +199,7 @@ static Bool IsImage( ctmbstr iType )
     /* Compare it to the array of known image file extensions */
     for (i = 0; i < N_IMAGE_EXTS; i++)
     {
-        if ( tmbstrcasecmp(ext, imageExtensions[i]) == 0 )
+        if ( TY_(tmbstrcasecmp)(ext, imageExtensions[i]) == 0 )
             return yes;
     }
     
@@ -220,7 +222,7 @@ static int IsSoundFile( ctmbstr sType )
 
     for (i = 0; i < N_AUDIO_EXTS; i++)
     {
-        if ( tmbstrcasecmp(ext, soundExtensions[i]) == 0 )
+        if ( TY_(tmbstrcasecmp)(ext, soundExtensions[i]) == 0 )
             return soundExtErrCodes[i];
     }
     return 0;
@@ -245,7 +247,7 @@ static Bool IsValidSrcExtension( ctmbstr sType )
 
     for (i = 0; i < N_FRAME_EXTS; i++)
     {
-        if ( tmbstrcasecmp(ext, frameExtensions[i]) == 0 )
+        if ( TY_(tmbstrcasecmp)(ext, frameExtensions[i]) == 0 )
             return yes;
     }
     return no;
@@ -267,7 +269,7 @@ static Bool IsValidMediaExtension( ctmbstr sType )
 
     for (i = 0; i < N_MEDIA_EXTS; i++)
     {
-        if ( tmbstrcasecmp(ext, mediaExtensions[i]) == 0 )
+        if ( TY_(tmbstrcasecmp)(ext, mediaExtensions[i]) == 0 )
             return yes;
     }
     return no;
@@ -288,14 +290,14 @@ static Bool IsWhitespace( ctmbstr pString )
 
     for ( cp = pString; isWht && cp && *cp; ++cp )
     {
-        isWht = IsWhite( *cp );
+        isWht = TY_(IsWhite)( *cp );
     }
     return isWht;
 }
 
 static Bool hasValue( AttVal* av )
 {
-  return ( av && ! IsWhitespace(av->value) );
+    return ( av && ! IsWhitespace(av->value) );
 }
 
 /***********************************************************************
@@ -353,8 +355,8 @@ static Bool IsPlaceHolderObject( ctmbstr txt )
 
 static Bool EndsWithBytes( ctmbstr txt )
 {
-    uint len = tmbstrlen( txt );
-    return ( len >= 5 && strcmp(txt+len-5, "bytes") == 0 );
+    uint len = TY_(tmbstrlen)( txt );
+    return ( len >= 5 && TY_(tmbstrcmp)(txt+len-5, "bytes") == 0 );
 }
 
 
@@ -407,7 +409,7 @@ static void getTextNode( TidyDocImpl* doc, Node* node )
     */
 
     /* If the tag of the node is NULL, then grab the text within the node */
-    if ( nodeIsText(node) )
+    if ( TY_(nodeIsText)(node) )
     {
         uint i;
 
@@ -438,7 +440,7 @@ static void getTextNode( TidyDocImpl* doc, Node* node )
 static tmbstr getTextNodeClear( TidyDocImpl* doc, Node* node )
 {
     /* Clears list */
-    ClearMemory( doc->access.textNode, TEXTBUF_SIZE );
+    TidyClearMemory( doc->access.textNode, TEXTBUF_SIZE );
     doc->access.counter = 0;
 
     getTextNode( doc, node->content );
@@ -479,19 +481,19 @@ static void CheckColorAvailable( TidyDocImpl* doc, Node* node )
     if (Level1_Enabled( doc ))
     {
         if ( nodeIsIMG(node) )
-            ReportAccessWarning( doc, node, INFORMATION_NOT_CONVEYED_IMAGE );
+            TY_(ReportAccessWarning)( doc, node, INFORMATION_NOT_CONVEYED_IMAGE );
 
         else if ( nodeIsAPPLET(node) )
-            ReportAccessWarning( doc, node, INFORMATION_NOT_CONVEYED_APPLET );
+            TY_(ReportAccessWarning)( doc, node, INFORMATION_NOT_CONVEYED_APPLET );
 
         else if ( nodeIsOBJECT(node) )
-            ReportAccessWarning( doc, node, INFORMATION_NOT_CONVEYED_OBJECT );
+            TY_(ReportAccessWarning)( doc, node, INFORMATION_NOT_CONVEYED_OBJECT );
 
         else if ( nodeIsSCRIPT(node) )
-            ReportAccessWarning( doc, node, INFORMATION_NOT_CONVEYED_SCRIPT );
+            TY_(ReportAccessWarning)( doc, node, INFORMATION_NOT_CONVEYED_SCRIPT );
 
         else if ( nodeIsINPUT(node) )
-            ReportAccessWarning( doc, node, INFORMATION_NOT_CONVEYED_INPUT );
+            TY_(ReportAccessWarning)( doc, node, INFORMATION_NOT_CONVEYED_INPUT );
     }
 }
 
@@ -553,7 +555,7 @@ static void CheckColorContrast( TidyDocImpl* doc, Node* node )
                 if ( GetRgb(av->value, rgbFG) &&
                      !CompareColors(rgbBG, rgbFG) )
                 {
-                    ReportAccessWarning( doc, node, errcode );
+                    TY_(ReportAccessWarning)( doc, node, errcode );
                 }
             }
         }
@@ -623,7 +625,7 @@ static Bool GetRgb( ctmbstr color, int rgb[] )
     */
     
     /* Must be 7 characters in the RGB value (including '#') */
-    if ( tmbstrlen(color) == 7 && color[0] == '#' )
+    if ( TY_(tmbstrlen)(color) == 7 && color[0] == '#' )
     {
         rgb[0] = (ctox(color[1]) * 16) + ctox(color[2]);
         rgb[1] = (ctox(color[3]) * 16) + ctox(color[4]);
@@ -699,7 +701,7 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
             {
                 if (av->value != NULL) 
                 {
-                    if ((tmbstrlen(av->value) < 150) &&
+                    if ((TY_(tmbstrlen)(av->value) < 150) &&
                         (IsPlaceholderAlt (av->value) == no) &&
                         (IsPlaceHolderObject (av->value) == no) &&
                         (EndsWithBytes (av->value) == no) &&
@@ -708,28 +710,28 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
                         HasAlt = yes;
                     }
 
-                    else if (tmbstrlen (av->value) > 150)
+                    else if (TY_(tmbstrlen)(av->value) > 150)
                     {
                         HasAlt = yes;
-                        ReportAccessWarning( doc, node, IMG_ALT_SUSPICIOUS_TOO_LONG );
+                        TY_(ReportAccessWarning)( doc, node, IMG_ALT_SUSPICIOUS_TOO_LONG );
                     }
 
                     else if (IsImage (av->value) == yes)
                     {
                         HasAlt = yes;
-                        ReportAccessWarning( doc, node, IMG_ALT_SUSPICIOUS_FILENAME);
+                        TY_(ReportAccessWarning)( doc, node, IMG_ALT_SUSPICIOUS_FILENAME);
                     }
             
                     else if (IsPlaceholderAlt (av->value) == yes)
                     {
                         HasAlt = yes;
-                        ReportAccessWarning( doc, node, IMG_ALT_SUSPICIOUS_PLACEHOLDER);
+                        TY_(ReportAccessWarning)( doc, node, IMG_ALT_SUSPICIOUS_PLACEHOLDER);
                     }
 
                     else if (EndsWithBytes (av->value) == yes)
                     {
                         HasAlt = yes;
-                        ReportAccessWarning( doc, node, IMG_ALT_SUSPICIOUS_FILE_SIZE);
+                        TY_(ReportAccessWarning)( doc, node, IMG_ALT_SUSPICIOUS_FILE_SIZE);
                     }
                 }
             }
@@ -775,7 +777,7 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
             */
             else if ( attrIsLONGDESC(av) )
             {
-                if ( hasValue(av) && tmbstrlen(av->value) > 1 )
+                if ( hasValue(av) && TY_(tmbstrlen)(av->value) > 1 )
                     HasLongDesc = yes;
               }
 
@@ -811,13 +813,13 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
                 for dLINK to exist 
             */
 
-            if(node->content != NULL && (node->content)->tag == NULL)
+            if (node->content != NULL && (node->content)->tag == NULL)
             {
                 /* Number of characters found within the text node */
                 ctmbstr word = textFromOneNode( doc, node->content);
                     
-                if ((strcmp(word,"d") == 0)||
-                    (strcmp(word,"D") == 0))
+                if ((TY_(tmbstrcmp)(word,"d") == 0)||
+                    (TY_(tmbstrcmp)(word,"D") == 0))
                 {
                     HasDLINK = yes;
                 }
@@ -842,13 +844,13 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
                     Node following the ANCHOR must be a text node
                     for dLINK to exist 
                 */
-                if(node->content != NULL && node->content->tag == NULL)
+                if (node->content != NULL && node->content->tag == NULL)
                 {
                     /* Number of characters found within the text node */
                     ctmbstr word = textFromOneNode( doc, node->content );
 
-                    if ((strcmp(word, "d") == 0)||
-                        (strcmp(word, "D") == 0))
+                    if ((TY_(tmbstrcmp)(word, "d") == 0)||
+                        (TY_(tmbstrcmp)(word, "D") == 0))
                     {
                         HasDLINK = yes;
                     }
@@ -870,7 +872,7 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
 
         if (HasAlt == no)
         {
-            ReportAccessError( doc, node, IMG_MISSING_ALT);
+            TY_(ReportAccessError)( doc, node, IMG_MISSING_ALT);
         }
 
         if ((HasLongDesc == no)&&
@@ -886,27 +888,27 @@ static void CheckImage( TidyDocImpl* doc, Node* node )
             if ((HasDLINK == yes)&&
                 (HasLongDesc == no))
             {
-                ReportAccessWarning( doc, node, IMG_MISSING_LONGDESC);
+                TY_(ReportAccessWarning)( doc, node, IMG_MISSING_LONGDESC);
             }
 
             if ((HasLongDesc == yes)&&
                 (HasDLINK == no))
             {
-                ReportAccessWarning( doc, node, IMG_MISSING_DLINK);
+                TY_(ReportAccessWarning)( doc, node, IMG_MISSING_DLINK);
             }
 
             if ((HasLongDesc == no)&&
                 (HasDLINK == no))
             {
-                ReportAccessWarning( doc, node, IMG_MISSING_LONGDESC_DLINK);
+                TY_(ReportAccessWarning)( doc, node, IMG_MISSING_LONGDESC_DLINK);
             }
         }
 
         if (HasIsMap == yes)
         {
-            ReportAccessError( doc, node, IMAGE_MAP_SERVER_SIDE_REQUIRES_CONVERSION);
+            TY_(ReportAccessError)( doc, node, IMAGE_MAP_SERVER_SIDE_REQUIRES_CONVERSION);
 
-            ReportAccessWarning( doc, node, IMG_MAP_SERVER_REQUIRES_TEXT_LINKS);
+            TY_(ReportAccessWarning)( doc, node, IMG_MAP_SERVER_REQUIRES_TEXT_LINKS);
         }
     }
 }
@@ -973,7 +975,7 @@ static void CheckApplet( TidyDocImpl* doc, Node* node )
 
         if ( !HasDescription && !HasAlt )
         {
-            ReportAccessError( doc, node, APPLET_MISSING_ALT );
+            TY_(ReportAccessError)( doc, node, APPLET_MISSING_ALT );
         }
     }
 }
@@ -1017,11 +1019,11 @@ static void CheckObject( TidyDocImpl* doc, Node* node )
             {
                 ctmbstr word = NULL;
 
-                if ( nodeIsText(node->content) )
+                if ( TY_(nodeIsText)(node->content) )
                     word = textFromOneNode( doc, node->content );
 
                 if ( word == NULL &&
-                     nodeIsText(node->content->content) )
+                     TY_(nodeIsText)(node->content->content) )
                 {
                     word = textFromOneNode( doc, node->content->content );
                 }
@@ -1033,7 +1035,7 @@ static void CheckObject( TidyDocImpl* doc, Node* node )
 
         if ( !HasAlt && !HasDescription )
         {
-            ReportAccessError( doc, node, OBJECT_MISSING_ALT );
+            TY_(ReportAccessError)( doc, node, OBJECT_MISSING_ALT );
         }
     }
 }
@@ -1105,7 +1107,7 @@ static void CheckFrame( TidyDocImpl* doc, Node* node )
             /* Checks if 'LONGDESC' value is valid only if present */
             if ( attrIsLONGDESC(av) )
             {
-                if ( hasValue(av) && tmbstrlen(av->value) > 1 )
+                if ( hasValue(av) && TY_(tmbstrlen)(av->value) > 1 )
                 {
                     doc->access.HasCheckedLongDesc++;
                 }
@@ -1116,7 +1118,7 @@ static void CheckFrame( TidyDocImpl* doc, Node* node )
             {
                 if ( hasValue(av) && !IsValidSrcExtension(av->value) )
                 {
-                    ReportAccessError( doc, node, FRAME_SRC_INVALID );
+                    TY_(ReportAccessError)( doc, node, FRAME_SRC_INVALID );
                 }
             }
 
@@ -1128,17 +1130,17 @@ static void CheckFrame( TidyDocImpl* doc, Node* node )
 
                 if ( !HasTitle )
                 {
-                    if ( av->value == NULL || tmbstrlen(av->value) == 0 )
+                    if ( av->value == NULL || TY_(tmbstrlen)(av->value) == 0 )
                     {
                         HasTitle = yes;
-                        ReportAccessError( doc, node, FRAME_TITLE_INVALID_NULL);
+                        TY_(ReportAccessError)( doc, node, FRAME_TITLE_INVALID_NULL);
                     }
                     else
                     {
-                        if ( IsWhitespace(av->value) && tmbstrlen(av->value) > 0 )
+                        if ( IsWhitespace(av->value) && TY_(tmbstrlen)(av->value) > 0 )
                         {
                             HasTitle = yes;
-                            ReportAccessError( doc, node, FRAME_TITLE_INVALID_SPACES );
+                            TY_(ReportAccessError)( doc, node, FRAME_TITLE_INVALID_SPACES );
                         }
                     }
                 }
@@ -1147,13 +1149,13 @@ static void CheckFrame( TidyDocImpl* doc, Node* node )
 
         if ( !HasTitle )
         {
-            ReportAccessError( doc, node, FRAME_MISSING_TITLE);
+            TY_(ReportAccessError)( doc, node, FRAME_MISSING_TITLE);
         }
 
         if ( doc->access.numFrames==3 && doc->access.HasCheckedLongDesc<3 )
         {
             doc->access.numFrames = 0;
-            ReportAccessWarning( doc, node, FRAME_MISSING_LONGDESC );
+            TY_(ReportAccessWarning)( doc, node, FRAME_MISSING_LONGDESC );
         }
     }
 }
@@ -1175,7 +1177,7 @@ static void CheckIFrame( TidyDocImpl* doc, Node* node )
         if ( hasValue(av) )
         {
             if ( !IsValidSrcExtension(av->value) )
-                ReportAccessError( doc, node, FRAME_SRC_INVALID );
+                TY_(ReportAccessError)( doc, node, FRAME_SRC_INVALID );
         }
     }
 }
@@ -1212,7 +1214,7 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
                     /* Checks to see if multimedia is used */
                     if ( IsValidMediaExtension(av->value) )
                     {
-                        ReportAccessError( doc, node, MULTIMEDIA_REQUIRES_TEXT );
+                        TY_(ReportAccessError)( doc, node, MULTIMEDIA_REQUIRES_TEXT );
                     }
             
                     /* 
@@ -1220,7 +1222,7 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
                         the file is described within the document, or by a link
                         that is present which gives the description.
                     */
-                    if ( tmbstrlen(ext) < 6 && tmbstrlen(ext) > 0 )
+                    if ( TY_(tmbstrlen)(ext) < 6 && TY_(tmbstrlen)(ext) > 0 )
                     {
                         int errcode = IsSoundFile( av->value );
                         if ( errcode )
@@ -1242,7 +1244,7 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
                             /* Must contain text description of sound file */
                             if ( !HasDescription )
                             {
-                                ReportAccessError( doc, node, errcode );
+                                TY_(ReportAccessError)( doc, node, errcode );
                             }
                         }
                     }
@@ -1257,11 +1259,11 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
             {
                 if (AttrValueIs(av, "_new"))
                 {
-                    ReportAccessWarning( doc, node, NEW_WINDOWS_REQUIRE_WARNING_NEW);
+                    TY_(ReportAccessWarning)( doc, node, NEW_WINDOWS_REQUIRE_WARNING_NEW);
                 }
                 else if (AttrValueIs(av, "_blank"))
                 {
-                    ReportAccessWarning( doc, node, NEW_WINDOWS_REQUIRE_WARNING_BLANK);
+                    TY_(ReportAccessWarning)( doc, node, NEW_WINDOWS_REQUIRE_WARNING_BLANK);
                 }
             }
         }
@@ -1277,27 +1279,27 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
             if ((word != NULL)&&
                 (IsWhitespace (word) == no))
             {
-                if (strcmp (word, "more") == 0)
+                if (TY_(tmbstrcmp) (word, "more") == 0)
                 {
                     HasTriggeredLink = yes;
                 }
 
-                if (strcmp (word, "click here") == 0)
+                if (TY_(tmbstrcmp) (word, "click here") == 0)
                 {
-                    ReportAccessWarning( doc, node, LINK_TEXT_NOT_MEANINGFUL_CLICK_HERE);
+                    TY_(ReportAccessWarning)( doc, node, LINK_TEXT_NOT_MEANINGFUL_CLICK_HERE);
                 }
 
                 if (HasTriggeredLink == no)
                 {
-                    if (tmbstrlen (word) < 6)
+                    if (TY_(tmbstrlen)(word) < 6)
                     {
-                        ReportAccessWarning( doc, node, LINK_TEXT_NOT_MEANINGFUL);
+                        TY_(ReportAccessWarning)( doc, node, LINK_TEXT_NOT_MEANINGFUL);
                     }
                 }
 
-                if (tmbstrlen (word) > 60)
+                if (TY_(tmbstrlen)(word) > 60)
                 {
-                    ReportAccessWarning( doc, node, LINK_TEXT_TOO_LONG);
+                    TY_(ReportAccessWarning)( doc, node, LINK_TEXT_TOO_LONG);
                 }
 
             }
@@ -1305,7 +1307,7 @@ static void CheckAnchorAccess( TidyDocImpl* doc, Node* node )
         
         if (node->content == NULL)
         {
-            ReportAccessWarning( doc, node, LINK_TEXT_MISSING);
+            TY_(ReportAccessWarning)( doc, node, LINK_TEXT_MISSING);
         }
     }
 }
@@ -1353,11 +1355,11 @@ static void CheckArea( TidyDocImpl* doc, Node* node )
             {
                 if (AttrValueIs(av, "_new"))
                 {
-                    ReportAccessWarning( doc, node, NEW_WINDOWS_REQUIRE_WARNING_NEW);
+                    TY_(ReportAccessWarning)( doc, node, NEW_WINDOWS_REQUIRE_WARNING_NEW);
                 }
                 else if (AttrValueIs(av, "_blank"))
                 {
-                    ReportAccessWarning( doc, node, NEW_WINDOWS_REQUIRE_WARNING_BLANK);
+                    TY_(ReportAccessWarning)( doc, node, NEW_WINDOWS_REQUIRE_WARNING_BLANK);
                 }
             }
         }
@@ -1368,7 +1370,7 @@ static void CheckArea( TidyDocImpl* doc, Node* node )
         /* AREA must contain alt text */
         if (HasAlt == no)
         {
-            ReportAccessError( doc, node, AREA_MISSING_ALT);
+            TY_(ReportAccessError)( doc, node, AREA_MISSING_ALT);
         }    
     }
 }
@@ -1388,7 +1390,7 @@ static void CheckScriptAcc( TidyDocImpl* doc, Node* node )
         /* NOSCRIPT element must appear immediately following SCRIPT element */
         if ( node->next == NULL || !nodeIsNOSCRIPT(node->next) )
         {
-            ReportAccessError( doc, node, SCRIPT_MISSING_NOSCRIPT);
+            TY_(ReportAccessError)( doc, node, SCRIPT_MISSING_NOSCRIPT);
         }
     }
 }
@@ -1408,45 +1410,29 @@ static void CheckRows( TidyDocImpl* doc, Node* node )
     
     doc->access.CheckedHeaders++;
 
-    for(;;)
+    for (; node != NULL; node = node->next )
     {
-        if (node == NULL)
+        numTR++;
+        if ( nodeIsTH(node->content) )
         {
-            break;
-        }
-
-        else 
-        {
-            numTR++;
-
-            if ( nodeIsTH(node) )
+            doc->access.HasTH = yes;            
+            if ( TY_(nodeIsText)(node->content->content) )
             {
-                doc->access.HasTH = yes;
-            
-                if ( node->content && nodeIsText(node->content->content) )
-                {
-                    ctmbstr word = textFromOneNode( doc, node->content->content);
-                    if ( !IsWhitespace(word) )
-                        numValidTH++;
-                }
+                ctmbstr word = textFromOneNode( doc, node->content->content);
+                if ( !IsWhitespace(word) )
+                    numValidTH++;
             }
         }
-        
-        node = node->next;
     }
 
     if (numTR == numValidTH)
-    {
         doc->access.HasValidRowHeaders = yes;
-    }
 
     if ( numTR >= 2 &&
          numTR > numValidTH &&
          numValidTH >= 2 &&
          doc->access.HasTH == yes )
-    {
         doc->access.HasInvalidRowHeader = yes;
-    }
 }
 
 
@@ -1474,7 +1460,7 @@ static void CheckColumns( TidyDocImpl* doc, Node* node )
         {
             if ( nodeIsTH(tnode) )
             {
-                if ( nodeIsText(tnode->content) )
+                if ( TY_(nodeIsText)(tnode->content) )
                 {
                     ctmbstr word = textFromOneNode( doc, tnode->content);
                     if ( !IsWhitespace(word) )
@@ -1525,17 +1511,17 @@ static void CheckTH( TidyDocImpl* doc, Node* node )
                 }
 
                 if ((av->value == NULL)||
-                    (tmbstrlen (av->value) == 0))
+                    (TY_(tmbstrlen)(av->value) == 0))
                 {
                     HasAbbr = yes;
-                    ReportAccessWarning( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR_NULL);
+                    TY_(ReportAccessWarning)( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR_NULL);
                 }
                 
                 if ((IsWhitespace (av->value) == yes)&&
-                    (tmbstrlen (av->value) > 0))
+                    (TY_(tmbstrlen)(av->value) > 0))
                 {
                     HasAbbr = yes;
-                    ReportAccessWarning( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR_SPACES);
+                    TY_(ReportAccessWarning)( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR_SPACES);
                 }
             }
         }
@@ -1547,10 +1533,10 @@ static void CheckTH( TidyDocImpl* doc, Node* node )
             (IsWhitespace (word) == no))
         {
             /* Must have 'ABBR' attribute if header is > 15 characters */
-            if ((tmbstrlen (word) > 15)&&
+            if ((TY_(tmbstrlen)(word) > 15)&&
                 (HasAbbr == no))
             {
-                ReportAccessWarning( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR);
+                TY_(ReportAccessWarning)( doc, node, TABLE_MAY_REQUIRE_HEADER_ABBR);
             }
         }
     }
@@ -1647,14 +1633,14 @@ static void CheckMultiHeaders( TidyDocImpl* doc, Node* node )
             /* Displays HTML 4 Table Algorithm when multiple column of headers used */
             if (validColSpanRows == no)
             {
-                ReportAccessWarning( doc, node, DATA_TABLE_REQUIRE_MARKUP_ROW_HEADERS );
-                DisplayHTMLTableAlgorithm( doc );
+                TY_(ReportAccessWarning)( doc, node, DATA_TABLE_REQUIRE_MARKUP_ROW_HEADERS );
+                TY_(DisplayHTMLTableAlgorithm)( doc );
             }
 
             if (validColSpanColumns == no)
             {
-                ReportAccessWarning( doc, node, DATA_TABLE_REQUIRE_MARKUP_COLUMN_HEADERS );
-                DisplayHTMLTableAlgorithm( doc );
+                TY_(ReportAccessWarning)( doc, node, DATA_TABLE_REQUIRE_MARKUP_COLUMN_HEADERS );
+                TY_(DisplayHTMLTableAlgorithm)( doc );
             }
         }
     }
@@ -1696,19 +1682,19 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
                     if (AttrContains(av, "summary") && 
                         AttrContains(av, "table"))
                     {
-                        ReportAccessError( doc, node, TABLE_SUMMARY_INVALID_PLACEHOLDER );
+                        TY_(ReportAccessError)( doc, node, TABLE_SUMMARY_INVALID_PLACEHOLDER );
                     }
                 }
 
-                if ( av->value == NULL || tmbstrlen(av->value) == 0 )
+                if ( av->value == NULL || TY_(tmbstrlen)(av->value) == 0 )
                 {
                     HasSummary = yes;
-                    ReportAccessError( doc, node, TABLE_SUMMARY_INVALID_NULL );
+                    TY_(ReportAccessError)( doc, node, TABLE_SUMMARY_INVALID_NULL );
                 }
-                else if ( IsWhitespace(av->value) && tmbstrlen(av->value) > 0 )
+                else if ( IsWhitespace(av->value) && TY_(tmbstrlen)(av->value) > 0 )
                 {
                     HasSummary = yes;
-                    ReportAccessError( doc, node, TABLE_SUMMARY_INVALID_SPACES );
+                    TY_(ReportAccessError)( doc, node, TABLE_SUMMARY_INVALID_SPACES );
                 }
             }
         }
@@ -1716,7 +1702,7 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
         /* TABLE must have content. */
         if (node->content == NULL)
         {
-            ReportAccessError( doc, node, DATA_TABLE_MISSING_HEADERS);
+            TY_(ReportAccessError)( doc, node, DATA_TABLE_MISSING_HEADERS);
         
             return;
         }
@@ -1735,7 +1721,7 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
         {
             TNode = node->content;
 
-            if (TNode->content->tag == NULL)
+            if (TNode->content && TNode->content->tag == NULL)
             {
                 word = getTextNodeClear( doc, TNode);
             }
@@ -1748,7 +1734,7 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
 
         if (HasCaption == no)
         {
-            ReportAccessError( doc, node, TABLE_MISSING_CAPTION);
+            TY_(ReportAccessError)( doc, node, TABLE_MISSING_CAPTION);
         }
     }
 
@@ -1786,7 +1772,7 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
         /* Suppress warning for missing 'SUMMARY for HTML 2.0 and HTML 3.2 */
         if (HasSummary == no)
         {
-            ReportAccessError( doc, node, TABLE_MISSING_SUMMARY);
+            TY_(ReportAccessError)( doc, node, TABLE_MISSING_SUMMARY);
         }
     }
 
@@ -1808,13 +1794,13 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
 
             if (numTR == 1)
             {
-                ReportAccessWarning( doc, node, LAYOUT_TABLES_LINEARIZE_PROPERLY);
+                TY_(ReportAccessWarning)( doc, node, LAYOUT_TABLES_LINEARIZE_PROPERLY);
             }
         }
     
         if ( doc->access.HasTH )
         {
-            ReportAccessWarning( doc, node, LAYOUT_TABLE_INVALID_MARKUP);
+            TY_(ReportAccessWarning)( doc, node, LAYOUT_TABLE_INVALID_MARKUP);
         }
     }
 
@@ -1827,19 +1813,19 @@ static void CheckTable( TidyDocImpl* doc, Node* node )
                  !doc->access.HasInvalidRowHeader &&
                  !doc->access.HasInvalidColumnHeader  )
             {
-                ReportAccessError( doc, node, DATA_TABLE_MISSING_HEADERS);
+                TY_(ReportAccessError)( doc, node, DATA_TABLE_MISSING_HEADERS);
             }
 
             if ( !doc->access.HasValidRowHeaders && 
                  doc->access.HasInvalidRowHeader )
             {
-                ReportAccessError( doc, node, DATA_TABLE_MISSING_HEADERS_ROW);
+                TY_(ReportAccessError)( doc, node, DATA_TABLE_MISSING_HEADERS_ROW);
             }
 
             if ( !doc->access.HasValidColumnHeaders &&
                  doc->access.HasInvalidColumnHeader )
             {
-                ReportAccessError( doc, node, DATA_TABLE_MISSING_HEADERS_COLUMN);
+                TY_(ReportAccessError)( doc, node, DATA_TABLE_MISSING_HEADERS_COLUMN);
             }
         }
     }
@@ -1970,16 +1956,11 @@ static void CheckASCII( TidyDocImpl* doc, Node* node )
 
         if (IsAscii == yes)
         {
-            ReportAccessError( doc, node, ASCII_REQUIRES_DESCRIPTION);
+            TY_(ReportAccessError)( doc, node, ASCII_REQUIRES_DESCRIPTION);
+            if (Level3_Enabled( doc ) && (HasSkipOverLink < 2))
+                TY_(ReportAccessError)( doc, node, SKIPOVER_ASCII_ART);
         }
 
-        if (HasSkipOverLink < 2)
-        {
-            if (IsAscii == yes)
-            {
-                ReportAccessError( doc, node, SKIPOVER_ASCII_ART);
-            }
-        }
     }
 }
 
@@ -1996,19 +1977,19 @@ static void CheckFormControls( TidyDocImpl* doc, Node* node )
     if ( !doc->access.HasValidFor &&
          doc->access.HasValidId )
     {
-        ReportAccessError( doc, node, ASSOCIATE_LABELS_EXPLICITLY_FOR);
+        TY_(ReportAccessError)( doc, node, ASSOCIATE_LABELS_EXPLICITLY_FOR);
     }    
 
     if ( !doc->access.HasValidId &&
          doc->access.HasValidFor )
     {
-        ReportAccessError( doc, node, ASSOCIATE_LABELS_EXPLICITLY_ID);
+        TY_(ReportAccessError)( doc, node, ASSOCIATE_LABELS_EXPLICITLY_ID);
     }
 
     if ( !doc->access.HasValidId &&
          !doc->access.HasValidFor )
     {
-        ReportAccessError( doc, node, ASSOCIATE_LABELS_EXPLICITLY);
+        TY_(ReportAccessError)( doc, node, ASSOCIATE_LABELS_EXPLICITLY);
     }
 }
 
@@ -2106,7 +2087,7 @@ static void CheckInputAttributes( TidyDocImpl* doc, Node* node )
 
     if ( MustHaveAlt && !HasAlt )
     {
-        ReportAccessError( doc, node, IMG_BUTTON_MISSING_ALT );
+        TY_(ReportAccessError)( doc, node, IMG_BUTTON_MISSING_ALT );
     }
 
 }
@@ -2123,56 +2104,41 @@ static void CheckInputAttributes( TidyDocImpl* doc, Node* node )
 static void CheckFrameSet( TidyDocImpl* doc, Node* node )
 {
     Node* temp;
-    
     Bool HasNoFrames = no;
 
     if (Level1_Enabled( doc ))
     {
-        if (node->content != NULL)
+        if ( doc->badAccess & BA_INVALID_LINK_NOFRAMES )
         {
-            temp = node->content;
-
-            while (temp != NULL)
+           TY_(ReportAccessError)( doc, node, NOFRAMES_INVALID_LINK);
+           doc->badAccess &= ~BA_INVALID_LINK_NOFRAMES; /* emit only once */
+        }
+        for ( temp = node->content; temp != NULL ; temp = temp->next )
+        {
+            if ( nodeIsNOFRAMES(temp) )
             {
-                if ( nodeIsA(temp) )
-                {
-                    ReportAccessError( doc, temp, NOFRAMES_INVALID_LINK);
-                }
-                else if ( nodeIsNOFRAMES(temp) )
-                {
-                    HasNoFrames = yes;
+                HasNoFrames = yes;
 
-                    if ( temp->content && nodeIsP(temp->content->content) )
+                if ( temp->content && nodeIsP(temp->content->content) )
+                {
+                    Node* para = temp->content->content;
+                    if ( TY_(nodeIsText)(para->content) )
                     {
-                        Node* para = temp->content->content;
-                        if ( nodeIsText(para->content) )
-                        {
-                            ctmbstr word = textFromOneNode( doc, para->content );
-                            if ( word && strstr(word, "browser") != NULL )
-                            {
-                                ReportAccessError( doc, para, NOFRAMES_INVALID_CONTENT );
-                            }
-                        }
-                    }
-                    else if (temp->content == NULL)
-                    {
-                        ReportAccessError( doc, temp, NOFRAMES_INVALID_NO_VALUE);
-                    }
-                    else if ( temp->content &&
-                              IsWhitespace(textFromOneNode(doc, temp->content)) )
-                    {
-                        ReportAccessError( doc, temp, NOFRAMES_INVALID_NO_VALUE);
+                        ctmbstr word = textFromOneNode( doc, para->content );
+                        if ( word && strstr(word, "browser") != NULL )
+                            TY_(ReportAccessError)( doc, para, NOFRAMES_INVALID_CONTENT );
                     }
                 }
-
-                temp = temp->next;
+                else if (temp->content == NULL)
+                    TY_(ReportAccessError)( doc, temp, NOFRAMES_INVALID_NO_VALUE);
+                else if ( temp->content &&
+                          IsWhitespace(textFromOneNode(doc, temp->content)) )
+                    TY_(ReportAccessError)( doc, temp, NOFRAMES_INVALID_NO_VALUE);
             }
         }
 
         if (HasNoFrames == no)
-        {
-            ReportAccessError( doc, node, FRAME_MISSING_NOFRAMES);
-        }
+            TY_(ReportAccessError)( doc, node, FRAME_MISSING_NOFRAMES);
     }
 }
 
@@ -2205,7 +2171,7 @@ static void CheckHeaderNesting( TidyDocImpl* doc, Node* node )
         {
             ctmbstr word = textFromOneNode( doc, node->content);
 
-            for(i = 0; i < tmbstrlen (word); i++)
+            for (i = 0; i < TY_(tmbstrlen)(word); i++)
             {
                 if (word[i] == ' ')
                 {
@@ -2222,14 +2188,14 @@ static void CheckHeaderNesting( TidyDocImpl* doc, Node* node )
         /* Header following must be same level or same plus 1 for
         ** valid heading increase size.  E.g. H1 -> H1, H2.  H3 -> H3, H4
         */
-        if ( nodeIsHeader(node) )
+        if ( TY_(nodeIsHeader)(node) )
         {
-            uint level = nodeHeaderLevel( node );
+            uint level = TY_(nodeHeaderLevel)( node );
             IsValidIncrease = yes;
 
             for ( temp = node->next; temp != NULL; temp = temp->next )
             {
-                uint nested = nodeHeaderLevel( temp );
+                uint nested = TY_(nodeHeaderLevel)( temp );
                 if ( nested >= level )
                 {
                     IsValidIncrease = ( nested <= level + 1 );
@@ -2239,10 +2205,10 @@ static void CheckHeaderNesting( TidyDocImpl* doc, Node* node )
         }
 
         if ( !IsValidIncrease )
-            ReportAccessWarning( doc, node, HEADERS_IMPROPERLY_NESTED );
+            TY_(ReportAccessWarning)( doc, node, HEADERS_IMPROPERLY_NESTED );
     
         if ( NeedsDescription )
-            ReportAccessWarning( doc, node, HEADER_USED_FORMAT_TEXT );    
+            TY_(ReportAccessWarning)( doc, node, HEADER_USED_FORMAT_TEXT );    
     }
 }
 
@@ -2285,17 +2251,17 @@ static void CheckParagraphHeader( TidyDocImpl* doc, Node* node )
             {
                 if ( nodeIsSTRONG(node->content) )
                 {
-                    ReportAccessWarning( doc, node, POTENTIAL_HEADER_BOLD);
+                    TY_(ReportAccessWarning)( doc, node, POTENTIAL_HEADER_BOLD);
                 }
 
                 if ( nodeIsU(node->content) )
                 {
-                    ReportAccessWarning( doc, node, POTENTIAL_HEADER_UNDERLINE);
+                    TY_(ReportAccessWarning)( doc, node, POTENTIAL_HEADER_UNDERLINE);
                 }
 
                 if ( nodeIsEM(node->content) )
                 {
-                    ReportAccessWarning( doc, node, POTENTIAL_HEADER_ITALICS);
+                    TY_(ReportAccessWarning)( doc, node, POTENTIAL_HEADER_ITALICS);
                 }
             }
         }
@@ -2317,7 +2283,7 @@ static void CheckEmbed( TidyDocImpl* doc, Node* node )
         AttVal* av = attrGetSRC( node );
         if ( hasValue(av) && IsValidMediaExtension(av->value) )
         {
-             ReportAccessError( doc, node, MULTIMEDIA_REQUIRES_TEXT );
+             TY_(ReportAccessError)( doc, node, MULTIMEDIA_REQUIRES_TEXT );
         }
     }
 }
@@ -2341,10 +2307,10 @@ static void CheckHTMLAccess( TidyDocImpl* doc, Node* node )
         {
             ValidLang = yes;
             if ( !hasValue(av) )
-                ReportAccessError( doc, node, LANGUAGE_INVALID );
+                TY_(ReportAccessError)( doc, node, LANGUAGE_INVALID );
         }
         if ( !ValidLang )
-            ReportAccessError( doc, node, LANGUAGE_NOT_IDENTIFIED );
+            TY_(ReportAccessError)( doc, node, LANGUAGE_NOT_IDENTIFIED );
     }
 }
 
@@ -2362,12 +2328,12 @@ static void CheckBlink( TidyDocImpl* doc, Node* node )
     if (Level2_Enabled( doc ))
     {
         /* Checks to see if text is found within the BLINK element. */
-        if ( nodeIsText(node->content) )
+        if ( TY_(nodeIsText)(node->content) )
         {
             ctmbstr word = textFromOneNode( doc, node->content );
             if ( !IsWhitespace(word) )
             {
-                ReportAccessError( doc, node, REMOVE_BLINK_MARQUEE );
+                TY_(ReportAccessError)( doc, node, REMOVE_BLINK_MARQUEE );
             }
         }
     }
@@ -2387,12 +2353,12 @@ static void CheckMarquee( TidyDocImpl* doc, Node* node )
     if (Level2_Enabled( doc ))
     {
         /* Checks to see if there is text in between the MARQUEE element */
-        if ( nodeIsText(node) )
+        if ( TY_(nodeIsText)(node) )
         {
             ctmbstr word = textFromOneNode( doc, node->content);
             if ( !IsWhitespace(word) )
             {
-                ReportAccessError( doc, node, REMOVE_BLINK_MARQUEE );
+                TY_(ReportAccessError)( doc, node, REMOVE_BLINK_MARQUEE );
             }
         }
     }
@@ -2431,7 +2397,7 @@ static void CheckLink( TidyDocImpl* doc, Node* node )
         }
 
         if (HasRel && HasType)
-            ReportAccessWarning( doc, node, STYLESHEETS_REQUIRE_TESTING_LINK );
+            TY_(ReportAccessWarning)( doc, node, STYLESHEETS_REQUIRE_TESTING_LINK );
     }
 }
 
@@ -2447,7 +2413,7 @@ static void CheckStyle( TidyDocImpl* doc, Node* node )
 {
     if (Level1_Enabled( doc ))
     {
-        ReportAccessWarning( doc, node, STYLESHEETS_REQUIRE_TESTING_STYLE_ELEMENT );
+        TY_(ReportAccessWarning)( doc, node, STYLESHEETS_REQUIRE_TESTING_STYLE_ELEMENT );
     }
 }
 
@@ -2473,7 +2439,7 @@ static void DynamicContent( TidyDocImpl* doc, Node* node )
             msgcode = TEXT_EQUIVALENTS_REQUIRE_UPDATING_OBJECT;
 
         if ( msgcode )
-            ReportAccessWarning( doc, node, msgcode );
+            TY_(ReportAccessWarning)( doc, node, msgcode );
     }
 }
 
@@ -2500,7 +2466,7 @@ static void ProgrammaticObjects( TidyDocImpl* doc, Node* node )
             msgcode = PROGRAMMATIC_OBJECTS_REQUIRE_TESTING_APPLET;
 
         if ( msgcode )
-            ReportAccessWarning( doc, node, msgcode );
+            TY_(ReportAccessWarning)( doc, node, msgcode );
     }
 }
 
@@ -2526,7 +2492,7 @@ static void AccessibleCompatible( TidyDocImpl* doc, Node* node )
             msgcode = ENSURE_PROGRAMMATIC_OBJECTS_ACCESSIBLE_APPLET;
 
         if ( msgcode )
-            ReportAccessWarning( doc, node, msgcode );
+            TY_(ReportAccessWarning)( doc, node, msgcode );
     }
 }
 
@@ -2543,7 +2509,7 @@ static void AccessibleCompatible( TidyDocImpl* doc, Node* node )
 * It seems like a bad idea to emit this message for
 * every document with _more_ than 3 words!
 ********************************************************/
-
+#if 0
 static int WordCount( TidyDocImpl* doc, Node* node )
 {
     int wc = 0;
@@ -2551,7 +2517,7 @@ static int WordCount( TidyDocImpl* doc, Node* node )
     if (Level1_Enabled( doc ))
     {
         /* Count the number of words found within a text node */
-        if ( nodeIsText( node ) )
+        if ( TY_(nodeIsText)( node ) )
         {
             tmbchar ch;
             ctmbstr word = textFromOneNode( doc, node );
@@ -2573,7 +2539,7 @@ static int WordCount( TidyDocImpl* doc, Node* node )
     }
     return wc;
 }
-
+#endif
 
 /**************************************************
 * CheckFlicker
@@ -2603,13 +2569,13 @@ static void CheckFlicker( TidyDocImpl* doc, Node* node )
             {
                 tmbchar ext[20];
                 GetFileExtension( av->value, ext, sizeof(ext) );
-                if ( tmbstrcasecmp(ext, ".gif") == 0 )
+                if ( TY_(tmbstrcasecmp)(ext, ".gif") == 0 )
                     msgcode = REMOVE_FLICKER_ANIMATED_GIF;
             }
         }            
 
         if ( msgcode )
-            ReportAccessWarning( doc, node, msgcode );
+            TY_(ReportAccessWarning)( doc, node, msgcode );
     }
 }
 
@@ -2649,7 +2615,7 @@ static void CheckDeprecated( TidyDocImpl* doc, Node* node )
             msgcode = REPLACE_DEPRECATED_HTML_U;
 
         if ( msgcode )
-            ReportAccessError( doc, node, msgcode );
+            TY_(ReportAccessError)( doc, node, msgcode );
     }
 }
 
@@ -2714,21 +2680,21 @@ static void CheckScriptKeyboardAccessible( TidyDocImpl* doc, Node* node )
         }
 
         if ( HasOnMouseDown == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_DOWN);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_DOWN);
 
         if ( HasOnMouseUp == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_UP);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_UP);
 
         if ( HasOnClick == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_CLICK);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_CLICK);
         if ( HasOnMouseOut == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_OUT);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_OUT);
 
         if ( HasOnMouseOver == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_OVER);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_OVER);
 
         if ( HasOnMouseMove == 1 )
-            ReportAccessError( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_MOVE);
+            TY_(ReportAccessError)( doc, node, SCRIPT_NOT_KEYBOARD_ACCESSIBLE_ON_MOUSE_MOVE);
 
         /* Recursively check all child nodes.
          */
@@ -2769,7 +2735,7 @@ static Bool CheckMetaData( TidyDocImpl* doc, Node* node, Bool HasMetaData )
                     if (AttrValueIs(av, "refresh"))
                     {
                         HasHttpEquiv = yes;
-                        ReportAccessError( doc, node, REMOVE_AUTO_REFRESH );
+                        TY_(ReportAccessError)( doc, node, REMOVE_AUTO_REFRESH );
                     }
                 }
 
@@ -2778,10 +2744,10 @@ static Bool CheckMetaData( TidyDocImpl* doc, Node* node, Bool HasMetaData )
                     ContainsAttr = yes;
 
                     /* If the value is not an integer, then it must not be a URL */
-                    if ( tmbstrncmp(av->value, "http:", 5) == 0)
+                    if ( TY_(tmbstrncmp)(av->value, "http:", 5) == 0)
                     {
                         HasContent = yes;
-                        ReportAccessError( doc, node, REMOVE_AUTO_REDIRECT);
+                        TY_(ReportAccessError)( doc, node, REMOVE_AUTO_REDIRECT);
                     }
                 }
             }
@@ -2789,7 +2755,7 @@ static Bool CheckMetaData( TidyDocImpl* doc, Node* node, Bool HasMetaData )
             if ( HasContent || HasHttpEquiv )
             {
                 HasMetaData = yes;
-                ReportAccessError( doc, node, METADATA_MISSING_REDIRECT_AUTOREFRESH);
+                TY_(ReportAccessError)( doc, node, METADATA_MISSING_REDIRECT_AUTOREFRESH);
             }
             else
             {
@@ -2807,22 +2773,18 @@ static Bool CheckMetaData( TidyDocImpl* doc, Node* node, Bool HasMetaData )
             
         if ( !HasMetaData &&
              nodeIsTITLE(node) &&
-             nodeIsText(node->content) )
+             TY_(nodeIsText)(node->content) )
         {
             ctmbstr word = textFromOneNode( doc, node->content );
             if ( !IsWhitespace(word) )
                 HasMetaData = yes;
         }
 
-        if ( nodeIsLINK(node) )
+        if( !HasMetaData && nodeIsLINK(node) )
         {
             AttVal* av = attrGetREL(node);
-            HasMetaData = yes;
-
-            if (AttrContains(av, "stylesheet"))
-            {
-                ReportAccessError( doc, node, METADATA_MISSING_LINK );
-            }
+            if( !AttrContains(av, "stylesheet") )
+                HasMetaData = yes;
         }
             
         /* Check for MetaData */
@@ -2845,7 +2807,7 @@ static void MetaDataPresent( TidyDocImpl* doc, Node* node )
 {
     if (Level2_Enabled( doc ))
     {
-        ReportAccessError( doc, node, METADATA_MISSING );
+        TY_(ReportAccessError)( doc, node, METADATA_MISSING );
     }
 }
 
@@ -2861,18 +2823,18 @@ static void CheckDocType( TidyDocImpl* doc )
 {
     if (Level2_Enabled( doc ))
     {
-        Node* DTnode = FindDocType(doc);
-        if (DTnode)
+        Node* DTnode = TY_(FindDocType)(doc);
+
+        /* If the doctype has been added by tidy, DTnode->end will be 0. */
+        if (DTnode && DTnode->end != 0)
         {
-            /* If the doctype has been added by tidy, word
-               will be NULL as DTnode->end will be 0. */
             ctmbstr word = textFromOneNode( doc, DTnode);
             if ((strstr (word, "HTML PUBLIC") == NULL) &&
                 (strstr (word, "html PUBLIC") == NULL))
                 DTnode = NULL;
         }
         if (!DTnode)
-           ReportAccessError( doc, &doc->root, DOCTYPE_MISSING);
+           TY_(ReportAccessError)( doc, &doc->root, DOCTYPE_MISSING);
     }
 }
 
@@ -2891,7 +2853,7 @@ static Bool urlMatch( ctmbstr url1, ctmbstr url2 )
   /* TODO: Make host part case-insensitive and
   ** remainder case-sensitive.
   */
-  return ( tmbstrcmp( url1, url2 ) == 0 );
+  return ( TY_(tmbstrcmp)( url1, url2 ) == 0 );
 }
 
 static Bool FindLinkA( TidyDocImpl* doc, Node* node, ctmbstr url )
@@ -2914,6 +2876,9 @@ static void CheckMapLinks( TidyDocImpl* doc, Node* node )
 {
     Node* child;
 
+    if (!Level3_Enabled( doc ))
+        return;
+
     /* Stores the 'HREF' link of an AREA element within a MAP element */
     for ( child = node->content; child != NULL; child = child->next )
     {
@@ -2924,7 +2889,7 @@ static void CheckMapLinks( TidyDocImpl* doc, Node* node )
             if ( hasValue(href) &&
                  !FindLinkA( doc, &doc->root, href->value ) )
             {
-                ReportAccessError( doc, node, IMG_MAP_CLIENT_MISSING_TEXT_LINKS );
+                TY_(ReportAccessError)( doc, node, IMG_MAP_CLIENT_MISSING_TEXT_LINKS );
             }
         }
     }
@@ -2947,7 +2912,7 @@ static void CheckForStyleAttribute( TidyDocImpl* doc, Node* node )
         AttVal* style = attrGetSTYLE( node );
         if ( hasValue(style) )
         {
-            ReportAccessWarning( doc, node, STYLESHEETS_REQUIRE_TESTING_STYLE_ATTR );
+            TY_(ReportAccessWarning)( doc, node, STYLESHEETS_REQUIRE_TESTING_STYLE_ATTR );
         }
     }
 
@@ -2993,6 +2958,10 @@ static void CheckForListElements( TidyDocImpl* doc, Node* node )
 static void CheckListUsage( TidyDocImpl* doc, Node* node )
 {
     int msgcode = 0;
+
+    if (!Level2_Enabled( doc ))
+        return;
+
     if ( nodeIsOL(node) )
         msgcode = LIST_USAGE_INVALID_OL;
     else if ( nodeIsUL(node) )
@@ -3000,19 +2969,38 @@ static void CheckListUsage( TidyDocImpl* doc, Node* node )
 
     if ( msgcode )
     {
-        if ( !nodeIsLI(node->content) )
-            ReportAccessWarning( doc, node, msgcode );
+       /*
+       ** Check that OL/UL
+       ** a) has LI child,
+       ** b) was not added by Tidy parser
+       ** IFF OL/UL node is implicit
+       */
+       if ( !nodeIsLI(node->content) ) {
+            TY_(ReportAccessWarning)( doc, node, msgcode );
+       } else if ( node->implicit ) {  /* if a tidy added node */
+            TY_(ReportAccessWarning)( doc, node, LIST_USAGE_INVALID_LI );
+       }
     }
     else if ( nodeIsLI(node) )
     {
         /* Check that LI parent 
         ** a) exists,
         ** b) is either OL or UL
+        ** IFF the LI parent was added by Tidy
+        ** ie, if it is marked 'implicit', then
+        ** emit warnings LIST_USAGE_INVALID_UL or 
+        ** warning LIST_USAGE_INVALID_OL tests 
         */
         if ( node->parent == NULL ||
              ( !nodeIsOL(node->parent) && !nodeIsUL(node->parent) ) )
         {
-            ReportAccessWarning( doc, node, LIST_USAGE_INVALID_LI );
+            TY_(ReportAccessWarning)( doc, node, LIST_USAGE_INVALID_LI );
+        } else if ( node->implicit && node->parent &&
+                    ( nodeIsOL(node->parent) || nodeIsUL(node->parent) ) ) {
+            /* if tidy added LI node, then */
+            msgcode = nodeIsUL(node->parent) ?
+                LIST_USAGE_INVALID_UL : LIST_USAGE_INVALID_OL;
+            TY_(ReportAccessWarning)( doc, node, msgcode );
         }
     }
 }
@@ -3025,7 +3013,7 @@ static void CheckListUsage( TidyDocImpl* doc, Node* node )
 
 static void InitAccessibilityChecks( TidyDocImpl* doc, int level123 )
 {
-    ClearMemory( &doc->access, sizeof(doc->access) );
+    TidyClearMemory( &doc->access, sizeof(doc->access) );
     doc->access.PRIORITYCHK = level123;
 }
 
@@ -3050,7 +3038,7 @@ static void FreeAccessibilityChecks( TidyDocImpl* ARG_UNUSED(doc) )
         void    *templink = (void *)current;
         
         current = current->next;
-        MemFree(templink);
+        TidyDocFree(doc, templink);
     }
     start = NULL;
     */
@@ -3187,7 +3175,7 @@ static void AccessibilityCheckNode( TidyDocImpl* doc, Node* node )
     }
     
     /* Checks for header elements for valid header increase */
-    else if ( nodeIsHeader(node) )
+    else if ( TY_(nodeIsHeader)(node) )
     {
         CheckHeaderNesting( doc, node );
     }
@@ -3273,13 +3261,13 @@ static void AccessibilityCheckNode( TidyDocImpl* doc, Node* node )
 }
 
 
-void AccessibilityChecks( TidyDocImpl* doc )
+void TY_(AccessibilityChecks)( TidyDocImpl* doc )
 {
     /* Initialize */
     InitAccessibilityChecks( doc, cfg(doc, TidyAccessibilityCheckLevel) );
 
     /* Hello there, ladies and gentlemen... */
-    AccessibilityHelloMessage( doc );
+    TY_(AccessibilityHelloMessage)( doc );
 
     /* Checks all elements for script accessibility */
     CheckScriptKeyboardAccessible( doc, &doc->root );
@@ -3292,9 +3280,10 @@ void AccessibilityChecks( TidyDocImpl* doc )
 
     
     /* Checks to see if stylesheets are used to control the layout */
-    if ( ! CheckMissingStyleSheets( doc, &doc->root ) )
+    if ( Level2_Enabled( doc )
+         && ! CheckMissingStyleSheets( doc, &doc->root ) )
     {
-        ReportAccessWarning( doc, &doc->root, STYLE_SHEET_CONTROL_PRESENTATION );
+        TY_(ReportAccessWarning)( doc, &doc->root, STYLE_SHEET_CONTROL_PRESENTATION );
     }
 
     /* Check to see if any list elements are found within the document */
@@ -3310,7 +3299,7 @@ void AccessibilityChecks( TidyDocImpl* doc )
 
     if ( WordCount(doc, &doc->root) > 3 )
     {
-        ReportAccessWarning( doc, node, INDICATE_CHANGES_IN_LANGUAGE);
+        TY_(ReportAccessWarning)( doc, node, INDICATE_CHANGES_IN_LANGUAGE);
     }
     */
 
@@ -3325,3 +3314,12 @@ void AccessibilityChecks( TidyDocImpl* doc )
 }
 
 #endif
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

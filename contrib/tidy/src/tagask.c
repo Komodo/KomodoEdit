@@ -1,13 +1,13 @@
 /* tagask.c -- Interrogate node type
 
-  (c) 1998-2005 (W3C) MIT, ERCIM, Keio University
+  (c) 1998-2006 (W3C) MIT, ERCIM, Keio University
   See tidy.h for the copyright notice.
 
   CVS Info :
 
     $Author: arnaud02 $ 
-    $Date: 2005/04/08 09:11:13 $ 
-    $Revision: 1.5 $ 
+    $Date: 2006/09/12 15:14:44 $ 
+    $Revision: 1.6 $ 
 
 */
 
@@ -16,22 +16,22 @@
 #include "tidy.h"
 
 Bool TIDY_CALL tidyNodeIsText( TidyNode tnod )
-{ return nodeIsText( tidyNodeToImpl(tnod) );
+{ return TY_(nodeIsText)( tidyNodeToImpl(tnod) );
 }
 Bool tidyNodeCMIsBlock( TidyNode tnod ); /* not exported yet */
 Bool tidyNodeCMIsBlock( TidyNode tnod )
-{ return nodeCMIsBlock( tidyNodeToImpl(tnod) );
+{ return TY_(nodeCMIsBlock)( tidyNodeToImpl(tnod) );
 }
 Bool tidyNodeCMIsInline( TidyNode tnod ); /* not exported yet */
 Bool tidyNodeCMIsInline( TidyNode tnod )
-{ return nodeCMIsInline( tidyNodeToImpl(tnod) );
+{ return TY_(nodeCMIsInline)( tidyNodeToImpl(tnod) );
 }
 Bool tidyNodeCMIsEmpty( TidyNode tnod ); /* not exported yet */
 Bool tidyNodeCMIsEmpty( TidyNode tnod )
-{ return nodeCMIsEmpty( tidyNodeToImpl(tnod) );
+{ return TY_(nodeCMIsEmpty)( tidyNodeToImpl(tnod) );
 }
 Bool TIDY_CALL tidyNodeIsHeader( TidyNode tnod )
-{ return nodeIsHeader( tidyNodeToImpl(tnod) );
+{ return TY_(nodeIsHeader)( tidyNodeToImpl(tnod) );
 }
 
 Bool TIDY_CALL tidyNodeIsHTML( TidyNode tnod )
@@ -275,3 +275,12 @@ Bool TIDY_CALL tidyNodeIsMENU( TidyNode tnod )
 { return nodeIsMENU( tidyNodeToImpl(tnod) );
 }
 
+
+/*
+ * local variables:
+ * mode: c
+ * indent-tabs-mode: nil
+ * c-basic-offset: 4
+ * eval: (c-set-offset 'substatement-open 0)
+ * end:
+ */

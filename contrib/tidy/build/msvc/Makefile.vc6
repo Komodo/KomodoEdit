@@ -72,12 +72,14 @@ TIDYEXT=/D SUPPORT_ACCESSIBILITY_CHECKS=1 /D SUPPORT_UTF16_ENCODINGS=1 /D SUPPOR
 
 ## General flags for compilation
 # /W4	Sets warning level 4 (max)
-# /Za	Disables Microsoft extensions (aka ANSI)
+# /Za	(REMOVED) Disables Microsoft extensions (aka ANSI)
+#       /Za was *removed* as it causes tidy to break with the following error:
+#         "illegal declaration of anonymous 'struct'"
 # /FD	Generate file dependencies
 # /c	Compiles without linking
 # In the following, replace /D "_CONSOLE" by /D "_WINDOWS" for Windows programs
 
-CFLAGS=/nologo /TC /W4 /Za /FD /c /D "WIN32" /D "_CONSOLE" /D "_MBCS" $(TIDYEXT) /I $(INCLDIR)
+CFLAGS=/nologo /TC /W4 /FD /c /D "WIN32" /D "_CONSOLE" /D "_MBCS" $(TIDYEXT) /I $(INCLDIR)
 
 ## Additional flags for debug compilation
 # /Gm	Enables minimal rebuild
@@ -133,7 +135,7 @@ OBJFILES=$(OBJDIR)\access.obj   $(OBJDIR)\attrs.obj    $(OBJDIR)\istack.obj\
         $(OBJDIR)\attrask.obj   $(OBJDIR)\attrget.obj  $(OBJDIR)\buffio.obj\
         $(OBJDIR)\tagask.obj    $(OBJDIR)\fileio.obj   $(OBJDIR)\streamio.obj\
         $(OBJDIR)\tmbstr.obj    $(OBJDIR)\utf8.obj     $(OBJDIR)\tidylib.obj\
-	$(OBJDIR)\attrdict.obj
+	$(OBJDIR)\attrdict.obj  $(OBJDIR)\mappedio.obj
 
 CFILES=	$(SRCDIR)access.c       $(SRCDIR)attrs.c        $(SRCDIR)istack.c \
         $(SRCDIR)parser.c       $(SRCDIR)tags.c         $(SRCDIR)entities.c \
@@ -142,18 +144,18 @@ CFILES=	$(SRCDIR)access.c       $(SRCDIR)attrs.c        $(SRCDIR)istack.c \
         $(SRCDIR)attrask.c      $(SRCDIR)attrget.c      $(SRCDIR)buffio.c \
         $(SRCDIR)tagask.c       $(SRCDIR)fileio.c       $(SRCDIR)streamio.c\
         $(SRCDIR)tmbstr.c       $(SRCDIR)utf8.c         $(SRCDIR)tidylib.c\
-	$(SRCDIR)\attrdict.c
+	$(SRCDIR)attrdict.c     $(SRCDIR)mappedio.c
 
 HFILES=	$(INCLDIR)platform.h $(INCLDIR)buffio.h \
-        $(INCLDIR)fileio.h $(INCLDIR)tidy.h $(INCLDIR)tidyenum.h
+        $(INCLDIR)tidy.h $(INCLDIR)tidyenum.h
 
 LIBHFILES= \
         $(SRCDIR)access.h \
         $(SRCDIR)attrs.h        $(SRCDIR)attrdict.h     $(SRCDIR)clean.h \
-        $(SRCDIR)config.h       $(SRCDIR)entities.h     \
+        $(SRCDIR)config.h       $(SRCDIR)entities.h     $(SRCDIR)fileio.h \
         $(SRCDIR)forward.h      $(SRCDIR)lexer.h        $(SRCDIR)message.h \
         $(SRCDIR)parser.h       $(SRCDIR)pprint.h       $(SRCDIR)streamio.h \
-        $(SRCDIR)tags.h \
+        $(SRCDIR)tags.h         $(SRCDIR)mappedio.h     $(SRCDIR)version.h \
         $(SRCDIR)tmbstr.h       $(SRCDIR)utf8.h         $(SRCDIR)tidy-int.h
 
 all:	$(OBJDIR)\libtidy.lib $(BINDIR)\tidy.exe $(BINDIR)\tab2space.exe
