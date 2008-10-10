@@ -417,6 +417,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
 
     var oldInsertionPoint;
     // Do the indentation, if necessary.
+    var remainingText = null;
     if (relativeIndent) {
         var initialCurrentPos = scimoz.currentPos;
         var initialAnchor = scimoz.anchor;
@@ -431,7 +432,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         oldInsertionPoint = initialCurrentPos;
         var selectionEndLine = scimoz.lineFromPosition(initialCurrentPos);
         var selectionEndPoint = scimoz.getLineEndPosition(selectionEndLine);
-        var remainingText = scimoz.getTextRange(initialAnchor, selectionEndPoint);
+        remainingText = scimoz.getTextRange(initialAnchor, selectionEndPoint);
         scimoz.targetStart = initialCurrentPos;
         scimoz.targetEnd = selectionEndPoint;
         scimoz.replaceTarget(0, "");
@@ -480,7 +481,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                 lines[i] = newindent + rest;
             }
         }
-        text = lines.join(eol_str) + remainingText;
+        text = lines.join(eol_str);
     } else {
         scimoz.replaceSel("");
         oldInsertionPoint = scimoz.currentPos;
@@ -516,6 +517,11 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
             return;
         }
         ko.tabstops.cacheLiveTextInfo(snippetInfo, snippet.id);
+    }
+    if (remainingText) {
+        // Don't process the text we snipped out as part of the snippet,
+        // because we won't pull it out of cached parse trees.
+        scimoz.insertText(oldInsertionPoint, remainingText);
     }
     ko.tabstops.insertLiveText(scimoz, oldInsertionPoint, snippetInfo);
     
