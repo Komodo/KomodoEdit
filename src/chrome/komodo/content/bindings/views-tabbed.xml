@@ -493,6 +493,7 @@
                 if (doc.file.exists) {
                     var view = this.newView(viewType);
                     view.initWithDocument(doc);
+                    xtk.domutils.fireEvent(view, 'view_opened');
                 } else {
                     fileOpenFailures.push("'" + doc.file.path + "' : it does not exist.");
                     this.log.warn("Couldn't re-open file: '" + doc.file.path + "', it does not exist.");

@@ -121,6 +121,7 @@
             ko.trace.get().enter('view: createViewFromDocument');
             var view = this.newView(type, index);
             view.initWithDocument(doc);
+            xtk.domutils.fireEvent(view, 'view_opened');
             ko.trace.get().leave('view: createViewFromDocument');
             return view;
         ]]>
@@ -476,7 +477,6 @@
                 box.appendChild(v);
                 v.init();
                 v.makeCurrent();
-                xtk.domutils.fireEvent(v, 'view_opened');
                 ko.trace.get().leave('view.newView');
                 return v;
             } catch(e) {
