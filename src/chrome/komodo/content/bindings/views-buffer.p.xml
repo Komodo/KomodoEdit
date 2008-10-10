@@ -1012,16 +1012,11 @@
         </body>
         </method>
         
-        <field name="_ignoreModifications">false</field>
         <method name="onModified">
         <parameter name="position"/>
         <parameter name="modificationType"/>
-        <!-- XXX 'text' is NOT unicode ('wstring' in IDL-speak) because of
-             <http://bugs.activestate.com/show_bug.cgi?id=26793>.
-             Be warned that 'text' is UTF-8 encoded and must be used as such.
-        -->
-        <parameter name="text"/>
-        <parameter name="length"/>
+        <parameter name="text"/>   <!-- unicode text -->
+        <parameter name="length"/> <!-- utf8 length -->
         <parameter name="linesAdded"/>
         <parameter name="line"/>
         <parameter name="foldLevelNow"/>
@@ -1029,9 +1024,6 @@
         <body>
         <![CDATA[
         try {
-            if (this._ignoreModifications) {
-                return;
-            }
             // if we have an override handler, then use it, if it returns false,
             // we'll go on normally.  This is used by the terminal view.
             if (typeof(this.onModifiedHandler) != 'undefined') {
@@ -1102,34 +1094,47 @@
                 && window == ko.windowManager.getMainWindow() // : don't handle updates in other windows
                 && this == ko.window.focusedView() // focusedView: don't handle updates in other views
                ) {
-                var runModifiedHandler = function(this_) {
-                    // Prevent this routine from invoking itself by
-                    // inserting a trivial onModifiedHandler that stops the chain.
-                    this._ignoreModifications = true;
-                    var onModifiedHandler = this_.onModifiedHandler;
-                    this_.onModifiedHandler = ko.views.nullOnModifiedHandler;
-                    try {
-                        ko.tabstops.updateLinkedBackrefs(modificationType, this_, position, text,
-                                                            length, linesAdded, line);
-                    } catch(ex) {
-                        log.exception(ex);
-                    } finally {
-                        this._ignoreModifications = false;
-                        this_.onModifiedHandler = onModifiedHandler;
-                    }
-                };
-                if (modificationType & SC_MOD_BEFOREDELETE) {
+                function runModifiedHandler(this_) {
+                    ko.views.wrapScintillaChange(this_, function() {
+                        ko.tabstops.updateLinkedBackrefs(modificationType,
+                                                         this_,
+                                                         position,
+                                                         text,
+                                                         length);
+                    });
+                }
+                switch(modificationType & (SC_MOD_BEFOREDELETE|SC_MOD_INSERTTEXT
+                                           |SC_MOD_DELETETEXT)) {
+                case SC_MOD_BEFOREDELETE:
                     // BEFORE events have to be run now.
                     // They can't modify the buffer.
                     runModifiedHandler(this);
-                } else {
-                    // Events that further modify the buffer have to
-                    // be run on a delayed basis.
-                    setTimeout(runModifiedHandler, 0, this);
+                    break;
+                case SC_MOD_INSERTTEXT:
+                    if (ko.tabstops.atEmptyLinkedTabstop(this.scimoz,
+                                                         position,
+                                                         length)) {
+                        setTimeout(function(this_) {
+			    ko.views.wrapScintillaChange(
+                                this_,
+			        function() {
+                                    ko.tabstops.forceUpdateAllZeroWidthLinks(
+                                        this_,
+                                        this_.scimoz,
+                                        position,
+                                        text,
+                                        length);
+                                });
+                        }, 0, this);
+                        break;
+                    }
+                    // else fall through to default.
+                default:
+                        setTimeout(runModifiedHandler, 0, this);
                 }
             }
             ko.trace.get().leave('onModified');
-        } catch(e) { dump(e); }
+        } catch(e) { this.log.exception(e); }
         ]]>
         </body>
         </method>
