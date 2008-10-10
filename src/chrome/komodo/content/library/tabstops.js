@@ -448,7 +448,6 @@ this.forceUpdateAllZeroWidthLinks = function(view,
  * @param {Scimoz} scimoz_: The usual Scimoz object.
  */
 this.clearLinkedTabstops = function(scimoz) {
-    scimoz.endUndoAction();
     scimoz.indicatorCurrent = TSC;
     scimoz.indicatorClearRange(0, scimoz.textLength);
     scimoz.indicatorCurrent = TSCZW;
