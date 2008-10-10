@@ -1243,7 +1243,12 @@ NS_IMETHODIMP SciMoz::GetWCharAt(PRInt32 pos, PRUnichar *_retval) {
 }
 
 NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-	nsCAutoString utf8Text = NS_ConvertUTF16toUTF8(text, length);
+	nsCAutoString utf8Text;
+	if (length == -1) {
+		utf8Text = NS_ConvertUTF16toUTF8(text);
+	} else {
+		utf8Text = NS_ConvertUTF16toUTF8(text, length);
+	}
 	*_retval = SendEditor(message, utf8Text.Length(), reinterpret_cast<long>(utf8Text.get()));
 	return NS_OK;
 }
