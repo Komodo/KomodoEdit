@@ -741,24 +741,9 @@ class KoPHPInfoInstance(KoAppInfoEx):
             cwd = os.path.dirname(php)
         else:
             cwd = None
-        # PHP sets stdin, stdout to binary on it's end.  If we do not do
-        # the same, some wierd things can happen, most notably with shell
-        # comments that end with \r\n.
         try:
-            p = process.ProcessOpen(argv, mode='b', env=env, cwd=cwd)
-            p.stdin.write(phpCode)
-            p.stdin.close()
-            output = p.stdout.read()
-            stderr = p.stderr.read()
-            # For some reason, PHP linter causes an exception on close
-            # with errno = 0, will investigate in PHP later.
-            try:
-                p.close()
-            except IOError, e:
-                if e.errno == 0:  
-                    pass
-                else:
-                    raise
+            p = process.ProcessOpen(argv, env=env, cwd=cwd)
+            output, stderr = p.communicate(phpCode)
         except OSError, e:
             if e.errno == 0 or e.errno == 32:
                 # this happens if you are playing
