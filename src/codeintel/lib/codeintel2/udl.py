@@ -453,8 +453,14 @@ class XMLParsingBufferMixin(object):
 
     def xml_parse(self):
         from koXMLTreeService import getService
+        path = self.path
+        if isUnsavedPath(self.path):
+            # The "<Unsaved>/..." special path can *crash* Python if trying to
+            # open it. Besides, the "<Unsaved>" business is an internal
+            # codeintel detail.
+            path = None
         self._xml_tree_cache = getService().getTreeForURI(
-                self.path, self.accessor.text)
+            path, self.accessor.text)
 
     def xml_default_dataset_info(self, node=None):
         if self._xml_default_dataset_info is None:

@@ -45,7 +45,7 @@ __all__ = [
     "Trigger", "Definition", "CILEDriver", "Evaluator",
     "EvalController", "LogEvalController",
 
-    "canonicalizePath", "parseAttributes",
+    "canonicalizePath", "parseAttributes", "isUnsavedPath",
 
     "TRG_FORM_CPLN", "TRG_FORM_CALLTIP", "TRG_FORM_DEFN",
 
@@ -610,7 +610,6 @@ def xmlattrstr(attrs):
     return s
 
 
-#TODO: unused, drop it
 def isUnsavedPath(path):
     """Return true if the given path is a special <Unsaved>\sub\path file."""
     tag = "<Unsaved>"
