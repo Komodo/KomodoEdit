@@ -524,7 +524,13 @@
             // directly within an observer that is called from an event, so we
             // have to do a timeout for it to work.  The timeout must also be > 0.
             if (view == this.currentView && this.otherView.currentView) {
-                window.setTimeout('ko.views.manager.topView.otherView.currentView.makeCurrent();',1);
+                window.setTimeout(function() {
+                    try {
+                        ko.views.manager.topView.otherView.currentView.makeCurrent();
+                    } catch(ex) {
+                        this.log.exception(ex);
+                    }
+                }, 1);
             } else if (view == this.otherView && this.currentView.currentView) {
                 // XXX this isn't working, and doing a timeout similar to the above
                 // always fails.  This at least gets partial focus back to the
