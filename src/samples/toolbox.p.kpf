@@ -13,10 +13,11 @@
 &lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"&gt;
 
 &lt;head&gt;
-    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+    &lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-
+    &lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
+    [[%tabstop:]]
 &lt;/body&gt;
 &lt;/html&gt;
 !@#_currentPos!@#_anchor</snippet>
@@ -25,9 +26,11 @@
         "http://www.w3.org/TR/html4/loose.dtd"&gt;
 &lt;html&gt;
 &lt;head&gt;
-    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+    &lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
+    &lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
+    [[%tabstop:]]
 &lt;/body&gt;
 &lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a894ae94-0cf4-1e4e-8b3a-78c8a7b7c3e3" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
@@ -35,7 +38,7 @@
 <snippet id="9a2a8b10-3a64-454a-9f41-5f107c1b6f33" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
 &lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="64881a9e-e88a-8640-87e8-c4d87cc6a539" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
-&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+&lt;[[%tabstop1:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop1]]&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="387f930a-9d62-9343-a36c-b6eb0cb381f5" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
 &lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="0c0f86b4-ae9d-e746-9947-aa847b782e8e" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
@@ -63,13 +66,13 @@
 &lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="0f2a91fd-f0a1-4642-8049-3f7abb2bcf2c" idref="fbf675d9-6210-6c4b-a40b-c5b207385333" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
 $items[] = array(
-  'path'=&gt;'[[%ask:path:]]',
-  'title' =&gt; t('!@#_currentPos!@#_anchor'),
+  'path'=&gt;'[[%tabstop:path]]',
+  'title' =&gt; t('[[%tabstop0:]]'),
   'access' =&gt; user_access('access content'),
-  'callback' =&gt; '[[%ask:callback:]]',
+  'callback' =&gt; '[[%tabstop:callback:]]',
   'type' =&gt; 'MENU_NORMAL_ITEM',
 );
-</snippet>
+!@#_currentPos!@#_anchor</snippet>
 <snippet id="1bfa8fec-4fb8-f94d-8e55-762378d5fde6" idref="fbf675d9-6210-6c4b-a40b-c5b207385333" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
 ; \$Id\$
 name = "[[%tabstop:Example Module]]"
@@ -82,7 +85,7 @@ dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 /**
  * Implementation of hook_perm
  */
-function [[%tabstop:example]]_perm() {
+function [[%tabstop1:example]]_perm() {
   return array(
     '[[%tabstop:example permission]]',
   );
@@ -92,15 +95,15 @@ function [[%tabstop:example]]_perm() {
 /**
  * Implementation of hook_menu
  */
-function [[%tabstop:example]]_menu($may_cache) {
+function [[%tabstop1]]_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
     $items[] = array(
-      'path' =&gt; 'admin/settings/[[%tabstop:example]]',
-      'title' =&gt; t('[[%tabstop:Example]]'),
+      'path' =&gt; 'admin/settings/[[%tabstop1]]',
+      'title' =&gt; t('[[%tabstop1]]'),
       'callback' =&gt; 'drupal_get_form',
-      'callback arguments' =&gt; array('[[%tabstop:example]]_admin_form'),
+      'callback arguments' =&gt; array('[[%tabstop1]]_admin_form'),
       'access' =&gt; user_access('administer site configuration'),
     );
   }
@@ -112,7 +115,7 @@ function [[%tabstop:example]]_menu($may_cache) {
 /**
  * Menu callback - Admin settings form.
  */
-function [[%tabstop:example]]_admin_form() {
+function [[%tabstop1]]_admin_form() {
   $form = array();
   return system_settings_form($form);
 }
@@ -121,7 +124,7 @@ function [[%tabstop:example]]_admin_form() {
 /**
  * Implementation of hook_form_alter
  */
-function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
+function [[%tabstop1]]_form_alter($form_id, &amp;$form) {
   switch ($form_id) {
     // Alter node edit form
     case $form['type']['#value'] .'_node_form':
@@ -133,7 +136,7 @@ function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
 /**
  * Implementation of hook_nodeapi
  */
-function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
+function [[%tabstop1]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op) {
     case 'delete':
     break;
@@ -161,11 +164,11 @@ function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
 /**
  * Implementation of hook_install
  */
-function [[%tabstop:example]]_install() {
+function [[%tabstop1:example]]_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysqli':
     case 'mysql':
-      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
         id int unsigned NOT NULL auto_increment,
         field varchar(128) NOT NULL default ''
         PRIMARY KEY (id),
@@ -178,22 +181,22 @@ function [[%tabstop:example]]_install() {
 /**
  * Implementation of hook_uninstall
  */
-function [[%tabstop:example]]_uninstall() {
-  db_query("DROP TABLE {[[%tabstop:example]]}");
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+function [[%tabstop1]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop1]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
   while ($variable = db_fetch_object($variables)) {
     variable_del($variable-&gt;name);
   }
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="35c059b6-afbd-0140-9f7c-0a61214526e8" idref="334a97a1-e483-404c-94ff-2a4b4a4d8039" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
 $items[] = array(
-  'path'=&gt;'[[%ask:path:]]',
-  'title' =&gt; t('!@#_currentPos!@#_anchor'),
+  'path'=&gt;'[[%tabstop:path]]',
+  'title' =&gt; t('[[%tabstop0:]]'),
   'access' =&gt; user_access('access content'),
-  'callback' =&gt; '[[%ask:callback:]]',
+  'callback' =&gt; '[[%tabstop:callback:]]',
   'type' =&gt; 'MENU_NORMAL_ITEM',
 );
-</snippet>
+!@#_currentPos!@#_anchor</snippet>
 <snippet id="bcfdb1c8-df38-f444-91d6-f416c470f468" idref="334a97a1-e483-404c-94ff-2a4b4a4d8039" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
 ; \$Id\$
 name = "[[%tabstop:Example Module]]"
@@ -206,7 +209,7 @@ dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 /**
  * Implementation of hook_perm
  */
-function [[%tabstop:example]]_perm() {
+function [[%tabstop1:example]]_perm() {
   return array(
     '[[%tabstop:example permission]]',
   );
@@ -216,15 +219,15 @@ function [[%tabstop:example]]_perm() {
 /**
  * Implementation of hook_menu
  */
-function [[%tabstop:example]]_menu($may_cache) {
+function [[%tabstop1]]_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
     $items[] = array(
-      'path' =&gt; 'admin/settings/[[%tabstop:example]]',
+      'path' =&gt; 'admin/settings/[[%tabstop1]]',
       'title' =&gt; t('[[%tabstop:Example]]'),
       'callback' =&gt; 'drupal_get_form',
-      'callback arguments' =&gt; array('[[%tabstop:example]]_admin_form'),
+      'callback arguments' =&gt; array('[[%tabstop1]]_admin_form'),
       'access' =&gt; user_access('administer site configuration'),
     );
   }
@@ -236,7 +239,7 @@ function [[%tabstop:example]]_menu($may_cache) {
 /**
  * Menu callback - Admin settings form.
  */
-function [[%tabstop:example]]_admin_form() {
+function [[%tabstop1]]_admin_form() {
   $form = array();
   return system_settings_form($form);
 }
@@ -245,7 +248,7 @@ function [[%tabstop:example]]_admin_form() {
 /**
  * Implementation of hook_form_alter
  */
-function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
+function [[%tabstop1]]_form_alter($form_id, &amp;$form) {
   switch ($form_id) {
     // Alter node edit form
     case $form['type']['#value'] .'_node_form':
@@ -257,7 +260,7 @@ function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
 /**
  * Implementation of hook_nodeapi
  */
-function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
+function [[%tabstop1]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op) {
     case 'delete':
     break;
@@ -285,11 +288,11 @@ function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
 /**
  * Implementation of hook_install
  */
-function [[%tabstop:example]]_install() {
+function [[%tabstop1:example]]_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysqli':
     case 'mysql':
-      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
         id int unsigned NOT NULL auto_increment,
         field varchar(128) NOT NULL default ''
         PRIMARY KEY (id),
@@ -302,9 +305,9 @@ function [[%tabstop:example]]_install() {
 /**
  * Implementation of hook_uninstall
  */
-function [[%tabstop:example]]_uninstall() {
-  db_query("DROP TABLE {[[%tabstop:example]]}");
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+function [[%tabstop1]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop1]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
   while ($variable = db_fetch_object($variables)) {
     variable_del($variable-&gt;name);
   }
@@ -316,8 +319,8 @@ if __name__ == '__main__':
 from optparse import OptionParser
 
 parser.add_option("-[[%tabstop:f]]",
-                  "--[[%tabstop:file]]",
-                  dest="[[%tabstop:file]]",
+                  "--[[%tabstop1:file]]",
+                  dest="[[%tabstop1]]",
                   help="[[%tabstop:desc]].",
                   default="[[%tabstop:DEFAULT]]"
                   )!@#_currentPos!@#_anchor</snippet>
@@ -382,27 +385,27 @@ function _dump($data) {
 $[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="16fa06cf-5f71-bc43-b3d3-1da3809d5818" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /*
-    * class [[%tabstop:class]]
+    * class [[%tabstop1:class]]
 */
 
-class [[%tabstop:class]] «extends» «» {
+class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
     
     /*
         * __construct()
-        * @param $[[%tabstop:arg]]
+        * @param $[[%tabstop2:arg]]
     */
     
-    function __construct($[[%tabstop:arg]]) {
+    function __construct($[[%tabstop2]]) {
         [[%tabstop:parent]]
     }
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="dda0cad7-4446-1649-a45a-52ff146f15a8" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /*
-    * function [[%tabstop:name]]
-    * @param $[[%tabstop:arg]]
+    * function [[%tabstop1:name]]
+    * @param $[[%tabstop2:arg]]
 */
 
-function [[%tabstop:name]]($[[%tabstop:arg]]) {
+function [[%tabstop1]]($[[%tabstop2]]) {
     [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="5c4c2d46-cd2e-a34a-b7a6-f1ade0df8c38" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
@@ -411,9 +414,9 @@ function [[%tabstop:name]]($[[%tabstop:arg]]) {
 &lt;?php
 /*
 
-[[%tabstop:scriptname]]:
+[[%tabstop1:scriptname]]:
 
-Usage: php [[%tabstop:scriptname]] [[%tabstop:arument]]
+Usage: php [[%tabstop1]] [[%tabstop2:argument]]
 
 */
 
@@ -421,7 +424,7 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 
   if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
     echo "[[%tabstop:Description]]\n\n";
-    echo "Usage:      [[%tabstop:scriptname]] [[%tabstop:arument]]\n";
+    echo "Usage:      [[%tabstop1]] [[%tabstop2]]\n";
     echo "            --help, -help, -h, -?      - to get this help\n";
     die;
   }
@@ -435,28 +438,28 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 */!@#_currentPos!@#_anchor</snippet>
 <snippet id="210a2395-9acc-924d-89a9-965493e499c3" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /**
- * [[%tabstop:name]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:name]]
+ * @param [[%tabstop2:arg1]]
  */
 
-function [[%tabstop:name]]([[%tabstop:arg1]]) {
+function [[%tabstop1]]([[%tabstop2]]) {
    [[%tabstop:]] 
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="1aa4e3ca-b0ce-4c42-8066-7b01fa450557" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
 /**
- * [[%tabstop:method]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:method]]
+ * @param [[%tabstop2:arg1]]
  */
  
-[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+[[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {
     [[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="42334831-8c37-8840-95b6-829126750410" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /**
- * [[%tabstop:className]]
+ * [[%tabstop1:className]]
  */
 
-var [[%tabstop:className]] = function() {
+var [[%tabstop1]] = function() {
     [[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="da6dfc19-f706-3d47-8334-ade88b924651" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
@@ -467,16 +470,16 @@ try {
 }</snippet>
 <snippet id="12b0edb6-c212-6c47-bdfc-a4e5551ae76c" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
 /**
- * namespace [[%tabstop:name]]
+ * namespace [[%tabstop1:name]]
  */
 
-if(typeof([[%tabstop:name]]) == 'undefined') {
-    var [[%tabstop:name]] = {};
+if(typeof([[%tabstop1]]) == 'undefined') {
+    var [[%tabstop1]] = {};
 }
 
 (function() {
     [[%tabstop:]]
-}).apply([[%tabstop:name]]);!@#_currentPos!@#_anchor</snippet>
+}).apply([[%tabstop1]]);!@#_currentPos!@#_anchor</snippet>
 <folder id="cd59b5c5-1958-ba45-a896-75218787ea5b" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" name="jQuery">
 </folder>
 <snippet id="0d1b1c8c-f593-2841-998b-bf38dbcbb867" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
@@ -581,7 +584,7 @@ $(document).ready(function() {
 <snippet id="bd1006a5-dd61-cb4e-b8a7-7cc83857adfc" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htli" set_selection="false">
 &lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a5defd47-c33e-9144-8baa-93c74ad77209" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htag" set_selection="false">
-&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+&lt;[[%tabstop1:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop1]]&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="b2d3b00a-4d3c-4b4b-a704-0b380a9fdec2" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="httxt" set_selection="false">
 &lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="dea01c89-a7f0-6c45-8ff4-5271bac2030a" idref="d4a1226d-2952-e948-8ecb-e8b33bab80de" indent_relative="true" keyboard_shortcut="" name="htul" set_selection="false">
@@ -594,28 +597,28 @@ $(document).ready(function() {
 &lt;/style&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="d51dfe64-000f-264c-bf96-4d89d0b95a6b" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /**
- * [[%tabstop:name]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:name]]
+ * @param [[%tabstop2:arg1]]
  */
 
-function [[%tabstop:name]]([[%tabstop:arg1]]) {
+function [[%tabstop1]]([[%tabstop2]]) {
    [[%tabstop:]] 
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="1ab4594b-6ae7-b74a-90c8-42a5df5c28fb" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
 /**
- * [[%tabstop:method]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:method]]
+ * @param [[%tabstop2:arg1]]
  */
  
-[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+[[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {
     [[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="9f69bf30-a8fa-df48-8b41-91170db1ccce" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /**
- * [[%tabstop:className]]
+ * [[%tabstop1:className]]
  */
 
-var [[%tabstop:className]] = function() {
+var [[%tabstop1]] = function() {
     [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="57ebfb1f-d7b2-8742-ad12-c6aa69dc1bf5" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
@@ -626,16 +629,16 @@ try {
 }</snippet>
 <snippet id="2fbbf5be-0992-dd4b-8e46-d168bacaed77" idref="92a484b9-70c7-f94e-9817-07d5b2163b51" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
 /**
- * namespace [[%tabstop:name]]
+ * namespace [[%tabstop1:name]]
  */
 
-if(typeof([[%tabstop:name]]) == 'undefined') {
-    var [[%tabstop:name]] = {};
+if(typeof([[%tabstop1]]) == 'undefined') {
+    var [[%tabstop1]] = {};
 }
 
 (function() {
     [[%tabstop:]]
-}).apply([[%tabstop:name]]);!@#_currentPos!@#_anchor</snippet>
+}).apply([[%tabstop1]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="7d4faf7d-2ab2-3744-8470-d0fdad332b46" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
 &lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="776b75fe-dc47-4a44-b43e-6f356509eb21" idref="23183852-5dc9-6343-8233-ed866914e0a2" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
@@ -728,7 +731,7 @@ $(document).ready(function() {
 <snippet id="88f3a3bb-7fcf-e445-a39d-fb4e4d5809c5" idref="8c5f47a6-7e31-3e43-a4ef-c4434a691279" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
 &lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="d1240e42-29f1-e84f-97fe-e1035f077e38" idref="8c5f47a6-7e31-3e43-a4ef-c4434a691279" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
-&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+&lt;[[%tabstop1:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop1]]&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="90ebe0b9-848b-6143-8ea7-cb03058de839" idref="8c5f47a6-7e31-3e43-a4ef-c4434a691279" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
 &lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="42e7f1b5-37e1-8143-8c03-33871fd6848b" idref="8c5f47a6-7e31-3e43-a4ef-c4434a691279" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
@@ -756,13 +759,13 @@ $(document).ready(function() {
 &lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="30cc47ad-b1ba-f844-be40-bf784c843f04" idref="cc89a9b3-59dc-9d47-8e39-e45cb28408d3" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
 $items[] = array(
-  'path'=&gt;'[[%ask:path:]]',
-  'title' =&gt; t('!@#_currentPos!@#_anchor'),
+  'path'=&gt;'[[%tabstop:path]]',
+  'title' =&gt; t('[[%tabstop0:]]'),
   'access' =&gt; user_access('access content'),
-  'callback' =&gt; '[[%ask:callback:]]',
+  'callback' =&gt; '[[%tabstop:callback:]]',
   'type' =&gt; 'MENU_NORMAL_ITEM',
 );
-</snippet>
+!@#_currentPos!@#_anchor</snippet>
 <snippet id="70f5ae19-51bd-2a44-9415-795e02f59f14" idref="cc89a9b3-59dc-9d47-8e39-e45cb28408d3" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
 ; \$Id\$
 name = "[[%tabstop:Example Module]]"
@@ -775,7 +778,7 @@ dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 /**
  * Implementation of hook_perm
  */
-function [[%tabstop:example]]_perm() {
+function [[%tabstop1:example]]_perm() {
   return array(
     '[[%tabstop:example permission]]',
   );
@@ -785,15 +788,15 @@ function [[%tabstop:example]]_perm() {
 /**
  * Implementation of hook_menu
  */
-function [[%tabstop:example]]_menu($may_cache) {
+function [[%tabstop1]]_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
     $items[] = array(
-      'path' =&gt; 'admin/settings/[[%tabstop:example]]',
+      'path' =&gt; 'admin/settings/[[%tabstop1]]',
       'title' =&gt; t('[[%tabstop:Example]]'),
       'callback' =&gt; 'drupal_get_form',
-      'callback arguments' =&gt; array('[[%tabstop:example]]_admin_form'),
+      'callback arguments' =&gt; array('[[%tabstop1]]_admin_form'),
       'access' =&gt; user_access('administer site configuration'),
     );
   }
@@ -805,7 +808,7 @@ function [[%tabstop:example]]_menu($may_cache) {
 /**
  * Menu callback - Admin settings form.
  */
-function [[%tabstop:example]]_admin_form() {
+function [[%tabstop1]]_admin_form() {
   $form = array();
   return system_settings_form($form);
 }
@@ -814,7 +817,7 @@ function [[%tabstop:example]]_admin_form() {
 /**
  * Implementation of hook_form_alter
  */
-function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
+function [[%tabstop1]]_form_alter($form_id, &amp;$form) {
   switch ($form_id) {
     // Alter node edit form
     case $form['type']['#value'] .'_node_form':
@@ -826,7 +829,7 @@ function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
 /**
  * Implementation of hook_nodeapi
  */
-function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
+function [[%tabstop1]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op) {
     case 'delete':
     break;
@@ -854,11 +857,11 @@ function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
 /**
  * Implementation of hook_install
  */
-function [[%tabstop:example]]_install() {
+function [[%tabstop1:example]]_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysqli':
     case 'mysql':
-      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
         id int unsigned NOT NULL auto_increment,
         field varchar(128) NOT NULL default ''
         PRIMARY KEY (id),
@@ -871,9 +874,9 @@ function [[%tabstop:example]]_install() {
 /**
  * Implementation of hook_uninstall
  */
-function [[%tabstop:example]]_uninstall() {
-  db_query("DROP TABLE {[[%tabstop:example]]}");
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+function [[%tabstop1]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop1]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
   while ($variable = db_fetch_object($variables)) {
     variable_del($variable-&gt;name);
   }
@@ -919,8 +922,8 @@ if __name__ == '__main__':
 from optparse import OptionParser
 
 parser.add_option("-[[%tabstop:f]]",
-                  "--[[%tabstop:file]]",
-                  dest="[[%tabstop:file]]",
+                  "--[[%tabstop1:file]]",
+                  dest="[[%tabstop1]]",
                   help="[[%tabstop:desc]].",
                   default="[[%tabstop:DEFAULT]]"
                   )!@#_currentPos!@#_anchor</snippet>
@@ -955,8 +958,8 @@ if __name__ == '__main__':
     !@#_anchorpass!@#_currentPos</snippet>
 <snippet id="c454ed0c-9db0-8648-975c-ad566cd61c52" idref="f4f31cf6-7b3e-e245-91ab-8a5d0fad8b70" indent_relative="true" keyboard_shortcut="" name="pyaddops" set_selection="false">
 parser.add_option("-[[%tabstop:f]]",
-                  "--[[%tabstop:file]]",
-                  dest="[[%tabstop:file]]",
+                  "--[[%tabstop1:file]]",
+                  dest="[[%tabstop1]]",
                   help="[[%tabstop:desc]].",
                   default="[[%tabstop:DEFAULT]]"
                   )!@#_currentPos!@#_anchor</snippet>
@@ -1015,11 +1018,11 @@ for root, dirs, files in os.walk([[%tabstop:dirname]]):
 </snippet>
 <snippet id="3bf96229-ddf4-3340-8941-d740a5724697" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jsfunc" set_selection="false">
 /**
- * [[%tabstop:name]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:name]]
+ * @param [[%tabstop2:arg1]]
  */
 
-function [[%tabstop:name]]([[%tabstop:arg1]]) {
+function [[%tabstop1]]([[%tabstop2]]) {
    [[%tabstop:]] 
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="b10f7ac1-e2e7-f940-af16-f5cecd31f66d" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jslink" set_selection="false">
@@ -1027,19 +1030,19 @@ function [[%tabstop:name]]([[%tabstop:arg1]]) {
 !@#_currentPos!@#_anchor</snippet>
 <snippet id="859fdf85-7385-5848-b511-90d426723ebc" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jsmeth" set_selection="false">
 /**
- * [[%tabstop:method]]
- * @param [[%tabstop:arg1]]
+ * [[%tabstop1:method]]
+ * @param [[%tabstop2:arg1]]
  */
  
-[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+[[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {
     [[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="0785b903-27f2-9741-bc8a-f3d6a6fd2627" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jsclass" set_selection="false">
 /**
- * [[%tabstop:className]]
+ * [[%tabstop1:className]]
  */
 
-var [[%tabstop:className]] = function() {
+var [[%tabstop1]] = function() {
     [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="47860212-4ea0-0642-b216-2e016e4d0e09" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jstry" set_selection="true">
@@ -1050,16 +1053,16 @@ try {
 }</snippet>
 <snippet id="d20d1f18-19b2-0548-8406-1b8bda9416c5" idref="872e4941-14eb-1a4a-a221-b9418d2ecfcc" indent_relative="true" keyboard_shortcut="" name="jsns" set_selection="false">
 /**
- * namespace [[%tabstop:name]]
+ * namespace [[%tabstop1:name]]
  */
 
-if(typeof([[%tabstop:name]]) == 'undefined') {
-    var [[%tabstop:name]] = {};
+if(typeof([[%tabstop1]]) == 'undefined') {
+    var [[%tabstop1]] = {};
 }
 
 (function() {
     [[%tabstop:]]
-}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+}).apply([[%tabstop1]])!@#_currentPos!@#_anchor</snippet>
 <snippet id="b8756540-3877-674e-bd54-f55bfadc04d8" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="comment" set_selection="true">
 /**
   *  !@#_currentPos!@#_anchor 
@@ -1083,27 +1086,24 @@ function _dump($data) {
 $[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="475a8d1f-41e8-1c4a-89b6-a0594dcb2315" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /*
-    * class [[%tabstop:class]]
+    * class [[%tabstop1:class]]
 */
-
-class [[%tabstop:class]] «extends» «» {
-    
+class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
     /*
         * __construct()
-        * @param $[[%tabstop:arg]]
+        * @param $[[%tabstop2:arg]]
     */
-    
-    function __construct($[[%tabstop:arg]]) {
+    function __construct($[[%tabstop2]]) {
         [[%tabstop:parent]]
     }
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="a85b18d3-c07f-4b4c-9496-f5a1ae0d9780" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /*
-    * function [[%tabstop:name]]
-    * @param $[[%tabstop:arg]]
+    * function [[%tabstop1:name]]
+    * @param $[[%tabstop2:arg]]
 */
 
-function [[%tabstop:name]]($[[%tabstop:arg]]) {
+function [[%tabstop1]]($[[%tabstop2]]) {
     [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="b127ea47-e2ea-494e-baf3-1f9cfd00e624" idref="71b6fc51-e7b5-4b40-9955-6c08cf33a41b" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
@@ -1112,9 +1112,9 @@ function [[%tabstop:name]]($[[%tabstop:arg]]) {
 &lt;?php
 /*
 
-[[%tabstop:scriptname]]:
+[[%tabstop1:scriptname]]:
 
-Usage: php [[%tabstop:scriptname]] [[%tabstop:arument]]
+Usage: php [[%tabstop1]] [[%tabstop2:argument]]
 
 */
 
@@ -1122,7 +1122,7 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 
   if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
     echo "[[%tabstop:Description]]\n\n";
-    echo "Usage:      [[%tabstop:scriptname]] [[%tabstop:arument]]\n";
+    echo "Usage:      [[%tabstop1]] [[%tabstop2]]\n";
     echo "            --help, -help, -h, -?      - to get this help\n";
     die;
   }
@@ -1151,27 +1151,27 @@ function _dump($data) {
 $[[%tabstop:name]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="546be490-f136-9d4a-ba05-344688e2f391" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" indent_relative="true" keyboard_shortcut="" name="phpclass" set_selection="false">
 /*
-    * class [[%tabstop:class]]
+    * class [[%tabstop1:class]]
 */
 
-class [[%tabstop:class]] «extends» «» {
+class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
     
     /*
         * __construct()
-        * @param $[[%tabstop:arg]]
+        * @param $[[%tabstop2:arg]]
     */
     
-    function __construct($[[%tabstop:arg]]) {
+    function __construct($[[%tabstop2]]) {
         [[%tabstop:parent]]
     }
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="af049f37-664c-9244-8f42-3c9ba84defb2" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" indent_relative="true" keyboard_shortcut="" name="phpfunc" set_selection="false">
 /*
-    * function [[%tabstop:name]]
-    * @param $[[%tabstop:arg]]
+    * function [[%tabstop1:name]]
+    * @param $[[%tabstop2:arg]]
 */
 
-function [[%tabstop:name]]($[[%tabstop:arg]]) {
+function [[%tabstop1]]($[[%tabstop2]]) {
     [[%tabstop:]]
 }
 !@#_currentPos!@#_anchor</snippet>
@@ -1180,9 +1180,9 @@ function [[%tabstop:name]]($[[%tabstop:arg]]) {
 <snippet id="b65eb367-a417-b14d-87a0-c4790a3a9117" idref="c8f1d283-cd17-a945-8e6d-3ff263a7445a" indent_relative="true" keyboard_shortcut="" name="phpmain" set_selection="false">
 /*
 
-[[%tabstop:scriptname]]:
+[[%tabstop1:scriptname]]:
 
-Usage: php [[%tabstop:scriptname]] [[%tabstop:arument]]
+Usage: php [[%tabstop1]] [[%tabstop2:argument]]
 
 */
 
@@ -1190,7 +1190,7 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 
   if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
     echo "[[%tabstop:Description]]\n\n";
-    echo "Usage:      [[%tabstop:scriptname]] [[%tabstop:arument]]\n";
+    echo "Usage:      [[%tabstop1]] [[%tabstop2]]\n";
     echo "            --help, -help, -h, -?      - to get this help\n";
     die;
   }
@@ -1241,13 +1241,13 @@ foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="97f1d277-f151-b84e-939c-f9b5b6a7b96a" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
 if ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+    [[%tabstop:]]
 }
 elsif ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+    [[%tabstop:]]
 }
 else {
-    [[%tabstop]]
+    [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="91278317-24c3-9d46-8dca-69686124ff22" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
 while ([[%tabstop:EXPR]]) {
