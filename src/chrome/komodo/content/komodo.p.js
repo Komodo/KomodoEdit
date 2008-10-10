@@ -297,13 +297,14 @@ function onloadDelay() {
                 var urllist;
                 if ('uris' in arg) {
                     urllist = arg.uris; // Called from ko.launch.newWindow(uri)
+                } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
+                    var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
+                    urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
+                } else if (typeof(arg) == 'string') {
+                    urllist = arg.split('|'); //see asCommandLineHandler.js
                 } else {
-                    if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
-                        var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
-                        urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
-                    } else {
-                        urllist = arg.split('|'); //see asCommandLineHandler.js
-                    }
+                    // arg is most likely an empty object
+                    urllist = [];
                 }
                 for (var i in urllist) {
                     ko.open.URI(urllist[i]);
