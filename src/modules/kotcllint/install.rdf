@@ -7,7 +7,7 @@
         <em:type>2</em:type> <!-- type=extension --> 
         <em:id>kotcllint@ActiveState.com</em:id>
         <em:name>TCL Linter</em:name>
-        <em:version>0.1</em:version>
+        <em:version>1.0</em:version>
         <em:description>Provide syntax checking support for the TCL language.</em:description>
         <em:creator>Todd Whiteman</em:creator>
         <!-- Leave empty to use the default Komodo update settings -->
@@ -18,7 +18,7 @@
             <Description>
                 <!-- Komodo Edit's uuid -->
                 <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
-                <em:minVersion>4.3.0-alpha1</em:minVersion>
+                <em:minVersion>4.3.1</em:minVersion>
                 <em:maxVersion>5.*</em:maxVersion>
             </Description>
         </em:targetApplication>
