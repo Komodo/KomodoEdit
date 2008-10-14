@@ -44,7 +44,7 @@ log = logging.getLogger("lsstrings")
 def lsstrings(path):
     log.debug("lsstrings `%s'", path)
     if not path.endswith(".js"):
-        raise Error("`%s' doesn't look like a JavaScipt file", path)
+        raise Error("`%s' doesn't look like a JavaScipt file" % path)
     javascript = open(path, 'r').read()
     
     # Look for loaded properties URLs.
