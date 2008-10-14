@@ -57,6 +57,10 @@ var gNameTracksCommand = false;
 var gCache = {};    // Cache UI values.
 var gPrefSvc = null;
 
+var gBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/run/commandproperties.properties");
+
 
 //---- interface routines for commandproperties.xul
 
@@ -110,13 +114,13 @@ function OnLoad()
         gDlg.nameTextbox.setAttribute("value", name);
         gDlg.nameLabel.setAttribute("value", name);
         if (gMode == "properties") {
-            document.title = "'"+name+"' Properties";
+            document.title = gBundle.formatStringFromName("properties.title", [name], 1);
             if (name == gPart.value) {
                 gNameTracksCommand = true;
             }
         } else {
             gNameTracksCommand = true;
-            document.title = "Add Command";
+            document.title = gBundle.GetStringFromName("addcommand.title");
         }
         UpdateField("name", true);
     } else {
@@ -128,8 +132,8 @@ function OnLoad()
     gDlg.keybinding.updateCurrentKey();
 
     gDlg.okButton.setAttribute("accesskey", "O");
-    gDlg.applyButton.setAttribute("accesskey", "A");
-    gDlg.applyButton.setAttribute("label", "Apply");
+    gDlg.applyButton.setAttribute("accesskey", gBundle.GetStringFromName("apply.accesskey"));
+    gDlg.applyButton.setAttribute("label", gBundle.GetStringFromName("apply.label"));
     gDlg.applyButton.setAttribute("disabled", "true");
     gDlg.cancelButton.setAttribute("accesskey", "C");
     if (! gPart.value) { // then we are "adding" rather than "editting"
@@ -265,7 +269,7 @@ function UpdateField(field, initializing /* =false */)
             changed = true;
             gCache[field] = name;
             if (gMode == "properties") {
-                document.title = "'"+name+"' Properties";
+                document.title = gBundle.formatStringFromName("properties.title", [name], 1);
             }
             if (!initializing && name != gDlg.commandTextbox.value) {
                 gNameTracksCommand = false;
@@ -423,13 +427,12 @@ function Apply()
 {
     // Validate.
     if (! gDlg.commandTextbox.value) {
-        alert("You must specify a command string.");
+        alert(gBundle.GetStringFromName("specifyACommandString.alert"));
         gDlg.commandTextbox.focus();
         return false;
     }
     if (gDlg.parseOutputCheckbox.checked && !gDlg.parseRegexTextbox.value) {
-        alert("You have chosen to parse command output. You must "+
-              "specify a regular expression with which to parse.");
+        alert(gBundle.GetStringFromName("chosenToParseCommand.alert"));
         gDlg.parseRegexTextbox.focus();
         return false;
     }
@@ -651,8 +654,9 @@ function Env_New()
     }
     var addIt = "Yes";
     if (gEnvView.Have(obj.name)) {
-        addIt = ko.dialogs.yesNo("There is already a value for '" +
-                             obj.name + "'. Overwrite it?", "No");
+        addIt = ko.dialogs.yesNo(
+            gBundle.formatStringFromName("thereIsAlreadyAValueFor.message", [obj.name], 1),
+            "No");
     }
     if (addIt == "Yes") {
         gEnvView.Set(obj.name, obj.value);
@@ -741,7 +745,8 @@ function update_icon(URI)
         document.getElementById('keybindingtab_icon').setAttribute('src', URI);
         document.getElementById('commandtab_icon').setAttribute('src', URI);
         if (URI.indexOf('_missing.png') != -1) {
-            document.getElementById('commandtab_icon').setAttribute('tooltiptext', "The custom icon specified for this command is missing. Please choose another.");
+            document.getElementById('commandtab_icon')
+                .setAttribute('tooltiptext', gBundle.GetStringFromName("customIconMissing.tooltiptext"));
         } else {
             document.getElementById('commandtab_icon').removeAttribute('tooltiptext');
         }

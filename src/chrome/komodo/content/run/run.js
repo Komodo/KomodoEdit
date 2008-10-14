@@ -58,6 +58,10 @@ var dialog;
 
 var _gPrefSvc = null;
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/run/run.properties");
+
 
 //---- interface routines for run.xul
 
@@ -206,13 +210,12 @@ function RunCommandAndExit()
 {
     // Validate.
     if (! dialog.commandTextbox.value) {
-        alert("You must specify a command string.");
+        alert(_bundle.GetStringFromName("specifyACommandString.alert"));
         dialog.commandTextbox.focus();
         return;
     }
     if (dialog.parseOutputCheckbox.checked && !dialog.parseRegexTextbox.value) {
-        alert("You have chosen to parse command output. You must "+
-              "specify a regular expression with which to parse.");
+        alert(_bundle.GetStringFromName("specifyARegularExpression.alert"));
         dialog.parseRegexTextbox.focus();
         return;
     }
@@ -230,7 +233,7 @@ function RunCommandAndExit()
     var showParsedOutputList = dialog.showParsedOutputListCheckbox.checked;
 
     if (cmd == "") {
-        alert("You must specify a command.");
+        alert(_bundle.GetStringFromName("specifyACommand.alert"));
         return;
     }
 
@@ -305,11 +308,13 @@ function ToggleMoreOptions()
 
     if (hidden == "true") {
         moreOptionsBox.setAttribute("hidden", "false");
-        moreOptionsButton.setAttribute("label", "Less");
+        moreOptionsButton.setAttribute("label",
+            _bundle.GetStringFromName("less.label"));
         moreOptionsButton.setAttribute("open", "false");
     } else if (hidden == "false") {
         moreOptionsBox.setAttribute("hidden", "true");
-        moreOptionsButton.setAttribute("label", "More");
+        moreOptionsButton.setAttribute("label",
+            _bundle.GetStringFromName("more.label"));
         moreOptionsButton.setAttribute("open", "true");
     } else {
         throw("Unexpected 'hidden' state for 'more-options-box': "
@@ -522,8 +527,9 @@ function RunEnv_New()
     }
     var addIt = "Yes";
     if (gRunEnvView.Have(obj.name)) {
-        addIt = ko.dialogs.yesNo("There is already a value for '" +
-                             obj.name + "'. Overwrite it?", "No");
+        addIt = ko.dialogs.yesNo(
+            _bundle.formatStringFromName("thereIsAlreadyAValueFor.message", [obj.name], 1),
+            "No");
     }
     if (addIt == "Yes") {
         gRunEnvView.Set(obj.name, obj.value);

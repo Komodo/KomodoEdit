@@ -61,6 +61,11 @@ if (typeof(ko.run)=='undefined') {
  */
 ko.run.output = {};
 (function() {
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/run/runOutputWindow.properties");
+
 var _log = ko.logging.getLogger("ko.run.output");    
 var _gTerminalHandler = null;
 var _gTerminalView = null;
@@ -165,9 +170,7 @@ this.startSession = function RunOutput_StartSession(command, parseOutput, parseR
     if (typeof clearContent == 'undefined') clearContent = true;
 
     if (_gTerminalHandler.active) {
-        throw("A previous command is currently running in the "+
-              "Command Output tab. That command must finish before "+
-              "starting another.");
+        throw(_bundle.GetStringFromName("aPreviousCommandIsRunning.message"));
     }
     _ClearUI();
 
@@ -182,7 +185,7 @@ this.startSession = function RunOutput_StartSession(command, parseOutput, parseR
         } catch (ex) {
             _gTerminalView.endSession();
             var errmsg = lastErrorSvc.getLastErrorMessage();
-            errmsg = "Error in regex '"+parseRegex+"': "+errmsg;
+            errmsg =_bundle.formatStringFromName("errorInRegex.message", [parseRegex, errmsg], 2);
             throw(errmsg);
         }
     }
@@ -197,7 +200,8 @@ this.startSession = function RunOutput_StartSession(command, parseOutput, parseR
     //    window.sizeToContent() because that does bad (though non-fatal)
     //    things to komodo.xul.
     // XXX Maybe want to add cwd to this string?
-    descWidget.setAttribute("value", "Running '" + command + "'...");
+        descWidget.setAttribute("value",
+            _bundle.formatStringFromName("running.message", [command], 1));
     // Store the command name for later use.
     descWidget.setAttribute("_command", command);
 
@@ -250,9 +254,9 @@ this.endSession = function RunOutput_EndSession(retval)
     var osSvc = Components.classes["@activestate.com/koOs;1"]
                        .getService(Components.interfaces.koIOs);
     if (retval < 0 && osSvc.name == "posix") {
-        msg = "`" + command + "` was terminated by signal " + (-retval) + ".";
+        msg = _bundle.formatStringFromName("commandWasTerminatedBySignal.message", [command, (-retval)], 2);
     } else {
-        msg = "`" + command + "` returned " + retval + ".";
+        msg = _bundle.formatStringFromName("commandReturned.message", [command, (retval)], 2);
     }
     if (retval != 0) {
         descWidget.style.setProperty("color", "#bb0000", ""); // dark red to not appear "neon" against grey.

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % runDTD SYSTEM "chrome://komodo/locale/run.dtd">
+  <!ENTITY % runDTD SYSTEM "chrome://komodo/locale/run/run.dtd">
   %runDTD;
 ]>
 
