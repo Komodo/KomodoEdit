@@ -87,8 +87,10 @@ class KoEnvironmentView(TreeView):
         self._tree.endUpdateBatch()
 
     def AddVariable(self, name, value):
-        name = string.upper(name)
-        datum = {"name": name, "value": value}
+        datum = {
+            "name": _normalizeEnvVarName(name),
+            "value": value
+        }
         self._data.append(datum)
         self._sortedBy = None
         self._tree.beginUpdateBatch()
@@ -99,9 +101,9 @@ class KoEnvironmentView(TreeView):
         self._tree.view.selection.select(currentIndex)
 
     def haveVariable(self, name):
-        name = string.upper(name)
+        normname = _normalizeEnvVarName(name)
         for i in range(len(self._data)):
-            if self._data[i]["name"]==name:
+            if self._data[i]["name"] == normname:
                 return i
         return -1
 
@@ -173,3 +175,15 @@ class KoEnvironmentView(TreeView):
             ret += self._data[i]["name"] +"="+ self._data[i]["value"]+"\n"
         return ret
 
+
+
+#---- internal support stuff
+
+def _normalizeEnvVarName(name):
+    """Environment variable names are case-insensitive on Windows
+    and case-sensitive on other platforms.
+    """
+    if sys.platform == "win32":
+        return name.upper()
+    else:
+        return name
