@@ -39,11 +39,6 @@ tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
 
 }
 
-tabbox.sidepanel .toolbar-box,
-tabbox.sidepanel .partviewer-toolbar {
-  margin-bottom: 6px;
-}
-
 tabbox.sidepanel partviewer,
 tabbox.sidepanel tree
 {
