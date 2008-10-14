@@ -160,19 +160,19 @@ This section is intended to give Linux distro-specific package manager steps
 for installing all build prerequisites. If you have info for distros not
 listed here and/or corrections, please start a Documentation bug for this:
 
-    <http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation>
+    <http://bugs.activestate.com/enter_bug.cgi?product=Komodo&component=Documentation>
 
 
 - Ubuntu 7.10 & 8.04:
   
-    apt-get install g++ patch libgtk2.0-dev libidl-dev libcurl4-gnutls-dev
+    sudo apt-get install g++ patch libgtk2.0-dev libidl-dev \
+        libcurl4-gnutls-dev libdbus-glib-1-dev
 
 - Fedora 9:
 
-    yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel
+    sudo yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel
 
 - Others ...
-
 
 
 
