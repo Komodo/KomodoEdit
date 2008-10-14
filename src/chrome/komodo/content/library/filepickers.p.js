@@ -915,11 +915,11 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
    fileBrowser.retvals.buttonStatus = null;
    fileBrowser.retvals.server = null;
 
-   var response = window.openDialog
-     ("chrome://komodo/content/dialogs/filebrowser/filebrowser.xul",
-                      "Komodo:OpenRemote",
-                      "chrome,resizable=yes,close,dependent,modal=yes",
-                      fileBrowser);
+   var response = ko.windowManager.openDialog(
+        "chrome://komodo/content/dialogs/filebrowser/filebrowser.xul",
+        "Komodo:OpenRemote",
+        "chrome,resizable=yes,close,dependent,modal=yes",
+        fileBrowser);
    if (response) {
        if ((fileBrowser.retvals.buttonStatus == Components.interfaces.nsIFilePicker.returnOK) &&
            fileBrowser.retvals.file) {
