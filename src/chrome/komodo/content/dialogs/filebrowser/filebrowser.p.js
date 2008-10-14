@@ -1639,8 +1639,7 @@ function setCurrentServerFromServerInfo() {
 }
 
 function goServerPrefs() {
-    // just load up prefs so they can add servers
-    ko.windowManager.getMainWindow().prefs_doGlobalPrefs("serversItem");
+    prefs_doGlobalPrefs("serversItem", true);
 }
 
 function refreshServerMenu() {

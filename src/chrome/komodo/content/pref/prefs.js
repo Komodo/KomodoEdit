@@ -37,15 +37,21 @@
 /* file contains functionality needed from any window that would want
    to open the prefs dialogs. */
 
-function prefs_doGlobalPrefs(panel)  {
+function prefs_doGlobalPrefs(panel, modal /* =false */)  {
+    if (typeof(modal) == 'undefined' || modal == null) modal = false;
+
     // Handle cancel from prefs window
     var resp = new Object ();
     resp.res = "";
     try {
+        var features = "chrome,resizable,close=yes";
+        if (modal) {
+            features += ",modal=yes";
+        }
         ko.windowManager.openOrFocusDialog(
                 "chrome://komodo/content/pref/pref.xul",
                 'komodo_prefs',
-                "chrome,resizable,close=yes",
+                features,
                 panel, resp);
     } catch(ex) {
         ko.main.log.error(ex);

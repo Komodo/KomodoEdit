@@ -1262,7 +1262,7 @@
             try {
                 window.openDialog("chrome://komodo/content/dialogs/featureControlPanel.xul",
                                   "Komodo:FeatureControlPanel",
-                                  "chrome,modal,titlebar");
+                                  "chrome,titlebar");
             } catch (ex) {
                 this.log.exception(ex, "checkConfiguration error");
             }
