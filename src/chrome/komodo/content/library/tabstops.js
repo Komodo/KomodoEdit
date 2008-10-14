@@ -61,39 +61,6 @@ this.insertLiveText = function(scimoz_, insertionPoint, tabstopTextTree) {
     return insertLiveTextParts(tabstopTextTree.nodes);
 };
 
-/*
- * Routines for caching parsed snippets.
- */
-
-/**
- * If the given snippet's live text has been parsed and used,
- * and hasn't changed, return the result of the parse.
- * @param {Long} id: snippet.id
- * @returns {Object}: parsed liveText opaque object
- */
-this.lookupLiveTextInfoFromID = function(id) {
-    return this._parseResultsById[id] || null;
-};
-
-/**
- * Cache the given snippet's parse result.  Use the
- * snippet's id as the key.
- * @param {Object} liveTextInfo: opaque parsed result
- * @param {Long} id: snippet.id
- */
-this.cacheLiveTextInfo = function(liveTextInfo, id) {
-    this._parseResultsById[id] = liveTextInfo;
-};
-
-/**
- * Delete the given snippet's parse result from the cache.
- * This is done whenever a snippet is changed.
- * @param {Long} id: snippet.id
- */
-this.clearLiveTextInfo = function(id) {
-    delete this._parseResultsById[id];
-};
-
 /**************** Tabstop Navigation and Management ****************/
 
 /**

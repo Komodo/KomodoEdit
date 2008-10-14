@@ -507,16 +507,13 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         anchor = 0;
         currentPos = 0;
     }
-    var snippetInfo = ko.tabstops.lookupLiveTextInfoFromID(snippet.id);
-    if (!snippetInfo) {
-        try {
-            snippetInfo = ko.tabstops.parseLiveText(text);
-        } catch(ex) {
-            ko.dialogs.alert(ex.message);
-            log.exception(ex);
-            return;
-        }
-        ko.tabstops.cacheLiveTextInfo(snippetInfo, snippet.id);
+    
+    try {
+        var snippetInfo = ko.tabstops.parseLiveText(text);
+    } catch(ex) {
+        ko.dialogs.alert(ex.message);
+        log.exception(ex);
+        return;
     }
     if (remainingText) {
         // Don't process the text we snipped out as part of the snippet,

@@ -133,8 +133,6 @@ function onLoad(event) {
         //centerWindowOnScreen();
 
         UpdateField('name', true);
-        opener.ko.tabstops.clearLiveTextInfo(gItem.id);
-
         updateOK();
     } catch (e) {
         log.exception(e);
