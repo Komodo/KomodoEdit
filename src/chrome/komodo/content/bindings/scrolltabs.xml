@@ -248,10 +248,10 @@
         </resources>
         <content>
             <xul:box xbl:inherits="orient,align,pack,dir,overflow" flex="1" class="tabstrip-box" orient="horizontal">
-            <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
-                class="tab-arrowscrollbox" flex="1" clicktoscroll="true">
-                <children includes="tab"/>
-            </xul:arrowscrollbox>
+                <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
+                    class="tab-arrowscrollbox" flex="1" clicktoscroll="true">
+                    <children includes="tab"/>
+                </xul:arrowscrollbox>
                 <children/>
                 <xul:toolbarbutton anonid="tabs-list"
                                type="menu"
