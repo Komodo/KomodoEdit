@@ -57,6 +57,9 @@ tab[selected="true"] {
   padding: 1px 4px 1px;
   background-image: url("chrome://komodo/skin/tabs/tab-active-bkgnd.png");
   background-color: -moz-dialog;
+}
+
+view[lastfocused="true"] tab[selected="true"] {
   font-weight: bold;
 }
 
