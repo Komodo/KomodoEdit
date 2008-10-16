@@ -36,3 +36,8 @@
 .tab-close-button[selected="true"] {
   visibility: visible;
 }
+
+view[lastfocused="true"] tab[selected="true"] {
+  font-weight: bold;
+}
+
