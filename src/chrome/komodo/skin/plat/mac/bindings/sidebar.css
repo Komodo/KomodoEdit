@@ -17,8 +17,6 @@ tabbox.sidepanel
   padding: 0px;
   margin: 0px;
   background-color: #d4dde5;
-
-
 }
 
 #komodo_main:not([active="true"]) tabbox.sidepanel {
@@ -38,6 +36,16 @@ tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
   background-color: transparent !important;
 
 }
+
+tabbox.sidepanel .tab-text {
+    /* Same style as for `sidebar-title` in Mozilla's 
+       "pinstripe/browser/browser.css". */
+    font-weight: bold !important;
+    color: #535f6d;
+    /* Avoid `font: menu;` from themes/pinstripe/global/tabbox.css */
+    font: inherit;
+}
+
 
 tabbox.sidepanel partviewer,
 tabbox.sidepanel tree
