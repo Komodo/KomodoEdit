@@ -48,6 +48,7 @@ hbox > toolbar > toolbarbutton[type="menu-button"] {
   padding-bottom: 0px;
 }
 
+/* TODO: I believe this production is cruft. */
 toolbar {
     border-right: 1px outset ThreeDHighlight;
 /* #if PLATFORM != "darwin" */
@@ -57,6 +58,8 @@ toolbar {
   
 toolbarbutton {
     -moz-box-orient: vertical;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .toolbarbutton-text[buttonstyle="pictures"],
