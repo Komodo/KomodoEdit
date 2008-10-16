@@ -144,33 +144,32 @@
     </binding>
 
     <!-- This is bound to <tabs type="sidebar">, and currently used for
-         Komodo's side and bottom panes. -->
+         Komodo's side panes. -->
     <binding id="tabs-droplist" xbl:inherits="orient"
              extends="chrome://global/content/bindings/tabbox.xml#tabs">
         <content>
             <xul:box xbl:inherits="orient,align,pack,dir" flex="1"
                      align="center" pack="center">
-            <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
-            <xul:spacer flex="1"/>
-            <xul:hbox class="noborder sidebar-buttons">
-            <xul:toolbarbutton anonid="tabs-list"
-                           type="menu"
-                           persist="buttonstyle"
-                           buttonstyle="pictures"
-                           class="tabs-select-button"
-                           oncommand="this.firstChild.showPopup(this, -1,-1);">
-                <xul:menupopup anonid="tabs-list-popup"
-                    onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
-            </xul:toolbarbutton>
-            <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
-                        collapsed="true"
-                        xbl:inherits="onclick=onclose,
-                                      collapsed=closecollapsed,
-                                      disabled=closedisabled"/>
-            </xul:hbox>
-            <xul:box anonid="left-scroll" collapsed="true" flex="0">
-                <children includes="tab"/>
-            </xul:box>
+                <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
+                <xul:spacer flex="1"/>
+                <xul:hbox class="noborder sidebar-buttons">
+                    <xul:toolbarbutton anonid="tabs-list"
+                            type="menu"
+                            persist="buttonstyle"
+                            buttonstyle="pictures"
+                            class="tabs-select-button"
+                            oncommand="this.firstChild.showPopup(this, -1,-1);">
+                        <xul:menupopup anonid="tabs-list-popup"
+                                onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
+                    </xul:toolbarbutton>
+                    <xul:toolbarbutton anonid="panel-close-button"
+                            class="tabs-closebutton"
+                            collapsed="true"
+                            xbl:inherits="onclick=onclose,collapsed=closecollapsed,disabled=closedisabled"/>
+                </xul:hbox>
+                <xul:box anonid="left-scroll" collapsed="true" flex="0">
+                    <children includes="tab"/>
+                </xul:box>
             </xul:box>
         </content>
         <implementation>
