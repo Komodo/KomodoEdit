@@ -1,17 +1,13 @@
 
-
-.native .toolbarbutton-text-shadow,
-.native .tab-text-shadow {
-  color: #f0f0f0;
-  padding-top: 1px;
-  opacity: 0.5;
-}
-
-.native .tab-text-shadow {
-  padding-top: 0;
-}
-
-
+/* Komodo XUL <tab> styling for Mac OS X (based on FF3 styles).
+ *
+ * Dev Notes:
+ * - The mozilla pinstrip theme (i.e. for Mac) has a matching <xul:label>
+ *   in tabs and toolbarbutton text with class "tab-text-shadow" and
+ *   "toolbarbutton-shadow". Those are there to provide a white shadow
+ *   on that text. Komodo doesn't currently do this, but it should eventually.
+ *   Compare the tab text in FF3/Mac to K5/Mac.
+ */
 
 /* ::::: tabbrowser ::::: */
 
@@ -23,23 +19,30 @@
 
 .native .tab-icon {
   margin: 0 0 4px 0;
-  opacity: 0.6;
-}
-
-.native tab:not([selected="true"]):hover .tab-icon,
-.native tab[selected="true"] .tab-icon {
-  opacity: 1.0;
+  opacity: 0.7;
 }
 
 .native .tab-text {
   font: message-box;
   margin-top: 0 !important;
+  font-weight: bold !important;
+  opacity: 0.7;
 }
 
-.native .tab-text,
-.native .tab-text-shadow {
-  font-weight: bold !important;
+.native tab[selected="true"] .tab-text {
+  opacity: 0.6;
 }
+
+view[lastfocused="true"] .native tab[selected="true"] .tab-icon,
+view[lastfocused="true"] .native tab[selected="true"] .tab-text {
+  opacity: 1.0;
+}
+
+.native tab:hover .tab-icon,
+.native tab:hover .tab-text {
+  opacity: 1.0 !important;
+}
+
 
 .native tab[busy] > .tab-icon-image,
 .native tab[busy] > .tab-image-middle > .tab-icon > .tab-icon-image {
