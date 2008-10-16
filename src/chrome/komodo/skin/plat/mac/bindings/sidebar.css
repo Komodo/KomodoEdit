@@ -46,10 +46,6 @@ tabbox.sidepanel .tab-text {
     font: inherit;
 }
 
-tabbox.sidepanel .tabs-select-button {
-  border-left: none;
-}
-
 tabbox.sidepanel partviewer,
 tabbox.sidepanel tree
 {
