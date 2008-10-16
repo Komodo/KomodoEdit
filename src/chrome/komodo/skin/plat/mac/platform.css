@@ -2,18 +2,19 @@
 /* make out splitters similar to regular osx splitters */
 splitter[orient="vertical"].divot_splitter {
   min-height: 1px;
-  height: 2px;
+  height: 1px;
   background-image: none !important;
   border: none;
-  border-top: 1px solid rgba(0,0,0,0.50);
+  border-bottom: 1px solid #404040;
 }
 splitter[orient="horizontal"].divot_splitter {
   min-width: 1px;
-  width: 2px;
+  width: 1px;
   background-image: none !important;
   border: none;
-  border-right: 1px solid rgba(0,0,0,0.50);
+  border-right: 1px solid #404040;
 }
+
 
 view splitter[orient="vertical"].grippy_splitter{
   min-height: 1px;
