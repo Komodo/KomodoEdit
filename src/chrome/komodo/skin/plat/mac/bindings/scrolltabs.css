@@ -27,7 +27,14 @@ tab[type="file-tab"]
 }
 .sidebar-buttons .tabs-select-button {
   list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac.png");
+  /* Avoid bgcolor alpha-channel tweaks for .tabs-select-button not
+     in a sidebar. */
+  background-color: inherit !important;
 }
+.sidebar-buttons .tabs-select-button:hover {
+  list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac_hover.png");
+}
+
 .tabs-select-button:hover {
   background-color: rgba(0,0,0,0.10);
 }

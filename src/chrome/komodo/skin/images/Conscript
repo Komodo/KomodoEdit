@@ -44,10 +44,17 @@ Import(
     'productType',
 );
 
-$cons->InstallInChrome('alltabs-box-bkgnd-icon.png');
-$cons->InstallInChrome('select_sidebar_mac.png');
-$cons->InstallInChrome('select_sidebar_gnome.png');
-$cons->InstallInChrome('tab_select.png');
+# Icons for the sidebar and scrolltabs UIs.
+if ($platform eq "darwin") {
+    $cons->InstallInChrome('alltabs-box-bkgnd-icon.png');
+    $cons->InstallInChrome('select_sidebar_mac.png');
+    $cons->InstallInChrome('select_sidebar_mac_hover.png');
+} elsif ($platform eq "win") {
+} else {
+    $cons->InstallInChrome('select_sidebar_gnome.png');
+    $cons->InstallInChrome('tab_select.png');
+}
+
 
 if ($platform eq "darwin") {
 $cons->InstallInChrome('toolbar-background.gif');
