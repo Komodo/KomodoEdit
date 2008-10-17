@@ -488,16 +488,6 @@ if(typeof([[%tabstop1]]) == 'undefined') {
 /**
  * [[%tabstop:docs]]
 */!@#_currentPos!@#_anchor</snippet>
-<snippet id="4ac9e1b6-18ef-e84c-a6ec-51a14e319ef3" idref="b7fb330a-0bca-f943-a28f-359c6542210c" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
-$('[[%tabstop:selector]]').each(
-    function(i) {
-        [[%tabstop:]]
-    }
-);!@#_currentPos!@#_anchor</snippet>
-<snippet id="7df8596f-9a0f-974e-8fb8-e298fcc70f23" idref="b7fb330a-0bca-f943-a28f-359c6542210c" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
-$(document).ready(function() {
-  !@#_currentPos!@#_anchor
-});</snippet>
 <snippet id="7f926d1b-3304-11db-a53a-000d935d3368" idref="7f9266e1-3304-11db-a53a-000d935d3368" indent_relative="true" keyboard_shortcut="" name="&lt;strong&gt; Strong" set_selection="true">
 &lt;strong&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/strong&gt;</snippet>
 <snippet id="7f9278d8-3304-11db-a53a-000d935d3368" idref="7f9266e1-3304-11db-a53a-000d935d3368" indent_relative="true" keyboard_shortcut="" name="&lt;em&gt; Emphasis" set_selection="true">
