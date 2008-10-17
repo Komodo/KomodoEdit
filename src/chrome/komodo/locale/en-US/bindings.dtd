@@ -48,6 +48,8 @@
 <!ENTITY forward.tooltiptext "Forward">
 <!ENTITY jumpToNextDiff.tooltiptext "Jump to Next Diff">
 <!ENTITY jumpToPreviousDiff.tooltiptext "Jump to Previous Diff">
+<!ENTITY listAllSidebars.tooltiptext "List all sidebars">
+<!ENTITY listAllTabs.tooltiptext "List all tabs">
 <!ENTITY mapsTo.label "Maps to">
 <!ENTITY moveDown.tooltiptext "Move Down">
 <!ENTITY moveUp.tooltiptext "Move Up">

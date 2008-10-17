@@ -35,7 +35,10 @@
  
  ***** END LICENSE BLOCK ***** -->
 
-<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
 
 <bindings
     xmlns="http://www.mozilla.org/xbl"
@@ -158,6 +161,7 @@
                             persist="buttonstyle"
                             buttonstyle="pictures"
                             class="tabs-select-button"
+                            tooltiptext="&listAllSidebars.tooltiptext;"
                             oncommand="this.firstChild.showPopup(this, -1,-1);">
                         <xul:menupopup anonid="tabs-list-popup"
                                 onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
@@ -257,6 +261,7 @@
                                persist="buttonstyle"
                                buttonstyle="pictures"
                                class="tabs-select-button"
+                               tooltiptext="&listAllTabs.tooltiptext;"
                                oncommand="this.firstChild.showPopup(this, -1,-1);">
                     <xul:menupopup anonid="tabs-list-popup" position="after_end"
                         onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
