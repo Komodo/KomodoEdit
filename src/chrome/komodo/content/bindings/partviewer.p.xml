@@ -52,10 +52,8 @@
                 <xul:hbox align="center" class="partviewer-toolbar">
                     <children includes="toolbarbutton"/>
                     <xul:toolbarseparator style="min-width:10px;" flex="1"/>
-                    <xul:image id="partviewer-filter-icon"
-                           tooltiptext="&filterItems.tooltiptext;"
-                           class="codeintel-search"/>
                     <xul:textbox id="partviewer-filter-textbox"
+                             class="search-box"
                              style="min-width:40px; max-width:200px; margin-right:0px;"
                              flex="1"
                              type="timed"
@@ -124,13 +122,15 @@
                 <parameter name="data"/>
                 <body>
                 <![CDATA[
+                //TODO: Get this working, use Thobber-small.gif for the filter box icon
+                //      when busy. I tried quickly to get this notification, but wasn't
+                //      getting it.
                 if (topic == "kpf_tree_filter_status") {
-                // XXX FIXME, need a better UI notification than this
-                    var iconEl = this.getElement('image','partviewer-filter-icon');
+                    var filterTextbox = this.getElement('textbox','partviewer-filter-textbox');
                     if (data == "searching") {
-                        iconEl.setAttribute('disabled', 'true');
+                        filterTextbox.setAttribute('busy', 'true');
                     } else {
-                        iconEl.removeAttribute('disabled');
+                        filterTextbox.removeAttribute('busy');
                     }
                 }
                 ]]>
