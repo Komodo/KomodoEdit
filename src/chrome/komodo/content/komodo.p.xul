@@ -2141,27 +2141,27 @@
                                     treecollabel="Name"
                                     candrag="true"
                                     candrop="true">
-                                    <toolbarbutton
-                                        id="projectView_newProjectButton"
-                                        observes="cmd_newProject"
-                                        tooltiptext="&newProject.tooltiptext;"
-                                        buttonstyle="pictures"
-                                        label="&newProject.label;"
-                                        class="new-project-icon"
-                                        />
-                                    <toolbarbutton id="projectView_openButton"
-                                        tooltiptext="&openProject.tooltiptext;"
-                                        persist="buttonstyle"
-                                        class="open-project-icon"
-                                        buttonstyle="pictures"
-                                        observes="cmd_openProject"/>
-                                    <toolbarbutton
-                                        id="projectView_saveButton"
-                                        observes="cmd_saveProject"
-                                        tooltiptext="&saveProject.tooltiptext;"
-                                        buttonstyle="pictures"
-                                        class="save-buffer-icon"
-                                        />
+                                    <toolbarbutton id="projectView_tools"
+                                            tooltiptext="Project Tools"
+                                            buttonstyle="pictures"
+                                            type="menu"
+                                            orient="horizontal"
+                                            class="rightarrow-button-a project-tools-icon">
+                                        <menupopup id="projectView_toolsPopup">
+                                            <menuitem id="projectView_newProjectButton"
+                                                observes="cmd_newProject"
+                                                label="&newProject.label;"
+                                                class="menuitem-iconic-wide new-project-icon"/>
+                                            <menuitem id="projectView_openButton"
+                                                observes="cmd_openProject"
+                                                label="&openProject.label;"
+                                                class="menuitem-iconic-wide open-project-icon"/>
+                                            <menuitem id="projectView_saveButton"
+                                                observes="cmd_saveProject"
+                                                label="&saveProject.label;"
+                                                class="menuitem-iconic-wide save-buffer-icon"/>
+                                        </menupopup>
+                                    </toolbarbutton>
                                     <toolbarbutton
                                         id="projectView_AddItem"
                                         tooltiptext="&addItemToCurrentProject.tooltiptext;"

@@ -456,6 +456,14 @@
   list-style-image : url("chrome://komodo/skin/images/open_hover.png");
 }
 
+.project-tools-icon {
+  list-style-image : url("chrome://komodo/skin/global/images/cog.png");
+}
+.project-tools-icon:hover {
+  /* TODO: A disabled version of this icon. */
+  list-style-image : url("chrome://komodo/skin/global/images/cog.png");
+}
+
 .open-project-icon {
   list-style-image : url("chrome://komodo/skin/images/open_project.png");
 }

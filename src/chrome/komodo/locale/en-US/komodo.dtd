@@ -407,8 +407,7 @@
 <!ENTITY newLiveFolder.label "New Live Folder...">
 <!ENTITY newMacro.label "New Macro...">
 <!ENTITY newOpenShortcut.label "New Open... Shortcut">
-<!ENTITY newProject.label "New Project">
-<!ENTITY newProject.tooltiptext "New Project">
+<!ENTITY newProject.label "New Project...">
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
 <!ENTITY newTemplate.label "New Template...">
@@ -428,7 +427,6 @@
 <!ENTITY openLine.desc "Editor: Open Line">
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
-<!ENTITY openProject.tooltiptext "Open Project">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
 <!ENTITY pageSetup.label "Page Setup">
 <!ENTITY paste.label "Paste">
@@ -506,7 +504,6 @@
 <!ENTITY saveFile.tooltiptext "Save File">
 <!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
 <!ENTITY saveProject.label "Save Project">
-<!ENTITY saveProject.tooltiptext "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY saveRemotelyAs.label "Save Remotely As...">
 <!ENTITY saveToToolbox.label "Save to Toolbox">
