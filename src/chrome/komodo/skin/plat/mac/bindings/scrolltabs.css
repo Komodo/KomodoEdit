@@ -25,6 +25,9 @@ tab[type="file-tab"]
   padding-left: 0;
   padding-right: 0;
 }
+.sidebar-buttons .tabs-select-button {
+  list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac.png");
+}
 .tabs-select-button:hover {
   background-color: rgba(0,0,0,0.10);
 }

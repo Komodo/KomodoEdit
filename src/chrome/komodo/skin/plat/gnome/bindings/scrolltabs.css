@@ -21,6 +21,9 @@ tab[type="file-tab"]
 .tabs-select-button {
   list-style-image: url("chrome://komodo/skin/images/tab_select.png");
 }
+.sidebar-buttons .tabs-select-button {
+  list-style-image: url("chrome://komodo/skin/images/select_sidebar_gnome.png");
+}
 .tabs-select-button  > .toolbarbutton-menu-dropmarker {
   display: none;
 }
