@@ -33,3 +33,9 @@ toolbarbutton {
 textbox[type="autocomplete"][disabled="true"] > hbox {
   background-color: -moz-Dialog;
 }
+
+/* Prevent menubar getting squished on toolbar overflow (bug 79530) */
+menubar {
+    min-height: 1.9em;
+}
+
