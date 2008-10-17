@@ -55,10 +55,6 @@ Import(
 
 my $imagesDir = "$mozChromeDir/komodo/skin/images";
 
-# Code Intelligence system icons
-$cons->Install($imagesDir, "icons/codeintel_search.gif");
-$cons->Install($imagesDir, "icons/codeintel_search_disable.gif");
-
 # AutoComplete UI images.
 $cons->Install($imagesDir, "icons/xpm/ac_class.xpm");
 $cons->Install($imagesDir, "icons/xpm/ac_directory.xpm");

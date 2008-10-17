@@ -39,6 +39,3 @@ editkeybinding {
     -moz-binding: url('chrome://komodo/content/keybindings/keybindings.xml#editkeybinding');
 }
 
-.commands-filter-icon {
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
-}

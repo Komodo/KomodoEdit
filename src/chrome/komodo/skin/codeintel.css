@@ -38,23 +38,3 @@
  * CSS for the Code Intelligence UI elements.
  */
 
-
-.codeintel-search
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
-}
-
-.codeintel-search:hover
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search.gif");
-}
-
-.codeintel-search[disabled="true"],
-.codeintel-search[disabled="true"]:hover,
-.codeintel-search[disabled="true"]:hover:active
-{
-    list-style-image : url("chrome://komodo/skin/images/codeintel_search_disable.gif");
-}
-
-
-
