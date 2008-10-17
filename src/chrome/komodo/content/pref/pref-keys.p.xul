@@ -45,6 +45,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/codeintel.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
 
 <window id="KeyPrefWindow"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -93,10 +94,8 @@
         <separator class="thin"/>
         <hbox align="center">
             <label value="&filePrefKeysCommands.label;" flex="1" accesskey="&filePrefKeysCommands.accesskey;" control="commands-filter-textbox"/>
-            <image class="commands-filter-icon"
-                   tooltiptext="&filterCommands.tooltiptext;"
-                   />
             <textbox id="commands-filter-textbox"
+                     class="search-box"
                      style="min-height: 16px;"
                      flex="1"
                      onfocus="window.updateCommands('undo')"
