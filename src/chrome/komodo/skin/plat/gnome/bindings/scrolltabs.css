@@ -39,8 +39,6 @@ tab[type="file-tab"]
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
   -moz-appearance: none;
   border: none !important;
-  padding: 0 0 4px 0;
-  margin: 0;
   background: inherit;
   cursor: default;
 }
