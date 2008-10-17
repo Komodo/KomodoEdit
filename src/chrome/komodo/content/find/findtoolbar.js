@@ -205,7 +205,9 @@ function Findtoolbar_FindTextboxKeyPress(field, event) {
 
 function Findtoolbar_FindFilesOnFocus(field, event) {
     try {
-        document.getElementById('findButton').setAttribute('class', 'findInFiles');
+        var findBtn = document.getElementById('findButton');
+        if (findBtn)
+            findBtn.setAttribute('class', 'findInFiles');
         field.setSelectionRange(0, field.value.length);
         if (event.target.nodeName == 'html:input') { 
           var textbox = field.parentNode.parentNode.parentNode;

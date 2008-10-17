@@ -1832,6 +1832,7 @@
                  persist="hidden collapsed buttonstyle"
                  buttonstyle="pictures"
                  tooltiptext="&openFindToolbar.tooltiptext;">
+<!-- #if PLATFORM != "darwin" -->
             <image id="openButton"
                    class="open-file-nohover-icon"
                    style="margin-left: 7px;"/>
@@ -1840,9 +1841,14 @@
                    control="textbox_open"
                    id="open_label"
                    style="margin-right: 0px"/>
+<!-- #endif -->
             <textbox id="textbox_open"
                      tooltiptext="&open.tooltiptext;"
+<!-- #if PLATFORM == "darwin" -->
+                     accesskey="&openLabel.accesskey;"
+<!-- #endif -->
                      type="autocomplete"
+                     class="search-box search-box-open-icon"
                      style="min-height: 16px;"
                      flex="1"
                      maxrows="10"
@@ -1861,15 +1867,21 @@
                                     this.setSelectionRange(this.textLength, this.textLength);"
                      onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"/>
             <toolbarseparator/>
+<!-- #if PLATFORM != "darwin" -->
             <image id="findButton" class="find"/>
             <label value="&komodoFindToolbarFind.label;"
                    accesskey="&findLabel.accesskey;"
                    id="find_label"
                    control="textbox_find"
                    style="margin-right: 0px"/>
+<!-- #endif -->
             <textbox id="textbox_find"
                      tooltiptext="&pressEnterToFind.tooltiptext;"
+<!-- #if PLATFORM == "darwin" -->
+                     accesskey="&findLabel.accesskey;"
+<!-- #endif -->
                      type="autocomplete"
+                     class="search-box"
                      style="min-height: 16px;"
                      flex="1"
                      maxrows="10"
@@ -1888,6 +1900,7 @@
             <textbox id="textbox_findInFiles"
                      tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
                      type="autocomplete"
+                     class="search-box search-box-no-icon"
                      style="min-height: 16px;"
                      flex="1"
                      size="30"

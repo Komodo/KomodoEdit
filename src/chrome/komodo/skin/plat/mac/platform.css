@@ -196,6 +196,10 @@ toolbar[mode="icons"] toolbarbutton toolbarbutton {
 
 /* ---- Rounded search/filter textbox ---- 
  * Based on "search-box" in "toolkit/themes/pinstripe/global/textbox.css".
+ * Usage:
+ *   <textbox class="search-box" .../>
+ * and optionally for a different icon *also* specify one of the other
+ * "search-box-*-icon" classes.
  */
 
 textbox.search-box {
@@ -206,9 +210,29 @@ textbox.search-box {
   -moz-border-right-colors: #7F7F7F #EEE -moz-Field;
   -moz-border-left-colors: #7F7F7F #EFEFEF -moz-Field;
   -moz-border-radius: 11px;
-  background: url("chrome://global/skin/icons/search-textbox.png") -moz-Field no-repeat 1px center;
   -moz-background-clip: border !important;
   padding: 0 8px;
-  -moz-padding-start: 17px;
+}
+textbox[focused="true"].search-box {
+  outline: 2px solid #4A8BC7;
+  outline-offset: -2px;
+  -moz-outline-radius: 11px;
+}
+
+textbox.search-box {
+  background: url("chrome://global/skin/icons/search-textbox.png") -moz-Field no-repeat 1px center;
+  -moz-padding-start: 17px !important;
+}
+textbox.search-box-no-icon {
+  background: url(none) -moz-Field no-repeat 1px center !important;
+  -moz-padding-start: 0px !important;
+}
+textbox.search-box-open-icon {
+  background: url("chrome://komodo/skin/images/open.png") -moz-Field no-repeat 1px center;
+  -moz-padding-start: 17px !important;
+}
+
+textbox[type="autocomplete"].search-box {
+  padding: 0 2px 0 8px;
 }
 
