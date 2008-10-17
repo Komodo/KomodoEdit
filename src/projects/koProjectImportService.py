@@ -66,7 +66,6 @@ class KoFileImportingService:
             else:
                 exclude_pats = None
             part = UnwrapObject(part)
-            
             allnames = self.getCandidatesForDir(dirname, part.live,
                                                 include_pats, exclude_pats)
 
@@ -94,7 +93,7 @@ class KoFileImportingService:
             return allnames
         except:
             # TODO: Catch OSError or appropriate specific exception
-            log.exception("failed scaning file system")
+            log.exception("failed scanning file system")
             return []
 
     def findCandidateFilesRemotely(self, part, dirname, include, exclude, recursive, connection=None, serverUri=None):
