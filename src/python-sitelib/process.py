@@ -87,7 +87,9 @@ class ProcessOpen(Popen):
             output is redirected to Komodo's log files.
         "universal_newlines": On by default (the opposite of subprocess).
         """
+        self.__use_killpg = False
         auto_piped_stdin = False
+        preexec_fn = None
         shell = False
         if not isinstance(cmd, (list, tuple)):
             # The cmd is the already formatted, ready for the shell. Otherwise
@@ -178,6 +180,14 @@ class ProcessOpen(Popen):
         else:
             # subprocess raises an exception otherwise.
             flags = 0
+            if sys.platform.startswith("linux") and shell:
+                # Set a preexec function, that will make the sub-process part
+                # of the same process group as the spawned shell. This will
+                # allow us to later kill both the spawned shell and the
+                # sub-process in one go (see the kill method).
+                def preexec_fn():
+                    os.setpgid(0, 0)
+                self.__use_killpg = True
 
         # Internal attributes.
         self.__cmd = cmd
@@ -188,6 +198,7 @@ class ProcessOpen(Popen):
         #print "Process: %r in %r" % (cmd, cwd)
         Popen.__init__(self, cmd, cwd=cwd, env=env, shell=shell,
                        stdin=stdin, stdout=stdout, stderr=stderr,
+                       preexec_fn=preexec_fn,
                        universal_newlines=universal_newlines,
                        creationflags=flags)
         if auto_piped_stdin:
@@ -245,7 +256,14 @@ class ProcessOpen(Popen):
         """
         if timeout is None or timeout < 0:
             # Use the parent call.
-            return Popen.wait(self)
+            try:
+                return Popen.wait(self)
+            except OSError, ex:
+                # If the process has already ended, that is fine. This is
+                # possible when wait is called from a different thread.
+                if ex.errno != 10: # No child process
+                    raise
+                return self.returncode
 
         # We poll for the retval, as we cannot rely on self.__hasTerminated
         # to be called, as there are some code paths that do not trigger it.
@@ -300,8 +318,10 @@ class ProcessOpen(Popen):
             if sig is None:
                 sig = signal.SIGKILL
             try:
-                # XXX - Use os.killpg() instead to kill all subprocesses?
-                os.kill(self.pid, sig)
+                if self.__use_killpg:
+                    os.killpg(self.pid, sig)
+                else:
+                    os.kill(self.pid, sig)
             except OSError, ex:
                 if ex.errno != 3:
                     # Ignore:   OSError: [Errno 3] No such process
