@@ -4,10 +4,16 @@
 Utilities for running programs.
 """
 
-import os, sys
+import os
+import sys
 import tempfile
-import logging
+import threading
 
+from xpcom import components, nsError, ServerException
+from xpcom.server import UnwrapObject
+from xpcom._xpcom import getProxyForObject, PROXY_ASYNC, PROXY_SYNC, PROXY_ALWAYS
+
+import process
 
 if sys.platform == "darwin":
     def escapecmd(cmd):
@@ -135,3 +141,155 @@ exit $RETVAL""" % data)
         script.write("exit $KOMODO_COMMAND_RETVAL\n")
         script.close()
     return scriptFileName
+
+
+class KoRunProcess(object):
+
+    _com_interfaces_ = [components.interfaces.koIRunProcess]
+
+    def __init__(self, cmd, cwd=None, env=None):
+        self._process = process.ProcessOpen(cmd, cwd=cwd, env=env)
+
+        # Stdout, stderr results get set in the communicate call.
+        self._stdoutData = None
+        self._stderrData = None
+        # Condition object for waiting on the process.
+        self.__communicating_event = None
+
+    def close(self):
+        self._process.close()
+
+    def kill(self, exitCode=-1, gracePeriod=None, sig=None):
+        self._process.kill(exitCode, gracePeriod, sig)
+
+    def wait(self, timeout=None):
+        try:
+            retval = self._process.wait(timeout)
+            if self.__communicating_event:
+                # communicate() was called, need to wait until the
+                # communicate call is finished before returning to ensure
+                # the stdout, stderr data is ready for use.
+                self.__communicating_event.wait()
+            return retval
+        except process.ProcessError, ex:
+            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
+
+    # Override process.communicate() with our own method.
+    # We do this so we can retain the stdout and stderr results on the
+    # process object.
+    def communicate(self, input=None):
+        # Create a condition, thus if wait is called, it can wait on this
+        # condition instead of the process, this will ensure the stdout, stderr
+        # data is properly set by the time wait() returns.
+        self.__communicating_event = threading.Event()
+        try:
+            if input:
+                # Encode the input using the filesystem's default encoding. This
+                # fixes problems where unicode input was not properly passed to
+                # the running process:
+                # http://bugs.activestate.com/show_bug.cgi?id=74750
+                input = input.encode(sys.getfilesystemencoding())
+            stdoutData, stderrData = self._process.communicate(input)
+            encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
+                             getService(components.interfaces.koIEncodingServices)
+            # Set our internal stdout, stderr objects, so the caller can get the
+            # results through the getStdout and getStderr methods below.
+            self._stdoutData, enc, bom = encodingSvc.getUnicodeEncodedString(stdoutData)
+            self._stderrData, enc, bom = encodingSvc.getUnicodeEncodedString(stderrData)
+            return self._stdoutData, self._stderrData
+        finally:
+            self.__communicating_event.set()
+
+    ##
+    # @deprecated since Komodo 4.3.0
+    def readStdout(self):
+        import warnings
+        warnings.warn("process.readStdout() is deprecated, use "
+                      "process.getStdout() instead.",
+                      DeprecationWarning)
+        try:
+            return self._process.stdout.read()
+        except ValueError:
+            # stdout socket has been closed
+            data = self._stdoutData
+            if data is not None:
+                self._stdoutData = ""
+                return data
+            raise
+
+    ##
+    # @deprecated since Komodo 4.3.0
+    def readStderr(self):
+        import warnings
+        warnings.warn("process.readStderr() is deprecated, use "
+                      "process.getStderr() instead.",
+                      DeprecationWarning)
+        try:
+            return self._process.stderr.read()
+        except ValueError:
+            # stdout socket has been closed
+            data = self._stderrData
+            if data is not None:
+                self._stderrData = ""
+                return data
+            raise
+
+    ##
+    # @since Komodo 4.3.0
+    def getStdout(self):
+        return self._stdoutData or ""
+
+    ##
+    # @since Komodo 4.3.0
+    def getStderr(self):
+        return self._stderrData or ""
+
+
+
+class KoTerminalProcess(KoRunProcess):
+
+    _terminal = None
+
+    def linkIOWithTerminal(self, terminal):
+        # Need to unwrap the terminal handler because we are not actually
+        # passing in koIFile xpcom objects as described by the API, we are
+        # using the subprocess python file handles instead.
+        self._terminal = UnwrapObject(terminal)
+        self._terminal.hookIO(self._process.stdin, self._process.stdout,
+                              self._process.stderr, "KoTerminalProcess")
+
+    # Override the KoRunProcess.wait() method.
+    def wait(self, timeout=None):
+        retval = KoRunProcess.wait(self, timeout)
+        if self._terminal:
+            # Need to wait until the IO is fully synchronized (due to threads)
+            # before returning. Otherwise additional data could arrive after
+            # this call returns.
+            self._terminal.waitForIOToFinish(timeout)
+            self._terminal = None
+        return retval
+
+    def waitAsynchronously(self, runTerminationListener):
+        t = threading.Thread(target=_terminalProcessWaiter,
+                             args=(self, runTerminationListener))
+        t.setDaemon(True)
+        t.start()
+
+def _terminalProcessWaiter(runProcess, runListener):
+    try:
+        if not runProcess._terminal:
+            # There is no terminal reading the stdout/stderr, so we need to
+            # ensure these io channels still get read in order to stop the
+            # possibility of the process stdout/stderr buffers filling up and
+            # blocking the wait call.
+            runProcess.communicate()
+        if runListener:
+            retval = runProcess.wait(None)
+    except process.ProcessError, ex:
+        retval = ex.errno  # Use the error set in the exception.
+    if runListener:
+        listenerProxy = getProxyForObject(None,
+                                components.interfaces.koIRunTerminationListener,
+                                runListener,
+                                PROXY_ALWAYS | PROXY_SYNC)
+        listenerProxy.onTerminate(retval)

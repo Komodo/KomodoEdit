@@ -113,8 +113,10 @@
         <body>
         <![CDATA[
             if (this.terminalHandler) {
-                // Ensure the session has ended.
+                // Ensure the session has ended and that Scintilla is not to
+                // be accessed anymore.
                 this.terminalHandler.endSession();
+                this.terminalHandler.setScintilla(null);
                 this.scintilla.controllers.removeController(this._genericController);
                 this._genericController = null;
                 this.scimoz.unhookEvents(this);

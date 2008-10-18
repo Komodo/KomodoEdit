@@ -96,18 +96,40 @@ class koTerminalHandler:
     _reg_contractid_ = "@activestate.com/koTerminalHandler;1"
     _reg_desc_ = "Terminal View Handler"
 
+    # This handler can be in any one of the following states:
+
+    # Initialized means that there is no process running yet, there may or may
+    # not be a scintilla widget attached.
+    STATUS_INITIALIZED = 0
+    # Running means the process is running and a scintilla widget is attached.
+    STATUS_RUNNING = 1
+    # Stopping means the process is stopped, but there is still a scintilla
+    # widget attached. There may be additional io to come from the stdout/stderr
+    # handles that needs to be passed to the scintilla widget.
+    STATUS_STOPPING = 2
+    # Done means the scintilla widget has been removed. Even if there is a
+    # process still running, it should not try to forward on any communications.
+    STATUS_DONE = 3
+
     def __init__(self):
         self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
             .getService(components.interfaces.koILastErrorService)
 
-        self.active = 0 # Initially NOT interacting with a child process.
+        self.status = self.STATUS_INITIALIZED
         self.stdin = None
         self.stdinHandler = None
         self.stdout = None
         self.stderr = None
+        self._stdout_thread = None
+        self._stderr_thread = None
         self._lastPrompt = None
         self.lastWritePosition = 0
-        
+
+        # The io lock is to ensure that multiple waitForIOToFinish() calls do
+        # not intersect, otherwise an exception can be generated in some
+        # circumstances (when the timing is right).
+        self.__io_thread_lock = threading.Lock()
+
         registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                getService(components.interfaces.koILanguageRegistryService)
         self.language = registryService.getLanguage('Errors');
@@ -116,10 +138,18 @@ class koTerminalHandler:
                                             PROXY_ALWAYS | PROXY_SYNC)
 
     #---- koIRunTerminal methods
+
+    @property
+    def active(self):
+        # active is when the terminal can interact with the process.
+        return self.status == self.STATUS_RUNNING
+
     def setScintilla(self, scintilla):
         log.debug("[%s] KoRunTerminal.setScintilla(%s)", self, scintilla)
         # XXX scintilla MUST NEVER be used from a thread!!!
         self._scintilla = scintilla
+        if not scintilla:
+            self.status = self.STATUS_DONE
 
         # Does not look like these are necessary anymore... [ToddW]
         # Synchronization between the terminal and its _KoRunTerminalFile's.
@@ -131,24 +161,46 @@ class koTerminalHandler:
         self.language = lang
 
     def startSession(self):
+        """We must have a Scintilla widget by the time this call is made"""
         log.debug("Start session")
-        self.active = 1
+        assert(self._scintilla)
+        self.status = self.STATUS_RUNNING
         self.lastWritePosition = 0
 
     def hookIO(self, stdin, stdout, stderr, name=None):
         # Setup hooks to pipe the stdin, stdout and stderr between the
         # io handles supplied and the Komodo terminal/Scintilla.
-        if stdin:
-            self.stdin = _TerminalWriter("<stdin>", stdin, self, name)
-        if stdout:
-            self._stdout_thread = _TerminalReader("<stdout>", stdout, self, name)
-            self._stdout_thread.start()
-        if stderr:
-            self._stderr_thread = _TerminalReader("<stderr>", stderr, self, name)
-            self._stderr_thread.start()
+        with self.__io_thread_lock:
+            if stdin:
+                self.stdin = _TerminalWriter("<stdin>", stdin, self, name)
+            if stdout:
+                self._stdout_thread = _TerminalReader("<stdout>", stdout, self, name)
+                self._stdout_thread.start()
+            if stderr:
+                self._stderr_thread = _TerminalReader("<stderr>", stderr, self, name)
+                self._stderr_thread.start()
+
+    def waitForIOToFinish(self, timeout=None):
+        # This method is used to wait for the stdout/stderr threads to finish
+        # reading all of the available data. Note: the process may actually
+        # have finished, but there could still be data to read from the process
+        log.debug("[%s] waitForIOToFinish", self)
+        with self.__io_thread_lock:
+            if self.stdin:
+                log.debug("[%s] waitForIOToFinish:: closing stdin", self)
+                self.stdin.close()
+            if self._stdout_thread:
+                log.debug("[%s] waitForIOToFinish:: joining stdout", self)
+                self._stdout_thread.join(timeout)
+                self._stdout_thread = None
+            if self._stderr_thread:
+                log.debug("[%s] waitForIOToFinish:: joining stderr", self)
+                self._stderr_thread.join(timeout)
+                self._stderr_thread = None
+        log.debug("[%s] waitForIOToFinish:: done", self)
 
     def endSession(self):
-        self.active = 0
+        self.status = self.STATUS_STOPPING
         self.stdin = None
         self.stdout = None
         self.stderr = None
@@ -175,17 +227,20 @@ class koTerminalHandler:
 
     # this is always called from an iobuffer thread
     def addText(self, length, text, name):
-        if not self.active:
-            # Requires that we are still active.
-            return
+
         # If we write to stdin, it ends up here, so we need to pass it along
         # to the real stdin object.
         if name == '<stdin>':
             #log.debug("koTerminalHandler.addText: [%s] [%r]", name, text)
+            # The stdin interaction requires an active process.
+            if self.status != self.STATUS_RUNNING:
+                return
             self.stdin.write(text)
             return
 
-        self._proxyself.proxyAddText(length, text, name)
+        # The stdout/stderr interaction requires a scintilla widget.
+        if self.status in (self.STATUS_RUNNING, self.STATUS_STOPPING):
+            self._proxyself.proxyAddText(length, text, name)
 
     # this function is always called via proxy so scintilla does not need to be
     # proxied the purpose of this is to prevent other modifications to scintilla
@@ -359,13 +414,9 @@ class KoRunTerminal(koTerminalHandler, TreeView):
 
     def addText(self, length, text, name):
         # name is either <stderr> or <stdout>
-        if not self.active:
-            # Requires that we are still active.
-            return
-
         # Note, the terminal mutex should *must* be aquired before this call.
         koTerminalHandler.addText(self, length, text, name)
-        
+
         self._pbbuf += text
         lines = self._pbbuf.splitlines(1)
         for line in lines:
@@ -527,6 +578,8 @@ class KoRunTerminal(koTerminalHandler, TreeView):
     def parseAndAddLine(self, line):
         if not self._parseRegex:
             return
+        if self.status not in (self.STATUS_RUNNING, self.STATUS_STOPPING):
+            return
         try:
             match = self._parseRegex.search(line)
         except RuntimeError:
@@ -579,6 +632,8 @@ class KoRunTerminal(koTerminalHandler, TreeView):
         """Notification that there is no more data coming for this io channel.
         This lets the terminal do any necessary finalization.
         """
+        if self.status not in (self.STATUS_RUNNING, self.STATUS_STOPPING):
+            return
         if self._updateGroupCounter:
             self._proxyRowCountChanged(
                 max(0, len(self._data) - 1 - self._updateGroupCounter),

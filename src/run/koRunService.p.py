@@ -46,10 +46,10 @@ import process
 import types
 import urllib
 import select
+import logging
 
 from xpcom import components, nsError, ServerException, COMException, _xpcom
-from xpcom.server import UnwrapObject
-import logging
+
 import which
 from koTreeView import TreeView
 import koprocessutils
@@ -61,124 +61,6 @@ import runutils
 _gLastErrorSvc = None
 log = logging.getLogger("run")
 #log.setLevel(logging.DEBUG)
-
-#---- internal support stuff
-
-class _NotifyOnTermination(threading.Thread):
-    def __init__(self, process_, terminal=None, termListener=None, *args, **kwargs):
-        threading.Thread.__init__(self, *args, **kwargs)
-        self.setDaemon(True)
-        self._noAttachedTerminal = terminal is None
-        if termListener is not None:
-            self._termListenerProxy = _xpcom.getProxyForObject(None,
-                                    components.interfaces.koIRunTerminationListener,
-                                    termListener,
-                                    _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
-        else:
-            self._termListenerProxy = None
-        self._process = process_
-
-    def run(self):
-        try:
-            if self._noAttachedTerminal:
-                # There is no terminal reading the stdout and stderr, so we
-                # need to ensure it does not block up.
-                self._process.communicate()
-            retval = self._process.wait(None)
-        except process.ProcessError, ex:
-            retval = ex.errno  # Use the error set in the exception.
-        if self._termListenerProxy is not None:
-            self._termListenerProxy.onTerminate(retval)
-
-
-class _KoRunProcessOpen(process.ProcessOpen):
-
-    _com_interfaces_ = [components.interfaces.koIRunProcess]
-
-    def __init__(self, cmd, mode='t', cwd=None, env=None, terminal=None):
-        process.ProcessOpen.__init__(self, cmd, cwd=cwd, env=env)
-
-        # Stdout, stderr results get set in the communicate call.
-        self._stdoutData = None
-        self._stderrData = None
-
-        if terminal is not None:
-            # Need to unwrap the terminal handler because we are not actually
-            # passing in koIFile xpcom objects, we are using the subprocess
-            # python file handles instead.
-            _terminal = UnwrapObject(terminal)
-            _terminal.hookIO(self.stdin, self.stdout, self.stderr, cmd)
-
-    # Override the process.wait() method, so we raise an XPCOM exception.
-    def wait(self, timeout=None):
-        try:
-            return process.ProcessOpen.wait(self, timeout)
-        except process.ProcessError, ex:
-            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
-
-    # Override process.communicate() with our own method.
-    # We do this so we can retain the stdout and stderr results on the
-    # process object.
-    def communicate(self, input=None):
-        if input:
-            # Encode the input using the filesystem's default encoding. This
-            # fixes problems where unicode input was not properly passed to
-            # the running process:
-            # http://bugs.activestate.com/show_bug.cgi?id=74750
-            input = input.encode(sys.getfilesystemencoding())
-        stdoutData, stderrData = process.ProcessOpen.communicate(self, input)
-        encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
-                         getService(components.interfaces.koIEncodingServices)
-        # Set our internal stdout, stderr objects, so the caller can get the
-        # results through the getStdout and getStderr methods below.
-        self._stdoutData, enc, bom = encodingSvc.getUnicodeEncodedString(stdoutData)
-        self._stderrData, enc, bom = encodingSvc.getUnicodeEncodedString(stderrData)
-        return self._stdoutData, self._stderrData
-
-    ##
-    # @deprecated since Komodo 4.3.0
-    def readStdout(self):
-        import warnings
-        warnings.warn("process.readStdout() is deprecated, use "
-                      "process.getStdout() instead.",
-                      DeprecationWarning)
-        try:
-            return self.stdout.read()
-        except ValueError:
-            # stdout socket has been closed
-            data = self._stdoutData
-            if data is not None:
-                self._stdoutData = ""
-                return data
-            raise
-
-    ##
-    # @deprecated since Komodo 4.3.0
-    def readStderr(self):
-        import warnings
-        warnings.warn("process.readStderr() is deprecated, use "
-                      "process.getStderr() instead.",
-                      DeprecationWarning)
-        try:
-            return self.stderr.read()
-        except ValueError:
-            # stdout socket has been closed
-            data = self._stderrData
-            if data is not None:
-                self._stderrData = ""
-                return data
-            raise
-
-    ##
-    # @since Komodo 4.3.0
-    def getStdout(self):
-        return self._stdoutData or ""
-
-    ##
-    # @since Komodo 4.3.0
-    def getStderr(self):
-        return self._stderrData or ""
-
 
 #---- run service components
 
@@ -1031,32 +913,24 @@ class KoRunService:
             uEnvDict[unicode(key)] = unicode(val)
         envDict = uEnvDict
 
+        try:
+            p = runutils.KoTerminalProcess(command, cwd=cwd, env=envDict)
+        except process.ProcessError, ex:
+            _gLastErrorSvc.setLastError(ex.errno, str(ex))
+            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
+        if terminal:
+            p.linkIOWithTerminal(terminal)
         if input:
-            try:
-                p = _KoRunProcessOpen(command, cwd=cwd, env=envDict,
-                                      terminal=terminal)
-            except process.ProcessError, ex:
-                _gLastErrorSvc.setLastError(ex.errno, str(ex))
-                raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
             p.stdin.write(input)
             p.stdin.close()
-        else:
-            try:
-                p = _KoRunProcessOpen(command, cwd=cwd, env=envDict, mode='b',
-                                      terminal=terminal)
-            except process.ProcessError, ex:
-                _gLastErrorSvc.setLastError(ex.errno, str(ex))
-                raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
         # If the user provides a termination listener (interface
         # koIRunTerminationListener), then the thread will notify
-        # the termination of the child. We always setup a thread for
+        # the termination of the child. A thread will be setup for
         # handling this even when there is no termListener, as we
         # have to ensure that the process does not get blocked on
         # stdout/stderr writes.
-        t = _NotifyOnTermination(p, terminal, termListener)
-        t.start()
-
+        p.waitAsynchronously(termListener)
         return p
 
     def _WaitAndCleanUp(self, child, command, scriptFileName=None,
@@ -1206,7 +1080,6 @@ class KoRunService:
 
     def _WaitAndNotify(self, child, command, input):
         child.communicate(input)
-        retval = child.wait(None)
 
         # Notify any listener of child termination.
         try:
@@ -1242,7 +1115,7 @@ class KoRunService:
         envDict = uEnvDict
 
         try:
-            child = _KoRunProcessOpen(command, cwd=cwd, env=envDict)
+            child = runutils.KoRunProcess(command, cwd=cwd, env=envDict)
         except process.ProcessError, ex:
             _gLastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))

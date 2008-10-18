@@ -351,6 +351,35 @@ test_run_commands.prototype.test_unicode_input = function() {
     }
 }
 
+    // * test killing a process that is using "tail -f ...".
+test_run_commands.prototype.test_tail_command = function() {
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                    getService(Components.interfaces.koIInfoService);
+    // Only running this command on Linux and OSX, as I don't know what
+    // application to use on Windows.
+    if (!infoSvc.platform.toLowerCase().match(/^win/)) {
+        var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                        getService(Components.interfaces.koIFileService);
+        // koIFile for writing a python program contents.
+        var koIFile = fileSvc.makeTempFile(".py", "w");
+        koIFile.close();
+        var cmd = "tail -f " + koIFile.path;
+        var process = this.runSvc.RunInTerminal(cmd, null, null, ko.run.output.getTerminal(), null, null);
+        try {
+            var retval = process.wait(2);  // Wait till timeout.
+            this.fail("Process did not timeout");
+        } catch (ex) {
+            process.kill(-9);
+        }
+        try {
+            var retval = process.wait(2);  // Should not timeout.
+        } catch (ex) {
+            this.fail("Process timed out after killing");
+        }
+        this.assertEqual(retval, -9, "Expected retval of -9, got " + retval);
+    }
+}
+
 /* TEST SUITE */
 
 // we do not pass an instance of MyTestCase, they are created in MakeSuite
