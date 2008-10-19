@@ -71,7 +71,7 @@ use moz bindings with CSS to acheive everything we have here.
     </content>
   </binding>
 
-  <!-- USED! style: button-toolbar-a,button-toolbar-rx -->
+  <!-- USED! style: button-toolbar-a -->
   <binding id="button-toolbar-a" display="xul:button"
     extends="chrome://komodo/content/bindings/buttons.xml#button-base">
     <content>

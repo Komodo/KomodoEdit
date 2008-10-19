@@ -115,18 +115,6 @@ button[type="button-toolbar-a"],
     -moz-user-focus     : ignore;
 }
 
-/* Rx panel step/run buttons */
-.button-toolbar-rx
-{
-    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
-    margin              : 5px;
-    min-width           : 60px;
-    border              : 1px solid ThreeDDarkShadow;
-    color               : WindowText;
-    background-color    : transparent;
-    -moz-user-focus     : ignore;
-    height              : 2.5em;
-}
 
 .button-menu-a > .button-internal-box,
 .button-toolbar-a > .button-internal-box,
@@ -138,8 +126,7 @@ button[type="button-toolbar-a"],
 
 .button-toolbar-c > .button-internal-box,
 .button-toolbar-d > .button-internal-box,
-.button-toolbar-e > .button-internal-box,
-.button-toolbar-rx > .button-internal-box
+.button-toolbar-e > .button-internal-box
 {
     padding             : 1px 3px 1px 3px;
     border              : 1px solid transparent;
@@ -164,8 +151,7 @@ button[type="button-toolbar-a"],
 .button-toolbar-b:hover,
 .button-toolbar-c:hover,
 .button-toolbar-d:hover,
-.button-toolbar-e:hover,
-.button-toolbar-rx:hover
+.button-toolbar-e:hover
 {
     border              : 1px solid ThreeDDarkShadow;
 }
@@ -182,17 +168,12 @@ button[type="button-toolbar-a"],
 }
 .button-toolbar-c:hover > .button-internal-box,
 .button-toolbar-d:hover > .button-internal-box,
-.button-toolbar-e:hover > .button-internal-box,
-.button-toolbar-rx:hover > .button-internal-box
+.button-toolbar-e:hover > .button-internal-box
 {
     border-left         : 1px solid ThreeDHighlight;
     border-top          : 1px solid ThreeDHighlight;
     border-right        : 1px solid ThreeDShadow;
     border-bottom       : 1px solid ThreeDShadow;
-}
-.button-toolbar-rx:hover > .button-internal-box
-{
-    color               : blue;
 }
 
 .button-menu-a:hover:active > .button-internal-box,
@@ -208,7 +189,6 @@ button[type="button-toolbar-a"],
 }
 .button-toolbar-c:hover:active > .button-internal-box,
 .button-toolbar-d:hover:active > .button-internal-box,
-.button-toolbar-rx:hover:active > .button-internal-box,
 .button-toolbar-e:hover:active > .button-internal-box
 {
     padding             : 2px 2px 0px 4px;
@@ -243,10 +223,7 @@ button[type="button-toolbar-a"],
 .button-toolbar-d[disabled="true"]:hover:active
 .button-toolbar-e[disabled="true"],
 .button-toolbar-e[disabled="true"]:hover,
-.button-toolbar-e[disabled="true"]:hover:active,
-.button-toolbar-rx[disabled="true"],
-.button-toolbar-rx[disabled="true"]:hover,
-.button-toolbar-rx[disabled="true"]:hover:active
+.button-toolbar-e[disabled="true"]:hover:active
 {
     color               : GrayText;
     border              : 1px solid transparent;
@@ -274,10 +251,7 @@ button[type="button-toolbar-a"],
 .button-toolbar-d[disabled="true"]:hover:active > .button-internal-box,
 .button-toolbar-e[disabled="true"] > .button-internal-box,
 .button-toolbar-e[disabled="true"]:hover > .button-internal-box,
-.button-toolbar-e[disabled="true"]:hover:active > .button-internal-box,
-.button-toolbar-rx[disabled="true"] > .button-internal-box,
-.button-toolbar-rx[disabled="true"]:hover > .button-internal-box,
-.button-toolbar-rx[disabled="true"]:hover:active > .button-internal-box
+.button-toolbar-e[disabled="true"]:hover:active > .button-internal-box
 {
     padding             : 1px 3px 1px 3px !important;
     border              : 1px solid transparent !important;
@@ -287,9 +261,7 @@ button[type="button-toolbar-a"],
 /* toggled toolbar styles (editor formatting toolbars, etc) */
 .button-toolbar-c[toggled="true"] > .button-internal-box,
 .button-toolbar-d[checked="true"] > .button-internal-box,
-.button-toolbar-e[checked="true"] > .button-internal-box,
-.button-toolbar-rx[checked="true"] > .button-internal-box,
-.button-toolbar-rx[checked="true"]:hover > .button-internal-box
+.button-toolbar-e[checked="true"] > .button-internal-box
 {
     border-left         : 1px solid ThreeDShadow;
     border-top          : 1px solid ThreeDShadow;
