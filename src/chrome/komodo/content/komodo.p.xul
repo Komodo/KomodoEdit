@@ -1717,7 +1717,8 @@
             </toolbarbutton>
             <toolbarbutton id="tabPicker"
                 tooltiptext="&showSpecificTab.tooltiptext;"
-                type="menu-button"
+                type="menu"
+                orient="horizontal"
                 persist="buttonstyle"
                 class="tabPicker-icon"
                 buttonstyle="pictures"
