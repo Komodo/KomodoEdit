@@ -35,14 +35,6 @@ tabpanel
   margin: 0px;
 }
 
-/*
- * Problem with toolbar buttons showing the checked state on linux.
- * See bug: http://bugs.activestate.com/show_bug.cgi?id=64328
- */
-toolbarbutton {
-  -moz-appearance: none !important;
-}
-
 /* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
  * 
  * Only *specifically* doing this for non-MacOSX and for textboxes of
