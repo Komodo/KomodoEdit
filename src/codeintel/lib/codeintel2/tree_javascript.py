@@ -105,12 +105,12 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         else:
             hits = self._hits_from_citdl(self.expr, start_scoperef)
             cplns = list(self._members_from_hits(hits))
+            if not cplns:
+                raise CodeIntelError("No completions found")
         # For logging messages every call
         #print indent('\n'.join("%s: %s" % (lvl, m)
         #                for lvl,m in self.ctlr.log))
         #print indent('\n'.join(["Hit: %r" % (cpln, ) for cpln in cplns]))
-        if not cplns:
-            raise CodeIntelError("No completions found")
         return cplns
 
     def eval_calltips(self):
