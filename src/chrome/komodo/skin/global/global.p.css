@@ -38,11 +38,6 @@
 
 /* Folder Icons */
 
-.folder-icon
-{
-    list-style-image : url("chrome://komodo/skin/global/images/folder.png");
-}
-
 .openfolder-icon
 {
     list-style-image : url("chrome://komodo/skin/global/images/openFolder.png");

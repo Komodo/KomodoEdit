@@ -1919,7 +1919,7 @@
                                     this.setSelectionRange(0, this.textLength);"
                      onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"/>
             <toolbarbutton id="find-toolbar-browsedirectory"
-                           class="folder-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                           class="open-file-nohover-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                            oncommand="Findtoolbar_AddBrowsedDirectory();"/>
