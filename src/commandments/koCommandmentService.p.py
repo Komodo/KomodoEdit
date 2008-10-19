@@ -480,10 +480,13 @@ class KoCommandmentService(object):
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
-            log.debug("koCommandmentService got xpcom-shutdown, unloading");
+            _gObserverSvc.removeObserver(self._observer, 'xpcom-shutdown')
             self.finalize()
         elif topic == 'komodo-ui-started':
-            # commandmentSvc needs the window to be alive
+            # Need to ensure that the view-manager for at least one Komodo
+            # window is up and running, so that it will receive open_file
+            # notifications.
+            _gObserverSvc.removeObserver(self._observer, 'komodo-ui-started')
             self.initialize()
  
     def handleCommandment(self, commandment):
