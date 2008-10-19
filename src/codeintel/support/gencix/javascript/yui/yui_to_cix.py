@@ -69,6 +69,7 @@ import zipfile
 from cStringIO import StringIO
 from optparse import OptionParser
 
+from codeintel2.manager import Manager
 from codeintel2.lang_javascript import JavaScriptCiler
 from codeintel2.tree import tree_2_0_from_tree_0_1
 
@@ -144,7 +145,7 @@ def main(cix_filename, updatePerforce=False):
     #cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
     files = getYUIFilesFromWebpage()
-    jscile = JavaScriptCiler("yui", "yui")
+    jscile = JavaScriptCiler(Manager(), "yui", "yui")
     for filename, content in files.items():
         if filename in ("utilities.js",
                         "yahoo-dom-event.js",   # v2.2.0

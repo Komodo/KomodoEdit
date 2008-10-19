@@ -55,6 +55,7 @@ import sys
 import zipfile
 from optparse import OptionParser
 
+from codeintel2.manager import Manager
 from codeintel2.lang_javascript import JavaScriptCiler
 from codeintel2.tree import tree_2_0_from_tree_0_1
 
@@ -96,7 +97,7 @@ def main(cix_filename, toolkit_jar_file, updatePerforce=False):
 
     print "cix_filename: %r" % (cix_filename, )
     filenames_and_content = getMozillaToolkitFilenamesAndContent(toolkit_jar_file)
-    jscile = JavaScriptCiler("Mozilla", "Toolkit")
+    jscile = JavaScriptCiler(Manager(), "Mozilla", "Toolkit")
     for filename, content in filenames_and_content.items():
         jscile.scan_puretext(content)
     jscile.convertToElementTreeFile(cix_komodo, "JavaScript")

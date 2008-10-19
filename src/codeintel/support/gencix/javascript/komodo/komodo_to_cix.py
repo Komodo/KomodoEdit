@@ -53,6 +53,7 @@ import logging
 
 sys.path.insert(0, normpath(join(
     dirname(abspath(__file__)), "..", "..", "..", "..", "lib")))
+from codeintel2.manager import Manager
 from codeintel2.lang_javascript import JavaScriptCiler
 from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
@@ -311,7 +312,7 @@ def komodo_to_cix(output_path, p4_edit=False):
     # We use one JavaScript ciler instance for all the files we scan. This is
     # so we can record all variable/function/etc... information into one
     # komodo.cix file.
-    jscile = JavaScriptCiler("komodo")
+    jscile = JavaScriptCiler(Manager(), "komodo")
     komodo_chrome_dir = join(_get_komodo_dev_dir(), "build", "release",
                              "chrome", "komodo", "content")
     for path in _gen_komodo_js_api_files(komodo_chrome_dir):

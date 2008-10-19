@@ -63,6 +63,7 @@ import zipfile
 from cStringIO import StringIO
 from optparse import OptionParser
 
+from codeintel2.manager import Manager
 from codeintel2.lang_javascript import JavaScriptCiler
 from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
@@ -139,7 +140,7 @@ def main(cix_filename, updatePerforce=False):
                         description="%s JavaScript framework - version %s" % (
                                          library_name, library_version))
     files = getFilesFromWebpage()
-    jscile = JavaScriptCiler("extjs")
+    jscile = JavaScriptCiler(Manager(), "extjs")
     for path, (dirname, filename, content) in files["source"].items():
         if "source" in dirname.split("/") and not filename.startswith("ext-lang-"):
             print "filename: %r" % (filename)
