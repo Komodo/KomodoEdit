@@ -166,6 +166,8 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         scimoz.registerImage(iface.ACIID_XML_ELEMENT,      ko.markers.getPixmap("chrome://komodo/skin/images/ac_xml_element.xpm"));
         scimoz.registerImage(iface.ACIID_XML_ATTRIBUTE,    ko.markers.getPixmap("chrome://komodo/skin/images/ac_xml_attribute.xpm"));
         scimoz.registerImage(iface.ACIID_CONSTANT,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_constant.xpm"));
+        // XXX: Need a better image (a dedicated keyword image)
+        scimoz.registerImage(iface.ACIID_KEYWORD,          ko.markers.getPixmap("chrome://komodo/skin/images/ac_interface.xpm"));
 
         this.callTipStack = [];
         // Can't use scimoz.{autoC|callTip}PosStart() for this because (1)

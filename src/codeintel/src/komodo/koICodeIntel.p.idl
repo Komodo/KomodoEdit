@@ -114,6 +114,7 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
     const long ACIID_XML_ELEMENT = 10;
     const long ACIID_XML_ATTRIBUTE = 11;
     const long ACIID_CONSTANT = 12;
+    const long ACIID_KEYWORD = 13;
     
     // Called by a koICodeIntelCompletionLanguageService (see
     // src/languages/ko*Language.py) to provide data for these UIs.

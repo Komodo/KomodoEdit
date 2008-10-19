@@ -674,6 +674,7 @@ class KoCodeIntelEvalController(EvalController):
         "%variable": koICodeIntelCompletionUIHandler.ACIID_VARIABLE_HASH,
         "directory": koICodeIntelCompletionUIHandler.ACIID_DIRECTORY,
         "constant": koICodeIntelCompletionUIHandler.ACIID_CONSTANT,
+        "keyword": koICodeIntelCompletionUIHandler.ACIID_KEYWORD,
 
         "element": koICodeIntelCompletionUIHandler.ACIID_XML_ELEMENT,
         "attribute": koICodeIntelCompletionUIHandler.ACIID_XML_ATTRIBUTE,
