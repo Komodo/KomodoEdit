@@ -1,6 +1,30 @@
 @import url("chrome://komodo/skin/tabs/tabs.css");
-
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+
+/* "workspace_splitter": A splitter used between main panes in the
+ * Komodo window.
+ *
+ * Intentionally blank: use default splitter style.
+ */
+
+/* "multiview_splitter": A splitter used for splitting tab groups in the main
+ * Komodo editor pane.
+ */
+
+splitter.multiview_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy_horizontal.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  min-width: 9px;
+}
+
+splitter[orient="vertical"].multiview_splitter {
+  background-image: url("chrome://komodo/skin/images/grippy_vertical.png");
+}
+
+
+/* Sidebar and editor tabs styling. */
 
 tabpanels,
 tabpanel

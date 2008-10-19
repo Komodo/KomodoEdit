@@ -1,5 +1,11 @@
 
-/* Special classes for XUL <splitter>'s in Komodo. */
+/* Special classes for XUL <splitter>'s in Komodo.
+ *
+ * See "plat/$PLAT/platform.css" for some plat-specific splitter classes.
+ */
+
+
+/* A splitter with a small divot grippy and no borders or padding. */
 
 .divot_splitter {
   background-image: url("chrome://komodo/skin/images/grippy.png");
@@ -10,22 +16,14 @@
   border: none;
 }
 
-.grippy_splitter {
-  background-image: url("chrome://komodo/skin/images/grippy_horizontal.png");
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.grippy_splitter[orient="vertical"] {
-  background-image: url("chrome://komodo/skin/images/grippy_vertical.png");
-}
-
-
 .divot_splitter[collapsed="true"] {
   visibility: collapse;
 }
 
 
+/* A splitter with a relatively small grippy and support for showing
+ * collapsing state.
+ */
 .grippy_splitter_collapsable {
   background-image: none;
 }

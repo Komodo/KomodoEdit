@@ -1,7 +1,23 @@
 @import url("chrome://komodo/skin/tabs/tabs.css");
- 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+
+/* "workspace_splitter": A splitter used between main panes in the
+ * Komodo window.
+ *
+ * Intentionally blank: use default splitter style.
+ */
+
+/* "multiview_splitter": A splitter used for splitting tab groups in the main
+ * Komodo editor pane.
+ *
+ * Intentionally blank: use default splitter style.
+ * TODO: Use similar style to that for gnome when have versions of
+ *       "grippy_horizontal.png" and "grippy_vertical.png" that aren't so fat.
+ */
+
+
+/* Sidebar and editor tabs styling. */
 
 tabpanels
 {

@@ -1,13 +1,16 @@
 
-/* make out splitters similar to regular osx splitters */
-splitter[orient="vertical"].divot_splitter {
+
+/* "workspace_splitter": A splitter used between main panes in the
+ * Komodo window.
+ */
+splitter[orient="vertical"].workspace_splitter {
   min-height: 1px;
   height: 1px;
   background-image: none !important;
   border: none;
   border-bottom: 1px solid #404040;
 }
-splitter[orient="horizontal"].divot_splitter {
+splitter[orient="horizontal"].workspace_splitter {
   min-width: 1px;
   width: 1px;
   background-image: none !important;
@@ -15,20 +18,23 @@ splitter[orient="horizontal"].divot_splitter {
   border-right: 1px solid #404040;
 }
 
-
-view splitter[orient="vertical"].grippy_splitter{
+/* "multiview_splitter": A splitter used for splitting tab groups in the main
+ * Komodo editor pane.
+ */
+splitter[orient="vertical"].multiview_splitter {
   min-height: 1px;
   height: 2px;
   background-image: none !important;
   background-color: rgba(0,0,0,0.35);
 }
-
-view splitter[orient="horizontal"].grippy_splitter {
+splitter[orient="horizontal"].multiview_splitter {
   min-width: 1px;
   width: 3px;
   background-image: none !important;
   background-color: rgba(0,0,0,0.35);
 }
+
+
 
 .projectTree:-moz-tree-twisty
 {

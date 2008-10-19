@@ -64,10 +64,9 @@
             <xul:splitter id="multiview-splitter"
                       collapsed="true"
                       collapse="after"
-                      class="grippy_splitter"
+                      class="multiview_splitter"
                       orient="vertical"
                       xbl:inherits="orient"
-                      style="border: none;"
                       tooltiptext="&doubleClickToChangeOrientation.tooltiptext;"
                       ondblclick="this.parentNode.parentNode.changeOrient();"/>
             <xul:view id="view-2"
