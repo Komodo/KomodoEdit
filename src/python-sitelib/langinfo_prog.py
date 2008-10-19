@@ -90,6 +90,25 @@ class PHPLangInfo(LangInfo):
     #TODO: PHP files should inherit the HTML "<meta> charset" check
     #      and the XML prolog encoding check.
 
+    keywords = set([
+            # existed in php4
+            "bool", "boolean", "catch", "define", "double", "false", "float",
+            "int", "integer", "null", "object", "parent", "real",
+            "self", "string", "this", "true", "virtual",
+            # new to php5
+            "abstract", "final", "implements", "instanceof", "interface",
+            "public", "private", "protected", "throw", "try",
+            # http://www.php.net/manual/en/reserved.php#reserved.keywords
+            "__file__", "__line__", "_function_", "_class_",
+            "and", "array", "as", "break", "case", "cfunction", "class",
+            "const", "continue", "declare", "default", "die", "do", "echo",
+            "else", "elseif", "empty", "enddeclare", "endfor", "endforeach",
+            "endif", "endswitch", "endwhile", "eval", "exit", "extends",
+            "for", "foreach", "function", "global", "if", "include",
+            "include_once", "isset", "list", "new", "old_function", "or",
+            "print", "require", "require_once", "return", "static",
+            "switch", "unset", "use", "var", "while", "xor",
+            ])
 
 class TclLangInfo(LangInfo):
     name = "Tcl"

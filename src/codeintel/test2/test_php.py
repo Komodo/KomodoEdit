@@ -1903,6 +1903,40 @@ EOD;
                 [("function", 'test_func'),
                  ("variable", 'var'),])
 
+    @tag("bug77532")
+    def test_keyword_completions(self):
+        # bug 77532:
+        #  Test to ensure that keywords are included in the 3-character
+        #  completion results.
+
+        content, positions = unmark_text(php_markup(dedent("""\
+            fun<1>ct; # completions include keywords
+            if (fun<2>) {}  # do not want to include "function", "class", ... keywords
+            if ( !fun<3>ction_exists('function_bug77532') ) :
+                fun<4>ction fun<5>ction_bug77532($id, $name = '') { }
+            endif;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [('keyword',  'function'),
+                 ('function', 'function_bug77532'),
+                 ('function', 'function_exists')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                [('function', 'function_bug77532'),
+                 ('function', 'function_exists')])
+        #self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+        #        [('keyword', 'function'), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+                [('function', 'function_bug77532'),
+                 ('function', 'function_exists')])
+        #self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+        #        [('keyword', 'function'), ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+                [('keyword',  'function'),
+                 ('function', 'function_bug77532'),
+                 ('function', 'function_exists')])
+        # Don't want to trigger after "function" in this case
+        self.assertNoTrigger(markup_text(content, pos=positions[5]))
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

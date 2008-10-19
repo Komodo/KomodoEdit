@@ -156,7 +156,8 @@ class PHPTreeEvaluator(TreeEvaluator):
             return self._comment_variables_from_scope(self.expr, next_scope)
         elif trg.type == "functions":
             # The 3-character trigger, which not actually specific to functions.
-            retval = self._functions_from_scope(self.expr, start_scope) + \
+            retval = self._keywords_from_scope(self.expr, start_scope) + \
+                     self._functions_from_scope(self.expr, start_scope) + \
                      self._constants_from_scope(self.expr, start_scope) + \
                      self._classes_from_scope(self.expr[:3], start_scope)
             #if self.ctlr.is_aborted():
@@ -349,6 +350,16 @@ class PHPTreeEvaluator(TreeEvaluator):
                             "constant",
                             ("globals", "imports", "builtins"),
                             self.constant_shortnames_from_elem)
+
+    def _keywords_from_scope(self, expr, scoperef):
+        """Return all available keyword names beginning with expr"""
+        keyword_completions = []
+        keywords = self.langintel.langinfo.keywords
+        expr = expr and expr[:3]
+        for name in keywords:
+            if not expr or name.startswith(expr):
+                keyword_completions.append(("keyword", name))
+        return keyword_completions
 
     def _functions_from_scope(self, expr, scoperef):
         """Return all available function names beginning with expr"""
