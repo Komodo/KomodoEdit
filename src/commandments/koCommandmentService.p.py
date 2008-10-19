@@ -415,6 +415,7 @@ else:
 
 
 #---- component implementation
+
 class KoCommandmentService:
     _com_interfaces_ = [components.interfaces.koICommandmentService,
                         components.interfaces.nsIObserver]
@@ -435,9 +436,9 @@ class KoCommandmentService:
         self._observer = WrapObject(self, components.interfaces.nsIObserver)
         obsvc.addObserver(self._observer, 'xpcom-shutdown', 1)
         obsvc.addObserver(self._observer, 'komodo-ui-started', 1)
-        self.initialize()
 
     def initialize(self):
+        log.debug("KoCommandmentService.initialize()")
         if self._reader:
             # we're already initialized
             return
