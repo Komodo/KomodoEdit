@@ -38,11 +38,6 @@
 
 /* Folder Icons */
 
-.openfolder-icon
-{
-    list-style-image : url("chrome://komodo/skin/global/images/openFolder.png");
-}
-
 .upfolder-icon
 {
   list-style-image : url("chrome://komodo/skin/global/images/upLevel.png");
@@ -68,10 +63,6 @@
 }
 
 /* General Icons */
-.komodo-icon
-{
-    list-style-image : url("chrome://komodo/skin/images/komodo-icon.png");
-}
 
 .refresh-icon
 {

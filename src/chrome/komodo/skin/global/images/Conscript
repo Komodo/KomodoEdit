@@ -38,7 +38,6 @@
 Import('cons', 'mozChromeDir');
 
 $cons->InstallInChrome('newDirectory.png');
-$cons->InstallInChrome('openFolder.png');
 $cons->InstallInChrome('upLevel.png');
 $cons->InstallInChrome('upLevel_disable.png');
 
