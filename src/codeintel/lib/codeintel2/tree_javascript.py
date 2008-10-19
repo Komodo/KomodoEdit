@@ -690,6 +690,12 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         # Keep a dictionary of completions.
         all_completions = {}
 
+        # We start off having JS keywords at a bare minimum.
+        keywords = self.langintel.langinfo.keywords
+        for name in keywords:
+            if not expr or name.startswith(expr):
+                all_completions[name] = "keyword"
+
         # From the local scope, walk up the parent chain including matches as
         # we go.
         # XXX - Can we skip the global (stdlib) blob in here?

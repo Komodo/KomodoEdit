@@ -853,6 +853,21 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "name"),
              ("variable", "property"), ])
 
+    @tag("bug78185")
+    def test_keyword_completions(self):
+        content, positions = unmark_text(dedent("""\
+            fun<1>ction fun<2>time() { }
+            if (typ<3>) {}
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("keyword", "function"),
+             ("function", "funtime"), ])
+        # Should not trigger a names-completion after "function".
+        self.assertNoTrigger(markup_text(content, pos=positions[2]))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("keyword", "typeof"), ])
+
+
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 

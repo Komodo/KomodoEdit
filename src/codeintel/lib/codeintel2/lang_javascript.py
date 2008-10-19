@@ -95,19 +95,6 @@ log = logging.getLogger("codeintel.javascript")
 #log.setLevel(logging.DEBUG)
 #log.setLevel(logging.INFO)
 
-keywords = ["abstract", "boolean", "break", "byte", "case", "catch",
-            "char", "class", "const", "continue", "debugger", "default",
-            "delete", "do", "double", "else", "enum", "export",
-            "extends", "false", "final", "finally", "float", "for", "function",
-            "goto", "if", "implements", "import", "in", "instanceof",
-            "int", "interface", "long", "native", "new", "null", "package",
-            "private", "protected", "public", "return", "short",
-            "static", "super", "switch", "synchronized", "this", "throw",
-            "throws", "transient", "true", "try", "typeof",
-            "undefined", # bug 77291
-            "var", "void",
-            "while", "with"]
-
 # States used by JavaScriptScanner when parsing information
 S_DEFAULT = 0
 S_IN_ARGS = 1
@@ -132,11 +119,12 @@ TYPE_PARENT = 8
 
 class JavaScriptLexer(Lexer):
     lang = "JavaScript"
-    def __init__(self):
+    def __init__(self, mgr):
         self._properties = SilverCity.PropertySet()
         self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_CPP)
+        jsli = mgr.lidb.langinfo_from_lang(self.lang)
         self._keyword_lists = [
-            SilverCity.WordList(' '.join(keywords)),
+            SilverCity.WordList(' '.join(jsli.keywords)),
             SilverCity.WordList(),
             SilverCity.WordList(),
             SilverCity.WordList(),
@@ -367,6 +355,15 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                     print "No 'names' trigger, third char " \
                                           "is a dot"
                                 return None
+                            elif style == jsClassifier.keyword_style:
+                                p, prev_text = ac.getTextBackWithStyle(style, jsClassifier.ignore_styles, max_text_len=len("function")+1)
+                                if prev_text in ("function", ):
+                                    # We don't trigger after function, this is
+                                    # defining a new item that does not exist.
+                                    if DEBUG:
+                                        print "No 'names' trigger, preceeding "\
+                                              "text is 'function'"
+                                    return None
                     if DEBUG:
                         print "triggering 'javascript-complete-names' at " \
                               "pos: %d" % (last_pos - 2, )
@@ -866,7 +863,7 @@ class JavaScriptCILEDriver(CILEDriver):
             # CIX requires a normalized path.
             norm_path = norm_path.replace('\\', '/')
         mtime = "XXX"
-        jscile = JavaScriptCiler(norm_path, mtime)
+        jscile = JavaScriptCiler(self.mgr, norm_path, mtime)
         # Profiling code: BEGIN
         #import hotshot, hotshot.stats
         #profiler = hotshot.Profile("%s.prof" % (__file__))
@@ -891,7 +888,7 @@ class JavaScriptCILEDriver(CILEDriver):
             norm_path = norm_path.replace('\\', '/')
         #XXX Remove mtime when move to CIX 2.0.
         mtime = "XXX"
-        jscile = JavaScriptCiler(norm_path, mtime)
+        jscile = JavaScriptCiler(self.mgr, norm_path, mtime)
 
         jscile.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
                               identiferStyle=SCE_UDL_CSL_IDENTIFIER,
@@ -923,7 +920,7 @@ class JavaScriptCILEDriver(CILEDriver):
         log.info("scan_csl_tokens: %r", file_elem.get("path"))
         blob_elem = createCixModule(file_elem, blob_name, lang,
                                     src=file_elem.get("path"))
-        jscile = JavaScriptCiler()
+        jscile = JavaScriptCiler(self.mgr)
         jscile.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
                               identiferStyle=SCE_UDL_CSL_IDENTIFIER,
                               operatorStyle=SCE_UDL_CSL_OPERATOR,
@@ -1495,7 +1492,8 @@ class JavaScriptCiler:
     UDL_COMMENT_STYLES = (SCE_UDL_CSL_COMMENT,
                           SCE_UDL_CSL_COMMENTBLOCK)
 
-    def __init__(self, path="", mtime=None):
+    def __init__(self, mgr, path="", mtime=None):
+        self.mgr = mgr
         # hook up the lexical matches to a function that handles the token
 
         # Working variables, used in conjunction with state
@@ -3325,7 +3323,7 @@ class JavaScriptCiler:
         #XXX Should eventually use lang_javascript.JavaScriptLexer()
         #    because (1) it's word lists might differ and (2) the
         #    codeintel system manages one instance of it.
-        JavaScriptLexer().tokenize_by_style(content, self.token_next)
+        JavaScriptLexer(self.mgr).tokenize_by_style(content, self.token_next)
         # Ensure we take notice of any text left in the ciler
         self._endOfScanReached()
         if updateAllScopeNames:
@@ -3381,7 +3379,7 @@ def _walk_js_symbols(elem, _prefix=None):
 def register(mgr):
     """Register language support with the Manager."""
     mgr.set_lang_info(lang,
-                      silvercity_lexer=JavaScriptLexer(),
+                      silvercity_lexer=JavaScriptLexer(mgr),
                       buf_class=JavaScriptBuffer,
                       langintel_class=JavaScriptLangIntel,
                       import_handler_class=JavaScriptImportHandler,

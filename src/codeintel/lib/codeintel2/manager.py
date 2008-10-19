@@ -133,6 +133,7 @@ class Manager(threading.Thread, Queue):
         self._is_citadel_from_lang = {} # registered langs that are Citadel-based
         self._is_cpln_from_lang = {} # registered langs for which completion is supported
         self._hook_handlers_from_lang = defaultdict(list)
+        self.lidb = langinfo.get_default_database()
         self._register_modules(extra_module_dirs)
 
         self.env = env or DefaultEnvironment() 
@@ -141,7 +142,6 @@ class Manager(threading.Thread, Queue):
                            event_reporter=db_event_reporter,
                            import_everything_langs=db_import_everything_langs)
         self.idxr = indexer.Indexer(self, on_scan_complete)
-        self.lidb = langinfo.get_default_database()
 
     def upgrade(self):
         """Upgrade the database, if necessary.
