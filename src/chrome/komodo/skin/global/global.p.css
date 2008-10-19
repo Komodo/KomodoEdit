@@ -144,15 +144,6 @@
   list-style-image : url("chrome://komodo/skin/images/arrow_right_6x3.png");
 }
 
-.go-icon
-{
-  list-style-image : url("chrome://komodo/skin/images/go.png");
-}
-.go-icon:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/go-hover.png");
-}
-
 .project-icon
 {
   list-style-image : url("chrome://komodo/skin/images/project_icon.png");

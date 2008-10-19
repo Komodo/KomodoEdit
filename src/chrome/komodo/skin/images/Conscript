@@ -78,9 +78,6 @@ $cons->InstallInChrome('small-arrow-up.png');
 $cons->InstallInChrome('small-arrow-up_hover.png');
 $cons->InstallInChrome('small-arrow-up_disable.png');
 
-$cons->InstallInChrome('go.png');
-$cons->InstallInChrome('go-hover.png');
-
 $cons->InstallInChrome('leftarrow.png');
 $cons->InstallInChrome('rightarrow.png');
 $cons->InstallInChrome('watch.png');
