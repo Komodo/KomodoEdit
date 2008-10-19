@@ -416,42 +416,40 @@ else:
 
 #---- component implementation
 
-class KoCommandmentService:
+class KoCommandmentService(object):
     _com_interfaces_ = [components.interfaces.koICommandmentService,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "{1ADBCE86-1AE4-4F90-AA85-B230B7510D7B}"
     _reg_contractid_ = "@activestate.com/koCommandmentService;1"
     _reg_desc_ = "Komodo commandment system service"
     _reg_categories_ = [
-         ("komodo-startup-service", "koCommandmentService", True),
-         ]
+        ("komodo-startup-service", "koCommandmentService", True),
+    ]
 
     def __init__(self):
+        global _gObserverSvc
+        proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"]\
+            .getService(components.interfaces.nsIProxyObjectManager)
+        observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+            .getService(components.interfaces.nsIObserverService)
+        _gObserverSvc = getProxyForObject(None,
+            components.interfaces.nsIObserverService,
+            observerSvc, PROXY_ALWAYS | PROXY_SYNC)
+
+        self._observer = WrapObject(self, components.interfaces.nsIObserver)
+        _gObserverSvc.addObserver(self._observer, 'xpcom-shutdown', 1)
+        _gObserverSvc.addObserver(self._observer, 'komodo-ui-started', 1)
+
         # Platform-specific handle on object indicating Komodo is running.
         self._running = None
         # Commandment reader thread.
         self._reader = None
-        obsvc = components.classes["@mozilla.org/observer-service;1"].\
-                    getService(components.interfaces.nsIObserverService)
-        self._observer = WrapObject(self, components.interfaces.nsIObserver)
-        obsvc.addObserver(self._observer, 'xpcom-shutdown', 1)
-        obsvc.addObserver(self._observer, 'komodo-ui-started', 1)
 
     def initialize(self):
         log.debug("KoCommandmentService.initialize()")
         if self._reader:
             # we're already initialized
             return
-        global _gObserverSvc
-        proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"]\
-            .getService(components.interfaces.nsIProxyObjectManager)
-        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-            getService(components.interfaces.nsIObserverService)
-        _gObserverSvc = getProxyForObject(None,
-            components.interfaces.nsIObserverService,
-            observerSvc, PROXY_ALWAYS | PROXY_SYNC)
-        koDirs = components.classes["@activestate.com/koDirs;1"].\
-            getService(components.interfaces.koIDirs)
         if sys.platform.startswith("win"):
             global _gHWnd
             try:
@@ -466,6 +464,8 @@ class KoCommandmentService:
                 log.error(str(ex))
 
         # Start the commandment reader thread.
+        koDirs = components.classes["@activestate.com/koDirs;1"]\
+            .getService(components.interfaces.koIDirs)
         infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
         ver = infoSvc.version          # '1.9.0-devel'
         ver = re.split('\.|-', ver)    # ['1', '9', '0', 'devel']
@@ -493,4 +493,3 @@ class KoCommandmentService:
             _handleCommandment(commandment)
         except CommandmentError, ex:
             log.error("'%s': %s", commandment, str(ex))
-
