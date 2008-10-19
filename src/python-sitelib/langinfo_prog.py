@@ -123,6 +123,37 @@ class JavaScriptLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = ['.js']
 
+    # These are the keywords that are used in most JavaScript environments.
+    common_keywords = set(["break",
+                           "case", "catch", "const", "continue",
+                           "debugger", "default", "delete", "do",
+                           "else", "export",
+                           "false", "finally", "for", "function",
+                           "if", "import", "in", "instanceof",
+                           "new", "null",
+                           "return",
+                           "switch",
+                           "this", "throw", "true", "try", "typeof",
+                           "undefined",
+                           "var", "void",
+                           "while", "with"
+                          ])
+    keywords = common_keywords.union(
+                # Additional JavaScript reserved keywords.
+                set(["abstract", "boolean", "byte",
+                    "char", "class",
+                    "double",
+                    "enum", "extends",
+                    "final", "float",
+                    "goto",
+                    "implements", "int", "interface",
+                    "long",
+                    "native",
+                    "package", "private", "protected", "public",
+                    "short", "static", "super", "synchronized",
+                    "throws", "transient"
+                    ]))
+
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
     name = "C"
