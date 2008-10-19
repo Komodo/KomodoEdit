@@ -1,4 +1,5 @@
 
+/* Special classes for XUL <splitter>'s in Komodo. */
 
 .divot_splitter {
   background-image: url("chrome://komodo/skin/images/grippy.png");
@@ -24,20 +25,18 @@
   visibility: collapse;
 }
 
+
 .grippy_splitter_collapsable {
   background-image: none;
 }
 
 .grippy_splitter_collapsable > grippy {
   min-height: 80px;
-  min-width: 10px;
-  border: none;
   background-position: center;
   background-repeat: no-repeat;
 }
 
 .grippy_splitter_collapsable[orient="vertical"] > grippy {
-  min-height: 10px;
   min-width: 80px;
   background-position: center;
   background-repeat: no-repeat;

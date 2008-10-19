@@ -52,6 +52,7 @@ Import(
 );
 
 $cons->InstallInChrome('komodo.css');
+$cons->InstallInChrome('splitter.css');
 $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
 $cons->InstallInChrome('browser.css');

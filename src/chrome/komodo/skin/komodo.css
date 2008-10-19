@@ -34,7 +34,7 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 @import url("chrome://global/skin/");
-@import url("chrome://komodo/skin/unifiedWindow.css");
+@import url("chrome://komodo/skin/unifiedWindow.css");  /* only exists on Mac */
 @import url("chrome://komodo/skin/splitter.css");
 
 
