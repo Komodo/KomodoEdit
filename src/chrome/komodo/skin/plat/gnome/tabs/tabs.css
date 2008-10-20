@@ -28,6 +28,12 @@
   margin: 0px;
 }
 
+/* Ensure the tab buttons are vertically aligned. */
+.tabstrip-box
+{
+  -moz-box-align: center;
+}
+
 /* Ensure the default styling for tab close button is hidden. */
 .tab-close-button {
   visibility: hidden;
