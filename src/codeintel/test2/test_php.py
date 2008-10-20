@@ -1937,6 +1937,26 @@ EOD;
         # Don't want to trigger after "function" in this case
         self.assertNoTrigger(markup_text(content, pos=positions[5]))
 
+    @tag("bug79003")
+    def test_variable_completions_in_class_function(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug79003_class {
+                function dummyMethod() {
+                    $thisVar = true;
+                    $t<1>;
+                }
+                $t<2>;
+            }
+            $t<3>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("variable", 'this'),
+                 ("variable", 'thisVar'),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+                [("variable", 'this'),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+                [("variable", 'this'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
