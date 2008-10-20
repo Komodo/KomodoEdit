@@ -31,6 +31,11 @@
 /* Ensure the tab buttons are vertically aligned. */
 .tabstrip-box
 {
+  margin: 0 0 -1px 0;
+}
+
+.tabs-bottom .tabstrip-box {
+  margin: 0px;
   -moz-box-align: center;
 }
 

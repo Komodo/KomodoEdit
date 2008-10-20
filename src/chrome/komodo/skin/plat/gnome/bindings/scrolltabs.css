@@ -169,3 +169,20 @@ tabs.small > tab {
     font-size: 85%;
 }
 
+tab {
+  border: none !important;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-top: 3px;
+  margin-bottom: 1px;
+}
+
+tab[selected="true"] {
+  padding-top: 1px;
+  margin-top: 1px;
+  margin-bottom: 0px;
+}
+
+tab.tabs-bottom {
+  margin: 0px;
+}
