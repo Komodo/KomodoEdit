@@ -41,6 +41,12 @@ tab[type="file-tab"]
   border: none !important;
   background: inherit;
   cursor: default;
+  /*
+    Remove the top and bottom padding, otherwise the tabs look fat (too tall).
+    Provide more space to the left of the button, otherwise the X button is
+    too jammed against the tab text.
+  */
+  padding: 0 0 0 6px;
 }
 
 .tabs-closebutton:hover,
