@@ -436,7 +436,7 @@ this.clearTabstopInfo = function(view) {
 };
 
 this.textHasTabstops = function(text) {
-    return tabstop_re.test(text) != null;
+    return tabstop_re.test(text);
 }
 
 /**************** Private: ****************/
