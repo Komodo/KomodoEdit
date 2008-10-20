@@ -179,13 +179,16 @@ class DatasetHandlerService:
 
 
 
-try:
-    from xpcom import components, _xpcom
-    from xpcom.server import WrapObject, UnwrapObject
-    from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
-    _xpcom_ = True
-except ImportError:
+if "CODEINTEL_NO_PYXPCOM" in os.environ:
     _xpcom_ = False
+else:
+    try:
+        from xpcom import components, _xpcom
+        from xpcom.server import WrapObject, UnwrapObject
+        from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+        _xpcom_ = True
+    except ImportError:
+        _xpcom_ = False
 
 if _xpcom_:
     PyDatasetHandlerService = DatasetHandlerService
