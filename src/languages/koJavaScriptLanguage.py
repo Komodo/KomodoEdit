@@ -39,7 +39,7 @@
 
 from xpcom import components, ServerException
 
-from codeintel2 import lang_javascript
+from langinfo_prog import JavaScriptLangInfo
 from koLanguageServiceBase import *
 
 
@@ -103,7 +103,7 @@ class koJavaScriptLanguage(KoLanguageBase):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
-            self._lexer.setKeywords(0, lang_javascript.keywords)
+            self._lexer.setKeywords(0, JavaScriptLangInfo.keywords)
             self._lexer.supportsFolding = 1
         return self._lexer
 
