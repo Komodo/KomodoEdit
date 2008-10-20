@@ -997,19 +997,20 @@ class KoLanguageBase:
         else:
             return None
 
-    def guessIndentation(self, scimoz, tabWidth):
-        return self._guessIndentation(scimoz, tabWidth, self._style_info)
+    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
+        return self._guessIndentation(scimoz, tabWidth, defaultUsesTabs, self._style_info)
 
-    def _guessIndentation(self, scimoz, tabWidth, style_info):
+    def _guessIndentation(self, scimoz, tabWidth, defaultUsesTabs, style_info):
         indent, usesTabs = _findIndent(scimoz,
                                        self.stylingBitsMask,
                                        self._indent_open_chars,
                                        style_info._indent_open_styles,
                                        style_info._comment_styles,
-                                       tabWidth)
+                                       tabWidth,
+                                       defaultUsesTabs)
         return indent, usesTabs
     
-    def guessIndentationByFoldLevels(self, scimoz, tabWidth, minIndentLevel):
+    def guessIndentationByFoldLevels(self, scimoz, tabWidth, defaultUsesTabs, minIndentLevel):
         """This routine is needed because the base-class routine
         assumes indenting lines end with an operator and open-char.
         In Ruby and XML they don't.
@@ -1020,10 +1021,13 @@ class KoLanguageBase:
         """
         timeline.enter('guessIndentationByFoldLevels')
         try:
+            textLength = scimoz.length
+            if textLength == 0:
+                return 0, 0
             # first, colourise the first 100 lines at most so we have
             # styling information.
-            N = min(100, scimoz.lineCount-1)
-            end = scimoz.getLineEndPosition(N)
+            N = min(100, scimoz.lineCount)
+            end = scimoz.getLineEndPosition(N - 1)
             if scimoz.endStyled < end:
                 scimoz.colourise(scimoz.endStyled, end)
         
@@ -1049,15 +1053,25 @@ class KoLanguageBase:
                     indentlog.debug("return guess=%r, foundTabs=%r", guess, foundTabs)
                     if not foundTabs:
                         # Look at all lines but the first to see if any of them use leading tabs
-                        tabCharNum = ord("\t")
+                        sawSufficientWhiteSpace = False
                         for subLineNo in range(1, N):
                             level = scimoz.getFoldLevel(subLineNo)
                             if level % scimoz.SC_FOLDLEVELWHITEFLAG == 0: continue
                             # Just look at the first character
-                            if scimoz.getCharAt(scimoz.positionFromLine(subLineNo)) == tabCharNum:
-                                foundTabs = True
-                                break                        
-                    return guess, foundTabs
+                            lineStartPos = scimoz.positionFromLine(subLineNo)
+                            lineEndPos = scimoz.getLineEndPosition(subLineNo)
+                            # lineEndPos is ok at the end of buffer, as we
+                            # don't index with it here.
+                                
+                            line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                            blackPos = len(line) - len(line.lstrip())
+                            # Make sure the indentation is big enough to count
+                            if '\t' in line[:blackPos]:
+                                foundTabs = 1
+                                break
+                            elif blackPos >= tabWidth:
+                                sawSufficientWhiteSpace = True
+                    return guess, foundTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
                 else:
                     indentlog.warn("Found non-positive guess of %r (min %r)", guess, minIndentLevel)
                     # Try the next parent-child pair
@@ -2485,7 +2499,7 @@ class KoLanguageBase:
             firstHit = curLine.find('http://')
 
 
-def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth):
+def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
     """
     This code is fairly sophisticated, and a tad tricky.  Here's how it works.
     We're looking for an "indenting line" followed by an "indented line".
@@ -2537,11 +2551,14 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth):
     """
     timeline.enter('_findIndent')
     try:
+        textLength = scimoz.length
+        if textLength == 0:
+            return 0, 0
         indenting = None
         # first, colourise the first 100 lines at most so we have
         # styling information.
-        N = min(100, scimoz.lineCount-1)
-        end = scimoz.getLineEndPosition(N)
+        N = min(100, scimoz.lineCount)
+        end = scimoz.getLineEndPosition(N - 1)
         if scimoz.endStyled < end:
             scimoz.colourise(scimoz.endStyled, end)
         data = scimoz.getStyledText(0, end)
@@ -2552,6 +2569,8 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth):
             if not scimoz.getLineIndentation(lineNo+1): # skip unindented lines
                 continue
             lineEndPos = scimoz.getLineEndPosition(lineNo)
+            if lineNo == N - 1 and lineEndPos == textLength:
+                lineEndPos = scimoz.getPositionBefore(textLength)
             lineStartPos = scimoz.positionFromLine(lineNo)
             try:
                 # we'll look for each character in the line, going from
@@ -2578,19 +2597,22 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth):
                             # if the indent is a divisor of the tab width, then we should check
                             # if there are tabs used for indentation
                             usesTabs = 0
+                            sawSufficientWhiteSpace = False
                             if tabWidth % guess == 0:
-                                for lineNo in range(N):
-                                    lineEndPos = scimoz.getLineEndPosition(lineNo)
+                                for lineNo in range(lineNo + 1, N):
                                     lineStartPos = scimoz.positionFromLine(lineNo)
                                     # skip lines that aren't indented at all
                                     if scimoz.getWCharAt(lineStartPos) not in ' \t':
                                         continue
+                                    lineEndPos = scimoz.getLineEndPosition(lineNo)
                                     line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                                    front = line[:len(line)-len(line.lstrip())]
-                                    if '\t' in front or u'\t' in front:
+                                    blackPos = len(line) - len(line.lstrip())
+                                    if '\t' in line[:blackPos]:
                                         usesTabs = 1
                                         break
-                            return guess, usesTabs
+                                    elif blackPos >= tabWidth:
+                                        sawSufficientWhiteSpace = True
+                            return guess, usesTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
                         else:
                             # probably an empty block
                             raise _NextLineException()
@@ -2610,13 +2632,20 @@ def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tab
     This function looks through the 'scimoz' buffer until at most the line number
     'N' for a line which is 'indented' relative to the 'indenting' line, ignoring
     characters styled as one of the styles in 'comment_styles'.
+    
+    N points 1 past the last line to look at.
     """
     indentedLineNo = lineNo + 1
     guess = None
+    textLength = scimoz.length
     for indentedLineNo in range(indentedLineNo, N):
         if not scimoz.getLineIndentation(indentedLineNo): # skip unindented lines
             continue
         lineEndPos = scimoz.getLineEndPosition(indentedLineNo)
+        if lineEndPos >= textLength:
+            # Bug in Scintilla:
+            # lineEndPos(lastLine) == doc.textLength
+            lineEndPos = textLength - 1 
         lineStartPos = scimoz.positionFromLine(indentedLineNo)
         # we want to skip characters that are just comments or just whitespace
         for pos in range(lineEndPos, lineStartPos-1, -1):

@@ -498,13 +498,13 @@ class KoUDLLanguage(KoLanguageBase):
         (lang_svc_obj, style_info) = self.getLangSvcAndStyleInfoFromStyle(style)
         return lang_svc_obj._getBraceIndentStyle(ch, style, style_info)
 
-    def guessIndentation(self, scimoz, tabWidth):
+    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
         """Use fold-level based indentation, since the first
         100 lines probably span more than one sub-language, and
         the standard guesser doesn't make allowances for switching in
         mid-stream.
         """
-        return self.guessIndentationByFoldLevels(scimoz, tabWidth, minIndentLevel=1)
+        return self.guessIndentationByFoldLevels(scimoz, tabWidth, defaultUsesTabs, minIndentLevel=1)
 
     def keyPressed(self, ch, scimoz):
         (lang_svc_obj, style_info) = self._getLangSvcAndStyleInfoFromScimoz(scimoz, use_previous=True)

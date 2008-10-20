@@ -96,70 +96,6 @@ def getLastLogicalLine(text):
     return logicalline
 
 
-class IndentSearcher:
-    # taken from IDLE
-    # .run() chews over the Text widget, looking for a block opener
-    # and the stmt following it.  Returns a pair,
-    #     (line containing block opener, line containing stmt)
-    # Either or both may be None.
-
-    def __init__(self, text, tabwidth):
-        # if we can, do things fast by using regular python string
-        # classes, and not unicode classes
-        try:
-            self.text = cStringIO.StringIO(str(text))
-        except:
-            self.text = StringIO.StringIO(text)
-        self.tabwidth = tabwidth
-        self.i = self.finished = 0
-        self.blkopenline = self.indentedline = None
-        self.numOpenBrackets = 0
-
-    def readline(self):
-        line = self.text.readline()
-        return line
-
-    def tokeneater(self, type, token, start, end, line,
-                   INDENT=tokenize.INDENT,
-                   NAME=tokenize.NAME,
-                   OPENERS=('class', 'def', 'for', 'if', 'try', 'while'),
-                   OP=tokenize.OP,
-                   BRACKETS_OPEN='([{',
-                   BRACKETS_CLOSE=')]}'):
-        #tokenize.printtoken(type, token, start, end, line)
-        #print "self.numOpenBrackets: %r" % (self.numOpenBrackets)
-        if self.numOpenBrackets == 0:
-            if type == NAME and token in OPENERS:
-                self.blkopenline = line
-            elif type == INDENT and self.blkopenline:
-                self.indentedline = line
-                # this stops the tokenizer, we have enough info for indent
-                # detection at this point
-                raise tokenize.StopTokenizing()
-            elif type == OP and token in BRACKETS_OPEN:
-                self.numOpenBrackets += 1
-        elif type == OP:
-            if token in BRACKETS_OPEN:
-                self.numOpenBrackets += 1
-            elif token in BRACKETS_CLOSE:
-                self.numOpenBrackets -= 1
-
-    def run(self):
-        save_tabsize = tokenize.tabsize
-        tokenize.tabsize = self.tabwidth
-        try:
-            try:
-                tokenize.tokenize(self.readline, self.tokeneater)
-            except tokenize.TokenError:
-                # since we cut off the tokenizer early, we can trigger
-                # spurious errors
-                pass
-        finally:
-            tokenize.tabsize = save_tabsize
-        return self.blkopenline, self.indentedline
-
-
-
 #---- Language Service component implementations
 
 class KoPythonLexerLanguageService(KoLexerLanguageService):
@@ -245,26 +181,6 @@ class Class:
                 components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
                 .getService(components.interfaces.koIAppInfoEx)
         return self._interpreter
-    
-    def guessIndentation(self, scimoz, tabWidth):
-        return self._guessIndentation(scimoz, tabWidth, self._style_info)
-
-    def _guessIndentation(self, scimoz, tabWidth, style_info):
-        # style_info not used, here for compatibility
-        text = scimoz.text
-        # the logic used here (and the code, with minor mods)
-        # is taken out of IDLE's AutoIndent extension.
-        opener, indented = IndentSearcher(text, tabWidth).run()
-        if opener and indented:
-            raw, indentsmall, foundTabsInOpener = classifyws(opener, tabWidth)
-            raw, indentlarge, foundTabsInIndented = classifyws(indented, tabWidth)
-            foundTabs = foundTabsInOpener or foundTabsInIndented
-        else:
-            indentsmall = indentlarge = 0
-            foundTabs = 0
-        # Ensure our guess is not a negative value
-        guess = max(0, indentlarge - indentsmall)
-        return guess, foundTabs
 
     def test_scimoz(self, scimoz):
         CommenterTestCase.lang = self

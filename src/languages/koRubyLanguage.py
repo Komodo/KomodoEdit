@@ -531,8 +531,8 @@ end section
         return parentActualWS
     # end _checkForSlider
 
-    def guessIndentation(self, scimoz, tabWidth):
-        return self.guessIndentationByFoldLevels(scimoz, tabWidth, minIndentLevel=2)
+    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
+        return self.guessIndentationByFoldLevels(scimoz, tabWidth, defaultUsesTabs, minIndentLevel=2)
 
     # Hook this handler and then dispatch to baseclass
     # Don't process characters unless

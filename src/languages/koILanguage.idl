@@ -128,6 +128,7 @@ interface koILanguage : nsISupports {
     void keyPressed(in wchar chr, in ISciMoz scimoz);
     void guessIndentation(in ISciMoz scimoz,
                           in long tabWidth,
+                          in boolean defaultUsesTabs,
                           out long indentWidth,
                           out boolean usesTabs);
 

@@ -1424,15 +1424,18 @@ class koDocumentBase:
         # different rules.
         indentWidth = 0
         useTabs = 0
+        defaultUseTabs = self.prefs.getBooleanPref("useTabs")
         try:
-            indentWidth, useTabs = self._languageObj.guessIndentation(self._views[0].scimoz,
-                                                                  self.get_tabWidth())
+            indentWidth, useTabs = \
+                self._languageObj.guessIndentation(self._views[0].scimoz,
+                                                   self.get_tabWidth(),
+                                                   defaultUseTabs)
         except Exception, e:
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
             indentWidth = self.prefs.getLongPref('indentWidth')
-            useTabs = self.prefs.getBooleanPref('useTabs')
+            useTabs = defaultUseTabs
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
                  indentWidth, useTabs)
