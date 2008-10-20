@@ -3,10 +3,10 @@
 tabs[type="sidebar"]
 {
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
-    padding: 0px;
-    margin: 0px;
-    -moz-appearance: none;
-    border: none;
+  padding: 0px;
+  margin: 0px;
+  -moz-appearance: none;
+  border: none;
 }
 
 tabbox.sidepanel
