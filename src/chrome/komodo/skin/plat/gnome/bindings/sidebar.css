@@ -12,6 +12,7 @@ tabbox.sidepanel label.tab-text {
 /* Ensure the buttons are vertically aligned. */
 .sidebar-buttons {
   -moz-box-align: center;
+  padding-right: 6px;
 }
 
 /* Drop the default 1 pixel border around trees and make the top border
@@ -23,4 +24,11 @@ tabbox.sidepanel tree
   border: 0;
   margin: 0;
   border-top: 1px solid;
+}
+
+tabbox#leftTabBox > tabs {
+    border-right: 1px solid ThreeDShadow;
+}
+tabbox#rightTabBox > tabs {
+    border-left: 1px solid ThreeDShadow;
 }
