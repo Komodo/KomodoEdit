@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-from xpcom import components
+from xpcom import components, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
  
@@ -167,9 +167,12 @@ class KPFTree:
             self.notificationSvc.removeObserver(self.treeview, dir)
         for dir in newnodes:
             if not dir: continue
-            self.notificationSvc.addObserver(self.treeview, dir,
-                                             components.interfaces.koIFileNotificationService.WATCH_DIR,
-                                             _notificationsToReceive)
+            try:
+                self.notificationSvc.addObserver(self.treeview, dir,
+                                                 components.interfaces.koIFileNotificationService.WATCH_DIR,
+                                                 _notificationsToReceive)
+            except COMException, ex:
+                log.warn("resetLiveRows: addObserver failed for dir %s", dir)
         self.liverows = liverows
 
 # the KPFSingleTree class is used for tree views that do not have multiple projects
