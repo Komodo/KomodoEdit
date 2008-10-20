@@ -5,12 +5,6 @@ tabs[type="sidebar"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
 }
 
-tabs[type="sidebar"] box
-{
-  /* Make the individual tab boxes look more like a toolbar */
-  -moz-appearance: toolbar;
-}
-
 tabbox.sidepanel label.tab-text {
   -moz-padding-start: 6px;
 }
