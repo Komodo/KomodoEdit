@@ -3,66 +3,30 @@
 tabs[type="sidebar"]
 {
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
-  padding: 0px;
-  margin: 0px;
-  -moz-appearance: none;
-  border: none;
 }
 
-tabbox.sidepanel
+tabs[type="sidebar"] box
 {
-  -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  margin: 0px;
+  /* Make the individual tab boxes look more like a toolbar */
+  -moz-appearance: toolbar;
 }
 
-tabbox.sidepanel > tabs,
-tabbox.sidepanel > tabpanels,
-tabbox.sidepanel > tabpanels > tabpanel,
-tabbox.sidepanel > tabpanels > tabpanel > vbox,
-tabbox.sidepanel > tabpanels > tabpanel > vbox > partviewer
-{
-  -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  margin: 0px;
+tabbox.sidepanel label.tab-text {
+  -moz-padding-start: 6px;
 }
 
-tabbox.sidepanel .toolbar-box,
-tabbox.sidepanel .partviewer-toolbar {
-  margin-bottom: 6px;
+/* Ensure the buttons are vertically aligned. */
+.sidebar-buttons {
+  -moz-box-align: center;
 }
 
-tabbox.sidepanel partviewer,
+/* Drop the default 1 pixel border around trees and make the top border
+ * blend into the side panel toolbar/header
+ */
 tabbox.sidepanel tree
 {
-  border: None;
-  padding: 0px;
-  margin: 0px;
-  border:none;
-}
-
-tabbox.sidepanel tree treechildren,
-tabbox.sidepanel tree treechildren::-moz-tree-row,
-tabbox.sidepanel partviewer treechildren,
-tabbox.sidepanel partviewer treechildren::-moz-tree-row {
-  padding-bottom: 1px;
   -moz-appearance: none;
+  border: 0;
   margin: 0;
-  border: none;
+  border-top: 1px solid;
 }
-/*
-tabbox.sidepanel tree treechildren::-moz-tree-cell-text(selected), 
-tabbox.sidepanel partviewer treechildren::-moz-tree-cell-text(selected) {  
-  font-weight: bold !important;
-}
-
-tabbox.sidepanel tree treechildren::-moz-tree-row(selected),
-tabbox.sidepanel partviewer treechildren::-moz-tree-row(selected) {  
-  background-image: url("chrome://browser/skin/places/selected-gradient.png");
-  background-repeat: repeat-x;
-  background-position: bottom left;
-  border-top: 1px solid #979797;
-}
-*/
