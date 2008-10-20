@@ -311,15 +311,24 @@ class PHPTreeEvaluator(TreeEvaluator):
         """Return all available variable names beginning with expr"""
         # The current scope determines what is visible, see bug:
         #   http://bugs.activestate.com/show_bug.cgi?id=65159
+        vars = []
         blob, lpath = scoperef
         if len(lpath) > 0:
             # Inside a function or class, don't get to see globals
             scope_chain = ("locals", "builtins", )
+            if len(lpath) > 1:
+                # Current scope is inside a class function?
+                elem = self._elem_from_scoperef(scoperef)
+                if elem is not None and elem.get("ilk") == "function":
+                    p_elem = self._elem_from_scoperef((blob, lpath[:-1]))
+                    if p_elem is not None and p_elem.get("ilk") == "class":
+                        # Include "$this" in the completions.
+                        vars = [("variable", "this")]
         else:
             # Already global scope, so get to see them all
             scope_chain = ("locals", "globals", "imports", )
         # XXX - TODO: Move to 3 char trigger (if we want/need to)
-        vars = self._element_names_from_scope_starting_with_expr(None,
+        vars += self._element_names_from_scope_starting_with_expr(None,
                             scoperef,
                             "variable",
                             scope_chain,

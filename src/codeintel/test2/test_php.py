@@ -1937,10 +1937,10 @@ EOD;
         # Don't want to trigger after "function" in this case
         self.assertNoTrigger(markup_text(content, pos=positions[5]))
 
-    @tag("bug79003")
+    @tag("bug80512")
     def test_variable_completions_in_class_function(self):
         content, positions = unmark_text(php_markup(dedent("""\
-            class bug79003_class {
+            class bug80512_class {
                 function dummyMethod() {
                     $thisVar = true;
                     $t<1>;
