@@ -195,8 +195,8 @@ viewManager.prototype.postCanClose = function()
         // We didn't call _doCloseAll originally when the view mgr
         // was designed around v2, for perf reasons,
         // which prob don't hold anymore.
-        var ignoreFailures=true, closeStartPage=true;
-        this._doCloseAll(ignoreFailures, closeStartPage);
+        var ignoreFailures=true, closeStartPage=true, doNotOfferToSave=true;
+        this._doCloseAll(ignoreFailures, closeStartPage, doNotOfferToSave);
     } catch(e) {
         /* moz probably already removed them */
         log.warn('exception in viewManager.postCanClose:'+e);
@@ -980,9 +980,10 @@ viewManager.prototype.do_cmd_closeAll = function() {
     this._doCloseAll();
 }
 
-viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage) {
+viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doNotOfferToSave) {
     if (typeof(ignoreFailures) == "undefined") ignoreFailures = false;
     if (typeof(closeStartPage) == "undefined") closeStartPage = false;
+    if (typeof(doNotOfferToSave) == "undefined") doNotOfferToSave = false;
     // returns true if all views were closed.
     var views = this.topView.getDocumentViews(true);
     var i;
@@ -991,7 +992,7 @@ viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage) {
         //   http://bugs.activestate.com/show_bug.cgi?id=27321
         if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
             continue;
-        if (! views[i].close() && !ignoreFailures) {
+        if (! views[i].close(doNotOfferToSave) && !ignoreFailures) {
             return false;
         }
     }

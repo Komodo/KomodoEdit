@@ -410,15 +410,19 @@
         </method>
 
         <method name="close">
+        <parameter name="doNotOfferToSave"/>
         <body>
         <![CDATA[
+            if (typeof(doNotOfferToSave) == "undefined") doNotOfferToSave = false;
+        
             // Return true if the view ends up closed.
             try {
                 // Note: This isn't sent for other view types even
                 // though both "view_opened" and "view_closed" *are*.
                 xtk.domutils.fireEvent(this, 'view_closing');
 
-                if (this.document &&
+                if (!doNotOfferToSave &&
+                    this.document &&
                     this.document.numScintillas == 1 &&  // if we're split let it be dirty
                     this.document.isDirty) {
                     var res = ko.dialogs.yesNoCancel("Save changes to " +
