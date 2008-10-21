@@ -74,6 +74,7 @@ def changelog_markdown(start_rev, end_rev):
     dir = dirname(dirname(abspath(__file__)))
     changelog = _capture_stdout(
         ["svn", "log", "-r", "%s:%s" % (end_rev, start_rev), dir])
+    changelog = _markdown_br_fix(changelog)
     changelog = _markdown_hr_fix(changelog)
     changelog = _markdown_urlize(changelog)
     text += changelog
@@ -88,7 +89,6 @@ def changelog_html(start_rev, end_rev):
     finally:
         del sys.path[0]
     text = changelog_markdown(start_rev, end_rev)
-    text = _markdown_urlize(text)
     return markdown2.markdown(text,
         extras=["link-patterns"],
         link_patterns=[
@@ -133,6 +133,16 @@ def _markdown_urlize(text):
 def _markdown_hr_fix(text):
     needs_fix_re = re.compile(r'(?<!\n\n)^(?P<hr>-+)$', re.M)
     return needs_fix_re.sub('\n\g<hr>', text)
+
+def _markdown_br_fix(text):
+    """Ensure EOLs in SVN log checkin messages are changed to Markdown
+    br tags, i.e. two spaces at end of line.
+    """
+    def br_sub(match):
+        lines = match.group(1).splitlines(0)
+        return '\n'.join([ln + '  ' for ln in lines])
+    msg_re = re.compile(r'(?<= lines\n\n)(.*?)(?=\n^-----)', re.M|re.S)
+    return msg_re.sub(br_sub, text)
 
 # Recipe: indent (0.2.1)
 def _indent(s, width=4, skip_first_line=False):
