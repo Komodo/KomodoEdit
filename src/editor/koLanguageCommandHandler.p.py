@@ -1671,7 +1671,7 @@ class GenericCommandHandler:
         before = min(sm.currentPos, sm.anchor)
         sm.targetStart = sm.anchor
         sm.targetEnd = sm.currentPos
-        sm.replaceTarget(regionUtf8Len, region)
+        sm.replaceTarget(len(region), region)
         if anchorFirst:
             sm.anchor = before
             sm.currentPos = before + regionUtf8Len
