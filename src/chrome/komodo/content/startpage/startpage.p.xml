@@ -988,6 +988,7 @@
             var req = new XMLHttpRequest();
             req.open('HEAD', url, true);
             req._browser = browser;
+            var this_ = this;
             req.onload = function (aEvt) {
                 if(req.status == 200) {
                     var flags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE |
@@ -995,12 +996,12 @@
                     var webNav = req._browser.webNavigation;
                     webNav.loadURI(url, flags, null, null, null);
                 } else {
-                    this.log.error("Unable to connect, status "+req.status);
+                    this_.log.error("Unable to connect, status "+req.status);
                     req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
                 }
             };
             req.onerror = function (e) {
-                this.log.error("Unable to connect");
+                this_.log.error("Unable to connect");
                 req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
             }
             req.send(null);
