@@ -1500,6 +1500,7 @@ def _PackageKomodoUpdates(cfg):
             r"-c lib/python/bin/python%s" % cfg.siloedPyVer,
             r"-c lib/python/bin/python%s-config" % cfg.siloedPyVer,
             r"-c lib/python/bin/python-config",
+            r"-c lib/python/bin/2to3",
             r"-c lib/python/lib/python%s/config/Makefile" % cfg.siloedPyVer,
             r"-c lib/python/lib/python%s/site-packages/activestate.py" % cfg.siloedPyVer,
 
