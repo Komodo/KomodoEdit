@@ -97,6 +97,8 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
     }
     return null;
 }
+
+
 /**
  * Open the given path in Komodo.
  *
@@ -110,17 +112,23 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
 this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="editor" */) {
     if (typeof(viewType) == "undefined" || !viewType) viewType = "editor";
 
-    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
-            .getService(Components.interfaces.koIOsPath);
-
-    var uri = ko.uriparse.pathToURI(displayPath);
-    var views = ko.views.manager.topView.getViewsByTypeAndURI(true, viewType, uri);
-    if (views.length > 0
-        && osPathSvc.samepath(views[0].document.displayPath, displayPath)) {
-        views[0].makeCurrent();
-    } else {
-        ko.open.URI(uri, viewType, true);
+    // Don't use `viewManager.getViewsByTypeAndURI()` because it doesn't handle
+    // untitled views (bug 80232).
+    var typedViews = ko.views.manager.topView.getViewsByType(true, viewType);
+    var typedView;
+    for (var i = 0; i < typedViews.length; ++i) {
+        typedView = typedViews[i];
+        if (! typedView.document) {
+            continue;
+        }
+        if (_fequal(typedView.document.displayPath, displayPath)) {
+            typedView.makeCurrent();
+            return;
+        }
     }
+
+    // Fallback to open URI.
+    ko.open.URI(displayPath, viewType, true);
 }
 
 
@@ -225,6 +233,19 @@ this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*
     } catch (e) {
         log.exception(e);
     }
+}
+
+
+/* ---- internal support stuff ---- */
+
+// Return true iff the two file paths are equal.
+//TODO: Move this to a `ko.uriparse.arePathsEquivalent()` method.
+function _fequal(a, b) {
+// #if PLATFORM == "win" || PLATFORM == "darwin"
+    return a.toLowerCase() == b.toLowerCase();
+// #else
+    return a == b;
+// #endif
 }
 
 }).apply(ko.open);

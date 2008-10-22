@@ -394,6 +394,12 @@
             ]]></body>
         </method>
 
+        <!-- Return a list of views matching the given view type and URI.
+
+             Note that this does not ever match untitled documents, the reason
+             being that (a) I don't want to introduce possible surprises and (b)
+             the "URI" for an untitled document isn't really defined in Komodo.
+          -->
         <method name="getViewsByTypeAndURI">
         <parameter name="recursive"/>
         <parameter name="type"/>
