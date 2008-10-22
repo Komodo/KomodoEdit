@@ -194,6 +194,8 @@
                   oncommand="ko.trace.get().dumpView(ko.views.manager.currentView);"/>
         <menuitem label="SciMoz Tests"
                   oncommand="test_scimoz();"/>
+        <menuitem label="SciMoz Auto-Indent Tests"
+                  oncommand="test_auto_indent_scimoz();"/>
         <menuitem label="Generate Command ID Table"
                   oncommand="ko.browse.showCommandIds()" />
     </menupopup>

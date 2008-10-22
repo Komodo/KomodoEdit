@@ -51,3 +51,6 @@ $cons->InstallInChrome("test_scimoz.xul");
 $cons->InstallInChrome("test_scimoz.js");
 $cons->InstallInChrome("test_firefoxAutoComplete.xul");
 $cons->InstallInChrome("test_firefoxAutoComplete.js");
+
+$cons->InstallInChrome("test_auto_indent_scimoz.xul");
+$cons->InstallInChrome("test_auto_indent_scimoz.js");

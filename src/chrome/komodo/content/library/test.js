@@ -939,3 +939,16 @@ function test_scimoz()
     }
 
 }
+
+function test_auto_indent_scimoz()
+{
+    try {
+        window.openDialog("chrome://komodo/content/test/test_auto_indent_scimoz.xul",
+                          "Komodo:TestAutoIndentSciMoz",
+                          "titlebar,chrome,resizable,close,dialog",
+                          ko);
+    } catch(ex) {
+        log.exception(ex);
+    }
+
+}
