@@ -241,7 +241,7 @@ this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*
 // Return true iff the two file paths are equal.
 //TODO: Move this to a `ko.uriparse.arePathsEquivalent()` method.
 function _fequal(a, b) {
-// #if PLATFORM == "win" || PLATFORM == "darwin"
+// #if PLATFORM == "win" or PLATFORM == "darwin"
     return a.toLowerCase() == b.toLowerCase();
 // #else
     return a == b;
