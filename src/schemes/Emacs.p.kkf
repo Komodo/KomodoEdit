@@ -168,8 +168,8 @@ binding cmd_bookmarkGotoPrevious  Shift+F2
 binding cmd_findNext  F3 
 binding cmd_findNextSelected  Ctrl+F3
 binding cmd_findPrevious  Shift+F3
-binding cmd_bufferClose Ctrl+F4
 binding cmd_bufferClose Ctrl+X K
+binding cmd_bufferClose Ctrl+F4
 binding cmd_bufferNextMostRecent  Ctrl+F6
 binding cmd_bufferNextLeastRecent              Ctrl+Shift+F6
 binding cmd_bufferNextMostRecent  Ctrl+Tab

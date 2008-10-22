@@ -77,13 +77,13 @@ binding cmd_selectAll Ctrl+A
 binding cmd_blockSelect Ctrl+B
 
 # Cut, copy, paste, delete
-binding cmd_copy Ctrl+Insert
 binding cmd_copy Ctrl+C
+binding cmd_copy Ctrl+Insert
+binding cmd_cut Ctrl+X
 binding cmd_cut Ctrl+Shift+X
 binding cmd_cut Shift+Delete
-binding cmd_cut Ctrl+X
-binding cmd_paste Shift+Insert
 binding cmd_paste Ctrl+V
+binding cmd_paste Shift+Insert
 binding cmd_pasteAndSelect Ctrl+Shift+V
 binding cmd_delete Delete
 binding cmd_deleteWordLeft  Ctrl+Backspace
@@ -150,8 +150,8 @@ binding cmd_newTemplate Ctrl+N
 binding cmd_new Ctrl+Shift+N
 binding cmd_open Ctrl+O
 binding cmd_openProject Ctrl+Shift+J
-binding cmd_bufferClose Ctrl+F4
 binding cmd_bufferClose Ctrl+W
+binding cmd_bufferClose Ctrl+F4
 binding cmd_bufferNextMostRecent  Ctrl+F6
 binding cmd_bufferNextLeastRecent              Ctrl+Shift+F6
 binding cmd_bufferNext  Ctrl+Page_Down
