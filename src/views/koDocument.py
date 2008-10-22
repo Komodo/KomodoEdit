@@ -1373,6 +1373,7 @@ class koDocumentBase:
                 # If only tab indentation was found, set the indentWidth
                 # to the tabWidth, so we essentially always use tabs.
                 self._useTabs = 1
+                self.set_useTabs(self._useTabs)
                 self.set_indentWidth(self.get_tabWidth())
                 for v in self._views:
                     v.scimoz.indent = self._indentWidth
@@ -1380,6 +1381,7 @@ class koDocumentBase:
             else:
                 if usesSpaces:
                     self._useTabs = 0
+                    self.set_useTabs(self._useTabs)
                 else:
                     # indeterminate, so use global prefs to decide
                     self._useTabs = self.prefs.getBooleanPref("useTabs")
@@ -1441,6 +1443,7 @@ class koDocumentBase:
                  indentWidth, useTabs)
         self.set_indentWidth(indentWidth)
         self._useTabs = useTabs
+        self.set_useTabs(useTabs)
 
     def _statusBarMessage(self, message):
         sm = components.classes["@activestate.com/koStatusMessage;1"]\
