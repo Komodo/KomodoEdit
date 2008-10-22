@@ -43,7 +43,10 @@ import sys
 from glob import glob
 import re
 import logging
-from hashlib import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 from pprint import pprint
 from posixpath import join as rjoin
 from posixpath import basename as rbasename
