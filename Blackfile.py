@@ -68,7 +68,10 @@ from posixpath import join as urljoin
 from fnmatch import fnmatch
 import pprint
 import glob
-from hashlib import md5
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 import operator
 import logging
 
