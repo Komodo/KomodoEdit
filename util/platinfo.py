@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 9, 0)
+__version_info__ = (0, 10, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -121,7 +121,7 @@ class PlatInfo(object):
     _known_oses = set(
         "win32 win64 hpux linux macosx aix solaris freebsd".split())
     _known_archs = set(
-        "x86 powerpc ppc x64 x86_64 ia64 sparc parisc".split())
+        "x86 powerpc ppc x64 x86_64 ia64 sparc sparc64 parisc".split())
 
     @classmethod
     def from_name(cls, name):
@@ -390,9 +390,11 @@ class PlatInfo(object):
             raise InternalError("unknown Linux architecture: '%s'" % arch)
         self._set_linux_distro_info()
         lib_info = _get_linux_lib_info()
-        self.libcpp = "libcpp" + lib_info["libstdc++"]
-        # For now, only the major 'libc' version number is used.
-        self.libc = "libc" + lib_info["libc"].split('.')[0]
+        if "libstdc++" in lib_info:
+            self.libcpp = "libcpp" + lib_info["libstdc++"]
+        if "libc" in lib_info:
+            # For now, only the major 'libc' version number is used.
+            self.libc = "libc" + lib_info["libc"].split('.')[0]
         if "glibc" in lib_info:
             self.glibc = "glibc"
             self.glibc_ver = lib_info["glibc"]
@@ -405,8 +407,12 @@ class PlatInfo(object):
         else:
             raise InternalError("unknown Solaris version: '%s'" % uname[2])
         if uname[4].startswith("sun4"):
-            #XXX How to tell if 64-bit Sparc box???
             self.arch = "sparc"
+            arch_ver = _get_sparc_arch_ver()
+            if arch_ver is not None:
+                self.arch_ver = arch_ver
+                if int(arch_ver) >= 9:
+                    self.arch = "sparc64"
         elif uname[4].startswith("i86pc"):
             self.arch = "x86"
         else:
@@ -771,8 +777,8 @@ int main(int argc, char **argv) { exit(0); }
         try:
             retval = os.system('g++ '+cxxfile)
             if retval:
-                raise InternalError("could not compile test C++ file "
-                                    "with g++: %r" % retval)
+                log.warn("could not compile test C++ file with g++: %r", retval)
+                return {}
             objdump = os.popen('objdump -p a.out').read()
         finally:
             os.chdir(currdir)
@@ -816,6 +822,28 @@ int main(int argc, char **argv) { exit(0); }
 
     return lib_info
 
+def _get_sparc_arch_ver():
+    # http://developers.sun.com/solaris/developer/support/driver/64bit-faqs.html#QA12.12
+    # http://docs.sun.com/app/docs/doc/816-5175/isalist-5
+    o = os.popen("isalist")
+    instruct_sets = o.read().split()
+    retval = o.close()
+    if retval:
+        raise InternalError("error determining SPARC architecture version")
+    first = instruct_sets[0]
+    if first.startswith("sparcv9"):
+        return '9'
+    elif first.startswith("sparcv8"):
+        return '8'
+    elif first.startswith("sparcv7"):
+        return '7'
+    elif first == "sparc":
+        return '8'
+    else:
+        import warnings
+        warnings.warn("could not determine SPARC architecture version "
+                      "from first `isalist` output: %r" % first)
+        return None
 
 def _get_hpux_parisc_arch_ver():
     assert sys.platform.startswith("hp-ux")
