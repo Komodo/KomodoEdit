@@ -281,7 +281,8 @@ class sortcontributors(Task):
         content = codecs.open(path, 'r', 'utf-8').read()
         lines = [ln.strip() for ln in content.splitlines(0) if ln.strip()]
         lines.sort(key=lambda s: s.split(None, 1)[1])
-        codecs.open(path, 'w', 'utf-8').write('\n'.join(lines))
+        eol = {"win32": "\r\n"}.get(sys.platform, "\n")
+        codecs.open(path, 'w', 'utf-8').write(eol.join(lines) + eol)
 
 
 
