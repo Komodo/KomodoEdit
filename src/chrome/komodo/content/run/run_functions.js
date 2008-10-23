@@ -620,8 +620,7 @@ try {
         }
         output = output.replace(/\r\n|\n|\r/g, eol);
 
-        var bytelen = ko.stringutils.bytelength(output);
-        scimoz.replaceTarget(bytelen, output);
+        scimoz.replaceTarget(output.length, output);
         scimoz.currentPos = scimoz.anchor + bytelen;
     }
 

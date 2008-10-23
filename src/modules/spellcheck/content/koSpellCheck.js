@@ -149,7 +149,7 @@ var ko = {
         _doReplacementExtent : function _doReplacement(oldWord_length, // bytes
                                                        repl_length,   // bytes
                                                        repl) {
-            this.scimoz.replaceTarget(repl_length, repl);
+            this.scimoz.replaceTarget(-1, repl);
             var delta = repl_length - oldWord_length;
             this.scimozNextStart = this.scimoz.targetEnd + delta;
             this.endPosition += delta;
@@ -567,8 +567,9 @@ var ko = {
         ReplaceAll : function Replace(newWord) {
             // This probably won't work for high-bit chars
             var scintillaPtn = '\\<' + this.misspelledWord + '\\>';
+            var oldWordUnicodeLen = this.misspelledWord.length;
+            var scinPtnLen = 4 + oldWordUnicodeLen; // length of '\\<' + '\\>'
             var oldWordLen = this._byteLengthFromJSString(this.misspelledWord);
-            var scinPtnLen = 4 + oldWordLen;
             var delta = newWordLen - oldWordLen;
             
             var newWordLen = this._byteLengthFromJSString(newWord);

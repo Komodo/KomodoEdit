@@ -422,9 +422,7 @@ class KoCommenterLanguageService:
                 print "replacement length: naive=%r encoding-aware=%r"\
                       % (len(replacement),
                          self._sysUtilsSvc.byteLength(replacement))
-            scimoz.replaceTarget(
-                self._sysUtilsSvc.byteLength(replacement),
-                replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
             if selStart != selEnd:
@@ -464,9 +462,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = endIndex
-            scimoz.replaceTarget(
-                self._sysUtilsSvc.byteLength(replacement),
-                replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
             scimoz.selectionStart = selStart + len(prefix)
@@ -546,9 +542,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = workingEndIndex
-            scimoz.replaceTarget(
-                self._sysUtilsSvc.byteLength(replacement),
-                replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
             if selStart != selEnd:
@@ -2294,7 +2288,7 @@ class KoLanguageBase:
             return candidate
         prevPos = scimoz.positionBefore(pos)
         prevStyle = scimoz.getStyleAt(prevPos)
-        if prevStyle != scimoz.getStyleAt(pos):
+        if (prevStyle != scimoz.getStyleAt(pos):
             return candidate
         return None
 

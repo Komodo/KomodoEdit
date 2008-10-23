@@ -458,13 +458,13 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     return null;
 }
 
-function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength) {
+function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText) {
     scimoz.targetStart = startByte;
     scimoz.targetEnd = endByte;
-    scimoz.replaceTarget(byteLength, replacementText);
+    scimoz.replaceTarget(replacementText.length, replacementText);
 }
 
-function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength) {
+function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText) {
     var lineStart = scimoz.lineFromPosition(startByte);
     var lineEnd = scimoz.lineFromPosition(endByte);
     var ISciMoz = Components.interfaces.ISciMoz;
@@ -498,11 +498,11 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
         var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
         if (numLinesInReplacement != (lineEnd - lineStart)) {
             // Lines differ, do quick repl
-            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
         }
         var nextMarkerLine = scimoz.markerNext(lineStart, 0xffff); // -1 if no more markers
         if (nextMarkerLine == -1 || nextMarkerLine > lineEnd) {
-            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText, byteLength);
+            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
         }
         var replacementLines = replacementText.split(eol_re);
         var j, currText, replText;
@@ -595,13 +595,10 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
             startByte = scimoz.positionAtChar(0, replaceResult.start);
             endByte = scimoz.positionAtChar(startByte,
                 replaceResult.end-replaceResult.start);
-            var byteLength = stringutils_bytelength(replaceResult.replacement);
-
             _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
-                                           replaceResult.replacement,
-                                           byteLength);
+                                           replaceResult.replacement);
             scimoz.anchor = startByte;
-            scimoz.currentPos = startByte + byteLength;
+            scimoz.currentPos = startByte + stringutils_bytelength(replaceResult.replacement);
 
             // fix up the search context as appropriate
             if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
@@ -750,8 +747,7 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
                                            scimoz,
                                            scimoz.positionAtChar(0, context.startIndex),
                                            scimoz.positionAtChar(0, context.endIndex),
-                                           replacementText,
-                                           -1);
+                                           replacementText);
             // Restore the selection.
             scimoz.currentPos = scimoz.positionAtChar(0, context.startIndex);
             scimoz.anchor = scimoz.positionAtChar(0, context.startIndex)
@@ -762,8 +758,7 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
                                            scimoz,
                                            0,
                                            stringutils_bytelength(text),
-                                           replacementText,
-                                           -1);
+                                           replacementText);
             // Put the cursor on the same line as before replacement.
             scimoz.anchor = scimoz.currentPos = scimoz.positionFromLine(line);
         }

@@ -3361,8 +3361,7 @@ function cmd_vim_doReplaceChar(scimoz, repeatCount) {
     for (var i=1; i < repeatCount; i++) {
         newtext += newtext[0];
     }
-    var newtext_length = ko.stringutils.bytelength(newtext);
-    scimoz.replaceTarget(newtext_length, newtext);
+    scimoz.replaceTarget(newtext.length, newtext);
     if (repeatCount > 1) {
         gVimController._currentPos += (newtext_length -1);
     }
