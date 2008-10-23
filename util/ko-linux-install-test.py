@@ -6,7 +6,9 @@ This script is to assist in the basic compat testing of Komodo on
 various Linux distros.
 
 Usage:
-    cd /tmp
+    export TMPDIR=/tmp/koinst-$USER
+    rm -rf $TMPDIR
+    cd $TMPDIR
     wget -q http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/ko-linux-install-test.py
     python ko-linux-install-test.py | tee ko-linux-install-test-$HOSTNAME.log
 
@@ -73,37 +75,25 @@ def main(argv):
         print(__doc__)
         return 0
 
-    # Setup temp dir.
-    user = getpass.getuser()
-    tmpdir = "/tmp/koinsttest-%s" % user
-    log.info("testing in `%s' temp dir", tmpdir)
-    if exists(tmpdir):
-        run('rm -rf "%s"' % tmpdir)
-    os.makedirs(tmpdir)
-    old_dir = os.getcwd()
-    os.chdir(tmpdir)
-    try:
-        # Get platform info.
-        wget("http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/platinfo.py")
-        import platinfo
-        pi = platinfo.PlatInfo()
-        print(pi.as_yaml())
+    # Get platform info.
+    wget("http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/platinfo.py")
+    import platinfo
+    pi = platinfo.PlatInfo()
+    print(pi.as_yaml())
 
-        # Download the installer package.
-        url = get_latest_komodo_nightly_pkg_url(pi)
-        if url is None:
-            return 1
-        log.info("downloading `%s'", url)
-        wget(url)
+    # Download the installer package.
+    url = get_latest_komodo_nightly_pkg_url(pi)
+    if url is None:
+        return 1
+    log.info("downloading `%s'", url)
+    wget(url)
 
-        # Install and startup.
-        log.info("installing `%s'", basename(url))
-        run("tar xzf %s" % basename(url))
-        run("Komodo-*/install.sh -s -I ko")
-        log.info("starting Komodo...")
-        run("ko/bin/komodo -v")
-    finally:
-        os.chdir(old_dir)
+    # Install and startup.
+    log.info("installing `%s'", basename(url))
+    run("tar xzf %s" % basename(url))
+    run("Komodo-*/install.sh -s -I ko")
+    log.info("starting Komodo...")
+    run("ko/bin/komodo -v")
 
     return 0
 
