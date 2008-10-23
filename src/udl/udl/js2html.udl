@@ -78,7 +78,7 @@ state IN_CSL_COMMENTLINE_TO_MARKUP_1:
 # Do same in block-comments and strings
 
 state IN_CSL_COMMENT_1:
-/.*(?=<\/script>)/i : paint(include, CSL_COMMENTBLOCK), => IN_CSL_COMMENT_TO_MARKUP_1
+/<\/script>/i : paint(upto, CSL_COMMENTBLOCK), redo, => IN_CSL_COMMENT_TO_MARKUP_1
 
 state IN_CSL_COMMENT_TO_MARKUP_1:
 '</' : => IN_CSL2H_1
@@ -86,7 +86,7 @@ state IN_CSL_COMMENT_TO_MARKUP_1:
 /\z/: paint(upto, CSL_COMMENTBLOCK)
 
 state IN_CSL_DSTRING:
-/.*(?=<\/script>)/i : paint(include, CSL_STRING), => IN_CSL_DSTRING_TO_MARKUP_1
+/<\/script\s*>/i : paint(upto, CSL_STRING), redo, => IN_CSL_DSTRING_TO_MARKUP_1
 
 state IN_CSL_DSTRING_TO_MARKUP_1:
 '</' : => IN_CSL2H_1
@@ -94,7 +94,7 @@ state IN_CSL_DSTRING_TO_MARKUP_1:
 /\z/: paint(upto, CSL_STRING)
 
 state IN_CSL_SSTRING:
-/.*(?=<\/script>)/i : paint(include, CSL_STRING), => IN_CSL_SSTRING_TO_MARKUP_1
+/<\/script\s*>/i : paint(upto, CSL_STRING), redo, => IN_CSL_SSTRING_TO_MARKUP_1
 
 state IN_CSL_SSTRING_TO_MARKUP_1:
 '</' : => IN_CSL2H_1
