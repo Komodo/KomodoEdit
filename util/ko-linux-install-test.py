@@ -7,7 +7,7 @@ various Linux distros.
 
 Usage:
     cd /tmp
-    wget -q http://svn.openkomodo.com/openkomodo/view/openkomodo/trunk/util/ko-linux-install-test.py
+    wget -q http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/ko-linux-install-test.py
     python ko-linux-install-test.py | tee ko-linux-install-test-$HOSTNAME.log
 
 Then, if your testing shows something new (e.g., if this is for a distro which
@@ -84,7 +84,7 @@ def main(argv):
     os.chdir(tmpdir)
     try:
         # Get platform info.
-        wget("http://svn.openkomodo.com/openkomodo/view/openkomodo/trunk/util/platinfo.py")
+        wget("http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/platinfo.py")
         import platinfo
         pi = platinfo.PlatInfo()
         print(pi.as_yaml())
