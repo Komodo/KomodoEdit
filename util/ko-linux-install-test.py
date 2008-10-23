@@ -8,6 +8,7 @@ various Linux distros.
 Usage:
     export TMPDIR=/tmp/koinst-$USER
     rm -rf $TMPDIR
+    mkdir -p $TMPDIR
     cd $TMPDIR
     wget -q http://svn.openkomodo.com/openkomodo/checkout/openkomodo/trunk/util/ko-linux-install-test.py
     python ko-linux-install-test.py | tee ko-linux-install-test-$HOSTNAME.log
@@ -16,6 +17,9 @@ Then, if your testing shows something new (e.g., if this is for a distro which
 isn't already mentioned on bug 79495) then please attach the created log file
 to:
     http://bugs.activestate.com/show_bug.cgi?id=79495
+with a message something like:
+    Ubuntu 6.04: failed to install
+    RHEL 9: success installing and starting up
 """
 
 import sys
