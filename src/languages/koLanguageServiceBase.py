@@ -2288,7 +2288,7 @@ class KoLanguageBase:
             return candidate
         prevPos = scimoz.positionBefore(pos)
         prevStyle = scimoz.getStyleAt(prevPos)
-        if (prevStyle != scimoz.getStyleAt(pos):
+        if prevStyle != scimoz.getStyleAt(pos):
             return candidate
         return None
 
