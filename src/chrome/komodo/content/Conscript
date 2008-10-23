@@ -49,6 +49,7 @@ Import(
     'mozVersion',
     'mozMajorVersion',
     'mozMinorVersion',
+    'komodoDevDir',
 );
 
 $cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
@@ -72,8 +73,13 @@ $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('markers.js');
 # $cons->Depends('komodo.unprocessed.xul', 'testmenu.xul');
 
+$cons->Preprocess('credits.p.xhtml', 'credits.xhtml',
+    {'PP_CONTRIBUTORS_PATH' => "$komodoDevDir/CONTRIBUTORS.txt"});
+$cons->InstallInChrome("credits.xhtml");
+$cons->Depends('credits.p.xhtml', "$komodoDevDir/CONTRIBUTORS.txt");
 $cons->InstallInChrome("about.xul");
 $cons->InstallInChrome("about.js");
+
 $cons->Preprocess('testkeys.p.xul', 'testkeys.xul');
 $cons->InstallInChrome("testkeys.xul");
 $cons->Preprocess('testkeys.p.js', 'testkeys.js');

@@ -274,6 +274,15 @@ class svneolstylenative(lsnosvneolstyle):
         for path in self._no_svn_eol_style_files(os.curdir):
             os.system('svn propset svn:eol-style native "%s"' % path)
 
+class sortcontributors(Task):
+    """Sort CONTRIBUTORS.txt."""
+    def make(self):
+        path = "CONTRIBUTORS.txt"
+        content = codecs.open(path, 'r', 'utf-8').read()
+        lines = [ln.strip() for ln in content.splitlines(0) if ln.strip()]
+        lines.sort(key=lambda s: s.split(None, 1)[1])
+        codecs.open(path, 'w', 'utf-8').write('\n'.join(lines))
+
 
 
 #---- internal support stuff

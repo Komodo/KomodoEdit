@@ -73,6 +73,12 @@
         <label value="&buildInformation.label;"/>
         <textbox id="build-info" readonly="true" flex="1" multiline="true"
                  style="background-color: transparent; border: none;"/>
+
+        <vbox flex="1" id="creditsBox" style="height: 100px; margin: 5px;">
+            <iframe id="creditsIframe" 
+                src="chrome://komodo/content/credits.xhtml"
+                flex="1"/>
+        </vbox>
     </vbox>
     <separator class="thin"/>
 

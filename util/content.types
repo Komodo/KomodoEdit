@@ -36,6 +36,7 @@ XML                 .wxs
 XML                 .wxi
 HTML                .htm
 HTML                .html
+XML                 .xhtml
 Makefile            /^[Mm]akefile.*$/
 PHP                 .php
 JavaScript          .js
